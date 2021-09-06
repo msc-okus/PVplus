@@ -1,0 +1,74 @@
+.rotate {
+    writing-mode: vertical-lr;
+    -moz-transform: rotate(-180.0deg); /* FF3.5+ */
+    -o-transform: rotate(-180.0deg); /* Opera 10.5 */
+    -webkit-transform: rotate(-180.0deg); /* Saf3.1+, Chrome */
+}
+
+#asset_report, #asset_report_table_header {
+    border: none !important;
+    text-align: left;
+    page-break-after: always;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+#asset_report_table_header td, #asset_report_table_header th {
+    border: none !important;
+    text-align: left;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.asset_report_table_operations td {
+    border: none !important;
+    background: #fff;
+    text-align: left;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.asset_report_table_operations_data td, .asset_report_table_operations_data th {
+    border: solid 1px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+table .streamdayly th, table .streamdayly td {
+    font-size: 12px !important;
+    border: solid 1px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border-left: 0px !important;
+    border-spacing: 0 !important;
+}
+
+.operations_pb .asset_report_table_operations {
+    page-break-after: always !important;
+}
+
+#header, #operations_a, #operations_b, #operations_c, #operations_d, #operations_e, .operations_pb {
+    page-break-after: always !important;
+}
+
+table {
+    border-spacing: 0px !important;
+}
+
+.asset_report_table_operations_data td .td_values_1 {
+    background-color: #5f8148;
+}
+.asset_report_table_operations_data td .td_values_2 {
+    background-color: #a9d08e;
+}
+.asset_report_table_operations_data td .td_values_3 {
+    background-color: #ffff00;
+}
+.asset_report_table_operations_data td .td_values_4 {
+    background-color: #ffc000;
+}
+.asset_report_table_operations_data td .td_values_5 {
+    background-color: #cc0000;
+}
+
+/*# sourceMappingURL=goldbeck_asset_report.css.map */

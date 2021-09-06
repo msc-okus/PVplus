@@ -1,0 +1,75 @@
+@charset "utf-8";
+@import 'settings';
+@import '../../vendor/zurb/foundation/scss/foundation';
+@include foundation-xy-grid-classes;
+body {
+    margin: 0px 25px 35px;
+    padding: 0px;
+    font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    font-size: 12px;
+}
+* {
+    -webkit-print-color-adjust: exact !important;
+}
+.page-break {
+    page-break-before: always;
+
+    ::after {
+        padding: 20px;
+    }
+}
+
+small {font-size: 80%;}
+
+table{
+    border-collapse: collapse;
+    width: auto !important;
+    margin-bottom: 1.5rem;
+    * {
+        font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+
+    }
+
+    tbody tr:nth-child(even) {
+        border-bottom: 0;
+        background-color: #f1f1f1 !important;
+    }
+
+    .current-month td { background-color: orange;}
+    .sum-forcast td,
+    .sum-real td {
+        font-weight: bold;
+    }
+
+    td, th {
+        border: solid 1px gray;
+        padding: 2px 8px;
+        border-collapse: collapse;
+        font-size: 12px;
+
+        small {font-size: 80%;}
+        .table-center {
+            text-align: center;
+        }
+    }
+    td {
+        text-align: right;
+    }
+    th {
+        background-color: #b4c6e7 !important;
+        font-weight: 600;
+        text-align: left;
+    }
+
+    tr.total *, th {font-weight: bold;}
+}
+
+table.data-month {
+    td, th {text-align: right;}
+}
+
+
+#asset_report_table_header td, #asset_report_table_header th {
+    border: solid 0px !important;
+}
+

@@ -1,0 +1,55 @@
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #f3f3f3;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+h1 {
+  background-color: #0F5694;
+  color: #ffffff;
+  font-weight: normal;
+  font-size: 30px;
+}
+
+h3 {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+hr {
+  border: none;
+  border-top: 3px solid #0F5694;
+  margin: 20px;
+}
+
+.main {
+  min-width: 80%;
+}
+
+.welcome {
+  background-color: #0F5694;
+}
+
+.bottom {
+  background-color: #efefee;
+}
+
+.logo {
+  width: auto;
+}
+
+.text-center {
+  text-align: center;
+}
+
+table.button a {
+  background-color: #0F5694;
+}
+
+table.button table td {
+  background-color: #0F5694;
+  border: 2px solid #0F5694;
+}
+
+/*# sourceMappingURL=email.css.map */

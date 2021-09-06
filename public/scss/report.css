@@ -1,0 +1,38 @@
+body {
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  font-size: 12px;
+}
+
+small {
+  font-size: 80%;
+}
+
+.row {
+  margin-bottom: 20px;
+}
+.row table {
+  border-collapse: collapse;
+  width: 100%;
+}
+.row table tbody tr:nth-child(even) {
+  border-bottom: 0;
+  background-color: #f1f1f1;
+}
+.row table td, .row table th {
+  border: solid 1px gray;
+  padding: 2px 4px;
+  border-collapse: collapse;
+}
+.row table tr.total *, .row table th {
+  font-weight: bold;
+}
+.row table.data-month td, .row table.data-month th {
+  text-align: right;
+}
+
+th {
+  background-color: #b4c6e7;
+  font-weight: 600;
+}
+
+/*# sourceMappingURL=report.css.map */

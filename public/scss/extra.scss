@@ -1,0 +1,93 @@
+@import 'settings';
+
+$alert-box-opacity: 0.2;
+
+.alert-box { padding-right: 3.25rem; width: 100%;
+
+  &.callout {color: $white; font-weight: bold;}
+  &.alert {    border: 3px solid $alert-color;    border-radius: 5px;    background-color:rgba($alert-color, $alert-box-opacity);  }
+  &.warning {    border: 3px solid $warning-color;    border-radius: 5px;    background-color:rgba($warning-color, $alert-box-opacity);  }
+  &.success {    border: 3px solid $success-color;    border-radius: 5px;    background-color:rgba($success-color, $alert-box-opacity);  }
+  &.info {    border: 3px solid $primary-color;    border-radius: 5px;    background-color:rgba($primary-color, $alert-box-opacity);  }
+
+  i {    border: 2px solid $white;    border-radius: 50%;    padding: .3em .325em;    margin-right: 0.5rem;  }
+
+  .close-button {    color: rgba($white, 0.5);    font-size: 2rem;    @include vertical-center;    right: 1rem;    font-weight: bold;  }
+}
+
+$alert-callout-border-left-width: rem-calc(5);
+$alert-callout-border-padding: 1.3rem;
+$alert-callout-border-radius: 0.6rem;
+
+.alert-callout-border {
+  width: 100%;
+  padding: $alert-callout-border-padding;
+  margin-top: 0.5rem;
+  border-left-width: $alert-callout-border-left-width;
+  border-left-color: $medium-gray;
+
+  strong {    color: $body-font-color;  }
+  .close-button {    @include vertical-center;  }
+  &.radius {    border-radius: $alert-callout-border-radius;  }
+  &.primary {
+    border-left-color: $primary-color;
+    strong {      color: $primary-color;    }
+  }
+  &.secondary {
+    border-left-color: $secondary-color;
+    strong {      color: $secondary-color;    }
+  }
+  &.alert {
+    border-left-color: $alert-color;
+    strong {      color: $alert-color;    }
+  }
+  &.success {
+    border-left-color: $success-color;
+    strong {      color: $success-color;    }
+  }
+  &.warning {
+    border-left-color: $warning-color;
+    strong {      color: $warning-color;    }
+  }
+}
+
+// Login Form 1
+.sign-in-form {
+  padding: 1rem 1.5em;
+  border-radius: .5rem;
+  background-color: #3d454f;
+
+  h4 {color: white; margin-bottom: 1rem; font-weight: 600; text-transform: uppercase}
+  label {text-transform: uppercase; color: #adadad; letter-spacing: 1px; font-weight: 600; margin-bottom: 1rem;}
+  input {color: white;}
+  input:focus {opacity: .8;}
+}
+
+.sign-in-form-username,
+.sign-in-form-password {
+  border-radius: 30px;
+  border: none;
+  opacity: .1;
+  transition: all ease .4s;
+}
+
+.sign-in-form-button {
+  border-radius: 30px;
+  border: 1px solid #fff;
+  color: #fff;
+  background-color: transparent;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  width: 100%;
+  padding: 1rem;
+  transition: all ease .4s;
+
+  &:hover {background-color: #44c8ed; border-color: #44c8ed;}
+}
+
+// Login Form 2
+.log-in-form {
+  border: 1px solid $medium-gray;
+  padding: $form-spacing;
+  border-radius: $global-radius;
+}
