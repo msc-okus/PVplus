@@ -1,0 +1,43 @@
+
+
+{{ form_start(stationForm, {'attr': {'novalidate': 'no'}}) }}
+<div class="grid-x">
+    <div class="cell">
+        <ul class="tabs" data-tabs id="weather" data-deep-link="true">
+            <li class="tabs-title is-active"><a href="#base" aria-selected="true">Base Info</a></li>
+        </ul>
+
+        <div class="tabs-content" data-tabs-content="weather">
+            <div class="tabs-panel is-active" id="base">
+                {{ form_row(stationForm.type) }}
+                {{ form_row(stationForm.databaseIdent) }}
+                {{ form_row(stationForm.location) }}
+                {{ form_row(stationForm.description) }}
+                {{ form_row(stationForm.hasUpper) }}
+                {{ form_row(stationForm.labelUpper) }}
+                {{ form_row(stationForm.hasLower) }}
+                {{ form_row(stationForm.labelLower) }}
+                {{ form_row(stationForm.hasHorizontal) }}
+                {{ form_row(stationForm.labelHorizontal) }}
+                {{ form_row(stationForm.changeSensor) }}
+                {{ form_row(stationForm.timeZoneWeatherStation) }}
+                {{ form_row(stationForm.hasPannelTemp) }}
+            </div>
+        </div>
+
+    </div>
+
+
+</div>
+
+<div class="grid-x">
+    <div class="cell">
+        {{ form_widget(stationForm.save) }}
+        {{ form_widget(stationForm.saveclose) }}
+        {{ form_widget(stationForm.close) }}
+    </div>
+</div>
+{{ form_end(stationForm) }}
+
+
+

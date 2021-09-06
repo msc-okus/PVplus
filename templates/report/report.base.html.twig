@@ -1,0 +1,34 @@
+{% apply inline_css(source('@pdf/report.css'))  %}
+
+
+
+{% set sumSpecYield = 0 %}
+{% set sumIrradiation = 0 %}
+{% set count = 1 %}
+
+{% for pr in report.prs %}
+    {% if anlage.useGridMeterDayData %}
+        {% set sumSpecYield                 = sumSpecYield + (pr.powerEGridExt / anlage.power) %}
+    {% else %}
+        {% set sumSpecYield                 = sumSpecYield + (pr.powerEvu / anlage.power) %}
+    {% endif %}
+    {% set sumIrradiation               = sumIrradiation + pr.irradiation %}
+
+{% endfor %}
+
+
+
+
+<html>
+<header>
+
+</header>
+<body>
+<div class="container">
+    {%- block content %}
+
+    {% endblock -%}
+</div>
+</body>
+</html>
+{% endapply %}

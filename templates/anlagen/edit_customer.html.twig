@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %}
+
+
+{% block body %}
+    <div class="grid-x">
+        <div class="cell">
+            <h1>Edit Plant {{ anlage.anlName }} / {{ anlage.eigner.firma }}</h1>
+        </div>
+    </div>
+    {{ include('anlagen/_form_customer.html.twig') }}
+{% endblock %}
+
+
+{% block title %}
+    {{  parent() }}edit Plant
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        {# legend-monthly #}
+        var $wrapper_monthly = $('.js-legend-monthly-wrapper');
+        $wrapper_monthly.on('click', '.js-remove-legend-monthly', function(e) {
+            e.preventDefault();
+            $(this).closest('.js-legend-monthly-item')
+                .remove();
+        });
+        $wrapper_monthly.on('click', '.js-add-legend-monthly', function(e) {
+            e.preventDefault();
+            var prototype = $wrapper_monthly.data('prototype');
+            var index = $wrapper_monthly.data('index');
+            var newForm = prototype.replace(/__name__/g, index);
+            $wrapper_monthly.data('index', index + 1);
+            $('#legend-monthly>tbody').append(newForm);
+        });
+
+        {# legend-monthly #}
+        var $wrapper_epc = $('.js-legend-epc-wrapper');
+        $wrapper_epc.on('click', '.js-remove-legend-epc', function(e) {
+            e.preventDefault();
+            $(this).closest('.js-legend-epc-item')
+                .remove();
+        });
+        $wrapper_epc.on('click', '.js-add-legend-epc', function(e) {
+            e.preventDefault();
+            var prototype = $wrapper_epc.data('prototype');
+            var index = $wrapper_epc.data('index');
+            var newForm = prototype.replace(/__name__/g, index);
+            $wrapper_epc.data('index', index + 1);
+            $('#legend-epc>tbody').append(newForm);
+        });
+
+        {# pvsyst #}
+        var $wrapper_pvsyst = $('.js-pvsyst-wrapper');
+        $wrapper_pvsyst.on('click', '.js-remove-pvsyst', function(e) {
+            e.preventDefault();
+            $(this).closest('.js-pvsyst-item')
+                .remove();
+        });
+        $wrapper_pvsyst.on('click', '.js-add-pvsyst', function(e) {
+            e.preventDefault();
+            var prototype = $wrapper_pvsyst.data('prototype');
+            var index = $wrapper_pvsyst.data('index');
+            var newForm = prototype.replace(/__name__/g, index);
+            $wrapper_pvsyst.data('index', index + 1);
+            $('#pvsyst-values>tbody').append(newForm);
+        });
+
+        {# monthly-yield #}
+        var $wrapper_yield = $('.js-monthly-yield-wrapper');
+        $wrapper_yield.on('click', '.js-remove-monthly-yield', function(e) {
+            e.preventDefault();
+            $(this).closest('.js-monthly-yield-item')
+                .remove();
+        });
+        $wrapper_yield.on('click', '.js-add-monthly-yield', function(e) {
+            e.preventDefault();
+            var prototype = $wrapper_yield.data('prototype');
+            var index = $wrapper_yield.data('index');
+            var newForm = prototype.replace(/__name__/g, index);
+            $wrapper_yield.data('index', index + 1);
+            $('#monthly-yield-values>tbody').append(newForm);
+        });
+    </script>
+{% endblock %}

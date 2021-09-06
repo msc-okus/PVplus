@@ -1,0 +1,164 @@
+<!DOCTYPE HTML>
+<head>
+    <meta charset="UTF-8">
+    <title>Green4Net PVplus 4.0 - {% block title %}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="keywords" content="dashboard,green4net,g4npvplus,performance ratio,solar,wind,photovoltaik,monitoring"/>
+
+    {% block styles %}
+        <link href="{{ asset('scss/app.css') }}" rel='stylesheet' type='text/css'/>
+        <link href="{{ asset('scss/overwrites.css') }}" rel='stylesheet' type='text/css'/>
+    {% endblock %}
+
+    {% block javascriptstop %}
+        <script src="{{ asset('foundation/jquery/jquery.min.js') }}" type="text/javascript"></script>
+        <script src="https://kit.fontawesome.com/536afbb11b.js" crossorigin="anonymous"></script>
+    {% endblock %}
+
+</head>
+<body class="">
+<header class="grid-container fluid">
+    <div class="top-bar" >
+        <div class="top-bar-left">
+            <div class="logo">
+                <a href="{{ path('app_dashboard') }}"><img src="{{ asset('images/green4net.jpg') }}" border="0" alt="green4net GmbH" title="green4net GmbH" height="70" width="200"></a>
+            </div>
+            <div class="menu-button">
+                <button type="button" class="button-hamburger" data-toggle="offCanvas"><i class="fa fa-bars"></i></button>
+            </div>
+            {%  if is_granted('ROLE_ADMIN') %}
+            <div class="helper-messages">
+                <p>
+                    <br>{{ app.user.rolesAsString }}
+                </p>
+            </div>
+            {% endif %}
+        </div>
+        <div class="top-bar-right">
+            {% if is_granted('ROLE_USER') %}
+            <div class="header-menu">
+                <ul class="menu vertical">
+                    {% if (app.user) %}
+                        <li><a href=""><i class="fa fa-clock-o"></i> <span id="uhr"></span></a></li>
+                        <li><a href="{{ path('app_logout') }}"><i class="fa fa-sign-out"></i> Logout</a></li>
+                        <li><a href="#"><i class="fa fa-user"></i>  {{ app.user.username }} </a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</header>
+
+<div class="alert-wrapper">
+    {% for message in app.flashes('error') %}
+        <div data-closable data-alert class="my-alert-box callout alert-callout-border alert">
+            {{ message }}
+            <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+    {% for message in app.flashes('warning') %}
+        <div data-closable data-alert class="my-alert-box callout alert-callout-border warning">
+            {{ message }}
+            <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+    {% for message in app.flashes('success') %}
+        <div data-closable data-alert class="my-alert-box callout alert-callout-border success">
+            {{ message }}
+            <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+</div>
+
+<div id="offCanvas" class="off-canvas position-leftis-closed" data-transition="overlap" data-off-canvas>
+    <nav>
+        <p class="menu-headline">Main Navigation</p>
+        <ul class="vertical menu accordion-menu" data-accordion-menu>
+            {% if is_granted('ROLE_G4N') %}
+                <li><a href="{{ path('app_dashboard') }}"><i class="fa fa-dashboard"></i><span> Dashboard</span></a></li>
+                <li><a href="{{ path('app_download') }}"><i class="fa fa-file-download"></i><span> Download Old</span></a></li>
+                <li><a href="{{ path('app_analyse_download') }}"><i class="fa fa-file-download"></i><span> Download</span></a></li>
+                <li><a href="{{ path('app_reporting_list') }}"><i class="fa fa-chart-area"></i><span> Reporting</span></a></li>
+                <li><a href="{{ path('app_log_list') }}"><i class="fa fa-book"></i><span> Log</span></a></li>
+                <li>
+                    <a href="#"><i class="fa fa-laptop"></i><span> Administration</span></a>
+                    <ul class="vertical menu nested">
+                        <li><a href="{{ path('app_admin_owner_list') }}"><i class="fa fa-users"></i> Owners</a></li>
+                        <li><a href="{{ path('app_admin_anlagen_list') }}"><i class="fa fa-solar-panel"></i><span> Plants</span></a></li>
+                        {% if is_granted('ROLE_ADMIN') %}<li><a href="{{ path('app_admin_user_list') }}"><i class="fa fa-user-edit"></i> User</a></li>{% endif %}
+                        {% if is_granted('ROLE_DEV') %}<li><a href="{{ path('app_admin_weather_list') }}"><i class="fa fa-cloud-sun-rain"></i> Weather Stations</a></li>{% endif %}
+                        <li><a href="{{ path('app_admin_tools') }}"><i class="fa fa-toolbox"></i> Tools</a></li>
+                    </ul>
+                </li>
+            {% else %}
+                <li><a href="{{ path('app_dashboard') }}"><i class="fa fa-dashboard"></i><span> Dashboard</span></a></li>
+                <li><a href="{{ path('app_analyse_download') }}"><i class="fa fa-file-download"></i><span> Download</span></a></li>
+                <li><a href="{{ path('app_reporting_list') }}"><i class="fa fa-chart-area"></i><span> Reporting</span></a></li>
+                <li><a href="{{ path('app_anlagen_list') }}"><i class="fa fa-solar-panel"></i><span> Plants</span></a></li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+<div class="off-canvas-content" data-off-canvas-content>
+    <main class="grid-container fluid">
+        <div class="grid-x grid-margin-x grid-padding-x">
+            <div class="cell small-12">
+                {% block body %}{% endblock %}
+            </div>
+        </div>
+    </main>
+    <footer class="grid-container fluid">
+        <div class="grid-x">
+            <div class="cell">
+                <p class="text-center">&copy; 2018 - 2021 Green4Net - All Rights Reserved - PV+ 4.0 v2.0.20 - beta</p>
+            </div>
+        </div>
+    </footer>
+</div>
+{% block javascripts %}
+    <script src="{{ asset('foundation/what-input/what-input.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('foundation/js/plugins/foundation.core.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('foundation/js/plugins/foundation.util.box.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('foundation/js/plugins/foundation.util.imageLoader.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('foundation/js/plugins/foundation.util.keyboard.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('foundation/js/plugins/foundation.util.mediaQuery.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('foundation/js/plugins/foundation.util.motion.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('foundation/js/plugins/foundation.util.nest.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('foundation/js/plugins/foundation.util.timer.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('foundation/js/plugins/foundation.util.touch.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('foundation/js/plugins/foundation.util.triggers.min.js') }}" type="text/javascript"></script>
+    {# <script src="{{ asset('foundation/js/plugins/foundation.abide.min.js') }}" type="text/javascript"></script>#}
+    <script src="{{ asset('foundation/js/plugins/foundation.accordion.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('foundation/js/plugins/foundation.accordionMenu.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('foundation/js/plugins/foundation.drilldown.min.js') }}" type="text/javascript"></script>
+    {# <script src="{{ asset('foundation/js/plugins/foundation.dropdown.min.js') }}" type="text/javascript"></script> #}
+    <script src="{{ asset('foundation/js/plugins/foundation.dropdownMenu.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('foundation/js/plugins/foundation.equalizer.min.js') }}" type="text/javascript"></script>
+    {# <script src="{{ asset('foundation/js/plugins/foundation.interchange.min.js') }}" type="text/javascript"></script> #}
+    {# <script src="{{ asset('foundation/js/plugins/foundation.magellan.min.js') }}" type="text/javascript"></script> #}
+    <script src="{{ asset('foundation/js/plugins/foundation.offcanvas.min.js') }}" type="text/javascript"></script>
+    {# <script src="{{ asset('foundation/js/plugins/foundation.orbit.min.js') }}" type="text/javascript"></script> #}
+    <script src="{{ asset('foundation/js/plugins/foundation.reveal.min.js') }}" type="text/javascript"></script>
+    {# <script src="{{ asset('foundation/js/plugins/foundation.slider.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('foundation/js/plugins/foundation.smoothScroll.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('foundation/js/plugins/foundation.sticky.min.js') }}" type="text/javascript"></script> #}
+    <script src="{{ asset('foundation/js/plugins/foundation.tabs.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('foundation/js/plugins/foundation.toggler.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('foundation/js/plugins/foundation.tooltip.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('foundation/js/plugins/foundation.responsiveAccordionTabs.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('foundation/js/plugins/foundation.responsiveMenu.min.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('foundation/js/plugins/foundation.responsiveToggle.min.js') }}" type="text/javascript"></script>
+
+    <script src="{{ asset('foundation/datepicker/foundation-datepicker.js') }}" type="text/javascript"></script>
+
+    <script src="{{ asset('jsNew/app.js') }}" type="text/javascript"></script>
+{% endblock %}
+</body>
+</html>

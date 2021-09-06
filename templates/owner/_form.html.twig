@@ -1,0 +1,62 @@
+
+
+{{ form_start(ownerForm, {'attr': {'novalidate': 'no'}}) }}
+<div class="grid-x">
+    <div class="cell">
+        <ul class="tabs" data-tabs id="example-tabs" data-deep-link="true">
+            <li class="tabs-title is-active"><a href="#owner1" aria-selected="true">Owner</a></li>
+            <li class="tabs-title"><a data-tabs-target="owner2" href="#owner2">Operator</a></li>
+            {% if is_granted('ROLE_G4N') %}<li class="tabs-title"><a data-tabs-target="owner3" href="#owner3">Settings</a></li>{% endif %}
+        </ul>
+
+        <div class="tabs-content" data-tabs-content="example-tabs">
+            <div class="tabs-panel is-active" id="owner1">
+                {{ form_row(ownerForm.firma) }}
+                {{ form_row(ownerForm.zusatz) }}
+                {{ form_row(ownerForm.strasse) }}
+                {{ form_row(ownerForm.plz) }}
+                {{ form_row(ownerForm.ort) }}
+                {{ form_row(ownerForm.anrede) }}
+                {{ form_row(ownerForm.vorname) }}
+                {{ form_row(ownerForm.nachname) }}
+                {{ form_row(ownerForm.telefon1) }}
+                {{ form_row(ownerForm.telefon2) }}
+                {{ form_row(ownerForm.fax) }}
+                {{ form_row(ownerForm.mobil) }}
+                {{ form_row(ownerForm.email) }}
+            </div>
+            <div class="tabs-panel" id="owner2">
+                {{ form_row(ownerForm.bv_anrede) }}
+                {{ form_row(ownerForm.bv_vorname) }}
+                {{ form_row(ownerForm.bv_nachname) }}
+                {{ form_row(ownerForm.bv_telefon1) }}
+                {{ form_row(ownerForm.bv_telefon2) }}
+                {{ form_row(ownerForm.bv_mobil) }}
+                {{ form_row(ownerForm.bv_email) }}
+            </div>
+            {% if is_granted('ROLE_G4N') %}
+            <div class="tabs-panel" id="owner3">
+                {{ form_row(ownerForm.active) }}
+                {{ form_row(ownerForm.editlock) }}
+                {{ form_row(ownerForm.userlock) }}
+                {{ form_row(ownerForm.language) }}
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+
+
+</div>
+
+<div class="grid-x grid-margin-x grid-padding-x action-menu">
+    <div class="cell">
+        {{ form_widget(ownerForm.save) }}
+        {{ form_widget(ownerForm.saveclose) }}
+        {{ form_widget(ownerForm.close) }}
+    </div>
+</div>
+{{ form_end(ownerForm) }}
+
+
+

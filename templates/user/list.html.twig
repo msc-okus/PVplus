@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+{% import 'macros/macros.library.html.twig' as macrolibrary %}
+
+{% block title %}List User{% endblock %}
+
+{% block body %}
+    <h1>List Users</h1>
+    {{ macrolibrary.searchbox(app.request.query.get('qu'), 'qu') }}
+    <table class="table">
+        <thead>
+        <tr>
+            <th></th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Owner Access List</th>
+            <th>Role</th>
+            <th>Level</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for user in pagination %}
+            <tr>
+                <td>{{ user.userId }}</td>
+                <td>{{ user.userName }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.accessListText }}</td>
+                <td>{{ user.rolesAsString }}</td>
+                <td>{{ user.level }}</td>
+                <td><a href="{{ path('app_admin_user_edit', {id: user.userId}) }}"><span class="fa fa-pencil"></span></a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {{ knp_pagination_render(pagination) }}
+    <a class="button primary" href="{{ path('app_admin_user_new') }}">Create New</a>
+{% endblock %}

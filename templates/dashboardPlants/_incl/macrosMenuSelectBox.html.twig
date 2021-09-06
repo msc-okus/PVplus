@@ -1,0 +1,52 @@
+{% macro acActGroup(form, aktAnlage) %}
+    <option value="ac_act_group" {% if form.selectedChart == 'ac_act_group' %}selected{% endif %}>
+        {% if aktAnlage.configType == 1 %}
+            AC - Actual & Expected, Groups
+        {% elseif aktAnlage.configType == 2 %}
+            AC - Actual & Expected, Inverters
+        {% elseif aktAnlage.configType == 3 %}
+            AC - Actual & Expected, Inverters
+        {% else %}
+            AC - Actual & Expected, Groups
+        {% endif %}
+    </option>
+{% endmacro %}
+
+
+{% macro dcActGroup(form, aktAnlage) %}
+    <option value="dc_act_group" {% if form.selectedChart == 'dc_act_group' %}selected{% endif %}>
+        {% if aktAnlage.configType == 1 %}
+            DC - Actual & Expected, Inverters
+        {% elseif aktAnlage.configType == 2 %}
+            DC - Actual & Expected, Inverters
+        {% elseif aktAnlage.configType == 3 %}
+            DC - Actual & Expected, SCBs
+        {% else %}
+            DC - Actual & Expected, Groups
+        {% endif %}
+    </option>
+{% endmacro %}
+
+{% macro dcGroupPowerDiff(form, aktAnlage) %}
+    <option value="dc_grp_power_diff" {% if form.selectedChart == 'dc_grp_power_diff' %}selected{% endif %}>
+        {% if aktAnlage.configType == 1 %}
+            DC - Inverter
+        {% elseif aktAnlage.configType == 2 %}
+            DC - Inverter
+        {% elseif aktAnlage.configType == 3 %}
+            DC - Inverter
+        {% else %}
+            DC - Inverter
+        {% endif %}
+    </option>
+{% endmacro %}
+
+
+{% macro irradiation(form, aktAnlage) %}
+    {% if aktAnlage.showOnlyUpperIrr and not is_granted('ROLE_ADMIN') %}
+        <option value="irradiation_one" {% if form.selectedChart == 'irradiation_one' %}selected{% endif %}>Irradiation</option>
+    {% else %}
+        <option value="irradiation" {% if form.selectedChart == 'irradiation' %}selected{% endif %}>Irradiation</option>
+        {% if aktAnlage.showGraphIrrPlant or is_granted('ROLE_ADMIN') %}<option value="irradiation_plant" {% if form.selectedChart == 'irradiation_plant' %}selected{% endif %}>Irradiation Plant</option>{% endif %}
+    {% endif %}
+{% endmacro %}

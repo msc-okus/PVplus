@@ -1,0 +1,88 @@
+{{ form_start(anlageForm, {'attr': {'novalidate': 'no'} }) }}
+<div class="grid-x">
+    <div class="cell medium-10">
+        <ul class="tabs" data-tabs id="example-tabs">
+            <li class="tabs-title is-active"><a data-tabs-target="plant1" href="#plant1" aria-selected="true" >General</a></li>
+        </ul>
+
+        <div class="tabs-content" data-tabs-content="example-tabs">
+            {# General #}
+            <div class="tabs-panel is-active" id="plant1">
+
+                <fieldset class="fieldset">
+                    <legend>Standort</legend>
+                    <div class="grid-x grid-margin-x grid-padding-x">
+                        <div class="cell medium-6">
+                            {% if is_granted('ROLE_G4N') %}
+                                {{ form_row(anlageForm.eigner) }}
+                            {% endif %}
+                            {{ form_row(anlageForm.anlName) }}
+                        </div>
+                        <div class="cell medium-6">
+                            {{ form_row(anlageForm.anlStrasse) }}
+                            {{ form_row(anlageForm.anlPlz) }}
+                            {{ form_row(anlageForm.anlOrt) }}
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="grid-x grid-margin-x grid-padding-x">
+                        <div class="cell medium-6">
+                            {{ form_row(anlageForm.anlGeoLat) }}
+                        </div>
+                        <div class="cell medium-6">
+                            {{ form_row(anlageForm.anlGeoLon) }}
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="grid-x grid-margin-x grid-padding-x">
+                        <div class="cell">
+                            {{ form_row(anlageForm.notes)}}
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="fieldset">
+                    <legend>Basis Konfiguration</legend>
+                    <div class="grid-x grid-padding-x">
+                        <div class="cell medium-3">{{ form_row(anlageForm.anlIntnr) }}</div>
+                        <div class="cell medium-3">{{ form_row(anlageForm.useNewDcSchema) }}</div>
+                        <div class="cell medium-3">{{ form_row(anlageForm.anlDbUnit) }}</div>
+                        <div class="cell medium-3">{{ form_row(anlageForm.power) }}</div>
+                    </div>
+                    <div class="grid-x grid-padding-x">
+                        <div class="cell medium-3">{{ form_row(anlageForm.anlType) }}</div>
+                        <div class="cell medium-3">{{ form_row(anlageForm.anlZeitzone) }}</div>
+                        <div class="cell medium-3">{{ form_row(anlageForm.anlInputDaily) }}</div>
+                        <div class="cell medium-3">{{ form_row(anlageForm.anlBetrieb) }}</div>
+                    </div>
+                </fieldset>
+                <fieldset class="fieldset">
+                    <legend>Konfiguration Wetter Daten</legend>
+                    <div class="grid-x grid-padding-x">
+                        <div class="cell medium-3">{{ form_row(anlageForm.WeatherStation) }}</div>
+                        <div class="cell medium-3"></div>
+                        <div class="cell medium-3"></div>
+                        <div class="cell medium-3"></div>
+                    </div>
+                    <div class="grid-x grid-padding-x">
+                        <div class="cell medium-3"></div>
+                        <div class="cell medium-3"></div>
+                        <div class="cell medium-3"></div>
+                        <div class="cell medium-3"></div>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid-x grid-padding-y action-menu">
+    <div class="cell">
+        {{ form_widget(anlageForm.save) }}
+        {{ form_widget(anlageForm.saveclose) }}
+        {{ form_widget(anlageForm.close) }}
+    </div>
+</div>
+{{ form_end(anlageForm) }}
+
+
+

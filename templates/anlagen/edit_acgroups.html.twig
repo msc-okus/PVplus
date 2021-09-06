@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="grid-x">
+        <div class="cell">
+            <h1>Edit Plant {{ anlage.anlName }} / {{ anlage.eigner.firma }}</h1>
+        </div>
+    </div>
+    {{ include('anlagen/_form_acgroups.html.twig') }}
+{% endblock %}
+
+
+{% block title %}
+    {{  parent() }}edit Plant
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        {# AC Gruppe #}
+        var $wrapper_acgroup = $('.js-acgroup-wrapper');
+        $wrapper_acgroup.on('click', '.js-remove-acgroup', function(e) {
+            e.preventDefault();
+            $(this).closest('.js-acgroup-item')
+                .remove();
+        });
+        $wrapper_acgroup.on('click', '.js-add-acgroup', function(e) {
+            e.preventDefault();
+            var prototype = $wrapper_acgroup.data('prototype');
+            var index = $wrapper_acgroup.data('index');
+            var newForm = prototype.replace(/__name__/g, index);
+            $wrapper_acgroup.data('index', index + 1);
+            $('#js-acgroup>tbody').append(newForm);
+            Foundation.reInit('accordion');
+        });
+    </script>
+{% endblock %}

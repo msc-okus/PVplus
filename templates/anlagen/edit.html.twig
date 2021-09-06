@@ -1,0 +1,56 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="grid-x">
+        <div class="cell">
+            <h1>Edit Plant {{ anlage.anlName }} / {{ anlage.eigner.firma }}</h1>
+        </div>
+    </div>
+    {{ include('anlagen/_form.html.twig') }}
+{% endblock %}
+
+
+{% block title %}
+    {{  parent() }}edit Plant
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        {# Module #}
+        var $wrapper_module = $('.js-module-wrapper');
+        $wrapper_module.on('click', '.js-remove-module', function(e) {
+            e.preventDefault();
+            $(this).closest('.js-module-item')
+                .remove();
+        });
+        $wrapper_module.on('click', '.js-add-module', function(e) {
+            e.preventDefault();
+            var prototype = $wrapper_module.data('prototype');
+            var index = $wrapper_module.data('index');
+            var newForm = prototype.replace(/__name__/g, index);
+            $wrapper_module.data('index', index + 1);
+            $('#modules>ul').append(newForm);
+            Foundation.reInit('accordion');
+        });
+
+        {# time Config #}
+        var $wrapper_timeconfig = $('.js-timeConfig-wrapper');
+        $wrapper_timeconfig.on('click', '.js-remove-timeConfig-module', function(e) {
+            e.preventDefault();
+            $(this).closest('.js-timeConfig-item')
+                .remove();
+        });
+        $wrapper_timeconfig.on('click', '.js-add-timeConfig', function(e) {
+            console.log('test');
+            e.preventDefault();
+            var prototype = $wrapper_timeconfig.data('prototype');
+            var index = $wrapper_timeconfig.data('index');
+            var newForm = prototype.replace(/__name__/g, index);
+            $wrapper_timeconfig.data('index', index + 1);
+            $('#timeConfig>tbody').append(newForm);
+        });
+
+    </script>
+{% endblock %}

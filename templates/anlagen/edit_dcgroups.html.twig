@@ -1,0 +1,90 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="grid-x">
+        <div class="cell">
+            <h1>Edit Plant {{ anlage.anlName }} / {{ anlage.eigner.firma }}</h1>
+        </div>
+    </div>
+    {{ include('anlagen/_form_dcgroups.html.twig') }}
+{% endblock %}
+
+
+{% block title %}
+    {{  parent() }}edit Plant
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        {# Gruppen #}
+        var $wrapper_group = $('.js-group-wrapper');
+        $wrapper_group.on('click', '.js-remove-group', function(e) {
+            e.preventDefault();
+            $(this).closest('.js-group-item')
+                .remove();
+        });
+        $wrapper_group.on('click', '.js-add-group', function(e) {
+            e.preventDefault();
+            var prototype = $wrapper_group.data('prototype');
+            var index = $wrapper_group.data('index');
+            var newForm = prototype.replace(/__name__/g, index);
+            $wrapper_group.data('index', index + 1);
+            $('#group>ul').append(newForm);
+            Foundation.reInit('accordion');
+        });
+
+        {# Gruppen - Module #}
+        var $wrapper_use_module = $('.js-use-module-wrapper');
+        $wrapper_use_module.on('click', '.js-remove-use-module', function(e) {
+            e.preventDefault();
+            $(this).closest('.js-use-module-item')
+                .remove();
+        });
+        $wrapper_use_module.on('click', '.js-add-use-module', function(e) {
+            console.log('Yes');
+            e.preventDefault();
+            var prototype = $wrapper_use_module.data('prototype');
+            var index = $wrapper_use_module.data('index');
+            var groupId = e.currentTarget.dataset.groupid;
+            var newForm = prototype.replace(/__name__/g, index).replace(/_groups_0/g, '_groups_'+(groupId-1)).replace(/\[groups\]\[0\]/g, '\[groups\]\['+(groupId-1)+'\]');
+            $wrapper_use_module.data('index', index + 1);
+            $("#use-modules-"+groupId+">tbody").append(newForm);
+        });
+
+
+        {# Gruppen - Monate #}
+        var $wrapper_month = $('.js-month-wrapper');
+        $wrapper_month.on('click', '.js-remove-month', function(e) {
+            e.preventDefault();
+            $(this).closest('.js-month-item')
+                .remove();
+        });
+        $wrapper_month.on('click', '.js-add-month', function(e) {
+            e.preventDefault();
+            var prototype = $wrapper_month.data('prototype');
+            var index = $wrapper_month.data('index');
+            var groupId = e.currentTarget.dataset.groupid;
+            var newForm = prototype.replace(/__name__/g, index).replace(/_groups_0/g, '_groups_'+(groupId-1)).replace(/\[groups\]\[0\]/g, '\[groups\]\['+(groupId-1)+'\]');
+            $wrapper_month.data('index', index + 1);
+            $('#months-'+groupId+'>tbody').append(newForm);
+        });
+
+        {# Anlagen - Monate #}
+        var $wrapper_plant_month = $('.js-plant-month-wrapper');
+        $wrapper_plant_month.on('click', '.js-remove-plant-month', function(e) {
+            e.preventDefault();
+            $(this).closest('.js-plant-month-item')
+                .remove();
+        });
+        $wrapper_plant_month.on('click', '.js-add-plant-month', function(e) {
+            e.preventDefault();
+            var prototype = $wrapper_plant_month.data('prototype');
+            var index = $wrapper_plant_month.data('index');
+            var newForm = prototype.replace(/__name__/g, index);
+            $wrapper_plant_month.data('index', index + 1);
+            $('#plant-months>tbody').append(newForm);
+        });
+    </script>
+{% endblock %}

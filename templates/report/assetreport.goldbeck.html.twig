@@ -1,0 +1,820 @@
+{% extends 'report/assetreport.base.html.twig' %}
+
+{% block body %}
+    <div class="container">
+        {%- block content %}
+            <div id="asset_report" style="min-height: 50vh;">
+                <div class="grid-x" id="header">
+                    <div class="cell medium-12">
+                        <table id="asset_report_table_header">
+                            <tr>
+                                <td style="text-align: left; color: #0a156a"><h1 style="font-family: Helvetica; font-size: 35px; border: none">Asset Management Weekly/Monthly Report <span style="color: #fbba00;">Solar</span></h1></td>
+                                <td style="font-family: Helvetica; font-size: 35px; vertical-align: top; color:#0a156a;">goldbeck<span style="color: #fbba00;">solar</span></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left"><img src="https://dev.g4npvplus.net/goldbeck/reports/asset_management/report_header.jpg"></td>
+                                <td rowspan="2" style="vertical-align: bottom;"><img src="https://dev.g4npvplus.net/goldbeck/reports/asset_management/report_header_down_right.jpg"></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left;">
+                                    <h2 style="font-family: Century Gothic; color: #8e99b0">Weekly/Monthly Report <span style="color: #fbba00;">Solar - {{ month }} {{ year }}</span></h2>
+                                    <h3 style="color: #9aacc3">Kazakhstan Portfolio:</h3>
+                                    <p style="font-family: Century Gothic; color: #88a3bc; size:20px">
+                                        SES SARAN<br>
+                                        AKADYR<br>
+                                        AKADYR EXTENTION
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div id="operations_a" class="grid-x grid-margin-x">
+                    <div class="cell medium-6">
+                        <h2>Operations</h2>
+                        <h3 style="color: #fbba00;">A) Production</h3>
+                        <span style="color: #76aad8;">yearly expected vs. actuals</span>
+                        <table class="asset_report_table_operations_data">
+                                    <thead>
+                                    <tr>
+                                        <th></th>
+                                        {% for data in dataMmonthArray %}
+                                            <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">{{ data }}</div></th>
+                                        {% endfor %}
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td>Yield (Grid meter)</td>{% for data in table_overview_monthly.powerEvu %}<td>{{ data }}</td>{% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td>Expected PV SYST</td>{% for data in table_overview_monthly.expectedPvSyst %}<td>{{ data }}</td>{% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td>Expected g4n</td>{% for data in table_overview_monthly.powerExp %}<td>{{ data }}</td>{% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td>Inverter out</td>{% for data in table_overview_monthly.powerAct %}<td>{{ data }}</td>{% endfor %}
+                                    </tr>
+                                    </tbody>
+                                </table>
+                        <div style="border: solid #fbba00 1px">
+                            {{ operations_freetext_one|raw }}<br><br>
+                            Difference to PVSyst:
+                            Reasons:<br>
+                            Consequences:<br>
+                            Mitigants:Improvements:<br><br>
+
+
+                            Difference to Green4Net:<br>
+                            Reasons:<br>
+                            Consequences:<br>
+                            Mitigants/Improvement:
+                        </div>
+                    </div>
+                    <div class="cell medium-6">
+                        {{ operations_right|raw }}
+                    </div>
+                    <!--
+                            </td>
+                            <td style="vertical-align: bottom !important;">
+
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border: solid 1px #fbba00 !important;">
+
+                            </td>
+                            <td></td>
+                        </tr>
+                    </table>-->
+                </div>
+                <div id="operations_b">
+                    <table class="asset_report_table_operations">
+                        <tr>
+                            <td style="vertical-align: bottom !important;padding-left:10px !important; width:800px;">
+                                <div>
+                                    <h2>Operations</h2>
+                                    <h3 style="color: #fbba00;">B) Production</h3>
+                                    <span style="color: #76aad8;">monthly expected vs. actuals</span>
+                                    {{ operations_monthly_left|raw }}
+                                </div>
+
+                            </td>
+                            <td style="vertical-align: bottom !important;">
+                                <table class="asset_report_table_operations_data">
+                                    <thead>
+                                        <tr>
+                                            <th rowspan="3"><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Month</div></th>
+                                            <th rowspan="2"><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Yield (Grid meter)</div></th>
+                                            <th rowspan="2"><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Expected PV SYST</div></th>
+                                            <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Difference</div></th>
+                                            <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Difference</div></th>
+                                        </tr>
+                                        <tr>
+                                            <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Yield - Exp. PV SYST</div></th>
+                                            <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">ld - Exp. PV SYST</div></th>
+                                        </tr>
+                                        <tr>
+                                            <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">[kWh]</div></th>
+                                            <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">[kWh]</div></th>
+                                            <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">[kWh]</div></th>
+                                            <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">[%]</div></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            {% for data in operations_monthly_right_tupper_tr1 %}
+                                                {% if (data > -2) %}{% set color = "#5f8148" %}{% endif %}
+                                                {% if (data < -2) %}{% set color = "#a9d08e" %}{% endif %}
+                                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                                {% if (data == 0.000) %}{% set color = "#fff" %}{% endif %}
+                                                <td {% if (loop.index == 5) %}style="background-color:{{ color }};" {% endif %}>{{ data|replace({'.': ','}) }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                        <tr>
+                                            <td>Q I(Jan - Mar)</td>
+                                            {% for data in operations_monthly_right_tupper_tr2 %}
+                                                {% if (data > -2) %}{% set color = "#5f8148" %}{% endif %}
+                                                {% if (data < -2) %}{% set color = "#a9d08e" %}{% endif %}
+                                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                                {% if (data == 0.000) %}{% set color = "#fff" %}{% endif %}
+                                                <td {% if (loop.index == 4) %}style="background-color:{{ color }};" {% endif %}>{{ data|replace({'.': ','}) }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                        <tr>
+                                            <td>Q II(Apr - Jun)</td>
+                                            {% for data in operations_monthly_right_tupper_tr3 %}
+                                                {% if (data > -2) %}{% set color = "#5f8148" %}{% endif %}
+                                                {% if (data < -2) %}{% set color = "#a9d08e" %}{% endif %}
+                                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                                {% if (data == 0.000) %}{% set color = "#fff" %}{% endif %}
+                                                <td {% if (loop.index == 4) %}style="background-color:{{ color }};" {% endif %}>{{ data|replace({'.': ','}) }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                        <tr>
+                                            <td>Q III(Jul - Sep)</td>
+                                            {% for data in operations_monthly_right_tupper_tr4 %}
+                                                {% if (data > -2) %}{% set color = "#5f8148" %}{% endif %}
+                                                {% if (data < -2) %}{% set color = "#a9d08e" %}{% endif %}
+                                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                                {% if (data == 0.000) %}{% set color = "#fff" %}{% endif %}
+                                                <td {% if (loop.index == 4) %}style="background-color:{{ color }};" {% endif %}>{{ data|replace({'.': ','}) }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                        <tr>
+                                            <td>Q IV(Okt - Dez)</td>
+                                            {% for data in operations_monthly_right_tupper_tr5 %}
+                                                {% if (data > -2) %}{% set color = "#5f8148" %}{% endif %}
+                                                {% if (data < -2) %}{% set color = "#a9d08e" %}{% endif %}
+                                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                                {% if (data == 0.000) %}{% set color = "#fff" %}{% endif %}
+                                                <td {% if (loop.index == 4) %}style="background-color:{{ color }};" {% endif %}>{{ data|replace({'.': ','}) }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                        <tr>
+                                            <td>Year to date</td>
+                                            {% for data in operations_monthly_right_tupper_tr6 %}
+                                                {% if (data > -2) %}{% set color = "#5f8148" %}{% endif %}
+                                                {% if (data < -2) %}{% set color = "#a9d08e" %}{% endif %}
+                                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                                {% if (data == 0.000) %}{% set color = "#fff" %}{% endif %}
+                                                <td {% if (loop.index == 4) %}style="background-color:{{ color }};" {% endif %}>{{ data|replace({'.': ','}) }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                        <tr>
+                                            <td>Total runtime</td>
+                                            {% for data in operations_monthly_right_tupper_tr7 %}
+                                                {% if (data > -2) %}{% set color = "#5f8148" %}{% endif %}
+                                                {% if (data < -2) %}{% set color = "#a9d08e" %}{% endif %}
+                                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                                {% if (data == 0.000) %}{% set color = "#fff" %}{% endif %}
+                                                <td {% if (loop.index == 4) %}style="background-color:{{ color }};" {% endif %}>{{ data|replace({'.': ','}) }}</td>
+                                            {% endfor %}
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border: solid 1px #fbba00 !important;">Difference to PVSyst:
+                                Reasons:<br>
+                                Consequences:<br>
+                                Mitigants:Improvements:<br><br>
+
+
+                                Difference to Green4Net:<br>
+                                Reasons:<br>
+                                Consequences:<br>
+                                Mitigants/Improvement:
+                            </td>
+                            <td>
+                                <table id="asset_report_table_operations_data2" style="border: solid 1px !important;">
+                                    <thead>
+                                    <tr>
+                                        <th rowspan="3"><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Month</div></th>
+                                        <th rowspan="2"><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Expected g4n</div></th>
+                                        <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Difference</div></th>
+                                        <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Difference</div></th>
+                                        <th rowspan="2"><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Inverter (out)</div></th>
+                                        <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Difference</div></th>
+                                        <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Difference</div></th>
+                                    </tr>
+                                    <tr>
+                                        <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Yield - Exp. G4n</div></th>
+                                        <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Yield - Exp. G4n</div></th>
+                                        <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Yield - Exp. G4n</div></th>
+                                        <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Yield - Exp. G4n</div></th>
+                                    </tr>
+                                    <tr>
+                                        <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">[kWh]</div></th>
+                                        <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">[kWh]</div></th>
+                                        <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">[%]</div></th>
+                                        <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">[kWh]</div></th>
+                                        <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">[kWh]</div></th>
+                                        <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">[%]</div></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        {% for data in operations_monthly_right_tlower_tr1 %}
+                                            {% if (data > -2) %}{% set color = "#5f8148" %}{% endif %}
+                                            {% if (data < -2) %}{% set color = "#a9d08e" %}{% endif %}
+                                            {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                            {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                            {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                            {% if (data == 0.000) %}{% set color = "#fff" %}{% endif %}
+                                            <td {% if (loop.index == 4) or (loop.index == 7)%}style="background-color:{{ color }};" {% endif %}>{{ data|replace({'.': ','}) }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td>Q I(Jan - Mar)</td>
+                                        {% for data in operations_monthly_right_tlower_tr2 %}
+                                            {% if (data > -2) %}{% set color = "#5f8148" %}{% endif %}
+                                            {% if (data < -2) %}{% set color = "#a9d08e" %}{% endif %}
+                                            {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                            {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                            {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                            {% if (data == 0.000) %}{% set color = "#fff" %}{% endif %}
+                                            <td {% if (loop.index == 3)  or (loop.index == 6) %}style="background-color:{{ color }};" {% endif %}>{{ data|replace({'.': ','}) }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td>Q II(Apr - Jun)</td>
+                                        {% for data in operations_monthly_right_tlower_tr3 %}
+                                            {% if (data > -2) %}{% set color = "#5f8148" %}{% endif %}
+                                            {% if (data < -2) %}{% set color = "#a9d08e" %}{% endif %}
+                                            {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                            {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                            {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                            {% if (data == 0.000) %}{% set color = "#fff" %}{% endif %}
+                                            <td {% if (loop.index == 3)  or (loop.index == 6) %}style="background-color:{{ color }};" {% endif %}>{{ data|replace({'.': ','}) }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td>Q III(Jul - Sep)</td>
+                                        {% for data in operations_monthly_right_tlower_tr4 %}
+                                            {% if (data > -2) %}{% set color = "#5f8148" %}{% endif %}
+                                            {% if (data < -2) %}{% set color = "#a9d08e" %}{% endif %}
+                                            {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                            {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                            {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                            {% if (data == 0.000) %}{% set color = "#fff" %}{% endif %}
+                                            <td {% if (loop.index == 3)  or (loop.index == 6) %}style="background-color:{{ color }};" {% endif %}>{{ data|replace({'.': ','}) }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td>Q IV(Okt - Dez)</td>
+                                        {% for data in operations_monthly_right_tlower_tr5 %}
+                                            {% if (data > -2) %}{% set color = "#5f8148" %}{% endif %}
+                                            {% if (data < -2) %}{% set color = "#a9d08e" %}{% endif %}
+                                            {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                            {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                            {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                            {% if (data == 0.000) %}{% set color = "#fff" %}{% endif %}
+                                            <td {% if (loop.index == 3)  or (loop.index == 6) %}style="background-color:{{ color }};" {% endif %}>{{ data|replace({'.': ','}) }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td>Year to date</td>
+                                        {% for data in operations_monthly_right_tlower_tr6 %}
+                                            {% if (data > -2) %}{% set color = "#5f8148" %}{% endif %}
+                                            {% if (data < -2) %}{% set color = "#a9d08e" %}{% endif %}
+                                            {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                            {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                            {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                            {% if (data == 0.000) %}{% set color = "#fff" %}{% endif %}
+                                            <td {% if (loop.index == 3)  or (loop.index == 6) %}style="background-color:{{ color }};" {% endif %}>{{ data|replace({'.': ','}) }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    <tr>
+                                        <td>Total runtime</td>
+                                        {% for data in operations_monthly_right_tlower_tr7 %}
+                                            {% if (data > -2) %}{% set color = "#5f8148" %}{% endif %}
+                                            {% if (data < -2) %}{% set color = "#a9d08e" %}{% endif %}
+                                            {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                            {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                            {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                            {% if (data == 0.000) %}{% set color = "#fff" %}{% endif %}
+                                            <td {% if (loop.index == 3)  or (loop.index == 6) %}style="background-color:{{ color }};" {% endif %}>{{ data|replace({'.': ','}) }}</td>
+                                        {% endfor %}
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div id="operations_d">
+                    <table class="asset_report_table_operations">
+                        <tr>
+                            <td style="vertical-align: bottom !important;">
+                                <div>
+                                    <h2>Operations</h2>
+                                    <h3 style="color: #fbba00;">C) Production</h3>
+                                    <span style="color: #76aad8;">dayly expected vs. actuals</span>
+                                </div>
+                                {% set useGridMeterDayData = useGridMeterDayData %}
+                                {% set getplantAvailability = showAvailability %}
+                                {% set getplantAvailabilitySecond = showAvailabilitySecond %}
+                                <table class="asset_report_table_operations_data">
+                                    <thead>
+                                    <tr>
+                                        <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Date</div></th>
+                                        {% if (useGridMeterDayData == true) %}
+                                            <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Grid meter<br>extern<br>[kwh]</div></th>
+                                        {% endif %}
+                                        <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Grid meter<br>(Netzana-<br>lysegerät)<br>[kwh]</div></th>
+                                        <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Spec. Yield<br>[kWh/kWp]</div></th>
+                                        <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Irradiation<br>avarage<br>[kWh/m2]</div></th>
+                                        <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">PR<br>[%]</div></th>
+                                        {% if (showAvailability == true) %}
+                                            <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">PA 1<br>[%]</div></th>
+                                        {% endif %}
+                                        {% if (showAvailabilitySecond == true) %}
+                                            <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">PA 2<br>[%]</div></th>
+                                        {% endif %}
+                                        <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Theoretical<br>[kWh]</div></th>
+                                        <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Expectet (G4N)<br>[kWh]</div></th>
+                                        <th><div style="border-bottom: solid 1px; width: 100%; height: 50%;">Case 5</div></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for data in table_overview_dayly %}
+                                        <tr class="js-acgroup-item">
+                                            <td>{{ data.datum }}</td>
+                                            {% if (useGridMeterDayData == true)%}
+                                                <td>{{ data.powerEGridExt|replace({'.': ','}) }}</td>
+                                            {% endif %}
+                                            <td>{{ data.PowerEvuMonth|replace({'.': ','}) }}</td>
+                                            <td>{{ data.custirr|replace({'.': ','}) }}</td>
+                                            <td>{{ data.irradiation|replace({'.': ','}) }}</td>
+                                            <td>{{ data.prEvuProz|replace({'.': ','}) }}</td>
+                                            {% if (showAvailability == true) %}
+                                                <td>{{ data.plantAvailability|replace({'.': ','}) }}</td>
+                                            {% endif %}
+                                            {% if (showAvailabilitySecond == true) %}
+                                                <td>{{ data.plantAvailabilitySecond|replace({'.': ','}) }}</td>
+                                            {% endif %}
+                                            <td>{{ data.powerTheo|replace({'.': ','}) }}</td>
+                                            <td>{{ data.powerExp|replace({'.': ','}) }}</td>
+                                            <td>{{ data.case5perDay }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </td>
+                            <td style="vertical-align: bottom !important;">
+                                {{ operations_dayly_1|raw }}
+                            </td>
+                        </tr>
+                    </table>
+                    <table class="asset_report_table_operations_data" style="page-break-before: always !important;page-break-after: always !important;">
+                        <tr>
+                            <td style="border: solid 1px #fbba00 !important;">Difference to PVSyst:
+                                Reasons:<br>
+                                Consequences:<br>
+                                Mitigants:Improvements:<br><br>
+
+
+                                Difference to Green4Net:<br>
+                                Reasons:<br>
+                                Consequences:<br>
+                                Mitigants/Improvement:
+                            </td>
+                            <td>
+                                {{ operations_dayly_2|raw }}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="operations_pb" style="page-break-before: always !important;">
+                    <div>
+                        <h2>Operations</h2>
+                        <h3 style="color: #fbba00;">D) Availability</h3>
+                        <span style="color: #76aad8;">dayly overview</span>
+                    </div>
+                    {% set daysInReportMonth = daysInReportMonth %}
+                    {% set tableColsLimit_twig = tableColsLimit %}
+                    {% set tbody = "" %}
+                    {% set itemcounter = 1 %}
+                    {% set unitcounter = 0 %}
+                        <table class="asset_report_table_operations" style="page-break-after: always !important;">
+                            <tbody>
+                                <tr>
+                                    {% for data in plantAvailability %}
+                                        <td style = 'border: none !important; padding:0 !important;vertical-align: bottom !important;'>
+                                            <table class = "streamdayly" style="margin:0 !important;">
+                                                <thead>
+                                                {% if (itemcounter == 1 ) %}
+                                                    <tr><th  rowspan="3" style="border-left: solid 1px !important;">Day</th><th class="rotate">{{ acGroups[unitcounter].acGroupName }}</th></tr>
+                                                    <tr><th>PA</th></tr>
+                                                    <tr><th>[%]</th></tr>
+                                                {% endif %}
+                                                {% if (itemcounter > 1) %}
+                                                    <tr><th class="rotate">{{ acGroups[unitcounter].acGroupName }}</th></tr>
+                                                    <tr><th>PA</th></tr>
+                                                    <tr><th>[%]</th></tr>
+                                                {% endif %}
+                                                </thead>
+                                                {% for datatr in data %}
+                                                    {% if (itemcounter == 1 ) %}
+                                                        <tr><td style="border-left: solid 1px !important;">{{ datatr.form_date }}</td><td>{{ datatr.pa|replace({'.': ','}) }}</td></tr>
+                                                    {% endif %}
+                                                    {% if (itemcounter > 1) %}
+                                                        <tr><td>{{ datatr.pa|replace({'.': ','}) }}</td></tr>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </table>
+                                        </td>
+
+                                        {% set itemcounter = itemcounter+1 %}
+                                        {% set unitcounter = unitcounter+1 %}
+                                    {% endfor %}
+                                </tr>
+                            </tbody>
+                        </table>
+                </div>
+
+                <div class="operations_pb" style="page-break-before: always !important;">
+                    <div>
+                        <h2>Operations</h2>
+                        <h3 style="color: #fbba00;">D) AvailabilityCY</h3>
+                        <span style="color: #76aad8;">dayly overview</span>
+                    </div>
+                    {% set daysInReportMonth = daysInReportMonth %}
+                    {% set tableColsLimit_twig = tableColsLimit %}
+                    {% set tbody = "" %}
+                    {% set itemcounter = 1 %}
+                    {% set unitcounter = 0 %}
+                    {% set unitcounter2 = 0 %}
+                    <table class="asset_report_table_operations" style="page-break-after: always !important;">
+                            {% for data in plantAvailabilityCurrentYear %}
+                                <tr>
+                                    <td style="padding:0 !important;">
+                                        <table class = "" style="margin:0 !important;">
+                                            {% if (itemcounter == 1 ) %}
+                                                <tr>
+                                                    <td>
+                                                        <table>
+                                                            <tr><th style="padding:0 !important;" rowspan="3" style="border-left: solid 1px !important;">Month</th></tr>
+                                                        </table>
+                                                    </td>
+                                                    {% for datatr in data[0] %}
+                                                        <td style="padding:0 !important;">
+                                                            {% if (unitcounter2 == 0 ) %}
+                                                                <table class = "streamdayly" style="padding:0 !important;">
+                                                                                <th class="rotate">{{ acGroups[unitcounter2].acGroupName }}</th>
+                                                                                <tr><th style="padding:0 !important;">PA</th></tr>
+                                                                                <tr><th style="padding:0 !important;">[%]</th></tr>
+                                                                </table>
+                                                            {% endif %}
+                                                            {% if (unitcounter2 > 0) %}
+                                                                <table class = "streamdayly" style="padding:0 !important;">
+                                                                            <tr><th style="padding:0 !important;" class="rotate">{{ acGroups[unitcounter2].acGroupName }}</th></tr>
+                                                                            <tr><th style="padding:0 !important;">PA</th></tr>
+                                                                            <tr><th style="padding:0 !important;">[%]</th></tr>
+                                                                </table
+                                                            {% endif %}
+
+                                                        </td>
+                                                        {% set unitcounter2 = unitcounter2+1 %}
+                                                    {% endfor %}
+                                                    {% set unitcounter2 = 0 %}
+                                                </tr>
+                                            {% endif %}
+                                            <tr>
+                                                {% for datatr in data[0] %}
+                                                    {% if (unitcounter == 0 ) %}
+                                                        <td style="border-left: solid 1px !important; width:70px !important;padding:0 !important;">{{ datatr.form_date }}</td><td style="width:50px">{{ datatr.pa|replace({'.': ','}) }}</td>
+                                                    {% endif %}
+                                                    {% if (unitcounter > 0) %}
+                                                        <td style="width:50px !important;padding:0 !important;">{{ datatr.pa|replace({'.': ','}) }}</td>
+                                                    {% endif %}
+
+                                                    {% set unitcounter = unitcounter+1 %}
+                                                {% endfor %}
+                                                {% set unitcounter = 0 %}
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            {% set itemcounter = itemcounter+1 %}
+                        {% endfor %}
+                        {% set itemcounter = 1 %}
+                    </table>
+                </div>
+
+                <div id="operations_f">
+                    <table class="asset_report_table_operations" style="border: solid 0px;">
+                        <tr>
+                            <td style="vertical-align: bottom !important;">
+                                <div>
+                                    <h2>Operations</h2>
+                                    <h3 style="color: #fbba00;">E) Availability – heat map</h3>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                {% set daysInReportMonth = daysInReportMonth %}
+                                {% set tableColsLimit_twig = tableColsLimit %}
+                                {% set tbody = "" %}
+                                {% set itemcounter = 1 %}
+                                {% set unitcounter = 0 %}
+                                {% set color = "#fff" %}
+                                <table class="asset_report_table_operations" style="page-break-after: always !important;">
+                                    <tbody>
+                                        <tr>
+                                            {% for data in plantAvailability %}
+                                                <td style = 'border: none !important; padding:0 !important; vertical-align: bottom !important;'>
+                                                    <table class = "streamdayly" style="margin:0 !important;">
+                                                        <thead>
+                                                        {% if (itemcounter == 1 ) %}
+                                                            <tr><th  rowspan="3" style="border-left: solid 1px !important;">Day</th><th class="rotate">{{ acGroups[unitcounter].acGroupName }}</th></tr>
+                                                            <tr><th>PA</th></tr>
+                                                            <tr><th>[%]</th></tr>
+                                                        {% endif %}
+                                                        {% if (itemcounter > 1) %}
+                                                            <tr><th class="rotate">{{ acGroups[unitcounter].acGroupName }}</th></tr>
+                                                            <tr><th>PA</th></tr>
+                                                            <tr><th>[%]</th></tr>
+                                                        {% endif %}
+                                                        </thead>
+                                                        {% for datatr in data %}
+                                                            {% if (datatr.pa >= 98) %}{% set color = "#5f8148" %}{% endif %}
+                                                            {% if (datatr.pa < 98) %}{% set color = "#a9d08e" %}{% endif %}
+                                                            {% if (datatr.pa < 92) %}{% set color = "#ffff00" %}{% endif %}
+                                                            {% if (datatr.pa < 85) %}{% set color = "#ffc000" %}{% endif %}
+                                                            {% if (datatr.pa <= 80) %}{% set color = "#cc0000" %}{% endif %}
+                                                            {% if (itemcounter == 1 ) %}
+                                                                <tr><td style="border-left: solid 1px !important;">{{ datatr.form_date }}</td><td style="background-color:{{ color }};">&nbsp;</td></tr>
+                                                            {% endif %}
+                                                            {% if (itemcounter > 1) %}
+                                                                <tr><td style="background-color:{{ color }};">&nbsp</td></tr>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </table>
+                                                </td>
+
+                                                {% set itemcounter = itemcounter+1 %}
+                                                {% set unitcounter = unitcounter+1 %}
+                                            {% endfor %}
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="operations_pbx" style="page-break-before: always !important;">
+                    <div>
+                        <h2>Operations</h2>
+                        <h3 style="color: #fbba00;">F) Currents</h3>
+                        <span style="color: #76aad8;">{{ month }} {{ year }} - String comparison daily actual and expected</span>
+                    </div>
+                    {% set daysInReportMonth = daysInReportMonth %}
+                    {% set tableColsLimit_twig = tableColsLimit %}
+                    {% set tbody = "" %}
+                    {% set itemcounter = 1 %}
+                    {% set unitcounter = 0 %}
+
+                    <table class="asset_report_table_operations" style="page-break-after: always !important;">
+                        <tbody>
+                            <tr>
+                                {% for data in operations_currents_dayly_table %}
+                                        <td style = 'border: none !important; padding:0 !important;'>
+                                            <table class = "streamdayly" style="margin:0 !important;">
+                                                <thead>
+                                                {% if (itemcounter == 1 ) %}
+                                                    <tr><th  rowspan="3" style="border-left: solid 1px !important;">Day</th><th colspan="2" class="rotate">{{ acGroups[unitcounter].acGroupName }}</th></tr>
+                                                    <tr><th colspan="2">Current [I]</th></tr>
+                                                    <tr><th>ACT [A]</th><th>EXP [A]</th></tr>
+                                                {% endif %}
+                                                {% if (itemcounter > 1) %}
+                                                    <tr><th colspan="2" class="rotate">{{ acGroups[unitcounter].acGroupName }}</th></tr>
+                                                    <tr><th colspan="2">Current [I]</th></tr>
+                                                    <tr><th>ACT [A]</th><th>EXP [A]</th></tr>
+                                                {% endif %}
+                                                </thead>
+                                                {% for datatr in data %}
+                                                    {% if (itemcounter == 1 ) %}
+                                                        <tr><td style="border-left: solid 1px !important;">{{ datatr.form_date }}</td><td>{{ datatr.act_current_dc|replace({'.': ','}) }}</td><td>{{ datatr.exp_current_dc|replace({'.': ','}) }}</td></tr>
+                                                    {% endif %}
+                                                    {% if (itemcounter > 1) %}
+                                                        <tr><td>{{ datatr.act_current_dc|replace({'.': ','}) }}</td><td>{{ datatr.exp_current_dc|replace({'.': ','}) }}</td></tr>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </table>
+                                        </td>
+                                    {% set itemcounter = itemcounter+1 %}
+                                    {% set unitcounter = unitcounter+1 %}
+                                {% endfor %}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+
+                <div class="operations_pbx">
+                    <div>
+                        <h2>Operations</h2>
+                        <h3 style="color: #fbba00;">G) Currents - heat map</h3>
+                        <span style="color: #76aad8;">{{ month }} {{ year }} - String comparison daily actual and expected</span>
+                    </div>
+                    {% set daysInReportMonth = daysInReportMonth %}
+                    {% set tableColsLimit_twig = tableColsLimit %}
+                    {% set tbody = "" %}
+                    {% set itemcounter = 1 %}
+                    {% set unitcounter = 0 %}
+                    <table class="asset_report_table_operations" style="page-break-after: always !important;">
+                        <tbody>
+                            <tr>
+                                {% for data in operations_currents_dayly_table %}
+                                    <td style = 'border: none !important; padding:0 !important; vertical-align: bottom !important;'>
+                                        <table class = "streamdayly" style="margin:0 !important;">
+                                            <thead>
+                                            {% if (itemcounter == 1 ) %}
+                                                <tr><th  rowspan="3" style="border-left: 1px !important;">Day</th><th class="rotate">{{ acGroups[unitcounter].acGroupName }}</th></tr>
+                                                <tr><th>ACT-EXP</th></tr>
+                                                <tr><th>[%]</th></tr>
+                                            {% endif %}
+                                            {% if (itemcounter > 1) %}
+                                                <tr><th class="rotate">t{{ acGroups[unitcounter].acGroupName }}</th></tr>
+                                                <tr><th>ACT-EXP</th></tr>
+                                                <tr><th>[%]</th></tr>
+                                            {% endif %}
+                                            </thead>
+                                            {% for datatr in data %}
+                                                {% if (datatr.diff_current_dc > -2) %}{% set color = "#5f8148" %}{% endif %}
+                                                {% if (datatr.diff_current_dc < -2) %}{% set color = "#a9d08e" %}{% endif %}
+                                                {% if (datatr.diff_current_dc < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                                {% if (datatr.diff_current_dc < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                                {% if (datatr.diff_current_dc <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                                {% if (datatr.diff_current_dc == 0.000) %}{% set color = "#fff" %}{% endif %}
+                                                {% if (itemcounter == 1 ) %}
+                                                    <tr><td style="border-left: solid 1px !important;">{{ datatr.form_date }}</td><td style="background-color:{{ color }};">{{ datatr.diff_current_dc }}</td></tr>
+                                                {% endif %}
+                                                {% if (itemcounter > 1) %}
+                                                    <tr><td style="background-color:{{ color }};">{{ datatr.diff_current_dc }}</td></tr>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </table>
+                                    </td>
+
+                                    {% set itemcounter = itemcounter+1 %}
+                                    {% set unitcounter = unitcounter+1 %}
+                                {% endfor %}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="operations_pbx">
+                    <div>
+                        <h2>Operations</h2>
+                        <h3 style="color: #fbba00;">H) Power DC</h3>
+                        <span style="color: #76aad8;">dayly expected vs. actuals</span>
+                    </div>
+                    {% set daysInReportMonth = daysInReportMonth %}
+                    {% set tableColsLimit_twig = tableColsLimit %}
+                    {% set tbody = "" %}
+                    {% set itemcounter = 1 %}
+                    {% set unitcounter = 0 %}
+                    <table class="asset_report_table_operations" style="page-break-after: always !important;">
+                        <tbody>
+                            <tr>
+                                {% for data in operations_currents_dayly_table %}
+                                        <td style = 'border: none !important; padding:0 !important;'>
+                                        <table class = "streamdayly" style="margin:0 !important;">
+                                            <thead>
+                                            {% if (itemcounter == 1 ) %}
+                                                <tr><th  rowspan="3" style="border-left: solid 1px !important;">Day</th><th colspan="2" class="rotate">t{{ acGroups[unitcounter].acGroupName }}</th></tr>
+                                                <tr><th colspan="2">Power [P]</th></tr>
+                                                <tr><th>ACT [KWH]</th><th>EXP [KWH]</th></tr>
+                                            {% endif %}
+                                            {% if (itemcounter > 1) %}
+                                                <tr><th colspan="2" class="rotate">t{{ acGroups[unitcounter].acGroupName }}</th></tr>
+                                                <tr><th colspan="2">Power [P]</th></tr>
+                                                <tr><th>ACT [KWH]</th><th>EXP [KWH]</th></tr>
+                                            {% endif %}
+                                            </thead>
+                                            {% for datatr in data %}
+                                                {% if (itemcounter == 1 ) %}
+                                                    <tr><td style="border-left: solid 1px !important;">{{ datatr.form_date }}</td><td>{{ datatr.act_power_dc }}</td><td>{{ datatr.exp_power_dc }}</td></tr>
+                                                {% endif %}
+                                                {% if (itemcounter > 1) %}
+                                                    <tr><td>{{ datatr.act_power_dc }}</td><td>{{ datatr.exp_power_dc }}</td></tr>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </table>
+                                    </td>
+                                    {% set itemcounter = itemcounter+1 %}
+                                    {% set unitcounter = unitcounter+1 %}
+                                {% endfor %}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="operations_pbx">
+                    <div>
+                        <h2>Operations</h2>
+                        <h3 style="color: #fbba00;">I) Power - heat map</h3>
+                        <span style="color: #76aad8;">{{ month }} {{ year }} - Daily differences in [%]</span>
+                    </div>
+                    {% set daysInReportMonth = daysInReportMonth %}
+                    {% set tableColsLimit_twig = tableColsLimit %}
+                    {% set tbody = "" %}
+                    {% set itemcounter = 1 %}
+                    {% set unitcounter = 0 %}
+
+                    <table class="asset_report_table_operations" style="page-break-after: always !important;">
+                        <tbody>
+                            <tr>
+                                {% for data in operations_currents_dayly_table %}
+                                    <td style = 'border: none !important; padding:0 !important; vertical-align: bottom !important;'>
+                                        <table class = "streamdayly" style="margin:0 !important;;">
+                                            <thead>
+                                            {% if (itemcounter == 1 ) %}
+                                                <tr><th  rowspan="3" style="border-left: solid 1px !important;">Day</th><th class="rotate">t{{ acGroups[unitcounter].acGroupName }}</th></tr>
+                                                <tr><th>ACT-EXP</th></tr>
+                                                <tr><th>[%]</th></tr>
+                                            {% endif %}
+                                            {% if (itemcounter > 1) %}
+                                                <tr><th class="rotate">t{{ acGroups[unitcounter].acGroupName }}</th></tr>
+                                                <tr><th>ACT-EXP</th></tr>
+                                                <tr><th>[%]</th></tr>
+                                            {% endif %}
+                                            </thead>
+                                            {% for datatr in data %}
+                                                {% if (datatr.diff_current_dc > -2) %}{% set color = "#5f8148" %}{% endif %}
+                                                {% if (datatr.diff_current_dc < -2) %}{% set color = "#a9d08e" %}{% endif %}
+                                                {% if (datatr.diff_current_dc < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                                {% if (datatr.diff_current_dc < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                                {% if (datatr.diff_current_dc <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                                {% if (datatr.diff_current_dc == 0.000) %}{% set color = "#fff" %}{% endif %}
+                                                {% if (itemcounter == 1 ) %}
+                                                    <tr><td style="border-left: solid 1px !important;">{{ datatr.form_date }}</td><td style="background-color:{{ color }};">{{ datatr.diff_power_dc }}</td></tr>
+                                                {% endif %}
+                                                {% if (itemcounter > 1) %}
+                                                    <tr><td style="background-color:{{ color }};">{{ datatr.diff_power_dc }}</td></tr>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </table>
+                                    </td>
+
+                                    {% set itemcounter = itemcounter+1 %}
+                                    {% set unitcounter = unitcounter+1 %}
+                                {% endfor %}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+
+                <div style="margin-top: 50px">
+
+                </div>
+
+            </div>
+        {% endblock %}
+    </div>
+{% endblock %}
+

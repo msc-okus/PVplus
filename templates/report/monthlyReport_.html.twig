@@ -1,0 +1,185 @@
+{% extends 'report/report.base.html.twig' %}
+
+{% block content %}
+    {% set sumPowerEvu = 0 %}
+    {% set sumPowerTheo = 0 %}
+    {% set sumPowerAct = 0 %}
+    {% set sumPowerExp = 0 %}
+    {% set sumPrDiff = 0 %}
+    {% set sumIrr = 0 %}
+    {% set sumCustIrr = 0 %}
+    {% set avgAvailability = 0 %}
+    {% set avgActPR = 0 %}
+    {% set avgExpPR = 0 %}
+    {% set avgEvuPR = 0 %}
+    {% set count = 1 %}
+    {% set chartDataDate = "" %}
+    {% set chartDataAct = "" %}
+    {% set chartDataExp = "" %}
+    {% set chartDataEvu = "" %}
+    {% set maxx = 0 %}
+    {% for pr in report.prs %}
+        {% set sumPowerEvu = sumPowerEvu + pr.powerEvu %}
+        {% set sumPowerTheo = sumPowerTheo + pr.powerTheo %}
+        {% set sumPowerAct = sumPowerAct + pr.prAct %}
+        {% set sumPowerExp = sumPowerExp + pr.prExp %}
+        {% if pr.prExp > maxx %}
+            {% set maxx = pr.prExp %}
+        {% endif %}
+        {% set sumPrDiff = sumPrDiff + pr.prDiff %}
+        {% set sumIrr = sumIrr + pr.irradiation %}
+        {% set sumCustIrr = sumCustIrr + pr.custIrr %}
+        {% set avgAvailability = avgAvailability + pr.plantAvailability %}
+        {% set chartDataDate = chartDataDate ~ '|' ~ pr.stampIst|date("d") %}
+        {% if loop.last %}
+            {% set chartDataAct = chartDataAct ~ pr.prAct|round(0) %}
+            {% set chartDataExp = chartDataExp ~ pr.prExp|round(0) %}
+            {% set chartDataEvu = chartDataEvu ~ pr.powerEvu|round(0) %}
+        {% else %}
+            {% set chartDataAct = chartDataAct ~ pr.prAct|round(0) ~ ',' %}
+            {% set chartDataExp = chartDataExp ~ pr.prExp|round(0) ~ ',' %}
+            {% set chartDataEvu = chartDataEvu ~ pr.powerEvu|round(0) ~ ',' %}
+        {% endif %}
+
+        {% set count = loop.index %}
+    {% endfor %}
+    {% set avgAvailability = avgAvailability / count %}
+
+    {% set maxx = (maxx * 1.1)|round(0) %}
+    <!-- Monats PR berechnen -->
+    {% if report.anlage.useCustPRAlgorithm == 'Groningen' %}
+        {% set monthPREvu = (sumPowerEvu / (sumPowerTheo / 1000 * avgAvailability)) * (10/0.9945) %}
+    {% elseif report.anlage.useCustPRAlgorithm == 'Veendam' %}
+        {% set monthPREvu = (sumPowerEvu / (sumPowerTheo / 100 * avgAvailability)) * 100 %}
+    {% else %}
+        {% set monthPREvu = (sumPowerEvu / sumPowerTheo) %}
+    {% endif %}
+    {% set monthPRAct = (sumPowerAct / sumPowerTheo) * 100 %}
+    {% set monthPRExp = (sumPowerExp / sumPowerTheo) * 100 %}
+    <div class="row">
+        <img src="https://g4npvplus.de/images/report_header.png" alt=""/>
+        <h2>Monthly Report {{ report.reportMonth }} / {{ report.reportYear }} – {{ report.anlage.anlName }} <small>({{ report.anlage.power|number_format(2, ',', '.') }} kWp)</small></h2>
+    </div>
+
+    <div class="row">
+        <table>
+            <thead>
+                <tr>
+                    <th>Key Result</th>
+                    {% if report.anlage.showEvuDiag == 1 %}<th>Grid meter</th>{% endif %}
+                    <th>Inverter out</th>
+                    <th>Expected (G4N)</th>
+                    <th>Availability</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Production</td>
+                    {% if report.anlage.showEvuDiag == 1 %}
+                        <td>{{ sumPowerEvu|number_format(0, ',', '.') }} kWh</td>
+                    {% endif %}
+                    <td>{{ sumPowerAct|number_format(0, ',', '.') }} kWh</td>
+                    <td>{{ sumPowerExp|number_format(0, ',', '.') }} kWh</td>
+                    <td>{{ avgAvailability|number_format(2, ',', '.') }}%</td>
+                </tr>
+                <tr>
+                    <td>Performance Ratio</td>
+                    {% if report.anlage.showEvuDiag == 1 %}
+                        <td>{{ monthPREvu|number_format(2, ',', '.') }}%</td>
+                    {% endif %}
+                    <td>{{ monthPRAct|number_format(2, ',', '.') }}%</td>
+                    <td>{{ monthPRExp|number_format(2, ',', '.') }}%</td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="row">
+        <table class="data-month">
+            <thead>
+                <tr style="background-color:#b4c6e7;"></tr>
+                    <th style="text-align: left;">Date</th>
+                    {% if report.anlage.showEvuDiag == 1 %}<th>Grid meter<br>[kWh]</th>{% endif %}
+                    <th>Theoretical<br>[kWh]</th>
+                    <th>Inverter out<br>[kWh]</th>
+                    <th>Expected (G4N)<br>[kWh]</th>
+                    <!--
+                    <th>Difference<br>[kWh]</th>
+                    <th>Difference<br>[%]</th>
+                    <th>Irradiation<br>[kWh/m2]</th>
+                    -->
+                    <th>Irradiation <br>[kWh/m2]</th>
+                    <th>PR<sup>*</sup></th>
+                    <th>Availability<sup>*</sup></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pr in report.prs %}
+                    <tr>
+                        <td style="text-align: left;">{{ pr.stampIst|date("Y-m-d") }}</td>
+                        {% if report.anlage.showEvuDiag == 1 %}<td>{{ pr.powerEvu|number_format(2, ',', '.') }}</td>{% endif %}
+                        <td>{{ pr.powerTheo|number_format(2, ',', '.') }}</td>
+                        <td>{{ pr.prAct|number_format(2, ',', '.') }}</td>
+                        <td>{{ pr.prExp|number_format(2, ',', '.') }}</td>
+                        <!--
+                        <td>{{ pr.prDiff|number_format(2, ',', '.') }}</td>
+                        <td>{{ pr.prDiffPoz|number_format(2, ',', '.') }}</td>
+                        <td>{{ pr.irradiation|number_format(2, ',', '.') }}</td>
+                        -->
+                        <td>{{ (pr.custIrr)|number_format(2, ',', '.') }}</td>
+                        {% if report.anlage.showEvuDiag == 1 %}
+                            <td>{{ pr.prEvuProz|number_format(2, ',', '.') }}%</td>
+                        {% else %}
+                            <td>{{ pr.prActPoz|number_format(2, ',', '.') }}%</td>
+                        {% endif%}
+                        <td>{{ pr.plantAvailability|number_format(2, ',', '.') }}%</td>
+                    </tr>
+                {% endfor %}
+                <tr class="total">
+                    <td>Total:</td>
+                    {% if report.anlage.showEvuDiag == 1 %}<td>{{ sumPowerEvu|number_format(2, ',', '.') }}</td>{% endif %}
+                    <td>{{ sumPowerTheo|number_format(2, ',', '.') }}</td>
+                    <td>{{ sumPowerAct|number_format(2, ',', '.') }}</td>
+                    <td>{{ sumPowerExp|number_format(2, ',', '.') }}</td>
+                    <!--
+                    <td>{{ sumPrDiff|number_format(2, ',', '.') }}</td>
+                    <td>{{ ((sumPowerAct - sumPowerExp) * 100 / sumPowerExp)|number_format(2, ',', '.') }}</td>
+                    <td>{{ sumIrr|number_format(2, ',', '.') }}</td>
+                    -->
+                    <td>{{ (sumCustIrr)|number_format(2, ',', '.') }}</td>
+                    {% if report.anlage.showEvuDiag == 1 %}
+                        <td>{{ monthPREvu|number_format(2, ',', '.') }}%</td>
+                    {% else %}
+                        <td>{{ monthPRAct|number_format(2, ',', '.') }}%</td>
+                    {% endif%}
+                    <td>{{ avgAvailability|number_format(2, ',', '.') }}%</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    {#
+    {% if report.anlage.showEvuDiag == 1 %}
+        {% set url = "image-charts.com/chart?chs=975x450&chxt=x,y&chxs=0,333,8|1N** kWh,333,10&cht=bvg&chds=a" %}
+        {% set url = url ~ "&chf=b0,ls,0,47c448,.3,47c448,.1|b1,ls,0,12438f,.3,12438f,.1|b2,ls,0,de7832,.3,de7832,.1" %}
+        {% set url = url ~ "&chxr=1,0," ~ maxx ~ "&chdl=Grid meter [kWh]|Actual [kWh]|Expected [kWh]" %}
+        {% set url = url ~ "&chxl=0:" ~ chartDataDate %}
+        {% set url = url ~ "&chd=t:" ~ chartDataEvu ~ "|" ~ chartDataAct ~ "|" ~ chartDataExp ~ "&chof=png" %}
+    {% else %}
+        {% set url = "image-charts.com/chart?chs=975x450&chxt=x,y&chxs=0,333,8|1N** kWh,333,10&cht=bvg&chds=a" %}
+        {% set url = url ~ "&chf=b0,ls,0,12438f,.3,12438f,.1|b1,ls,0,de7832,.3,de7832,.1" %}
+        {% set url = url ~ "&chxr=1,0," ~ maxx ~ "&chdl=Actual [kWh]|Expected [kWh]" %}
+        {% set url = url ~ "&chxl=0:|" ~ chartDataDate %}
+        {% set url = url ~ "&chd=t:" ~ chartDataAct ~ "|" ~ chartDataExp ~ "&chof=png" %}
+    {% endif %}
+    #}
+    <div class="row">
+        {#
+        <img height="300" width="650" src="https://{{ url }}" alt="Grafik"/>
+        <hr>
+        #}
+        <p><b>Remarks: </b></p>
+        <p>Generally, and especially on days with outage, the expected / actual difference indicates the lost production.</p>
+        <p><sup>*</sup> Customer values if applicable; Otherwise default.</p>
+    </div>
+{% endblock %}

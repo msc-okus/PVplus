@@ -1,0 +1,28 @@
+
+{% for availability in availabilitys %}
+    <h2>{{ availability.anlagenName }} / {{ availability.anlagenId }}</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Inverter</th>
+                <th>Gmod > 0  && Gmod <  50</th>
+                <th>Gmod >= 50 && PowerAc inverter > 0</th>
+                <th>Gmod >= 50 && PowerAc inverter <= 0</th>
+                <th>Gmod > 0</th>
+                <th>Gmod >= 50 && PowerAc inverter > 0 && cosPhi = 0</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for inverter in availability.inverter %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ inverter.anzVerfugbarkeit1 }}</td>
+                <td>{{ inverter.anzVerfugbarkeit2 }}</td>
+                <td>{{ inverter.anzVerfugbarkeit3 }}</td>
+                <td>{{ inverter.anzVerfugbarkeit4 }}</td>
+                <td>{{ inverter.anzVerfugbarkeit5 }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endfor %}

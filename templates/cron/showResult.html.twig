@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="grid-x">
+        <div class="cell">
+            <h1>Show Result Cron Job {{ headline }}</h1>
+            {% if (availabilitys) %}{% include 'cron/_incl/availybility.html.twig' %}{% endif %}
+            {% if (output) %}{{ output|raw }}{% endif %}
+
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block title %}
+    {{  parent() }}Result Cron Job
+{% endblock %}
+
+
+{% block javascripts %}
+{% endblock %}

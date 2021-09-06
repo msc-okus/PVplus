@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="grid-x">
+        <div class="cell">
+            <h1>New Weather Station</h1>
+        </div>
+    </div>
+    {{ include('weather_station/_form.html.twig') }}
+{% endblock %}
+
+
+{% block title %}
+    {{  parent() }}new Weather Station
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}

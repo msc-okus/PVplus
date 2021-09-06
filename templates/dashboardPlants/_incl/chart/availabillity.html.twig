@@ -1,0 +1,144 @@
+{% import _self as macros %}
+
+{% macro availabilityTable(availability, second) %}
+    <div class="status-log" style="margin: 0 25px 0 10px;">
+        <table id="statusTable" style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Inverter</th>
+                    {% if second %}<th></th>{% endif %}
+                    <th>Case 1</th>
+                    <th>Case 2</th>
+                    <th>Case 3</th>
+                    <th>Case 4</th>
+                    <th>Case 5</th>
+                    <th>Control</th>
+                    <th>Avail. cases [%]</th>
+                    <th>Rel. avail. plant [%]</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for stati in availability %}
+                <tr>
+                    <td>{{ stati.stamp|date("y-m-d") }} </td>
+                    <td>{{ stati.inverter }}</td>
+                    {% if second %}<td>PA.1<br><span class="topline">PA.2</span></td>{% endif %}
+                    <td>{{ stati.case1 }}{% if second %}<br><span class="topline">{{ stati.case1second }}</span>{% endif %}</td>
+                    <td>{{ stati.case2 }}{% if second %}<br><span class="topline">{{ stati.case2second }}</span>{% endif %}</td>
+                    <td>{{ stati.case3 }}{% if second %}<br><span class="topline">{{ stati.case3second }}</span>{% endif %}</td>
+                    <td>{{ stati.case4 }}{% if second %}<br><span class="topline">{{ stati.case4second }}</span>{% endif %}</td>
+                    <td>{{ stati.case5 }}{% if second %}<br><span class="topline">{{ stati.case5second }}</span>{% endif %}</td>
+                    <td>{{ stati.control}}{% if second %}<br><span class="topline">{{ stati.controlSecond }}</span>{% endif %}</td>
+                    <td>{{ stati.invApart1|number_format(0, ',', '.') }}{% if second %}<br><span class="topline">{{ stati.invApart1Second|number_format(0, ',', '.') }}</span>{% endif %}</td>
+                    <td>{{ stati.invA|number_format(4, ',', '.') }}{% if second %}<br><span class="topline">{{ stati.invASecond|number_format(4, ',', '.') }}</span>{% endif %}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endmacro availabilityTable %}
+
+{% macro case5(case5s) %}
+    {% if is_granted('ROLE_OWNER_FULL') %}
+        <div class="add-case-5">
+            <fieldset class="fieldset text-left">
+                <legend>Case 5</legend>
+                <div class="input-group">
+                    <input id="case5id" type="hidden" name="case5id" class="case5 input-group-field">
+                    <label class="input-group-label" for="case5from">From</label>
+                    <input id="case5from" name="case5from" class="case5 input-group-field" size="16" type="time" step="900" style="max-width: 158px;">
+                    <!--<span class="input-group-label"><i class="fa fa-calendar"></i></span>-->
+                    <label class="input-group-label" for="case5to">To</label>
+                    <input id="case5to" name="case5to" class="case5 input-group-field" size="16" type="time" step="900" style="max-width: 158px;">
+                    <!--<span class="input-group-label"><i class="fa fa-calendar"></i></span>&nbsp;-->
+                    <label class="input-group-label" for="case5inverter">Inverter: </label>
+                    <input id="case5inverter" type="text" name="case5inverter" class="case5 input-group-field">
+                    <label class="input-group-label" for="case5reason">Reason: </label>
+                    <input id="case5reason" type="text" name="case5reason" class="case5 input-group-field">
+                    <button id="addCase5" class="button" type="submit" value="addCase5" name="addCase5" disabled>save</button>
+                </div>
+            </fieldset>
+        </div>
+    {% endif %}
+    <div class="case5-list">
+        <table id="case5s" class="case5" style="width: 100%">
+            <thead class="text-left">
+                <tr>
+                    <th>from</th>
+                    <th>to</th>
+                    <th>Inverter</th>
+                    <th>Reason</th>
+                    <th>Createt at, by</th>
+                    {% if is_granted('ROLE_OWNER_FULL') %}
+                        <th class="text-right"></th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody class="text-left">
+            {% for case5 in case5s %}
+                <tr class="js-case5-item">
+                    <td>{{ case5.stampFrom|date("H:i") }}</td>
+                    <td>{{ case5.stampTo|date("H:i") }}</td>
+                    <td>{{ case5.inverter }}</td>
+                    <td>{{ case5.reason }}</td>
+                    <td>{{ case5.createdAt|date('y-m-d h:i') }}, {{ case5.createdBy }}</td>
+                    {% if is_granted('ROLE_OWNER_FULL') %}
+                        <td class="text-right">
+                            <button data-url="{{ path('app_dashboard_plant_case5_edit', { id: case5.id }) }}" type="button" class="hollow button tiny action-icon shadow js-edit-case5"><span class="fa fa-pencil"></span></button> &nbsp;
+                            {% if is_granted('ROLE_DEV') %}<button data-url="{{ path('app_dashboard_plant_case5_delete', { id: case5.id }) }}" type="button" class="hollow button tiny action-icon shadow js-delete-case5"><span class="fa fa-trash red"></span></button>{% endif %}
+                        </td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endmacro %}
+
+<div class="grid-x">
+    <div class="cell medium-9">
+        {{ macros.availabilityTable(content.availability, aktAnlage.showAvailabilitySecond) }}
+        {{ macros.case5(aktAnlage.anlageCase5sDate(form.from)) }}
+    </div>
+    <div class="cell medium-3">
+        <div class="callout secondary text-left" >
+            <h4><b>Explanation</b></h4>
+            <dl>
+                <dt>Case 1</dt>
+                <dd>irradiation below limit value<br>
+                    <small>G [W/qm] > 0 & G [W/qm] < {{ aktAnlage.minIrradiationAvailability }}</small></dd>
+
+                <dt>Case 2</dt>
+                <dd>inverter available under operating conditions<br>
+                    <small>G [W/qm] > 0 & G [W/qm] >= {{ aktAnlage.minIrradiationAvailability }}</small></dd>
+
+                <dt>Case 3</dt>
+                <dd>inverter not available under operating conditions<br>
+                    <small>G [W/qm] >= {{ aktAnlage.minIrradiationAvailability }} & Pac [kWh] <= 0</small></dd>
+
+                <dt>Case 4</dt>
+                <dd>inverter not available because of curtailment<br>
+                    <small>G [W/qm] >= {{ aktAnlage.minIrradiationAvailability }} and Pac [kWh] > 0 and CosPhi = 0</small></dd>
+
+                <dt>Case 5</dt>
+                <dd>inverter not available because of maintenance<br>
+                    <small></small></dd>
+
+                <dt>Control</dt>
+                <dd>control field case 1 + case 2<br>
+                    <small>G [W/qm] > 0</small></dd>
+
+                <dt>Availability cases</dt>
+                <dd> the individual availability of an inverter or group. Full availability: 100%<br>
+                    <!--<small>G [W/qm] > 0</small>--></dd>
+
+                <dt>Relative availability in plant</dt>
+                <dd> the relative availability of and inverter or group within the PV plant. Full availability is equal to the ratio of inverter power to total plant power. Total plant availability: the sum of all relative inverter availabilities.  <br>
+                    <!--<small>G [W/qm] > 0</small>--></dd>
+
+            </dl>
+        </div>
+    </div>
+</div>
+

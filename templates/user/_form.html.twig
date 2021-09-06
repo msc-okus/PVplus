@@ -1,0 +1,41 @@
+{% import _self as formMacros %}
+
+{% macro addAccess(eigner) %}
+    <td>{{ form_widget(eigner.eigner) }}</td>
+    <td></td>
+{% endmacro %}
+
+{{ form_start(userForm, {'attr': {'novalidate': 'no', 'autocomplete': 'off'}}) }}
+<div class="grid-x grid-margin-x grid-padding-x">
+    <div class="cell small-12 medium-5">
+        {{ form_row(userForm.username) }}
+        {{ form_row(userForm.plainPassword) }}
+        {{ form_row(userForm.email) }}
+        {{ form_row(userForm.level) }}
+    </div>
+    <div class="cell small-6 medium-4">
+        <fieldset class="fieldset">
+            <legend>List with Roles</legend>
+            {{ form_widget(userForm.roles) }}
+        </fieldset>
+    </div>
+    <div class="cell small-6 medium-3">
+        <fieldset class="fieldset">
+            <legend>List with Access to Owners</legend>
+            {{ form_widget(userForm.eigners) }}
+        </fieldset>
+        {{ form_row(userForm.grantedList) }}
+    </div>
+</div>
+
+<div class="grid-x grid-margin-x grid-padding-x action-menu">
+    <div class="cell">
+        {{ form_widget(userForm.save) }}
+        {{ form_widget(userForm.saveclose) }}
+        {{ form_widget(userForm.close) }}
+    </div>
+</div>
+{{ form_end(userForm) }}
+
+
+

@@ -1,0 +1,369 @@
+<?php
+
+function getEPFields($lineBreake, $doubleLineBreake, $auml, $useGridMeterDayData, $showPvSyst, $useEvu){
+    $cssStyleStd = "font-size:16px;";
+    
+    $tableFields = [
+        'PD'  => [
+            'label'         => 'Period / Duration',
+            'type'          => 'string',
+            "cssStyle"      => $cssStyleStd,
+        ],
+    ];
+    if($useGridMeterDayData == true){
+        $tableFields['GMNB'] = [
+            'label'         => 'Grid meter [kWh]'.$lineBreake.'(Netzbetreiber)',
+            'type'          => 'number',
+            "cssStyle"      => $cssStyleStd,
+            'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+        ];
+    }
+    if($useEvu) {
+        $tableFields['GMNA'] = [
+            'label'         => 'Grid meter [kWh]' . $lineBreake . '(Netzanalyseger' . $auml . 't)',
+            'type'          => 'number',
+            "cssStyle"      => $cssStyleStd,
+            'formatValue'   => function ($value) {
+                return number_format($value, 3, ',', '.');
+            },
+        ];
+    }
+    $tableFields['IOUT'] = [
+        'label'         => 'Inverter out [kWh]'.$lineBreake.'(kumulierte Werte'.$lineBreake.'der einzelnen WR)',
+        'type'          => 'number',
+        "cssStyle"      => $cssStyleStd,
+        'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+    ];
+    if($showPvSyst == true){
+        $tableFields['kwPeakPvSyst'] = [
+            'label'         => 'PVSYST'.$doubleLineBreake.'[kWh]',
+            'type'          => 'number',
+            "cssStyle"      => $cssStyleStd,
+            'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+        ];
+    }
+    $tableFields['G4NExpected'] = [
+        'label'         => 'G4N Expected'.$lineBreake.'[kWh]'.$lineBreake.'(Inv Out)',
+        'type'          => 'number',
+        "cssStyle"      => $cssStyleStd,
+        'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+    ];
+
+
+    return $tableFields;
+}
+
+function getPandRFields($lineBreake,$doubleLineBreake,$auml,$showAvailability,$showAvailabilitySecond,$useGridMeterDayData,$showPvSyst, $useEvu){
+    $cssStyleStd = "font-size: 1.0em;";
+    
+
+    $tableFields = [
+        'PD'  => [
+            'label'         => 'Period / Duration',
+            'type'          => 'string',
+            "cssStyle"      => $cssStyleStd,
+        ],
+    ];
+    if($useGridMeterDayData == true){
+        $tableFields['GMNB'] = [
+            'label'         => 'PR Grid meter'.$lineBreake.'(Netzbetreiber)'.$lineBreake.'[%]',
+            'type'          => 'number',
+            "cssStyle"      => $cssStyleStd,
+            'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+        ];
+    }
+    if ($useEvu) {
+        $tableFields['GMNA'] = [
+            'label'         => 'PR Grid meter' . $lineBreake . '(Netzanalysege.)' . $lineBreake . '[%]',
+            'type'          => 'number',
+            "cssStyle"      => $cssStyleStd,
+            'formatValue'   => function ($value) {
+                return number_format($value, 3, ',', '.');
+            },
+        ];
+    }
+    $tableFields['IOUT'] = [
+        'label'         => 'PR Inverter Out'.$doubleLineBreake.'[%]',
+        'type'          => 'number',
+        "cssStyle"      => $cssStyleStd,
+        'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+    ];
+    if($showPvSyst == true){
+        $tableFields['kwPeakPvSyst'] = [
+            'label'         => 'PR PVSYST'.$doubleLineBreake.'[%]',
+            'type'          => 'number',
+            "cssStyle"      => $cssStyleStd,
+            'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+        ];
+    }
+    $tableFields['G4NExpected'] = [
+        'label'         => 'PR G4N'.$lineBreake.'Expected'.$lineBreake.'[%]',
+        'type'          => 'number',
+        "cssStyle"      => $cssStyleStd,
+        'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+    ];
+    if($showAvailability == true) {
+        $tableFields['Availability1'] = [
+            'label'         => 'Availability 1' . $lineBreake . '[%]',
+            'type'          => 'number',
+            "cssStyle"      => $cssStyleStd,
+            'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+        ];
+    }
+    if($showAvailabilitySecond == true) {
+        $tableFields['Availability2'] = [
+            'label'         => 'Availability 2' . $lineBreake . '[%]',
+            'type'          => 'number',
+            "cssStyle"      => $cssStyleStd,
+            'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+        ];
+    }
+    return $tableFields;
+}
+
+function getPandRChartFields($lineBreake, $doubleLineBreake, $auml, $useGridMeterDayData){
+    $tableFields = [
+        'datum'  => [
+            'label'         => 'Date',
+            'type'          => 'string',
+        ],
+    ];
+    if ($useGridMeterDayData == false) {
+        $tableFields['PowerEvuMonth'] = [
+            "label"=>"Grid Meter",
+            'type'          => 'number',
+        ];
+    } else {
+        $tableFields['powerEGridExt'] = [
+            'label'         => 'Grid Meter',
+            'type'          => 'number',
+        ];
+    }
+    $tableFields['prEvuProz'] = [
+        "label"=>"PR",
+        'type'          => 'number',
+        "chartType" => "scatter",
+    ];
+
+    return $tableFields;
+}
+
+function getEandPChartFields($lineBreake,$doubleLineBreake,$auml,$useGridMeterDayData){
+    $tableFields = [
+        'datum'  => [
+            'label'         => 'Date',
+            'type'          => 'string',
+        ],
+    ];
+    if($useGridMeterDayData == false) {
+        $tableFields['PowerEvuMonth'] = [
+            "label"=>"Grid Meter",
+            'type'          => 'number',
+        ];
+    }else {
+        $tableFields['powerEGridExt'] = [
+            'label' => 'Grid Meter',
+            'type' => 'number',
+        ];
+    }
+    $tableFields['irradiation'] = [
+        "label"=>"irradiation",
+        'type'          => 'number',
+        "chartType" => "line",
+    ];
+    return $tableFields;
+}
+
+function getDayValuesields($lineBreake, $doubleLineBreake, $auml, $showAvailability, $showAvailabilitySecond, $useGridMeterDayData, $useEvu): array
+{
+    $cssStyleStd = "font-size:14px; white-space: nowrap;";
+    //
+
+    $tableFields = [
+        'datum'  => [
+            'label'         => 'Date',
+            'type'          => 'string',
+            'cssStyle'      => $cssStyleStd,
+        ],
+    ];
+    if($useGridMeterDayData == true){
+        $tableFields['powerEGridExt'] = [
+            'label'         => 'Energy Production'.$lineBreake.'Grid meter'.$lineBreake.'[kWh]',
+            'type'          => 'number',
+            "cssStyle"      => $cssStyleStd,
+            'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+        ];
+    }
+    $tableFields['PowerEvuMonth'] = [
+        'label'         => ($useEvu) ? 'Grid meter'.$lineBreake.'(Netzana-'.$lineBreake.'lyseger'.$auml.'t)'.$lineBreake.'[kWh]' : 'Inverter Out'.$lineBreake.'[kWh]',
+        'type'          => 'number',
+        "cssStyle"      => $cssStyleStd,
+        'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+    ];
+    $tableFields['spezYield'] = [
+        'label'         => 'Spec. Yield'.$lineBreake.'[kWh/kWp]',
+        'type'          => 'number',
+        "cssStyle"      => $cssStyleStd,
+        'formatValue'   => function($value) {return number_format($value, 4, ',', '.');},
+    ];
+    $tableFields['irradiation'] = [
+        'label'         => 'Irradiation'.$lineBreake.'average'.$lineBreake.'[kWh/m²]',
+        'type'          => 'number',
+        "cssStyle"      => $cssStyleStd,
+        'formatValue'   => function($value) {return number_format($value, 4, ',', '.');},
+    ];
+    $tableFields['prEvuEpc'] = [
+        'label'         => 'PR EPC'.$lineBreake.'[%]',
+        'type'          => 'number',
+        "cssStyle"      => $cssStyleStd,
+        'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+    ];
+    $tableFields['prEvuDefault'] = [
+        'label'         => 'PR Std.'.$lineBreake.'[%]',
+        'type'          => 'number',
+        "cssStyle"      => $cssStyleStd,
+        'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+    ];
+    if($showAvailability == true) {
+        $tableFields['plantAvailability'] = [
+            'label'         => 'PA 1'.$lineBreake.'[%]',
+            'type'          => 'number',
+            "cssStyle"      => $cssStyleStd,
+            'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+        ];
+    }
+    if($showAvailabilitySecond == true) {
+        $tableFields['plantAvailabilitySecond'] = [
+            'label'         => 'PA 2'.$lineBreake.'[%]',
+            'type'          => 'number',
+            "cssStyle"      => $cssStyleStd,
+            'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+        ];
+    }
+    $tableFields['powerTheo'] = [
+        'label'         => 'Theoretical'.$lineBreake.'[kWh]',
+        'type'          => 'number',
+        "cssStyle"      => $cssStyleStd,
+        'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+    ];
+    $tableFields['powerExp'] = [
+        'label'         => 'Expected (G4N)'.$lineBreake.'[kWh]',
+        'type'          => 'number',
+        "cssStyle"      => $cssStyleStd,
+        'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+    ];
+    $tableFields['case5perDay'] = [
+        'label'         => 'Case 5',
+        'type'          => 'number',
+        "cssStyle"      => $cssStyleStd,
+        'formatValue'   => function($value) {return number_format($value, 0, ',', '.');},
+    ];
+
+    return $tableFields;
+}
+
+function getCase5Fields($lineBreake,$doubleLineBreake,$auml){
+    $cssStyleStd = "font-size:16px;";
+    
+
+    $tableFields = [
+        'stampFrom'  => [
+            'label'         => 'From',
+            'type'          => 'string',
+            "cssStyle"      => $cssStyleStd,
+        ]
+        ,'stampTo'  => [
+            'label'         => 'To',
+            'type'          => 'string',
+            "cssStyle"      => $cssStyleStd,
+        ],
+        'inverter'  => [
+            'label'         => 'Inverter',
+            'type'          => 'string',
+            "cssStyle"      => $cssStyleStd,
+        ],
+        'reason'  => [
+            'label'         => 'Reason',
+            'type'          => 'string',
+            "cssStyle"      => $cssStyleStd,
+        ],
+    ];
+    return $tableFields;
+}
+
+function getIandTFields($lineBreake,$doubleLineBreake,$auml,$irradiationandtempvalues)
+{
+    $cssStyleStd = "font-size:9px;";
+    
+
+    $tableFields = [
+        'datum' => [
+            'label'     => 'Date',
+            'type'      => 'string',
+            "cssStyle"  => $cssStyleStd,
+        ],
+    ];
+
+    foreach ($irradiationandtempvalues as $key => $value){
+        if(strpos($key,'G') !== false) {
+            $tableFields[$key] = [
+                'label' => $lineBreake . $key,
+                'type' => 'number',
+                "cssStyle" => $cssStyleStd,
+                'formatValue' => function ($value) {
+                    return number_format($value, 3, ',', '.');
+                },
+            ];
+        }
+    }
+    $showAvTemp = false;
+    foreach ($irradiationandtempvalues as $key => $value){
+        if(strpos($key,'T') !== false) {
+            $tableFields[$key] = [
+                'label' => $lineBreake.$key,
+                'type' => 'number',
+                "cssStyle" => $cssStyleStd,
+                'formatValue' => function ($value) {
+                    return number_format($value, 3, ',', '.');
+                },
+            ];
+            $showAvTemp = true;
+        }
+    }
+
+    if($showAvTemp) {
+        $tableFields['Avg_temp'] = [
+            'label' => 'Temp.<br>Avg',
+            'type' => 'number',
+            "cssStyle" => $cssStyleStd,
+            'formatValue' => function ($value) {
+                return number_format($value, 3, ',', '.');
+            },
+        ];
+    }
+    return $tableFields;
+}
+
+function getLegendFields($lineBreake,$doubleLineBreake,$auml){
+    $cssStyleStd = "font-size:16px;";
+    
+
+    $tableFields = [
+        'title'         => [
+            'label'         => 'Titel',
+            "cssStyle"      => $cssStyleStd,
+            'formatValue'   => function($value) {return htmlentities($value);},
+        ],
+        'unit'              => [
+            'label'         => 'Unit',
+            "cssStyle"      => $cssStyleStd,
+            'formatValue'   => function($value) {return htmlentities($value);},
+        ],
+        'description'   => [
+            'label'         => 'Description',
+            "cssStyle"      => $cssStyleStd,
+            'formatValue'   => function($value) {return htmlentities($value);},
+        ],
+    ];
+    return $tableFields;
+}

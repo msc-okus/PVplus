@@ -1,0 +1,98 @@
+{% extends "base.html.twig" %}
+
+{% block title %}
+
+{% endblock %}
+
+{% block body %}
+<div id="owner" class="grid-x grid-margin-x grid-margin-y grid-padding-x grid-padding-y small-up-1 medium-up-2 large-up-3 xlarge-up-4">
+    {% for owner in content %}
+        <div class="cell box shadow">
+            <div class="grid-x grid-margin-x">
+                <div class="cell small-6 ">
+                    <i class="fa fa-user" aria-hidden="true"></i>
+                    <p>{{ owner.firma }} {% if is_granted('ROLE_G4N') %}<span class="small"> ({{ owner.eignerId }})</span>{% endif %}</p>
+                    <h6>{{ owner.vorname }} {{ owner.nachname }}</h6>
+                </div>
+                <div class="cell small-6 ">
+                    <div class="grid-x align-right">
+                        <div class="cell small-4">
+                            <button class="button button-icon round-corner" onclick="location.href='{{ path('app_dashboard_plant', { eignerId: owner.eignerId, anlageId: '0' }) }}'"><i class="fa fa-bar-chart-o"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% for plant in owner.activeAnlage(is_granted('ROLE_G4N')) %}
+                {% if plant.anlId in app.user.grantedList or is_granted('ROLE_G4N') %} {# nur anzeigen wenn Anlage für diesen aktuellen User freigegebn oder admin #}
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell">
+                            <h6><b>{{ plant.anlName }} </b>{% if is_granted('ROLE_G4N') %}<small><b>[{{ plant.anlId }} / {{ plant.anlIntNr }} / {{ plant.anlDbWs }}]</b></small>{% endif %}</h6>
+                        </div>
+                    </div>
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell">
+                            <ul class="statusLights">
+                                {% for stati in plant.lastStatus %}
+                                    <li>
+                                        <span class='label label-{{ stati.lastDataStatus }}' data-toggle='tooltip' data-original-title='Last plant data {{ stati.lastDataIo|date }}'>IO plant</span>
+                                    </li>
+                                    <li>
+                                        <span class='label label-{{ stati.lastWeatherStatus }}' data-toggle='tooltip' data-original-title='Last weather data {{ stati.lastWeatherIo|date }}'>IO weather</span>
+                                    </li>
+                                    <li class="statusLight">
+                                        <span class='label label-{{ stati.acDiffStatus }}' data-toggle='tooltip' data-original-title='AC difference [kWh]'>AC diff</span>
+                                    </li>
+                                    <li class="statusLight">
+                                        <span class='label label-{{ stati.dcDiffStatus }}' data-toggle='tooltip' data-original-title='DC difference [kWh]'>DC diff</span>
+                                    </li>
+                                    <li class="statusLight">
+                                        <span class='label label-{{ stati.invStatus }}' data-toggle='tooltip' data-original-title='Inverter'>Inverter</span>
+                                    </li>
+                                    <li class="statusLight">
+                                        <span class='label label-{{ stati.dcStatus }}' data-toggle='tooltip' data-original-title='Strings'>Strings</span>
+                                    </li>
+                                {% else %}
+                                    <li>
+                                        <span class='label' data-toggle='tooltip'>IO plant</span>
+                                    </li>
+                                    <li>
+                                        <span class='label' data-toggle='tooltip'>IO weather</span>
+                                    </li>
+                                    <li class="statusLight">
+                                        <span class='label' data-toggle='tooltip' data-original-title='AC difference [kWh]'>AC diff</span>
+                                    </li>
+                                    <li class="statusLight">
+                                        <span class='label' data-toggle='tooltip' data-original-title='DC difference [kWh]'>DC diff</span>
+                                    </li>
+                                    <li class="statusLight">
+                                        <span class='label' data-toggle='tooltip' data-original-title='Inverter'>Inverter</span>
+                                    </li>
+                                    <li class="statusLight">
+                                        <span class='label' data-toggle='tooltip' data-original-title='Strings'>Strings</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}
+
+
+{% block styles %}
+    {{ parent() }}
+{% endblock %}
+
+{% block javascriptstop %}
+    {{ parent() }}
+    <script type="text/javascript">
+        setInterval(function() {window.location.replace("/");}, 150000);
+    </script>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}

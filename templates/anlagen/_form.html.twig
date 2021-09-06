@@ -1,0 +1,432 @@
+{% import _self as formMacros %}
+
+{% macro addModule(module) %}
+    <li class="accordion-item js-module-item" data-accordion-item data-allow-all-closed="true">
+        <!-- Accordion tab title -->
+        <a href="#" class="accordion-title">Modul: NEW</a>
+
+        <div class="accordion-content" data-tab-content>
+            <div class="grid-x grid-padding-x">
+                <div class="cell medium-2">{{ form_row(module.type) }}</div>
+                <div class="cell medium-2">{{ form_row(module.power) }}</div>
+                <div class="cell medium-2">{{ form_row(module.tempCoefCurrent) }}</div>
+                <div class="cell medium-2">{{ form_row(module.tempCoefPower) }}</div>
+                <div class="cell medium-2">{{ form_row(module.degradation) }}</div>
+            </div>
+            <div class="grid-x grid-padding-x">
+                <div class="cell medium-6">
+                    <fieldset class="fieldset">
+                        <legend>Operators Current</legend>
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-2">{{ form_row(module.operatorCurrentA) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorCurrentB) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorCurrentC) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorCurrentD) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorCurrentE) }}</div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="cell medium-6">
+                    <fieldset class="fieldset">
+                        <legend>Operators Power</legend>
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-3">{{ form_row(module.operatorPowerA) }}</div>
+                            <div class="cell medium-3">{{ form_row(module.operatorPowerB) }}</div>
+                            <div class="cell medium-3">{{ form_row(module.operatorPowerC) }}</div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </li>
+{% endmacro %}
+
+{% macro addTimeConfig(timeConfig) %}
+    <tr>
+        <td>{{ form_widget(timeConfig.type) }}</td>
+        <td>{{ form_widget(timeConfig.startDateMonth) }}</td>
+        <td>{{ form_widget(timeConfig.startDateDay) }}</td>
+        <td>{{ form_widget(timeConfig.endDateMonth) }}</td>
+        <td>{{ form_widget(timeConfig.endDateDay) }}</td>
+        <td>{{ form_widget(timeConfig.startTime) }}</td>
+        <td>{{ form_widget(timeConfig.endTime) }}</td>
+        <td>{{ form_widget(timeConfig.maxFailTime) }}</td>
+        <td></td>
+    </tr>
+{% endmacro %}
+
+{{ form_start(anlageForm) }} {# , {'attr': {'novalidate': 'yes'}}) #}
+    <div class="grid-x">
+        <div class="cell">
+            <ul class="tabs" data-tabs id="anlage-tabs" data-deep-link="true">
+                <li class="tabs-title is-active"><a data-tabs-target="plant-data" href="#plant-data" aria-selected="true" >General</a></li>
+                {% if is_granted('ROLE_G4N') %}
+                    <li class="tabs-title"><a data-tabs-target="plant-data-2" href="#plant-data-2">Plant configuration</a></li>
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <li class="tabs-title"><a data-tabs-target="modules" href="#modules">Modules</a></li>
+                    {% endif %}
+                    <li class="tabs-title"><a data-tabs-target="settings" href="#settings">Settings</a></li>
+                    <li class="tabs-title"><a data-tabs-target="timeing" href="#timeing">Time Configuration</a></li>
+                {% endif %}
+            </ul>
+
+            <div class="tabs-content" data-tabs-content="anlage-tabs">
+                {# General #}
+                <div class="tabs-panel is-active" id="plant-data">
+
+                    <fieldset class="fieldset">
+                        <legend>Standort</legend>
+                        <div class="grid-x grid-margin-x grid-padding-x">
+                            <div class="cell medium-4">{{ form_row(anlageForm.eigner) }}</div>
+                            <div class="cell medium-4">{{ form_row(anlageForm.anlName) }}</div>
+                            <div class="cell medium-4">{{ form_row(anlageForm.projektNr) }}</div>
+                        </div>
+                        <div class="grid-x grid-margin-x grid-padding-x">
+                            <div class="cell medium-4">{{ form_row(anlageForm.anlStrasse) }}</div>
+                            <div class="cell medium-2"> {{ form_row(anlageForm.anlPlz) }}</div>
+                            <div class="cell medium-4"> {{ form_row(anlageForm.anlOrt) }}</div>
+                            <div class="cell medium-2">{{ form_row(anlageForm.country) }}</div>
+                        </div>
+                        <hr>
+                        <div class="grid-x grid-margin-x grid-padding-x">
+                            <div class="cell medium-6">
+                                {{ form_row(anlageForm.anlGeoLat) }}
+                            </div>
+                            <div class="cell medium-6">
+                                {{ form_row(anlageForm.anlGeoLon) }}
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="grid-x grid-margin-x grid-padding-x">
+                            <div class="cell">
+                                {{ form_row(anlageForm.notes)}}
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset class="fieldset">
+                        <legend>Basis Konfiguration</legend>
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-3">{{ form_row(anlageForm.anlIntnr) }}</div>
+                            <div class="cell medium-3">{{ form_row(anlageForm.anlType) }}</div>
+                            <div class="cell medium-3">{{ form_row(anlageForm.anlZeitzone) }}</div>
+                            <div class="cell medium-3">{{ form_row(anlageForm.anlBetrieb) }}</div>
+                        </div>
+                        {% if is_granted('ROLE_DEV') %}
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-3">{{ form_row(anlageForm.anlInputDaily) }}</div>
+                            <div class="cell medium-3">{{ form_row(anlageForm.useNewDcSchema) }}</div>
+                            <div class="cell medium-3">{{ form_row(anlageForm.configType) }}</div>
+                            <div class="cell medium-3">{{ form_row(anlageForm.sourceInvName) }}</div>
+                        </div>
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-3"></div>
+                            <div class="cell medium-3"></div>
+                            <div class="cell medium-3">
+                                <small>
+                                    <ul>
+                                        <li>1: Fall 'Andjik' <br>
+                                            AC Gruppen = Trafostationen o.ä.<br>
+                                            DC Gruppen = Inverter
+                                        </li>
+                                        <li>2: Fall 'Lelystad' <br>
+                                            AC Gruppen = DC Gruppen – beides Inverter
+                                        </li>
+                                        <li>3: Fall 'Groningen' <br>
+                                            AC Gruppen = Inverter<br>
+                                            DC Gruppen = SCBs
+                                        </li>
+                                        <li>4: Fall 'Guben' <br>
+                                            AC Gruppen = Inverter<br>
+                                            DC Gruppen = SCB Gruppen
+                                        </li>
+                                    </ul>
+                                </small>
+                            </div>
+                            <div class="cell medium-3"></div>
+                        </div>
+                        {% endif %}
+                    </fieldset>
+                    <fieldset class="fieldset">
+                        <legend>Konfiguration Wetter Daten</legend>
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-4">{{ form_row(anlageForm.WeatherStation) }}</div>
+                            <div class="cell medium-4">{{ form_row(anlageForm.useLowerIrrForExpected) }}</div>
+                            {#
+                            <div class="cell medium-3">{{ form_row(anlageForm.anlIrChange) }}</div>
+                            <div class="cell medium-3">{{ form_row(anlageForm.anlWindUnit) }}</div>
+                            #}
+                        </div>
+                    </fieldset>
+                </div>
+
+                {# Plant Configuration #}
+                <div class="tabs-panel" id="plant-data-2">
+                    <div class="grid-x grid-padding-x">
+
+                        <div class="cell medium-6">
+                            <fieldset class="fieldset">
+                                <legend>Anlagenleistung</legend>
+                                <div class="grid-x grid-padding-x">
+                                    <div class="cell medium-6">{{ form_row(anlageForm.kwPeak) }}</div>
+                                    <div class="cell medium-6">{{ form_row(anlageForm.kwPeakPvSyst) }}</div>
+                                </div>
+                            </fieldset>
+                            <fieldset class="fieldset">
+                                <legend>Anlage hat Ost / West Ausrichtung</legend>
+                                <div class="grid-x grid-padding-x">
+                                    <div class="cell medium-4">{{ form_row(anlageForm.isOstWestAnlage) }}</div>
+                                    <div class="cell medium-4">{{ form_row(anlageForm.powerEast) }}</div>
+                                    <div class="cell medium-4">{{ form_row(anlageForm.powerWest) }}</div>
+                                </div>
+                            </fieldset>
+                            <fieldset class="fieldset">
+                                <legend>PR Berechnung</legend>
+                                {{ form_row(anlageForm.useCustPRAlgorithm) }}
+                                {{ form_row(anlageForm.tempCorrCellTypeAvg) }}
+                                <div class="grid-x grid-padding-x">
+                                    <div class="cell medium-3">{{ form_row(anlageForm.tempCorrGamma) }}</div>
+                                    <div class="cell medium-3">{{ form_row(anlageForm.tempCorrA) }}</div>
+                                    <div class="cell medium-3">{{ form_row(anlageForm.tempCorrB) }}</div>
+                                    <div class="cell medium-3">{{ form_row(anlageForm.tempCorrDeltaTCnd) }}</div>
+                                </div>
+                            </fieldset>
+                            <fieldset class="fieldset">
+                                <legend>diverses</legend>
+                                {{ form_row(anlageForm.minIrradiationAvailability) }}
+                                {{ form_row(anlageForm.useGridMeterDayData) }}
+                            </fieldset>
+                        </div>
+                        <div class="cell medium-6">
+                            <fieldset class="fieldset">
+                                <legend>Report Konfiguration</legend>
+                                <div class="grid-x grid-padding-x">
+                                    <div class="cell medium-4">{{ form_row(anlageForm.epcReportType) }}</div>
+                                    <div class="cell medium-4"></div>
+                                    <div class="cell medium-4"></div>
+                                </div>
+                            </fieldset>
+                            <fieldset class="fieldset">
+                                <legend>Vertragliche Werte (PR Garantie)</legend>
+                                <div class="grid-x grid-padding-x">
+                                    <div class="cell medium-4">{{ form_row((anlageForm.contractualPR)) }}</div>
+                                    <div class="cell medium-4">{{ form_row((anlageForm.designPR)) }}</div>
+                                </div>
+                                <div class="grid-x grid-padding-x">
+                                    <div class="cell medium-3">{{ form_row((anlageForm.lid)) }}</div>
+                                    <div class="cell medium-3">{{ form_row((anlageForm.annualDegradation)) }}</div>
+                                    <div class="cell medium-3">{{ form_row((anlageForm.pldPR)) }}</div>
+                                    <div class="cell medium-3">{{ form_row((anlageForm.pldNPValue)) }}</div>
+                                </div>
+                                <div class="grid-x grid-margin-x">
+                                </div>
+                            </fieldset>
+                            <fieldset class="fieldset">
+                                <legend>Vertragliche Werte (Ertragsgarantie)</legend>
+                                <div class="grid-x grid-padding-x">
+                                    <div class="cell medium-4">{{ form_row((anlageForm.contractualPower)) }}</div>
+                                    <div class="cell medium-4">{{ form_row((anlageForm.transformerTee)) }}</div>
+                                    <div class="cell medium-4">{{ form_row((anlageForm.guaranteeTee)) }}</div>
+                                </div>
+                                <div class="grid-x grid-padding-x">
+                                    <div class="cell medium-4">{{ form_row((anlageForm.pldYield)) }}</div>
+                                    <div class="cell medium-8">{{ form_row((anlageForm.pldDivisor)) }}</div>
+                                </div>
+                            </fieldset>
+                            <fieldset class="fieldset">
+                                <legend>Vertragliche Werte (Verfügbarkeit)</legend>
+                                <div class="grid-x grid-padding-x">
+                                    <div class="cell medium-4">{{ form_row((anlageForm.contractualAvailability)) }}</div>
+                                </div>
+                            </fieldset>
+
+                            <fieldset class="fieldset">
+                                <legend>PAC / FAC Konfiguration</legend>
+                                <div class="grid-x grid-padding-x">
+                                    <div class="cell medium-3">{{ form_row(anlageForm.pacDate) }}</div>
+                                    <div class="cell medium-3">{{ form_row(anlageForm.pacDateEnd) }}</div>
+                                    <div class="cell medium-3">{{ form_row(anlageForm.usePac) }}</div>
+                                    <div class="cell medium-3">{{ form_row(anlageForm.pacDuration) }}</div>
+                                </div>
+                                <div class="grid-x grid-padding-x">
+                                    <div class="cell medium-3">{{ form_row(anlageForm.facDateStart) }}</div>
+                                    <div class="cell medium-3">{{ form_row(anlageForm.facDate) }}</div>
+                                    <div class="cell medium-3"></div>
+                                    <div class="cell medium-3"></div>
+                                </div>
+                                <div class="grid-x grid-padding-x">
+                                    <div class="cell medium-3">{{ form_row(anlageForm.epcReportStart) }}</div>
+                                    <div class="cell medium-3">{{ form_row(anlageForm.epcReportEnd) }}</div>
+                                    <div class="cell medium-3"></div>
+                                    <div class="cell medium-3"></div>
+                                </div>
+                            </fieldset>
+
+                        </div>
+                    </div>
+                </div>
+
+                {# Modules #}
+                {% if is_granted('ROLE_ADMIN') %}
+                    <div class="tabs-panel" id="modules">
+                    <fieldset class="fieldset js-module-wrapper"
+                              data-prototype="{{ formMacros.addModule(anlageForm.modules.vars.prototype)|e('html_attr') }}"
+                              data-index="{{ anlageForm.modules|length }}"
+                    >
+                        <legend>Modules</legend>
+
+                        <div id="modules">
+                            <ul id="js-accordion" class="accordion" data-accordion data-allow-all-closed="true">
+                                {% for module in anlageForm.modules %}
+                                    <li class="accordion-item js-module-item" data-accordion-item data-allow-all-closed="true">
+                                        <!-- Accordion tab title -->
+                                        <a href="#" class="accordion-title">Modul Type: <b>{{ module.type.vars.value }}</b>{% if is_granted('ROLE_G4N') %} - (Group ID: {{ module.vars.data.id }}) {% endif %}</a>
+
+                                        <div class="accordion-content" data-tab-content>
+                                            <div class="grid-x grid-padding-x">
+                                                <div class="cell medium-2">{{ form_row(module.type) }}</div>
+                                                <div class="cell medium-2">{{ form_row(module.power) }}</div>
+                                                <div class="cell medium-2">{{ form_row(module.tempCoefCurrent) }}</div>
+                                                <div class="cell medium-2">{{ form_row(module.tempCoefPower) }}</div>
+                                                <div class="cell medium-2">{{ form_row(module.degradation) }}</div>
+                                            </div>
+                                            <div class="grid-x grid-padding-x">
+                                                <div class="cell medium-6">
+                                                    <fieldset class="fieldset">
+                                                        <legend>Operators Current</legend>
+                                                        <div class="grid-x grid-padding-x">
+                                                            <div class="cell medium-2">{{ form_row(module.operatorCurrentA) }}</div>
+                                                            <div class="cell medium-2">{{ form_row(module.operatorCurrentB) }}</div>
+                                                            <div class="cell medium-2">{{ form_row(module.operatorCurrentC) }}</div>
+                                                            <div class="cell medium-2">{{ form_row(module.operatorCurrentD) }}</div>
+                                                            <div class="cell medium-2">{{ form_row(module.operatorCurrentE) }}</div>
+                                                        </div>
+                                                    </fieldset>
+                                                </div>
+
+                                                <div class="cell medium-6">
+                                                    <fieldset class="fieldset">
+                                                        <legend>Operators Power</legend>
+                                                        <div class="grid-x grid-padding-x">
+                                                            <div class="cell medium-3">{{ form_row(module.operatorPowerA) }}</div>
+                                                            <div class="cell medium-3">{{ form_row(module.operatorPowerB) }}</div>
+                                                            <div class="cell medium-3">{{ form_row(module.operatorPowerC) }}</div>
+                                                        </div>
+                                                    </fieldset>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <button type="button" class="button secondary small js-add-module"> <span class="fa fa-plus-circle"></span>&nbsp;Add Modul</button>
+                    </fieldset>
+                </div>
+                {% endif %}
+
+                {# Settings and Config #}
+                <div class="tabs-panel" id="settings">
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell medium-6">
+                            <fieldset class="fieldset">
+                                <legend>Settings</legend>
+                                {{ form_row(anlageForm.anlView) }}
+                                {{ form_row(anlageForm.anlHidePlant) }}
+                                {{ form_row(anlageForm.anlMute) }}
+                                {{ form_row(anlageForm.anlMuteUntil) }}
+                                {{ form_row(anlageForm.useCosPhi) }}
+                                {{ form_row(anlageForm.calcPR) }}
+                            </fieldset>
+                        </div>
+                        <div class="cell medium-6">
+                            <fieldset class="fieldset">
+                                <legend>Configuration Backend</legend>
+                                {{ form_row(anlageForm.showOnlyUpperIrr) }}
+                                {{ form_row(anlageForm.showStringCharts) }}
+                                {{ form_row(anlageForm.showAvailability) }}
+                                {{ form_row(anlageForm.showAvailabilitySecond) }}
+                                {{ form_row(anlageForm.showInverterPerformance) }}
+                                {{ form_row(anlageForm.showEvuDiag) }}
+                                {{ form_row(anlageForm.showInverterOutDiag) }}
+                                {{ form_row(anlageForm.showCosPhiDiag) }}
+                                {{ form_row(anlageForm.showCosPhiPowerDiag) }}
+                                {{ form_row(anlageForm.showGraphDcInverter) }}
+                                {{ form_row(anlageForm.showGraphDcCurrInv) }}
+                                {{ form_row(anlageForm.showGraphDcCurrGrp) }}
+                                {{ form_row(anlageForm.showGraphVoltGrp) }}
+                                {{ form_row(anlageForm.showGraphIrrPlant) }}
+                                {{ form_row(anlageForm.showPR) }}
+                                {{ form_row(anlageForm.showPvSyst) }}
+                                {{ form_row(anlageForm.showForecast) }}
+                            </fieldset>
+                        </div>
+                    </div>
+
+                </div>
+
+                {# Timings #}
+                <div class="tabs-panel" id="timeing">
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell">
+
+                            <fieldset class="fieldset js-timeConfig-wrapper"
+                                      data-prototype="{{ formMacros.addTimeConfig(anlageForm.timesConfigs.vars.prototype)|e('html_attr') }}"
+                                      data-index="{{ anlageForm.timesConfigs|length }}"
+                            >
+                                <legend>Timings</legend>
+                                <table id="timeConfig">
+                                    <thead>
+                                    <tr>
+                                        <th>Type</th>
+                                        <th>Begin Date Month</th>
+                                        <th>Begin Date Day</th>
+                                        <th>End Date Month</th>
+                                        <th>End Date Day</th>
+                                        <th>Start Time</th>
+                                        <th>End Time</th>
+                                        <th>Max Fail </th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for timeConfig in anlageForm.timesConfigs %}
+                                        <tr class="js-timeConfig-item">
+                                            <td>{{ form_widget(timeConfig.type) }}</td>
+                                            <td>{{ form_widget(timeConfig.startDateMonth) }}</td>
+                                            <td>{{ form_widget(timeConfig.startDateDay) }}</td>
+                                            <td>{{ form_widget(timeConfig.endDateMonth) }}</td>
+                                            <td>{{ form_widget(timeConfig.endDateDay) }}</td>
+                                            <td>{{ form_widget(timeConfig.startTime) }}</td>
+                                            <td>{{ form_widget(timeConfig.endTime) }}</td>
+                                            <td>{{ form_widget(timeConfig.maxFailTime) }}</td>
+                                            <td>{% if is_granted('ROLE_DEV') %}<a href="#" class="js-remove-timeConfig"><span class="fa fa-minus-circle"></span></a>{% endif %}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                <button type="button" class="button secondary small js-add-timeConfig"> <span class="fa fa-plus-circle"></span>&nbsp;Add Time Configuartion</button>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-x grid-padding-y action-menu">
+        <div class="cell">
+            {{ form_widget(anlageForm.save) }}
+            {{ form_widget(anlageForm.saveclose) }}
+            {{ form_widget(anlageForm.close) }}
+            {% if (is_granted('ROLE_DEV')) %}{{ form_widget(anlageForm.savecreatedb) }}{% endif %}
+        </div>
+    </div>
+    {% do anlageForm.modules.setRendered() %}
+    {% do anlageForm.savecreatedb.setRendered() %}
+    {% do anlageForm.timesConfigs.setRendered() %}
+{{ form_end(anlageForm) }}
+
+
+

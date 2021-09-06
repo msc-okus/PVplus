@@ -1,0 +1,337 @@
+{% import _self as formMacros %}
+
+{% macro addGroup(group, index) %}
+    <li class="accordion-item js-group-item" data-accordion-item data-allow-all-closed="true">
+        <!-- Accordion tab title -->
+        <a href="#" class="accordion-title">Group: {{ index }}</a>
+
+        <div class="accordion-content" data-tab-content>
+            <div class="grid-x grid-padding-x">
+                <div class="cell medium-2">{{ form_row(group.dcGroup) }}</div>
+                <div class="cell medium-2">{{ form_row(group.dcGroupName) }}</div>
+                <div class="cell medium-2">{{ form_row(group.acGroup) }}</div>
+                <div class="cell medium-2">{{ form_row(group.unitFirst) }}</div>
+                <div class="cell medium-2">{{ form_row(group.unitLast) }}</div>
+                <div class="cell medium-2">{{ form_row(group.weatherStation) }}</div>
+            </div>
+            <div class="grid-x grid-padding-x">
+                <div class="cell medium-1">{{ form_row(group.irrUpper) }}</div>
+                <div class="cell medium-1">{{ form_row(group.irrLower) }}</div>
+                <div class="cell medium-2">{{ form_row(group.secureLoss) }}</div>
+                <div class="cell medium-2">{{ form_row(group.factorAC) }}</div>
+                <div class="cell medium-2">{{ form_row(group.gridLoss) }}</div>
+                <div class="cell medium-2">{{ form_row(group.limitAC) }}</div>
+                <div class="cell medium-2">{{ form_row(group.gridLimitAC) }}</div>
+            </div>
+            <div class="grid-x grid-padding-x">
+                <div class="cell medium-6">
+
+                    <p>Modul Settings</p>
+                    <table id="modules">
+                        <thead>
+                        <tr>
+                            <th><small>Type</small></th>
+                            <th><small>Strings / Unit</small></th>
+                            <th><small>Modules / String</small></th>
+
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for module in group.modules %}
+                            <tr class="js-module-item">
+                                <td>{{ form_widget(module.moduleType) }}</td>
+                                <td>{{ form_widget(module.numStringsPerUnit) }}</td>
+                                <td>{{ form_widget(module.numModulesPerString) }}</td>
+
+                                <td></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <button type="button" class="button secondary small disabled"> <span class="fa fa-plus-circle"></span>&nbsp;Add </button>
+
+                </div>
+                <div class="cell medium-6 js-month-wrapper">
+                    <p>Settings per Month</p>
+                    <table id="months">
+                        <thead>
+                        <tr>
+                            <th><small>Month</small></th>
+                            <th><small>Irr Upper</small></th>
+                            <th><small>Irr Lower</small></th>
+                            <th><small>Shadow Loss</small></th>
+                            <th></th>
+                        </tr>
+
+                        </thead>
+                        <tbody>
+                        {% for month in group.months %}
+                            <tr class="js-month-item">
+                                <td>{{ form_widget(month.month) }}</td>
+                                <td>{{ form_widget(month.irrUpper) }}</td>
+                                <td>{{ form_widget(month.irrLower) }}</td>
+                                <td>{{ form_widget(month.shadowLoss) }}</td>
+                                <td></td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <button type="button" class="button secondary small disabled"> <span class="fa fa-plus-circle"></span>&nbsp;Add </button>
+                </div>
+            </div>
+            {% if is_granted('ROLE_G4N') %}
+                <div class="grid-x grid-padding-x">
+                    <div class="cell medium-1"><a href="#" class="js-remove-group"><span class="fa fa-minus-circle"></span></a></div>
+                </div>
+            {% endif %}
+        </div>
+    </li>
+{% endmacro %}
+
+{% macro addGroupModule(module) %}
+    <tr>
+        <td>{{ form_widget(module.moduleType) }}</td>
+        <td>{{ form_widget(module.numStringsPerUnit) }}</td>
+        <td>{{ form_widget(module.numStringsPerUnitEast) }}</td>
+        <td>{{ form_widget(module.numStringsPerUnitWest) }}</td>
+        <td>{{ form_widget(module.numModulesPerString) }}</td>
+        <td></td>
+    </tr>
+{% endmacro %}
+
+{% macro addMonth(month) %}
+    <tr>
+        <td>{{ form_widget(month.month) }}</td>
+        <td>{{ form_widget(month.irrUpper) }}</td>
+        <td>{{ form_widget(month.irrLower) }}</td>
+        <td>{{ form_widget(month.shadowLoss) }}</td>
+        <td></td>
+    </tr>
+{% endmacro %}
+
+{% macro addPlantMonth(month) %}
+    <tr>
+        <td>{{ form_widget(month.month) }}</td>
+        <td>{{ form_widget(month.irrUpper) }}</td>
+        <td>{{ form_widget(month.irrLower) }}</td>
+        <td>{{ form_widget(month.shadowLoss) }}</td>
+        <td></td>
+    </tr>
+{% endmacro %}
+
+
+{{ form_start(anlageForm) }} {# , {'attr': {'novalidate': 'yes'}}) #}
+    <div class="grid-x">
+        <div class="cell">
+            <ul class="tabs" data-tabs id="anlage-tabs" data-deep-link="true">
+                <li class="tabs-title is-active"><a data-tabs-target="plant-data" href="#plant-data" aria-selected="true" >General</a></li>
+                {% if is_granted('ROLE_G4N') %}
+                    <li class="tabs-title"><a data-tabs-target="groups" href="#groups">Groups</a></li>
+                    <li class="tabs-title"><a data-tabs-target="plant-month" href="#plant-month">Months</a></li>
+                {% endif %}
+            </ul>
+
+            <div class="tabs-content" data-tabs-content="anlage-tabs">
+                {# General #}
+                <div class="tabs-panel is-active" id="plant-data">
+
+                    <fieldset class="fieldset">
+                        <legend>Standort</legend>
+                        <div class="grid-x grid-margin-x grid-padding-x">
+                            <div class="cell medium-6">
+                                {{ form_row(anlageForm.eigner) }}
+                                {{ form_row(anlageForm.anlName) }}
+                                {{ form_row(anlageForm.projektNr) }}
+                            </div>
+                            <div class="cell medium-6">
+                                {{ form_row(anlageForm.anlStrasse) }}
+                                {{ form_row(anlageForm.anlPlz) }}
+                                {{ form_row(anlageForm.anlOrt) }}
+                                {{ form_row(anlageForm.country) }}
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="grid-x grid-margin-x grid-padding-x">
+                            <div class="cell medium-6">
+                                {{ form_row(anlageForm.anlGeoLat) }}
+                            </div>
+                            <div class="cell medium-6">
+                                {{ form_row(anlageForm.anlGeoLon) }}
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="grid-x grid-margin-x grid-padding-x">
+                            <div class="cell">
+                                {{ form_row(anlageForm.notes)}}
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                {# Groups #}
+                <div class="tabs-panel" id="groups">
+                    <fieldset class="fieldset js-group-wrapper"
+                              data-prototype="{{ formMacros.addGroup(anlageForm.groups.vars.prototype, (anlageForm.groups|length +1))|e('html_attr') }}"
+                              data-index="{{ anlageForm.groups|length }}"
+                    >
+                        <legend>Groups</legend>
+
+                        <div id="group">
+                            <ul id="js-accordion" class="accordion" data-accordion data-allow-all-closed="true">
+                            {% for group in anlageForm.groups %}
+                                <li class="accordion-item js-group-item" data-accordion-item data-allow-all-closed="true">
+                                    <!-- Accordion tab title -->
+                                    <a href="#" class="accordion-title">Group: {{ loop.index }} {% if is_granted('ROLE_G4N') %} - (Group ID: {{ group.vars.data.id }}) {% endif %} Name: {{ group.vars.data.dcGroupName }} –> AC Group {{ group.vars.data.acGroup }}</a>
+                                    <div class="accordion-content" data-tab-content>
+                                        <div class="grid-x grid-padding-x">
+                                            <div class="cell medium-2">{{ form_row(group.dcGroup) }}</div>
+                                            <div class="cell medium-2">{{ form_row(group.dcGroupName) }}</div>
+                                            <div class="cell medium-2">{{ form_row(group.acGroup) }}</div>
+                                            <div class="cell medium-2">{{ form_row(group.unitFirst) }}</div>
+                                            <div class="cell medium-2">{{ form_row(group.unitLast) }}</div>
+                                            <div class="cell medium-2">{{ form_row(group.weatherStation) }}</div>
+                                        </div>
+                                        <div class="grid-x grid-padding-x">
+                                            <div class="cell medium-1">{{ form_row(group.irrUpper) }}</div>
+                                            <div class="cell medium-1">{{ form_row(group.irrLower) }}</div>
+                                            <div class="cell medium-2">{{ form_row(group.secureLoss) }}</div>
+                                            <div class="cell medium-2">{{ form_row(group.factorAC) }}</div>
+                                            <div class="cell medium-2">{{ form_row(group.gridLoss) }}</div>
+                                            <div class="cell medium-2">{{ form_row(group.limitAC) }}</div>
+                                            <div class="cell medium-2">{{ form_row(group.gridLimitAC) }}</div>
+                                        </div>
+                                        <div class="grid-x grid-padding-x">
+                                            <div class="cell medium-6 js-use-module-wrapper"
+                                                 data-prototype="{{ formMacros.addGroupModule(group.modules.vars.prototype)|e('html_attr') }}"
+                                                 data-index="{{ group.modules|length }}"
+                                                 data-groupid="{{ loop.index }}">
+                                                <p>Modul Settings</p>
+                                                <table id="use-modules-{{ loop.index }}">
+                                                    <thead>
+                                                        <tr>
+                                                            <th width="20%"><small>Type</small></th>
+                                                            <th><small>Strings / Unit</small></th>
+                                                            <th><small>Strings (East)</small></th>
+                                                            <th><small>Strings (West)</small></th>
+                                                            <th><small>Modules / String</small></th>
+                                                            <th></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    {% for module in group.modules %}
+                                                        <tr class="js-use-module-item">
+                                                            <td>{{ form_widget(module.moduleType) }}</td>
+                                                            <td>{{ form_widget(module.numStringsPerUnit) }}</td>
+                                                            <td>{{ form_widget(module.numStringsPerUnitEast) }}</td>
+                                                            <td>{{ form_widget(module.numStringsPerUnitWest) }}</td>
+                                                            <td>{{ form_widget(module.numModulesPerString) }}</td>
+                                                            <td><a href="#" class="js-remove-use-module"><span class="fa fa-minus-circle"></span></a></td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                                <button type="button" class="button secondary small js-add-use-module" data-groupid="{{ loop.index }}"> <span class="fa fa-plus-circle"></span>&nbsp;Add </button>
+                                            </div>
+
+                                            <div class="cell medium-6">
+                                                <div class="js-month-wrapper"
+                                                    data-prototype="{{ formMacros.addMonth(group.months.vars.prototype)|e('html_attr') }}"
+                                                    data-index="{{ group.months|length }}"
+                                                    data-groupid="{{ loop.index }}">
+                                                    <p>Settings per Month</p>
+                                                    <table id="months-{{ loop.index }}">
+                                                        <thead>
+                                                          <tr>
+                                                            <th><small>Month</small></th>
+                                                            <th><small>Irr Upper</small></th>
+                                                            <th><small>Irr Lower</small></th>
+                                                            <th><small>Shadow Loss</small></th>
+                                                            <th></th>
+                                                        </tr>
+
+                                                        </thead>
+                                                        <tbody>
+                                                        {% for month in group.months %}
+                                                            <tr class="js-month-item">
+                                                                <td>{{ form_widget(month.month) }}</td>
+                                                                <td>{{ form_widget(month.irrUpper) }}</td>
+                                                                <td>{{ form_widget(month.irrLower) }}</td>
+                                                                <td>{{ form_widget(month.shadowLoss) }}</td>
+                                                                <td><a href="#" class="js-remove-month"><span class="fa fa-minus-circle"></span></a></td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                        </tbody>
+                                                    </table>
+                                                    <button type="button" class="button secondary small js-add-month" data-groupid="{{ loop.index }}"> <span class="fa fa-plus-circle"></span>&nbsp;Add </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% if is_granted('ROLE_DEV') %}
+                                            <div class="grid-x grid-padding-x">
+                                                <div class="cell medium-1"><a href="#" class="js-remove-group"><span class="fa fa-minus-circle"></span></a></div>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                </li>
+                            {% endfor %}
+                            </ul>
+                        </div>
+                        <button type="button" class="button secondary small js-add-group"> <span class="fa fa-plus-circle"></span>&nbsp;Add Group</button>
+                    </fieldset>
+                </div>
+
+                {# Months #}
+                <div class="tabs-panel" id="plant-month">
+                    <div class="cell">
+                        <div class="js-plant-month-wrapper"
+                             data-prototype="{{ formMacros.addPlantMonth(anlageForm.anlageMonth.vars.prototype)|e('html_attr') }}"
+                             data-index="{{ anlageForm.anlageMonth|length }}">
+                            <p>Settings per Month (globale, all groups)</p>
+                            <table id="plant-months">
+                                <thead>
+                                <tr>
+                                    <th><small>Month</small></th>
+                                    <th><small>Irr Upper</small></th>
+                                    <th><small>Irr Lower</small></th>
+                                    <th><small>Shadow Loss</small></th>
+                                    <th></th>
+                                </tr>
+                                </thead>
+
+                                <tbody>
+                                {% for month in anlageForm.anlageMonth %}
+                                    <tr class="js-plant-month-item">
+                                        <td>{{ form_widget(month.month) }}</td>
+                                        <td>{{ form_widget(month.irrUpper) }}</td>
+                                        <td>{{ form_widget(month.irrLower) }}</td>
+                                        <td>{{ form_widget(month.shadowLoss) }}</td>
+                                        <td><a href="#" class="js-remove-plant-month"><span class="fa fa-minus-circle"></span></a></td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            <button type="button" class="button secondary small js-add-plant-month"><span class="fa fa-plus-circle"></span>&nbsp;Add </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-x grid-padding-y action-menu">
+        <div class="cell">
+            {{ form_widget(anlageForm.save) }}
+            {{ form_widget(anlageForm.saveclose) }}
+            {{ form_widget(anlageForm.close) }}
+            {% if (is_granted('ROLE_DEV')) %}{{ form_widget(anlageForm.savecreatedb) }}{% endif %}
+        </div>
+    </div>
+    {% do anlageForm.groups.setRendered() %}
+    {% do anlageForm.savecreatedb.setRendered() %}
+    {% do anlageForm.anlageMonth.setRendered() %}
+{{ form_end(anlageForm) }}
+
+
+

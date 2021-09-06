@@ -1,0 +1,190 @@
+{% extends 'report/report.base.html.twig' %}
+
+{% block content %}
+
+    <div class="row">
+        <img src="https://dev.g4npvplus.net/images/report_header_v2.png" alt=""/>
+        <h2>Monthly Report {{ report.reportMonth }} / {{ report.reportYear }} – {{ report.anlage.anlName }} <small>({{ report.anlage.power|number_format(2, ',', '.') }} kWp)</small></h2>
+    </div>
+
+    <div class="row">
+        <table>
+            <thead>
+                <tr>
+                    <!--<th>Key Result</th>-->
+                    <th>Period / Duration</th>
+                    {% if report.anlage.showEvuDiag == 1 %}
+                        <th>Grid meter [kWh]</th>
+                        <th>PR [%]</th>
+                    {% endif %}
+                    <th>Inverter out [kWh]</th>
+                    <th>PR [%]</th>
+                    <!--<th>Expected (G4N) [kWh]</th>-->
+                    {% if report.anlage.showPvSyst == 1 %}
+                        <th>PvSyst [kWh]</th>
+                        <th>PR [%]</th>
+                    {% endif %}
+                    <th>Availability [%]</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <!--<td>Production per Month</td>-->
+                    <td>{{ monthText }}</td>
+                    {% if report.anlage.showEvuDiag == 1 %}
+                        <td>{{ sumPowerEvu|number_format(0, ',', '.') }}</td>
+                        <td>{{ monthPREvu|number_format(2, ',', '.') }}</td>
+                    {% endif %}
+                    <td>{{ sumPowerAct|number_format(0, ',', '.') }}</td>
+                    <td>{{ monthPRAct|number_format(2, ',', '.') }}</td>
+                    <!--<td>{{ sumPowerExp|number_format(0, ',', '.') }}</td>
+                    <td>{{ monthPRExp|number_format(2, ',', '.') }}</td>-->
+                    {% if report.anlage.showPvSyst == 1 %}
+                        <td>{{ (powerPvSyst - powerPvSyst/100*1.2)|number_format(0, ',', '.') }}</td>
+                        <td>{{ monthPrPvSyst|number_format(2, ',', '.') }}</td>
+                    {% endif %}
+                    <td>{{ avgAvailability|number_format(2, ',', '.') }}</td>
+                </tr>
+                {% if report.anlage.usePac == 1 %}
+                    <tr>
+                        <!--<td>Production PAC</td>-->
+                        <td>PAC ({{ pacDate }})</td>
+                        {% if report.anlage.showEvuDiag == 1 %}
+                            <td>{{ powerEvuPac|number_format(0, ',', '.') }}</td>
+                            <td>{{ pacPREvu|number_format(2, ',', '.') }}</td>
+                        {% endif %}
+                        <td>{{ powerActPac|number_format(0, ',', '.') }}</td>
+                        <td>{{ pacPRAct|number_format(2, ',', '.') }}</td>
+                        <!--<td>{{ powerExpPac|number_format(0, ',', '.') }}</td>
+                        <td>PR</td>-->
+                        {% if report.anlage.showPvSyst == 1 %}
+                            <td>{{ (powerPvSystPac - powerPvSystPac/100*1.2)|number_format(0, ',', '.') }}</td>
+                            <td>{{ pacPrPvSyst|number_format(2, ',', '.') }}</td>
+                        {% endif %}
+                        <td>{{ avgAvailabilityPac|number_format(2, ',', '.') }}</td>
+                    </tr>
+                {% endif %}
+                <tr>
+                    <!--<td>Production Year</td>-->
+                    <td>Total year ({{ report.reportYear }}){# January - {{ monthText }} #}</td>
+                    {% if report.anlage.showEvuDiag == 1 %}
+                        <td>{{ powerEvuYear|number_format(0, ',', '.') }}</td>
+                        <td>{{ yearPREvu|number_format(2, ',', '.') }}</td>
+                    {% endif %}
+                    <td>{{ powerActYear|number_format(0, ',', '.') }}</td>
+                    <td>{{ yearPRAct|number_format(2, ',', '.') }}</td>
+                    <!--<td>{{ powerExpYear|number_format(0, ',', '.') }}</td>
+                    <td>PR</td>-->
+                    {% if report.anlage.showPvSyst == 1 %}
+                        <td>{{ (powerPvSystYear - powerPvSystYear/100*1.2)|number_format(0, ',', '.') }}</td>
+                        <td>{{ yearPrPvSyst|number_format(2, ',', '.') }}</td>
+                    {% endif %}
+                    <td>{{ avgAvailabilityYear|number_format(2, ',', '.') }}</td>
+                </tr>
+                <tr>
+                    <!--<td>FAC Date Forcast</td>-->
+                    <td>FAC Forcast</td>
+                    {% if report.anlage.showEvuDiag == 1 %}
+                        <td></td>
+                        <td></td>
+                    {% endif %}
+                    <td></td>
+                    <td></td>
+                    <!--<td></td>
+                    <td>PR</td>-->
+                    {% if report.anlage.showPvSyst == 1 %}
+                        <td></td>
+                        <td></td>
+                    {% endif %}
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="row">
+        <table class="data-month">
+            <thead>
+                <tr style="background-color:#b4c6e7;"></tr>
+                    <th style="text-align: left;">Date</th>
+                    {% if report.anlage.showEvuDiag == 1 %}
+                        <th>Grid meter<br>[kWh]</th>
+                    {% endif %}
+                    <th>Theoretical<br>[kWh]</th>
+                    {% if report.anlage.showPvSyst == 1 %}
+                        <th>Electricity Grid (PVSyst)<br>[kWh]</th>
+                    {% endif %}
+                    <th>Expected (G4N)<br>[kWh]</th>
+                    <th>Irradiation <br>[kWh/m2]</th>
+                    <th>PR<sup>*</sup></th>
+                    <th>Availability<sup>*</sup></th>
+                    {% if report.anlage.showAvailabilitySecond %}<th>Availability 2</th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for pr in report.prs %}
+                    <tr>
+                        <td style="text-align: left;">{{ pr.stampIst|date("Y-m-d") }}</td>
+                        {% if report.anlage.showEvuDiag == 1 %}<td>{{ pr.powerEvu|number_format(2, ',', '.') }}</td>{% endif %}
+                        <td>{{ pr.powerTheo|number_format(2, ',', '.') }}</td>
+                        {% if report.anlage.showPvSyst == 1 %}
+                            <td>{{ pr.powerPvSyst|number_format(2, ',', '.') }} / {{ (pr.powerPvSyst - pr.powerPvSyst/100*1.2)|number_format(2, ',', '.') }}</td>
+                        {% endif %}
+                        <td>{{ pr.prExp|number_format(2, ',', '.') }}</td>
+                        <td>{{ pr.irradiation|number_format(2, ',', '.') }}</td>
+                        {% if report.anlage.showEvuDiag == 1 %}
+                            <td>{{ pr.prEvuProz|number_format(2, ',', '.') }}%</td>
+                        {% else %}
+                            <td>{{ pr.prActPoz|number_format(2, ',', '.') }}%</td>
+                        {% endif%}
+                        <td>{{ pr.plantAvailability|number_format(2, ',', '.') }}%</td>
+                        {% if report.anlage.showAvailabilitySecond %}<td>{{ pr.plantAvailability|number_format(2, ',', '.') }}%</td>{% endif %}
+                    </tr>
+                {% endfor %}
+                <tr class="total">
+                    <td>Total:</td>
+                    {% if report.anlage.showEvuDiag == 1 %}
+                        <td>{{ sumPowerEvu|number_format(2, ',', '.') }}</td>
+                    {% endif %}
+                    <td>{{ sumPowerTheo|number_format(2, ',', '.') }}</td>
+                    {% if report.anlage.showPvSyst == 1 %}
+                        <td>{{ powerPvSyst|number_format(2, ',', '.') }} / {{ (powerPvSyst - powerPvSyst/100*1.2)|number_format(2, ',', '.') }}</td>
+                    {% endif %}
+                    <td>{{ sumPowerExp|number_format(2, ',', '.') }}</td>
+                    <td>{{ sumIrradiation|number_format(2, ',', '.') }}</td>
+                    {% if report.anlage.showEvuDiag == 1 %}
+                        <td>{{ monthPREvu|number_format(2, ',', '.') }}%</td>
+                    {% else %}
+                        <td>{{ monthPRAct|number_format(2, ',', '.') }}%</td>
+                    {% endif%}
+                    <td>{{ avgAvailability|number_format(2, ',', '.') }}%</td>
+                    {% if report.anlage.showAvailabilitySecond %}<td>{{ avgAvailability|number_format(2, ',', '.') }}%</td>{% endif %}
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    {#
+    {% if report.anlage.showEvuDiag == 1 %}
+        {% set url = "image-charts.com/chart?chs=975x450&chxt=x,y&chxs=0,333,8|1N** kWh,333,10&cht=bvg&chds=a" %}
+        {% set url = url ~ "&chf=b0,ls,0,47c448,.3,47c448,.1|b1,ls,0,12438f,.3,12438f,.1|b2,ls,0,de7832,.3,de7832,.1" %}
+        {% set url = url ~ "&chxr=1,0," ~ maxx ~ "&chdl=Grid meter [kWh]|Actual [kWh]|Expected [kWh]" %}
+        {% set url = url ~ "&chxl=0:" ~ chartDataDate %}
+        {% set url = url ~ "&chd=t:" ~ chartDataEvu ~ "|" ~ chartDataAct ~ "|" ~ chartDataExp ~ "&chof=png" %}
+    {% else %}
+        {% set url = "image-charts.com/chart?chs=975x450&chxt=x,y&chxs=0,333,8|1N** kWh,333,10&cht=bvg&chds=a" %}
+        {% set url = url ~ "&chf=b0,ls,0,12438f,.3,12438f,.1|b1,ls,0,de7832,.3,de7832,.1" %}
+        {% set url = url ~ "&chxr=1,0," ~ maxx ~ "&chdl=Actual [kWh]|Expected [kWh]" %}
+        {% set url = url ~ "&chxl=0:|" ~ chartDataDate %}
+        {% set url = url ~ "&chd=t:" ~ chartDataAct ~ "|" ~ chartDataExp ~ "&chof=png" %}
+    {% endif %}
+    #}
+    <div class="row">
+        {#
+        <img height="300" width="650" src="https://{{ url }}" alt="Grafik"/>
+        <hr>
+        #}
+        <p><b>Remarks: </b></p>
+        <p>Generally, and especially on days with outage, the expected / actual difference indicates the lost production.</p>
+        <p><sup>*</sup> Customer values if applicable; Otherwise default.</p>
+    </div>
+{% endblock %}

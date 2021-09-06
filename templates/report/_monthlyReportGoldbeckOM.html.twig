@@ -1,0 +1,209 @@
+{% extends 'report/report.base.html.twig' %}
+
+{% block content %}
+
+    <div class="row">
+        <img src="https://dev.g4npvplus.net/images/report_header_v2.png" alt=""/>
+        <h2>Monthly Report {{ report.reportMonth }} / {{ report.reportYear }} – {{ report.anlage.anlName }} <small>({{ report.anlage.power|number_format(2, ',', '.') }} kWp)</small></h2>
+    </div>
+    {# Energie Production #}
+    <div class="row">
+        <h3>Energie Production</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Period / Duration</th>
+                    <th>Grid meter [kWh]</th>
+                    <th>Inverter out [kWh]</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ monthText }}</td>
+                    <td>{{ sumPowerEvu|number_format(0, ',', '.') }}</td>
+                    <td>{{ sumPowerAct|number_format(0, ',', '.') }}</td>
+                    <td></td>
+                </tr>
+
+                <tr>
+                    <td>PAC ({{ pacDate }})</td>
+                    <td>{{ powerEvuPac|number_format(0, ',', '.') }}</td>
+                    <td>{{ powerActPac|number_format(0, ',', '.') }}</td>
+                    <td></td>
+                </tr>
+
+                <tr>
+                    <td>Total year ({{ report.reportYear }}){# January - {{ monthText }} #}</td>
+                    <td>{{ powerEvuYear|number_format(0, ',', '.') }}</td>
+                    <td>{{ powerActYear|number_format(0, ',', '.') }}</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td>FAC Forcast</td>
+                    <td>{{ forecastFacSumAct|number_format(0, ',', '.') }}</td>
+                    <td></td>
+                    <td>{{ forecastFacSum|number_format(0, ',', '.') }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    {# Energy production Stations #}
+    {# <div class="row">
+        <h3>Energy production Stations</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>not jet</th>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div> #}
+    {# Performance Ratio #}
+    <div class="row">
+        <h3>Performance Ratio and Availability</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Period / Duration</th>
+                    <th>PR Grid Meter [%]</th>
+                    <th>Guaranteed<br>PR [%]</th>
+                    <th>Availability{% if anlage.showAvailabilitySecond %} 1{% endif %}</th>
+                    {% if anlage.showAvailabilitySecond %}<th>Availability 2</th>{% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{ monthText }}</td>
+                    <td>{{ monthPREvu|number_format(2, ',', '.') }}</td>
+                    <td>-</td>
+                    <td>{{ avgAvailability|number_format(2, ',', '.') }}</td>
+                    {% if anlage.showAvailabilitySecond %}<td>{{ avgAvailabilitySecond|number_format(2, ',', '.') }}</td>{% endif %}
+                </tr>
+                <tr>
+                    <td>PAC ({{ pacDate }})</td>
+                    <td>{{ pacPREvu|number_format(2, ',', '.') }}</td>
+                    <td>{{ anlage.contractualPR|number_format(2, ',', '.') }}</td>
+                    <td>{{ avgAvailabilityPac|number_format(2, ',', '.') }}</td>
+                    {% if anlage.showAvailabilitySecond %}<td>{{ avgAvailabilityPacSecond|number_format(2, ',', '.') }}</td>{% endif %}
+                </tr>
+                <tr>
+                    <td>Total year ({{ report.reportYear }})</td>
+                    <td>{{ yearPREvu|number_format(2, ',', '.') }}</td>
+                    <td>-</td>
+                    <td>{{ avgAvailabilityYear|number_format(2, ',', '.') }}</td>
+                    {% if anlage.showAvailabilitySecond %}<td>{{ avgAvailabilityYearSecond|number_format(2, ',', '.') }}</td>{% endif %}
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+    {# Day Values Energie Production#}
+    <div class="row">
+        <h3>Day Values</h3>
+        <h4>Plant size: {{ anlage.power|number_format(2, ',', '.') }} kWp</h4>
+        <table class="data-month">
+            <thead>
+            <tr style="background-color:#b4c6e7;">
+                <th style="text-align: left;">Date</th>
+                <th>Energy Production<br>Grid meter [kWh]</th>
+                <th>Spec. Yield<br>[kWh/kWp]</th>
+                <th>Irradiation <br>[kWh/m2]</th>
+                <th>PR</th>
+                <th>Availability<sup>*</sup></th>
+                {% if report.anlage.showAvailabilitySecond %}<th>Availability 2</th>{% endif %}
+                <th>Theoretical<br>[kWh]</th>
+                <th>Expected (G4N)<br>[kWh]</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for pr in report.prs %}
+                    <tr>
+                        <td style="text-align: left;">{{ pr.stampIst|date("Y-m-d") }}</td>
+                        <td>{{ pr.powerEvu|number_format(2, ',', '.') }}</td>
+                        <td>{{ (pr.powerEvu / anlage.power)|number_format(2, ',', '.') }}</td>
+                        <td>{{ pr.irradiation|number_format(2, ',', '.') }}</td>
+                        <td>{{ pr.prEvuProz|number_format(2, ',', '.') }}%</td>
+                        <td>{{ pr.plantAvailability|number_format(2, ',', '.') }}%</td>
+                        {% if report.anlage.showAvailabilitySecond %}<td>{{ pr.plantAvailabilitySecond|number_format(2, ',', '.') }}%</td>{% endif %}
+                        <td>{{ pr.powerTheo|number_format(2, ',', '.') }}</td>
+                        <td>{{ pr.prExp|number_format(2, ',', '.') }}</td>
+                    </tr>
+                {% endfor %}
+                <tr class="total">
+                    <td>Total:</td>
+                    <td>{{ sumPowerEvu|number_format(2, ',', '.') }}</td>
+                    <td>{{ sumSpecYield|number_format(2, ',', '.') }}</td>
+                    <td>{{ sumIrradiation|number_format(2, ',', '.') }}</td>
+                    <td>{{ monthPREvu|number_format(2, ',', '.') }}%</td>
+                    <td>{{ avgAvailability|number_format(2, ',', '.') }}%</td>
+                    {% if report.anlage.showAvailabilitySecond %}<td>{{ avgAvailabilitySecond|number_format(2, ',', '.') }}%</td>{% endif %}
+                    <td>{{ sumPowerTheo|number_format(2, ',', '.') }}</td>
+                    <td>{{ sumPowerExp|number_format(2, ',', '.') }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    {# Pyranometer, Temp, Wind #}
+    <div class="row">
+        <table class="data-month">
+            <thead>
+            <tr style="background-color:#b4c6e7;">
+                <th style="text-align: left;">Date</th>
+                {% for irrKey in report.prs.0.irradiationJson|keys %}
+                    <th>Pyro. {{ irrKey }}<br>[Wh/qm]</th>
+                {% endfor %}
+                <th>Pyro. Avg<br>[Wh/qm]</th>
+                {% for tempKey in report.prs.0.temperaturJson|keys %}
+                    <th>Temp. {{ tempKey }}<br>[°C]</th>
+                {% endfor %}
+                <th>Temp. Avg<br>[°C]</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for pr in report.prs %}
+                <tr>
+                    <td style="text-align: left;">{{ pr.stampIst|date("Y-m-d") }}</td>
+                    {% set counter = 0 %}
+                    {% set sum = 0 %}
+                    {% for irr in pr.irradiationJson %}
+                        <td>{{ irr|number_format(2, ',', '.') }}</td>
+                        {% set counter = counter + 1 %}
+                        {% set sum = sum + irr %}
+                    {% endfor %}
+                    <td>{{ (pr.irradiation * 1000)|number_format(2, ',', '.') }}</td>
+                    {% set counter = 0 %}
+                    {% set sum = 0 %}
+                    {% for temp in pr.temperaturJson %}
+                        <td>{{ temp|number_format(2, ',', '.') }}</td>
+                        {% set counter = counter + 1 %}
+                        {% set sum = sum + temp %}
+                    {% endfor %}
+                    <td>{{ (sum/counter)|number_format(2, ',', '.') }}</td>
+                </tr>
+            {% endfor %}
+            {# <tr class="total">
+                <td>Total:</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr> #}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="row">
+        <p><b>Remarks: </b></p>
+        <p>Generally, and especially on days with outage, the expected / actual difference indicates the lost production.</p>
+        <p><sup>*</sup> Customer values if applicable; Otherwise default.</p>
+    </div>
+{% endblock %}

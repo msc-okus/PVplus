@@ -1,0 +1,212 @@
+{% import _self as formMacros %}
+
+{% macro addLegend(legend) %}
+    <tr>
+        {{ form_widget(legend.type) }}
+        <td>{{ form_widget(legend.title) }}</td>
+        <td>{{ form_widget(legend.unit) }}</td>
+        <td>{{ form_widget(legend.description) }}</td>
+        <td>{{ form_widget(legend.source) }}</td>
+        <td></td>
+    </tr>
+{% endmacro %}
+
+{% macro addmonthlyYield(monthlyYield) %}
+    <tr>
+        <td>{{ form_widget(monthlyYield.year) }}</td>
+        <td>{{ form_widget(monthlyYield.month) }}</td>
+        <td>{{ form_widget(monthlyYield.pvSystErtrag) }}</td>
+        <td></td>
+    </tr>
+{% endmacro %}
+
+{{ form_start(anlageForm, {'attr': {'novalidate': 'no'} }) }}
+    <div class="grid-x">
+        <div class="cell medium-10">
+            <ul class="tabs" data-tabs id="cust-plant-config" data-deep-link="true">
+                <li class="tabs-title is-active"><a data-tabs-target="general" href="#general" aria-selected="true">General</a></li>
+                <li class="tabs-title"><a data-tabs-target="legend" href="#legend">Legend Configuration</a></li>
+                <li class="tabs-title"><a data-tabs-target="pvsyst" href="#pvsyst">PVSYST Month Values Design</a></li>
+                <li class="tabs-title"><a data-tabs-target="monthly-yield" href="#monthly-yield">Monthly Yield</a></li>
+            </ul>
+
+            <div class="tabs-content" data-tabs-content="cust-plant-config">
+                {# General #}
+                <div class="tabs-panel is-active" id="general">
+                    <fieldset class="fieldset">
+                        <legend>General Project Info</legend>
+                        <div class="grid-x grid-margin-x grid-padding-x">
+                            <div class="cell medium-6">
+                                {{ form_row(anlageForm.anlName) }}
+                                {{ form_row(anlageForm.projektNr) }}
+                            </div>
+                            <div class="cell medium-6">
+                                {{ form_row(anlageForm.anlStrasse) }}
+                                {{ form_row(anlageForm.anlPlz) }}
+                                {{ form_row(anlageForm.anlOrt) }}
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                {# Legend #}
+                <div class="tabs-panel" id="legend">
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell">
+
+                            <fieldset class="fieldset js-legend-monthly-wrapper"
+                                      data-prototype="{{ formMacros.addLegend(anlageForm.legendMonthlyReports.vars.prototype)|e('html_attr') }}"
+                                      data-index="{{ anlageForm.legendMonthlyReports|length }}"
+                            >
+                                <legend>Legend Report Monthly</legend>
+                                <table id="legend-monthly">
+                                    <thead>
+                                    <tr>
+                                        <th style="width: 30%; ">Titel</th>
+                                        <th style="width: 10%; ">Unit</th>
+                                        <th>Description</th>
+                                        <th>Quelle / Intervall</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for legend in anlageForm.legendMonthlyReports %}
+                                        <tr class="js-legend-monthly-item">
+                                            {{ form_widget(legend.type) }}
+                                            <td>{{ form_widget(legend.title) }}</td>
+                                            <td>{{ form_widget(legend.unit) }}</td>
+                                            <td>{{ form_widget(legend.description) }}</td>
+                                            <td>{{ form_widget(legend.source) }}</td>
+
+                                            <td>{% if is_granted('ROLE_DEV') %}<a href="#" class="js-remove-legend-monthly"><span class="fa fa-minus-circle"></span></a>{% endif %}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                <button type="button" class="button secondary small js-add-legend-monthly"> <span class="fa fa-plus-circle"></span>&nbsp;Add Legend Montly Report</button>
+                            </fieldset>
+
+                            <fieldset class="fieldset js-legend-epc-wrapper"
+                                      data-prototype="{{ formMacros.addLegend(anlageForm.legendEpcReports.vars.prototype)|e('html_attr') }}"
+                                      data-index="{{ anlageForm.legendEpcReports|length }}"
+                            >
+                                <legend>Legend Report EPC</legend>
+                                <table id="legend-epc">
+                                    <thead>
+                                    <tr>
+                                        <th style="width: 30%; ">Titel</th>
+                                        <th style="width: 10%; ">Unit</th>
+                                        <th>Description</th>
+                                        <th>Quelle / Intervall</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for legend in anlageForm.legendEpcReports %}
+                                        <tr class="js-legend-epc-item">
+                                            {{ form_widget(legend.type) }}
+                                            <td>{{ form_widget(legend.title) }}</td>
+                                            <td>{{ form_widget(legend.unit) }}</td>
+                                            <td>{{ form_widget(legend.description) }}</td>
+                                            <td>{{ form_widget(legend.source) }}</td>
+
+                                            <td>{% if is_granted('ROLE_DEV') %}<a href="#" class="js-remove-legend-epc"><span class="fa fa-minus-circle"></span></a>{% endif %}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                <button type="button" class="button secondary small js-add-legend-epc"> <span class="fa fa-plus-circle"></span>&nbsp;Add Legend EPC Report</button>
+                            </fieldset>
+
+                        </div>
+                    </div>
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell">
+                            {{ form_row(anlageForm.epcReportNote) }}
+                        </div>
+                    </div>
+                </div>
+
+                {# PVSYST Month Values #}
+                <div class="tabs-panel" id="pvsyst">
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell">
+                            <fieldset class="fieldset js-pvsyst-wrapper">
+                                <legend>PVSYST Month Values Design</legend>
+                                <table id="pvsyst-values">
+                                    <thead>
+                                    <tr>
+                                        <th>Month</th>
+                                        <th>PR design</th>
+                                        <th>Yield design</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for pvsyst in anlageForm.pvSystMonths %}
+                                        <tr class="js-pvsyst-item">
+                                            <td>{{ form_widget(pvsyst.month) }}</td>
+                                            <td>{{ form_widget(pvsyst.prDesign) }}</td>
+                                            <td>{{ form_widget(pvsyst.ertragDesign) }}</td>
+
+                                            <td>{% if is_granted('ROLE_DEV') %}<a href="#" class="js-pvsyst"><span class="fa fa-minus-circle"></span></a>{% endif %}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+
+                {# Monthly Theoretival Yield Values from PVSYST #}
+                <div class="tabs-panel" id="monthly-yield">
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell">
+                            <fieldset class="fieldset js-monthly-yield-wrapper"
+                                      data-prototype="{{ formMacros.addMonthlyYield(anlageForm.monthlyYields.vars.prototype)|e('html_attr') }}"
+                                      data-index="{{ anlageForm.monthlyYields|length }}"
+                            >
+                                <legend>Monthly Theoretival Yield Values</legend>
+                                <table id="monthly-yield-values">
+                                    <thead>
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>Month</th>
+                                        <th>Yield</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for monthlyYield in anlageForm.monthlyYields %}
+                                        <tr class="js-monthly-yield-item">
+                                            <td>{{ form_widget(monthlyYield.year) }}</td>
+                                            <td>{{ form_widget(monthlyYield.month) }}</td>
+                                            <td>{{ form_widget(monthlyYield.pvSystErtrag) }}</td>
+
+                                            <td>{% if is_granted('ROLE_DEV') %}<a href="#" class="js-monthly-yield"><span class="fa fa-minus-circle"></span></a>{% endif %}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                <button type="button" class="button secondary small js-add-monthly-yield"> <span class="fa fa-plus-circle"></span>&nbsp;Add Monthly Yield</button>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-x grid-padding-y action-menu">
+        <div class="cell">
+            {{ form_widget(anlageForm.save) }}
+            {{ form_widget(anlageForm.saveclose) }}
+            {{ form_widget(anlageForm.close) }}
+        </div>
+    </div>
+    {% do anlageForm.legendMonthlyReports.setRendered() %}
+    {% do anlageForm.legendEpcReports.setRendered() %}
+    {% do anlageForm.pvSystMonths.setRendered() %}
+    {% do anlageForm.monthlyYields.setRendered() %}
+{{ form_end(anlageForm) }}

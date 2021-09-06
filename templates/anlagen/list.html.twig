@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+{% import 'macros/macros.library.html.twig' as macrolibrary %}
+
+{% block title %}List Plants{% endblock %}
+
+{% block body %}
+    <h1>List Plants</h1>
+    {{ macrolibrary.searchbox(app.request.query.get('qp'), 'qp') }}
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Plant id</th>
+            <th>Name</th>
+            <th>Project No</th>
+            {% if is_granted('ROLE_G4N') %}
+                <th>Eigner</th>
+            {% endif %}
+            {% if is_granted('ROLE_G4N') %}
+                <th>Database ident</th>
+                <th>Main weather ident</th>
+                <th>Owner activ</th>
+                <th>Hiden</th>
+                <th></th>
+                <th></th>
+            {% else %}
+                <th>City</th>
+            {% endif %}
+            <th style="text-align: right;">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for plant in pagination %}
+            <tr>
+                <td>{{ plant.anlId }}</td>
+                <td>{{ plant.anlName }}</td>
+                <td>{{ plant.projektNr }}</td>
+                {% if is_granted('ROLE_G4N') %}
+                    <td>{{ plant.eigner.firma }}</td>
+                {% endif %}
+                {% if is_granted('ROLE_G4N') %}
+                    <td>{{ plant.anlIntnr }}</td>
+                    <td>{% if (plant.weatherStation) %}{{ plant.weatherStation.databaseIdent }}{% endif %}</td>
+                    <td>{{ plant.anlView }}</td>
+                    <td>{{ plant.anlHidePlant }}</td>
+                    <td>{{ plant.sendWarnMail }}</td>
+                    <td>{{ plant.epcReportType }}</td>
+                {% else %}
+                    <td>{{ plant.anlPlz }} {{ plant.anlOrt }}</td>
+                {% endif %}
+                <td style="text-align: right;">
+                    {% if is_granted('ROLE_G4N') %}
+                        {% if is_granted('ROLE_DEV') %}
+                            <a href="#" class="hollow button tiny action-icon shadow"><span class="fa fa-pencil"></span> Inverters</a>
+                        {% endif %}
+                        <a href="{{ path('app_admin_anlagen_edit_dcgroups', { id: plant.anlId}) }}" class="hollow button tiny action-icon shadow"><span class="fa fa-pencil"></span> DC Groups</a>
+                        <a href="{{ path('app_admin_anlagen_edit_acgroups', { id: plant.anlId}) }}" class="hollow button tiny action-icon shadow"><span class="fa fa-pencil"></span> AC Groups</a>
+                        <a href="{{ path('app_admin_anlagen_edit', { id: plant.anlId}) }}" class="hollow button tiny action-icon shadow"><span class="fa fa-pencil"></span> Settings</a>&nbsp;
+                        <a href="{{ path('app_admin_anlagen_edit_config', { id: plant.anlId}) }}" class="hollow button tiny action-icon shadow"><span class="fa fa-gear"></span></a>&nbsp;
+                        {# {% if is_granted('ROLE_DEV') %}<a href="{{ path('app_anlage_delete', { id: plant.anlId}) }}" class="hollow button tiny action-icon shadow" onclick="return window.confirm('Löschen?');"><span class="fa fa-trash red"></span></a>{% endif %}&nbsp; #}
+                    {% else %}
+                        <a href="{{ path('app_anlagen_edit', { id: plant.anlId}) }}" title="Edit Legend" class="hollow button tiny action-icon shadow"><span class="fa fa-pencil"></span></a>&nbsp;
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {{ knp_pagination_render(pagination) }}
+    {% if is_granted('ROLE_G4N') %}<a class="button primary" href="{{ path('app_admin_anlagen_new') }}">Create New</a>{% endif %}
+{% endblock %}

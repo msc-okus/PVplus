@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+{% import 'macros/macros.library.html.twig' as macrolibrary %}
+
+{% block title %}List Weather Stations{% endblock %}
+
+{% block body %}
+    <h1>List Weather Stations</h1>
+    {{ macrolibrary.searchbox(app.request.query.get('qw'), 'qw') }}
+    <table class="table">
+        <thead>
+        <tr>
+            <th></th>
+            <th>Name</th>
+            <th>City</th>
+            <th>&nbsp;</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for station in pagination %}
+            <tr>
+                <td>{{ station.type }}</td>
+                <td><a href="{{ path('app_admin_weather_edit', { id: station.id}) }}">{{ station.databaseIdent }}</a></td>
+                <td>{{ station.location }}</td>
+                <td>
+                    <a href="{{ path('app_admin_weather_edit', { id: station.id}) }}">
+                        <span class="fa fa-pencil"></span>
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {{ knp_pagination_render(pagination) }}
+    <a class="button primary" href="{{ path('app_admin_weather_new') }}">Create New</a>
+{% endblock %}

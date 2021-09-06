@@ -1,0 +1,158 @@
+{% extends 'base.html.twig' %}
+    {% block styles %}
+        {{ parent() }}
+        <link rel="stylesheet" href="https://www.koolchart.com/demo/KoolChart/Assets/Css/KoolChart.css"/>
+        <link href="{{ asset('scss/koolreport.css') }}" rel='stylesheet' type='text/css'/>
+    {% endblock %}
+
+{% block body %}
+    <div class="grid-x">
+        <div class="cell">
+            <h1>Download Data</h1>
+        </div>
+    </div>
+    {%  if section == 'data' %}
+    {{ form_start(downloadForm, {'attr': {'novalidate': 'no'}}) }}
+            <div class="grid-x grid-margin-x grid-padding-x">
+                <div class="cell medium-2">
+                    {{ form_row(downloadForm.anlage) }}
+                </div>
+                <div class="cell medium-2">
+                    {{ form_row(downloadForm.startDate) }}
+                </div>
+                <div class="cell medium-2">
+                    {{ form_row(downloadForm.endDate) }}
+                </div>
+                <div class="cell medium-3">
+                    {{ form_row(downloadForm.data) }}
+                </div>
+                <div class="cell medium-3">
+                    {{ form_row(downloadForm.intervall) }}
+                </div>
+            </div>
+            <div class="grid-x grid-margin-x grid-padding-x text-right">
+                <div class="cell">
+                    {{ form_widget(downloadForm.close) }}
+                    {{ form_widget(downloadForm.calc) }}
+                </div>
+            </div>
+            <div class="grid-x">
+                <div class="cell">
+                    <div class="callout" style="min-height: 50vh;">
+                        {{ output|raw }}
+                    </div>
+                </div>
+            </div>
+        {{ form_end(downloadForm) }}
+    {% endif %}
+    {% if section == 'analyse' %}
+        {{ form_start(downloadAnalysesForm, {'attr': {'novalidate': 'no'}}) }}
+        <div class="grid-x grid-margin-x grid-padding-x">
+            <div class="cell medium-2">
+                {{ form_row(downloadAnalysesForm.anlage) }}
+            </div>
+            <div class="cell medium-2">
+                {{ form_row(downloadAnalysesForm.years) }}
+            </div>
+            <div class="cell medium-2">
+                {{ form_row(downloadAnalysesForm.months) }}
+            </div>
+            <div class="cell medium-3">
+                {{ form_row(downloadAnalysesForm.days) }}
+            </div>
+        </div>
+        <div class="grid-x grid-margin-x grid-padding-x text-right">
+            <div class="cell">
+                {{ form_widget(downloadAnalysesForm.close) }}
+                {{ form_widget(downloadAnalysesForm.calc) }}
+            </div>
+        </div>
+        {{ form_end(downloadAnalysesForm) }}
+
+        {{ form_start(downloadAnalysesExportForm, {'attr': {'novalidate': 'no'}}) }}
+        <div class="grid-x grid-margin-x grid-padding-x">
+            <div class="cell medium-2">
+                {{ form_row(downloadAnalysesExportForm.anlageexport, { 'attr': {'class': 'hidden-row'} }) }}
+                {{ form_row(downloadAnalysesExportForm.year) }}
+                {{ form_row(downloadAnalysesExportForm.month) }}
+                {{ form_row(downloadAnalysesExportForm.day) }}
+                {{ form_row(downloadAnalysesExportForm.documenttype) }}
+            </div>
+
+        </div>
+        <div class="grid-x grid-margin-x grid-padding-x text-right">
+            <div class="cell">
+                {{ form_widget(downloadAnalysesExportForm.export) }}
+            </div>
+        </div>
+        {{ form_end(downloadAnalysesExportForm) }}
+        <div class="grid-x">
+            <div class="cell">
+                <div class="callout" style="min-height: 50vh;">
+                    {{ report|raw }}
+                </div>
+            </div>
+        </div>
+        <div>
+            {{ download }}
+        </div>
+
+    {% endif %}
+{% endblock %}
+
+
+{% block title %}
+    {{  parent() }}Download Data
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $(document).ready(function () {
+            var valYears = $("#download_analyse_form_years").val();
+            var valMonths = $("#download_analyse_form_months").val();
+
+            $("#download_analyse_form_months").prop( "disabled", true );
+            $("#download_analyse_form_days").prop( "disabled", true );
+
+            if (valYears == "") {
+                $("#download_analyse_form_months").prop( "disabled", true );
+                $("#download_analyse_form_months").val($("#target option:first").val());
+                $("#download_analyse_form_days").prop( "disabled", true );
+                $("#download_analyse_form_days").val($("#target option:first").val());
+            }
+            if (valYears != "") {
+                $("#download_analyse_form_months").prop( "disabled", false );
+            }
+            if (valYears != "" &&  valMonths != "") {
+                $("#download_analyse_form_days").prop( "disabled", false );
+            }
+
+            $("#download_analyse_form_years").change(function () {
+                var val = $(this).val();
+                if (val == "") {
+                    $("#download_analyse_form_months").prop( "disabled", true );
+                    $("#download_analyse_form_months").val($("#target option:first").val());
+                    $("#download_analyse_form_days").prop( "disabled", true );
+                    $("#download_analyse_form_days").val($("#target option:first").val());
+                }
+                if (val != "") {
+                    $("#download_analyse_form_months").prop( "disabled", false );
+                }
+            });
+
+            $("#download_analyse_form_months").change(function () {
+                var val = $(this).val();
+                if (val == "") {
+                    $("#download_analyse_form_days").prop( "disabled", true );
+                    $("#download_analyse_form_days").val($("#target option:first").val());
+                }
+                if (val != "") {
+                    $("#download_analyse_form_days").prop( "disabled", false );
+                }
+            });
+        });
+    </script>
+
+
+{% endblock %}

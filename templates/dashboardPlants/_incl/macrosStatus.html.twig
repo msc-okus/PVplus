@@ -1,0 +1,125 @@
+{% macro statusTable(status) %}
+    <div class="grid-x">
+    <div class="cell">
+        <div class="status-log" style="margin: 0 10px;">
+            <table id="statusTable" class="table table-striped table-bordered">
+                <thead>
+                <tr>
+                    <th>stamp</th>
+                    <th>Plant status</th>
+                    <th>last plant data IO</th>
+                    <th>last weather IO</th>
+                    <th>actStamp</th>
+                    <th>acActAll</th>
+                    <th>acExpAll</th>
+                    <th>acDiffAll</th>
+                    <th>dcActAll</th>
+                    <th>dcExpAll</th>
+                    <th>dcDiffAll</th>
+                    <th>stampLastBoth</th>
+                    <th></th>
+                    <th>acActBoth</th>
+                    <th>acExpBoth</th>
+                    <th>acLostPercent</th>
+                    <th>acErrorCode</th>
+                    <th></th>
+                    <th>dcActBoth</th>
+                    <th>dcExpBoth</th>
+                    <th>dcLostPercent</th>
+                    <th>dcErrorCode</th>
+                    <th></th>
+                    <th>string warnings current</th>
+                    <th>string alerts current</th>
+                    <th>string score current</th>
+                    <th></th>
+                    <th>string warnings voltage</th>
+                    <th>string alerts voltage</th>
+                    <th>string score voltage</th>
+                    <th></th>
+                    <th style="min-width: 500px;">string error messages</th>
+                    <th></th>
+                    <th>invScore</th>
+                    <th>invAnz</th>
+                    <th>invAnzWarning</th>
+                    <th>invAnzAlert</th>
+
+
+                    <th style="min-width: 500px;">inverter error messages</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for stati in status %}
+                    <tr>
+                        <td>{{ stati.stamp|date("y-m-d H:i") }}</td>
+                        <td>{{ stati.anlagenStatus }}</td>
+                        <td class="{{ stati.lastDataStatus }}">{{ stati.lastDataIo|date("y-m-d H:i") }}</td>
+                        <td class="{{ stati.lastWeatherStatus }}">{{ stati.lastWeatherIo|date("y-m-d H:i") }}</td>
+                        <td>{{ stati.actStamp|date("H:i") }}</td>
+                        <td>{{ stati.acActAll|number_format(0, ',', '.') }}</td>
+                        <td>{{ stati.acExpAll|number_format(0, ',', '.') }}</td>
+                        <td>{{ stati.acDiffAll|number_format(0, ',', '.') }}</td>
+                        <td>{{ stati.dcActAll|number_format(0, ',', '.') }}</td>
+                        <td>{{ stati.dcExpAll|number_format(0, ',', '.') }}</td>
+                        <td>{{ stati.dcDiffAll|number_format(0, ',', '.') }}</td>
+                        <td>{{ stati.stampLastBoth|date("H:i") }}</td>
+                        <td></td>
+                        <td class="{{ stati.acDiffStatus }}">{{ stati.acActBoth|number_format(0, ',', '.') }}</td>
+                        <td class="{{ stati.acDiffStatus }}">{{ stati.acExpBoth|number_format(0, ',', '.') }}</td>
+                        <td class="{{ stati.acDiffStatus }}">{{ stati.acLostPercent|number_format(1, ',', '.') }}%</td>
+                        <td class="{{ stati.acDiffStatus }}">{{ stati.acErrorCode }}</td>
+                        <td></td>
+                        <td class="{{ stati.dcDiffStatus }}">{{ stati.dcActBoth|number_format(0, ',', '.') }}</td>
+                        <td class="{{ stati.dcDiffStatus }}">{{ stati.dcExpBoth|number_format(0, ',', '.') }}</td>
+                        <td class="{{ stati.dcDiffStatus }}">{{ stati.dcLostPercent|number_format(1, ',', '.') }}%</td>
+                        <td class="{{ stati.dcDiffStatus }}">{{ stati.dcErrorCode }}</td>
+                        <td></td>
+                        <td class="{{ stati.stringIStatus }}">{{ stati.stringIWarnings }}</td>
+                        <td class="{{ stati.stringIStatus }}">{{ stati.stringIAlerts }}</td>
+                        <td class="{{ stati.stringIStatus }}">{{ stati.stringIScore }}</td>
+                        <td></td>
+                        <td class="{{ stati.stringUStatus }}">{{ stati.stringUWarnings }}</td>
+                        <td class="{{ stati.stringUStatus }}">{{ stati.stringUAlerts }}</td>
+                        <td class="{{ stati.stringUStatus }}">{{ stati.stringUScore }}</td>
+                        <td></td>
+                        <td style="text-align: left;">{{ stati.stringErrorMessages|raw }}</td>
+                        <td></td>
+                        <td class="{{ stati.invStatus }}">{{ stati.invScore }}</td>
+                        <td class="{{ stati.invStatus }}">{{ stati.invAnz }}</td>
+                        <td class="{{ stati.invStatus }}">{{ stati.invAnzWarning }}</td>
+                        <td class="{{ stati.invStatus }}">{{ stati.invAnzAlert }}</td>
+
+                        <td style="text-align: left;">{{ stati.invErrorMessage|raw }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endmacro statusTable %}
+
+{% macro pvSystTable(pvSysts) %}
+    <div class="status-log table-scroll" style="margin: 0 10px;">
+        <table id="statusTable" class=" " style="width: 100%">
+            <thead>
+            <tr>
+                <th style="text-align: center">Date</th>
+                <th style="text-align: center">EVU </th>
+                <th style="text-align: center">electricity Grid</th>
+                <th style="text-align: center">electricity Inverter Out</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for pvSyst in pvSysts %}
+                <tr>
+                    <td>{{ pvSyst.date|date("y-m-d") }}</td>
+                    <td>{{ pvSyst.pr.powerEvu|number_format(2, ',', '.') }}</td>
+                    <td>{{ pvSyst.electricityGrid|number_format(0, ',', '.') }}</td>
+                    <td>{{ pvSyst.electricityInverter|number_format(0, ',', '.') }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endmacro pvSystTable %}
+

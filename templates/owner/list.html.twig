@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+{% import 'macros/macros.library.html.twig' as macrolibrary %}
+
+{% block title %}Hello OwnerController!{% endblock %}
+
+{% block body %}
+    <h1>List Owners</h1>
+    {{ macrolibrary.searchbox() }}
+    <table class="table">
+        <thead>
+        <tr>
+            <th></th>
+            <th>Name</th>
+            <th>City</th>
+            <th>&nbsp;</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for owner in pagination %}
+            <tr>
+                <td>{{ owner.eignerId }}</td>
+                <td><a href="{{ path('app_admin_owner_edit', { id: owner.eignerId}) }}">{{ owner.firma }}</a></td>
+                <td>{{ owner.plz }} {{ owner.ort }}</td>
+                <td>
+                    <a href="{{ path('app_admin_owner_edit', { id: owner.eignerId}) }}">
+                        <span class="fa fa-pencil"></span>
+                    </a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {{ knp_pagination_render(pagination) }}
+    <a class="button primary" href="{{ path('app_admin_owner_new') }}">Create New</a>
+{% endblock %}

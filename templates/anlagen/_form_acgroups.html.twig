@@ -1,0 +1,128 @@
+{% import _self as formMacros %}
+
+{% macro addAcGroup(acgroup) %}
+<tr class="js-acgroup-item">
+    <td>{{ form_widget(acgroup.acGroup) }}</td>
+    <td>{{ form_widget(acgroup.acGroupName) }}</td>
+    <td>{{ form_widget(acgroup.unitFirst) }}</td>
+    <td>{{ form_widget(acgroup.unitLast) }}</td>
+    <td>{{ form_widget(acgroup.dcPowerInverter) }}</td>
+    <td>{{ form_widget(acgroup.weatherStation) }}</td>
+    <td>{{ form_widget(acgroup.isEastWestGroup) }}</td>
+    <td>{{ form_widget(acgroup.gewichtungAnlagenPR) }}</td>
+    <td>{{ form_widget(acgroup.tCellAvg) }}</td>
+    <td><a href="#" class="js-remove-acgroup"><span class="fa fa-minus-circle"></span></a></td>
+</tr>
+{% endmacro %}
+
+
+{{ form_start(anlageForm) }} {# , {'attr': {'novalidate': 'yes'}}) #}
+    <div class="grid-x">
+        <div class="cell">
+            <ul class="tabs" data-tabs id="anlage-tabs" data-deep-link="true">
+                <li class="tabs-title is-active"><a data-tabs-target="plant-data" href="#plant-data" aria-selected="true" >General</a></li>
+                {% if is_granted('ROLE_G4N') %}
+                    <li class="tabs-title"><a data-tabs-target="acgroups" href="#acgroups">AC Groups</a></li>
+                {% endif %}
+            </ul>
+
+            <div class="tabs-content" data-tabs-content="anlage-tabs">
+                {# General #}
+                <div class="tabs-panel is-active" id="plant-data">
+
+                    <fieldset class="fieldset">
+                        <legend>Standort</legend>
+                        <div class="grid-x grid-margin-x grid-padding-x">
+                            <div class="cell medium-6">
+                                {{ form_row(anlageForm.eigner) }}
+                                {{ form_row(anlageForm.anlName) }}
+                                {{ form_row(anlageForm.projektNr) }}
+                            </div>
+                            <div class="cell medium-6">
+                                {{ form_row(anlageForm.anlStrasse) }}
+                                {{ form_row(anlageForm.anlPlz) }}
+                                {{ form_row(anlageForm.anlOrt) }}
+                                {{ form_row(anlageForm.country) }}
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="grid-x grid-margin-x grid-padding-x">
+                            <div class="cell medium-6">
+                                {{ form_row(anlageForm.anlGeoLat) }}
+                            </div>
+                            <div class="cell medium-6">
+                                {{ form_row(anlageForm.anlGeoLon) }}
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="grid-x grid-margin-x grid-padding-x">
+                            <div class="cell">
+                                {{ form_row(anlageForm.notes)}}
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                {# AC Groups #}
+                <div class="tabs-panel" id="acgroups">
+                    <fieldset class="fieldset js-acgroup-wrapper"
+                              data-prototype="{{ formMacros.addAcGroup(anlageForm.acGroups.vars.prototype)|e('html_attr') }}"
+                              data-index="{{ anlageForm.acGroups|length }}">
+                        <legend>AC Groups</legend>
+                        <div class="cell">
+                            <table id="js-acgroup">
+                                <thead>
+                                <tr>
+                                    <th><small>AC Group (ID)</small></th>
+                                    <th><small>Name</small></th>
+                                    <th><small>First Unit</small></th>
+                                    <th><small>Last Unit</small></th>
+                                    <th><small>DC Power for this AC Group</small></th>
+                                    <th><small>Weatherstation</small></th>
+                                    <th><small>Is East / West</small></th>
+                                    <th><small>Gewichtung</small></th>
+                                    <th><small>tCellAvg</small></th>
+                                    <th></th>
+                                </tr>
+
+                                </thead>
+                                <tbody>
+                                {% for acgroup in anlageForm.acGroups %}
+                                    <tr class="js-acgroup-item">
+                                        <td>{{ form_widget(acgroup.acGroup) }}</td>
+                                        <td>{{ form_widget(acgroup.acGroupName) }}</td>
+                                        <td>{{ form_widget(acgroup.unitFirst) }}</td>
+                                        <td>{{ form_widget(acgroup.unitLast) }}</td>
+                                        <td>{{ form_widget(acgroup.dcPowerInverter) }}</td>
+                                        <td>{{ form_widget(acgroup.weatherStation) }}</td>
+                                        <td>{{ form_widget(acgroup.isEastWestGroup) }}</td>
+                                        <td>{{ form_widget(acgroup.gewichtungAnlagenPR) }}</td>
+                                        <td>{{ form_widget(acgroup.tCellAvg) }}</td>
+                                        <td><a href="#" class="js-remove-acgroup"><span class="fa fa-minus-circle"></span></a></td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            <button type="button" class="button secondary small js-add-acgroup"> <span class="fa fa-plus-circle"></span>&nbsp;Add </button>
+                        </div>
+                    </fieldset>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-x grid-padding-y action-menu">
+        <div class="cell">
+            {{ form_widget(anlageForm.save) }}
+            {{ form_widget(anlageForm.saveclose) }}
+            {{ form_widget(anlageForm.close) }}
+            {% if (is_granted('ROLE_DEV')) %}{{ form_widget(anlageForm.savecreatedb) }}{% endif %}
+        </div>
+    </div>
+    {% do anlageForm.acGroups.setRendered() %}
+    {% do anlageForm.savecreatedb.setRendered() %}
+{{ form_end(anlageForm) }}
+
+
+

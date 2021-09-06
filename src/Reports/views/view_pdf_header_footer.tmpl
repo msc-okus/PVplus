@@ -1,0 +1,62 @@
+<?php
+function getHeaderFooter($params,$plant_power)
+{
+    switch ($params['footerType']) {
+        case 'monthlyReport':
+            $headerFooter = '
+            <header>
+                <div style="width: 550px; margin: 0px 25px;">
+                    <div style="float: left; padding-right: 10px; margin-top: 7px;"><img src="https://dev.g4npvplus.net/custImg/Goldbeck/GBS-logo.png" width="90px" ></div>
+                    <div style="font-size: 11px !important; font-weight: bold; float: left; text-align: left; padding-top: 10px;">
+                    '.$params["projektid"]. ' ' . $params["plant_name"].'<small>('.$plant_power.' kWp)</small><br>
+                    '.$params["year"] . $params["month"].' Monthly Report
+                    </div>
+                    <div style="float: right;"><img src="https://dev.g4npvplus.net/images/green4net.jpg" width="70px" ></div>
+                </div>
+            </header>
+            
+            <footer>
+                <div style="margin: 0px 30px !important;">
+                    <div style="font-size:9px !important; width: 520px !important;">
+                        Page: <span class="pageNumber"></span> of <span class="totalPages"></span>
+                         <span style="float: right !important;">Creation date: '.$params['reportCreationDate'].'</span>
+                    </div>
+                </div>
+            </footer>
+            ';
+            break;
+
+        case 'download':
+            $headerFooter = '
+            <header>
+                <div style="width: 550px; margin: 0px 25px;">
+                    <div style="float: left; padding-right: 10px; margin-top: 7px;"><img src="https://dev.g4npvplus.net/custImg/Goldbeck/GBS-logo.png" width="90px" ></div>
+                    <div style="font-size: 11px !important; font-weight: bold; float: left; text-align: left; padding-top: 10px;">
+                       ' . $params['downloadHeadline'] . ' for ' . $params['downloadPlantName'] . '
+                    </div>
+                    <div style="font-size:9px !important; float:right !important;">
+                        Creation date: <span>'.$params['reportCreationDate'].'</span>
+                    </div>
+                    <div style="float: right;"><img src="https://dev.g4npvplus.net/images/green4net.jpg" width="70px" ></div>
+            
+                </div>
+            </header>
+            
+            <footer>
+                <div style="margin: 0px 30px !important; position: relative; top: 70px !important;">
+                    <div style="font-size:9px !important; width: 520px !important;">
+                        Page: <span class="pageNumber"></span> of <span class="totalPages"></span>
+                         <span style="float: right !important;">Creation date: '.$params['reportCreationDate'].'</span>
+                    </div>
+                    
+                </div>
+            </footer>
+            ';
+            break;
+
+    }
+    
+    return $headerFooter;
+}
+
+?>

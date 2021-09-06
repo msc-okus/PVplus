@@ -1,0 +1,11 @@
+
+{% macro searchbox(request, name) %}
+    <form>
+        <div class="input-group">
+            <input type="text" name="{{ name }}" class="input-group-field" value="{{ request }}" placeholder="Search...">
+            <div class="input-group-button">
+                <button name="search" type="submit" class="button" value="yes"><span class="fa fa-search"></span></button>
+            </div>
+        </div>
+    </form>
+{%  endmacro %}

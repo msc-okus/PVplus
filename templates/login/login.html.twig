@@ -1,0 +1,66 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Login{% endblock %}
+
+{% block body %}
+<div class="reveal" id="login" data-reveal data-close-on-click="false" data-close-on-esc="false" data-animation-in="fade-out" data-animation-out="fade-out">
+    <div class="login-page shadow">
+        <h2>Login PV+ 4.0</h2>
+         <div class="grid-container">
+            <div class="grid-x grid-padding-x grid-padding-y">
+                <div class="medium-12 cell">
+                    {% if error %}
+                        <div class="callout alert">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                    {% else %}
+                        <p>&nbsp;</p>
+                    {% endif %}
+                    <form method="POST">
+                        <input type="text" class="user" name="username" placeholder="Username" required="" value="{{ last_username }}">
+                        <input type="password" name="password" class="lock" placeholder="Password" required="">
+                        <input type="hidden" name="login" value="true">
+                        <input id="remember-me" type="checkbox" name="_remember_me"><label for="remember-me">Remember me</label>
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                        <input class="button button-signin" type="submit" name="Sign In" value="Sign In">
+                    </form>
+                </div>
+            </div>
+         </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block styles %}
+    {{ parent() }}
+    <style>
+        .login-page h2 {
+            text-align: center;
+            padding: 1em;
+            background: #0F5694;
+            border-bottom: 10px solid #4b7884;
+            margin: 0;
+            color: #fff;
+            font-size: 1.6em;
+        }
+        .reveal {
+            padding: 0;
+            border: none;
+        }
+        .button-signin {
+            background-color: #8DBE48;
+            display: block;
+            margin: auto;
+            min-width: 200px;
+        }
+    </style>
+{% endblock %}
+
+{% block javascriptstop %}
+    {{ parent() }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        $('#login').foundation('toggle');
+    </script>
+{% endblock %}

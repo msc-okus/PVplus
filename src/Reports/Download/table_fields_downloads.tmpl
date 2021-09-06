@@ -1,0 +1,134 @@
+<?php
+    function getTablefieldsDefault($showAvailability,$showAvailabilitySecond,$useGridMeterDayData,$lineBreake,$doubleLineBreake,$gradCelsius,$durchschnitt){
+        $tableFieldsDefault = [
+            'time'  => [
+                'label'         => 'Date',
+                'type'          => 'string',
+                'cssStyle'      => 'font-size:1.0em; width:80px !important;',
+            ],
+            'irradiation' => [
+                'label'         => 'IRR'.$doubleLineBreake.'[kWh/m2]',
+                'type'          => 'number',
+                'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+            ],
+        ];
+        if($useGridMeterDayData == true) {
+            $tableFieldsDefault['powerEGridExtMonth'] = [
+                'label'         => 'Grid meter'.$lineBreake.'extern'.$lineBreake.'[kWh]',
+                'type'          => 'number',
+                'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+            ];
+        }
+        $tableFieldsDefault['PowerEvuMonth'] = [
+            'label'         => 'Grid meter'.$doubleLineBreake.'[kWh]',
+            'type'          => 'number',
+            'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+        ];
+        $tableFieldsDefault['powerActMonth'] = [
+            'label'         => 'AC  Inv.'.$lineBreake.'yield'.$lineBreake.'[kWh]',
+            'type'          => 'number',
+            'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+        ];
+        $tableFieldsDefault['powerDctMonth'] = [
+            'label'         => 'DC  Inv.'.$lineBreake.'power'.$lineBreake.'[kWh]',
+            'type'          => 'number',
+            'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+        ];
+        $tableFieldsDefault['powerExpMonth'] = [
+            'label'         => 'AC Exp.'.$lineBreake.'Inv. yield'.$lineBreake.'[kWh]',
+            'type'          => 'number',
+            'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+        ];
+        $tableFieldsDefault['powerExpDctMonth'] = [
+            'label'         => 'DC Exp.'.$lineBreake.'Inv. power'.$lineBreake.'[kWh]',
+            'type'          => 'number',
+            'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+        ];
+        if($useGridMeterDayData == true) {
+            $tableFieldsDefault['prEGridExtMonth'] = [
+                'label' => 'PR Grid meter' . $lineBreake . 'extern' . $lineBreake . '[%]',
+                'type' => 'number',
+                'formatValue' => function ($value) {
+                    return number_format($value, 3, ',', '.');
+                },
+            ];
+        }
+        $tableFieldsDefault['prEvuMonth'] = [
+            'label'         => 'PR Grid meter'.$doubleLineBreake.'[%]',
+            'type'          => 'number',
+            'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+        ];
+        $tableFieldsDefault['prActMonth'] = [
+            'label'         => 'PR AC'.$lineBreake.'Inv.'.$lineBreake.'[%]',
+            'type'          => 'number',
+            'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+        ];
+        $tableFieldsDefault['prExpMonth'] = [
+            'label'         => 'PR Exp.'.$lineBreake.'Inv.'.$lineBreake.'[%]',
+            'type'          => 'number',
+            'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+        ];
+        if($showAvailability == true) {
+            $tableFieldsDefault['plantAvailability'] = [
+                'label'         => 'PA'.$doubleLineBreake.'[%]',
+                'type'          => 'number',
+                'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+            ];
+        }
+        if($showAvailabilitySecond == true) {
+            $tableFieldsDefault['plantAvailabilitySecond'] = [
+                'label'         => 'PA 2'.$doubleLineBreake.'[%]',
+                'type'          => 'number',
+                'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+            ];
+        }
+        $tableFieldsDefault['panneltemp'] = [
+            'label'         => $durchschnitt.' Temp'.$lineBreake.'Panel'.$lineBreake.'['.$gradCelsius.'C]',
+            'type'          => 'number',
+            'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+        ];
+
+        return $tableFieldsDefault;
+    }
+
+    function getTablefieldsDaybase($lineBreake,$doubleLineBreake){
+        $tableFieldsDaybase = [
+            'time'  => [
+                'label'         => 'Date',
+                'type'          => 'string',
+            ],
+            'irradiation' => [
+                'label'         => 'IRR'.$doubleLineBreake.'[W/m2]',
+                'type'          => 'number',
+                'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+            ],
+            'powerEGridExt' => [
+                'label'         => 'Grid meter'.$lineBreake.'extern'.$lineBreake.'[kWh]',
+                'type'          => 'number',
+                'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+            ],
+            'powerAc' => [
+                'label'         => 'AC  Inv.'.$lineBreake.'yield'.$lineBreake.'[kWh]',
+                'type'          => 'number',
+                'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+            ],
+            'powerDc' => [
+                'label'         => 'DC  Inv.'.$lineBreake.'power'.$lineBreake.'[kWh]',
+                'type'          => 'number',
+                'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+            ],
+            'powerExpAc' => [
+                'label'         => 'AC Exp.'.$lineBreake.'Inv. yield'.$lineBreake.'[kWh]',
+                'type'          => 'number',
+                'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+            ],
+            'powerExpDc' => [
+                'label'         => 'DC Exp.'.$lineBreake.'Inv. power'.$lineBreake.'[kWh]',
+                'type'          => 'number',
+                'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+            ],
+        ];
+
+        return $tableFieldsDaybase;
+    }
+?>

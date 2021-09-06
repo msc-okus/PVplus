@@ -1,0 +1,1463 @@
+{% from "dashboardPlants/_incl/macrosStatus.html.twig" import statusTable as statusTable %}
+{% from "dashboardPlants/_incl/macrosStatus.html.twig" import availabilityTable as availabilityTable %}
+{% from "dashboardPlants/_incl/macrosStatus.html.twig" import case5 as case5 %}
+{% from "dashboardPlants/_incl/macrosStatus.html.twig" import pvSystTable as pvSystTable %}
+
+<h3>{{ content.headline }} - {{ aktAnlage.anlName }}</h3>
+<h4>from: {{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to: {{ form.to|date("Y-m-d") }}{% endif %}</h4>
+{% if form.selectedChart != 'status_log' and form.selectedChart != 'availability' and form.selectedChart != 'pvsyst' %}
+    <div id="amchart-holder"></div>
+{% endif %}
+
+{% if form.selectedChart == 'ac_single' or form.selectedChart == 'dc_single' %}
+    <!-- Liniendiagramm AC and DC Actual & Expected -->
+    <script>
+        am4core.ready(function() {
+            // Create chart instance
+            {% if form.optionDate < 14 %}
+                am4core.useTheme(am4themes_animated);
+            {% endif %}
+            let chart = am4core.create("amchart-holder", am4charts.XYChart);
+            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+
+            chart.data = {{ content.data|raw }};
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+            chart.numberFormatter.intlLocales = "de-DE";
+            chart.numberFormatter.numberFormat = {
+                "style": "decimal",
+                "minimumFractionDigits": 0
+            };
+
+            // Legend
+            chart.legend = new am4charts.Legend();
+            chart.legend.useDefaultMarker = false;
+
+            // Create axes
+            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+            valueAxis.title.text = "[[kWh]]";
+
+            let valueAxis2 = chart.yAxes.push(new am4charts.ValueAxis());
+            valueAxis2.title.text = "Irradiation [[W/m²]]";
+            valueAxis2.renderer.opposite = true;
+            valueAxis2.renderer.ticks.template.disabled = true;
+            valueAxis2.renderer.grid.template.disabled = true;
+            valueAxis2.extraMax = 0.1;
+
+            //let valueAxis3 = chart.yAxes.push(new am4charts.ValueAxis());
+            //valueAxis3.title.text = "Panel temperature";
+            //valueAxis3.renderer.opposite = true;
+            //valueAxis3.renderer.ticks.template.disabled = true;
+            //valueAxis3.renderer.grid.template.disabled = true;
+            //valueAxis3.extraMax = 0.1;
+
+
+            // Create series
+            //Expected
+            let series1 = chart.series.push(new am4charts.LineSeries());
+            series1.name = "Expected Inverter Out {{ (content.expSum)|number_format(0, ',', '.') }} kWh"
+            series1.dataFields.dateX = "date";
+            series1.dataFields.valueY = "expected";
+            series1.dataFields.openValueY = "expgood";
+            series1.tooltipText = "Expected [kWh]: {valueY} [/]";
+            series1.stroke = am4core.color("#fdd400");
+            series1.fill = am4core.color("#fdd400");
+            series1.strokeWidth = 1;
+            series1.fillOpacity = 0.3;
+            //series1.defaultState.transitionDuration = 300;
+            series1.tensionX = 0.8;
+
+            {% if form.selectedChart == 'ac_single' %}
+                {% if aktAnlage.showEvuDiag %}
+                    // Expected des EVU Wertes
+                    let series11 = chart.series.push(new am4charts.LineSeries());
+                    series11.name = "Expected EVU {{ (content.expEvuSum)|number_format(0, ',', '.') }} kWh"
+                    series11.dataFields.dateX = "date";
+                    series11.dataFields.valueY = "expexted_evu";
+                    series11.tooltipText = "Expected [kWh]: {valueY} [/]";
+                    series11.stroke = am4core.color("#fdb500");
+                    series11.strokeWidth = 1;
+                    //series11.defaultState.transitionDuration = 300;
+                    series11.tensionX = 0.8;
+                    series11.hidden = true;
+            {% endif %}
+
+                // Expected ohne Limits
+                let series12 = chart.series.push(new am4charts.LineSeries());
+                series12.name = "Expected (no limit) {{ (content.expNoLimitSum)|number_format(0, ',', '.') }} kWh"
+                series12.dataFields.dateX = "date";
+                series12.dataFields.valueY = "expexted_no_limit";
+                series12.tooltipText = "Expected (no limit) [kWh]: {valueY} [/]";
+                series12.stroke = am4core.color("#fd5900");
+                series12.strokeWidth = 1;
+                //series12.defaultState.transitionDuration = 300;
+                series12.tensionX = 0.8;
+                series12.hidden = true;
+            {% endif %}
+
+            {% if aktAnlage.showEvuDiag and form.selectedChart == 'ac_single' %}
+                let series3 = chart.series.push(new am4charts.LineSeries());
+                series3.name = "Grid {{ (content.evuSum)|number_format(0, ',', '.') }} kWh"
+                series3.dataFields.dateX = "date";
+                series3.dataFields.valueY = "eZEvu";
+                series3.tooltipText = "Grid [kWh]: {valueY} [/]";
+                series3.stroke = am4core.color("#03ac23");
+                series3.strokeWidth = 1;
+                //series3.defaultState.transitionDuration = 300;
+                series3.tensionX = 0.8;
+            {% endif %}
+
+            {% if aktAnlage.showInverterOutDiag or form.selectedChart == 'dc_single' %}
+                let series2 = chart.series.push(new am4charts.LineSeries());
+                {% if form.selectedChart == 'dc_single' %}
+                    series2.name = "Inverter {{ (content.actSum)|number_format(0, ',', '.') }} kWh"
+                {% else %}
+                    series2.name = "Inv Out {{ (content.actSum)|number_format(0, ',', '.') }} kWh"
+                {% endif %}
+
+                series2.dataFields.dateX = "date";
+                series2.dataFields.valueY = "InvOut";
+                {% if form.selectedChart == 'dc_single' %}
+                    series2.tooltipText = "Inverter [kWh]: {valueY} [/]";
+                {% else %}
+                    series2.tooltipText = "Inv Out [kWh]: {valueY} [/]";
+                {% endif %}
+                series2.stroke = am4core.color("#002ac3");
+                series2.strokeWidth = 1;
+                //series2.defaultState.transitionDuration = 300;
+                series2.tensionX = 0.8;
+                {% if aktAnlage.showEvuDiag and form.selectedChart == 'ac_single' %}
+                    series2.hidden = true;
+                {% endif %}
+            {% endif %}
+
+            {% if aktAnlage.showCosPhiPowerDiag and form.selectedChart == 'ac_single'%}
+                let series4 = chart.series.push(new am4charts.LineSeries());
+                series4.name = "CosPhi"
+                series4.dataFields.dateX = "date";
+                series4.dataFields.valueY = "cosPhi";
+                series4.tooltipText = "CosPhi: {valueY} [/]";
+                series4.stroke = am4core.color("#950101");
+                series4.strokeWidth = 1;
+                //series4.defaultState.transitionDuration = 300;
+                series4.tensionX = 0.8;
+                series4.hidden = true;
+            {% endif %}
+
+            let series5 = chart.series.push(new am4charts.LineSeries());
+            series5.name = "Irradiation"
+            series5.dataFields.dateX = "date";
+            series5.dataFields.valueY = "irradiation";
+            series5.tooltipText = "Irradiation: {valueY} [/]";
+            series5.stroke = am4core.color("#950101");
+            series5.strokeWidth = 1;
+            //series5.defaultState.transitionDuration = 50;
+            series5.tensionX = 0.8;
+            series5.hidden = true;
+            series5.yAxis = valueAxis2;
+
+            //let series6 = chart.series.push(new am4charts.LineSeries());
+            //series6.name = "panelTemp"
+            //series6.dataFields.dateX = "date";
+            //series6.dataFields.valueY = "panelTemp";
+            //series6.tooltipText = "Panel temperature: {valueY} [/]";
+            //series6.stroke = am4core.color("rgba(118,51,69,0.68)");
+            //series6.strokeWidth = 1;
+            //series6.defaultState.transitionDuration = 300;
+            //series6.tensionX = 0.8;
+            //series6.hidden = true;
+            //series6.gr
+            //series6.yAxis = valueAxis3;
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.xAxis = dateAxis;
+            chart.exporting.menu = new am4core.ExportMenu();
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.scrollbarX.marginBottom = "20"
+            chart.scrollbarY = new am4core.Scrollbar();
+            chart.scrollbarY.marginLeft = "20";
+            chart.exporting.menu.items[0].label = "Download";
+
+        }); // end am4core.ready()
+    </script>
+{% elseif form.selectedChart == 'ac_act_group' or form.selectedChart == 'dc_act_group'%}
+    <!-- Liniendiagramm AC (current group) -->
+    {% include 'dashboardPlants/_incl/chart/groups.html.twig' %}
+{% elseif form.selectedChart == 'ac_grp_power_diff' %}
+    <!-- Balkendiagramme Group Power Diff -->
+    <script>
+        am4core.ready(function() {
+            // Create chart instance
+            let chart = am4core.create("amchart-holder", am4charts.XYChart);
+            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+            chart.data = {{ content.data|raw }};
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+            chart.numberFormatter.intlLocales = "de-DE";
+            chart.numberFormatter.numberFormat = {
+                "style": "decimal",
+                "minimumFractionDigits": 0
+            };
+
+            // Legend
+            chart.legend = new am4charts.Legend();
+            chart.legend.useDefaultMarker = false;
+
+            // Create series
+            let xAxes1 = chart.xAxes.push(new am4charts.CategoryAxis());
+            xAxes1.dataFields.category = "category";
+            xAxes1.renderer.grid.template.location = 0;
+            xAxes1.renderer.labels.template.rotation = 270;
+            xAxes1.renderer.labels.template.dx = -20; // horizontal Offset
+            xAxes1.renderer.minGridDistance = 20;
+            xAxes1.renderer.labels.template.html = "<a class='chart-label' href='?selectedChart=dc_inv_power_diff&selectedGroup={link}&from={{ form.from|url_encode }}&to={{ form.to|url_encode }}'>{category}</a>";
+
+            let yAxes1 = chart.yAxes.push(new am4charts.ValueAxis());
+            yAxes1.renderer.maxLabelPosition = 0.98;
+
+            let series1 = chart.series.push(new am4charts.ColumnSeries());
+            series1.name = "Expected";
+            series1.columns.template.strokeOpacity = 0;
+            series1.fill = "#fdd400";
+
+            // Set up tooltips
+            series1.tooltip.label.interactionsEnabled = false;
+            series1.tooltip.keepTargetHover = true;
+            {% if aktAnlage.anlType != 'ZWR' %} // Wenn kein ZentralWechselRichter vorliegt wird der Lnk erzeugt
+                series1.columns.template.tooltipHTML = "<a href='?selectedChart=dc_inv_power_diff&selectedGroup={link}&from={{ form.from|url_encode }}&to={{ form.to|url_encode }}'><b>{category}:</b><br>Expected {valueY} [KWh]</a>";
+            {% else %}
+                series1.columns.template.tooltipHTML = "<b>{category}:</b><br>Expected {valueY} [KWh]";
+            {% endif %}
+            series1.tooltip.dy = 50;
+            series1.dataFields.valueY = "exp";
+            series1.dataFields.categoryX = "category";
+            series1.sequencedInterpolationDelay = 100;
+
+            let series2 = chart.series.push(new am4charts.ColumnSeries());
+            series2.name = "Actual";
+            series2.columns.template.strokeOpacity = 0;
+            series2.dataFields.valueY = "act";
+            series2.dataFields.categoryX = "category";
+            series2.sequencedInterpolationDelay = 50;
+
+            // Set up tooltips
+            series2.tooltip.label.interactionsEnabled = false;
+            series2.tooltip.keepTargetHover = true;
+            {% if aktAnlage.anlType != 'ZWR' %}
+                series2.columns.template.tooltipHTML = "<a href='?selectedChart=dc_inv_power_diff&selectedGroup={link}&from={{ form.from|url_encode }}&to={{ form.to|url_encode }}'><b>{category}:</b><br>Actual {valueY} [KWh]</a>";
+            {% else %}
+                series2.columns.template.tooltipHTML = "<b>{category}:</b><br>Actual {valueY} [KWh]";
+            {% endif %}
+            series2.tooltip.dy = -100;
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.behavior = "zoomX";
+            chart.exporting.menu.items[0].label = "Download";
+
+            chart.events.on("ready", function(ev) {
+                //yAxes1.min = 0; //yAxes1.minZoomed;
+                //yAxes1.max = yAxes1.maxZoomed;
+            });
+
+        }); // end am4core.ready()
+    </script>
+{% elseif form.selectedChart == 'ac_act_voltage' %}
+    <!-- Liniendiagramm Group Voltage -->
+    <script>
+        am4core.ready(function() {
+            // Create chart instance
+            {% if form.optionDate < 14 %}
+            am4core.useTheme(am4themes_animated);
+            {% endif %}
+            let chart = am4core.create("amchart-holder", am4charts.XYChart);
+            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+
+            chart.data = {{ content.data|raw }};
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+            chart.numberFormatter.intlLocales = "de-DE";
+            chart.numberFormatter.numberFormat = {
+                "style": "decimal",
+                "minimumFractionDigits": 0
+            };
+
+            // Legend
+            chart.legend = new am4charts.Legend();
+            chart.legend.useDefaultMarker = false;
+
+            // Create axes
+            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+
+            // Create series
+            let series0 = chart.series.push(new am4charts.LineSeries());
+            series0.name = "{{ content.series0.name }}";
+            series0.dataFields.dateX = "date";
+            series0.dataFields.valueY = "act";
+            series0.tooltipText = "{{ content.series0.tooltipText }}: {valueY} Volt";
+            series0.stroke = am4core.color("#016195");
+            series0.fill = am4core.color("#016195");
+            series0.strokeWidth = 1;
+            series0.defaultState.transitionDuration = 300;
+            series0.tensionX = 0.8;
+
+            let series1 = chart.series.push(new am4charts.LineSeries());
+            series1.name = "{{ content.series1.name }}";
+            series1.dataFields.dateX = "date";
+            series1.dataFields.valueY = "u_ac_p1";
+            series1.tooltipText = "{{ content.series1.tooltipText }}: {valueY} Volt";
+            series1.stroke = am4core.color("#057a07");
+            series1.fill = am4core.color("#057a07");
+            series1.strokeWidth = 1;
+            series1.defaultState.transitionDuration = 300;
+            series1.tensionX = 0.8;
+
+            let series2 = chart.series.push(new am4charts.LineSeries());
+            series2.name = "{{ content.series2.name }}";
+            series2.dataFields.dateX = "date";
+            series2.dataFields.valueY = "u_ac_p2";
+            series2.tooltipText = "{{ content.series2.tooltipText }}: {valueY} Volt";
+            series2.stroke = am4core.color("#d6a9e0");
+            series2.fill = am4core.color("#d6a9e0");
+            series2.strokeWidth = 1;
+            series2.defaultState.transitionDuration = 300;
+            series2.tensionX = 0.8;
+
+            let series3 = chart.series.push(new am4charts.LineSeries());
+            series3.name = "{{ content.series3.name }}";
+            series3.dataFields.dateX = "date";
+            series3.dataFields.valueY = "u_ac_p3";
+            series3.tooltipText = "{{ content.series3.tooltipText }}: {valueY} Volt";
+            series3.stroke = am4core.color("#a97335");
+            series3.fill = am4core.color("#a97335");
+            series3.strokeWidth = 1;
+            series3.defaultState.transitionDuration = 300;
+            series3.tensionX = 0.8;
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.xAxis = dateAxis;
+            chart.exporting.menu = new am4core.ExportMenu();
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.scrollbarX.marginBottom = "20"
+            chart.scrollbarY = new am4core.Scrollbar();
+            chart.scrollbarY.marginLeft = "20";
+            chart.exporting.menu.items[0].label = "Download";
+
+        }); // end am4core.ready()
+    </script>
+{% elseif form.selectedChart == 'ac_act_current' %}
+    <!-- Liniendiagramm Group Voltage -->
+    <script>
+        am4core.ready(function() {
+            // Create chart instance
+            {% if form.optionDate < 14 %}
+            am4core.useTheme(am4themes_animated);
+            {% endif %}
+            let chart = am4core.create("amchart-holder", am4charts.XYChart);
+            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+
+            chart.data = {{ content.data|raw }};
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+            chart.numberFormatter.intlLocales = "de-DE";
+            chart.numberFormatter.numberFormat = {
+                "style": "decimal",
+                "minimumFractionDigits": 0
+            };
+
+            // Legend
+            chart.legend = new am4charts.Legend();
+            chart.legend.useDefaultMarker = false;
+
+            // Create axes
+            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+            // Create series
+            let series0 = chart.series.push(new am4charts.LineSeries());
+            series0.name = "{{ content.series0.name }}";
+            series0.dataFields.dateX = "date";
+            series0.dataFields.valueY = "act";
+            series0.tooltipText = "{{ content.series0.tooltipText }}: {valueY} Ampere";
+            series0.stroke = am4core.color("#016195");
+            series0.fill = am4core.color("#016195");
+            series0.strokeWidth = 1;
+            series0.defaultState.transitionDuration = 300;
+            series0.tensionX = 0.8;
+
+            let series1 = chart.series.push(new am4charts.LineSeries());
+            series1.name = "{{ content.series1.name }}";
+            series1.dataFields.dateX = "date";
+            series1.dataFields.valueY = "i_ac_p1";
+            series1.tooltipText = "{{ content.series1.tooltipText }}: {valueY} Ampere";
+            series1.stroke = am4core.color("#057a07");
+            series1.fill = am4core.color("#057a07");
+            series1.strokeWidth = 1;
+            series1.defaultState.transitionDuration = 300;
+            series1.tensionX = 0.8;
+
+            let series2 = chart.series.push(new am4charts.LineSeries());
+            series2.name = "{{ content.series2.name }}";
+            series2.dataFields.dateX = "date";
+            series2.dataFields.valueY = "i_ac_p2";
+            series2.tooltipText = "{{ content.series2.tooltipText }}: {valueY} Ampere";
+            series2.stroke = am4core.color("#d6a9e0");
+            series2.fill = am4core.color("#d6a9e0");
+            series2.strokeWidth = 1;
+            series2.defaultState.transitionDuration = 300;
+            series2.tensionX = 0.8;
+
+            let series3 = chart.series.push(new am4charts.LineSeries());
+            series3.name = "{{ content.series3.name }}";
+            series3.dataFields.dateX = "date";
+            series3.dataFields.valueY = "i_ac_p3";
+            series3.tooltipText = "{{ content.series3.tooltipText }}: {valueY} Ampere";
+            series3.stroke = am4core.color("#a97335");
+            series3.fill = am4core.color("#a97335");
+            series3.strokeWidth = 1;
+            series3.defaultState.transitionDuration = 300;
+            series3.tensionX = 0.8;
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.xAxis = dateAxis;
+            chart.exporting.menu = new am4core.ExportMenu();
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.scrollbarX.marginBottom = "20"
+            chart.scrollbarY = new am4core.Scrollbar();
+            chart.scrollbarY.marginLeft = "20";
+            chart.exporting.menu.items[0].label = "Download";
+
+        }); // end am4core.ready()
+    </script>
+{% elseif form.selectedChart == 'ac_act_frequency' %}
+    <!-- Liniendiagramm Group Frequency -->
+    <script>
+        am4core.ready(function() {
+            // Create chart instance
+            {% if form.optionDate < 14 %}
+            am4core.useTheme(am4themes_animated);
+            {% endif %}
+            let chart = am4core.create("amchart-holder", am4charts.XYChart);
+
+            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+
+            chart.data = {{ content.data|raw }};
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+            chart.numberFormatter.intlLocales = "de-DE";
+            chart.numberFormatter.numberFormat = {
+                "style": "decimal",
+                "minimumFractionDigits": 0
+            };
+
+            // Legend
+            chart.legend = new am4charts.Legend();
+            chart.legend.useDefaultMarker = false;
+
+            // Create axes
+            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+            // Create series
+            let series0 = chart.series.push(new am4charts.LineSeries());
+            series0.name = "{{ content.series1.name }}";
+            series0.dataFields.dateX = "date";
+            series0.dataFields.valueY = "act";
+            series0.tooltipText = "{{ content.series1.tooltipText }}: {valueY} Herz";
+            series0.stroke = am4core.color("#016195");
+            series0.fill = am4core.color("#016195");
+            series0.strokeWidth = 2;
+            series0.defaultState.transitionDuration = 300;
+            series0.tensionX = 0.8;
+
+            // Create series
+            function addSeries() {
+                let seriesId = (chart.series.length / 1) ;
+
+                // Create series Actual
+                let series = new am4charts.LineSeries();
+                {% if (content.offsetLegende) %}
+                let newSeriesId = seriesId + {{ content.offsetLegende }};
+                series.name = "{{ content.seriesx.name }}" + newSeriesId ;
+                {% else %}
+                series.name = "{{ content.seriesx.name }}" + seriesId;
+                {% endif %}
+                series.dataFields.dateX = "date";
+                series.dataFields.valueY = "val" + seriesId;
+                series.tooltipText = "{{ content.seriesx.tooltipText }}" + seriesId + ": {valueY} [/]";
+                series.strokeWidth = 1;
+                series.defaultState.transitionDuration = 300;
+                series.tensionX = 0.8;
+                series.connect = false;
+                series = chart.series.push(series);
+            }
+
+            for (let i = 1; i <= {{ content.maxSeries }}; i++) {
+                addSeries();
+            }
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.xAxis = dateAxis;
+            chart.exporting.menu = new am4core.ExportMenu();
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.scrollbarX.marginBottom = "20"
+            chart.scrollbarY = new am4core.Scrollbar();
+            chart.scrollbarY.marginLeft = "20"
+            chart.exporting.menu.items[0].label = "Download";
+
+        }); // end am4core.ready()
+    </script>
+{% elseif form.selectedChart == 'reactive_power' %}
+    <!-- Liniendiagramm Group reactive_power -->
+    <script>
+        am4core.ready(function() {
+            // Create chart instance
+            {% if form.optionDate < 14 %}
+            am4core.useTheme(am4themes_animated);
+            {% endif %}
+            let chart = am4core.create("amchart-holder", am4charts.XYChart);
+
+            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+
+            chart.data = {{ content.data|raw }};
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+            chart.numberFormatter.intlLocales = "de-DE";
+            chart.numberFormatter.numberFormat = {
+                "style": "decimal",
+                "minimumFractionDigits": 0
+            };
+
+            // Legend
+            chart.legend = new am4charts.Legend();
+            chart.legend.useDefaultMarker = false;
+
+            // Create axes
+            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+            // Create series
+            let series0 = chart.series.push(new am4charts.LineSeries());
+            series0.name = "{{ content.series1.name }}";
+            series0.dataFields.dateX = "date";
+            series0.dataFields.valueY = "act";
+            series0.tooltipText = "{{ content.series1.tooltipText }}: {valueY} Vqf";
+            series0.stroke = am4core.color("#016195");
+            series0.fill = am4core.color("#016195");
+            series0.strokeWidth = 2;
+            series0.defaultState.transitionDuration = 300;
+            series0.tensionX = 0.8;
+
+            // Create series
+            function addSeries() {
+                let seriesId = (chart.series.length / 1) ;
+
+                // Create series Actual
+                let series = new am4charts.LineSeries();
+                {% if (content.offsetLegende) %}
+                let newSeriesId = seriesId + {{ content.offsetLegende }};
+                series.name = "{{ content.seriesx.name }}" + newSeriesId ;
+                {% else %}
+                series.name = "{{ content.seriesx.name }}" + seriesId;
+                {% endif %}
+                series.dataFields.dateX = "date";
+                series.dataFields.valueY = "val" + seriesId;
+                series.tooltipText = "{{ content.seriesx.tooltipText }}" + seriesId + ": {valueY} [/]";
+                series.strokeWidth = 1;
+                series.defaultState.transitionDuration = 300;
+                series.tensionX = 0.8;
+                series.connect = false;
+                series = chart.series.push(series);
+            }
+
+            for (let i = 1; i <= {{ content.maxSeries }}; i++) {
+                addSeries();
+            }
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.xAxis = dateAxis;
+            chart.exporting.menu = new am4core.ExportMenu();
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.scrollbarX.marginBottom = "20"
+            chart.scrollbarY = new am4core.Scrollbar();
+            chart.scrollbarY.marginLeft = "20"
+            chart.exporting.menu.items[0].label = "Download";
+
+        }); // end am4core.ready()
+    </script>
+{% elseif form.selectedChart == 'dc_current_group' %}
+    <!-- Liniendiagramm DC (current group) -->
+    <script>
+        am4core.ready(function() {
+            // Create chart instance
+            {% if form.optionDate < 14 %}
+                am4core.useTheme(am4themes_animated);
+            {% endif %}
+
+            let chart = am4core.create("amchart-holder", am4charts.XYChart);
+            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+
+            chart.data = {{ content.data|raw }};
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+            chart.numberFormatter.intlLocales = "de-DE";
+            chart.numberFormatter.numberFormat = {
+                "style": "decimal",
+                "minimumFractionDigits": 0
+            };
+
+            // Legend
+            chart.legend = new am4charts.Legend();
+            chart.legend.useDefaultMarker = false;
+
+            // Create axes
+            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+            // Create series
+            function addSeries() {
+                let seriesId = (chart.series.length / 1) + 1;
+
+                // Create series Actual
+                let series = new am4charts.LineSeries();
+                series.name = "{{ content.seriesx.name }} " + seriesId;
+                series.dataFields.dateX = "date";
+                series.dataFields.valueY = "val" + seriesId;
+                series.tooltipText = "{{ content.seriesx.tooltipText }}" + seriesId + ": {valueY} [/]";
+                series.strokeWidth = 1;
+                series.sequencedInterpolation = false;
+                series.defaultState.transitionDuration = 300;
+                series.tensionX = 0.8;
+                series = chart.series.push(series);
+            }
+
+            for (let i = 1; i <= {{ content.maxSeries }}; i++) {
+                addSeries();
+            }
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.xAxis = dateAxis;
+            chart.exporting.menu = new am4core.ExportMenu();
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.scrollbarX.marginBottom = "20"
+            chart.scrollbarY = new am4core.Scrollbar();
+            chart.scrollbarY.marginLeft = "20";
+            chart.exporting.menu.items[0].label = "Download";
+
+        }); // end am4core.ready()
+    </script>
+{% elseif form.selectedChart == 'dc_current_inverter' %}
+    <!-- Liniendiagramm DC (current inverter) -->
+    <script>
+        am4core.ready(function() {
+            // Create chart instance
+            {% if form.optionDate < 14 %}
+                am4core.useTheme(am4themes_animated);
+            {% endif %}
+
+            let chart = am4core.create("amchart-holder", am4charts.XYChart);
+            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+
+            chart.data = {{ content.data|raw }};
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+            chart.numberFormatter.intlLocales = "de-DE";
+            chart.numberFormatter.numberFormat = {
+                "style": "decimal",
+                "minimumFractionDigits": 0
+            };
+
+            // Legend
+            chart.legend = new am4charts.Legend();
+            chart.legend.useDefaultMarker = false;
+
+            // Create axes
+            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+            let series0 = chart.series.push(new am4charts.LineSeries());
+            series0.name = "{{ content.series1.name }}";
+            series0.dataFields.dateX = "date";
+            series0.dataFields.valueY = "soll";
+            series0.tooltipText = "{{ content.series1.tooltipText }}: {valueY} [/]";
+            series0.stroke = am4core.color("#fdd400");
+            series0.fill = am4core.color("#fdd400");
+            series0.strokeWidth = 2;
+            series0.sequencedInterpolation = false;
+            series0.defaultState.transitionDuration = 300;
+            series0.tensionX = 0.8;
+
+            // Create series
+            function addSeries() {
+                let seriesId = (chart.series.length);
+
+                // Create series Actual
+                let series = new am4charts.LineSeries();
+                {% if (content.offsetLegende) %}
+                let newSeriesId = seriesId + {{ content.offsetLegende }};
+                series.name = "{{ content.seriesx.name }}" + newSeriesId ;
+                {% else %}
+                series.name = "{{ content.seriesx.name }}" + seriesId;
+                {% endif %}
+                series.dataFields.dateX = "date";
+                series.dataFields.valueY = "val" + seriesId;
+                series.tooltipText = "{{ content.seriesx.tooltipText }}" + seriesId + ": {valueY} [/]";
+                series.strokeWidth = 1;
+                series.sequencedInterpolation = false;
+                series.defaultState.transitionDuration = 300;
+                series.tensionX = 0.8;
+                series = chart.series.push(series);
+            }
+
+            for (let i = 1; i <= {{ content.maxSeries }}; i++) {
+                addSeries();
+            }
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.xAxis = dateAxis;
+            chart.exporting.menu = new am4core.ExportMenu();
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.scrollbarX.marginBottom = "20"
+            chart.scrollbarY = new am4core.Scrollbar();
+            chart.scrollbarY.marginLeft = "20";
+            chart.exporting.menu.items[0].label = "Download";
+
+        }); // end am4core.ready()
+    </script>
+{% elseif form.selectedChart == 'dc_current_mpp' %}
+    <!-- Liniendiagramm DC (current mpp) -->
+    <script>
+        am4core.ready(function() {
+            // Create chart instance
+            {% if form.optionDate < 14 %}
+                am4core.useTheme(am4themes_animated);
+            {% endif %}
+
+            let chart = am4core.create("amchart-holder", am4charts.XYChart);
+            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+            chart.data = {{ content.data|raw }};
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+            chart.numberFormatter.intlLocales = "de-DE";
+            chart.numberFormatter.numberFormat = {
+                "style": "decimal",
+                "minimumFractionDigits": 0
+            };
+
+            // Legend
+            chart.legend = new am4charts.Legend();
+            chart.legend.useDefaultMarker = false;
+
+            // Create axes
+            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            dateAxis.renderer.labels.template.rotation = 270;
+
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+            // Create series
+            function addSeries() {
+                let seriesId = (chart.series.length) + 1;
+
+                // Create series Actual
+                let series = new am4charts.LineSeries();
+                series.name = "{{ content.seriesx.name }}" + seriesId;
+                series.dataFields.dateX = "date";
+                series.dataFields.valueY = "val" + seriesId;
+                series.tooltipText = "{{ content.seriesx.tooltipText }}" + seriesId + ": {valueY} [/]";
+                series.strokeWidth = 1;
+                series.sequencedInterpolation = false;
+                series.defaultState.transitionDuration = 300;
+                series.tensionX = 0.8;
+                series = chart.series.push(series);
+            }
+
+            for (let i = 1; i < {{ content.maxSeries }}; i++) {
+                addSeries();
+            }
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.xAxis = dateAxis;
+            chart.exporting.menu = new am4core.ExportMenu();
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.scrollbarX.marginBottom = "20"
+            chart.scrollbarY = new am4core.Scrollbar();
+            chart.scrollbarY.marginLeft = "20";
+            chart.exporting.menu.items[0].label = "Download";
+
+        }); // end am4core.ready()
+    </script>
+{% elseif form.selectedChart == 'dc_voltage_groups' %}
+    <!-- Liniendiagramm DC (voltage groups) -->
+    <script>
+        am4core.ready(function() {
+            // Create chart instance
+            {% if form.optionDate < 14 %}
+                am4core.useTheme(am4themes_animated);
+            {% endif %}
+
+            let chart = am4core.create("amchart-holder", am4charts.XYChart);
+            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+
+            chart.data = {{ content.data|raw }};
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+
+            // Legend
+            chart.legend = new am4charts.Legend();
+            chart.legend.useDefaultMarker = false;
+
+            // Create axes
+            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            dateAxis.renderer.labels.template.rotation = 270;
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+            // Create series
+            function addSeries() {
+                let seriesId = (chart.series.length) + 1;
+
+                // Create series Actual
+                let series = new am4charts.LineSeries();
+                series.name = "{{ content.seriesx.name }}" + seriesId;
+                series.dataFields.dateX = "date";
+                series.dataFields.valueY = "val" + seriesId;
+                series.tooltipText = "{{ content.seriesx.tooltipText }}" + seriesId + ": {valueY} [/]";
+                series.strokeWidth = 1;
+                series.sequencedInterpolation = false;
+                series.defaultState.transitionDuration = 300;
+                series.tensionX = 0.8;
+                series = chart.series.push(series);
+            }
+
+            for (let i = 1; i <= {{ content.maxSeries }}; i++) {
+                addSeries();
+            }
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.xAxis = dateAxis;
+            chart.exporting.menu = new am4core.ExportMenu();
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.scrollbarX.marginBottom = "20"
+            chart.scrollbarY = new am4core.Scrollbar();
+            chart.scrollbarY.marginLeft = "20";
+            chart.exporting.menu.items[0].label = "Download";
+
+        }); // end am4core.ready()
+    </script>
+{% elseif form.selectedChart == 'dc_voltage_mpp' %}
+    <!-- Liniendiagramm DC (voltage groups) -->
+    <script>
+        am4core.ready(function() {
+            // Create chart instance
+            {% if form.optionDate < 14 %}
+                am4core.useTheme(am4themes_animated);
+            {% endif %}
+
+            let chart = am4core.create("amchart-holder", am4charts.XYChart);
+            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+
+            chart.data = {{ content.data|raw }};
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+            chart.numberFormatter.intlLocales = "de-DE";
+            chart.numberFormatter.numberFormat = {
+                "style": "decimal",
+                "minimumFractionDigits": 0
+            };
+
+            // Legend
+            chart.legend = new am4charts.Legend();
+            chart.legend.useDefaultMarker = false;
+
+            // Create axes
+            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            dateAxis.renderer.labels.template.rotation = 270;
+
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+            // Create series
+            function addSeries() {
+                let seriesId = (chart.series.length) + 1;
+
+                // Create series Actual
+                let series = new am4charts.LineSeries();
+                series.name = "{{ content.seriesx.name }}" + seriesId;
+                series.dataFields.dateX = "date";
+                series.dataFields.valueY = "val" + seriesId;
+                series.tooltipText = "{{ content.seriesx.tooltipText }}" + seriesId + ": {valueY} [/]";
+                series.strokeWidth = 1;
+                series.sequencedInterpolation = false;
+                series.defaultState.transitionDuration = 300;
+                series.tensionX = 0.8;
+                series = chart.series.push(series);
+            }
+
+            for (let i = 1; i < {{ content.maxSeries }}; i++) {
+                addSeries();
+            }
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.xAxis = dateAxis;
+            chart.exporting.menu = new am4core.ExportMenu();
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.scrollbarX.marginBottom = "20"
+            chart.scrollbarY = new am4core.Scrollbar();
+            chart.scrollbarY.marginLeft = "20";
+            chart.exporting.menu.items[0].label = "Download";
+
+        }); // end am4core.ready()
+    </script>
+{% elseif form.selectedChart == 'dc_grp_power_diff' %}
+    <!-- Balkendiagramme Group Power Diff -->
+    <script>
+        am4core.ready(function() {
+            // Create chart instance
+            let chart = am4core.create("amchart-holder", am4charts.XYChart);
+            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+
+            chart.data = {{ content.data|raw }};
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+            chart.numberFormatter.intlLocales = "de-DE";
+            chart.numberFormatter.numberFormat = {
+                "style": "decimal",
+                "minimumFractionDigits": 0
+            };
+
+            // Legend
+            chart.legend = new am4charts.Legend();
+            chart.legend.useDefaultMarker = false;
+
+            // Create series
+            let xAxes1 = chart.xAxes.push(new am4charts.CategoryAxis());
+            xAxes1.dataFields.category = "category";
+            xAxes1.renderer.grid.template.location = 0;
+            xAxes1.renderer.labels.template.rotation = 270;
+            xAxes1.renderer.labels.template.dx = -20; // horizontal Offset
+            xAxes1.renderer.labels.template.html = "<a class='chart-label' href='?selectedChart=dc_inv_power_diff&selectedGroup={link}&from={{ form.from|url_encode }}&to={{ form.to|url_encode }}'>{category}</a>";
+            xAxes1.renderer.minGridDistance = 20;
+
+            let yAxes1 = chart.yAxes.push(new am4charts.ValueAxis());
+            yAxes1.renderer.maxLabelPosition = 0.98;
+
+            let series1 = chart.series.push(new am4charts.ColumnSeries());
+            series1.name = "Expected";
+            series1.columns.template.strokeOpacity = 0;
+            series1.fill = "#fdd400";
+
+            // Set up tooltips
+            series1.tooltip.label.interactionsEnabled = false;
+            series1.tooltip.keepTargetHover = true;
+            {% if aktAnlage.anlType != 'ZWR' %} // Wenn kein ZentralWechselRichter vorliegt wird der Link erzeugt
+                series1.columns.template.tooltipHTML = "<a href='?selectedChart=dc_inv_power_diff&selectedGroup={link}&from={{ form.from|url_encode }}&to={{ form.to|url_encode }}'><b>{category}:</b><br>Expected {valueY} [KWh]</a>";
+            {% else %}
+                series1.columns.template.tooltipHTML = "<b>{category}:</b><br>Expected {valueY} [[KWh]]";
+            {% endif %}
+            series1.tooltip.dy = 50;
+            series1.dataFields.valueY = "exp";
+            series1.dataFields.categoryX = "category";
+            series1.sequencedInterpolation = true;
+            series1.sequencedInterpolationDelay = 50;
+
+            let series2 = chart.series.push(new am4charts.ColumnSeries());
+            series2.name = "Actual";
+            series2.columns.template.strokeOpacity = 0;
+            series2.dataFields.valueY = "act";
+            series2.dataFields.categoryX = "category";
+            series2.sequencedInterpolation = true;
+            series2.sequencedInterpolationDelay = 50;
+
+            // Set up tooltips
+            series2.tooltip.label.interactionsEnabled = false;
+            series2.tooltip.keepTargetHover = true;
+            {% if aktAnlage.anlType != 'ZWR' %}
+                series2.columns.template.tooltipHTML = "<a href='?selectedChart=dc_inv_power_diff&selectedGroup={link}&from={{ form.from|url_encode }}&to={{ form.to|url_encode }}'><b>{category}:</b><br>Actual {valueY} [KWh]</a>";
+            {% else %}
+                series2.columns.template.tooltipHTML = "<b>{category}:</b><br>Actual {valueY} [[KWh]]";
+            {% endif %}
+            series2.tooltip.dy = -50;
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.behavior = "zoomX";
+
+            chart.events.on("ready", function(ev) {
+                yAxes1.min = 0; //yAxes1.minZoomed;
+                yAxes1.max = yAxes1.maxZoomed;
+            });
+            chart.exporting.menu.items[0].label = "Download";
+
+        }); // end am4core.ready()
+    </script>
+{% elseif form.selectedChart == 'dc_inv_power_diff' %}
+    <!-- Balkendiagramme 'Inverter Power Diff' aka 'Dc-Inverter' aka 'DC Inverter production' -->
+    <script>
+        am4core.ready(function() {
+            // Create chart instance
+            //am4core.useTheme(am4themes_animated);
+
+            let chart = am4core.create("amchart-holder", am4charts.XYChart);
+            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+
+            chart.data = {{ content.data|raw }};
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+            chart.numberFormatter.intlLocales = "de-DE";
+            chart.numberFormatter.numberFormat = {
+                "style": "decimal",
+                "minimumFractionDigits": 0
+            };
+
+            // Create series
+            let xAxes1 = chart.xAxes.push(new am4charts.CategoryAxis());
+            xAxes1.dataFields.category = "category";
+            xAxes1.renderer.grid.template.location = 0;
+            xAxes1.renderer.labels.template.rotation = 270;
+            xAxes1.renderer.labels.template.dx = -20; // horizontal Offset
+            xAxes1.renderer.minGridDistance = 20;
+
+            let yAxes1 = chart.yAxes.push(new am4charts.ValueAxis());
+            yAxes1.renderer.maxLabelPosition = 0.98;
+
+            let range = yAxes1.axisRanges.create();
+            range.value = {{ content.rangeValue }};
+            //{{ content.rangeValue }};
+            range.grid.stroke = am4core.color("#fdd400");
+            range.grid.strokeWidth = 2;
+            range.grid.strokeOpacity = 1;
+            range.label.inside = true;
+            range.grid.above = true;
+            range.label.text = "Expected";
+
+            let series1 = chart.series.push(new am4charts.ColumnSeries());
+            series1.columns.template.strokeOpacity = 0;
+            series1.columns.template.propertyFields.fill = "color";
+            series1.columns.template.tooltipText = "{categoryX}: {valueY} [kWh]";
+            series1.columns.template.tooltipPosition = "pointer";
+            series1.dataFields.valueY = "val";
+            series1.dataFields.categoryX = "category";
+            series1.sequencedInterpolation = true;
+            series1.sequencedInterpolationDelay = 50;
+
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.behavior = "zoomX";
+
+            chart.events.on("ready", function(ev) {
+                yAxes1.min = 0; //yAxes1.minZoomed;
+                yAxes1.max = yAxes1.maxZoomed;
+            });
+            chart.exporting.menu.items[0].label = "Download";
+
+        }); // end am4core.ready()
+    </script>
+{% elseif form.selectedChart == 'inverter_performance' %}
+    <!-- Balkendiagramme Inverter Performance -->
+    <script>
+        am4core.ready(function() {
+            // Create chart instance
+            //am4core.useTheme(am4themes_animated);
+
+            let chart = am4core.create("amchart-holder", am4charts.XYChart);
+            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+
+            chart.data = {{ content.data|raw }};
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+            chart.numberFormatter.intlLocales = "de-DE";
+            chart.numberFormatter.numberFormat = {
+                "style": "decimal",
+                "minimumFractionDigits": 0
+            };
+
+            // Legend
+            chart.legend = new am4charts.Legend();
+            chart.legend.useDefaultMarker = true;
+
+            // Create series
+            let xAxes1 = chart.xAxes.push(new am4charts.CategoryAxis());
+            xAxes1.dataFields.category = "inverter";
+            xAxes1.renderer.grid.template.location = 0;
+            xAxes1.renderer.minGridDistance = 20;
+            xAxes1.renderer.labels.template.dx = 20; // horizontal Offset
+            xAxes1.renderer.labels.template.rotation = 270;
+
+            let yAxes1 = chart.yAxes.push(new am4charts.ValueAxis());
+            yAxes1.renderer.maxLabelPosition = 0.98;
+
+            let series2 = chart.series.push(new am4charts.ColumnSeries());
+            series2.name = "Inverter AC";
+            series2.dataFields.valueY = "valAc";
+            series2.dataFields.categoryX = "inverter";
+            series2.columns.template.strokeOpacity = 0;
+            series2.legendSettings.labelText = "{name}[/]";
+            series2.legendSettings.valueText = " {valueY}";
+            series2.sequencedInterpolation = true;
+            series2.sequencedInterpolationDelay = 50;
+
+            let series1 = chart.series.push(new am4charts.ColumnSeries());
+            series1.name = "Inverter DC";
+            series1.dataFields.valueY = "valDc";
+            series1.dataFields.categoryX = "inverter";
+            series1.columns.template.strokeOpacity = 0;
+            series1.legendSettings.labelText = "{name}[/]";
+            series1.legendSettings.valueText = " {valueY}";
+            series1.sequencedInterpolation = true;
+            series1.sequencedInterpolationDelay = 50;
+
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.behavior = "zoomX";
+
+            chart.events.on("ready", function(ev) {
+                yAxes1.min = 0; //yAxes1.minZoomed;
+                yAxes1.max = yAxes1.maxZoomed;
+            });
+            chart.exporting.menu.items[0].label = "Download";
+
+        }); // end am4core.ready()
+    </script>
+{% elseif form.selectedChart == 'irradiation' or form.selectedChart == 'temp' %}
+    <!-- Liniendiagramm Irradiation and Temperature -->
+    <script>
+        am4core.ready(function() {
+            // Create chart instance
+            {% if form.optionDate < 14 %}
+                am4core.useTheme(am4themes_animated);
+            {% endif %}
+
+            let chart = am4core.create("amchart-holder", am4charts.XYChart);
+            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+
+            chart.data = {{ content.data|raw }};
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+            chart.numberFormatter.intlLocales = "de-DE";
+            chart.numberFormatter.numberFormat = {
+                "style": "decimal",
+                "minimumFractionDigits": 0
+            };
+
+            // Legend
+            chart.legend = new am4charts.Legend();
+            chart.legend.useDefaultMarker = false;
+
+            // Create axes
+            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+            // Create series
+            let series1 = chart.series.push(new am4charts.LineSeries());
+            series1.name = "{{ content.series1.name }}";
+            series1.ttname = "{{ content.series1.tooltipText }}";
+            series1.dataFields.dateX = "date";
+            series1.dataFields.valueY = "val1";
+            series1.tooltipText = "{ttname}: {valueY} [/]";
+            series1.stroke = am4core.color("#fdd400");
+            series1.fill = "#fdd400";
+            series1.strokeWidth = 1;
+            series1.sequencedInterpolation = true;
+            series1.defaultState.transitionDuration = 300;
+            series1.tensionX = 0.8;
+
+            let series2 = chart.series.push(new am4charts.LineSeries());
+            series2.name = "{{ content.series2.name }}";
+            series2.ttname = "{{ content.series2.tooltipText }}";
+            series2.dataFields.dateX = "date";
+            series2.dataFields.valueY = "val2";
+            series2.tooltipText = "{ttname}: {valueY} [/]";
+            series2.stroke = am4core.color("#016195");
+            series2.fill = "#016195";
+            series2.strokeWidth = 1;
+            series2.sequencedInterpolation = true;
+            series2.defaultState.transitionDuration = 300;
+            series2.tensionX = 0.8;
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.xAxis = dateAxis;
+            chart.exporting.menu = new am4core.ExportMenu();
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.scrollbarX.marginBottom = "20"
+            chart.scrollbarY = new am4core.Scrollbar();
+            chart.scrollbarY.marginLeft = "20";
+            chart.exporting.menu.items[0].label = "Download";
+
+        }); // end am4core.ready()
+    </script>
+{% elseif form.selectedChart == 'irradiation_one'  %}
+    <!-- Liniendiagramm Irradiation nur ein Wert (in der Regel der obere) -->
+    <script>
+        am4core.ready(function() {
+            // Create chart instance
+            {% if form.optionDate < 14 %}
+                am4core.useTheme(am4themes_animated);
+            {% endif %}
+
+            let chart = am4core.create("amchart-holder", am4charts.XYChart);
+            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+
+            chart.data = {{ content.data|raw }};
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+            chart.numberFormatter.intlLocales = "de-DE";
+            chart.numberFormatter.numberFormat = {
+                "style": "decimal",
+                "minimumFractionDigits": 0
+            };
+
+            // Legend
+            chart.legend = new am4charts.Legend();
+            chart.legend.useDefaultMarker = false;
+
+            // Create axes
+            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+            // Create series
+            let series1 = chart.series.push(new am4charts.LineSeries());
+            series1.name = "{{ content.series1.name }}";
+            series1.ttname = "{{ content.series1.tooltipText }}";
+            series1.dataFields.dateX = "date";
+            series1.dataFields.valueY = "val1";
+            series1.tooltipText = "{ttname}: {valueY} [/]";
+            series1.stroke = am4core.color("#fdd400");
+            series1.fill = "#fdd400";
+            series1.strokeWidth = 1;
+            series1.sequencedInterpolation = true;
+            series1.defaultState.transitionDuration = 300;
+            series1.tensionX = 0.8;
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.xAxis = dateAxis;
+            chart.exporting.menu = new am4core.ExportMenu();
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.scrollbarX.marginBottom = "20"
+            chart.scrollbarY = new am4core.Scrollbar();
+            chart.scrollbarY.marginLeft = "20";
+            chart.exporting.menu.items[0].label = "Download";
+
+        }); // end am4core.ready()
+    </script>
+{% elseif form.selectedChart == 'irradiation_plant' %}
+    <!-- Liniendiagramm Irradiation - Werte aus der Anlage -->
+    <script>
+        am4core.ready(function() {
+            // Create chart instance
+            {% if form.optionDate < 14 %}
+                am4core.useTheme(am4themes_animated);
+            {% endif %}
+
+            let chart = am4core.create("amchart-holder", am4charts.XYChart);
+            //chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+            chart.data = {{ content.data|raw }};
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+            chart.numberFormatter.intlLocales = "de-DE";
+            chart.numberFormatter.numberFormat = {
+                "style": "decimal",
+                "minimumFractionDigits": 0
+            };
+
+            // Legend
+            chart.legend = new am4charts.Legend();
+            chart.legend.useDefaultMarker = false;
+
+            // Create axes
+            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+            let nameX = JSON.parse('{{ content.nameX|raw}}');
+
+            let series0 = chart.series.push(new am4charts.LineSeries());
+            series0.name = "{{ content.series1.name }}";
+            series0.dataFields.dateX = "date";
+            series0.dataFields.valueY = "g4n";
+            series0.tooltipText = "{{ content.series1.tooltipText }}: {valueY} [/]";
+            series0.stroke = am4core.color("#fdd400");
+            series0.fill = am4core.color("#fdd400");
+            series0.strokeWidth = 2;
+            series0.sequencedInterpolation = false;
+            series0.defaultState.transitionDuration = 300;
+            series0.tensionX = 0.8;
+
+            // Create series
+            function addSeries() {
+                let seriesId = (chart.series.length);
+
+                // Create series Actual
+                let series = new am4charts.LineSeries();
+                series.name = nameX[seriesId];
+                series.dataFields.dateX = "date";
+                series.dataFields.valueY = "val" + seriesId;
+                series.tooltipText = nameX[seriesId] + ": {valueY} [/]";
+                series.strokeWidth = 1;
+                series.sequencedInterpolation = false;
+                series.defaultState.transitionDuration = 300;
+                series.tensionX = 0.8;
+                series = chart.series.push(series);
+            }
+
+            for (let i = 1; i <= {{ content.maxSeries }}; i++) {
+                addSeries();
+            }
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.xAxis = dateAxis;
+            chart.exporting.menu = new am4core.ExportMenu();
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.scrollbarX.marginBottom = "20"
+            chart.scrollbarY = new am4core.Scrollbar();
+            chart.scrollbarY.marginLeft = "20";
+            chart.exporting.menu.items[0].label = "Download";
+
+        }); // end am4core.ready()
+    </script>
+{% elseif form.selectedChart == 'pr_and_av' %}
+    <!-- Liniendiagramm Irradiation - Werte aus der Anlage -->
+    <script>
+        am4core.ready(function() {
+            // Create chart instance
+            {% if form.optionDate < 14 %}
+                am4core.useTheme(am4themes_animated);
+            {% endif %}
+
+            let chart = am4core.create("amchart-holder", am4charts.XYChart);
+            //chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+            chart.data = {{ content.data|raw }};
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+            chart.numberFormatter.intlLocales = "de-DE";
+            chart.numberFormatter.numberFormat = {
+                "style": "decimal",
+                "minimumFractionDigits": 0
+            };
+
+            // Legend
+            chart.legend = new am4charts.Legend();
+            chart.legend.useDefaultMarker = false;
+
+            // Create axes
+            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+
+            let series2 = chart.series.push(new am4charts.LineSeries());
+            series2.name = "PR";
+            series2.dataFields.dateX = "date";
+            series2.dataFields.valueY = "pr_act";
+            series2.tooltipText = "{name}: {valueY}";
+            series2.stroke = am4core.color("#0098fd");
+            series2.fill = series2.stroke;
+            series2.strokeWidth = 1;
+            series2.defaultState.transitionDuration = 300;
+            series2.tensionX = 0.8;
+
+            let bullet2 = series2.bullets.push(new am4charts.Bullet());
+
+            let arrow2 = bullet2.createChild(am4core.Triangle);
+            arrow2.horizontalCenter = "middle";
+            arrow2.verticalCenter = "middle";
+            arrow2.strokeWidth = 0;
+            arrow2.fill = chart.colors.getIndex(0);
+            arrow2.direction = "top";
+            arrow2.width = 18;
+            arrow2.height = 18;
+
+            let series3 = chart.series.push(new am4charts.LineSeries());
+            series3.name = "Availability";
+            series3.dataFields.dateX = "date";
+            series3.dataFields.valueY = "av";
+            series3.tooltipText = "{name}: {valueY}";
+            series3.stroke = am4core.color("#000000");
+            series3.fill = series3.stroke;
+            series3.strokeWidth = 2;
+            //series3.sequencedInterpolation = false;
+            series3.defaultState.transitionDuration = 300;
+            series3.tensionX = 0.8;
+            // Add a bullet
+            let bullet3 = series3.bullets.push(new am4charts.CircleBullet());
+            bullet3.circle.radius = 8;
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.xAxis = dateAxis;
+            chart.exporting.menu = new am4core.ExportMenu();
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.scrollbarX.marginBottom = "20"
+            chart.scrollbarY = new am4core.Scrollbar();
+            chart.scrollbarY.marginLeft = "20";
+            chart.exporting.menu.items[0].label = "Download";
+
+        }); // end am4core.ready()
+    </script>
+{% elseif form.selectedChart == 'status_log' %}
+    {{ statusTable(content.status) }}
+{% elseif form.selectedChart == 'availability' %}
+    {% include 'dashboardPlants/_incl/chart/availabillity.html.twig' %}
+{% elseif form.selectedChart == 'pvsyst' %}
+    {{ pvSystTable(content.pvSysts) }}
+{% elseif form.selectedChart == 'forecast' %}
+    <script>
+        am4core.ready(function() {
+            // Create chart instance
+            let chart = am4core.create("amchart-holder", am4charts.XYChart);
+
+            chart.data = {{ content.data|raw }};
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd";
+            chart.numberFormatter.intlLocales = "de-DE";
+            chart.numberFormatter.numberFormat = {
+                "style": "decimal",
+                "minimumFractionDigits": 0
+            };
+
+            // Legend
+            chart.legend = new am4charts.Legend();
+            chart.legend.useDefaultMarker = false;
+
+            // Create axes
+            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+            // Create series
+            let series1 = chart.series.push(new am4charts.LineSeries());
+            series1.dataFields.dateX = "date";
+            series1.dataFields.valueY = "divMinus";
+            series1.dataFields.openValueY = "expected";
+            series1.dataFields.closeValueY = "divMinus";
+            series1.tooltipText = "divMinus [kWh]: {closeValueY} [/]";
+            series1.stroke = am4core.color("#dd2f2f");
+            series1.fill = am4core.color("#dd2f2f");
+            series1.strokeWidth = 0;
+            series1.sequencedInterpolation = true;
+            series1.fillOpacity = 0.5;
+            series1.defaultState.transitionDuration = 300;
+            series1.tensionX = 0.8;
+
+            let series2 = chart.series.push(new am4charts.LineSeries());
+            series2.dataFields.dateX = "date";
+            series2.dataFields.valueY = "divPlus";
+            series2.dataFields.openValueY = "expected";
+            series2.tooltipText = "divPlus [kWh]: {valueY} [/]";
+            series2.stroke = am4core.color("#00fd22");
+            series2.fill = am4core.color("#00fd22");
+            series2.strokeWidth = 0;
+            series2.sequencedInterpolation = true;
+            series2.fillOpacity = 0.5;
+            series2.defaultState.transitionDuration = 300;
+            series2.tensionX = 0.8;
+
+            let series3 = chart.series.push(new am4charts.LineSeries());
+            series3.name = "Expected (Planwert + Actual) [[kWh]]"
+            series3.dataFields.dateX = "date";
+            series3.dataFields.valueY = "expected";
+            series3.tooltipText = "Expected (Planwert + Actual) [kWh]: {valueY} [/]";
+            series3.strokeWidth = 1.5;
+            series3.sequencedInterpolation = true;
+            series3.defaultState.transitionDuration = 300;
+            series3.tensionX = 0.8;
+
+            let series4 = chart.series.push(new am4charts.LineSeries());
+            series4.name = "Planwert (Forecast) [[kWh]]"
+            series4.dataFields.dateX = "date";
+            series4.dataFields.valueY = "forecast";
+            series4.tooltipText = "Planwert (Forecast) [kWh]: {valueY} [/]";
+            series4.stroke = am4core.color("#000000");
+            series4.fill = am4core.color("#000000");
+            series4.strokeWidth = 1.5;
+            series4.sequencedInterpolation = true;
+            series4.defaultState.transitionDuration = 300;
+            series4.tensionX = 0.8;
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.xAxis = dateAxis;
+            chart.exporting.menu = new am4core.ExportMenu();
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.scrollbarX.marginBottom = "20"
+            chart.scrollbarY = new am4core.Scrollbar();
+            chart.scrollbarY.marginLeft = "20";
+            chart.exporting.menu.items[0].label = "Download";
+
+        }); // end am4core.ready()
+    </script>
+{% endif %}

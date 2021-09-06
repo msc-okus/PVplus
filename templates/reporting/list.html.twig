@@ -1,0 +1,116 @@
+{% extends 'base.html.twig' %}
+{% import 'macros/macros.library.html.twig' as macrolibrary %}
+
+{% block title %}
+    {{ parent() }}List Reports
+{% endblock %}
+
+{% block body %}
+    <h1>List Reports</h1>
+    {{ macrolibrary.searchbox(app.request.query.get('qr'), 'qr') }}
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Report ID</th>
+            <th>Plant</th>
+            {% if is_granted('ROLE_G4N') %}
+                <th>Owner</th>
+                <th>created at</th>
+                <th>created by</th>
+            {% endif %}
+            <th>Month</th>
+            <th>Year</th>
+            <th>Report Type</th>
+            <th></th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for report in pagination %}
+            {% if is_granted('ROLE_G4N') or report.reportStatus <= 5 %}
+            <tr>
+                <td>{{ report.id }}</td>
+                <td>{{ report.anlage.anlName }}</td>
+                {% if is_granted('ROLE_G4N') %}
+                    <td>{{ report.eigner.firma }}</td>
+                    <td>{{ report.createdAt|date }}</td>
+                    <td>{{ report.createdBy }}</td>
+                {% endif %}
+                <td>{{ report.month }}</td>
+                <td>{{ report.year }}</td>
+                <td>
+                    {{ report.reportType }}
+                    {% if report.reportType == 'epc-report' %} - {{ report.anlage.epcReportType }}{% endif %}
+                </td>
+                {# <td>{% if report.reportStatus == 0 %} final {% elseif report.reportStatus <= 5 %} proof reading {% elseif report.reportStatus == 9 %} archive {% else %} draft (only g4n) {% endif %}</td>  #}
+                <td>{{ stati[report.reportStatus] }}</td>
+                <td class="text-right">
+                    {# <a href="{{ path('app_reporting_edit', { id: report.id}) }}"><span class="fa fa-pencil"></span></a>&nbsp;{# {{ path('app_reporting_edit', { id: report.id}) }} #}
+                    {% if is_granted('ROLE_G4N') or report.reportStatus <= 1 %}
+                        <a href="{{ path('app_reporting_excel', { id: report.id}) }}" target="_blank" title="load Excel file" class="hollow button tiny action-icon shadow"><span class="fa fa-file-excel"></span></a>
+                        <a href="{{ path('app_reporting_pdf', { id: report.id}) }}"   target="_blank" title="load PDF file" class="hollow button tiny action-icon shadow"><span class="fa fa-file-pdf"></span></a>
+                    {% endif %}
+                    {% if is_granted('ROLE_G4N') %}<a href="{{ path('app_reporting_edit', { id: report.id}) }}"  class="hollow button tiny action-icon shadow"><span class="fa fa-pencil"></span></a>{% endif %}
+                    {% if is_granted('ROLE_DEV') %}<a href="{{ path('app_reporting_delete', { id: report.id}) }}" onclick="return window.confirm('Löschen?');" class="hollow alert button tiny action-icon shadow"><span class="fa fa-trash"></span></a>{% endif %}
+                </td>
+            </tr>
+            {% endif %}
+        {% endfor %}
+        </tbody>
+    </table>
+    {{ knp_pagination_render(pagination) }}
+    <hr>
+    {% if is_granted('ROLE_DEV') %}
+        <form>
+            <div class="grid-x grid-margin-x align-middle">
+                <div class="cell medium-2">
+                    <select name="anlage-id" required>
+                        <option value="" disabled selected hidden>Please choose a Plant</option>
+                        {% for anlage in anlagen %}
+                            <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlId }} - {{ anlage.anlName }}</option>
+                        {% endfor %}
+
+                    </select>
+                </div>
+                <div class="cell medium-2">
+                    <select name="report-typ" required>
+                        <option value="" disabled selected hidden>Please choose a Report Type</option>
+                        <option value="monthly"{% if app.request.query.get('report-typ') == 'monthly' %} selected {% endif %}>Monthly Report (O&M)</option>
+                        <option value="epc"{% if app.request.query.get('report-typ') == 'epc' %} selected {% endif %}>EPC Report</option>
+                        <option value="am"{% if app.request.query.get('report-typ') == 'am' %} selected {% endif %}>Asset Management Report</option>
+                    </select>
+                </div>
+                <div class="cell medium-2">
+                    <select name="month" required>
+                        <option value="" disabled selected hidden>Please choose a Month</option>
+                        <option value="1" {% if app.request.query.get('month') == 1 %} selected {% endif %}>01</option>
+                        <option value="2" {% if app.request.query.get('month') == 2 %} selected {% endif %}>02</option>
+                        <option value="3" {% if app.request.query.get('month') == 3 %} selected {% endif %}>03</option>
+                        <option value="4" {% if app.request.query.get('month') == 4 %} selected {% endif %}>04</option>
+                        <option value="5" {% if app.request.query.get('month') == 5 %} selected {% endif %}>05</option>
+                        <option value="6" {% if app.request.query.get('month') == 6 %} selected {% endif %}>06</option>
+                        <option value="7" {% if app.request.query.get('month') == 7 %} selected {% endif %}>07</option>
+                        <option value="8" {% if app.request.query.get('month') == 8 %} selected {% endif %}>08</option>
+                        <option value="9" {% if app.request.query.get('month') == 9 %} selected {% endif %}>09</option>
+                        <option value="10" {% if app.request.query.get('month') == 10 %} selected {% endif %}>10</option>
+                        <option value="11" {% if app.request.query.get('month') == 11 %} selected {% endif %}>11</option>
+                        <option value="12" {% if app.request.query.get('month') == 12 %} selected {% endif %}>12</option>
+                    </select>
+                </div>
+                <div class="cell medium-2">
+                    <select name="year" required>
+                        <option value="" disabled selected hidden>Please choose a Year</option>
+                        <option value="2020"{% if app.request.query.get('year') == 2020 %} selected {% endif %}>2020</option>
+                        <option value="2021"{% if app.request.query.get('year') == 2021 %} selected {% endif %}>2021</option>
+                        <option value="2022"{% if app.request.query.get('year') == 2022 %} selected {% endif %}>2022</option>
+                        <option value="2023"{% if app.request.query.get('year') == 2023 %} selected {% endif %}>2023</option>
+                        <option value="2024"{% if app.request.query.get('year') == 2024 %} selected {% endif %}>2024</option>
+                    </select>
+                </div>
+                <div class="cell medium-2">
+                    <button name="new-report" type="submit" class="button" value="yes">Create New Report</button>
+                </div>
+            </div>
+        </form>
+    {% endif %}
+{% endblock %}

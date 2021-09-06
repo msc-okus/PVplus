@@ -1,0 +1,28 @@
+{% apply inky_to_html|inline_css(source('@styles/foundation-emails.css'), source('@styles/email.css'))  %}
+<container class="main">
+    <row class="header">
+        <columns>
+            <spacer size="10"></spacer>
+            <img src="{{ absolute_url(asset('/images/green4net.jpg')) }}" class="logo" alt="PVplus 4.0 Logo">
+        </columns>
+    </row>
+    {% block content%}
+
+    {% endblock %}
+    <row class="footer">
+        <columns>
+            <p>Your friendly <em>green4net Team</em></p>
+        </columns>
+    </row>
+    <row class="bottom">
+        <columns>
+            <center>
+                <spacer size="20"></spacer>
+                <div>
+                    Sent️ from PVplus 4.0
+                </div>
+            </center>
+        </columns>
+    </row>
+</container>
+{% endapply %}
