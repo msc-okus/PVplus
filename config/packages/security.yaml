@@ -1,0 +1,60 @@
+security:
+    encoders:
+        legacy_plain:
+            algorithm: auto
+
+        App\Entity\User:
+            algorithm: auto
+            migrate_from:
+                - legacy_plain
+
+    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+    providers:
+        # used to reload user from session & other features (e.g. switch_user)
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: name
+
+    role_hierarchy:
+        ROLE_DEV: [ROLE_ADMIN]
+        ROLE_ADMIN: [ROLE_G4N, ROLE_ALLOWED_TO_SWITCH, ROLE_ADMIN_USER]
+        ROLE_G4N: [ROLE_OPERATOR, ROLE_ADMIN_OWNER_CREATE, ROLE_ADMIN_PLANT_CREATE]
+        ROLE_OPERATOR: [ROLE_OWNER_FULL, ROLE_ADMIN_OWNER, ROLE_ADMIN_PLANT]
+        ROLE_OWNER_FULL: [ROLE_OWNER]
+        ROLE_OWNER: []
+
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+        main:
+            anonymous: true
+            lazy: true
+            provider: app_user_provider
+            guard:
+                authenticators:
+                    - App\Security\LoginFormAuthenticator
+            logout:
+                path: app_logout
+                target: app_login
+
+            remember_me:
+                 secret: '%kernel.secret%'
+                 lifetime: 2592000 # 30 days in seconds
+
+            # activate different ways to authenticate
+            # https://symfony.com/doc/current/security.html#firewalls-authentication
+
+            # https://symfony.com/doc/current/security/impersonating_user.html
+            # switch_user: true
+
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+    access_control:
+        - { path: ^/cron, roles: IS_AUTHENTICATED_ANONYMOUSLY, ips: [127.0.0.1, 37.17.224.142, 62.91.87.146]} # 37.17.224.142 IP des g4n Servers, 62.91.87.146 IP MRe
+        - { path: ^/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+        - { path: ^/, roles: ROLE_USER }
+        # - { path: ^/admin, roles: ROLE_ADMIN }
+        # - { path: ^, roles: ROLE_USER }

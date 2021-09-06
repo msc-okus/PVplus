@@ -1,0 +1,10 @@
+twig:
+    default_path: '%kernel.project_dir%/templates'
+    paths:
+        'public/images': images
+        'public/scss/email': styles
+        'public/scss/': pdf
+
+    form_themes:
+ #       - 'foundation_6_layout.html.twig'
+        - 'form/foundation_6_layout.html.twig'

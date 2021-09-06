@@ -1,0 +1,7 @@
+index:
+    path: /
+    controller: App\Controller\DashboardController::index
+
+#app_legacy:
+#  resource: .
+#  type: extra
