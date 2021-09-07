@@ -7484,6 +7484,30 @@ table.hover:not(.unstriped) tr:nth-of-type(even):hover {
   }
 }
 
+.float-left {
+  float: left !important;
+}
+
+.float-right {
+  float: right !important;
+}
+
+.float-center {
+  display: block;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.clearfix::before, .clearfix::after {
+  display: table;
+  content: " ";
+  flex-basis: 0;
+  order: 1;
+}
+.clearfix::after {
+  clear: both;
+}
+
 .align-left {
   justify-content: flex-start;
 }

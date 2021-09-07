@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Repository\InvertersRepository;
 use App\Service\Charts\ACChartsService;
 use App\Service\Charts\ForecastChartService;
+use App\Service\Charts\IrradiationChartService;
 use PDO;
 use DateTime;
 use App\Entity\Anlage;
@@ -28,9 +29,10 @@ class ChartService
     private PRRepository $prRepository;
     private PVSystDatenRepository $pvSystRepository;
     private InvertersRepository $invertersRepo;
-    private FunctionsService $functions;
+    public functionsService $functions;
     private ForecastChartService $forecastChart;
     private ACChartsService $acCharts;
+    private IrradiationChartService $irradiationChart;
 
     public function __construct(Security $security,
                                 AnlagenStatusRepository $statusRepository,
@@ -40,7 +42,8 @@ class ChartService
                                 InvertersRepository $invertersRepo,
                                 FunctionsService $functions,
                                 ForecastChartService $forecastChart,
-                                ACChartsService $acCharts)
+                                ACChartsService $acCharts,
+                                IrradiationChartService $irradiationChart)
     {
         $this->security = $security;
         $this->statusRepository = $statusRepository;
@@ -50,7 +53,8 @@ class ChartService
         $this->invertersRepo = $invertersRepo;
         $this->functions = $functions;
         $this->forecastChart = $forecastChart;
-        $this->ACCharts = $acCharts;
+        $this->acCharts = $acCharts;
+        $this->irradiationChart = $irradiationChart;
     }
 
     /**
@@ -313,7 +317,7 @@ class ChartService
                     }
                     break;
                 case ("irradiation"):
-                    $dataArray = $this->getIrradiation($anlage, $from, $to);
+                    $dataArray = $this->irradiationChart->getIrradiation($anlage, $from, $to);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['headline'] = 'Irradiation [W/m²]';
@@ -324,7 +328,7 @@ class ChartService
                     }
                     break;
                 case ("irradiation_one"):
-                    $dataArray = $this->getIrradiation($anlage, $from, $to, 'upper');
+                    $dataArray = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['headline'] = 'Irradiation [W/m²]';
@@ -333,7 +337,7 @@ class ChartService
                     }
                     break;
                 case ("irradiation_plant"):
-                    $dataArray = $this->getIrradiationPlant($anlage, $from, $to);
+                    $dataArray = $this->irradiationChart->getIrradiationPlant($anlage, $from, $to);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -423,7 +427,7 @@ class ChartService
      * @return array
      * DC - Actual & Expected, Plant
      */
-    private function getActExpDC(Anlage $anlage, $from, $to):?array
+    public function getActExpDC(Anlage $anlage, $from, $to):?array
     {
         $conn = self::getPdoConnection();
         $dataArray = [];
@@ -495,7 +499,7 @@ class ChartService
      * @return array
      * DC- Actual & Expected, Groups
      */
-    private function getActExpGroupDC(Anlage $anlage, $from, $to, int $group = 1):array
+    public function getActExpGroupDC(Anlage $anlage, $from, $to, int $group = 1):array
     {
         $conn = self::connectToDatabase();
         $dataArray = [];
@@ -571,7 +575,7 @@ class ChartService
      * @return array
      * DC - Inverter / DC - Inverter Group // dc_grp_power_diff
      */
-    private function getGroupPowerDifferenceDC(Anlage $anlage, $from, $to): array
+    public function getGroupPowerDifferenceDC(Anlage $anlage, $from, $to): array
     {
         $conn = self::connectToDatabase();
         $dataArray = [];
@@ -622,7 +626,7 @@ class ChartService
      * @return array
      * DC - Inverter // dc_inv_power_diff
      */
-    private function getInverterPowerDifference(Anlage $anlage, $from, $to, $group): array
+    public function getInverterPowerDifference(Anlage $anlage, $from, $to, $group): array
     {
         $conn = self::connectToDatabase();
         $dataArray = [];
@@ -696,7 +700,7 @@ class ChartService
      * @return array
      * dc_current_group
      */
-    private function getCurrentGroupDc(Anlage $anlage, $from, $to, int $set = 1): array
+    public function getCurrentGroupDc(Anlage $anlage, $from, $to, int $set = 1): array
     {
         $conn = self::connectToDatabase();
         $dcGroups = $anlage->getGroupsDc();
@@ -752,7 +756,7 @@ class ChartService
      * @return array
      *  // dc_current_inverter
      */
-    private function getCurrentInverter(Anlage $anlage, $from, $to, int $group = 1): array
+    public function getCurrentInverter(Anlage $anlage, $from, $to, int $group = 1): array
     {
         $conn = self::connectToDatabase();
         $dcGroups = $anlage->getGroupsDc();
@@ -811,7 +815,7 @@ class ChartService
      * @return array|false
      *  // dc_current_mpp
      */
-    private function getCurrentMpp(Anlage $anlage, $from, $to, int $inverter = 1): array
+    public function getCurrentMpp(Anlage $anlage, $from, $to, int $inverter = 1): array
     {
         $conn = self::connectToDatabase();
         $dataArray = [];
@@ -867,7 +871,7 @@ class ChartService
      * @return array
      *  // dc_current_inverter
      */
-    private function getVoltageGroups(Anlage $anlage, $from, $to, int $set = 1): array
+    public function getVoltageGroups(Anlage $anlage, $from, $to, int $set = 1): array
     {
         $conn = self::connectToDatabase();
         $dcGroups = $anlage->getGroupsDc();
@@ -920,7 +924,7 @@ class ChartService
      * @return array|false
      *  // dc_voltage_mpp
      */
-    private function getVoltageMpp(Anlage $anlage, $from, $to, int $inverter = 1): array
+    public function getVoltageMpp(Anlage $anlage, $from, $to, int $inverter = 1): array
     {
         $conn = self::connectToDatabase();
         $dataArray = [];
@@ -971,7 +975,7 @@ class ChartService
      * @return array
      *  // inverter_performance
      */
-    private function getInverterPerformance(Anlage $anlage, $from, $to, $group): array
+    public function getInverterPerformance(Anlage $anlage, $from, $to, $group): array
     {
         $conn = self::connectToDatabase();
         $dataArray = [];
@@ -997,60 +1001,6 @@ class ChartService
     }
 
     /**
-     * Erzeugt Daten für das Strahlungsdiagramm Diagramm
-     * @param Anlage $anlage
-     * @param $from
-     * @param $to
-     * @param string $mode
-     * @return array
-     *  // irradiation
-     */
-    private function getIrradiation(Anlage $anlage, $from, $to, string $mode = 'all'): array
-    {
-        $conn = self::getPdoConnection();
-        $dataArray = [];
-        $sql2 = "SELECT a.stamp, b.gi_avg , b.gmod_avg  FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' ORDER BY a.stamp";
-        $res = $conn->query($sql2);
-        if ($res->rowCount() > 0) {
-            $counter = 0;
-            while ($ro = $res->fetch(PDO::FETCH_ASSOC)) {
-                // upper pannel
-                $irr_upper = str_replace(',', '.', $ro["gmod_avg"]);
-                if (!$irr_upper) $irr_upper = 0;
-                // lower pannel
-                $irr_lower = str_replace(',', '.', $ro["gi_avg"]);
-                if (!$irr_lower) $irr_lower = 0;
-                $stamp = self::timeAjustment(strtotime($ro["stamp"]), (int)$anlage->getAnlZeitzoneIr());
-                if ($anlage->getAnlIrChange() == "Yes") {
-                    $swap = $irr_lower;
-                    $irr_lower = $irr_upper;
-                    $irr_upper = $swap;
-                }
-                //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-                $dataArray['chart'][$counter]["date"] = self::timeShift($anlage, $stamp);
-                if (!($irr_upper+$irr_lower == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
-                    switch ($mode) {
-                        case 'all':
-                            $dataArray['chart'][$counter]["val1"] = $irr_upper; // upper pannel
-                            $dataArray['chart'][$counter]["val2"] = $irr_lower; // lower pannel
-                            break;
-                        case 'upper':
-                            $dataArray['chart'][$counter]["val1"] = $irr_upper; // upper pannel
-                            break;
-                        case 'lower':
-                            $dataArray['chart'][$counter]["val1"] = $irr_lower; // upper pannel
-                            break;
-                    }
-                }
-                $counter++;
-            }
-        }
-        $conn = null;
-
-        return $dataArray;
-    }
-
-    /**
      * Erzeugt Daten für Temperatur Diagramm
      * @param $anlage
      * @param $from
@@ -1058,7 +1008,7 @@ class ChartService
      * @return array
      *  //
      */
-    private function getAirAndPanelTemp(Anlage $anlage, $from, $to): array
+    public function getAirAndPanelTemp(Anlage $anlage, $from, $to): array
     {
         $conn = self::getPdoConnection();
         $dataArray = [];
@@ -1102,7 +1052,7 @@ class ChartService
      * @return array
      * AC - Actual, Groups
      */
-    private function getReactivePowerGroupAC(Anlage $anlage, $from, $to, int $group = 1): array
+    public function getReactivePowerGroupAC(Anlage $anlage, $from, $to, int $group = 1): array
     {
         $conn = self::getPdoConnection();
         $dataArray = [];
@@ -1138,69 +1088,6 @@ class ChartService
         return $dataArray;
     }
 
-    /**
-     * Erzeuge Daten für die Stralung die direlt von der Anlage geliefert wir
-     * @param Anlage $anlage
-     * @param $from
-     * @param $to
-     * @return array|false
-     *  // irradiation_plant
-     */
-    private function getIrradiationPlant(Anlage $anlage, $from, $to): array
-    {
-        $conn = self::getPdoConnection();
-        $dataArray = [];
-        $dataArray['maxSeries'] = 0;
-        // Strom für diesen Zeitraum und diesen Inverter
-        $sql_irr_plant = "SELECT a.stamp as stamp, b.irr_anlage AS irr_anlage FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameIst() . ") b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' group by a.stamp;";
-        $result = $conn->query($sql_irr_plant);
-        if ($result != false) {
-            if ($result->rowCount() > 0) {
-                $counter = 0;
-                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                    $stamp = self::timeAjustment($row['stamp'], (int)$anlage->getAnlZeitzone(), true);
-                    //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-                    $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
-                    $sqlWeather = "SELECT * FROM " . $anlage->getDbNameWeather() . " WHERE stamp = '$stamp'";
-                    $resultWeather = $conn->query($sqlWeather);
-                    if ($resultWeather->rowCount() == 1) {
-                        $weatherRow = $resultWeather->fetch(PDO::FETCH_ASSOC);
-                        if ($anlage->getIsOstWestAnlage()) {
-                            $dataArray['chart'][$counter]['g4n'] = ($weatherRow["g_upper"] * $anlage->getPowerEast() + $weatherRow["g_lower"] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
-                        } else {
-                            if ($anlage->getWeatherStation()->getChangeSensor() == "Yes") {
-                                $dataArray['chart'][$counter]['g4n'] = $weatherRow["g_upper"]; // getauscht, nutze unterene Sensor
-                            } else {
-                                $dataArray['chart'][$counter]['g4n'] = $weatherRow["g_lower"]; // nicht getauscht, nutze oberen Sensor
-                            }
-                        }
-                    } else {
-                        if (!(self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
-                            $dataArray['chart'][$counter]['g4n'] = 0;
-                        }
-                    }
-                    $irrAnlageJson = $row['irr_anlage'];
-                    if ($irrAnlageJson != '') {
-                        $irrAnlageArray = json_decode($irrAnlageJson);
-                        $irrCounter = 1;
-                        foreach ($irrAnlageArray as $irrAnlageItem => $irrAnlageValue) {
-                            if (!($irrAnlageValue == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
-                                if (!isset($irrAnlageValue)) $irrAnlageValue = 0;
-                                $dataArray['chart'][$counter]["val$irrCounter"] = round(($irrAnlageValue < 0) ? 0 : $irrAnlageValue, 0);
-                                if (!isset($dataArray["nameX"][$irrCounter])) $dataArray["nameX"][$irrCounter] = $irrAnlageItem;
-                            }
-                            if ($irrCounter > $dataArray['maxSeries']) $dataArray['maxSeries'] = $irrCounter;
-                            $irrCounter++;
-                        }
-                    }
-                    $counter++;
-                }
-            }
-        }
-        $conn = null;
-
-        return $dataArray;
-    }
 
     /**
      * Erzeuge Daten für PR und AV
@@ -1210,7 +1097,7 @@ class ChartService
      * @return array
      *  // pr_and_av
      */
-    private function getPRandAV(Anlage $anlage, $from, $to): array
+    public function getPRandAV(Anlage $anlage, $from, $to): array
     {
         $prs = $this->prRepository->findPrAnlageDate($anlage, $from, $to);
         $dataArray = [];
@@ -1241,7 +1128,7 @@ class ChartService
      * @return array
      * @deprecated
      */
-    private function getpvSyst(Anlage $anlage, $from, $to): array
+    public function getpvSyst(Anlage $anlage, $from, $to): array
     {
         $dataArray = [];
         $prs = $this->prRepository->findPrAnlageDate($anlage, $from, $to);

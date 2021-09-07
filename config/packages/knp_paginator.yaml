@@ -1,3 +1,4 @@
 knp_paginator:
   template:
     pagination: 'pagination/foundation_v6_pagination.html.twig'
+    sortable:   'pagination/sortable.html.twig'

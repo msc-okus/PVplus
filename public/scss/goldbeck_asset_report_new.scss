@@ -25,10 +25,7 @@ body {
 small {font-size: 80%;}
 
 .rotate {
-    writing-mode: vertical-lr;
-    -moz-transform: rotate(-180.0deg); /* FF3.5+ */
-    -o-transform: rotate(-180.0deg); /* Opera 10.5 */
-    -webkit-transform: rotate(-180.0deg); /* Saf3.1+, Chrome */
+
 }
 table{
     border-collapse: collapse;

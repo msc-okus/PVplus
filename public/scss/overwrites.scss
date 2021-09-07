@@ -188,6 +188,21 @@
     }
     main {
 
+        /******** table sort stuff **********/
+
+        table.sortable {
+            th {
+                i {opacity: 0.3;}
+                a {color: $body-font-color;}
+            }
+            th.sorted {
+                i {opacity: 1;}
+                a {color: $link-color}
+            }
+
+        }
+
+
         .action-icon{
             padding: rem-calc(4);
             margin: 0 0.2rem;

@@ -25,14 +25,15 @@ class LogRepository extends ServiceEntityRepository
      * @return QueryBuilder
      */
     public function getWithSearchQueryBuilder(?string $term): QueryBuilder {
-        $qb = $this->createQueryBuilder('a');
+        $qb = $this->createQueryBuilder('log')
+            ->innerJoin('log.anlage', 'anlage');
 
         if ($term) {
-            $qb->andWhere('a.createdBy LIKE :term OR a.type LIKE :term OR a.description LIKE :term')
+            $qb->andWhere('log.createdBy LIKE :term OR log.type LIKE :term OR log.description LIKE :term')
                 ->setParameter('term', '%' . $term . '%')
             ;
         }
 
-        return $qb->orderBy('a.createdAt', 'ASC');
+        return $qb;
     }
 }

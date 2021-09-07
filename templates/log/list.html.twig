@@ -6,13 +6,17 @@
 {% block body %}
     <h1>List Log</h1>
     {{ macrolibrary.searchbox(app.request.query.get('qp'), 'qp') }}
-    <table class="table">
+    <table class="table sortable">
         <thead>
         <tr>
-            <th>Created at</th>
-            <th>Created by</th>
-            <th>Plant</th>
-            <th>Type</th>
+            <th {% if pagination.isSorted('log.createdAt') %} class="sorted"{% endif %}>
+                {{ knp_pagination_sortable(pagination, 'Created at', ['log.createdAt']) }}</th>
+            <th {% if pagination.isSorted('log.createdBy') %} class="sorted"{% endif %}>
+                {{ knp_pagination_sortable(pagination, 'Created by', ['log.createdBy']) }}</th>
+            <th {% if pagination.isSorted('anlage.anlName') %} class="sorted"{% endif %}>
+                {{ knp_pagination_sortable(pagination, 'Plant', ['anlage.anlName']) }}</th>
+            <th {% if pagination.isSorted('log.type') %} class="sorted"{% endif %}>
+                {{ knp_pagination_sortable(pagination, 'Type', ['log.type']) }}</th>
             <th>Description</th>
             <th style="text-align: right;">Actions</th>
         </tr>
@@ -24,7 +28,7 @@
                 <td>{{ log.createdBy }}</td>
                 <td>{{ log.anlage.anlName }}</td>
                 <td>{{ log.type }}</td>
-                <td><small>{{ log.description }}</small></td>
+                <td style="width: 50%"><small>{{ log.description }}</small></td>
                 <td style="text-align: right;">
                     {# <a href="{{ path('app_anlagen_edit', { id: plant.anlId}) }}" title="Edit Legend" class="hollow button tiny action-icon shadow"><span class="fa fa-pencil"></span></a>&nbsp;  #}
                 </td>

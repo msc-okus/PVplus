@@ -10,6 +10,7 @@ use App\Repository\ForecastRepository;
 use App\Repository\InvertersRepository;
 use App\Repository\PRRepository;
 use App\Repository\PVSystDatenRepository;
+use App\Service\ChartService;
 use App\Service\FunctionsService;
 use PDO;
 use Symfony\Component\Security\Core\Security;
@@ -22,16 +23,19 @@ class ACChartsService
     private AnlagenStatusRepository $statusRepository;
     private InvertersRepository $invertersRepo;
     public functionsService $functions;
+    private IrradiationChartService $irradiationChart;
 
     public function __construct(Security                $security,
                                 AnlagenStatusRepository $statusRepository,
                                 InvertersRepository     $invertersRepo,
+                                IrradiationChartService $irradiationChart,
                                 FunctionsService        $functions)
     {
         $this->security = $security;
         $this->statusRepository = $statusRepository;
         $this->invertersRepo = $invertersRepo;
         $this->functions = $functions;
+        $this->irradiationChart = $irradiationChart;
     }
 
     /**
@@ -57,9 +61,9 @@ class ACChartsService
             $counter = 0;
             // add Irradiation
             if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == true){
-                $dataArrayIrradiation = $this->getIrradiation($anlage, $from, $to, 'upper');
+                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
             } else {
-                $dataArrayIrradiation = $this->getIrradiation($anlage, $from, $to);
+                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
             }
             // add Temperature
             // $panelTemparray = $this->getAirAndPanelTemp($anlage, $from, $to);
@@ -161,9 +165,11 @@ class ACChartsService
         $maxInverter = 0;
         // add Irradiation
         if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == true){
-            $dataArrayIrradiation = $this->getIrradiation($anlage, $from, $to, 'upper');
+            $dataArrayIrradiation = $this->irradiationChart->
+getIrradiation($anlage, $from, $to, 'upper');
         } else {
-            $dataArrayIrradiation = $this->getIrradiation($anlage, $from, $to);
+            $dataArrayIrradiation = $this->irradiationChart->
+getIrradiation($anlage, $from, $to);
         }
 
         // add Temperature

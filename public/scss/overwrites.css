@@ -336,9 +336,22 @@ nav .menu i.fa {
 }
 
 main {
+  /******** table sort stuff **********/
   background-color: #eeeeee;
   padding-bottom: 2rem;
   padding-top: 2rem;
+}
+main table.sortable th i {
+  opacity: 0.3;
+}
+main table.sortable th a {
+  color: #0a0a0a;
+}
+main table.sortable th.sorted i {
+  opacity: 1;
+}
+main table.sortable th.sorted a {
+  color: #337ab7;
 }
 main .action-icon {
   padding: 0.25rem;
