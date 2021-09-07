@@ -73,6 +73,7 @@ class ReportingController extends AbstractController
             $request->query->getInt('page', 1),   /* page number*/
             20                                          /*limit per page*/
         );
+        //$pagination->setSortableTemplate('my_sortable.html.twig');
 
         return $this->render('reporting/list.html.twig', [
             'pagination' => $pagination,

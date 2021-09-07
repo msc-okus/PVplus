@@ -12,16 +12,23 @@
         <thead>
         <tr>
             <th>Report ID</th>
-            <th>Plant</th>
+            <th {% if pagination.isSorted(['a.anlName']) %} class="sorted"{% endif %}>
+                {{ knp_pagination_sortable(pagination, 'Plant', ['a.anlName']) }}</th>
             {% if is_granted('ROLE_G4N') %}
                 <th>Owner</th>
-                <th>created at</th>
-                <th>created by</th>
+                <th {% if pagination.isSorted(['report.createdAt']) %} class="sorted"{% endif %}>
+                {{ knp_pagination_sortable(pagination, 'created at', ['report.createdAt']) }}</th>
+                <th {% if pagination.isSorted(['report.createdBy']) %} class="sorted"{% endif %}>
+                    {{ knp_pagination_sortable(pagination, 'created by', ['report.createdBy']) }}</th>
             {% endif %}
-            <th>Month</th>
-            <th>Year</th>
-            <th>Report Type</th>
-            <th></th>
+            <th {% if pagination.isSorted(['report.month']) %} class="sorted"{% endif %}>
+                {{ knp_pagination_sortable(pagination, 'Month', ['report.month']) }}</th>
+            <th {% if pagination.isSorted(['report.year']) %} class="sorted"{% endif %}>
+                {{ knp_pagination_sortable(pagination, 'Year', ['report.year']) }}</th>
+            <th {% if pagination.isSorted(['report.reportType']) %} class="sorted"{% endif %}>
+                {{ knp_pagination_sortable(pagination, 'Report Type', ['report.reportType']) }}</th>
+            <th {% if pagination.isSorted(['report.reportStatus']) %} class="sorted"{% endif %}>
+                {{ knp_pagination_sortable(pagination, 'Status', ['report.reportStatus']) }}</th>
             <th></th>
         </tr>
         </thead>

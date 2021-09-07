@@ -62,7 +62,8 @@
         "twig/inky-extra": "^3.0",
         "twig/intl-extra": "^3.0",
         "twig/twig": "^3.0",
-        "zurb/foundation": "^6.6"
+        "zurb/foundation": "^6.6",
+      "ext-calendar": "*"
     },
     "require-dev": {
         "symfony/profiler-pack": "^1.0"

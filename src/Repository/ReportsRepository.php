@@ -34,9 +34,9 @@ class ReportsRepository extends ServiceEntityRepository
      */
     public function getWithSearchQueryBuilder(?string $term): QueryBuilder
     {
-        $qb = $this->createQueryBuilder('r')
-            ->innerJoin('r.anlage', 'a')
-            ->innerJoin('r.eigner', 'e')
+        $qb = $this->createQueryBuilder('report')
+            ->innerJoin('report.anlage', 'a')
+            ->innerJoin('report.eigner', 'e')
             ->addSelect('a')
             ->addSelect('e')
             ;
@@ -46,26 +46,26 @@ class ReportsRepository extends ServiceEntityRepository
             /** @var User $user */
             $user = $this->security->getUser();
             $accessList = $user->getAccessList();
-            $qb->andWhere('r.eigner in (:accessList)')
+            $qb->andWhere('report.eigner in (:accessList)')
                 ->setParameter('accessList', $accessList);
         }
 
         // schließe Archiv und falsche Reports aus
         // muss noch via Backend auswählbar gemacht werden
-        $qb->andWhere('r.reportStatus != 9');
-        $qb->andWhere('r.reportStatus != 11');
+        $qb->andWhere('report.reportStatus != 9');
+        $qb->andWhere('report.reportStatus != 11');
 
         if ($term) {
-            $qb ->andWhere('r.reportType LIKE :term or a.anlName LIKE :term or e.firma LIKE :term')
+            $qb ->andWhere('report.reportType LIKE :term or a.anlName LIKE :term or e.firma LIKE :term')
                 ->setParameter('term', '%' . $term . '%');
         }
 
-        return $qb->orderBy('e.firma', 'ASC')
+        return $qb;
+        /*->orderBy('e.firma', 'ASC')
             ->addOrderBy('a.anlName', 'ASC')
-            ->addOrderBy('r.reportType')
-            ->addOrderBy('r.year')
-            ->addOrderBy('r.month');
+            ->addOrderBy('report.reportType')
+            ->addOrderBy('report.year')
+            ->addOrderBy('report.month');
+            */
     }
-
-
 }

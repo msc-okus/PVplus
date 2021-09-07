@@ -187,9 +187,10 @@ class AssetManagementService
     /**
      * @param Anlage $anlage
      * @param array $report
-     * @param int $docType ( 0 = PDF, 1 = Excel, 2 = PNG (Grafiken) )
+     * @param int $docType ( 0 = PDF, 1 = Excel, 2 = PNG (Grafiken))
      * @param int $chartTypeToExport ( 0 = , 1 = )
-     * @return string
+     * @param bool $exit
+     * @return array
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
     public function buildAssetReport(Anlage $anlage, array $report, int $docType = 0, int $chartTypeToExport = 0, $exit = false): array

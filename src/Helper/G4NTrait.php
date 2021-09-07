@@ -25,6 +25,7 @@ trait G4NTrait
 
         return $reportStati;
     }
+
     public static function getCetTime($format = 'timestamp'){
         $date = new \DateTime('now', new \DateTimeZone('UTC'));
         $date->modify('+1 hours');
@@ -159,16 +160,24 @@ trait G4NTrait
         return $gmod2;
     }
 
-
+    /**
+     * @return \mysqli
+     * @deprecated
+     * erstezen durch getPdoConnection()
+     */
     public static function connectToDatabase():\mysqli
     {
-        //return new \mysqli('dev.g4npvplus.de', 'web32_2', '!1WasySql32', 'web32_db2');
         return new \mysqli('dedi6015.your-server.de', 'pvpluy_2', 'XD4R5XyVHUkK9U5i', 'pvp_data');
     }
 
+    /**
+     * @return \mysqli
+     * @deprecated
+     * ersetzen durch 'doctrine'
+     */
     public static function connectToDatabaseAnlage():\mysqli
     {
-        return new \mysqli('dedi6015.your-server.de', 'pvpbase', 'tolle!3Bank7', 'pvp_base');
+        return new \mysqli('dedi6015.your-server.de', 'pvpbase', '04qjYWk1oTf9gb7k', 'pvp_base');
     }
 
     public static function getPdoConnection():\PDO
