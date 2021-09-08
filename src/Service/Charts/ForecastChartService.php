@@ -83,11 +83,11 @@ class ForecastChartService
                 $divMinus       += $actPerWeek[$forecastArray[$week]->getDay()];
                 $divPlus        += $actPerWeek[$forecastArray[$week]->getDay()];
             } else {
-                $expectedWeek   += $forecastArray[$week]->getFactorWeek() * $anlage->getContractualGuarantiedPower();
-                $divMinus       += $forecastArray[$week]->getFactorWeek() * $anlage->getContractualGuarantiedPower() * $forecastArray[$week]->getFactorMin();
-                $divPlus        += $forecastArray[$week]->getFactorWeek() * $anlage->getContractualGuarantiedPower() * $forecastArray[$week]->getFactorMax();
+                $expectedWeek   += $forecastArray[$week]->getPowerWeek();
+                $divMinus       += $forecastArray[$week]->getDivMinWeek();
+                $divPlus        += $forecastArray[$week]->getDivMaxWeek();
             }
-            $forecastValue      += $forecastArray[$week]->getFactorWeek() * $anlage->getContractualGuarantiedPower();
+            $forecastValue      += $forecastArray[$week]->getPowerWeek();
 
             $dataArray['chart'][] = [
                 'date'      => date('Y-m-d', $stamp),
@@ -138,11 +138,11 @@ class ForecastChartService
                 $divMinus       += $actPerWeek[$forecast->getDay()];
                 $divPlus        += $actPerWeek[$forecast->getDay()];
             } else {
-                $expectedWeek   += $forecast->getFactorWeek() * $anlage->getContractualGuarantiedPower();
-                $divMinus       += $forecast->getFactorWeek() * $anlage->getContractualGuarantiedPower() * $forecast->getFactorMin();
-                $divPlus        += $forecast->getFactorWeek() * $anlage->getContractualGuarantiedPower() * $forecast->getFactorMax();
+                $expectedWeek   += $forecast->getPowerWeek();
+                $divMinus       += $forecast->getDivMinWeek();
+                $divPlus        += $forecast->getDivMaxWeek();
             }
-            $forecastValue += $forecast->getFactorWeek() * $anlage->getContractualGuarantiedPower();
+            $forecastValue += $forecast->getPowerWeek();
             $dataArray['chart'][$counter]['forecast']   = round($forecastValue);
             $dataArray['chart'][$counter]['expected']   = round($expectedWeek);
             $dataArray['chart'][$counter]['divMinus']   = round($divMinus);
