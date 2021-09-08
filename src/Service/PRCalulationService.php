@@ -17,7 +17,7 @@ use App\Repository\PRRepository;
 use App\Repository\PVSystDatenRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
-class PRCalulationService
+class xPRCalulationService
 {
     use G4NTrait;
 

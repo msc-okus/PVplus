@@ -484,6 +484,16 @@ main #plants .kachel.fb table tbody {
 main #plants .kachel.fb table tbody tr:nth-child(even) {
   background-color: rgba(255, 255, 255, 0.2);
 }
+main #plants .forecast-red {
+  color: #333333;
+  background-color: red;
+  text-align: center !important;
+}
+main #plants .forecast-green {
+  color: #ffffff;
+  background-color: green;
+  text-align: center !important;
+}
 main #plants .icon-anlagen-status i.fa {
   font-size: 1.5rem;
 }
