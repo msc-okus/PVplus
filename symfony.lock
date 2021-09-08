@@ -1,4 +1,7 @@
 {
+    "apix/log": {
+        "version": "1.2.1"
+    },
     "bacon/bacon-qr-code": {
         "version": "2.0.3"
     },
@@ -10,6 +13,9 @@
     },
     "box/spout": {
         "version": "v3.1.0"
+    },
+    "chrome-php/chrome": {
+        "version": "v0.10.0"
     },
     "chromeheadlessio/php-client": {
         "version": "1.0.0"
@@ -108,6 +114,9 @@
     "endroid/qr-code": {
         "version": "3.9.6"
     },
+    "evenement/evenement": {
+        "version": "v3.0.1"
+    },
     "friendsofphp/proxy-manager-lts": {
         "version": "v1.0.3"
     },
@@ -122,6 +131,9 @@
     },
     "guzzlehttp/psr7": {
         "version": "1.8.2"
+    },
+    "hisune/echarts-php": {
+        "version": "1.0.12"
     },
     "illuminate/bus": {
         "version": "v8.29.0"
@@ -270,8 +282,26 @@
     "laminas/laminas-zendframework-bridge": {
         "version": "1.1.1"
     },
+    "league/flysystem": {
+        "version": "1.1.4"
+    },
+    "league/flysystem-cached-adapter": {
+        "version": "1.1.0"
+    },
     "league/html-to-markdown": {
         "version": "4.10.0"
+    },
+    "league/mime-type-detection": {
+        "version": "1.7.0"
+    },
+    "liip/imagine-bundle": {
+        "version": "1.8",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.8",
+            "ref": "ffbb72e74598f04cc7f79f9fc736c77eeb98f569"
+        }
     },
     "lorenzo/pinky": {
         "version": "1.0.5"
@@ -300,8 +330,17 @@
     "nesbot/carbon": {
         "version": "2.45.1"
     },
+    "nexylan/slack": {
+        "version": "v3.2.0"
+    },
+    "nexylan/slack-bundle": {
+        "version": "v2.2.1"
+    },
     "nikic/php-parser": {
         "version": "v4.6.0"
+    },
+    "nuzkito/chrome-html-to-pdf": {
+        "version": "2.0.0"
     },
     "ocramius/package-versions": {
         "version": "1.11.0"
@@ -309,8 +348,53 @@
     "ocramius/proxy-manager": {
         "version": "2.2.3"
     },
+    "oneup/flysystem-bundle": {
+        "version": "3.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "3.0",
+            "ref": "e6c6440b279273a468e1f570b0fc1d4ff54ad69e"
+        }
+    },
     "php": {
         "version": "7.2"
+    },
+    "php-http/client-common": {
+        "version": "1.11.0"
+    },
+    "php-http/discovery": {
+        "version": "1.14.0"
+    },
+    "php-http/guzzle6-adapter": {
+        "version": "v1.1.1"
+    },
+    "php-http/httplug": {
+        "version": "v1.1.0"
+    },
+    "php-http/httplug-bundle": {
+        "version": "1.6",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "1.6",
+            "ref": "87b3d491d593d2c6e3b90bf0689ac69a188bfa5f"
+        }
+    },
+    "php-http/logger-plugin": {
+        "version": "1.2.1"
+    },
+    "php-http/message": {
+        "version": "1.11.1"
+    },
+    "php-http/message-factory": {
+        "version": "v1.0.2"
+    },
+    "php-http/promise": {
+        "version": "1.1.0"
+    },
+    "php-http/stopwatch-plugin": {
+        "version": "1.4.0"
     },
     "phpdocumentor/reflection-common": {
         "version": "2.2.0"
@@ -336,11 +420,23 @@
     "psr/event-dispatcher": {
         "version": "1.0.0"
     },
+    "psr/http-client": {
+        "version": "1.0.1"
+    },
+    "psr/http-factory": {
+        "version": "1.0.1"
+    },
+    "psr/http-message": {
+        "version": "1.0.1"
+    },
     "psr/log": {
         "version": "1.1.3"
     },
     "psr/simple-cache": {
         "version": "1.0.1"
+    },
+    "ralouphie/getallheaders": {
+        "version": "3.0.3"
     },
     "sensio/framework-extra-bundle": {
         "version": "5.2",
@@ -698,6 +794,39 @@
     },
     "symfony/yaml": {
         "version": "v5.1.2"
+    },
+    "tecnickcom/tc-lib-barcode": {
+        "version": "1.17.6"
+    },
+    "tecnickcom/tc-lib-color": {
+        "version": "1.14.6"
+    },
+    "tecnickcom/tc-lib-file": {
+        "version": "1.7.7"
+    },
+    "tecnickcom/tc-lib-pdf": {
+        "version": "dev-main"
+    },
+    "tecnickcom/tc-lib-pdf-encrypt": {
+        "version": "1.6.4"
+    },
+    "tecnickcom/tc-lib-pdf-font": {
+        "version": "1.9.3"
+    },
+    "tecnickcom/tc-lib-pdf-graph": {
+        "version": "1.5.3"
+    },
+    "tecnickcom/tc-lib-pdf-image": {
+        "version": "1.3.3"
+    },
+    "tecnickcom/tc-lib-pdf-page": {
+        "version": "2.5.3"
+    },
+    "tecnickcom/tc-lib-unicode": {
+        "version": "1.4.4"
+    },
+    "tecnickcom/tc-lib-unicode-data": {
+        "version": "1.7.3"
     },
     "tijsverkoyen/css-to-inline-styles": {
         "version": "2.2.3"
