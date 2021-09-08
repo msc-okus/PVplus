@@ -120,7 +120,7 @@ class AnlageForecast
 
     public function getFactorWeek(): ?float
     {
-        return $this->factorWeek;
+        return (float)$this->factorWeek;
     }
 
     public function setFactorWeek(int $factorWeek): self
@@ -132,7 +132,7 @@ class AnlageForecast
 
     public function getFactorMin(): ?float
     {
-        return $this->factorMin;
+        return (float)$this->factorMin;
     }
 
     public function setFactorMin(int $factorMin): self
@@ -144,7 +144,7 @@ class AnlageForecast
 
     public function getFactorMax(): ?float
     {
-        return $this->factorMax;
+        return (float)$this->factorMax;
     }
 
     public function setFactorMax(int $factorMax): self

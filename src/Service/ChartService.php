@@ -119,7 +119,7 @@ class ChartService
                     }
                     break;
                 case ("ac_act_group"):
-                    $dataArray = $this->acCharts->getAcExpGroupAC($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->acCharts->getActExpGroupAC($anlage, $from, $to, $form['selectedGroup']);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -132,7 +132,21 @@ class ChartService
                         $resultArray['inverterArray'] = json_encode($dataArray['inverterArray']);
                     }
                     break;
-                case ("ac_grp_power_diff"): // AC - Inverter
+                case ("ac_act_overview"):
+                    $dataArray = $this->acCharts->getActExpOverview($anlage, $from, $to, $form['selectedGroup']);
+                    if ($dataArray != false) {
+                        $resultArray['data'] = json_encode($dataArray['chart']);
+                        $resultArray['maxSeries'] = $dataArray['maxSeries'];
+                        $resultArray['headline'] = 'AC Production by Group [kWh] – Actual and Expected';
+                        $resultArray['series1']['name'] = "Expected";
+                        $resultArray['series1']['tooltipText'] = "Expected ";
+                        $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
+                        $resultArray['seriesx']['name'] = "Inverter ";
+                        $resultArray['seriesx']['tooltipText'] = "Inverter ";
+                        $resultArray['inverterArray'] = json_encode($dataArray['inverterArray']);
+                    }
+                    break;
+                    case ("ac_grp_power_diff"): // AC - Inverter
                     $dataArray = $this->acCharts->getGroupPowerDifferenceAC($anlage, $from, $to);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);

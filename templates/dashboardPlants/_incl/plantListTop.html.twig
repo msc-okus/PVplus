@@ -103,13 +103,13 @@
                                         </tr>
                                         <tr>
                                             <td>Contract</td>
-                                            <td>{% if anlage.contractualPower > 0 %}{{ (anlage.guaranteedExpectedEnergy(anlage.contractualPower))|number_format(0, ',', '.') }}{% else %}--{% endif %}</td>
+                                            <td>{% if anlage.contractualPower > 0 %}{{ (anlage.getContractualGuarantiedPower())|number_format(0, ',', '.') }}{% else %}--{% endif %}</td>
                                             <td>{% if anlage.contractualPR > 0 %}{{ (anlage.contractualPR)|number_format(3, ',', '.') }}{% else %}--{% endif %}</td>
                                             <td>{% if anlage.contractualAvailability > 0 %}{{ (anlage.contractualAvailability)|number_format(3, ',', '.') }}{% else %}--{% endif %}</td>
                                         </tr>
                                         <tr>
                                             <td>Difference</td>
-                                            <td>{% if anlage.contractualPower > 0 %}{{ (pr.powerEvuYear - anlage.guaranteedExpectedEnergy(anlage.contractualPower))|number_format(0,',','.') }}{% else %}--{% endif %}</td>
+                                            <td>{% if anlage.contractualPower > 0 %}{{ (pr.powerEvuYear - anlage.getContractualGuarantiedPower())|number_format(0,',','.') }}{% else %}--{% endif %}</td>
                                             <td>
                                                 {% if anlage.contractualPR > 0 %}
                                                     {% if anlage.showEvuDiag == 1 %}
@@ -182,7 +182,7 @@
                                         <td>Contract</td>
                                         <td>
                                             {% if anlage.contractualPower > 0 %}
-                                                {{ (anlage.contractualPower)|number_format(0, ',', '.') }}
+                                                {{ (anlage.contractualGuarantiedPower)|number_format(0, ',', '.') }}
                                             {% else %}
                                                 --
                                             {% endif %}</td>
@@ -206,9 +206,9 @@
                                         <td>
                                             {% if anlage.contractualPower > 0 %}
                                                 {% if anlage.showEvuDiag == 1 %}
-                                                    {{ (pr.powerEvuPac - anlage.contractualPower)|number_format(0, ',', '.') }}
+                                                    {{ (pr.powerEvuPac - anlage.contractualGuarantiedPower)|number_format(0, ',', '.') }}
                                                 {% else %}
-                                                    {{ (pr.powerActPac - anlage.contractualPower)|number_format(0, ',', '.') }}
+                                                    {{ (pr.powerActPac - anlage.contractualGuarantiedPower)|number_format(0, ',', '.') }}
                                                 {% endif %}
                                             {% else %}
                                                 --

@@ -300,7 +300,14 @@ class FunctionsService
         return $powerExpArray;
     }
 
-    public function getFacForecast(Anlage $anlage, $startdate, $enddate, $day) :array
+    /**
+     * @param Anlage $anlage
+     * @param $startdate
+     * @param $enddate
+     * @param $day
+     * @return array
+     */
+    public function getFacForecast(Anlage $anlage, $startdate, $enddate, $day): array
     {
         $forecastResultArray = [];
 
@@ -309,9 +316,9 @@ class FunctionsService
         //Kopiere alle Forcast Werte in ein Array mit dem Index der Kalenderwoche
         $forecastResultArray['sumForecast'] = $forecastResultArray['divMinus'] = $forecastResultArray['divPlus'] = $forecastResultArray['sumActual'] = 0;
         foreach ($forecasts as $forecast) {
-            $forecastResultArray['sumForecast'] += (float)$forecast->getExpectedWeek();
-            $forecastResultArray['divMinus'] += (float)$forecast->getDivergensMinus();
-            $forecastResultArray['divPlus'] += (float)$forecast->getDivergensPlus();
+            $forecastResultArray['sumForecast']     += $forecast->getFactorWeek() * $anlage->getContractualGuarantiedPower();
+            $forecastResultArray['divMinus']        += $forecast->getFactorWeek() * $anlage->getContractualGuarantiedPower() * $forecast->getFactorMin();
+            $forecastResultArray['divPlus']         += $forecast->getFactorWeek() * $anlage->getContractualGuarantiedPower() * $forecast->getFactorMax();
         }
 
         $conn = self::getPdoConnection();
@@ -329,10 +336,10 @@ class FunctionsService
         foreach ($forecasts as $week => $forecast) {
             if (isset($actPerWeek[$forecast->getWeek()])) {
                $forecastResultArray['sumActual']    += $actPerWeek[$forecast->getWeek()];
-               $forecastResultArray['divMinus']     -= $forecast->getDivergensMinus();
-               $forecastResultArray['divPlus']      -= $forecast->getDivergensPlus();
+               $forecastResultArray['divMinus']     -= $forecast->getFactorWeek() * $anlage->getContractualGuarantiedPower() * $forecast->getFactorMin();
+               $forecastResultArray['divPlus']      -= $forecast->getFactorWeek() * $anlage->getContractualGuarantiedPower() * $forecast->getFactorMax();
             } else {
-               $forecastResultArray['sumActual']    += $forecast->getExpectedWeek();
+               $forecastResultArray['sumActual']    += $forecast->getFactorWeek() * $anlage->getContractualGuarantiedPower();
             }
         }
 
@@ -343,9 +350,10 @@ class FunctionsService
      * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param $pacDate
      * @return array
      */
-    public function getPvSyst(Anlage $anlage, $from, $to, $pacDate) :array
+    public function getPvSyst(Anlage $anlage, $from, $to, $pacDate): array
     {
         $startYear = date('Y-01-01 00:00', strtotime($to));
         $powerPvSystArray['powerPvSyst']        = 0;

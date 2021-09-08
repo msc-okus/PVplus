@@ -1811,6 +1811,17 @@ class Anlage
         return $this->contractualPower;
     }
 
+    public function getGuaranteedExpectedEnergy($expectedEnergy):float
+    {
+        return $expectedEnergy * (1 - ($this->getTransformerTee() / 100)) * (1 - ($this->getGuaranteeTee() / 100));
+    }
+
+    public function getContractualGuarantiedPower(): float
+    {
+        $factor = 1 - $this->getGuaranteeTee() / 100 - $this->getTransformerTee() / 100;
+        return (float)$this->contractualPower * $factor;
+    }
+
     public function setContractualPower(string $contractualPower): self
     {
         $this->contractualPower =  str_replace(',', '.', $contractualPower);
@@ -2389,9 +2400,9 @@ class Anlage
         return $this;
     }
 
-    public function getTransformerTee(): ?string
+    public function getTransformerTee(): ?float
     {
-        return $this->transformerTee;
+        return (float)$this->transformerTee;
     }
 
     public function setTransformerTee(string $transformerTee): self
@@ -2401,9 +2412,9 @@ class Anlage
         return $this;
     }
 
-    public function getGuaranteeTee(): ?string
+    public function getGuaranteeTee(): ?float
     {
-        return $this->guaranteeTee;
+        return (float)$this->guaranteeTee;
     }
 
     public function setGuaranteeTee(string $guaranteeTee): self
@@ -2794,8 +2805,4 @@ class Anlage
         return $this->dbAnlagenData;
     }
 
-    public function getGuaranteedExpectedEnergy($expectedEnergy):float
-    {
-        return $expectedEnergy * (1 - ($this->getTransformerTee() / 100)) * (1 - ($this->getGuaranteeTee() / 100));
-    }
 }

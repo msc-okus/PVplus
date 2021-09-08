@@ -1,7 +1,7 @@
 {% macro acActGroup(form, aktAnlage) %}
     <option value="ac_act_group" {% if form.selectedChart == 'ac_act_group' %}selected{% endif %}>
         {% if aktAnlage.configType == 1 %}
-            AC - Actual & Expected, Groups
+            AC - Actual & Expected, Groups Overview
         {% elseif aktAnlage.configType == 2 %}
             AC - Actual & Expected, Inverters
         {% elseif aktAnlage.configType == 3 %}
@@ -12,6 +12,13 @@
     </option>
 {% endmacro %}
 
+{% macro acActOverview(form, aktAnlage) %}
+    {% if aktAnlage.configType == 3 %}
+        <option value="ac_act_group" {% if form.selectedChart == 'ac_act_overview' %}selected{% endif %}>
+            AC - Actual & Expected, Overview
+        </option>
+    {% endif %}
+{% endmacro %}
 
 {% macro dcActGroup(form, aktAnlage) %}
     <option value="dc_act_group" {% if form.selectedChart == 'dc_act_group' %}selected{% endif %}>

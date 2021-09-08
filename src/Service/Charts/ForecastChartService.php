@@ -78,24 +78,23 @@ class ForecastChartService
             }
 
             $stamp = strtotime($year . 'W' . str_pad($forecastArray[$week]->getWeek(), 2, '0', STR_PAD_LEFT));
-            //$dataArray['chart'][$counter]['date'] = date('Y-m-d', $stamp);
-
             if (isset($actPerWeek[$forecastArray[$week]->getDay()])) {
-                $expectedWeek += $actPerWeek[$forecastArray[$week]->getDay()];
-                $divMinus += $actPerWeek[$forecastArray[$week]->getDay()];
-                $divPlus += $actPerWeek[$forecastArray[$week]->getDay()];
+                $expectedWeek   += $actPerWeek[$forecastArray[$week]->getDay()];
+                $divMinus       += $actPerWeek[$forecastArray[$week]->getDay()];
+                $divPlus        += $actPerWeek[$forecastArray[$week]->getDay()];
             } else {
-                $expectedWeek += $forecastArray[$week]->getFactorWeek() * $anlage->getContractualPower();
-                $divMinus += $forecastArray[$week]->getFactorWeek() * $anlage->getContractualPower() * $forecast->getFactorMin();
-                $divPlus += $forecastArray[$week]->getFactorWeek() * $anlage->getContractualPower() * $forecast->getFactorMax();
+                $expectedWeek   += $forecastArray[$week]->getFactorWeek() * $anlage->getContractualGuarantiedPower();
+                $divMinus       += $forecastArray[$week]->getFactorWeek() * $anlage->getContractualGuarantiedPower() * $forecastArray[$week]->getFactorMin();
+                $divPlus        += $forecastArray[$week]->getFactorWeek() * $anlage->getContractualGuarantiedPower() * $forecastArray[$week]->getFactorMax();
             }
-            $forecastValue += $forecastArray[$week]->getFactorWeek() * $anlage->getContractualPower();
+            $forecastValue      += $forecastArray[$week]->getFactorWeek() * $anlage->getContractualGuarantiedPower();
+
             $dataArray['chart'][] = [
                 'date'      => date('Y-m-d', $stamp),
-                'forecast'  => $forecastValue,
-                'expected'  => $expectedWeek,
-                'divMinus'  => $divMinus,
-                'divPlus'   => $divPlus,
+                'forecast'  => round($forecastValue),
+                'expected'  => round($expectedWeek),
+                'divMinus'  => round($divMinus),
+                'divPlus'   => round($divPlus),
             ];
 
         }
@@ -139,15 +138,15 @@ class ForecastChartService
                 $divMinus       += $actPerWeek[$forecast->getDay()];
                 $divPlus        += $actPerWeek[$forecast->getDay()];
             } else {
-                $expectedWeek   += $forecast->getFactorWeek() * $anlage->getContractualPower();
-                $divMinus       += $forecast->getFactorWeek() * $anlage->getContractualPower() * $forecast->getFactorMin();
-                $divPlus        += $forecast->getFactorWeek() * $anlage->getContractualPower() * $forecast->getFactorMax();
+                $expectedWeek   += $forecast->getFactorWeek() * $anlage->getContractualGuarantiedPower();
+                $divMinus       += $forecast->getFactorWeek() * $anlage->getContractualGuarantiedPower() * $forecast->getFactorMin();
+                $divPlus        += $forecast->getFactorWeek() * $anlage->getContractualGuarantiedPower() * $forecast->getFactorMax();
             }
-            $forecastValue += $forecast->getFactorWeek() * $anlage->getContractualPower();
-            $dataArray['chart'][$counter]['forecast']   = $forecastValue;
-            $dataArray['chart'][$counter]['expected']   = $expectedWeek;
-            $dataArray['chart'][$counter]['divMinus']   = $divMinus;
-            $dataArray['chart'][$counter]['divPlus']    = $divPlus;
+            $forecastValue += $forecast->getFactorWeek() * $anlage->getContractualGuarantiedPower();
+            $dataArray['chart'][$counter]['forecast']   = round($forecastValue);
+            $dataArray['chart'][$counter]['expected']   = round($expectedWeek);
+            $dataArray['chart'][$counter]['divMinus']   = round($divMinus);
+            $dataArray['chart'][$counter]['divPlus']    = round($divPlus);
             $counter++;
         }
 

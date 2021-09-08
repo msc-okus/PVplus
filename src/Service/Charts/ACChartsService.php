@@ -150,7 +150,7 @@ class ACChartsService
      * @return array
      * AC - Actual & Expected, Groups
      */
-    public function getAcExpGroupAC(Anlage $anlage, $from, $to, int $group = 1) : array
+    public function getActExpGroupAC(Anlage $anlage, $from, $to, int $group = 1): array
     {
         $conn = self::getPdoConnection();
         $dataArray = [];
@@ -163,17 +163,14 @@ class ACChartsService
                         WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by a.stamp";
         $result = $conn->query($sqlExpected);
         $maxInverter = 0;
-        // add Irradiation
-        if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == true){
-            $dataArrayIrradiation = $this->irradiationChart->
-getIrradiation($anlage, $from, $to, 'upper');
-        } else {
-            $dataArrayIrradiation = $this->irradiationChart->
-getIrradiation($anlage, $from, $to);
-        }
 
-        // add Temperature
-        // $panelTemparray = $this->getAirAndPanelTemp($anlage, $from, $to);
+        // add Irradiation
+        // Todo: Gewichtet Strahlung bei Ost West Anlagen.
+        if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == true){
+            $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
+        } else {
+            $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
+        }
 
         if ($result->rowCount() > 0) {
             $counter = 0;
@@ -244,12 +241,89 @@ getIrradiation($anlage, $from, $to);
                     $dataArray['chart'][$counter]["irradiation"] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2'])/2;
                 }
 
-                // add Temperature
-                // $dataArray['chart'][$counter]['panelTemp'] = $panelTemparray['chart'][$counter]["val2"];
                 $counter++;
             }
         }
         $conn = null;
+
+        return $dataArray;
+    }
+
+    public function getActExpOverview(Anlage $anlage, $from, $to, int $group): array
+    {
+        $conn = self::getPdoConnection();
+        $dataArray = [];
+        $dataArray['maxSeries'] = 0;
+        $nameArray = $this->functions->getInverterNameArray($anlage , 'ac');
+        $dataArray['inverterArray'] = $nameArray;
+        $acGroups = $anlage->getGroupsAc();
+        $maxInverter = 0;
+        $sqlExpected = "SELECT a.stamp, sum(b.ac_exp_power) as soll
+                        FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE group_ac = '$group') b ON a.stamp = b.stamp) 
+                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by a.stamp";
+        $result = $conn->query($sqlExpected);
+        if ($result->rowCount() > 0) {
+            $counter = 0;
+            switch ($anlage->getConfigType()) {
+                case 3: // Groningen
+                    break;
+                default:
+                    $dataArray['offsetLegend'] = $acGroups[$group]['GMIN'] - 1;
+            }
+            $dataArray['label'] = $acGroups[$group]['GroupName'];
+
+            while ($rowExp = $result->fetch(PDO::FETCH_ASSOC)) {
+                $stamp = $rowExp["stamp"];
+                ($rowExp['soll'] == null) ? $expected = 0 : $expected = $rowExp['soll'];
+                $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone()); // Adjust Time differenve between weather station and plant data (only nessesary if weather data comes from externel weather station)
+                $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp); // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
+
+                $sqlIst = "SELECT sum(wr_pac) as actPower FROM " . $anlage->getDbNameIst() . " WHERE stamp = '$stampAdjust' AND wr_pac > 0  GROUP BY unit";
+                $resultIst = $conn->query($sqlIst);
+                $counterInv = 1;
+                if ($resultIst->rowCount() > 0) {
+                    while ($rowIst = $resultIst->fetch(PDO::FETCH_ASSOC)) {
+                        if ($counterInv > $maxInverter) $maxInverter = $counterInv;
+                        $actPower = $rowIst['actPower'];
+                        ($actPower > 0) ? $actPower = round(self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()), 2) : $actPower = 0; // neagtive Werte auschließen
+                        if (!($actPower == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
+                            switch ($anlage->getConfigType()) {
+
+                                case 3: // Groningen
+                                    $dataArray['chart'][$counter][$nameArray[$group]] = $actPower;
+                                    break;
+                                default:
+                                    $dataArray['chart'][$counter][$nameArray[$counterInv+$dataArray['offsetLegend']]] = $actPower;
+                                    $counterInv++;
+                            }
+                        }
+                        switch ($anlage->getConfigType()) {
+                            case 3:
+                                if ($counterInv > $dataArray['maxSeries']) $dataArray['maxSeries'] = $counterInv;
+                                break;
+                            default:
+                                if ($counterInv > $dataArray['maxSeries']) $dataArray['maxSeries'] = $counterInv - 1;
+                        }
+                    }
+                } else {
+                    for($counterInv = 1; $counterInv <= $maxInverter; $counterInv++) {
+                        switch ($anlage->getConfigType()) {
+
+                            case 3: // Groningen
+                                $dataArray['chart'][$counter][$nameArray[$group]] = 0;
+                                break;
+                            default:
+                                $dataArray['chart'][$counter][$nameArray[$counterInv+$dataArray['offsetLegend']]] = 0;
+                        }
+                    }
+                }
+                $counterInv--;
+                ($counterInv > 0) ? $dataArray['chart'][$counter]['exp'] = $expected / $counterInv : $dataArray['chart'][$counter]['exp'] = $expected;
+
+
+                $counter++;
+            }
+        }
 
         return $dataArray;
     }
