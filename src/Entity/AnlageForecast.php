@@ -144,29 +144,17 @@ class AnlageForecast
 
     public function getPowerWeek(): float
     {
-<<<<<<< HEAD
         return ($this->anlage->getContractualGuarantiedPower() > 0) ? $this->getFactorWeek() * $this->anlage->getContractualGuarantiedPower() : $this->getExpectedWeek();
-=======
-        return ($this->anlage->getContractualGuarantiedPower() > 0) ? $this->factorWeek * $this->anlage->getContractualGuarantiedPower() : $this->expectedWeek;
->>>>>>> 429ad2e3e2e8f735b5c9ef5ca5ef63d2c838ad8c
     }
 
     public function getDivMinWeek(): float
     {
-<<<<<<< HEAD
         return ($this->anlage->getContractualGuarantiedPower() > 0) ? $this->getFactorWeek() * $this->anlage->getContractualGuarantiedPower() * $this->getFactorMin() : $this->getExpectedWeek() * $this->getFactorMin();
-=======
-        return ($this->anlage->getContractualGuarantiedPower() > 0) ? $this->factorWeek * $this->anlage->getContractualGuarantiedPower() * $this->factorMin : $this->expectedWeek * $this->factorMin;
->>>>>>> 429ad2e3e2e8f735b5c9ef5ca5ef63d2c838ad8c
     }
 
     public function getDivMaxWeek(): float
     {
-<<<<<<< HEAD
         return ($this->anlage->getContractualGuarantiedPower() > 0) ? $this->getFactorWeek() * $this->anlage->getContractualGuarantiedPower() * $this->getFactorMax() : $this->getExpectedWeek() * $this->getFactorMax();
-=======
-        return ($this->anlage->getContractualGuarantiedPower() > 0) ? $this->factorWeek * $this->anlage->getContractualGuarantiedPower() * $this->factorMax : $this->expectedWeek * $this->factorMax;
->>>>>>> 429ad2e3e2e8f735b5c9ef5ca5ef63d2c838ad8c
     }
 
 }
