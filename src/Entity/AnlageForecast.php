@@ -20,7 +20,7 @@ class AnlageForecast
     /**
      * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="anlageForecasts")
      */
-    private $anlage;
+    private ?Anlage $anlage;
 
     /**
      * @ORM\Column(type="integer")
@@ -52,30 +52,6 @@ class AnlageForecast
      */
     private string $factorMax;
 
-
-    /**
-     * @ORM\Column(type="string", length=20)
-     * @deprecated
-     */
-    private string $divergensMinus;
-
-    /**
-     * @ORM\Column(type="string", length=20)
-     * @deprecated
-     */
-    private string $divergensPlus;
-
-    /**
-     * @ORM\Column(type="string", length=20)
-     * @deprecated
-     */
-    private string $minNorm;
-
-    /**
-     * @ORM\Column(type="string", length=20)
-     * @deprecated
-     */
-    private string $maxNorm;
 
     public function getId(): ?int
     {
@@ -166,51 +142,19 @@ class AnlageForecast
         return $this;
     }
 
-    public function getDivergensMinus(): ?float
+    public function getPowerWeek(): float
     {
-        return (float)str_replace(',', '.', $this->divergensMinus);
+        return ($this->anlage->getContractualGuarantiedPower() > 0) ? $this->getFactorWeek() * $this->anlage->getContractualGuarantiedPower() : $this->getExpectedWeek();
     }
 
-    public function setDivergensMinus(string $divergensMinus): self
+    public function getDivMinWeek(): float
     {
-        $this->divergensMinus = $divergensMinus;
-
-        return $this;
+        return ($this->anlage->getContractualGuarantiedPower() > 0) ? $this->getFactorWeek() * $this->anlage->getContractualGuarantiedPower() * $this->getFactorMin() : $this->getExpectedWeek() * $this->getFactorMin();
     }
 
-    public function getDivergensPlus(): ?float
+    public function getDivMaxWeek(): float
     {
-        return (float)str_replace(',', '.', $this->divergensPlus);
+        return ($this->anlage->getContractualGuarantiedPower() > 0) ? $this->getFactorWeek() * $this->anlage->getContractualGuarantiedPower() * $this->getFactorMax() : $this->getExpectedWeek() * $this->getFactorMax();
     }
 
-    public function setDivergensPlus(string $divergensPlus): self
-    {
-        $this->divergensPlus = $divergensPlus;
-
-        return $this;
-    }
-
-    public function getMinNorm(): ?string
-    {
-        return $this->minNorm;
-    }
-
-    public function setMinNorm(string $minNorm): self
-    {
-        $this->minNorm = $minNorm;
-
-        return $this;
-    }
-
-    public function getMaxNorm(): ?string
-    {
-        return $this->maxNorm;
-    }
-
-    public function setMaxNorm(string $maxNorm): self
-    {
-        $this->maxNorm = $maxNorm;
-
-        return $this;
-    }
 }

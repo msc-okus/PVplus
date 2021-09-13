@@ -24,6 +24,7 @@ $GLOBALS['abweichung']['io'] = [
     'warning'   => 2 * 3600, // bis 2 Stunden
     'alert'     => 2 * 3600, // ab mehr als 2 Stunden
 ];
+
 $GLOBALS['abweichung']['produktion'] = [
     'green' => 0, 'normal' => 0,
     'yellow' => -15, 'warning' => 15,

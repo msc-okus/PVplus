@@ -132,12 +132,12 @@
                                         {% if anlage.showForecast %}
                                             <tr>
                                                 {% if  status.forecastYear < 0 %}
-                                                    {% set bgColor = 'red' %}
+                                                    {% set class = 'forecast-red' %}
                                                 {% else %}
-                                                    {% set bgColor = 'green' %}
+                                                    {% set class = 'forecast-green' %}
                                                 {% endif %}
                                                 <td>Forecast <small>(last sunday)</small></td>
-                                                <td style="background-color: {{ bgColor }}; text-align: center" colspan="3">{{ status.forecastYear|number_format(0, ',', '.') }}</td>
+                                                <td class="{{ class }}" colspan="3">{{ status.forecastYear|number_format(0, ',', '.') }}</td>
                                             </tr>
                                         {% endif %}
                                     {% endif %}

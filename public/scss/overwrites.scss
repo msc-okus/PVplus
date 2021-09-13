@@ -337,6 +337,10 @@
                     }
                 }
             }
+
+            .forecast-red {color: $g4n-black;background-color: red; text-align: center!important;}
+            .forecast-green {color: $g4n-white; background-color: green; text-align: center!important;}
+
             .icon-anlagen-status {
                 i.fa {font-size: 1.5rem;}
                 &.warning i.fa { color: $warning;}

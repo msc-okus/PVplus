@@ -311,14 +311,13 @@ class FunctionsService
     {
         $forecastResultArray = [];
 
-        /** @var AnlageForecast[]  $forecasts */
         $forecasts = $this->forecastRepo->findBy(['anlage' => $anlage]);
         //Kopiere alle Forcast Werte in ein Array mit dem Index der Kalenderwoche
         $forecastResultArray['sumForecast'] = $forecastResultArray['divMinus'] = $forecastResultArray['divPlus'] = $forecastResultArray['sumActual'] = 0;
         foreach ($forecasts as $forecast) {
-            $forecastResultArray['sumForecast']     += $forecast->getFactorWeek() * $anlage->getContractualGuarantiedPower();
-            $forecastResultArray['divMinus']        += $forecast->getFactorWeek() * $anlage->getContractualGuarantiedPower() * $forecast->getFactorMin();
-            $forecastResultArray['divPlus']         += $forecast->getFactorWeek() * $anlage->getContractualGuarantiedPower() * $forecast->getFactorMax();
+            $forecastResultArray['sumForecast']     += $forecast->getPowerWeek();
+            $forecastResultArray['divMinus']        += $forecast->getDivMinWeek();
+            $forecastResultArray['divPlus']         += $forecast->getDivMaxWeek();
         }
 
         $conn = self::getPdoConnection();
@@ -336,10 +335,10 @@ class FunctionsService
         foreach ($forecasts as $week => $forecast) {
             if (isset($actPerWeek[$forecast->getWeek()])) {
                $forecastResultArray['sumActual']    += $actPerWeek[$forecast->getWeek()];
-               $forecastResultArray['divMinus']     -= $forecast->getFactorWeek() * $anlage->getContractualGuarantiedPower() * $forecast->getFactorMin();
-               $forecastResultArray['divPlus']      -= $forecast->getFactorWeek() * $anlage->getContractualGuarantiedPower() * $forecast->getFactorMax();
+               $forecastResultArray['divMinus']     -= $forecast->getDivMinWeek();
+               $forecastResultArray['divPlus']      -= $forecast->getDivMaxWeek();
             } else {
-               $forecastResultArray['sumActual']    += $forecast->getFactorWeek() * $anlage->getContractualGuarantiedPower();
+               $forecastResultArray['sumActual']    += $forecast->getPowerWeek();
             }
         }
 
