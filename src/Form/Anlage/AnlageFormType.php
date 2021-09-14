@@ -11,6 +11,7 @@ use App\Form\GroupsAc\AcGroupsListEmbeddedFormType;
 use App\Helper\G4NTrait;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
@@ -677,6 +678,15 @@ class AnlageFormType extends AbstractType
                 'expanded'      => false,
                 'multiple'      => false,
             ])
+            /*
+            ->add('showForecast', CheckboxType::class, [
+                'label'         => 'Zeige Forecast',
+                'help'          => '[showForecast]',
+                'false_values'  => ['0', 'no', 'No', 'NO'],
+                'attr'          => ['class' => 'switch-input'],
+
+            ])
+            */
 
             ################################################
             ####              Relations                 ####

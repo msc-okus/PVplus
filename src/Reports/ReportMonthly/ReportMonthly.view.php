@@ -167,7 +167,7 @@ include_once __DIR__ . '/tablechart_fields.tmpl';
 <div class='break-before'></div>
 <div class="grid-x grid-margin-x">
     <div class="cell">
-        <h2>Irradiation and Temperature in [Wh/m²] and [&deg;C]</h2>
+        <h2>Irradiation and Temperature in [Wh/m&sup2] and [&deg;C]</h2>
         <?php
         Table::create([
             'dataSource'    => $irradiationandtempvalues,
