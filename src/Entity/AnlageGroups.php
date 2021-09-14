@@ -108,7 +108,7 @@ class AnlageGroups
     /**
      * @ORM\ManyToOne(targetEntity=WeatherStation::class)
      */
-    private WeatherStation $weatherStation;
+    private ?WeatherStation $weatherStation;
 
 
 

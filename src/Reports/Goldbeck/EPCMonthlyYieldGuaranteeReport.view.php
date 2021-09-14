@@ -183,7 +183,7 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
                     ],
                     'irradiation' => [
                         'type'          => 'number',
-                        'label'         => 'Irradiation<br>weighted average<br>[kWh/m²]',
+                        'label'         => 'Irradiation<br>weighted average<br>[kWh/m&sup2;]',
                         'formatValue'   => function($value) {return number_format($value, 2, ',', '.');},
                     ],
                     'prDesign'  => [
