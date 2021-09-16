@@ -18,12 +18,12 @@
             {% if is_granted('ROLE_DEV') %}<option value="ac_act_voltage" {% if form.selectedChart == 'ac_act_voltage' %}selected{% endif %}>AC - Voltage </option>{% endif %}
             {% if is_granted('ROLE_DEV') %}<option value="ac_act_current" {% if form.selectedChart == 'ac_act_current' %}selected{% endif %}>AC - Current </option>{% endif %}
             {% if is_granted('ROLE_DEV') %}<option value="ac_act_frequency" {% if form.selectedChart == 'ac_act_frequency' %}selected{% endif %}>AC - Frequency </option>{% endif %}
-            {% if is_granted('ROLE_DEV') %}<option value="dc_single" {% if form.selectedChart == 'dc_single' %}selected{% endif %}>DC - Actual & Expected, Plant</option>{% endif %}
             {% if is_granted('ROLE_DEV') %}<option value="reactive_power" {% if form.selectedChart == 'reactive_power' %}selected{% endif %}>Reactive Power </option>{% endif %}
 
             /* ab hier DC */
-            {{ dcGroupPowerDiff(form, aktAnlage) }}
+            {% if is_granted('ROLE_DEV') %}<option value="dc_single" {% if form.selectedChart == 'dc_single' %}selected{% endif %}>DC - Actual & Expected, Plant</option>{% endif %}
             {{ dcActGroup(form, aktAnlage) }}
+            {{ dcGroupPowerDiff(form, aktAnlage) }}
             {% if aktAnlage.showGraphDcCurrGrp or is_granted('ROLE_ADMIN') %}<option value="dc_current_group" {% if form.selectedChart == 'dc_current_group' %}selected{% endif %}>DC - Current, Group </option>{% endif %}
             {% if aktAnlage.showGraphDcCurrInv or is_granted('ROLE_ADMIN') %}<option value="dc_current_inverter" {% if form.selectedChart == 'dc_current_inverter' %}selected{% endif %}>DC - Current, Inverter </option>{% endif %}
             {% if aktAnlage.showStringCharts or is_granted('ROLE_ADMIN') %}<option value="dc_current_mpp" {% if form.selectedChart == 'dc_current_mpp' %}selected{% endif %}>DC - Current, String </option>{% endif %}
@@ -103,9 +103,11 @@
             <label class="button submit-onchange {% if form.optionDate == 14 %}active{% endif %} {% if form.selectedChart == 'availability' %}disabled{% endif %}">
                 <input type="radio" name="optionDate" value="14" {% if form.optionDate == 14 %}checked{% endif %}>last 14 days
             </label>
+            <!--
             <label class="button submit-onchange {% if form.optionDate == 30 %}active{% endif %} {% if form.selectedChart == 'availability' %}disabled{% endif %}">
                 <input type="radio" name="optionDate" value="30" {% if form.optionDate == 30 %}checked{% endif %}>last 30 days
             </label>
+            -->
             <label class="button submit-onchange {% if form.optionDate == 100000 %}active{% endif %} {% if form.selectedChart == 'availability' %}disabled{% endif %}">
                 <input type="radio" name="optionDate" value="100000" {% if form.optionDate == 100000 %}checked{% endif %}>month
             </label>

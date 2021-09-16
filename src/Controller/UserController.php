@@ -13,6 +13,7 @@ use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -61,15 +62,15 @@ class UserController extends BaseController
      * @Route("/admin/user/list", name="app_admin_user_list")
      * @IsGranted("ROLE_G4N")
      */
-    public function list(Request $request, PaginatorInterface $paginator, UserRepository $userRepository)
+    public function list(Request $request, PaginatorInterface $paginator, UserRepository $userRepository): Response
     {
-        $q = $request->query->get('q');
-        if ($request->query->get('search') == 'yes' && $q == '') $request->getSession()->set('q', '');
-        if ($q) $request->getSession()->set('q', $q);
+        $q = $request->query->get('qu');
+        if ($request->query->get('search') == 'yes' && $q == '') $request->getSession()->set('qu', '');
+        if ($q) $request->getSession()->set('qu', $q);
 
-        if ($q == "" && $request->getSession()->get('q') != "") {
-            $q = $request->getSession()->get('q');
-            $request->query->set('q', $q);
+        if ($q == "" && $request->getSession()->get('qu') != "") {
+            $q = $request->getSession()->get('qu');
+            $request->query->set('qu', $q);
         }
         $queryBuilder = $userRepository->getWithSearchQueryBuilder($q);
 

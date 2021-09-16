@@ -56,6 +56,7 @@ class User implements UserInterface
      * @var int
      *
      * @ORM\Column(name="level", type="integer", nullable=false, options={"default"="1"})
+     * @deprecated
      */
     private int $level = 1;
 
@@ -63,6 +64,7 @@ class User implements UserInterface
      * @var int
      *
      * @ORM\Column(name="admin", type="integer", nullable=false)
+     * @deprecated
      */
     private int $admin = 0;
 

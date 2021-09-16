@@ -60,7 +60,8 @@ class ACChartsService
         if ($res->rowCount() > 0) {
             $counter = 0;
             // add Irradiation
-            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == true){
+            //dd($anlage->getShowOnlyUpperIrr(), $anlage->getWeatherStation()->getHasLower(), $anlage->getWeatherStation());
+            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false){
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
             } else {
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
@@ -113,7 +114,7 @@ class ACChartsService
                 }
 
                 // add Irradiation
-                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == true){
+                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false){
                     $dataArray['chart'][$counter]["irradiation"] = $dataArrayIrradiation['chart'][$counter]['val1'];
                 } else {
                     $dataArray['chart'][$counter]["irradiation"] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2'])/2;
@@ -166,7 +167,7 @@ class ACChartsService
 
         // add Irradiation
         // Todo: Gewichtet Strahlung bei Ost West Anlagen.
-        if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == true){
+        if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false){
             $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
         } else {
             $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
@@ -235,7 +236,7 @@ class ACChartsService
                 ($counterInv > 0) ? $dataArray['chart'][$counter]['exp'] = $expected / $counterInv : $dataArray['chart'][$counter]['exp'] = $expected;
 
                 // add Irradiation
-                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == true){
+                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false){
                     $dataArray['chart'][$counter]["irradiation"] = $dataArrayIrradiation['chart'][$counter]['val1'];
                 } else {
                     $dataArray['chart'][$counter]["irradiation"] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2'])/2;

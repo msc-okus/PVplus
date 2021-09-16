@@ -329,9 +329,9 @@ class AnlageModules
         return $this;
     }
 
-    public function getDegradation(): ?string
+    public function getDegradation(): ?float
     {
-        return $this->degradation;
+        return (float)$this->degradation;
     }
 
     public function setDegradation(string $degradation): self
