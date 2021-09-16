@@ -54,9 +54,9 @@ class AnlageGroupModules
     }
 
 
-    public function getNumStringsPerUnit(): ?string
+    public function getNumStringsPerUnit(): ?int
     {
-        return $this->numStringsPerUnit;
+        return (int)$this->numStringsPerUnit;
     }
 
     public function setNumStringsPerUnit(string $numStringsPerUnit): self
@@ -66,9 +66,9 @@ class AnlageGroupModules
         return $this;
     }
 
-    public function getNumStringsPerUnitEast(): ?string
+    public function getNumStringsPerUnitEast(): ?int
     {
-        return $this->numStringsPerUnitEast;
+        return (int)$this->numStringsPerUnitEast;
     }
 
     public function setNumStringsPerUnitEast(?string $numStringsPerUnitEast): self
@@ -78,9 +78,9 @@ class AnlageGroupModules
         return $this;
     }
 
-    public function getNumStringsPerUnitWest(): ?string
+    public function getNumStringsPerUnitWest(): ?int
     {
-        return $this->numStringsPerUnitWest;
+        return (int)$this->numStringsPerUnitWest;
     }
 
     public function setNumStringsPerUnitWest(?string $numStringsPerUnitWest): self
@@ -90,9 +90,9 @@ class AnlageGroupModules
         return $this;
     }
 
-    public function getNumModulesPerString(): ?string
+    public function getNumModulesPerString(): ?int
     {
-        return $this->numModulesPerString;
+        return (int)$this->numModulesPerString;
     }
 
     public function setNumModulesPerString(string $numModulesPerString): self

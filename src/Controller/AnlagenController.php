@@ -10,6 +10,7 @@ use App\Repository\AnlagenRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class AnlagenController extends BaseController
@@ -19,7 +20,7 @@ class AnlagenController extends BaseController
     /**
      * @Route("/anlagen/list", name="app_anlagen_list")
      */
-    public function list(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository)
+    public function list(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository): Response
     {
         $grantedPlantList = explode(',', $this->getUser()->getGrantedList());
         $eigners = [];

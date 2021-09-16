@@ -451,10 +451,10 @@ class ChartService
         $actSum = 0;
         $expSum = 0;
         // add Irradiation
-        if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == true){
-            $dataArrayIrradiation = $this->getIrradiation($anlage, $from, $to, 'upper');
+        if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false){
+            $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
         } else {
-            $dataArrayIrradiation = $this->getIrradiation($anlage, $from, $to);
+            $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
         }
         if ($resulta->rowCount() > 0) {
             $counter = 0;
@@ -489,7 +489,7 @@ class ChartService
                     $dataArray['chart'][$counter]['InvOut'] = $dcist;
                 }
                 // add Irradiation
-                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == true){
+                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false){
                     $dataArray['chart'][$counter]["irradiation"] = $dataArrayIrradiation['chart'][$counter]['val1'];
                 } else {
                     $dataArray['chart'][$counter]["irradiation"] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2'])/2;
@@ -527,10 +527,10 @@ class ChartService
         $result = $conn->query($sqlExpected);
         $maxInverter = 0;
         // add Irradiation
-        if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == true){
-            $dataArrayIrradiation = $this->getIrradiation($anlage, $from, $to, 'upper');
+        if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false){
+            $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
         } else {
-            $dataArrayIrradiation = $this->getIrradiation($anlage, $from, $to);
+            $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
         }
         if ($result->num_rows > 0) {
             $counter = 0;
@@ -568,7 +568,7 @@ class ChartService
                     }
                 }
                 // add Irradiation
-                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == true){
+                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false){
                     $dataArray['chart'][$counter]["irradiation"] = $dataArrayIrradiation['chart'][$counter]['val1'];
                 } else {
                     $dataArray['chart'][$counter]["irradiation"] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2'])/2;
@@ -734,7 +734,7 @@ class ChartService
                 foreach ($dcGroups as $dcGroupKey => $dcGroup) {
                     if($dcGroupKey > (($set - 1) * 10) && $dcGroupKey <= ($set * 10) ) {
                         // ermittle SOLL Strom nach Gruppen für diesen Zeitraum
-                        // ACHTUNG Strom und Spannungs Werte werden im Moment (Sep2020) immer in der AC TAbelle gespeichert, auch wenn neues 'DC IST Schema' genutzt wird.
+                        // ACHTUNG Strom und Spannungswerte werden im Moment (Sep2020) immer in der AC TAbelle gespeichert, auch wenn neues 'DC IST Schema' genutzt wird.
                         if ($anlage->getUseNewDcSchema()) {
                             $sql = "SELECT sum(wr_idc) as istCurrent FROM " . $anlage->getDbNameDCIst() . " WHERE stamp = '$stampAdjust' AND wr_group = '$dcGroupKey'";
                         } else {

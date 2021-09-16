@@ -531,7 +531,7 @@ class FunctionsService
         $sumArray = [];
         if (is_array($array)) {
             foreach ($array as $stamp => $irr) {
-                if(is_array($irr) || is_object(($irr))) {
+                if(is_array($irr) || is_object($irr)) {
                     foreach ($irr as $key => $value) {
                         if (is_float($value) || is_integer($value)) {
                             if (isset($sumArray[$key])) {

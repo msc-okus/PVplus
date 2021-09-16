@@ -27,7 +27,7 @@ class ExportService
         $this->availabilityRepo = $availabilityRepo;
     }
 
-    public function gewichtetTagesstrahlung(Anlage $anlage, DateTime $from = null, DateTime $to = null):string
+    public function gewichtetTagesstrahlung(Anlage $anlage, DateTime $from, DateTime $to):string
     {
         $help = '<tr><th></th>';
         $output = "<b>" . $anlage->getAnlName() . "</b><br>";
@@ -36,11 +36,9 @@ class ExportService
             $output .= "<th>" . $groupAC->getAcGroupName() . "</th><th></th><th></th>";
             $help   .= "<th><small>Irr [kWh/qm]</small></th><th></th><th><small>gewichtete TheoPower mit TempCorr [kWh]</small></th>";
         }
-        $output .= "<td>Verfügbarkeit</td><td>gewichtete Strahlung</td><td>gewichtete TheoPower ohne TempCorr</td><td>gewichtete TheoPower mit TempCorr</td></tr>";
+        $output .= "<td>Verfügbarkeit</td><td>gewichtete Strahlung</td><td>gewichtete TheoPower mit TempCorr</td></tr>";
         $help   .= "<td>[%]</td><td>[kWh/qm]</td><td>[kWh]</td><td></td></tr>";
         $output .= $help . "</thead><tbody>";
-        if ($from === null) $from = date_create('2021-05-27');
-        if ($to === null)   $to   = date_create('2021-06-09');
 
         /** @var AnlageAcGroups $groupAC */
         /** @var DateTime $from */
@@ -69,10 +67,7 @@ class ExportService
                 // TheoPower gewichtet berechnen
                 $output .= "<td><small>" . round($weather['upperIrr'] / 1000 / 4,2) . "</small></td><td><small>" . round($weather['lowerIrr'] / 1000 / 4,2) . "</small></td><td><small>".round($acPower['powerTheo'],2)."</small></td>";
 
-                // Temepratur Correction pro Tag berechnen
-                #$tempCorrection = $this->functions->tempCorrection( $anlage, $groupAC->getTCellAvg(), $weather['windSpeed'], $weather['airTemp'] , $irradiation / $weather['anzahl']);
                 // Aufsummieren der gewichteten Werte zum gesamt Wert
-                #$gewichteteTheoPower    += $groupAC->getGewichtungAnlagenPR() * $anlage->getKwPeak() * $irradiation * $tempCorrection;
                 $gewichteteTheoPower    += $acPower['powerTheo'];
                 $gewichteteStrahlung    += $groupAC->getGewichtungAnlagenPR() * $irradiation;
                 $availability            = $this->availabilityRepo->sumAvailabilityPerDay($anlage->getAnlId(), date('Y-m-d', $stamp));
