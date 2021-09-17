@@ -12,6 +12,7 @@ use App\Service\AvailabilityService;
 use App\Service\ChartService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class DashboardPlantsController extends BaseController
@@ -21,7 +22,7 @@ class DashboardPlantsController extends BaseController
     /**
      * @Route("/dashboard/plants/{eignerId}/{anlageId}", name="app_dashboard_plant")
      */
-    public function index($eignerId, $anlageId, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService, EntityManagerInterface $entityManager, AvailabilityService $availabilityService)
+    public function index($eignerId, $anlageId, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService, EntityManagerInterface $entityManager, AvailabilityService $availabilityService): Response
     {
         $form = [];
         /** @var Anlage|null $aktAnlage */
@@ -76,18 +77,17 @@ class DashboardPlantsController extends BaseController
             $form['optionDate'] = $request->request->get('optionDate');
             $form['backFromMonth'] = false;
 
-            if($form['optionDate'] == 100000){
+            if ($form['optionDate'] == 100000){
                 $_SESSION['currentMonth'] = true;
                 $_SESSION['lastFormFrom'] = date("Y-m-d 00:00", strtotime($request->request->get('to')) - (86400 * ($_SESSION['optionDate'] - 1)));
                 $_SESSION['lastFormTo'] = date("Y-m-d 23:59", strtotime(date("Y-m-d", strtotime($request->request->get('to')))));
                 $daysInMonth = cal_days_in_month(CAL_GREGORIAN, date("m", strtotime($request->request->get('to'))), date("Y", strtotime($request->request->get('to'))));
                 $form['to'] = date("Y-m-d 23:59", strtotime(date("Y-m", strtotime($request->request->get('to'))).'-'.$daysInMonth));
-            }else{
-                if($_SESSION['currentMonth']){
-                    #dd($_SESSION['lastFormFrom']);
+            } else {
+                if (isset($_SESSION['currentMonth']) && $_SESSION['currentMonth'] === true) {
                     $form['backFromMonth'] = true;
                     $form['to'] =  $_SESSION['lastFormTo'];
-                }else{
+                } else {
                     $form['to'] =  $request->request->get('to');
                 }
 
@@ -95,28 +95,24 @@ class DashboardPlantsController extends BaseController
 
 
             if ( strlen($form['to']) <= 10 ) {$form['to'] = $form['to'] . " 23:59"; } // ergänze um Uhrzeit
-            if($form['selectedChart'] == 'pr_and_av'    && $form['optionDate'] < 7) { $form['optionDate'] =  '7'; }
-            if($form['selectedChart'] == 'availability' && $form['optionDate'] > 1) { $form['optionDate'] =  '1'; }
+            if ($form['selectedChart'] == 'pr_and_av'    && $form['optionDate'] < 7) { $form['optionDate'] =  '7'; }
+            if ($form['selectedChart'] == 'availability' && $form['optionDate'] > 1) { $form['optionDate'] =  '1'; }
 
-            if($form['optionDate'] == 100000){
-                #dd(date("Y-m-d 00:00", strtotime($request->request->get('to')) - (86400 * (1 - 1))));
+            if ($form['optionDate'] == 100000) {
                 $form['from'] = date("Y-m-d 00:00", strtotime(date("Y-m", strtotime($request->request->get('to')))));
-            }else{
-                if($form['backFromMonth']){
-                    #dd('gdfgdfgdf');
+            } else {
+                if ($form['backFromMonth']) {
                     $form['from'] =  $_SESSION['lastFormFrom'];
                     $_SESSION['currentMonth'] = false;
                     $form['backFromMonth'] = false;
-                }else{
+                } else {
 
                     $form['from'] = date("Y-m-d 00:00", strtotime($request->request->get('to')) - (86400 * ($form['optionDate'] - 1)));
                 }
-
             }
         }
 
         $_SESSION['optionDate'] = $form['optionDate'];
-
         $content = null;
         if ($aktAnlage) $content = $chartService->getGraphsAndControl($form, $aktAnlage);
         $isInTimeRange = self::isInTimeRange();

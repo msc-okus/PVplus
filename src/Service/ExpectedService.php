@@ -167,7 +167,7 @@ class ExpectedService
                     $originalExpPower = $expPowerDc;
                     // Verluste auf der DC Seite brechnen
                     // Schattenverluste + Kabel Verluste + Sicherheitsverlust
-                    $loss           = $shadow_loss + $group->getCabelLoss() + $group->getSecureLoss();
+                    $loss           = $shadow_loss + $group->getCabelLoss() + 15;//$group->getSecureLoss();
                     // Verhindert 'diff by zero'
                     if ($loss <> 0) {
                         $expPowerDc = $expPowerDc - ($expPowerDc / 100 * $loss);

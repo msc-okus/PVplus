@@ -346,11 +346,21 @@
 {%- block checkbox_row -%}
     {%- set parent_class = parent_class|default(attr.class|default('')) -%}
     {%- if 'switch-input' in parent_class -%}
-        {{- form_label(form) -}}
-        {%- set attr = attr|merge({class: (attr.class|default('') ~ ' switch-input')|trim}) -%}
-        {{- form_widget(form) -}}
-        <label class="switch-paddle" for="{{ form.vars.id }}"></label>
-        {{- form_errors(form) -}}
+        <div class="switch small">
+            {{- form_label(form) -}}
+            {% if form.vars.value == 1 %}
+                {% set checked = 'checked' %}
+            {% else  %}
+                {% set checked = '' %}
+            {% endif %}
+            <input type="checkbox" class="switch-input" id="{{ form.vars.id }}" {{ checked }}>
+            {%- set attr = attr|merge({class: (attr.class|default('') ~ ' switch-input')|trim}) -%}
+            <label class="switch-paddle" for="{{ form.vars.id }}">
+                <span class="switch-active" aria-hidden="true">Yes</span>
+                <span class="switch-inactive" aria-hidden="true">No</span>
+            </label>
+            {{- form_errors(form) -}}
+        </div>
     {%- else -%}
         {{- block('form_row') -}}
     {%- endif -%}
