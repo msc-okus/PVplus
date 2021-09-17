@@ -222,7 +222,7 @@ trait G4NTrait
     {
         $country = strtoupper($anlage->getCountry());
 
-        $offset = Timezones::getRawOffset(self::get_nearest_timezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), $country));
+        $offset = Timezones::getRawOffset(self::getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), $country));
         $offset = $offset - 7200;
 
         $of = $offset / 3600;
@@ -243,8 +243,15 @@ trait G4NTrait
         return $result;
     }
 
-    //as the name of the function describs, get the plants nearest timezone
-    public function get_nearest_timezone($cur_lat, $cur_long, $country_code = '')
+    /**
+     * as the name of the function describs, get the plants nearest timezone
+     * 
+     * @param $cur_lat
+     * @param $cur_long
+     * @param string $country_code
+     * @return string
+     */
+    public function getNearestTimezone($cur_lat, $cur_long, $country_code = ''): string
     {
         $timezone_ids = ($country_code) ? DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $country_code)
             : DateTimeZone::listIdentifiers();
@@ -318,6 +325,7 @@ trait G4NTrait
 
         return $month;
     }
+   
     /**
      * @param array $content
      * @return string
@@ -355,4 +363,23 @@ trait G4NTrait
         return $_html;
 
     }
+
+    /**
+     * Ermittelt aus dem übergebenen ARray den Mittelwert, wobei 0 Werte nicht in die Berechnung einfließen
+     *
+     * @param array $werte
+     * @return float
+     */
+    public function mittelwert(array $werte): float
+    {
+        $divisor = $divident = 0;
+        foreach ($werte as $wert) {
+            if ((float)$wert > 0) {
+                $divisor++;
+                $divident += (float)$wert;
+            }
+        }
+        return ($divisor > 0) ? $divident / $divisor : 0;
+    }
+
 }
