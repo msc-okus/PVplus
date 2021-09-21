@@ -12,6 +12,17 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\NumericFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
+use App\Repository\ReportsRepository;
+
+use Gedmo\Blameable\Traits\BlameableEntity;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
+use ApiPlatform\Core\Annotation\ApiResource;
+
 
 /**
  * DbAnlage
@@ -19,6 +30,16 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(name="anlage")
  * @ORM\Entity(repositoryClass="App\Repository\AnlagenRepository")
  * @ORM\HasLifecycleCallbacks()
+ * @ApiResource(
+ *     shortName="anlage",
+ *     normalizationContext={"groups"={"main:read"}},
+ *     denormalizationContext={"groups"={"main:write"}},
+ *     attributes={
+ *          "formats"={"jsonld", "json", "html", "csv"={"text/csv"}}
+ *     }
+ * )
+
+ * @ApiFilter(SearchFilter::class, properties={"anlName": "partial"})
  */
 class Anlage
 {
@@ -70,7 +91,7 @@ class Anlage
      * @var string
      *
      * @ORM\Column(name="anl_name", type="string", length=50, nullable=false)
-     * @Groups({"main"})
+     * @Groups({"main:read"})
      */
     private string $anlName;
 

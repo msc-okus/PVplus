@@ -237,21 +237,6 @@ class AnlagenRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param string|null $query
-     * @return array
-     */
-    public function findAllMatching(string $query, int $limit = 10)
-    {
-        return $this->createQueryBuilder('a')
-            ->andWhere('a.anlName LIKE :query')
-            ->setParameter('query', '%'.$query.'%')
-            ->setMaxResults($limit)
-            ->getQuery()
-            ->getResult();
-    }
-
-
-    /**
      * @param string|null $term
      * @return QueryBuilder
      */

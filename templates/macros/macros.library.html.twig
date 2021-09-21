@@ -2,7 +2,42 @@
 {% macro searchbox(request, name) %}
     <form>
         <div class="input-group">
-            <input type="text" name="{{ name }}" class="input-group-field" data-autocomplete-url="/reporting/anlagen/find" value="{{ request }}" placeholder="Search...">
+            <input type="text" name="{{ name }}" class="input-group-field" value="{{ request }}" placeholder="Search..."><br>
+           <div>
+               <select name="searchstatus">
+                   <option value="">Status</option>
+                   <option value="0">final</option>
+                   <option value="5">proof reading</option>
+                   <option value="9">archive (g4n only)</option>
+                   <option value="10">draft (g4n only)</option>
+                   <option value="11">wrong (g4n only)</option>
+               </select>
+           </div>
+            <div>
+                <select name="searchtype">
+                    <option value="">Type</option>
+                    <option value="monthly-report">monthly</option>
+                    <option value="epc-report">epc</option>
+                    <option value="am-report">am</option>
+                </select>
+            </div>
+            <div>
+                <select name="searchmonth">
+                    <option value="" disabled selected hidden>Month </option>
+                    <option value="1">01</option>
+                    <option value="2">02</option>
+                    <option value="3">03</option>
+                    <option value="4" >04</option>
+                    <option value="5">05</option>
+                    <option value="6" >06</option>
+                    <option value="7">07</option>
+                    <option value="8">08</option>
+                    <option value="9">09</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                </select>
+            </div>
             <div class="input-group-button">
                 <button name="search" type="submit" class="button" value="yes"><span class="fa fa-search"></span></button>
             </div>

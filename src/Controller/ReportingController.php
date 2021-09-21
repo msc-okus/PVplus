@@ -34,8 +34,14 @@ class ReportingController extends AbstractController
     public function list(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo, ReportService $report, ReportEpcService $epcReport): Response
     {
         $q = $request->query->get('qr');
+        $searchstatus = $request->query->get('searchstatus');
+        $searchtype = $request->query->get('searchtype');
+        $searchmonth = $request->query->get('searchmonth');
         if ($request->query->get('search') == 'yes' && $q == '') $request->getSession()->set('qr', '');
         if ($q) $request->getSession()->set('qr', $q);
+        if ($searchstatus) $request->getSession()->set('searchstatus', $searchstatus);
+        if ($searchtype) $request->getSession()->set('searchtype', $searchtype);
+        if ($searchmonth) $request->getSession()->set('searchmonth', $searchmonth);
 
         if ($q == "" && $request->getSession()->get('qr') != "") {
             $q = $request->getSession()->get('qr');
@@ -66,7 +72,7 @@ class ReportingController extends AbstractController
             $request->query->set('anlage-id', $anlageId);
         }
 
-        $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($q);
+        $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($q,$searchstatus,$searchtype,$searchmonth);
 
         $pagination = $paginator->paginate(
             $queryBuilder,                                    /* query NOT result */
