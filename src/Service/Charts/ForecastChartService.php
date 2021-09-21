@@ -109,14 +109,25 @@ class ForecastChartService
 
         $conn = self::getPdoConnection();
         $currentYear = date('Y', strtotime($to));
-        $sql = "SELECT (dayofyear(stamp)-mod(dayofyear(stamp),7))+1 AS startDayWeek, sum(e_z_evu) AS sumEvu  
-                FROM ".$anlage->getDbNameAcIst()." 
+        if ($anlage->getShowEvuDiag()) {
+            $sql = "SELECT (dayofyear(stamp)-mod(dayofyear(stamp),7))+1 AS startDayWeek, sum(e_z_evu) AS sumEvu, sum(wr_pac) as sumInvOut  
+                FROM " . $anlage->getDbNameAcIst() . " 
                 WHERE year(stamp) = '$currentYear' AND unit = 1 GROUP BY (dayofyear(stamp)-mod(dayofyear(stamp),7)) 
                 ORDER BY stamp;";
+        } else {
+            $sql = "SELECT (dayofyear(stamp)-mod(dayofyear(stamp),7))+1 AS startDayWeek, sum(e_z_evu) AS sumEvu, sum(wr_pac) as sumInvOut  
+                FROM " . $anlage->getDbNameAcIst() . " 
+                WHERE year(stamp) = '$currentYear' GROUP BY (dayofyear(stamp)-mod(dayofyear(stamp),7)) 
+                ORDER BY stamp;";
+        }
         $result = $conn->prepare($sql);
         $result->execute();
         foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value){
-            if ($value['startDayWeek'] < date('z', strtotime($to))) $actPerWeek[$value['startDayWeek']] = $value['sumEvu'];
+            if ($anlage->getShowEvuDiag()) {
+                if ($value['startDayWeek'] < date('z', strtotime($to))) $actPerWeek[$value['startDayWeek']] = $value['sumEvu'];
+            } else {
+                if ($value['startDayWeek'] < date('z', strtotime($to))) $actPerWeek[$value['startDayWeek']] = $value['sumInvOut'];
+            }
         }
         $conn = null;
 

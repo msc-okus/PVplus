@@ -451,19 +451,21 @@ class ReportService
             $powerYear += $pvSystYearValue->getErtragDesign();
         }
         /** @var AnlagenPvSystMonth[] $pvSystPac */
-        $pvSystPac = $this->pvSystMonthRepo->findAllPac($anlage, (int)$month);
-        $anzRecordspvSystPac = count($pvSystPac);
-        foreach ($pvSystPac as $pvSystPacValue) {
-            // Wenn Anzahl Monate kleiner 12 dann muss der erste Moanat nur anteilig berechnet werden.
-            // Wenn 12 oder mehr dann kann der ganze Moant addiert werden
-            // und das nur beim ersten PAC Monat
-            if ((int)$anlage->getPacDate()->format('m') == $pvSystPacValue->getMonth() && $anzRecordspvSystPac < 12) {
-                $dayPac = (int)$anlage->getPacDate()->format('d');
-                $daysInMonthPac = (int)$anlage->getPacDate()->format('t');
-                $days = $daysInMonthPac - $dayPac + 1;
-                $powerPac += $pvSystPacValue->getErtragDesign() / $daysInMonthPac * $days;
-            } else {
-                $powerPac += $pvSystPacValue->getErtragDesign();
+        if ($anlage->getUsePac()) {
+            $pvSystPac = $this->pvSystMonthRepo->findAllPac($anlage, (int)$month);
+            $anzRecordspvSystPac = count($pvSystPac);
+            foreach ($pvSystPac as $pvSystPacValue) {
+                // Wenn Anzahl Monate kleiner 12 dann muss der erste Moanat nur anteilig berechnet werden.
+                // Wenn 12 oder mehr dann kann der ganze Moant addiert werden
+                // und das nur beim ersten PAC Monat
+                if ((int)$anlage->getPacDate()->format('m') == $pvSystPacValue->getMonth() && $anzRecordspvSystPac < 12) {
+                    $dayPac = (int)$anlage->getPacDate()->format('d');
+                    $daysInMonthPac = (int)$anlage->getPacDate()->format('t');
+                    $days = $daysInMonthPac - $dayPac + 1;
+                    $powerPac += $pvSystPacValue->getErtragDesign() / $daysInMonthPac * $days;
+                } else {
+                    $powerPac += $pvSystPacValue->getErtragDesign();
+                }
             }
         }
 

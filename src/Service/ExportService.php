@@ -90,7 +90,7 @@ class ExportService
         $export = [];
         $fromSql    = $from->format('Y-m-d 00:00');
         $toSql      = $to->format('Y-m-d 23:59');
-        $nameArray  = $this->functions->getInverterNameArray($anlage);
+        $nameArray  = $this->functions->getNameArray($anlage);
         $startDay   = strtotime($from->format('Y-m-d 00:00'));
         $endDay     = strtotime($to->format('Y-m-d 23:59'));
 
@@ -144,7 +144,7 @@ class ExportService
         $export = [];
         $fromSql    = $from->format('Y-m-d 00:00');
         $toSql      = $to->format('Y-m-d 23:59');
-        $nameArray  = $this->functions->getInverterNameArray($anlage);
+        $nameArray  = $this->functions->getNameArray($anlage);
         $startDay   = strtotime($from->format('Y-m-d 00:00'));
         $endDay     = strtotime($to->format('Y-m-d 23:59'));
 
@@ -175,7 +175,7 @@ class ExportService
         $output = '';
         $fromSql = $from->format('Y-m-d 00:00');
         $toSql = $to->format('Y-m-d 23:59');
-        $nameArray = $this->functions->getInverterNameArray($anlage);
+        $nameArray = $this->functions->getNameArray($anlage);
 
         $groups = $anlage->getGroups();
         $i = 1;
