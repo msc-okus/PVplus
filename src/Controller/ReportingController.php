@@ -47,6 +47,19 @@ class ReportingController extends AbstractController
             $q = $request->getSession()->get('qr');
             $request->query->set('qr', $q);
         }
+        if ($searchstatus == "" && $request->getSession()->get('$searchstatus') != "") {
+            $searchstatus = $request->getSession()->get('searchstatus');
+            $request->query->set('searchstatus', $searchstatus);
+        }
+        if ($searchtype == "" && $request->getSession()->get('searchtype') != "") {
+            $searchtype = $request->getSession()->get('searchtype');
+            $request->query->set('searchtype', $searchtype);
+        }
+        if ($searchmonth == "" && $request->getSession()->get('searchmonth') != "") {
+            #$searchmonth = $request->getSession()->get('searchmonth');
+            $request->query->set('searchmonth', $searchmonth);
+        }
+
 
         $anlagen = $anlagenRepo->findAll();
         if($request->query->get('new-report') === 'yes') {
