@@ -134,11 +134,12 @@
                                         </li>
                                         <li>3: Fall 'Groningen' <br>
                                             AC Gruppen = Inverter<br>
-                                            DC Gruppen = SCBs
+                                            DC Gruppen = SCB Gruppen
                                         </li>
-                                        <li>4: Fall 'Guben' <br>
+                                        <li>4: Fall '??' <br>
                                             AC Gruppen = Inverter<br>
                                             DC Gruppen = SCB Gruppen
+                                            DC Gruppen = SCBs
                                         </li>
                                     </ul>
                                 </small>
@@ -420,13 +421,16 @@
             {{ form_widget(anlageForm.save) }}
             {{ form_widget(anlageForm.saveclose) }}
             {{ form_widget(anlageForm.close) }}
-            {% if (is_granted('ROLE_DEV')) %}{{ form_widget(anlageForm.savecreatedb) }}{% endif %}
+            {% if (is_granted('ROLE_DEV')) %}
+                {{ form_widget(anlageForm.savecreatedb) }}
+            {% endif %}
         </div>
     </div>
     {% do anlageForm.modules.setRendered() %}
     {% do anlageForm.savecreatedb.setRendered() %}
     {% do anlageForm.timesConfigs.setRendered() %}
+    {% do anlageForm.anlInputDaily.setRendered() %}
+    {% do anlageForm.useNewDcSchema.setRendered() %}
+    {% do anlageForm.configType.setRendered() %}
+    {% do anlageForm.sourceInvName.setRendered() %}
 {{ form_end(anlageForm) }}
-
-
-

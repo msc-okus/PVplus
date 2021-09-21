@@ -192,7 +192,7 @@ class AvailabilityService
                     $stamp = $einstrahlung['stamp'];
                     //TODO: Erweiterung auf Gruppen ebene (Bavelse Berg) und gewichtung nach Anlagengröße - Nutzung der Funktion 'calcIrr()'
                     if ($anlage->getIsOstWestAnlage()) {
-                        $strahlung = ($einstrahlung['g_upper'] + $einstrahlung['g_lower']) / 2;
+                        $strahlung = self::mittelwert([$einstrahlung['g_upper'], $einstrahlung['g_lower']]);
                     } else {
                         $strahlung = $einstrahlung['g_upper'];
                     }
