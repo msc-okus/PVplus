@@ -8,11 +8,17 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+
 /**
  * DbAnlage
  *
  * @ORM\Table(name="anlage")
  * @ORM\Entity(repositoryClass="App\Repository\AnlagenRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class Anlage
 {
@@ -24,6 +30,7 @@ class Anlage
      * @ORM\Column(name="id", type="bigint", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Groups({"main"})
      */
     private int $anlId;
 
@@ -31,6 +38,7 @@ class Anlage
      * @var string
      *
      * @ORM\Column(name="eigner_id", type="bigint", nullable=false)
+     * @Groups({"main"})
      */
     private string $eignerId;
 
@@ -38,6 +46,7 @@ class Anlage
      * @var string
      *
      * @ORM\Column(name="anl_type", type="string", length=25, nullable=false)
+     * @Groups({"main"})
      */
     private string $anlType;
 
@@ -53,6 +62,7 @@ class Anlage
      * @var DateTime
      *
      * @ORM\Column(name="anl_betrieb", type="date", nullable=false)
+     * Groups({"main"})
      */
     private DateTime $anlBetrieb;
 
@@ -60,6 +70,7 @@ class Anlage
      * @var string
      *
      * @ORM\Column(name="anl_name", type="string", length=50, nullable=false)
+     * @Groups({"main"})
      */
     private string $anlName;
 
@@ -67,6 +78,7 @@ class Anlage
      * @var string
      *
      * @ORM\Column(name="anl_strasse", type="string", length=100, nullable=false)
+     * Groups({"main"})
      */
     private string $anlStrasse;
 
@@ -74,6 +86,7 @@ class Anlage
      * @var string
      *
      * @ORM\Column(name="anl_plz", type="string", length=10, nullable=false)
+     * @Groups({"main"})
      */
     private string $anlPlz;
 
@@ -81,6 +94,7 @@ class Anlage
      * @var string
      *
      * @ORM\Column(name="anl_ort", type="string", length=100, nullable=false)
+     * @Groups({"main"})
      */
     private string $anlOrt;
 
@@ -88,6 +102,7 @@ class Anlage
      * @var string
      *
      * @ORM\Column(name="anl_intnr", type="string", length=50, nullable=false)
+     * @Groups({"main"})
      */
     private string $anlIntnr;
 
@@ -95,6 +110,7 @@ class Anlage
      * @var string
      *
      * @ORM\Column(type="string", length=20)
+     * @Groups({"main"})
      */
     private string $power = '0';
 

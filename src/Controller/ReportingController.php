@@ -84,6 +84,17 @@ class ReportingController extends AbstractController
     }
 
     /**
+     * @Route("/reporting/anlagen/find", name="app_admin_reports_find", methods="GET")
+     */
+    public function find(AnlagenRepository $anlagenRepository, Request $request)
+    {
+        $anlage = $anlagenRepository->findAllMatching($request->query->get('query'));
+        return $this->json([
+            'anlagen' => $anlage
+        ], 200, [], ['groups' => ['main']]);
+    }
+
+    /**
      * @Route("/reporting/edit/{id}", name="app_reporting_edit")
      */
     public function edit($id, ReportsRepository $reportsRepository, Request $request, Security $security, EntityManagerInterface $em): Response
