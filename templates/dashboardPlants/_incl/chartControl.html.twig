@@ -1,4 +1,4 @@
-{% from "dashboardPlants/_incl/macrosMenuSelectBox.html.twig" import acActOverview, acActGroup, dcActGroup, dcGroupPowerDiff, irradiation, inverterPerformance, currentDcOverview, currentDcInverter %}
+{% from "dashboardPlants/_incl/macrosMenuSelectBox.html.twig" import acActOverview, acActGroup, dcActGroup, dcGroupPowerDiff, irradiation, inverterPerformance, currentDcOverview, currentDcInverter, currentDcGroup, dcActPlant, dcActOverview %}
 
 <div class="grid-x grid-margin-x">
     <input type="hidden" name="eide" value="{{ aktAnlage.eignerId }}">
@@ -21,33 +21,42 @@
             {% if is_granted('ROLE_DEV') %}<option value="reactive_power" {% if form.selectedChart == 'reactive_power' %}selected{% endif %}>Reactive Power </option>{% endif %}
 
             /* ab hier DC */
-            {% if is_granted('ROLE_DEV') %}<option value="dc_single" {% if form.selectedChart == 'dc_single' %}selected{% endif %}>DC - Actual & Expected, Plant</option>{% endif %}
+            {{ dcActPlant(form, aktAnlage) }}
+            {{ dcActOverview(form, aktAnlage) }}
             {{ dcActGroup(form, aktAnlage) }}
             {{ dcGroupPowerDiff(form, aktAnlage) }}
 
             /* ab hier Current DC */
             {{ currentDcOverview(form, aktAnlage) }}
+            {{ currentDcGroup(form, aktAnlage) }}
             {{ currentDcInverter(form, aktAnlage) }}
-            {# {% if aktAnlage.showGraphDcCurrGrp or is_granted('ROLE_ADMIN') %}<option value="dc_current_group" {% if form.selectedChart == 'dc_current_group' %}selected{% endif %}>DC - Current, Group </option>{% endif %} #}
             {% if aktAnlage.showStringCharts or is_granted('ROLE_ADMIN') %}<option value="dc_current_mpp" {% if form.selectedChart == 'dc_current_mpp' %}selected{% endif %}>DC - Current, String </option>{% endif %}
 
             /* ab hier Voltage DC */
+            {#
             {% if aktAnlage.showGraphVoltGrp or is_granted('ROLE_ADMIN') %}<option value="dc_voltage_groups" {% if form.selectedChart == 'dc_voltage_groups' %}selected{% endif %}>DC - Voltage, Groups</option>{% endif %}
             {% if aktAnlage.showStringCharts or is_granted('ROLE_ADMIN') %}<option value="dc_voltage_mpp" {% if form.selectedChart == 'dc_voltage_mpp' %}selected{% endif %}>DC - Voltage, String</option>{% endif %}
+            #}
 
             /* diverses */
             {{ inverterPerformance(form, aktAnlage) }}
             {{ irradiation(form, aktAnlage) }}
             <option value="temp" {% if form.selectedChart == 'temp' %}selected{% endif %}>Temperature</option>
-            {% if is_granted('ROLE_ADMIN') %}<option value="status_log" {% if form.selectedChart == 'status_log' %}selected{% endif %}>Show status log</option>{% endif %}
-            {% if aktAnlage.showPvSyst or is_granted('ROLE_ADMIN') %}<option value="pvsyst" {% if form.selectedChart == 'pvsyst' %}selected{% endif %}>Show pvSyst</option>{% endif %}
+
+            /* Developer and G4N Stuff */
+            {% if is_granted('ROLE_ADMIN') %}
+                <option value="status_log" {% if form.selectedChart == 'status_log' %}selected{% endif %}>Show status log</option>
+            {% endif %}
+            {% if aktAnlage.showPvSyst or is_granted('ROLE_DEV') %}
+                <option value="pvsyst" {% if form.selectedChart == 'pvsyst' %}selected{% endif %}>Show pvSyst</option>
+            {% endif %}
         </select>
     </div>
     <div class="cell medium-6 large-4 xlarge-3">
-        {% if form.selectedChart == 'dc_inv_power_diff' or form.selectedChart == 'inverter_performance' or form.selectedChart == 'dc_current_inverter' or form.selectedChart == 'ac_act_group' or form.selectedChart == 'ac_act_voltage' or form.selectedChart == 'ac_act_current' or form.selectedChart == 'ac_act_frequency' or form.selectedChart == 'dc_act_group' %}
+        {% if form.selectedChart == 'dc_inv_power_diff' or form.selectedChart == 'inverter_performance' or form.selectedChart == 'dc_current_inverter' or form.selectedChart == 'ac_act_group' or form.selectedChart == 'ac_act_voltage' or form.selectedChart == 'ac_act_current' or form.selectedChart == 'ac_act_frequency' or form.selectedChart == 'dc_act_group' or form.selectedChart == 'dc_current_overview' %}
             <select class="form-control submit-onchange" title="Select a Group" data-toggle="tooltip" name="selectedGroup">
-                {% if form.selectedChart starts with 'ac' %}
-                    {% for group in aktAnlage.acGroups %}
+                {% if form.selectedChart starts with 'ac' or form.selectedChart == 'dc_current_overview' %}
+                    {% for group in aktAnlage.acGroups%}
                         <option value="{{ loop.index }}" {% if form.selectedGroup == loop.index %}selected{% endif %}>{{ group.acGroupName }}</option>
                     {% endfor %}
                 {% else %}

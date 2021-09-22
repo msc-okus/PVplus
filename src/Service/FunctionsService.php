@@ -823,6 +823,7 @@ class FunctionsService
                 }
                 break;
             case 3: // Groningen
+            case 4: // Guben, Forst
                 foreach ($this->acGroupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
                     $nameArray['ac'][$inverter->getAcGroup()] = trim($inverter->getAcGroupName(), $trimChar); // trim zum Entfernen event vorhandender Steuerzeichen
                 }
@@ -832,8 +833,6 @@ class FunctionsService
                 foreach ($this->inverterRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
                     $nameArray['scb'][$inverter->getInvNr()] = trim($inverter->getInverterName(), $trimChar); // trim zum Entfernen event vorhandender Steuerzeichen
                 }
-                break;
-            case 4: // Guben
                 break;
 
         }

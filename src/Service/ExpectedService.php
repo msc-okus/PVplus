@@ -102,11 +102,12 @@ class ExpectedService
             // Wetterstation auswählen, von der die Daten kommen sollen
             /* @var WeatherStation $currentWeatherStation */
             ($group->getWeatherStation()) ? $currentWeatherStation = $group->getWeatherStation() : $currentWeatherStation = $anlage->getWeatherStation();
-            for($unit = $group->getUnitFirst(); $unit <= $group->getUnitLast(); $unit++) {
+            for ($unit = $group->getUnitFirst(); $unit <= $group->getUnitLast(); $unit++) {
                 foreach($weatherArray[$currentWeatherStation->getDatabaseIdent()] as $weather) {
 
                     $stamp      = $weather["stamp"];
                     $pannelTemp = $weather["panel_temp"];   // Pannel Temperatur
+                    //$ambTemp    = $weather[""];
                     $irrUpper   = $weather["irr_upper"];    // Strahlung an obern Sensor
                     $irrLower   = $weather["irr_lower"];    // Strahlung an unterem Sensor
 

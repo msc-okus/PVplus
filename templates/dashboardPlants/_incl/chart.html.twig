@@ -475,10 +475,10 @@
                 // Create series Actual
                 let series = new am4charts.LineSeries();
                 {% if (content.offsetLegende) %}
-                let newSeriesId = seriesId + {{ content.offsetLegende }};
-                series.name = "{{ content.seriesx.name }}" + newSeriesId ;
+                    let newSeriesId = seriesId + {{ content.offsetLegende }};
+                    series.name = "{{ content.seriesx.name }}" + newSeriesId ;
                 {% else %}
-                series.name = "{{ content.seriesx.name }}" + seriesId;
+                    series.name = "{{ content.seriesx.name }}" + seriesId;
                 {% endif %}
                 series.dataFields.dateX = "date";
                 series.dataFields.valueY = "val" + seriesId;
@@ -511,7 +511,7 @@
         am4core.ready(function() {
             // Create chart instance
             {% if form.optionDate < 14 %}
-            am4core.useTheme(am4themes_animated);
+                am4core.useTheme(am4themes_animated);
             {% endif %}
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
 
@@ -552,10 +552,10 @@
                 // Create series Actual
                 let series = new am4charts.LineSeries();
                 {% if (content.offsetLegende) %}
-                let newSeriesId = seriesId + {{ content.offsetLegende }};
-                series.name = "{{ content.seriesx.name }}" + newSeriesId ;
+                    let newSeriesId = seriesId + {{ content.offsetLegende }};
+                    series.name = "{{ content.seriesx.name }}" + newSeriesId ;
                 {% else %}
-                series.name = "{{ content.seriesx.name }}" + seriesId;
+                    series.name = "{{ content.seriesx.name }}" + seriesId;
                 {% endif %}
                 series.dataFields.dateX = "date";
                 series.dataFields.valueY = "val" + seriesId;
@@ -611,8 +611,22 @@
             let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
 
             // Create series
+            // Create series
+            //Expected
+            let seriesE = chart.series.push(new am4charts.LineSeries());
+            seriesE.name = "Expected DC"
+            seriesE.dataFields.dateX = "date";
+            seriesE.dataFields.valueY = "expected";
+            //seriesE.dataFields.openValueY = "expgood";
+            seriesE.tooltipText = "Expected DC [kWh]: {valueY} [/]";
+            seriesE.stroke = am4core.color("#fdd400");
+            //seriesE.fill = am4core.color("#fdd400");
+            seriesE.strokeWidth = 1;
+            //seriesE.fillOpacity = 0.3;
+            //seriesE.defaultState.transitionDuration = 300;
+            seriesE.tensionX = 0.8;
+
             let units = JSON.parse('{{ content.inverterArray | raw  }}');
-            {% dump(content.inverterArray) %}
             function addSeries(seriesId) {
 
                 // Create series Actual
@@ -630,7 +644,7 @@
             }
 
             for (let i = 1; i <= {{ content.maxSeries }}; i++) {
-                addSeries();
+                addSeries(i);
             }
 
             chart.cursor = new am4charts.XYCursor();

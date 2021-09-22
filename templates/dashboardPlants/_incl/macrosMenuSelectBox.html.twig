@@ -1,4 +1,15 @@
 {# AC Power Diagramme #}
+
+{% macro acActOverview(form, aktAnlage) %}
+    {% if is_granted('ROLE_ADMIN') %}
+        {% if aktAnlage.configType == 1 %}
+            <option value="ac_act_overview" {% if form.selectedChart == 'ac_act_overview' %}selected{% endif %}>
+                AC - Actual & Expected, Overview
+            </option>
+        {% endif %}
+    {% endif %}
+{% endmacro %}
+
 {% macro acActGroup(form, aktAnlage) %}
     <option value="ac_act_group" {% if form.selectedChart == 'ac_act_group' %}selected{% endif %}>
         {% if aktAnlage.configType == 1 %}
@@ -7,23 +18,32 @@
             AC - Actual & Expected, Inverters
         {% elseif aktAnlage.configType == 3 %}
             AC - Actual & Expected, Inverters
-        {% else %}
-            AC - Actual & Expected, Groups
+        {% elseif aktAnlage.configType == 4 %}
+            AC - Actual & Expected, Inverters
         {% endif %}
     </option>
 {% endmacro %}
 
-{% macro acActOverview(form, aktAnlage) %}
-    {% if is_granted('ROLE_ADMIN') %}
-        {% if aktAnlage.configType == 3 %}
-            <option value="ac_act_group" {% if form.selectedChart == 'ac_act_overview' %}selected{% endif %}>
-                AC - Actual & Expected, Overview
-            </option>
+
+{# DC Power Diagramme #}
+{% macro dcActPlant(form, aktAnlage) %}
+    <option value="dc_single" {% if form.selectedChart == 'dc_single' %}selected{% endif %}>DC - Actual & Expected, Plant</option>
+{% endmacro %}
+
+{% macro dcActOverview(form, aktAnlage) %}
+    {% if is_granted('ROLE_DEV') %}
+        {% if aktAnlage.configType == 1 %}
+
+        {% elseif aktAnlage.configType == 2 %}
+
+        {% elseif aktAnlage.configType == 3 %}
+            <option value="dc_act_overview" {% if form.selectedChart == 'dc_act_overview' %}selected{% endif %}>DC - Actual & Expected, Overview</option>
+        {% elseif aktAnlage.configType == 4 %}
+
         {% endif %}
     {% endif %}
 {% endmacro %}
 
-{# DC Power Diagramme #}
 {% macro dcActGroup(form, aktAnlage) %}
     <option value="dc_act_group" {% if form.selectedChart == 'dc_act_group' %}selected{% endif %}>
         {% if aktAnlage.configType == 1 %}
@@ -31,11 +51,9 @@
         {% elseif aktAnlage.configType == 2 %}
             DC - Actual & Expected, Inverters
         {% elseif aktAnlage.configType == 3 %}
-            DC - Actual & Expected, Groups
+            DC - Actual & Expected, SCB Groups
         {% elseif aktAnlage.configType == 4 %}
             DC - Actual & Expected, SCBs
-        {% else %}
-            DC - Actual & Expected, undefined
         {% endif %}
     </option>
 {% endmacro %}
@@ -43,46 +61,56 @@
 {% macro dcGroupPowerDiff(form, aktAnlage) %}
     <option value="dc_grp_power_diff" {% if form.selectedChart == 'dc_grp_power_diff' %}selected{% endif %}>
         {% if aktAnlage.configType == 1 %}
-            DC - Inverter
+            DC - Inverter (Balken)
         {% elseif aktAnlage.configType == 2 %}
-            DC - Inverter
+            DC - Inverter (Balken)
         {% elseif aktAnlage.configType == 3 %}
-            DC - Inverter
+            DC - SCB Groups (Balken)
         {% elseif aktAnlage.configType == 4 %}
-            DC - Inverter
-        {% else %}
-            DC - Inverter, undefined
+            DC - SCBs (Balken)
         {% endif %}
     </option>
 {% endmacro %}
 
 {# Current Diagramme DC #}
 {% macro currentDcOverview(form, aktAnlage) %}
+    {% if aktAnlage.configType == 1 %}
+        <option value="dc_current_overview" {% if form.selectedChart == 'dc_current_overview' %}selected{% endif %}>DC - Current, Overview</option>
+    {% elseif aktAnlage.configType == 2 %}
+        {# wird hier im Moment nicht benötigt #}
+        {# <option value="dc_current_overview" {% if form.selectedChart == 'dc_current_overview' %}selected{% endif %}>DC - Current, Overview</option> #}
+    {% elseif aktAnlage.configType == 3 %}
+        <option value="dc_current_overview" {% if form.selectedChart == 'dc_current_overview' %}selected{% endif %}>DC - Current, Inverter</option>
+    {% elseif aktAnlage.configType == 4 %}
+        <option value="dc_current_overview" {% if form.selectedChart == 'dc_current_overview' %}selected{% endif %}>DC - Current, Inverter</option>
+    {% endif %}
+{% endmacro %}
+
+{% macro currentDcGroup(form, aktAnlage) %}
+    {% if aktAnlage.showGraphDcCurrGrp or is_granted('ROLE_ADMIN') %}
         {% if aktAnlage.configType == 1 %}
-            <option value="dc_current_overview" {% if form.selectedChart == 'dc_current_overview' %}selected{% endif %}>DC - Current, Overview</option>
+            <option value="dc_current_group" {% if form.selectedChart == 'dc_current_group' %}selected{% endif %}>DC - Current, Group </option>
         {% elseif aktAnlage.configType == 2 %}
-            <option value="dc_current_overview" {% if form.selectedChart == 'dc_current_overview' %}selected{% endif %}>DC - Current, Overview</option>
+
         {% elseif aktAnlage.configType == 3 %}
-            {# wird hier im Moment nicht benötigt #}
-            {# später noch ergänzen, dann muss es aber möglich sein 'x Soll' Kurven und 'y Ist' Kurven abzubilden (zusamenfassung der DC Gruppen auf AC Gruppen)  #}
-        {% else %}
-            <option value="dc_current_overview" {% if form.selectedChart == 'dc_current_overview' %}selected{% endif %}>DC - Current, Overview</option>
+
+        {% elseif aktAnlage.configType == 4 %}
+
         {% endif %}
+    {% endif %}
 {% endmacro %}
 
 {% macro currentDcInverter(form, aktAnlage) %}
     {% if aktAnlage.showGraphDcCurrInv or is_granted('ROLE_ADMIN') %}
         {% if aktAnlage.configType == 1 %}
-
+            <option value="dc_current_inverter" {% if form.selectedChart == 'dc_current_inverter' %}selected{% endif %}>DC - Current, Inverter </option>
         {% elseif aktAnlage.configType == 2 %}
-
+            <option value="dc_current_inverter" {% if form.selectedChart == 'dc_current_inverter' %}selected{% endif %}>DC - Current, Inverter </option>
         {% elseif aktAnlage.configType == 3 %}
-            {# wird hier im Moment nicht benötigt #}
-            {# später noch ergänzen, dann muss es aber möglich sein 'x Soll' Kurven und 'y Ist' Kurven abzubilden (zusamenfassung der DC Gruppen auf AC Gruppen)  #}
-        {% else %}
-
+            <option value="dc_current_inverter" {% if form.selectedChart == 'dc_current_inverter' %}selected{% endif %}>DC - Current, SCB Groups </option>
+        {% elseif aktAnlage.configType == 4 %}
+            <option value="dc_current_inverter" {% if form.selectedChart == 'dc_current_inverter' %}selected{% endif %}>DC - Current, SCB </option>
         {% endif %}
-        <option value="dc_current_inverter" {% if form.selectedChart == 'dc_current_inverter' %}selected{% endif %}>DC - Current, Inverter </option>
     {% endif %}
 {% endmacro %}
 
@@ -100,8 +128,8 @@
 {# vergleicht AC mit DC Inverter Leistung, kann deshalb nur für Anlagen mit 'configType' 2 angezeigt werden #}
 {% macro inverterPerformance(form, aktAnlage) %}
     {% if aktAnlage.configType == 2 %}
-        {% if aktAnlage.showInverterPerformance or is_granted('ROLE_ADMIN') %}
+        {# {% if aktAnlage.showInverterPerformance or is_granted('ROLE_ADMIN') %}  #}
             <option value="inverter_performance" {% if form.selectedChart == 'inverter_performance' %}selected{% endif %}>Inverter Performance</option>
-        {% endif %}
+        {# {% endif %} #}
     {% endif %}
 {% endmacro %}
