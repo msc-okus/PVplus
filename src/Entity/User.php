@@ -6,12 +6,31 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
-
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\NumericFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
+use App\Repository\ReportsRepository;
+use Gedmo\Blameable\Traits\BlameableEntity;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
+use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * PvpUser
  *
  * @ORM\Table(name="pvp_user", uniqueConstraints={@ORM\UniqueConstraint(name="name", columns={"name"})})
  * @ORM\Entity
+ * @ApiResource(
+ *     shortName="users",
+ *     normalizationContext={"groups"={"main:read"}},
+ *     denormalizationContext={"groups"={"main:write"}},
+ *     attributes={
+ *          "formats"={"jsonld", "json", "html", "csv"={"text/csv"}}
+ *     }
+ * )
+
  */
 class User implements UserInterface
 {
@@ -30,6 +49,7 @@ class User implements UserInterface
      * @ORM\Id
      * @ORM\Column(name="id", type="bigint", nullable=false)
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Groups({"main:read"})
      */
     private $id;
 
@@ -44,6 +64,7 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="password", type="string")
+     * @Groups({"main:read"})
      */
     private string $password;
 
@@ -56,6 +77,7 @@ class User implements UserInterface
      * @var int
      *
      * @ORM\Column(name="level", type="integer", nullable=false, options={"default"="1"})
+     * @Groups({"main:read"})
      */
     private int $level = 1;
 

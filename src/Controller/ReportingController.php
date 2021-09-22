@@ -4,12 +4,14 @@ namespace App\Controller;
 
 use App\Entity\Anlage;
 use App\Entity\AnlagenReports;
+use App\Entity\User;
 use App\Form\Reports\ReportsFormType;
 use App\Helper\G4NTrait;
 use App\Reports\Goldbeck\EPCMonthlyPRGuaranteeReport;
 use App\Reports\Goldbeck\EPCMonthlyYieldGuaranteeReport;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
+use App\Repository\UserRepository;
 use App\Service\ReportEpcService;
 use App\Service\ReportService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -31,7 +33,7 @@ class ReportingController extends AbstractController
     /**
      * @Route("/reporting", name="app_reporting_list")
      */
-    public function list(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo, ReportService $report, ReportEpcService $epcReport): Response
+    public function list(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo, UserRepository $userRepository, ReportService $report, ReportEpcService $epcReport): Response
     {
         $q = $request->query->get('qr');
         $searchstatus = $request->query->get('searchstatus');
@@ -55,13 +57,13 @@ class ReportingController extends AbstractController
             $searchtype = $request->getSession()->get('searchtype');
             $request->query->set('searchtype', $searchtype);
         }
+
         if ($searchmonth == "" && $request->getSession()->get('searchmonth') != "") {
             #$searchmonth = $request->getSession()->get('searchmonth');
             $request->query->set('searchmonth', $searchmonth);
         }
 
 
-        $anlagen = $anlagenRepo->findAll();
         if($request->query->get('new-report') === 'yes') {
             $reportType = $request->query->get('report-typ');
             $reportMonth = $request->query->get('month');
@@ -102,16 +104,6 @@ class ReportingController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/reporting/anlagen/find", name="app_admin_reports_find", methods="GET")
-     */
-    public function find(AnlagenRepository $anlagenRepository, Request $request)
-    {
-        $anlage = $anlagenRepository->findAllMatching($request->query->get('query'));
-        return $this->json([
-            'anlagen' => $anlage
-        ], 200, [], ['groups' => ['main']]);
-    }
 
     /**
      * @Route("/reporting/edit/{id}", name="app_reporting_edit")
