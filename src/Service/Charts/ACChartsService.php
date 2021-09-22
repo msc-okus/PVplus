@@ -109,10 +109,12 @@ class ACChartsService
                 }
 
                 // add Irradiation
-                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false){
-                    $dataArray['chart'][$counter]["irradiation"] = $dataArrayIrradiation['chart'][$counter]['val1'];
-                } else {
-                    $dataArray['chart'][$counter]["irradiation"] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2'])/2;
+                if (isset($dataArrayIrradiation['chart'][$counter]['val1'])) {
+                    if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false){
+                        $dataArray['chart'][$counter]["irradiation"] = $dataArrayIrradiation['chart'][$counter]['val1'];
+                    } else {
+                        $dataArray['chart'][$counter]["irradiation"] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2'])/2;
+                    }
                 }
                 // add Temperature
                 // $dataArray['chart'][$counter]['panelTemp'] = $panelTemparray['chart'][$counter]["val2"];
@@ -174,6 +176,7 @@ class ACChartsService
             switch ($anlage->getConfigType()) {
 
                 case 3: // Groningen
+                case 4:
                     $dataArray['offsetLegend'] = $group - 1;
                     break;
                 default:
@@ -202,6 +205,7 @@ class ACChartsService
                             switch ($anlage->getConfigType()) {
 
                                 case 3: // Groningen
+                                case 4:
                                     $dataArray['chart'][$counter][$nameArray[$group]] = $actPower;
                                     break;
                                 default:
@@ -211,6 +215,7 @@ class ACChartsService
                         }
                         switch ($anlage->getConfigType()) {
                             case 3:
+                            case 4:
                                 if ($counterInv > $dataArray['maxSeries']) $dataArray['maxSeries'] = $counterInv;
                                 break;
                             default:
@@ -222,6 +227,7 @@ class ACChartsService
                         switch ($anlage->getConfigType()) {
 
                             case 3: // Groningen
+                            case 4:
                                 $dataArray['chart'][$counter][$nameArray[$group]] = 0;
                                 break;
                             default:

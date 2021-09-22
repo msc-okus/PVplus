@@ -101,13 +101,13 @@ class ChartService
         $currentDay = date("d");
 
         //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-        if($form['backFromMonth']){
-            $form['from'] =  date("Y-m-d 00:00", (strtotime($currentYear.'-'.$currentMonth.'-'.$currentDay) - (86400 * ($form['optionDate'] - 1))));
-            $form['to'] =  date("Y-m-d 23:59", strtotime($currentYear.'-'.$currentMonth.'-'.$currentDay));
+        if (isset($form['backFromMonth'])) {
+            $form['from']   = date("Y-m-d 00:00", (strtotime($currentYear.'-'.$currentMonth.'-'.$currentDay) - (86400 * ($form['optionDate'] - 1))));
+            $form['to']     = date("Y-m-d 23:59", strtotime($currentYear.'-'.$currentMonth.'-'.$currentDay));
         }
 
-        $from = self::timeShift($anlage, $form['from'],true);
-        $to = self::timeShift($anlage, $form['to'],true);
+        $from   = self::timeShift($anlage, $form['from'],true);
+        $to     = self::timeShift($anlage, $form['to'],true);
 
         if ($anlage) {
             $showEvuDiag = $anlage->getShowEvuDiag();
@@ -292,11 +292,11 @@ class ChartService
                 // Current Charts DC //
                 // Übersicht Strom auf Basis der AC Gruppe
                 case ('dc_current_overview'):
-                    $dataArray = $this->currentChart->getCurrentOverviewDc($anlage, $from, $to);
+                    $dataArray = $this->currentChart->getCurrentOverviewDc($anlage, $from, $to, $form['selectedGroup']);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['label'] = $dataArray['label'];
+                        $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
                         $resultArray['headline'] = 'DC Current [A] - overview';
                         $resultArray['series1']['name'] = "Expected";
                         $resultArray['series1']['tooltipText'] = "Expected";
