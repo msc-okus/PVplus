@@ -102,8 +102,10 @@ class ChartService
 
         //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
         if (isset($form['backFromMonth'])) {
-            $form['from']   = date("Y-m-d 00:00", (strtotime($currentYear.'-'.$currentMonth.'-'.$currentDay) - (86400 * ($form['optionDate'] - 1))));
-            $form['to']     = date("Y-m-d 23:59", strtotime($currentYear.'-'.$currentMonth.'-'.$currentDay));
+            if ($form['backFromMonth'] === true) {
+                $form['from']   = date("Y-m-d 00:00", (strtotime($currentYear.'-'.$currentMonth.'-'.$currentDay) - (86400 * ($form['optionDate'] - 1))));
+                $form['to']     = date("Y-m-d 23:59", strtotime($currentYear.'-'.$currentMonth.'-'.$currentDay));
+            }
         }
 
         $from   = self::timeShift($anlage, $form['from'],true);
@@ -246,6 +248,20 @@ class ChartService
                         $resultArray['headline'] = 'DC Production [kWh] – Actual and Expected';
                     }
                     break;
+                case ("dc_act_overview"):
+                    $dataArray = $this->dcChart->getActExpOverviewDc($anlage, $from, $to, $form['selectedGroup']);
+                    if ($dataArray != false) {
+                        $resultArray['data'] = json_encode($dataArray['chart']);
+                        $resultArray['maxSeries'] = $dataArray['maxSeries'];
+                        $resultArray['headline'] = 'DC Production [kWh]';
+                        $resultArray['series1']['name'] = "Expected ";
+                        $resultArray['series1']['tooltipText'] = "Expected [[kWh]]";
+                        $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
+                        $resultArray['seriesx']['name'] = "Inverter ";
+                        $resultArray['seriesx']['tooltipText'] = "Act [kWh]";
+                        $resultArray['inverterArray'] = json_encode($dataArray['inverterArray']);
+                    }
+                    break;
                 case ("dc_act_group"):
                     $dataArray = $this->dcChart->getActExpGroupDC($anlage, $from, $to, $form['selectedGroup']);
                     if ($dataArray != false) {
@@ -291,6 +307,7 @@ class ChartService
 
                 // Current Charts DC //
                 // Übersicht Strom auf Basis der AC Gruppe
+                //
                 case ('dc_current_overview'):
                     $dataArray = $this->currentChart->getCurrentOverviewDc($anlage, $from, $to, $form['selectedGroup']);
                     if ($dataArray != false) {

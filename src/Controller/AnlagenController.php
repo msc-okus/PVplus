@@ -38,11 +38,7 @@ class AnlagenController extends BaseController
 
         $queryBuilder = $anlagenRepository->getWithSearchQueryBuilderOwner($q, $eigners, $grantedPlantList);
 
-        $pagination = $paginator->paginate(
-            $queryBuilder, /* query NOT result */
-            $request->query->getInt('page', 1), /*page number*/
-            25                                         /*limit per page*/
-        );
+        $pagination = $paginator->paginate($queryBuilder, $request->query->getInt('page', 1),25);
 
         return $this->render('anlagen/list.html.twig', [
             'pagination' => $pagination,
