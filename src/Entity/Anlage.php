@@ -91,7 +91,7 @@ class Anlage
      * @var string
      *
      * @ORM\Column(name="anl_name", type="string", length=50, nullable=false)
-     * @Groups({"main:read"})
+     * @Groups({"main"})
      */
     private string $anlName;
 
@@ -2035,7 +2035,7 @@ class Anlage
     {
         return $this->groups;
     }
-    
+
 
     public function addGroup(AnlageGroups $group): self
     {

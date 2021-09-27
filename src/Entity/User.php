@@ -11,7 +11,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\NumericFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
-use App\Repository\ReportsRepository;
+use App\Repository\UserRepository;
 use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Validator\Constraints as Assert;
@@ -21,11 +21,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * PvpUser
  *
  * @ORM\Table(name="pvp_user", uniqueConstraints={@ORM\UniqueConstraint(name="name", columns={"name"})})
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass=UserRepository::class)
+ * @ORM\HasLifecycleCallbacks()
  * @ApiResource(
- *     shortName="users",
- *     normalizationContext={"groups"={"main:read"}},
- *     denormalizationContext={"groups"={"main:write"}},
+ *     normalizationContext={"groups"={"user:read"}},
+ *     denormalizationContext={"groups"={"user:write"}},
  *     attributes={
  *          "formats"={"jsonld", "json", "html", "csv"={"text/csv"}}
  *     }
@@ -46,17 +46,18 @@ class User implements UserInterface
     /**
      * @var int
      *
-     * @ORM\Id
      * @ORM\Column(name="id", type="bigint", nullable=false)
+     * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"main:read"})
+     * @Groups({"user:read"})
      */
-    private $id;
+    private int $id;
 
     /**
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=20, nullable=false)
+     * @Groups({"user:read"})
      */
     private string $name;
 
@@ -64,7 +65,7 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="password", type="string")
-     * @Groups({"main:read"})
+     * @Groups({"user:read"})
      */
     private string $password;
 
@@ -77,7 +78,7 @@ class User implements UserInterface
      * @var int
      *
      * @ORM\Column(name="level", type="integer", nullable=false, options={"default"="1"})
-     * @Groups({"main:read"})
+     * @Groups({"user:read"})
      */
     private int $level = 1;
 
@@ -111,6 +112,7 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(type="string", length=50)
+     * @Groups({"main:read"})
      */
     private string $grantedList;
 
@@ -124,9 +126,24 @@ class User implements UserInterface
         $this->eigners = new ArrayCollection();
     }
 
+    public function getId(): ?string
+    {
+        return $this->id;
+    }
+
     public function getUserId(): ?string
     {
         return $this->id;
+    }
+
+    /**
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
+     */
+    public function getname(): ?string
+    {
+        return $this->name;
     }
 
     /**

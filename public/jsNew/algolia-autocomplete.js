@@ -1,14 +1,14 @@
 $(document).ready(function() {
 
     $('.input-group-field').each(function() {
-        var autocompleteUrl = '/api/anlages.json';
+        var autocompleteUrl = '/reporting/anlagen/find';
     $(this).autocomplete({hint: false}, [
         {
             source: function(query, cb) {
                 $.ajax({
-                    url: autocompleteUrl+'?anlName='+query
+                    url: autocompleteUrl+'?query='+query
                 }).then(function(data) {
-                    cb(data);
+                    cb(data.anlagen);
                 });
             },
             displayKey: 'anlName',
