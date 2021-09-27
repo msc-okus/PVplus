@@ -27,8 +27,9 @@ class ExportService
         $this->availabilityRepo = $availabilityRepo;
     }
 
-    public function gewichtetTagesstrahlung(Anlage $anlage, DateTime $from = null, DateTime $to = null):string
+    public function gewichtetTagesstrahlung(Anlage $anlage, DateTime $from, DateTime $to):string
     {
+        $tempArray = [];
         $help = '<tr><th></th>';
         $output = "<b>" . $anlage->getAnlName() . "</b><br>";
         $output .= "<div class='table-scroll'><table><thead><tr><th>Datum</th>";
@@ -36,11 +37,9 @@ class ExportService
             $output .= "<th>" . $groupAC->getAcGroupName() . "</th><th></th><th></th>";
             $help   .= "<th><small>Irr [kWh/qm]</small></th><th></th><th><small>gewichtete TheoPower mit TempCorr [kWh]</small></th>";
         }
-        $output .= "<td>Verfügbarkeit</td><td>gewichtete Strahlung</td><td>gewichtete TheoPower ohne TempCorr</td><td>gewichtete TheoPower mit TempCorr</td></tr>";
-        $help   .= "<td>[%]</td><td>[kWh/qm]</td><td>[kWh]</td><td></td></tr>";
+        $output .= "<td>Mittelwert Luft Temp.</td><td>Verfügbarkeit</td><td>gewichtete Strahlung</td><td>gewichtete TheoPower mit TempCorr</td></tr>";
+        $help   .= "<td>°C</td><td>[%]</td><td>[kWh/qm]</td><td>[kWh]</td><td></td></tr>";
         $output .= $help . "</thead><tbody>";
-        if ($from === null) $from = date_create('2021-05-27');
-        if ($to === null)   $to   = date_create('2021-06-09');
 
         /** @var AnlageAcGroups $groupAC */
         /** @var DateTime $from */
@@ -54,7 +53,7 @@ class ExportService
             foreach ($anlage->getAcGroups() as $groupAC) {
                 $weather = $this->functions->getWeather($groupAC->getWeatherStation(), date( 'Y-m-d 00:00', $stamp), date('Y-m-d 23:59', $stamp), null, null);
                 $acPower = $this->functions->getSumAcPowerByGroup($anlage, date( 'Y-m-d 00:00', $stamp), date('Y-m-d 23:59', $stamp), $groupAC->getAcGroup());
-
+                $tempArray[] = $weather['airTemp'];
                 if ($groupAC->getIsEastWestGroup()) {
                     if ($weather['upperIrr'] > 0 && $weather['lowerIrr'] > 0) {
                         $irradiation = ($weather['upperIrr'] + $weather['lowerIrr']) / 2;
@@ -69,14 +68,12 @@ class ExportService
                 // TheoPower gewichtet berechnen
                 $output .= "<td><small>" . round($weather['upperIrr'] / 1000 / 4,2) . "</small></td><td><small>" . round($weather['lowerIrr'] / 1000 / 4,2) . "</small></td><td><small>".round($acPower['powerTheo'],2)."</small></td>";
 
-                // Temepratur Correction pro Tag berechnen
-                #$tempCorrection = $this->functions->tempCorrection( $anlage, $groupAC->getTCellAvg(), $weather['windSpeed'], $weather['airTemp'] , $irradiation / $weather['anzahl']);
                 // Aufsummieren der gewichteten Werte zum gesamt Wert
-                #$gewichteteTheoPower    += $groupAC->getGewichtungAnlagenPR() * $anlage->getKwPeak() * $irradiation * $tempCorrection;
                 $gewichteteTheoPower    += $acPower['powerTheo'];
                 $gewichteteStrahlung    += $groupAC->getGewichtungAnlagenPR() * $irradiation;
                 $availability            = $this->availabilityRepo->sumAvailabilityPerDay($anlage->getAnlId(), date('Y-m-d', $stamp));
             }
+            $output .= "<td>" . self::mittelwert($tempArray) . "</td>";
             $output .= "<td>".round($availability,2)."</td>";
             $output .= "<td>".round($gewichteteStrahlung / 1000 / 4,2)."</td>";
             #$output .= "<td>".round($gewichteteTheoPower2,2)."</td>";
@@ -93,7 +90,7 @@ class ExportService
         $export = [];
         $fromSql    = $from->format('Y-m-d 00:00');
         $toSql      = $to->format('Y-m-d 23:59');
-        $nameArray  = $this->functions->getInverterNameArray($anlage);
+        $nameArray  = $this->functions->getNameArray($anlage);
         $startDay   = strtotime($from->format('Y-m-d 00:00'));
         $endDay     = strtotime($to->format('Y-m-d 23:59'));
 
@@ -147,7 +144,7 @@ class ExportService
         $export = [];
         $fromSql    = $from->format('Y-m-d 00:00');
         $toSql      = $to->format('Y-m-d 23:59');
-        $nameArray  = $this->functions->getInverterNameArray($anlage);
+        $nameArray  = $this->functions->getNameArray($anlage);
         $startDay   = strtotime($from->format('Y-m-d 00:00'));
         $endDay     = strtotime($to->format('Y-m-d 23:59'));
 
@@ -178,7 +175,7 @@ class ExportService
         $output = '';
         $fromSql = $from->format('Y-m-d 00:00');
         $toSql = $to->format('Y-m-d 23:59');
-        $nameArray = $this->functions->getInverterNameArray($anlage);
+        $nameArray = $this->functions->getNameArray($anlage);
 
         $groups = $anlage->getGroups();
         $i = 1;

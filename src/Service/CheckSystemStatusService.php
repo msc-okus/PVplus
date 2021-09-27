@@ -124,12 +124,14 @@ class CheckSystemStatusService
                 // Forecast Wert bis aktuelle Woche ermitteln
                 $forecastDate = new \DateTime('last sunday');
                 if ($anlage->getShowForecast() && $anlage->getCalcPR()) {
-                    $pacDate = $anlage->getPacDate()->format('Y-m-d 00:00:00');
-                    if (false === checkdate($anlage->getPacDate()->format('m'), $anlage->getPacDate()->format('d'),$anlage->getPacDate()->format('Y'))) {
-                        $pacDate = $forecastDate->format('Y-m-d 00:00:00');
+                    if($anlage->getUsePac()) {
+                        $pacDate = $anlage->getPacDate()->format('Y-m-d 00:00:00');
+                        if (false === checkdate($anlage->getPacDate()->format('m'), $anlage->getPacDate()->format('d'), $anlage->getPacDate()->format('Y'))) {
+                            $pacDate = $forecastDate->format('Y-m-d 00:00:00');
+                        }
                     }
                     $powerActArray = $this->functions->getSumPowerAcAct($anlage, $forecastDate->format('Y-m-d 00:00:00'), $forecastDate->format('Y-m-d 23:00:00'), $pacDate, $forecastDate->format('Y-m-d 23:00:00'));
-                    //if ($anlage->getAnlId() == 84) dd($powerActArray, $forecastDate);
+
                     $forecastYear = $powerActArray['powerEvuYear'] - $this->forecastRepo->calcForecastByDate($anlage, $forecastDate);
                     if ($forecastYear === null) $forecastYear = 0;
                     $forecastDivMinusYear = 0;

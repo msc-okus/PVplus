@@ -531,7 +531,7 @@ class FunctionsService
         $sumArray = [];
         if (is_array($array)) {
             foreach ($array as $stamp => $irr) {
-                if(is_array($irr)) {
+                if(is_array($irr) || is_object($irr)) {
                     foreach ($irr as $key => $value) {
                         if (is_float($value) || is_integer($value)) {
                             if (isset($sumArray[$key])) {
@@ -801,7 +801,7 @@ class FunctionsService
      * @param string $type
      * @return array
      */
-    public function getInverterNameArray(Anlage $anlage, string $type = 'ac'): array
+    public function getNameArray(Anlage $anlage, string $type = 'ac'): array
     {
         $nameArray['ac'] = [];
         $nameArray['dc'] = [];
@@ -826,8 +826,26 @@ class FunctionsService
                 foreach ($this->acGroupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
                     $nameArray['ac'][$inverter->getAcGroup()] = trim($inverter->getAcGroupName(), $trimChar); // trim zum Entfernen event vorhandender Steuerzeichen
                 }
-                // Die DC Gruppen Namen werden in diesem Fall je nach einstellung von 'sourceInvName' ermittelt
-                switch ($anlage->getSourceInvName()) {
+                foreach ($this->groupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
+                    $nameArray['dc'][$inverter->getDcGroup()] = trim($inverter->getDcGroupName(), $trimChar); // trim zum Entfernen event vorhandender Steuerzeichen
+                }
+                foreach ($this->inverterRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
+                    $nameArray['scb'][$inverter->getInvNr()] = trim($inverter->getInverterName(), $trimChar); // trim zum Entfernen event vorhandender Steuerzeichen
+                }
+                break;
+            case 4: // Guben
+                break;
+
+        }
+
+        return $nameArray[$type];
+    }
+}
+
+/*
+ *
+                // Die DC Gruppen Namen werden in diesem Fall je nach Einstellung von 'sourceInvName' ermittelt
+ switch ($anlage->getSourceInvName()) {
                     case 'ac_groups':
                         foreach ($this->acGroupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
                             $nameArray['dc'][$inverter->getAcGroup()] = trim($inverter->getAcGroupName(), $trimChar); // trim zum Entfernen event vorhandender Steuerzeichen
@@ -843,16 +861,4 @@ class FunctionsService
                             $nameArray['dc'][$inverter->getInvNr()] = trim($inverter->getInverterName(), $trimChar); // trim zum Entfernen event vorhandender Steuerzeichen
                         }
                 }
-                foreach ($this->inverterRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
-                    $nameArray['scb'][$inverter->getInvNr()] = trim($inverter->getInverterName(), $trimChar); // trim zum Entfernen event vorhandender Steuerzeichen
-                }
-                break;
-            case 4: // Guben
-                break;
-
-        }
-
-        return $nameArray[$type];
-    }
-}
-
+ */

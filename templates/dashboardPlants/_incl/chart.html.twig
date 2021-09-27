@@ -71,10 +71,10 @@
                 {% if aktAnlage.showEvuDiag %}
                     // Expected des EVU Wertes
                     let series11 = chart.series.push(new am4charts.LineSeries());
-                    series11.name = "Expected EVU {{ (content.expEvuSum)|number_format(0, ',', '.') }} kWh"
+                    series11.name = "Expected Grid {{ (content.expEvuSum)|number_format(0, ',', '.') }} kWh"
                     series11.dataFields.dateX = "date";
                     series11.dataFields.valueY = "expexted_evu";
-                    series11.tooltipText = "Expected [kWh]: {valueY} [/]";
+                    series11.tooltipText = "Expected Grid [kWh]: {valueY} [/]";
                     series11.stroke = am4core.color("#fdb500");
                     series11.strokeWidth = 1;
                     //series11.defaultState.transitionDuration = 300;
@@ -112,7 +112,7 @@
                 {% if form.selectedChart == 'dc_single' %}
                     series2.name = "Inverter {{ (content.actSum)|number_format(0, ',', '.') }} kWh"
                 {% else %}
-                    series2.name = "Inv Out {{ (content.actSum)|number_format(0, ',', '.') }} kWh"
+                    series2.name = "Inverter Out {{ (content.actSum)|number_format(0, ',', '.') }} kWh"
                 {% endif %}
 
                 series2.dataFields.dateX = "date";
@@ -120,7 +120,7 @@
                 {% if form.selectedChart == 'dc_single' %}
                     series2.tooltipText = "Inverter [kWh]: {valueY} [/]";
                 {% else %}
-                    series2.tooltipText = "Inv Out [kWh]: {valueY} [/]";
+                    series2.tooltipText = "Inverter Out [kWh]: {valueY} [/]";
                 {% endif %}
                 series2.stroke = am4core.color("#002ac3");
                 series2.strokeWidth = 1;
@@ -145,10 +145,10 @@
             {% endif %}
 
             let series5 = chart.series.push(new am4charts.LineSeries());
-            series5.name = "Irradiation"
+            series5.name = "Irradiation W/m²"
             series5.dataFields.dateX = "date";
             series5.dataFields.valueY = "irradiation";
-            series5.tooltipText = "Irradiation: {valueY} [/]";
+            series5.tooltipText = "Irradiation W/m²: {valueY} [/]";
             series5.stroke = am4core.color("#950101");
             series5.strokeWidth = 1;
             //series5.defaultState.transitionDuration = 50;
@@ -171,11 +171,11 @@
 
             chart.cursor = new am4charts.XYCursor();
             chart.cursor.xAxis = dateAxis;
-            chart.exporting.menu = new am4core.ExportMenu();
             chart.scrollbarX = new am4core.Scrollbar();
             chart.scrollbarX.marginBottom = "20"
             chart.scrollbarY = new am4core.Scrollbar();
             chart.scrollbarY.marginLeft = "20";
+            chart.exporting.menu = new am4core.ExportMenu();
             chart.exporting.menu.items[0].label = "Download";
 
         }); // end am4core.ready()
@@ -251,6 +251,7 @@
             chart.scrollbarX = new am4core.Scrollbar();
             chart.cursor = new am4charts.XYCursor();
             chart.cursor.behavior = "zoomX";
+            chart.exporting.menu = new am4core.ExportMenu();
             chart.exporting.menu.items[0].label = "Download";
 
             chart.events.on("ready", function(ev) {
@@ -581,6 +582,68 @@
 
         }); // end am4core.ready()
     </script>
+{% elseif form.selectedChart == 'dc_current_overview' %}
+    <!-- Liniendiagramm DC (current overview) -->
+    <script>
+        am4core.ready(function() {
+            // Create chart instance
+            {% if form.optionDate < 14 %}
+                am4core.useTheme(am4themes_animated);
+            {% endif %}
+
+            let chart = am4core.create("amchart-holder", am4charts.XYChart);
+            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+
+            chart.data = {{ content.data|raw }};
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+            chart.numberFormatter.intlLocales = "de-DE";
+            chart.numberFormatter.numberFormat = {
+                "style": "decimal",
+                "minimumFractionDigits": 0
+            };
+
+            // Legend
+            chart.legend = new am4charts.Legend();
+            chart.legend.useDefaultMarker = false;
+
+            // Create axes
+            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+            // Create series
+            let units = JSON.parse('{{ content.inverterArray | raw  }}');
+            {% dump(content.inverterArray) %}
+            function addSeries(seriesId) {
+
+                // Create series Actual
+                let series = new am4charts.LineSeries();
+                let newSeriesId = seriesId + {{ content.offsetLegende }};
+                series.dataFields.dateX = "date";
+                series.dataFields.valueY = units[newSeriesId];
+                series.name = units[newSeriesId];
+                series.tooltipText = units[newSeriesId] + ": {valueY} [/]";
+                series.strokeWidth = 1;
+                series.sequencedInterpolation = false;
+                series.defaultState.transitionDuration = 300;
+                series.tensionX = 0.8;
+                series = chart.series.push(series);
+            }
+
+            for (let i = 1; i <= {{ content.maxSeries }}; i++) {
+                addSeries();
+            }
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.xAxis = dateAxis;
+            chart.exporting.menu = new am4core.ExportMenu();
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.scrollbarX.marginBottom = "20"
+            chart.scrollbarY = new am4core.Scrollbar();
+            chart.scrollbarY.marginLeft = "20";
+            chart.exporting.menu.items[0].label = "Download";
+
+        }); // end am4core.ready()
+    </script>
 {% elseif form.selectedChart == 'dc_current_group' %}
     <!-- Liniendiagramm DC (current group) -->
     <script>
@@ -682,20 +745,19 @@
             series0.tensionX = 0.8;
 
             // Create series
-            function addSeries() {
-                let seriesId = (chart.series.length);
+            let units = JSON.parse('{{ content.inverterArray | raw  }}');
+            {% dump(content.offsetLegende) %}
+            {% dump(content.inverterArray | raw) %}
+            function addSeries(seriesId) {
 
                 // Create series Actual
                 let series = new am4charts.LineSeries();
-                {% if (content.offsetLegende) %}
                 let newSeriesId = seriesId + {{ content.offsetLegende }};
-                series.name = "{{ content.seriesx.name }}" + newSeriesId ;
-                {% else %}
-                series.name = "{{ content.seriesx.name }}" + seriesId;
-                {% endif %}
+
+                series.dataFields.valueY = units[newSeriesId];
+                series.name = units[newSeriesId];
+                series.tooltipText = units[newSeriesId] + ": {valueY} [/]";
                 series.dataFields.dateX = "date";
-                series.dataFields.valueY = "val" + seriesId;
-                series.tooltipText = "{{ content.seriesx.tooltipText }}" + seriesId + ": {valueY} [/]";
                 series.strokeWidth = 1;
                 series.sequencedInterpolation = false;
                 series.defaultState.transitionDuration = 300;
@@ -704,7 +766,7 @@
             }
 
             for (let i = 1; i <= {{ content.maxSeries }}; i++) {
-                addSeries();
+                addSeries(i);
             }
 
             chart.cursor = new am4charts.XYCursor();
@@ -965,9 +1027,12 @@
                 series2.columns.template.tooltipHTML = "<b>{category}:</b><br>Actual {valueY} [[KWh]]";
             {% endif %}
             series2.tooltip.dy = -50;
+
             chart.scrollbarX = new am4core.Scrollbar();
             chart.cursor = new am4charts.XYCursor();
             chart.cursor.behavior = "zoomX";
+            chart.exporting.menu = new am4core.ExportMenu();
+            chart.exporting.menu.items[0].label = "Download";
 
             chart.events.on("ready", function(ev) {
                 yAxes1.min = 0; //yAxes1.minZoomed;

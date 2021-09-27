@@ -123,30 +123,34 @@ class ExpectedService
                     foreach ($modules as $modul) {
                         if ($anlage->getIsOstWestAnlage()) {
                             // Ist 'Ost/West' Anlage, dann nutze $irrUpper (Strahlung Osten) und $irrLower (Strahlung Westen) und multipliziere mit der Anzahl Strings Ost / West
-                            $expPowerDcHlp      = $modul->getModuleType()->getFactorPower($irrUpper) * (int)$modul->getNumStringsPerUnitEast() * (int)$modul->getNumModulesPerString() / 1000 / 4; // Ost
-                            $expPowerDcHlp     += $modul->getModuleType()->getFactorPower($irrLower) * (int)$modul->getNumStringsPerUnitWest() * (int)$modul->getNumModulesPerString() / 1000 / 4; // West
-                            $expCurrentDcHlp    = $modul->getModuleType()->getFactorCurrent($irrUpper) * (int)$modul->getNumStringsPerUnitEast(); // Ost // nicht durch 4 teilen, sind keine Ah, sondern A
-                            $expCurrentDcHlp   += $modul->getModuleType()->getFactorCurrent($irrLower) * (int)$modul->getNumStringsPerUnitWest(); // West // nicht durch 4 teilen, sind keine Ah, sondern A
+                            $expPowerDcHlp      = $modul->getModuleType()->getFactorPower($irrUpper) * $modul->getNumStringsPerUnitEast() * $modul->getNumModulesPerString() / 1000 / 4; // Ost
+                            $expPowerDcHlp     += $modul->getModuleType()->getFactorPower($irrLower) * $modul->getNumStringsPerUnitWest() * $modul->getNumModulesPerString() / 1000 / 4; // West
+                            $expCurrentDcHlp    = $modul->getModuleType()->getFactorCurrent($irrUpper) * $modul->getNumStringsPerUnitEast(); // Ost // nicht durch 4 teilen, sind keine Ah, sondern A
+                            $expCurrentDcHlp   += $modul->getModuleType()->getFactorCurrent($irrLower) * $modul->getNumStringsPerUnitWest(); // West // nicht durch 4 teilen, sind keine Ah, sondern A
                         } else {
                             // Ist keine 'Ost/West' Anlage
-                            $expPowerDcHlp      = $modul->getModuleType()->getFactorPower($irr) * (int)$modul->getNumStringsPerUnit() * (int)$modul->getNumModulesPerString() / 1000 / 4;
-                            $expCurrentDcHlp    = $modul->getModuleType()->getFactorCurrent($irr) * (int)$modul->getNumStringsPerUnit(); // nicht durch 4 teilen, sind keine Ah, sondern A
+                            $expPowerDcHlp      = $modul->getModuleType()->getFactorPower($irr) * $modul->getNumStringsPerUnit() * $modul->getNumModulesPerString() / 1000 / 4;
+                            $expCurrentDcHlp    = $modul->getModuleType()->getFactorCurrent($irr) * $modul->getNumStringsPerUnit(); // nicht durch 4 teilen, sind keine Ah, sondern A
                         }
                         // degradation abziehen (degradation * Betriebsjahre)
-                        $expPowerDcHlp      = $expPowerDcHlp - ($expPowerDcHlp / 100 * (float)$modul->getModuleType()->getDegradation() * $betriebsJahre);
-                        $expCurrentDcHlp    = $expCurrentDcHlp - ($expCurrentDcHlp / 100 * (float)$modul->getModuleType()->getDegradation() * $betriebsJahre);
+                        $expPowerDcHlp      = $expPowerDcHlp - ($expPowerDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
+                        $expCurrentDcHlp    = $expCurrentDcHlp - ($expCurrentDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
 
                         $expPowerDc     += $expPowerDcHlp;
                         $expCurrentDc   += $expCurrentDcHlp;
                     }
                     //
-                    $shadow_loss    = (float)$group->getShadowLoss();
+                    $shadow_loss    = $group->getShadowLoss();
                     if ($groupMonth) {
                         if ($groupMonth->getShadowLoss()) $shadow_loss = $groupMonth->getShadowLoss();
                     } elseif ($anlageMonth) {
                         // nutze Anlagenweite Monatsverschattung (Entity: AnlageMonth)
                         $shadow_loss = $anlageMonth->getShadowLoss();
                     }
+
+                    // Anpassung der Verschattung an die jeweiligen Strahlungsbedingungen
+                    // d.h. je weniger Strahlung desso geringer ist die Auswirkung der Verschattung
+                    // Werte für $val bis $val 6 sind mit OS und TL abgesprochen
                     $val1 = 100;
                     $val2 = 200;
                     $val3 = 400;
@@ -160,7 +164,11 @@ class ExpectedService
                     elseif ($irr > $val4 && $irr <= $val5) {$shadow_loss = $shadow_loss * 0.71;}
                     elseif ($irr > $val5 && $irr <= $val6) {$shadow_loss = $shadow_loss * 0.8;}
 
-                    $loss           = $shadow_loss + (float)$group->getCabelLoss() + (float)$group->getSecureLoss();
+                    $originalExpPower = $expPowerDc;
+                    // Verluste auf der DC Seite brechnen
+                    // Schattenverluste + Kabel Verluste + Sicherheitsverlust
+                    $loss           = $shadow_loss + $group->getCabelLoss() + $group->getSecureLoss();
+                    // Verhindert 'diff by zero'
                     if ($loss <> 0) {
                         $expPowerDc = $expPowerDc - ($expPowerDc / 100 * $loss);
                         $expCurrentDc = $expCurrentDc - ($expCurrentDc / 100 * $loss);
@@ -168,14 +176,18 @@ class ExpectedService
 
                     // AC Expected Berechnung
                     // Umrechnung DC nach AC
-                    $expNoLimit = $expPowerDc - ($expPowerDc / 100 * (float)$group->getFactorAC());
-                    $expEvu = $expNoLimit - ($expNoLimit / 100 * (float)$group->getGridLoss());
+                    $expNoLimit = $expPowerDc - ($expPowerDc / 100 * $group->getFactorAC());
+                    $expEvu = $expNoLimit - ($expNoLimit / 100 * $group->getGridLoss());
                     // Abriegelung
-                    if((float)$group->getLimitAc() > 0) {
-                        ($expNoLimit > (float)$group->getLimitAc()) ? $expPowerAc = (float)$group->getLimitAc() : $expPowerAc = $expNoLimit;
-                        if ($expEvu > (float)$group->getLimitAc()) $expEvu = (float)$group->getLimitAc();
+                    if ($group->getLimitAc() > 0) {
+                        ($expNoLimit > $group->getLimitAc()) ? $expPowerAc = $group->getLimitAc() : $expPowerAc = $expNoLimit;
+                        if ($expEvu > $group->getLimitAc()) $expEvu = $group->getLimitAc();
                     } else {
                         $expPowerAc = $expNoLimit;
+                    }
+
+                    if ($irr > 900) {
+                        //dump("Irr: $irr | Shadow: $shadow_loss | ". $groupMonth->getShadowLoss() ." | Loss: $loss | ExpNoLimit: $expPowerDc | $originalExpPower | Betriebsjahre: $betriebsJahre");
                     }
 
                     //Speichern der Werte in Array

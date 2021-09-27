@@ -73,11 +73,11 @@ class UserFormType extends AbstractType
             ####          STEUERELEMENTE              ####
             ##############################################
             ->add('save', SubmitType::class, [
-                'label'     => 'Save Owner',
+                'label'     => 'Save User',
                 'attr'      => ['class' => 'primary save'],
             ])
             ->add('saveclose', SubmitType::class, [
-                'label'     => 'Save and Close Owner',
+                'label'     => 'Save and Close User',
                 'attr'      => ['class' => 'primary saveclose'],
             ])
             ->add('close', SubmitType::class, [

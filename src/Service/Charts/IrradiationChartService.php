@@ -15,10 +15,9 @@ class IrradiationChartService
     private FunctionsService $functions;
     private InvertersRepository $invertersRep;
 
-    public function __construct(
-        FunctionsService $functions,
-        InvertersRepository $invertersRep
-    )
+    public function __construct(FunctionsService $functions,
+                                InvertersRepository $invertersRep
+                            )
     {
         $this->functions = $functions;
         $this->invertersRep = $invertersRep;
@@ -44,10 +43,10 @@ class IrradiationChartService
             $counter = 0;
             while ($ro = $res->fetch(PDO::FETCH_ASSOC)) {
                 // upper pannel
-                $irr_upper = str_replace(',', '.', $ro["gmod_avg"]);
+                $irr_upper = (float)str_replace(',', '.', $ro["gmod_avg"]);
                 if (!$irr_upper) $irr_upper = 0;
                 // lower pannel
-                $irr_lower = str_replace(',', '.', $ro["gi_avg"]);
+                $irr_lower = (float)str_replace(',', '.', $ro["gi_avg"]);
                 if (!$irr_lower) $irr_lower = 0;
                 $stamp = self::timeAjustment(strtotime($ro["stamp"]), (int)$anlage->getAnlZeitzoneIr());
                 if ($anlage->getAnlIrChange() == "Yes") {
@@ -108,12 +107,12 @@ class IrradiationChartService
                     if ($resultWeather->rowCount() == 1) {
                         $weatherRow = $resultWeather->fetch(PDO::FETCH_ASSOC);
                         if ($anlage->getIsOstWestAnlage()) {
-                            $dataArray['chart'][$counter]['g4n'] = ($weatherRow["g_upper"] * $anlage->getPowerEast() + $weatherRow["g_lower"] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+                            $dataArray['chart'][$counter]['g4n'] = (float)(($weatherRow["g_upper"] * $anlage->getPowerEast() + $weatherRow["g_lower"] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()));
                         } else {
                             if ($anlage->getWeatherStation()->getChangeSensor() == "Yes") {
-                                $dataArray['chart'][$counter]['g4n'] = $weatherRow["g_upper"]; // getauscht, nutze unterene Sensor
+                                $dataArray['chart'][$counter]['g4n'] = (float)$weatherRow["g_upper"]; // getauscht, nutze unterene Sensor
                             } else {
-                                $dataArray['chart'][$counter]['g4n'] = $weatherRow["g_lower"]; // nicht getauscht, nutze oberen Sensor
+                                $dataArray['chart'][$counter]['g4n'] = (float)$weatherRow["g_lower"]; // nicht getauscht, nutze oberen Sensor
                             }
                         }
                     } else {

@@ -108,7 +108,7 @@ class AnlageGroups
     /**
      * @ORM\ManyToOne(targetEntity=WeatherStation::class)
      */
-    private WeatherStation $weatherStation;
+    private ?WeatherStation $weatherStation;
 
 
 
@@ -314,9 +314,9 @@ class AnlageGroups
         return $this;
     }
 
-    public function getFactorAC(): ?string
+    public function getFactorAC(): ?float
     {
-        return $this->factorAC;
+        return (float)$this->factorAC;
     }
 
     public function setFactorAC(string $factorAC): self
@@ -338,9 +338,9 @@ class AnlageGroups
         return $this;
     }
 
-    public function getLimitAc(): ?string
+    public function getLimitAc(): ?float
     {
-        return $this->limitAc;
+        return (float)$this->limitAc;
     }
 
     public function setLimitAc(string $limitAc): self
@@ -350,9 +350,9 @@ class AnlageGroups
         return $this;
     }
 
-    public function getGridLoss(): ?string
+    public function getGridLoss(): ?float
     {
-        return $this->gridLoss;
+        return (float)$this->gridLoss;
     }
 
     public function setGridLoss(string $gridLoss): self

@@ -9,7 +9,7 @@
                     <div class="cell small-8">
                         <h1>{{ anlage.anlName }}</h1>
                         <small>({{ (anlage.power)|number_format(1, ',', '.') }} kWp)</small>
-                        {% if is_granted('ROLE_G4N') %}<br><small>{{ anlage.anlId}} / {{ anlage.anlIntnr}} / {{ anlage.anlDbWs }}</small>{% endif %}
+                        {% if is_granted('ROLE_G4N') %}<br><small>{{ anlage.anlId}} / {{ anlage.anlIntnr}} / {{ anlage.weatherStation.databaseIdent }}</small>{% endif %}
                     </div>
                     <div class="cell small-4 text-right">
                         {% if openWeather is defined %}

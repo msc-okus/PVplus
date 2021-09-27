@@ -1,4 +1,4 @@
-{% from "dashboardPlants/_incl/macrosMenuSelectBox.html.twig" import acActOverview, acActGroup, dcActGroup, dcGroupPowerDiff, irradiation %}
+{% from "dashboardPlants/_incl/macrosMenuSelectBox.html.twig" import acActOverview, acActGroup, dcActGroup, dcGroupPowerDiff, irradiation, inverterPerformance, currentDcOverview, currentDcInverter %}
 
 <div class="grid-x grid-margin-x">
     <input type="hidden" name="eide" value="{{ aktAnlage.eignerId }}">
@@ -15,23 +15,28 @@
             {{ acActOverview(form, aktAnlage) }}
             {{ acActGroup(form, aktAnlage) }}
             {% if is_granted('ROLE_DEV') %}<option value="ac_grp_power_diff" {% if form.selectedChart == 'ac_grp_power_diff' or not form.selectedChart %}selected{% endif %}>AC - Inverter</option>{% endif %}
-            {% if is_granted('ROLE_DEV') %}<option value="ac_act_voltage" {% if form.selectedChart == 'ac_act_voltage' %}selected{% endif %}>AC - Voltage </option>{% endif %}
-            {% if is_granted('ROLE_DEV') %}<option value="ac_act_current" {% if form.selectedChart == 'ac_act_current' %}selected{% endif %}>AC - Current </option>{% endif %}
-            {% if is_granted('ROLE_DEV') %}<option value="ac_act_frequency" {% if form.selectedChart == 'ac_act_frequency' %}selected{% endif %}>AC - Frequency </option>{% endif %}
-            {% if is_granted('ROLE_DEV') %}<option value="dc_single" {% if form.selectedChart == 'dc_single' %}selected{% endif %}>DC - Actual & Expected, Plant</option>{% endif %}
+            {% if is_granted('ROLE_ADMIN') %}<option value="ac_act_voltage" {% if form.selectedChart == 'ac_act_voltage' %}selected{% endif %}>AC - Voltage </option>{% endif %}
+            {% if is_granted('ROLE_ADMIN') %}<option value="ac_act_current" {% if form.selectedChart == 'ac_act_current' %}selected{% endif %}>AC - Current </option>{% endif %}
+            {% if is_granted('ROLE_ADMIN') %}<option value="ac_act_frequency" {% if form.selectedChart == 'ac_act_frequency' %}selected{% endif %}>AC - Frequency </option>{% endif %}
             {% if is_granted('ROLE_DEV') %}<option value="reactive_power" {% if form.selectedChart == 'reactive_power' %}selected{% endif %}>Reactive Power </option>{% endif %}
 
             /* ab hier DC */
-            {{ dcGroupPowerDiff(form, aktAnlage) }}
+            {% if is_granted('ROLE_DEV') %}<option value="dc_single" {% if form.selectedChart == 'dc_single' %}selected{% endif %}>DC - Actual & Expected, Plant</option>{% endif %}
             {{ dcActGroup(form, aktAnlage) }}
-            {% if aktAnlage.showGraphDcCurrGrp or is_granted('ROLE_ADMIN') %}<option value="dc_current_group" {% if form.selectedChart == 'dc_current_group' %}selected{% endif %}>DC - Current, Group </option>{% endif %}
-            {% if aktAnlage.showGraphDcCurrInv or is_granted('ROLE_ADMIN') %}<option value="dc_current_inverter" {% if form.selectedChart == 'dc_current_inverter' %}selected{% endif %}>DC - Current, Inverter </option>{% endif %}
+            {{ dcGroupPowerDiff(form, aktAnlage) }}
+
+            /* ab hier Current DC */
+            {{ currentDcOverview(form, aktAnlage) }}
+            {{ currentDcInverter(form, aktAnlage) }}
+            {# {% if aktAnlage.showGraphDcCurrGrp or is_granted('ROLE_ADMIN') %}<option value="dc_current_group" {% if form.selectedChart == 'dc_current_group' %}selected{% endif %}>DC - Current, Group </option>{% endif %} #}
             {% if aktAnlage.showStringCharts or is_granted('ROLE_ADMIN') %}<option value="dc_current_mpp" {% if form.selectedChart == 'dc_current_mpp' %}selected{% endif %}>DC - Current, String </option>{% endif %}
+
+            /* ab hier Voltage DC */
             {% if aktAnlage.showGraphVoltGrp or is_granted('ROLE_ADMIN') %}<option value="dc_voltage_groups" {% if form.selectedChart == 'dc_voltage_groups' %}selected{% endif %}>DC - Voltage, Groups</option>{% endif %}
             {% if aktAnlage.showStringCharts or is_granted('ROLE_ADMIN') %}<option value="dc_voltage_mpp" {% if form.selectedChart == 'dc_voltage_mpp' %}selected{% endif %}>DC - Voltage, String</option>{% endif %}
 
             /* diverses */
-            {% if aktAnlage.showInverterPerformance or is_granted('ROLE_ADMIN') %}<option value="inverter_performance" {% if form.selectedChart == 'inverter_performance' %}selected{% endif %}>Inverter Performance</option>{% endif %}
+            {{ inverterPerformance(form, aktAnlage) }}
             {{ irradiation(form, aktAnlage) }}
             <option value="temp" {% if form.selectedChart == 'temp' %}selected{% endif %}>Temperature</option>
             {% if is_granted('ROLE_ADMIN') %}<option value="status_log" {% if form.selectedChart == 'status_log' %}selected{% endif %}>Show status log</option>{% endif %}
@@ -103,9 +108,11 @@
             <label class="button submit-onchange {% if form.optionDate == 14 %}active{% endif %} {% if form.selectedChart == 'availability' %}disabled{% endif %}">
                 <input type="radio" name="optionDate" value="14" {% if form.optionDate == 14 %}checked{% endif %}>last 14 days
             </label>
+            <!--
             <label class="button submit-onchange {% if form.optionDate == 30 %}active{% endif %} {% if form.selectedChart == 'availability' %}disabled{% endif %}">
                 <input type="radio" name="optionDate" value="30" {% if form.optionDate == 30 %}checked{% endif %}>last 30 days
             </label>
+            -->
             <label class="button submit-onchange {% if form.optionDate == 100000 %}active{% endif %} {% if form.selectedChart == 'availability' %}disabled{% endif %}">
                 <input type="radio" name="optionDate" value="100000" {% if form.optionDate == 100000 %}checked{% endif %}>month
             </label>

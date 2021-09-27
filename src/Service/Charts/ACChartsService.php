@@ -4,13 +4,8 @@ namespace App\Service\Charts;
 
 use App\Entity\Anlage;
 use App\Helper\G4NTrait;
-use App\Repository\AnlageAvailabilityRepository;
 use App\Repository\AnlagenStatusRepository;
-use App\Repository\ForecastRepository;
 use App\Repository\InvertersRepository;
-use App\Repository\PRRepository;
-use App\Repository\PVSystDatenRepository;
-use App\Service\ChartService;
 use App\Service\FunctionsService;
 use PDO;
 use Symfony\Component\Security\Core\Security;
@@ -60,7 +55,8 @@ class ACChartsService
         if ($res->rowCount() > 0) {
             $counter = 0;
             // add Irradiation
-            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == true){
+            //dd($anlage->getShowOnlyUpperIrr(), $anlage->getWeatherStation()->getHasLower(), $anlage->getWeatherStation());
+            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false){
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
             } else {
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
@@ -113,7 +109,7 @@ class ACChartsService
                 }
 
                 // add Irradiation
-                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == true){
+                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false){
                     $dataArray['chart'][$counter]["irradiation"] = $dataArrayIrradiation['chart'][$counter]['val1'];
                 } else {
                     $dataArray['chart'][$counter]["irradiation"] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2'])/2;
@@ -155,9 +151,10 @@ class ACChartsService
         $conn = self::getPdoConnection();
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
-        $nameArray = $this->functions->getInverterNameArray($anlage , 'ac');
+        $nameArray = $this->functions->getNameArray($anlage , 'ac');
         $dataArray['inverterArray'] = $nameArray;
         $acGroups = $anlage->getGroupsAc();
+
         $sqlExpected = "SELECT a.stamp, sum(b.ac_exp_power) as soll
                         FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE group_ac = '$group') b ON a.stamp = b.stamp) 
                         WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by a.stamp";
@@ -166,7 +163,7 @@ class ACChartsService
 
         // add Irradiation
         // Todo: Gewichtet Strahlung bei Ost West Anlagen.
-        if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == true){
+        if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false){
             $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
         } else {
             $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
@@ -196,6 +193,7 @@ class ACChartsService
                 $resultIst = $conn->query($sqlIst);
                 $counterInv = 1;
                 if ($resultIst->rowCount() > 0) {
+                    $dataArray['maxSeries'] = $resultIst->rowCount();
                     while ($rowIst = $resultIst->fetch(PDO::FETCH_ASSOC)) {
                         if ($counterInv > $maxInverter) $maxInverter = $counterInv;
                         $actPower = $rowIst['actPower'];
@@ -235,7 +233,7 @@ class ACChartsService
                 ($counterInv > 0) ? $dataArray['chart'][$counter]['exp'] = $expected / $counterInv : $dataArray['chart'][$counter]['exp'] = $expected;
 
                 // add Irradiation
-                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == true){
+                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false){
                     $dataArray['chart'][$counter]["irradiation"] = $dataArrayIrradiation['chart'][$counter]['val1'];
                 } else {
                     $dataArray['chart'][$counter]["irradiation"] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2'])/2;
@@ -249,12 +247,20 @@ class ACChartsService
         return $dataArray;
     }
 
+    /**
+     * AC Überblick (ist noch nicht aktiv)
+     * @param Anlage $anlage
+     * @param $from
+     * @param $to
+     * @param int $group
+     * @return array
+     */
     public function getActExpOverview(Anlage $anlage, $from, $to, int $group): array
     {
         $conn = self::getPdoConnection();
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
-        $nameArray = $this->functions->getInverterNameArray($anlage , 'ac');
+        $nameArray = $this->functions->getNameArray($anlage , 'ac');
         $dataArray['inverterArray'] = $nameArray;
         $acGroups = $anlage->getGroupsAc();
         $maxInverter = 0;
@@ -509,6 +515,51 @@ class ACChartsService
                     //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
                     "date" => self::timeShift($anlage, $stamp),
                     "act" => round($row["frequency_ist"], 2),
+                ];
+
+                $counter++;
+            }
+        }
+        $conn = null;
+        return $dataArray;
+    }
+
+    /**
+     * Erzeugt Daten für Blindleistung
+     * @param Anlage $anlage
+     * @param $from
+     * @param $to
+     * @param int $group
+     * @return array
+     * AC - Actual, Groups
+     */
+    public function getReactivePowerGroupAC(Anlage $anlage, $from, $to, int $group = 1): array
+    {
+        $conn = self::getPdoConnection();
+        $dataArray = [];
+        $acGroups = $anlage->getGroupsAc();
+        // Blindleistung für diesen Zeitraum und diese Gruppe
+        $sql_ist = "SELECT a.stamp, sum(b.p_ac_blind) as p_ac_blind 
+                        FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameAcIst() . " WHERE group_ac = '2') b ON a.stamp = b.stamp) 
+                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by a.stamp";
+
+        $result = $conn->query($sql_ist);
+        $counter = 0;
+        $counterInv = 0;
+        $dataArray['maxSeries'] = 0;
+        $dataArray['offsetLegend'] = $acGroups[$group]['GMIN'] - 1;
+        $dataArray['label'] = $acGroups[$group]['GroupName'];
+        if ($result->rowCount() > 0) {
+
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                $counterInv++;
+                if ($counterInv > $maxInverter) $maxInverter = $counterInv;
+                $invGroupIst = $row["inv_group"];
+                $stamp = $row["stamp"];
+                $dataArray['chart'][$counter] = [
+                    //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
+                    "date" => self::timeShift($anlage, $stamp),
+                    "act" => round($row["p_ac_blind"], 2),
                 ];
 
                 $counter++;
