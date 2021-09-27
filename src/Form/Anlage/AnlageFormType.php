@@ -480,6 +480,24 @@ class AnlageFormType extends AbstractType
                 'required'      => false,
                 'empty_data'    => '0',
             ])
+            ->add('hasDc', ChoiceType::class, [
+                'label'         => 'Anlage hat DC Daten',
+                'help'          => '[hasDc]',
+                'choices'       => ['No' => '0', 'Yes' => '1'],
+                'empty_data'    => '0',
+            ])
+            ->add('hasStrings', ChoiceType::class, [
+                'label'         => 'Anlage hat String Daten',
+                'help'          => '[hasString]',
+                'choices'       => ['No' => '0', 'Yes' => '1'],
+                'empty_data'    => '0',
+            ])
+            ->add('hasPannelTemp', ChoiceType::class, [
+                'label'         => 'Anlage hat Pannel Temperatur',
+                'help'          => '[hasPannelTemp]',
+                'choices'       => ['No' => '0', 'Yes' => '1'],
+                'empty_data'    => '0',
+            ])
             ################################################
             ####               Reports                  ####
             ################################################

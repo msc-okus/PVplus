@@ -101,12 +101,12 @@ class DashboardPlantsController extends BaseController
             if ($form['optionDate'] == 100000) {
                 $form['from'] = date("Y-m-d 00:00", strtotime(date("Y-m", strtotime($request->request->get('to')))));
             } else {
+                //
                 if ($form['backFromMonth']) {
                     $form['from'] =  $_SESSION['lastFormFrom'];
                     $_SESSION['currentMonth'] = false;
                     $form['backFromMonth'] = false;
                 } else {
-
                     $form['from'] = date("Y-m-d 00:00", strtotime($request->request->get('to')) - (86400 * ($form['optionDate'] - 1)));
                 }
             }

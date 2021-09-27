@@ -680,6 +680,21 @@ class Anlage
      */
     private $logs;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $hasDc;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $hasStrings;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $hasPannelTemp;
+
 
 
     public function __construct()
@@ -2804,6 +2819,42 @@ class Anlage
     public function getDbAnlagenData(): string
     {
         return $this->dbAnlagenData;
+    }
+
+    public function getHasDc(): ?bool
+    {
+        return $this->hasDc;
+    }
+
+    public function setHasDc(bool $hasDc): self
+    {
+        $this->hasDc = $hasDc;
+
+        return $this;
+    }
+
+    public function getHasStrings(): ?bool
+    {
+        return $this->hasStrings;
+    }
+
+    public function setHasStrings(bool $hasStrings): self
+    {
+        $this->hasStrings = $hasStrings;
+
+        return $this;
+    }
+
+    public function getHasPannelTemp(): ?bool
+    {
+        return $this->hasPannelTemp;
+    }
+
+    public function setHasPannelTemp(bool $hasPannelTemp): self
+    {
+        $this->hasPannelTemp = $hasPannelTemp;
+
+        return $this;
     }
 
 }

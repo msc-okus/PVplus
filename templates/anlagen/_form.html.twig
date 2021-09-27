@@ -164,7 +164,7 @@
                 {# Plant Configuration #}
                 <div class="tabs-panel" id="plant-data-2">
                     <div class="grid-x grid-padding-x">
-
+                        {# Spalte 1 #}
                         <div class="cell medium-6">
                             <fieldset class="fieldset">
                                 <legend>Anlagenleistung</legend>
@@ -197,7 +197,15 @@
                                 {{ form_row(anlageForm.minIrradiationAvailability) }}
                                 {{ form_row(anlageForm.useGridMeterDayData) }}
                             </fieldset>
+                            <fieldset class="fieldset">
+                                <legend>config</legend>
+                                {{ form_row(anlageForm.hasDc) }}
+                                {{ form_row(anlageForm.hasStrings) }}
+                                {{ form_row(anlageForm.hasPannelTemp) }}
+                            </fieldset>
                         </div>
+
+                        {# Spalte 2 #}
                         <div class="cell medium-6">
                             <fieldset class="fieldset">
                                 <legend>Report Konfiguration</legend>

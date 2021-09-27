@@ -107,7 +107,6 @@ class ExpectedService
 
                     $stamp      = $weather["stamp"];
                     $pannelTemp = $weather["panel_temp"];   // Pannel Temperatur
-                    //$ambTemp    = $weather[""];
                     $irrUpper   = $weather["irr_upper"];    // Strahlung an obern Sensor
                     $irrLower   = $weather["irr_lower"];    // Strahlung an unterem Sensor
 
@@ -122,6 +121,7 @@ class ExpectedService
                     $modules = $group->getModules();
                     $expPowerDc = $expCurrentDc = 0;
                     foreach ($modules as $modul) {
+                        //
                         if ($anlage->getIsOstWestAnlage()) {
                             // Ist 'Ost/West' Anlage, dann nutze $irrUpper (Strahlung Osten) und $irrLower (Strahlung Westen) und multipliziere mit der Anzahl Strings Ost / West
                             $expPowerDcHlp      = $modul->getModuleType()->getFactorPower($irrUpper) * $modul->getNumStringsPerUnitEast() * $modul->getNumModulesPerString() / 1000 / 4; // Ost
@@ -133,7 +133,21 @@ class ExpectedService
                             $expPowerDcHlp      = $modul->getModuleType()->getFactorPower($irr) * $modul->getNumStringsPerUnit() * $modul->getNumModulesPerString() / 1000 / 4;
                             $expCurrentDcHlp    = $modul->getModuleType()->getFactorCurrent($irr) * $modul->getNumStringsPerUnit(); // nicht durch 4 teilen, sind keine Ah, sondern A
                         }
-                        // degradation abziehen (degradation * Betriebsjahre)
+
+                        // Temperatur Korrektur
+                        if ($anlage->getHasPannelTemp()) {
+                            //$expPowerDcHlp      = $expPowerDcHlp * $modul->getModuleType()->getTempCorrPower($pannelTemp);
+                            //$expCurrentDcHlp    = $expCurrentDcHlp * $modul->getModuleType()->getTempCorrCurrent($pannelTemp);
+                        }
+
+                        if ( $counter < 50 && false) {
+                            $counter++;
+                            $hlp = $modul->getModuleType()->getTempCorrPower($pannelTemp);
+                            $hlp3 = $expPowerDcHlp * $hlp ;
+                            dump("TempCorr: $hlp / $hlp3 / $expPowerDcHlp | PanelTemp: $pannelTemp | Betriebsjahre: $betriebsJahre | ");
+                        }
+
+                        // degradation abziehen (degradation * Betriebsjahre).
                         $expPowerDcHlp      = $expPowerDcHlp - ($expPowerDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
                         $expCurrentDcHlp    = $expCurrentDcHlp - ($expCurrentDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
 

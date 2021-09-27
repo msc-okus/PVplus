@@ -128,9 +128,9 @@ class AnlageModules
         return $this;
     }
 
-    public function getTempCoefCurrent(): ?string
+    public function getTempCoefCurrent(): ?float
     {
-        return $this->tempCoefCurrent;
+        return (float)$this->tempCoefCurrent;
     }
 
     public function setTempCoefCurrent(string $tempCoefCurrent): self
@@ -140,9 +140,9 @@ class AnlageModules
         return $this;
     }
 
-    public function getTempCoefPower(): ?string
+    public function getTempCoefPower(): ?float
     {
-        return $this->tempCoefPower;
+        return (float)$this->tempCoefPower;
     }
 
     public function setTempCoefPower(string $tempCoefPower): self
@@ -283,8 +283,17 @@ class AnlageModules
         if ($irr < (3 * $c)) $c = $c * 3;
         if ($irr < (2 * $c)) $c = 0;
 
-        //  $soll_pdcmo = (($pa * $irr ** 2) + ($pb * $irr) + $pc) * (1 + ($mod_temp_corr_factor / 100) * ($pannelTemp - 25)); #Modul (U)
         return ($irr > 0) ? ($a * $irr ** 2) + ($b * $irr) + $c : 0; //
+    }
+
+    public function getTempCorrPower(float $pannelTemp):float
+    {
+        return (float)(1 + ($this->getTempCoefPower() * ($pannelTemp - 25) / 100));
+    }
+
+    public function getTempCorrCurrent(float $pannelTemp):float
+    {
+        return (float)(1 + ($this->getTempCoefCurrent() * ($pannelTemp - 25) / 100));
     }
 
     public function getAnlage(): ?Anlage

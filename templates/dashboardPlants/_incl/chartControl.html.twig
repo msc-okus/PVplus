@@ -1,60 +1,74 @@
-{% from "dashboardPlants/_incl/macrosMenuSelectBox.html.twig" import acActOverview, acActGroup, dcActGroup, dcGroupPowerDiff, irradiation, inverterPerformance, currentDcOverview, currentDcInverter, currentDcGroup, dcActPlant, dcActOverview %}
+{% from "dashboardPlants/_incl/macrosMenuSelectBox.html.twig" import acActOverview, acActGroup, dcActGroup, dcGroupPowerDiff, irradiation, inverterPerformance, currentDcOverview, currentDcInverter, currentDcGroup, dcActPlant, dcActOverview, currentDcString, acActPlant %}
 
 <div class="grid-x grid-margin-x">
     <input type="hidden" name="eide" value="{{ aktAnlage.eignerId }}">
     <input type="hidden" name="aid" value="{{ aktAnlage.AnlId }}">
     <input type="hidden" name="mysubmit" id="mysubmit" value="no">
     <div class="cell medium-6 large-4 xlarge-2">
-        <select class="submit-onchange" title="Please select a view from the list." data-toggle="tooltip" name="selectedChart">
-            {% if aktAnlage.showAvailability or is_granted('ROLE_ADMIN') %}<option value="availability" {% if form.selectedChart == 'availability' %}selected{% endif %}>Show Availability</option>{% endif %}
-            {% if aktAnlage.showPr or is_granted('ROLE_ADMIN') %}<option value="pr_and_av" {% if form.selectedChart == 'pr_and_av' %}selected{% endif %}>Show PR</option>{% endif %}
-            {% if aktAnlage.showForecast %}<option value="forecast" {% if form.selectedChart == 'forecast' %}selected{% endif %}>Forecast</option>{% endif %}
+        <select class="js-submit-onchange selectedChart" title="Please select a view from the list." data-toggle="tooltip" name="selectedChart">
+            <optgroup label="Auswertungen">
+                {% if aktAnlage.showAvailability or is_granted('ROLE_ADMIN') %}<option value="availability" {% if form.selectedChart == 'availability' %}selected{% endif %}>Show Availability</option>{% endif %}
+                {% if aktAnlage.showPr or is_granted('ROLE_ADMIN') %}<option value="pr_and_av" {% if form.selectedChart == 'pr_and_av' %}selected{% endif %}>Show PR&nbsp;[%]</option>{% endif %}
+                {% if aktAnlage.showForecast %}<option value="forecast" {% if form.selectedChart == 'forecast' %}selected{% endif %}>Forecast&nbsp;[kWh]</option>{% endif %}
+                {{ inverterPerformance(form, aktAnlage) }}
+            </optgroup>
 
-            /* ab hier AC */
-            <option value="ac_single" {% if form.selectedChart == 'ac_single' %}selected{% endif %}>AC - Actual & Expected, Plant</option>
-            {{ acActOverview(form, aktAnlage) }}
-            {{ acActGroup(form, aktAnlage) }}
-            {% if is_granted('ROLE_DEV') %}<option value="ac_grp_power_diff" {% if form.selectedChart == 'ac_grp_power_diff' or not form.selectedChart %}selected{% endif %}>AC - Inverter</option>{% endif %}
-            {% if is_granted('ROLE_ADMIN') %}<option value="ac_act_voltage" {% if form.selectedChart == 'ac_act_voltage' %}selected{% endif %}>AC - Voltage </option>{% endif %}
-            {% if is_granted('ROLE_ADMIN') %}<option value="ac_act_current" {% if form.selectedChart == 'ac_act_current' %}selected{% endif %}>AC - Current </option>{% endif %}
-            {% if is_granted('ROLE_ADMIN') %}<option value="ac_act_frequency" {% if form.selectedChart == 'ac_act_frequency' %}selected{% endif %}>AC - Frequency </option>{% endif %}
-            {% if is_granted('ROLE_DEV') %}<option value="reactive_power" {% if form.selectedChart == 'reactive_power' %}selected{% endif %}>Reactive Power </option>{% endif %}
+            <!-- ab hier AC -->
+            <optgroup label="AC">
+                {{ acActPlant(form, aktAnlage) }}       {# AC1 #}
+                {{ acActOverview(form, aktAnlage) }}    {# AC2 #}
+                {{ acActGroup(form, aktAnlage) }}       {# AC3 #}
+                {% if is_granted('ROLE_DEV') %}<option value="ac_grp_power_diff" {% if form.selectedChart == 'ac_grp_power_diff' or not form.selectedChart %}selected{% endif %}>AC - Inverter</option>{% endif %}
+                {% if is_granted('ROLE_ADMIN') %}<option value="ac_act_voltage" {% if form.selectedChart == 'ac_act_voltage' %}selected{% endif %}>AC - Voltage&nbsp;[V]</option>{% endif %}
+                {% if is_granted('ROLE_ADMIN') %}<option value="ac_act_current" {% if form.selectedChart == 'ac_act_current' %}selected{% endif %}>AC - Current&nbsp;[A]</option>{% endif %}
+                {% if is_granted('ROLE_ADMIN') %}<option value="ac_act_frequency" {% if form.selectedChart == 'ac_act_frequency' %}selected{% endif %}>AC - Frequency&nbsp;[Hz]</option>{% endif %}
+                {% if is_granted('ROLE_DEV') %}<option value="reactive_power" {% if form.selectedChart == 'reactive_power' %}selected{% endif %}>Reactive Power&nbsp;[VA ??]</option>{% endif %}
+            </optgroup>
 
-            /* ab hier DC */
-            {{ dcActPlant(form, aktAnlage) }}
-            {{ dcActOverview(form, aktAnlage) }}
-            {{ dcActGroup(form, aktAnlage) }}
-            {{ dcGroupPowerDiff(form, aktAnlage) }}
+            <!-- ab hier DC -->
+            <optgroup label="DC Power">
+                {{ dcActPlant(form, aktAnlage) }}       {# DC1 #}
+                {{ dcActOverview(form, aktAnlage) }}    {# DC2 #}
+                {{ dcActGroup(form, aktAnlage) }}       {# DC3 #}
+                {{ dcGroupPowerDiff(form, aktAnlage) }} {# DC4 Bar Chart #}
+            </optgroup>
 
-            /* ab hier Current DC */
-            {{ currentDcOverview(form, aktAnlage) }}
-            {{ currentDcGroup(form, aktAnlage) }}
-            {{ currentDcInverter(form, aktAnlage) }}
-            {% if aktAnlage.showStringCharts or is_granted('ROLE_ADMIN') %}<option value="dc_current_mpp" {% if form.selectedChart == 'dc_current_mpp' %}selected{% endif %}>DC - Current, String </option>{% endif %}
-
-            /* ab hier Voltage DC */
+            <!-- ab hier Current DC -->
+            <optgroup label="DC Current">
+                {{ currentDcOverview(form, aktAnlage) }}    {# Curr1 #}
+                {{ currentDcGroup(form, aktAnlage) }}       {# Curr2 #}
+                {{ currentDcInverter(form, aktAnlage) }}    {# Curr3 #}
+                {{ currentDcString(form, aktAnlage) }}      {# Curr4 #}
+            </optgroup>
+            <!-- ab hier Voltage DC -->
             {#
-            {% if aktAnlage.showGraphVoltGrp or is_granted('ROLE_ADMIN') %}<option value="dc_voltage_groups" {% if form.selectedChart == 'dc_voltage_groups' %}selected{% endif %}>DC - Voltage, Groups</option>{% endif %}
-            {% if aktAnlage.showStringCharts or is_granted('ROLE_ADMIN') %}<option value="dc_voltage_mpp" {% if form.selectedChart == 'dc_voltage_mpp' %}selected{% endif %}>DC - Voltage, String</option>{% endif %}
+            <optgroup label="DC Voltage">
+                {% if aktAnlage.showGraphVoltGrp or is_granted('ROLE_ADMIN') %}<option value="dc_voltage_groups" {% if form.selectedChart == 'dc_voltage_groups' %}selected{% endif %}>DC - Voltage, Groups</option>{% endif %}
+                {% if aktAnlage.showStringCharts or is_granted('ROLE_ADMIN') %}<option value="dc_voltage_mpp" {% if form.selectedChart == 'dc_voltage_mpp' %}selected{% endif %}>DC - Voltage, String</option>{% endif %}
+            </optgroup>
             #}
 
-            /* diverses */
-            {{ inverterPerformance(form, aktAnlage) }}
-            {{ irradiation(form, aktAnlage) }}
-            <option value="temp" {% if form.selectedChart == 'temp' %}selected{% endif %}>Temperature</option>
+            <!-- diverses -->
+            <optgroup label="Sensors">
+                {{ irradiation(form, aktAnlage) }}
+                <option value="temp" {% if form.selectedChart == 'temp' %}selected{% endif %}>Temperature</option>
+            </optgroup>
 
-            /* Developer and G4N Stuff */
+            <!-- Developer and G4N Stuff -->
             {% if is_granted('ROLE_ADMIN') %}
-                <option value="status_log" {% if form.selectedChart == 'status_log' %}selected{% endif %}>Show status log</option>
+                <optgroup label="Admin Stuff">
+                    <option value="status_log" {% if form.selectedChart == 'status_log' %}selected{% endif %}>Show status log</option>
+                    {% if aktAnlage.showPvSyst or is_granted('ROLE_DEV') %}
+                        <option value="pvsyst" {% if form.selectedChart == 'pvsyst' %}selected{% endif %}>Show pvSyst</option>
+                    {% endif %}
+                </optgroup>
             {% endif %}
-            {% if aktAnlage.showPvSyst or is_granted('ROLE_DEV') %}
-                <option value="pvsyst" {% if form.selectedChart == 'pvsyst' %}selected{% endif %}>Show pvSyst</option>
-            {% endif %}
+
         </select>
     </div>
     <div class="cell medium-6 large-4 xlarge-3">
         {% if form.selectedChart == 'dc_inv_power_diff' or form.selectedChart == 'inverter_performance' or form.selectedChart == 'dc_current_inverter' or form.selectedChart == 'ac_act_group' or form.selectedChart == 'ac_act_voltage' or form.selectedChart == 'ac_act_current' or form.selectedChart == 'ac_act_frequency' or form.selectedChart == 'dc_act_group' or form.selectedChart == 'dc_current_overview' %}
-            <select class="form-control submit-onchange" title="Select a Group" data-toggle="tooltip" name="selectedGroup">
+            <select class="form-control js-submit-onchange" title="Select a Group" data-toggle="tooltip" name="selectedGroup">
                 {% if form.selectedChart starts with 'ac' or form.selectedChart == 'dc_current_overview' %}
                     {% for group in aktAnlage.acGroups%}
                         <option value="{{ loop.index }}" {% if form.selectedGroup == loop.index %}selected{% endif %}>{{ group.acGroupName }}</option>
@@ -68,7 +82,7 @@
             <input type="hidden" name="selectedSet" value="1">
         {% elseif form.selectedChart == 'dc_voltage_groups' or form.selectedChart == 'dc_current_group' %}
             {% if aktAnlage.groups|length > 10 %}
-                <select class="form-control submit-onchange" title="Select a Set" data-toggle="tooltip" name="selectedSet">
+                <select class="form-control js-submit-onchange" title="Select a Set" data-toggle="tooltip" name="selectedSet">
                     {% for set in 1..((aktAnlage.groups|length/10)|round(0)) %}
                         <option value="{{ loop.index }}" {% if form.selectedSet == loop.index %}selected{% endif %}>Set "{{ loop.index }}"</option>
                     {% endfor %}
@@ -83,7 +97,7 @@
         {% endif %}
 
         {% if form.selectedChart == 'dc_current_mpp' or form.selectedChart == 'dc_voltage_mpp' %}
-            <select class="form-control submit-onchange" title="Select a Inverter" data-toggle="tooltip" name="selectedInverter">
+            <select class="form-control js-submit-onchange" title="Select a Inverter" data-toggle="tooltip" name="selectedInverter">
                 {% for dcInverter in aktAnlage.invertersFromDcGroups %}
                     <option value="{{ dcInverter.inverterNo }}" {% if form.selectedInverter == loop.index %}selected{% endif %}>Group {{ dcInverter.group}} - {{ dcInverter.name }}</option>
                 {% endfor %}
@@ -94,7 +108,7 @@
     </div>
     <div class="cell medium-4 large-4 xlarge-2">
         <div class="input-group">
-            <input id="startDate" name="to" class="input-group-field submit-onchange" size="16" type="text" value="{{ form.to|date('Y-m-d') }}" data-date-format="yyyy-mm-dd" style="max-width: 158px;">
+            <input id="startDate" name="to" class="input-group-field js-submit-onchange" size="16" type="text" value="{{ form.to|date('Y-m-d') }}" data-date-format="yyyy-mm-dd" style="max-width: 158px;">
             <span class="input-group-label"><i class="fa fa-calendar"></i></span>
         </div>
         <script>
@@ -105,24 +119,24 @@
     </div>
     <div class="cell medium-8 large-12 xlarge-5 ">
         <div class="small button-group round toggle">
-            <label class="button submit-onchange {% if form.optionDate == 1 or not form.optionDate %}active{% endif %} {% if form.selectedChart == 'pr_and_av' %}disabled{% endif %}">
+            <label class="button js-submit-onchange {% if form.optionDate == 1 or not form.optionDate %}active{% endif %} {% if form.selectedChart == 'pr_and_av' %}disabled{% endif %}">
                 <input type="radio" name="optionDate" value="1" {% if form.optionDate == 1 or not form.optionDate %}checked="checked"{% endif %}>one day
             </label>
-            <label class="button submit-onchange {% if form.optionDate == 3 %}active{% endif %} {% if form.selectedChart == 'pr_and_av' or form.selectedChart == 'availability' %}disabled{% endif %}">
+            <label class="button js-submit-onchange {% if form.optionDate == 3 %}active{% endif %} {% if form.selectedChart == 'pr_and_av' or form.selectedChart == 'availability' %}disabled{% endif %}">
                 <input type="radio" name="optionDate" value="3" {% if form.optionDate == 3 %}checked{% endif %}>last 3 days
             </label>
-            <label class="button submit-onchange {% if form.optionDate == 7 %}active{% endif %} {% if form.selectedChart == 'availability' %}disabled{% endif %}">
+            <label class="button js-submit-onchange {% if form.optionDate == 7 %}active{% endif %} {% if form.selectedChart == 'availability' %}disabled{% endif %}">
                 <input type="radio" name="optionDate" value="7" {% if form.optionDate == 7 %}checked{% endif %}>last 7 days
             </label>
-            <label class="button submit-onchange {% if form.optionDate == 14 %}active{% endif %} {% if form.selectedChart == 'availability' %}disabled{% endif %}">
+            <label class="button js-submit-onchange {% if form.optionDate == 14 %}active{% endif %} {% if form.selectedChart == 'availability' %}disabled{% endif %}">
                 <input type="radio" name="optionDate" value="14" {% if form.optionDate == 14 %}checked{% endif %}>last 14 days
             </label>
             <!--
-            <label class="button submit-onchange {% if form.optionDate == 30 %}active{% endif %} {% if form.selectedChart == 'availability' %}disabled{% endif %}">
+            <label class="button js-submit-onchange {% if form.optionDate == 30 %}active{% endif %} {% if form.selectedChart == 'availability' %}disabled{% endif %}">
                 <input type="radio" name="optionDate" value="30" {% if form.optionDate == 30 %}checked{% endif %}>last 30 days
             </label>
             -->
-            <label class="button submit-onchange {% if form.optionDate == 100000 %}active{% endif %} {% if form.selectedChart == 'availability' %}disabled{% endif %}">
+            <label class="button js-submit-onchange {% if form.optionDate == 100000 %}active{% endif %} {% if form.selectedChart == 'availability' %}disabled{% endif %}">
                 <input type="radio" name="optionDate" value="100000" {% if form.optionDate == 100000 %}checked{% endif %}>month
             </label>
         </div>

@@ -582,7 +582,7 @@
 
         }); // end am4core.ready()
     </script>
-{% elseif form.selectedChart == 'dc_current_overview' %}
+{% elseif form.selectedChart == 'dc_current_overview' or form.selectedChart == 'dc_act_overview' %}
     <!-- Liniendiagramm DC (current overview) -->
     <script>
         am4core.ready(function() {
