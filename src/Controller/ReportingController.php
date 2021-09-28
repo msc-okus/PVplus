@@ -33,7 +33,7 @@ class ReportingController extends AbstractController
     /**
      * @Route("/reporting", name="app_reporting_list")
      */
-    public function list(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo, UserRepository $userRepository, ReportService $report, ReportEpcService $epcReport): Response
+    public function list(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo, ReportService $report, ReportEpcService $epcReport): Response
     {
         $q = $request->query->get('qr');
         $searchstatus = $request->query->get('searchstatus');
@@ -110,7 +110,7 @@ class ReportingController extends AbstractController
      */
     public function find(AnlagenRepository $anlagenRepository, Request $request)
     {
-        $anlage = $anlagenRepository->findAllMatching($request->query->get('query'));
+        $anlage = $anlagenRepository->findByAllMatching($request->query->get('query'));
         return $this->json([
             'anlagen' => $anlage
         ], 200, [], ['groups' => ['main']]);

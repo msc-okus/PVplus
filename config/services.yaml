@@ -42,7 +42,5 @@ services:
     #App\Legacy\LegacyRouteLoader:
     #    tags: ['routing.loader']
 
-    # JSON Filter
-    App\Filter\JsonFilter:
 
 

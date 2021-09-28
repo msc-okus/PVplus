@@ -42,17 +42,13 @@ class ReportsRepository extends ServiceEntityRepository
             ->addSelect('e')
             ;
 
-
         // Wenn Benutzer kein G4N Rolle hat
         if (! $this->security->isGranted('ROLE_G4N')) {
-
             /** @var User $user */
             $user = $this->security->getUser();
-            $granted = explode(',', $user->getGrantedList());
-
-            $qb->andWhere("a.anlId IN (:granted)")
-                ->setParameter('granted', $granted)
-            ;
+            $accessList = $user->getAccessList();
+            $qb->andWhere('report.eigner in (:accessList)')
+                ->setParameter('accessList', $accessList);
         }
 
         // schließe Archiv und falsche Reports aus
@@ -64,8 +60,7 @@ class ReportsRepository extends ServiceEntityRepository
         }
 
         if ($searchtype != '') {
-            $qb ->andWhere('report.reportType LIKE :term or a.anlName LIKE :term or e.firma LIKE :term')
-                ->setParameter('term', '%' . $searchtype);
+            $qb->andWhere("report.reportType like '$searchtype'");
         }
 
         if ($searchmonth !='') {

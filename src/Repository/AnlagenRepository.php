@@ -240,7 +240,7 @@ class AnlagenRepository extends ServiceEntityRepository
      * @param string|null $query
      * @return array
      */
-    public function findAllMatching(string $query, int $limit = 1000)
+    public function findByAllMatching(string $query, int $limit = 100)
     {
         $qb = $this->createQueryBuilder('a')
         ->andWhere('a.anlName LIKE :query')
