@@ -1,0 +1,74 @@
+<script>
+    am4core.ready(function () {
+        // Create chart instance
+        {% if form.optionDate < 14 %}
+        am4core.useTheme(am4themes_animated);
+        {% endif %}
+
+        let chart = am4core.create("amchart-holder", am4charts.XYChart);
+        //chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+        chart.data = {{ content.data|raw }};
+        chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+        chart.numberFormatter.intlLocales = "de-DE";
+        chart.numberFormatter.numberFormat = {
+            "style": "decimal",
+            "minimumFractionDigits": 0
+        };
+
+        // Legend
+        chart.legend = new am4charts.Legend();
+        chart.legend.useDefaultMarker = false;
+
+        // Create axes
+        let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+        let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+
+        let series2 = chart.series.push(new am4charts.LineSeries());
+        series2.name = "PR";
+        series2.dataFields.dateX = "date";
+        series2.dataFields.valueY = "pr_act";
+        series2.tooltipText = "{name}: {valueY}";
+        series2.stroke = am4core.color("#0098fd");
+        series2.fill = series2.stroke;
+        series2.strokeWidth = 1;
+        series2.defaultState.transitionDuration = 300;
+        series2.tensionX = 0.8;
+
+        let bullet2 = series2.bullets.push(new am4charts.Bullet());
+
+        let arrow2 = bullet2.createChild(am4core.Triangle);
+        arrow2.horizontalCenter = "middle";
+        arrow2.verticalCenter = "middle";
+        arrow2.strokeWidth = 0;
+        arrow2.fill = chart.colors.getIndex(0);
+        arrow2.direction = "top";
+        arrow2.width = 18;
+        arrow2.height = 18;
+
+        let series3 = chart.series.push(new am4charts.LineSeries());
+        series3.name = "Availability";
+        series3.dataFields.dateX = "date";
+        series3.dataFields.valueY = "av";
+        series3.tooltipText = "{name}: {valueY}";
+        series3.stroke = am4core.color("#000000");
+        series3.fill = series3.stroke;
+        series3.strokeWidth = 2;
+        //series3.sequencedInterpolation = false;
+        series3.defaultState.transitionDuration = 300;
+        series3.tensionX = 0.8;
+        // Add a bullet
+        let bullet3 = series3.bullets.push(new am4charts.CircleBullet());
+        bullet3.circle.radius = 8;
+
+        chart.cursor = new am4charts.XYCursor();
+        chart.cursor.xAxis = dateAxis;
+        chart.exporting.menu = new am4core.ExportMenu();
+        chart.scrollbarX = new am4core.Scrollbar();
+        chart.scrollbarX.marginBottom = "20"
+        chart.scrollbarY = new am4core.Scrollbar();
+        chart.scrollbarY.marginLeft = "20";
+        chart.exporting.menu.items[0].label = "Download";
+
+    }); // end am4core.ready()
+</script>

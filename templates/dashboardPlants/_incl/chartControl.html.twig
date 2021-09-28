@@ -6,8 +6,8 @@
     <input type="hidden" name="mysubmit" id="mysubmit" value="no">
     <div class="cell medium-6 large-4 xlarge-2">
         <select class="js-submit-onchange selectedChart" title="Please select a view from the list." data-toggle="tooltip" name="selectedChart">
-            <optgroup label="Auswertungen">
-                {% if aktAnlage.showAvailability or is_granted('ROLE_ADMIN') %}<option value="availability" {% if form.selectedChart == 'availability' %}selected{% endif %}>Show Availability</option>{% endif %}
+            <optgroup label="Evaluation">
+                {% if aktAnlage.showAvailability or is_granted('ROLE_ADMIN') %}<option value="availability" {% if form.selectedChart == 'availability' %}selected{% endif %}>Show Availability [%]</option>{% endif %}
                 {% if aktAnlage.showPr or is_granted('ROLE_ADMIN') %}<option value="pr_and_av" {% if form.selectedChart == 'pr_and_av' %}selected{% endif %}>Show PR&nbsp;[%]</option>{% endif %}
                 {% if aktAnlage.showForecast %}<option value="forecast" {% if form.selectedChart == 'forecast' %}selected{% endif %}>Forecast&nbsp;[kWh]</option>{% endif %}
                 {{ inverterPerformance(form, aktAnlage) }}
@@ -25,33 +25,35 @@
                 {% if is_granted('ROLE_DEV') %}<option value="reactive_power" {% if form.selectedChart == 'reactive_power' %}selected{% endif %}>Reactive Power&nbsp;[VA ??]</option>{% endif %}
             </optgroup>
 
-            <!-- ab hier DC -->
-            <optgroup label="DC Power">
-                {{ dcActPlant(form, aktAnlage) }}       {# DC1 #}
-                {{ dcActOverview(form, aktAnlage) }}    {# DC2 #}
-                {{ dcActGroup(form, aktAnlage) }}       {# DC3 #}
-                {{ dcGroupPowerDiff(form, aktAnlage) }} {# DC4 Bar Chart #}
-            </optgroup>
+            {% if aktAnlage.hasDc %}
+                <!-- ab hier DC -->
+                <optgroup label="DC Power">
+                    {{ dcActPlant(form, aktAnlage) }}       {# DC1 #}
+                    {{ dcActOverview(form, aktAnlage) }}    {# DC2 #}
+                    {{ dcActGroup(form, aktAnlage) }}       {# DC3 #}
+                    {{ dcGroupPowerDiff(form, aktAnlage) }} {# DC4 Bar Chart #}
+                </optgroup>
 
-            <!-- ab hier Current DC -->
-            <optgroup label="DC Current">
-                {{ currentDcOverview(form, aktAnlage) }}    {# Curr1 #}
-                {{ currentDcGroup(form, aktAnlage) }}       {# Curr2 #}
-                {{ currentDcInverter(form, aktAnlage) }}    {# Curr3 #}
-                {{ currentDcString(form, aktAnlage) }}      {# Curr4 #}
-            </optgroup>
-            <!-- ab hier Voltage DC -->
-            {#
-            <optgroup label="DC Voltage">
-                {% if aktAnlage.showGraphVoltGrp or is_granted('ROLE_ADMIN') %}<option value="dc_voltage_groups" {% if form.selectedChart == 'dc_voltage_groups' %}selected{% endif %}>DC - Voltage, Groups</option>{% endif %}
-                {% if aktAnlage.showStringCharts or is_granted('ROLE_ADMIN') %}<option value="dc_voltage_mpp" {% if form.selectedChart == 'dc_voltage_mpp' %}selected{% endif %}>DC - Voltage, String</option>{% endif %}
-            </optgroup>
-            #}
+                <!-- ab hier Current DC -->
+                <optgroup label="DC Current">
+                    {{ currentDcOverview(form, aktAnlage) }}    {# Curr1 #}
+                    {{ currentDcGroup(form, aktAnlage) }}       {# Curr2 #}
+                    {{ currentDcInverter(form, aktAnlage) }}    {# Curr3 #}
+                    {{ currentDcString(form, aktAnlage) }}      {# Curr4 #}
+                </optgroup>
+                <!-- ab hier Voltage DC -->
+                {#
+                <optgroup label="DC Voltage">
+                    {% if aktAnlage.showGraphVoltGrp or is_granted('ROLE_ADMIN') %}<option value="dc_voltage_groups" {% if form.selectedChart == 'dc_voltage_groups' %}selected{% endif %}>DC - Voltage, Groups</option>{% endif %}
+                    {% if aktAnlage.showStringCharts or is_granted('ROLE_ADMIN') %}<option value="dc_voltage_mpp" {% if form.selectedChart == 'dc_voltage_mpp' %}selected{% endif %}>DC - Voltage, String</option>{% endif %}
+                </optgroup>
+                #}
+            {% endif %}
 
             <!-- diverses -->
             <optgroup label="Sensors">
                 {{ irradiation(form, aktAnlage) }}
-                <option value="temp" {% if form.selectedChart == 'temp' %}selected{% endif %}>Temperature</option>
+                <option value="temp" {% if form.selectedChart == 'temp' %}selected{% endif %}>Temperature [°C]</option>
             </optgroup>
 
             <!-- Developer and G4N Stuff -->

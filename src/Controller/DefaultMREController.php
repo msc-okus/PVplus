@@ -101,7 +101,7 @@ class DefaultMREController extends BaseController
      * @Route("/test/epc/report/{id}/{pdf}", defaults={"pdf"=false})
      * @deprecated
      */
-    public function epcReport($id, $pdf, AnlagenRepository $anlagenRepository, ReportEpcService $reportEpc, EntityManagerInterface $em, NormalizerInterface $serializer)
+    public function epcReport($id, $pdf, AnlagenRepository $anlagenRepository, ReportEpcService $reportEpc, EntityManagerInterface $em, NormalizerInterface $serializer): Response
     {
         $output = '';
         /** @var Anlage $anlage */
@@ -218,7 +218,7 @@ class DefaultMREController extends BaseController
     /**
      * @Route ("/test/olli")
      */
-    public function olliExport()
+    public function olliExport(): Response
     {
         $conn = self::getPdoConnection();
         $sqlExp = "

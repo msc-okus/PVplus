@@ -92,7 +92,7 @@
 {% macro currentDcGroup(form, aktAnlage) %}
     {% if aktAnlage.showGraphDcCurrGrp or is_granted('ROLE_ADMIN') %}
         {% if aktAnlage.configType == 1 %}
-            <option value="dc_current_group" {% if form.selectedChart == 'dc_current_group' %}selected{% endif %}>DC - Current, Group&nbsp;[A]{% if is_granted('ROLE_DEV') %}[Curr 2]{% endif %}</option>
+            {# <option value="dc_current_group" {% if form.selectedChart == 'dc_current_group' %}selected{% endif %}>DC - Current, Group&nbsp;[A]{% if is_granted('ROLE_DEV') %}[Curr 2]{% endif %}</option> #}
         {% elseif aktAnlage.configType == 2 %}
 
         {% elseif aktAnlage.configType == 3 %}
@@ -104,33 +104,40 @@
 {% endmacro %}
 
 {% macro currentDcInverter(form, aktAnlage) %}
-    {% if aktAnlage.showGraphDcCurrInv or is_granted('ROLE_ADMIN') %}
-        {% if aktAnlage.configType == 1 %}
-            <option value="dc_current_inverter" {% if form.selectedChart == 'dc_current_inverter' %}selected{% endif %}>DC - Current, Inverter&nbsp;[A]{% if is_granted('ROLE_DEV') %}[Curr 3]{% endif %}</option>
-        {% elseif aktAnlage.configType == 2 %}
-            <option value="dc_current_inverter" {% if form.selectedChart == 'dc_current_inverter' %}selected{% endif %}>DC - Current, Inverter&nbsp;[A]{% if is_granted('ROLE_DEV') %}[Curr 3]{% endif %}</option>
-        {% elseif aktAnlage.configType == 3 %}
-            <option value="dc_current_inverter" {% if form.selectedChart == 'dc_current_inverter' %}selected{% endif %}>DC - Current, SCB Groups&nbsp;[A]{% if is_granted('ROLE_DEV') %}[Curr 3]{% endif %}</option>
-        {% elseif aktAnlage.configType == 4 %}
-            <option value="dc_current_inverter" {% if form.selectedChart == 'dc_current_inverter' %}selected{% endif %}>DC - Current, SCB&nbsp;[A]{% if is_granted('ROLE_DEV') %}[Curr 3]{% endif %}</option>
-        {% endif %}
+    {% if aktAnlage.configType == 1 %}
+        <option value="dc_current_inverter" {% if form.selectedChart == 'dc_current_inverter' %}selected{% endif %}>DC - Current, Inverter&nbsp;[A]{% if is_granted('ROLE_DEV') %}[Curr 3]{% endif %}</option>
+    {% elseif aktAnlage.configType == 2 %}
+        <option value="dc_current_inverter" {% if form.selectedChart == 'dc_current_inverter' %}selected{% endif %}>DC - Current, Inverter&nbsp;[A]{% if is_granted('ROLE_DEV') %}[Curr 3]{% endif %}</option>
+    {% elseif aktAnlage.configType == 3 %}
+        <option value="dc_current_inverter" {% if form.selectedChart == 'dc_current_inverter' %}selected{% endif %}>DC - Current, SCB Groups&nbsp;[A]{% if is_granted('ROLE_DEV') %}[Curr 3]{% endif %}</option>
+    {% elseif aktAnlage.configType == 4 %}
+        <option value="dc_current_inverter" {% if form.selectedChart == 'dc_current_inverter' %}selected{% endif %}>DC - Current, SCB&nbsp;[A]{% if is_granted('ROLE_DEV') %}[Curr 3]{% endif %}</option>
     {% endif %}
 {% endmacro %}
 
 {% macro currentDcString(form, aktAnlage) %}
-    {% if aktAnlage.showStringCharts or is_granted('ROLE_ADMIN') %}
-        <option value="dc_current_mpp" {% if form.selectedChart == 'dc_current_mpp' %}selected{% endif %}>DC - Current, String&nbsp;[A]{% if is_granted('ROLE_DEV') %}[Curr 4]{% endif %}</option>
-    {% endif %}
+    {% if aktAnlage.hasStrings %}
+        {% if aktAnlage.configType == 1 %}
 
+        {% elseif aktAnlage.configType == 2 %}
+
+        {% elseif aktAnlage.configType == 3 %}
+            {# <option value="dc_current_mpp" {% if form.selectedChart == 'dc_current_mpp' %}selected{% endif %}>DC - Current, String&nbsp;[A]{% if is_granted('ROLE_DEV') %}[Curr 4]{% endif %}</option>  #}
+        {% elseif aktAnlage.configType == 4 %}
+
+        {% else %}
+
+        {% endif %}
+    {% endif %}
 {% endmacro %}
 
 {# Irradiation (Strahlung) Diagramme #}
 {% macro irradiation(form, aktAnlage) %}
     {% if aktAnlage.showOnlyUpperIrr and not is_granted('ROLE_ADMIN') %}
-        <option value="irradiation_one" {% if form.selectedChart == 'irradiation_one' %}selected{% endif %}>Irradiation</option>
+        <option value="irradiation_one" {% if form.selectedChart == 'irradiation_one' %}selected{% endif %}>Irradiation [W/m²]</option>
     {% else %}
-        <option value="irradiation" {% if form.selectedChart == 'irradiation' %}selected{% endif %}>Irradiation</option>
-        {% if aktAnlage.showGraphIrrPlant or is_granted('ROLE_ADMIN') %}<option value="irradiation_plant" {% if form.selectedChart == 'irradiation_plant' %}selected{% endif %}>Irradiation Plant</option>{% endif %}
+        <option value="irradiation" {% if form.selectedChart == 'irradiation' %}selected{% endif %}>Irradiation [W/m²]</option>
+        {% if aktAnlage.showGraphIrrPlant or is_granted('ROLE_ADMIN') %}<option value="irradiation_plant" {% if form.selectedChart == 'irradiation_plant' %}selected{% endif %}>Irradiation Plant [W/m²]</option>{% endif %}
     {% endif %}
 {% endmacro %}
 
