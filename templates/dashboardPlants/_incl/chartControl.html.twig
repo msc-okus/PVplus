@@ -19,9 +19,9 @@
                 {{ acActOverview(form, aktAnlage) }}    {# AC2 #}
                 {{ acActGroup(form, aktAnlage) }}       {# AC3 #}
                 {% if is_granted('ROLE_DEV') %}<option value="ac_grp_power_diff" {% if form.selectedChart == 'ac_grp_power_diff' or not form.selectedChart %}selected{% endif %}>AC - Inverter</option>{% endif %}
-                {% if is_granted('ROLE_ADMIN') %}<option value="ac_act_voltage" {% if form.selectedChart == 'ac_act_voltage' %}selected{% endif %}>AC - Voltage&nbsp;[V]</option>{% endif %}
-                {% if is_granted('ROLE_ADMIN') %}<option value="ac_act_current" {% if form.selectedChart == 'ac_act_current' %}selected{% endif %}>AC - Current&nbsp;[A]</option>{% endif %}
-                {% if is_granted('ROLE_ADMIN') %}<option value="ac_act_frequency" {% if form.selectedChart == 'ac_act_frequency' %}selected{% endif %}>AC - Frequency&nbsp;[Hz]</option>{% endif %}
+                {% if is_granted('ROLE_G4N') %}<option value="ac_act_voltage" {% if form.selectedChart == 'ac_act_voltage' %}selected{% endif %}>AC - Voltage&nbsp;[V]</option>{% endif %}
+                {% if is_granted('ROLE_G4N') %}<option value="ac_act_current" {% if form.selectedChart == 'ac_act_current' %}selected{% endif %}>AC - Current&nbsp;[A]</option>{% endif %}
+                {% if is_granted('ROLE_G4N') %}<option value="ac_act_frequency" {% if form.selectedChart == 'ac_act_frequency' %}selected{% endif %}>AC - Frequency&nbsp;[Hz]</option>{% endif %}
                 {% if is_granted('ROLE_DEV') %}<option value="reactive_power" {% if form.selectedChart == 'reactive_power' %}selected{% endif %}>Reactive Power&nbsp;[VA ??]</option>{% endif %}
             </optgroup>
 
