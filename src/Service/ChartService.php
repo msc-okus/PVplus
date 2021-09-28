@@ -112,17 +112,14 @@ class ChartService
         $to     = self::timeShift($anlage, $form['to'],true);
 
         if ($anlage) {
-            $showEvuDiag = $anlage->getShowEvuDiag();
-            $showCosPhiPowerDiag = $anlage->getShowCosPhiPowerDiag();
-
             switch ($form['selectedChart']) {
                 // AC Charts //
                 case ("ac_single"):
                     $dataArray = $this->acCharts->getActExpAC($anlage, $from, $to);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
-                        $resultArray['showEvuDiag'] = $showEvuDiag;
-                        $resultArray['showCosPhiPowerDiag'] = $showCosPhiPowerDiag;
+                        $resultArray['showEvuDiag'] = $anlage->getShowEvuDiag();
+                        $resultArray['showCosPhiPowerDiag'] = $anlage->getShowCosPhiPowerDiag();
                         $resultArray['actSum'] = $dataArray['actSum'];
                         $resultArray['expSum'] = $dataArray['expSum'];
                         $resultArray['evuSum'] = $dataArray['evuSum'];
@@ -215,7 +212,7 @@ class ChartService
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'AC Production Frequency [HZ] – Actual';
+                        $resultArray['headline'] = 'AC Production Frequency [Hz] – Actual';
                         $resultArray['series1']['name'] = "Actual";
                         $resultArray['series1']['tooltipText'] = "Actual ";
                         $resultArray['offsetLegende'] = $dataArray['offsetLegend'];

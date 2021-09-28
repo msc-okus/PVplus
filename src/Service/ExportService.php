@@ -99,7 +99,7 @@ class ExportService
             $localFrom  = date('Y-m-d 00:00', $dayStamp);
             $localTo    = date('Y-m-d 23:59', $dayStamp);
             $stamp      = date('Y-m-d', $dayStamp);
-            $export[$stamp]['stamp']        = $stamp;
+            //$export[$stamp]['stamp']        = $stamp;
             $export[$stamp]['eGrid']        = $this->functions->getSumeGridMeter($anlage, $localFrom, $localTo);
 
             $sql = "SELECT sum(theo_power) as theoPower, avg(temp_corr) as Ft FROM " . $anlage->getDbNameIst() . " WHERE stamp BETWEEN '$localFrom' AND '$localTo'";

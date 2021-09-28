@@ -488,7 +488,7 @@ class AnlageFormType extends AbstractType
             ])
             ->add('hasStrings', ChoiceType::class, [
                 'label'         => 'Anlage hat String Daten',
-                'help'          => '[hasString]',
+                'help'          => '[hasStrings]',
                 'choices'       => ['No' => '0', 'Yes' => '1'],
                 'empty_data'    => '0',
             ])

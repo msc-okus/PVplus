@@ -1,6 +1,4 @@
 {% from "dashboardPlants/_incl/macrosStatus.html.twig" import statusTable as statusTable %}
-{% from "dashboardPlants/_incl/macrosStatus.html.twig" import availabilityTable as availabilityTable %}
-{% from "dashboardPlants/_incl/macrosStatus.html.twig" import case5 as case5 %}
 {% from "dashboardPlants/_incl/macrosStatus.html.twig" import pvSystTable as pvSystTable %}
 
 <h3>{{ content.headline }} - {{ aktAnlage.anlName }}</h3>
@@ -54,18 +52,24 @@
 
             // Create series
             //Expected
-            let series1 = chart.series.push(new am4charts.LineSeries());
-            series1.name = "Expected Inverter Out {{ (content.expSum)|number_format(0, ',', '.') }} kWh"
-            series1.dataFields.dateX = "date";
-            series1.dataFields.valueY = "expected";
-            series1.dataFields.openValueY = "expgood";
-            series1.tooltipText = "Expected [kWh]: {valueY} [/]";
-            series1.stroke = am4core.color("#fdd400");
-            series1.fill = am4core.color("#fdd400");
-            series1.strokeWidth = 1;
-            series1.fillOpacity = 0.3;
-            //series1.defaultState.transitionDuration = 300;
-            series1.tensionX = 0.8;
+            {% if aktAnlage.showInverterOutDiag or form.selectedChart == 'dc_single' %}
+                let series1 = chart.series.push(new am4charts.LineSeries());
+                series1.name = "Expected Inverter Out {{ (content.expSum)|number_format(0, ',', '.') }} kWh"
+                series1.dataFields.dateX = "date";
+                series1.dataFields.valueY = "expected";
+                {% if not aktAnlage.showEvuDiag or form.selectedChart == 'dc_single' %}
+                    series1.dataFields.openValueY = "expgood";
+                    series1.fill = am4core.color("#fdd400");
+                    series1.hidden = false;
+                    series1.fillOpacity = 0.3;
+                {% else %}
+                    series1.hidden = true;
+                {% endif %}
+                series1.tooltipText = "Expected [kWh]: {valueY} [/]";
+                series1.stroke = am4core.color("#fdd400");
+                series1.strokeWidth = 1;
+                series1.tensionX = 0.8;
+            {% endif %}
 
             {% if form.selectedChart == 'ac_single' %}
                 {% if aktAnlage.showEvuDiag %}
@@ -74,12 +78,14 @@
                     series11.name = "Expected Grid {{ (content.expEvuSum)|number_format(0, ',', '.') }} kWh"
                     series11.dataFields.dateX = "date";
                     series11.dataFields.valueY = "expexted_evu";
+                    series11.dataFields.openValueY = "expexted_evu_good";
+                    series11.fillOpacity = 0.3;
+                    series11.fill = am4core.color("#fdd400");
                     series11.tooltipText = "Expected Grid [kWh]: {valueY} [/]";
                     series11.stroke = am4core.color("#fdb500");
                     series11.strokeWidth = 1;
-                    //series11.defaultState.transitionDuration = 300;
                     series11.tensionX = 0.8;
-                    series11.hidden = true;
+                    series11.hidden = false;
             {% endif %}
 
                 // Expected ohne Limits
@@ -461,7 +467,7 @@
             series0.name = "{{ content.series1.name }}";
             series0.dataFields.dateX = "date";
             series0.dataFields.valueY = "act";
-            series0.tooltipText = "{{ content.series1.tooltipText }}: {valueY} Herz";
+            series0.tooltipText = "{{ content.series1.tooltipText }}: {valueY} Hertz";
             series0.stroke = am4core.color("#016195");
             series0.fill = am4core.color("#016195");
             series0.strokeWidth = 2;
@@ -1376,80 +1382,7 @@
     </script>
 {% elseif form.selectedChart == 'pr_and_av' %}
     <!-- Liniendiagramm Irradiation - Werte aus der Anlage -->
-    <script>
-        am4core.ready(function() {
-            // Create chart instance
-            {% if form.optionDate < 14 %}
-                am4core.useTheme(am4themes_animated);
-            {% endif %}
-
-            let chart = am4core.create("amchart-holder", am4charts.XYChart);
-            //chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
-            chart.data = {{ content.data|raw }};
-            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
-            chart.numberFormatter.intlLocales = "de-DE";
-            chart.numberFormatter.numberFormat = {
-                "style": "decimal",
-                "minimumFractionDigits": 0
-            };
-
-            // Legend
-            chart.legend = new am4charts.Legend();
-            chart.legend.useDefaultMarker = false;
-
-            // Create axes
-            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
-            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-
-
-            let series2 = chart.series.push(new am4charts.LineSeries());
-            series2.name = "PR";
-            series2.dataFields.dateX = "date";
-            series2.dataFields.valueY = "pr_act";
-            series2.tooltipText = "{name}: {valueY}";
-            series2.stroke = am4core.color("#0098fd");
-            series2.fill = series2.stroke;
-            series2.strokeWidth = 1;
-            series2.defaultState.transitionDuration = 300;
-            series2.tensionX = 0.8;
-
-            let bullet2 = series2.bullets.push(new am4charts.Bullet());
-
-            let arrow2 = bullet2.createChild(am4core.Triangle);
-            arrow2.horizontalCenter = "middle";
-            arrow2.verticalCenter = "middle";
-            arrow2.strokeWidth = 0;
-            arrow2.fill = chart.colors.getIndex(0);
-            arrow2.direction = "top";
-            arrow2.width = 18;
-            arrow2.height = 18;
-
-            let series3 = chart.series.push(new am4charts.LineSeries());
-            series3.name = "Availability";
-            series3.dataFields.dateX = "date";
-            series3.dataFields.valueY = "av";
-            series3.tooltipText = "{name}: {valueY}";
-            series3.stroke = am4core.color("#000000");
-            series3.fill = series3.stroke;
-            series3.strokeWidth = 2;
-            //series3.sequencedInterpolation = false;
-            series3.defaultState.transitionDuration = 300;
-            series3.tensionX = 0.8;
-            // Add a bullet
-            let bullet3 = series3.bullets.push(new am4charts.CircleBullet());
-            bullet3.circle.radius = 8;
-
-            chart.cursor = new am4charts.XYCursor();
-            chart.cursor.xAxis = dateAxis;
-            chart.exporting.menu = new am4core.ExportMenu();
-            chart.scrollbarX = new am4core.Scrollbar();
-            chart.scrollbarX.marginBottom = "20"
-            chart.scrollbarY = new am4core.Scrollbar();
-            chart.scrollbarY.marginLeft = "20";
-            chart.exporting.menu.items[0].label = "Download";
-
-        }); // end am4core.ready()
-    </script>
+    {% include 'dashboardPlants/_incl/chart/PAandPR.html.twig' %}
 {% elseif form.selectedChart == 'status_log' %}
     {{ statusTable(content.status) }}
 {% elseif form.selectedChart == 'availability' %}

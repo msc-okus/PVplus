@@ -64,11 +64,11 @@ class ACChartsService
             // add Temperature
             // $panelTemparray = $this->getAirAndPanelTemp($anlage, $from, $to);
             while ($rowExp = $res->fetch(PDO::FETCH_ASSOC)) {
-                $soll = round($rowExp["soll"], 2);
-                ($rowExp['soll_evu'] == null)       ? $expectedEvu      = 0 : $expectedEvu      = round($rowExp['soll_evu'],2);
-                ($rowExp['soll_nolimit'] == null)   ? $expectedNoLimit  = 0 : $expectedNoLimit  = round($rowExp['soll_nolimit'],2);
-                $expdiff = $soll - $soll * 10 / 100;# -10% good
-                $expdiff = round($expdiff, 2);
+                ($rowExp["soll"] > 0)                                               ? $expectedInvOut = round($rowExp["soll"], 2) : $expectedInvOut = 0; // neagtive Werte auschließen
+                ($rowExp['soll_evu'] == null || $rowExp['soll_evu'] < 0)            ? $expectedEvu      = 0 : $expectedEvu      = round($rowExp['soll_evu'],2);
+                ($rowExp['soll_nolimit'] == null || $rowExp['soll_nolimit'] < 0 )   ? $expectedNoLimit  = 0 : $expectedNoLimit  = round($rowExp['soll_nolimit'],2);
+                $expDiffInvOut  = round($expectedInvOut - $expectedInvOut * 10 / 100, 2);   // Minus 10 % Toleranz Invberter Out.
+                $expDiffEvu     = round($expectedEvu - $expectedEvu * 10 / 100, 2);         // Minus 10 % Toleranz Grid (EVU).
 
                 $stamp = $rowExp["stamp"];
                 $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
@@ -87,19 +87,22 @@ class ACChartsService
                 }
                 $acIst = self::checkUnitAndConvert($acIst, $anlage->getAnlDbUnit());
                 ($acIst > 0) ? $actout = round($acIst, 2) : $actout = 0; // neagtive Werte auschließen
-                ($soll > 0) ?: $soll = 0; // neagtive Werte auschließen
+
                 $actSum += $actout;
-                $expSum += $soll;
+                $expSum += $expectedInvOut;
                 $expEvuSum += $expectedEvu;
                 $expNoLimitSum += $expectedNoLimit;
                 //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
                 $stamp = self::timeShift($anlage, $rowExp["stamp"]);
 
                 $dataArray['chart'][$counter]['date'] = $stamp;
-                if (!($soll == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
-                    $dataArray['chart'][$counter]['expected'] = $soll;
-                    $dataArray['chart'][$counter]['expgood'] = $expdiff;
-                    if ($anlage->getShowEvuDiag()) $dataArray['chart'][$counter]['expexted_evu'] = $expectedEvu;
+                if (!($expectedInvOut == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
+                    $dataArray['chart'][$counter]['expected'] = $expectedInvOut;
+                    $dataArray['chart'][$counter]['expgood'] = $expDiffInvOut;
+                    if ($anlage->getShowEvuDiag()) {
+                        $dataArray['chart'][$counter]['expexted_evu'] = $expectedEvu;
+                        $dataArray['chart'][$counter]['expexted_evu_good'] = $expDiffEvu;
+                    }
                     $dataArray['chart'][$counter]['expexted_no_limit'] = $expectedNoLimit;
                 }
                 if (!($actout == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
