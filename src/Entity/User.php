@@ -126,7 +126,7 @@ class User implements UserInterface
         $this->eigners = new ArrayCollection();
     }
 
-    public function getId(): ?string
+    public function getId(): ?int
     {
         return $this->id;
     }
