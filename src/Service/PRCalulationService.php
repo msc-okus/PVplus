@@ -300,7 +300,6 @@ class PRCalulationService
                         $powerTheoPac = $powerActArray['theoPowerPac'];
                         $powerTheoYear = $powerActArray['theoPowerYear'];
                     }
-                    //dump("PowerTheo: $powerTheo | PowerEGrid: $powerEGridExt");
                     if ($powerTheo > 0) { // Verhinder Divison by zero
                         $prEvu              = ($powerEvu            / $powerTheo) * 100;
                         $prAct              = ($powerAct            / $powerTheo) * 100;

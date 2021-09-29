@@ -89,7 +89,6 @@ class CurrentChartService
                 $counter++;
             }
             $dataArray['offsetLegend'] = $acGroups[$group]['GMIN'] - 1;
-            dump($dataArray);
         }
         $conn = null;
 

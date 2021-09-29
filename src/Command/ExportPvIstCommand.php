@@ -79,7 +79,6 @@ class ExportPvIstCommand extends Command
                 }
                 $from = "$year-$month-1";
                 $to = "$year-$month-". date('t', strtotime($from));
-                //dump("$from - $to");
                 $ergebniss .= $this->exportService->getRawData($anlage, date_create($from), date_create($to));
                 sleep(1);
                 $io->progressAdvance();

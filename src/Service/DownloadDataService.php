@@ -46,7 +46,6 @@ class DownloadDataService
         $sql = "SELECT DATE_FORMAT( a.stamp, '$intervall') AS form_date, sum(b.wr_pac) as act_power_ac, sum(b.wr_pdc) as act_power_dc, SUM(b.e_z_evu) as power_grid
             FROM (db_dummysoll a left JOIN $dbnameist b ON a.stamp = b.stamp) 
             WHERE a.stamp BETWEEN '$from' and '$to'AND b.wr_pac > 0 GROUP by form_date ORDER BY form_date";
-        //dump($sql);
         $actAcDcPower = [];
         $resAct = $conn->query("$sql");
         if ($resAct->num_rows > 0) {
@@ -78,7 +77,6 @@ class DownloadDataService
         $sql = "SELECT DATE_FORMAT( a.stamp, '$intervall' ) AS form_date, sum(b.dc_exp_power) as exp_power_dc, sum(b.ac_exp_power) as exp_power_ac
             FROM (db_dummysoll a left JOIN $dbnamedcsoll b ON a.stamp = b.stamp) 
             WHERE a.stamp BETWEEN '$from' and '$to' GROUP by form_date ORDER BY form_date";
-        #dump($sql);
         $resExpDc = $conn->query($sql);
         $expPower = [];
         if ($resExpDc->num_rows > 0) {
@@ -93,7 +91,6 @@ class DownloadDataService
         $sql2ss = "SELECT a.stamp as orderStamp, DATE_FORMAT(a.stamp, '$intervall') AS form_date, SUM(b.g_upper) as irr_upper_pannel, SUM(b.g_lower) as irr_lower_pannel, AVG(b.wind_speed) as avgwind, AVG(b.pt_avg) as avgpt, b.anl_id 
                     FROM (db_dummysoll a left JOIN $dbnamews b ON a.stamp = b.stamp) 
                     WHERE a.stamp BETWEEN '$from' AND '$to' GROUP BY form_date ORDER BY a.stamp";
-        #dump($sql2ss);
         $res01 = $conn->query($sql2ss);
         if ($res01->num_rows > 0) {
             while ($ro01 = $res01->fetch_assoc()) {
@@ -115,7 +112,6 @@ class DownloadDataService
                 ($anlage->getAnlDbUnit() == "w") ? $actPowerAc = round($actPowerAc / 1000 / 4, 2) : $actPowerAc = round($actPowerAc, 2);
                 $ht2 .= "<tr><td>$date_time</td><td>$irr_upper</td><td>$ptavgi</td><td>$powerGrid</td><td>$actPowerAc</td><td>$expPowerAc</td><td>$actPowerDc</td><td>$expPowerDc</td>";
                 if ($intervall == '%d.%m.%Y'){
-                    //dump($availability);
                     $ht2 .= "<td>".$prArray[$date_time]['first']."</td><td>".$prArray[$date_time]['second']."</td><td>".$prArray[$date_time]['pr']."</td>";
                 }
                 $ht2 .= "</tr>";

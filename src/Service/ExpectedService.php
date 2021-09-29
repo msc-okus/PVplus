@@ -144,7 +144,6 @@ class ExpectedService
                             $counter++;
                             $hlp = $modul->getModuleType()->getTempCorrPower($pannelTemp);
                             $hlp3 = $expPowerDcHlp * $hlp ;
-                            dump("TempCorr: $hlp / $hlp3 / $expPowerDcHlp | PanelTemp: $pannelTemp | Betriebsjahre: $betriebsJahre | ");
                         }
 
                         // degradation abziehen (degradation * Betriebsjahre).
@@ -199,10 +198,6 @@ class ExpectedService
                         if ($expEvu > $group->getLimitAc()) $expEvu = $group->getLimitAc();
                     } else {
                         $expPowerAc = $expNoLimit;
-                    }
-
-                    if ($irr > 900) {
-                        //dump("Irr: $irr | Shadow: $shadow_loss | ". $groupMonth->getShadowLoss() ." | Loss: $loss | ExpNoLimit: $expPowerDc | $originalExpPower | Betriebsjahre: $betriebsJahre");
                     }
 
                     //Speichern der Werte in Array

@@ -107,7 +107,6 @@ class ExportService
             $res->execute();
             if ($res->rowCount() == 1) {
                 $row = $res->fetch(PDO::FETCH_OBJ);
-                //dump($row);
                 $export[$stamp]['theoPower']    = (float)$row->theoPower;
                 //$export[$stamp]['Ft']           = (float)$row->Ft;
             } else {
