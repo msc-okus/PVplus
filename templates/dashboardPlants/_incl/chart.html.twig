@@ -26,6 +26,7 @@
                 "minimumFractionDigits": 0
             };
 
+
             // Legend
             chart.legend = new am4charts.Legend();
             chart.legend.useDefaultMarker = false;
@@ -36,11 +37,16 @@
             valueAxis.title.text = "[[kWh]]";
 
             let valueAxis2 = chart.yAxes.push(new am4charts.ValueAxis());
+            valueAxis2.minimum = 0;
+            valueAxis2.maximum = 100;
             valueAxis2.title.text = "Irradiation [[W/m²]]";
             valueAxis2.renderer.opposite = true;
             valueAxis2.renderer.ticks.template.disabled = true;
             valueAxis2.renderer.grid.template.disabled = true;
             valueAxis2.extraMax = 0.1;
+            valueAxis2.minimum = 0;
+            valueAxis2.maximum = 100;
+
 
             //let valueAxis3 = chart.yAxes.push(new am4charts.ValueAxis());
             //valueAxis3.title.text = "Panel temperature";
@@ -183,7 +189,13 @@
             chart.scrollbarY.marginLeft = "20";
             chart.exporting.menu = new am4core.ExportMenu();
             chart.exporting.menu.items[0].label = "Download";
+            // Fix axis scale on load
+            chart.events.on("ready", function(ev) {
+                valueAxis2.min = valueAxis.minZoomed;
+                valueAxis2.max = valueAxis.maxZoomed;
+            });
 
+            
         }); // end am4core.ready()
     </script>
 {% elseif form.selectedChart == 'ac_act_group' or form.selectedChart == 'dc_act_group'%}
