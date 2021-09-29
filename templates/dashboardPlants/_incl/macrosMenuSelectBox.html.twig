@@ -1,13 +1,13 @@
 {# AC Power Diagramme #}
 {% macro acActPlant(form, aktAnlage) %}
-    <option value="ac_single" {% if form.selectedChart == 'ac_single' %}selected{% endif %} >AC - Actual & Expected, Plant&nbsp;[kWh]{% if is_granted('ROLE_DEV') %}[AC 1]{% endif %}</option>
+    <option value="ac_single" {% if form.selectedChart == 'ac_single' %}selected{% endif %} >AC Power - Actual & Expected, Plant&nbsp;[kWh]{% if is_granted('ROLE_DEV') %}[AC 1]{% endif %}</option>
 {% endmacro %}
 
 {% macro acActOverview(form, aktAnlage) %}
     {% if is_granted('ROLE_ADMIN') %}
         {% if aktAnlage.configType == 1 %}
             <option value="ac_act_overview" {% if form.selectedChart == 'ac_act_overview' %}selected{% endif %}>
-                AC - Actual & Expected, Overview&nbsp;[kWh]{% if is_granted('ROLE_DEV') %}[AC 2]{% endif %}
+                AC Power - Actual & Expected, Overview&nbsp;[kWh]{% if is_granted('ROLE_DEV') %}[AC 2]{% endif %}
             </option>
         {% endif %}
     {% endif %}
@@ -16,17 +16,32 @@
 {% macro acActGroup(form, aktAnlage) %}
     <option value="ac_act_group" {% if form.selectedChart == 'ac_act_group' %}selected{% endif %}>
         {% if aktAnlage.configType == 1 %}
-            AC - Actual & Expected, Groups Overview
+            AC Power - Actual & Expected, Groups Overview
         {% elseif aktAnlage.configType == 2 %}
-            AC - Actual & Expected, Inverters
+            AC Power - Actual & Expected, Inverters
         {% elseif aktAnlage.configType == 3 %}
-            AC - Actual & Expected, Inverters
+            AC Power - Actual & Expected, Inverters
         {% elseif aktAnlage.configType == 4 %}
-            AC - Actual & Expected, Inverters
+            AC Power - Actual & Expected, Inverters
         {% endif %}
         &nbsp;[kWh]{% if is_granted('ROLE_DEV') %}[AC 3]{% endif %}</option>
 {% endmacro %}
 
+{% macro acVoltage(form, aktAnlage) %}
+    <option value="ac_act_voltage" {% if form.selectedChart == 'ac_act_voltage' %}selected{% endif %}>AC Voltage&nbsp;- Inverters [V]</option>
+{% endmacro %}
+
+{% macro acCurrent(form, aktAnlage) %}
+    <option value="ac_act_current" {% if form.selectedChart == 'ac_act_current' %}selected{% endif %}>AC Current&nbsp;- Inverter [A]</option>
+{% endmacro %}
+
+{% macro acFrequency(form, aktAnlage) %}
+   <option value="ac_act_frequency" {% if form.selectedChart == 'ac_act_frequency' %}selected{% endif %}>AC Frequency - Inverter [Hz]</option>
+{% endmacro %}
+
+{% macro acReactive(form, aktAnlage) %}
+    {% if is_granted('ROLE_G4N') %}<option value="reactive_power" {% if form.selectedChart == 'reactive_power' %}selected{% endif %}>AC Reactive Power&nbsp;- Inverter [kVAr]</option>{% endif %}
+{% endmacro %}
 
 {# DC Power Diagramme #}
 {% macro dcActPlant(form, aktAnlage) %}
