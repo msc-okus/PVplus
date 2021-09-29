@@ -8,11 +8,38 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\NumericFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
+use App\Repository\ReportsRepository;
+
+use Gedmo\Blameable\Traits\BlameableEntity;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
+use ApiPlatform\Core\Annotation\ApiResource;
+
+
 /**
  * DbAnlage
  *
  * @ORM\Table(name="anlage")
  * @ORM\Entity(repositoryClass="App\Repository\AnlagenRepository")
+ * @ORM\HasLifecycleCallbacks()
+ * @ApiResource(
+ *     shortName="anlage",
+ *     normalizationContext={"groups"={"main:read"}},
+ *     denormalizationContext={"groups"={"main:write"}},
+ *     attributes={
+ *          "formats"={"jsonld", "json", "html", "csv"={"text/csv"}}
+ *     }
+ * )
+
+ * @ApiFilter(SearchFilter::class, properties={"anlName": "partial"})
  */
 class Anlage
 {
@@ -24,6 +51,7 @@ class Anlage
      * @ORM\Column(name="id", type="bigint", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
+     * @Groups({"main"})
      */
     private int $anlId;
 
@@ -31,6 +59,7 @@ class Anlage
      * @var string
      *
      * @ORM\Column(name="eigner_id", type="bigint", nullable=false)
+     * @Groups({"main"})
      */
     private string $eignerId;
 
@@ -38,6 +67,7 @@ class Anlage
      * @var string
      *
      * @ORM\Column(name="anl_type", type="string", length=25, nullable=false)
+     * @Groups({"main"})
      */
     private string $anlType;
 
@@ -53,6 +83,7 @@ class Anlage
      * @var DateTime
      *
      * @ORM\Column(name="anl_betrieb", type="date", nullable=false)
+     * Groups({"main"})
      */
     private DateTime $anlBetrieb;
 
@@ -60,6 +91,7 @@ class Anlage
      * @var string
      *
      * @ORM\Column(name="anl_name", type="string", length=50, nullable=false)
+     * @Groups({"main"})
      */
     private string $anlName;
 
@@ -67,6 +99,7 @@ class Anlage
      * @var string
      *
      * @ORM\Column(name="anl_strasse", type="string", length=100, nullable=false)
+     * Groups({"main"})
      */
     private string $anlStrasse;
 
@@ -74,6 +107,7 @@ class Anlage
      * @var string
      *
      * @ORM\Column(name="anl_plz", type="string", length=10, nullable=false)
+     * @Groups({"main"})
      */
     private string $anlPlz;
 
@@ -81,6 +115,7 @@ class Anlage
      * @var string
      *
      * @ORM\Column(name="anl_ort", type="string", length=100, nullable=false)
+     * @Groups({"main"})
      */
     private string $anlOrt;
 
@@ -88,6 +123,7 @@ class Anlage
      * @var string
      *
      * @ORM\Column(name="anl_intnr", type="string", length=50, nullable=false)
+     * @Groups({"main"})
      */
     private string $anlIntnr;
 
@@ -95,6 +131,7 @@ class Anlage
      * @var string
      *
      * @ORM\Column(type="string", length=20)
+     * @Groups({"main"})
      */
     private string $power = '0';
 
@@ -2013,7 +2050,7 @@ class Anlage
     {
         return $this->groups;
     }
-    
+
 
     public function addGroup(AnlageGroups $group): self
     {

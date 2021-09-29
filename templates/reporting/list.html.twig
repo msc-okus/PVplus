@@ -1,4 +1,10 @@
 {% extends 'base.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/autocomplete.js/0/autocomplete.jquery.min.js"></script>
+    <script src="{{ asset('jsNew/algolia-autocomplete.js') }}"></script>
+{% endblock %}
+
 {% import 'macros/macros.library.html.twig' as macrolibrary %}
 
 {% block title %}
@@ -120,4 +126,8 @@
             </div>
         </form>
     {% endif %}
+{% endblock %}
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="{{ asset('css/algolia-autocomplete.css') }}">
 {% endblock %}

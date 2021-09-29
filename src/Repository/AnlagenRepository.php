@@ -237,6 +237,36 @@ class AnlagenRepository extends ServiceEntityRepository
     }
 
     /**
+     * @param string|null $query
+     * @return array
+     */
+    public function findByAllMatching(string $query, int $limit = 100)
+    {
+        $qb = $this->createQueryBuilder('a')
+        ->andWhere('a.anlName LIKE :query')
+        ->setParameter('query', '%'.$query.'%')
+        ->setMaxResults($limit)
+            ->addSelect('a');
+
+
+        // Wenn Benutzer kein G4N Rolle hat
+        if (! $this->security->isGranted('ROLE_G4N')) {
+
+            /** @var User $user */
+            $user = $this->security->getUser();
+            $granted = explode(',', $user->getGrantedList());
+
+            $qb->andWhere("a.anlId IN (:granted)")
+                ->setParameter('granted', $granted)
+            ;
+        }
+
+        return $qb->getQuery()
+            ->getResult();
+    }
+
+
+    /**
      * @param string|null $term
      * @return QueryBuilder
      */

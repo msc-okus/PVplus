@@ -4,12 +4,14 @@ namespace App\Controller;
 
 use App\Entity\Anlage;
 use App\Entity\AnlagenReports;
+use App\Entity\User;
 use App\Form\Reports\ReportsFormType;
 use App\Helper\G4NTrait;
 use App\Reports\Goldbeck\EPCMonthlyPRGuaranteeReport;
 use App\Reports\Goldbeck\EPCMonthlyYieldGuaranteeReport;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
+use App\Repository\UserRepository;
 use App\Service\ReportEpcService;
 use App\Service\ReportService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,15 +36,35 @@ class ReportingController extends AbstractController
     public function list(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo, ReportService $report, ReportEpcService $epcReport): Response
     {
         $q = $request->query->get('qr');
+        $searchstatus = $request->query->get('searchstatus');
+        $searchtype = $request->query->get('searchtype');
+        $searchmonth = $request->query->get('searchmonth');
         if ($request->query->get('search') == 'yes' && $q == '') $request->getSession()->set('qr', '');
         if ($q) $request->getSession()->set('qr', $q);
+        if ($searchstatus) $request->getSession()->set('searchstatus', $searchstatus);
+        if ($searchtype) $request->getSession()->set('searchtype', $searchtype);
+        if ($searchmonth) $request->getSession()->set('searchmonth', $searchmonth);
 
         if ($q == "" && $request->getSession()->get('qr') != "") {
             $q = $request->getSession()->get('qr');
             $request->query->set('qr', $q);
         }
+        if ($searchstatus == "" && $request->getSession()->get('$searchstatus') != "") {
+            $searchstatus = $request->getSession()->get('searchstatus');
+            $request->query->set('searchstatus', $searchstatus);
+        }
+        if ($searchtype == "" && $request->getSession()->get('searchtype') != "") {
+            $searchtype = $request->getSession()->get('searchtype');
+            $request->query->set('searchtype', $searchtype);
+        }
+
+        if ($searchmonth == "" && $request->getSession()->get('searchmonth') != "") {
+            #$searchmonth = $request->getSession()->get('searchmonth');
+            $request->query->set('searchmonth', $searchmonth);
+        }
 
         $anlagen = $anlagenRepo->findAll();
+
         if($request->query->get('new-report') === 'yes') {
             $reportType = $request->query->get('report-typ');
             $reportMonth = $request->query->get('month');
@@ -66,7 +88,7 @@ class ReportingController extends AbstractController
             $request->query->set('anlage-id', $anlageId);
         }
 
-        $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($q);
+        $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($q,$searchstatus,$searchtype,$searchmonth);
 
         $pagination = $paginator->paginate(
             $queryBuilder,                                    /* query NOT result */
@@ -81,6 +103,17 @@ class ReportingController extends AbstractController
             'anlagen'    => $anlagen,
             'stati'      => self::reportStati(),
         ]);
+    }
+
+    /**
+     * @Route("/reporting/anlagen/find", name="app_admin_reports_find", methods="GET")
+     */
+    public function find(AnlagenRepository $anlagenRepository, Request $request)
+    {
+        $anlage = $anlagenRepository->findByAllMatching($request->query->get('query'));
+        return $this->json([
+            'anlagen' => $anlage
+        ], 200, [], ['groups' => ['main']]);
     }
 
     /**

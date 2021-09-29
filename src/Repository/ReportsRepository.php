@@ -8,6 +8,7 @@ use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use phpDocumentor\Reflection\Types\Integer;
 use Symfony\Component\Security\Core\Security;
 
 /**
@@ -32,7 +33,7 @@ class ReportsRepository extends ServiceEntityRepository
      * @param string|null $term
      * @return QueryBuilder
      */
-    public function getWithSearchQueryBuilder(?string $term): QueryBuilder
+    public function getWithSearchQueryBuilder(?string $term,?string $searchstatus,?string $searchtype,?string $searchmonth): QueryBuilder
     {
         $qb = $this->createQueryBuilder('report')
             ->innerJoin('report.anlage', 'a')
@@ -54,11 +55,24 @@ class ReportsRepository extends ServiceEntityRepository
         // muss noch via Backend auswählbar gemacht werden
         $qb->andWhere('report.reportStatus != 9');
         $qb->andWhere('report.reportStatus != 11');
+        if ($searchstatus != '') {
+            $qb->andWhere("report.reportStatus = $searchstatus");
+        }
+
+        if ($searchtype != '') {
+            $qb->andWhere("report.reportType like '$searchtype'");
+        }
+
+        if ($searchmonth !='') {
+            $qb->andWhere("report.month = $searchmonth");
+        }
 
         if ($term) {
             $qb ->andWhere('report.reportType LIKE :term or a.anlName LIKE :term or e.firma LIKE :term')
-                ->setParameter('term', '%' . $term . '%');
+                ->setParameter('term', '%' . $term);
         }
+
+
 
         return $qb;
         /*->orderBy('e.firma', 'ASC')

@@ -2,13 +2,33 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\NumericFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
 use App\Repository\ReportsRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
-
+use Doctrine\Common\Collections\ArrayCollection;
+use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ORM\Entity(repositoryClass=ReportsRepository::class)
+ * @ORM\HasLifecycleCallbacks()
+ * @ORM\Table(name="anlagen_reports")
+ * @ApiResource(
+ *     shortName="reports",
+ *     normalizationContext={"groups"={"main:read"}},
+ *     denormalizationContext={"groups"={"main:write"}},
+ *     attributes={
+ *          "formats"={"jsonld", "json", "html", "csv"={"text/csv"}}
+ *     }
+ * )
+ * @ApiFilter(NumericFilter::class, properties={"reportStatus"})
+ * @ApiFilter(SearchFilter::class, properties={"reportType": "partial"})
  */
 class AnlagenReports
 {
@@ -23,6 +43,7 @@ class AnlagenReports
 
     /**
      * @ORM\Column(type="string", length=50)
+     * @Groups({"main:read"})
      */
     private string $reportType;
 
@@ -68,6 +89,7 @@ class AnlagenReports
 
     /**
      * @ORM\Column(type="integer")
+     * @Groups({"main:read"})
      */
     private int $reportStatus = 10;
 
