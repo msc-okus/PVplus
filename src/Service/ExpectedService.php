@@ -140,12 +140,6 @@ class ExpectedService
                             //$expCurrentDcHlp    = $expCurrentDcHlp * $modul->getModuleType()->getTempCorrCurrent($pannelTemp);
                         }
 
-                        if ( $counter < 50 && false) {
-                            $counter++;
-                            $hlp = $modul->getModuleType()->getTempCorrPower($pannelTemp);
-                            $hlp3 = $expPowerDcHlp * $hlp ;
-                        }
-
                         // degradation abziehen (degradation * Betriebsjahre).
                         $expPowerDcHlp      = $expPowerDcHlp - ($expPowerDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
                         $expCurrentDcHlp    = $expCurrentDcHlp - ($expCurrentDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);

@@ -174,18 +174,17 @@ class ChartService
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'AC Production Voltage [V] – Actual';
-                        $resultArray['series0']['name'] = "Actual";
-                        $resultArray['series0']['tooltipText'] = "Actual ";
-                        $resultArray['series1']['name'] = "Actual_P1";
-                        $resultArray['series1']['tooltipText'] = "Actual Phase 1";
-                        $resultArray['series2']['name'] = "Actual_P2";
-                        $resultArray['series2']['tooltipText'] = "Actual Phase 2";
-                        $resultArray['series3']['name'] = "Actual_P3";
-                        $resultArray['series3']['tooltipText'] = "Actual Phase 3";
+                        $resultArray['headline'] = 'AC Production Voltage [V]';
+                        $resultArray['series1']['name'] = "Voltage Phase 1";
+                        $resultArray['series1']['tooltipText'] = "Voltage Phase 1";
+                        $resultArray['series2']['name'] = "Voltage Phase 2";
+                        $resultArray['series2']['tooltipText'] = "Voltage Phase 2";
+                        $resultArray['series3']['name'] = "Voltage Phase 3";
+                        $resultArray['series3']['tooltipText'] = "Voltage Phase 3";
                         $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
                         $resultArray['seriesx']['name'] = "Actual Inverter ";
                         $resultArray['seriesx']['tooltipText'] = "Inverter ";
+                        $resultArray['inverterArray'] = json_encode($dataArray['inverterArray']);
                     }
                     break;
                 case ("ac_act_current"):
@@ -193,18 +192,16 @@ class ChartService
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'AC Production Current [A] – Actual';
-                        $resultArray['series0']['name'] = "Actual";
-                        $resultArray['series0']['tooltipText'] = "Actual ";
-                        $resultArray['series1']['name'] = "Actual_P1";
-                        $resultArray['series1']['tooltipText'] = "Actual Phase 1";
-                        $resultArray['series2']['name'] = "Actual_P2";
-                        $resultArray['series2']['tooltipText'] = "Actual Phase 2";
-                        $resultArray['series3']['name'] = "Actual_P3";
-                        $resultArray['series3']['tooltipText'] = "Actual Phase 3";
+                        $resultArray['headline'] = 'AC Production Current [A]';
+                        $resultArray['series0']['name'] = "Current (Sum Phase 1-3)";
+                        $resultArray['series0']['tooltipText'] = "Current (Sum Phase 1-3)";
+                        $resultArray['series1']['name'] = "Current Phase 1";
+                        $resultArray['series1']['tooltipText'] = "Current Phase 1";
+                        $resultArray['series2']['name'] = "Current Phase 2";
+                        $resultArray['series2']['tooltipText'] = "Current Phase 2";
+                        $resultArray['series3']['name'] = "Current Phase 3";
+                        $resultArray['series3']['tooltipText'] = "Current Phase 3";
                         $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
-                        $resultArray['seriesx']['name'] = "Actual Inverter ";
-                        $resultArray['seriesx']['tooltipText'] = "Inverter ";
                     }
                     break;
                 case ("ac_act_frequency"):
@@ -212,12 +209,10 @@ class ChartService
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'AC Production Frequency [Hz] – Actual';
-                        $resultArray['series1']['name'] = "Actual";
-                        $resultArray['series1']['tooltipText'] = "Actual ";
+                        $resultArray['headline'] = 'AC Frequency [Hz]';
+                        $resultArray['series1']['name'] = "Frequency";
+                        $resultArray['series1']['tooltipText'] = "Frequency ";
                         $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
-                        $resultArray['seriesx']['name'] = "Actual Inverter ";
-                        $resultArray['seriesx']['tooltipText'] = "Inverter ";
                     }
                     break;
 
@@ -226,12 +221,10 @@ class ChartService
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'Reactive power ';
-                        $resultArray['series1']['name'] = "Actual";
-                        $resultArray['series1']['tooltipText'] = "Actual ";
+                        $resultArray['headline'] = 'Reactive power [kVAr]';
+                        $resultArray['series1']['name'] = "Reactive power";
+                        $resultArray['series1']['tooltipText'] = "Reactive power ";
                         $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
-                        $resultArray['seriesx']['name'] = "Actual Inverter ";
-                        $resultArray['seriesx']['tooltipText'] = "Inverter ";
                     }
                     break;
 

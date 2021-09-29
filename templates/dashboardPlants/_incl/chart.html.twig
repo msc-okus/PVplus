@@ -308,22 +308,11 @@
 
 
             // Create series
-            let series0 = chart.series.push(new am4charts.LineSeries());
-            series0.name = "{{ content.series0.name }}";
-            series0.dataFields.dateX = "date";
-            series0.dataFields.valueY = "act";
-            series0.tooltipText = "{{ content.series0.tooltipText }}: {valueY} Volt";
-            series0.stroke = am4core.color("#016195");
-            series0.fill = am4core.color("#016195");
-            series0.strokeWidth = 1;
-            series0.defaultState.transitionDuration = 300;
-            series0.tensionX = 0.8;
-
             let series1 = chart.series.push(new am4charts.LineSeries());
             series1.name = "{{ content.series1.name }}";
             series1.dataFields.dateX = "date";
-            series1.dataFields.valueY = "u_ac_p1";
-            series1.tooltipText = "{{ content.series1.tooltipText }}: {valueY} Volt";
+            series1.dataFields.valueY = "u_ac_phase1";
+            series1.tooltipText = "{{ content.series1.tooltipText }}: {valueY} [V]";
             series1.stroke = am4core.color("#057a07");
             series1.fill = am4core.color("#057a07");
             series1.strokeWidth = 1;
@@ -333,8 +322,8 @@
             let series2 = chart.series.push(new am4charts.LineSeries());
             series2.name = "{{ content.series2.name }}";
             series2.dataFields.dateX = "date";
-            series2.dataFields.valueY = "u_ac_p2";
-            series2.tooltipText = "{{ content.series2.tooltipText }}: {valueY} Volt";
+            series2.dataFields.valueY = "u_ac_phase2";
+            series2.tooltipText = "{{ content.series2.tooltipText }}: {valueY} [V]";
             series2.stroke = am4core.color("#d6a9e0");
             series2.fill = am4core.color("#d6a9e0");
             series2.strokeWidth = 1;
@@ -344,8 +333,8 @@
             let series3 = chart.series.push(new am4charts.LineSeries());
             series3.name = "{{ content.series3.name }}";
             series3.dataFields.dateX = "date";
-            series3.dataFields.valueY = "u_ac_p3";
-            series3.tooltipText = "{{ content.series3.tooltipText }}: {valueY} Volt";
+            series3.dataFields.valueY = "u_ac_phase3";
+            series3.tooltipText = "{{ content.series3.tooltipText }}: {valueY} [V]";
             series3.stroke = am4core.color("#a97335");
             series3.fill = am4core.color("#a97335");
             series3.strokeWidth = 1;
@@ -394,7 +383,7 @@
             let series0 = chart.series.push(new am4charts.LineSeries());
             series0.name = "{{ content.series0.name }}";
             series0.dataFields.dateX = "date";
-            series0.dataFields.valueY = "act";
+            series0.dataFields.valueY = "i_ac_sum";
             series0.tooltipText = "{{ content.series0.tooltipText }}: {valueY} Ampere";
             series0.stroke = am4core.color("#016195");
             series0.fill = am4core.color("#016195");
@@ -405,7 +394,7 @@
             let series1 = chart.series.push(new am4charts.LineSeries());
             series1.name = "{{ content.series1.name }}";
             series1.dataFields.dateX = "date";
-            series1.dataFields.valueY = "i_ac_p1";
+            series1.dataFields.valueY = "i_ac_phase1";
             series1.tooltipText = "{{ content.series1.tooltipText }}: {valueY} Ampere";
             series1.stroke = am4core.color("#057a07");
             series1.fill = am4core.color("#057a07");
@@ -416,7 +405,7 @@
             let series2 = chart.series.push(new am4charts.LineSeries());
             series2.name = "{{ content.series2.name }}";
             series2.dataFields.dateX = "date";
-            series2.dataFields.valueY = "i_ac_p2";
+            series2.dataFields.valueY = "i_ac_phase2";
             series2.tooltipText = "{{ content.series2.tooltipText }}: {valueY} Ampere";
             series2.stroke = am4core.color("#d6a9e0");
             series2.fill = am4core.color("#d6a9e0");
@@ -427,7 +416,7 @@
             let series3 = chart.series.push(new am4charts.LineSeries());
             series3.name = "{{ content.series3.name }}";
             series3.dataFields.dateX = "date";
-            series3.dataFields.valueY = "i_ac_p3";
+            series3.dataFields.valueY = "i_ac_phase3";
             series3.tooltipText = "{{ content.series3.tooltipText }}: {valueY} Ampere";
             series3.stroke = am4core.color("#a97335");
             series3.fill = am4core.color("#a97335");
@@ -478,7 +467,7 @@
             let series0 = chart.series.push(new am4charts.LineSeries());
             series0.name = "{{ content.series1.name }}";
             series0.dataFields.dateX = "date";
-            series0.dataFields.valueY = "act";
+            series0.dataFields.valueY = "frequency";
             series0.tooltipText = "{{ content.series1.tooltipText }}: {valueY} Hertz";
             series0.stroke = am4core.color("#016195");
             series0.fill = am4core.color("#016195");
@@ -555,8 +544,8 @@
             let series0 = chart.series.push(new am4charts.LineSeries());
             series0.name = "{{ content.series1.name }}";
             series0.dataFields.dateX = "date";
-            series0.dataFields.valueY = "act";
-            series0.tooltipText = "{{ content.series1.tooltipText }}: {valueY} Vqf";
+            series0.dataFields.valueY = "reactive_power";
+            series0.tooltipText = "{{ content.series1.tooltipText }}: {valueY} Reactive power";
             series0.stroke = am4core.color("#016195");
             series0.fill = am4core.color("#016195");
             series0.strokeWidth = 2;
