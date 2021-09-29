@@ -732,6 +732,11 @@ class Anlage
      */
     private $hasPannelTemp;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="Anlage")
+     */
+    private $tickets;
+
 
 
     public function __construct()
@@ -756,6 +761,7 @@ class Anlage
         $this->anlageMonth = new ArrayCollection();
         $this->Inverters = new ArrayCollection();
         $this->logs = new ArrayCollection();
+        $this->tickets = new ArrayCollection();
     }
 
     public function getAnlId(): ?string
@@ -2890,6 +2896,36 @@ class Anlage
     public function setHasPannelTemp(bool $hasPannelTemp): self
     {
         $this->hasPannelTemp = $hasPannelTemp;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Ticket[]
+     */
+    public function getTickets(): Collection
+    {
+        return $this->tickets;
+    }
+
+    public function addTicket(Ticket $ticket): self
+    {
+        if (!$this->tickets->contains($ticket)) {
+            $this->tickets[] = $ticket;
+            $ticket->setAnlage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTicket(Ticket $ticket): self
+    {
+        if ($this->tickets->removeElement($ticket)) {
+            // set the owning side to null (unless already changed)
+            if ($ticket->getAnlage() === $this) {
+                $ticket->setAnlage(null);
+            }
+        }
 
         return $this;
     }

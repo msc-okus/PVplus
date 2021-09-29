@@ -42,7 +42,7 @@ class DownloadAnalyseFormExportType extends AbstractType
             ->add('day', HiddenType::class, [
             ])
             ->add('documenttype', ChoiceType::class, [
-                'label'         => 'select Documenttype',
+                'label'         => 'select Document type',
                 'choices'       => [
                     'PDF'    => 'pdf',
                     'Excel'           => 'excel',
