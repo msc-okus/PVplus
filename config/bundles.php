@@ -18,4 +18,6 @@ return [
     Http\HttplugBundle\HttplugBundle::class => ['all' => true],
     Nexy\SlackBundle\NexySlackBundle::class => ['all' => true],
     Oneup\FlysystemBundle\OneupFlysystemBundle::class => ['all' => true],
+    ApiPlatform\Core\Bridge\Symfony\Bundle\ApiPlatformBundle::class => ['all' => true],
+    Nelmio\CorsBundle\NelmioCorsBundle::class => ['all' => true],
 ];
