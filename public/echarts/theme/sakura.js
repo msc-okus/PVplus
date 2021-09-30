@@ -26,7 +26,7 @@
         typeof exports.nodeName !== 'string'
     ) {
         // CommonJS
-        factory(exports, require('echarts'));
+        factory(exports, require('echarts/lib/echarts'));
     } else {
         // Browser globals
         factory({}, root.echarts);
@@ -43,16 +43,16 @@
     }
 
     var colorPalette = [
-        '#098f09',
-        '#faee08',
+        '#e52c3c',
+        '#f7b1ab',
         '#fa506c',
-        '#999999',
+        '#f59288',
         '#f8c4d8',
         '#e54f5c',
-        '#0000ff',
+        '#f06d5c',
         '#e54f80',
         '#f29c9f',
-        '#00ff00'
+        '#eeb5b7'
     ];
 
     var theme = {
@@ -61,21 +61,21 @@
         title: {
             textStyle: {
                 fontWeight: 'normal',
-                color: '#0022ff'
+                color: '#e52c3c'
             }
         },
 
         visualMap: {
-            color: ['#e52c3c', '#00ff00']
+            color: ['#e52c3c', '#f7b1ab']
         },
 
         dataRange: {
-            color: ['#e52c3c', '#00ff00']
+            color: ['#e52c3c', '#f7b1ab']
         },
 
         candlestick: {
             itemStyle: {
-                color: '#00ff00',
+                color: '#e52c3c',
                 color0: '#f59288'
             },
             lineStyle: {
@@ -85,7 +85,7 @@
             },
             areaStyle: {
                 color: '#fa506c',
-                color0: '#00ff00'
+                color0: '#f8c4d8'
             }
         },
 
@@ -106,7 +106,7 @@
 
         graph: {
             itemStyle: {
-                color: '#00ff00'
+                color: '#f2385a'
             },
             nodeStyle: {
                 brushType: 'both',
@@ -128,7 +128,7 @@
                     color: [
                         [0.2, '#e52c3c'],
                         [0.8, '#f7b1ab'],
-                        [1, '#00ff00']
+                        [1, '#fa506c']
                     ],
                     width: 8
                 }

@@ -21,7 +21,7 @@ under the License.
 <html>
     <head>
         <meta charset="utf-8">
-        <script src="lib/esl.js"></script>
+        <script src="lib/simpleRequire.js"></script>
         <script src="lib/config.js"></script>
         <script src="lib/testHelper.js"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -60,13 +60,7 @@ under the License.
 
             require([
                 'echarts',
-                'data/security-sh-2013.json'
-                // 'echarts/chart/line',
-                // 'echarts/chart/candlestick',
-                // 'echarts/component/legend',
-                // 'echarts/component/grid',
-                // 'echarts/component/tooltip',
-                // 'zrender/vml/vml'
+                'data/security-sh-2013.json.js'
             ], function (echarts, rawData) {
 
                 var dom = document.getElementById('dim');
@@ -177,18 +171,8 @@ under the License.
             var data;
 
             require([
-                'echarts',
-                'extension/dataTool'
-                // 'echarts/chart/boxplot',
-                // 'echarts/chart/scatter',
-                // 'echarts/component/title',
-                // 'echarts/component/legend',
-                // 'echarts/component/grid',
-                // 'echarts/component/tooltip',
-                // 'echarts/component/dataZoom'
-            ], function (echarts, dataTool) {
-
-                var prepareBoxplotData = dataTool.prepareBoxplotData;
+                'echarts'
+            ], function (echarts) {
 
                 data = [];
                 for (var seriesIndex = 0; seriesIndex < 5; seriesIndex++) {
@@ -200,7 +184,7 @@ under the License.
                         }
                         seriesData.push(cate);
                     }
-                    data.push(prepareBoxplotData(seriesData, {layout: 'horizontal'}));
+                    data.push(seriesData);
                 }
 
                 var option = {
@@ -265,6 +249,19 @@ under the License.
                             end: 20
                         }
                     ],
+                    dataset: [{
+                        source: data[0]
+                    }, {
+                        source: data[1]
+                    }, {
+                        transform: {
+                            type: 'boxplot'
+                        }
+                    }, {
+                        transform: {
+                            type: 'boxplot'
+                        }
+                    }],
                     series: [
                         {
                             name: 'category0',
@@ -273,12 +270,12 @@ under the License.
                             encode: {
                                 tooltip: [3, 2, 4]
                             },
-                            data: data[0].boxData
+                            datasetIndex: 2
                         },
                         {
                             name: 'category1',
                             type: 'boxplot',
-                            data: data[1].boxData
+                            datasetIndex: 3
                         }
                     ]
                 };
@@ -298,11 +295,6 @@ under the License.
         <script>
             require([
                 'echarts'
-                // 'echarts/chart/scatter',
-                // 'echarts/component/legend',
-                // 'echarts/component/visualMap',
-                // 'echarts/component/dataZoom',
-                // 'zrender/vml/vml'
             ], function (echarts) {
                 data = [
                     ['Blouse "Blue Viola"', 101.88, 99.75, 23, 17, 32, 18],

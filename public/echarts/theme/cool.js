@@ -26,7 +26,7 @@
         typeof exports.nodeName !== 'string'
     ) {
         // CommonJS
-        factory(exports, require('echarts'));
+        factory(exports, require('echarts/lib/echarts'));
     } else {
         // Browser globals
         factory({}, root.echarts);
@@ -43,14 +43,16 @@
     }
 
     var colorPalette = [
-        '#ffcb6a',
-        '#50a5ff',
-        '#ffe2c4',
-        '#e5834e',
-        '#ffb081',
-        '#f7826e',
-        '#faac9e',
-        '#fcd5cf'
+        '#b21ab4',
+        '#6f0099',
+        '#2a2073',
+        '#0b5ea8',
+        '#17aecc',
+        '#b3b3ff',
+        '#eb99ff',
+        '#fae6ff',
+        '#e6f2ff',
+        '#eeeeee'
     ];
 
     var theme = {
@@ -59,18 +61,12 @@
         title: {
             textStyle: {
                 fontWeight: 'normal',
-                color: '#1d9f2e'
+                color: '#00aecd'
             }
         },
 
         visualMap: {
-            color: [
-                '#cd0030',
-                '#be25ff',
-                '#f5ec47',
-                '#348f0d',
-                '#60dd2b',
-                '#1d8ade']
+            color: ['#00aecd', '#a2d4e6']
         },
 
         toolbox: {

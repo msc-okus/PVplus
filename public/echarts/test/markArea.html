@@ -21,7 +21,7 @@ under the License.
 <html>
     <head>
         <meta charset="utf-8">
-        <script src="lib/esl.js"></script>
+        <script src="lib/simpleRequire.js"></script>
         <script src="lib/config.js"></script>
     </head>
     <body>
@@ -36,11 +36,6 @@ under the License.
 
             require([
                 'echarts'
-                // 'echarts/chart/line',
-                // 'echarts/component/legend',
-                // 'echarts/component/grid',
-                // 'echarts/component/tooltip',
-                // 'echarts/component/markArea'
             ], function (echarts) {
 
                 var chart = echarts.init(document.getElementById('main'));
@@ -68,7 +63,9 @@ under the License.
                     xAxis: {
                         data: xAxisData
                     },
-                    yAxis: {},
+                    yAxis: {
+                        max: 5
+                    },
                     series: [{
                         name: 'line',
                         type: 'line',
@@ -118,10 +115,25 @@ under the License.
                                     yAxis: 0.5
                                 }, {
                                     yAxis: 0.7
+                                }],
+                                [{
+                                    name: 'This text should not be displayed\nwhen out of range',
+                                    yAxis: 3
+                                }, {
+                                    yAxis: 3.5
                                 }]
                             ]
                         }
-                    }]
+                    }],
+                    dataZoom: {
+                        yAxisIndex: 0,
+                        startValue: 0,
+                        endValue: 2,
+                        right: 250
+                    },
+                    grid: {
+                        right: 300
+                    }
                 });
 
             });

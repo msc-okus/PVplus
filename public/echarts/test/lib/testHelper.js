@@ -56,7 +56,8 @@
      * @param {boolean} [opt.autoResize=true]
      * @param {Array.<Object>|Object} [opt.button] {text: ..., onClick: ...}, or an array of them.
      * @param {Array.<Object>|Object} [opt.buttons] {text: ..., onClick: ...}, or an array of them.
-     * @param {boolean} [opt.recordCanvas] 'ut/lib/canteen.js' is required.
+     * @param {boolean} [opt.recordCanvas] 'test/lib/canteen.js' is required.
+     * @param {boolean} [opt.recordVideo]
      */
     testHelper.create = function (echarts, domOrId, opt) {
         var dom = getDom(domOrId);
@@ -72,6 +73,7 @@
         var dataTableContainer = document.createElement('div');
         var infoContainer = document.createElement('div');
         var recordCanvasContainer = document.createElement('div');
+        var recordVideoContainer = document.createElement('div');
 
         title.setAttribute('title', dom.getAttribute('id'));
 
@@ -83,6 +85,7 @@
         dataTableContainer.className = 'test-data-table';
         infoContainer.className = 'test-info';
         recordCanvasContainer.className = 'record-canvas';
+        recordVideoContainer.className = 'record-video';
 
         if (opt.info) {
             dom.className += ' test-chart-block-has-right';
@@ -90,6 +93,7 @@
         }
 
         left.appendChild(recordCanvasContainer);
+        left.appendChild(recordVideoContainer);
         left.appendChild(buttonsContainer);
         left.appendChild(dataTableContainer);
         left.appendChild(chartContainer);
@@ -144,47 +148,66 @@
         }
 
         if (opt.info) {
-            infoContainer.innerHTML = createObjectHTML(opt.info, opt.infoKey || 'option');
+            updateInfo(opt.info, opt.infoKey);
         }
 
-        if (opt.recordCanvas) {
-            recordCanvasContainer.innerHTML = ''
-                + '<button>Show Canvas Record</button>'
-                + '<button>Clear Canvas Record</button>'
-                + '<div class="content-area"><textarea></textarea><br><button>Close</button></div>';
-            var buttons = recordCanvasContainer.getElementsByTagName('button');
-            var canvasRecordButton = buttons[0];
-            var clearButton = buttons[1];
-            var closeButton = buttons[2];
-            var recordArea = recordCanvasContainer.getElementsByTagName('textarea')[0];
-            var contentAraa = recordArea.parentNode;
-            canvasRecordButton.addEventListener('click', function () {
-                var content = [];
-                eachCtx(function (zlevel, ctx) {
-                    content.push('Layer zlevel: ' + zlevel, '\n\n');
-                    if (typeof ctx.stack !== 'function') {
-                        alert('Missing: <script src="ut/lib/canteen.js"></script>');
-                        return;
-                    }
-                    var stack = ctx.stack();
-                    for (var i = 0; i < stack.length; i++) {
-                        var line = stack[i];
-                        content.push(JSON.stringify(line), '\n');
-                    }
-                });
-                contentAraa.style.display = 'block';
-                recordArea.value = content.join('');
-            });
-            clearButton.addEventListener('click', function () {
-                eachCtx(function (zlevel, ctx) {
-                    ctx.clear();
-                });
-                recordArea.value = 'Cleared.';
-            });
-            closeButton.addEventListener('click', function () {
-                contentAraa.style.display = 'none';
-            });
+        function updateInfo(info, infoKey) {
+            infoContainer.innerHTML = createObjectHTML(info, infoKey || 'option');
         }
+
+        initRecordCanvas(opt, chart, recordCanvasContainer);
+
+        if (opt.recordVideo) {
+            initRecordVideo(chart, recordVideoContainer);
+        }
+
+        chart.__testHelper = {
+            updateInfo: updateInfo
+        };
+
+        return chart;
+    };
+
+    function initRecordCanvas(opt, chart, recordCanvasContainer) {
+        if (!opt.recordCanvas) {
+            return;
+        }
+        recordCanvasContainer.innerHTML = ''
+            + '<button>Show Canvas Record</button>'
+            + '<button>Clear Canvas Record</button>'
+            + '<div class="content-area"><textarea></textarea><br><button>Close</button></div>';
+        var buttons = recordCanvasContainer.getElementsByTagName('button');
+        var canvasRecordButton = buttons[0];
+        var clearButton = buttons[1];
+        var closeButton = buttons[2];
+        var recordArea = recordCanvasContainer.getElementsByTagName('textarea')[0];
+        var contentAraa = recordArea.parentNode;
+        canvasRecordButton.addEventListener('click', function () {
+            var content = [];
+            eachCtx(function (zlevel, ctx) {
+                content.push('\nLayer zlevel: ' + zlevel, '\n\n');
+                if (typeof ctx.stack !== 'function') {
+                    alert('Missing: <script src="test/lib/canteen.js"></script>');
+                    return;
+                }
+                var stack = ctx.stack();
+                for (var i = 0; i < stack.length; i++) {
+                    var line = stack[i];
+                    content.push(JSON.stringify(line), ',\n');
+                }
+            });
+            contentAraa.style.display = 'block';
+            recordArea.value = content.join('');
+        });
+        clearButton.addEventListener('click', function () {
+            eachCtx(function (zlevel, ctx) {
+                ctx.clear();
+            });
+            recordArea.value = 'Cleared.';
+        });
+        closeButton.addEventListener('click', function () {
+            contentAraa.style.display = 'none';
+        });
 
         function eachCtx(cb) {
             var layers = chart.getZr().painter.getLayers();
@@ -197,9 +220,24 @@
                 }
             }
         }
+    }
 
-        return chart;
-    };
+    function initRecordVideo(chart, recordVideoContainer) {
+        var button = document.createElement('button');
+        button.innerHTML = 'Start Recording';
+        recordVideoContainer.appendChild(button);
+        var recorder = new VideoRecorder(chart);
+
+        var isRecording = false;
+
+
+        button.onclick = function () {
+            isRecording ? recorder.stop() : recorder.start();
+            button.innerHTML = `${isRecording ? 'Start' : 'Stop'} Recording`;
+
+            isRecording = !isRecording;
+        }
+    }
 
     /**
      * @param {ECharts} echarts
@@ -256,6 +294,171 @@
         }
     };
 
+    /**
+     * @usage
+     * ```js
+     * testHelper.printAssert(chart, function (assert) {
+     *     // If any error thrown here, a "checked: Fail" will be printed on the chart;
+     *     // Otherwise, "checked: Pass" will be printed on the chart.
+     *     assert(condition1);
+     *     assert(condition2);
+     *     assert(condition3);
+     * });
+     * ```
+     * `testHelper.printAssert` can be called multiple times for one chart instance.
+     * For each call, one result (fail or pass) will be printed.
+     *
+     * @param chartOrDomId {EChartsInstance | string}
+     * @param checkFn {Function} param: a function `assert`.
+     */
+    testHelper.printAssert = function (chartOrDomId, checkerFn) {
+        if (!chartOrDomId) {
+            return;
+        }
+
+        var hostDOMEl;
+        var chart;
+        if (typeof chartOrDomId === 'string') {
+            hostDOMEl = document.getElementById(chartOrDomId);
+        }
+        else {
+            chart = chartOrDomId;
+            hostDOMEl = chartOrDomId.getDom();
+        }
+        var failErr;
+        function assert(cond) {
+            if (!cond) {
+                throw new Error();
+            }
+        }
+        try {
+            checkerFn(assert);
+        }
+        catch (err) {
+            console.error(err);
+            failErr = err;
+        }
+        var printAssertRecord = hostDOMEl.__printAssertRecord || (hostDOMEl.__printAssertRecord = []);
+
+        var resultDom = document.createElement('div');
+        resultDom.innerHTML = failErr ? 'checked: Fail' : 'checked: Pass';
+        var fontSize = 40;
+        resultDom.style.cssText = [
+            'position: absolute;',
+            'left: 20px;',
+            'font-size: ' + fontSize + 'px;',
+            'z-index: ' + (failErr ? 99999 : 88888) + ';',
+            'color: ' + (failErr ? 'red' : 'green') + ';',
+        ].join('');
+        printAssertRecord.push(resultDom);
+        hostDOMEl.appendChild(resultDom);
+
+        relayoutResult();
+
+        function relayoutResult() {
+            var chartHeight = chart ? chart.getHeight() : hostDOMEl.offsetHeight;
+            var lineHeight = Math.min(fontSize + 10, (chartHeight - 20) / printAssertRecord.length);
+            for (var i = 0; i < printAssertRecord.length; i++) {
+                var record = printAssertRecord[i];
+                record.style.top = (10 + i * lineHeight) + 'px';
+            }
+        }
+    };
+
+
+    var _dummyRequestAnimationFrameMounted = false;
+
+    /**
+     * Usage:
+     * ```js
+     * testHelper.controlFrame({pauseAt: 60});
+     * // Then load echarts.js (must after controlFrame called)
+     * ```
+     *
+     * @param {Object} [opt]
+     * @param {number} [opt.puaseAt] If specified `pauseAt`, auto pause at the frame.
+     * @param {Function} [opt.onFrame]
+     */
+    testHelper.controlFrame = function (opt) {
+        opt = opt || {};
+        var pauseAt = opt.pauseAt;
+        pauseAt == null && (pauseAt = 0);
+
+        var _running = true;
+        var _pendingCbList = [];
+        var _frameNumber = 0;
+        var _mounted = false;
+
+        function getRunBtnText() {
+            return _running ? 'pause' : 'run';
+        }
+
+        var buttons = [{
+            text: getRunBtnText(),
+            onclick: function () {
+                buttons[0].el.innerHTML = getRunBtnText();
+                _running ? pause() : run();
+            }
+        }, {
+            text: 'next frame',
+            onclick: nextFrame
+        }];
+
+        var btnPanel = document.createElement('div');
+        btnPanel.className = 'control-frame-btn-panel'
+        var infoEl = document.createElement('div');
+        infoEl.className = 'control-frame-info';
+        btnPanel.appendChild(infoEl);
+        document.body.appendChild(btnPanel);
+        for (var i = 0; i < buttons.length; i++) {
+            var button = buttons[i];
+            var btnEl = button.el = document.createElement('button');
+            btnEl.innerHTML = button.text;
+            btnEl.addEventListener('click', button.onclick);
+            btnPanel.appendChild(btnEl);
+        }
+
+        if (_dummyRequestAnimationFrameMounted) {
+            throw new Error('Do not support `controlFrame` twice');
+        }
+        _dummyRequestAnimationFrameMounted = true;
+        var raf = window.requestAnimationFrame;
+        window.requestAnimationFrame = function (cb) {
+            _pendingCbList.push(cb);
+            if (_running && !_mounted) {
+                _mounted = true;
+                raf(nextFrame);
+            }
+        };
+
+        function run() {
+            _running = true;
+            nextFrame();
+        }
+
+        function pause() {
+            _running = false;
+        }
+
+        function nextFrame() {
+            opt.onFrame && opt.onFrame(_frameNumber);
+
+            if (pauseAt != null && _frameNumber === pauseAt) {
+                _running = false;
+                pauseAt = null;
+            }
+            infoEl.innerHTML = 'Frame: ' + _frameNumber + ' ( ' + (_running ? 'Running' : 'Paused') + ' )';
+            buttons[0].el.innerHTML = getRunBtnText();
+
+            _mounted = false;
+            var pending = _pendingCbList;
+            _pendingCbList = [];
+            for (var i = 0; i < pending.length; i++) {
+                pending[i]();
+            }
+            _frameNumber++;
+        }
+    }
 
     testHelper.resizable = function (chart) {
         var dom = chart.getDom();
@@ -475,7 +678,8 @@
                     str = preStr + obj + '';
                     break;
                 case 'string':
-                    str = preStr + quotationMark + obj + quotationMark;
+                    str = JSON.stringify(obj); // escapse \n\r or others.
+                    str = preStr + quotationMark + str.slice(1, str.length - 1) + quotationMark;
                     break;
                 default:
                     str = preStr + obj + '';
@@ -488,7 +692,201 @@
         }
     };
 
+    /**
+     * Usage:
+     * ```js
+     * // Print all elements that has `style.text`:
+     * var str = testHelper.stringifyElements(chart, {
+     *     attr: ['z', 'z2', 'style.text', 'style.fill', 'style.stroke'],
+     *     filter: el => el.style && el.style.text
+     * });
+     * ```
+     *
+     * @param {EChart} chart
+     * @param {Object} [opt]
+     * @param {string|Array.<string>} [opt.attr] Only print the given attrName;
+     *        For example: 'z2' or ['z2', 'style.fill', 'style.stroke']
+     * @param {function} [opt.filter] print a subtree only if any satisfied node exists.
+     *        param: el, return: boolean
+     */
+    testHelper.stringifyElements = function (chart, opt) {
+        if (!chart) {
+            return;
+        }
+        opt = opt || {};
+        var attrNameList = opt.attr;
+        if (getType(attrNameList) !== 'array') {
+            attrNameList = attrNameList ? [attrNameList] : [];
+        }
 
+        var zr = chart.getZr();
+        var roots = zr.storage.getRoots();
+        var plainRoots = [];
+
+        retrieve(roots, plainRoots);
+
+        var elsStr = printObject(plainRoots, {indent: 2});
+
+        return elsStr;
+
+        // Only retrieve the value of the given attrName.
+        function retrieve(elList, plainNodes) {
+            var anySatisfied = false;
+            for (var i = 0; i < elList.length; i++) {
+                var el = elList[i];
+
+                var thisElSatisfied = !opt.filter || opt.filter(el);
+
+                var plainNode = {};
+
+                copyElment(plainNode, el);
+
+                var textContent = el.getTextContent();
+                if (textContent) {
+                    plainNode.textContent = {};
+                    copyElment(plainNode.textContent, textContent);
+                }
+
+                var thisSubAnySatisfied = false;
+                if (el.isGroup) {
+                    plainNode.children = [];
+                    thisSubAnySatisfied = retrieve(el.childrenRef(), plainNode.children);
+                }
+
+                if (thisElSatisfied || thisSubAnySatisfied) {
+                    plainNodes.push(plainNode);
+                    anySatisfied = true;
+                }
+            }
+
+            return anySatisfied;
+        }
+
+        function copyElment(plainNode, el) {
+            for (var i = 0; i < attrNameList.length; i++) {
+                var attrName = attrNameList[i];
+                var attrParts = attrName.split('.');
+                var partsLen = attrParts.length;
+                if (!partsLen) {
+                    continue;
+                }
+                var elInner = el;
+                var plainInner = plainNode;
+                for (var j = 0; j < partsLen - 1 && elInner; j++) {
+                    var attr = attrParts[j];
+                    elInner = el[attr];
+                    if (elInner) {
+                        plainInner = plainInner[attr] || (plainInner[attr] = {});
+                    }
+                }
+                var attr = attrParts[partsLen - 1];
+                if (elInner && elInner.hasOwnProperty(attr)) {
+                    plainInner[attr] = elInner[attr];
+                }
+            }
+        }
+    };
+
+    /**
+     * Usage:
+     * ```js
+     * // Print all elements that has `style.text`:
+     * testHelper.printElements(chart, {
+     *     attr: ['z', 'z2', 'style.text', 'style.fill', 'style.stroke'],
+     *     filter: el => el.style && el.style.text
+     * });
+     * ```
+     *
+     * @see `stringifyElements`.
+     */
+    testHelper.printElements = function (chart, opt) {
+        var elsStr = testHelper.stringifyElements(chart, opt);
+        console.log(elsStr);
+    };
+
+    /**
+     * Usage:
+     * ```js
+     * // Print all elements that has `style.text`:
+     * testHelper.retrieveElements(chart, {
+     *     filter: el => el.style && el.style.text
+     * });
+     * ```
+     *
+     * @param {EChart} chart
+     * @param {Object} [opt]
+     * @param {function} [opt.filter] print a subtree only if any satisfied node exists.
+     *        param: el, return: boolean
+     * @return {Array.<Element>}
+     */
+    testHelper.retrieveElements = function (chart, opt) {
+        if (!chart) {
+            return;
+        }
+        opt = opt || {};
+        var attrNameList = opt.attr;
+        if (getType(attrNameList) !== 'array') {
+            attrNameList = attrNameList ? [attrNameList] : [];
+        }
+
+        var zr = chart.getZr();
+        var roots = zr.storage.getRoots();
+        var result = [];
+
+        retrieve(roots);
+
+        function retrieve(elList) {
+            for (var i = 0; i < elList.length; i++) {
+                var el = elList[i];
+                if (!opt.filter || opt.filter(el)) {
+                    result.push(el);
+                }
+                if (el.isGroup) {
+                    retrieve(el.childrenRef());
+                }
+            }
+        }
+
+        return result;
+    };
+
+    // opt: {record: JSON, width: number, height: number}
+    testHelper.reproduceCanteen = function (opt) {
+        var canvas = document.createElement('canvas');
+        canvas.style.width = opt.width + 'px';
+        canvas.style.height = opt.height + 'px';
+        var dpr = Math.max(window.devicePixelRatio || 1, 1);
+        canvas.width = opt.width * dpr;
+        canvas.height = opt.height * dpr;
+
+        var ctx = canvas.getContext('2d');
+        var record = opt.record;
+
+        for (var i = 0; i < record.length; i++) {
+            var line = record[i];
+            if (line.attr) {
+                if (!line.hasOwnProperty('val')) {
+                    alertIllegal(line);
+                }
+                ctx[line.attr] = line.val;
+            }
+            else if (line.method) {
+                if (!line.hasOwnProperty('arguments')) {
+                    alertIllegal(line);
+                }
+                ctx[line.method].apply(ctx, line.arguments);
+            }
+            else {
+                alertIllegal(line);
+            }
+        }
+
+        function alertIllegal(line) {
+            throw new Error('Illegal line: ' + JSON.stringify(line));
+        }
+
+        document.body.appendChild(canvas);
+    };
 
     function createDataTableHTML(data, opt) {
         var sourceFormat = detectSourceFormat(data);
@@ -571,9 +969,15 @@
     }
 
     function createObjectHTML(obj, key) {
+        var html = isObject(obj)
+            ? testHelper.encodeHTML(printObject(obj, key))
+            : obj
+            ? obj.toString()
+            : '';
+
         return [
             '<pre class="test-print-object">',
-            testHelper.encodeHTML(printObject(obj, key)),
+            html,
             '</pre>'
         ].join('');
     }
@@ -614,6 +1018,75 @@
     function getParamListFromURL() {
         var params = location.search.replace('?', '');
         return params ? params.split('&') : [];
+    }
+
+    function isObject(value) {
+        // Avoid a V8 JIT bug in Chrome 19-20.
+        // See https://code.google.com/p/v8/issues/detail?id=2291 for more details.
+        var type = typeof value;
+        return type === 'function' || (!!value && type === 'object');
+    }
+
+    function VideoRecorder(chart) {
+        this.start = startRecording;
+        this.stop = stopRecording;
+
+        var recorder = null;
+
+        var oldRefreshImmediately = chart.getZr().refreshImmediately;
+
+        function startRecording() {
+            // Normal resolution or high resolution?
+            var compositeCanvas = document.createElement('canvas');
+            var width = chart.getWidth();
+            var height = chart.getHeight();
+            compositeCanvas.width = width;
+            compositeCanvas.height = height;
+            var compositeCtx = compositeCanvas.getContext('2d');
+
+            chart.getZr().refreshImmediately = function () {
+                var ret = oldRefreshImmediately.apply(this, arguments);
+                var canvasList = chart.getDom().querySelectorAll('canvas');
+                compositeCtx.fillStyle = '#fff';
+                compositeCtx.fillRect(0, 0, width, height);
+                for (var i = 0; i < canvasList.length; i++) {
+                    compositeCtx.drawImage(canvasList[i], 0, 0, width, height);
+                }
+                return ret;
+            }
+
+            var stream = compositeCanvas.captureStream(25);
+            recorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+
+            var videoData = [];
+            recorder.ondataavailable = function (event) {
+                if (event.data && event.data.size) {
+                    videoData.push(event.data);
+                }
+            };
+
+            recorder.onstop = function () {
+                var url = URL.createObjectURL(new Blob(videoData, { type: 'video/webm' }));
+
+                var a = document.createElement('a');
+                a.href = url;
+                a.download = 'recording.webm';
+                a.click();
+
+                setTimeout(function () {
+                    window.URL.revokeObjectURL(url);
+                }, 100);
+            };
+
+            recorder.start();
+        }
+
+        function stopRecording() {
+            if (recorder) {
+                chart.getZr().refreshImmediately = oldRefreshImmediately;
+                recorder.stop();
+            }
+        }
     }
 
     context.testHelper = testHelper;

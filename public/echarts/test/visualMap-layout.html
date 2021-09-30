@@ -21,7 +21,7 @@ under the License.
 <html>
     <head>
         <meta charset="utf-8">
-        <script src="lib/esl.js"></script>
+        <script src="lib/simpleRequire.js"></script>
         <script src="lib/config.js"></script>
         <link rel="stylesheet" href="lib/reset.css">
         <style>
@@ -64,13 +64,7 @@ under the License.
         <script>
 
 
-            require([
-                'echarts'
-                // 'zrender/core/util',
-                // 'echarts/chart/scatter',
-                // 'echarts/component/grid',
-                // 'echarts/component/visualMap'
-            ], function (echarts) {
+            require(['echarts'], function (echarts) {
                 var zrUtil = echarts.util;
                 makeChart({
                     show: true,
@@ -305,7 +299,9 @@ under the License.
                     inverse: true,
                     dimension: 3,
                     backgroundColor: '#eee',
-                    inRange: 'colorSaturation'
+                    inRange: {
+                        colorSaturation: [0.3, 1]
+                    }
                 });
                 makeChart({
                     right: 0,
@@ -315,7 +311,9 @@ under the License.
                     calculable: true,
                     dimension: 3,
                     backgroundColor: '#eee',
-                    inRange: 'colorLightness'
+                    inRange: {
+                        colorLightness: [0.9, 0.5]
+                    }
                 });
                 makeChart({
                     top: 40,
@@ -324,7 +322,9 @@ under the License.
                     calculable: true,
                     dimension: 3,
                     backgroundColor: '#eee',
-                    inRange: 'colorAlpha'
+                    inRange: {
+                        colorAlpha: [0.3, 1]
+                    }
                 });
                 makeChart({
                     left: 'center',
@@ -334,7 +334,9 @@ under the License.
                     calculable: true,
                     dimension: 3,
                     backgroundColor: '#eee',
-                    inRange: 'colorAlpha'
+                    inRange: {
+                        colorAlpha: [0.3, 1]
+                    }
                 });
 
 
@@ -392,7 +394,9 @@ under the License.
                     inverse: true,
                     dimension: 3,
                     backgroundColor: '#eee',
-                    inRange: 'colorSaturation'
+                    inRange: {
+                        colorSaturation: [0.3, 1]
+                    }
                 });
                 makeChart({
                     right: 0,
@@ -404,7 +408,9 @@ under the License.
                     calculable: true,
                     dimension: 3,
                     backgroundColor: '#eee',
-                    inRange: 'colorLightness'
+                    inRange: {
+                        colorLightness: [0.9, 0.5]
+                    }
                 });
                 makeChart({
                     top: 40,
@@ -414,7 +420,9 @@ under the License.
                     calculable: true,
                     dimension: 3,
                     backgroundColor: '#eee',
-                    inRange: 'colorAlpha'
+                    inRange: {
+                        colorAlpha: [0.3, 1]
+                    }
                 });
                 makeChart({
                     left: 'center',
@@ -425,7 +433,9 @@ under the License.
                     calculable: true,
                     dimension: 3,
                     backgroundColor: '#eee',
-                    inRange: 'colorAlpha'
+                    inRange: {
+                        colorAlpha: [0.3, 1]
+                    }
                 });
 
 
