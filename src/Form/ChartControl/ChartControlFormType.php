@@ -9,7 +9,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Date;
 
-class CfhartControlFormType extends AbstractType
+class ChartControlFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {

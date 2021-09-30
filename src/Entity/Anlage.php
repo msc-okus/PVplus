@@ -2929,5 +2929,7 @@ class Anlage
 
         return $this;
     }
-
+    public function __toString(){
+        return  $this->getAnlName();
+    }
 }
