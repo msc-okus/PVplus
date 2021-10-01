@@ -8,6 +8,7 @@ use App\Entity\Ticket;
 use App\Entity\User;
 use Doctrine\DBAL\Types\BooleanType;
 use Doctrine\DBAL\Types\DateType;
+use phpDocumentor\Reflection\Types\Boolean;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -26,9 +27,11 @@ class TicketFormType extends AbstractType
 {
     public function configureOptions(OptionsResolver $resolver)
     {
+
         $resolver->setDefaults([
             'data_class' => Ticket::class,
         ]);
+
     }
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
@@ -37,6 +40,8 @@ class TicketFormType extends AbstractType
                 'label'         => 'select the status',
                 'choices'       => [
                 // TO DECIDE
+                    'test' => 10,
+                    'test2' => 20
                 ],
                 'required' => true,
                 'placeholder'   => 'please Choose ...'
@@ -63,17 +68,22 @@ class TicketFormType extends AbstractType
 
             ->add('PR', ChoiceType::class,[
                 'label'         =>'PR',
+                'choices'       => ['yes'=>true,'no'=>false],
                 'expanded'      => true,
-                'multiple'      => true,
-            ])
-          /*
-            ->add('PA', Boolean::class,[
 
             ])
-            ->add('yield', Boolean::class,[
+            ->add('PA', ChoiceType::class,[
+                'label'         =>'PA',
+                'choices'       => ['yes'=>true,'no'=>false],
+                'expanded'      => true,
 
             ])
-            */
+            ->add('Yield', ChoiceType::class,[
+                'label'         =>'Yield',
+                'choices'       => ['yes'=>true, 'no' => false],
+                'expanded'      => true,
+
+            ])
             ->add('freeText', TextareaType::class,[
 
             ])
@@ -83,7 +93,8 @@ class TicketFormType extends AbstractType
             ->add('systemStatus', ChoiceType::class,[
                 'label'         => 'select the status of the system',
                 'choices'       => [
-                //TO DECIDE
+                    'test' => 10,
+                    'test2' => 20
                 ],
                 'required' => true,
                 'placeholder'   => 'please Choose ...'
@@ -91,6 +102,8 @@ class TicketFormType extends AbstractType
             ->add('priority', ChoiceType::class,[
                 'label'         => 'select the priority',
                 'choices'       => [
+                    'test' => 10,
+                    'test2' => 20
                 // TO DECIDE
                 ],
                 'required' => true,
@@ -101,6 +114,10 @@ class TicketFormType extends AbstractType
             ])
             ->add('anlage', EntityType::class,[
                 'class' => Anlage::class,
+            ])
+
+            ->add('save', SubmitType::class, [
+                'label' => 'Save Ticket',
             ])
 
         ;
