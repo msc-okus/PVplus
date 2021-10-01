@@ -1,5 +1,73 @@
 {% extends 'base.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/autocomplete.js/0/autocomplete.jquery.min.js"></script>
+    <script src="{{ asset('jsNew/algolia-autocomplete.js') }}"></script>
+{% endblock %}
+
+{% import 'macros/macros.ticket.html.twig' as macrolibrary %}
+
+{% block title %}
+    {{ parent() }}List Ticketsxxx
+{% endblock %}
 
 {% block body %}
+    <h1>List Tickets</h1>
+{# BEGINING OF THE SEARCHBAR #}
+    <form>
+        <div class="grid-x grid-margin-x align-middle">
+            <div class="cell medium-2" style="margin-top:-17px!important;">
+                <h4>Plant</h4>
+                <input type="text" name="anlagen" class="input-group-field" data-autocomplete-url="/admin/anlagen/find" value='' placeholder="Search plants">
+            </div>
+            <div class="cell medium-2" style="margin-top:-17px!important;">
+                <h4>Editor</h4>
+                <input type="text" name="user" class="input-group-field" data-autocomplete-url="/admin/user/find" value='' placeholder="Search Editor">
+            </div>
+            <div class="cell medium-2">
+                <h4>Status</h4>
+                <select name="searchstatus">
+                    <option value="00"> </option>
+                    <option value="10">work in progress</option>
+                    <option value="20">solved</option>
+                </select>
+            </div>
+            <h4> </h4>
+            <div class="input-group-button" style="height:35px !important; width:35px !important; padding:0; margin-top:-15px;">
+                <button name="search" type="submit" class="button" value="yes"><span class="fa fa-search"></span></button>
+            </div>
+        </div>
+    </form>
+    {# END OF THE SEARCHBAR #}
+    <table class="table sortable">
+        <thead>
+        <tr>
+            <th>Report ID</th>
+            <th {% if pagination.isSorted('a.anlName') %} class="sorted"{% endif %}>
+                {{ knp_pagination_sortable(pagination, 'Plant', ['a.anlName']) }}</th>
+            <th {% if pagination.isSorted('ticket.editor') %} class="sorted"{% endif %}>
+                {{ knp_pagination_sortable(pagination, 'Editor', ['ticket.Editor']) }}</th>
+            <th {% if pagination.isSorted('ticket.begin') %} class="sorted"{% endif %}>
+                {{ knp_pagination_sortable(pagination, 'Begin', ['ticket.begin']) }}</th>
+            <th {% if pagination.isSorted('ticket.end') %} class="sorted"{% endif %}>
+                {{ knp_pagination_sortable(pagination, 'End', ['ticket.end']) }}</th>
+            <th></th>
 
+        </tr>
+        </thead>
+        <tbody>
+        {% for ticket in pagination %}
+
+                <tr>
+                    <td>{{ ticket.id }}</td>
+                    <td>{{ ticket.anlage.anlName }}</td>
+                    <td>{{ ticket.Editor }}</td>
+                    <td>{{ ticket.begin|date("Y-m-d")}}</td>
+                    <td>{{ ticket.end|date("Y-m-d") }}</td>
+                </tr>
+
+        {% endfor %}
+        </tbody>
+    </table>
+    {{ knp_pagination_render(pagination) }}
 {% endblock %}

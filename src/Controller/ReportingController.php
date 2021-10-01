@@ -60,7 +60,7 @@ class ReportingController extends AbstractController
         }
 
         if ($searchmonth == "" && $request->getSession()->get('searchmonth') != "") {
-            #$searchmonth = $request->getSession()->get('searchmonth');
+            $searchmonth = $request->getSession()->get('searchmonth');
             $request->query->set('searchmonth', $searchmonth);
         }
 
