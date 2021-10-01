@@ -45,14 +45,14 @@
             <th>Report ID</th>
             <th {% if pagination.isSorted('a.anlName') %} class="sorted"{% endif %}>
                 {{ knp_pagination_sortable(pagination, 'Plant', ['a.anlName']) }}</th>
+            <th>Status</th>
             <th {% if pagination.isSorted('ticket.editor') %} class="sorted"{% endif %}>
                 {{ knp_pagination_sortable(pagination, 'Editor', ['ticket.Editor']) }}</th>
             <th {% if pagination.isSorted('ticket.begin') %} class="sorted"{% endif %}>
                 {{ knp_pagination_sortable(pagination, 'Begin', ['ticket.begin']) }}</th>
             <th {% if pagination.isSorted('ticket.end') %} class="sorted"{% endif %}>
                 {{ knp_pagination_sortable(pagination, 'End', ['ticket.end']) }}</th>
-            <th></th>
-
+            <th>Last Update</th>
         </tr>
         </thead>
         <tbody>
@@ -61,9 +61,17 @@
                 <tr>
                     <td>{{ ticket.id }}</td>
                     <td>{{ ticket.anlage.anlName }}</td>
+                    <td>{% if ticket.status == 10 %}
+                        open
+                        {% endif %}
+                        {% if ticket.status == 20 %}
+                        closed
+                        {% endif %}
+                    </td>
                     <td>{{ ticket.Editor }}</td>
                     <td>{{ ticket.begin|date("Y-m-d")}}</td>
                     <td>{{ ticket.end|date("Y-m-d") }}</td>
+                    <td>{{ ticket.ticketActivity|date("Y-m-d")  }}</td>
                 </tr>
 
         {% endfor %}

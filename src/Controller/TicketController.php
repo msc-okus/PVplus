@@ -90,7 +90,7 @@ class TicketController extends BaseController
         return $this->render('Ticket/list.html.twig',[
             'pagination' => $pagination,
             'anlagen'    => $anlagen,
-            'tickets'    => $tickets
+            'ticket'    => $tickets
         ]);
     }
 }
