@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Form\Model\ToolsModel;
+use App\Form\Ticket\TicketEditFormType;
 use App\Form\Ticket\TicketFormType;
 use App\Form\Tools\ToolsFormType;
 use App\Helper\G4NTrait;
@@ -21,7 +22,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class TicketController extends BaseController
 {
     /**
-     * @Route("/ticket/create", name="Ticket_form")
+     * @Route("/ticket/create", name="Ticket_create")
      */
     public function create(EntityManagerInterface $em, Request $request)
     {
@@ -31,7 +32,6 @@ class TicketController extends BaseController
             $ticket = $form->getData();
             $ticket->setEditor($this->getUser()->getUsername());
             $ticket->setTicketActivity($ticket->getBegin());
-            $successMessage = 'Ticket data saved!';
             $em->persist($ticket);
             $em->flush();
             return $this->redirectToRoute('Ticket_list');
@@ -39,6 +39,15 @@ class TicketController extends BaseController
         return $this->render('Ticket/create.html.twig',[
             'ticketForm'=>$form->createView()
     ]);
+    }
+
+    /**
+     * @Route("/ticket/edit", name="Ticket_edit")
+     */
+    public function edit(EntityManagerInterface $em, Request $request){
+        $form = $this->createForm(TicketEditFormType::class);
+        $form->handleRequest($request);
+
     }
 
     /**
