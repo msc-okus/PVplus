@@ -3,7 +3,9 @@
 namespace App\Repository;
 
 use App\Entity\Ticket;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -19,6 +21,53 @@ class TicketRepository extends ServiceEntityRepository
         parent::__construct($registry, Ticket::class);
     }
 
+
+    /**
+     * @param string|null $term
+     * @return QueryBuilder
+     */
+    public function getWithSearchQueryBuilder(?string $term,?string $searchstatus,?string $editor,?string $anlage): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('ticket')
+            ->innerJoin('ticket.anlage', 'a')
+            ->addSelect('a')
+        ;
+
+        // Wenn Benutzer kein G4N Rolle hat
+        /*
+        if (! $this->security->isGranted('ROLE_G4N')) {
+
+            $user = $this->security->getUser();
+            $accessList = $user->getAccessList();
+            $qb->andWhere('ticket.editor in (:accessList)')
+                ->setParameter('accessList', $accessList);
+        }
+        */
+        // schließe Archiv und falsche Reports aus
+        // muss noch via Backend auswählbar gemacht werden
+
+        if ($searchstatus != '' & $searchstatus!='00') {
+             $qb->andWhere("ticket.status = $searchstatus");
+        }
+
+        if ($editor != '') {
+            $qb->andWhere("ticket.editor = '$editor'");
+        }
+
+        if ($anlage !='') {
+            $qb->andWhere("a.anlName = '$anlage'");
+        }
+/*
+        if ($term) {
+            $qb ->andWhere('a.anlName LIKE :term')
+                ->setParameter('term', '%' . $term);
+        }
+*/
+
+
+        return $qb;
+
+    }
     // /**
     //  * @return Ticket[] Returns an array of Ticket objects
     //  */

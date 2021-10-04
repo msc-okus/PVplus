@@ -61,5 +61,21 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $user->setPassword($newHashedPassword);
         $this->getEntityManager()->flush($user);
     }
+    /**
+     * @param string|null $query
+     * @return array
+     */
+    public function findByAllMatching(string $query, int $limit = 100)
+    {
+        $qb = $this->createQueryBuilder('u')
+            ->andWhere('u.name LIKE :query')
+            ->setParameter('query', '%'.$query.'%')
+            ->setMaxResults($limit)
+            ->addSelect('u');
+
+
+        return $qb->getQuery()
+            ->getResult();
+    }
 
 }
