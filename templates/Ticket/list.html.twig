@@ -2,7 +2,8 @@
 {% block javascripts %}
     {{ parent() }}
     <script src="https://cdn.jsdelivr.net/autocomplete.js/0/autocomplete.jquery.min.js"></script>
-    <script src="{{ asset('jsNew/algolia-autocomplete.js') }}"></script>
+    <script src="{{ asset('jsNew/algolia-autocomplete-anlagen.js') }}"></script>
+    <script src="{{ asset('jsNew/algolia-autocomplete-user.js') }}"></script>
 {% endblock %}
 
 {% import 'macros/macros.ticket.html.twig' as macrolibrary %}
@@ -18,11 +19,11 @@
         <div class="grid-x grid-margin-x align-middle">
             <div class="cell medium-2" style="margin-top:-17px!important;">
                 <h4>Plant</h4>
-                <input type="text" name="anlage" class="input-group-field" data-autocomplete-url="/admin/anlagen/find" value='{{ req.getSession().get('anlage')}}' placeholder="Search plants">
+                <input type="text" name="anlage" class="input-group-field js-autocomplete-anlagen" data-autocomplete-url="/admin/anlagen/find" value='{{ req.getSession().get('anlage')}}' placeholder="Search plants">
             </div>
             <div class="cell medium-2" style="margin-top:-17px!important;">
                 <h4>Editor</h4>
-                <input type="text" name="user" class="input-group-field" data-autocomplete-url="/admin/user/find" value='{{ req.getSession().get('user')}}' placeholder="Search Editor">
+                <input type="text" name="user" class="input-group-field js-autocomplete-user" data-autocomplete-url="/user/find" value='{{ req.getSession().get('user')}}' placeholder="Search Editor">
             </div>
             <div class="cell medium-2">
                 <h4>Status</h4>

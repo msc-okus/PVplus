@@ -8,6 +8,7 @@ use App\Form\Owner\OwnerFormType;
 use App\Form\User\UserFormType;
 use App\Repository\AnlagenRepository;
 use App\Repository\EignerRepository;
+use App\Repository\TicketRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -123,6 +124,17 @@ class UserController extends BaseController
             'userForm' => $form->createView(),
         ]);
     }
+    /**
+     * @Route("/user/find", name="app_admin_user_find", methods="GET")
+     */
+    public function find(UserRepository $userRepo, Request $request)
+    {
 
+        $user = $userRepo->findByAllMatching($request->query->get('query'));
+
+        return $this->json([
+            'userss' => $user
+        ], 200, [], ['groups' => ['user_list']]);
+    }
 
 }
