@@ -51,7 +51,7 @@ class TicketController extends BaseController
     }
 
     /**
-     * @Route("/ticket/list", name="Ticket_list")
+     * @Route("/ticket/list", name="app_ticket_list")
      */
     public function list (TicketRepository $ticketRepo, AnlagenRepository $anlagenRepo, UserRepository $userRepo, PaginatorInterface $paginator, Request $request){
         $tickets = $ticketRepo->findAll();
