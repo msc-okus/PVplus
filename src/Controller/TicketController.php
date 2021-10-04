@@ -56,39 +56,38 @@ class TicketController extends BaseController
     public function list (TicketRepository $ticketRepo, AnlagenRepository $anlagenRepo, UserRepository $userRepo, PaginatorInterface $paginator, Request $request){
         $tickets = $ticketRepo->findAll();
         $q = $request->query->get('qr');
-        //this refers to macros.ticket.html.twig
         $searchstatus = $request->query->get('searchstatus');
-        $begin = $request->query->get('begin');
-        $end = $request->query->get('end');
+        $editor = $request->query->get('user');
+        $anlage = $request->query->get('anlage');
         if ($request->query->get('search') == 'yes' && $q == '') $request->getSession()->set('qr', '');
         if ($q) $request->getSession()->set('qr', $q);
         if ($searchstatus) $request->getSession()->set('searchstatus', $searchstatus);
-        if ($begin) $request->getSession()->set('begin', $begin);
-        if ($end) $request->getSession()->set('end', $end);
+        if ($editor) $request->getSession()->set('user', $editor);
+        if ($anlage) $request->getSession()->set('anlage', $anlage);
 
         if ($q == "" && $request->getSession()->get('qr') != "") {
             $q = $request->getSession()->get('qr');
             $request->query->set('qr', $q);
         }
         if ($searchstatus == "" && $request->getSession()->get('$searchstatus') != "") {
-            $searchstatus = $request->getSession()->get('searchstatus');
+            #$searchstatus = $request->getSession()->get('searchstatus');
             $request->query->set('searchstatus', $searchstatus);
         }
-        if ($begin == "" && $request->getSession()->get('begin') != "") {
-            $begin = $request->getSession()->get('begin');
-            $request->query->set('begin', $begin);
+        if ($editor == "" && $request->getSession()->get('user') != "") {
+            #$editor = $request->getSession()->get('user');
+            $request->query->set('user', $editor);
         }
 
-        if ($end == "" && $request->getSession()->get('end') != "") {
-            $end = $request->getSession()->get('end');
-            $request->query->set('end', $end);
+        if ($anlage == "" && $request->getSession()->get('anlage') != "") {
+           # $anlage = $request->getSession()->get('anlage');
+            $request->query->set('anlage', $anlage);
         }
 
 
-/*
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilder($q,$searchstatus,$begin,$end); adapt getWithSearchQueryBuilder to Ticket searchbar
-        */
-        $queryBuilder = $ticketRepo->findAll();
+
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilder($q,$searchstatus,$editor,$anlage);
+
+        //$queryBuilder = $ticketRepo->findAll();
         $anlagen = $anlagenRepo->findAll();
         $user = $userRepo->findAll();
         $pagination = $paginator->paginate(
@@ -99,7 +98,19 @@ class TicketController extends BaseController
         return $this->render('Ticket/list.html.twig',[
             'pagination' => $pagination,
             'anlagen'    => $anlagen,
-            'ticket'    => $tickets
+            'ticket'     => $tickets,
+            'users'      => $user,
+            'req'        =>$request
         ]);
+    }
+    /**
+     * @Route("/ticket/user/find", name="app_admin_ticket_find", methods="GET")
+     */
+    public function find(TicketRepository $ticketRepo, Request $request)
+    {
+        $ticket = $ticketRepo->findByAllMatching($request->query->get('query'));
+        return $this->json([
+            'ticket' => $ticket
+        ], 200, [], ['groups' => ['main']]);
     }
 }

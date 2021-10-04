@@ -18,15 +18,15 @@
         <div class="grid-x grid-margin-x align-middle">
             <div class="cell medium-2" style="margin-top:-17px!important;">
                 <h4>Plant</h4>
-                <input type="text" name="anlagen" class="input-group-field" data-autocomplete-url="/admin/anlagen/find" value='' placeholder="Search plants">
+                <input type="text" name="anlage" class="input-group-field" data-autocomplete-url="/admin/anlagen/find" value='{{ req.getSession().get('anlage')}}' placeholder="Search plants">
             </div>
             <div class="cell medium-2" style="margin-top:-17px!important;">
                 <h4>Editor</h4>
-                <input type="text" name="user" class="input-group-field" data-autocomplete-url="/admin/user/find" value='' placeholder="Search Editor">
+                <input type="text" name="user" class="input-group-field" data-autocomplete-url="/admin/user/find" value='{{ req.getSession().get('user')}}' placeholder="Search Editor">
             </div>
             <div class="cell medium-2">
                 <h4>Status</h4>
-                <select name="searchstatus">
+                <select name="searchstatus" value='{{ req.getSession().get('searchstatus')}}' >
                     <option value="00"> </option>
                     <option value="10">work in progress</option>
                     <option value="20">solved</option>
