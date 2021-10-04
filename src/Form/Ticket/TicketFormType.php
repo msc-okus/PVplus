@@ -3,6 +3,7 @@
 namespace App\Form\Ticket;
 
 use App\Entity\Anlage;
+use App\Entity\AnlagenReports;
 use App\Entity\Eigner;
 use App\Entity\Ticket;
 use App\Entity\User;
@@ -35,6 +36,9 @@ class TicketFormType extends AbstractType
     }
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        /** @var Ticket $ticket */
+        $ticket = $options['data'] ?? null;
+        $isEdit = $ticket && $ticket->getId();
         $builder
             ->add('status', ChoiceType::class,[
                 'label'         => 'select the status',

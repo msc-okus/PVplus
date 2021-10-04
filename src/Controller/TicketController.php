@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Form\Model\ToolsModel;
+use App\Form\Reports\ReportsFormType;
 use App\Form\Ticket\TicketEditFormType;
 use App\Form\Ticket\TicketFormType;
 use App\Form\Tools\ToolsFormType;
@@ -42,12 +43,28 @@ class TicketController extends BaseController
     }
 
     /**
-     * @Route("/ticket/edit", name="Ticket_edit")
+     * @Route("/ticket/edit/{id}", name="app_ticket_edit")
      */
-    public function edit(EntityManagerInterface $em, Request $request){
-        $form = $this->createForm(TicketEditFormType::class);
+    public function edit($id, TicketRepository $ticketRepo, EntityManagerInterface $em, Request $request){
+        $ticket = $ticketRepo->find($id);
+
+        $form = $this->createForm(TicketFormType::class, $ticket);
+
         $form->handleRequest($request);
 
+        if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked() ) ) {
+
+            $successMessage = 'Plant data saved!';
+            $em->persist($ticket);
+            $em->flush();
+
+                return $this->redirectToRoute('app_ticket_list');
+
+        }
+        return $this->render('Ticket/edit.html.twig', [
+            'ticketForm'    => $form->createView(),
+            'ticket'        => $ticket,
+        ]);
     }
 
     /**
