@@ -36,8 +36,8 @@ class ReportsRepository extends ServiceEntityRepository
     public function getWithSearchQueryBuilder(?string $term,?string $searchstatus,?string $searchtype,?string $searchmonth): QueryBuilder
     {
         $qb = $this->createQueryBuilder('report')
-            ->innerJoin('ticket.anlage', 'a')
-            ->innerJoin('ticket.editor', 'e')
+            ->innerJoin('report.anlage', 'a')
+            ->innerJoin('report.eigner', 'e')
             ->addSelect('a')
             ->addSelect('e')
             ;

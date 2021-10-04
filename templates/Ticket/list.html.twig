@@ -73,6 +73,7 @@
                     <td>{{ ticket.begin|date("Y-m-d")}}</td>
                     <td>{{ ticket.end|date("Y-m-d") }}</td>
                     <td>{{ ticket.ticketActivity|date("Y-m-d")  }}</td>
+                    <td class="text-right"> <a href=" {{ path('app_ticket_edit', { id: ticket.id}) }} "  class="hollow button tiny action-icon shadow"><span class="fa fa-pencil"></span></a></td>
                 </tr>
 
         {% endfor %}
