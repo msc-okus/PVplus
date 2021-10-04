@@ -16,7 +16,6 @@ use App\Entity\AnlagenPR;
 use App\Helper\G4NTrait;
 use App\Repository\AnlageAvailabilityRepository;
 use App\Repository\AnlagenStatusRepository;
-use App\Repository\ForecastRepository;
 use App\Repository\PVSystDatenRepository;
 use App\Repository\PRRepository;
 use Symfony\Component\Security\Core\Security;
@@ -32,7 +31,7 @@ class ChartService
     private PRRepository $prRepository;
     private PVSystDatenRepository $pvSystRepository;
     private InvertersRepository $invertersRepo;
-    public functionsService $functions;
+    private FunctionsService $functions;
     private ForecastChartService $forecastChart;
     private ACChartsService $acCharts;
     private IrradiationChartService $irradiationChart;
@@ -96,9 +95,9 @@ class ChartService
         $resultArray['rangeValue'] = 0;
         $resultArray['maxSeries'] = 0;
         $resultArray['hasLink'] = false;
-        $currentYear = date("Y");
-        $currentMonth = date("m");
-        $currentDay = date("d");
+        $currentYear    = date("Y");
+        $currentMonth   = date("m");
+        $currentDay     = date("d");
 
         //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
         if (isset($form['backFromMonth'])) {
@@ -252,7 +251,7 @@ class ChartService
                         $resultArray['inverterArray'] = json_encode($dataArray['inverterArray']);
                     }
                     break;
-                case ("dc_act_group"):
+                case ("dc_act_group"): // [DC 3]
                     $dataArray = $this->dcChart->getActExpGroupDC($anlage, $from, $to, $form['selectedGroup']);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
@@ -372,19 +371,6 @@ class ChartService
                     }
                     break;
 
-                //   //
-                case ("inverter_performance"):
-                    $dataArray = $this->getInverterPerformance($anlage, $from, $to, $form['selectedGroup']);
-                    if ($dataArray != false) {
-                        $resultArray['data'] = json_encode($dataArray['chart']);
-                        $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'Inverter Performance';
-                        $resultArray['series1']['name'] = "";
-                        $resultArray['series1']['tooltipText'] = "";
-                        $resultArray['seriesx']['name'] = "";
-                        $resultArray['seriesx']['tooltipText'] = "";
-                    }
-                    break;
                 case ("irradiation"):
                     $dataArray = $this->irradiationChart->getIrradiation($anlage, $from, $to);
                     if ($dataArray != false) {
@@ -486,6 +472,7 @@ class ChartService
      * @param $to
      * @param $group
      * @return array
+     * @deprecated
      *  // inverter_performance
      */
     public function getInverterPerformance(Anlage $anlage, $from, $to, $group): array

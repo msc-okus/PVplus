@@ -10,7 +10,6 @@
                 {% if aktAnlage.showAvailability or is_granted('ROLE_ADMIN') %}<option value="availability" {% if form.selectedChart == 'availability' %}selected{% endif %}>Show Availability [%]</option>{% endif %}
                 {% if aktAnlage.showPr or is_granted('ROLE_ADMIN') %}<option value="pr_and_av" {% if form.selectedChart == 'pr_and_av' %}selected{% endif %}>Show PR&nbsp;[%]</option>{% endif %}
                 {% if aktAnlage.showForecast %}<option value="forecast" {% if form.selectedChart == 'forecast' %}selected{% endif %}>Forecast&nbsp;[kWh]</option>{% endif %}
-                {{ inverterPerformance(form, aktAnlage) }}
             </optgroup>
             <!-- ab hier AC -->
             <optgroup label="AC">
@@ -70,8 +69,8 @@
     <div class="cell medium-6 large-4 xlarge-3">
         {% if form.selectedChart == 'dc_inv_power_diff' or form.selectedChart == 'inverter_performance' or form.selectedChart == 'dc_current_inverter' or form.selectedChart == 'ac_act_group' or form.selectedChart == 'ac_act_voltage' or form.selectedChart == 'ac_act_current' or form.selectedChart == 'ac_act_frequency' or form.selectedChart == 'dc_act_group' or form.selectedChart == 'dc_current_overview' %}
             <select class="form-control js-submit-onchange" title="Select a Group" data-toggle="tooltip" name="selectedGroup">
-                {% if form.selectedChart starts with 'ac' or form.selectedChart == 'dc_current_overview' or form.selectedChart == 'reactive_power'%}
-                    {% if aktAnlage.configType == 1 %}
+                {% if form.selectedChart starts with 'acAct' or form.selectedChart == 'dc_current_overview' or form.selectedChart == 'reactive_power'%}
+                    {% if aktAnlage.configType != 1 %}
                         {% for group in aktAnlage.groups%}
                             <option value="{{ loop.index }}" {% if form.selectedGroup == loop.index %}selected{% endif %}>{{ group.dcGroupName }}</option>
                         {% endfor %}

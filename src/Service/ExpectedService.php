@@ -172,10 +172,10 @@ class ExpectedService
                     elseif ($irr > $val4 && $irr <= $val5) {$shadow_loss = $shadow_loss * 0.71;}
                     elseif ($irr > $val5 && $irr <= $val6) {$shadow_loss = $shadow_loss * 0.8;}
 
-                    $originalExpPower = $expPowerDc;
                     // Verluste auf der DC Seite brechnen
                     // Schattenverluste + Kabel Verluste + Sicherheitsverlust
                     $loss           = $shadow_loss + $group->getCabelLoss() + $group->getSecureLoss();
+
                     // Verhindert 'diff by zero'
                     if ($loss <> 0) {
                         $expPowerDc = $expPowerDc - ($expPowerDc / 100 * $loss);
@@ -185,14 +185,15 @@ class ExpectedService
                     // AC Expected Berechnung
                     // Umrechnung DC nach AC
                     $expNoLimit = $expPowerDc - ($expPowerDc / 100 * $group->getFactorAC());
-                    $expEvu = $expNoLimit - ($expNoLimit / 100 * $group->getGridLoss());
-                    // Abriegelung
+
+                    // Prüfe ob Abriegelung gesetzt ist, wenn ja, begrenze den Wert auf das maximale.
                     if ($group->getLimitAc() > 0) {
                         ($expNoLimit > $group->getLimitAc()) ? $expPowerAc = $group->getLimitAc() : $expPowerAc = $expNoLimit;
-                        if ($expEvu > $group->getLimitAc()) $expEvu = $group->getLimitAc();
                     } else {
                         $expPowerAc = $expNoLimit;
                     }
+                    // Berechne die Expected für das GRID (evu)
+                    $expEvu = $expPowerAc - ($expPowerAc / 100 * $group->getGridLoss());
 
                     //Speichern der Werte in Array
                     $resultArray[] = [
@@ -200,11 +201,11 @@ class ExpectedService
                         'unit'              => $unit,
                         'dc_group'          => $group->getDcGroup(),
                         'ac_group'          => $group->getAcGroup(),
-                        'exp_power_dc'      => round($expPowerDc, 4),
-                        'exp_current_dc'    => round((is_nan($expCurrentDc)) ? 0: $expCurrentDc, 4),
-                        'exp_power_ac'      => round($expPowerAc, 4),
-                        'exp_evu'           => round($expEvu, 4),
-                        'exp_nolimit'       => round($expNoLimit, 4),
+                        'exp_power_dc'      => round($expPowerDc, 6),
+                        'exp_current_dc'    => round((is_nan($expCurrentDc)) ? 0: $expCurrentDc, 6),
+                        'exp_power_ac'      => round($expPowerAc, 6),
+                        'exp_evu'           => round($expEvu, 6),
+                        'exp_nolimit'       => round($expNoLimit, 6),
                     ];
                 }
             }

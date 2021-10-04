@@ -157,11 +157,3 @@
 {% endmacro %}
 
 {# diverse Diagramme #}
-{# vergleicht AC mit DC Inverter Leistung, kann deshalb nur für Anlagen mit 'configType' 2 angezeigt werden #}
-{% macro inverterPerformance(form, aktAnlage) %}
-    {% if aktAnlage.configType == 2 %}
-        {# {% if aktAnlage.showInverterPerformance or is_granted('ROLE_ADMIN') %}  #}
-            <option value="inverter_performance" {% if form.selectedChart == 'inverter_performance' %}selected{% endif %}>Inverter Performance</option>
-        {# {% endif %} #}
-    {% endif %}
-{% endmacro %}

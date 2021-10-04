@@ -1122,71 +1122,7 @@
 
         }); // end am4core.ready()
     </script>
-{% elseif form.selectedChart == 'inverter_performance' %}
-    <!-- Balkendiagramme Inverter Performance -->
-    <script>
-        am4core.ready(function() {
-            // Create chart instance
-            //am4core.useTheme(am4themes_animated);
 
-            let chart = am4core.create("amchart-holder", am4charts.XYChart);
-            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
-
-            chart.data = {{ content.data|raw }};
-            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
-            chart.numberFormatter.intlLocales = "de-DE";
-            chart.numberFormatter.numberFormat = {
-                "style": "decimal",
-                "minimumFractionDigits": 0
-            };
-
-            // Legend
-            chart.legend = new am4charts.Legend();
-            chart.legend.useDefaultMarker = true;
-
-            // Create series
-            let xAxes1 = chart.xAxes.push(new am4charts.CategoryAxis());
-            xAxes1.dataFields.category = "inverter";
-            xAxes1.renderer.grid.template.location = 0;
-            xAxes1.renderer.minGridDistance = 20;
-            xAxes1.renderer.labels.template.dx = 20; // horizontal Offset
-            xAxes1.renderer.labels.template.rotation = 270;
-
-            let yAxes1 = chart.yAxes.push(new am4charts.ValueAxis());
-            yAxes1.renderer.maxLabelPosition = 0.98;
-
-            let series2 = chart.series.push(new am4charts.ColumnSeries());
-            series2.name = "Inverter AC";
-            series2.dataFields.valueY = "valAc";
-            series2.dataFields.categoryX = "inverter";
-            series2.columns.template.strokeOpacity = 0;
-            series2.legendSettings.labelText = "{name}[/]";
-            series2.legendSettings.valueText = " {valueY}";
-            series2.sequencedInterpolation = true;
-            series2.sequencedInterpolationDelay = 50;
-
-            let series1 = chart.series.push(new am4charts.ColumnSeries());
-            series1.name = "Inverter DC";
-            series1.dataFields.valueY = "valDc";
-            series1.dataFields.categoryX = "inverter";
-            series1.columns.template.strokeOpacity = 0;
-            series1.legendSettings.labelText = "{name}[/]";
-            series1.legendSettings.valueText = " {valueY}";
-            series1.sequencedInterpolation = true;
-            series1.sequencedInterpolationDelay = 50;
-
-            chart.scrollbarX = new am4core.Scrollbar();
-            chart.cursor = new am4charts.XYCursor();
-            chart.cursor.behavior = "zoomX";
-
-            chart.events.on("ready", function(ev) {
-                yAxes1.min = 0; //yAxes1.minZoomed;
-                yAxes1.max = yAxes1.maxZoomed;
-            });
-            chart.exporting.menu.items[0].label = "Download";
-
-        }); // end am4core.ready()
-    </script>
 {% elseif form.selectedChart == 'irradiation' or form.selectedChart == 'temp' %}
     <!-- Liniendiagramm Irradiation and Temperature -->
     <script>
