@@ -99,18 +99,9 @@ class TicketController extends BaseController
             'pagination' => $pagination,
             'anlagen'    => $anlagen,
             'ticket'     => $tickets,
-            'users'      => $user,
+            'userss'      => $user,
             'req'        =>$request
         ]);
     }
-    /**
-     * @Route("/ticket/user/find", name="app_admin_ticket_find", methods="GET")
-     */
-    public function find(TicketRepository $ticketRepo, Request $request)
-    {
-        $ticket = $ticketRepo->findByAllMatching($request->query->get('query'));
-        return $this->json([
-            'ticket' => $ticket
-        ], 200, [], ['groups' => ['main']]);
-    }
+
 }
