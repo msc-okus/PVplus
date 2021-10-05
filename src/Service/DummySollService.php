@@ -17,7 +17,6 @@ class DummySollService
         $output = "Start Dummy Data\n";
         if (! $from) {
             $currentTime = self::getCetTime();
-            dump($currentTime);
             $start  = $currentTime - ($currentTime % 900) - 3600;
             $end    = $currentTime;
         } else {

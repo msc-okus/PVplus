@@ -46,7 +46,6 @@ class ACChartsService
         $conn = self::getPdoConnection();
         $sql = "SELECT a.stamp as stamp, sum(b.ac_exp_power) as soll, sum(b.ac_exp_power_evu) as soll_evu, sum(b.ac_exp_power_no_limit) as soll_nolimit 
                     FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDcSoll() . " b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP by a.stamp";
-        dump($sql);
         $res = $conn->query($sql);
         $actSum = 0;
         $expSum = $expEvuSum = $expNoLimitSum = 0;
