@@ -1,4 +1,4 @@
-@import 'settings';
+@ƒimport 'settings';
 
 /* source-sans-pro-regular - latin */
 @font-face {
@@ -13,6 +13,7 @@
     url('../fonts/source-sans-pro-v14-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
     url('../fonts/source-sans-pro-v14-latin-regular.svg#SourceSansPro') format('svg'); /* Legacy iOS */
 }
+
 /* source-sans-pro-italic - latin */
 @font-face {
     font-family: 'Source Sans Pro';
@@ -280,6 +281,7 @@
                             &.headline {font-size: 12px;}
                         }
                     }
+
 
                     .label-normal {background-color: $success}
                     .label-warning {background-color: $warning}

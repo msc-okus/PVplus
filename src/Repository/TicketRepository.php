@@ -26,37 +26,22 @@ class TicketRepository extends ServiceEntityRepository
      * @param string|null $term
      * @return QueryBuilder
      */
-    public function getWithSearchQueryBuilder(?string $term,?string $searchstatus,?string $editor,?string $anlage): QueryBuilder
+    public function getWithSearchQueryBuilder(?string $searchstatus, ?string $editor, ?string $anlage, ?string $Id,?string $Prio ): QueryBuilder
     {
         $qb = $this->createQueryBuilder('ticket')
             ->innerJoin('ticket.anlage', 'a')
             ->addSelect('a')
         ;
 
-        // Wenn Benutzer kein G4N Rolle hat
-        /*
-        if (! $this->security->isGranted('ROLE_G4N')) {
+        if ($searchstatus != '' & $searchstatus!='00') $qb->andWhere("ticket.status = $searchstatus");
 
-            $user = $this->security->getUser();
-            $accessList = $user->getAccessList();
-            $qb->andWhere('ticket.editor in (:accessList)')
-                ->setParameter('accessList', $accessList);
-        }
-        */
-        // schließe Archiv und falsche Reports aus
-        // muss noch via Backend auswählbar gemacht werden
+        if ($editor != '') $qb->andWhere("ticket.editor = '$editor'");
 
-        if ($searchstatus != '' & $searchstatus!='00') {
-             $qb->andWhere("ticket.status = $searchstatus");
-        }
+        if ($anlage !='') $qb->andWhere("a.anlName = '$anlage'");
 
-        if ($editor != '') {
-            $qb->andWhere("ticket.editor = '$editor'");
-        }
+        if($Id != '') $qb->andWhere("ticket.id = '$Id'");
 
-        if ($anlage !='') {
-            $qb->andWhere("a.anlName = '$anlage'");
-        }
+        if($Prio != '' & $Prio != '00')$qb->andWhere("ticket.priority = '$Prio'");
 /*
         if ($term) {
             $qb ->andWhere('a.anlName LIKE :term')

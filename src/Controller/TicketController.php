@@ -76,14 +76,20 @@ class TicketController extends BaseController
         $searchstatus = "";
         $editor = "";
         $anlage = "";
+        $id = "";
+        $prio = "";
 
         if($request->query->get('anlage')!=null)$anlage = $request->query->get('anlage');
         if($request->query->get('user')!=null)$editor = $request->query->get('user');
         if($request->query->get('searchstatus')!=null)$searchstatus = $request->query->get('searchstatus');
+        if($request->query->get('id')!=null)$id = $request->query->get('id');
+        if($request->query->get('prio')!=null)$prio = $request->query->get('prio');
         dump($searchstatus);
         dump($editor);
         dump($anlage);
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilder($q,$searchstatus,$editor,$anlage);
+        dump($id);
+        dump($prio);
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilder($searchstatus,$editor,$anlage, $id, $prio);
 
 
         $pagination = $paginator->paginate(
@@ -97,7 +103,9 @@ class TicketController extends BaseController
             'ticket'     => $tickets,
             'anlagep'    => $anlage,
             'userp'      => $editor,
-            'status'     => $searchstatus
+            'status'     => $searchstatus,
+            'id'         => $id,
+            'prio'       => $prio
         ]);
     }
 
