@@ -43,9 +43,9 @@ class TicketFormType extends AbstractType
             ->add('status', ChoiceType::class,[
                 'label'         => 'select the status',
                 'choices'       => [
-                // TO DECIDE
-                    'test' => 10,
-                    'test2' => 20
+                    'Open'              => 10,
+                    'Work in Progress'  => 20,
+                    'Closed'            => 30
                 ],
                 'required' => true,
                 'placeholder'   => 'please Choose ...'
@@ -53,7 +53,6 @@ class TicketFormType extends AbstractType
             ->add('begin', \Symfony\Component\Form\Extension\Core\Type\DateType::class,[
                 'label'         => 'Begin',
                 'label_html'    => true,
-
                 'required'      =>true,
             ])
             ->add('end', \Symfony\Component\Form\Extension\Core\Type\DateType::class,[
@@ -106,9 +105,10 @@ class TicketFormType extends AbstractType
             ->add('priority', ChoiceType::class,[
                 'label'         => 'select the priority',
                 'choices'       => [
-                    'test' => 10,
-                    'test2' => 20
-                // TO DECIDE
+                    'Low'       => 10,
+                    'Normal'    => 20,
+                    'High'      => 30,
+                    'Urgent'    => 40
                 ],
                 'required' => true,
 

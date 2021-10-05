@@ -70,54 +70,34 @@ class TicketController extends BaseController
     /**
      * @Route("/ticket/list", name="app_ticket_list")
      */
-    public function list (TicketRepository $ticketRepo, AnlagenRepository $anlagenRepo, UserRepository $userRepo, PaginatorInterface $paginator, Request $request){
+    public function list (TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request){
         $tickets = $ticketRepo->findAll();
         $q = $request->query->get('qr');
-        $searchstatus = $request->query->get('searchstatus');
-        $editor = $request->query->get('user');
-        $anlage = $request->query->get('anlage');
-        if ($request->query->get('search') == 'yes' && $q == '') $request->getSession()->set('qr', '');
-        if ($q) $request->getSession()->set('qr', $q);
-        if ($searchstatus) $request->getSession()->set('searchstatus', $searchstatus);
-        if ($editor) $request->getSession()->set('user', $editor);
-        if ($anlage) $request->getSession()->set('anlage', $anlage);
+        $searchstatus = "";
+        $editor = "";
+        $anlage = "";
 
-        if ($q == "" && $request->getSession()->get('qr') != "") {
-            $q = $request->getSession()->get('qr');
-            $request->query->set('qr', $q);
-        }
-        if ($searchstatus == "" && $request->getSession()->get('$searchstatus') != "") {
-            #$searchstatus = $request->getSession()->get('searchstatus');
-            $request->query->set('searchstatus', $searchstatus);
-        }
-        if ($editor == "" && $request->getSession()->get('user') != "") {
-            #$editor = $request->getSession()->get('user');
-            $request->query->set('user', $editor);
-        }
-
-        if ($anlage == "" && $request->getSession()->get('anlage') != "") {
-           # $anlage = $request->getSession()->get('anlage');
-            $request->query->set('anlage', $anlage);
-        }
-
-
-
+        if($request->query->get('anlage')!=null)$anlage = $request->query->get('anlage');
+        if($request->query->get('user')!=null)$editor = $request->query->get('user');
+        if($request->query->get('searchstatus')!=null)$searchstatus = $request->query->get('searchstatus');
+        dump($searchstatus);
+        dump($editor);
+        dump($anlage);
         $queryBuilder = $ticketRepo->getWithSearchQueryBuilder($q,$searchstatus,$editor,$anlage);
 
-        //$queryBuilder = $ticketRepo->findAll();
-        $anlagen = $anlagenRepo->findAll();
-        $user = $userRepo->findAll();
+
         $pagination = $paginator->paginate(
             $queryBuilder,                                    /* query NOT result */
             $request->query->getInt('page', 1),   /* page number*/
             20                                          /*limit per page*/
         );
+
         return $this->render('Ticket/list.html.twig',[
             'pagination' => $pagination,
-            'anlagen'    => $anlagen,
             'ticket'     => $tickets,
-            'userss'      => $user,
-            'req'        =>$request
+            'anlagep'    => $anlage,
+            'userp'      => $editor,
+            'status'     => $searchstatus
         ]);
     }
 
