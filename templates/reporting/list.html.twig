@@ -82,7 +82,6 @@
                         {% for anlage in anlagen %}
                             <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlId }} - {{ anlage.anlName }}</option>
                         {% endfor %}
-
                     </select>
                 </div>
                 <div class="cell medium-2">

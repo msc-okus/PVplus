@@ -9,7 +9,7 @@ use Michelf\MarkdownInterface;
 use App\Api\PlantReferenceUploadApiModel;
 use App\Entity\Anlage;
 use App\Entity\PlantReference;
-use App\Form\FileUpload\fileUploadFormType;
+use App\Form\FileUpload\FileUploadFormType;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -35,6 +35,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\Form\FormBuilderInterface;
 
+
 class PlantUploadAdminController extends BaseController
 {
     private $uploadsPath;
@@ -48,21 +49,19 @@ class PlantUploadAdminController extends BaseController
     /**
      * @Route("/admin/upload/{id}", name="upload_test")
      */
-    public function temporaryUploadAction($id, Request $request, UploaderHelper $uploaderHelper, AnlagenRepository $anlagenRepository, EntityManagerInterface $entityManager)
+    public function temporaryUploadAction($id, Request $request, UploaderHelper $uploaderHelper, EntityManagerInterface $entityManager)
     {
         #$anlage = new AnlageFileUpload();
         $repositoryUpload = $entityManager->getRepository(AnlageFileUpload::class);
         $repositoryAnlage = $entityManager->getRepository(Anlage::class);
         //create Form
         /** @var UploadedFile $uploadedFile */
-        $form = $this->createForm(fileUploadFormType::class);
+        $form = $this->createForm(FileUploadFormType::class);
         $form->handleRequest($request);
 
-        $filesInDB = $repositoryUpload->findAll(['plant_id' => $id]);
+        $filesInDB = $repositoryUpload->findBy(['plant_id' => $id]);
 
-        $anlage = $repositoryAnlage->findOneBy(['anlId' => $id]);
-        #dd(substr ($this->uploadsPath,strpos($this->uploadsPath, '/uploads')));
-
+        $anlage = $repositoryAnlage->findIdLike([$id]);
 
         $isupload = '';
         if($form->isSubmitted()){

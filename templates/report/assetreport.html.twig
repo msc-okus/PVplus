@@ -1,0 +1,170 @@
+{% extends 'report/assetreport.base.html.twig' %}
+
+{% block body %}
+    <div class="container">
+        {%- block content %}
+            <div id="asset_report" style="min-height: 50vh;">
+                <div class="grid-x" id="header">
+                    <div class="cell medium-12">
+                        <table id="asset_report_table_header" width=680 border=1>
+                            <tr>
+                                <td style="text-align: left; color: #0a156a;"><h1 style="font-family: Helvetica; font-size: 35px; border: none; padding-top:80px;">Asset Management <span style="color: #fbba00;">Solar</span></h1></td>
+                                <td id="customer_logo"><img src="https://gs.g4npvplus.net/goldbeck/reports/asset_management/goldbecksolar_logo.svg"> </td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left"><img width="650" src="https://dev.g4npvplus.net/goldbeck/reports/asset_management/report_header.jpg"></td>
+                                <td rowspan="2" style="vertical-align: bottom; text-align: left; padding-bottom: 40px !important;"><img width="250" src="https://dev.g4npvplus.net/goldbeck/reports/asset_management/report_header_down_right.jpg"></td>
+                            </tr>
+                            <tr>
+                                <td style="text-align: left; padding-top: 20px !important;">
+                                    <h2 style="font-family: Century Gothic; color: #8e99b0">Weekly/Monthly Report <span style="color: #fbba00;">Solar - {{ month }} {{ year }}</span></h2>
+                                    <h2 style="color: #9aacc3; margin-bottom: 30px;">Plant size: {{ plantSize }} kWp</h2>
+                                    <h2 style="color: #9aacc3">Kazakhstan Portfolio:</h2>
+                                    <p style="font-family: Century Gothic; color: #88a3bc; size:20px">
+                                        SES SARAN<br>
+                                        AKADYR<br>
+                                        AKADYR EXTENTION
+                                    </p>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="cell medium-6">
+                    <div id="headline_customer" style="border-bottom: solid 2px #00386d; text-align: right; width: 29.7cm;">
+                        <img class="customer_logo" src="{{ customer_logo }}">
+                    </div>
+                    <div style="height:18cm; width: 29.7cm;" >
+                        <h3 style="color: {{ font_color_second }};">A) Production & Capacity factor</h3>
+                        <span style="color: {{ font_color_third }};">Yearly expected vs. actuals</span>
+
+                        <table>
+                            <tr>
+                                <td colspan="2" style="text-align: left">
+                                    <table class="asset_report_table_operations_data">
+                                        <thead>
+                                        <tr>
+                                            <th>Production</th>
+                                            {% for data in dataMonthArray %}
+                                                {% if (loop.last) %}
+                                                    <th style="border:solid 2px;">{{ data }} {{ year }}</th>
+                                                {% else %}
+                                                    <th><div style="width: 100%; height: 50%;">{{ data }} {{ year }}</div></th>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <td class="tr_first_column">Yield (Grid meter) [kWh]</td>
+                                            {% set powerEvuTotal = 0 %}
+                                            {% for data in table_overview_monthly.powerEvu %}
+                                                {% set powerEvuTotal = powerEvuTotal+data %}
+                                                {% if (loop.last) %}
+                                                    <td class="tr_next_columns" style="border: solid 2px">{{ data|number_format(3, ',', '.') }}</td>
+                                                {% else %}
+                                                    <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tr>
+                                        <tr>
+                                            <td class="tr_first_column" style="border-bottom: solid 2px">Expected PV SYST [kWh]</td>
+                                            {% for data in table_overview_monthly.expectedPvSyst %}
+                                                {% if (loop.last) %}
+                                                    <td class="tr_next_columns" style="border: solid 2px">{{ data|number_format(3, ',', '.') }}</td>
+                                                {% else %}
+                                                    <td class="tr_next_columns"  style="border-bottom: solid 2px">{{ data|number_format(3, ',', '.') }}</td>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tr>
+                                        <tr>
+                                            <td class="tr_first_column">Expected g4n [kWh]</td>
+                                            {% for data in table_overview_monthly.powerExpEvu %}
+                                                {% if (loop.last) %}
+                                                    <td class="tr_next_columns" style="border: solid 2px">{{ data|number_format(3, ',', '.') }}</td>
+                                                {% else %}
+                                                    <td class="tr_next_columns">{{ data }}</td>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tr>
+                                        <tr>
+                                            <td class="tr_first_column">Inverter out [kWh]</td>
+                                            {% for data in table_overview_monthly.powerAct %}
+                                                {% if (loop.last) %}
+                                                    <td class="tr_next_columns" style="border: solid 2px">{{ data|number_format(3, ',', '.') }}</td>
+                                                {% else %}
+                                                    <td class="tr_next_columns">{{ data }}</td>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </tr>
+                                        </tbody>
+                                    </table>
+
+                                </td>
+
+                            </tr>
+                            <tr>
+                                <td style="vertical-align: top;">
+                                    <div style="text-align: left !important; margin-bottom: 5px;margin-top: -10px;">
+                                        AC losses to grid meter considered<br>
+                                        Source: Yield (Grid meter), VCOM E_Z_EVU<br>
+                                        Inverter out: VCOM Inverter AC power<br>
+                                    </div>
+                                    <table>
+                                        <tr>
+                                            <td>Capacity Factor</td>
+                                            <td><img width="130" src="https://gs.g4npvplus.net/goldbeck/reports/asset_management/cf.png"></td>
+                                        </tr>
+                                    </table>
+                                    <table class="asset_report_table_operations_data">
+                                        <thead>
+                                        <tr>
+                                            <th>Month</th>
+                                            <th>Day</th>
+                                            <th>hours [h]</th>
+                                            <th>CF [%]</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% set average = 0 %}
+                                        {% set sumdays = 0 %}
+                                        {% set sumhours = 0 %}
+                                        {% set itemsinarray = 0 %}
+                                        {% for data in dataCfArray %}
+                                            {% set sumdays = sumdays+data.days %}
+                                            {% set sumhours = sumhours+data.hours %}
+                                            {% set average = average+data.cf %}
+                                            <tr><td class="tr_first_column">{{ data.month }}</td><td class="tr_next_columns">{{ data.days }}</td><td class="tr_next_columns">{{ data.hours }}</td><td class="tr_next_columns">{{ data.cf|number_format(3, ',', '.') }}</td></tr>
+                                            {% set itemsinarray = loop.length %}
+                                        {% endfor %}
+                                        <tr><td colspan="3" style="font-weight: bold">Average<td style="font-weight: bold">{{ (average/reportmonth)|number_format(3, ',', '.') }}</td></tr>
+                                        <tr>
+                                            <td class="tr_first_column">TOTAL</td>
+                                            <td class="tr_first_column">{{ sumdays }}</td>
+                                            <td class="tr_first_column">{{ sumhours }}</td>
+                                            <td class="tr_first_column">{{ (((powerEvuTotal/1000)/((plantSize/1000)*sumhours))*100)|round(3, 'ceil')|number_format(3, ',', '.') }}</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                                <td>
+                                    {{ operations_right|raw }}
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+
+                    <div id="footer_g4net" style="border-top: solid 2px #fbba27; text-align: right; vertical-align: bottom; width: 29.7cm; padding-top: 5px">
+                        <img class="g4n_logo" src="https://gs.g4npvplus.net/images/green4net.jpg">
+                    </div>
+
+            </div>
+
+
+
+        {% endblock %}
+    </div>
+{% endblock %}
+
