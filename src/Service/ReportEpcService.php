@@ -200,7 +200,7 @@ class ReportEpcService
                         $ertragPvSyst = $anlage->getOneMonthPvSyst($month)->getErtragDesign() / $daysInMonth * $days;
                         $prDesignPvSyst = $anlage->getOneMonthPvSyst($month)->getPrDesign();
                         $forecastDateText   .= date('My', strtotime("$year-$month-1"));
-                        $realDateText       .= $realDateTextEnd;
+                        // $realDateText       .= $realDateTextEnd; // Verschobne in Zeile 305
                         break;
                     default:
                         $days = $daysInMonth;
@@ -252,7 +252,6 @@ class ReportEpcService
                     $prRealprProg = $prReal;
 
                     $realDateTextEnd = date('My', strtotime("$year-$month-1"));
-                    dump("$month – ", $pr);
                     if ($month == $currentMonth - 1 && $year == date('Y') && $run === 2){
                         // für das Einfärben der Zeile des aktuellen Monats
                         $currentMonthClass = "current-month";
@@ -303,6 +302,7 @@ class ReportEpcService
                     if ($counter > 24) $counter = 24;
                 }
                 if ($run === 2) {// Monatswerte berechnen
+                    if ($n == $anzahlMonate) $realDateText .= $realDateTextEnd;
                     $sumSpezErtragDesign = $sumErtragDesign / (float)$anlage->getKwPeakPvSyst();
                     $anteil              = $spezErtragDesign / $sumSpezErtragDesign;
                     $sumAnteil          += $anteil;
