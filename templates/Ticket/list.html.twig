@@ -26,6 +26,18 @@
             <div class="cell medium-2"  style="margin-top:-17px!important;">
                 <input name="user" class="js-autocomplete-user " data-autocomplete-url="/admin/anlagen/find" value="{{ userp }}" placeholder="Insert the Editor">
             </div>
+            <div class="cell medium-2"  style="margin-top:-17px!important;">
+                <input name="id"  value="{{ id }}" placeholder="Insert the Ticket Id">
+            </div>
+            <div class="cell medium-2">
+                <select name="prio" value="{{ prio }}">
+                    <option value="00"> Priority </option>
+                    <option value="10" {% if prio == '10' %} selected {% endif %}>Low</option>
+                    <option value="20" {% if prio == '20' %} selected {% endif %}>Normal</option>
+                    <option value="30" {% if prio == '30' %} selected {% endif %}>High</option>
+                    <option value="40" {% if prio == '40' %} selected {% endif %}>Urgent</option>
+                </select>
+            </div>
             <div class="cell medium-2">
                 <select name="searchstatus" value="{{ status }}">
                     <option value="00"> Status </option>
@@ -45,10 +57,12 @@
     <table class="table sortable">
         <thead>
         <tr>
-            <th>Report ID</th>
+            <th>Ticket ID</th>
             <th {% if pagination.isSorted('a.anlName') %} class="sorted"{% endif %}>
                 {{ knp_pagination_sortable(pagination, 'Plant', ['a.anlName']) }}</th>
+           {% if is_granted('ROLE_G4N') %} <th>Plant ID</th> {% endif %}
             <th>Status</th>
+            <th>Priority</th>
             <th {% if pagination.isSorted('ticket.editor') %} class="sorted"{% endif %}>
                 {{ knp_pagination_sortable(pagination, 'Editor', ['ticket.editor']) }}</th>
             <th {% if pagination.isSorted('ticket.begin') %} class="sorted"{% endif %}>
@@ -64,6 +78,7 @@
                 <tr>
                     <td>{{ ticket.id }}</td>
                     <td>{{ ticket.anlage.anlName }}</td>
+                    {% if is_granted('ROLE_G4N') %}  <td>{{ ticket.anlage.anlId }}</td> {% endif %}
                     <td>{% if ticket.status == 10 %}
                         Open
                         {% endif %}
@@ -72,6 +87,19 @@
                         {% endif %}
                         {% if ticket.status == 30 %}
                         Closed
+                        {% endif %}
+                    </td>
+                    <td>{% if ticket.priority == 10 %}
+                            Low
+                        {% endif %}
+                        {% if ticket.priority == 20 %}
+                            Normal
+                        {% endif %}
+                        {% if ticket.priority == 30 %}
+                            High
+                        {% endif %}
+                        {% if ticket.priority == 40 %}
+                            Urgent
                         {% endif %}
                     </td>
                     <td>{{ ticket.editor }}</td>
