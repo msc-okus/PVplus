@@ -19,6 +19,7 @@ use Knp\Component\Pager\PaginatorInterface;
 use koolreport\KoolReport;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -108,7 +109,7 @@ class ReportingController extends AbstractController
     /**
      * @Route("/reporting/anlagen/find", name="app_admin_reports_find", methods="GET")
      */
-    public function find(AnlagenRepository $anlagenRepository, Request $request)
+    public function find(AnlagenRepository $anlagenRepository, Request $request): JsonResponse
     {
         $anlage = $anlagenRepository->findByAllMatching($request->query->get('query'));
         return $this->json([
