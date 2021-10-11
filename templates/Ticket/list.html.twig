@@ -1,0 +1,120 @@
+{% extends 'base.html.twig' %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/autocomplete.js/0/autocomplete.jquery.min.js"></script>
+    <script src="{{ asset('jsNew/algolia-autocomplete-anlagen.js') }}"></script>
+    <script src="{{ asset('jsNew/algolia-autocomplete-user.js') }}"></script>
+{% endblock %}
+
+
+
+{% block title %}
+    {{ parent() }}List Tickets
+{% endblock %}
+
+{% block body %}
+    <h1>List Tickets</h1>
+{# BEGINING OF THE SEARCHBAR #}
+    <form>
+
+        <div class="grid-x grid-margin-x align-middle">
+            <div class="cell medium-2" style="margin-top:-17px!important;">
+                <input name="anlage" class="js-autocomplete-anlagen input-group-field" data-autocomplete-url="/admin/anlagen/find" value="{{ anlagep }}" placeholder="Insert the Plant">
+            </div>
+
+            <div class="cell medium-2"  style="margin-top:-17px!important;">
+                <input name="user" class="js-autocomplete-user input-group-field" data-autocomplete-url="/admin/user/find" value="{{ userp }}" placeholder="Insert the Editor">
+            </div>
+            <div class="cell medium-2 "  style="margin-top:-17px!important;">
+                <input name="id" class="input-group-field" value="{{ id }}" placeholder="Insert the Ticket Id">
+            </div>
+            <div class="cell medium-2">
+                <select name="prio" >
+                    <option value="00"> Priority </option>
+                    <option value="10" {% if prio == '10' %} selected {% endif %}>Low</option>
+                    <option value="20" {% if prio == '20' %} selected {% endif %}>Normal</option>
+                    <option value="30" {% if prio == '30' %} selected {% endif %}>High</option>
+                    <option value="40" {% if prio == '40' %} selected {% endif %}>Urgent</option>
+                </select>
+            </div>
+            <div class="cell medium-2">
+                <select name="searchstatus" >
+                    <option value="00"> Status </option>
+                    <option value="10" {% if status == '10' %} selected {% endif %}>Open</option>
+                    <option value="20" {% if status == '20' %} selected {% endif %}>Work in Progress</option>
+                    <option value="30" {% if status == '30' %} selected {% endif %}>Closed</option>
+                </select>
+            </div>
+            <h4> </h4>
+            <div class="input-group-button" style="height:35px !important; width:35px !important; padding:0; margin-top:-15px;">
+                <button name="search" type="submit" class="button" value="yes"><span class="fa fa-search"></span></button>
+            </div>
+        </div>
+    </form>
+
+    {# END OF THE SEARCHBAR #}
+    <table class="table sortable">
+        <thead>
+        <tr>
+            <th>Ticket ID</th>
+            <th {% if pagination.isSorted('a.anlName') %} class="sorted"{% endif %}>
+                {{ knp_pagination_sortable(pagination, 'Plant', ['a.anlName']) }}</th>
+           {% if is_granted('ROLE_G4N') %} <th>Plant ID</th> {% endif %}
+            <th>Status</th>
+            <th>Priority</th>
+            <th {% if pagination.isSorted('ticket.editor') %} class="sorted"{% endif %}>
+                {{ knp_pagination_sortable(pagination, 'Editor', ['ticket.editor']) }}</th>
+            <th {% if pagination.isSorted('ticket.begin') %} class="sorted"{% endif %}>
+                {{ knp_pagination_sortable(pagination, 'Begin', ['ticket.begin']) }}</th>
+            <th {% if pagination.isSorted('ticket.end') %} class="sorted"{% endif %}>
+                {{ knp_pagination_sortable(pagination, 'End', ['ticket.end']) }}</th>
+            <th>Last Update</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for ticket in pagination %}
+
+                <tr>
+                    <td>{{ ticket.id }}</td>
+                    <td>{{ ticket.anlage.anlName }}</td>
+                    {% if is_granted('ROLE_G4N') %}  <td>{{ ticket.anlage.anlId }}</td> {% endif %}
+                    <td>{% if ticket.status == 10 %}
+                        Open
+                        {% endif %}
+                        {% if ticket.status == 20 %}
+                        Work in progress
+                        {% endif %}
+                        {% if ticket.status == 30 %}
+                        Closed
+                        {% endif %}
+                    </td>
+                    <td>{% if ticket.priority == 10 %}
+                            Low
+                        {% endif %}
+                        {% if ticket.priority == 20 %}
+                            Normal
+                        {% endif %}
+                        {% if ticket.priority == 30 %}
+                            High
+                        {% endif %}
+                        {% if ticket.priority == 40 %}
+                            Urgent
+                        {% endif %}
+                    </td>
+                    <td>{{ ticket.editor }}</td>
+                    <td>{{ ticket.begin|date("Y-m-d")}}</td>
+                    <td>{{ ticket.end|date("Y-m-d") }}</td>
+                    <td>{{ ticket.updatedAt|date("Y-m-d/h:m:s")  }}</td>
+                    <td class="text-right"> <a href=" {{ path('app_ticket_edit', { id: ticket.id }) }} "  class="hollow button tiny action-icon shadow"><span class="fa fa-pencil"></span></a></td>
+                </tr>
+
+        {% endfor %}
+        </tbody>
+    </table>
+    {{ knp_pagination_render(pagination) }}
+    <div class="cell medium-2">
+
+        <a href=" {{ path('Ticket_create') }} "  class="button">Open Ticket</a>
+    </div>
+{% endblock %}

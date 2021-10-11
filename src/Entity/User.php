@@ -57,7 +57,7 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=20, nullable=false)
-     * @Groups({"user:read"})
+     * @Groups({"user:read", "user_list"})
      */
     private string $name;
 
