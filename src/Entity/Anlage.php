@@ -1606,10 +1606,10 @@ class Anlage
         foreach ($this->getGroups() as $row) {
             $grpnr = $row->getDcGroup();
             $gruppe[$grpnr] = [
-                "ANLID" => $row->getAnlage()->getAnlId(),
-                "GMIN" => $row->getUnitFirst(),
-                "GMAX" => $row->getUnitLast(),
-                "GRPNR" => $row->getDcGroup(),
+                "ANLID"     => $row->getAnlage()->getAnlId(),
+                "GMIN"      => $row->getUnitFirst(),
+                "GMAX"      => $row->getUnitLast(),
+                "GRPNR"     => $row->getDcGroup(),
                 "GroupName" => $row->getDcGroupName()
             ];
         }

@@ -10,7 +10,7 @@ use App\Service\FunctionsService;
 use Symfony\Component\Security\Core\Security;
 use PDO;
 
-class CurrentChartService
+class DCCurrentChartService
 {
 
     use G4NTrait;
@@ -34,7 +34,7 @@ class CurrentChartService
         $this->irradiationChart = $irradiationChart;
     }
 
-    public function getCurrentOverviewDc(Anlage $anlage, $from, $to, $group = 1): array
+    public function getCurr1(Anlage $anlage, $from, $to, $group = 1): array
     {
         $conn = self::getPdoConnection();
         $acGroups = $anlage->getGroupsAc();
@@ -42,8 +42,8 @@ class CurrentChartService
         $inverterNr = 0;
         switch ($anlage->getConfigType()) {
             case 1: // Andjik
-            case 3:
-            case 4:
+            case 3: // Groningen
+            case 4: //
                 $nameArray = $this->functions->getNameArray($anlage , 'dc');
                 break;
             default:
@@ -67,11 +67,17 @@ class CurrentChartService
                 if (!($rowSoll['expected'] == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                     $dataArray['chart'][$counter]['expected'] = $rowSoll['expected'] / ($acGroups[$group]['GMAX'] - $acGroups[$group]['GMIN']);
                 }
-                if ($anlage->getUseNewDcSchema()) {
-                    $sql = "SELECT sum(wr_idc) as istCurrent FROM " . $anlage->getDbNameDCIst() . " WHERE stamp = '$stampAdjust' AND group_ac = '$group' group by wr_group";
-                } else {
-                    $sql = "SELECT sum(wr_idc) as istCurrent FROM " . $anlage->getDbNameACIst() . " WHERE stamp = '$stampAdjust' AND group_ac = '$group' group by group_dc";
+                $sql = "SELECT sum(wr_idc) as istCurrent FROM ";
+                ($anlage->getUseNewDcSchema()) ? $sql .= $anlage->getDbNameDCIst() . " WHERE stamp = '$stampAdjust' " : $sql .= $anlage->getDbNameACIst() . " WHERE stamp = '$stampAdjust' ";
+                switch ($anlage->getConfigType()) {
+                    case 1:
+                        $sql .= "AND group_ac = '$group' ";
+                        break;
+                    default:
+                        $sql .= "AND wr_group = '$group' ";
                 }
+                ($anlage->getUseNewDcSchema()) ? $sql .= "group by wr_group" : $sql .= "group by group_dc";
+
                 $resultIst = $conn->query($sql);
                 if ($resultIst->rowCount() > 0) {
                     $rowsIst = $resultIst->fetchAll(PDO::FETCH_ASSOC);
@@ -104,18 +110,18 @@ class CurrentChartService
      * @return array
      * dc_current_group
      */
-    public function getCurrentGroupDc(Anlage $anlage, $from, $to, int $set = 1): array
+    public function getCurr2(Anlage $anlage, $from, $to, int $set = 1): array
     {
-        $conn = self::connectToDatabase();
+        $conn = self::getPdoConnection();
         $dcGroups = $anlage->getGroupsDc();
         $dataArray = [];
 
         // Strom für diesen Zeitraum und diese Gruppe
         $sql_time = "SELECT stamp FROM db_dummysoll WHERE stamp BETWEEN '$from' AND '$to'";
         $result = $conn->query($sql_time);
-        if ($result->num_rows > 0) {
+        if ($result->rowCount() > 0) {
             $counter = 0;
-            while ($rowSoll = $result->fetch_assoc()) {
+            while ($rowSoll = $result->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = $rowSoll['stamp'];
                 $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
                 //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
@@ -160,7 +166,7 @@ class CurrentChartService
      * @return array
      *  // dc_current_inverter
      */
-    public function getCurrentInverter(Anlage $anlage, $from, $to, int $group = 1): array
+    public function getCurr3(Anlage $anlage, $from, $to, int $group = 1): array
     {
         $conn = self::getPdoConnection();
         $dcGroups = $anlage->getGroupsDc();
@@ -237,7 +243,7 @@ class CurrentChartService
      * @return array|false
      *  // dc_current_mpp
      */
-    public function getCurrentMpp(Anlage $anlage, $from, $to, int $inverter = 1): array
+    public function getCurr4(Anlage $anlage, $from, $to, int $inverter = 1): array
     {
         $conn = self::connectToDatabase();
         $dataArray = [];

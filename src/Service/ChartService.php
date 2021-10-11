@@ -3,9 +3,9 @@
 namespace App\Service;
 
 use App\Repository\InvertersRepository;
-use App\Service\Charts\ACChartsService;
-use App\Service\Charts\CurrentChartService;
-use App\Service\Charts\DCChartService;
+use App\Service\Charts\ACPowerChartsService;
+use App\Service\Charts\DCCurrentChartService;
+use App\Service\Charts\DCPowerChartService;
 use App\Service\Charts\ForecastChartService;
 use App\Service\Charts\IrradiationChartService;
 use App\Service\Charts\VoltageChartService;
@@ -33,25 +33,25 @@ class ChartService
     private InvertersRepository $invertersRepo;
     private FunctionsService $functions;
     private ForecastChartService $forecastChart;
-    private ACChartsService $acCharts;
+    private ACPowerChartsService $acCharts;
+    private DCPowerChartService $dcChart;
     private IrradiationChartService $irradiationChart;
-    private DCChartService $dcChart;
-    private CurrentChartService $currentChart;
+    private DCCurrentChartService $currentChart;
     private VoltageChartService $voltageChart;
 
-    public function __construct(Security $security,
-                                AnlagenStatusRepository $statusRepository,
+    public function __construct(Security                     $security,
+                                AnlagenStatusRepository      $statusRepository,
                                 AnlageAvailabilityRepository $availabilityRepository,
-                                PRRepository $prRepository,
-                                PVSystDatenRepository $pvSystRepository,
-                                InvertersRepository $invertersRepo,
-                                FunctionsService $functions,
-                                ForecastChartService $forecastChart,
-                                ACChartsService $acCharts,
-                                DCChartService $dcChart,
-                                CurrentChartService $currentChart,
-                                VoltageChartService $voltageChart,
-                                IrradiationChartService $irradiationChart)
+                                PRRepository                 $prRepository,
+                                PVSystDatenRepository        $pvSystRepository,
+                                InvertersRepository          $invertersRepo,
+                                FunctionsService             $functions,
+                                ForecastChartService         $forecastChart,
+                                ACPowerChartsService         $acCharts,
+                                DCPowerChartService          $dcChart,
+                                DCCurrentChartService        $currentChart,
+                                VoltageChartService          $voltageChart,
+                                IrradiationChartService      $irradiationChart)
     {
         $this->security = $security;
         $this->statusRepository = $statusRepository;
@@ -113,8 +113,9 @@ class ChartService
         if ($anlage) {
             switch ($form['selectedChart']) {
                 // AC Charts //
+                // AC1 //
                 case ("ac_single"):
-                    $dataArray = $this->acCharts->getActExpAC($anlage, $from, $to);
+                    $dataArray = $this->acCharts->getAC1($anlage, $from, $to);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['showEvuDiag'] = $anlage->getShowEvuDiag();
@@ -128,22 +129,9 @@ class ChartService
                         $resultArray['headline'] = 'AC production [kWh] – actual and expected';
                     }
                     break;
-                case ("ac_act_group"):
-                    $dataArray = $this->acCharts->getActExpGroupAC($anlage, $from, $to, $form['selectedGroup']);
-                    if ($dataArray != false) {
-                        $resultArray['data'] = json_encode($dataArray['chart']);
-                        $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'AC Production by Group [kWh] – Actual and Expected';
-                        $resultArray['series1']['name'] = "Expected";
-                        $resultArray['series1']['tooltipText'] = "Expected ";
-                        $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
-                        $resultArray['seriesx']['name'] = "Inverter ";
-                        $resultArray['seriesx']['tooltipText'] = "Inverter ";
-                        $resultArray['inverterArray'] = json_encode($dataArray['inverterArray']);
-                    }
-                    break;
+                // AC2 //
                 case ("ac_act_overview"):
-                    $dataArray = $this->acCharts->getActExpOverview($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->acCharts->getAC2($anlage, $from, $to, $form['selectedGroup']);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -156,7 +144,23 @@ class ChartService
                         $resultArray['inverterArray'] = json_encode($dataArray['inverterArray']);
                     }
                     break;
-                    case ("ac_grp_power_diff"): // AC - Inverter
+                // AC3 //
+                case ("ac_act_group"):
+                    $dataArray = $this->acCharts->getAC3($anlage, $from, $to, $form['selectedGroup']);
+                    if ($dataArray != false) {
+                        $resultArray['data'] = json_encode($dataArray['chart']);
+                        $resultArray['maxSeries'] = $dataArray['maxSeries'];
+                        $resultArray['headline'] = 'AC Production by Group [kWh] – Actual and Expected';
+                        $resultArray['series1']['name'] = "Expected";
+                        $resultArray['series1']['tooltipText'] = "Expected ";
+                        $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
+                        $resultArray['seriesx']['name'] = "Inverter ";
+                        $resultArray['seriesx']['tooltipText'] = "Inverter ";
+                        $resultArray['inverterArray'] = json_encode($dataArray['inverterArray']);
+                    }
+                    break;
+                // AC4 //
+                case ("ac_grp_power_diff"): // AC - Inverter
                     $dataArray = $this->acCharts->getGroupPowerDifferenceAC($anlage, $from, $to);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
@@ -214,7 +218,6 @@ class ChartService
                         $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
                     }
                     break;
-
                 case ("reactive_power"):
                     $dataArray = $this->acCharts->getReactivePowerGroupAC($anlage, $from, $to, $form['selectedGroup']);
                     if ($dataArray != false) {
@@ -229,7 +232,7 @@ class ChartService
 
                 // DC Charts //
                 case ("dc_single"):
-                    $dataArray = $this->dcChart->getActExpDC($anlage, $from, $to);
+                    $dataArray = $this->dcChart->getDC1($anlage, $from, $to);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['actSum'] = $dataArray['actSum'];
@@ -238,7 +241,7 @@ class ChartService
                     }
                     break;
                 case ("dc_act_overview"):
-                    $dataArray = $this->dcChart->getActExpOverviewDc($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->dcChart->getDC2($anlage, $from, $to, $form['selectedGroup']);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -252,7 +255,7 @@ class ChartService
                     }
                     break;
                 case ("dc_act_group"): // [DC 3]
-                    $dataArray = $this->dcChart->getActExpGroupDC($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->dcChart->getDC3($anlage, $from, $to, $form['selectedGroup']);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -280,7 +283,7 @@ class ChartService
                         $resultArray['seriesx']['tooltipText'] = "Actual Inverter [kWh] Group ";
                     }
                     break;
-                case ("dc_inv_power_diff"):
+                case ("dc_inv_power_diff"): // ?????????????
                     $dataArray = $this->dcChart->getInverterPowerDifference($anlage, $from, $to, $form['selectedGroup']);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
@@ -298,7 +301,7 @@ class ChartService
                 // Übersicht Strom auf Basis der AC Gruppe
                 //
                 case ('dc_current_overview'):
-                    $dataArray = $this->currentChart->getCurrentOverviewDc($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->currentChart->getCurr1($anlage, $from, $to, $form['selectedGroup']);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -312,7 +315,7 @@ class ChartService
                     }
                     break;
                 case ("dc_current_group"):
-                    $dataArray = $this->currentChart->getCurrentGroupDc($anlage, $from, $to, $form['selectedSet']);
+                    $dataArray = $this->currentChart->getCurr2($anlage, $from, $to, $form['selectedGroup']);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -325,7 +328,7 @@ class ChartService
                     }
                     break;
                 case ("dc_current_inverter"):
-                    $dataArray = $this->currentChart->getCurrentInverter($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->currentChart->getCurr3($anlage, $from, $to, $form['selectedGroup']);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -339,7 +342,7 @@ class ChartService
                     }
                     break;
                 case ("dc_current_mpp"):
-                    $dataArray = $this->currentChart->getCurrentMpp($anlage, $from, $to, $form['selectedInverter']);
+                    $dataArray = $this->currentChart->getCurr4($anlage, $from, $to, $form['selectedInverter']);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -351,7 +354,7 @@ class ChartService
 
                 // Voltage Charts DC //
                 case ("dc_voltage_groups"):
-                    $dataArray = $this->voltageChart->getVoltageGroups($anlage, $from, $to, $form['selectedSet']);
+                    $dataArray = $this->voltageChart->getVoltageGroups($anlage, $from, $to, $form['selectedGroup']);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];

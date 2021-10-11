@@ -2,7 +2,7 @@
     am4core.ready(function() {
         // Create chart instance
         {% if form.optionDate < 14 %}
-        am4core.useTheme(am4themes_animated);
+            am4core.useTheme(am4themes_animated);
         {% endif %}
         let chart = am4core.create("amchart-holder", am4charts.XYChart);
         chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
@@ -31,26 +31,25 @@
         valueAxis2.renderer.grid.template.disabled = true;
         valueAxis2.extraMax = 0.1;
 
-        //let valueAxis3 = chart.yAxes.push(new am4charts.ValueAxis());
-        //valueAxis3.title.text = "Panel temperature";
-        //valueAxis3.renderer.opposite = true;
-        //valueAxis3.renderer.ticks.template.disabled = true;
-        //valueAxis3.renderer.grid.template.disabled = true;
-        //valueAxis3.extraMax = 0.1;
-
+        /*
+        let valueAxis3 = chart.yAxes.push(new am4charts.ValueAxis());
+        valueAxis3.title.text = "Panel temperature";
+        valueAxis3.renderer.opposite = true;
+        valueAxis3.renderer.ticks.template.disabled = true;
+        valueAxis3.renderer.grid.template.disabled = true;
+        valueAxis3.extraMax = 0.1;
+        */
         // Create series
-        let series0 = chart.series.push(new am4charts.LineSeries());
-        series0.name = "{{ content.series1.name }}";
-        series0.dataFields.dateX = "date";
-        series0.dataFields.valueY = "exp";
-        series0.tooltipText = "{{ content.series1.tooltipText }}: {valueY} [/]";
-        series0.stroke = am4core.color("#fdd400");
-        series0.fill = am4core.color("#fdd400");
-        series0.strokeWidth = 2;
-        series0.defaultState.transitionDuration = 300;
-        series0.tensionX = 0.8;
-
-
+        let seriesExp = chart.series.push(new am4charts.LineSeries());
+        seriesExp.name = "{{ content.series1.name }}";
+        seriesExp.dataFields.dateX = "date";
+        seriesExp.dataFields.valueY = "expected";
+        seriesExp.tooltipText = "{{ content.series1.tooltipText }}: {valueY} [/]";
+        seriesExp.stroke = am4core.color("#fdd400");
+        seriesExp.fill = am4core.color("#fdd400");
+        seriesExp.strokeWidth = 2;
+        seriesExp.defaultState.transitionDuration = 300;
+        seriesExp.tensionX = 0.8;
 
         // Create series
         let units = JSON.parse('{{ content.inverterArray | raw  }}');
@@ -74,30 +73,33 @@
         for (let i = 1; i <= {{ content.maxSeries }}; i++) {
             addSeries(i);
         }
-        let series100 = chart.series.push(new am4charts.LineSeries());
-        series100.name = "Irradiation"
-        series100.dataFields.dateX = "date";
-        series100.dataFields.valueY = "irradiation";
-        series100.tooltipText = "Irradiation: {valueY} [/]";
-        series100.stroke = am4core.color("#950101");
-        series100.strokeWidth = 1;
-        series100.defaultState.transitionDuration = 300;
-        series100.tensionX = 0.8;
-        series100.hidden = true;
-        series100.yAxis = valueAxis2;
 
-        //let series110 = chart.series.push(new am4charts.LineSeries());
-        //series110.name = "panelTemp"
-        //series110.dataFields.dateX = "date";
-        //series110.dataFields.valueY = "panelTemp";
-        //series110.tooltipText = "Panel temperature: {valueY} [/]";
-        //series110.stroke = am4core.color("rgba(118,51,69,0.68)");
-        //series110.strokeWidth = 1;
-        //series110.defaultState.transitionDuration = 300;
-        //series110.tensionX = 0.8;
-        //series110.hidden = true;
-        //series110.gr
-        //series110.yAxis = valueAxis3;
+        let seriesIrr = chart.series.push(new am4charts.LineSeries());
+        seriesIrr.name = "Irradiation"
+        seriesIrr.dataFields.dateX = "date";
+        seriesIrr.dataFields.valueY = "irradiation";
+        seriesIrr.tooltipText = "Irradiation: {valueY} [/]";
+        seriesIrr.stroke = am4core.color("#950101");
+        seriesIrr.strokeWidth = 1;
+        seriesIrr.defaultState.transitionDuration = 300;
+        seriesIrr.tensionX = 0.8;
+        seriesIrr.hidden = true;
+        seriesIrr.yAxis = valueAxis2;
+
+        /*
+        let series110 = chart.series.push(new am4charts.LineSeries());
+        series110.name = "panelTemp"
+        series110.dataFields.dateX = "date";
+        series110.dataFields.valueY = "panelTemp";
+        series110.tooltipText = "Panel temperature: {valueY} [/]";
+        series110.stroke = am4core.color("rgba(118,51,69,0.68)");
+        series110.strokeWidth = 1;
+        series110.defaultState.transitionDuration = 300;
+        series110.tensionX = 0.8;
+        series110.hidden = true;
+        series110.gr
+        series110.yAxis = valueAxis3;
+        */
 
         chart.cursor = new am4charts.XYCursor();
         chart.cursor.xAxis = dateAxis;

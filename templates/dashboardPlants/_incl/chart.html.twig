@@ -7,200 +7,18 @@
     <div id="amchart-holder"></div>
 {% endif %}
 
-{% if form.selectedChart == 'ac_single' or form.selectedChart == 'dc_single' %}
-    <!-- Liniendiagramm AC and DC Actual & Expected -->
-    <script>
-        am4core.ready(function() {
-            // Create chart instance
-            {% if form.optionDate < 14 %}
-                am4core.useTheme(am4themes_animated);
-            {% endif %}
-            let chart = am4core.create("amchart-holder", am4charts.XYChart);
-            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+{% if form.selectedChart == 'ac_single' %}
+    {# AC1 #}
+    {% include 'dashboardPlants/_incl/chart/ac1dc1.html.twig' %}
 
-            chart.data = {{ content.data|raw }};
-            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
-            chart.numberFormatter.intlLocales = "de-DE";
-            chart.numberFormatter.numberFormat = {
-                "style": "decimal",
-                "minimumFractionDigits": 0
-            };
+{% elseif form.selectedChart == 'ac_act_overview' %}
+    {# AC2 #}
+    {% include 'dashboardPlants/_incl/chart/ac2dc2.html.twig' %}
 
+{% elseif form.selectedChart == 'ac_act_group' %}
+    {# AC3 #}
+    {% include 'dashboardPlants/_incl/chart/ac2dc2.html.twig' %}
 
-            // Legend
-            chart.legend = new am4charts.Legend();
-            chart.legend.useDefaultMarker = false;
-
-            // Create axes
-            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
-            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-            valueAxis.title.text = "[[kWh]]";
-
-            let valueAxis2 = chart.yAxes.push(new am4charts.ValueAxis());
-            valueAxis2.minimum = 0;
-            valueAxis2.maximum = 100;
-            valueAxis2.title.text = "Irradiation [[W/m²]]";
-            valueAxis2.renderer.opposite = true;
-            valueAxis2.renderer.ticks.template.disabled = true;
-            valueAxis2.renderer.grid.template.disabled = true;
-            valueAxis2.extraMax = 0.1;
-            valueAxis2.minimum = 0;
-            valueAxis2.maximum = 100;
-
-
-            //let valueAxis3 = chart.yAxes.push(new am4charts.ValueAxis());
-            //valueAxis3.title.text = "Panel temperature";
-            //valueAxis3.renderer.opposite = true;
-            //valueAxis3.renderer.ticks.template.disabled = true;
-            //valueAxis3.renderer.grid.template.disabled = true;
-            //valueAxis3.extraMax = 0.1;
-
-
-            // Create series
-            //Expected
-            {% if aktAnlage.showInverterOutDiag or form.selectedChart == 'dc_single' %}
-                let series1 = chart.series.push(new am4charts.LineSeries());
-                series1.name = "Expected Inverter Out {{ (content.expSum)|number_format(0, ',', '.') }} kWh"
-                series1.dataFields.dateX = "date";
-                series1.dataFields.valueY = "expected";
-                {% if not aktAnlage.showEvuDiag or form.selectedChart == 'dc_single' %}
-                    series1.dataFields.openValueY = "expgood";
-                    series1.fill = am4core.color("#fdd400");
-                    series1.hidden = false;
-                    series1.fillOpacity = 0.3;
-                {% else %}
-                    series1.hidden = true;
-                {% endif %}
-                series1.tooltipText = "Expected [kWh]: {valueY} [/]";
-                series1.stroke = am4core.color("#fdd400");
-                series1.strokeWidth = 1;
-                series1.tensionX = 0.8;
-            {% endif %}
-
-            {% if form.selectedChart == 'ac_single' %}
-                {% if aktAnlage.showEvuDiag %}
-                    // Expected des EVU Wertes
-                    let series11 = chart.series.push(new am4charts.LineSeries());
-                    series11.name = "Expected Grid {{ (content.expEvuSum)|number_format(0, ',', '.') }} kWh"
-                    series11.dataFields.dateX = "date";
-                    series11.dataFields.valueY = "expexted_evu";
-                    series11.dataFields.openValueY = "expexted_evu_good";
-                    series11.fillOpacity = 0.3;
-                    series11.fill = am4core.color("#fdd400");
-                    series11.tooltipText = "Expected Grid [kWh]: {valueY} [/]";
-                    series11.stroke = am4core.color("#fdb500");
-                    series11.strokeWidth = 1;
-                    series11.tensionX = 0.8;
-                    series11.hidden = false;
-            {% endif %}
-
-                // Expected ohne Limits
-                let series12 = chart.series.push(new am4charts.LineSeries());
-                series12.name = "Expected (no limit) {{ (content.expNoLimitSum)|number_format(0, ',', '.') }} kWh"
-                series12.dataFields.dateX = "date";
-                series12.dataFields.valueY = "expexted_no_limit";
-                series12.tooltipText = "Expected (no limit) [kWh]: {valueY} [/]";
-                series12.stroke = am4core.color("#fd5900");
-                series12.strokeWidth = 1;
-                //series12.defaultState.transitionDuration = 300;
-                series12.tensionX = 0.8;
-                series12.hidden = true;
-            {% endif %}
-
-            {% if aktAnlage.showEvuDiag and form.selectedChart == 'ac_single' %}
-                let series3 = chart.series.push(new am4charts.LineSeries());
-                series3.name = "Grid {{ (content.evuSum)|number_format(0, ',', '.') }} kWh"
-                series3.dataFields.dateX = "date";
-                series3.dataFields.valueY = "eZEvu";
-                series3.tooltipText = "Grid [kWh]: {valueY} [/]";
-                series3.stroke = am4core.color("#03ac23");
-                series3.strokeWidth = 1;
-                //series3.defaultState.transitionDuration = 300;
-                series3.tensionX = 0.8;
-            {% endif %}
-
-            {% if aktAnlage.showInverterOutDiag or form.selectedChart == 'dc_single' %}
-                let series2 = chart.series.push(new am4charts.LineSeries());
-                {% if form.selectedChart == 'dc_single' %}
-                    series2.name = "Inverter {{ (content.actSum)|number_format(0, ',', '.') }} kWh"
-                {% else %}
-                    series2.name = "Inverter Out {{ (content.actSum)|number_format(0, ',', '.') }} kWh"
-                {% endif %}
-
-                series2.dataFields.dateX = "date";
-                series2.dataFields.valueY = "InvOut";
-                {% if form.selectedChart == 'dc_single' %}
-                    series2.tooltipText = "Inverter [kWh]: {valueY} [/]";
-                {% else %}
-                    series2.tooltipText = "Inverter Out [kWh]: {valueY} [/]";
-                {% endif %}
-                series2.stroke = am4core.color("#002ac3");
-                series2.strokeWidth = 1;
-                //series2.defaultState.transitionDuration = 300;
-                series2.tensionX = 0.8;
-                {% if aktAnlage.showEvuDiag and form.selectedChart == 'ac_single' %}
-                    series2.hidden = true;
-                {% endif %}
-            {% endif %}
-
-            {% if aktAnlage.showCosPhiPowerDiag and form.selectedChart == 'ac_single'%}
-                let series4 = chart.series.push(new am4charts.LineSeries());
-                series4.name = "CosPhi"
-                series4.dataFields.dateX = "date";
-                series4.dataFields.valueY = "cosPhi";
-                series4.tooltipText = "CosPhi: {valueY} [/]";
-                series4.stroke = am4core.color("#950101");
-                series4.strokeWidth = 1;
-                //series4.defaultState.transitionDuration = 300;
-                series4.tensionX = 0.8;
-                series4.hidden = true;
-            {% endif %}
-
-            let series5 = chart.series.push(new am4charts.LineSeries());
-            series5.name = "Irradiation W/m²"
-            series5.dataFields.dateX = "date";
-            series5.dataFields.valueY = "irradiation";
-            series5.tooltipText = "Irradiation W/m²: {valueY} [/]";
-            series5.stroke = am4core.color("#950101");
-            series5.strokeWidth = 1;
-            //series5.defaultState.transitionDuration = 50;
-            series5.tensionX = 0.8;
-            series5.hidden = true;
-            series5.yAxis = valueAxis2;
-
-            //let series6 = chart.series.push(new am4charts.LineSeries());
-            //series6.name = "panelTemp"
-            //series6.dataFields.dateX = "date";
-            //series6.dataFields.valueY = "panelTemp";
-            //series6.tooltipText = "Panel temperature: {valueY} [/]";
-            //series6.stroke = am4core.color("rgba(118,51,69,0.68)");
-            //series6.strokeWidth = 1;
-            //series6.defaultState.transitionDuration = 300;
-            //series6.tensionX = 0.8;
-            //series6.hidden = true;
-            //series6.gr
-            //series6.yAxis = valueAxis3;
-
-            chart.cursor = new am4charts.XYCursor();
-            chart.cursor.xAxis = dateAxis;
-            chart.scrollbarX = new am4core.Scrollbar();
-            chart.scrollbarX.marginBottom = "20"
-            chart.scrollbarY = new am4core.Scrollbar();
-            chart.scrollbarY.marginLeft = "20";
-            chart.exporting.menu = new am4core.ExportMenu();
-            chart.exporting.menu.items[0].label = "Download";
-            // Fix axis scale on load
-            chart.events.on("ready", function(ev) {
-                valueAxis2.min = valueAxis.minZoomed;
-                valueAxis2.max = valueAxis.maxZoomed;
-            });
-
-            
-        }); // end am4core.ready()
-    </script>
-{% elseif form.selectedChart == 'ac_act_group' or form.selectedChart == 'dc_act_group'%}
-    <!-- Liniendiagramm AC (current group) -->
-    {% include 'dashboardPlants/_incl/chart/groups.html.twig' %}
 {% elseif form.selectedChart == 'ac_grp_power_diff' %}
     <!-- Balkendiagramme Group Power Diff -->
     <script>
@@ -280,7 +98,7 @@
         }); // end am4core.ready()
     </script>
 {% elseif form.selectedChart == 'ac_act_voltage' %}
-    <!-- Liniendiagramm Group Voltage -->
+    {# AC5 - Liniendiagramm Group Voltage#}
     <script>
         am4core.ready(function() {
             // Create chart instance
@@ -353,7 +171,7 @@
         }); // end am4core.ready()
     </script>
 {% elseif form.selectedChart == 'ac_act_current' %}
-    <!-- Liniendiagramm Group Voltage -->
+    {# AC6 - Liniendiagramm Group Voltage #}
     <script>
         am4core.ready(function() {
             // Create chart instance
@@ -436,7 +254,7 @@
         }); // end am4core.ready()
     </script>
 {% elseif form.selectedChart == 'ac_act_frequency' %}
-    <!-- Liniendiagramm Group Frequency -->
+    {# AC7 - Liniendiagramm Group Frequency #}
     <script>
         am4core.ready(function() {
             // Create chart instance
@@ -513,7 +331,7 @@
         }); // end am4core.ready()
     </script>
 {% elseif form.selectedChart == 'reactive_power' %}
-    <!-- Liniendiagramm Group reactive_power -->
+    {# AC8 - Liniendiagramm Group reactive_power #}
     <script>
         am4core.ready(function() {
             // Create chart instance
@@ -589,84 +407,25 @@
 
         }); // end am4core.ready()
     </script>
-{% elseif form.selectedChart == 'dc_current_overview' or form.selectedChart == 'dc_act_overview' %}
-    <!-- Liniendiagramm DC (current overview) -->
-    <script>
-        am4core.ready(function() {
-            // Create chart instance
-            {% if form.optionDate < 14 %}
-                am4core.useTheme(am4themes_animated);
-            {% endif %}
 
-            let chart = am4core.create("amchart-holder", am4charts.XYChart);
-            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+{% elseif form.selectedChart == 'dc_single' %}
+    {# DC1 #}
+    {% include 'dashboardPlants/_incl/chart/ac1dc1.html.twig' %}
 
-            chart.data = {{ content.data|raw }};
-            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
-            chart.numberFormatter.intlLocales = "de-DE";
-            chart.numberFormatter.numberFormat = {
-                "style": "decimal",
-                "minimumFractionDigits": 0
-            };
+{% elseif form.selectedChart == 'dc_act_group' %}
+    {# DC2 #}
+    {% include 'dashboardPlants/_incl/chart/ac2dc2.html.twig' %}
 
-            // Legend
-            chart.legend = new am4charts.Legend();
-            chart.legend.useDefaultMarker = false;
+{% elseif form.selectedChart == 'dc_act_overview' %} {# benutzte dc_current_overview script #}
+    {# DC3 #}
+    {% include 'dashboardPlants/_incl/chart/ac2dc2.html.twig' %}
 
-            // Create axes
-            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
-            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+{% elseif form.selectedChart == 'dc_current_overview' %}
+    {# Curr1 - Liniendiagramm DC (current overview) #}
+    {% include 'dashboardPlants/_incl/chart/curr1.html.twig' %}
 
-            // Create series
-            // Create series
-            //Expected
-            let seriesE = chart.series.push(new am4charts.LineSeries());
-            seriesE.name = "Expected DC"
-            seriesE.dataFields.dateX = "date";
-            seriesE.dataFields.valueY = "expected";
-            //seriesE.dataFields.openValueY = "expgood";
-            seriesE.tooltipText = "Expected DC [kWh]: {valueY} [/]";
-            seriesE.stroke = am4core.color("#fdd400");
-            //seriesE.fill = am4core.color("#fdd400");
-            seriesE.strokeWidth = 1;
-            //seriesE.fillOpacity = 0.3;
-            //seriesE.defaultState.transitionDuration = 300;
-            seriesE.tensionX = 0.8;
-
-            let units = JSON.parse('{{ content.inverterArray | raw  }}');
-            function addSeries(seriesId) {
-
-                // Create series Actual
-                let series = new am4charts.LineSeries();
-                let newSeriesId = seriesId + {{ content.offsetLegende }};
-                series.dataFields.dateX = "date";
-                series.dataFields.valueY = units[newSeriesId];
-                series.name = units[newSeriesId];
-                series.tooltipText = units[newSeriesId] + ": {valueY} [/]";
-                series.strokeWidth = 1;
-                series.sequencedInterpolation = false;
-                series.defaultState.transitionDuration = 300;
-                series.tensionX = 0.8;
-                series = chart.series.push(series);
-            }
-
-            for (let i = 1; i <= {{ content.maxSeries }}; i++) {
-                addSeries(i);
-            }
-
-            chart.cursor = new am4charts.XYCursor();
-            chart.cursor.xAxis = dateAxis;
-            chart.exporting.menu = new am4core.ExportMenu();
-            chart.scrollbarX = new am4core.Scrollbar();
-            chart.scrollbarX.marginBottom = "20"
-            chart.scrollbarY = new am4core.Scrollbar();
-            chart.scrollbarY.marginLeft = "20";
-            chart.exporting.menu.items[0].label = "Download";
-
-        }); // end am4core.ready()
-    </script>
 {% elseif form.selectedChart == 'dc_current_group' %}
-    <!-- Liniendiagramm DC (current group) -->
+    {# Curr2 - Liniendiagramm DC (current group) #}
     <script>
         am4core.ready(function() {
             // Create chart instance
@@ -725,8 +484,9 @@
 
         }); // end am4core.ready()
     </script>
+
 {% elseif form.selectedChart == 'dc_current_inverter' %}
-    <!-- Liniendiagramm DC (current inverter) -->
+    {# Curr3 - Liniendiagramm DC (current inverter) #}
     <script>
         am4core.ready(function() {
             // Create chart instance
@@ -799,6 +559,7 @@
 
         }); // end am4core.ready()
     </script>
+
 {% elseif form.selectedChart == 'dc_current_mpp' %}
     <!-- Liniendiagramm DC (current mpp) -->
     <script>
