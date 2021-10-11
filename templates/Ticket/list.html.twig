@@ -20,17 +20,17 @@
 
         <div class="grid-x grid-margin-x align-middle">
             <div class="cell medium-2" style="margin-top:-17px!important;">
-                <input name="anlage" class="js-autocomplete-anlagen " data-autocomplete-url="/admin/anlagen/find" value="{{ anlagep }}" placeholder="Insert the Plant">
+                <input name="anlage" class="js-autocomplete-anlagen input-group-field" data-autocomplete-url="/admin/anlagen/find" value="{{ anlagep }}" placeholder="Insert the Plant">
             </div>
 
             <div class="cell medium-2"  style="margin-top:-17px!important;">
-                <input name="user" class="js-autocomplete-user " data-autocomplete-url="/admin/anlagen/find" value="{{ userp }}" placeholder="Insert the Editor">
+                <input name="user" class="js-autocomplete-user input-group-field" data-autocomplete-url="/admin/anlagen/find" value="{{ userp }}" placeholder="Insert the Editor">
             </div>
-            <div class="cell medium-2"  style="margin-top:-17px!important;">
-                <input name="id"  value="{{ id }}" placeholder="Insert the Ticket Id">
+            <div class="cell medium-2 "  style="margin-top:-17px!important;">
+                <input name="id" class="input-group-field" value="{{ id }}" placeholder="Insert the Ticket Id">
             </div>
             <div class="cell medium-2">
-                <select name="prio" value="{{ prio }}">
+                <select name="prio" >
                     <option value="00"> Priority </option>
                     <option value="10" {% if prio == '10' %} selected {% endif %}>Low</option>
                     <option value="20" {% if prio == '20' %} selected {% endif %}>Normal</option>
@@ -39,7 +39,7 @@
                 </select>
             </div>
             <div class="cell medium-2">
-                <select name="searchstatus" value="{{ status }}">
+                <select name="searchstatus" >
                     <option value="00"> Status </option>
                     <option value="10" {% if status == '10' %} selected {% endif %}>Open</option>
                     <option value="20" {% if status == '20' %} selected {% endif %}>Work in Progress</option>
@@ -105,12 +105,16 @@
                     <td>{{ ticket.editor }}</td>
                     <td>{{ ticket.begin|date("Y-m-d")}}</td>
                     <td>{{ ticket.end|date("Y-m-d") }}</td>
-                    <td>{{ ticket.ticketActivity|date("Y-m-d")  }}</td>
-                    <td class="text-right"> <a href=" {{ path('app_ticket_edit', { id: ticket.id}) }} "  class="hollow button tiny action-icon shadow"><span class="fa fa-pencil"></span></a></td>
+                    <td>{{ ticket.updatedAt|date("Y-m-d/h:m:s")  }}</td>
+                    <td class="text-right"> <a href=" {{ path('app_ticket_edit', { id: ticket.id }) }} "  class="hollow button tiny action-icon shadow"><span class="fa fa-pencil"></span></a></td>
                 </tr>
 
         {% endfor %}
         </tbody>
     </table>
     {{ knp_pagination_render(pagination) }}
+    <div class="cell medium-2">
+
+        <a href=" {{ path('Ticket_create') }} "  class="button">Open Ticket</a>
+    </div>
 {% endblock %}

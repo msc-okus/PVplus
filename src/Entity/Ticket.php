@@ -12,6 +12,8 @@ use Gedmo\Blameable\Traits\BlameableEntity;
  */
 class Ticket
 {
+    use TimestampableEntity;
+    use BlameableEntity;
     /**
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
@@ -45,10 +47,7 @@ class Ticket
      */
     private $end;
 
-    /**
-     * @ORM\Column(type="date")
-     */
-    private $ticketActivity;
+
 
     /**
      * @ORM\Column(type="boolean")
@@ -136,7 +135,7 @@ class Ticket
         return $this->begin;
     }
 
-    public function setBegin(\DateTimeInterface $Begin): self
+    public function setBegin(?\DateTimeInterface $Begin): self
     {
         $this->begin = $Begin;
 
@@ -151,18 +150,6 @@ class Ticket
     public function setEnd(?\DateTimeInterface $End): self
     {
         $this->end = $End;
-
-        return $this;
-    }
-
-    public function getTicketActivity(): ?\DateTimeInterface
-    {
-        return $this->ticketActivity;
-    }
-
-    public function setTicketActivity(\DateTimeInterface $TicketActivity): self
-    {
-        $this->ticketActivity = $TicketActivity;
 
         return $this;
     }
