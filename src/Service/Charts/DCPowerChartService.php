@@ -134,9 +134,13 @@ class DCPowerChartService
         }
         $sqlExp .= " = '$group') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY a.stamp";
         $dataArray['inverterArray'] = $nameArray;
-
+        // add Irradiation
+        if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false){
+            $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
+        } else {
+            $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
+        }
         // SOLL Strom für diesen Zeitraum und diese Gruppe
-
         $result = $conn->query($sqlExp);
         if ($result->rowCount() > 0) {
             $dataArray['maxSeries'] = 0;
@@ -181,6 +185,12 @@ class DCPowerChartService
                 }
                 // Finde den höchsten Wert für 'maxSeries', das entspricht der Anzahl der liniene im Diagramm.
                 if ($dataArray['maxSeries'] < $inverterNr - $groups[$group]['GMIN']) $dataArray['maxSeries'] = $inverterNr - $groups[$group]['GMIN'];;
+                // add Irradiation
+                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false){
+                    $dataArray['chart'][$counter]["irradiation"] = $dataArrayIrradiation['chart'][$counter]['val1'];
+                } else {
+                    $dataArray['chart'][$counter]["irradiation"] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2'])/2;
+                }
                 $counter++;
             }
             $dataArray['offsetLegend'] = $groups[$group]['GMIN'] - 1;
@@ -251,13 +261,7 @@ class DCPowerChartService
                 }
                 $sql = "SELECT sum(wr_pdc) as actPower FROM ";
                 switch ($anlage->getConfigType()) {
-                    case 1: //Andijk
-                        if ($anlage->getUseNewDcSchema()) {
-                            $sql .= $anlage->getDbNameDCIst() . " WHERE stamp = '$stampAdjust' AND wr_group = '$group' GROUP BY wr_num;";
-                        } else {
-                            $sql .= $anlage->getDbNameAcIst() . " WHERE stamp = '$stampAdjust' AND group_dc = '$group' GROUP BY unit;";
-                        }
-                        break;
+
                     default:
                         if ($anlage->getUseNewDcSchema()) {
                             $sql .= $anlage->getDbNameDCIst() . " WHERE stamp = '$stampAdjust' AND wr_group = '$group' GROUP BY wr_num;";
@@ -271,6 +275,7 @@ class DCPowerChartService
                     while ($rowIst = $resultIst->fetch(PDO::FETCH_ASSOC)) {
                         if ($counterInv > $maxInverter) $maxInverter = $counterInv;
                         $actPower = self::checkUnitAndConvert($rowIst['actPower'], $anlage->getAnlDbUnit());
+
                         if (!($actPower == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                             switch ($anlage->getConfigType()) {
 

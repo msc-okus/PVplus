@@ -110,9 +110,9 @@ class IrradiationChartService
                             $dataArray['chart'][$counter]['g4n'] = (float)(($weatherRow["g_upper"] * $anlage->getPowerEast() + $weatherRow["g_lower"] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()));
                         } else {
                             if ($anlage->getWeatherStation()->getChangeSensor() == "Yes") {
-                                $dataArray['chart'][$counter]['g4n'] = (float)$weatherRow["g_upper"]; // getauscht, nutze unterene Sensor
+                                $dataArray['chart'][$counter]['g4n'] = (float)$weatherRow["g_lower"]; // getauscht, nutze unterene Sensor
                             } else {
-                                $dataArray['chart'][$counter]['g4n'] = (float)$weatherRow["g_lower"]; // nicht getauscht, nutze oberen Sensor
+                                $dataArray['chart'][$counter]['g4n'] = (float)$weatherRow["g_upper"]; // nicht getauscht, nutze oberen Sensor
                             }
                         }
                     } else {
