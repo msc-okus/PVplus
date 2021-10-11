@@ -66,7 +66,7 @@ class TicketFormType extends AbstractType
             ->add('end', DateTimeType::class,[
                 'label'         => 'End',
                 'label_html'    => true,
-                //'required'      => true,
+                'required'      => true,
                 'input'         =>'datetime',
                 'widget'        =>'single_text',
             ])
