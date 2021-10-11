@@ -1,0 +1,69 @@
+<div class="cell medium-6">
+    <div id="headline_customer" style="border-bottom: solid 2px #00386d; text-align: right; width: 29.7cm;">
+        <img class="customer_logo" src="{{ customer_logo }}">
+    </div>
+    <div style="height:18cm; width: 29.7cm;" >
+        <h3 style="color: {{ font_color_second }};">B) Cumulative Forecast with g4n</h3>
+        <span class="subheadline" style="color: {{ font_color_third }};">Yearly expected vs. actuals</span>
+        {% for data in table_overview_monthly.powerEvu %}
+        {% endfor %}
+        <table id="basetable">
+            <tr>
+                <td colspan="2" style="text-align: left">
+                    <table class="asset_report_table_operations_data">
+                        <thead>
+                        <tr>
+                            <th>Cumulative Forecast - {{ year }}</th>
+                            {% for data in dataMonthArray %}
+                                <th><div style="width: 100%; height: 50%;">{{ data }} {{ year }}</div></th>
+                            {% endfor %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="tr_first_column">Production ACT / g4n - P50</td>
+                            {% for data in forecast_G4N_table.forcast_PVSYSTP50 %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_first_column" style="border-bottom: solid 2px">Production ACT /  g4n - P90</td>
+                            {% for data in forecast_G4N_table.forcast_PVSYSTP90 %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_first_column">Plan g4n Forecast - P50</td>
+                            {% for data in forecast_G4N_table.forcast_plan_PVSYSTP50 %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_first_column">Plan g4n Forecast - P90</td>
+                            {% for data in forecast_G4N_table.forcast_plan_PVSYSTP90 %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                            {% endfor %}
+                        </tr>
+                        </tbody>
+                    </table>
+
+                </td>
+
+            </tr>
+            <tr>
+                <td class="td_texthint">
+                    P90 <span class="texthint">{{ degradation }}</span>%
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    {{ forecast_G4N|raw }}
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="footer_g4net" style="border-top: solid 2px #fbba27; text-align: right; vertical-align: bottom; width: 29.7cm; padding-top: 5px">
+        <img class="g4n_logo" src="https://gs.g4npvplus.net/images/green4net.jpg">
+    </div>
+</div>

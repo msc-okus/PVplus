@@ -33,12 +33,12 @@ class AssetManagementController extends BaseController
     /**
      * @param $doctype ( 0 = PDF, 1 = Excel, 2 = PNG (Grafiken) )
      * @param $charttypetoexport (0 = , 1 = )
-     * @Route("/asset/report/{id}/{month}/{year}/{inverter}/{doctype}/{charttypetoexport}/{storeDocument}", defaults={"storeDocument"=false})
+     * @Route("/asset/report/{id}/{month}/{year}/{charttypetoexport}/{pages}")
      */
-    public function assetReport($id, $month, $year, $inverter, $doctype, $charttypetoexport, $storeDocument, AssetManagementService $assetManagement, AnlagenRepository $anlagenRepository)
+    public function assetReport($id, $month, $year, $charttypetoexport, $pages, AssetManagementService $assetManagement, AnlagenRepository $anlagenRepository)
     {
         $anlage = $anlagenRepository->findIdLike([$id]);
-        $output = $assetManagement->assetReport($anlage, $month, $year, $inverter, $doctype, $charttypetoexport, $storeDocument);
+        $output = $assetManagement->assetReport($anlage, $month, $year, $charttypetoexport, $pages);
 
         return $this->render('report/assetreport.html.twig', [
             'owner' => $output['owner'],
@@ -51,10 +51,19 @@ class AssetManagementController extends BaseController
             'font_color_second' => '#fbba00',
             'font_color_third' => '#104476',
             'montharray' => $output['monthArray'],
+            'degradation' => $output['degradation'],
+            'forecast_PVSYST_table' => $output['forecast_PVSYST_table'],
+            'forecast_PVSYST' => $output['forecast_PVSYST'],
+            'forecast_G4N_table' => $output['forecast_G4N_table'],
+            'forecast_G4N' => $output['forecast_G4N'],
             'dataMonthArray' => $output['dataMonthArray'],
             'dataCfArray' => $output['dataCfArray'],
             'operations_right' => $output['operations_right'],
             'table_overview_monthly' => $output['table_overview_monthly'],
+            'losses_t1' => $output['losses_t1'],
+            'losses_t2' => $output['losses_t2'],
+            'losses_year' => $output['losses_year'],
+            'losses_monthly' => $output['losses_monthly'],
         ]);
 
     }

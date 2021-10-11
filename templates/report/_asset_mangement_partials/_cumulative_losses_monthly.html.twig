@@ -1,0 +1,57 @@
+<div class="cell medium-6">
+    <div id="headline_customer" style="border-bottom: solid 2px #00386d; text-align: right; width: 29.7cm;">
+        <img class="customer_logo" src="{{ customer_logo }}">
+    </div>
+    <div style="height:18cm; width: 29.7cm;" >
+        <table id="basetable">
+            <tr>
+                <td colspan="2" style="text-align: left">
+                    <h3 style="color: {{ font_color_second }};">E) Production</h3>
+                    <span class="subheadline" style="color: {{ font_color_third }};">Monthly expected vs. actuals</span>
+                    <table class="asset_report_table_operations_data">
+                        <thead>
+                        <tr>
+                            <th>Monthly Losses - {{ year }}</th>
+                            {% for data in dataMonthArray %}
+                                <th><div style="width: 100%; height: 50%;">{{ data }} {{ year }}</div></th>
+                            {% endfor %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="tr_first_column">Difference Egrid to PVSYST*</td>
+                            {% for data in losses_t2.diefference_prod_to_pvsyst %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_first_column" style="border-bottom: solid 2px">Difference Egrid to expected g4n</td>
+                            {% for data in losses_t2.diefference_prod_to_expected_g4n %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_first_column">Difference inverter to Egrid</td>
+                            {% for data in losses_t2.diefference_prod_to_egrid %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td colspan="13">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2" class="td_texthint_2" style="vertical-align: top">* Plan value PVSYST P50</td>
+                            <td colspan="11">{{ losses_monthly|raw }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div id="footer_g4net" style="border-top: solid 2px #fbba27; text-align: right; vertical-align: bottom; width: 29.7cm; padding-top: 5px">
+        <img class="g4n_logo" src="https://gs.g4npvplus.net/images/green4net.jpg">
+    </div>
+</div>
