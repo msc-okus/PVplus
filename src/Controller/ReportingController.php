@@ -42,60 +42,6 @@ class ReportingController extends AbstractController
         if($request->query->get('searchmonth')!=null & $request->query->get('searchmonth')!="")$searchmonth = $request->query->get('searchmonth');
         if($request->query->get('qr')!=null & $request->query->get('qr')!="")$q = $request->query->get('qr');
         if($request->query->get('anlage')!=null & $request->query->get('anlage')!="")$anlage = $request->query->get('anlage');
-        /*
-        $q = $request->query->get('qr');
-        $searchstatus = $request->query->get('searchstatus');
-        $searchtype = $request->query->get('searchtype');
-        $searchmonth = $request->query->get('searchmonth');
-        if ($request->query->get('search') == 'yes' && $q == '') $request->getSession()->set('qr', '');
-        if ($q) $request->getSession()->set('qr', $q);
-        if ($searchstatus) $request->getSession()->set('searchstatus', $searchstatus);
-        if ($searchtype) $request->getSession()->set('searchtype', $searchtype);
-        if ($searchmonth) $request->getSession()->set('searchmonth', $searchmonth);
-
-        if ($q == "" && $request->getSession()->get('qr') != "") {
-            $q = $request->getSession()->get('qr');
-            $request->query->set('qr', $q);
-        }
-        if ($searchstatus == "" && $request->getSession()->get('$searchstatus') != "") {
-            $searchstatus = $request->getSession()->get('searchstatus');
-            $request->query->set('searchstatus', $searchstatus);
-        }
-        if ($searchtype == "" && $request->getSession()->get('searchtype') != "") {
-            $searchtype = $request->getSession()->get('searchtype');
-            $request->query->set('searchtype', $searchtype);
-        }
-
-        if ($searchmonth == "" && $request->getSession()->get('searchmonth') != "") {
-            $searchmonth = $request->getSession()->get('searchmonth');
-            $request->query->set('searchmonth', $searchmonth);
-        }
-
-
-
-        if($request->query->get('new-report') === 'yes') {
-            $reportType = $request->query->get('report-typ');
-            $reportMonth = $request->query->get('month');
-            $reportYear = $request->query->get('year');
-            $anlageId = $request->query->get('anlage-id');
-            $aktAnlagen = $anlagenRepo->findIdLike([$anlageId]);
-            switch ($reportType){
-                case 'monthly':
-                    $output = $report->monthlyReport($aktAnlagen, $reportMonth, $reportYear, 0, 0, true, false, false);
-                    break;
-                case 'epc':
-                    $output = $epcReport->createEpcReport($aktAnlagen[0]);
-                    break;
-                case 'am':
-                    dump("Ist noch nicht fertig");
-                    break;
-            }
-            $request->query->set('report-typ', $reportType);
-            $request->query->set('month', $reportMonth);
-            $request->query->set('year', $reportYear);
-            $request->query->set('anlage-id', $anlageId);
-        }
-*/
 
         $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($anlage,$searchstatus,$searchtype,$searchmonth);
 
@@ -285,6 +231,7 @@ class ReportingController extends AbstractController
         $searchmonth=$session->get('month');
         $Route = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
         $Route = $Route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
+
         /** @var AnlagenReports|null $report */
         $report = $reportsRepository->find($id);
         $reportCreationDate = $report->getCreatedAt()->format('Y-m-d h:i:s');
