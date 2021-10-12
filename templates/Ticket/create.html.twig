@@ -1,3 +1,4 @@
+{#
 {% extends 'base.html.twig' %}
 
 {% block body %}
@@ -6,4 +7,25 @@
     {{ form_start(ticketForm) }}
         {{ form_widget(ticketForm) }}
     {{ form_end(ticketForm) }}
+{% endblock %}
+    #}
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="grid-x">
+        <div class="cell">
+            <h1>New Ticket</h1>
+        </div>
+    </div>
+    {{ include('Ticket/_form.html.twig') }}
+{% endblock %}
+
+
+{% block title %}
+    {{  parent() }}new Ticket
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
 {% endblock %}
