@@ -90,12 +90,13 @@ class DashboardPlantsController extends BaseController
                 } else {
                     $form['to'] =  $request->request->get('to');
                 }
-
             }
 
-
-            if ( strlen($form['to']) <= 10 ) {$form['to'] = $form['to'] . " 23:59"; } // ergänze um Uhrzeit
+            // ergänze um Uhrzeit
+            if ( strlen($form['to']) <= 10 ) {$form['to'] = $form['to'] . " 23:59"; }
+            // bei den PA und PR Diagramm werden immer mindestens 7 Tage angezeigt
             if ($form['selectedChart'] == 'pr_and_av'    && $form['optionDate'] < 7) { $form['optionDate'] =  '7'; }
+            // bei Verfügbarkeit Anzeige kann nur ein Tag angezeigt werden
             if ($form['selectedChart'] == 'availability' && $form['optionDate'] > 1) { $form['optionDate'] =  '1'; }
 
             if ($form['optionDate'] == 100000) {
