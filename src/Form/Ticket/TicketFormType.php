@@ -39,15 +39,15 @@ class TicketFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         /** @var Ticket $ticket */
-        $ticket = $options['data'] ?? null;
+       // $ticket = $options['data'] ?? null;
         $builder
             ->add('anlage', EntityType::class,[
                 'class' => Anlage::class,
-                'placeholder'   => 'please Choose ...'
+                'placeholder'   => 'Please Choose ...'
             ])
 
             ->add('status', ChoiceType::class,[
-                'label'         => 'select the status',
+                'label'         => 'Select the status',
                 'choices'       => [
                     'Open'              => 10,
                     'Work in Progress'  => 20,
@@ -95,7 +95,8 @@ class TicketFormType extends AbstractType
             ])
 
             ->add('freeText', TextareaType::class,[
-
+                'attr'          => ['rows' => '6'],
+                'empty_data'    => '',
             ])
 
             ->add('description', TextType::class,[
@@ -103,17 +104,17 @@ class TicketFormType extends AbstractType
             ])
 
             ->add('systemStatus', ChoiceType::class,[
-                'label'         => 'select the status of the system',
+                'label'         => 'Select the status of the system',
                 'choices'       => [
                     'test' => 10,
                     'test2' => 20
                 ],
                 'required' => true,
-                'placeholder'   => 'please Choose ...'
+                'placeholder'   => 'Please Choose ...'
             ])
 
             ->add('priority', ChoiceType::class,[
-                'label'         => 'select the priority',
+                'label'         => 'Select the priority',
                 'choices'       => [
                     'Low'       => 10,
                     'Normal'    => 20,
@@ -126,7 +127,8 @@ class TicketFormType extends AbstractType
             ])
 
             ->add('answer', TextareaType::class,[
-
+                'attr'          => ['rows' => '6'],
+                'empty_data'    => '',
             ])
 
             ->add('save', SubmitType::class, [

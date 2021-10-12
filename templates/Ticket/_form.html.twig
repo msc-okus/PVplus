@@ -1,15 +1,73 @@
-{{ form_start(ticketForm)}}
+{{ form_start(ticketForm, {'attr': {'novalidate': 'no'}})}}
 
 <div class="grid-x">
-    <div class="cell">
+    <div class="cell medium-10">
+        <ul class="tabs" data-tabs id="weather" data-deep-link="true">
+            <li class="tabs-title is-active"><a href="#base" aria-selected="true">General</a></li>
+        </ul>
+
+        <div class="tabs-content" data-tabs-content="example-tabs">
+            <div class="tabs-panel is-active" id="plant1">
+
+                <fieldset class="fieldset">
+
+                    <legend>Plant</legend>
+                    <div class="grid-x grid-margin-x grid-padding-x">
+                        <div class="cell medium-6 small-12">
+                            {{ form_row(ticketForm.anlage) }}
+                        </div>
+                        <div class="cell medium-6 small-12">
+                            {{ form_row(ticketForm.systemStatus) }}
+                        </div>
+
+                    </div>
+
+                </fieldset>
+                <fieldset class="fieldset">
+
+                    <legend>Ticket</legend>
+                    <div class="grid-x grid-margin-x grid-padding-x">
+                        <div class="cell medium-6 small-12">
+                            {{ form_row(ticketForm.begin) }}
+                            {{ form_row(ticketForm.status) }}
+                        </div>
+                        <div class="cell medium-6 small-12">
+                            {{ form_row(ticketForm.end) }}
+                            {{ form_row(ticketForm.priority) }}
+                        </div>
+                        <div class="cell medium-12 small-12">
+                            {{ form_row(ticketForm.description) }}
+                            {{ form_row(ticketForm.freeText) }}
+                            {{ form_row(ticketForm.answer) }}
+                        </div>
+                    </div>
+
+                </fieldset>
+                <fieldset class="fieldset">
+                        {# TO BE DEFINED #}
+                        <div class="grid-x grid-margin-x grid-padding-x">
+                            <div class="cell medium-12 small-12">
+                                {{ form_row(ticketForm.PR) }}
+                                {{ form_row(ticketForm.PA) }}
+                                {{ form_row(ticketForm.Yield) }}
+
+                            </div>
+                        </div>
+                        <div class="grid-x grid-margin-x grid-padding-x action-menu">
+                            <div class="cell medium-12 small-12">
+                            {{ form_widget(ticketForm.save) }}
+                            {{ form_widget(ticketForm.saveclose) }}
+                            {{ form_widget(ticketForm.close) }}
+                            </div>
+                        </div>‚
+                </fieldset>
+
+            </div>
+
+        </div>
 
     </div>
+
 </div>
-<div class="grid-x grid-margin-x grid-padding-x action-menu">
-    <div class="cell">
-        {{ form_widget(ticketForm.save) }}
-        {{ form_widget(ticketForm.saveclose) }}
-        {{ form_widget(ticketForm.close) }}
-    </div>
-</div>
+
 {{ form_end(ticketForm) }}
