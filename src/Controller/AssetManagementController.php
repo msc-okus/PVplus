@@ -64,6 +64,21 @@ class AssetManagementController extends BaseController
             'losses_t2' => $output['losses_t2'],
             'losses_year' => $output['losses_year'],
             'losses_monthly' => $output['losses_monthly'],
+            'production_monthly_chart' => $output['production_monthly_chart'],
+            'operations_monthly_right_pvsyst_tr1' => $output['operations_monthly_right_pvsyst_tr1'],
+            'operations_monthly_right_pvsyst_tr2' => $output['operations_monthly_right_pvsyst_tr2'],
+            'operations_monthly_right_pvsyst_tr3' => $output['operations_monthly_right_pvsyst_tr3'],
+            'operations_monthly_right_pvsyst_tr4' => $output['operations_monthly_right_pvsyst_tr4'],
+            'operations_monthly_right_pvsyst_tr5' => $output['operations_monthly_right_pvsyst_tr5'],
+            'operations_monthly_right_pvsyst_tr6' => $output['operations_monthly_right_pvsyst_tr6'],
+            'operations_monthly_right_pvsyst_tr7' => $output['operations_monthly_right_pvsyst_tr7'],
+            'operations_monthly_right_g4n_tr1' => $output['operations_monthly_right_g4n_tr1'],
+            'operations_monthly_right_g4n_tr2' => $output['operations_monthly_right_g4n_tr2'],
+            'operations_monthly_right_g4n_tr3' => $output['operations_monthly_right_g4n_tr3'],
+            'operations_monthly_right_g4n_tr4' => $output['operations_monthly_right_g4n_tr4'],
+            'operations_monthly_right_g4n_tr5' => $output['operations_monthly_right_g4n_tr5'],
+            'operations_monthly_right_g4n_tr6' => $output['operations_monthly_right_g4n_tr6'],
+            'operations_monthly_right_g4n_tr7' => $output['operations_monthly_right_g4n_tr7'],
         ]);
 
     }

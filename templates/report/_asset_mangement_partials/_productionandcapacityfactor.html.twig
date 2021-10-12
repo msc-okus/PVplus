@@ -58,7 +58,7 @@
                                 {% if (counter == reportmonth) %}
                                     <td class="tr_next_columns" style="border: solid 2px">{{ data|number_format(3, ',', '.') }}</td>
                                 {% else %}
-                                    <td class="tr_next_columns">{{ data }}</td>
+                                    <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
                                 {% endif %}
                                 {% set counter = counter+1 %}
                             {% endfor %}
@@ -70,7 +70,7 @@
                                 {% if (counter == reportmonth) %}
                                     <td class="tr_next_columns" style="border: solid 2px">{{ data|number_format(3, ',', '.') }}</td>
                                 {% else %}
-                                    <td class="tr_next_columns">{{ data }}</td>
+                                    <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
                                 {% endif %}
                                 {% set counter = counter+1 %}
                             {% endfor %}
