@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use ApiPlatform\Core\Api\UrlGeneratorInterface;
 use App\Entity\Anlage;
 use App\Entity\AnlagenReports;
 use App\Entity\User;
@@ -35,6 +36,13 @@ class ReportingController extends AbstractController
      */
     public function list(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo, ReportService $report, ReportEpcService $epcReport): Response
     {
+        $session=$this->container->get('session');
+        if($request->query->get('searchstatus')!=null & $request->query->get('searchstatus')!="")$searchstatus = $request->query->get('searchstatus');
+        if($request->query->get('searchtype')!=null & $request->query->get('searchtype')!="")$searchtype = $request->query->get('searchtype');
+        if($request->query->get('searchmonth')!=null & $request->query->get('searchmonth')!="")$searchmonth = $request->query->get('searchmonth');
+        if($request->query->get('qr')!=null & $request->query->get('qr')!="")$q = $request->query->get('qr');
+        if($request->query->get('anlage')!=null & $request->query->get('anlage')!="")$anlage = $request->query->get('anlage');
+        /*
         $q = $request->query->get('qr');
         $searchstatus = $request->query->get('searchstatus');
         $searchtype = $request->query->get('searchtype');
@@ -63,7 +71,7 @@ class ReportingController extends AbstractController
             $request->query->set('searchmonth', $searchmonth);
         }
 
-        $anlagen = $anlagenRepo->findAll();
+
 
         if($request->query->get('new-report') === 'yes') {
             $reportType = $request->query->get('report-typ');
@@ -87,21 +95,30 @@ class ReportingController extends AbstractController
             $request->query->set('year', $reportYear);
             $request->query->set('anlage-id', $anlageId);
         }
+*/
 
-        $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($q,$searchstatus,$searchtype,$searchmonth);
+        $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($anlage,$searchstatus,$searchtype,$searchmonth);
 
         $pagination = $paginator->paginate(
             $queryBuilder,                                    /* query NOT result */
             $request->query->getInt('page', 1),   /* page number*/
             20                                          /*limit per page*/
         );
-
+        $session->set('search', $searchstatus);
+        $session->set('type', $searchtype);
+        $session->set('anlage', $anlage);
+        $session->set('month', $searchmonth);
+        $anlagen = $anlagenRepo->findAll();
         //$pagination->setSortableTemplate('my_sortable.html.twig');
-
+        dump($anlage, $searchmonth, $searchtype, $searchstatus,$q);
         return $this->render('reporting/list.html.twig', [
             'pagination' => $pagination,
             'anlagen'    => $anlagen,
             'stati'      => self::reportStati(),
+            'month'      =>$searchmonth,
+            'type'       =>$searchtype,
+            'status'     =>$searchstatus,
+            'anlage'     =>$anlage,
         ]);
     }
 
@@ -121,11 +138,24 @@ class ReportingController extends AbstractController
      */
     public function edit($id, ReportsRepository $reportsRepository, Request $request, Security $security, EntityManagerInterface $em): Response
     {
+        $session=$this->container->get('session');
+
+        $searchstatus=$session->get('search');
+        $searchtype=$session->get('type');
+        $anlageq=$session->get('anlage');
+        $searchmonth=$session->get('month');
+        $Route = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
+        $Route = $Route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
+
         $report = $reportsRepository->find($id);
         $anlage = $report->getAnlage();
         $form = $this->createForm(ReportsFormType::class, $report);
 
         $form->handleRequest($request);
+
+        //Creating the route with the query
+
+
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked() ) ) {
 
             $successMessage = 'Plant data saved!';
@@ -133,14 +163,14 @@ class ReportingController extends AbstractController
             $em->flush();
             if ($form->get('saveclose')->isClicked()) {
                 $this->addFlash('success', $successMessage);
-                return $this->redirectToRoute('app_reporting_list');
+                return $this->redirect($Route);
             }
         }
 
         if ($form->isSubmitted() && $form->get('close')->isClicked()) {
             $this->addFlash('warning', 'Canceled. No data was saved.');
 
-            return $this->redirectToRoute('app_reporting_list');
+            return $this->redirect($Route);
         }
 
 
@@ -157,6 +187,15 @@ class ReportingController extends AbstractController
     public function showReportAsPdf($id, ReportEpcService $reportEpcService, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer): RedirectResponse
     {
         /** @var AnlagenReports|null $report */
+        $session=$this->container->get('session');
+
+        $searchstatus=$session->get('search');
+        $searchtype=$session->get('type');
+        $anlageq=$session->get('anlage');
+        $searchmonth=$session->get('month');
+        $Route = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
+        $Route = $Route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
+
         $report = $reportsRepository->find($id);
         $reportCreationDate = $report->getCreatedAt()->format('Y-m-d h:i:s');
         $anlage = $report->getAnlage();
@@ -230,7 +269,7 @@ class ReportingController extends AbstractController
                 break;
         }
 
-        return $this->redirectToRoute('app_reporting_list');
+        return $this->redirect($Route);
     }
 
     /**
@@ -238,6 +277,14 @@ class ReportingController extends AbstractController
      */
     public function showReportAsExcel($id, ReportEpcService $reportEpcService, ReportService $reportService, ReportsRepository $reportsRepository)
     {
+        $session=$this->container->get('session');
+
+        $searchstatus=$session->get('search');
+        $searchtype=$session->get('type');
+        $anlageq=$session->get('anlage');
+        $searchmonth=$session->get('month');
+        $Route = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
+        $Route = $Route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
         /** @var AnlagenReports|null $report */
         $report = $reportsRepository->find($id);
         $reportCreationDate = $report->getCreatedAt()->format('Y-m-d h:i:s');
@@ -299,7 +346,7 @@ class ReportingController extends AbstractController
                 break;
         }
 
-        return $this->redirectToRoute('app_reporting_list');
+        return $this->redirect($Route);
     }
 
 
@@ -427,6 +474,15 @@ class ReportingController extends AbstractController
      */
     public function deleteReport($id, ReportsRepository $reportsRepository, Security $security, EntityManagerInterface $em)
     {
+        $session=$this->container->get('session');
+
+        $searchstatus=$session->get('search');
+        $searchtype=$session->get('type');
+        $anlageq=$session->get('anlage');
+        $searchmonth=$session->get('month');
+        $Route = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
+        $Route = $Route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
+
         if ($this->isGranted('ROLE_DEV'))
         {
             /** @var AnlagenReports|null $report */
@@ -437,7 +493,7 @@ class ReportingController extends AbstractController
             }
         }
 
-        return $this->redirectToRoute('app_reporting_list');
+        return $this->redirect($Route);
 
     }
 }
