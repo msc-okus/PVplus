@@ -12,6 +12,7 @@ use Doctrine\DBAL\Types\DateType;
 use phpDocumentor\Reflection\Types\Boolean;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\ChoiceList\ChoiceList;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -42,6 +43,7 @@ class TicketFormType extends AbstractType
         $builder
             ->add('anlage', EntityType::class,[
                 'class' => Anlage::class,
+                'placeholder'   => 'please Choose ...'
             ])
 
             ->add('status', ChoiceType::class,[
@@ -74,22 +76,22 @@ class TicketFormType extends AbstractType
             ->add('PR', ChoiceType::class,[
                 'label'         =>'PR',
                 'choices'       => ['yes'=>true,'no'=>false],
+                'data'          => false,
                 'expanded'      => true,
-
             ])
 
             ->add('PA', ChoiceType::class,[
                 'label'         =>'PA',
                 'choices'       => ['yes'=>true,'no'=>false],
+                'data'          => false,
                 'expanded'      => true,
-
             ])
 
             ->add('Yield', ChoiceType::class,[
                 'label'         =>'Yield',
                 'choices'       => ['yes'=>true, 'no' => false],
+                'data'          => false,
                 'expanded'      => true,
-
             ])
 
             ->add('freeText', TextareaType::class,[
@@ -119,6 +121,7 @@ class TicketFormType extends AbstractType
                     'Urgent'    => 40
                 ],
                 'required' => true,
+                'placeholder'   => 'please Choose ...'
 
             ])
 
