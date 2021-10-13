@@ -69,9 +69,8 @@ class ReportsRepository extends ServiceEntityRepository
             $qb->andWhere("report.month = $searchmonth");
         }
 
-        if ($term) {
-            $qb ->andWhere('report.reportType LIKE :term or a.anlName LIKE :term or e.firma LIKE :term')
-                ->setParameter('term', '%' . $term);
+        if ($term != '') {
+            $qb ->andWhere(" a.anlName LIKE '$term' ");
         }
 
 

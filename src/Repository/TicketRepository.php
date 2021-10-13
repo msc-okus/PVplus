@@ -37,7 +37,7 @@ class TicketRepository extends ServiceEntityRepository
 
         if ($editor != '') $qb->andWhere("ticket.editor = '$editor'");
 
-        if ($anlage !='') $qb->andWhere("a.anlName = '$anlage'");
+        if ($anlage !='') $qb->andWhere("a.anlName LIKE '$anlage'");
 
         if($Id != '') $qb->andWhere("ticket.id = '$Id'");
 

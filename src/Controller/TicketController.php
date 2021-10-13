@@ -62,7 +62,7 @@ class TicketController extends BaseController
         if ($form->isSubmitted() && $form->get('close')->isClicked()) {
             $this->addFlash('warning', 'Canceled. No data was saved.');
 
-            return $this->redirectToRoute('app_ticket_list');
+            return $this->redirect($Route);
         }
         return $this->render('Ticket/create.html.twig',[
             'ticketForm'=>$form->createView()
@@ -97,14 +97,14 @@ class TicketController extends BaseController
             return $this->redirect($Route);
             $this->addFlash('success', 'User saved!');
             if ($form->get('saveclose')->isClicked()) {
-                return $this->redirectToRoute('app_ticket_list');
+                return $this->redirect($Route);
             }
         }
 
         if ($form->isSubmitted() && $form->get('close')->isClicked()) {
             $this->addFlash('warning', 'Canceled. No data was saved.');
 
-            return $this->redirectToRoute('app_ticket_list');
+            return $this->redirect($Route);
         }
         return $this->render('Ticket/edit.html.twig', [
             'ticketForm'    => $form->createView(),

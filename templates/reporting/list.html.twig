@@ -5,7 +5,7 @@
     <script src="{{ asset('jsNew/algolia-autocomplete.js') }}"></script>
 {% endblock %}
 
-{% import 'macros/macros.reports.html.twig' as macrolibrary %}
+{% import 'macros/macros.reports.html.twig' as macrolibrary %} {# I will bring the searchbar here for convenience#}
 
 {% block title %}
     {{ parent() }}List Reportsxxx
@@ -13,7 +13,56 @@
 
 {% block body %}
     <h1>List Reports</h1>
+    {#
     {{ macrolibrary.searchbox(app.request.query.get('qr'), 'qr') }}
+    #}
+    {# begining of the searchbar #}
+    <form>
+        <div class="grid-x grid-margin-x align-middle">
+            <div class="cell medium-2" style="margin-top:-17px!important;">
+                <input type="text" name="anlage" class="input-group-field" data-autocomplete-url="/admin/anlagen/find" value="{{ anlage }}" placeholder="Search plants">
+            </div>
+            <div class="cell medium-2">
+                <select name="searchstatus">
+                    <option value=""   {% if status == ''   %}   selected {% endif %} > status             </option>
+                    <option value="0"  {% if status == '0'  %}   selected {% endif %} > final              </option>
+                    <option value="5"  {% if status == '5'  %}   selected {% endif %} > proof reading      </option>
+                    <option value="9"  {% if status == '9'  %}   selected {% endif %} > archive (g4n only) </option>
+                    <option value="10" {% if status == '10' %}   selected {% endif %} > draft (g4n only)   </option>
+                    <option value="11" {% if status == '11' %}   selected {% endif %} > wrong (g4n only)   </option>
+                </select>
+            </div>
+            <div class="cell medium-2">
+                <select name="searchtype">
+                    <option value=""               {% if type == '' %}               selected {% endif %} > Type    </option>
+                    <option value="monthly-report" {% if type == 'monthly-report' %} selected {% endif %} > monthly </option>
+                    <option value="epc-report"     {% if type == 'epc-report' %}     selected {% endif %} > epc     </option>
+                    <option value="am-report"      {% if type == 'am-report' %}      selected {% endif %} > am      </option>
+                </select>
+            </div>
+            <div class="cell medium-2">
+                <select name="searchmonth">
+                    <option value=""   {% if month == '' %}   selected {% endif %}>  Month </option>
+                    <option value="1"  {% if month == '1' %}  selected {% endif %}>  01    </option>
+                    <option value="2"  {% if month == '2' %}  selected {% endif %}>  02    </option>
+                    <option value="3"  {% if month == '3' %}  selected {% endif %}>  03    </option>
+                    <option value="4"  {% if month == '4' %}  selected {% endif %}>  04    </option>
+                    <option value="5"  {% if month == '5' %}  selected {% endif %}>  05    </option>
+                    <option value="6"  {% if month == '6' %}  selected {% endif %}>  06    </option>
+                    <option value="7"  {% if month == '7' %}  selected {% endif %}>  07    </option>
+                    <option value="8"  {% if month == '8' %}  selected {% endif %}>  08    </option>
+                    <option value="9"  {% if month == '9' %}  selected {% endif %}>  09    </option>
+                    <option value="10" {% if month == '10' %} selected {% endif %}>  10    </option>
+                    <option value="11" {% if month == '11' %} selected {% endif %}>  11    </option>
+                    <option value="12" {% if month == '12' %} selected {% endif %}>  12    </option>
+                </select>
+            </div>
+            <div class="input-group-button" style="height:35px !important; width:35px !important; padding:0; margin-top:-15px;">
+                <button name="search" type="submit" class="button" value="yes"><span class="fa fa-search"></span></button>
+            </div>
+        </div>
+    </form>
+    {# end of the searchbar #}
     <table class="table sortable">
         <thead>
         <tr>
