@@ -1,9 +1,21 @@
+
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <h1>Editing a ticket</h1>
+    <div class="grid-x">
+        <div class="cell">
+            <h1>Editing Ticket</h1>
+        </div>
+    </div>
+    {{ include('Ticket/_form.html.twig') }}
+{% endblock %}
 
-    {{ form_start(ticketForm) }}
-        {{ form_widget(ticketForm) }}
-    {{ form_end(ticketForm) }}
+
+{% block title %}
+    {{  parent() }}Editing Ticket
+{% endblock %}
+
+
+{% block javascripts %}
+    {{ parent() }}
 {% endblock %}

@@ -1,0 +1,21 @@
+fos_ck_editor:
+  configs:
+    G4NConfig:
+      toolbar: "my_toolbar"
+  toolbars:
+    configs:
+      my_toolbar: [ "@clipboard", "@styles", "@basic_styles","@paragraph", "@document"]
+    items:
+
+      document: [ "Source" ]
+      clipboard: [ "Undo", "Redo", "-"]
+      basic_styles: [
+      "Bold",
+      "Italic",
+      "Underline",
+      "-",
+      "RemoveFormat",
+      "-",
+      ]
+      styles: ["Format", "-"]
+      paragraph: ["NumberedList", "BulletedList"]

@@ -7,8 +7,11 @@ use App\Entity\AnlagenReports;
 use App\Entity\Eigner;
 use App\Entity\Ticket;
 use App\Entity\User;
+use App\Form\Type\SwitchType;
+use ContainerRxXKGp9\getFosCkEditor_Form_TypeService;
 use Doctrine\DBAL\Types\BooleanType;
 use Doctrine\DBAL\Types\DateType;
+use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use phpDocumentor\Reflection\Types\Boolean;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -73,30 +76,19 @@ class TicketFormType extends AbstractType
                 'widget'        =>'single_text',
             ])
 
-            ->add('PR', ChoiceType::class,[
-                'label'         =>'PR',
-                'choices'       => ['yes'=>true,'no'=>false],
-                'data'          => false,
-                'expanded'      => true,
+            ->add('PR', SwitchType::class, [
+                'label' => 'PR'
+            ])
+            ->add('PA', SwitchType::class,[
+                'label' => 'PA'
             ])
 
-            ->add('PA', ChoiceType::class,[
-                'label'         =>'PA',
-                'choices'       => ['yes'=>true,'no'=>false],
-                'data'          => false,
-                'expanded'      => true,
+            ->add('Yield', SwitchType::class,[
+                'label' => 'Yield'
             ])
 
-            ->add('Yield', ChoiceType::class,[
-                'label'         =>'Yield',
-                'choices'       => ['yes'=>true, 'no' => false],
-                'data'          => false,
-                'expanded'      => true,
-            ])
-
-            ->add('freeText', TextareaType::class,[
-                'attr'          => ['rows' => '6'],
-                'empty_data'    => '',
+            ->add('freeText', CKEditorType::class ,[
+                'config' => array('toolbar' => 'my_toolbar'),
             ])
 
             ->add('description', TextType::class,[
@@ -126,9 +118,8 @@ class TicketFormType extends AbstractType
 
             ])
 
-            ->add('answer', TextareaType::class,[
-                'attr'          => ['rows' => '6'],
-                'empty_data'    => '',
+            ->add('answer', CKEditorType::class ,[
+                'config' => array('toolbar' => 'my_toolbar'),
             ])
 
             ->add('save', SubmitType::class, [
