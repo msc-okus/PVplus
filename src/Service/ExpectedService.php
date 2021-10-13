@@ -136,8 +136,8 @@ class ExpectedService
 
                         // Temperatur Korrektur
                         if ($anlage->getHasPannelTemp()) {
-                            //$expPowerDcHlp      = $expPowerDcHlp * $modul->getModuleType()->getTempCorrPower($pannelTemp);
-                            //$expCurrentDcHlp    = $expCurrentDcHlp * $modul->getModuleType()->getTempCorrCurrent($pannelTemp);
+                            $expPowerDcHlp      = $expPowerDcHlp * $modul->getModuleType()->getTempCorrPower($pannelTemp);
+                            $expCurrentDcHlp    = $expCurrentDcHlp * $modul->getModuleType()->getTempCorrCurrent($pannelTemp);
                         }
 
                         // degradation abziehen (degradation * Betriebsjahre).

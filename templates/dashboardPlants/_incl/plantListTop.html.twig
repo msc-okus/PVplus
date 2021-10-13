@@ -376,7 +376,7 @@
                             {% endif %}
                         </div>
                         <div class='cell small-6'>
-                            <h5><b>{{ anlage.anlName }}</b> {% if is_granted('ROLE_G4N') %}<small>Type: {{ anlage.configType }}</small>{% endif %}</h5>
+                            <h5><b>{{ anlage.anlName }}</b></h5>
                             <h4>{{ (anlage.power)|number_format(1, ',', '.') }} kWp</h4>
                             {% if is_granted('ROLE_G4N') %}
                                 <h6 class="small">{{ anlage.anlagenId}} / {{ anlage.anlIntnr}} / {{ anlage.anlDbWs }}</h6>
