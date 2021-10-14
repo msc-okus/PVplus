@@ -91,7 +91,7 @@ class TicketController extends BaseController
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
             $ticket = $form->getData();
             $ticket->setEditor($this->getUser()->getUsername());
-
+            if($ticket->getStatus() === 30 && $ticket->getend()===null)$ticket->setEnd(new \DateTime("now"));
             $em->persist($ticket);
             $em->flush();
             return $this->redirect($Route);
