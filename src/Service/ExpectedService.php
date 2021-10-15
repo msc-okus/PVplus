@@ -106,9 +106,9 @@ class ExpectedService
                 foreach($weatherArray[$currentWeatherStation->getDatabaseIdent()] as $weather) {
 
                     $stamp      = $weather["stamp"];
-                    $pannelTemp = $weather["panel_temp"];   // Pannel Temperatur
-                    $irrUpper   = $weather["irr_upper"];    // Strahlung an obern Sensor
-                    $irrLower   = $weather["irr_lower"];    // Strahlung an unterem Sensor
+                    $pannelTemp = (float)$weather["panel_temp"];   // Pannel Temperatur
+                    $irrUpper   = (float)$weather["irr_upper"];    // Strahlung an obern Sensor
+                    $irrLower   = (float)$weather["irr_lower"];    // Strahlung an unterem Sensor
 
                     // Strahlung berechnen, für Analgen die KEINE 'Ost/West' Ausrichtung haben
                     if ($anlage->getUseLowerIrrForExpected()) {
