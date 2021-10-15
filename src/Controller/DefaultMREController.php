@@ -21,7 +21,7 @@ use PDO;
 class DefaultMREController extends BaseController
 {
     use G4NTrait;
-    private $urlGenerator;
+    private UrlGeneratorInterface $urlGenerator;
 
     public function __construct(UrlGeneratorInterface $urlGenerator)
     {
@@ -31,15 +31,15 @@ class DefaultMREController extends BaseController
     /**
      * @Route("/mr/bavelse/export")
      */
-    public function bavelseIrrExport(ExportService $bavelseExport, AnlagenRepository $anlagenRepository ): Response
+    public function bavelseExport(ExportService $bavelseExport, AnlagenRepository $anlagenRepository ): Response
     {
         $output = '';
 
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => '97']);
 
-        $from = date_create('2021-07-01');
-        $to   = date_create('2021-07-31');
+        $from = date_create('2021-09-01');
+        $to   = date_create('2021-09-30');
         $output = $bavelseExport->gewichtetTagesstrahlung($anlage, $from, $to);
 
         return $this->render('cron/showResult.html.twig', [
