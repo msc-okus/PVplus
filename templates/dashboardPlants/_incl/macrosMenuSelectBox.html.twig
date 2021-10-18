@@ -1,31 +1,53 @@
 {# AC Power Diagramme #}
+{# AC1 #}
 {% macro acActPlant(form, aktAnlage) %}
-    <option value="ac_single" {% if form.selectedChart == 'ac_single' %}selected{% endif %} >AC - Actual & Expected, Plant&nbsp;[kWh]{% if is_granted('ROLE_DEV') %}[AC 1]{% endif %}</option>
+    <option value="ac_single" {% if form.selectedChart == 'ac_single' %}selected{% endif %} >AC Power - Actual & Expected, Plant&nbsp;[kWh] {% if is_granted('ROLE_DEV') %}[AC 1]{% endif %}</option>
 {% endmacro %}
 
+{# AC2 #}
 {% macro acActOverview(form, aktAnlage) %}
-    {% if is_granted('ROLE_ADMIN') %}
-        {% if aktAnlage.configType == 1 %}
-            <option value="ac_act_overview" {% if form.selectedChart == 'ac_act_overview' %}selected{% endif %}>
-                AC - Actual & Expected, Overview&nbsp;[kWh]{% if is_granted('ROLE_DEV') %}[AC 2]{% endif %}
-            </option>
-        {% endif %}
+    {% if aktAnlage.configType == 1 %}
+        <option value="ac_act_overview" {% if form.selectedChart == 'ac_act_overview' %}selected{% endif %}>
+            AC Power - Actual & Expected, Overview&nbsp;[kWh] {% if is_granted('ROLE_DEV') %}[AC 2]{% endif %}
+        </option>
     {% endif %}
 {% endmacro %}
 
+{# AC3 #}
 {% macro acActGroup(form, aktAnlage) %}
     <option value="ac_act_group" {% if form.selectedChart == 'ac_act_group' %}selected{% endif %}>
         {% if aktAnlage.configType == 1 %}
-            AC - Actual & Expected, Groups Overview
+            AC Power - Actual & Expected, Inverters
         {% elseif aktAnlage.configType == 2 %}
-            AC - Actual & Expected, Inverters
+            AC Power - Actual & Expected, Inverters
         {% elseif aktAnlage.configType == 3 %}
-            AC - Actual & Expected, Inverters
+            AC Power - Actual & Expected, Inverters
         {% elseif aktAnlage.configType == 4 %}
-            AC - Actual & Expected, Inverters
+            AC Power - Actual & Expected, Inverters
         {% endif %}
-        &nbsp;[kWh]{% if is_granted('ROLE_DEV') %}[AC 3]{% endif %}</option>
+        &nbsp;[kWh] {% if is_granted('ROLE_DEV') %}[AC 3]{% endif %}</option>
 {% endmacro %}
+
+{# AC5 #}
+{% macro acVoltage(form, aktAnlage) %}
+    <option value="ac_act_voltage" {% if form.selectedChart == 'ac_act_voltage' %}selected{% endif %}>AC Voltage&nbsp;- Inverters [V] {% if is_granted('ROLE_DEV') %}[AC 5]{% endif %}</option>
+{% endmacro %}
+
+{# AC6 #}
+{% macro acCurrent(form, aktAnlage) %}
+    <option value="ac_act_current" {% if form.selectedChart == 'ac_act_current' %}selected{% endif %}>AC Current&nbsp;- Inverter [A] {% if is_granted('ROLE_DEV') %}[AC 5]{% endif %}</option>
+{% endmacro %}
+
+{# AC7 #}
+{% macro acFrequency(form, aktAnlage) %}
+   <option value="ac_act_frequency" {% if form.selectedChart == 'ac_act_frequency' %}selected{% endif %}>AC Frequency - Inverter [Hz] {% if is_granted('ROLE_DEV') %}[AC 7]{% endif %}</option>
+{% endmacro %}
+
+{# AC8 #}
+{% macro acReactive(form, aktAnlage) %}
+    {% if is_granted('ROLE_G4N') %}<option value="reactive_power" {% if form.selectedChart == 'reactive_power' %}selected{% endif %}>AC Reactive Power&nbsp;- Inverter [kvar] {% if is_granted('ROLE_DEV') %}[AC 8]{% endif %}</option>{% endif %}
+{% endmacro %}
+
 
 
 {# DC Power Diagramme #}
@@ -34,16 +56,14 @@
 {% endmacro %}
 
 {% macro dcActOverview(form, aktAnlage) %}
-    {% if is_granted('ROLE_DEV') %}
-        {% if aktAnlage.configType == 1 %}
+    {% if aktAnlage.configType == 1 %}
+        <option value="dc_act_overview" {% if form.selectedChart == 'dc_act_overview' %}selected{% endif %}>DC - Actual & Expected, Overview&nbsp;[kWh]{% if is_granted('ROLE_DEV') %}[DC 2]{% endif %}</option>
+    {% elseif aktAnlage.configType == 2 %}
 
-        {% elseif aktAnlage.configType == 2 %}
+    {% elseif aktAnlage.configType == 3 %}
 
-        {% elseif aktAnlage.configType == 3 %}
-            <option value="dc_act_overview" {% if form.selectedChart == 'dc_act_overview' %}selected{% endif %}>DC - Actual & Expected, Overview&nbsp;[kWh]{% if is_granted('ROLE_DEV') %}[DC 2]{% endif %}</option>
-        {% elseif aktAnlage.configType == 4 %}
-            <option value="dc_act_overview" {% if form.selectedChart == 'dc_act_overview' %}selected{% endif %}>DC - Actual & Expected, Inverter&nbsp;[kWh]{% if is_granted('ROLE_DEV') %}[DC 2]{% endif %}</option>
-        {% endif %}
+    {% elseif aktAnlage.configType == 4 %}
+
     {% endif %}
 {% endmacro %}
 
@@ -90,7 +110,7 @@
 {% endmacro %}
 
 {% macro currentDcGroup(form, aktAnlage) %}
-    {% if aktAnlage.showGraphDcCurrGrp or is_granted('ROLE_ADMIN') %}
+    {% if aktAnlage.showGraphDcCurrGrp %}
         {% if aktAnlage.configType == 1 %}
             {# <option value="dc_current_group" {% if form.selectedChart == 'dc_current_group' %}selected{% endif %}>DC - Current, Group&nbsp;[A]{% if is_granted('ROLE_DEV') %}[Curr 2]{% endif %}</option> #}
         {% elseif aktAnlage.configType == 2 %}
@@ -142,11 +162,3 @@
 {% endmacro %}
 
 {# diverse Diagramme #}
-{# vergleicht AC mit DC Inverter Leistung, kann deshalb nur für Anlagen mit 'configType' 2 angezeigt werden #}
-{% macro inverterPerformance(form, aktAnlage) %}
-    {% if aktAnlage.configType == 2 %}
-        {# {% if aktAnlage.showInverterPerformance or is_granted('ROLE_ADMIN') %}  #}
-            <option value="inverter_performance" {% if form.selectedChart == 'inverter_performance' %}selected{% endif %}>Inverter Performance</option>
-        {# {% endif %} #}
-    {% endif %}
-{% endmacro %}

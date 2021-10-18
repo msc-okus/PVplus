@@ -20,6 +20,7 @@ use Knp\Component\Pager\PaginatorInterface;
 use koolreport\KoolReport;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -74,6 +75,29 @@ class ReportingController extends AbstractController
      */
     public function list(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo, ReportService $report, ReportEpcService $epcReport): Response
     {
+        if ($request->query->get('new-report') === 'yes') {
+            $reportType = $request->query->get('report-typ');
+            $reportMonth = $request->query->get('month');
+            $reportYear = $request->query->get('year');
+            $anlageId = $request->query->get('anlage-id');
+            $aktAnlagen = $anlagenRepo->findIdLike([$anlageId]);
+            switch ($reportType) {
+                case 'monthly':
+                    $output = $report->monthlyReport($aktAnlagen, $reportMonth, $reportYear, 0, 0, true, false, false);
+                    break;
+                case 'epc':
+                    $output = $epcReport->createEpcReport($aktAnlagen[0]);
+                    break;
+                case 'am':
+                    dump("Ist noch nicht fertig");
+                    break;
+            }
+            $request->query->set('report-typ', $reportType);
+            $request->query->set('month', $reportMonth);
+            $request->query->set('year', $reportYear);
+            $request->query->set('anlage-id', $anlageId);
+        }
+
         $session=$this->container->get('session');
         if($request->query->get('searchstatus')!=null & $request->query->get('searchstatus')!="")$searchstatus = $request->query->get('searchstatus');
         if($request->query->get('searchtype')!=null & $request->query->get('searchtype')!="")$searchtype = $request->query->get('searchtype');
@@ -124,7 +148,6 @@ class ReportingController extends AbstractController
         $session->set('month', $searchmonth);
         $anlagen = $anlagenRepo->findAll();
 
-
         return $this->render('reporting/list.html.twig', [
             'pagination' => $pagination,
             'anlagen'    => $anlagen,
@@ -139,7 +162,7 @@ class ReportingController extends AbstractController
     /**
      * @Route("/reporting/anlagen/find", name="app_admin_reports_find", methods="GET")
      */
-    public function find(AnlagenRepository $anlagenRepository, Request $request)
+    public function find(AnlagenRepository $anlagenRepository, Request $request): JsonResponse
     {
         $anlage = $anlagenRepository->findByAllMatching($request->query->get('query'));
         return $this->json([
@@ -169,9 +192,7 @@ class ReportingController extends AbstractController
 
         //Creating the route with the query
 
-
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked() ) ) {
-
             $successMessage = 'Plant data saved!';
             $em->persist($report);
             $em->flush();

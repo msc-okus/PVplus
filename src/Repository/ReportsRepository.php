@@ -46,9 +46,11 @@ class ReportsRepository extends ServiceEntityRepository
         if (! $this->security->isGranted('ROLE_G4N')) {
             /** @var User $user */
             $user = $this->security->getUser();
-            $accessList = $user->getAccessList();
-            $qb->andWhere('report.eigner in (:accessList)')
-                ->setParameter('accessList', $accessList);
+            $granted = explode(',', $user->getGrantedList());
+
+            $qb->andWhere("a.anlId IN (:granted)")
+                ->setParameter('granted', $granted)
+            ;
         }
 
         // schließe Archiv und falsche Reports aus

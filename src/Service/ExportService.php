@@ -30,6 +30,7 @@ class ExportService
     public function gewichtetTagesstrahlung(Anlage $anlage, DateTime $from, DateTime $to):string
     {
         $tempArray = [];
+        $availability = 0;
         $help = '<tr><th></th>';
         $output = "<b>" . $anlage->getAnlName() . "</b><br>";
         $output .= "<div class='table-scroll'><table><thead><tr><th>Datum</th>";
@@ -68,7 +69,7 @@ class ExportService
                 // TheoPower gewichtet berechnen
                 $output .= "<td><small>" . round($weather['upperIrr'] / 1000 / 4,2) . "</small></td><td><small>" . round($weather['lowerIrr'] / 1000 / 4,2) . "</small></td><td><small>".round($acPower['powerTheo'],2)."</small></td>";
 
-                // Aufsummieren der gewichteten Werte zum gesamt Wert
+                // Aufsummieren der gewichteten Werte zum Gesamtwert
                 $gewichteteTheoPower    += $acPower['powerTheo'];
                 $gewichteteStrahlung    += $groupAC->getGewichtungAnlagenPR() * $irradiation;
                 $availability            = $this->availabilityRepo->sumAvailabilityPerDay($anlage->getAnlId(), date('Y-m-d', $stamp));

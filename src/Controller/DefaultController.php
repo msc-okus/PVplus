@@ -23,7 +23,7 @@ class DefaultController extends BaseController
 {
     use G4NTrait;
 
-    private $urlGenerator;
+    private UrlGeneratorInterface $urlGenerator;
 
     public function __construct(UrlGeneratorInterface $urlGenerator)
     {

@@ -21,7 +21,8 @@ use PDO;
 class DefaultMREController extends BaseController
 {
     use G4NTrait;
-    private $urlGenerator;
+
+    private UrlGeneratorInterface $urlGenerator;
 
     public function __construct(UrlGeneratorInterface $urlGenerator)
     {
@@ -31,15 +32,15 @@ class DefaultMREController extends BaseController
     /**
      * @Route("/mr/bavelse/export")
      */
-    public function bavelseIrrExport(ExportService $bavelseExport, AnlagenRepository $anlagenRepository ): Response
+    public function bavelseExport(ExportService $bavelseExport, AnlagenRepository $anlagenRepository ): Response
     {
         $output = '';
 
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => '97']);
 
-        $from = date_create('2021-07-01');
-        $to   = date_create('2021-07-31');
+        $from = date_create('2021-09-01');
+        $to   = date_create('2021-09-30');
         $output = $bavelseExport->gewichtetTagesstrahlung($anlage, $from, $to);
 
         return $this->render('cron/showResult.html.twig', [
@@ -97,123 +98,6 @@ class DefaultMREController extends BaseController
         ]);
     }
 
-    /**
-     * @Route("/test/epc/report/{id}/{pdf}", defaults={"pdf"=false})
-     * @deprecated
-     */
-    public function epcReport($id, $pdf, AnlagenRepository $anlagenRepository, ReportEpcService $reportEpc, EntityManagerInterface $em, NormalizerInterface $serializer): Response
-    {
-        $output = '';
-        /** @var Anlage $anlage */
-        $anlagen = $anlagenRepository->findIdLike([$id]);
-        $anlage = $anlagen[0];
-        $currentDate = date('Y-m-d H-i');
-        $pdfFilename = 'EPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
-        $error = false;
-        switch ($anlage->getEpcReportType()) {
-            case 'prGuarantee' :
-                $reportArray = $reportEpc->reportPRGuarantee($anlage);
-                $report = new EPCMonthlyPRGuaranteeReport([
-                    'headlines' => [
-                        [
-                            'projektNr'     => $anlage->getProjektNr(),
-                            'anlage'        => $anlage->getAnlName(),
-                            'eigner'        => $anlage->getEigner()->getFirma(),
-                            'date'          => $currentDate,
-                            'kwpeak'        => $anlage->getKwPeak(),
-                        ],
-                    ],
-                    'main'          => $reportArray[0],
-                    'forecast'      => $reportArray[1],
-                    'pld'           => $reportArray[2],
-                    'header'        => $reportArray[3],
-                    'legend'        => $serializer->normalize($anlage->getLegendEpcReports()->toArray(), null, ['groups' => 'legend']),
-                    'forecast_real' => $reportArray['prForecast'],
-                    'formel'        => $reportArray['formel'],
-                ]);
-                break;
-            case 'yieldGuarantee':
-                $reportArray = $reportEpc->reportYieldGuarantee($anlage);
-
-                $report = new EPCMonthlyYieldGuaranteeReport([
-                    'headlines' => [
-                        [
-                            'projektNr'     => $anlage->getProjektNr(),
-                            'anlage'        => $anlage->getAnlName(),
-                            'eigner'        => $anlage->getEigner()->getFirma(),
-                            'date'          => $currentDate,
-                            'kwpeak'        => $anlage->getKwPeak(),
-                        ],
-                    ],
-                    'main'          => $reportArray[0],
-                    'forecast24'    => $reportArray[1],
-                    'header'        => $reportArray[2],
-                    'forecast_real' => $reportArray[3],
-                    'legend'        => $serializer->normalize($anlage->getLegendEpcReports()->toArray(), null, ['groups' => 'legend']),
-                ]);
-                break;
-            default:
-                $error = true;
-                $reportArray = [];
-                $report = null;
-        }
-
-        if (!$error) {
-            $output = $report->run()->render(true);
-
-            // Speichere Report als 'epc-reprt' in die Report Entity
-            if ($pdf) {
-                $reportEntity = new AnlagenReports();
-                $startDate = $anlage->getFacDateStart();
-                $endDate = $anlage->getFacDate();
-                $reportEntity
-                    ->setCreatedAt(new \DateTime())
-                    ->setAnlage($anlage)
-                    ->setEigner($anlage->getEigner())
-                    ->setReportType('epc-report')
-                    ->setStartDate(self::getCetTime('object'))
-                    ->setMonth(self::getCetTime('object')->sub(new \DateInterval('P1M'))->format('m'))
-                    ->setYear(self::getCetTime('object')->format('Y'))
-                    ->setEndDate($endDate)
-                    ->setRawReport($output)
-                    ->setContentArray($reportArray);
-                $em->persist($reportEntity);
-                $em->flush();
-            }
-
-            // erzeuge PDF mit CloudExport von KoolReport
-            if ($pdf) {
-                $secretToken = '2bf7e9e8c86aa136b2e0e7a34d5c9bc2f4a5f83291a5c79f5a8c63a3c1227da9';
-                $settings = [
-                    // 'useLocalTempFolder' => true,
-                    'pageWaiting' => 'networkidle2', //load, domcontentloaded, networkidle0, networkidle2
-                ];
-                $report->run();
-                $pdfOptions = [
-                    'format'                => 'A4',
-                    'landscape'             => true,
-                    'noRepeatTableFooter'   => false,
-                    'printBackground'       => true,
-                    'displayHeaderFooter'   => true,
-                ];
-                $report->cloudExport()
-                    ->chromeHeadlessio($secretToken)
-                    ->settings($settings)
-                    ->pdf($pdfOptions)
-                    ->toBrowser($pdfFilename);
-            }
-        } else {
-            $output = "<h1>Fehler: Es Ist kein Report ausgewählt.</h1>";
-        }
-
-
-        return $this->render('cron/showResult.html.twig', [
-            'headline'      => 'EPC Report',
-            'availabilitys' => '',
-            'output'        => $output,
-        ]);
-
-    }
 
     /**
      * @Route ("/test/olli")

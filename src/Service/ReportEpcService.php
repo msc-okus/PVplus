@@ -151,7 +151,7 @@ class ReportEpcService
 
     public function reportPRGuarantee(Anlage $anlage):array
     {
-        $anzahlMonate = ((int)$anlage->getEpcReportEnd()->format('Y') - (int)$anlage->getEpcReportStart()->format('Y')) * 12 + ((int)$anlage->getEpcReportEnd()->format('m') - (int)$anlage->getEpcReportStart()->format('m'));
+        $anzahlMonate = ((int)$anlage->getEpcReportEnd()->format('Y') - (int)$anlage->getEpcReportStart()->format('Y')) * 12 + ((int)$anlage->getEpcReportEnd()->format('m') - (int)$anlage->getEpcReportStart()->format('m')) + 1;
         $startYear = $anlage->getEpcReportStart()->format('Y');
 
         $currentMonth = (int)date('m');
@@ -173,7 +173,7 @@ class ReportEpcService
             $daysInStartMonth = (int)$anlage->getEpcReportStart()->format('j');
             $daysInEndMonth = (int)$anlage->getEpcReportEnd()->format('j');
 
-            for ($n = 1; $n <= $anzahlMonate+1; $n++) {
+            for ($n = 1; $n <= $anzahlMonate; $n++) {
                 if ($month >= 13) {
                     $month = 1;
                     $year++;
@@ -193,14 +193,14 @@ class ReportEpcService
                         $forecastDateText   = date('My', strtotime("$year-$month-1")) . ' - ';
                         $realDateText       = date('My', strtotime("$year-$month-1")) . ' - ';
                         break;
-                    case $anzahlMonate+1:
+                    case $anzahlMonate:
                         $days = $daysInEndMonth;
                         $to = date('Y-m-d', strtotime("$year-$month-$facEndDay 23:59"));
                         $prArray = $this->PRCalulation->calcPR($anlage, date_create($from), date_create($to));
                         $ertragPvSyst = $anlage->getOneMonthPvSyst($month)->getErtragDesign() / $daysInMonth * $days;
                         $prDesignPvSyst = $anlage->getOneMonthPvSyst($month)->getPrDesign();
                         $forecastDateText   .= date('My', strtotime("$year-$month-1"));
-                        $realDateText       .= $realDateTextEnd;
+                        // $realDateText       .= $realDateTextEnd; // Verschobne in Zeile 305
                         break;
                     default:
                         $days = $daysInMonth;
@@ -221,7 +221,7 @@ class ReportEpcService
                     $prReal = $this->format($pr->getPrEvuMonth());
                     switch ($n) {
                         case 1:
-                        case $anzahlMonate + 1:
+                        case $anzahlMonate:
                             $prReal         = $prArray['prEvu'];
                             $eGridReal      = $prArray['powerEvu'];
                             $irrMonth       = $prArray['irradiation'];
@@ -302,6 +302,7 @@ class ReportEpcService
                     if ($counter > 24) $counter = 24;
                 }
                 if ($run === 2) {// Monatswerte berechnen
+                    if ($n == $anzahlMonate) $realDateText .= $realDateTextEnd;
                     $sumSpezErtragDesign = $sumErtragDesign / (float)$anlage->getKwPeakPvSyst();
                     $anteil              = $spezErtragDesign / $sumSpezErtragDesign;
                     $sumAnteil          += $anteil;
@@ -465,7 +466,7 @@ class ReportEpcService
 
     public function reportYieldGuarantee(Anlage $anlage):array
     {
-        $anzahlMonate = ((int)$anlage->getEpcReportEnd()->format('Y') - (int)$anlage->getEpcReportStart()->format('Y')) * 12 + ((int)$anlage->getEpcReportEnd()->format('m') - (int)$anlage->getEpcReportStart()->format('m'));
+        $anzahlMonate = ((int)$anlage->getEpcReportEnd()->format('Y') - (int)$anlage->getEpcReportStart()->format('Y')) * 12 + ((int)$anlage->getEpcReportEnd()->format('m') - (int)$anlage->getEpcReportStart()->format('m')) + 1;
         $startYear = $anlage->getEpcReportStart()->format('Y');
         $endYear = $anlage->getEpcReportEnd()->format('Y');
         $yearCount = $endYear - $startYear;
@@ -503,7 +504,7 @@ class ReportEpcService
                 $daysInEndMonth = (int)$anlage->getFacDate()->format('j');
             }
 
-            for ($n = 1; $n <= $anzahlMonate+1; $n++) {
+            for ($n = 1; $n <= $anzahlMonate; $n++) {
                 if ($month >= 13) {
                     $month = 1;
                     $year++;
@@ -538,7 +539,7 @@ class ReportEpcService
                         $forecastDateText   = date('My', strtotime("$year-$month-1")) . ' - ';
                         $realDateText       = date('My', strtotime("$year-$month-1")) . ' - ';
                         break;
-                    case $anzahlMonate+1:
+                    case $anzahlMonate:
                         $days = $daysInEndMonth;
                         $to = date('Y-m-d', strtotime("$year-$month-$facEndDay 23:59"));
                         $prArray = $this->PRCalulation->calcPR($anlage, date_create($from), date_create($to));
@@ -576,7 +577,7 @@ class ReportEpcService
                 if ($pr) {
                     switch ($n) {
                         case 1:
-                        case $anzahlMonate + 1:
+                        case $anzahlMonate:
                             $prReal     = $prArray['prEvu'];
                             $eGridReal  = $prArray['powerEvu'];
                             $irrMonth   = $prArray['irradiation'];

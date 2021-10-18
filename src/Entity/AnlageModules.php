@@ -286,12 +286,12 @@ class AnlageModules
         return ($irr > 0) ? ($a * $irr ** 2) + ($b * $irr) + $c : 0; //
     }
 
-    public function getTempCorrPower(float $pannelTemp):float
+    public function getTempCorrPower(float $pannelTemp): float
     {
         return (float)(1 + ($this->getTempCoefPower() * ($pannelTemp - 25) / 100));
     }
 
-    public function getTempCorrCurrent(float $pannelTemp):float
+    public function getTempCorrCurrent(float $pannelTemp): float
     {
         return (float)(1 + ($this->getTempCoefCurrent() * ($pannelTemp - 25) / 100));
     }
