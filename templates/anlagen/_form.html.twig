@@ -193,15 +193,21 @@
                                 </div>
                             </fieldset>
                             <fieldset class="fieldset">
-                                <legend>diverses</legend>
-                                {{ form_row(anlageForm.minIrradiationAvailability) }}
-                                {{ form_row(anlageForm.useGridMeterDayData) }}
+                                <legend>PA Berechnung</legend>
+                                <div class="grid-x grid-padding-x">
+                                    <div class="cell medium-4"><label>Schwellwert 1 im Moment fix bei 0W</label></div>
+                                    <div class="cell medium-4">{{ form_row(anlageForm.minIrradiationAvailability) }}</div>
+                                    <div class="cell medium-4"><label>Schwellwert 3 für ti,theo (existiert noch nicht)</label></div>
+                                </div>
+
                             </fieldset>
                             <fieldset class="fieldset">
                                 <legend>config</legend>
+                                {{ form_row(anlageForm.useGridMeterDayData) }}
                                 {{ form_row(anlageForm.hasDc) }}
                                 {{ form_row(anlageForm.hasStrings) }}
                                 {{ form_row(anlageForm.hasPannelTemp) }}
+                                {{ form_row(anlageForm.useCosPhi) }}
                             </fieldset>
                         </div>
 
@@ -344,7 +350,6 @@
                                 {{ form_row(anlageForm.anlHidePlant) }}
                                 {{ form_row(anlageForm.anlMute) }}
                                 {{ form_row(anlageForm.anlMuteUntil) }}
-                                {{ form_row(anlageForm.useCosPhi) }}
                                 {{ form_row(anlageForm.calcPR) }}
                             </fieldset>
                         </div>

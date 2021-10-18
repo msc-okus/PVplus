@@ -70,10 +70,10 @@ class AnlageFormType extends AbstractType
             '-5'    => '-5',
         ];
         $prArray = [
-            'No Cust PR'    => 'no',
-            'Groningen'     => 'Groningen',
-            'Veendam'       => 'Veendam',
-            'Lelystad'     => 'Lelystad',
+            'No Cust PR'                => 'no',
+            'Groningen'                 => 'Groningen',
+            'Veendam'                   => 'Veendam',
+            'Lelystad (Temp Korrektur)' => 'Lelystad',
         ];
         $epcReportArry = [
             'Kein Bericht'      => 'no',
@@ -307,8 +307,8 @@ class AnlageFormType extends AbstractType
             ])
 
             ->add('minIrradiationAvailability', TextType::class, [
-                'label'         => 'minimum Strahlung ab der Verfügbarkeit berechnet werden soll [Watt] (fallback value 50W)',
-                'help'          => '[minIrradiationAvailability]',
+                'label'         => 'min Irr. ab der PA berechnet werden soll [Watt] ',
+                'help'          => '[minIrradiationAvailability] (ti / Schwellwert 2)',
                 'label_html'    => true,
             ])
             ->add('useGridMeterDayData', ChoiceType::class, [
