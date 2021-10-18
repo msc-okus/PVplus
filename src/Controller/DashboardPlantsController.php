@@ -53,7 +53,7 @@ class DashboardPlantsController extends BaseController
         }
 
         // Verarbeitung der Case 5 Ereignisse
-        if ($request->request->get('mysubmit') == 'yes' || $request->request->get('addCase5') === 'addCase5') {
+        if ($request->request->get('mysubmit') === 'yes' || $request->request->get('addCase5') === 'addCase5') {
             $currentYear = date("Y");
             $currentMonth = date("m");
             $currentDay = date("d");
@@ -77,32 +77,34 @@ class DashboardPlantsController extends BaseController
             $form['optionDate'] = $request->request->get('optionDate');
             $form['backFromMonth'] = false;
 
-            if ($form['optionDate'] == 100000){
-                $_SESSION['currentMonth'] = true;
-                $_SESSION['lastFormFrom'] = date("Y-m-d 00:00", strtotime($request->request->get('to')) - (86400 * ($_SESSION['optionDate'] - 1)));
-                $_SESSION['lastFormTo'] = date("Y-m-d 23:59", strtotime(date("Y-m-d", strtotime($request->request->get('to')))));
-                $daysInMonth = cal_days_in_month(CAL_GREGORIAN, date("m", strtotime($request->request->get('to'))), date("Y", strtotime($request->request->get('to'))));
-                $form['to'] = date("Y-m-d 23:59", strtotime(date("Y-m", strtotime($request->request->get('to'))).'-'.$daysInMonth));
+            // optionDate == 100000 → Zeige Daten für den ganzen Monat, also vom ersten bis zum letzten Tages des ausgewäten Monats
+            if ($form['optionDate'] === 100000){
+                $_SESSION['currentMonth']   = true;
+                $_SESSION['lastFormFrom']   = date("Y-m-d 00:00", strtotime($request->request->get('from')));
+                $_SESSION['lastFormTo']     = date("Y-m-d 23:59", strtotime($request->request->get('to')));
+                //$daysInMonth              = cal_days_in_month(CAL_GREGORIAN, date("m", strtotime($request->request->get('to'))), date("Y", strtotime($request->request->get('to'))));
+                $daysInMonth                = date("t", strtotime($request->request->get('to')));
+                $form['to']                 = date("Y-m-d 23:59", strtotime(date("Y-m", strtotime($request->request->get('to'))).'-'.$daysInMonth));
             } else {
                 if (isset($_SESSION['currentMonth']) && $_SESSION['currentMonth'] === true) {
-                    $form['backFromMonth'] = true;
-                    $form['to'] =  $_SESSION['lastFormTo'];
+                    $form['backFromMonth']  = true;
+                    $form['to']             = $_SESSION['lastFormTo'];
+                    $form['from']           = $_SESSION['lastFormFrom'];
                 } else {
-                    $form['to'] =  $request->request->get('to');
+                    $form['to']             = $request->request->get('to');
                 }
             }
 
             // ergänze um Uhrzeit
-            if ( strlen($form['to']) <= 10 ) {$form['to'] = $form['to'] . " 23:59"; }
+            if (strlen($form['to']) <= 10) {$form['to'] = $form['to'] . " 23:59"; }
             // bei den PA und PR Diagramm werden immer mindestens 7 Tage angezeigt
-            if ($form['selectedChart'] == 'pr_and_av'    && $form['optionDate'] < 7) { $form['optionDate'] =  '7'; }
+            if ($form['selectedChart'] == 'pr_and_av'    && $form['optionDate'] < 7) { $form['optionDate'] = 7; }
             // bei Verfügbarkeit Anzeige kann nur ein Tag angezeigt werden
-            if ($form['selectedChart'] == 'availability' && $form['optionDate'] > 1) { $form['optionDate'] =  '1'; }
+            if ($form['selectedChart'] == 'availability' && $form['optionDate'] > 1) { $form['optionDate'] = 1; }
 
-            if ($form['optionDate'] == 100000) {
+            if ($form['optionDate'] === 100000) {
                 $form['from'] = date("Y-m-d 00:00", strtotime(date("Y-m", strtotime($request->request->get('to')))));
             } else {
-                //
                 if ($form['backFromMonth']) {
                     $form['from'] =  $_SESSION['lastFormFrom'];
                     $_SESSION['currentMonth'] = false;
