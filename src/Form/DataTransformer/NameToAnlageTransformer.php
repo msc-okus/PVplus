@@ -18,8 +18,8 @@ class NameToAnlageTransformer implements DataTransformerInterface
     public function transform($value)
     {
         if($value === null) return '';
-     //   if(!value instanceof Anlage) throw new \LogicException('this method can only be used with Anlage type');
-        return $value->getAnlagenId();
+        if(!$value instanceof Anlage) throw new \LogicException('this method can only be used with Anlage type');
+        return $value->getAnlName();
     }
 
     public function reverseTransform($value)
