@@ -32,6 +32,44 @@ class ReportingController extends AbstractController
 {
     use G4NTrait;
 
+
+    /**
+     * @Route("/reporting/create", name="app_reporting_create")
+     */
+    public function create(Request $request, AnlagenRepository $anlagenRepo, ReportService $report, ReportEpcService $epcReport){
+
+        $session=$this->container->get('session');
+
+        $searchstatus=$session->get('search');
+        $searchtype=$session->get('type');
+        $anlageq=$session->get('anlage');
+        $searchmonth=$session->get('month');
+        $Route = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
+        $Route = $Route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
+        $reportType = $request->query->get('report-typ');
+        $reportMonth = $request->query->get('month');
+        $reportYear = $request->query->get('year');
+        $anlageId = $request->query->get('anlage-id');
+        $aktAnlagen = $anlagenRepo->findIdLike([$anlageId]);
+        switch ($reportType){
+            case 'monthly':
+                $output = $report->monthlyReport($aktAnlagen, $reportMonth, $reportYear, 0, 0, true, false, false);
+                break;
+            case 'epc':
+                $output = $epcReport->createEpcReport($aktAnlagen[0]);
+                break;
+            case 'am':
+                dump("Ist noch nicht fertig");
+                break;
+        }
+        $request->query->set('report-typ', $reportType);
+        $request->query->set('month', $reportMonth);
+        $request->query->set('year', $reportYear);
+        $request->query->set('anlage-id', $anlageId);
+
+
+        return $this->redirect($Route);
+    }
     /**
      * @Route("/reporting", name="app_reporting_list")
      */
@@ -66,6 +104,36 @@ class ReportingController extends AbstractController
         if($request->query->get('searchmonth')!=null & $request->query->get('searchmonth')!="")$searchmonth = $request->query->get('searchmonth');
         if($request->query->get('qr')!=null & $request->query->get('qr')!="")$q = $request->query->get('qr');
         if($request->query->get('anlage')!=null & $request->query->get('anlage')!="")$anlage = $request->query->get('anlage');
+
+        if($request->query->get('new-report') === 'yes') {
+            $searchstatus = $session->get('search');
+            $searchtype =$session->get('type');
+            $searchmonth = $session->get('month');
+            $anlage = $session->get('anlage');
+            $reportType = $request->query->get('report-typ');
+            $reportMonth = $request->query->get('month');
+            $reportYear = $request->query->get('year');
+            $anlageId = $request->query->get('anlage-id');
+            $aktAnlagen = $anlagenRepo->findIdLike([$anlageId]);
+            switch ($reportType){
+                case 'monthly':
+                    $output = $report->monthlyReport($aktAnlagen, $reportMonth, $reportYear, 0, 0, true, false, false);
+                    break;
+                case 'epc':
+                    $output = $epcReport->createEpcReport($aktAnlagen[0]);
+                    break;
+                case 'am':
+                    dump("Ist noch nicht fertig");
+                    break;
+            }
+
+
+
+            $request->query->set('report-typ', $reportType);
+            $request->query->set('month', $reportMonth);
+            $request->query->set('year', $reportYear);
+            $request->query->set('anlage-id', $anlageId);
+        }
 
         $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($anlage,$searchstatus,$searchtype,$searchmonth);
 
