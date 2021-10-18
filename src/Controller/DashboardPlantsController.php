@@ -78,13 +78,15 @@ class DashboardPlantsController extends BaseController
             $form['backFromMonth'] = false;
 
             // optionDate == 100000 → Zeige Daten für den ganzen Monat, also vom ersten bis zum letzten Tages des ausgewäten Monats
-            if ($form['optionDate'] === 100000){
+            if ($form['optionDate'] == 100000){
                 $_SESSION['currentMonth']   = true;
                 $_SESSION['lastFormFrom']   = date("Y-m-d 00:00", strtotime($request->request->get('from')));
                 $_SESSION['lastFormTo']     = date("Y-m-d 23:59", strtotime($request->request->get('to')));
                 //$daysInMonth              = cal_days_in_month(CAL_GREGORIAN, date("m", strtotime($request->request->get('to'))), date("Y", strtotime($request->request->get('to'))));
                 $daysInMonth                = date("t", strtotime($request->request->get('to')));
-                $form['to']                 = date("Y-m-d 23:59", strtotime(date("Y-m", strtotime($request->request->get('to'))).'-'.$daysInMonth));
+                //$form['to']                 = date("Y-m-d 23:59", strtotime(date("Y-m", strtotime($request->request->get('to'))).'-'.$daysInMonth));
+                $form['to']                 = date("Y-m-$daysInMonth 23:59", strtotime($request->request->get('to')));
+                $form['from']               = date("Y-m-01 00:00", strtotime($request->request->get('to')));
             } else {
                 if (isset($_SESSION['currentMonth']) && $_SESSION['currentMonth'] === true) {
                     $form['backFromMonth']  = true;
@@ -102,8 +104,8 @@ class DashboardPlantsController extends BaseController
             // bei Verfügbarkeit Anzeige kann nur ein Tag angezeigt werden
             if ($form['selectedChart'] == 'availability' && $form['optionDate'] > 1) { $form['optionDate'] = 1; }
 
-            if ($form['optionDate'] === 100000) {
-                $form['from'] = date("Y-m-d 00:00", strtotime(date("Y-m", strtotime($request->request->get('to')))));
+            if ($form['optionDate'] == 100000) {
+                //$form['from'] = date("Y-m-d 00:00", strtotime(date("Y-m", strtotime($request->request->get('to')))));
             } else {
                 if ($form['backFromMonth']) {
                     $form['from'] =  $_SESSION['lastFormFrom'];
@@ -117,6 +119,7 @@ class DashboardPlantsController extends BaseController
 
         $_SESSION['optionDate'] = $form['optionDate'];
         $content = null;
+        dump($request->request->get('to'), $form['to'], $form['from'] );
         if ($aktAnlage) $content = $chartService->getGraphsAndControl($form, $aktAnlage);
         $isInTimeRange = self::isInTimeRange();
 
