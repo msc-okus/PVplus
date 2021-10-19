@@ -59,7 +59,7 @@ class AvailabilityService
             }
 
             // prüfe ob minimum Strahlung für Verfügbarkeit eingetragen, wenn Ja nutze diese – ansonsten standard Wert 50 Watt nutzen
-            ($anlage->getMinIrradiationAvailability() != null && $anlage->getMinIrradiationAvailability() > 0) ? $minStrahlung = $anlage->getMinIrradiationAvailability() : $minStrahlung = 50; // Watt / qm
+            ($anlage->getThreshold2PA() != null && $anlage->getThreshold2PA() > 0) ? $minStrahlung = $anlage->getThreshold2PA() : $minStrahlung = 50; // Watt / qm
 
             // Verfügbarkeit Berechnen und in Hilfsarray speichern
             $availabilitysHelper = $this->checkAvailabilityInverter($anlage, $timestampModulo, $timesConfig, $minStrahlung);
@@ -139,7 +139,6 @@ class AvailabilityService
      * @param Anlage $anlage
      * @param $timestampModulo
      * @param TimesConfig $timesConfig
-     * @param int $minStrahlungModul minimale einstrahlung ab der Leistung zur Verfügung stehen muss
      * @return array
      * CASE 1 = wenn Gmod > 0 && Gmod < 50
      * CASE 2 = wenn Gmod >= 50 && PowerAc inverter > 0
@@ -148,12 +147,14 @@ class AvailabilityService
      * CASE 5 = Manuel, durch Operator herausgenommen (z.B.: wegen Wartung)
      * CONTROL = wenn Gmod > 0
      */
-    public function checkAvailabilityInverter(Anlage $anlage, $timestampModulo, TimesConfig $timesConfig, int $minStrahlungModul = 50):array
+    public function checkAvailabilityInverter(Anlage $anlage, $timestampModulo, TimesConfig $timesConfig):array
     {
         $conn = self::getPdoConnection();
         $case3Helper = [];
         $availability = [];
         $case5 = false;
+        $threshold1PA = $anlage->getThreshold1PA();
+        $threshold2PA = $anlage->getThreshold2PA();
 
         $from   = date("Y-m-d ".$timesConfig->getStartTime()->format('H:i'), $timestampModulo);
         $to     = date("Y-m-d ".$timesConfig->getEndTime()->format('H:i'), $timestampModulo);
@@ -217,7 +218,7 @@ class AvailabilityService
                         ($strahlung > 0 && isset($case5Array[$inverter][$stamp])) ? $case5 = true : $case5 = false;
 
                         // Case 1
-                        if ($strahlung > 0 && $strahlung < $minStrahlungModul && $case5 === false) {
+                        if ($strahlung > $threshold1PA && $strahlung < $threshold2PA && $case5 === false) {
                             $availability[$inverter]['case1']++;
                             if ($case3Helper[$inverter] < $maxFailTime) {
                                 $availability[$inverter]['case3'] -= $case3Helper[$inverter] / 15;
@@ -226,7 +227,7 @@ class AvailabilityService
                             $case3Helper[$inverter] = 0;
                         }
                         // Case 2
-                        if ($strahlung >= $minStrahlungModul && $powerAc > 0 && $case5 === false) {
+                        if ($strahlung >= $threshold2PA && $powerAc > 0 && $case5 === false) {
                             $availability[$inverter]['case2']++;
 
                             if ($case3Helper[$inverter] < $maxFailTime) {
@@ -236,12 +237,12 @@ class AvailabilityService
                             $case3Helper[$inverter] = 0;
                         }
                         // Case 3
-                        if ($strahlung >= $minStrahlungModul && $powerAc <= 0 && $case5 === false) {
+                        if ($strahlung >= $threshold2PA && $powerAc <= 0 && $case5 === false) {
                             $availability[$inverter]['case3']++;
                             $case3Helper[$inverter] += 15;
                         }
                         // Case 4
-                        if ($strahlung >= $minStrahlungModul && $powerAc > 0 && $cosPhi == 0 && $case5 === false) {
+                        if ($strahlung >= $threshold2PA && $powerAc > 0 && $cosPhi == 0 && $case5 === false) {
                             $availability[$inverter]['case4']++;
                             if ($case3Helper[$inverter] < $maxFailTime) {
                                 $availability[$inverter]['case3'] -= $case3Helper[$inverter] / 15;
@@ -250,11 +251,11 @@ class AvailabilityService
                             $case3Helper[$inverter] = 0;
                         }
                         // Case 5
-                        if ($strahlung > 0 && $case5 === true) {
+                        if ($strahlung > $threshold1PA && $case5 === true) {
                             $availability[$inverter]['case5']++;
                         }
                         // Control
-                        if ($strahlung > 0) {
+                        if ($strahlung > $threshold1PA) {
                             $availability[$inverter]['control']++;
                         }
                     }

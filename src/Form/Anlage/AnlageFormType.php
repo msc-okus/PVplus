@@ -305,10 +305,14 @@ class AnlageFormType extends AbstractType
                 'empty_data'    => '3.0',
                 'disabled'      => !$isDeveloper,
             ])
-
-            ->add('minIrradiationAvailability', TextType::class, [
+            ->add('threshold1PA', TextType::class, [
+                'label'         => 'unterer Schwellwert (normal 0) [Watt] ',
+                'help'          => '[threshold1PA] (ti,theo / Schwellwert 1)',
+                'label_html'    => true,
+            ])
+            ->add('threshold2PA', TextType::class, [
                 'label'         => 'min Irr. ab der PA berechnet werden soll [Watt] ',
-                'help'          => '[minIrradiationAvailability] (ti / Schwellwert 2)',
+                'help'          => '[threshold2PA] (ti / Schwellwert 2)',
                 'label_html'    => true,
             ])
             ->add('useGridMeterDayData', ChoiceType::class, [

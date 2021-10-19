@@ -507,7 +507,12 @@ class Anlage
     /**
      * @ORM\Column(type="string", length=20, nullable=true)
      */
-    private ?string $minIrradiationAvailability = '50';
+    private ?string $threshold1PA = '0';
+
+    /**
+     * @ORM\Column(name="min_irradiation_availability", type="string", length=20, nullable=true)
+     */
+    private ?string $threshold2PA = '50';
 
     /**
      * @ORM\OneToMany(targetEntity=TimesConfig::class, mappedBy="anlage", cascade={"persist", "remove"})
@@ -2124,12 +2129,36 @@ class Anlage
 
     public function getMinIrradiationAvailability(): ?string
     {
-        return $this->minIrradiationAvailability;
+        return $this->threshold2PA;
     }
 
     public function setMinIrradiationAvailability(?string $minIrradiationAvailability): self
     {
-        $this->minIrradiationAvailability =  str_replace(',', '.', $minIrradiationAvailability);
+        $this->threshold2PA =  str_replace(',', '.', $minIrradiationAvailability);
+
+        return $this;
+    }
+
+    public function getThreshold1PA(): ?string
+    {
+        return $this->threshold1PA;
+    }
+
+    public function setThreshold1PA(?string $threshold1PA): self
+    {
+        $this->threshold1PA =  str_replace(',', '.', $threshold1PA);
+
+        return $this;
+    }
+
+    public function getThreshold2PA(): ?string
+    {
+        return $this->threshold2PA;
+    }
+
+    public function setThreshold2PA(?string $threshold2PA): self
+    {
+        $this->threshold2PA =  str_replace(',', '.', $threshold2PA);
 
         return $this;
     }
