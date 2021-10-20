@@ -75,29 +75,6 @@ class ReportingController extends AbstractController
      */
     public function list(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo, ReportService $report, ReportEpcService $epcReport): Response
     {
-        if ($request->query->get('new-report') === 'yes') {
-            $reportType = $request->query->get('report-typ');
-            $reportMonth = $request->query->get('month');
-            $reportYear = $request->query->get('year');
-            $anlageId = $request->query->get('anlage-id');
-            $aktAnlagen = $anlagenRepo->findIdLike([$anlageId]);
-            switch ($reportType) {
-                case 'monthly':
-                    $output = $report->monthlyReport($aktAnlagen, $reportMonth, $reportYear, 0, 0, true, false, false);
-                    break;
-                case 'epc':
-                    $output = $epcReport->createEpcReport($aktAnlagen[0]);
-                    break;
-                case 'am':
-                    dump("Ist noch nicht fertig");
-                    break;
-            }
-            $request->query->set('report-typ', $reportType);
-            $request->query->set('month', $reportMonth);
-            $request->query->set('year', $reportYear);
-            $request->query->set('anlage-id', $anlageId);
-        }
-
         $session=$this->container->get('session');
         if($request->query->get('searchstatus')!=null & $request->query->get('searchstatus')!="")$searchstatus = $request->query->get('searchstatus');
         if($request->query->get('searchtype')!=null & $request->query->get('searchtype')!="")$searchtype = $request->query->get('searchtype');
@@ -105,11 +82,13 @@ class ReportingController extends AbstractController
         if($request->query->get('qr')!=null & $request->query->get('qr')!="")$q = $request->query->get('qr');
         if($request->query->get('anlage')!=null & $request->query->get('anlage')!="")$anlage = $request->query->get('anlage');
 
-        if($request->query->get('new-report') === 'yes') {
+
+        if($request->query->get('new-report') === 'yes' ) {
             $searchstatus = $session->get('search');
             $searchtype =$session->get('type');
             $searchmonth = $session->get('month');
             $anlage = $session->get('anlage');
+            $new = $request->query->get('new-report');
             $reportType = $request->query->get('report-typ');
             $reportMonth = $request->query->get('month');
             $reportYear = $request->query->get('year');
@@ -125,15 +104,19 @@ class ReportingController extends AbstractController
                 case 'am':
                     dump("Ist noch nicht fertig");
                     break;
+
             }
-
-
-
+            $request->query->set('new-report', 'no');
+            //dd($q);
             $request->query->set('report-typ', $reportType);
             $request->query->set('month', $reportMonth);
             $request->query->set('year', $reportYear);
             $request->query->set('anlage-id', $anlageId);
-        }
+
+            $Route = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
+            $Route = $Route."?anlage=".$anlage."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
+            return $this->redirect($Route);
+            }
 
         $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($anlage,$searchstatus,$searchtype,$searchmonth);
 
