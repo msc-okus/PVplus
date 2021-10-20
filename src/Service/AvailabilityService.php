@@ -6,6 +6,7 @@ use App\Entity\TimesConfig;
 use App\Repository\TimesConfigRepository;
 use DateTime;
 use PDO;
+use Exception;
 use App\Entity\Anlage;
 use App\Entity\AnlageAvailability;
 use App\Helper\G4NTrait;
@@ -31,9 +32,12 @@ class AvailabilityService
         $this->timesConfigRepo = $timesConfigRepo;
     }
 
-    public function checkAvailability(Anlage $anlage, $date, $second = false)
+    /**
+     * @throws Exception
+     */
+    public function checkAvailability(Anlage $anlage, $date, $second = false): string
     {
-        // Suche pasende Zeitkonfiguration für diese Anlage und diese Datum
+        // Suche pasende Zeitkonfiguration für diese Anlage und dieses Datum
         /** @var TimesConfig $timesConfig */
         if ($second){
             $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'availability_second', date_create(date('Y-m-d H:m', $date)));
@@ -41,6 +45,7 @@ class AvailabilityService
             $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'availability_first', date_create(date('Y-m-d H:m', $date)));
         }
         $timestampModulo = $date;
+        //dump($timesConfig);
 
         $from = date("Y-m-d 04:00", $timestampModulo);
         $dayStamp = new DateTime($from);
@@ -58,11 +63,8 @@ class AvailabilityService
                 $output .= "Anlage: " . $anlage->getAnlId() . " / " . $anlage->getAnlName() . " - " . date("Y-m-d", $timestampModulo) . " - SECOND<br>";
             }
 
-            // prüfe ob minimum Strahlung für Verfügbarkeit eingetragen, wenn Ja nutze diese – ansonsten standard Wert 50 Watt nutzen
-            ($anlage->getThreshold2PA() != null && $anlage->getThreshold2PA() > 0) ? $minStrahlung = $anlage->getThreshold2PA() : $minStrahlung = 50; // Watt / qm
-
             // Verfügbarkeit Berechnen und in Hilfsarray speichern
-            $availabilitysHelper = $this->checkAvailabilityInverter($anlage, $timestampModulo, $timesConfig, $minStrahlung);
+            $availabilitysHelper = $this->checkAvailabilityInverter($anlage, $timestampModulo, $timesConfig);
 
             // DC Leistung der Inverter laden (aus AC Gruppen)
             if ($anlage->getUseNewDcSchema()) {
@@ -167,7 +169,7 @@ class AvailabilityService
         $sql_einstrahlung = "SELECT stamp, g_lower, g_upper, wind_speed FROM " . $anlage->getDbNameWeather() . " WHERE stamp BETWEEN '$from' AND '$to'";
         $resultEinstrahlung = $conn->query($sql_einstrahlung);
 
-        // Aus IstDaten und Strahlungsdaten die Tages Verfügbarkeit je Inverter berechnen
+        // Aus IstDaten und Strahlungsdaten die Tages-Verfügbarkeit je Inverter berechnen
         if ($resultEinstrahlung->rowCount() > 0) {
             if($anlage->getUseNewDcSchema()) {
                 $anzInverter = $anlage->getAcGroups()->count();
@@ -215,7 +217,7 @@ class AvailabilityService
                         (isset($istData[$stamp][$inverter]['cos_phi'])) ? $cosPhi = $istData[$stamp][$inverter]['cos_phi'] : $cosPhi = 0;
 
                         // Schaue in case5Array nach ob eintrag für diesen Inverter und diesen Timestamp vorhanden ist
-                        ($strahlung > 0 && isset($case5Array[$inverter][$stamp])) ? $case5 = true : $case5 = false;
+                        ($strahlung > $threshold1PA && isset($case5Array[$inverter][$stamp])) ? $case5 = true : $case5 = false;
 
                         // Case 1
                         if ($strahlung > $threshold1PA && $strahlung < $threshold2PA && $case5 === false) {

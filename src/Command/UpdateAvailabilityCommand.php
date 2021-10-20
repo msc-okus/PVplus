@@ -32,6 +32,7 @@ class UpdateAvailabilityCommand extends Command
     {
         $this
             ->setDescription('Berechnung der Verfügbarkeit (availability) ')
+            ->addArgument('plantid')
             ->addOption('day', null, InputOption::VALUE_REQUIRED, 'Tag (day) im Format \'yyyy-mm-dd\' für den, die \'Verfügbarkeit\' berechnet werden soll.')
             ->addOption('anlage', 'a', InputOption::VALUE_REQUIRED, 'Anlagen ID für die, die Berechnung ausgeführt werden soll')
             ->addOption('from', null, InputOption::VALUE_REQUIRED, 'Datum ab dem berechnet werden soll')
@@ -45,7 +46,8 @@ class UpdateAvailabilityCommand extends Command
         $ergebniss = '';
         $io = new SymfonyStyle($input, $output);
         $day = $input->getOption('day');
-        $anlageId = $input->getOption('anlage');
+//        $anlageId = $input->getOption('anlage');
+        $anlageId = $input->getArgument('plantid');
         $optionFrom = $input->getOption('from');
         $optionTo = $input->getOption('to');
 
