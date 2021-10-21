@@ -1,0 +1,224 @@
+<div class="cell medium-6">
+    <div id="headline_customer" style="border-bottom: solid 2px #00386d; text-align: right; width: 29.7cm;">
+        <img class="customer_logo" src="{{ customer_logo }}">
+    </div>
+    <div style="height:18cm; width: 29.7cm;" >
+        <h3 style="color: {{ font_color_second }};">Economics</h3>
+        <span class="subheadline" style="color: {{ font_color_third }};">Costs per month and year(todo:alle Werte dieser Tabelle sind nicht aktuell sondern nur zum Test)</span>
+
+        <table id="basetable" style="margin-top: -10px">
+            <tr>
+                <td colspan="2" style="text-align: left">
+                    <table class="asset_report_table_operations_data_small">
+                        <tbody>
+                        <tr>
+                            <td class="tr_next_columns"></td>
+                            {% for data in table_overview_monthly.powerEvu %}
+                                <td class="tr_next_columns">Plan</td>
+                            {% endfor %}
+                            <td class="tr_next_columns"></td>
+                        </tr>
+                        <tr style="font-weight: bold">
+                            <td class="tr_next_columns" style="background-color: #fff2cc;">costs per month and year [EUR]</td>
+                            {% for data in dataMonthArray %}
+                                <td class="tr_next_columns" style="background-color: #fff2cc;">{{ data }} {{ year }}</td>
+                            {% endfor %}
+                            <td class="tr_next_columns" style="background-color: #fff2cc; font-weight: bold">TOTAL</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns">O&M</td>
+                            {% set total = 0 %}
+                            {% for data in income_per_month.revenues_act %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns">Electricity</td>
+                            
+                            {% set total = 0 %}
+                            {% for data in income_per_month.PVSYST_plan_proceeds_EXP %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns">Technical dispatch (KEGOC)</td>
+                            
+                            {% set total = 0 %}
+                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns">TransTeleCom (cell equipment maintenance)</td>
+                            
+                            {% set total = 0 %}
+                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns">Security</td>
+                            
+                            {% set total = 0 %}
+                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns">Network service fee (ASTEL)</td>
+                            
+                            {% set total = 0 %}
+                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns">legal services</td>
+                            
+                            {% set total = 0 %}
+                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns">Accountancy and administration costs</td>
+                            
+                            {% set total = 0 %}
+                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns">Insurance</td>
+                            
+                            {% set total = 0 %}
+                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns">Other</td>
+                            
+                            {% set total = 0 %}
+                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr style="background-color: #e2efda!important; font-weight: bold;">
+                            <td class="tr_next_columns">TOTAL fixed costs</td>
+                            
+                            {% set total = 0 %}
+                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns">Variable 1</td>
+                            
+                            {% set total = 0 %}
+                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns">Variable 2</td>
+                            
+                            {% set total = 0 %}
+                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns">Variable 3</td>
+                            
+                            {% set total = 0 %}
+                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns">Variable 4</td>
+                            
+                            {% set total = 0 %}
+                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns">Variable 5</td>
+                            
+                            {% set total = 0 %}
+                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr style="background-color: #e2efda!important; font-weight: bold;">
+                            <td class="tr_next_columns">TOTAL variable costs</td>
+                            
+                            {% set total = 0 %}
+                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td colspan="14" style="line-height: 5px!important;"></td>
+                        </tr>
+                        <tr style="background-color: #d9d9d9!important; font-weight: bold;">
+                            <td class="tr_next_columns">TOTAL costs</td>
+                            
+                            {% set total = 0 %}
+                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: center!important;">
+                    {{ total_Costs_Per_Date|raw }}
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="footer_g4net">
+        <img class="g4n_logo" src="{{ baseurl }}/images/green4net.jpg">
+    </div>
+</div>

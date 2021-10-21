@@ -12,30 +12,30 @@
                 <td>
                     <table class="asset_report_table_operations_data" style="margin-top: -70px;">
                         <thead>
-                        <tr>
-                            <td colspan="5">
-                            <span class="subheadline" style="margin:0 !important; color: {{ font_color_third }};">EXP PVSYST vs. Actuals(Grid meter)</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th rowspan="3">Month</th>
-                            <th>Yield</th>
-                            <th>Exp.</th>
-                            <th>Difference</th>
-                            <th>Difference</th>
-                        </tr>
-                        <tr>
-                            <th>(Grid meter)</th>
-                            <th>PVSYST</th>
-                            <th>Yield-EXP</th>
-                            <th>Yield-EXP</th>
-                        </tr>
-                        <tr>
-                            <th>[kWh]</th>
-                            <th>[kWh]</th>
-                            <th>[kWh]</th>
-                            <th>[%]</th>
-                        </tr>
+                            <tr>
+                                <td colspan="5">
+                                <span class="subheadline" style="margin:0 !important; color: {{ font_color_third }};">EXP PVSYST vs. Actuals(Grid meter)</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th rowspan="3">Month</th>
+                                <th>Yield</th>
+                                <th>Exp.</th>
+                                <th>Difference</th>
+                                <th>Difference</th>
+                            </tr>
+                            <tr>
+                                <th>(Grid meter)</th>
+                                <th>PVSYST</th>
+                                <th>Yield-EXP</th>
+                                <th>Yield-EXP</th>
+                            </tr>
+                            <tr>
+                                <th>[kWh]</th>
+                                <th>[kWh]</th>
+                                <th>[kWh]</th>
+                                <th>[%]</th>
+                            </tr>
                         </thead>
                         <tbody>
                         <tr>
@@ -246,12 +246,147 @@
                         </tr>
                         </tbody>
                     </table>
+
+                    <table class="asset_report_table_operations_data" style="margin-bottom: 5px!important;">
+                        <thead>
+                        <tr>
+                            <td colspan="5">
+                                <span class="subheadline" style="margin:0 !important; color: {{ font_color_third }};">Inverter out vs. Actuals(Grid meter)</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th rowspan="3">Month</th>
+                            <th>Yield</th>
+                            <th>Inverter</th>
+                            <th>Difference</th>
+                            <th>Difference</th>
+                        </tr>
+                        <tr>
+                            <th>(Grid meter)</th>
+                            <th>out</th>
+                            <th>Yield-INV out</th>
+                            <th>Yield-INV out</th>
+                        </tr>
+                        <tr>
+                            <th>[kWh]</th>
+                            <th>[kWh]</th>
+                            <th>[kWh]</th>
+                            <th>[%]</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            {% for data in operations_monthly_right_iout_tr1 %}
+                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                                {% if loop.first %}
+                                    <td class="tr_first_column" {% if (loop.index == 5) %}style="background-color:{{ color }};" {% endif %}>{{ data }}</td>
+                                {% else %}
+                                    <td class="tr_next_columns" {% if (loop.index == 5) %}style="background-color:{{ color }};" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_first_column">Q I(Jan - Mar)</td>
+                            {% for data in operations_monthly_right_iout_tr2 %}
+                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                                <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }};" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_first_column">Q II(Apr - Jun)</td>
+                            {% for data in operations_monthly_right_iout_tr3 %}
+                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                                <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }};" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_first_column">Q III(Jul - Sep)</td>
+                            {% for data in operations_monthly_right_iout_tr4 %}
+                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                                <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }};" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_first_column">Q IV(Okt - Dez)</td>
+                            {% for data in operations_monthly_right_iout_tr5 %}
+                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                                <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }};" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_first_column">Year to date</td>
+                            {% for data in operations_monthly_right_iout_tr6 %}
+                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                                <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }};" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_first_column">Total runtime</td>
+                            {% for data in operations_monthly_right_iout_tr7 %}
+                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                                <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }};" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                            {% endfor %}
+                        </tr>
+                        </tbody>
+                    </table>
+                    <table class="legend_colors">
+                        <tr>
+                            <td rowspan="2">Explanation</td>
+                            <td>0-2%</td>
+                            <td>2,2-8%</td>
+                            <td>8,1-15%</td>
+                            <td>15,1-20%</td>
+                            <td>20%-</td>
+                        </tr>
+                        <tr>
+                            <td style="background-color: #00b050;">&nbsp;</td>
+                            <td style="background-color: #cee4c0;">&nbsp;</td>
+                            <td style="background-color: #ffff00;">&nbsp;</td>
+                            <td style="background-color: #ffc000;">&nbsp;</td>
+                            <td style="background-color: #cc0000;">&nbsp;</td>
+                        </tr>
+                    </table>
                 </td>
             </tr>
         </table>
     </div>
 
-    <div id="footer_g4net" style="border-top: solid 2px #fbba27; text-align: right; vertical-align: bottom; width: 29.7cm; padding-top: 5px">
-        <img class="g4n_logo" src="https://gs.g4npvplus.net/images/green4net.jpg">
+    <div class="footer_g4net">
+        <img class="g4n_logo" src="{{ baseurl }}/images/green4net.jpg">
     </div>
 </div>

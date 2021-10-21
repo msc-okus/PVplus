@@ -8,19 +8,19 @@
                     <div class="cell medium-12">
                         <table id="asset_report_table_header" width=680 border=1>
                             <tr>
-                                <td style="text-align: left; color: #0a156a;"><h1 style="font-family: Helvetica; font-size: 35px; border: none; padding-top:80px;">Asset Management <span style="color: #fbba00;">Solar</span></h1></td>
-                                <td id="customer_logo"><img src="https://gs.g4npvplus.net/goldbeck/reports/asset_management/goldbecksolar_logo.svg"> </td>
+                                <td style="text-align: left; color: #36639c;"><h1 style="font-family: Helvetica; font-size: 35px; border: none; padding-top:80px;">Asset Management <span style="color: #91bc5b;">Solar</span></h1></td>
+                                <td id="customer_logo"><img src="{{ baseurl }}/goldbeck/reports/asset_management/goldbecksolar_logo.svg"> </td>
                             </tr>
                             <tr>
-                                <td style="text-align: left"><img width="650" src="https://dev.g4npvplus.net/goldbeck/reports/asset_management/report_header.jpg"></td>
+                                <td style="text-align: left"><img width="650" src="{{ baseurl }}/goldbeck/reports/asset_management/report_header.jpg"></td>
                                 <td rowspan="2" style="vertical-align: bottom; text-align: left; padding-bottom: 40px !important;"><img width="250" src="https://dev.g4npvplus.net/goldbeck/reports/asset_management/report_header_down_right.jpg"></td>
                             </tr>
                             <tr>
                                 <td style="text-align: left; padding-top: 20px !important;">
-                                    <h2 style="font-family: Century Gothic; color: #8e99b0">Weekly/Monthly Report <span style="color: #fbba00;">Solar - {{ month }} {{ year }}</span></h2>
-                                    <h2 style="color: #9aacc3; margin-bottom: 30px;">Plant size: {{ plantSize }} kWp</h2>
-                                    <h2 style="color: #9aacc3">Kazakhstan Portfolio:</h2>
-                                    <p style="font-family: Century Gothic; color: #88a3bc; size:20px">
+                                    <h2 style="font-family: Century Gothic; color: #36639c">Weekly/Monthly Report <span style="color: #91bc5b;">Solar - {{ month }} {{ year }}</span></h2>
+                                    <h2 style="color: #36639c; margin-bottom: 30px;">Plant size: {{ plantSize }} kWp</h2>
+                                    <h2 style="color: #36639c">Kazakhstan Portfolio:</h2>
+                                    <p style="font-family: Century Gothic; color: #36639c; size:20px">
                                         SES SARAN<br>
                                         AKADYR<br>
                                         AKADYR EXTENTION
@@ -43,15 +43,13 @@
 
                 {% include 'report/_asset_mangement_partials/_monthley_production.html.twig'%}
 
-                {# {% include 'report/_asset_mangement_partials/_production_monthly_expected_vs_actuals.html.twig'%}
-
-                {% include 'report/_asset_mangement_partials/_production_dayly_expected_vs_actuals.html.twig'%}
+                {% include 'report/_asset_mangement_partials/_production_monthly_expected_vs_actuals.html.twig'%}
 
                 {% include 'report/_asset_mangement_partials/_availability_monthly_overview.html.twig'%}
 
-                {% include 'report/_asset_mangement_partials/_daily_availability_resolution_accordingtofailuregroups.html.twig'%}
+                {% include 'report/_asset_mangement_partials/_aufloesung_availibility_fuerr_den_act_monat.html.twig'%}
 
-                {% include 'report/_asset_mangement_partials/_availabilit_inverter_daily.html.twig'%}
+                {% include 'report/_asset_mangement_partials/_availability_inverter_daily.html.twig'%}
 
                 {% include 'report/_asset_mangement_partials/_string_currents_daily_difference_g4n_actuals.html.twig'%}
 
@@ -59,13 +57,13 @@
 
                 {% include 'report/_asset_mangement_partials/_economics_income_p_month.html.twig'%}
 
-                {% include 'report/_asset_mangement_partials/_economics_costs_per_mandy.html.twig'%}
+               {% include 'report/_asset_mangement_partials/_economics_costs_per_mandy.html.twig'%}
 
                 {% include 'report/_asset_mangement_partials/_economics_operating_statement.html.twig'%}
 
                 {% include 'report/_asset_mangement_partials/_economics_commulative_forecast.html.twig'%}
 
-                {% include 'report/_asset_mangement_partials/_economics_losses_operating_statement.html.twig'%}
+                {#  {% include 'report/_asset_mangement_partials/_economics_losses_operating_statement.html.twig'%}
 
                 {% include 'report/_asset_mangement_partials/_economics_commulative_losses_operating_statement.html.twig'%}#}
         {% endblock %}

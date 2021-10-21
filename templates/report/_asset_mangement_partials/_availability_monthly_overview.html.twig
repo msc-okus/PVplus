@@ -1,0 +1,192 @@
+<div class="cell medium-6">
+    <div id="headline_customer" style="border-bottom: solid 2px #00386d; text-align: right; width: 29.7cm;">
+        <img class="customer_logo" src="{{ customer_logo }}">
+    </div>
+    <div style="height:18cm; width: 29.7cm;" >
+        <h3 style="color: {{ font_color_second }};">H) Availability</h3>
+        <span class="subheadline" style="color: {{ font_color_third }};">Monthly overview</span>
+
+        <table id="basetable">
+            <tr>
+                <td style="vertical-align: top;">
+                    {% set daysInReportMonth = daysInReportMonth %}
+                    {% set tableColsLimit_twig = tableColsLimit %}
+                    {% set tbody = "" %}
+                    {% set itemcounter = 1 %}
+                    {% set itemcounter2 = 0 %}
+                    {% set unitcounter = 0 %}
+                    {% set unitcounter2 = 0 %}
+                    {% set counterall = 0 %}
+                    {% set availabilityall = 0 %}
+                    <table class="asset_report_table_operations_data" style="margin-bottom: 5px!important;">
+                        {% for data in plantAvailabilityCurrentYear %}
+                            {% if (itemcounter == 1 ) %}
+                                <tr>
+                                    <td class="tr_first_column" style="padding:0 !important; border-right: 0px!important; width: 70px!important;font-size: 7.3px!important;">
+                                        Month
+                                    </td>
+                                    {% for datatr in data[0] %}
+                                        {% if loop.last %}
+                                        <td style="padding:0 !important; border-right:solid 1px!important;">
+                                            <table class = "streamdayly" style="padding:0 !important; margin:0 !important;">
+                                                <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; height:28px; width:27px; border-right: 0px!important; text-align: center;">{{ acGroups[unitcounter2] }}</th></tr>
+                                                <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">[%]</th></tr>
+                                            </table>
+                                        </td>
+                                        {% else %}
+                                            <td style="padding:0 !important; border-right:0px!important;">
+                                                <table class = "streamdayly" style="padding:0 !important; margin:0 !important;">
+                                                    <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; height:28px; width:27px; border-right: 0px!important; text-align: center;">{{ acGroups[unitcounter2] }}</th></tr>
+                                                    <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">[%]</th></tr>
+                                                </table>
+                                            </td>
+                                        {% endif %}
+                                        {% set unitcounter2 = unitcounter2+1 %}
+                                    {% endfor %}
+                                </tr>
+                            {% endif %}
+                            <tr>
+                                {% for datatr in data[0] %}
+                                    {% if (datatr.pa >= 98) %}{% set color = "#00b050" %}{% endif %}
+                                    {% if (datatr.pa < 98) %}{% set color = "#cee4c0" %}{% endif %}
+                                    {% if (datatr.pa < 92) %}{% set color = "#ffff00" %}{% endif %}
+                                    {% if (datatr.pa < 85) %}{% set color = "#ffc000" %}{% endif %}
+                                    {% if (datatr.pa <= 80) %}{% set color = "#cc0000" %}{% endif %}
+                                    {% if (datatr.pa == 100) %}{% set color = "#00b050" %}{% endif %}
+                                    {% if (unitcounter == 0 ) %}
+                                        <td class="tr_first_column" style="font-size: 7.3px!important;">{{ montharray[itemcounter2] }}</td>
+                                        <td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ datatr.pa|number_format(3, ',', '.') }}</td>
+                                    {% endif %}
+                                    {% if (unitcounter > 0) %}
+                                        <td class="tr_next_columns"style="font-size: 7.3px!important;background-color:{{ color }};">{{ datatr.pa|number_format(3, ',', '.') }}</td>
+                                    {% endif %}
+                                    {% set availabilityall = availabilityall+datatr.pa %}
+                                    {% set counterall = counterall+1 %}
+                                    {% set unitcounter = unitcounter+1 %}
+                                {% endfor %}
+                                {% set unitcounter = 0 %}
+                            </tr>
+                            {% set itemcounter = itemcounter+1 %}
+                            {% set itemcounter2 = itemcounter2+1 %}
+                        {% endfor %}
+                        {% set itemcounter = 1 %}
+                        {% set itemcounter2 = 0 %}
+                    </table>
+                    <table class="legend_colors" style="margin-bottom: 0!important;">
+                        <tr>
+                            <td rowspan="2" style="font-size: 7.3px!important;">Explanation</td>
+                            <td style="font-size: 7.3px!important;">0-2%</td>
+                            <td style="font-size: 7.3px!important;">2,1-8%</td>
+                            <td style="font-size: 7.3px!important;">8,1-15%</td>
+                            <td style="font-size: 7.3px!important;">15,1-20%</td>
+                            <td style="font-size: 7.3px!important;">20%-</td>
+                        </tr>
+                        <tr>
+                            <td style="background-color: #00b050;font-size: 7.3px!important;">&nbsp;</td>
+                            <td style="background-color: #cee4c0;font-size: 7.3px!important;">&nbsp;</td>
+                            <td style="background-color: #ffff00;font-size: 7.3px!important;">&nbsp;</td>
+                            <td style="background-color: #ffc000;font-size: 7.3px!important;">&nbsp;</td>
+                            <td style="background-color: #cc0000;font-size: 7.3px!important;">&nbsp;</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+        <span class="subheadline" style="color: {{ font_color_third }};">Assessment of availability after maintenance, defects and grid failures(todo:alle Werte dieser Tabelle sind statisch und nur zum Test)</span>
+
+        <table id="basetable">
+            <tr>
+                <td style="vertical-align: top">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Availability</th>
+                                <th>Planned</th>
+                                <th>Actual</th>
+                                <th rowspan="2">Difference</th>
+                                <th>Difference</th>
+                                <th>g4n EXP</th>
+                            </tr>
+                            <tr>
+                                <th>Operation year</th>
+                                <th>Expected</th>
+                                <th>Availibility</th>
+                                <th>Egrid to g4n</th>
+                                <th>Losses</th>
+                            </tr>
+                            <tr>
+                                <th>Jan {{ year }} - {{ montharray[reportmonth-1] }} {{ year }}</th>
+                                <th>[%]</th>
+                                <th>[%]</th>
+                                <th>[%]</th>
+                                <th>[%]</th>
+                                <th>[kWh]</th>
+                            </tr>
+                        </thead>
+{# Anlage Gesamtverfuegbarkeit: availabilityall/counterall #}
+                        <tbody>
+                            <tr style="background-color: #d9d9d9;">
+                                <td class="tr_next_columns">PA (Plant availability)</td>
+                                <td class="tr_next_columns">100,00</td>
+                                <td class="tr_next_columns">92,36</td>
+                                <td class="tr_next_columns">-7,64</td>
+                                <td class="tr_next_columns">-14,24</td>
+                                <td class="tr_next_columns">-18.059.088,74</td>
+                            </tr>
+                            <tr>
+                                <td class="tr_next_columns">SOF*</td>
+                                <td class="tr_next_columns">0,00</td>
+                                <td class="tr_next_columns">0,00</td>
+                                <td class="tr_next_columns">0,00</td>
+                                <td class="tr_next_columns">0,00</td>
+                                <td class="tr_next_columns"> </td>
+                            </tr>
+                            <tr>
+                                <td class="tr_next_columns">EFOR**</td>
+                                <td class="tr_next_columns">0,00</td>
+                                <td class="tr_next_columns">7,64</td>
+                                <td class="tr_next_columns">-7,64</td>
+                                <td class="tr_next_columns">-6,60</td>
+                                <td class="tr_next_columns">-8.370.509,99</td>
+                            </tr>
+                            <tr>
+                                <td class="tr_next_columns">OMC***</td>
+                                <td class="tr_next_columns">0,00</td>
+                                <td class="tr_next_columns">0,00</td>
+                                <td class="tr_next_columns">0,00</td>
+                                <td class="tr_next_columns">0,00</td>
+                                <td class="tr_next_columns"> </td>
+                            </tr>
+                            <tr style="background-color: #d9d9d9;">
+                                <td class="tr_next_columns">TOTAL</td>
+                                <td class="tr_next_columns">100,00</td>
+                                <td class="tr_next_columns">100,00</td>
+                                <td class="tr_next_columns">0,00</td>
+                                <td class="tr_next_columns"> </td>
+                                <td class="tr_next_columns"> </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+                <td style="vertical-align: top; padding-left: 10px;">
+                    {{ availability_Year_To_Date|raw }}
+                </td>
+                <td style="vertical-align: top; padding-left: 10px;">
+                    {{ failures_Year_To_Date|raw }}
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3" style="text-align: left; padding-top: 15px;">
+                    <div class="explanation">
+                        Explanation: The PV plant shows a system availability of {{ (availabilityall/counterall)|number_format(3, ',', '.') }}% for the period from 01/01/{{ year}} to {{ reportmonth }}/{{ daysInReportMonth }}/{{ year}} (reporting period).<br>
+                        The main reason for the relatively low availability is the fact that inverters 1.1 (transformer station 1) have not been working since April. They should be checked for defects.
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="footer_g4net">
+        <img class="g4n_logo" src="{{ baseurl }}/images/green4net.jpg">
+    </div>
+</div>

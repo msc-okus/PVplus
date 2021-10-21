@@ -1,0 +1,105 @@
+<div class="cell medium-6">
+    <div id="headline_customer" style="border-bottom: solid 2px #00386d; text-align: right; width: 29.7cm;">
+        <img class="customer_logo" src="{{ customer_logo }}">
+    </div>
+    <div style="height:18cm; width: 29.7cm;" >
+        <h3 style="color: {{ font_color_second }};">I) Daily Availability - Resolution according to failure groups</h3>
+        <span class="subheadline" style="color: {{ font_color_third }};">Monthly overview(todo:alle Werte dieser Tabelle sind statisch und nur zum Test)</span>
+        <table id="basetable">
+            <tr>
+                <td style="vertical-align: top; text-align: left;">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Availability</th>
+                            <th>Planned</th>
+                            <th>Actual</th>
+                            <th rowspan="2">Difference</th>
+                        </tr>
+                        <tr>
+                            <th>Month</th>
+                            <th>Expected</th>
+                            <th>Availibility</th>
+                        </tr>
+                        <tr>
+                            <th>{{ montharray[reportmonth-1] }} {{ year }}</th>
+                            <th>[%]</th>
+                            <th>[%]</th>
+                            <th>[%]</th>
+                        </tr>
+                        </thead>
+                        {# Anlage Gesamtverfuegbarkeit: availabilityall/counterall #}
+                        <tbody>
+                        <tr style="background-color: #d9d9d9;">
+                            <td class="tr_next_columns">PA (Plant availability)</td>
+                            <td class="tr_next_columns">100,00</td>
+                            <td class="tr_next_columns">92,98</td>
+                            <td class="tr_next_columns">7,02</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns">SOF*</td>
+                            <td class="tr_next_columns">0,00</td>
+                            <td class="tr_next_columns">0,00</td>
+                            <td class="tr_next_columns"></td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns">EFOR*</td>
+                            <td class="tr_next_columns">0,00</td>
+                            <td class="tr_next_columns">7,02</td>
+                            <td class="tr_next_columns"></td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns">OMC*</td>
+                            <td class="tr_next_columns">0,00</td>
+                            <td class="tr_next_columns">0,00</td>
+                            <td class="tr_next_columns"></td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns">Environment*</td>
+                            <td class="tr_next_columns">0,00</td>
+                            <td class="tr_next_columns">0,00</td>
+                            <td class="tr_next_columns">0,00</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns">Communication error*</td>
+                            <td class="tr_next_columns">0,00</td>
+                            <td class="tr_next_columns">0,00</td>
+                            <td class="tr_next_columns"></td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns">TOTAL</td>
+                            <td class="tr_next_columns">0,00</td>
+                            <td class="tr_next_columns">7,02</td>
+                            <td class="tr_next_columns">0,00</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <ul style="font-size: 9px; padding-left: 12px;">
+                        <li>SOF: Maintenance</li>
+                        <li>EFOR: Defects / Failures</li>
+                        <li>OMC: Grid / Grid regulate</li>
+                        <li>Environment: Snow, storm, wather</li>
+                        <li>Communication error: Data gaps, transmission error</li>
+                    </ul>
+                </td>
+                <td style="vertical-align: top; padding-left: 10px;">
+                    {{ plant_availability|raw }}
+                </td>
+                <td style="vertical-align: top; padding-left: 10px;">
+                    {{ actual|raw }}
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3" style="text-align: left; padding-top: 15px;">
+                    <div class="explanation">
+                        Explanation: For example !<br>
+                        What a listing of the downtimes could look like. A detailed failure report based on the g4n error messages should / will be supplied as an attachment.
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="footer_g4net">
+        <img class="g4n_logo" src="{{ baseurl }}/images/green4net.jpg">
+    </div>
+</div>

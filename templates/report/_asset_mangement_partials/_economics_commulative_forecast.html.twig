@@ -1,0 +1,72 @@
+<div class="cell medium-6">
+    <div id="headline_customer" style="border-bottom: solid 2px #00386d; text-align: right; width: 29.7cm;">
+        <img class="customer_logo" src="{{ customer_logo }}">
+    </div>
+    <div style="height:18cm; width: 29.7cm;" >
+        <h3 style="color: {{ font_color_second }};">Economics</h3>
+        <span class="subheadline" style="color: {{ font_color_third }};">Commulative forecast(todo:alle Werte dieser Tabelle sind nicht aktuell sondern nur zum Test)</span>
+
+        <table id="basetable">
+            <tr>
+                <td colspan="2" style="text-align: left">
+                    <table class="asset_report_table_operations_data">
+                        <tbody>
+                        <tr style="font-weight: bold;">
+                            <td class="tr_next_columns" style="background-color: #fff2cc;">Cumulated Forecast [EUR]</td>
+                            {% for data in dataMonthArray %}
+                                <td class="tr_next_columns" style="background-color: #fff2cc;">{{ data }} {{ year }}</td>
+                            {% endfor %}
+                            <td class="tr_next_columns" style="background-color: #fff2cc; font-weight: bold">TOTAL</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns" style="background-color: #ffffff!important;"><b>Revenues ACT and Revenues Plan PVSYST</b></td>
+                            {% set total = 0 %}
+                            {% for data in income_per_month.revenues_act %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns" style="background-color: #ffffff!important;"><b>Revenues ACT and Revenues Plan g4n </b></td>
+                            {% set total = 0 %}
+                            {% for data in income_per_month.revenues_act %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns" style="background-color: #ffffff!important;"><b>PVSYST</b> plan proceeds<b> - P50</b></td>
+                            {% set total = 0 %}
+                            {% for data in income_per_month.PVSYST_plan_proceeds_EXP %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns" style="background-color: #ffffff!important;"><span style="font-weight: bold">g4n</span> plan proceeds - <span style="font-weight: bold">EXP - P50</span></td>
+                            {% set total = 0 %}
+                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </td>
+
+            </tr>
+            <tr>
+                <td style="text-align: center!important;">
+                    {{ operating_statement_chart|raw }}
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="footer_g4net">
+        <img class="g4n_logo" src="{{ baseurl }}/images/green4net.jpg">
+    </div>
+</div>
