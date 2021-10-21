@@ -15,11 +15,7 @@
                             <th>Production</th>
                             {% set counter = 1 %}
                             {% for data in dataMonthArray %}
-                                {% if (counter == reportmonth) %}
-                                    <th style="border:solid 2px;">{{ data }} {{ year }}</th>
-                                {% else %}
-                                    <th><div style="width: 100%; height: 50%;">{{ data }} {{ year }}</div></th>
-                                {% endif %}
+                                    <th>{{ data }} {{ year }}</th>
                                 {% set counter = counter+1 %}
                             {% endfor %}
                         </tr>
@@ -28,51 +24,27 @@
                         <tr>
                             <td class="tr_first_column">Yield (Grid meter) [kWh]</td>
                             {% set powerEvuTotal = 0 %}
-                            {% set counter = 1 %}
                             {% for data in table_overview_monthly.powerEvu %}
                                 {% set powerEvuTotal = powerEvuTotal+data %}
-                                {% if (counter == reportmonth) %}
-                                    <td class="tr_next_columns" style="border: solid 2px">{{ data|number_format(3, ',', '.') }}</td>
-                                {% else %}
-                                    <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
-                                {% endif %}
-                                {% set counter = counter+1 %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
                             {% endfor %}
                         </tr>
                         <tr>
-                            <td class="tr_first_column" style="border-bottom: solid 2px">Expected PV SYST [kWh]</td>
-                            {% set counter = 1 %}
+                            <td class="tr_first_column">Expected PV SYST [kWh]</td>
                             {% for data in table_overview_monthly.expectedPvSyst %}
-                                {% if (counter == reportmonth) %}
-                                    <td class="tr_next_columns" style="border: solid 2px">{{ data|number_format(3, ',', '.') }}</td>
-                                {% else %}
-                                    <td class="tr_next_columns"  style="border-bottom: solid 2px">{{ data|number_format(3, ',', '.') }}</td>
-                                {% endif %}
-                                {% set counter = counter+1 %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
                             {% endfor %}
                         </tr>
                         <tr>
                             <td class="tr_first_column">Expected g4n [kWh]</td>
-                            {% set counter = 1 %}
                             {% for data in table_overview_monthly.powerExpEvu %}
-                                {% if (counter == reportmonth) %}
-                                    <td class="tr_next_columns" style="border: solid 2px">{{ data|number_format(3, ',', '.') }}</td>
-                                {% else %}
-                                    <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
-                                {% endif %}
-                                {% set counter = counter+1 %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
                             {% endfor %}
                         </tr>
                         <tr>
                             <td class="tr_first_column">Inverter out [kWh]</td>
-                            {% set counter = 1 %}
                             {% for data in table_overview_monthly.powerAct %}
-                                {% if (counter == reportmonth) %}
-                                    <td class="tr_next_columns" style="border: solid 2px">{{ data|number_format(3, ',', '.') }}</td>
-                                {% else %}
-                                    <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
-                                {% endif %}
-                                {% set counter = counter+1 %}
+                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
                             {% endfor %}
                         </tr>
                         </tbody>
@@ -131,7 +103,7 @@
             </tr>
         </table>
     </div>
-    <div id="footer_g4net" style="border-top: solid 2px #fbba27; text-align: right; vertical-align: bottom; width: 29.7cm; padding-top: 5px">
-        <img class="g4n_logo" src="https://gs.g4npvplus.net/images/green4net.jpg">
+    <div class="footer_g4net">
+        <img class="g4n_logo" src="{{ baseurl }}/images/green4net.jpg">
     </div>
 </div>

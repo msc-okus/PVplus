@@ -18,7 +18,7 @@ use Twig\Environment;
 use App\Reports\ReportMonthly\ReportMonthly;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Validator\Constraints\DateTime;
-
+use App\Service\DownloadAnalyseService;
 use Hisune\EchartsPHP\ECharts;
 use Hisune\EchartsPHP\Doc\IDE\Series;
 use Hisune\EchartsPHP\Config;
@@ -54,7 +54,9 @@ class AssetManagementService
         PvSystMonthRepository  $pvSystMonthRepo,
         Case5Repository        $case5Repo,
         FunctionsService       $functions,
-        NormalizerInterface    $serializer)
+        NormalizerInterface    $serializer,
+        DownloadAnalyseService $analyseService
+    )
     {
 
         $this->anlagenRepository = $anlagenRepository;
@@ -67,6 +69,7 @@ class AssetManagementService
         $this->pvSystMonthRepo = $pvSystMonthRepo;
         $this->case5Repo = $case5Repo;
         $this->serializer = $serializer;
+        $this->DownloadAnalyseService = $analyseService;
     }
 
     public function assetReport($anlage, $month = 0, $year = 0, $chartTypeToExport = 0): array
@@ -199,8 +202,11 @@ class AssetManagementService
             $monthExtendetArray[$i]['hours'] = $daysInMonth * 24;
         }
 
-        //die DC Geuppen ermitteln
+        //die AC Geuppen ermitteln
         $acGroups = $anlage->getAcGroups()->toArray();
+        for ($i = 0; $i < count($acGroups); $i++) {
+            $acGroupsCleaned[] = substr($acGroups[$i]->getacGroupName(),strpos($acGroups[$i]->getacGroupName(),'INV'));
+        }
 
         //zum Erzeugen einer Monatsbezogenen Tagesachse
         $start_date = strtotime($report['from']);
@@ -1124,7 +1130,7 @@ class AssetManagementService
         ];
         //Ende Tabelle rechts oben
 
-        //Tabelle rechts unten
+        //Tabelle rechts mitte
         $operations_monthly_right_g4n_tr1 = [
             $monthName . ' ' . $report['reportYear'],
             $powerEvu[$report['reportMonth'] - 1],
@@ -1242,10 +1248,870 @@ class AssetManagementService
                 '0'
             ];
         }
-        //End Operations month
 
+        //Tabelle rechts unten
+        $operations_monthly_right_iout_tr1 = [
+            $monthName . ' ' . $report['reportYear'],
+            $powerEvu[$report['reportMonth'] - 1],
+            $powerAct[$report['reportMonth'] - 1],
+            $powerEvu[$report['reportMonth'] - 1] - $powerAct[$report['reportMonth'] - 1],
+            (1 - $powerAct[$report['reportMonth'] - 1] / $powerEvu[$report['reportMonth'] - 1]) * 100
+        ];
+
+        //Parameter fuer die Berechnung Q1
+        if ((($currentYear == $report['reportYear'] && $currentMonth > 3) || $currentYear > $report['reportYear'])) {
+            $temp_q1 = $tbody_a_production['powerAct'][0]+$tbody_a_production['powerAct'][1]+$tbody_a_production['powerAct'][2];
+            $operations_monthly_right_iout_tr2 = [
+                $powerEvuQ1,
+                $temp_q1,
+                $powerEvuQ1- $temp_q1,
+                (($powerEvuQ1- $temp_q1)*100)/$powerEvuQ1,
+            ];
+        } else {
+            $operations_monthly_right_iout_tr2 = [
+                '0',
+                '0',
+                '0',
+                '0',
+            ];
+        }
+
+        //Parameter fuer die Berechnung Q2
+        if ((($currentYear == $report['reportYear'] && $currentMonth > 6) || $currentYear > $report['reportYear'])) {
+            $temp_q2 = $tbody_a_production['powerAct'][3]+$tbody_a_production['powerAct'][4]+$tbody_a_production['powerAct'][5];
+            $operations_monthly_right_iout_tr3 = [
+                $powerEvuQ2,
+                $temp_q2,
+                $powerEvuQ1-$temp_q2,
+                (($powerEvuQ2-$temp_q2)*100)/$powerEvuQ2,
+            ];
+        } else {
+            $operations_monthly_right_iout_tr3 = [
+                '0',
+                '0',
+                '0',
+                '0',
+            ];
+        }
+
+        //Parameter fuer die Berechnung Q3
+        if ((($currentYear == $report['reportYear'] && $currentMonth > 9) || $currentYear > $report['reportYear'])) {
+            $temp_q3 = $tbody_a_production['powerAct'][6]+$tbody_a_production['powerAct'][7]+$tbody_a_production['powerAct'][8];
+            $operations_monthly_right_iout_tr4 = [
+                $powerEvuQ3,
+                $temp_q3,
+                $powerEvuQ3-$temp_q3,
+                (($powerEvuQ3-$temp_q3)*100)/$powerEvuQ3,
+            ];
+        } else {
+            $operations_monthly_right_iout_tr4 = [
+                '0',
+                '0',
+                '0',
+                '0',
+            ];
+        }
+
+        //Parameter fuer die Berechnung Q4
+        if ($currentYear > $report['reportYear']) {
+            $temp_q4 = $tbody_a_production['powerAct'][9]+$tbody_a_production['powerAct'][10]+$tbody_a_production['powerAct'][11];
+            $operations_monthly_right_iout_tr5 = [
+                $powerEvuQ4,
+                $temp_q4,
+                $powerEvuQ1-$temp_q4,
+                (($powerEvuQ4-$temp_q4)*100)/$powerEvuQ4,
+            ];
+        } else {
+            $operations_monthly_right_iout_tr5 = [
+                '0',
+                '0',
+                '0',
+                '0',
+            ];
+        }
+
+        //Parameter fuer Year to Date
+        if (!($yearPacDate == $report['reportYear'] && $monthPacDate > $currentMonth)) {
+            $x=$powerEvuQ1+$powerEvuQ2+$powerEvuQ3+$powerEvuQ4;
+            $y=($powerEvuQ1+$powerEvuQ2+$powerEvuQ3+$powerEvuQ4)-($temp_q1+$temp_q2+$temp_q3+$temp_q4);
+            $difference = ($y*100)/$x;
+            $operations_monthly_right_iout_tr6 = [
+                $powerEvuQ1+$powerEvuQ2+$powerEvuQ3+$powerEvuQ4,
+                $temp_q1+$temp_q2+$temp_q3+$temp_q4,
+                ($powerEvuQ1+$powerEvuQ2+$powerEvuQ3+$powerEvuQ4)-($temp_q1+$temp_q2+$temp_q3+$temp_q4),
+                $difference
+
+            ];
+        } else {
+            $operations_monthly_right_iout_tr6 = [
+                '0',
+                '0',
+                '0',
+                '0'
+            ];
+        }
+
+        //Parameter fuer total Runtime
+        if (!($yearPacDate == $report['reportYear'] && $monthPacDate > $currentMonth)) {
+            $operations_monthly_right_iout_tr7 = [
+                0.00,
+                0.00,
+                0.00,
+                0.00
+            ];
+        } else {
+            $operations_monthly_right_iout_tr7 = [
+                '0',
+                '0',
+                '0',
+                '0'
+            ];
+        }
+        //End Operations month
         //End Monthley expected vs.actuals
 
+        //Beginn Operations dayly
+        //The Table
+        $start = $report['reportYear'].'-'.$report['reportMonth'].'-01 00:00';
+        $end = $report['reportYear'].'-'.$report['reportMonth'].'-'.$daysInReportMonth.' 23:59';
+        $tableType = "default";
+        $landscape = false;
+
+        $output = $this->DownloadAnalyseService->getAllSingleSystemData($anlage, $report['reportYear'], $report['reportMonth'], 2);
+        $dcData = $this->DownloadAnalyseService->getDcSingleSystemData($anlage, $start, $end, '%d.%m.%Y');
+        $dcDataExpected = $this->DownloadAnalyseService->getEcpectedDcSingleSystemData($anlage, $start, $end, '%d.%m.%Y');
+
+        if($output){
+            for ($i = 0; $i < count($output); $i++) {
+                $table_overview_dayly[] =
+                    [
+                        "date" => $output[$i]->getstamp()->format('M-d'),
+                        "irradiation" => (float)$output[$i]->getirradiation(),
+                        "powerEGridExtMonth" => (float)$output[$i]->getpowerEGridExt(),
+                        "PowerEvuMonth" => (float)$output[$i]->getPowerEvu(),
+                        "powerActMonth" => (float)$output[$i]->getpowerAct(),
+                        "powerDctMonth" => (float)$dcData[$i]['actdc'],
+                        "powerExpMonth" => (float)$output[$i]->getpowerExp(),
+                        "powerExpDctMonth" => (float)$dcDataExpected[$i]['expdc'],
+                        "prEGridExtMonth" => (float)$output[$i]->getprEGridExtMonth(),
+                        "prEvuMonth" => (float)$output[$i]->getprEvuMonth(),
+                        "prActMonth" => (float)$output[$i]->getprActMonth(),
+                        "prExpMonth" => (float)$output[$i]->getprExpMonth(),
+                        "plantAvailability" => (float)$output[$i]->getplantAvailability(),
+                        "plantAvailabilitySecond" => (float)$output[$i]->getplantAvailabilitySecond(),
+                        "panneltemp" => (float)$output[$i]->getpanneltemp(),
+                    ];
+            }
+        }
+        //End Operations dayly
+
+        //Fuer die PA des aktuellen Jahres
+        for ($j = 1; $j <= $report['reportMonth']; $j++) {
+            $daysInThisMonth = cal_days_in_month(CAL_GREGORIAN, $j, $report['reportYear']);
+            $sql = "SELECT DATE_FORMAT(stamp, '%Y-%m') AS form_date, unit, COUNT(db_id) as anz, sum(pa_0) as summe, sum(pa_0)/COUNT(db_id)*100 as pa FROM " . $anlage->getDbNameIst() . " where stamp BETWEEN '" . $report['reportYear'] . "-" . $j . "-1 00:00' and '" . $report['reportYear'] . "-" . $j . "-" . $daysInThisMonth . " 23:59'and pa_0 >= 0  group by unit, DATE_FORMAT(stamp, '%Y-%m')";
+
+            $result = $conn->prepare($sql);
+            $result->execute();
+            $i = 0;
+
+            foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
+                #$summ[$i] = $value['pa'];
+                $pa[] = [
+                    'form_date' =>  date("m", strtotime($value['form_date'])),
+                    'pa' => round($value['pa'],3),
+                    'unit' => $value['unit']
+                ];
+                $i++;
+                #echo date("m", strtotime($value['form_date'])) . '<br>';
+                if ($i == 40) {
+
+                    $i = 0;
+                    $outTemp[] = $pa;
+
+                    unset($pa);
+                    break;
+                }
+
+            }
+
+            $outPaCY[] = $outTemp;
+            unset($outTemp);
+
+        }
+
+        //Availability: Year to date
+        $chart->tooltip->show = true;
+        $chart->tooltip->trigger = 'item';
+        $chart->series =
+            [
+                [
+                    'type' => 'pie',
+                    'data' => [
+                        [
+                            'value' => 92.36,
+                            'name' => 'PA (Plant availability)'
+                        ],
+                        [
+                            'value' => 0,
+                            'name' => 'SOF'
+                        ],
+                        [
+                            'value' => 7.64,
+                            'name' => 'EFOR**'
+                        ],
+                        [
+                            'value' => 0,
+                            'name' => 'OMC***'
+                        ]
+                    ],
+                    'visualMap' => 'false',
+                    'label' => [
+                        'show' => false
+                    ],
+                    'itemStyle' => [
+                        'borderType' => 'solid',
+                        'borderWidth' => 1,
+                        'borderColor' => '#ffffff'
+                    ]
+                ]
+            ];
+
+        $option = array(
+            'color' => ['#9dc3e6', '#f3a672', '#ff0000', '#c5e0b4'],
+            'title' => [
+                'text' => 'Availability: Year to date',
+                'left' => 'center',
+                'top' => -5,
+            ],
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'orient' => 'vertical',
+                    'left' => 'left',
+                    'top' => 30,
+                    'padding' => 0,90,0,0,
+                ],
+        );
+
+        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
+        $chart->setOption($option);
+        $availability_Year_To_Date = $chart->render('availability_Year_To_Date', ['style' => 'height: 200px; width:400px; margin-top:8px']);
+
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+
+        //Failures: Year to date
+        $chart->tooltip->show = true;
+        $chart->tooltip->trigger = 'item';
+        $chart->series =
+            [
+                [
+                    'type' => 'pie',
+                    'data' => [
+                        [
+                            'value' => 0,
+                            'name' => 'SOF*'
+                        ],
+                        [
+                            'value' => 100,
+                            'name' => 'EFOR**'
+                        ],
+                        [
+                            'value' => 0,
+                            'name' => 'OMC***'
+                        ]
+                    ],
+                    'visualMap' => 'false',
+                    'label' => [
+                        'show' => false
+                    ],
+                    'itemStyle' => [
+                        'borderType' => 'solid',
+                        'borderWidth' => 1,
+                        'borderColor' => '#ffffff'
+                    ]
+                ]
+            ];
+
+        $option = array(
+            'color' => ['#9dc3e6', '#ffa4a4', '#ffc000'],
+            'title' => [
+                'text' => 'Failure - Year to date',
+                'left' => 'center',
+                'top' => -5,
+            ],
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'orient' => 'vertical',
+                    'left' => 'left',
+                    'top' => 30,
+                    'padding' => 0,90,0,0,
+                ],
+        );
+
+        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
+        $chart->setOption($option);
+        $failures_Year_To_Date = $chart->render('failures_Year_To_Date', ['style' => 'height: 200px; width:360px; margin-top:8px; margin-left:-60px;']);
+
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+
+        //Plant Availability
+        $chart->tooltip->show = true;
+        $chart->tooltip->trigger = 'item';
+        $chart->series =
+            [
+                [
+                    'type' => 'pie',
+                    'data' => [
+                        [
+                            'value' => 92,98,
+                            'name' => 'PA (Plant availability)'
+                        ],
+                        [
+                            'value' => 0,
+                            'name' => 'SOF'
+                        ],
+                        [
+                            'value' => 7,02,
+                            'name' => 'EFOR'
+                        ],
+                        [
+                            'value' => 0,
+                            'name' => 'OMC'
+                        ],
+                        [
+                            'value' => 0,
+                            'name' => 'Environment'
+                        ],
+                        [
+                            'value' => 0,
+                            'name' => 'Communication error'
+                        ]
+                    ],
+                    'visualMap' => 'false',
+                    'label' => [
+                        'show' => false
+                    ],
+                    'itemStyle' => [
+                        'borderType' => 'solid',
+                        'borderWidth' => 1,
+                        'borderColor' => '#ffffff'
+                    ]
+                ]
+            ];
+
+        $option = array(
+            'color' => ['#c5e0b4', '#ed7d31', '#941651', '#ffc000', '#548235', '#2e75b6'],
+            'title' => [
+                'text' => 'Plant availability: '.$monthName.' '.$report['reportYear'],
+                'left' => 'center',
+                'top' => -5,
+            ],
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'orient' => 'vertical',
+                    'left' => 'left',
+                    'top' => 30,
+                ],
+        );
+
+        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
+        $chart->setOption($option);
+        $plant_availability = $chart->render('plant_availability', ['style' => 'height: 200px; width:450px; margin-top:8px']);
+
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+
+        //Actual
+        $chart->tooltip->show = true;
+        $chart->tooltip->trigger = 'item';
+        $chart->series =
+            [
+                [
+                    'type' => 'pie',
+                    'data' => [
+                        [
+                            'value' => 0,
+                            'name' => 'SOF'
+                        ],
+                        [
+                            'value' => 100,
+                            'name' => 'EFOR'
+                        ],
+                        [
+                            'value' => 0,
+                            'name' => 'OMC'
+                        ],
+                        [
+                            'value' => 0,
+                            'name' => 'Environment'
+                        ],
+                        [
+                            'value' => 0,
+                            'name' => 'Communication error'
+                        ]
+                    ],
+                    'bottom' => 50,
+                    'visualMap' => 'false',
+                    'label' => [
+                        'show' => false
+                    ],
+                    'center' => [
+                        235,100
+                    ],
+                    'itemStyle' => [
+                        'borderType' => 'solid',
+                        'borderWidth' => 1,
+                        'borderColor' => '#ffffff'
+                    ]
+                ]
+            ];
+
+        $option = array(
+            'color' => ['#ed7d31', '#941651', '#ffc000', '#548235', '#2e75b6'],
+            'title' => [
+                'text' => 'Actual',
+                'left' => 'center',
+                'top' => -5,
+            ],
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'orient' => 'vertical',
+                    'left' => 'left',
+                    'top' => 30,
+                ],
+        );
+
+
+        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
+        $chart->setOption($option);
+        $actual = $chart->render('actual', ['style' => 'height: 200px; width:450px; margin-top:8px; margin-left:-60px;']);
+
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+
+        //fuer PA Report Month
+
+        $sql = "SELECT DATE_FORMAT(stamp, '%Y-%m-%d') AS form_date, unit, COUNT(db_id) as anz, sum(pa_0) as summe, sum(pa_0)/COUNT(db_id)*100 as pa FROM ".$anlage->getDbNameIst()." where stamp BETWEEN '".$report['reportYear']."-".$report['reportMonth']."-1 00:00' and '".$report['reportYear']."-".$report['reportMonth']."-".$daysInReportMonth." 23:59' and pa_0 >= 0 group by unit, DATE_FORMAT(stamp, '%Y-%m-%d')";
+
+        $result = $conn->prepare($sql);
+        $result->execute();
+
+        $i = 0;
+        foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
+            $pa[] = [
+                'form_date' =>  date("d", strtotime($value['form_date'])),
+                'pa' => round($value['pa'],3),
+                'unit' => $value['unit']
+            ];
+            $i++;
+
+            if($i > $daysInReportMonth-1){
+                $i = 0;
+                $outPa[] = $pa;
+                unset($pa);
+            }
+        }
+        //End PA
+
+        //Beginn Operations string_dayly1
+        if ($anlage->getUseNewDcSchema()) {
+            $sql = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.wr_pdc) AS act_power_dc, sum(b.wr_idc) AS act_current_dc, b.group_ac as invgroup
+            FROM (db_dummysoll a left JOIN ".$anlage->getDbNameDcIst()." b ON a.stamp = b.stamp) 
+            WHERE a.stamp BETWEEN '".$report['reportYear']."-".$report['reportMonth']."-1 00:00' and '".$report['reportYear']."-".$report['reportMonth']."-".$daysInReportMonth." 23:59' and b.group_ac > 0 GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
+        } else {
+            $sql = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.wr_pdc) AS act_power_dc, sum(b.wr_idc) AS act_current_dc, b.inv as invgroup
+            FROM (db_dummysoll a left JOIN ".$anlage->getDbNameIst()." b ON a.stamp = b.stamp) 
+            WHERE a.stamp BETWEEN '".$report['reportYear']."-".$report['reportMonth']."-1 00:00' and '".$report['reportYear']."-".$report['reportMonth']."-".$daysInReportMonth." 23:59' and b.group_ac > 0 GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
+        }
+
+        $result = $conn->prepare($sql);
+        $result->execute();
+        foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
+            $dcIst[] = [
+                'act_power_dc' => $value['act_power_dc'],
+                'act_current_dc' => $value['act_current_dc']
+            ];
+        }
+
+        #".$anlage->getDbNameDcSoll()."
+        $sql = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.dc_exp_power) AS exp_power_dc, sum(b.dc_exp_current) AS exp_current_dc, b.group_ac as invgroup
+            FROM (db_dummysoll a left JOIN ".$anlage->getDbNameDcSoll()." b ON a.stamp = b.stamp) 
+            WHERE a.stamp BETWEEN '".$report['reportYear']."-".$report['reportMonth']."-1 00:00' and '".$report['reportYear']."-".$report['reportMonth']."-".$daysInReportMonth." 23:59' and b.group_ac > 0 GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
+
+        $result = $conn->prepare($sql);
+        $result->execute();
+        $i = 0;
+        $j = 0;
+        foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
+            $dcExpDcIst[] = [
+                'group' => $value['invgroup'],
+                'form_date' => date("d", strtotime($value['form_date'])),
+                'exp_power_dc' => $value['exp_power_dc'],
+                'exp_current_dc' => $value['exp_current_dc'],
+                'act_power_dc' => $dcIst[$j]['act_power_dc'],
+                'act_current_dc' => $dcIst[$j]['act_current_dc'],
+                'diff_current_dc' => (1 - $value['exp_current_dc'] / $dcIst[$j]['act_current_dc']) * 100,
+                'diff_power_dc' => (1 - $value['exp_power_dc'] / $dcIst[$j]['act_power_dc']) * 100,
+            ];
+            $i++;
+            $j++;
+            if($i > $daysInReportMonth-1){
+                $i = 0;
+                $outTableCurrentsPower[] = $dcExpDcIst;
+                unset($dcExpDcIst);
+            }
+        }
+
+        #echo '<pre>';
+        # print_r($outTableCurrentsPower);
+        #echo '</pre>';
+        #exit;
+        #$tableColsLimit
+        //End Operations string
+
+        //Beginn Economics Income per month
+
+
+        for ($i = 0; $i < count($tbody_a_production['powerEvu']); $i++) {
+            if ($i+1 < 7){
+                $monthleyFeedInTarif = 0.0740;
+            }else{
+                $monthleyFeedInTarif = 0.0790;
+            }
+            $incomePerMonth['revenues_act'][$i] = $tbody_a_production['powerEvu'][$i] * $monthleyFeedInTarif;
+            $incomePerMonth['PVSYST_plan_proceeds_EXP'][$i] = $tbody_a_production['expectedPvSyst'][$i] * $monthleyFeedInTarif;
+            $incomePerMonth['gvn_plan_proceeds_EXP'][$i] = $tbody_a_production['powerExpEvu'][$i] * $monthleyFeedInTarif;
+            if($i+1 > $report['reportMonth']){
+                $incomePerMonth['PVSYST_plan_proceeds_EXP'][$i] = null;
+            }
+            $incomePerMonth['monthley_feed_in_tarif'][$i] = $monthleyFeedInTarif;
+        }
+
+        //beginn chart
+        $chart = new ECharts();
+        $chart->tooltip->show = true;
+
+        $chart->tooltip->trigger = 'item';
+
+        $chart->xAxis = array(
+            'type' => 'category',
+            'axisLabel' => array(
+                'show' => true,
+                'margin' => '10',
+            ),
+            'splitArea' => array(
+                'show' => true,
+            ),
+            'data' => $dataMonthArray,
+        );
+        $chart->yAxis = array(
+            'type' => 'value',
+            'min' => 0,
+            'name' => '',
+            'nameLocation' => 'middle',
+            'nameGap' => 70
+        );
+        $chart->series =
+            [
+                [
+                    'name' => 'Yield (Grid meter)',
+                    'type' => 'bar',
+                    'data' => $incomePerMonth['revenues_act'],
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'Expected PV SYST',
+                    'type' => 'bar',
+                    'data' => $incomePerMonth['PVSYST_plan_proceeds_EXP'],
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'Expected g4n',
+                    'type' => 'bar',
+                    'data' => $incomePerMonth['gvn_plan_proceeds_EXP'],
+                    'visualMap' => 'false'
+                ]
+            ];
+
+        $option = array(
+            'color' => ['#a6b5de', '#f7bba1', '#d0d0d0'],
+            'title' => [
+                'text' => 'Income per month ' . $report['reportYear'],
+                'left' => 'center',
+            ],
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'left' => 'center',
+                    'top' => 20
+                ],
+            'grid' =>
+                array(
+                    'height' => '80%',
+                    'top' => 50,
+                    'width' => '90%',
+                ),
+        );
+
+        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
+        $chart->setOption($option);
+
+        $income_per_month_chart = $chart->render('income_per_month_chart', ['style' => 'height: 450px; width:750px; margin-left:200px;']);
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+
+        //End Economics Income per month
+
+        //Beginn Economics Costs per month and year
+
+        $chart->tooltip->show = true;
+        $chart->tooltip->trigger = 'item';
+        $chart->series =
+            [
+                [
+                    'type' => 'pie',
+                    'data' => [
+                        [
+                            'value' => 16,
+                            'name' => 'O&M'
+                        ],
+                        [
+                            'value' => 6,
+                            'name' => 'Electricity'
+                        ],
+                        [
+                            'value' => 6,
+                            'name' => 'Technical dispatch (KEGOC)'
+                        ],
+                        [
+                            'value' => 6,
+                            'name' => 'OMC***'
+                        ],
+                        [
+                            'value' => 6,
+                            'name' => 'TransTeleCom (cell equipment maintenance)'
+                        ],
+                        [
+                            'value' => 6,
+                            'name' => 'Security'
+                        ],
+                        [
+                            'value' => 6,
+                            'name' => 'Network service fee (ASTEL)'
+                        ],
+                        [
+                            'value' => 6,
+                            'name' => 'legal services'
+                        ],
+                        [
+                            'value' => 6,
+                            'name' => 'Accountancy and administration costs'
+                        ],
+                        [
+                            'value' => 6,
+                            'name' => 'Insurance'
+                        ],
+                        [
+                            'value' => 6,
+                            'name' => 'Other'
+                        ],
+                        [
+                            'value' =>6,
+                            'name' => 'Variable 1'
+                        ],                        [
+                            'value' => 6,
+                            'name' => 'Variable 2)'
+                        ],
+                        [
+                            'value' => 6,
+                            'name' => 'Variable 3'
+                        ],
+                        [
+                            'value' => 6,
+                            'name' => 'Variable 4'
+                        ],
+                        [
+                            'value' => 6,
+                            'name' => 'Variable 5'
+                        ],
+                    ],
+                    'visualMap' => 'false',
+                    'label' => [
+                        'show' => false
+                    ],
+                    'center' => [
+                        680,125
+                    ],
+                    'itemStyle' => [
+                        'borderType' => 'solid',
+                        'borderWidth' => 1,
+                        'borderColor' => '#ffffff'
+                    ]
+                ],
+
+            ];
+
+        $option = array(
+            'color' => [
+                '#5e85cc', '#f4ad7d', '#c6c6c6',
+                '#ffd966', '#8fbae2', '#9dc97f',
+                '#4669a7', '#d87735', '#909090',
+                '#cc9f15', '#4e8abf', '#6a994b',
+                '#8ba7db', '#f4ae7f', '#cecece'
+            ],
+            'title' => [
+                'text' => 'TOTAL Costs per Date - '.$report['reportYear'],
+                'left' => 'center',
+                'top' => -5,
+            ],
+
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'orient' => 'vertical',
+                    'top' => 30,
+                    'left' => 40,
+                ],
+        );
+
+        Config::addExtraScript('cool.js', 'https://gs.g4npvplus.net/echarts/theme/');
+        $chart->setOption($option);
+        $total_Costs_Per_Date = $chart->render('total_Costs_Per_Date', ['style' => 'height: 250px; width:800px; margin-left:150px;']);
+
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+
+        //End Economics Costs per month and year
+
+        //beginn Operating Statement
+        //beginn chart
+        $chart = new ECharts();
+        $chart->tooltip->show = true;
+
+        $chart->tooltip->trigger = 'item';
+
+        $chart->xAxis = array(
+            'type' => 'category',
+            'axisLabel' => array(
+                'show' => true,
+                'margin' => '10',
+            ),
+            'splitArea' => array(
+                'show' => true,
+            ),
+            'data' => $dataMonthArray,
+        );
+        $chart->yAxis = array(
+            'type' => 'value',
+            'min' => 0,
+            'name' => '',
+            'nameLocation' => 'middle',
+            'nameGap' => 70
+        );
+        $chart->series =
+            [
+                [
+                    'name' => 'Income ACT',
+                    'type' => 'bar',
+                    'data' => $incomePerMonth['revenues_act'],
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'PVSYST plan proceeds',
+                    'type' => 'bar',
+                    'data' => $incomePerMonth['PVSYST_plan_proceeds_EXP'],
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'g4n plan proceeds - EXP ',
+                    'type' => 'bar',
+                    'data' => $incomePerMonth['gvn_plan_proceeds_EXP'],
+                    'visualMap' => 'false'
+                ]
+            ];
+
+        $option = array(
+            'color' => ['#a6b5de', '#f7bba1', '#d0d0d0'],
+            'title' => [
+                'text' => 'Operating statement - '.$report['reportYear'].' [EUR]' ,
+                'left' => 'center',
+            ],
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'left' => 'center',
+                    'top' => 20
+                ],
+            'grid' =>
+                array(
+                    'height' => '80%',
+                    'top' => 50,
+                    'width' => '90%',
+                ),
+        );
+
+        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
+        $chart->setOption($option);
+
+        $operating_statement_chart = $chart->render('operating_statement_chart', ['style' => 'height: 450px; width:750px; margin-left:200px;']);
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+
+        //end Operating Statement
         $conn = null;
 
         $output = [
@@ -1254,7 +2120,7 @@ class AssetManagementService
             'month' => $monthName,
             'reportmonth' => $report['reportMonth'],
             'year' => $report['reportYear'],
-            'montharray' => $monthArray,
+            'monthArray' => $monthArray,
             'dataMonthArray' => $dataMonthArray,
             'dataCfArray' => $dataCfArray,
             'operations_right' => $operations_right,
@@ -1283,6 +2149,31 @@ class AssetManagementService
             'operations_monthly_right_g4n_tr5' => $operations_monthly_right_g4n_tr5,
             'operations_monthly_right_g4n_tr6' => $operations_monthly_right_g4n_tr6,
             'operations_monthly_right_g4n_tr7' => $operations_monthly_right_g4n_tr7,
+            'operations_monthly_right_iout_tr1' => $operations_monthly_right_iout_tr1,
+            'operations_monthly_right_iout_tr2' => $operations_monthly_right_iout_tr2,
+            'operations_monthly_right_iout_tr3' => $operations_monthly_right_iout_tr3,
+            'operations_monthly_right_iout_tr4' => $operations_monthly_right_iout_tr4,
+            'operations_monthly_right_iout_tr5' => $operations_monthly_right_iout_tr5,
+            'operations_monthly_right_iout_tr6' => $operations_monthly_right_iout_tr6,
+            'operations_monthly_right_iout_tr7' => $operations_monthly_right_iout_tr7,
+            'useGridMeterDayData' => $useGridMeterDayData,
+            'showAvailability' => $showAvailability,
+            'showAvailabilitySecond' => $showAvailabilitySecond,
+            'table_overview_dayly' => $table_overview_dayly,
+            'plantAvailabilityCurrentYear' => $outPaCY,
+            'daysInReportMonth' => $daysInReportMonth,
+            'tableColsLimit' => $tableColsLimit,
+            'acGroups' => $acGroupsCleaned,
+            'availability_Year_To_Date' => $availability_Year_To_Date,
+            'failures_Year_To_Date' => $failures_Year_To_Date,
+            'plant_availability' => $plant_availability,
+            'actual' => $actual,
+            'plantAvailabilityMonth' => $outPa,
+            'operations_currents_dayly_table' => $outTableCurrentsPower,
+            'income_per_month' => $incomePerMonth,
+            'income_per_month_chart' => $income_per_month_chart,
+            'total_Costs_Per_Date' => $total_Costs_Per_Date,
+            'operating_statement_chart' => $operating_statement_chart,
         ];
         return $output;
 
