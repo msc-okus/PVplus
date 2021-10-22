@@ -33,7 +33,8 @@ class UpdateExpectedDbsCommand extends Command
     {
         $this
             ->setDescription('Erzeugt die SOll Daten für AC und DC')
-            ->addOption('anlage', 'a', InputOption::VALUE_REQUIRED, 'Anlagen ID für die, die Berechnung ausgeführt werden soll')
+            ->addArgument('plantid', InputArgument::OPTIONAL, 'Anlagen ID für die, die Berechnung ausgeführt werden soll oder nichts, dann werden alle Anlagen berechnet')
+            //->addOption('anlage', 'a', InputOption::VALUE_REQUIRED, 'Anlagen ID für die, die Berechnung ausgeführt werden soll')
             ->addOption('from', null, InputOption::VALUE_REQUIRED, 'Datum ab dem berechnet werden soll')
             ->addOption('to', null, InputOption::VALUE_REQUIRED, 'Datum bis zu dem berechnet werden soll')
         ;
@@ -42,9 +43,10 @@ class UpdateExpectedDbsCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $anlageId = $input->getOption('anlage');
+        //$anlageId = $input->getOption('anlage');
+        $anlageId   = $input->getArgument('plantid');
         $optionFrom = $input->getOption('from');
-        $optionTo = $input->getOption('to');
+        $optionTo   = $input->getOption('to');
 
 
         if ($optionFrom) {
