@@ -219,6 +219,7 @@ class ReportEpcService
                 $currentMonthClass = '';
                 if ($pr) {
                     $prReal = $this->format($pr->getPrEvuMonth());
+                    $prStandard = $this->format($pr->getPrDefaultMonthEvu());
                     switch ($n) {
                         case 1:
                         case $anzahlMonate:
@@ -232,7 +233,8 @@ class ReportEpcService
                                 } else {
                                     $eGridReal = $prArray['powerEGridExt'];
                                 }
-                                $prReal = $prArray['prEGridExt'];
+                                $prReal     = $prArray['prEGridExt'];
+                                $prStandard = $prArray['prDefaultEGridExt'];
                             }
                             break;
                         default:
@@ -246,6 +248,7 @@ class ReportEpcService
                                     $eGridReal = $this->gridMeterRepo->sumByDateRange($anlage, $from, $to);
                                 }
                                 $prReal = $pr->getPrEGridExtMonth();
+                                $prStandard = $this->format($pr->getPrDefaultMonthEGridExt());
                             }
                     }
 
@@ -259,9 +262,11 @@ class ReportEpcService
                         if ($anlage->getUseGridMeterDayData()){
                             $formelEnergy   = $prArrayFormel['powerEGridExt'];
                             $formelPR       = $prArrayFormel['prEGridExt'];
+                            $prStandard     = $prArrayFormel['prDefaultEGridExt'];
                         } else {
                             $formelEnergy   = $prArrayFormel['powerEvu'];
                             $formelPR       = $prArrayFormel['prEvu'];
+                            $prStandard     = $prArrayFormel['prDefaultEvu'];
                         }
                         $formelIrr          = $prArrayFormel['irradiation'];
                         $formelPowerTheo    = $prArrayFormel['powerTheo'];
@@ -281,6 +286,7 @@ class ReportEpcService
                         $counterReal++;
                     }
                 } else {
+                    $prStandard = 0;
                     $eGridReal = $ertragPvSyst;
                     $prReal = $prDesignPvSyst;
                     $prRealprProg = $prGuarantie;
@@ -324,6 +330,7 @@ class ReportEpcService
                         'eGridReal-Design'  => $this->format($eGridReal-$ertragPvSyst),
                         'spezErtrag'        => $this->format($eGridReal / $anlage->getKwPeak(), 2),
                         'prReal'            => $this->format($prReal),
+                        'prStandard'        => $this->format($prStandard),
                         'prReal_prDesign'   => $this->format($prReal - $prDesignPvSyst),
                         'availability'      => $this->format($prAvailability),
                         'dummy'             => '',
@@ -352,6 +359,7 @@ class ReportEpcService
             'eGridReal-Design'      => $this->format($sumEGridRealDesign),
             'spezErtrag'            => $this->format($sumEGridReal / $anlage->getKwPeak()),
             'prReal'                => $this->format($sumPrReal  / $counter),
+            'prStandard'            => '',
             'prReal_prDesign'       => $this->format(($sumPrReal / $counter) - $anlage->getDesignPR()), // PR Real minus PR Design
             'availability'          => '',
             'dummy'                 => '',
@@ -375,6 +383,7 @@ class ReportEpcService
             'eGridReal-Design'      => $this->format($sumEGridRealDesignReal),
             'spezErtrag'            => $this->format($sumEGridRealReal / $anlage->getKwPeak()),
             'prReal'                => $this->format($formelPR),
+            'prStandard'            => '',
             'prReal_prDesign'       => $this->format($formelPR - $anlage->getDesignPR()),
             'availability'          => $this->format($formelAvailability),
             'dummy'                 => '',
