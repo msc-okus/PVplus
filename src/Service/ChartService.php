@@ -73,7 +73,7 @@ class ChartService
      * @param Anlage|null $anlage
      * @return array
      */
-    public function getGraphsAndControl($form, ?Anlage $anlage): array
+    public function getGraphsAndControl($form, ?Anlage $anlage,?bool $hour): array
     {
         $resultArray = [];
         $resultArray['data'] = '';
@@ -109,13 +109,13 @@ class ChartService
 
         $from   = self::timeShift($anlage, $form['from'],true);
         $to     = self::timeShift($anlage, $form['to'],true);
-
         if ($anlage) {
             switch ($form['selectedChart']) {
                 // AC Charts //
                 // AC1 //
+
                 case ("ac_single"):
-                    $dataArray = $this->acCharts->getAC1($anlage, $from, $to);
+                    $dataArray = $this->acCharts->getAC1($anlage, $from, $to, $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['showEvuDiag'] = $anlage->getShowEvuDiag();

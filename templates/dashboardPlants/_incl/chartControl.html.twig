@@ -4,6 +4,14 @@
     <input type="hidden" name="eide" value="{{ aktAnlage.eignerId }}">
     <input type="hidden" name="aid" value="{{ aktAnlage.AnlId }}">
     <input type="hidden" name="mysubmit" id="mysubmit" value="no">
+
+    <div class="switch tiny cell medium-3 small-6">
+        <input class="switch-input js-submit-onchange" id="hour" type="checkbox" name="hour" onclick="Display()" {%if form.hour == true  %} checked {% endif %}>
+        <label class="switch-paddle" for="hour">
+            <span class="show-for-sr"></span>
+        </label>
+    </div>
+
     <div class="cell medium-6 large-4 xlarge-2">
         <select class="js-submit-onchange selectedChart" title="Please select a view from the list." data-toggle="tooltip" name="selectedChart">
             <optgroup label="Analysis">
