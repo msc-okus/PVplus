@@ -107,7 +107,6 @@ class ReportingController extends AbstractController
 
             }
             $request->query->set('new-report', 'no');
-            //dd($q);
             $request->query->set('report-typ', $reportType);
             $request->query->set('month', $reportMonth);
             $request->query->set('year', $reportYear);

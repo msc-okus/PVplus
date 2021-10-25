@@ -24,6 +24,7 @@ class DashboardPlantsController extends BaseController
      */
     public function index($eignerId, $anlageId, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService, EntityManagerInterface $entityManager, AvailabilityService $availabilityService): Response
     {
+        $hour = "";
         $form = [];
         /** @var Anlage|null $aktAnlage */
         if ($anlageId && $anlageId > 0) {
@@ -50,6 +51,7 @@ class DashboardPlantsController extends BaseController
             $form['to'] = (new \DateTime)->format("Y-m-d 23:59");
             $form['from'] = (new \DateTime)->format("Y-m-d");
             $form['optionDate'] = 1;
+            $form['hour'] = false;
         }
 
         // Verarbeitung der Case 5 Ereignisse
@@ -74,6 +76,7 @@ class DashboardPlantsController extends BaseController
             $form['selectedSet'] = $request->request->get('selectedSet');
             $form['optionDate'] = $request->request->get('optionDate');
             $form['backFromMonth'] = false;
+            $form['hour'] = $request->request->get('hour');
 
             // optionDate == 100000 → Zeige Daten für den ganzen Monat, also vom ersten bis zum letzten Tages des ausgewäten Monats
             if ($form['optionDate'] == 100000){
@@ -95,8 +98,8 @@ class DashboardPlantsController extends BaseController
         }
 
         $content = null;
-
-        if ($aktAnlage) $content = $chartService->getGraphsAndControl($form, $aktAnlage);
+       $hour = $request->get('hour')=="on";
+        if ($aktAnlage) $content = $chartService->getGraphsAndControl($form, $aktAnlage,$hour);
         $isInTimeRange = self::isInTimeRange();
 
         return $this->render('dashboardPlants/plantsShow.html.twig', [
@@ -105,6 +108,7 @@ class DashboardPlantsController extends BaseController
             'form'          => $form,
             'content'       => $content,
             'isInTimeRange' => $isInTimeRange,
+            'hour'          => $hour,
         ]);
     }
 
