@@ -43,24 +43,18 @@ class ACPowerChartsService
      */
     public function getAC1(Anlage $anlage, $from, $to,?bool $hour = false)
     {
-    dump($hour);
+
 
         $conn = self::getPdoConnection();
+        if($hour) $form = '%y%m%d%H';
+        else $form = '%y%m%d%H%i';
 
-        if($hour)$sql = "SELECT a.stamp as stamp, sum(b.ac_exp_power) as soll, sum(b.ac_exp_power_evu) as soll_evu, sum(b.ac_exp_power_no_limit) as soll_nolimit
+
+        $sql = "SELECT a.stamp as stamp, sum(b.ac_exp_power) as soll, sum(b.ac_exp_power_evu) as soll_evu, sum(b.ac_exp_power_no_limit) as soll_nolimit
                     FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDcSoll() . " b ON a.stamp = b.stamp)
-                    WHERE a.stamp >= '$from' AND a.stamp <= '$to'
-                    GROUP by extract(year FROM a.stamp),extract(month FROM a.stamp), extract(day FROM a.stamp),extract(hour FROM a.stamp)";
-
-        else $sql = "SELECT a.stamp as stamp, sum(b.ac_exp_power) as soll, sum(b.ac_exp_power_evu) as soll_evu, sum(b.ac_exp_power_no_limit) as soll_nolimit
-                    FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDcSoll() . " b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP by a.stamp";
-
-
-        dump($sql);
-
-
+                    WHERE a.stamp >= '$from' AND a.stamp < '$to'
+                    GROUP by date_format(a.stamp, '$form')";
         $res = $conn->query($sql);
-        dump($res->rowCount());
         $actSum = 0;
         $expSum = $expEvuSum = $expNoLimitSum = 0;
         $evuSum = 0;
@@ -69,7 +63,6 @@ class ACPowerChartsService
         if ($res->rowCount() > 0) {
             $counter = 0;
             // add Irradiation
-            //dd($anlage->getShowOnlyUpperIrr(), $anlage->getWeatherStation()->getHasLower(), $anlage->getWeatherStation());
             if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false){
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
             } else {
@@ -90,14 +83,23 @@ class ACPowerChartsService
                 $acIst = 0;
                 $eZEvu = 0;
                 $cosPhi = 0;
-                if($hour)$sql_b = "SELECT stamp, sum(wr_pac) as acIst, e_z_evu as eZEvu, wr_cos_phi_korrektur as cosPhi FROM " . $anlage->getDbNameIst() . " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'  and wr_pac > 0 GROUP by extract(year FROM stamp),extract(month FROM stamp), extract(day FROM stamp),extract(hour FROM stamp) LIMIT 1";
-                else $sql_b = "SELECT stamp, sum(wr_pac) as acIst, e_z_evu as eZEvu, wr_cos_phi_korrektur as cosPhi FROM " . $anlage->getDbNameIst() . " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' and wr_pac > 0 GROUP by stamp LIMIT 1";
+                if($hour)
+                    $sql_b="SELECT stamp, sum(wr_pac) as acIst, sum(e_z_evu) as eZEvu, wr_cos_phi_korrektur as cosPhi
+                            FROM ".$anlage->getDbNameIst().
+                          " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' and wr_pac > 0 GROUP by  date_format(stamp, '$form') LIMIT 1";
 
+                else
+                    $sql_b ="SELECT stamp, sum(wr_pac) as acIst, e_z_evu as eZEvu, wr_cos_phi_korrektur as cosPhi 
+                             FROM ".$anlage->getDbNameIst().
+                           " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' and wr_pac > 0 GROUP by stamp LIMIT 1";
+
+     //           $sql_b = "SELECT stamp, sum(wr_pac) as acIst, e_z_evu as eZEvu, wr_cos_phi_korrektur as cosPhi FROM " . $anlage->getDbNameIst() . " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' and wr_pac > 0 GROUP by date_format(stamp, '$form') LIMIT 1";
                 $resultB = $conn->query($sql_b);
-                dump($resultB->rowCount());
                 if ($resultB->rowCount() == 1) {
                     $row = $resultB->fetch(PDO::FETCH_ASSOC);
-                    $eZEvu = $row["eZEvu"];
+                    dump($anlage->getConfigType());
+                    dump($anlage->getAnzInverterFromGroupsAC() );
+                    ($hour) ? $eZEvu = $row["eZEvu"]/($anlage->getAnzInverterFromGroupsAC()): $eZEvu = $row["eZEvu"];
                     $cosPhi = abs($row["cosPhi"]);
                     $evuSum += $eZEvu;
                     $cosPhiSum += $cosPhi * $acIst;
