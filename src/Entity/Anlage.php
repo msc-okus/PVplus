@@ -1354,9 +1354,17 @@ class Anlage
     public function getAnzInverterFromGroupsAC():int
     {
         $anzGruppen = 0;
-        foreach ($this->getAcGroups() as $group) {
-            $anzGruppen += $group->getUnitLast() - $group->getUnitFirst() + 1;
+
+        if($this->getConfigType() == "3" | $this->getConfigType() == "4")
+        {
+            $anzGruppen = $this->getAcGroups()->count();
         }
+        else{
+            foreach ($this->getAcGroups() as $group) {
+                $anzGruppen += $group->getUnitLast() - $group->getUnitFirst() + 1;
+            }
+        }
+
 
         return $anzGruppen;
     }

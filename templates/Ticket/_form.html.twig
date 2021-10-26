@@ -72,7 +72,7 @@
                 <fieldset id="midiv" style="visibility: hidden" class="fieldset">
 
 
-                    <div class="grid-x grid-margin-x grid-padding-x ">
+                    <div class="grid-x grid-margin-x grid-padding-x" >
 
 
                         <div class="cell medium-1 small-2">
@@ -82,14 +82,16 @@
 
                         </div>
                     </div>
-                    <div class="grid-x grid-margin-x grid-padding-x action-menu">
-                        <div class="cell medium-12 small-12">
-                            {{ form_widget(ticketForm.save) }}
-                            {{ form_widget(ticketForm.saveclose) }}
-                            {{ form_widget(ticketForm.close) }}
-                        </div>
-                    </div>
+
                 </fieldset>
+
+                <div class="grid-x grid-margin-x grid-padding-x action-menu">
+                    <div class="cell medium-12 small-12">
+                        {{ form_widget(ticketForm.save) }}
+                        {{ form_widget(ticketForm.saveclose) }}
+                        {{ form_widget(ticketForm.close) }}
+                    </div>
+                </div>
 
             </div>
 
