@@ -102,9 +102,28 @@ class EconomicVarNames
 
     public function __construct()
     {
-        $this->anlage = new ArrayCollection();
+        $this->anlage = new Anlage();
     }
-
+    public function setparams(Anlage $anlage,string $var1,string $var2,string $var3,string $var4,string $var5,string $var6,string $var7,string $var8,string $var9,string $var10
+        ,string $var11,string $var12,string $var13,string $var14,string $var15)
+    {
+        $this->anlage = $anlage;
+        $this->var_1=$var1;
+        $this->var_2=$var2;
+        $this->var_3=$var3;
+        $this->var_4=$var4;
+        $this->var_5=$var5;
+        $this->var_6=$var6;
+        $this->var_7=$var7;
+        $this->var_8=$var8;
+        $this->var_9=$var9;
+        $this->var_10=$var10;
+        $this->var_11=$var11;
+        $this->var_12=$var12;
+        $this->var_13=$var13;
+        $this->var_14=$var14;
+        $this->var_15=$var15;
+    }
     public function getId(): ?int
     {
         return $this->id;

@@ -743,7 +743,7 @@ class Anlage
     private $tickets;
 
     /**
-     * @ORM\OneToMany(targetEntity=EconomicVarNames::class, mappedBy="anlage", orphanRemoval=true)
+     * @ORM\OneToOne(targetEntity=EconomicVarNames::class, mappedBy="anlage", orphanRemoval=true)
      */
     private $economicVarNames;
 
@@ -2973,7 +2973,7 @@ class Anlage
         return  $this->getAnlName();
     }
 
-    public function getEconomicVarNames(): ?EconomicVarNames
+    public function getEconomicVarNames(): EconomicVarNames
     {
         return $this->economicVarNames;
     }

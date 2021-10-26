@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Anlage;
+use App\Entity\EconomicVarNames;
 use App\Form\Anlage\AnlageAcGroupsFormType;
 use App\Form\Anlage\AnlageConfigFormType;
 use App\Form\Anlage\AnlageDcGroupsFormType;
@@ -123,6 +124,11 @@ class AnlagenAdminController extends BaseController
 
     /**
      * @Route("/admin/anlagen/editconfig/{id}", name="app_admin_anlagen_edit_config")
+     * @param $id
+     * @param EntityManagerInterface $em
+     * @param Request $request
+     * @param AnlagenRepository $anlagenRepository
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
     public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository)
     {
@@ -133,9 +139,14 @@ class AnlagenAdminController extends BaseController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked() ) ) {
-
+            $economicVarNames =new EconomicVarNames();
+            $economicVarNames->setparams($anlage, $form->get('var_1')->getData(), $form->get('var_2')->getData(), $form->get('var_3')->getData(), $form->get('var_4')->getData(), $form->get('var_5')->getData(), $form->get('var_6')->getData()
+            ,$form->get('var_7')->getData(), $form->get('var_8')->getData(), $form->get('var_9')->getData(), $form->get('var_10')->getData(), $form->get('var_11')->getData(), $form->get('var_12')->getData(), $form->get('var_13')->getData(), $form->get('var_14')->getData(), $form->get('var_15')->getData());
+            $anlage->setEconomicVarNames($economicVarNames);
             $successMessage = 'Plant data saved!';
+
             $em->persist($anlage);
+            $em->persist($economicVarNames);
             $em->flush();
             if ($form->get('saveclose')->isClicked()) {
                 $this->addFlash('success', $successMessage);
