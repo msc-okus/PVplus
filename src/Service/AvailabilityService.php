@@ -83,7 +83,7 @@ class AvailabilityService
 
             foreach ($availabilitysHelper as $inverter => $availability) {
 
-                // Berechnung der prozentualen Verfügbarkeit Part 1 und Part 2
+                // Berechnung der protzentualen Verfügbarkeit Part 1 und Part 2
                 if ($availability['control'] - $availability['case4'] != 0) {
                     $invAPart1 = (($availability['case1'] + $availability['case2'] + $availability['case5']) / ($availability['control'])) * 100;
                     ($anlage->getPower() > 0 && $inverterPowerDc[$inverter] > 0) ? $invAPart2 = $inverterPowerDc[$inverter] / $anlage->getPower() : $invAPart2 = 1;
@@ -166,29 +166,30 @@ class AvailabilityService
         $istData = $this->getIstData($anlage, $from, $to);
         // hole Strahlung (für Verfügbarkeit)
         //TODO: Erweitern auf die entsprechenden Gruppen Wetter Stationen; also nicht nur aus der Anlagen Wettersation sondern auch auf die Gruppen Stationen verweisen wenn angegeben
-        $sql_einstrahlung = "SELECT stamp, g_lower, g_upper, wind_speed FROM " . $anlage->getDbNameWeather() . " WHERE stamp BETWEEN '$from' AND '$to'";
+        $sql_einstrahlung = "SELECT a.stamp, b.g_lower, b.g_upper, b.wind_speed FROM (db_dummysoll a left JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' AND '$to'";
         $resultEinstrahlung = $conn->query($sql_einstrahlung);
 
         // Aus IstDaten und Strahlungsdaten die Tages-Verfügbarkeit je Inverter berechnen
         if ($resultEinstrahlung->rowCount() > 0) {
-            if($anlage->getUseNewDcSchema()) {
+            if ($anlage->getUseNewDcSchema()) {
                 $anzInverter = $anlage->getAcGroups()->count();
             } else {
                 $anzInverter = $anlage->getAnzInverterFromGroupsAC();
             }
             $case5Array = [];
 
-            // suche Case 5 Fälle und schreibe diese in Array[inverter][stamp] = true|false
+            // suche Case 5 Fälle und schreibe diese in case5Array[inverter][stamp] = true|false
             foreach ($this->case5Repository->findAllCase5($anlage, $from, $to) as $case) {
                 $c5From = strtotime($case['stampFrom']);
                 $c5To   = strtotime($case['stampTo']);
-                for ($c5Stamp = $c5From; $c5Stamp < $c5To; $c5Stamp += 900) { // 900 = 15 Minuten in Sekunden
+                for ($c5Stamp = $c5From; $c5Stamp <= $c5To; $c5Stamp += 900) { // 900 = 15 Minuten in Sekunden
                     foreach (explode(',', $case['inverter'], 999) as $inverter) {
                         $inverter = trim($inverter, ' ');
                         $case5Array[$inverter][date('Y-m-d H:i:00', $c5Stamp)] = true;
                     }
                 }
             }
+            dump($case5Array);
             if(true){
                 while ($einstrahlung = $resultEinstrahlung->fetch(PDO::FETCH_ASSOC)) {
 
@@ -213,11 +214,11 @@ class AvailabilityService
                         if (!isset($availability[$inverter]['case5'])) $availability[$inverter]['case5'] = 0;
                         if (!isset($availability[$inverter]['control'])) $availability[$inverter]['control'] = 0;
 
-                        (isset($istData[$stamp][$inverter]['power_ac'])) ? $powerAc = $istData[$stamp][$inverter]['power_ac'] : $powerAc = 0;
+                        (isset($istData[$stamp][$inverter]['power_ac'])) ? $powerAc = (float)$istData[$stamp][$inverter]['power_ac'] : $powerAc = null;
                         (isset($istData[$stamp][$inverter]['cos_phi'])) ? $cosPhi = $istData[$stamp][$inverter]['cos_phi'] : $cosPhi = 0;
 
-                        // Schaue in case5Array nach ob eintrag für diesen Inverter und diesen Timestamp vorhanden ist
-                        ($strahlung > $threshold1PA && isset($case5Array[$inverter][$stamp])) ? $case5 = true : $case5 = false;
+                        // Schaue in case5Array nach, ob ein Eintrag für diesen Inverter und diesen Timestamp vorhanden ist
+                        (($strahlung > $threshold1PA || is_null($powerAc)) && isset($case5Array[$inverter][$stamp])) ? $case5 = true : $case5 = false;
 
                         // Case 1
                         if ($strahlung > $threshold1PA && $strahlung < $threshold2PA && $case5 === false) {
@@ -229,7 +230,7 @@ class AvailabilityService
                             $case3Helper[$inverter] = 0;
                         }
                         // Case 2
-                        if ($strahlung >= $threshold2PA && $powerAc > 0 && $case5 === false) {
+                        if ($strahlung >= $threshold2PA && ($powerAc > 0 || is_null($powerAc)) && $case5 === false) {
                             $availability[$inverter]['case2']++;
 
                             if ($case3Helper[$inverter] < $maxFailTime) {
@@ -239,12 +240,12 @@ class AvailabilityService
                             $case3Helper[$inverter] = 0;
                         }
                         // Case 3
-                        if ($strahlung >= $threshold2PA && $powerAc <= 0 && $case5 === false) {
+                        if ($strahlung >= $threshold2PA && ($powerAc <= 0 && !is_null($powerAc)) && $case5 === false) {
                             $availability[$inverter]['case3']++;
                             $case3Helper[$inverter] += 15;
                         }
                         // Case 4
-                        if ($strahlung >= $threshold2PA && $powerAc > 0 && $cosPhi == 0 && $case5 === false) {
+                        if ($strahlung >= $threshold2PA && ($powerAc > 0 && !is_null($powerAc)) && $cosPhi == 0 && $case5 === false) {
                             $availability[$inverter]['case4']++;
                             if ($case3Helper[$inverter] < $maxFailTime) {
                                 $availability[$inverter]['case3'] -= $case3Helper[$inverter] / 15;
@@ -252,12 +253,14 @@ class AvailabilityService
                             }
                             $case3Helper[$inverter] = 0;
                         }
+                        #dump("Power: ".$istData[$stamp][$inverter]['power_ac']." | Irr: $strahlung | ");
                         // Case 5
-                        if ($strahlung > $threshold1PA && $case5 === true) {
+                        dump($case5);
+                        if (($strahlung > $threshold1PA || is_null($strahlung) || is_null($powerAc)) && $case5 === true) {
                             $availability[$inverter]['case5']++;
                         }
                         // Control
-                        if ($strahlung > $threshold1PA) {
+                        if ($strahlung > $threshold1PA || is_null($strahlung) || is_null($powerAc)) {
                             $availability[$inverter]['control']++;
                         }
                     }
@@ -276,6 +279,8 @@ class AvailabilityService
         $istData = [];
         $dbNameIst = $anlage->getDbNameIst();
         $sql = "SELECT a.stamp as stamp, wr_cos_phi_korrektur as cos_phi, b.unit as inverter, b.wr_pac as power_ac FROM (db_dummysoll a left JOIN $dbNameIst b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' AND '$to' ORDER BY a.stamp, b.unit";
+        $sql = "SELECT stamp, wr_cos_phi_korrektur as cos_phi, unit as inverter, wr_pac as power_ac FROM  $dbNameIst  WHERE stamp BETWEEN '$from' AND '$to' ORDER BY stamp, unit";
+
         $result = $conn->query($sql);
         if ($result->rowCount() > 0) {
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
