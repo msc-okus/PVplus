@@ -45,7 +45,6 @@ class AvailabilityService
             $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'availability_first', date_create(date('Y-m-d H:m', $date)));
         }
         $timestampModulo = $date;
-        //dump($timesConfig);
 
         $from = date("Y-m-d 04:00", $timestampModulo);
         $dayStamp = new DateTime($from);
@@ -189,83 +188,79 @@ class AvailabilityService
                     }
                 }
             }
-            dump($case5Array);
-            if(true){
-                while ($einstrahlung = $resultEinstrahlung->fetch(PDO::FETCH_ASSOC)) {
 
-                    $stamp = $einstrahlung['stamp'];
-                    //TODO: Erweiterung auf Gruppen ebene (Bavelse Berg) und gewichtung nach Anlagengröße - Nutzung der Funktion 'calcIrr()'
-                    if ($anlage->getIsOstWestAnlage()) {
-                        $strahlung = self::mittelwert([$einstrahlung['g_upper'], $einstrahlung['g_lower']]);
-                    } else {
-                        $strahlung = $einstrahlung['g_upper'];
+            while ($einstrahlung = $resultEinstrahlung->fetch(PDO::FETCH_ASSOC)) {
+                $stamp = $einstrahlung['stamp'];
+                //TODO: Erweiterung auf Gruppen ebene (Bavelse Berg) und gewichtung nach Anlagengröße - Nutzung der Funktion 'calcIrr()'
+                if ($anlage->getIsOstWestAnlage()) {
+                    $strahlung = self::mittelwert([$einstrahlung['g_upper'], $einstrahlung['g_lower']]);
+                } else {
+                    $strahlung = $einstrahlung['g_upper'];
+                }
+                $startInverter = 1;
+                for ($inverter = $startInverter; $inverter <= $anzInverter; $inverter++) {
+
+                    // Nur beim ersten durchlauf, Werte setzen, damit nicht 'undifiend'
+                    if (!isset($availability[$inverter]['case1'])) $availability[$inverter]['case1'] = 0;
+                    if (!isset($availability[$inverter]['case2'])) $availability[$inverter]['case2'] = 0;
+                    if (!isset($availability[$inverter]['case3'])) {
+                        $availability[$inverter]['case3'] = 0;
+                        $case3Helper[$inverter] = 0;
                     }
-                    $startInverter = 1;
-                    for ($inverter = $startInverter; $inverter <= $anzInverter; $inverter++) {
+                    if (!isset($availability[$inverter]['case4'])) $availability[$inverter]['case4'] = 0;
+                    if (!isset($availability[$inverter]['case5'])) $availability[$inverter]['case5'] = 0;
+                    if (!isset($availability[$inverter]['control'])) $availability[$inverter]['control'] = 0;
 
-                        // Nur beim ersten durchlauf, Werte setzen, damit nicht 'undifiend'
-                        if (!isset($availability[$inverter]['case1'])) $availability[$inverter]['case1'] = 0;
-                        if (!isset($availability[$inverter]['case2'])) $availability[$inverter]['case2'] = 0;
-                        if (!isset($availability[$inverter]['case3'])) {
-                            $availability[$inverter]['case3'] = 0;
-                            $case3Helper[$inverter] = 0;
-                        }
-                        if (!isset($availability[$inverter]['case4'])) $availability[$inverter]['case4'] = 0;
-                        if (!isset($availability[$inverter]['case5'])) $availability[$inverter]['case5'] = 0;
-                        if (!isset($availability[$inverter]['control'])) $availability[$inverter]['control'] = 0;
+                    (isset($istData[$stamp][$inverter]['power_ac'])) ? $powerAc = (float)$istData[$stamp][$inverter]['power_ac'] : $powerAc = null;
+                    (isset($istData[$stamp][$inverter]['cos_phi'])) ? $cosPhi = $istData[$stamp][$inverter]['cos_phi'] : $cosPhi = null;
 
-                        (isset($istData[$stamp][$inverter]['power_ac'])) ? $powerAc = (float)$istData[$stamp][$inverter]['power_ac'] : $powerAc = null;
-                        (isset($istData[$stamp][$inverter]['cos_phi'])) ? $cosPhi = $istData[$stamp][$inverter]['cos_phi'] : $cosPhi = 0;
+                    // Schaue in case5Array nach, ob ein Eintrag für diesen Inverter und diesen Timestamp vorhanden ist
+                    (($strahlung > $threshold1PA || is_null($powerAc)) && isset($case5Array[$inverter][$stamp])) ? $case5 = true : $case5 = false;
 
-                        // Schaue in case5Array nach, ob ein Eintrag für diesen Inverter und diesen Timestamp vorhanden ist
-                        (($strahlung > $threshold1PA || is_null($powerAc)) && isset($case5Array[$inverter][$stamp])) ? $case5 = true : $case5 = false;
+                    // Case 1
+                    if ($strahlung > $threshold1PA && $strahlung < $threshold2PA && $case5 === false) {
+                        $availability[$inverter]['case1']++;
+                        if ($case3Helper[$inverter] < $maxFailTime) {
+                            $availability[$inverter]['case3'] -= $case3Helper[$inverter] / 15;
+                            $availability[$inverter]['case2'] += $case3Helper[$inverter] / 15;
+                        }
+                        $case3Helper[$inverter] = 0;
+                    }
+                    // Case 2
+                    if ($strahlung >= $threshold2PA && ($powerAc > 0 || is_null($powerAc)) && $case5 === false) {
+                        $availability[$inverter]['case2']++;
 
-                        // Case 1
-                        if ($strahlung > $threshold1PA && $strahlung < $threshold2PA && $case5 === false) {
-                            $availability[$inverter]['case1']++;
-                            if ($case3Helper[$inverter] < $maxFailTime) {
-                                $availability[$inverter]['case3'] -= $case3Helper[$inverter] / 15;
-                                $availability[$inverter]['case2'] += $case3Helper[$inverter] / 15;
-                            }
-                            $case3Helper[$inverter] = 0;
+                        if ($case3Helper[$inverter] < $maxFailTime) {
+                            $availability[$inverter]['case3'] -= $case3Helper[$inverter] / 15;
+                            $availability[$inverter]['case2'] += $case3Helper[$inverter] / 15;
                         }
-                        // Case 2
-                        if ($strahlung >= $threshold2PA && ($powerAc > 0 || is_null($powerAc)) && $case5 === false) {
-                            $availability[$inverter]['case2']++;
-
-                            if ($case3Helper[$inverter] < $maxFailTime) {
-                                $availability[$inverter]['case3'] -= $case3Helper[$inverter] / 15;
-                                $availability[$inverter]['case2'] += $case3Helper[$inverter] / 15;
-                            }
-                            $case3Helper[$inverter] = 0;
+                        $case3Helper[$inverter] = 0;
+                    }
+                    // Case 3
+                    if ($strahlung >= $threshold2PA && ($powerAc <= 0 && !is_null($powerAc)) && $case5 === false) {
+                        $availability[$inverter]['case3']++;
+                        $case3Helper[$inverter] += 15;
+                    }
+                    // Case 4
+                    if ($strahlung >= $threshold2PA && ($powerAc > 0 && !is_null($powerAc)) && $cosPhi === 0 && $case5 === false) {
+                        $availability[$inverter]['case4']++;
+                        if ($case3Helper[$inverter] < $maxFailTime) {
+                            $availability[$inverter]['case3'] -= $case3Helper[$inverter] / 15;
+                            $availability[$inverter]['case2'] += $case3Helper[$inverter] / 15;
                         }
-                        // Case 3
-                        if ($strahlung >= $threshold2PA && ($powerAc <= 0 && !is_null($powerAc)) && $case5 === false) {
-                            $availability[$inverter]['case3']++;
-                            $case3Helper[$inverter] += 15;
-                        }
-                        // Case 4
-                        if ($strahlung >= $threshold2PA && ($powerAc > 0 && !is_null($powerAc)) && $cosPhi == 0 && $case5 === false) {
-                            $availability[$inverter]['case4']++;
-                            if ($case3Helper[$inverter] < $maxFailTime) {
-                                $availability[$inverter]['case3'] -= $case3Helper[$inverter] / 15;
-                                $availability[$inverter]['case2'] += $case3Helper[$inverter] / 15;
-                            }
-                            $case3Helper[$inverter] = 0;
-                        }
-                        #dump("Power: ".$istData[$stamp][$inverter]['power_ac']." | Irr: $strahlung | ");
-                        // Case 5
-                        dump($case5);
-                        if (($strahlung > $threshold1PA || is_null($strahlung) || is_null($powerAc)) && $case5 === true) {
-                            $availability[$inverter]['case5']++;
-                        }
-                        // Control
-                        if ($strahlung > $threshold1PA || is_null($strahlung) || is_null($powerAc)) {
-                            $availability[$inverter]['control']++;
-                        }
+                        $case3Helper[$inverter] = 0;
+                    }
+                    // Case 5
+                    if (($strahlung > $threshold1PA || is_null($strahlung) || is_null($powerAc)) && $case5 === true) {
+                        $availability[$inverter]['case5']++;
+                    }
+                    // Control
+                    if ($strahlung > $threshold1PA || is_null($strahlung) || is_null($powerAc)) {
+                        $availability[$inverter]['control']++;
                     }
                 }
             }
+
         }
         unset($resultEinstrahlung);
         $conn = null;

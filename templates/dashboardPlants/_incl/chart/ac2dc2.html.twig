@@ -86,6 +86,26 @@
         seriesIrr.hidden = true;
         seriesIrr.yAxis = valueAxis2;
 
+        {% if aktAnlage.showCosPhiDiag %}
+            let valueAxisCosPhi = chart.yAxes.push(new am4charts.ValueAxis());
+            valueAxisCosPhi.title.text = "CosPhi";
+            valueAxisCosPhi.renderer.opposite = true;
+            valueAxisCosPhi.renderer.ticks.template.disabled = true;
+            valueAxisCosPhi.renderer.grid.template.disabled = true;
+            valueAxisCosPhi.extraMax = 0.1;
+
+            let seriesCosPhi = chart.series.push(new am4charts.LineSeries());
+            seriesCosPhi.name = "CosPhi"
+            seriesCosPhi.dataFields.dateX = "date";
+            seriesCosPhi.dataFields.valueY = "cosPhi";
+            seriesCosPhi.tooltipText = "CosPhi: {valueY} [/]";
+            seriesCosPhi.stroke = am4core.color("rgba(0,0,0,0.68)");
+            seriesCosPhi.strokeWidth = 1;
+            seriesCosPhi.defaultState.transitionDuration = 300;
+            seriesCosPhi.tensionX = 0.8;
+            seriesCosPhi.hidden = true;
+            seriesCosPhi.yAxis = valueAxisCosPhi;
+        {% endif %}
         /*
         let series110 = chart.series.push(new am4charts.LineSeries());
         series110.name = "panelTemp"
