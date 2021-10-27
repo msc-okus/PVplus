@@ -82,8 +82,9 @@ class DashboardPlantsController extends BaseController
                 $form['from']   = date("Y-m-01 00:00", strtotime($request->request->get('to')));
             }
             else {
-                $form['from']   = date("Y-m-d 00:00", strtotime($request->request->get('to')) - (86400 * ($form['optionDate'] - 1)));
                 $form['to']     = $request->request->get('to');
+                if ($form['to'] > date('Y-m-d')) $form['to'] = date('Y-m-d H:i'); // Korriegiert Datum, wenn diese in der Zukunft liegt
+                $form['from']   = date("Y-m-d 00:00", strtotime($form['to']) - (86400 * ($form['optionDate'] - 1)));
             }
 
             // ergänze um Uhrzeit
@@ -93,6 +94,7 @@ class DashboardPlantsController extends BaseController
             // bei Verfügbarkeit Anzeige kann nur ein Tag angezeigt werden
             if ($form['selectedChart'] == 'availability' && $form['optionDate'] > 1) { $form['optionDate'] = 1; }
         }
+
 
         $content = null;
 

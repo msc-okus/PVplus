@@ -149,7 +149,7 @@ class ReportEpcService
         return $output;
     }
 
-    public function reportPRGuarantee(Anlage $anlage):array
+    public function reportPRGuarantee(Anlage $anlage): array
     {
         $anzahlMonate = ((int)$anlage->getEpcReportEnd()->format('Y') - (int)$anlage->getEpcReportStart()->format('Y')) * 12 + ((int)$anlage->getEpcReportEnd()->format('m') - (int)$anlage->getEpcReportStart()->format('m')) + 1;
         $startYear = $anlage->getEpcReportStart()->format('Y');
@@ -519,7 +519,7 @@ class ReportEpcService
                     $year++;
                 }
 
-                $daysInMonth = date('t', strtotime("$year-$month-01")) * 1;
+                $daysInMonth = (int)date('t', strtotime("$year-$month-01"));
                 $from = date('Y-m-d', strtotime("$year-$month-01 00:00"));
                 $to = date('Y-m-d', strtotime("$year-$month-$daysInMonth 23:59"));
 

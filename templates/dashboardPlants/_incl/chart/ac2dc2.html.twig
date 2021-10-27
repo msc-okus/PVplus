@@ -24,12 +24,12 @@
         let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
         valueAxis.title.text = "[[kWh]]";
 
-        let valueAxis2 = chart.yAxes.push(new am4charts.ValueAxis());
-        valueAxis2.title.text = "Irradiation [[W/m²]]";
-        valueAxis2.renderer.opposite = true;
-        valueAxis2.renderer.ticks.template.disabled = true;
-        valueAxis2.renderer.grid.template.disabled = true;
-        valueAxis2.extraMax = 0.1;
+        let valueAxisIrr = chart.yAxes.push(new am4charts.ValueAxis());
+        valueAxisIrr.title.text = "Irradiation [[W/m²]]";
+        valueAxisIrr.renderer.opposite = true;
+        valueAxisIrr.renderer.ticks.template.disabled = true;
+        valueAxisIrr.renderer.grid.template.disabled = true;
+        valueAxisIrr.extraMax = 0.1;
 
         /*
         let valueAxis3 = chart.yAxes.push(new am4charts.ValueAxis());
@@ -84,7 +84,7 @@
         seriesIrr.defaultState.transitionDuration = 300;
         seriesIrr.tensionX = 0.8;
         seriesIrr.hidden = true;
-        seriesIrr.yAxis = valueAxis2;
+        seriesIrr.yAxis = valueAxisIrr;
 
         {% if aktAnlage.showCosPhiDiag %}
             let valueAxisCosPhi = chart.yAxes.push(new am4charts.ValueAxis());
