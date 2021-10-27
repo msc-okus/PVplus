@@ -274,6 +274,13 @@ class AnlageConfigFormType extends AbstractType
                 'by_reference'  => false,
             ])
 
+            ->add('economicVarValues', CollectionType::class, [
+                'entry_type'    => EconomicVarsValuesEmbeddedFormType::class,
+                'allow_add'     => true,
+                'allow_delete'  => true,
+                'delete_empty'  => true,
+                'by_reference'  => false,
+            ])
             ##############################################
             ####          STEUERELEMENTE              ####
             ##############################################

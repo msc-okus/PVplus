@@ -748,7 +748,7 @@ class Anlage
     private $economicVarNames;
 
     /**
-     * @ORM\OneToMany(targetEntity=EconomicVarValues::class, mappedBy="anlage", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=EconomicVarValues::class, mappedBy="anlage", orphanRemoval=true, cascade={"persist", "remove"})
      */
     private $economicVarValues;
 
