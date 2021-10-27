@@ -5,7 +5,21 @@ namespace App\Entity;
 use App\Repository\EconomicVarNamesRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\mapping as ORM;
+use DateTime;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\NumericFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
+use App\Repository\ReportsRepository;
+use Gedmo\Blameable\Traits\BlameableEntity;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
+use ApiPlatform\Core\Annotation\ApiResource;
 
 /**
  * @ORM\Entity(repositoryClass=EconomicVarNamesRepository::class)
@@ -14,7 +28,7 @@ class EconomicVarNames
 {
     /**
      * @ORM\Id
-     * @ORM\GeneratedValue
+     * @ORM\GeneratedValue(strategy="IDENTITY")
      * @ORM\Column(type="integer")
      */
     private $id;
@@ -103,6 +117,21 @@ class EconomicVarNames
     public function __construct()
     {
         $this->anlage = new Anlage();
+        $this->var_1="";
+        $this->var_2="";
+        $this->var_3="";
+        $this->var_4="";
+        $this->var_5="";
+        $this->var_6="";
+        $this->var_7="";
+        $this->var_8="";
+        $this->var_9="";
+        $this->var_10="";
+        $this->var_11="";
+        $this->var_12="";
+        $this->var_13="";
+        $this->var_14="";
+        $this->var_15="";
     }
     public function setparams(Anlage $anlage,string $var1,string $var2,string $var3,string $var4,string $var5,string $var6,string $var7,string $var8,string $var9,string $var10
         ,string $var11,string $var12,string $var13,string $var14,string $var15)

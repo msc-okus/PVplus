@@ -3,8 +3,12 @@
 namespace App\Repository;
 
 use App\Entity\EconomicVarNames;
+use App\Helper\G4NTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\Common\Collections\Criteria;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Security\Core\Security;
 
 /**
  * @method EconomicVarNames|null find($id, $lockMode = null, $lockVersion = null)
@@ -17,6 +21,15 @@ class EconomicVarNamesRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, EconomicVarNames::class);
+    }
+
+    public function findByAnlage(String $anlId){
+        $qb = $this->createQueryBuilder('e')
+            ->andWhere('e.anlage = :query')
+            ->setParameter('query', $anlId)
+            ->addSelect('e');
+        return $qb->getQuery()
+            ->getResult();
     }
 
     // /**

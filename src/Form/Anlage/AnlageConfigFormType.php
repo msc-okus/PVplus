@@ -131,6 +131,7 @@ class AnlageConfigFormType extends AbstractType
                 'empty_data'    => '0',
             ])
             ->add('var_1', TextType::class, [
+                'data'          => '',
                 'label'         => 'Variable 1',
                 'empty_data'    => '',
                 'required'      => false,

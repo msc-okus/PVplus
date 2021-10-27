@@ -743,7 +743,7 @@ class Anlage
     private $tickets;
 
     /**
-     * @ORM\OneToOne(targetEntity=EconomicVarNames::class, mappedBy="anlage", orphanRemoval=true)
+     * @ORM\OneToOne(targetEntity=EconomicVarNames::class, mappedBy="anlage", orphanRemoval=true, cascade={"persist", "remove"})
      */
     private $economicVarNames;
 
