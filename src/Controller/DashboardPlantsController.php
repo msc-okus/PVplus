@@ -21,6 +21,7 @@ class DashboardPlantsController extends BaseController
 
     /**
      * @Route("/dashboard/plants/{eignerId}/{anlageId}", name="app_dashboard_plant")
+     * @throws \Exception
      */
     public function index($eignerId, $anlageId, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService, EntityManagerInterface $entityManager, AvailabilityService $availabilityService): Response
     {
@@ -54,7 +55,6 @@ class DashboardPlantsController extends BaseController
 
         // Verarbeitung der Case 5 Ereignisse
         if ($request->request->get('mysubmit') === 'yes' || $request->request->get('addCase5') === 'addCase5') {
-
             if ($request->request->get('addCase5') === 'addCase5'){
                 $this->updateCase5Availability(
                     $aktAnlage,
@@ -77,13 +77,13 @@ class DashboardPlantsController extends BaseController
 
             // optionDate == 100000 → Zeige Daten für den ganzen Monat, also vom ersten bis zum letzten Tages des ausgewäten Monats
             if ($form['optionDate'] == 100000){
-                $daysInMonth                = date("t", strtotime($request->request->get('to')));
-                $form['to']                 = date("Y-m-$daysInMonth 23:59", strtotime($request->request->get('to')));
-                $form['from']               = date("Y-m-01 00:00", strtotime($request->request->get('to')));
+                $daysInMonth    = date("t", strtotime($request->request->get('to')));
+                $form['to']     = date("Y-m-$daysInMonth 23:59", strtotime($request->request->get('to')));
+                $form['from']   = date("Y-m-01 00:00", strtotime($request->request->get('to')));
             }
             else {
-                $form['from']           =date("Y-m-d 00:00", strtotime($request->request->get('to')) - (86400 * ($form['optionDate'] - 1)));
-                $form['to']             = $request->request->get('to');
+                $form['from']   = date("Y-m-d 00:00", strtotime($request->request->get('to')) - (86400 * ($form['optionDate'] - 1)));
+                $form['to']     = $request->request->get('to');
             }
 
             // ergänze um Uhrzeit
@@ -120,6 +120,7 @@ class DashboardPlantsController extends BaseController
      * @param $reason
      * @param EntityManagerInterface $em
      * @param AvailabilityService $availabilityService
+     * @throws \Exception
      */
     private function updateCase5Availability(Anlage $anlage, $case5id, $date, $from, $to, $inverter, $reason, EntityManagerInterface $em, AvailabilityService $availabilityService)
     {

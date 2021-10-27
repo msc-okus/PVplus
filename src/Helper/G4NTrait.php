@@ -307,7 +307,7 @@ trait G4NTrait
      * @param array $werte
      * @return float
      */
-    public function mittelwert(array $werte): float
+    public function mittelwert(array $werte): ?float
     {
         $divisor = $divident = 0;
         foreach ($werte as $wert) {
@@ -316,7 +316,7 @@ trait G4NTrait
                 $divident += (float)$wert;
             }
         }
-        return ($divisor > 0) ? $divident / $divisor : 0;
+        return ($divisor > 0) ? $divident / $divisor : null;
     }
 
 }
