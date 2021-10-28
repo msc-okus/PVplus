@@ -41,6 +41,192 @@
         <td></td>
     </tr>
 {% endmacro %}
+{% macro addeconomicVarValue(economicVarValue,econames) %}
+    <tr>
+            <td>{{ form_widget(economicVarValue.year) }}</td>
+            <td>{{ form_widget(economicVarValue.month) }}</td>
+        {% if econames.getVar1 != "" %}
+           <td>
+               {{ form_widget(economicVarValue.var_1) }}
+               Use last month value:
+               <div class="switch tiny cell medium-3 small-6">
+                   <input class="switch-input" id="var1" type="checkbox" name="var1" onclick="Display()">
+                   <label class="switch-paddle" for="var1">
+                       <span class="show-for-sr"></span>
+                   </label>
+               </div>
+           </td>
+        {% endif %}
+        {% if econames.getVar2 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_2) }}
+                Use last month value:
+                <div class="switch tiny cell medium-3 small-6">
+                    <input class="switch-input" id="var2" type="checkbox" name="var2" onclick="Display()">
+                    <label class="switch-paddle" for="var2">
+                        <span class="show-for-sr"></span>
+                    </label>
+                </div>
+            </td>
+        {% endif %}
+        {% if econames.getVar3 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_3) }}
+                Use last month value:
+                <div class="switch tiny cell medium-3 small-6">
+                    <input class="switch-input" id="var3" type="checkbox" name="var3" onclick="Display()">
+                    <label class="switch-paddle" for="var3">
+                        <span class="show-for-sr"></span>
+                    </label>
+                </div>
+            </td>
+        {% endif %}
+        {% if econames.getVar4 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_4) }}
+                Use last month value:
+                <div class="switch tiny cell medium-3 small-6">
+                    <input class="switch-input" id="var4" type="checkbox" name="var4" onclick="Display()">
+                    <label class="switch-paddle" for="var4">
+                        <span class="show-for-sr"></span>
+                    </label>
+                </div>
+            </td>
+        {% endif %}
+        {% if econames.getVar5 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_5) }}
+                Use last month value:
+                <div class="switch tiny cell medium-3 small-6">
+                    <input class="switch-input" id="var5" type="checkbox" name="var5" onclick="Display()">
+                    <label class="switch-paddle" for="var5">
+                        <span class="show-for-sr"></span>
+                    </label>
+                </div>
+            </td>
+        {% endif %}
+        {% if econames.getVar6 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_6) }}
+                Use last month value:
+                <div class="switch tiny cell medium-3 small-6">
+                    <input class="switch-input" id="var6" type="checkbox" name="var6" onclick="Display()">
+                    <label class="switch-paddle" for="var6">
+                        <span class="show-for-sr"></span>
+                    </label>
+                </div>
+            </td>
+        {% endif %}
+        {% if econames.getVar7 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_7) }}
+                Use last month value:
+                <div class="switch tiny cell medium-3 small-6">
+                    <input class="switch-input" id="var7" type="checkbox" name="var7" onclick="Display()">
+                    <label class="switch-paddle" for="var7">
+                        <span class="show-for-sr"></span>
+                    </label>
+                </div>
+            </td>
+        {% endif %}
+        {% if econames.getVar8 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_8) }}
+                Use last month value:
+                <div class="switch tiny cell medium-3 small-6">
+                    <input class="switch-input" id="var8" type="checkbox" name="var8" onclick="Display()">
+                    <label class="switch-paddle" for="var8">
+                        <span class="show-for-sr"></span>
+                    </label>
+                </div>
+            </td>
+        {% endif %}
+        {% if econames.getVar9 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_9) }}
+                Use last month value:
+                <div class="switch tiny cell medium-3 small-6">
+                    <input class="switch-input" id="var9" type="checkbox" name="var9" onclick="Display()">
+                    <label class="switch-paddle" for="var9">
+                        <span class="show-for-sr"></span>
+                    </label>
+                </div>
+            </td>
+        {% endif %}
+        {% if econames.getVar10 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_10) }}
+                Use last month value:
+                <div class="switch tiny cell medium-3 small-6">
+                    <input class="switch-input" id="var10" type="checkbox" name="var10" onclick="Display()">
+                    <label class="switch-paddle" for="var10">
+                        <span class="show-for-sr"></span>
+                    </label>
+                </div>
+            </td>
+        {% endif %}
+        {% if econames.getVar11 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_11) }}
+                Use last month value:
+                <div class="switch tiny cell medium-3 small-6">
+                    <input class="switch-input" id="var11" type="checkbox" name="var11" onclick="Display()">
+                    <label class="switch-paddle" for="var11">
+                        <span class="show-for-sr"></span>
+                    </label>
+                </div>
+            </td>
+        {% endif %}
+        {% if econames.getVar12 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_12) }}
+                Use last month value:
+                <div class="switch tiny cell medium-3 small-6">
+                    <input class="switch-input" id="var12" type="checkbox" name="var12" onclick="Display()">
+                    <label class="switch-paddle" for="var12">
+                        <span class="show-for-sr"></span>
+                    </label>
+                </div>
+            </td>
+        {% endif %}
+        {% if econames.getVar13 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_13) }}
+                Use last month value:
+                <div class="switch tiny cell medium-3 small-6">
+                    <input class="switch-input" id="var13" type="checkbox" name="var13" onclick="Display()">
+                    <label class="switch-paddle" for="var13">
+                        <span class="show-for-sr"></span>
+                    </label>
+                </div>
+            </td>
+        {% endif %}
+        {% if econames.getVar14 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_14) }}
+                Use last month value:
+                <div class="switch tiny cell medium-3 small-6">
+                    <input class="switch-input" id="var14" type="checkbox" name="var14" onclick="Display()">
+                    <label class="switch-paddle" for="var14">
+                        <span class="show-for-sr"></span>
+                    </label>
+                </div>
+            </td>
+        {% endif %}
+        {% if econames.getVar15 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_15) }}
+                Use last month value:
+                <div class="switch tiny cell medium-3 small-6">
+                    <input class="switch-input" id="var15" type="checkbox" name="var15" onclick="Display()">
+                    <label class="switch-paddle" for="var15">
+                        <span class="show-for-sr"></span>
+                    </label>
+                </div>
+            </td>
+        {% endif %}
+    </tr>
+{% endmacro %}
 
 {{ form_start(anlageForm, {'attr': {'novalidate': 'no'} }) }}
     <div class="grid-x">
@@ -51,6 +237,8 @@
                 <li class="tabs-title"><a data-tabs-target="legend" href="#legend">Legend Configuration</a></li>
                 <li class="tabs-title"><a data-tabs-target="pvsyst" href="#pvsyst">PVSYST Month Values Design</a></li>
                 <li class="tabs-title"><a data-tabs-target="monthly-yield" href="#monthly-yield">Monthly recalculated Values</a></li>
+                <li class="tabs-title"><a data-tabs-target="economics" href="#economics">Economic Variables </a></li>
+                <li class="tabs-title"><a data-tabs-target="economicsvalues" href="#economicsvalues">Economic Reports </a></li>
             </ul>
 
             <div class="tabs-content" data-tabs-content="config-tabs">
@@ -141,7 +329,7 @@
                                 <table id="legend-monthly">
                                     <thead>
                                     <tr>
-                                        <th style="width: 30%; ">Titel</th>
+                                        <th style="width: 30%; ">Title</th>
                                         <th style="width: 10%; ">Unit</th>
                                         <th>Description</th>
                                         <th>Quelle / Intervall</th>
@@ -282,9 +470,147 @@
                         </div>
                     </div>
                 </div>
+                <div class="tabs-panel" id="economics">
+                    <fieldset class="fieldset">
+                        <legend>Variable names</legend>
+                                {{ form_row(anlageForm.var_1, {'value': econames.getVar1() }) }}
+                                {{ form_row(anlageForm.var_2, {'value': econames.getVar2() }) }}
+                                {{ form_row(anlageForm.var_3 ,{'value': econames.getVar3() }) }}
+                                {{ form_row(anlageForm.var_4 ,{'value': econames.getVar4() }) }}
+                                {{ form_row(anlageForm.var_5 ,{'value': econames.getVar5() }) }}
+                                {{ form_row(anlageForm.var_6 ,{'value': econames.getVar6() }) }}
+                                {{ form_row(anlageForm.var_7 ,{'value': econames.getVar7() }) }}
+                                {{ form_row(anlageForm.var_8 ,{'value': econames.getVar8() }) }}
+                                {{ form_row(anlageForm.var_9 ,{'value': econames.getVar9() }) }}
+                                {{ form_row(anlageForm.var_10 ,{'value': econames.getVar10() }) }}
+                                {{ form_row(anlageForm.var_11 ,{'value': econames.getVar11() }) }}
+                                {{ form_row(anlageForm.var_12 ,{'value': econames.getVar12() }) }}
+                                {{ form_row(anlageForm.var_13 ,{'value': econames.getVar13() }) }}
+                                {{ form_row(anlageForm.var_14 ,{'value': econames.getVar14() }) }}
+                                {{ form_row(anlageForm.var_15 ,{'value': econames.getVar15() }) }}
+
+
+
+                </div>
+                <div class="tabs-panel" id="economicsvalues">
+                    <fieldset class="fieldset js-economicVarValues-wrapper"
+                              data-prototype="{{  formMacros.addeconomicVarValue(anlageForm.economicVarValues.vars.prototype,econames)|e('html_attr') }}"
+                              data-index="{{ anlageForm.economicVarValues | length }}">
+
+                    <legend>Variable values</legend>
+                    <table id="economicsvalues-values">
+                        <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Month</th>
+                            {% if econames.getVar1() != "" %}
+                                <th>{{ econames.getVar1() }}</th>
+                            {% endif %}
+                            {% if econames.getVar2() != "" %}
+                                <th>{{ econames.getVar2() }}</th>
+                            {% endif %}
+                            {% if econames.getVar3() != "" %}
+                                <th>{{ econames.getVar3() }}</th>
+                            {% endif %}
+                            {% if econames.getVar4() != "" %}
+                                <th>{{ econames.getVar4() }}</th>
+                            {% endif %}
+                            {% if econames.getVar5() != "" %}
+                                <th>{{ econames.getVar5() }}</th>
+                            {% endif %}
+                            {% if econames.getVar6() != "" %}
+                                <th>{{ econames.getVar6() }}</th>
+                            {% endif %}
+                            {% if econames.getVar7() != "" %}
+                                <th>{{ econames.getVar7() }}</th>
+                            {% endif %}
+                            {% if econames.getVar8() != "" %}
+                                <th>{{ econames.getVar8() }}</th>
+                            {% endif %}
+                            {% if econames.getVar9() != "" %}
+                                <th>{{ econames.getVar9() }}</th>
+                            {% endif %}
+                            {% if econames.getVar10() != "" %}
+                                <th>{{ econames.getVar10() }}</th>
+                            {% endif %}
+                            {% if econames.getVar11() != "" %}
+                                <th>{{ econames.getVar11() }}</th>
+                            {% endif %}
+                            {% if econames.getVar12() != "" %}
+                                <th>{{ econames.getVar12() }}</th>
+                            {% endif %}
+                            {% if econames.getVar13() != "" %}
+                                <th>{{ econames.getVar13() }}</th>
+                            {% endif %}
+                            {% if econames.getVar14() != "" %}
+                                <th>{{ econames.getVar14() }}</th>
+                            {% endif %}
+                            {% if econames.getVar15() != "" %}
+                                <th>{{ econames.getVar15() }}</th>
+                            {% endif %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for ecoValue in anlageForm.economicVarValues %}
+                            <tr class="">
+                                <td>{{ form_widget(ecoValue.year) }}</td>
+                                <td>{{ form_widget(ecoValue.month) }}</td>
+                                {% if econames.getVar1() != "" %}
+                                    <td>{{ form_widget(ecoValue.var_1) }}</td>
+                                {% endif %}
+                                {% if econames.getVar2() != "" %}
+                                    <td>{{ form_widget(ecoValue.var_2) }}</td>
+                                {% endif %}
+                                {% if econames.getVar3() != "" %}
+                                    <td>{{ form_widget(ecoValue.var_3) }}</td>
+                                {% endif %}
+                                {% if econames.getVar4() != "" %}
+                                    <td>{{ form_widget(ecoValue.var_4) }}</td>
+                                {% endif %}
+                                {% if econames.getVar5() != "" %}
+                                    <td>{{ form_widget(ecoValue.var_5) }}</td>
+                                {% endif %}
+                                {% if econames.getVar6() != "" %}
+                                    <td>{{ form_widget(ecoValue.var_6) }}</td>
+                                {% endif %}
+                                {% if econames.getVar7() != "" %}
+                                    <td>{{ form_widget(ecoValue.var_7) }}</td>
+                                {% endif %}
+                                {% if econames.getVar8() != "" %}
+                                    <td>{{ form_widget(ecoValue.var_8) }}</td>
+                                {% endif %}
+                                {% if econames.getVar9() != "" %}
+                                    <td>{{ form_widget(ecoValue.var_9) }}</td>
+                                {% endif %}
+                                {% if econames.getVar10() != "" %}
+                                    <td>{{ form_widget(ecoValue.var_10) }}</td>
+                                {% endif %}
+                                {% if econames.getVar11() != "" %}
+                                    <td>{{ form_widget(ecoValue.var_11) }}</td>
+                                {% endif %}
+                                {% if econames.getVar12() != "" %}
+                                    <td>{{ form_widget(ecoValue.var_12) }}</td>
+                                {% endif %}
+                                {% if econames.getVar13() != "" %}
+                                    <td>{{ form_widget(ecoValue.var_13) }}</td>
+                                {% endif %}
+                                {% if econames.getVar14() != "" %}
+                                    <td>{{ form_widget(ecoValue.var_14) }}</td>
+                                {% endif %}
+                                {% if econames.getVar15() != "" %}
+                                    <td>{{ form_widget(ecoValue.var_15) }}</td>
+                                {% endif %}
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                        <button type="button" class="button secondary small js-economic-var-value-add"> <span class="fa fa-plus-circle"></span>&nbsp;Add Economic Report</button>
+                    </fieldset>
+                </div>
             </div>
         </div>
     </div>
+
 
     <div class="grid-x grid-padding-y action-menu">
         <div class="cell">
@@ -293,6 +619,7 @@
             {{ form_widget(anlageForm.close) }}
         </div>
     </div>
+<div style="display: none">{{ form_rest(anlageForm) }}</div>
     {% do anlageForm.eventMails.setRendered() %}
     {% do anlageForm.legendMonthlyReports.setRendered() %}
     {% do anlageForm.legendEpcReports.setRendered() %}

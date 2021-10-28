@@ -742,6 +742,16 @@ class Anlage
      */
     private $tickets;
 
+    /**
+     * @ORM\OneToOne(targetEntity=EconomicVarNames::class, mappedBy="anlage", orphanRemoval=true, cascade={"persist", "remove"})
+     */
+    private $economicVarNames;
+
+    /**
+     * @ORM\OneToMany(targetEntity=EconomicVarValues::class, mappedBy="anlage", orphanRemoval=true, cascade={"persist", "remove"})
+     */
+    private $economicVarValues;
+
 
 
     public function __construct()
@@ -767,6 +777,7 @@ class Anlage
         $this->Inverters = new ArrayCollection();
         $this->logs = new ArrayCollection();
         $this->tickets = new ArrayCollection();
+        $this->economicVarValues = new ArrayCollection();
     }
 
     public function getAnlId(): ?string
@@ -2960,5 +2971,47 @@ class Anlage
     }
     public function __toString(){
         return  $this->getAnlName();
+    }
+
+    public function getEconomicVarNames(): EconomicVarNames
+    {
+        return $this->economicVarNames;
+    }
+
+    public function setEconomicVarNames(?EconomicVarNames $economicVarNames): self
+    {
+        $this->economicVarNames = $economicVarNames;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|EconomicVarValues[]
+     */
+    public function getEconomicVarValues(): Collection
+    {
+        return $this->economicVarValues;
+    }
+
+    public function addEconomicVarValue(EconomicVarValues $economicVarValue): self
+    {
+        if (!$this->economicVarValues->contains($economicVarValue)) {
+            $this->economicVarValues[] = $economicVarValue;
+            $economicVarValue->setAnlage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEconomicVarValue(EconomicVarValues $economicVarValue): self
+    {
+        if ($this->economicVarValues->removeElement($economicVarValue)) {
+            // set the owning side to null (unless already changed)
+            if ($economicVarValue->getAnlage() === $this) {
+                $economicVarValue->setAnlage(null);
+            }
+        }
+
+        return $this;
     }
 }

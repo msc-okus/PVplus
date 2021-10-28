@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Anlage;
+use App\Entity\EconomicVarNames;
 use App\Form\Anlage\AnlageAcGroupsFormType;
 use App\Form\Anlage\AnlageConfigFormType;
 use App\Form\Anlage\AnlageDcGroupsFormType;
@@ -11,6 +12,7 @@ use App\Form\Anlage\AnlageCustomerFormType;
 use App\Form\Anlage\AnlageNewFormType;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
+use App\Repository\EconomicVarNamesRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -123,19 +125,45 @@ class AnlagenAdminController extends BaseController
 
     /**
      * @Route("/admin/anlagen/editconfig/{id}", name="app_admin_anlagen_edit_config")
+     * @param $id
+     * @param EntityManagerInterface $em
+     * @param Request $request
+     * @param AnlagenRepository $anlagenRepository
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
-    public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository)
+    public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoRepo)
     {
         $anlage = $anlagenRepository->find($id);
+        $economicVarNames1 =new EconomicVarNames();
+        dump($ecoRepo->findByAnlage($id)[1]);
+        if($ecoRepo->findByAnlage($id)[0] != null) {
+            $economicVarNames1 = $ecoRepo->findByAnlage($id)[0];// will be used to load and display the already defined names
+            // dump($economicVarNames1->getVar1());
+        }
+
+
         $form = $this->createForm(AnlageConfigFormType::class, $anlage, [
             'anlagenId' => $id,
         ]);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked() ) ) {
+            if($economicVarNames1==null) {
+                $economicVarNames = new EconomicVarNames();
+                $economicVarNames->setparams($anlage, $form->get('var_1')->getData(), $form->get('var_2')->getData(), $form->get('var_3')->getData(), $form->get('var_4')->getData(), $form->get('var_5')->getData(), $form->get('var_6')->getData()
+                    , $form->get('var_7')->getData(), $form->get('var_8')->getData(), $form->get('var_9')->getData(), $form->get('var_10')->getData(), $form->get('var_11')->getData(), $form->get('var_12')->getData(), $form->get('var_13')->getData(), $form->get('var_14')->getData(), $form->get('var_15')->getData());
+            }
+            else{
+                $economicVarNames = $economicVarNames1;
+                $economicVarNames->setparams($anlage, $form->get('var_1')->getData(), $form->get('var_2')->getData(), $form->get('var_3')->getData(), $form->get('var_4')->getData(), $form->get('var_5')->getData(), $form->get('var_6')->getData()
+                    , $form->get('var_7')->getData(), $form->get('var_8')->getData(), $form->get('var_9')->getData(), $form->get('var_10')->getData(), $form->get('var_11')->getData(), $form->get('var_12')->getData(), $form->get('var_13')->getData(), $form->get('var_14')->getData(), $form->get('var_15')->getData());
 
+            }
+            $anlage->setEconomicVarNames($economicVarNames);
             $successMessage = 'Plant data saved!';
+            dump($economicVarNames);
             $em->persist($anlage);
+
             $em->flush();
             if ($form->get('saveclose')->isClicked()) {
                 $this->addFlash('success', $successMessage);
@@ -152,6 +180,7 @@ class AnlagenAdminController extends BaseController
         return $this->render('anlagen/editconfig.html.twig', [
             'anlageForm'    => $form->createView(),
             'anlage'        => $anlage,
+            'econames'      => $economicVarNames1,
         ]);
     }
 
