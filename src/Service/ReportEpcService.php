@@ -330,7 +330,6 @@ class ReportEpcService
                         'eGridReal-Design'  => $this->format($eGridReal-$ertragPvSyst),
                         'spezErtrag'        => $this->format($eGridReal / $anlage->getKwPeak(), 2),
                         'prReal'            => $this->format($prReal),
-                        'prStandard'        => $this->format($prStandard),
                         'prReal_prDesign'   => $this->format($prReal - $prDesignPvSyst),
                         'availability'      => $this->format($prAvailability),
                         'dummy'             => '',
@@ -359,7 +358,6 @@ class ReportEpcService
             'eGridReal-Design'      => $this->format($sumEGridRealDesign),
             'spezErtrag'            => $this->format($sumEGridReal / $anlage->getKwPeak()),
             'prReal'                => $this->format($sumPrReal  / $counter),
-            'prStandard'            => '',
             'prReal_prDesign'       => $this->format(($sumPrReal / $counter) - $anlage->getDesignPR()), // PR Real minus PR Design
             'availability'          => '',
             'dummy'                 => '',
@@ -383,7 +381,6 @@ class ReportEpcService
             'eGridReal-Design'      => $this->format($sumEGridRealDesignReal),
             'spezErtrag'            => $this->format($sumEGridRealReal / $anlage->getKwPeak()),
             'prReal'                => $this->format($formelPR),
-            'prStandard'            => '',
             'prReal_prDesign'       => $this->format($formelPR - $anlage->getDesignPR()),
             'availability'          => $this->format($formelAvailability),
             'dummy'                 => '',

@@ -309,12 +309,7 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
                 ],
                 'prReal' => [
                     'type'          => 'number',
-                    'label'         => 'PR<sub><small>_Real_M (EPC)</small></sub><br><br>[%]',
-                    'formatValue'   => function($value) {return number_format($value, 2, ',', '.');},
-                ],
-                'prStandard' => [
-                    'type'          => 'number',
-                    'label'         => 'PR<sub><small>_Real_M (Std)</small></sub><br><br>[%]',
+                    'label'         => 'PR<sub><small>_Real_M</small></sub><br><br>[%]',
                     'formatValue'   => function($value) {return number_format($value, 2, ',', '.');},
                 ],
                 'eGridReal'=> [
