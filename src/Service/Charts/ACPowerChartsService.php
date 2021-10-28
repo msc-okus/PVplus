@@ -108,6 +108,7 @@ class ACPowerChartsService
                     if ($anlage->getShowInverterOutDiag())$dataArray['chart'][$counter]['InvOut'] = $actout;
                     if ($anlage->getShowEvuDiag()) $dataArray['chart'][$counter]['eZEvu'] = $eZEvu;
                     if ($anlage->getShowCosPhiPowerDiag()) $dataArray['chart'][$counter]['cosPhi'] = $cosPhi * $actout;
+                    if ($anlage->getShowCosPhiDiag()) $dataArray['cosPhi'] = $cosPhi;
                 }
 
                 // add Irradiation
@@ -178,7 +179,7 @@ class ACPowerChartsService
                 $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone()); // Adjust Time differenve between weather station and plant data (only nessesary if weather data comes from externel weather station)
                 $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp); // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
 
-                $sqlIst = "SELECT sum(wr_pac) as actPower FROM " . $anlage->getDbNameIst() . " WHERE stamp = '$stampAdjust' AND wr_pac > 0 ";
+                $sqlIst = "SELECT sum(wr_pac) as actPower, wr_cos_phi_korrektur FROM " . $anlage->getDbNameIst() . " WHERE stamp = '$stampAdjust' AND wr_pac > 0 ";
                 switch ($anlage->getConfigType()) {
                     case 1:
                         $sqlIst .= "AND group_ac = '$group'";
@@ -187,7 +188,6 @@ class ACPowerChartsService
                         $sqlIst .= "AND group_dc = '$group'";
                 }
                 $sqlIst .= " GROUP BY unit";
-
                 $resultIst = $conn->query($sqlIst);
                 $counterInv = 1;
 
@@ -222,6 +222,7 @@ class ACPowerChartsService
                             default:
                                 if ($counterInv > $dataArray['maxSeries']) $dataArray['maxSeries'] = $counterInv - 1;
                         }
+                        if ($anlage->getShowCosPhiDiag()) $dataArray['chart'][$counter]['cosPhi'] = abs($rowIst['wr_cos_phi_korrektur']);
                     }
                 } else {
                     for ($counterInv = 1; $counterInv <= $maxInverter; $counterInv++) {
@@ -312,7 +313,7 @@ class ACPowerChartsService
                 // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
                 $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
 
-                $sql = "SELECT sum(wr_pac) as actPower FROM " . $anlage->getDbNameIst() . " WHERE stamp = '$stampAdjust' AND wr_pac > 0 ";
+                $sql = "SELECT sum(wr_pac) as actPower, wr_cos_phi_korrektur FROM " . $anlage->getDbNameIst() . " WHERE stamp = '$stampAdjust' AND wr_pac > 0 ";
                 switch ($anlage->getConfigType()) {
                     case 1:
                         $sql .= "AND group_dc = '$group'";
@@ -321,6 +322,7 @@ class ACPowerChartsService
                         $sql .= "AND group_ac = '$group'";
                 }
                 $sql .= " GROUP BY unit;";
+                dump($sql);
                 $resultIst = $conn->query($sql);
                 $counterInv = 1;
                 if ($resultIst->rowCount() > 0) {
@@ -350,6 +352,7 @@ class ACPowerChartsService
                             default:
                                 if ($counterInv > $dataArray['maxSeries']) $dataArray['maxSeries'] = $counterInv - 1;
                         }
+                        if ($anlage->getShowCosPhiDiag()) $dataArray['chart'][$counter]['cosPhi'] = abs($rowIst['wr_cos_phi_korrektur']);
                     }
                 } else {
                     for($counterInv = 1; $counterInv <= $maxInverter; $counterInv++) {
