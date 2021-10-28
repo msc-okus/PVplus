@@ -13,6 +13,7 @@ use App\Form\Anlage\AnlageNewFormType;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\EconomicVarNamesRepository;
+use App\Repository\EconomicVarValuesRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -131,14 +132,12 @@ class AnlagenAdminController extends BaseController
      * @param AnlagenRepository $anlagenRepository
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
-    public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoRepo)
+    public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo, EconomicVarValuesRepository $ecoValRepo)
     {
         $anlage = $anlagenRepository->find($id);
         $economicVarNames1 =new EconomicVarNames();
-        dump($ecoRepo->findByAnlage($id)[1]);
-        if($ecoRepo->findByAnlage($id)[0] != null) {
-            $economicVarNames1 = $ecoRepo->findByAnlage($id)[0];// will be used to load and display the already defined names
-            // dump($economicVarNames1->getVar1());
+        if($ecoNamesRepo->findByAnlage($id)[0] != null) {
+            $economicVarNames1 = $ecoNamesRepo->findByAnlage($id)[0];// will be used to load and display the already defined names
         }
 
 
@@ -159,9 +158,10 @@ class AnlagenAdminController extends BaseController
                     , $form->get('var_7')->getData(), $form->get('var_8')->getData(), $form->get('var_9')->getData(), $form->get('var_10')->getData(), $form->get('var_11')->getData(), $form->get('var_12')->getData(), $form->get('var_13')->getData(), $form->get('var_14')->getData(), $form->get('var_15')->getData());
 
             }
+
+            //TODO: think and work on the switches, they are quite complex!
             $anlage->setEconomicVarNames($economicVarNames);
             $successMessage = 'Plant data saved!';
-            dump($economicVarNames);
             $em->persist($anlage);
 
             $em->flush();
@@ -176,7 +176,6 @@ class AnlagenAdminController extends BaseController
 
             return $this->redirectToRoute('app_admin_anlagen_list');
         }
-
         return $this->render('anlagen/editconfig.html.twig', [
             'anlageForm'    => $form->createView(),
             'anlage'        => $anlage,
