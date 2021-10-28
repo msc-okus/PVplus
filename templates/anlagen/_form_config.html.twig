@@ -45,6 +45,7 @@
     <tr>
             <td>{{ form_widget(economicVarValue.year) }}</td>
             <td>{{ form_widget(economicVarValue.month) }}</td>
+            <td>{{ form_widget(economicVarValue.KwHPrice) }}</td>
         {% if econames.getVar1 != "" %}
            <td>
                {{ form_widget(economicVarValue.var_1) }}
@@ -503,6 +504,7 @@
                         <tr>
                             <th>Year</th>
                             <th>Month</th>
+                            <th>Kw/h Price:</th>
                             {% if econames.getVar1() != "" %}
                                 <th>{{ econames.getVar1() }}</th>
                             {% endif %}
@@ -555,6 +557,7 @@
                             <tr class="">
                                 <td>{{ form_widget(ecoValue.year) }}</td>
                                 <td>{{ form_widget(ecoValue.month) }}</td>
+                                <td>{{ form_widget(ecoValue.KwHPrice) }}</td>
                                 {% if econames.getVar1() != "" %}
                                     <td>{{ form_widget(ecoValue.var_1) }}</td>
                                 {% endif %}

@@ -40,6 +40,9 @@ class EconomicVarsValuesEmbeddedFormType extends AbstractType
                 'label'         => 'year',
                 'required'      => true,
             ])
+            ->add('KwHPrice', CustomNumber::class, [
+                'label'         => 'Kw/h Price:'
+            ])
             ->add('var_1', CustomNumber::class, [
                 'label'         => 'Variable 1',
                 'empty_data'    => '',
