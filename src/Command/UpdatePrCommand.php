@@ -32,8 +32,9 @@ class UpdatePrCommand extends Command
     {
         $this
             ->setDescription('Berechnung des PR ')
-            ->addArgument('day', InputArgument::OPTIONAL, 'Tag (day) im Format \'yyyy-mm-dd\' für den, der PR berechnet werden soll.')
-            ->addOption('anlage', 'a', InputOption::VALUE_REQUIRED, 'Anlagen ID für die, die Berechnung ausgeführt werden soll')
+            ->addArgument('plantid', InputArgument::OPTIONAL, 'Anlagen ID für die, die Berechnung ausgeführt werden soll oder nichts, dann werden alle Anlagen berechnet')
+            ->addOption('day', null,InputOption::VALUE_REQUIRED, 'Tag (day) im Format \'yyyy-mm-dd\' für den, der PR berechnet werden soll.')
+           // ->addOption('anlage', 'a', InputOption::VALUE_REQUIRED, 'Anlagen ID für die, die Berechnung ausgeführt werden soll')
             ->addOption('from', null, InputOption::VALUE_REQUIRED, 'Datum ab dem berechnet werden soll')
             ->addOption('to', null, InputOption::VALUE_REQUIRED, 'Datum bis zu dem berechnet werden soll')
             ->addOption('lastMonth', 'lm', InputOption::VALUE_NONE, 'Berechne PR für letzten Monat (ausgehen vom aktuellen Datum).')
@@ -44,8 +45,9 @@ class UpdatePrCommand extends Command
     {
         $ergebniss          = '';
         $io                 = new SymfonyStyle($input, $output);
-        $day                = $input->getArgument('day');
-        $anlageId           = $input->getOption('anlage');
+        $day                = $input->getOption('day');
+        //$anlageId           = $input->getOption('anlage');
+        $anlageId           = $input->getArgument('plantid');
         $optionFrom         = $input->getOption('from');
         $optionTo           = $input->getOption('to');
         $optionLastMonth    = $input->getOption('lastMonth');
