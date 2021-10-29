@@ -42,10 +42,14 @@ class AssetManagementController extends BaseController
         $output = $assetManagement->assetReport($anlage, $month, $year, $charttypetoexport, $pages);
         $baseurl = $request->getSchemeAndHttpHost();
 
+
         return $this->render('report/assetreport.html.twig', [
             'baseurl' => $baseurl,
             'owner' => $output['owner'],
             'plantSize' => $output['plantSize'],
+            'plantName' => $output['plantName'],
+            'anlGeoLat' => $output['anlGeoLat'],
+            'anlGeoLon'  => $output['anlGeoLon'],
             'year' => $output['year'],
             'month' => $output['month'],
             'reportmonth' => $output['reportmonth'],

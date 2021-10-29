@@ -1,41 +1,35 @@
-<div class="cell medium-6">
-    <div id="headline_customer" style="border-bottom: solid 2px #00386d; text-align: right; width: 29.7cm;">
-        <img class="customer_logo" src="{{ customer_logo }}">
-    </div>
+<div style="page-break-after: always;">
     <div style="height:18cm; width: 29.7cm;" >
-        <h3 style="color: {{ font_color_second }};">F) Production</h3>
-        <span class="subheadline" style="color: {{ font_color_third }};">Monthley expected vs.actuals</span>
+        <h3>Monthly Production</h3>
         <table id="basetable">
-            </tr>
             <tr>
-                <td style="text-align: left !important;">{{ production_monthly_chart|raw }}</td>
-                <td>
-                    <table class="asset_report_table_operations_data" style="margin-top: -70px;">
+                <td style="text-align: left">
+                    <table class="asset_report_table_operations_data">
                         <thead>
-                            <tr>
-                                <td colspan="5">
-                                <span class="subheadline" style="margin:0 !important; color: {{ font_color_third }};">EXP PVSYST vs. Actuals(Grid meter)</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th rowspan="3">Month</th>
-                                <th>Yield</th>
-                                <th>Exp.</th>
-                                <th>Difference</th>
-                                <th>Difference</th>
-                            </tr>
-                            <tr>
-                                <th>(Grid meter)</th>
-                                <th>PVSYST</th>
-                                <th>Yield-EXP</th>
-                                <th>Yield-EXP</th>
-                            </tr>
-                            <tr>
-                                <th>[kWh]</th>
-                                <th>[kWh]</th>
-                                <th>[kWh]</th>
-                                <th>[%]</th>
-                            </tr>
+                        <tr>
+                            <td colspan="5">
+                                <span class="subheadline" style="text-align: left; !important;">EXP PVSYST vs. Actuals(Grid meter)xxx</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th rowspan="3" class="table-center">Month</th>
+                            <th class="table-center">Yield</th>
+                            <th class="table-center">Exp.</th>
+                            <th class="table-center">Difference</th>
+                            <th class="table-center">Difference</th>
+                        </tr>
+                        <tr>
+                            <th class="table-center">(Grid meter)</th>
+                            <th class="table-center">PVSYST</th>
+                            <th class="table-center">Yield-EXP</th>
+                            <th class="table-center">Yield-EXP</th>
+                        </tr>
+                        <tr>
+                            <th class="table-center">[kWh]</th>
+                            <th class="table-center">[kWh]</th>
+                            <th class="table-center">[kWh]</th>
+                            <th class="table-center">[%]</th>
+                        </tr>
                         </thead>
                         <tbody>
                         <tr>
@@ -127,32 +121,33 @@
                         </tr>
                         </tbody>
                     </table>
-
+                </td>
+                <td style="text-align: left">
                     <table class="asset_report_table_operations_data">
                         <thead>
                         <tr>
                             <td colspan="5">
-                                <span class="subheadline" style="margin:0 !important; color: {{ font_color_third }};">EXP g4n vs. Actuals(Grid meter)</span>
+                                <span class="subheadline" style="text-align: left !important;">EXP g4n vs. Actuals(Grid meter)</span>
                             </td>
                         </tr>
                         <tr>
-                            <th rowspan="3">Month</th>
-                            <th>Yield</th>
-                            <th>Exp.</th>
-                            <th>Difference</th>
-                            <th>Difference</th>
+                            <th rowspan="3" class="table-center">Month</th>
+                            <th class="table-center">Yield</th>
+                            <th class="table-center">Exp.</th>
+                            <th class="table-center">Difference</th>
+                            <th class="table-center">Difference</th>
                         </tr>
                         <tr>
-                            <th>(Grid meter)</th>
-                            <th>g4n</th>
-                            <th>Yield-EXP</th>
-                            <th>Yield-EXP</th>
+                            <th class="table-center">(Grid meter)</th>
+                            <th class="table-center">g4n</th>
+                            <th class="table-center">Yield-EXP</th>
+                            <th class="table-center">Yield-EXP</th>
                         </tr>
                         <tr>
-                            <th>[kWh]</th>
-                            <th>[kWh]</th>
-                            <th>[kWh]</th>
-                            <th>[%]</th>
+                            <th class="table-center">[kWh]</th>
+                            <th class="table-center">[kWh]</th>
+                            <th class="table-center">[kWh]</th>
+                            <th class="table-center">[%]</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -246,32 +241,35 @@
                         </tr>
                         </tbody>
                     </table>
-
-                    <table class="asset_report_table_operations_data" style="margin-bottom: 5px!important;">
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: left">
+                    <table class="asset_report_table_operations_data" >
                         <thead>
                         <tr>
                             <td colspan="5">
-                                <span class="subheadline" style="margin:0 !important; color: {{ font_color_third }};">Inverter out vs. Actuals(Grid meter)</span>
+                                <span class="subheadline" style="text-align: left !important; color: {{ font_color_third }};">Inverter out vs. Actuals(Grid meter)</span>
                             </td>
                         </tr>
                         <tr>
-                            <th rowspan="3">Month</th>
-                            <th>Yield</th>
-                            <th>Inverter</th>
-                            <th>Difference</th>
-                            <th>Difference</th>
+                            <th rowspan="3" class="table-center">Month</th>
+                            <th class="table-center">Yield</th>
+                            <th class="table-center">Inverter</th>
+                            <th class="table-center">Difference</th>
+                            <th class="table-center">Difference</th>
                         </tr>
                         <tr>
-                            <th>(Grid meter)</th>
-                            <th>out</th>
-                            <th>Yield-INV out</th>
-                            <th>Yield-INV out</th>
+                            <th class="table-center">(Grid meter)</th>
+                            <th class="table-center">out</th>
+                            <th class="table-center">Yield-INV out</th>
+                            <th class="table-center">Yield-INV out</th>
                         </tr>
                         <tr>
-                            <th>[kWh]</th>
-                            <th>[kWh]</th>
-                            <th>[kWh]</th>
-                            <th>[%]</th>
+                            <th class="table-center">[kWh]</th>
+                            <th class="table-center">[kWh]</th>
+                            <th class="table-center">[kWh]</th>
+                            <th class="table-center">[%]</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -364,6 +362,18 @@
                         </tr>
                         </tbody>
                     </table>
+
+                </td>
+                <td style="text-align: left">
+                    {{ production_monthly_chart|raw }}
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <table style="width: 29.7cm;">
+            <tr>
+                <td style="border-bottom: solid 2px #91bc5b;width: 25.4cm;">
                     <table class="legend_colors">
                         <tr>
                             <td rowspan="2">Explanation</td>
@@ -382,11 +392,11 @@
                         </tr>
                     </table>
                 </td>
+                <td rowspan="2"><img class="g4n_logo" src="{{ baseurl }}/images/green4net.jpg"></td>
+            </tr>
+            <tr>
+                <td></td>
             </tr>
         </table>
-    </div>
-
-    <div class="footer_g4net">
-        <img class="g4n_logo" src="{{ baseurl }}/images/green4net.jpg">
     </div>
 </div>
