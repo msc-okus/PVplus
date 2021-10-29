@@ -1,31 +1,28 @@
-<div class="cell medium-6">
-    <div id="headline_customer" style="border-bottom: solid 2px #00386d; text-align: right; width: 29.7cm;">
-        <img class="customer_logo" src="{{ customer_logo }}">
-    </div>
+<div style="page-break-after: always;">
     <div style="height:18cm; width: 29.7cm;" >
-        <h3 style="color: {{ font_color_second }};">I) Daily Availability - Resolution according to failure groups</h3>
-        <span class="subheadline" style="color: {{ font_color_third }};">Monthly overview(todo:alle Werte dieser Tabelle sind statisch und nur zum Test)</span>
+        <h3>Availability – Monthly Overview</h3>
+        <span class="subheadline" style="color: {{ font_color_third }};">Resolution according to failure groups(todo:alle Werte dieser Tabelle sind statisch und nur zum Test)</span>
         <table id="basetable">
             <tr>
-                <td style="vertical-align: top; text-align: left;">
-                    <table>
+                <td style="vertical-align: top; text-align: left; width: 400px;">
+                    <table style="width: 400px;">
                         <thead>
                         <tr>
-                            <th>Availability</th>
-                            <th>Planned</th>
-                            <th>Actual</th>
-                            <th rowspan="2">Difference</th>
+                            <th class="table-center">Availability</th>
+                            <th class="table-center">Planned</th>
+                            <th class="table-center">Actual</th>
+                            <th rowspan="2" class="table-center">Difference</th>
                         </tr>
                         <tr>
-                            <th>Month</th>
-                            <th>Expected</th>
-                            <th>Availibility</th>
+                            <th class="table-center">Month</th>
+                            <th class="table-center">Expected</th>
+                            <th class="table-center">Availibility</th>
                         </tr>
                         <tr>
-                            <th>{{ montharray[reportmonth-1] }} {{ year }}</th>
-                            <th>[%]</th>
-                            <th>[%]</th>
-                            <th>[%]</th>
+                            <th class="table-center">{{ montharray[reportmonth-1] }} {{ year }}</th>
+                            <th class="table-center">[%]</th>
+                            <th class="table-center">[%]</th>
+                            <th class="table-center">[%]</th>
                         </tr>
                         </thead>
                         {# Anlage Gesamtverfuegbarkeit: availabilityall/counterall #}
@@ -85,21 +82,30 @@
                 <td style="vertical-align: top; padding-left: 10px;">
                     {{ plant_availability|raw }}
                 </td>
-                <td style="vertical-align: top; padding-left: 10px;">
-                    {{ actual|raw }}
-                </td>
+
             </tr>
             <tr>
-                <td colspan="3" style="text-align: left; padding-top: 15px;">
+                <td style="text-align: left; padding-top: 15px; vertical-align: bottom;">
                     <div class="explanation">
                         Explanation: For example !<br>
                         What a listing of the downtimes could look like. A detailed failure report based on the g4n error messages should / will be supplied as an attachment.
                     </div>
                 </td>
+                <td style="vertical-align: top; padding-left: 10px;">
+                    {{ actual|raw }}
+                </td>
             </tr>
         </table>
     </div>
-    <div class="footer_g4net">
-        <img class="g4n_logo" src="{{ baseurl }}/images/green4net.jpg">
+    <div>
+        <table style="width: 29.7cm;">
+            <tr>
+                <td style="border-bottom: solid 2px #91bc5b;width: 25.4cm;"></td>
+                <td rowspan="2"><img class="g4n_logo" src="{{ baseurl }}/images/green4net.jpg"></td>
+            </tr>
+            <tr>
+                <td></td>
+            </tr>
+        </table>
     </div>
 </div>

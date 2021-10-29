@@ -1,4 +1,4 @@
-<div class="cell medium-6">
+<div style="page-break-after: always;">
     <div id="headline_customer" style="border-bottom: solid 2px #00386d; text-align: right; width: 29.7cm;">
         <img class="customer_logo" src="{{ customer_logo }}">
     </div>
@@ -40,7 +40,7 @@
                             <td class="tr_next_columns" style="background-color: #ffffff!important;"><b>PVSYST</b> plan proceeds<b> - P50</b></td>
                             {% set total = 0 %}
                             {% for data in income_per_month.PVSYST_plan_proceeds_EXP %}
-                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                                 {% set total = total + data %}
                             {% endfor %}
                             <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
@@ -49,7 +49,7 @@
                             <td class="tr_next_columns" style="background-color: #ffffff!important;"><span style="font-weight: bold">g4n</span> plan proceeds - <span style="font-weight: bold">EXP - P50</span></td>
                             {% set total = 0 %}
                             {% for data in income_per_month.gvn_plan_proceeds_EXP %}
-                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                                 {% set total = total + data %}
                             {% endfor %}
                             <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>

@@ -1,10 +1,7 @@
-<div class="cell medium-6">
-    <div id="headline_customer" style="border-bottom: solid 2px #00386d; text-align: right; width: 29.7cm;">
-        <img class="customer_logo" src="{{ customer_logo }}">
-    </div>
+<div style="page-break-after: always;">
     <div style="height:18cm; width: 29.7cm;" >
-        <h3 style="color: {{ font_color_second }};">J)Availability Inverter</h3>
-        <span class="subheadline" style="color: {{ font_color_third }};">Monthly overview</span>
+        <h3>Availability Inverter</h3>
+        <span class="subheadline">Daily overview – {{ month }} {{ year }}</span>
 
         <table id="basetable">
             <tr>
@@ -24,8 +21,8 @@
                                 <table class = "streamdayly" style="margin:0 !important;">
                                     <thead>
                                     {% if (itemcounter == 1 ) %}
-                                        <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;" rowspan="3" style="border-left: solid 1px !important;">Day</th><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">{{ acGroups[unitcounter2] }}</th></tr>
-                                        <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">[%]</th></tr>
+                                        <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center; border-left: solid 1px !important;" rowspan="3">Day</th><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center; ">{{ acGroups[unitcounter2] }}</th></tr>
+                                        <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center; ">[%]</th></tr>
                                     {% endif %}
                                     {% if (itemcounter > 1) %}
                                         {% if loop.last %}
@@ -46,7 +43,7 @@
                                         {% if (datatr.pa <= 80) %}{% set color = "#cc0000" %}{% endif %}
                                         {% if (datatr.pa == 100) %}{% set color = "#00b050" %}{% endif %}
                                         {% if (itemcounter == 1 ) %}
-                                            <tr><td class="tr_first_column" style="font-size: 7.3px!important;">{{ datatr.form_date }}</td><td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ datatr.pa|replace({'.': ','}) }}</td></tr>
+                                            <tr><td class="tr_first_column" style="font-size: 7.3px!important;">{{ datatr.form_date }}</td><td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ datatr.pa|number_format(2, ',', '.') }}</td></tr>
                                         {% endif %}
                                         {% if (itemcounter > 1) %}
                                             <tr><td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ datatr.pa|number_format(2, ',', '.') }}</td></tr>
@@ -62,9 +59,13 @@
                         {% set itemcounter = 1 %}
                         </td>
                     </table>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: right!important; float: right;">
                     <table class="legend_colors" style="margin-bottom: 0!important;">
                         <tr>
-                            <td rowspan="2" style="font-size: 7.3px!important;">Explanation</td>
+                            <td rowspan="2" style="font-size: 7.3px!important; text-align: center;">Explanation</td>
                             <td style="font-size: 7.3px!important;">0-2%</td>
                             <td style="font-size: 7.3px!important;">2,1-8%</td>
                             <td style="font-size: 7.3px!important;">8,1-15%</td>
@@ -82,19 +83,27 @@
                 </td>
             </tr>
         </table>
-
-        <table id="basetable">
+        <table style="width: 15.7cm; position: relative; bottom: 0px;">
             <tr>
-                <td colspan="3" style="text-align: left; padding-top: 15px;">
+                <td style="text-align: left; width: 15.7cm;">
                     <div class="explanation">
-                        Explanation: The PV plant shows a system availability of {{ (availabilityall/counterall)|number_format(3, ',', '.') }}% for the period from 01/01/{{ year}} to {{ reportmonth }}/{{ daysInReportMonth }}/{{ year}} (reporting period).<br>
+                        <b>Explanation:</b>
+                        <br>The PV plant shows a system availability of {{ (availabilityall/counterall)|number_format(3, ',', '.') }}% for the period from 01/01/{{ year}} to {{ reportmonth }}/{{ daysInReportMonth }}/{{ year}} (reporting period).<br>
                         The main reason for the relatively low availability is the fact that inverters 1.1 (transformer station 1) have not been working since April. They should be checked for defects.
                     </div>
                 </td>
             </tr>
         </table>
     </div>
-    <div class="footer_g4net">
-        <img class="g4n_logo" src="{{ baseurl }}/images/green4net.jpg">
+    <div>
+        <table style="width: 29.7cm;">
+            <tr>
+                <td style="border-bottom: solid 2px #91bc5b;width: 25.4cm;"></td>
+                <td rowspan="2"><img class="g4n_logo" src="{{ baseurl }}/images/green4net.jpg"></td>
+            </tr>
+            <tr>
+                <td></td>
+            </tr>
+        </table>
     </div>
 </div>

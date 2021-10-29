@@ -1,53 +1,112 @@
-<div class="cell medium-6">
-    <div id="headline_customer" style="border-bottom: solid 2px #00386d; text-align: right; width: 29.7cm;">
-        <img class="customer_logo" src="{{ customer_logo }}">
-    </div>
+<div style="page-break-after: always;">
     <div style="height:18cm; width: 29.7cm;" >
-        <h3 style="color: {{ font_color_second }};">Economics</h3>
-        <span class="subheadline" style="color: {{ font_color_third }};">Operating statement(todo:alle Werte dieser Tabelle sind nicht aktuell sondern nur zum Test)</span>
+        <h3>Economics</h3>
+        <span class="subheadline">Operating statement(todo:alle Werte dieser Tabelle sind nicht aktuell sondern nur zum Test)</span>
 
         <table id="basetable">
             <tr>
                 <td colspan="2" style="text-align: left">
-                    <table class="asset_report_table_operations_data">
+                    <table class="asset_report_table_operations_data" style="width: 100%!important;">
                         <tbody>
                         <tr style="font-weight: bold;">
-                            <td class="tr_next_columns" style="background-color: #fff2cc;">Operating statement [EUR]</td>
+                            <td class="tr_next_columns" style="background-color: #ededed; width: 150px;">Operating statement [EUR]</td>
                             {% set counter = 1 %}
                             {% for data in dataMonthArray %}
-                                <td class="tr_next_columns" style="background-color: #fff2cc;">{{ data }} {{ year }}</td>
+                                {% if (counter < 7) %}
+                                    <td class="tr_next_columns" style="background-color: #ededed; text-align: center!important;">{{ data }} {{ year }}</td>
+                                {% endif %}
                                 {% set counter = counter+1 %}
                             {% endfor %}
-                            <td class="tr_next_columns" style="background-color: #fff2cc; font-weight: bold">TOTAL</td>
                         </tr>
                         <tr>
-                            <td class="tr_next_columns" style="background-color: #ffffff!important;"><b>Income ACT</b></td>
+                            <td class="tr_next_columns" style="background-color: #ededed; "><b>Income ACT</b></td>
                             {% set counter = 1 %}
                             {% set total = 0 %}
                             {% for data in income_per_month.revenues_act %}
-                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% if (counter < 7) %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
                                 {% set counter = counter+1 %}
                                 {% set total = total + data %}
                             {% endfor %}
-                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
                         </tr>
                         <tr>
-                            <td class="tr_next_columns" style="background-color: #ffffff!important;"><b>PVSYST</b> plan proceeds</td>
+                            <td class="tr_next_columns" style="background-color: #ededed;"><b>PVSYST</b> plan proceeds</td>
                             {% set counter = 1 %}
                             {% set total = 0 %}
                             {% for data in income_per_month.PVSYST_plan_proceeds_EXP %}
-                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% if (counter < 7) %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
+                                {% set counter = counter+1 %}
+                                {% set total = total + data %}
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns" style="background-color: #ededed; "><span style="font-weight: bold">g4n</span> plan proceeds - <span style="font-weight: bold">g4nEXP</span></td>
+                            {% set counter = 1 %}
+                            {% set total = 0 %}
+                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                                {% if (counter < 7) %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
+                                {% set counter = counter+1 %}
+                                {% set total = total + data %}
+                            {% endfor %}
+                        </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="text-align: left">
+                    <table class="asset_report_table_operations_data" style="width: 100%!important;">
+                        <tbody>
+                        <tr style="font-weight: bold;">
+                            <td class="tr_next_columns" style="background-color: #ededed; width: 150px;">Operating statement [EUR]</td>
+                            {% set counter = 1 %}
+                            {% for data in dataMonthArray %}
+                                {% if (counter > 6) %}
+                                    <td class="tr_next_columns" style="background-color: #ededed; text-align: center!important;">{{ data }} {{ year }}</td>
+                                {% endif %}
+                                {% set counter = counter+1 %}
+                            {% endfor %}
+                            <td class="tr_next_columns" style="background-color: #ededed; font-weight: bold; text-align: center!important;">TOTAL</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns" style="background-color: #ededed; "><b>Income ACT</b></td>
+                            {% set counter = 1 %}
+                            {% set total = 0 %}
+                            {% for data in income_per_month.revenues_act %}
+                                {% if (counter > 6) %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
                                 {% set counter = counter+1 %}
                                 {% set total = total + data %}
                             {% endfor %}
                             <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
                         </tr>
                         <tr>
-                            <td class="tr_next_columns" style="background-color: #ffffff!important;"><span style="font-weight: bold">g4n</span> plan proceeds - <span style="font-weight: bold">g4nEXP</span></td>
+                            <td class="tr_next_columns" style="background-color: #ededed;"><b>PVSYST</b> plan proceeds</td>
+                            {% set counter = 1 %}
+                            {% set total = 0 %}
+                            {% for data in income_per_month.PVSYST_plan_proceeds_EXP %}
+                                {% if (counter > 6) %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
+                                {% set counter = counter+1 %}
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns" style="background-color: #ededed; "><span style="font-weight: bold">g4n</span> plan proceeds - <span style="font-weight: bold">g4nEXP</span></td>
                             {% set counter = 1 %}
                             {% set total = 0 %}
                             {% for data in income_per_month.gvn_plan_proceeds_EXP %}
-                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                {% if (counter > 6) %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
                                 {% set counter = counter+1 %}
                                 {% set total = total + data %}
                             {% endfor %}
@@ -56,7 +115,6 @@
                         </tbody>
                     </table>
                 </td>
-
             </tr>
             <tr>
                 <td style="text-align: center!important;">
@@ -65,7 +123,15 @@
             </tr>
         </table>
     </div>
-    <div class="footer_g4net">
-        <img class="g4n_logo" src="{{ baseurl }}/images/green4net.jpg">
+    <div>
+        <table style="width: 29.7cm;">
+            <tr>
+                <td style="border-bottom: solid 2px #91bc5b;width: 25.4cm;"></td>
+                <td rowspan="2"><img class="g4n_logo" src="{{ baseurl }}/images/green4net.jpg"></td>
+            </tr>
+            <tr>
+                <td></td>
+            </tr>
+        </table>
     </div>
 </div>

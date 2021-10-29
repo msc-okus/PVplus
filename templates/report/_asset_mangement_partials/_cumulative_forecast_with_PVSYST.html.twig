@@ -1,69 +1,68 @@
-<div class="cell medium-6">
-    <div id="headline_customer" style="border-bottom: solid 2px #00386d; text-align: right; width: 29.7cm;">
-        <img class="customer_logo" src="{{ customer_logo }}">
-    </div>
+<div style="page-break-after: always;">
     <div style="height:18cm; width: 29.7cm;" >
-        <h3 style="color: {{ font_color_second }};">B) Cumulative Forecast with PVSYST</h3>
-        <span class="subheadline" style="color: {{ font_color_third }};">Yearly expected vs. actuals(noch )</span>
+        <h3>Cumulative Forecast - PVSYST</h3>
+        <span class="subheadline">Yearly expected PVSYST vs. actuals</span>
         {% for data in table_overview_monthly.powerEvu %}
         {% endfor %}
         <table id="basetable">
             <tr>
                 <td colspan="2" style="text-align: left">
-                    <table class="asset_report_table_operations_data">
+                    <table class="asset_report_table_operations_data" style="width: 100%!important;">
                         <thead>
                         <tr>
-                            <th>Cumulative Forecast - {{ year }}</th>
+                            <th style="text-align: right">Cumulative Forecast - {{ year }}</th>
                             {% for data in dataMonthArray %}
-                                <th><div style="width: 100%; height: 50%;">{{ data }} {{ year }}</div></th>
+                                <th style="text-align: center"><div style="width: 100%; height: 50%;">{{ data }} {{ year }}</div></th>
                             {% endfor %}
                         </tr>
                         </thead>
                         <tbody>
                         <tr>
-                            <td class="tr_first_column">Production ACT / PVSYST - P50</td>
+                            <td class="tr_first_column" style="text-align: right">Production ACT / PVSYST - P50</td>
                             {% for data in forecast_PVSYST_table.forcast_PVSYSTP50 %}
-                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                             {% endfor %}
                         </tr>
                         <tr>
-                            <td class="tr_first_column" style="border-bottom: solid 2px">Production ACT /  PVSYST - P90</td>
+                            <td class="tr_first_column" style="text-align: right">Production ACT /  PVSYST - P90</td>
                             {% for data in forecast_PVSYST_table.forcast_PVSYSTP90 %}
-                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                             {% endfor %}
                         </tr>
                         <tr>
-                            <td class="tr_first_column">Plan PVSYST - P50</td>
+                            <td class="tr_first_column" style="text-align: right">Plan PVSYST - P50</td>
                             {% for data in forecast_PVSYST_table.forcast_plan_PVSYSTP50 %}
-                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                             {% endfor %}
                         </tr>
                         <tr>
-                            <td class="tr_first_column">Plan PVSYST - P90</td>
+                            <td class="tr_first_column" style="text-align: right">Plan PVSYST - P90</td>
                             {% for data in forecast_PVSYST_table.forcast_plan_PVSYSTP90 %}
-                                <td class="tr_next_columns">{{ data|number_format(3, ',', '.') }}</td>
+                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                             {% endfor %}
                         </tr>
                         </tbody>
                     </table>
-
                 </td>
 
             </tr>
             <tr>
-                <td class="td_texthint">
-                    P90 <span class="texthint">{{ degradation }}</span>%
-                </td>
-            </tr>
-            <tr>
-                <td>
+                <td style="text-align: left">
                     {{ forecast_PVSYST|raw }}
                 </td>
             </tr>
         </table>
     </div>
 
-    <div class="footer_g4net">
-        <img class="g4n_logo" src="{{ baseurl }}/images/green4net.jpg">
+    <div>
+        <table style="width: 29.7cm;">
+            <tr>
+                <td style="border-bottom: solid 2px #91bc5b;width: 25.4cm;"></td>
+                <td rowspan="2"><img class="g4n_logo" src="{{ baseurl }}/images/green4net.jpg"></td>
+            </tr>
+            <tr>
+                <td></td>
+            </tr>
+        </table>
     </div>
 </div>

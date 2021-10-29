@@ -179,6 +179,9 @@ class AssetManagementService
         $showAvailabilitySecond = $anlage->getShowAvailabilitySecond();
         $usePac = $anlage->getUsePac();
         $plantSize = $anlage->getPower();
+        $plantName = $anlage->getAnlName();
+        $anlGeoLat = $anlage->getAnlGeoLat();
+        $anlGeoLon = $anlage->getAnlGeoLon();
         $owner = $anlage->getEigner()->getFirma();
 
         $monthName = date("F", mktime(0, 0, 0, $report['reportMonth'], 10));
@@ -278,9 +281,9 @@ class AssetManagementService
 
             $expectedPvSystYearToDate = $expectedPvSystYearToDate + $expectedPvSystDb;
             unset($pvSyst);
-            #if ($report['reportMonth'] == $i && $report['reportYear'] == $currentYear) {
-            #$i = 13;
-            #}
+            if ($report['reportMonth'] == $i && $report['reportYear'] == $currentYear) {
+                $i = 13;
+            }
         }
 
         #fuer die Tabelle
@@ -324,7 +327,8 @@ class AssetManagementService
             'min' => 0,
             'name' => 'KWH',
             'nameLocation' => 'middle',
-            'nameGap' => 70
+            'nameGap' => 70,
+            'offset' => -20,
         );
         $chart->series =
             [
@@ -381,7 +385,7 @@ class AssetManagementService
         Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
         $chart->setOption($option);
 
-        $operations_right = $chart->render('operations_right', ['style' => 'height: 450px; width:860px; margin-left:40px;']);
+        $operations_right = $chart->render('operations_right', ['style' => 'height: 450px; width:750px;']);
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
@@ -398,7 +402,7 @@ class AssetManagementService
 
         //Cumulative Forecast
         $kumsum[0] = $powerEvu[0];
-        for ($i = 0; $i < 12; $i++) {
+        for ($i = 0; $i < $report['reportMonth']; $i++) {
             if ($i + 1 > $report['reportMonth']) {
                 $kumsum[$i] = $expectedPvSyst[$i] + $kumsum[$i - 1];
             } else {
@@ -413,7 +417,7 @@ class AssetManagementService
         }
         #Forecast / PVSYST - P90
         $kumsum[0] = $expectedPvSyst[0];
-        for ($i = 0; $i < 12; $i++) {
+        for ($i = 0; $i < $report['reportMonth']; $i++) {
             $kumsum[$i] = $expectedPvSyst[$i] + $kumsum[$i - 1];
             $tbody_forcast_plan_PVSYSTP50[] = $kumsum[$i];
 
@@ -509,10 +513,9 @@ class AssetManagementService
                 ),
         );
 
-        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
         $chart->setOption($option);
 
-        $forecast_PVSYST = $chart->render('forecast_PVSYST', ['style' => 'height: 400px; width:21.7cm; margin-left:4.5cm;']);
+        $forecast_PVSYST = $chart->render('forecast_PVSYST', ['style' => 'height: 450px; width:23cm;']);
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
@@ -617,7 +620,7 @@ class AssetManagementService
         Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
         $chart->setOption($option);
 
-        $forecast_G4N = $chart->render('forecast_G4N', ['style' => 'height: 400px; width:21.7cm; margin-left:4.5cm;']);
+        $forecast_G4N = $chart->render('forecast_G4N', ['style' => 'height: 450px; width:23cm;']);
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
@@ -723,7 +726,7 @@ class AssetManagementService
         Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
         $chart->setOption($option);
 
-        $losses_monthly = $chart->render('losses_monthly', ['style' => 'height: 400px; width:21.7cm; margin-left:4.5cm;']);
+        $losses_monthly = $chart->render('losses_monthly', ['style' => 'height: 450px; width:23cm;']);
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
@@ -734,7 +737,7 @@ class AssetManagementService
         $kumsum1[0] = $diefference_prod_to_pvsyst[0];
         $kumsum2[0] = $diefference_prod_to_expected_g4n[0];
         $kumsum3[0] = $diefference_prod_to_egrid[0];
-        for ($i = 0; $i < 12; $i++) {
+        for ($i = 0; $i < $report['reportMonth']; $i++) {
             $kumsum1[$i] = $diefference_prod_to_pvsyst[$i] + $kumsum1[$i - 1];
             $kumsum2[$i] = $diefference_prod_to_expected_g4n[$i] + $kumsum2[$i - 1];
             $kumsum3[$i] = $diefference_prod_to_egrid[$i] + $kumsum3[$i - 1];
@@ -825,7 +828,7 @@ class AssetManagementService
         Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
         $chart->setOption($option);
 
-        $losses_year = $chart->render('losses_yearly', ['style' => 'height: 400px; width:21.7cm; margin-left:4.5cm;']);
+        $losses_year = $chart->render('losses_yearly', ['style' => 'height: 450px; width:23cm;']);
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
@@ -919,7 +922,7 @@ class AssetManagementService
 
         Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
         $chart->setOption($option);
-        $production_monthly_chart = $chart->render('production_monthly_chart', ['style' => 'height: 300px; width:16cm;']);
+        $production_monthly_chart = $chart->render('production_monthly_chart', ['style' => 'height: 300px; width:15cm;']);
 
         $chart->tooltip = [];
         $chart->xAxis = [];
@@ -1563,7 +1566,7 @@ class AssetManagementService
 
         Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
         $chart->setOption($option);
-        $failures_Year_To_Date = $chart->render('failures_Year_To_Date', ['style' => 'height: 200px; width:360px; margin-top:8px; margin-left:-60px;']);
+        $failures_Year_To_Date = $chart->render('failures_Year_To_Date', ['style' => 'height: 200px; width:360px; margin-top:8px;']);
 
         $chart->tooltip = [];
         $chart->xAxis = [];
@@ -1714,7 +1717,7 @@ class AssetManagementService
 
         Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
         $chart->setOption($option);
-        $actual = $chart->render('actual', ['style' => 'height: 200px; width:450px; margin-top:8px; margin-left:-60px;']);
+        $actual = $chart->render('actual', ['style' => 'height: 200px; width:450px; margin-top:8px;']);
 
         $chart->tooltip = [];
         $chart->xAxis = [];
@@ -1840,7 +1843,7 @@ class AssetManagementService
         $chart->yAxis = array(
             'type' => 'value',
             'min' => 0,
-            'name' => '',
+            'name' => 'kWh',
             'nameLocation' => 'middle',
             'nameGap' => 70
         );
@@ -1867,7 +1870,7 @@ class AssetManagementService
             ];
 
         $option = array(
-            'color' => ['#a6b5de', '#f7bba1', '#d0d0d0'],
+            'color' => ['#9dc3e6', '#f4b183', '#92d050'],
             'title' => [
                 'text' => 'Income per month ' . $report['reportYear'],
                 'left' => 'center',
@@ -1893,7 +1896,7 @@ class AssetManagementService
         Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
         $chart->setOption($option);
 
-        $income_per_month_chart = $chart->render('income_per_month_chart', ['style' => 'height: 450px; width:750px; margin-left:200px;']);
+        $income_per_month_chart = $chart->render('income_per_month_chart', ['style' => 'height: 350px; width:950px;']);
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
@@ -1980,7 +1983,7 @@ class AssetManagementService
                         'show' => false
                     ],
                     'center' => [
-                        680,125
+                        200,150
                     ],
                     'itemStyle' => [
                         'borderType' => 'solid',
@@ -2014,13 +2017,13 @@ class AssetManagementService
                     'show' => true,
                     'orient' => 'vertical',
                     'top' => 30,
-                    'left' => 40,
+                    'right' => 40,
                 ],
         );
 
         Config::addExtraScript('cool.js', 'https://gs.g4npvplus.net/echarts/theme/');
         $chart->setOption($option);
-        $total_Costs_Per_Date = $chart->render('total_Costs_Per_Date', ['style' => 'height: 250px; width:800px; margin-left:150px;']);
+        $total_Costs_Per_Date = $chart->render('total_Costs_Per_Date', ['style' => 'height: 300px; width:800px; margin-left:80px;']);
 
         $chart->tooltip = [];
         $chart->xAxis = [];
@@ -2078,7 +2081,7 @@ class AssetManagementService
             ];
 
         $option = array(
-            'color' => ['#a6b5de', '#f7bba1', '#d0d0d0'],
+            'color' => ['#9dc3e6', '#f4b183', '#92d050'],
             'title' => [
                 'text' => 'Operating statement - '.$report['reportYear'].' [EUR]' ,
                 'left' => 'center',
@@ -2104,7 +2107,7 @@ class AssetManagementService
         Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
         $chart->setOption($option);
 
-        $operating_statement_chart = $chart->render('operating_statement_chart', ['style' => 'height: 450px; width:750px; margin-left:200px;']);
+        $operating_statement_chart = $chart->render('operating_statement_chart', ['style' => 'height: 350px; width:950px;']);
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
@@ -2117,6 +2120,9 @@ class AssetManagementService
         $output = [
             'owner' => $owner,
             'plantSize' => $plantSize,
+            'plantName' => $plantName,
+            'anlGeoLat' => $anlGeoLat,
+            'anlGeoLon'  => $anlGeoLon,
             'month' => $monthName,
             'reportmonth' => $report['reportMonth'],
             'year' => $report['reportYear'],

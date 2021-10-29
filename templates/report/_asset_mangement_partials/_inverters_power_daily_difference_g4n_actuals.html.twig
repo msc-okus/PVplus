@@ -1,10 +1,7 @@
-<div class="cell medium-6">
-    <div id="headline_customer" style="border-bottom: solid 2px #00386d; text-align: right; width: 29.7cm;">
-        <img class="customer_logo" src="{{ customer_logo }}">
-    </div>
+<div style="page-break-after: always;">
     <div style="height:18cm; width: 29.7cm;" >
-        <h3 style="color: {{ font_color_second }};">L) Inverters Power – DC Heatmap</h3>
-        <span class="subheadline" style="color: {{ font_color_third }};">Overview: daily difference between g4n expected vs. actuals [%]</span>
+        <h3>Inverters Power – DC Heatmap</h3>
+        <span class="subheadline">Overview: daily difference between g4n expected vs. actuals [%]</span>
 
         <table id="basetable">
             <tr>
@@ -64,14 +61,18 @@
                         {% set itemcounter = 1 %}
                         </td>
                     </table>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: right!important; float: right;">
                     <table class="legend_colors" style="margin-bottom: 0!important;">
                         <tr>
-                            <td rowspan="2" style="font-size: 7.3px!important;">Explanation</td>
-                            <td style="font-size: 7.3px!important;">0 bis -2%</td>
-                            <td style="font-size: 7.3px!important;">-2,1 bis 8%</td>
-                            <td style="font-size: 7.3px!important;">-8,1 bis -15%</td>
-                            <td style="font-size: 7.3px!important;">-15,1 bis -20%</td>
-                            <td style="font-size: 7.3px!important;">-20% und weniger</td>
+                            <td rowspan="2" style="font-size: 7.3px!important; text-align: center;">Explanation</td>
+                            <td style="font-size: 7.3px!important;">0-2%</td>
+                            <td style="font-size: 7.3px!important;">2,1-8%</td>
+                            <td style="font-size: 7.3px!important;">8,1-15%</td>
+                            <td style="font-size: 7.3px!important;">15,1-20%</td>
+                            <td style="font-size: 7.3px!important;">20%-</td>
                         </tr>
                         <tr>
                             <td style="background-color: #00b050;font-size: 7.3px!important;">&nbsp;</td>
@@ -85,19 +86,29 @@
             </tr>
         </table>
 
-        <table id="basetable">
+        <table style="width: 15.7cm; position: relative; bottom: 0px;">
             <tr>
-                <td colspan="3">
+                <td style="text-align: left; width: 15.7cm;">
                     <div class="explanation" style=" margin-top: -8px;">
-                        The string currents are compared to expected values as developed by green4net.
+                        <b>Explanation:</b>
+                        <br>
+                        The Figure shows inverter daily outputs compared to daily target values calculated by the g4n system. These target values are based on an algorithm developed by g4n.
                         <br><br>
-                        - Losses originate on the DC side (string box data): Some inverters show string current underperformance of more than 15% continuously. String boxes should be checked for functionality and connection
+                        - DC performance shows the same pattern as shown above for string currents.
                     </div>
                 </td>
             </tr>
         </table>
     </div>
-    <div class="footer_g4net">
-        <img class="g4n_logo" src="{{ baseurl }}/images/green4net.jpg">
+    <div>
+        <table style="width: 29.7cm;">
+            <tr>
+                <td style="border-bottom: solid 2px #91bc5b;width: 25.4cm;"></td>
+                <td rowspan="2"><img class="g4n_logo" src="{{ baseurl }}/images/green4net.jpg"></td>
+            </tr>
+            <tr>
+                <td></td>
+            </tr>
+        </table>
     </div>
 </div>
