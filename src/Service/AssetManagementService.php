@@ -382,7 +382,7 @@ class AssetManagementService
                 ),
         );
 
-        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
+        
         $chart->setOption($option);
 
         $operations_right = $chart->render('operations_right', ['style' => 'height: 450px; width:750px;']);
@@ -617,7 +617,7 @@ class AssetManagementService
                 ),
         );
 
-        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
+        
         $chart->setOption($option);
 
         $forecast_G4N = $chart->render('forecast_G4N', ['style' => 'height: 450px; width:23cm;']);
@@ -723,7 +723,7 @@ class AssetManagementService
                 ),
         );
 
-        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
+        
         $chart->setOption($option);
 
         $losses_monthly = $chart->render('losses_monthly', ['style' => 'height: 450px; width:23cm;']);
@@ -825,7 +825,7 @@ class AssetManagementService
                 ),
         );
 
-        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
+        
         $chart->setOption($option);
 
         $losses_year = $chart->render('losses_yearly', ['style' => 'height: 450px; width:23cm;']);
@@ -920,7 +920,7 @@ class AssetManagementService
                 ),
         );
 
-        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
+        
         $chart->setOption($option);
         $production_monthly_chart = $chart->render('production_monthly_chart', ['style' => 'height: 300px; width:15cm;']);
 
@@ -1500,7 +1500,7 @@ class AssetManagementService
                 ],
         );
 
-        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
+        
         $chart->setOption($option);
         $availability_Year_To_Date = $chart->render('availability_Year_To_Date', ['style' => 'height: 200px; width:400px; margin-top:8px']);
 
@@ -1564,7 +1564,7 @@ class AssetManagementService
                 ],
         );
 
-        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
+        
         $chart->setOption($option);
         $failures_Year_To_Date = $chart->render('failures_Year_To_Date', ['style' => 'height: 200px; width:360px; margin-top:8px;']);
 
@@ -1639,7 +1639,7 @@ class AssetManagementService
                 ],
         );
 
-        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
+        
         $chart->setOption($option);
         $plant_availability = $chart->render('plant_availability', ['style' => 'height: 200px; width:450px; margin-top:8px']);
 
@@ -1715,7 +1715,7 @@ class AssetManagementService
         );
 
 
-        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
+        
         $chart->setOption($option);
         $actual = $chart->render('actual', ['style' => 'height: 200px; width:450px; margin-top:8px;']);
 
@@ -1893,7 +1893,7 @@ class AssetManagementService
                 ),
         );
 
-        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
+        
         $chart->setOption($option);
 
         $income_per_month_chart = $chart->render('income_per_month_chart', ['style' => 'height: 350px; width:950px;']);
@@ -2104,7 +2104,7 @@ class AssetManagementService
                 ),
         );
 
-        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
+        
         $chart->setOption($option);
 
         $operating_statement_chart = $chart->render('operating_statement_chart', ['style' => 'height: 350px; width:950px;']);
