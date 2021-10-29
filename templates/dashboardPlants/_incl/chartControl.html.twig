@@ -78,6 +78,15 @@
             <input id="startDate" name="to" class="input-group-field js-submit-onchange" size="16" type="text" value="{{ form.to|date('Y-m-d') }}" data-date-format="yyyy-mm-dd" style="max-width: 158px;">
             <span class="input-group-label"><i class="fa fa-calendar"></i></span>
         </div>
+        <span class="cell medium-4 large-4 xlarge-2">
+            Time interval (Ativate for 1 hour interval):
+            <div class="switch tiny cell ">
+                <input class="switch-input js-submit-onchange" id="hour" type="checkbox" name="hour" onclick="Display()" {%if form.hour == true  %} checked {% endif %}>
+                <label class="switch-paddle" for="hour">
+                    <span class="show-for-sr"></span>
+                </label>
+            </div>
+        </span>
         <script>
             $(function(){
                 $('#startDate').fdatepicker();
@@ -108,12 +117,7 @@
             </label>
         </div>
 
-        <div class="switch tiny cell ">
-            <input class="switch-input js-submit-onchange" id="hour" type="checkbox" name="hour" onclick="Display()" {%if form.hour == true  %} checked {% endif %}>
-            <label class="switch-paddle" for="hour">
-                <span class="show-for-sr"></span>
-            </label>
-        </div>
+
     </div>
 </div>
 

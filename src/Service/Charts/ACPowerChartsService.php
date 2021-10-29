@@ -7,6 +7,7 @@ use App\Helper\G4NTrait;
 use App\Repository\AnlagenStatusRepository;
 use App\Repository\InvertersRepository;
 use App\Service\FunctionsService;
+use ContainerXGGeorm\getConsole_ErrorListenerService;
 use PDO;
 use Symfony\Component\Security\Core\Security;
 
@@ -186,8 +187,17 @@ class ACPowerChartsService
      *
      * @return array
      */
-    public function getAC2(Anlage $anlage, $from, $to, int $group): array
+    public function getAC2(Anlage $anlage, $from, $to, int $group, bool $hour): array
     {
+        if($hour) $form = '%y%m%d%H';
+        else $form = '%y%m%d%H%i';
+
+
+        $sqlExpected = "SELECT a.stamp , sum(b.ac_exp_power) as soll
+                    FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE group_ac = '$group') b ON a.stamp = b.stamp)
+                    WHERE a.stamp BETWEEN '$from' AND '$to'
+                    GROUP by date_format(a.stamp, '$form')";
+
         $conn = self::getPdoConnection();
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
@@ -195,10 +205,9 @@ class ACPowerChartsService
         $dataArray['inverterArray'] = $nameArray;
         $acGroups = $anlage->getGroupsAc();
         $maxInverter = 0;
-        $sqlExpected = "SELECT a.stamp, sum(b.ac_exp_power) as soll
-                        FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE group_ac = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by a.stamp";
-        dd($sqlExpected);
+       // $sqlExpected = "SELECT a.stamp, sum(b.ac_exp_power) as soll
+       //                 FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE group_ac = '$group') b ON a.stamp = b.stamp)
+        //                WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by a.stamp";
         $result = $conn->query($sqlExpected);
         if ($result->rowCount() > 0) {
             $counter = 0;
@@ -213,19 +222,26 @@ class ACPowerChartsService
 
             while ($rowExp = $result->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = $rowExp["stamp"];
-                ($rowExp['soll'] == null) ? $expected = 0 : $expected = $rowExp['soll'];
-                $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone()); // Adjust Time differenve between weather station and plant data (only nessesary if weather data comes from externel weather station)
-                $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp); // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
+                $type = "";
 
-                $sqlIst = "SELECT sum(wr_pac) as actPower, wr_cos_phi_korrektur FROM " . $anlage->getDbNameIst() . " WHERE stamp = '$stampAdjust' AND wr_pac > 0 ";
+                ($rowExp['soll'] == null) ? $expected = 0 : $expected = $rowExp['soll'];
+                if($hour) $expected = $expected/$anlage->getAcGroups()->count();
+                $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone()); // Adjust Time differenve between weather station and plant data (only nessesary if weather data comes from externel weather station)
+                $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
+                $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp); // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
                 switch ($anlage->getConfigType()) {
                     case 1:
-                        $sqlIst .= "AND group_ac = '$group'";
+                        $type .= "AND group_ac = '$group'";
                         break;
                     default:
-                        $sqlIst .= "AND group_dc = '$group'";
+                        $type .= "AND group_dc = '$group'";
                 }
-                $sqlIst .= " GROUP BY unit";
+
+                if($hour) $sqlIst = "SELECT stamp, sum(wr_pac) as actPower, wr_cos_phi_korrektur FROM " . $anlage->getDbNameIst() . " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'  and wr_pac > 0 ".$type." GROUP BY unit ";
+
+                else $sqlIst = "SELECT sum(wr_pac) as actPower, wr_cos_phi_korrektur FROM " . $anlage->getDbNameIst() . " WHERE stamp = '$stampAdjust' AND wr_pac > 0 ".$type."  GROUP BY unit";
+
+               // $sqlIst .= " GROUP BY unit";
                 $resultIst = $conn->query($sqlIst);
                 $counterInv = 1;
 
@@ -241,6 +257,9 @@ class ACPowerChartsService
                     while ($rowIst = $resultIst->fetch(PDO::FETCH_ASSOC)) {
                         if ($counterInv > $maxInverter) $maxInverter = $counterInv;
                         $actPower = $rowIst['actPower'];
+                        dump($actPower);
+                        if($hour) $actPower=$actPower/$anlage->getAcGroups()->count();
+                        dump($actPower);
                         ($actPower > 0) ? $actPower = round(self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()), 2) : $actPower = 0; // neagtive Werte auschließen
                         if (!($actPower == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                             switch ($anlage->getConfigType()) {
@@ -299,27 +318,31 @@ class ACPowerChartsService
      * @param int $group
      * @return array
      */
-    public function getAC3(Anlage $anlage, $from, $to, int $group = 1): array
+    public function getAC3(Anlage $anlage, $from, $to, int $group = 1, bool $hour): array
     {
+        if($hour) $form = '%y%m%d%H';
+        else $form = '%y%m%d%H%i';
+        $groupq = "";
         $conn = self::getPdoConnection();
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
-
-        $sqlExpected = "SELECT a.stamp, sum(b.ac_exp_power) as soll
-                        FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE ";
         switch ($anlage->getConfigType()) {
             case 1 :
-                $sqlExpected .= "group_dc";
+                $groupq .= "group_dc";
                 $groups = $anlage->getGroupsDc();
                 $nameArray = $this->functions->getNameArray($anlage , 'dc');
                 break;
             default:
-                $sqlExpected .= "group_ac";
+                $groupq .= "group_ac";
                 $groups = $anlage->getGroupsAc();
                 $nameArray = $this->functions->getNameArray($anlage , 'ac');
         }
+        $groupq .= " = '$group') b ON a.stamp = b.stamp)  ";
+        $sqlExpected = "SELECT a.stamp, sum(b.ac_exp_power) as soll
+                        FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE ".$groupq." WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by date_format(a.stamp, '$form')";
+
         $dataArray['inverterArray'] = $nameArray;
-        $sqlExpected .= " = '$group') b ON a.stamp = b.stamp)  WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by a.stamp";
+
         $result = $conn->query($sqlExpected);
         $maxInverter = 0;
 
@@ -346,28 +369,30 @@ class ACPowerChartsService
             while ($rowExp = $result->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = $rowExp["stamp"];
                 ($rowExp['soll'] == null) ? $expected = 0 : $expected = $rowExp['soll'];
-
+                if($hour) $expected = ($expected/$anlage->getAcGroups()->count());
+                $groupd = "";
                 $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
+                $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
                 // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
                 $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
-
-                $sql = "SELECT sum(wr_pac) as actPower, wr_cos_phi_korrektur FROM " . $anlage->getDbNameIst() . " WHERE stamp = '$stampAdjust' AND wr_pac > 0 ";
                 switch ($anlage->getConfigType()) {
                     case 1:
-                        $sql .= "AND group_dc = '$group'";
+                        $groupd .= "AND group_dc = '$group'";
                         break;
                     default:
-                        $sql .= "AND group_ac = '$group'";
+                        $groupd .= "AND group_ac = '$group'";
                 }
-                $sql .= " GROUP BY unit;";
-                dump($sql);
+                if($hour)$sql = "SELECT sum(wr_pac) as actPower, wr_cos_phi_korrektur FROM " . $anlage->getDbNameIst() . " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'  AND wr_pac > '0' ".$groupd."  GROUP BY unit";
+                else $sql="SELECT sum(wr_pac) as actPower, wr_cos_phi_korrektur FROM " . $anlage->getDbNameIst() . " WHERE stamp = '$stampAdjust'  AND wr_pac > '0' ".$groupd."  GROUP BY unit";
                 $resultIst = $conn->query($sql);
                 $counterInv = 1;
                 if ($resultIst->rowCount() > 0) {
                     $dataArray['maxSeries'] = $resultIst->rowCount();
                     while ($rowIst = $resultIst->fetch(PDO::FETCH_ASSOC)) {
                         if ($counterInv > $maxInverter) $maxInverter = $counterInv;
-                        $actPower = $rowIst['actPower'];
+
+                        if ($hour)$actPower = $rowIst['actPower']/$anlage->getAcGroups()->count();
+                        else $actPower = $rowIst['actPower'];
                         ($actPower > 0) ? $actPower = round(self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()), 2) : $actPower = 0; // neagtive Werte auschließen
                         if (!($actPower == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                             switch ($anlage->getConfigType()) {
@@ -482,8 +507,10 @@ class ACPowerChartsService
      * @return array
      * AC - Actual, Groups
      */
-    public function getActVoltageGroupAC(Anlage $anlage, $from, $to, int $group = 1):?array
+    public function getActVoltageGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour):?array
     {
+        if($hour) $form = '%y%m%d%H';
+        else $form = '%y%m%d%H%i';
         $conn = self::getPdoConnection();
         $dataArray = [];
         switch ($anlage->getConfigType()) {
@@ -493,7 +520,7 @@ class ACPowerChartsService
                 // Spannung für diesen Zeitraum und diese Gruppe
                 $sql = "SELECT a.stamp, b.u_ac as uac_ist, u_ac_p1, u_ac_p2, u_ac_p3 
                         FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameAcIst() . " WHERE group_dc = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by a.stamp";
+                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by  date_format(a.stamp, '$form')";
                 break;
             default:
                 $acGroups = $anlage->getGroupsAc();
@@ -501,7 +528,7 @@ class ACPowerChartsService
                 // Spannung für diesen Zeitraum und diese Gruppe
                 $sql = "SELECT a.stamp, b.u_ac as uac_ist, u_ac_p1, u_ac_p2, u_ac_p3 
                         FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameAcIst() . " WHERE group_ac = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by a.stamp";
+                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by  date_format(a.stamp, '$form')";
         }
         $dataArray['inverterArray'] = $nameArray;
         $result = $conn->query($sql);
@@ -542,8 +569,10 @@ class ACPowerChartsService
      * @return array
      * AC - Actual, Groups
      */
-    public function getActCurrentGroupAC(Anlage $anlage, $from, $to, int $group = 1):?array
+    public function getActCurrentGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour):?array
     {
+        if($hour) $form = '%y%m%d%H';
+        else $form = '%y%m%d%H%i';
         $conn = self::getPdoConnection();
         $dataArray = [];
         switch ($anlage->getConfigType()) {
@@ -552,14 +581,14 @@ class ACPowerChartsService
                 // Strom für diesen Zeitraum und diese Gruppe
                 $sql = "SELECT a.stamp, b.i_ac as iac_sum, i_ac_p1, i_ac_p2, i_ac_p3 
                         FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameAcIst() . " WHERE group_dc = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by a.stamp";
+                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by date_format(a.stamp, '$form')";
                 break;
             default:
                 $acGroups = $anlage->getGroupsAc();
                 // Strom für diesen Zeitraum und diese Gruppe
                 $sql = "SELECT a.stamp, b.i_ac as iac_sum, i_ac_p1, i_ac_p2, i_ac_p3 
                         FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameAcIst() . " WHERE group_ac = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by a.stamp";
+                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by date_format(a.stamp, '$form')";
         }
 
         $result = $conn->query($sql);
@@ -597,8 +626,10 @@ class ACPowerChartsService
      * @return array
      * AC - Actual, Groups
      */
-    public function getActFrequncyGroupAC(Anlage $anlage, $from, $to, int $group = 1):?array
+    public function getActFrequncyGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour):?array
     {
+        if($hour) $form = '%y%m%d%H';
+        else $form = '%y%m%d%H%i';
         $conn = self::getPdoConnection();
         $dataArray = [];
         $acGroups = $anlage->getGroupsAc();
@@ -608,14 +639,14 @@ class ACPowerChartsService
                 // Frequenz für diesen Zeitraum und diese Gruppe
                 $sql = "SELECT a.stamp, b.frequency as frequency 
                         FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameAcIst() . " WHERE group_dc = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by a.stamp";
+                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by date_format(a.stamp, '$form')";
                 break;
             default:
                 $acGroups = $anlage->getGroupsAc();
                 // Frequenz für diesen Zeitraum und diese Gruppe
                 $sql = "SELECT a.stamp, b.frequency as frequency 
                         FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameAcIst() . " WHERE group_ac = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by a.stamp";
+                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by date_format(a.stamp, '$form')";
         }
         $result = $conn->query($sql);
         $counter = 0;
@@ -654,8 +685,10 @@ class ACPowerChartsService
      * @return array
      * AC - Actual, Groups
      */
-    public function getReactivePowerGroupAC(Anlage $anlage, $from, $to, int $group = 1): array
+    public function getReactivePowerGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour): array
     {
+        if($hour) $form = '%y%m%d%H';
+        else $form = '%y%m%d%H%i';
         $conn = self::getPdoConnection();
         $dataArray = [];
         $acGroups = $anlage->getGroupsAc();
@@ -665,14 +698,14 @@ class ACPowerChartsService
                 // Blindleistung für diesen Zeitraum und diese Gruppe
                 $sql = "SELECT a.stamp, sum(b.p_ac_blind) as p_ac_blind 
                         FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameAcIst() . " WHERE group_dc = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by a.stamp";
+                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by date_format(a.stamp, '$form')";
                 break;
             default:
                 $acGroups = $anlage->getGroupsAc();
                 // Blindleistung für diesen Zeitraum und diese Gruppe
                 $sql = "SELECT a.stamp, sum(b.p_ac_blind) as p_ac_blind 
                         FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameAcIst() . " WHERE group_ac = '$group') b ON a.stamp = b.stamp) 
-                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by a.stamp";
+                        WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by date_format(a.stamp, '$form')";
         }
 
 

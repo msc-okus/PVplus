@@ -131,7 +131,7 @@ class ChartService
                     break;
                 // AC2 //
                 case ("ac_act_overview"):
-                    $dataArray = $this->acCharts->getAC2($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->acCharts->getAC2($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -146,7 +146,7 @@ class ChartService
                     break;
                 // AC3 //
                 case ("ac_act_group"):
-                    $dataArray = $this->acCharts->getAC3($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->acCharts->getAC3($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -173,7 +173,7 @@ class ChartService
                     }
                     break;
                 case ("ac_act_voltage"):
-                    $dataArray = $this->acCharts->getActVoltageGroupAC($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->acCharts->getActVoltageGroupAC($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -191,7 +191,7 @@ class ChartService
                     }
                     break;
                 case ("ac_act_current"):
-                    $dataArray = $this->acCharts->getActCurrentGroupAC($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->acCharts->getActCurrentGroupAC($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -208,7 +208,7 @@ class ChartService
                     }
                     break;
                 case ("ac_act_frequency"):
-                    $dataArray = $this->acCharts->getActFrequncyGroupAC($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->acCharts->getActFrequncyGroupAC($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -219,7 +219,7 @@ class ChartService
                     }
                     break;
                 case ("reactive_power"):
-                    $dataArray = $this->acCharts->getReactivePowerGroupAC($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->acCharts->getReactivePowerGroupAC($anlage, $from, $to, $form['selectedGroup'],$hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
