@@ -65,9 +65,11 @@ class ACPowerChartsService
             $counter = 0;
             // add Irradiation
             if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false){
-                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
+                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
+                dump($dataArrayIrradiation);
             } else {
-                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
+                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
+                dump($dataArrayIrradiation);
             }
             // add Temperature
             // $panelTemparray = $this->getAirAndPanelTemp($anlage, $from, $to);
@@ -97,7 +99,7 @@ class ACPowerChartsService
                 else {
                     $sql_b = "SELECT stamp, sum(wr_pac) as acIst, e_z_evu as eZEvu, wr_cos_phi_korrektur as cosPhi 
                              FROM " . $anlage->getDbNameIst() .
-                        " WHERE stamp = '$stampAdjust' and wr_pac > 0 GROUP by stamp LIMIT 1";
+                            " WHERE stamp = '$stampAdjust' and wr_pac > 0 GROUP by stamp LIMIT 1";
                     $sql_b1 = "SELECT e_z_evu as eZEvu
                                FROM " . $anlage->getDbNameIst() .
                              " WHERE stamp >= '$stampAdjust' GROUP by  stamp LIMIT 1";
@@ -248,9 +250,9 @@ class ACPowerChartsService
                 // add Irradiation
                 // Todo: Gewichtet Strahlung bei Ost West Anlagen.
                 if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false){
-                    $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
+                    $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper',$hour);
                 } else {
-                    $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
+                    $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
                 }
 
                 if ($resultIst->rowCount() > 0) {
@@ -349,9 +351,9 @@ class ACPowerChartsService
         // add Irradiation
         // Todo: Gewichtet Strahlung bei Ost West Anlagen.
         if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false){
-            $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
+            $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
         } else {
-            $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
+            $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to,'all', $hour);
         }
 
         if ($result->rowCount() > 0) {

@@ -232,7 +232,7 @@ class ChartService
 
                 // DC Charts //
                 case ("dc_single"):
-                    $dataArray = $this->dcChart->getDC1($anlage, $from, $to);
+                    $dataArray = $this->dcChart->getDC1($anlage, $from, $to, $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['actSum'] = $dataArray['actSum'];

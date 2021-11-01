@@ -41,38 +41,64 @@ class DCPowerChartService
      * @return array
      * [DC1]
      */
-    public function getDC1(Anlage $anlage, $from, $to):?array
+    public function getDC1(Anlage $anlage, $from, $to, bool $hour):?array
     {
+        if($hour) $form = '%y%m%d%H';
+        else $form = '%y%m%d%H%i';
         $conn = self::getPdoConnection();
         $dataArray = [];
-        $sqlDcSoll = "SELECT a.stamp as stamp, sum(b.soll_pdcwr) as soll FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDcSoll() . " b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP by a.stamp";
+        $sqlDcSoll = "SELECT a.stamp as stamp, sum(b.soll_pdcwr) as soll
+                      FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDcSoll() . " b ON a.stamp = b.stamp) 
+                      WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP by date_format(a.stamp, '$form')";
 
         $resulta = $conn->query($sqlDcSoll);
         $actSum = 0;
         $expSum = 0;
         // add Irradiation
         if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false){
-            $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
+            $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to,'upper', $hour);
         } else {
-            $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
+            $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to,'all', $hour);
         }
+
         if ($resulta->rowCount() > 0) {
             $counter = 0;
             while ($roa = $resulta->fetch(PDO::FETCH_ASSOC)){
                 $dcist = 0;
                 $stamp = $roa["stamp"];
                 $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
-                $soll = round($roa["soll"], 2);
+                $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
+
+                if($hour)$soll = round($roa["soll"], 2);
+                else $soll = round($roa["soll"], 2);
                 $expdiff = round($soll - $soll * 10 / 100, 2); //-10% good
-                if ($anlage->getUseNewDcSchema()) {
-                    $sql_b = "SELECT stamp, sum(wr_pdc) as dcist FROM " . $anlage->getDbNameDCIst() . " WHERE stamp = '$stampAdjust' GROUP by stamp LIMIT 1";
-                } else {
-                    $sql_b = "SELECT stamp, sum(wr_pdc) as dcist FROM " . $anlage->getDbNameIst() . " WHERE stamp = '$stampAdjust' GROUP by stamp LIMIT 1";
+                if($hour) {
+                    if ($anlage->getUseNewDcSchema()) {
+                        $sql_b = "SELECT stamp, sum(wr_pdc) as dcist 
+                              FROM " . $anlage->getDbNameDCIst() . " 
+                              WHERE stamp = '$stampAdjust' GROUP by date_format(stamp, '$form') LIMIT 1";
+                    } else {
+                        $sql_b = "SELECT stamp, sum(wr_pdc) as dcist 
+                              FROM " . $anlage->getDbNameIst() . " 
+                              WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' GROUP by date_format(stamp, '$form') LIMIT 1";
+                    }
+                }else {
+                    if ($anlage->getUseNewDcSchema()) {
+                        $sql_b = "SELECT stamp, sum(wr_pdc) as dcist 
+                              FROM " . $anlage->getDbNameDCIst() . " 
+                              WHERE stamp = '$stampAdjust' GROUP by stamp LIMIT 1";
+                    } else {
+                        $sql_b = "SELECT stamp, sum(wr_pdc) as dcist 
+                              FROM " . $anlage->getDbNameIst() . " 
+                              WHERE stamp = '$stampAdjust' GROUP by stamp LIMIT 1";
+                    }
+
                 }
                 $resultb = $conn->query($sql_b);
                 if ($resultb->rowCount() > 0) {
                     while ($rob = $resultb->fetch(PDO::FETCH_ASSOC)) {
                         $dcist = self::checkUnitAndConvert($rob["dcist"], $anlage->getAnlDbUnit());
+
                     }
                 }
 

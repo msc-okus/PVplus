@@ -33,17 +33,20 @@ class IrradiationChartService
      * @return array
      *  // irradiation
      */
-    public function getIrradiation(Anlage $anlage, $from, $to, string $mode = 'all'): array
+    public function getIrradiation(Anlage $anlage, $from, $to,?string $mode = 'all',  ?bool $hour = false): array
     {
+        if($hour) $form = '%y%m%d%H';
+        else $form = '%y%m%d%H%i';
         $conn = self::getPdoConnection();
         $dataArray = [];
-        $sql2 = "SELECT a.stamp, b.gi_avg , b.gmod_avg  FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' ORDER BY a.stamp";
+        $sql2 = "SELECT a.stamp, b.gi_avg , b.gmod_avg FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form') ORDER BY date_format(a.stamp, '$form')";
         $res = $conn->query($sql2);
         if ($res->rowCount() > 0) {
             $counter = 0;
             while ($ro = $res->fetch(PDO::FETCH_ASSOC)) {
                 // upper pannel
                 $irr_upper = (float)str_replace(',', '.', $ro["gmod_avg"]);
+                dump($irr_upper);
                 if (!$irr_upper) $irr_upper = 0;
                 // lower pannel
                 $irr_lower = (float)str_replace(',', '.', $ro["gi_avg"]);
