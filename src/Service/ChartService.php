@@ -328,7 +328,7 @@ class ChartService
                     }
                     break;
                 case ("dc_current_inverter"):
-                    $dataArray = $this->currentChart->getCurr3($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->currentChart->getCurr3($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -342,7 +342,7 @@ class ChartService
                     }
                     break;
                 case ("dc_current_mpp"):
-                    $dataArray = $this->currentChart->getCurr4($anlage, $from, $to, $form['selectedInverter']);
+                    $dataArray = $this->currentChart->getCurr4($anlage, $from, $to, $form['selectedInverter'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
