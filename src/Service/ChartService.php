@@ -241,7 +241,7 @@ class ChartService
                     }
                     break;
                 case ("dc_act_overview"):
-                    $dataArray = $this->dcChart->getDC2($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->dcChart->getDC2($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -255,7 +255,7 @@ class ChartService
                     }
                     break;
                 case ("dc_act_group"): // [DC 3]
-                    $dataArray = $this->dcChart->getDC3($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->dcChart->getDC3($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -301,7 +301,7 @@ class ChartService
                 // Übersicht Strom auf Basis der AC Gruppe
                 //
                 case ('dc_current_overview'):
-                    $dataArray = $this->currentChart->getCurr1($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->currentChart->getCurr1($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -315,7 +315,7 @@ class ChartService
                     }
                     break;
                 case ("dc_current_group"):
-                    $dataArray = $this->currentChart->getCurr2($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->currentChart->getCurr2($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];

@@ -34,8 +34,10 @@ class DCCurrentChartService
         $this->irradiationChart = $irradiationChart;
     }
 
-    public function getCurr1(Anlage $anlage, $from, $to, $group = 1): array
+    public function getCurr1(Anlage $anlage, $from, $to, $group = 1, bool $hour): array
     {
+        if($hour) $form = '%y%m%d%H';
+        else $form = '%y%m%d%H%i';
         $conn = self::getPdoConnection();
         $acGroups = $anlage->getGroupsAc();
         $dataArray = [];
@@ -53,7 +55,7 @@ class DCCurrentChartService
 
         // SOLL Strom für diesen Zeitraum und diese Gruppe
         $sqlExp = "SELECT a.stamp as stamp, sum(b.dc_exp_current) as expected
-                    FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_current, group_ac FROM " . $anlage->getDbNameDcSoll() . " WHERE group_ac = '$group') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY a.stamp";
+                    FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_current, group_ac FROM " . $anlage->getDbNameDcSoll() . " WHERE group_ac = '$group') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
 
         $result = $conn->query($sqlExp);
         if ($result->rowCount() > 0) {
@@ -62,13 +64,16 @@ class DCCurrentChartService
             while ($rowSoll = $result->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = $rowSoll['stamp'];
                 $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
+                $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
                 //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
                 $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
                 if (!($rowSoll['expected'] == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
-                    $dataArray['chart'][$counter]['expected'] = $rowSoll['expected'] / ($acGroups[$group]['GMAX'] - $acGroups[$group]['GMIN']);
+                    if (!$hour)$dataArray['chart'][$counter]['expected'] = $rowSoll['expected'] / ($acGroups[$group]['GMAX'] - $acGroups[$group]['GMIN']);
+                    else $dataArray['chart'][$counter]['expected'] = ($rowSoll['expected'] / ($acGroups[$group]['GMAX'] - $acGroups[$group]['GMIN']))/4;
                 }
                 $sql = "SELECT sum(wr_idc) as istCurrent FROM ";
-                ($anlage->getUseNewDcSchema()) ? $sql .= $anlage->getDbNameDCIst() . " WHERE stamp = '$stampAdjust' " : $sql .= $anlage->getDbNameACIst() . " WHERE stamp = '$stampAdjust' ";
+              if($hour) ($anlage->getUseNewDcSchema()) ? $sql .= $anlage->getDbNameDCIst() . " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' " : $sql .= $anlage->getDbNameACIst() . " WHERE stamp = '$stampAdjust' ";
+              else ($anlage->getUseNewDcSchema()) ? $sql .= $anlage->getDbNameDCIst() . " WHERE stamp = '$stampAdjust' " : $sql .= $anlage->getDbNameACIst() . " WHERE stamp = '$stampAdjust' ";
                 switch ($anlage->getConfigType()) {
                     case 1:
                         $sql .= "AND group_ac = '$group' ";
@@ -83,7 +88,9 @@ class DCCurrentChartService
                     $rowsIst = $resultIst->fetchAll(PDO::FETCH_ASSOC);
                     $inverterNr = $acGroups[$group]['GMIN'];
                     foreach ($rowsIst as $rowIst) {
-                        $currentIst = round($rowIst['istCurrent'], 2);
+                        if(!$hour)$currentIst = round($rowIst['istCurrent'], 2);
+                        else $currentIst = round($rowIst['istCurrent'], 2);
+                        if($anlage->getConfigType() != 1 && $hour)$currentIst = $currentIst/4;
                         if (!($currentIst == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                             $dataArray['chart'][$counter][$nameArray[$inverterNr]] = $currentIst;
                         }
@@ -110,14 +117,17 @@ class DCCurrentChartService
      * @return array
      * dc_current_group
      */
-    public function getCurr2(Anlage $anlage, $from, $to, int $set = 1): array
+    public function getCurr2(Anlage $anlage, $from, $to, int $set = 1, bool $hour): array
     {
+        if($hour) $form = '%y%m%d%H';
+        else $form = '%y%m%d%H%i';
         $conn = self::getPdoConnection();
         $dcGroups = $anlage->getGroupsDc();
         $dataArray = [];
 
         // Strom für diesen Zeitraum und diese Gruppe
-        $sql_time = "SELECT stamp FROM db_dummysoll WHERE stamp BETWEEN '$from' AND '$to'";
+        // I ended up here
+        $sql_time = "SELECT stamp FROM db_dummysoll WHERE stamp BETWEEN '$from' AND '$to' GROUP BY date_format(a.stamp, '$form')";
         $result = $conn->query($sql_time);
         if ($result->rowCount() > 0) {
             $counter = 0;
@@ -136,7 +146,9 @@ class DCCurrentChartService
                         } else {
                             $sql = "SELECT sum(wr_idc) as istCurrent FROM " . $anlage->getDbNameACIst() . " WHERE stamp = '$stampAdjust' AND group_dc = '$dcGroupKey'";
                         }
+
                         $resultIst = $conn->query($sql);
+
                         if ($resultIst->num_rows > 0) {
                             $rowIst = $resultIst->fetch_assoc();
                             $currentIst = round($rowIst['istCurrent'], 2);

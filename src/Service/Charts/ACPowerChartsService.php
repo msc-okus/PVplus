@@ -227,7 +227,7 @@ class ACPowerChartsService
                 $type = "";
 
                 ($rowExp['soll'] == null) ? $expected = 0 : $expected = $rowExp['soll'];
-                if($hour) $expected = $expected/$anlage->getAcGroups()->count();
+
                 $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone()); // Adjust Time differenve between weather station and plant data (only nessesary if weather data comes from externel weather station)
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
                 $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp); // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
@@ -260,7 +260,7 @@ class ACPowerChartsService
                         if ($counterInv > $maxInverter) $maxInverter = $counterInv;
                         $actPower = $rowIst['actPower'];
                         dump($actPower);
-                        if($hour) $actPower=$actPower/$anlage->getAcGroups()->count();
+                        if($hour) $actPower=$actPower;
                         dump($actPower);
                         ($actPower > 0) ? $actPower = round(self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()), 2) : $actPower = 0; // neagtive Werte auschließen
                         if (!($actPower == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
@@ -371,7 +371,7 @@ class ACPowerChartsService
             while ($rowExp = $result->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = $rowExp["stamp"];
                 ($rowExp['soll'] == null) ? $expected = 0 : $expected = $rowExp['soll'];
-                if($hour) $expected = ($expected/$anlage->getAcGroups()->count());
+
                 $groupd = "";
                 $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
@@ -393,8 +393,8 @@ class ACPowerChartsService
                     while ($rowIst = $resultIst->fetch(PDO::FETCH_ASSOC)) {
                         if ($counterInv > $maxInverter) $maxInverter = $counterInv;
 
-                        if ($hour)$actPower = $rowIst['actPower']/$anlage->getAcGroups()->count();
-                        else $actPower = $rowIst['actPower'];
+
+                        $actPower = $rowIst['actPower'];
                         ($actPower > 0) ? $actPower = round(self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()), 2) : $actPower = 0; // neagtive Werte auschließen
                         if (!($actPower == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                             switch ($anlage->getConfigType()) {
