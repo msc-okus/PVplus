@@ -408,7 +408,7 @@ class ChartService
                     }
                     break;
                 case ("temp"):
-                    $dataArray = $this->getAirAndPanelTemp($anlage, $from, $to);
+                    $dataArray = $this->getAirAndPanelTemp($anlage, $from, $to, $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['headline'] = 'Air and Panel Temperature [°C]';
@@ -511,15 +511,19 @@ class ChartService
      * @return array
      *  //
      */
-    public function getAirAndPanelTemp(Anlage $anlage, $from, $to): array
+    public function getAirAndPanelTemp(Anlage $anlage, $from, $to, bool $hour): array
     {
+        if($hour) $form = '%y%m%d%H';
+        else $form = '%y%m%d%H%i';
         $conn = self::getPdoConnection();
         $dataArray = [];
         $counter = 0;
-        $sql2 = "SELECT a.stamp, b.at_avg , b.pt_avg FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' ORDER BY a.stamp";
+        if($hour)$sql2 = "SELECT a.stamp, sum(b.at_avg) as at_avg, sum(b.pt_avg) as pt_avg FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
+        else  $sql2 = "SELECT a.stamp, b.at_avg as at_avg, b.pt_avg as pt_avg FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
         $res = $conn->query($sql2);
         while ($ro = $res->fetch(PDO::FETCH_ASSOC)) {
             $atavg = $ro["at_avg"];
+
             if (!$atavg) {
                 $atavg = 0;
             }
@@ -528,7 +532,10 @@ class ChartService
                 $ptavg = 0;
             }
             $atavg = str_replace(',', '.', $atavg);
+
+            if($hour) $atavg = $atavg / 4;
             $ptavg = str_replace(',', '.', $ptavg);
+            if($hour) $ptavg= $ptavg/ 4;
 
             $stamp = $ro["stamp"];  #utc_date($stamp,$anintzzws);
             if ($ptavg != "#") {
