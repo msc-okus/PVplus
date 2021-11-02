@@ -7,7 +7,9 @@ use App\Entity\AnlagenReports;
 use App\Helper\G4NTrait;
 use App\Reports\Goldbeck\EPCMonthlyPRGuaranteeReport;
 use App\Reports\Goldbeck\EPCMonthlyYieldGuaranteeReport;
+use App\Repository\AnlageAvailabilityRepository;
 use App\Repository\AnlagenRepository;
+use App\Repository\Case5Repository;
 use App\Service\ExportService;
 use App\Service\ReportEpcService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -166,14 +168,76 @@ class DefaultMREController extends BaseController
 
         fclose($fp);
 
-        dd('');
-
         return $this->render('cron/showResult.html.twig', [
             'headline'      => 'EPC Report',
             'availabilitys' => '',
             'output'        => $result,
         ]);
     }
+
+    /**
+     * @Route ("/test/pa/{month}/{year}")
+     */
+    public function testPa($month, $year, AnlageAvailabilityRepository $availabilityRepository, Case5Repository $case5Repository, AnlagenRepository $anlagenRepository): Response
+    {
+        $output = '';
+        $output2 = "<table>";
+        /** @var Anlage $anlage */
+        $anlage = $anlagenRepository->findOneBy(['anlId' => 84]);
+
+        if ($anlage->getUseNewDcSchema()) {
+            foreach ($anlage->getAcGroups() as $acGroup) {
+                $inverterPowerDc[$acGroup->getAcGroup()] = $acGroup->getDcPowerInverter();
+            }
+        } else {
+            foreach ($anlage->getAcGroups() as $acGroup) {
+                ($acGroup->getDcPowerInverter() > 0) ? $powerPerInverter = $acGroup->getDcPowerInverter() / ($acGroup->getUnitLast() - $acGroup->getUnitFirst() + 1) : $powerPerInverter = 0;
+                for ($inverter = $acGroup->getUnitFirst(); $inverter <= $acGroup->getUnitLast(); $inverter++) {
+                    $inverterPowerDc[$inverter] = $powerPerInverter;
+                }
+            }
+        }
+        // Speichern der ermittelten Werte
+        $lastDayInMonth = date("t", "$year-$month-01");
+        $from   = date_create("$year-$month-01 00:00");
+        $to     = date_create("$year-$month-$lastDayInMonth 23:59");
+        $availabilitys = $availabilityRepository->sumAllCasesByDate($anlage, $from, $to);
+        $sumPart1 = $sumPart2 = $sumPart3 = 0;
+        foreach ($availabilitys as $row) {
+            $inverter = $row['inverter'];
+            // Berechnung der protzentualen Verfügbarkeit Part 1 und Part 2
+            if ($row['control'] - $row['case4'] != 0) {
+                /////////////////////
+                $invAPart1 = (($row['case1'] + $row['case2']) / ($row['control'] - $row['case5'])) * 100;
+                /////////////////////
+                ($anlage->getPower() > 0 && $inverterPowerDc[$inverter] > 0) ? $invAPart2 = $inverterPowerDc[$inverter] / $anlage->getPower() : $invAPart2 = 1;
+                $invAPart3 = $invAPart1 * $invAPart2;
+            } else {
+                $invAPart1 = 0;
+                $invAPart2 = 0;
+                $invAPart3 = 0;
+            }
+            $sumPart1 += $invAPart1;
+            $sumPart2 += $invAPart2;
+            $sumPart3 += $invAPart3;
+
+            $output2 .= "<tr>
+                    <td>Inverter: $inverter</td>
+                    <td>Case1: ".$row['case1']." / ".$row['case1'] / 4 ."</td>
+                    <td>Case2: ".$row['case2']." / ".$row['case2'] / 4 ."</td>
+                    <td>Case3: ".$row['case3']." / ".$row['case3'] / 4 ."</td>
+                    <td>Case4: ".$row['case4']." / ".$row['case4'] / 4 ."</td>
+                    <td>Case5: ".$row['case5']." / ".$row['case5'] / 4 ."</td>
+                    <td>Control: ".$row['control']." / ".$row['control'] / 4 ."</td></tr>";
+            $output .= "Inverter: $inverter: PA Part 1: $invAPart1 | PA Part 2: $invAPart2 | PA Part 3: $invAPart3<br>";
+        }
+        $output2 .= "</table>";
+        $summe = "<b>Summe: PA Part 1: $sumPart1 | PA Part 2: $sumPart2 | PA Part 3: $sumPart3</b><br>";
+
+        return $this->render('cron/showResult.html.twig', [
+            'headline'      => 'Test PA',
+            'availabilitys' => '',
+            'output'        => $output2.$summe,
+        ]);
+    }
 }
-
-

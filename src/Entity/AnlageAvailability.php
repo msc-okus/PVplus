@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\AnlageAvailabilityRepository;
 use Doctrine\ORM\Mapping as ORM;
+use DateTimeInterface;
 
 /**
  * @ORM\Table(name="pvp_anlage_availability", indexes={@ORM\Index(name="stamp", columns={"stamp"}), @ORM\Index(name="inverter", columns={"inverter"})})
@@ -21,117 +22,128 @@ class AnlageAvailability
     /**
      * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="availability")
      */
-    private $anlage;
+    private ?Anlage $anlage;
 
     /**
      * @ORM\Column(type="date")
      */
-    private $stamp;
+    private DateTimeInterface $stamp;
 
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private $inverter;
+    private string $inverter;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $case_1;
+    private int $case_1;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $case_2;
+    private int $case_2;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $case_3;
+    private int $case_3;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $case_4;
+    private int $case_4;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $case_5;
+    private int $case_5;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $control;
+    private int $case_6;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private int $control;
 
     /**
      * @ORM\Column(type="float", nullable=true)
      */
-    private $invAPart1;
+    private float $invAPart1;
 
     /**
      * @ORM\Column(type="float", nullable=true)
      */
-    private $invAPart2;
+    private float $invAPart2;
 
     /**
      * @ORM\Column(type="float", nullable=true)
      */
-    private $invA;
+    private float $invA;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $remarks;
+    private string $remarks;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $case_1_second;
+    private int $case_1_second;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $case_2_second;
+    private int $case_2_second;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $case_3_second;
+    private int $case_3_second;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $case_4_second;
+    private int $case_4_second;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $case_5_second;
+    private int $case_5_second;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private $control_second;
+    private int $case_6_second;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private int $control_second;
 
     /**
      * @ORM\Column(type="float", nullable=true)
      */
-    private $invAPart1_second;
+    private float $invAPart1_second;
 
     /**
      * @ORM\Column(type="float", nullable=true)
      */
-    private $invAPart2_second;
+    private float $invAPart2_second;
 
     /**
      * @ORM\Column(type="float", nullable=true)
      */
-    private $invASecond;
+    private float $invASecond;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $remarks_second;
+    private string $remarks_second;
+
 
     public function getId(): ?int
     {
@@ -150,12 +162,12 @@ class AnlageAvailability
         return $this;
     }
 
-    public function getStamp(): ?\DateTimeInterface
+    public function getStamp(): ?DateTimeInterface
     {
         return $this->stamp;
     }
 
-    public function setStamp(\DateTimeInterface $stamp): self
+    public function setStamp(DateTimeInterface $stamp): self
     {
         $this->stamp = $stamp;
 
@@ -223,6 +235,18 @@ class AnlageAvailability
     public function setCase5(?int $case_5): self
     {
         $this->case_5 = $case_5;
+
+        return $this;
+    }
+
+    public function getCase6(): ?int
+    {
+        return $this->case_6;
+    }
+
+    public function setCase6(?int $case_6): self
+    {
+        $this->case_6 = $case_6;
 
         return $this;
     }
@@ -354,6 +378,18 @@ class AnlageAvailability
         return $this;
     }
 
+    public function getCase6Second(): ?int
+    {
+        return $this->case_6_second;
+    }
+
+    public function setCase6Second(?int $case_6): self
+    {
+        $this->case_6_second = $case_6;
+
+        return $this;
+    }
+
     public function getControlSecond(): ?int
     {
         return $this->control_second;
@@ -362,13 +398,6 @@ class AnlageAvailability
     public function setControlSecond(?int $control): self
     {
         $this->control_second = $control;
-
-        return $this;
-    }
-
-    public function setInverterSecond(string $inverter): self
-    {
-        $this->inverter_second = $inverter;
 
         return $this;
     }

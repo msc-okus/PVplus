@@ -6,6 +6,7 @@ use App\Entity\Anlage;
 use App\Entity\AnlageCase5;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use DateTime;
 
 /**
  * @method AnlageCase5|null find($id, $lockMode = null, $lockVersion = null)
@@ -34,4 +35,6 @@ class AnlageCase5Repository extends ServiceEntityRepository
         ;
         return ($result >= 1);
     }
+
+
 }

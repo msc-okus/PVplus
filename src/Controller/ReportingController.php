@@ -77,11 +77,12 @@ class ReportingController extends AbstractController
     public function list(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo, ReportService $report, ReportEpcService $epcReport): Response
     {
         $session = $this->container->get('session');
-        if($request->query->get('searchstatus')!=null & $request->query->get('searchstatus')!="")   $searchstatus = $request->query->get('searchstatus');
-        if($request->query->get('searchtype')!=null & $request->query->get('searchtype')!="")       $searchtype = $request->query->get('searchtype');
-        if($request->query->get('searchmonth')!=null & $request->query->get('searchmonth')!="")     $searchmonth = $request->query->get('searchmonth');
-        if($request->query->get('qr')!=null & $request->query->get('qr')!="")                       $q = $request->query->get('qr');
-        if($request->query->get('anlage')!=null & $request->query->get('anlage')!="")               $anlage = $request->query->get('anlage');
+        $anlage = $searchstatus = $searchtype = $searchmonth = null;
+        if($request->query->get('searchstatus') != null & $request->query->get('searchstatus')  != "") $searchstatus    = $request->query->get('searchstatus');
+        if($request->query->get('searchtype')   != null & $request->query->get('searchtype')    != "") $searchtype      = $request->query->get('searchtype');
+        if($request->query->get('searchmonth')  != null & $request->query->get('searchmonth')   != "") $searchmonth     = $request->query->get('searchmonth');
+        #if($request->query->get('qr')           != null & $request->query->get('qr')            != "") $q               = $request->query->get('qr');
+        if($request->query->get('anlage')       != null & $request->query->get('anlage')        != "") $anlage          = $request->query->get('anlage');
 
 
         if($request->query->get('new-report') === 'yes' ) {

@@ -31,6 +31,7 @@ class PRCalulationService
     private MonthlyDataRepository $monthlyDataRepo;
     private WeatherFunctionsService $weatherFunctions;
     private GridMeterDayRepository $gridMeterDayRepo;
+    private AvailabilityService $availabilityService;
 
     public function __construct(AnlagenRepository $anlagenRepository,
                                 PRRepository $PRRepository,
@@ -40,7 +41,8 @@ class PRCalulationService
                                 Case5Repository $case5Repo,
                                 MonthlyDataRepository $monthlyDataRepo,
                                 WeatherFunctionsService $weatherFunctions,
-                                GridMeterDayRepository $gridMeterDayRepo)
+                                GridMeterDayRepository $gridMeterDayRepo,
+                                AvailabilityService $availabilityService)
     {
         $this->pvSystRepo = $pvSystRepo;
         $this->anlagenRepository = $anlagenRepository;
@@ -52,6 +54,7 @@ class PRCalulationService
         $this->monthlyDataRepo = $monthlyDataRepo;
         $this->weatherFunctions = $weatherFunctions;
         $this->gridMeterDayRepo = $gridMeterDayRepo;
+        $this->availabilityService = $availabilityService;
     }
 
     public function calcPRAll(Anlage $anlage, $day):string
@@ -133,6 +136,7 @@ class PRCalulationService
             // pro Tag
             // FIRST
             $availability = $this->anlageAvailabilityRepo->sumAvailabilityPerDay($anlage->getAnlId(), $day);
+            $availability = $this->availabilityService->calcAvailability($anlage, date_create($day." 00:00"), date_create($day." 23:59"));
             if (!$availability) $availability = 0;
             // SECOND
             $availabilitySecond = $this->anlageAvailabilityRepo->sumAvailabilitySecondPerDay($anlage->getAnlId(), $day);
@@ -143,18 +147,20 @@ class PRCalulationService
             $anzPRRecordsPerMonth = $this->PRRepository->anzRecordsPRPerPac($anlage->getAnlId(), $startMonth, $to);
             if ($anzPRRecordsPerMonth == 0) $anzPRRecordsPerMonth = 1;
             // FIRST
-            $availabilityPerMonth = $this->PRRepository->sumAvailabilityPerPac($anlage->getAnlId(), $startMonth, $to);
-            $availabilityPerMonth = $availabilityPerMonth / $anzPRRecordsPerMonth;
+            #$availabilityPerMonth = $this->PRRepository->sumAvailabilityPerPac($anlage->getAnlId(), $startMonth, $to);
+            #$availabilityPerMonth = $availabilityPerMonth / $anzPRRecordsPerMonth;
+            $availabilityPerMonth = $this->availabilityService->calcAvailability($anlage, date_create($startMonth), date_create($to));
             // SECOND
             $availabilitySecondPerMonth = $this->PRRepository->sumAvailabilitySecondPerPac($anlage->getAnlId(), $startMonth, $to);
             $availabilitySecondPerMonth = $availabilitySecondPerMonth / $anzPRRecordsPerMonth;
 
             // pro Jahr
             // FIRST
-            $availabilityPerYear = $this->PRRepository->sumAvailabilityPerYear($anlage->getAnlId(), $year, $to);
+            #$availabilityPerYear = $this->PRRepository->sumAvailabilityPerYear($anlage->getAnlId(), $year, $to);
             $anzPRRecordsPerYear = $this->PRRepository->anzRecordsPRPerYear($anlage->getAnlId(), $year, $to);
+            $availabilityPerYear = $this->availabilityService->calcAvailability($anlage, date_create("$year-01-01 00:00"), date_create($to));
             if ($anzPRRecordsPerYear == 0) $anzPRRecordsPerYear = 1;
-            $availabilityPerYear = $availabilityPerYear / $anzPRRecordsPerYear;
+            #$availabilityPerYear = $availabilityPerYear / $anzPRRecordsPerYear;
             // SECOND
             $availabilityPerYearSecond = $this->PRRepository->sumAvailabilitySecondPerYear($anlage->getAnlId(), $year, $to);
             if ($availabilityPerYearSecond == null) {
@@ -169,8 +175,10 @@ class PRCalulationService
                 $anzPRRecordsPerPac = $this->PRRepository->anzRecordsPRPerPac($anlage->getAnlId(), $pacDate, $pacDateEnd);
                 if ($anzPRRecordsPerPac == 0) $anzPRRecordsPerPac = 1;
                 // FIRST
-                $availabilityPerPac = $this->PRRepository->sumAvailabilityPerPac($anlage->getAnlId(), $pacDate, $pacDateEnd);
-                $availabilityPerPac = $availabilityPerPac / $anzPRRecordsPerPac;
+                #$availabilityPerPac = $this->PRRepository->sumAvailabilityPerPac($anlage->getAnlId(), $pacDate, $pacDateEnd);
+                #$availabilityPerPac = $availabilityPerPac / $anzPRRecordsPerPac;
+                $availabilityPerPac = $this->availabilityService->calcAvailability($anlage, date_create($pacDate), date_create($pacDateEnd));
+
                 // SECOND
                 $availabilitySecondPerPac = $this->PRRepository->sumAvailabilitySecondPerPac($anlage->getAnlId(), $pacDate, $pacDateEnd);
                 $availabilitySecondPerPac = $availabilitySecondPerPac / $anzPRRecordsPerPac;
@@ -557,7 +565,9 @@ class PRCalulationService
         // Verfügbarkeit ermitteln
         $anzTage = date_diff(date_create($localStartDate), date_create($localEndDate))->days + 1;
         if($anzTage === 0) $anzTage = 1; //verhindert diffision by zero
-        $availability = $this->PRRepository->sumAvailabilityByRange($anlage->getAnlId(), $localStartDate, $localEndDate) / $anzTage;
+        //$availability = $this->PRRepository->sumAvailabilityByRange($anlage->getAnlId(), $localStartDate, $localEndDate) / $anzTage;
+        $availability = $this->availabilityService->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate));
+        dump("$localStartDate - $localEndDate : $availability");
 
         //Strahlung berechnen – Strahlung (upper = Ost / lower = West)
         if ($anlage->getIsOstWestAnlage()) {
