@@ -220,7 +220,6 @@ class DCCurrentChartService
                       FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE wr_num = '$group') b ON a.stamp = b.stamp) 
                       WHERE a.stamp BETWEEN '$from' AND '$to' GROUP BY date_format(a.stamp, '$form')";
         $result = $conn->query($sql_strom);
-        dump($result->rowCount());
         if ($result->rowCount() > 0) {
             $counter = 0;
             $dataArray['offsetLegend'] = $dcGroups[$group]['GMIN'] - 1;
@@ -290,19 +289,31 @@ class DCCurrentChartService
      * @return array|false
      *  // dc_current_mpp
      */
-    public function getCurr4(Anlage $anlage, $from, $to, int $inverter = 1): array
+    public function getCurr4(Anlage $anlage, $from, $to, int $inverter = 1, bool $hour): array
     {
+        if($hour) $form = '%y%m%d%H';
+        else $form = '%y%m%d%H%i';
         $conn = self::connectToDatabase();
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
 
         // Strom für diesen Zeitraum und diesen Inverter
         // ACHTUNG Strom und Spannungs Werte werden im Moment (Sep2020) immer in der AC Tabelle gespeichert, auch wenn neues 'DC IST Schema' genutzt wird.
+
+        if($hour){if ($anlage->getUseNewDcSchema()) {
+            $sql_strom = "SELECT a.stamp as stamp, sum(b.wr_mpp_current) AS mpp_current FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDCIst() . " WHERE wr_num = '$inverter') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
+        } else {
+            $sql_strom = "SELECT a.stamp as stamp, sum(b.wr_mpp_current) AS mpp_current FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameAcIst() . " WHERE unit = '$inverter') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
+        }
+    }
+    else{
         if ($anlage->getUseNewDcSchema()) {
             $sql_strom = "SELECT a.stamp as stamp, b.wr_mpp_current AS mpp_current FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDCIst() . " WHERE wr_num = '$inverter') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to'";
         } else {
             $sql_strom = "SELECT a.stamp as stamp, b.wr_mpp_current AS mpp_current FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameAcIst() . " WHERE unit = '$inverter') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to'";
         }
+
+    }
         $result = $conn->query($sql_strom);
         if ($result != false) {
             if ($result->num_rows > 0) {
@@ -318,7 +329,8 @@ class DCCurrentChartService
                         $mppCounter = 1;
                         foreach ($mppCurrentArray as $mppCurrentItem => $mppCurrentValue) {
                             if (!($mppCurrentValue == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
-                                $dataArray['chart'][$counter]["val$mppCounter"] = $mppCurrentValue;
+                                if($hour)$dataArray['chart'][$counter]["val$mppCounter"] = $mppCurrentValue/4;
+                                else $dataArray['chart'][$counter]["val$mppCounter"] = $mppCurrentValue;
                             }
                             $mppCounter++;
                         }

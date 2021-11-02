@@ -354,7 +354,7 @@ class ChartService
 
                 // Voltage Charts DC //
                 case ("dc_voltage_groups"):
-                    $dataArray = $this->voltageChart->getVoltageGroups($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->voltageChart->getVoltageGroups($anlage, $from, $to, $form['selectedGroup'],$hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -364,7 +364,7 @@ class ChartService
                     }
                     break;
                 case ("dc_voltage_mpp"):
-                    $dataArray = $this->voltageChart->getVoltageMpp($anlage, $from, $to, $form['selectedInverter']);
+                    $dataArray = $this->voltageChart->getVoltageMpp($anlage, $from, $to, $form['selectedInverter'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -375,7 +375,7 @@ class ChartService
                     break;
 
                 case ("irradiation"):
-                    $dataArray = $this->irradiationChart->getIrradiation($anlage, $from, $to);
+                    $dataArray = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['headline'] = 'Irradiation [W/m²]';
@@ -386,7 +386,7 @@ class ChartService
                     }
                     break;
                 case ("irradiation_one"):
-                    $dataArray = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
+                    $dataArray = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['headline'] = 'Irradiation [W/m²]';
@@ -395,7 +395,7 @@ class ChartService
                     }
                     break;
                 case ("irradiation_plant"):
-                    $dataArray = $this->irradiationChart->getIrradiationPlant($anlage, $from, $to);
+                    $dataArray = $this->irradiationChart->getIrradiationPlant($anlage, $from, $to,$hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
