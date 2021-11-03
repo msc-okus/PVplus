@@ -241,7 +241,8 @@ class ReportEpcService
                         default:
                             $eGridReal = $pr->getPowerEvuMonth();
                             $irrMonth = $pr->getIrrMonth();
-                            $prAvailability = $pr->getPlantAvailabilityPerMonth();
+                            #$prAvailability = $pr->getPlantAvailabilityPerMonth();
+                            $prAvailability = $this->availabilityService->calcAvailability($anlage, date_create("$year-$month-01 00:00"), date_create("$year-$month-$days 23:59"));
                             if ($anlage->getUseGridMeterDayData()){
                                 if ($monthlyData != null && $monthlyData->getExternMeterDataMonth() > 0) {
                                     $eGridReal = $monthlyData->getExternMeterDataMonth();// / $daysInMonth * $days;
@@ -610,7 +611,6 @@ class ReportEpcService
                     }
 
                     $prRealprProg = $prReal;
-                    #$availability = $pr->getPlantAvailabilityPerMonth();
                     $realDateTextEnd = date('My', strtotime("$year-$month-1"));
                     if ($run === 1) {
                         $monateReal++;
@@ -693,7 +693,7 @@ class ReportEpcService
                         'eGridReal-Guar'        => $this->format($eGridReal - $eGridGuar),
                         'spezErtrag'            => $this->format($eGridReal / $anlage->getKwPeak(), 2),
                         'prReal'                => $this->format($prReal),
-                        'availability'         => $this->format($availability),
+                        'availability'          => $this->format($availability),
                         'prReal_prDesign'       => $this->format($prReal - $prDesignPvSyst),
                         'dummy'                 => '',
                         'prReal_prGuar'         => $this->format($prReal - $prGuarantie),
@@ -759,7 +759,7 @@ class ReportEpcService
             'currentMonthClass'     => 'sum-real',
         ];
 
-        // PR Abweichung für das Jahr berechen -> Daten für PR Forecast
+        // PR Abweichung für das Jahr berechen → Daten für PR Forecast
         $prDiffYear = $sumPrRealPrProg - $anlage->getContractualPR();
 
         // Ergebnis Forecast 24 Monate
