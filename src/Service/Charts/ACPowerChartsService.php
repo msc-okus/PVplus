@@ -393,12 +393,13 @@ class ACPowerChartsService
                 if ($resultIst->rowCount() > 0) {
                     $dataArray['maxSeries'] = $resultIst->rowCount();
                     while ($rowIst = $resultIst->fetch(PDO::FETCH_ASSOC)) {
-                        dump($rowIst['stamp']);
+
                         if ($counterInv > $maxInverter) $maxInverter = $counterInv;
+
                         if ($rowIst['temp'] == null) $temperature = 0;
                         else $temperature = $rowIst['temp'];
                         $dataArray['chart'][$counter]['temperature'] = $temperature;
-                        dump($rowIst['temp']);
+
 
                         $actPower = $rowIst['actPower'];
                         ($actPower > 0) ? $actPower = round(self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()), 2) : $actPower = 0; // neagtive Werte auschließen
