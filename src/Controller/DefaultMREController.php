@@ -162,7 +162,6 @@ class DefaultMREController extends BaseController
 
         fputcsv($fp, $headlinesBase, ";");
         foreach ($result as $export) {
-            //dd($export);
             fputcsv($fp, $export,";");
         }
 

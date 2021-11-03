@@ -1332,7 +1332,6 @@ class AssetManagementService
             unset($outTemp);
 
         }
-#dd($outPaCY);
 
 //Beginn Operations Availability overview
                 $dateform = '%d.%m.%Y';

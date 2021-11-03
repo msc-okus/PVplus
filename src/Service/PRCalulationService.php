@@ -567,7 +567,7 @@ class PRCalulationService
         if($anzTage === 0) $anzTage = 1; //verhindert diffision by zero
         //$availability = $this->PRRepository->sumAvailabilityByRange($anlage->getAnlId(), $localStartDate, $localEndDate) / $anzTage;
         $availability = $this->availabilityService->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate));
-        dump("$localStartDate - $localEndDate : $availability");
+        //dump("$localStartDate - $localEndDate : $availability");
 
         //Strahlung berechnen – Strahlung (upper = Ost / lower = West)
         if ($anlage->getIsOstWestAnlage()) {
