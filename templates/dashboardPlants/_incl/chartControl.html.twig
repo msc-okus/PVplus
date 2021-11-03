@@ -85,9 +85,9 @@
             });
         </script>
     </div>
-    <h5>15 MINUTES</h5>
-
-    <div class="cell medium-3 large-6 xlarge-1">
+    <div class="cell medium-12 large-12 xlarge-1" {% if (form.selectedChart == 'availability') or (form.selectedChart =='pr_and_av') or (form.selectedChart =='forecast') or (form.selectedChart == 'status_log') or (form.selectedChart == 'pvsyst') %}hidden{% endif %}>
+    15 minutes
+    <div >
             <div class="switch tiny cell ">
                 <input class="switch-input js-submit-onchange" id="hour" type="checkbox" name="hour" onclick="Display()" {%if form.hour == true  %} checked {% endif %}>
                 <label class="switch-paddle" for="hour">
@@ -95,7 +95,8 @@
                 </label>
             </div>
     </div>
-    <h5>1 HOUR</h5>
+    1 hour
+    </div>
     <div class="cell medium-8 large-12 xlarge-5 ">
         <div class="small button-group round toggle">
             <label class="button js-submit-onchange {% if form.optionDate == 1 or not form.optionDate %}active{% endif %} {% if form.selectedChart == 'pr_and_av' %}disabled{% endif %}">
