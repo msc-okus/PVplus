@@ -384,15 +384,21 @@ class ACPowerChartsService
                     default:
                         $groupd .= "AND group_ac = '$group'";
                 }
-                if($hour)$sql = "SELECT sum(wr_pac) as actPower, wr_cos_phi_korrektur FROM " . $anlage->getDbNameIst() . " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'  AND wr_pac > '0' ".$groupd."  GROUP BY unit";
-                else $sql="SELECT sum(wr_pac) as actPower, wr_cos_phi_korrektur FROM " . $anlage->getDbNameIst() . " WHERE stamp = '$stampAdjust'  AND wr_pac > '0' ".$groupd."  GROUP BY unit";
+                if($hour)$sql = "SELECT  sum(wr_pac) as actPower, avg(wr_temp) as temp, wr_cos_phi_korrektur FROM " . $anlage->getDbNameIst() . " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' ".$groupd."  GROUP BY unit";
+                else $sql="SELECT sum(wr_pac) as actPower, wr_temp as temp, wr_cos_phi_korrektur FROM " . $anlage->getDbNameIst() . " WHERE stamp = '$stampAdjust' ".$groupd."  GROUP BY unit";
+                // removed from query  AND wr_pac > '0'
                 $resultIst = $conn->query($sql);
                 $counterInv = 1;
+
                 if ($resultIst->rowCount() > 0) {
                     $dataArray['maxSeries'] = $resultIst->rowCount();
                     while ($rowIst = $resultIst->fetch(PDO::FETCH_ASSOC)) {
+                        dump($rowIst['stamp']);
                         if ($counterInv > $maxInverter) $maxInverter = $counterInv;
-
+                        if ($rowIst['temp'] == null) $temperature = 0;
+                        else $temperature = $rowIst['temp'];
+                        $dataArray['chart'][$counter]['temperature'] = $temperature;
+                        dump($rowIst['temp']);
 
                         $actPower = $rowIst['actPower'];
                         ($actPower > 0) ? $actPower = round(self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()), 2) : $actPower = 0; // neagtive Werte auschließen
@@ -402,6 +408,7 @@ class ACPowerChartsService
                                 case 3: // Groningen
                                 case 4:
                                     $dataArray['chart'][$counter][$nameArray[$group]] = $actPower;
+
                                     break;
                                 default:
                                     $dataArray['chart'][$counter][$nameArray[$counterInv+$dataArray['offsetLegend']]] = $actPower;
@@ -432,6 +439,7 @@ class ACPowerChartsService
                         }
                     }
                 }
+
                 $counterInv--;
                 ($counterInv > 0) ? $dataArray['chart'][$counter]['expected'] = $expected / $counterInv : $dataArray['chart'][$counter]['expected'] = $expected;
 

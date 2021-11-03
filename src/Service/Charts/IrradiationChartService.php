@@ -44,14 +44,12 @@ class IrradiationChartService
         else $sql2 = "SELECT a.stamp, b.gi_avg as gi , b.gmod_avg as gmod FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
 
         $res = $conn->query($sql2);
-        dump($res->num_rows);
         if ($res->num_rows > 0) {
             $counter = 0;
             while ($ro = $res->fetch_assoc()) {
                 // upper pannel
                 $irr_upper = (float)str_replace(',', '.', $ro["gmod"]);
                 if($hour) $irr_upper = $irr_upper/4;
-                dump($irr_upper);
                 if (!$irr_upper) $irr_upper = 0;
                 // lower pannel
                 $irr_lower = (float)str_replace(',', '.', $ro["gi"]);
