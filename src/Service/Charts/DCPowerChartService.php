@@ -322,7 +322,7 @@ class DCPowerChartService
                     $dataArray['chart'][$counter]['expected'] = $expected;
                 }
                 if($hour) {
-                    $sql = "SELECT sum(wr_pdc) as actPower FROM ";
+                    $sql = "SELECT sum(wr_pdc) as avg(actPower), wr_temp as temp FROM ";
                     if ($anlage->getUseNewDcSchema()) {
                         $sql .= $anlage->getDbNameDCIst() . " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' AND wr_group = '$group' GROUP BY wr_num;";
                     } else {
@@ -330,18 +330,23 @@ class DCPowerChartService
                     }
                 }
                 else{
-                    $sql = "SELECT sum(wr_pdc) as actPower FROM ";
+                    $sql = "SELECT sum(wr_pdc) as actPower, wr_temp as temp FROM ";
                     if ($anlage->getUseNewDcSchema()) {
                         $sql .= $anlage->getDbNameDCIst() . " WHERE stamp = '$stampAdjust' AND wr_group = '$group' GROUP BY wr_num;";
                     } else {
                         $sql .= $anlage->getDbNameAcIst() . " WHERE stamp = '$stampAdjust' AND group_dc = '$group' GROUP BY unit;";
                     }
                 }
+
                 $resultIst = $conn->query($sql);
                 $counterInv = 1;
                 if ($resultIst->rowCount() > 0) {
                     while ($rowIst = $resultIst->fetch(PDO::FETCH_ASSOC)) {
                         if ($counterInv > $maxInverter) $maxInverter = $counterInv;
+                        if ($rowIst['temp'] == null) $temperature = 0;
+                        else $temperature = $rowIst['temp'];
+                        $dataArray['chart'][$counter]['temperature'] = $temperature;
+
                         $actPower = self::checkUnitAndConvert($rowIst['actPower'], $anlage->getAnlDbUnit());
 
                         if (!($actPower == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {

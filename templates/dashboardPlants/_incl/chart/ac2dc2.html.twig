@@ -31,7 +31,7 @@
         valueAxisIrr.renderer.grid.template.disabled = true;
         valueAxisIrr.extraMax = 0.1;
 
-        {% if form.selectedChart == 'ac_act_group' %}
+        {% if form.selectedChart == 'ac_act_group' or form.selectedChart == 'dc_act_group' %}
         let valueAxisTemp = chart.yAxes.push(new am4charts.ValueAxis());
         valueAxisTemp.title.text = "Inverter temperature";
         valueAxisTemp.renderer.opposite = true;
@@ -106,7 +106,7 @@
             seriesCosPhi.hidden = true;
             seriesCosPhi.yAxis = valueAxisCosPhi;
         {% endif %}
-        {% if form.selectedChart == 'ac_act_group' %}
+        {% if (form.selectedChart == 'ac_act_group' or form.selectedChart == 'dc_act_group') %}
         let seriesTemp = chart.series.push(new am4charts.LineSeries());
         seriesTemp.name = "InverterTemp"
         seriesTemp.dataFields.dateX = "date";
