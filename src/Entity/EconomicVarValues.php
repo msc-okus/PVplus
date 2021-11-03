@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Form\DataTransformer\StringToNumberTransformer;
 use App\Repository\EconomicVarValuesRepository;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -107,6 +108,13 @@ class EconomicVarValues
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $var_15;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $KwHPrice;
+
+
 
     public function getId(): ?int
     {
@@ -325,6 +333,18 @@ class EconomicVarValues
     public function setVar15(string $var_15): self
     {
         $this->var_15 = $var_15;
+
+        return $this;
+    }
+
+    public function getKwHPrice(): ?string
+    {
+        return $this->KwHPrice;
+    }
+
+    public function setKwHPrice(string $KwHPrice): self
+    {
+        $this->KwHPrice = $KwHPrice;
 
         return $this;
     }
