@@ -73,7 +73,7 @@ class ChartService
      * @param Anlage|null $anlage
      * @return array
      */
-    public function getGraphsAndControl($form, ?Anlage $anlage): array
+    public function getGraphsAndControl($form, ?Anlage $anlage,?bool $hour): array
     {
         $resultArray = [];
         $resultArray['data'] = '';
@@ -109,13 +109,13 @@ class ChartService
 
         $from   = self::timeShift($anlage, $form['from'],true);
         $to     = self::timeShift($anlage, $form['to'],true);
-
         if ($anlage) {
             switch ($form['selectedChart']) {
                 // AC Charts //
                 // AC1 //
+
                 case ("ac_single"):
-                    $dataArray = $this->acCharts->getAC1($anlage, $from, $to);
+                    $dataArray = $this->acCharts->getAC1($anlage, $from, $to, $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['showEvuDiag'] = $anlage->getShowEvuDiag();
@@ -131,7 +131,7 @@ class ChartService
                     break;
                 // AC2 //
                 case ("ac_act_overview"):
-                    $dataArray = $this->acCharts->getAC2($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->acCharts->getAC2($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -146,7 +146,7 @@ class ChartService
                     break;
                 // AC3 //
                 case ("ac_act_group"):
-                    $dataArray = $this->acCharts->getAC3($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->acCharts->getAC3($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -173,7 +173,7 @@ class ChartService
                     }
                     break;
                 case ("ac_act_voltage"):
-                    $dataArray = $this->acCharts->getActVoltageGroupAC($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->acCharts->getActVoltageGroupAC($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -191,7 +191,7 @@ class ChartService
                     }
                     break;
                 case ("ac_act_current"):
-                    $dataArray = $this->acCharts->getActCurrentGroupAC($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->acCharts->getActCurrentGroupAC($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -208,7 +208,7 @@ class ChartService
                     }
                     break;
                 case ("ac_act_frequency"):
-                    $dataArray = $this->acCharts->getActFrequncyGroupAC($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->acCharts->getActFrequncyGroupAC($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -219,7 +219,7 @@ class ChartService
                     }
                     break;
                 case ("reactive_power"):
-                    $dataArray = $this->acCharts->getReactivePowerGroupAC($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->acCharts->getReactivePowerGroupAC($anlage, $from, $to, $form['selectedGroup'],$hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -232,7 +232,7 @@ class ChartService
 
                 // DC Charts //
                 case ("dc_single"):
-                    $dataArray = $this->dcChart->getDC1($anlage, $from, $to);
+                    $dataArray = $this->dcChart->getDC1($anlage, $from, $to, $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['actSum'] = $dataArray['actSum'];
@@ -241,7 +241,7 @@ class ChartService
                     }
                     break;
                 case ("dc_act_overview"):
-                    $dataArray = $this->dcChart->getDC2($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->dcChart->getDC2($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -255,7 +255,7 @@ class ChartService
                     }
                     break;
                 case ("dc_act_group"): // [DC 3]
-                    $dataArray = $this->dcChart->getDC3($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->dcChart->getDC3($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -301,7 +301,7 @@ class ChartService
                 // Übersicht Strom auf Basis der AC Gruppe
                 //
                 case ('dc_current_overview'):
-                    $dataArray = $this->currentChart->getCurr1($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->currentChart->getCurr1($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -315,7 +315,7 @@ class ChartService
                     }
                     break;
                 case ("dc_current_group"):
-                    $dataArray = $this->currentChart->getCurr2($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->currentChart->getCurr2($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -328,7 +328,7 @@ class ChartService
                     }
                     break;
                 case ("dc_current_inverter"):
-                    $dataArray = $this->currentChart->getCurr3($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->currentChart->getCurr3($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -342,7 +342,7 @@ class ChartService
                     }
                     break;
                 case ("dc_current_mpp"):
-                    $dataArray = $this->currentChart->getCurr4($anlage, $from, $to, $form['selectedInverter']);
+                    $dataArray = $this->currentChart->getCurr4($anlage, $from, $to, $form['selectedInverter'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -354,7 +354,7 @@ class ChartService
 
                 // Voltage Charts DC //
                 case ("dc_voltage_groups"):
-                    $dataArray = $this->voltageChart->getVoltageGroups($anlage, $from, $to, $form['selectedGroup']);
+                    $dataArray = $this->voltageChart->getVoltageGroups($anlage, $from, $to, $form['selectedGroup'],$hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -364,7 +364,7 @@ class ChartService
                     }
                     break;
                 case ("dc_voltage_mpp"):
-                    $dataArray = $this->voltageChart->getVoltageMpp($anlage, $from, $to, $form['selectedInverter']);
+                    $dataArray = $this->voltageChart->getVoltageMpp($anlage, $from, $to, $form['selectedInverter'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -375,7 +375,7 @@ class ChartService
                     break;
 
                 case ("irradiation"):
-                    $dataArray = $this->irradiationChart->getIrradiation($anlage, $from, $to);
+                    $dataArray = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['headline'] = 'Irradiation [W/m²]';
@@ -386,7 +386,7 @@ class ChartService
                     }
                     break;
                 case ("irradiation_one"):
-                    $dataArray = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
+                    $dataArray = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['headline'] = 'Irradiation [W/m²]';
@@ -395,7 +395,7 @@ class ChartService
                     }
                     break;
                 case ("irradiation_plant"):
-                    $dataArray = $this->irradiationChart->getIrradiationPlant($anlage, $from, $to);
+                    $dataArray = $this->irradiationChart->getIrradiationPlant($anlage, $from, $to,$hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -408,7 +408,7 @@ class ChartService
                     }
                     break;
                 case ("temp"):
-                    $dataArray = $this->getAirAndPanelTemp($anlage, $from, $to);
+                    $dataArray = $this->getAirAndPanelTemp($anlage, $from, $to, $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['headline'] = 'Air and Panel Temperature [°C]';
@@ -511,15 +511,19 @@ class ChartService
      * @return array
      *  //
      */
-    public function getAirAndPanelTemp(Anlage $anlage, $from, $to): array
+    public function getAirAndPanelTemp(Anlage $anlage, $from, $to, bool $hour): array
     {
+        if($hour) $form = '%y%m%d%H';
+        else $form = '%y%m%d%H%i';
         $conn = self::getPdoConnection();
         $dataArray = [];
         $counter = 0;
-        $sql2 = "SELECT a.stamp, b.at_avg , b.pt_avg FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' ORDER BY a.stamp";
+        if($hour)$sql2 = "SELECT a.stamp, sum(b.at_avg) as at_avg, sum(b.pt_avg) as pt_avg FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
+        else  $sql2 = "SELECT a.stamp, b.at_avg as at_avg, b.pt_avg as pt_avg FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
         $res = $conn->query($sql2);
         while ($ro = $res->fetch(PDO::FETCH_ASSOC)) {
             $atavg = $ro["at_avg"];
+
             if (!$atavg) {
                 $atavg = 0;
             }
@@ -528,7 +532,10 @@ class ChartService
                 $ptavg = 0;
             }
             $atavg = str_replace(',', '.', $atavg);
+
+            if($hour) $atavg = $atavg / 4;
             $ptavg = str_replace(',', '.', $ptavg);
+            if($hour) $ptavg= $ptavg/ 4;
 
             $stamp = $ro["stamp"];  #utc_date($stamp,$anintzzws);
             if ($ptavg != "#") {

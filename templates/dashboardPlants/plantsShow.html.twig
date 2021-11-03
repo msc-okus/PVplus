@@ -37,6 +37,18 @@
     <script src="https://cdn.amcharts.com/lib/4/core.js" type="text/javascript"></script>
     <script src="https://cdn.amcharts.com/lib/4/charts.js" type="text/javascript"></script>
     <script src="https://cdn.amcharts.com/lib/4/themes/animated.js" type="text/javascript"></script>
+    <script> function Display() {
+                // Get the checkbox
+                var checkBox = document.getElementById("exampleSwitch");
+
+                // If the checkbox is checked, display the output text
+                if (checkBox.checked == false){
+                    document.getElementById('hour').innerText = "f";
+                } else {
+                    document.getElementById('hour').innerText = "t";
+                }
+            }
+    </script>
 {% endblock %}
 
 

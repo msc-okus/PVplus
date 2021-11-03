@@ -4,6 +4,9 @@
     <input type="hidden" name="eide" value="{{ aktAnlage.eignerId }}">
     <input type="hidden" name="aid" value="{{ aktAnlage.AnlId }}">
     <input type="hidden" name="mysubmit" id="mysubmit" value="no">
+
+
+
     <div class="cell medium-6 large-4 xlarge-2">
         <select class="js-submit-onchange selectedChart" title="Please select a view from the list." data-toggle="tooltip" name="selectedChart">
             <optgroup label="Analysis">
@@ -66,6 +69,7 @@
 
         </select>
     </div>
+
     <div class="cell medium-6 large-4 xlarge-3">
         {{ groupMenuNew(form, aktAnlage) }}
     </div>
@@ -74,12 +78,24 @@
             <input id="startDate" name="to" class="input-group-field js-submit-onchange" size="16" type="text" value="{{ form.to|date('Y-m-d') }}" data-date-format="yyyy-mm-dd" style="max-width: 158px;">
             <span class="input-group-label"><i class="fa fa-calendar"></i></span>
         </div>
+
         <script>
             $(function(){
                 $('#startDate').fdatepicker();
             });
         </script>
     </div>
+    <h5>15 MINUTES</h5>
+
+    <div class="cell medium-3 large-6 xlarge-1">
+            <div class="switch tiny cell ">
+                <input class="switch-input js-submit-onchange" id="hour" type="checkbox" name="hour" onclick="Display()" {%if form.hour == true  %} checked {% endif %}>
+                <label class="switch-paddle" for="hour">
+                    <span class="show-for-sr"></span>
+                </label>
+            </div>
+    </div>
+    <h5>1 HOUR</h5>
     <div class="cell medium-8 large-12 xlarge-5 ">
         <div class="small button-group round toggle">
             <label class="button js-submit-onchange {% if form.optionDate == 1 or not form.optionDate %}active{% endif %} {% if form.selectedChart == 'pr_and_av' %}disabled{% endif %}">
@@ -103,6 +119,8 @@
                 <input type="radio" name="optionDate" value="100000" {% if form.optionDate == 100000 %}checked{% endif %}>month
             </label>
         </div>
+
+
     </div>
 </div>
 
