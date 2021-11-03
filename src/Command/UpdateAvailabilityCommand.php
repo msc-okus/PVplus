@@ -16,7 +16,7 @@ class UpdateAvailabilityCommand extends Command
 {
     use G4NTrait;
 
-    protected static $defaultName = 'pvp:updateAvailability';
+    protected static $defaultName = 'pvp:updatePA';
 
     private $anlagenRepository;
     private $availability;

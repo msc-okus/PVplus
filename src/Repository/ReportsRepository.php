@@ -33,7 +33,7 @@ class ReportsRepository extends ServiceEntityRepository
      * @param string|null $term
      * @return QueryBuilder
      */
-    public function getWithSearchQueryBuilder(?string $term,?string $searchstatus,?string $searchtype,?string $searchmonth): QueryBuilder
+    public function getWithSearchQueryBuilder(?string $term, ?string $searchstatus, ?string $searchtype, ?string $searchmonth): QueryBuilder
     {
         $qb = $this->createQueryBuilder('report')
             ->innerJoin('report.anlage', 'a')

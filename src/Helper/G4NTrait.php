@@ -140,6 +140,29 @@ trait G4NTrait
         return $pdo;
     }
 
+    public static function getPdoConnectionTest():\PDO
+    {
+        $config = [
+            'database_dsn' => 'mysql:dbname=pvp_base;host=dedi6015.your-server.de',
+            'database_user' => 'pvpbase',
+            'database_pass' => '04qjYWk1oTf9gb7k'
+        ];
+
+        try {
+            $pdo = new PDO(
+                $config['database_dsn'],
+                $config['database_user'],
+                $config['database_pass']
+            );
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            print "Error!: " . $e->getMessage() . "<br/>";
+            die();
+        }
+
+        return $pdo;
+    }
+
     public static function convertKeysToCamelCase($apiResponseArray): array
     {
         $arr = [];

@@ -13,6 +13,7 @@
                     <th>Case 3</th>
                     <th>Case 4</th>
                     <th>Case 5</th>
+                    <th>Case 6</th>
                     <th>Control</th>
                     <th>Avail. cases [%]</th>
                     <th>Rel. avail. plant [%]</th>
@@ -29,6 +30,7 @@
                     <td>{{ stati.case3 }}{% if second %}<br><span class="topline">{{ stati.case3second }}</span>{% endif %}</td>
                     <td>{{ stati.case4 }}{% if second %}<br><span class="topline">{{ stati.case4second }}</span>{% endif %}</td>
                     <td>{{ stati.case5 }}{% if second %}<br><span class="topline">{{ stati.case5second }}</span>{% endif %}</td>
+                    <td>{{ stati.case6 }}{% if second %}<br><span class="topline">{{ stati.case6second }}</span>{% endif %}</td>
                     <td>{{ stati.control}}{% if second %}<br><span class="topline">{{ stati.controlSecond }}</span>{% endif %}</td>
                     <td>{{ stati.invApart1|number_format(0, ',', '.') }}{% if second %}<br><span class="topline">{{ stati.invApart1Second|number_format(0, ',', '.') }}</span>{% endif %}</td>
                     <td>{{ stati.invA|number_format(4, ',', '.') }}{% if second %}<br><span class="topline">{{ stati.invASecond|number_format(4, ',', '.') }}</span>{% endif %}</td>
@@ -107,22 +109,26 @@
             <dl>
                 <dt>Case 1</dt>
                 <dd>irradiation below limit value<br>
-                    <small>G [W/qm] > 0 & G [W/qm] < {{ aktAnlage.minIrradiationAvailability }}</small></dd>
+                    <small>G [W/qm] > 0 & G [W/qm] <= {{ aktAnlage.minIrradiationAvailability }}</small></dd>
 
                 <dt>Case 2</dt>
                 <dd>inverter available under operating conditions<br>
-                    <small>G [W/qm] >= {{ aktAnlage.minIrradiationAvailability }}</small></dd>
+                    <small>G [W/qm] > {{ aktAnlage.minIrradiationAvailability }}</small></dd>
 
                 <dt>Case 3</dt>
                 <dd>inverter not available under operating conditions<br>
-                    <small>G [W/qm] >= {{ aktAnlage.minIrradiationAvailability }} & Pac [kWh] <= 0</small></dd>
+                    <small>G [W/qm] > {{ aktAnlage.minIrradiationAvailability }} & Pac [kWh] <= 0</small></dd>
 
                 <dt>Case 4</dt>
                 <dd>inverter not available because of curtailment<br>
-                    <small>G [W/qm] >= {{ aktAnlage.minIrradiationAvailability }} and Pac [kWh] > 0 and CosPhi = 0</small></dd>
+                    <small>G [W/qm] > {{ aktAnlage.minIrradiationAvailability }} and Pac [kWh] > 0 and CosPhi = 0</small></dd>
 
                 <dt>Case 5</dt>
                 <dd>inverter not available because of maintenance<br>
+                    <small></small></dd>
+
+                <dt>Case 6</dt>
+                <dd>data gap<br>
                     <small></small></dd>
 
                 <dt>Control</dt>
