@@ -183,7 +183,7 @@ trait G4NTrait
         $country = strtoupper($anlage->getCountry());
 
         $offset = Timezones::getRawOffset(self::getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), $country));
-        $offset = $offset - 7200;
+        $offset = $offset - 3600;
 
         $of = $offset / 3600;
 

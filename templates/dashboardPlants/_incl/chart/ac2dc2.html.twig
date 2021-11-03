@@ -31,14 +31,14 @@
         valueAxisIrr.renderer.grid.template.disabled = true;
         valueAxisIrr.extraMax = 0.1;
 
-        /*
-        let valueAxis3 = chart.yAxes.push(new am4charts.ValueAxis());
-        valueAxis3.title.text = "Inverter temperature";
-        valueAxis3.renderer.opposite = true;
-        valueAxis3.renderer.ticks.template.disabled = true;
-        valueAxis3.renderer.grid.template.disabled = true;
-        valueAxis3.extraMax = 0.1;
-        */
+        {% if form.selectedChart == 'ac_act_group' or form.selectedChart == 'dc_act_group' %}
+        let valueAxisTemp = chart.yAxes.push(new am4charts.ValueAxis());
+        valueAxisTemp.title.text = "Inverter temperature";
+        valueAxisTemp.renderer.opposite = true;
+        valueAxisTemp.renderer.ticks.template.disabled = true;
+        valueAxisTemp.renderer.grid.template.disabled = true;
+        valueAxisTemp.extraMax = 0.1;
+        {% endif %}
         // Create series
         let seriesExp = chart.series.push(new am4charts.LineSeries());
         seriesExp.name = "{{ content.series1.name }}";
@@ -106,20 +106,20 @@
             seriesCosPhi.hidden = true;
             seriesCosPhi.yAxis = valueAxisCosPhi;
         {% endif %}
-        /*
-        let series110 = chart.series.push(new am4charts.LineSeries());
-        series110.name = "panelTemp"
-        series110.dataFields.dateX = "date";
-        series110.dataFields.valueY = "panelTemp";
-        series110.tooltipText = "Panel temperature: {valueY} [/]";
-        series110.stroke = am4core.color("rgba(118,51,69,0.68)");
-        series110.strokeWidth = 1;
-        series110.defaultState.transitionDuration = 300;
-        series110.tensionX = 0.8;
-        series110.hidden = true;
-        series110.gr
-        series110.yAxis = valueAxis3;
-        */
+        {% if (form.selectedChart == 'ac_act_group' or form.selectedChart == 'dc_act_group') %}
+        let seriesTemp = chart.series.push(new am4charts.LineSeries());
+        seriesTemp.name = "InverterTemp"
+        seriesTemp.dataFields.dateX = "date";
+        seriesTemp.dataFields.valueY = "temperature";
+        seriesTemp.tooltipText = "InverterTemp: {valueY} [/]";
+        seriesTemp.stroke = am4core.color("rgba(118,51,69,0.68)");
+        seriesTemp.strokeWidth = 1;
+        seriesTemp.defaultState.transitionDuration = 300;
+        seriesTemp.tensionX = 0.8;
+        seriesTemp.hidden = true;
+        seriesTemp.gr
+        seriesTemp.yAxis = valueAxisTemp;
+        {% endif %}
 
         chart.cursor = new am4charts.XYCursor();
         chart.cursor.xAxis = dateAxis;
