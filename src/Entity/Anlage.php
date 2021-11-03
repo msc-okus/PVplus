@@ -2214,7 +2214,6 @@ class Anlage
 
     public function setShowForecast(bool $showForecast): self
     {
-        //dd($showForecast);
         $this->showForecast = $showForecast;
 
         return $this;

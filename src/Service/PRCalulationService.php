@@ -135,9 +135,8 @@ class PRCalulationService
             // PlantAvailability berechnen FIRST
             // pro Tag
             // FIRST
-            $availability = $this->anlageAvailabilityRepo->sumAvailabilityPerDay($anlage->getAnlId(), $day);
             $availability = $this->availabilityService->calcAvailability($anlage, date_create($day." 00:00"), date_create($day." 23:59"));
-            if (!$availability) $availability = 0;
+            #if (!$availability) $availability = 0;
             // SECOND
             $availabilitySecond = $this->anlageAvailabilityRepo->sumAvailabilitySecondPerDay($anlage->getAnlId(), $day);
             if (!$availabilitySecond) $availabilitySecond = 0;
@@ -565,9 +564,8 @@ class PRCalulationService
         // Verfügbarkeit ermitteln
         $anzTage = date_diff(date_create($localStartDate), date_create($localEndDate))->days + 1;
         if($anzTage === 0) $anzTage = 1; //verhindert diffision by zero
-        //$availability = $this->PRRepository->sumAvailabilityByRange($anlage->getAnlId(), $localStartDate, $localEndDate) / $anzTage;
         $availability = $this->availabilityService->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate));
-        dump("$localStartDate - $localEndDate : $availability");
+
 
         //Strahlung berechnen – Strahlung (upper = Ost / lower = West)
         if ($anlage->getIsOstWestAnlage()) {
