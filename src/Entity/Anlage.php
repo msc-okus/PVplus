@@ -698,14 +698,10 @@ class Anlage
     private bool $useLowerIrrForExpected = false;
 
     /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=true)
      */
     private string $epcReportNote;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
-    private string $sourceInvName = 'dc_groups';
 
     /**
      * @ORM\Column(type="integer")
@@ -718,17 +714,17 @@ class Anlage
     private $logs;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", nullable = true)
      */
     private $hasDc;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", nullable = true)
      */
     private $hasStrings;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", nullable = true)
      */
     private $hasPannelTemp;
 
@@ -2832,18 +2828,6 @@ class Anlage
     public function setEpcReportNote(string $epcReportNote): self
     {
         $this->epcReportNote = $epcReportNote;
-
-        return $this;
-    }
-
-    public function getSourceInvName(): ?string
-    {
-        return $this->sourceInvName;
-    }
-
-    public function setSourceInvName(string $sourceInvName): self
-    {
-        $this->sourceInvName = $sourceInvName;
 
         return $this;
     }

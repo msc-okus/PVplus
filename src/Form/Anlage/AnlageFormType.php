@@ -200,15 +200,8 @@ class AnlageFormType extends AbstractType
                 'placeholder'   => 'Please Choose',
                 'empty_data'    => 1,
                 'disabled'      => !$isDeveloper,
-            ])
-            ->add('sourceInvName', ChoiceType::class, [
-                'label'         => 'Quelle der Beschriftung',
-                'help'          => '[sourceInvName]',
-                'choices'       => ['Inverter' => 'inv', 'AC Groups' => 'ac_groups', 'DC Groups' => 'dc_groups'],
-                'placeholder'   => 'Please Choose',
-                'empty_data'    => 'dc_groups',
-                'disabled'      => !$isDeveloper,
             ]);
+
         if ($this->security->isGranted('ROLE_DEV')) {
             $builder
                 ->add('useNewDcSchema', ChoiceType::class, [

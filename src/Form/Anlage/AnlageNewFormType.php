@@ -181,7 +181,13 @@ class AnlageNewFormType extends AbstractType
                 'data'          => 'kWh',
                 'empty_data'    => 'kWh',
             ])
-
+            ->add('configType', ChoiceType::class, [
+                'label'         => 'Configuration der Anlage',
+                'help'          => '[configType]',
+                'choices'       => ['1' => 1, '2' => 2, '3' => 3, '4' => 4],
+                'placeholder'   => 'Please Choose',
+                'empty_data'    => 1,
+            ])
 
 
 

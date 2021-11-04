@@ -795,7 +795,7 @@ class FunctionsService
     }
 
     /**
-     * Funktion um in Abhänigkeit von 'configType' und 'sourceInvName' die entsprechenden Namen für die bezeichnung der SCB, Gruppen und Inverter zu generieren
+     * Funktion um in Abhänigkeit von 'configType'  die entsprechenden Namen für die bezeichnung der SCB, Gruppen und Inverter zu generieren
      *
      * @param Anlage $anlage
      * @param string $type
