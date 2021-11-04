@@ -1,12 +1,102 @@
 {{ form_start(anlageForm, {'attr': {'novalidate': 'no'} }) }}
 <div class="grid-x">
-    <div class="cell medium-10">
+    <div class="cell medium-12">
         <ul class="tabs" data-tabs id="example-tabs">
             <li class="tabs-title is-active"><a data-tabs-target="plant1" href="#plant1" aria-selected="true" >General</a></li>
         </ul>
-
-        <div class="tabs-content" data-tabs-content="example-tabs">
+        <div class="tabs-content" data-tabs-content="anlage-tabs">
             {# General #}
+            <div class="tabs-panel is-active" id="plant-data">
+
+                <fieldset class="fieldset">
+                    <legend>Standort</legend>
+                    <div class="grid-x grid-margin-x grid-padding-x">
+                        <div class="cell medium-4">{{ form_row(anlageForm.eigner) }}</div>
+                        <div class="cell medium-4">{{ form_row(anlageForm.anlName) }}</div>
+                        <div class="cell medium-4">{{ form_row(anlageForm.projektNr) }}</div>
+                    </div>
+                    <div class="grid-x grid-margin-x grid-padding-x">
+                        <div class="cell medium-4">{{ form_row(anlageForm.anlStrasse) }}</div>
+                        <div class="cell medium-2"> {{ form_row(anlageForm.anlPlz) }}</div>
+                        <div class="cell medium-4"> {{ form_row(anlageForm.anlOrt) }}</div>
+                        <div class="cell medium-2">{{ form_row(anlageForm.country) }}</div>
+                    </div>
+                    <hr>
+                    <div class="grid-x grid-margin-x grid-padding-x">
+                        <div class="cell medium-6">
+                            {{ form_row(anlageForm.anlGeoLat) }}
+                        </div>
+                        <div class="cell medium-6">
+                            {{ form_row(anlageForm.anlGeoLon) }}
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="grid-x grid-margin-x grid-padding-x">
+                        <div class="cell">
+                            {{ form_row(anlageForm.notes)}}
+                        </div>
+                    </div>
+                </fieldset>
+                <fieldset class="fieldset">
+                    <legend>Basis Konfiguration</legend>
+                    <div class="grid-x grid-padding-x">
+                        <div class="cell medium-3">{{ form_row(anlageForm.anlIntnr) }}</div>
+                        <div class="cell medium-3">{{ form_row(anlageForm.anlType) }}</div>
+                        <div class="cell medium-3">{{ form_row(anlageForm.anlZeitzone) }}</div>
+                        <div class="cell medium-3">{{ form_row(anlageForm.anlBetrieb) }}</div>
+                    </div>
+                    {% if is_granted('ROLE_DEV') %}
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-3">{{ form_row(anlageForm.anlInputDaily) }}</div>
+                            <div class="cell medium-3">{{ form_row(anlageForm.useNewDcSchema) }}</div>
+                            <div class="cell medium-3">{{ form_row(anlageForm.configType) }}</div>
+                            <div class="cell medium-3"></div>
+                        </div>
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-3"></div>
+                            <div class="cell medium-3"></div>
+                            <div class="cell medium-3">
+                                <small>
+                                    <ul>
+                                        <li>1: Fall 'Andjik, …' <br>
+                                            AC Gruppen = Trafostationen o.ä.<br>
+                                            DC Gruppen = Inverter
+                                        </li>
+                                        <li>2: Fall 'Lelystad 1 & 2, …' <br>
+                                            AC Gruppen = DC Gruppen – beides Inverter
+                                        </li>
+                                        <li>3: Fall 'Groningen, …' <br>
+                                            AC Gruppen = Inverter<br>
+                                            DC Gruppen = SCB Gruppen
+                                        </li>
+                                        <li>4: Fall 'Guben, Forst, Subzin …' <br>
+                                            AC Gruppen = Inverter<br>
+                                            DC Gruppen = SCB Gruppen
+                                            DC Gruppen = SCBs
+                                        </li>
+                                    </ul>
+                                </small>
+                            </div>
+                            <div class="cell medium-3"></div>
+                        </div>
+                    {% endif %}
+                </fieldset>
+                <fieldset class="fieldset">
+                    <legend>Konfiguration Wetter Daten</legend>
+                    <div class="grid-x grid-padding-x">
+                        <div class="cell medium-4">{{ form_row(anlageForm.WeatherStation) }}</div>
+                        <div class="cell medium-4">{{ form_row(anlageForm.useLowerIrrForExpected) }}</div>
+                        {#
+                        <div class="cell medium-3">{{ form_row(anlageForm.anlIrChange) }}</div>
+                        <div class="cell medium-3">{{ form_row(anlageForm.anlWindUnit) }}</div>
+                        #}
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+{#
+        <div class="tabs-content" data-tabs-content="example-tabs">
+            ≈
             <div class="tabs-panel is-active" id="plant1">
 
                 <fieldset class="fieldset">
@@ -74,7 +164,7 @@
         </div>
     </div>
 </div>
-
+#}
 <div class="grid-x grid-padding-y action-menu">
     <div class="cell">
         {{ form_widget(anlageForm.save) }}
