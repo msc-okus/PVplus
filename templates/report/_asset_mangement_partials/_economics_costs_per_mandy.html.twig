@@ -1,11 +1,12 @@
-<div style="page-break-after: always;">
-    <div style="height:18cm; width: 29.7cm;" >
+<div style="page-break-after: always; height: 95%!important;">
+    <div class="content_asset_report">
         <h3>Economics</h3>
         <span class="subheadline">Costs per month and year(todo:alle Werte dieser Tabelle sind nicht aktuell sondern nur zum Test)</span>
 
         <table id="basetable" style="margin-top: -10px">
             <tr>
                 <td colspan="2" style="text-align: left">
+                    {% set totalsfix = [] %}
                     <table class="asset_report_table_operations_data_small" style="width: 100%!important;">
                         <tbody>
                         <tr style="font-weight: bold">
@@ -18,7 +19,7 @@
                         <tr>
                             <td class="tr_next_columns" style="background-color: #ededed;">O&M</td>
                             {% set total = 0 %}
-                            {% for data in income_per_month.revenues_act %}
+                            {% for data in economicsMandy.oum %}
                                 <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                                 {% set total = total + data %}
                             {% endfor %}
@@ -26,9 +27,8 @@
                         </tr>
                         <tr>
                             <td class="tr_next_columns" style="background-color: #ededed;">Electricity</td>
-                            
                             {% set total = 0 %}
-                            {% for data in income_per_month.PVSYST_plan_proceeds_EXP %}
+                            {% for data in economicsMandy.electricity %}
                                 <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                                 {% set total = total + data %}
                             {% endfor %}
@@ -37,7 +37,7 @@
                         <tr>
                             <td class="tr_next_columns" style="background-color: #ededed;">Technical dispatch (KEGOC)</td>
                             {% set total = 0 %}
-                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                            {% for data in economicsMandy.technicalDispatch %}
                                 <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                                 {% set total = total + data %}
                             {% endfor %}
@@ -47,7 +47,7 @@
                             <td class="tr_next_columns" style="background-color: #ededed;">TransTeleCom (cell equipment maintenance)</td>
                             
                             {% set total = 0 %}
-                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                            {% for data in economicsMandy.transTeleCom %}
                                 <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                                 {% set total = total + data %}
                             {% endfor %}
@@ -57,7 +57,7 @@
                             <td class="tr_next_columns" style="background-color: #ededed;">Security</td>
                             
                             {% set total = 0 %}
-                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                            {% for data in economicsMandy.security %}
                                 <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                                 {% set total = total + data %}
                             {% endfor %}
@@ -66,7 +66,7 @@
                         <tr>
                             <td class="tr_next_columns" style="background-color: #ededed;">Network service fee (ASTEL)</td>
                             {% set total = 0 %}
-                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                            {% for data in economicsMandy.networkServiceFee %}
                                 <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                                 {% set total = total + data %}
                             {% endfor %}
@@ -75,7 +75,7 @@
                         <tr>
                             <td class="tr_next_columns" style="background-color: #ededed;">legal services</td>
                             {% set total = 0 %}
-                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                            {% for data in economicsMandy.legalServices %}
                                 <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                                 {% set total = total + data %}
                             {% endfor %}
@@ -84,7 +84,7 @@
                         <tr>
                             <td class="tr_next_columns" style="background-color: #ededed;">Accountancy and administration costs</td>
                             {% set total = 0 %}
-                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                            {% for data in economicsMandy.accountancyAndAdministrationCosts %}
                                 <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                                 {% set total = total + data %}
                             {% endfor %}
@@ -93,7 +93,7 @@
                         <tr>
                             <td class="tr_next_columns" style="background-color: #ededed;">Insurance</td>
                             {% set total = 0 %}
-                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                            {% for data in economicsMandy.Iinsurance %}
                                 <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                                 {% set total = total + data %}
                             {% endfor %}
@@ -102,7 +102,7 @@
                         <tr>
                             <td class="tr_next_columns" style="background-color: #ededed;">Other</td>
                             {% set total = 0 %}
-                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                            {% for data in economicsMandy.other %}
                                 <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                                 {% set total = total + data %}
                             {% endfor %}
@@ -111,7 +111,7 @@
                         <tr style="background-color: #e2efda!important; font-weight: bold;">
                             <td class="tr_next_columns" style="background-color: #ededed;">TOTAL fixed costs</td>
                             {% set total = 0 %}
-                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                            {% for data in economicsMandy.fixesTotal %}
                                 <td class="tr_next_columns" style="background-color: #ededed;">{{ data|number_format(0, ',', '.') }}</td>
                                 {% set total = total + data %}
                             {% endfor %}
@@ -120,7 +120,43 @@
                         <tr>
                             <td class="tr_next_columns" style="background-color: #ededed;">Variable 1</td>
                             {% set total = 0 %}
-                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                            {% for data in economicsMandy.variable1 %}
+                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns" style="background-color: #ededed;">Variable 2</td>
+                            {% set total = 0 %}
+                            {% for data in economicsMandy.variable2 %}
+                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns" style="background-color: #ededed;">Variable 3</td>
+                            {% set total = 0 %}
+                            {% for data in economicsMandy.variable3 %}
+                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns" style="background-color: #ededed;">Variable 4</td>
+                            {% set total = 0 %}
+                            {% for data in economicsMandy.variable4 %}
+                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% set total = total + data %}
+                            {% endfor %}
+                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns" style="background-color: #ededed;">Variable 5</td>
+                            {% set total = 0 %}
+                            {% for data in economicsMandy.variable5 %}
                                 <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                                 {% set total = total + data %}
                             {% endfor %}
@@ -129,7 +165,7 @@
                         <tr style="background-color: #e2efda!important; font-weight: bold;">
                             <td class="tr_next_columns" style="background-color: #ededed;">TOTAL variable costs</td>
                             {% set total = 0 %}
-                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                            {% for data in economicsMandy.variablesTotal %}
                                 <td class="tr_next_columns" style="background-color: #ededed;">{{ data|number_format(0, ',', '.') }}</td>
                                 {% set total = total + data %}
                             {% endfor %}
@@ -142,7 +178,7 @@
                             <td class="tr_next_columns">TOTAL costs</td>
                             
                             {% set total = 0 %}
-                            {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                            {% for data in economicsMandy.monthTotal %}
                                 <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                                 {% set total = total + data %}
                             {% endfor %}

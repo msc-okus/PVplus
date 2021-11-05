@@ -1,0 +1,173 @@
+@media print{
+  @page {
+    size: landscape;
+    margin: 0;
+  }
+}
+
+body{
+  padding-left: 1.3cm;
+  padding-right: 1.3cm;
+  padding-top: 1.1cm;
+}
+
+page[size="A4"][layout="landscape"] {
+  width: 29.7cm;
+  height: 21cm;
+}
+
+.content_asset_report{
+  height:19cm!important;
+  width: 27.0cm!important;
+}
+
+h1{
+  margin-bottom: 10px;
+}
+
+h2{
+  margin:0 0 5px 0;
+  padding: 0;
+}
+
+h3{
+  color: #15508e;
+}
+
+.page-break {
+  page-break-before: always;
+}
+
+small {
+  font-size: 80%;
+}
+
+.subheadline{
+  margin-bottom: 20px;
+  display: block;
+  font-size:12px !important;
+  color: #2e639a;
+}
+
+table {
+  border-collapse: collapse;
+  width: auto !important;
+  margin-bottom: 1.5rem;
+}
+table * {
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+}
+
+table td, table th {
+  border: solid 0px;
+  padding: 2px 2px;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+table td small, table th small {
+  font-size: 10px;
+}
+table td .table-center, table th .table-center {
+  text-align: center;
+}
+table td {
+  text-align: right;
+}
+table th, .tr_first_column {
+  background-color: #bdd7ee !important;
+  font-weight: bold;
+  text-align: right;
+  border: solid 1px #000;
+}
+
+table .tr_first_column_nonbold {
+  background-color: #bdd7ee !important;
+  font-weight: normal;
+  text-align: left;
+  border: solid 1px #000;
+}
+
+.tr_next_columns {
+  text-align: right;
+  border: solid 1px #000;
+}
+
+.cell medium-6 {
+  page-break-after: always !important;
+}
+
+#basetable{
+  width: 100% !important;
+}
+
+#asset_report .asset_report_table_operations_data{
+  width: 100% !important;
+}
+#asset_report .asset_report_table_operations_data td .td_values_1 {
+  background-color: #5f8148;
+}
+#asset_report .asset_report_table_operations_data td .td_values_2 {
+  background-color: #a9d08e;
+}
+#asset_report .asset_report_table_operations_data td .td_values_3 {
+  background-color: #ffff00;
+}
+#asset_report .asset_report_table_operations_data td .td_values_4 {
+  background-color: #ffc000;
+}
+#asset_report .asset_report_table_operations_data td .td_values_5 {
+  background-color: #cc0000;
+}
+#asset_report .asset_report_table_operations_data_small{
+  width: 100% !important;
+}
+#asset_report .asset_report_table_operations_data_small tr td{
+  font-size: 7.3px !important;
+}
+
+#asset_report, #asset_report_table_header{
+  border: none !important;
+  text-align: left;
+  page-break-after: always;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+#asset_report, #asset_report_table_header td{
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.customer_logo{
+  height:40px !important;
+}
+
+.g4n_logo{
+  height:60px !important;
+}
+
+.td_texthint{
+  text-align: left; padding-left: 40px;
+}
+
+.texthint{
+  background-color: #bdd7ee !important;
+  padding: 0 5px;
+}
+
+.td_texthint_2{
+  text-align: left;
+  width: 130px;
+  display: block;
+}
+
+.legend_colors td{
+  width: 50px;
+  border: solid 1px;
+}
+
+table td .explanation{
+  border: solid 2px #15508e;
+  padding: 5px;
+}
+

@@ -1,5 +1,5 @@
-<div style="page-break-after: always;">
-    <div style="height:18cm; width: 29.7cm;" >
+<div style="page-break-after: always; height: 95%!important;">
+    <div class="content_asset_report">
         <h3>Availability Inverter</h3>
         <span class="subheadline">Daily overview – {{ month }} {{ year }}</span>
 
@@ -21,8 +21,8 @@
                                 <table class = "streamdayly" style="margin:0 !important;">
                                     <thead>
                                     {% if (itemcounter == 1 ) %}
-                                        <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center; border-left: solid 1px !important;" rowspan="3">Day</th><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center; ">{{ acGroups[unitcounter2] }}</th></tr>
-                                        <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center; ">[%]</th></tr>
+                                        <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;" rowspan="3" style="border-left: solid 1px !important;">Day</th><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">{{ acGroups[unitcounter2] }}</th></tr>
+                                        <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">[%]</th></tr>
                                     {% endif %}
                                     {% if (itemcounter > 1) %}
                                         {% if loop.last %}
@@ -35,6 +35,7 @@
 
                                     {% endif %}
                                     </thead>
+                                    {% set color = "#ffffff" %}
                                     {% for datatr in data %}
                                         {% if (datatr.pa >= 98) %}{% set color = "#00b050" %}{% endif %}
                                         {% if (datatr.pa < 98) %}{% set color = "#cee4c0" %}{% endif %}
@@ -42,19 +43,19 @@
                                         {% if (datatr.pa < 85) %}{% set color = "#ffc000" %}{% endif %}
                                         {% if (datatr.pa <= 80) %}{% set color = "#cc0000" %}{% endif %}
                                         {% if (datatr.pa == 100) %}{% set color = "#00b050" %}{% endif %}
+
                                         {% if (itemcounter == 1 ) %}
-                                            <tr><td class="tr_first_column" style="font-size: 7.3px!important;">{{ datatr.form_date }}</td><td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ datatr.pa|number_format(2, ',', '.') }}</td></tr>
+                                            <tr><td class="tr_first_column" style="font-size: 7.3px!important;">{{ datatr.form_date }}</td><td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ datatr.pa|number_format(0, ',', '.') }}</td></tr>
                                         {% endif %}
                                         {% if (itemcounter > 1) %}
-                                            <tr><td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ datatr.pa|number_format(2, ',', '.') }}</td></tr>
+                                            <tr><td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ datatr.pa|number_format(0, ',', '.') }}</td></tr>
                                         {% endif %}
                                     {% endfor %}
                                 </table>
                             </td>
-
+                            {% set unitcounter2 = unitcounter2+1 %}
                             {% set itemcounter = itemcounter+1 %}
                             {% set unitcounter = unitcounter+1 %}
-                            {% set unitcounter2 = unitcounter2+1 %}
                         {% endfor %}
                         {% set itemcounter = 1 %}
                         </td>
@@ -96,7 +97,7 @@
         </table>
     </div>
     <div>
-        <table style="width: 29.7cm;">
+        <table style="width: 27.7cm;">
             <tr>
                 <td style="border-bottom: solid 2px #91bc5b;width: 25.4cm;"></td>
                 <td rowspan="2"><img class="g4n_logo" src="{{ baseurl }}/images/green4net.jpg"></td>

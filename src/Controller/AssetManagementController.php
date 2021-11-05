@@ -34,16 +34,16 @@ class AssetManagementController extends BaseController
     /**
      * @param $doctype ( 0 = PDF, 1 = Excel, 2 = PNG (Grafiken) )
      * @param $charttypetoexport (0 = , 1 = )
-     * @Route("/asset/report/{id}/{month}/{year}/{charttypetoexport}/{pages}")
+     * @Route("/asset/report/{id}/{month}/{year}/{export}/{pages}")
      */
-    public function assetReport($id, $month, $year, $charttypetoexport, $pages, AssetManagementService $assetManagement, AnlagenRepository $anlagenRepository, Request $request)
+    public function assetReport($id, $month, $year, $export, $pages, AssetManagementService $assetManagement, AnlagenRepository $anlagenRepository, Request $request)
     {
+
         $anlage = $anlagenRepository->findIdLike([$id]);
-        $output = $assetManagement->assetReport($anlage, $month, $year, $charttypetoexport, $pages);
+        $output = $assetManagement->assetReport($anlage, $month, $year, $export, $pages);
         $baseurl = $request->getSchemeAndHttpHost();
-
-
-        return $this->render('report/assetreport.html.twig', [
+        $plantId = $output['plantId'];
+        $result = $this->render('report/assetreport.html.twig', [
             'baseurl' => $baseurl,
             'owner' => $output['owner'],
             'plantSize' => $output['plantSize'],
@@ -109,10 +109,64 @@ class AssetManagementController extends BaseController
             'operations_currents_dayly_table' => $output['operations_currents_dayly_table'],
             'income_per_month' => $output['income_per_month'],
             'income_per_month_chart' => $output['income_per_month_chart'],
+            'economicsMandy' => $output['economicsMandy'],
             'total_Costs_Per_Date' => $output['total_Costs_Per_Date'],
             'operating_statement_chart' => $output['operating_statement_chart'],
+            'economicsCumulatedForecast' => $output['economicsCumulatedForecast'],
+            'economicsCumulatedForecastChart' => $output['economicsCumulatedForecastChart'],
+            'losses_compared_chart' => $output['losses_compared_chart'],
+            'cumulated_losses_compared_chart' => $output['cumulated_losses_compared_chart'],
         ]);
+        if($export == 0){
+            return $result;
+        }else{
+            // specify the route to the binary.
+            $pdf = new ChromePdf('/usr/bin/chromium');
 
+
+            // Route when PDF will be saved.
+            ///usr/www/users/pvpluy/dev.gs/PVplus-4.0
+            $pos = $this->substr_Index($this->getParameter('kernel.project_dir'), '/', 5);
+            $pathpart = substr($this->getParameter('kernel.project_dir'), $pos);
+
+            $pdf->output("/usr/home/pvpluy/public_html$pathpart/public/asset_report_".$plantId.'.pdf');
+            $reportfile = fopen("/usr/home/pvpluy/public_html$pathpart/public/asset_report_$plantId.html", "w") or die("Unable to open file!");
+            //cleanup html
+            $pos = strpos($result, '<html>');
+            fwrite($reportfile, substr($result, $pos));
+            fclose($reportfile);
+
+
+            #$pdf->generateFromHtml(substr($result, $pos));
+            $pdf->generateFromFile("/usr/home/pvpluy/public_html$pathpart/public/asset_report_$plantId.html");
+            $filename = 'asset_report_'.$plantId.'.pdf';
+            $pdf->output($filename);
+            // Header content type
+            header("Content-type: application/pdf");
+            header("Content-Length: " . filesize($filename));
+            header("Content-type: application/pdf");
+
+            // Send the file to the browser.
+            readfile($filename);
+            #return $result;
+        }
     }
 
+
+    function substr_Index( $str, $needle, $nth ){
+        $str2 = '';
+        $posTotal = 0;
+        for($i=0; $i < $nth; $i++){
+
+            if($str2 != ''){
+                $str = $str2;
+            }
+
+            $pos   = strpos($str, $needle);
+            $str2  = substr($str, $pos+1);
+            $posTotal += $pos+1;
+
+        }
+        return $posTotal-1;
+    }
 }
