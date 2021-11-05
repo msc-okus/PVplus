@@ -137,7 +137,7 @@ class AnlagenAdminController extends BaseController
      * @param AnlagenRepository $anlagenRepository
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
      */
-    public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo, EconomicVarValuesRepository $ecoValRepo)
+    public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo)
     {
         $anlage = $anlagenRepository->find($id);
         $economicVarNames1 =new EconomicVarNames();
