@@ -1,5 +1,5 @@
-<div style="page-break-after: always;">
-    <div style="height:18cm; width: 29.7cm;" >
+<div style="page-break-after: always; height: 95%!important;">
+    <div class="content_asset_report">
         <h3>String currents</h3>
         <span class="subheadline">Overview – Daily difference between g4n expected vs. actuals [%]</span>
 
@@ -35,7 +35,7 @@
 
                                     {% endif %}
                                     </thead>
-
+                                    {% set color = "#ffffff" %}
                                     {% for datatr in data %}
                                         {% set value = (((datatr.act_current_dc - datatr.exp_current_dc)*100)/datatr.exp_current_dc)|number_format(0, ',', '.') %}
                                         {% if (value <= -2) %}{% set color = "#00b050" %}{% endif %}

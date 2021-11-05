@@ -27,6 +27,7 @@ use PDOStatement;
 use PDO;
 use PDOException;
 use PDORow;
+use Doctrine\Common\Collections\ArrayCollection;
 
 
 class AssetManagementService
@@ -183,6 +184,7 @@ class AssetManagementService
         $anlGeoLat = $anlage->getAnlGeoLat();
         $anlGeoLon = $anlage->getAnlGeoLon();
         $owner = $anlage->getEigner()->getFirma();
+        $plantId = $anlage->getAnlId();
 
         $monthName = date("F", mktime(0, 0, 0, $report['reportMonth'], 10));
         $currentYear = date("Y");
@@ -263,7 +265,6 @@ class AssetManagementService
             (float)$powerAct[] = $data1_grid_meter['powerAct'];//Inv out
             (float)$powerExp[] = $data1_grid_meter['powerExp'];
             (float)$powerExpEvu[] = $data1_grid_meter['powerExpEvu'];
-
 
             $powerEvuYearToDate = round($powerEvuYearToDate + $data1_grid_meter['powerEvu'], 2);
             $pvSyst = $this->pvSystMonthRepo->findOneMonth($anlage, $i);
@@ -1798,32 +1799,224 @@ class AssetManagementService
             }
         }
 
-        #echo '<pre>';
-        # print_r($outTableCurrentsPower);
-        #echo '</pre>';
-        #exit;
-        #$tableColsLimit
         //End Operations string
 
         //Beginn Economics Income per month
-
-
-        for ($i = 0; $i < count($tbody_a_production['powerEvu']); $i++) {
-            if ($i+1 < 7){
-                $monthleyFeedInTarif = 0.0740;
-            }else{
-                $monthleyFeedInTarif = 0.0790;
+        $sql = "SELECT * FROM economic_var_names WHERE anlage_id = $anlId";
+        $resultEconomicsNamed = $connAnlage->query($sql);
+        if ($resultEconomicsNamed) {
+            if ($resultEconomicsNamed->num_rows == 1) {
+                $conomicsNamed = $resultEconomicsNamed->fetch_assoc();
             }
+        }
+        $conomicsNames = [];
+        for ($i = 0; $i < count($conomicsNamed); $i++) {
+            if ($conomicsNamed["var_".$i] != ""){
+                $conomicsNames["var_".$i] = $conomicsNamed["var_".$i];
+            }
+        }
+
+        $sql = "SELECT * FROM economic_var_values WHERE anlage_id = $anlId and year =". $report['reportYear'];
+        $resultEconomicsNamed = $connAnlage->query($sql);
+        $economicsValues = $resultEconomicsNamed->fetch_all();
+        $totalsFix = [];
+        for ($i = 0; $i < count($economicsValues); $i++) {
+            (float)$oum[] = $economicsValues[$i][4];
+            $oumTotal = $oumTotal+$economicsValues[$i][4];
+            (float)$electricity[] = $economicsValues[$i][5];
+            $electricityTotal = $electricityTotal+$economicsValues[$i][5];
+            (float)$technicalDispatch[] = $economicsValues[$i][6];
+            $technicalDispatchTotal = $technicalDispatchTotal+$economicsValues[$i][6];
+            (float)$transTeleCom[] = $economicsValues[$i][7];
+            $transTeleComTotal = $transTeleComTotal+$economicsValues[$i][7];
+            (float)$security[] = $economicsValues[$i][8];
+            $securityTotal = $securityTotal+$economicsValues[$i][8];
+            (float)$networkServiceFee[] = $economicsValues[$i][9];
+            $networkServiceFeeToatal = $networkServiceFeeToatal+$economicsValues[$i][9];
+            (float)$legalServices[] = $economicsValues[$i][10];
+            $legalServicesTotal = $legalServicesTotal+$economicsValues[$i][10];
+            (float)$accountancyAndAdministrationCosts[] = $economicsValues[$i][11];
+            $accountancyAndAdministrationCostsTotal = $accountancyAndAdministrationCostsTotal+$economicsValues[$i][11];
+            (float)$Iinsurance[] = $economicsValues[$i][12];
+            $IinsuranceTotal = $IinsuranceTotal+$economicsValues[$i][12];
+            (float)$other[] = $economicsValues[$i][13];
+            $otherTotal = $otherTotal+$economicsValues[$i][13];
+            $fixesTotal[$i] = $oum[$i]+
+                $electricity[$i]+
+                $technicalDispatch[$i]+
+                $transTeleCom[$i]+
+                $security[$i]+
+                $networkServiceFee[$i]+
+                $legalServices[$i]+
+                $legalServices[$i]+
+                $accountancyAndAdministrationCosts[$i]+
+                $Iinsurance[$i]+
+                $other[$i];
+            (float)$variable1[] = $economicsValues[$i][14];
+            $variable1Total = $variable1Total+$economicsValues[$i][14];
+            (float)$variable2[] = $economicsValues[$i][15];
+            $variable2Total = $variable2Total+$economicsValues[$i][15];
+            (float)$variable3[] = $economicsValues[$i][16];
+            $variable3Total = $variable3Total+$economicsValues[$i][16];
+            (float)$variable4[] = $economicsValues[$i][17];
+            $variable4Total = $variable4Total+$economicsValues[$i][17];
+            (float)$variable5[] = $economicsValues[$i][18];
+            $variable5Total = $variable5Total+$economicsValues[$i][18];
+            $variablesTotal[$i] = $variable1[$i]+
+                $variable2[$i]+
+                $variable3[$i]+
+                $variable4[$i]+
+                $variable5[$i];
+            (float)$kwhPrice[] = $economicsValues[$i][19];
+            $monthTotal[] = $fixesTotal[$i]+$variablesTotal[$i];
+            if ($report['reportMonth']-1 == $i && $report['reportYear'] == $currentYear) {
+                $i = 13;
+            }
+        }
+
+        #fuer die Tabelle
+        $economicsMandy = [
+            'oum' => $oum,
+            'electricity' => $electricity,
+            'technicalDispatch' => $technicalDispatch,
+            'transTeleCom' => $transTeleCom,
+            'security' => $security,
+            'networkServiceFee' => $networkServiceFee,
+            'legalServices' => $legalServices,
+            'accountancyAndAdministrationCosts' => $accountancyAndAdministrationCosts,
+            'Iinsurance' => $Iinsurance,
+            'other' => $other,
+            'fixesTotal' => $fixesTotal,
+            'variable1' => $variable1,
+            'variable2' => $variable2,
+            'variable3' => $variable3,
+            'variable4' => $variable4,
+            'variable5' => $variable5,
+            'variablesTotal' => $variablesTotal,
+            'kwhPrice' => $kwhPrice,
+            'monthTotal' => $monthTotal,
+        ];
+
+
+        #dump($economicsMandy);
+
+        #dd($conomicsNames);
+
+        #beginn Operating statement
+        for ($i = 0; $i < count($tbody_a_production['powerEvu']); $i++) {
+            $monthleyFeedInTarif = $kwhPrice[$i];
             $incomePerMonth['revenues_act'][$i] = $tbody_a_production['powerEvu'][$i] * $monthleyFeedInTarif;
             $incomePerMonth['PVSYST_plan_proceeds_EXP'][$i] = $tbody_a_production['expectedPvSyst'][$i] * $monthleyFeedInTarif;
             $incomePerMonth['gvn_plan_proceeds_EXP'][$i] = $tbody_a_production['powerExpEvu'][$i] * $monthleyFeedInTarif;
+            //-Total costs
+            $incomePerMonth['revenues_act_minus_totals'][$i] = round($incomePerMonth['revenues_act'][$i]-$monthTotal[$i],0);
+            $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][$i] = round($incomePerMonth['PVSYST_plan_proceeds_EXP'][$i]-$monthTotal[$i],0);
+            $incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'][$i] = round($incomePerMonth['gvn_plan_proceeds_EXP'][$i]-$monthTotal[$i],0);
             if($i+1 > $report['reportMonth']){
                 $incomePerMonth['PVSYST_plan_proceeds_EXP'][$i] = null;
             }
             $incomePerMonth['monthley_feed_in_tarif'][$i] = $monthleyFeedInTarif;
         }
+        #end Operating statement
+        #beginn economics Cumulated Forecast
+        $kumsum1[0] = $incomePerMonth['revenues_act_minus_totals'][0];
+        $kumsum2[0] = $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][0];
+        $kumsum3[0] = $incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'][0];
+        for ($i = 0; $i < $report['reportMonth']; $i++) {
+            $kumsum1[$i] = $incomePerMonth['revenues_act_minus_totals'][$i] + $kumsum1[$i - 1];
+            $kumsum2[$i] = $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][$i] + $kumsum2[$i - 1];
+            $kumsum3[$i] = $incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'][$i] + $kumsum3[$i - 1];
+            $result1[] = $kumsum1[$i];
+            $result2[] = $kumsum2[$i];
+            $result3[] = $kumsum3[$i];
+        }
+
+        $economicsCumulatedForecast = [
+            'revenues_ACT_and_Revenues_Plan' => $result1,
+            'PVSYST_plan_proceeds_P50' => $result2,
+            'g4n_plan_proceeds_EXP_P50' => $result3,
+        ];
 
         //beginn chart
+        $chart->tooltip->show = true;
+        $chart->tooltip->trigger = 'item';
+
+        $chart->xAxis = array(
+            'type' => 'category',
+            'axisLabel' => array(
+                'show' => true,
+                'margin' => '10',
+            ),
+            'splitArea' => array(
+                'show' => true,
+            ),
+            'data' => $dataMonthArray
+        );
+        $chart->yAxis = array(
+            'type' => 'value',
+            'name' => 'KWH',
+            'nameLocation' => 'middle',
+            'nameGap' => 70
+        );
+        $chart->series =
+            [
+                [
+                    'name' => 'Difference Egrid to PVSYST',
+                    'type' => 'line',
+                    'data' => $diefference_prod_to_pvsyst,
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'Difference Egrid to expected g4n',
+                    'type' => 'line',
+                    'data' => $diefference_prod_to_expected_g4n,
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'Difference inverter to Egrid',
+                    'type' => 'line',
+                    'data' => $diefference_prod_to_egrid,
+                    'visualMap' => 'false',
+                ]
+            ];
+
+        $option = array(
+            'color' => ['#0070c0', '#c55a11', '#a5a5a5'],
+            'title' => [
+                'text' => 'Monthly losses at plan values(PVSYS-g4n-INV))',
+                'left' => 'center',
+            ],
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'left' => 'center',
+                    'top' => 20
+                ],
+            'grid' =>
+                array(
+                    'height' => '70%',
+                    'top' => 50,
+                    'width' => '90%',
+                ),
+        );
+
+
+        $chart->setOption($option);
+
+        $losses_monthly = $chart->render('losses_monthly', ['style' => 'height: 450px; width:23cm;']);
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+        #end economics Cumulated Forecast
+
+
+        //beginn chart costs per month
         $chart = new ECharts();
         $chart->tooltip->show = true;
 
@@ -1843,26 +2036,26 @@ class AssetManagementService
         $chart->yAxis = array(
             'type' => 'value',
             'min' => 0,
-            'name' => 'kWh',
+            'name' => 'EUR',
             'nameLocation' => 'middle',
             'nameGap' => 70
         );
         $chart->series =
             [
                 [
-                    'name' => 'Yield (Grid meter)',
+                    'name' => 'Revenues ACT',
                     'type' => 'bar',
                     'data' => $incomePerMonth['revenues_act'],
                     'visualMap' => 'false'
                 ],
                 [
-                    'name' => 'Expected PV SYST',
+                    'name' => 'PVSYST plan proceeds - EXP',
                     'type' => 'bar',
                     'data' => $incomePerMonth['PVSYST_plan_proceeds_EXP'],
                     'visualMap' => 'false'
                 ],
                 [
-                    'name' => 'Expected g4n',
+                    'name' => 'g4n plan proceeds - EXP',
                     'type' => 'bar',
                     'data' => $incomePerMonth['gvn_plan_proceeds_EXP'],
                     'visualMap' => 'false'
@@ -1907,6 +2100,8 @@ class AssetManagementService
 
         //Beginn Economics Costs per month and year
 
+        //reminer vor Variables echo $object->{'$t'};
+
         $chart->tooltip->show = true;
         $chart->tooltip->trigger = 'item';
         $chart->series =
@@ -1915,66 +2110,62 @@ class AssetManagementService
                     'type' => 'pie',
                     'data' => [
                         [
-                            'value' => 16,
+                            'value' => $oumTotal,
                             'name' => 'O&M'
                         ],
                         [
-                            'value' => 6,
+                            'value' => $electricityTotal,
                             'name' => 'Electricity'
                         ],
                         [
-                            'value' => 6,
+                            'value' => $technicalDispatchTotal,
                             'name' => 'Technical dispatch (KEGOC)'
                         ],
                         [
-                            'value' => 6,
-                            'name' => 'OMC***'
-                        ],
-                        [
-                            'value' => 6,
+                            'value' => $transTeleComTotal,
                             'name' => 'TransTeleCom (cell equipment maintenance)'
                         ],
                         [
-                            'value' => 6,
+                            'value' => $securityTotal,
                             'name' => 'Security'
                         ],
                         [
-                            'value' => 6,
+                            'value' => $networkServiceFeeToatal,
                             'name' => 'Network service fee (ASTEL)'
                         ],
                         [
-                            'value' => 6,
+                            'value' => $legalServicesTotal,
                             'name' => 'legal services'
                         ],
                         [
-                            'value' => 6,
+                            'value' => $accountancyAndAdministrationCostsTotal,
                             'name' => 'Accountancy and administration costs'
                         ],
                         [
-                            'value' => 6,
+                            'value' => $IinsuranceTotal,
                             'name' => 'Insurance'
                         ],
                         [
-                            'value' => 6,
+                            'value' => $otherTotal,
                             'name' => 'Other'
                         ],
                         [
-                            'value' =>6,
+                            'value' => $variable1Total,
                             'name' => 'Variable 1'
                         ],                        [
-                            'value' => 6,
+                            'value' => $variable2Total,
                             'name' => 'Variable 2)'
                         ],
                         [
-                            'value' => 6,
+                            'value' => $variable3Total,
                             'name' => 'Variable 3'
                         ],
                         [
-                            'value' => 6,
+                            'value' => $variable4Total,
                             'name' => 'Variable 4'
                         ],
                         [
-                            'value' => 6,
+                            'value' => $variable5Total,
                             'name' => 'Variable 5'
                         ],
                     ],
@@ -2005,7 +2196,7 @@ class AssetManagementService
             'title' => [
                 'text' => 'TOTAL Costs per Date - '.$report['reportYear'],
                 'left' => 'center',
-                'top' => -5,
+                'top' => 5,
             ],
 
             'tooltip' =>
@@ -2023,7 +2214,7 @@ class AssetManagementService
 
         Config::addExtraScript('cool.js', 'https://gs.g4npvplus.net/echarts/theme/');
         $chart->setOption($option);
-        $total_Costs_Per_Date = $chart->render('total_Costs_Per_Date', ['style' => 'height: 300px; width:800px; margin-left:80px;']);
+        $total_Costs_Per_Date = $chart->render('total_Costs_Per_Date', ['style' => 'height: 250px; width:800px; margin-left:80px;']);
 
         $chart->tooltip = [];
         $chart->xAxis = [];
@@ -2063,19 +2254,19 @@ class AssetManagementService
                 [
                     'name' => 'Income ACT',
                     'type' => 'bar',
-                    'data' => $incomePerMonth['revenues_act'],
+                    'data' => $incomePerMonth['revenues_act_minus_totals'],
                     'visualMap' => 'false'
                 ],
                 [
                     'name' => 'PVSYST plan proceeds',
                     'type' => 'bar',
-                    'data' => $incomePerMonth['PVSYST_plan_proceeds_EXP'],
+                    'data' => $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'],
                     'visualMap' => 'false'
                 ],
                 [
                     'name' => 'g4n plan proceeds - EXP ',
                     'type' => 'bar',
-                    'data' => $incomePerMonth['gvn_plan_proceeds_EXP'],
+                    'data' => $incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'],
                     'visualMap' => 'false'
                 ]
             ];
@@ -2115,9 +2306,253 @@ class AssetManagementService
         unset($option);
 
         //end Operating Statement
+
+        $economicsCumulatedForecast = [
+            'revenues_ACT_and_Revenues_Plan' => $result1,
+            'PVSYST_plan_proceeds_P50' => $result2,
+            'g4n_plan_proceeds_EXP_P50' => $result3,
+        ];
+        #geginn Chart economics Cumulated Forecast
+        $chart->tooltip->show = true;
+        $chart->tooltip->trigger = 'item';
+
+        $chart->xAxis = array(
+            'type' => 'category',
+            'axisLabel' => array(
+                'show' => true,
+                'margin' => '10',
+            ),
+            'splitArea' => array(
+                'show' => true,
+            ),
+            'data' => $dataMonthArray
+        );
+        $chart->yAxis = array(
+            'type' => 'value',
+            'name' => 'EUR',
+            'nameLocation' => 'middle',
+            'nameGap' => 70
+        );
+        $chart->series =
+            [
+                [
+                    'name' => 'Revenues ACT and Revenues Plan PVSYST',
+                    'type' => 'line',
+                    'data' => $economicsCumulatedForecast['revenues_ACT_and_Revenues_Plan'],
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'Revenues ACT and Revenues Plan g4n',
+                    'type' => 'line',
+                    'data' => $economicsCumulatedForecast['revenues_ACT_and_Revenues_Plan'],
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'PVSYST plan proceeds - P50',
+                    'type' => 'line',
+                    'data' => $economicsCumulatedForecast['PVSYST_plan_proceeds_P50'],
+                    'visualMap' => 'false',
+                ],
+                [
+                    'name' => 'g4n plan proceeds - EXP - P50',
+                    'type' => 'line',
+                    'data' => $economicsCumulatedForecast['g4n_plan_proceeds_EXP_P50'],
+                    'visualMap' => 'false',
+                ]
+            ];
+
+        $option = array(
+            'color' => ['#4472c4', '#ed7d31', '#a5a5a5', '#ffc000'],
+            'title' => [
+                'text' => 'Cumulated Forecast',
+                'left' => 'center',
+            ],
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'left' => 'center',
+                    'top' => 20
+                ],
+            'grid' =>
+                array(
+                    'height' => '70%',
+                    'top' => 50,
+                    'width' => '90%',
+                ),
+        );
+
+
+        $chart->setOption($option);
+
+        $economicsCumulatedForecastChart = $chart->render('economicsCumulatedForecastChart', ['style' => 'height: 420px; width:28cm;']);
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+        #end Chart economics Cumulated Forecast
+
+
+        //beginn Chart Losses compared
+        $chart = new ECharts();
+        $chart->tooltip->show = true;
+
+        $chart->tooltip->trigger = 'item';
+
+        $chart->xAxis = array(
+            'type' => 'category',
+            'axisLabel' => array(
+                'show' => true,
+                'margin' => '10',
+            ),
+            'splitArea' => array(
+                'show' => true,
+            ),
+            'data' => $dataMonthArray,
+        );
+        $chart->yAxis = array(
+            'type' => 'value',
+            'min' => 0,
+            'name' => 'EUR',
+            'nameLocation' => 'middle',
+            'nameGap' => 70
+        );
+        $chart->series =
+            [
+                [
+                    'name' => 'Difference Income ACT to PVSYST plan',
+                    'type' => 'bar',
+                    'data' => $incomePerMonth['revenues_act_minus_totals'],
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'PVSYST plan proceeds',
+                    'type' => 'bar',
+                    'data' => $incomePerMonth['revenues_act_minus_totals'],
+                    'visualMap' => 'false'
+                ]
+            ];
+
+        $option = array(
+            'color' => ['#9dc3e6', '#92d050'],
+            'title' => [
+                'text' => 'Losses Compared' ,
+                'left' => 'center',
+            ],
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'left' => 'center',
+                    'top' => 20
+                ],
+            'grid' =>
+                array(
+                    'height' => '80%',
+                    'top' => 50,
+                    'width' => '90%',
+                ),
+        );
+
+
+        $chart->setOption($option);
+
+        $losses_compared_chart = $chart->render('lossesCompared', ['style' => 'height: 350px; width:950px;']);
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+
+        //end Chart Losses compared
+
+        //beginn Chart Losses compared
+        $chart = new ECharts();
+        $chart->tooltip->show = true;
+
+        $chart->tooltip->trigger = 'item';
+
+        $chart->xAxis = array(
+            'type' => 'category',
+            'axisLabel' => array(
+                'show' => true,
+                'margin' => '10',
+            ),
+            'splitArea' => array(
+                'show' => true,
+            ),
+            'data' => $dataMonthArray,
+        );
+        $chart->yAxis = array(
+            'type' => 'value',
+            'min' => 0,
+            'name' => 'EUR',
+            'nameLocation' => 'middle',
+            'nameGap' => 70
+        );
+        $chart->series =
+            [
+                [
+                    'name' => 'Difference Income ACT to PVSYST plan',
+                    'type' => 'line',
+                    'data' => $incomePerMonth['revenues_act_minus_totals'],
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'PVSYST plan proceeds',
+                    'type' => 'line',
+                    'data' => $incomePerMonth['revenues_act_minus_totals'],
+                    'visualMap' => 'false'
+                ]
+            ];
+
+        $option = array(
+            'color' => ['#9dc3e6', '#92d050'],
+            'title' => [
+                'text' => 'Commulative Losses Operating statement [EUR] ' ,
+                'left' => 'center',
+            ],
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'left' => 'center',
+                    'top' => 20
+                ],
+            'grid' =>
+                array(
+                    'height' => '80%',
+                    'top' => 50,
+                    'width' => '90%',
+                ),
+        );
+
+
+        $chart->setOption($option);
+
+        $cumulated_losses_compared_chart = $chart->render('cumulatedlossesCompared', ['style' => 'height: 350px; width:950px;']);
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+
+        //end Chart Losses compared
+
         $conn = null;
 
         $output = [
+            'plantId' => $plantId,
             'owner' => $owner,
             'plantSize' => $plantSize,
             'plantName' => $plantName,
@@ -2178,8 +2613,13 @@ class AssetManagementService
             'operations_currents_dayly_table' => $outTableCurrentsPower,
             'income_per_month' => $incomePerMonth,
             'income_per_month_chart' => $income_per_month_chart,
+            'economicsMandy' => $economicsMandy,
             'total_Costs_Per_Date' => $total_Costs_Per_Date,
             'operating_statement_chart' => $operating_statement_chart,
+            'economicsCumulatedForecast' => $economicsCumulatedForecast,
+            'economicsCumulatedForecastChart' => $economicsCumulatedForecastChart,
+            'losses_compared_chart' => $losses_compared_chart,
+            'cumulated_losses_compared_chart' => $cumulated_losses_compared_chart,
         ];
         return $output;
 
