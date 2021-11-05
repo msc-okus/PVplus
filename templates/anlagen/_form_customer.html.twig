@@ -15,8 +15,122 @@
     <tr>
         <td>{{ form_widget(monthlyYield.year) }}</td>
         <td>{{ form_widget(monthlyYield.month) }}</td>
+        <td>{{ form_widget(monthlyYield.pvSystPR) }}</td>
         <td>{{ form_widget(monthlyYield.pvSystErtrag) }}</td>
+        <td>{{ form_widget(monthlyYield.externMeterDataMonth) }}</td>
         <td></td>
+    </tr>
+{% endmacro %}
+{% macro addeconomicVarValue(economicVarValue,econames) %}
+    <tr>
+        <td>{{ form_widget(economicVarValue.year) }}</td>
+        <td>{{ form_widget(economicVarValue.month) }}</td>
+        <td>{{ form_widget(economicVarValue.KwHPrice) }}</td>
+        {% if econames.getVar1 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_1) }}
+                {#   Use last month value:
+            {#   {{ form_widget(economicVarValue.var_1s) }} #}
+            </td>
+        {% endif %}
+        {% if econames.getVar2 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_2) }}
+                {#   Use last month value:
+               {#  {{ form_widget(economicVarValue.var_2s) }} #}
+            </td>
+        {% endif %}
+        {% if econames.getVar3 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_3) }}
+                {#     Use last month value:
+            {#     {{ form_widget(economicVarValue.var_3s) }}#}
+            </td>
+        {% endif %}
+        {% if econames.getVar4 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_4) }}
+                {#  Use last month value:
+              {#   {{ form_widget(economicVarValue.var_4s) }} #}
+            </td>
+        {% endif %}
+        {% if econames.getVar5 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_5) }}
+                {#   Use last month value:
+                {{ form_widget(economicVarValue.var_5s) }}#}
+            </td>
+        {% endif %}
+        {% if econames.getVar6 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_6) }}
+                {#   Use last month value:
+                {{ form_widget(economicVarValue.var_6s) }} #}
+            </td>
+        {% endif %}
+        {% if econames.getVar7 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_7) }}
+                {#    Use last month value:
+                {{ form_widget(economicVarValue.var_7s) }}#}
+            </td>
+        {% endif %}
+        {% if econames.getVar8 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_8) }}
+                {#   Use last month value:
+                {{ form_widget(economicVarValue.var_8s) }} #}
+            </td>
+        {% endif %}
+        {% if econames.getVar9 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_9) }}
+                {#   Use last month value:
+                {{ form_widget(economicVarValue.var_9s) }} #}
+            </td>
+        {% endif %}
+        {% if econames.getVar10 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_10) }}
+                {#   Use last month value:
+                {{ form_widget(economicVarValue.var_10s) }} #}
+            </td>
+        {% endif %}
+        {% if econames.getVar11 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_11) }}
+                {#  Use last month value:
+                {{ form_widget(economicVarValue.var_11s) }}#}
+            </td>
+        {% endif %}
+        {% if econames.getVar12 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_12) }}
+                {# Use last month value:
+                {{ form_widget(economicVarValue.var_12s) }} #}
+            </td>
+        {% endif %}
+        {% if econames.getVar13 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_13) }}
+                {#  Use last month value:
+                {{ form_widget(economicVarValue.var_13s) }} #}
+            </td>
+        {% endif %}
+        {% if econames.getVar14 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_14) }}
+                {# Use last month value:
+                {{ form_widget(economicVarValue.var_14s) }} #}
+            </td>
+        {% endif %}
+        {% if econames.getVar15 != "" %}
+            <td>
+                {{ form_widget(economicVarValue.var_15) }}
+                {# Use last month value:
+                {{ form_widget(economicVarValue.var_15s) }} #}
+            </td>
+        {% endif %}
     </tr>
 {% endmacro %}
 
@@ -27,7 +141,9 @@
                 <li class="tabs-title is-active"><a data-tabs-target="general" href="#general" aria-selected="true">General</a></li>
                 <li class="tabs-title"><a data-tabs-target="legend" href="#legend">Legend Configuration</a></li>
                 <li class="tabs-title"><a data-tabs-target="pvsyst" href="#pvsyst">PVSYST Month Values Design</a></li>
-                <li class="tabs-title"><a data-tabs-target="monthly-yield" href="#monthly-yield">Monthly Yield</a></li>
+                <li class="tabs-title"><a data-tabs-target="monthly-yield" href="#monthly-yield">Monthly recalculated Values from PVSYST</a></li>
+                <li class="tabs-title"><a data-tabs-target="economics" href="#economics">Economic Variables </a></li>
+                <li class="tabs-title"><a data-tabs-target="economicsvalues" href="#economicsvalues">Economic Reports </a></li>
             </ul>
 
             <div class="tabs-content" data-tabs-content="cust-plant-config">
@@ -158,8 +274,47 @@
                         </div>
                     </div>
                 </div>
+                <div class="tabs-panel" id="monthly-yield">
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell">
+                            <fieldset class="fieldset js-monthly-yield-wrapper"
+                                      data-prototype="{{ formMacros.addMonthlyYield(anlageForm.monthlyYields.vars.prototype)|e('html_attr') }}"
+                                      data-index="{{ anlageForm.monthlyYields|length }}"
+                            >
+                                <legend>Monthly recalculated Values from PVSYST</legend>
+                                <table id="monthly-yield-values">
+                                    <thead>
+                                    <tr>
+                                        <th>Year</th>
+                                        <th>Month</th>
+                                        <th>PVSYST PR [%] (recalc)</th>
+                                        <th>PVSYST Yield [kW/h] (recalc)</th>
+                                        <th>External Meter [kWh]</th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for monthlyYield in anlageForm.monthlyYields %}
+                                        <tr class="js-monthly-yield-item">
+                                            <td>{{ form_widget(monthlyYield.year) }}</td>
+                                            <td>{{ form_widget(monthlyYield.month) }}</td>
+                                            <td>{{ form_widget(monthlyYield.pvSystPR) }}</td>
+                                            <td>{{ form_widget(monthlyYield.pvSystErtrag) }}</td>
+                                            <td>{{ form_widget(monthlyYield.externMeterDataMonth) }}</td>
 
+                                            <td>{% if is_granted('ROLE_DEV') %}<a href="#" class="js-remove-monthly-yield"><span class="fa fa-minus-circle"></span></a>{% endif %}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                <button type="button" class="button secondary small js-add-monthly-yield"> <span class="fa fa-plus-circle"></span>&nbsp;Add Monthly Yield</button>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
                 {# Monthly Theoretival Yield Values from PVSYST #}
+                {#
+
                 <div class="tabs-panel" id="monthly-yield">
                     <div class="grid-x grid-margin-x">
                         <div class="cell">
@@ -194,6 +349,221 @@
                         </div>
                     </div>
                 </div>
+                #}
+                <div class="tabs-panel" id="economics">
+                    <fieldset class="fieldset">
+
+                        <legend>Variable names</legend>
+                        {% if econames.getVar1()!="" %}
+                            {{ form_row(anlageForm.var_1,{'value': econames.getVar1()  }) }}
+                        {% else %}
+                            {{ form_row(anlageForm.var_1) }}
+                        {% endif %}
+
+                        {% if econames.getVar2()!="" %}
+                            {{ form_row(anlageForm.var_2,{'value': econames.getVar2() }) }}
+                        {% else %}
+                            {{ form_row(anlageForm.var_2) }}
+                        {% endif %}
+
+                        {% if econames.getVar3()!="" %}
+                            {{ form_row(anlageForm.var_3,{'value': econames.getVar3() }) }}
+                        {% else %}
+                            {{ form_row(anlageForm.var_3) }}
+                        {% endif %}
+
+                        {% if econames.getVar4()!="" %}
+                            {{ form_row(anlageForm.var_4,{'value': econames.getVar4() }) }}
+                        {% else %}
+                            {{ form_row(anlageForm.var_4) }}
+                        {% endif %}
+
+                        {% if econames.getVar5()!="" %}
+                            {{ form_row(anlageForm.var_5,{'value': econames.getVar5() }) }}
+                        {% else %}
+                            {{ form_row(anlageForm.var_5) }}
+                        {% endif %}
+
+                        {% if econames.getVar6()!="" %}
+                            {{ form_row(anlageForm.var_6,{'value': econames.getVar6() }) }}
+                        {% else %}
+                            {{ form_row(anlageForm.var_6) }}
+                        {% endif %}
+
+                        {% if econames.getVar7()!="" %}
+                            {{ form_row(anlageForm.var_7,{'value': econames.getVar7() }) }}
+                        {% else %}
+                            {{ form_row(anlageForm.var_7) }}
+                        {% endif %}
+
+                        {% if econames.getVar8()!="" %}
+                            {{ form_row(anlageForm.var_8,{'value': econames.getVar8() }) }}
+                        {% else %}
+                            {{ form_row(anlageForm.var_8) }}
+                        {% endif %}
+
+                        {% if econames.getVar9()!="" %}
+                            {{ form_row(anlageForm.var_9,{'value': econames.getVar9() }) }}
+                        {% else %}
+                            {{ form_row(anlageForm.var_9) }}
+                        {% endif %}
+
+                        {% if econames.getVar10()!="" %}
+                            {{ form_row(anlageForm.var_10,{'value': econames.getVar10() }) }}
+                        {% else %}
+                            {{ form_row(anlageForm.var_10) }}
+                        {% endif %}
+
+                        {% if econames.getVar11()!="" %}
+                            {{ form_row(anlageForm.var_11,{'value': econames.getVar11() }) }}
+                        {% else %}
+                            {{ form_row(anlageForm.var_11) }}
+                        {% endif %}
+
+                        {% if econames.getVar12()!="" %}
+                            {{ form_row(anlageForm.var_12,{'value': econames.getVar12() }) }}
+                        {% else %}
+                            {{ form_row(anlageForm.var_12) }}
+                        {% endif %}
+
+                        {% if econames.getVar13()!="" %}
+                            {{ form_row(anlageForm.var_13,{'value': econames.getVar13() }) }}
+                        {% else %}
+                            {{ form_row(anlageForm.var_13) }}
+                        {% endif %}
+
+                        {% if econames.getVar14()!="" %}
+                            {{ form_row(anlageForm.var_14,{'value': econames.getVar14() }) }}
+                        {% else %}
+                            {{ form_row(anlageForm.var_14) }}
+                        {% endif %}
+
+                        {% if econames.getVar15()!="" %}
+                            {{ form_row(anlageForm.var_15,{'value': econames.getVar15() }) }}
+                        {% else %}
+                            {{ form_row(anlageForm.var_15) }}
+                        {% endif %}
+
+
+                    </fieldset>
+                </div>
+                <div class="tabs-panel" id="economicsvalues">
+                    <fieldset class="fieldset js-economicVarValues-wrapper"
+                              data-prototype="{{  formMacros.addeconomicVarValue(anlageForm.economicVarValues.vars.prototype,econames)|e('html_attr') }}"
+                              data-index="{{ anlageForm.economicVarValues | length }}">
+
+                        <legend>Variable values</legend>
+                        <table id="economicsvalues-values">
+                            <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>Month</th>
+                                <th>Field in Tariff:</th>
+                                {% if econames.getVar1() != "" %}
+                                    <th>{{ econames.getVar1() }}</th>
+                                {% endif %}
+                                {% if econames.getVar2() != "" %}
+                                    <th>{{ econames.getVar2() }}</th>
+                                {% endif %}
+                                {% if econames.getVar3() != "" %}
+                                    <th>{{ econames.getVar3() }}</th>
+                                {% endif %}
+                                {% if econames.getVar4() != "" %}
+                                    <th>{{ econames.getVar4() }}</th>
+                                {% endif %}
+                                {% if econames.getVar5() != "" %}
+                                    <th>{{ econames.getVar5() }}</th>
+                                {% endif %}
+                                {% if econames.getVar6() != "" %}
+                                    <th>{{ econames.getVar6() }}</th>
+                                {% endif %}
+                                {% if econames.getVar7() != "" %}
+                                    <th>{{ econames.getVar7() }}</th>
+                                {% endif %}
+                                {% if econames.getVar8() != "" %}
+                                    <th>{{ econames.getVar8() }}</th>
+                                {% endif %}
+                                {% if econames.getVar9() != "" %}
+                                    <th>{{ econames.getVar9() }}</th>
+                                {% endif %}
+                                {% if econames.getVar10() != "" %}
+                                    <th>{{ econames.getVar10() }}</th>
+                                {% endif %}
+                                {% if econames.getVar11() != "" %}
+                                    <th>{{ econames.getVar11() }}</th>
+                                {% endif %}
+                                {% if econames.getVar12() != "" %}
+                                    <th>{{ econames.getVar12() }}</th>
+                                {% endif %}
+                                {% if econames.getVar13() != "" %}
+                                    <th>{{ econames.getVar13() }}</th>
+                                {% endif %}
+                                {% if econames.getVar14() != "" %}
+                                    <th>{{ econames.getVar14() }}</th>
+                                {% endif %}
+                                {% if econames.getVar15() != "" %}
+                                    <th>{{ econames.getVar15() }}</th>
+                                {% endif %}
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for ecoValue in anlageForm.economicVarValues %}
+                                <tr class="">
+                                    <td>{{ form_widget(ecoValue.year) }}</td>
+                                    <td>{{ form_widget(ecoValue.month) }}</td>
+                                    <td>{{ form_widget(ecoValue.KwHPrice) }}</td>
+                                    {% if econames.getVar1() != "" %}
+                                        <td>{{ form_widget(ecoValue.var_1) }}</td>
+                                    {% endif %}
+                                    {% if econames.getVar2() != "" %}
+                                        <td>{{ form_widget(ecoValue.var_2) }}</td>
+                                    {% endif %}
+                                    {% if econames.getVar3() != "" %}
+                                        <td>{{ form_widget(ecoValue.var_3) }}</td>
+                                    {% endif %}
+                                    {% if econames.getVar4() != "" %}
+                                        <td>{{ form_widget(ecoValue.var_4) }}</td>
+                                    {% endif %}
+                                    {% if econames.getVar5() != "" %}
+                                        <td>{{ form_widget(ecoValue.var_5) }}</td>
+                                    {% endif %}
+                                    {% if econames.getVar6() != "" %}
+                                        <td>{{ form_widget(ecoValue.var_6) }}</td>
+                                    {% endif %}
+                                    {% if econames.getVar7() != "" %}
+                                        <td>{{ form_widget(ecoValue.var_7) }}</td>
+                                    {% endif %}
+                                    {% if econames.getVar8() != "" %}
+                                        <td>{{ form_widget(ecoValue.var_8) }}</td>
+                                    {% endif %}
+                                    {% if econames.getVar9() != "" %}
+                                        <td>{{ form_widget(ecoValue.var_9) }}</td>
+                                    {% endif %}
+                                    {% if econames.getVar10() != "" %}
+                                        <td>{{ form_widget(ecoValue.var_10) }}</td>
+                                    {% endif %}
+                                    {% if econames.getVar11() != "" %}
+                                        <td>{{ form_widget(ecoValue.var_11) }}</td>
+                                    {% endif %}
+                                    {% if econames.getVar12() != "" %}
+                                        <td>{{ form_widget(ecoValue.var_12) }}</td>
+                                    {% endif %}
+                                    {% if econames.getVar13() != "" %}
+                                        <td>{{ form_widget(ecoValue.var_13) }}</td>
+                                    {% endif %}
+                                    {% if econames.getVar14() != "" %}
+                                        <td>{{ form_widget(ecoValue.var_14) }}</td>
+                                    {% endif %}
+                                    {% if econames.getVar15() != "" %}
+                                        <td>{{ form_widget(ecoValue.var_15) }}</td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                        <button type="button" class="button secondary small js-economic-var-value-add"> <span class="fa fa-plus-circle"></span>&nbsp;Add Economic Report</button>
+                    </fieldset>
+                </div>
             </div>
         </div>
     </div>
@@ -205,6 +575,7 @@
             {{ form_widget(anlageForm.close) }}
         </div>
     </div>
+<div style="display: none">{{ form_rest(anlageForm) }}</div>
     {% do anlageForm.legendMonthlyReports.setRendered() %}
     {% do anlageForm.legendEpcReports.setRendered() %}
     {% do anlageForm.pvSystMonths.setRendered() %}

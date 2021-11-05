@@ -1,5 +1,6 @@
 {% import _self as formMacros %}
 
+
 {% macro addEventMail(eventMail) %}
     <tr>
         <td>{{ form_widget(eventMail.event) }}</td>
@@ -358,6 +359,7 @@
                 </div>
 
                 {# Monthly Theoretival Yield Values from PVSYST #}
+
                 <div class="tabs-panel" id="monthly-yield">
                     <div class="grid-x grid-margin-x">
                         <div class="cell">
@@ -504,7 +506,7 @@
                         <tr>
                             <th>Year</th>
                             <th>Month</th>
-                            <th>Kw/h Price:</th>
+                            <th>Field in Tariff:</th>
                             {% if econames.getVar1() != "" %}
                                 <th>{{ econames.getVar1() }}</th>
                             {% endif %}

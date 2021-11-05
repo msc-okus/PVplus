@@ -82,5 +82,18 @@
             $wrapper_yield.data('index', index + 1);
             $('#monthly-yield-values>tbody').append(newForm);
         });
+        $wrapper_economic = $('.js-economicVarValues-wrapper');
+        $wrapper_economic.on('click', '.js-economic-var-value-add',function(e){
+            e.preventDefault();
+            var prototype = $wrapper_economic.data('prototype');
+
+            var index = $wrapper_economic.data('index');
+
+            var newForm = prototype.replace(/__name__/g, index);
+
+            $wrapper_economic.data('index', index+1);
+
+            $('#economicsvalues-values>tbody').append(newForm);
+        })
     </script>
 {% endblock %}

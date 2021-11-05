@@ -2,11 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\EconomicVarNames;
 use App\Entity\Eigner;
 use App\Form\Anlage\AnlageCustomerFormType;
 
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
+use App\Repository\EconomicVarNamesRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -49,15 +51,34 @@ class AnlagenController extends BaseController
     /**
      * @Route("/anlagen/edit/{id}", name="app_anlagen_edit")
      */
-    public function editLegend($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository)
+    public function editLegend($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository,  EconomicVarNamesRepository $ecoNamesRepo)
     {
         $anlage = $anlagenRepository->find($id);
+        $economicVarNames1 =new EconomicVarNames();
+        if($ecoNamesRepo->findByAnlage($id)[0] != null) {
+            $economicVarNames1 = $ecoNamesRepo->findByAnlage($id)[0];// will be used to load and display the already defined names
+        }
         $form = $this->createForm(AnlageCustomerFormType::class, $anlage, [
             //'anlagenId' => $id,
         ]);
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked() ) ) {
+
+            if($economicVarNames1==null) {
+                $economicVarNames = new EconomicVarNames();
+                $economicVarNames->setparams($anlage, $form->get('var_1')->getData(), $form->get('var_2')->getData(), $form->get('var_3')->getData(), $form->get('var_4')->getData(), $form->get('var_5')->getData(), $form->get('var_6')->getData()
+                    , $form->get('var_7')->getData(), $form->get('var_8')->getData(), $form->get('var_9')->getData(), $form->get('var_10')->getData(), $form->get('var_11')->getData(), $form->get('var_12')->getData(), $form->get('var_13')->getData(), $form->get('var_14')->getData(), $form->get('var_15')->getData());
+            }
+            else{
+                $economicVarNames = $economicVarNames1;
+                $economicVarNames->setparams($anlage, $form->get('var_1')->getData(), $form->get('var_2')->getData(), $form->get('var_3')->getData(), $form->get('var_4')->getData(), $form->get('var_5')->getData(), $form->get('var_6')->getData()
+                    , $form->get('var_7')->getData(), $form->get('var_8')->getData(), $form->get('var_9')->getData(), $form->get('var_10')->getData(), $form->get('var_11')->getData(), $form->get('var_12')->getData(), $form->get('var_13')->getData(), $form->get('var_14')->getData(), $form->get('var_15')->getData());
+
+            }
+
+            //TODO: think and work on the switches, they are quite complex!
+            $anlage->setEconomicVarNames($economicVarNames);
 
             $successMessage = 'Plant data saved!';
             $em->persist($anlage);
@@ -77,6 +98,7 @@ class AnlagenController extends BaseController
         return $this->render('anlagen/edit_customer.html.twig', [
             'anlageForm'    => $form->createView(),
             'anlage'        => $anlage,
+            'econames'      => $economicVarNames1,
         ]);
     }
 }
