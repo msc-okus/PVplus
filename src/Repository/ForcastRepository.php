@@ -3,21 +3,21 @@
 namespace App\Repository;
 
 use App\Entity\Anlage;
-use App\Entity\AnlageForecast;
+use App\Entity\AnlageForcast;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method AnlageForecast|null find($id, $lockMode = null, $lockVersion = null)
- * @method AnlageForecast|null findOneBy(array $criteria, array $orderBy = null)
- * @method AnlageForecast[]    findAll()
- * @method AnlageForecast[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method AnlageForcast|null find($id, $lockMode = null, $lockVersion = null)
+ * @method AnlageForcast|null findOneBy(array $criteria, array $orderBy = null)
+ * @method AnlageForcast[]    findAll()
+ * @method AnlageForcast[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class ForecastRepository extends ServiceEntityRepository
+class ForcastRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, AnlageForecast::class);
+        parent::__construct($registry, AnlageForcast::class);
     }
 
     public function calcForecastByDate(Anlage $anlage, \DateTime $date)

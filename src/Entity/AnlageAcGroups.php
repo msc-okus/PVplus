@@ -156,9 +156,9 @@ class AnlageAcGroups
         return $this;
     }
 
-    public function getDcPowerInverter(): string
+    public function getDcPowerInverter(): float
     {
-        return $this->dcPowerInverter;
+        return (float)$this->dcPowerInverter;
     }
 
     public function setDcPowerInverter(string $dcPowerInverter): self

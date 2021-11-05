@@ -2,9 +2,11 @@
 
 namespace App\Service;
 
-use App\Entity\AnlageForecast;
+use App\Entity\AnlageForcast;
+use App\Entity\AnlageForcastDay;
 use App\Repository\AcGroupsRepository;
-use App\Repository\ForecastRepository;
+use App\Repository\ForcastDayRepository;
+use App\Repository\ForcastRepository;
 use App\Repository\GridMeterDayRepository;
 use App\Repository\InvertersRepository;
 use App\Repository\MonthlyDataRepository;
@@ -18,6 +20,7 @@ use App\Repository\GroupModulesRepository;
 use App\Repository\GroupMonthsRepository;
 use App\Repository\GroupsRepository;
 use App\Repository\PVSystDatenRepository;
+use phpDocumentor\Reflection\Types\Float_;
 
 class FunctionsService
 {
@@ -29,27 +32,29 @@ class FunctionsService
     private GroupModulesRepository $groupModulesRepo;
     private GroupsRepository $groupsRepo;
     private GridMeterDayRepository $gridMeterDayRepo;
-    private ForecastRepository $forecastRepo;
+    private ForcastRepository $forcastRepo;
     private MonthlyDataRepository $monthlyDataRepo;
     private AcGroupsRepository $acGroupsRepo;
     private InvertersRepository $inverterRepo;
+    private ForcastDayRepository $forcastDayRepo;
 
-    public function __construct(PVSystDatenRepository $pvSystRepo,
-                                GroupMonthsRepository $groupMonthsRepo,
+    public function __construct(PVSystDatenRepository  $pvSystRepo,
+                                GroupMonthsRepository  $groupMonthsRepo,
                                 GroupModulesRepository $groupModulesRepo,
-                                GroupsRepository $groupsRepo, AcGroupsRepository $acGroupsRepo, InvertersRepository $inverterRepo,
-                                GridMeterDayRepository $gridMeterDayRepo, ForecastRepository $forecastRepo,
-                                MonthlyDataRepository $monthlyDataRepo)
+                                GroupsRepository       $groupsRepo, AcGroupsRepository $acGroupsRepo, InvertersRepository $inverterRepo,
+                                GridMeterDayRepository $gridMeterDayRepo, ForcastRepository $forcastRepo, ForcastDayRepository $forcastDayRepo,
+                                MonthlyDataRepository  $monthlyDataRepo)
     {
         $this->pvSystRepo = $pvSystRepo;
         $this->groupMonthsRepo = $groupMonthsRepo;
         $this->groupModulesRepo = $groupModulesRepo;
         $this->groupsRepo = $groupsRepo;
         $this->gridMeterDayRepo = $gridMeterDayRepo;
-        $this->forecastRepo = $forecastRepo;
+        $this->forcastRepo = $forcastRepo;
         $this->monthlyDataRepo = $monthlyDataRepo;
         $this->acGroupsRepo = $acGroupsRepo;
         $this->inverterRepo = $inverterRepo;
+        $this->forcastDayRepo = $forcastDayRepo;
     }
 
     /**
@@ -199,14 +204,14 @@ class FunctionsService
 
         // Lade AC Power
         ############# für den angeforderten Zeitraum #############
-        $sql = "SELECT sum(e_z_evu) as power_evu FROM $dbTable WHERE stamp >= '$from' AND stamp <= '$to' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
+        $sql = "SELECT sum(e_z_evu) as power_evu FROM $dbTable WHERE stamp >= '$from' AND stamp <= '$to' AND e_z_evu >= 0 GROUP BY unit LIMIT 1";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
             $powerEvu = round($row['power_evu'], 4);
         }
         unset($res);
-        $sql = "SELECT sum(wr_pac) as sum_power_ac FROM $dbTable WHERE stamp >= '$from' AND stamp <= '$to' AND wr_pac > 0";
+        $sql = "SELECT sum(wr_pac) as sum_power_ac FROM $dbTable WHERE stamp >= '$from' AND stamp <= '$to' AND wr_pac >= 0";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -300,6 +305,17 @@ class FunctionsService
         return $powerExpArray;
     }
 
+    public function getForcastByMonth(Anlage $anlage, int $month): float
+    {
+        $sum = (float)0;
+        /** @var AnlageForcastDay $forcast */
+        $forcasts = $this->forcastDayRepo->findForcastDayByMonth($anlage, $month);
+        foreach ($forcasts as $forcast) {
+            $sum += $anlage->getContractualPower() * $forcast->getFactorDay();
+        }
+
+        return $sum;
+    }
     /**
      * @param Anlage $anlage
      * @param $startdate
@@ -307,17 +323,17 @@ class FunctionsService
      * @param $day
      * @return array
      */
-    public function getFacForecast(Anlage $anlage, $startdate, $enddate, $day): array
+    public function getFacForcast(Anlage $anlage, $startdate, $enddate, $day): array
     {
-        $forecastResultArray = [];
+        $forcastResultArray = [];
 
-        $forecasts = $this->forecastRepo->findBy(['anlage' => $anlage]);
+        $forcasts = $this->forcastRepo->findBy(['anlage' => $anlage]);
         //Kopiere alle Forcast Werte in ein Array mit dem Index der Kalenderwoche
-        $forecastResultArray['sumForecast'] = $forecastResultArray['divMinus'] = $forecastResultArray['divPlus'] = $forecastResultArray['sumActual'] = 0;
-        foreach ($forecasts as $forecast) {
-            $forecastResultArray['sumForecast']     += $forecast->getPowerWeek();
-            $forecastResultArray['divMinus']        += $forecast->getDivMinWeek();
-            $forecastResultArray['divPlus']         += $forecast->getDivMaxWeek();
+        $forcastResultArray['sumForecast'] = $forcastResultArray['divMinus'] = $forcastResultArray['divPlus'] = $forcastResultArray['sumActual'] = 0;
+        foreach ($forcasts as $forcast) {
+            $forcastResultArray['sumForecast']     += $forcast->getPowerWeek();
+            $forcastResultArray['divMinus']        += $forcast->getDivMinWeek();
+            $forcastResultArray['divPlus']         += $forcast->getDivMaxWeek();
         }
 
         $conn = self::getPdoConnection();
@@ -332,17 +348,17 @@ class FunctionsService
         }
         $conn = null;
 
-        foreach ($forecasts as $week => $forecast) {
-            if (isset($actPerWeek[$forecast->getWeek()])) {
-               $forecastResultArray['sumActual']    += $actPerWeek[$forecast->getWeek()];
-               $forecastResultArray['divMinus']     -= $forecast->getDivMinWeek();
-               $forecastResultArray['divPlus']      -= $forecast->getDivMaxWeek();
+        foreach ($forcasts as $week => $forcast) {
+            if (isset($actPerWeek[$forcast->getWeek()])) {
+               $forcastResultArray['sumActual']    += $actPerWeek[$forcast->getWeek()];
+               $forcastResultArray['divMinus']     -= $forcast->getDivMinWeek();
+               $forcastResultArray['divPlus']      -= $forcast->getDivMaxWeek();
             } else {
-               $forecastResultArray['sumActual']    += $forecast->getPowerWeek();
+               $forcastResultArray['sumActual']    += $forcast->getPowerWeek();
             }
         }
 
-        return $forecastResultArray;
+        return $forcastResultArray;
     }
 
     /**

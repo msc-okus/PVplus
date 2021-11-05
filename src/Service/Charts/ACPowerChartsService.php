@@ -87,7 +87,7 @@ class ACPowerChartsService
                 if($hour) {
                     $sql_b = "SELECT stamp, sum(wr_pac) as acIst, wr_cos_phi_korrektur as cosPhi
                             FROM " . $anlage->getDbNameIst() .
-                        " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'  and wr_pac > 0  GROUP by  date_format(stamp, '$form') LIMIT 1";
+                        " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'  and wr_pac >= 0  GROUP by  date_format(stamp, '$form') LIMIT 1";
 
                     $sql_b1 = "SELECT sum(e_z_evu) as eZEvu
                             FROM " . $anlage->getDbNameIst() .
@@ -96,7 +96,7 @@ class ACPowerChartsService
                 else {
                     $sql_b = "SELECT stamp, sum(wr_pac) as acIst, e_z_evu as eZEvu, wr_cos_phi_korrektur as cosPhi 
                              FROM " . $anlage->getDbNameIst() .
-                            " WHERE stamp = '$stampAdjust' and wr_pac > 0 GROUP by stamp LIMIT 1";
+                            " WHERE stamp = '$stampAdjust' and wr_pac >= 0 GROUP by stamp LIMIT 1";
                     $sql_b1 = "SELECT e_z_evu as eZEvu
                                FROM " . $anlage->getDbNameIst() .
                              " WHERE stamp >= '$stampAdjust' GROUP by  stamp LIMIT 1";

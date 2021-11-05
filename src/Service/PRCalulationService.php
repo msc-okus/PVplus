@@ -94,7 +94,7 @@ class PRCalulationService
             $output = '';
 
             // Berechne Forecast für FAC Jahr
-            $forecastArray = $this->functions->getFacForecast($anlage, $facDateForecastMinusOneYear, $facDateForecast, $day);
+            $forecastArray = $this->functions->getFacForcast($anlage, $facDateForecastMinusOneYear, $facDateForecast, $day);
 
             // Berechne Actual Power für Tag, Jahr und PAC
             $powerActArray = $this->functions->getSumPowerAcAct($anlage, $from, $to, $pacDate, $pacDateEnd);// Summe Leistung AC IST
