@@ -2,13 +2,14 @@
 
 namespace App\Entity;
 
-use App\Repository\ForecastRepository;
+use App\Repository\ForcastRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=ForecastRepository::class)
+ * @ORM\Table(name="anlage_forecast")
+ * @ORM\Entity(repositoryClass=ForcastRepository::class)
  */
-class AnlageForecastDay
+class AnlageForcast
 {
     /**
      * @ORM\Id

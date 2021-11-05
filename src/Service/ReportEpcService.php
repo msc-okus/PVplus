@@ -734,6 +734,7 @@ class ReportEpcService
             'currentMonthClass'     => 'sum-forcast',
         ];
         $currentMonth--;
+        $paFormel = $this->availabilityService->calcAvailability($anlage, $anlage->getFacDateStart(), date_create("$year-$currentMonth-$daysInMonth 23:59"));
         $report[0][] = [
             'month'                 => 'Real<br>' . $realDateText,
             'days'                  => 'months: ' . $monateReal,
@@ -748,7 +749,7 @@ class ReportEpcService
             'spezErtrag'            => $this->format($sumEGridRealReal / $anlage->getKwPeak()),
             'prReal'                => $this->format($formelPR), //$this->format($sumPrRealReal / $counterReal),
             'prReal_prDesign'       => $this->format($formelPR - $anlage->getDesignPR()),
-            'availability'          => $this->format($this->availabilityService->calcAvailability($anlage, $anlage->getFacDateStart(), date_create("$year-$currentMonth-$daysInMonth 23:59"))),
+            'availability'          => $this->format($paFormel),
             'dummy'                 => '',
             'prReal_prGuar'         => $this->format($formelPR - $anlage->getContractualPR()), //$this->format(($sumPrRealReal / $counterReal) - $anlage->getContractualPR()),
             'prReal_prProg'         => $this->format($formelPR),
@@ -861,7 +862,7 @@ class ReportEpcService
         // Ergebnis PAC Date bis letzte Tag des Auszuwertenden Zeitraums
         $guaranteedExpectedEnergy = $sumGuaranteedExpextedReal;
         $measuredEnergy = $sumEGridRealReal;
-        $availability = $sumAvailabilityReal / $counterReal;
+        $availability = $paFormel;
         $expectedEnery = $sumExpectedYieldReal;
 
         //je nachdem welche Formel für die PLD Berecnung genutzt werden soll

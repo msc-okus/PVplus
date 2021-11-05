@@ -2,13 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\ForecastRepository;
+use App\Repository\ForcastDayRepository;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=ForecastRepository::class)
+ * @ORM\Entity(repositoryClass=ForcastDayRepository::class)
  */
-class AnlageForecast
+class AnlageForcastDay
 {
     /**
      * @ORM\Id
@@ -35,12 +35,12 @@ class AnlageForecast
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private string $expectedWeek;
+    private string $expectedDay;
 
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private string $factorWeek;
+    private string $factorDay;
 
     /**
      * @ORM\Column(type="string", length=20)
@@ -94,14 +94,14 @@ class AnlageForecast
         return $this;
     }
 
-    public function getFactorWeek(): ?float
+    public function getFactorDay(): ?float
     {
-        return (float)$this->factorWeek;
+        return (float)$this->factorDay;
     }
 
-    public function setFactorWeek(int $factorWeek): self
+    public function setFactorDay(int $factorDay): self
     {
-        $this->factorWeek = $factorWeek;
+        $this->factorDay = $factorDay;
 
         return $this;
     }
@@ -130,31 +130,30 @@ class AnlageForecast
         return $this;
     }
 
-    public function getExpectedWeek(): ?float
+    public function getExpectedDay(): ?float
     {
-        return (float)str_replace(',', '.', $this->expectedWeek);
+        return (float)str_replace(',', '.', $this->expectedDay);
     }
 
-    public function setExpectedWeek(string $expectedWeek): self
+    public function setExpectedDay(string $expectedDay): self
     {
-        $this->expectedWeek = $expectedWeek;
+        $this->expectedDay = $expectedDay;
 
         return $this;
     }
 
-    public function getPowerWeek(): float
+    public function getPowerDay(): float
     {
-        return ($this->anlage->getContractualGuarantiedPower() > 0) ? $this->getFactorWeek() * $this->anlage->getContractualGuarantiedPower() : $this->getExpectedWeek();
+        return ($this->anlage->getContractualGuarantiedPower() > 0) ? $this->getFactorDay() * $this->anlage->getContractualGuarantiedPower() : $this->getExpectedDay();
     }
 
-    public function getDivMinWeek(): float
+    public function getDivMinDay(): float
     {
-        return ($this->anlage->getContractualGuarantiedPower() > 0) ? $this->getFactorWeek() * $this->anlage->getContractualGuarantiedPower() * $this->getFactorMin() : $this->getExpectedWeek() * $this->getFactorMin();
+        return ($this->anlage->getContractualGuarantiedPower() > 0) ? $this->getFactorDay() * $this->anlage->getContractualGuarantiedPower() * $this->getFactorMin() : $this->getExpectedDay() * $this->getFactorMin();
     }
 
-    public function getDivMaxWeek(): float
+    public function getDivMaxDay(): float
     {
-        return ($this->anlage->getContractualGuarantiedPower() > 0) ? $this->getFactorWeek() * $this->anlage->getContractualGuarantiedPower() * $this->getFactorMax() : $this->getExpectedWeek() * $this->getFactorMax();
+        return ($this->anlage->getContractualGuarantiedPower() > 0) ? $this->getFactorDay() * $this->anlage->getContractualGuarantiedPower() * $this->getFactorMax() : $this->getExpectedDay() * $this->getFactorMax();
     }
-
 }

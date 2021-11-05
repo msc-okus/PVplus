@@ -5,12 +5,12 @@ namespace App\Service;
 
 
 use App\Entity\Anlage;
-use App\Entity\AnlageForecast;
+use App\Entity\AnlageForcast;
 use App\Entity\AnlagenStatus;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\AnlagenStatusRepository;
-use App\Repository\ForecastRepository;
+use App\Repository\ForcastRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class CheckSystemStatusService
@@ -21,10 +21,10 @@ class CheckSystemStatusService
     private AnlagenStatusRepository $statusRepository;
     private EntityManagerInterface $em;
     private MessageService $messageService;
-    private ForecastRepository $forecastRepo;
+    private ForcastRepository $forecastRepo;
     private FunctionsService $functions;
 
-    public function __construct(AnlagenRepository $anlagenRepository, AnlagenStatusRepository $statusRepository, EntityManagerInterface $em, MessageService $messageService, ForecastRepository $forecastRepo, FunctionsService $functions)
+    public function __construct(AnlagenRepository $anlagenRepository, AnlagenStatusRepository $statusRepository, EntityManagerInterface $em, MessageService $messageService, ForcastRepository $forecastRepo, FunctionsService $functions)
     {
         $this->anlagenRepository = $anlagenRepository;
         $this->statusRepository = $statusRepository;

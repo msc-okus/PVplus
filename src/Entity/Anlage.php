@@ -479,7 +479,7 @@ class Anlage
     private bool $usePac = false;
 
     /**
-     * @ORM\OneToMany(targetEntity=AnlageForecast::class, mappedBy="anlage", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity=AnlageForcast::class, mappedBy="anlage", cascade={"persist", "remove"})
      */
     private Collection $anlageForecasts;
 
@@ -746,6 +746,11 @@ class Anlage
      * @ORM\OneToMany(targetEntity=EconomicVarValues::class, mappedBy="anlage", orphanRemoval=true, cascade={"persist", "remove"})
      */
     private $economicVarValues;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $useDayForecast;
 
 
 
@@ -2039,14 +2044,14 @@ class Anlage
     }
 
     /**
-     * @return Collection|AnlageForecast[]
+     * @return Collection|AnlageForcast[]
      */
     public function getAnlageForecasts(): Collection
     {
         return $this->anlageForecasts;
     }
 
-    public function addAnlageForecast(AnlageForecast $anlageForecast): self
+    public function addAnlageForecast(AnlageForcast $anlageForecast): self
     {
         if (!$this->anlageForecasts->contains($anlageForecast)) {
             $this->anlageForecasts[] = $anlageForecast;
@@ -2056,7 +2061,7 @@ class Anlage
         return $this;
     }
 
-    public function removeAnlageForecast(AnlageForecast $anlageForecast): self
+    public function removeAnlageForecast(AnlageForcast $anlageForecast): self
     {
         if ($this->anlageForecasts->removeElement($anlageForecast)) {
             // set the owning side to null (unless already changed)
@@ -3013,6 +3018,18 @@ class Anlage
                 $economicVarValue->setAnlage(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUseDayForecast(): ?bool
+    {
+        return $this->useDayForecast;
+    }
+
+    public function setUseDayForecast(?bool $useDayForecast): self
+    {
+        $this->useDayForecast = $useDayForecast;
 
         return $this;
     }

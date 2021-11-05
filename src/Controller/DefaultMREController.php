@@ -11,6 +11,7 @@ use App\Repository\AnlageAvailabilityRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\Case5Repository;
 use App\Service\ExportService;
+use App\Service\FunctionsService;
 use App\Service\ReportEpcService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -239,4 +240,26 @@ class DefaultMREController extends BaseController
             'output'        => $output2.$summe,
         ]);
     }
+
+    /**
+     * @Route ("/test/forcast")
+     */
+    public function testForcast(AnlagenRepository $anlagenRepository, FunctionsService $functions): Response
+    {
+        $output = '';
+        $month = 1;
+
+        /** @var Anlage $anlage */
+        $anlage = $anlagenRepository->findOneBy(['anlId' => 104]);
+
+        $output .= "<h1>".$anlage->getAnlName()." - Monat: $month</h1>";
+        $output .= $functions->getForcastByMonth($anlage, $month);
+
+        return $this->render('cron/showResult.html.twig', [
+            'headline'      => 'Test Forcast',
+            'availabilitys' => '',
+            'output'        => $output,
+        ]);
+    }
+
 }
