@@ -28,6 +28,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
+
 class ReportingController extends AbstractController
 {
     use G4NTrait;
@@ -101,10 +102,11 @@ class ReportingController extends AbstractController
                     $output = $report->monthlyReport($aktAnlagen, $reportMonth, $reportYear, 0, 0, true, false, false);
                     break;
                 case 'epc':
+
                     $output = $epcReport->createEpcReport($aktAnlagen[0]);
                     break;
                 case 'am':
-                    dump("Ist noch nicht fertig");
+                    return $this->redirectToRoute('report_asset_management', ['id' => $anlageId, 'month' => $reportMonth, 'year' => $reportYear, 'export' => 1, 'pages' => 0]);
                     break;
 
             }
