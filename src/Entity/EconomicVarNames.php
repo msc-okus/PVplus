@@ -5,7 +5,11 @@ namespace App\Entity;
 use App\Repository\EconomicVarNamesRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+<<<<<<< HEAD
 use Doctrine\ORM\Mapping as ORM;
+=======
+use Doctrine\ORM\mapping as ORM;
+>>>>>>> 8582fa9f5b45736f114da3bcdb386a8b3137f41f
 use DateTime;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;

@@ -732,6 +732,21 @@ class Anlage
      */
     private $hasPannelTemp;
 
+    /**
+     * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="Anlage")
+     */
+    private $tickets;
+
+    /**
+     * @ORM\OneToOne(targetEntity=EconomicVarNames::class, mappedBy="anlage", orphanRemoval=true, cascade={"persist", "remove"})
+     */
+    private $economicVarNames;
+
+    /**
+     * @ORM\OneToMany(targetEntity=EconomicVarValues::class, mappedBy="anlage", orphanRemoval=true, cascade={"persist", "remove"})
+     */
+    private $economicVarValues;
+
 
 
     public function __construct()
@@ -756,6 +771,8 @@ class Anlage
         $this->anlageMonth = new ArrayCollection();
         $this->Inverters = new ArrayCollection();
         $this->logs = new ArrayCollection();
+        $this->tickets = new ArrayCollection();
+        $this->economicVarValues = new ArrayCollection();
     }
 
     public function getAnlId(): ?string
@@ -1606,10 +1623,10 @@ class Anlage
         foreach ($this->getGroups() as $row) {
             $grpnr = $row->getDcGroup();
             $gruppe[$grpnr] = [
-                "ANLID" => $row->getAnlage()->getAnlId(),
-                "GMIN" => $row->getUnitFirst(),
-                "GMAX" => $row->getUnitLast(),
-                "GRPNR" => $row->getDcGroup(),
+                "ANLID"     => $row->getAnlage()->getAnlId(),
+                "GMIN"      => $row->getUnitFirst(),
+                "GMAX"      => $row->getUnitLast(),
+                "GRPNR"     => $row->getDcGroup(),
                 "GroupName" => $row->getDcGroupName()
             ];
         }
@@ -2118,12 +2135,36 @@ class Anlage
 
     public function getMinIrradiationAvailability(): ?string
     {
-        return $this->minIrradiationAvailability;
+        return $this->threshold2PA;
     }
 
     public function setMinIrradiationAvailability(?string $minIrradiationAvailability): self
     {
-        $this->minIrradiationAvailability =  str_replace(',', '.', $minIrradiationAvailability);
+        $this->threshold2PA =  str_replace(',', '.', $minIrradiationAvailability);
+
+        return $this;
+    }
+
+    public function getThreshold1PA(): ?string
+    {
+        return $this->threshold1PA;
+    }
+
+    public function setThreshold1PA(?string $threshold1PA): self
+    {
+        $this->threshold1PA =  str_replace(',', '.', $threshold1PA);
+
+        return $this;
+    }
+
+    public function getThreshold2PA(): ?string
+    {
+        return $this->threshold2PA;
+    }
+
+    public function setThreshold2PA(?string $threshold2PA): self
+    {
+        $this->threshold2PA =  str_replace(',', '.', $threshold2PA);
 
         return $this;
     }
@@ -2894,4 +2935,78 @@ class Anlage
         return $this;
     }
 
+    /**
+     * @return Collection|Ticket[]
+     */
+    public function getTickets(): Collection
+    {
+        return $this->tickets;
+    }
+
+    public function addTicket(Ticket $ticket): self
+    {
+        if (!$this->tickets->contains($ticket)) {
+            $this->tickets[] = $ticket;
+            $ticket->setAnlage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTicket(Ticket $ticket): self
+    {
+        if ($this->tickets->removeElement($ticket)) {
+            // set the owning side to null (unless already changed)
+            if ($ticket->getAnlage() === $this) {
+                $ticket->setAnlage(null);
+            }
+        }
+
+        return $this;
+    }
+    public function __toString(){
+        return  $this->getAnlName();
+    }
+
+    public function getEconomicVarNames(): EconomicVarNames
+    {
+        return $this->economicVarNames;
+    }
+
+    public function setEconomicVarNames(?EconomicVarNames $economicVarNames): self
+    {
+        $this->economicVarNames = $economicVarNames;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|EconomicVarValues[]
+     */
+    public function getEconomicVarValues(): Collection
+    {
+        return $this->economicVarValues;
+    }
+
+    public function addEconomicVarValue(EconomicVarValues $economicVarValue): self
+    {
+        if (!$this->economicVarValues->contains($economicVarValue)) {
+            $this->economicVarValues[] = $economicVarValue;
+            $economicVarValue->setAnlage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEconomicVarValue(EconomicVarValues $economicVarValue): self
+    {
+        if ($this->economicVarValues->removeElement($economicVarValue)) {
+            // set the owning side to null (unless already changed)
+            if ($economicVarValue->getAnlage() === $this) {
+                $economicVarValue->setAnlage(null);
+            }
+        }
+
+        return $this;
+    }
 }

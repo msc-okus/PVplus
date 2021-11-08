@@ -31,6 +31,7 @@ class AssetManagementController extends BaseController
         $this->urlGenerator = $urlGenerator;
     }
 
+
     /**
      * @param $doctype ( 0 = PDF, 1 = Excel, 2 = PNG (Grafiken) )
      * @param $charttypetoexport (0 = , 1 = )
@@ -38,8 +39,7 @@ class AssetManagementController extends BaseController
      */
     public function assetReport($id, $month, $year, $export, $pages, AssetManagementService $assetManagement, AnlagenRepository $anlagenRepository, Request $request)
     {
-
-        $anlage = $anlagenRepository->findIdLike([$id]);
+        $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
         $output = $assetManagement->assetReport($anlage, $month, $year, $export, $pages);
         $baseurl = $request->getSchemeAndHttpHost();
         $plantId = $output['plantId'];
