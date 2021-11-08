@@ -16,6 +16,11 @@ use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\NumericFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
+use App\Repository\ReportsRepository;
+
+use Gedmo\Blameable\Traits\BlameableEntity;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 use ApiPlatform\Core\Annotation\ApiResource;
 
 
@@ -479,7 +484,7 @@ class Anlage
     private bool $usePac = false;
 
     /**
-     * @ORM\OneToMany(targetEntity=AnlageForcast::class, mappedBy="anlage", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity=AnlageForecast::class, mappedBy="anlage", cascade={"persist", "remove"})
      */
     private Collection $anlageForecasts;
 
@@ -502,12 +507,7 @@ class Anlage
     /**
      * @ORM\Column(type="string", length=20, nullable=true)
      */
-    private ?string $threshold1PA = '0';
-
-    /**
-     * @ORM\Column(name="min_irradiation_availability", type="string", length=20, nullable=true)
-     */
-    private ?string $threshold2PA = '50';
+    private ?string $minIrradiationAvailability = '50';
 
     /**
      * @ORM\OneToMany(targetEntity=TimesConfig::class, mappedBy="anlage", cascade={"persist", "remove"})
@@ -698,10 +698,14 @@ class Anlage
     private bool $useLowerIrrForExpected = false;
 
     /**
-     * @ORM\Column(type="text", nullable=true)
+     * @ORM\Column(type="text")
      */
     private string $epcReportNote;
 
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private string $sourceInvName = 'dc_groups';
 
     /**
      * @ORM\Column(type="integer")
@@ -714,39 +718,19 @@ class Anlage
     private $logs;
 
     /**
-     * @ORM\Column(type="boolean", nullable = true)
+     * @ORM\Column(type="boolean")
      */
     private $hasDc;
 
     /**
-     * @ORM\Column(type="boolean", nullable = true)
+     * @ORM\Column(type="boolean")
      */
     private $hasStrings;
 
     /**
-     * @ORM\Column(type="boolean", nullable = true)
+     * @ORM\Column(type="boolean")
      */
     private $hasPannelTemp;
-
-    /**
-     * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="Anlage")
-     */
-    private $tickets;
-
-    /**
-     * @ORM\OneToOne(targetEntity=EconomicVarNames::class, mappedBy="anlage", orphanRemoval=true, cascade={"persist", "remove"})
-     */
-    private $economicVarNames;
-
-    /**
-     * @ORM\OneToMany(targetEntity=EconomicVarValues::class, mappedBy="anlage", orphanRemoval=true, cascade={"persist", "remove"})
-     */
-    private $economicVarValues;
-
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
-    private $useDayForecast;
 
 
 
@@ -772,8 +756,6 @@ class Anlage
         $this->anlageMonth = new ArrayCollection();
         $this->Inverters = new ArrayCollection();
         $this->logs = new ArrayCollection();
-        $this->tickets = new ArrayCollection();
-        $this->economicVarValues = new ArrayCollection();
     }
 
     public function getAnlId(): ?string
@@ -1361,17 +1343,9 @@ class Anlage
     public function getAnzInverterFromGroupsAC():int
     {
         $anzGruppen = 0;
-
-        if($this->getConfigType() == "3" | $this->getConfigType() == "4")
-        {
-            $anzGruppen = $this->getAcGroups()->count();
+        foreach ($this->getAcGroups() as $group) {
+            $anzGruppen += $group->getUnitLast() - $group->getUnitFirst() + 1;
         }
-        else{
-            foreach ($this->getAcGroups() as $group) {
-                $anzGruppen += $group->getUnitLast() - $group->getUnitFirst() + 1;
-            }
-        }
-
 
         return $anzGruppen;
     }
@@ -1632,10 +1606,10 @@ class Anlage
         foreach ($this->getGroups() as $row) {
             $grpnr = $row->getDcGroup();
             $gruppe[$grpnr] = [
-                "ANLID"     => $row->getAnlage()->getAnlId(),
-                "GMIN"      => $row->getUnitFirst(),
-                "GMAX"      => $row->getUnitLast(),
-                "GRPNR"     => $row->getDcGroup(),
+                "ANLID" => $row->getAnlage()->getAnlId(),
+                "GMIN" => $row->getUnitFirst(),
+                "GMAX" => $row->getUnitLast(),
+                "GRPNR" => $row->getDcGroup(),
                 "GroupName" => $row->getDcGroupName()
             ];
         }
@@ -2040,14 +2014,14 @@ class Anlage
     }
 
     /**
-     * @return Collection|AnlageForcast[]
+     * @return Collection|AnlageForecast[]
      */
     public function getAnlageForecasts(): Collection
     {
         return $this->anlageForecasts;
     }
 
-    public function addAnlageForecast(AnlageForcast $anlageForecast): self
+    public function addAnlageForecast(AnlageForecast $anlageForecast): self
     {
         if (!$this->anlageForecasts->contains($anlageForecast)) {
             $this->anlageForecasts[] = $anlageForecast;
@@ -2057,7 +2031,7 @@ class Anlage
         return $this;
     }
 
-    public function removeAnlageForecast(AnlageForcast $anlageForecast): self
+    public function removeAnlageForecast(AnlageForecast $anlageForecast): self
     {
         if ($this->anlageForecasts->removeElement($anlageForecast)) {
             // set the owning side to null (unless already changed)
@@ -2144,36 +2118,12 @@ class Anlage
 
     public function getMinIrradiationAvailability(): ?string
     {
-        return $this->threshold2PA;
+        return $this->minIrradiationAvailability;
     }
 
     public function setMinIrradiationAvailability(?string $minIrradiationAvailability): self
     {
-        $this->threshold2PA =  str_replace(',', '.', $minIrradiationAvailability);
-
-        return $this;
-    }
-
-    public function getThreshold1PA(): ?string
-    {
-        return $this->threshold1PA;
-    }
-
-    public function setThreshold1PA(?string $threshold1PA): self
-    {
-        $this->threshold1PA =  str_replace(',', '.', $threshold1PA);
-
-        return $this;
-    }
-
-    public function getThreshold2PA(): ?string
-    {
-        return $this->threshold2PA;
-    }
-
-    public function setThreshold2PA(?string $threshold2PA): self
-    {
-        $this->threshold2PA =  str_replace(',', '.', $threshold2PA);
+        $this->minIrradiationAvailability =  str_replace(',', '.', $minIrradiationAvailability);
 
         return $this;
     }
@@ -2215,6 +2165,7 @@ class Anlage
 
     public function setShowForecast(bool $showForecast): self
     {
+        //dd($showForecast);
         $this->showForecast = $showForecast;
 
         return $this;
@@ -2836,6 +2787,18 @@ class Anlage
         return $this;
     }
 
+    public function getSourceInvName(): ?string
+    {
+        return $this->sourceInvName;
+    }
+
+    public function setSourceInvName(string $sourceInvName): self
+    {
+        $this->sourceInvName = $sourceInvName;
+
+        return $this;
+    }
+
     public function getConfigType(): ?int
     {
         return $this->configType;
@@ -2931,90 +2894,4 @@ class Anlage
         return $this;
     }
 
-    /**
-     * @return Collection|Ticket[]
-     */
-    public function getTickets(): Collection
-    {
-        return $this->tickets;
-    }
-
-    public function addTicket(Ticket $ticket): self
-    {
-        if (!$this->tickets->contains($ticket)) {
-            $this->tickets[] = $ticket;
-            $ticket->setAnlage($this);
-        }
-
-        return $this;
-    }
-
-    public function removeTicket(Ticket $ticket): self
-    {
-        if ($this->tickets->removeElement($ticket)) {
-            // set the owning side to null (unless already changed)
-            if ($ticket->getAnlage() === $this) {
-                $ticket->setAnlage(null);
-            }
-        }
-
-        return $this;
-    }
-    public function __toString(){
-        return  $this->getAnlName();
-    }
-
-    public function getEconomicVarNames(): EconomicVarNames
-    {
-        return $this->economicVarNames;
-    }
-
-    public function setEconomicVarNames(?EconomicVarNames $economicVarNames): self
-    {
-        $this->economicVarNames = $economicVarNames;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|EconomicVarValues[]
-     */
-    public function getEconomicVarValues(): Collection
-    {
-        return $this->economicVarValues;
-    }
-
-    public function addEconomicVarValue(EconomicVarValues $economicVarValue): self
-    {
-        if (!$this->economicVarValues->contains($economicVarValue)) {
-            $this->economicVarValues[] = $economicVarValue;
-            $economicVarValue->setAnlage($this);
-        }
-
-        return $this;
-    }
-
-    public function removeEconomicVarValue(EconomicVarValues $economicVarValue): self
-    {
-        if ($this->economicVarValues->removeElement($economicVarValue)) {
-            // set the owning side to null (unless already changed)
-            if ($economicVarValue->getAnlage() === $this) {
-                $economicVarValue->setAnlage(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function getUseDayForecast(): ?bool
-    {
-        return $this->useDayForecast;
-    }
-
-    public function setUseDayForecast(?bool $useDayForecast): self
-    {
-        $this->useDayForecast = $useDayForecast;
-
-        return $this;
-    }
 }
