@@ -19,3 +19,5 @@ php.ini
 ###> liip/imagine-bundle ###
 /public/media/cache/
 ###< liip/imagine-bundle ###
+/public/*.pdf
+/public/*.html

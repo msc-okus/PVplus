@@ -507,12 +507,7 @@ class Anlage
     /**
      * @ORM\Column(type="string", length=20, nullable=true)
      */
-    private ?string $threshold1PA = '0';
-
-    /**
-     * @ORM\Column(name="min_irradiation_availability", type="string", length=20, nullable=true)
-     */
-    private ?string $threshold2PA = '50';
+    private ?string $minIrradiationAvailability = '50';
 
     /**
      * @ORM\OneToMany(targetEntity=TimesConfig::class, mappedBy="anlage", cascade={"persist", "remove"})

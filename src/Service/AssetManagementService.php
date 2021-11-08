@@ -397,7 +397,8 @@ class AssetManagementService
 
         //Beginn Cumulative Forecast with PVSYST
         //fuer die Tabelle
-
+        dump($anlage->getAnlageForecasts());
+dd($anlage->getShowForecast());
         #Forecast / degradation
         $degradation = 4.98;
 
@@ -923,7 +924,7 @@ class AssetManagementService
 
         
         $chart->setOption($option);
-        $production_monthly_chart = $chart->render('production_monthly_chart', ['style' => 'height: 300px; width:15cm;']);
+        $production_monthly_chart = $chart->render('production_monthly_chart', ['style' => 'height: 300px; width:14cm;']);
 
         $chart->tooltip = [];
         $chart->xAxis = [];
@@ -2385,6 +2386,7 @@ class AssetManagementService
                 ),
         );
 
+        
 
         $chart->setOption($option);
 

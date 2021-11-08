@@ -34,7 +34,7 @@ class AssetManagementController extends BaseController
     /**
      * @param $doctype ( 0 = PDF, 1 = Excel, 2 = PNG (Grafiken) )
      * @param $charttypetoexport (0 = , 1 = )
-     * @Route("/asset/report/{id}/{month}/{year}/{export}/{pages}")
+     * @Route("/asset/report/{id}/{month}/{year}/{export}/{pages}",name="report_asset_management")
      */
     public function assetReport($id, $month, $year, $export, $pages, AssetManagementService $assetManagement, AnlagenRepository $anlagenRepository, Request $request)
     {
