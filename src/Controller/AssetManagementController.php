@@ -31,7 +31,6 @@ class AssetManagementController extends BaseController
         $this->urlGenerator = $urlGenerator;
     }
 
-
     /**
      * @param $doctype ( 0 = PDF, 1 = Excel, 2 = PNG (Grafiken) )
      * @param $charttypetoexport (0 = , 1 = )
@@ -40,7 +39,7 @@ class AssetManagementController extends BaseController
     public function assetReport($id, $month, $year, $export, $pages, AssetManagementService $assetManagement, AnlagenRepository $anlagenRepository, Request $request)
     {
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
-        $output = $assetManagement->assetReport($anlage, $month, $year, $export, $pages);
+        $output = $assetManagement->assetReport($anlage, $month, $year, $pages);
         $baseurl = $request->getSchemeAndHttpHost();
         $plantId = $output['plantId'];
         $result = $this->render('report/assetreport.html.twig', [
@@ -53,7 +52,7 @@ class AssetManagementController extends BaseController
             'year' => $output['year'],
             'month' => $output['month'],
             'reportmonth' => $output['reportmonth'],
-            'customer_logo' => 'https://gs.g4npvplus.net/goldbeck/reports/asset_management/goldbecksolar_logo.svg',
+            'customer_logo' => $baseurl.'/goldbeck/reports/asset_management/goldbecksolar_logo.svg',
             'font_color' => '#9aacc3',
             'font_color_second' => '#91bc5b',
             'font_color_third' => '#36639c',

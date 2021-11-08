@@ -73,7 +73,7 @@ class AssetManagementService
         $this->DownloadAnalyseService = $analyseService;
     }
 
-    public function assetReport($anlage, $month = 0, $year = 0, $chartTypeToExport = 0): array
+    public function assetReport($anlage, $month = 0, $year = 0, $pages = 0): array
     {
         if ($month != 0 && $year != 0) {
             $yesterday = strtotime("$year-$month-01");
@@ -96,7 +96,7 @@ class AssetManagementService
         $report['from'] = $from;
         $report['to'] = $to;
         $report['reportYear'] = $reportYear;
-        $report['anlage'] = $anlage[0];
+        $report['anlage'] = $anlage;
         $report['prs'] = $this->PRRepository->findPRInMonth($report['anlage'], $reportMonth, $reportYear);
         $report['lastPR'] = $this->PRRepository->findOneBy(['anlage' => $report['anlage'], 'stamp' => date_create("$year-$month-$lastDayMonth")]);
         $report['case5s'] = $this->case5Repo->findAllAnlageDay($report['anlage'], $from);
@@ -108,7 +108,7 @@ class AssetManagementService
 
         $countCase5 = 0;
 
-        $output = $this->buildAssetReport($report['anlage'], $report, $chartTypeToExport);
+        $output = $this->buildAssetReport($report['anlage'], $report, $pages);
 
         return $output;
 
@@ -165,12 +165,12 @@ class AssetManagementService
      * @param Anlage $anlage
      * @param array $report
      * @param int $docType ( 0 = PDF, 1 = Excel, 2 = PNG (Grafiken))
-     * @param int $chartTypeToExport ( 0 = , 1 = )
+     * @param int $pages ( 0 = , 1 = )
      * @param bool $exit
      * @return array
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function buildAssetReport(Anlage $anlage, array $report, int $docType = 0, int $chartTypeToExport = 0, $exit = false): array
+    public function buildAssetReport(Anlage $anlage, array $report, int $docType = 0, int $pages = 0, $exit = false): array
     {
 
         $conn = self::getPdoConnection();
@@ -397,8 +397,9 @@ class AssetManagementService
 
         //Beginn Cumulative Forecast with PVSYST
         //fuer die Tabelle
-        dump($anlage->getAnlageForecasts());
-dd($anlage->getShowForecast());
+
+
+#dd($this->functions->getForcastByMonth($anlage,$report['reportMonth']));
         #Forecast / degradation
         $degradation = 4.98;
 

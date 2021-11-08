@@ -16,11 +16,6 @@ use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\NumericFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
-use App\Repository\ReportsRepository;
-
-use Gedmo\Blameable\Traits\BlameableEntity;
-use Gedmo\Timestampable\Traits\TimestampableEntity;
 use ApiPlatform\Core\Annotation\ApiResource;
 
 
@@ -484,7 +479,7 @@ class Anlage
     private bool $usePac = false;
 
     /**
-     * @ORM\OneToMany(targetEntity=AnlageForecast::class, mappedBy="anlage", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity=AnlageForcast::class, mappedBy="anlage", cascade={"persist", "remove"})
      */
     private Collection $anlageForecasts;
 
@@ -507,7 +502,12 @@ class Anlage
     /**
      * @ORM\Column(type="string", length=20, nullable=true)
      */
-    private ?string $minIrradiationAvailability = '50';
+    private ?string $threshold1PA = '0';
+
+    /**
+     * @ORM\Column(name="min_irradiation_availability", type="string", length=20, nullable=true)
+     */
+    private ?string $threshold2PA = '50';
 
     /**
      * @ORM\OneToMany(targetEntity=TimesConfig::class, mappedBy="anlage", cascade={"persist", "remove"})
@@ -698,14 +698,10 @@ class Anlage
     private bool $useLowerIrrForExpected = false;
 
     /**
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=true)
      */
     private string $epcReportNote;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
-    private string $sourceInvName = 'dc_groups';
 
     /**
      * @ORM\Column(type="integer")
@@ -718,17 +714,17 @@ class Anlage
     private $logs;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", nullable = true)
      */
     private $hasDc;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", nullable = true)
      */
     private $hasStrings;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="boolean", nullable = true)
      */
     private $hasPannelTemp;
 
@@ -746,6 +742,11 @@ class Anlage
      * @ORM\OneToMany(targetEntity=EconomicVarValues::class, mappedBy="anlage", orphanRemoval=true, cascade={"persist", "remove"})
      */
     private $economicVarValues;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $useDayForecast;
 
 
 
@@ -1360,9 +1361,17 @@ class Anlage
     public function getAnzInverterFromGroupsAC():int
     {
         $anzGruppen = 0;
-        foreach ($this->getAcGroups() as $group) {
-            $anzGruppen += $group->getUnitLast() - $group->getUnitFirst() + 1;
+
+        if($this->getConfigType() == "3" | $this->getConfigType() == "4")
+        {
+            $anzGruppen = $this->getAcGroups()->count();
         }
+        else{
+            foreach ($this->getAcGroups() as $group) {
+                $anzGruppen += $group->getUnitLast() - $group->getUnitFirst() + 1;
+            }
+        }
+
 
         return $anzGruppen;
     }
@@ -2031,14 +2040,14 @@ class Anlage
     }
 
     /**
-     * @return Collection|AnlageForecast[]
+     * @return Collection|AnlageForcast[]
      */
     public function getAnlageForecasts(): Collection
     {
         return $this->anlageForecasts;
     }
 
-    public function addAnlageForecast(AnlageForecast $anlageForecast): self
+    public function addAnlageForecast(AnlageForcast $anlageForecast): self
     {
         if (!$this->anlageForecasts->contains($anlageForecast)) {
             $this->anlageForecasts[] = $anlageForecast;
@@ -2048,7 +2057,7 @@ class Anlage
         return $this;
     }
 
-    public function removeAnlageForecast(AnlageForecast $anlageForecast): self
+    public function removeAnlageForecast(AnlageForcast $anlageForecast): self
     {
         if ($this->anlageForecasts->removeElement($anlageForecast)) {
             // set the owning side to null (unless already changed)
@@ -2206,7 +2215,6 @@ class Anlage
 
     public function setShowForecast(bool $showForecast): self
     {
-        //dd($showForecast);
         $this->showForecast = $showForecast;
 
         return $this;
@@ -2828,18 +2836,6 @@ class Anlage
         return $this;
     }
 
-    public function getSourceInvName(): ?string
-    {
-        return $this->sourceInvName;
-    }
-
-    public function setSourceInvName(string $sourceInvName): self
-    {
-        $this->sourceInvName = $sourceInvName;
-
-        return $this;
-    }
-
     public function getConfigType(): ?int
     {
         return $this->configType;
@@ -3006,6 +3002,18 @@ class Anlage
                 $economicVarValue->setAnlage(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUseDayForecast(): ?bool
+    {
+        return $this->useDayForecast;
+    }
+
+    public function setUseDayForecast(?bool $useDayForecast): self
+    {
+        $this->useDayForecast = $useDayForecast;
 
         return $this;
     }
