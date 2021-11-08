@@ -5,6 +5,7 @@ namespace App\Form\Anlage;
 use App\Entity\Anlage;
 use App\Entity\Eigner;
 use App\Entity\WeatherStation;
+use App\Form\EconomimcVarNamesFormType;
 use App\Form\EventMail\EventMailListEmbeddedFormType;
 use App\Form\Groups\GroupsListEmbeddedFormType;
 use App\Form\GroupsAc\AcGroupsListEmbeddedFormType;
@@ -70,10 +71,10 @@ class AnlageFormType extends AbstractType
             '-5'    => '-5',
         ];
         $prArray = [
-            'No Cust PR'    => 'no',
-            'Groningen'     => 'Groningen',
-            'Veendam'       => 'Veendam',
-            'Lelystad'     => 'Lelystad',
+            'No Cust PR'                => 'no',
+            'Groningen'                 => 'Groningen',
+            'Veendam'                   => 'Veendam',
+            'Lelystad (Temp Korrektur)' => 'Lelystad',
         ];
         $epcReportArry = [
             'Kein Bericht'      => 'no',
@@ -305,10 +306,14 @@ class AnlageFormType extends AbstractType
                 'empty_data'    => '3.0',
                 'disabled'      => !$isDeveloper,
             ])
-
-            ->add('minIrradiationAvailability', TextType::class, [
-                'label'         => 'minimum Strahlung ab der Verfügbarkeit berechnet werden soll [Watt] (fallback value 50W)',
-                'help'          => '[minIrradiationAvailability]',
+            ->add('threshold1PA', TextType::class, [
+                'label'         => 'unterer Schwellwert (normal 0) [Watt] ',
+                'help'          => '[threshold1PA] (ti,theo / Schwellwert 1)',
+                'label_html'    => true,
+            ])
+            ->add('threshold2PA', TextType::class, [
+                'label'         => 'min Irr. ab der PA berechnet werden soll [Watt] ',
+                'help'          => '[threshold2PA] (ti / Schwellwert 2)',
                 'label_html'    => true,
             ])
             ->add('useGridMeterDayData', ChoiceType::class, [
@@ -723,6 +728,7 @@ class AnlageFormType extends AbstractType
                 'delete_empty'  => true,
                 'by_reference'  => false,
             ])
+
 
             ##############################################
             ####          STEUERELEMENTE              ####

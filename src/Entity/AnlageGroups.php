@@ -57,7 +57,7 @@ class AnlageGroups
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private string $shadowLoss;
+    private string $shadowLoss = '0';
 
     /**
      * @ORM\Column(type="string", length=20)
