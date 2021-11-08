@@ -34,6 +34,10 @@ class AnlagenAdminController extends BaseController
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
             /** @var Anlage $anlage */
             $anlage = $form->getData();
+            $anlage->setEpcReportNote("");
+            $anlage->setHasStrings(false);
+            $anlage->setHasDc(false);
+            $anlage->setHasPannelTemp(false);
             $em->persist($anlage);
             $em->flush();
             $anlage->setAnlIntnr('CX' . $anlage->getAnlagenId());
