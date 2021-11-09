@@ -56,7 +56,8 @@
     </tr>
 {% endmacro %}
 
-{{ form_start(anlageForm) }} {# , {'attr': {'novalidate': 'yes'}}) #}
+{{ form_start(anlageForm, {'attr': {'novalidate': 'no'}} ) }}
+
     <div class="grid-x">
         <div class="cell">
             <ul class="tabs" data-tabs id="anlage-tabs" data-deep-link="true">
@@ -272,11 +273,18 @@
                                 <div class="grid-x grid-padding-x">
                                     <div class="cell medium-3">{{ form_row(anlageForm.epcReportStart) }}</div>
                                     <div class="cell medium-3">{{ form_row(anlageForm.epcReportEnd) }}</div>
-                                    <div class="cell medium-3"></div>
+                                    <div class="cell medium-3"></div>git
                                     <div class="cell medium-3"></div>
                                 </div>
                             </fieldset>
-
+                            <fieldset class="fieldset">
+                                <legend>G4N Forecast</legend>
+                                <div class="grid-x grid-margin-x">
+                                    <div class="cell medium-3">{{ form_row(anlageForm.useDayForecast) }}</div>
+                                    <div class="cell medium-3">{{ form_row(anlageForm.degradationForecast) }}</div>
+                                    <div class="cell medium-3">{{ form_row(anlageForm.lossesForecast) }}</div>
+                                </div>
+                            </fieldset>
                         </div>
                     </div>
                 </div>

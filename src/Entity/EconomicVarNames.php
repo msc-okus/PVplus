@@ -31,91 +31,92 @@ class EconomicVarNames
      * @ORM\GeneratedValue(strategy="IDENTITY")
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $var_1;
+    private ?string $var_1 = "";
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $var_2;
+    private ?string $var_2 = "";
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $var_3;
+    private ?string $var_3 = "";
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $var_4;
+    private ?string $var_4 = "";
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $var_5;
+    private ?string $var_5 = "";
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $var_6;
+    private ?string $var_6 = "";
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $var_7;
+    private ?string $var_7 = "";
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $var_8;
+    private ?string $var_8 = "";
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $var_9;
+    private ?string $var_9 = "";
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $var_10;
+    private ?string $var_10 = "";
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $var_11;
+    private ?string $var_11 = "";
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $var_12;
+    private ?string $var_12 = "";
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $var_13;
+    private ?string $var_13 = "";
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $var_14;
+    private ?string $var_14 = "";
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $var_15;
+    private ?string $var_15 = "";
 
     /**
-     * @ORM\OneToOne(targetEntity=Anlage::class, mappedBy="economicVarNames")
+     * @ORM\OneToOne(targetEntity=Anlage::class, inversedBy="economicVarNames")
      * @ORM\JoinColumn(nullable=false)
      */
     private $anlage;
 
     public function __construct()
     {
+        /*
         $this->anlage = new Anlage();
         $this->var_1="";
         $this->var_2="";
@@ -132,26 +133,27 @@ class EconomicVarNames
         $this->var_13="";
         $this->var_14="";
         $this->var_15="";
+        */
     }
-    public function setparams(Anlage $anlage,string $var1,string $var2,string $var3,string $var4,string $var5,string $var6,string $var7,string $var8,string $var9,string $var10
-        ,string $var11,string $var12,string $var13,string $var14,string $var15)
+    public function setparams(Anlage $anlage, string $var1, string $var2, string $var3, string $var4, string $var5, string $var6, string $var7, string $var8, string $var9, string $var10
+        , string $var11, string $var12, string $var13, string $var14, string $var15)
     {
         $this->anlage = $anlage;
-        $this->var_1=$var1;
-        $this->var_2=$var2;
-        $this->var_3=$var3;
-        $this->var_4=$var4;
-        $this->var_5=$var5;
-        $this->var_6=$var6;
-        $this->var_7=$var7;
-        $this->var_8=$var8;
-        $this->var_9=$var9;
-        $this->var_10=$var10;
-        $this->var_11=$var11;
-        $this->var_12=$var12;
-        $this->var_13=$var13;
-        $this->var_14=$var14;
-        $this->var_15=$var15;
+        $this->var_1  = $var1;
+        $this->var_2  = $var2;
+        $this->var_3  = $var3;
+        $this->var_4  = $var4;
+        $this->var_5  = $var5;
+        $this->var_6  = $var6;
+        $this->var_7  = $var7;
+        $this->var_8  = $var8;
+        $this->var_9  = $var9;
+        $this->var_10 = $var10;
+        $this->var_11 = $var11;
+        $this->var_12 = $var12;
+        $this->var_13 = $var13;
+        $this->var_14 = $var14;
+        $this->var_15 = $var15;
     }
     public function getId(): ?int
     {

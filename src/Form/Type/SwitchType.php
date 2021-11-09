@@ -8,10 +8,8 @@ use Symfony\Component\Form\FormBuilderInterface;
 
 class SwitchType extends CheckboxType
 {
-
-
-    public function getBlockPrefix()
-{
-    return "switch_type";
-}
+    public function getBlockPrefix(): string
+    {
+        return "switch_type";
+    }
 }

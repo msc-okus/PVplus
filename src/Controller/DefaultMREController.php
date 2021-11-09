@@ -247,7 +247,7 @@ class DefaultMREController extends BaseController
     public function testForcast(AnlagenRepository $anlagenRepository, FunctionsService $functions): Response
     {
         $output = '';
-        $month = 1;
+        $month = 2;
 
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => 104]);

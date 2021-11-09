@@ -59,8 +59,6 @@ class Anlage
     private string $eignerId;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="anl_type", type="string", length=25, nullable=false)
      * @Groups({"main"})
      */
@@ -702,7 +700,6 @@ class Anlage
      */
     private string $epcReportNote;
 
-
     /**
      * @ORM\Column(type="integer")
      */
@@ -716,20 +713,20 @@ class Anlage
     /**
      * @ORM\Column(type="boolean", nullable = true)
      */
-    private $hasDc;
+    private bool $hasDc = true;
 
     /**
      * @ORM\Column(type="boolean", nullable = true)
      */
-    private $hasStrings;
+    private bool $hasStrings = false;
 
     /**
      * @ORM\Column(type="boolean", nullable = true)
      */
-    private $hasPannelTemp;
+    private bool $hasPannelTemp = false;
 
     /**
-     * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="Anlage")
+     * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="anlage")
      */
     private $tickets;
 
@@ -746,7 +743,17 @@ class Anlage
     /**
      * @ORM\Column(type="boolean", nullable=true)
      */
-    private $useDayForecast;
+    private $useDayForecast = false;
+
+    /**
+     * @ORM\Column(type="string", length=20, nullable=true)
+     */
+    private ?string $degradationForecast = '0';
+
+    /**
+     * @ORM\Column(type="string", length=20, nullable=true)
+     */
+    private ?string $lossesForecast = '0';
 
 
 
@@ -810,7 +817,7 @@ class Anlage
         return $this->anlType;
     }
 
-    public function setAnlType(string $anlType): self
+    public function setAnlType(?string $anlType): self
     {
         $this->anlType = $anlType;
 
@@ -3011,9 +3018,33 @@ class Anlage
         return $this->useDayForecast;
     }
 
-    public function setUseDayForecast(?bool $useDayForecast): self
+    public function setUseDayForecast(bool $useDayForecast): self
     {
         $this->useDayForecast = $useDayForecast;
+
+        return $this;
+    }
+
+    public function getDegradationForecast(): float
+    {
+        return (float)$this->degradationForecast;
+    }
+
+    public function setDegradationForecast(?string $degradationForecast): self
+    {
+        $this->degradationForecast = $degradationForecast;
+
+        return $this;
+    }
+
+    public function getLossesForecast(): float
+    {
+        return (float)$this->lossesForecast;
+    }
+
+    public function setLossesForecast(?string $lossesForecast): self
+    {
+        $this->lossesForecast = $lossesForecast;
 
         return $this;
     }

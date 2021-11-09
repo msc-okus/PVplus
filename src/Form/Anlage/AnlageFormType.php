@@ -8,6 +8,7 @@ use App\Entity\WeatherStation;
 use App\Form\EventMail\EventMailListEmbeddedFormType;
 use App\Form\Groups\GroupsListEmbeddedFormType;
 use App\Form\GroupsAc\AcGroupsListEmbeddedFormType;
+use App\Form\Type\SwitchType;
 use App\Helper\G4NTrait;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -455,6 +456,27 @@ class AnlageFormType extends AbstractType
                 'label'         => 'Anlage hat Pannel Temperatur',
                 'help'          => '[hasPannelTemp]',
                 'choices'       => ['No' => '0', 'Yes' => '1'],
+                'empty_data'    => '0',
+            ])
+            ->add('useDayForecast', ChoiceType::class, [
+                'label'         => 'use Forecast by Day',
+                'help'          => '[useDayForecast]',
+                'choices'       => ['No' => '0', 'Yes' => '1'],
+                'required'      => false,
+                'empty_data'    => 0,
+            ])
+            ->add('degradationForecast', TextType::class, [
+                'label'         => 'Degradation, only Forecast [%]',
+                'help'          => '[degradationForecast]',
+                'label_html'    => true,
+                'required'      => false,
+                'empty_data'    => '0',
+            ])
+            ->add('lossesForecast', TextType::class, [
+                'label'         => 'Losses, only Forecast [%]',
+                'help'          => '[lossesForecast]',
+                'label_html'    => true,
+                'required'      => false,
                 'empty_data'    => '0',
             ])
             ################################################

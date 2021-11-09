@@ -305,14 +305,24 @@ class FunctionsService
         return $powerExpArray;
     }
 
-    public function getForcastByMonth(Anlage $anlage, int $month): float
+    /**
+     * Berechnet den Forcast für die angebene Anlage und den angebenen Monat, auf Basis der Daten aus der Entity AnlagenForecastDay
+     *
+     * @param Anlage $anlage
+     * @param int $month
+     * @return float
+     */
+    public function getForcastByMonth(Anlage $anlage, int $month, ?int $betriebsJahre = null ): float
     {
         $sum = (float)0;
+        if ($betriebsJahre === null || $betriebsJahre < 0) $betriebsJahre  = (int)date('Y') - (int)$anlage->getAnlBetrieb()->format('Y'); #betriebsjahre
         /** @var AnlageForcastDay $forcast */
         $forcasts = $this->forcastDayRepo->findForcastDayByMonth($anlage, $month);
         foreach ($forcasts as $forcast) {
             $sum += $anlage->getContractualPower() * $forcast->getFactorDay();
         }
+        $sum -= ($sum / 100 * $anlage->getDegradationForecast() * $betriebsJahre);
+        $sum -= $sum / 100 * $anlage->getLossesForecast();
 
         return $sum;
     }
