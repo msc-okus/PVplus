@@ -12,21 +12,22 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CustomNumber extends AbstractType
 {
+    public function __construct()
+    {
+    }
+
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'invalid_message'=>'Non Numeric value inserted'
+            'invalid_message' => 'Non Numeric value inserted'
         ]);
     }
 
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return "custom_number_type";
     }
 
-    public function __construct()
-    {
-    }
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->addModelTransformer(new StringToNumberTransformer());

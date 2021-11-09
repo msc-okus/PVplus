@@ -45,7 +45,7 @@ class WeatherStation
     /**
      * @ORM\Column(type="text")
      */
-    private string $description;
+    private ?string $description;
 
     /**
      * @ORM\Column(type="boolean")
@@ -90,17 +90,17 @@ class WeatherStation
     /**
      * @ORM\Column(type="string", length=40)
      */
-    private string $labelUpper;
+    private ?string $labelUpper;
 
     /**
      * @ORM\Column(type="string", length=40)
      */
-    private string $labelLower;
+    private ?string $labelLower;
 
     /**
      * @ORM\Column(type="string", length=40)
      */
-    private string $labelHorizontal;
+    private ?string $labelHorizontal;
 
     public function __construct()
     {

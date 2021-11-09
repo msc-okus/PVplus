@@ -305,6 +305,13 @@ class FunctionsService
         return $powerExpArray;
     }
 
+    /**
+     * Berechnet den Forcast für die angebene Anlage und den angebenen Monat, auf Basis der Daten aus der Entity AnlagenForecastDay
+     *
+     * @param Anlage $anlage
+     * @param int $month
+     * @return float
+     */
     public function getForcastByMonth(Anlage $anlage, int $month): float
     {
         $sum = (float)0;
