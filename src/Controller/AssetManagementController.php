@@ -39,6 +39,7 @@ class AssetManagementController extends BaseController
     public function assetReport($id, $month, $year, $export, $pages, AssetManagementService $assetManagement, AnlagenRepository $anlagenRepository, Request $request)
     {
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
+
         $output = $assetManagement->assetReport($anlage, $month, $year, $pages);
         $baseurl = $request->getSchemeAndHttpHost();
         $plantId = $output['plantId'];
@@ -54,7 +55,7 @@ class AssetManagementController extends BaseController
             'reportmonth' => $output['reportmonth'],
             'customer_logo' => $baseurl.'/goldbeck/reports/asset_management/goldbecksolar_logo.svg',
             'font_color' => '#9aacc3',
-            'font_color_second' => '#91bc5b',
+            'font_color_second' => '#2e639a',
             'font_color_third' => '#36639c',
             'montharray' => $output['monthArray'],
             'degradation' => $output['degradation'],
@@ -63,6 +64,7 @@ class AssetManagementController extends BaseController
             'forecast_G4N_table' => $output['forecast_G4N_table'],
             'forecast_G4N' => $output['forecast_G4N'],
             'dataMonthArray' => $output['dataMonthArray'],
+            'dataMonthArrayFullYear' => $output['dataMonthArrayFullYear'],
             'dataCfArray' => $output['dataCfArray'],
             'operations_right' => $output['operations_right'],
             'table_overview_monthly' => $output['table_overview_monthly'],

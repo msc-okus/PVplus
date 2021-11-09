@@ -200,6 +200,7 @@ class AssetManagementService
         $monthArray = [
             'Jan', 'Feb', 'Mar', 'April', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dez'
         ];
+
         for ($i = 0; $i < count($monthArray); $i++) {
             $monthExtendetArray[$i]['month'] = $monthArray[$i];
             $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $i + 1, $report['reportYear']);
@@ -287,6 +288,10 @@ class AssetManagementService
             }
         }
 
+        for ($i = 1; $i < 13; $i++) {
+            $dataMonthArrayFullYear[] = $monthArray[$i - 1];
+        }
+
         #fuer die Tabelle
         $tbody_a_production = [
             'powerEvu' => $powerEvu,
@@ -328,7 +333,7 @@ class AssetManagementService
             'min' => 0,
             'name' => 'KWH',
             'nameLocation' => 'middle',
-            'nameGap' => 70,
+            'nameGap' => 80,
             'offset' => -20,
         );
         $chart->series =
@@ -379,14 +384,15 @@ class AssetManagementService
                 array(
                     'height' => '80%',
                     'top' => 50,
-                    'width' => '90%',
+                    'width' => '80%',
+                    'left' => 100
                 ),
         );
 
         
         $chart->setOption($option);
 
-        $operations_right = $chart->render('operations_right', ['style' => 'height: 450px; width:750px;']);
+        $operations_right = $chart->render('operations_right', ['style' => 'height: 450px; width:700px;']);
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
@@ -405,7 +411,7 @@ class AssetManagementService
 
         //Cumulative Forecast
         $kumsum[0] = $powerEvu[0];
-        for ($i = 0; $i < $report['reportMonth']; $i++) {
+        for ($i = 0; $i < 12; $i++) {
             if ($i + 1 > $report['reportMonth']) {
                 $kumsum[$i] = $expectedPvSyst[$i] + $kumsum[$i - 1];
             } else {
@@ -420,7 +426,7 @@ class AssetManagementService
         }
         #Forecast / PVSYST - P90
         $kumsum[0] = $expectedPvSyst[0];
-        for ($i = 0; $i < $report['reportMonth']; $i++) {
+        for ($i = 0; $i < 12; $i++) {
             $kumsum[$i] = $expectedPvSyst[$i] + $kumsum[$i - 1];
             $tbody_forcast_plan_PVSYSTP50[] = $kumsum[$i];
 
@@ -449,14 +455,14 @@ class AssetManagementService
             'splitArea' => array(
                 'show' => true,
             ),
-            'data' => $dataMonthArray
+            'data' => $dataMonthArrayFullYear
         );
         $chart->yAxis = array(
             'type' => 'value',
             'min' => 0,
             'name' => 'KWH',
             'nameLocation' => 'middle',
-            'nameGap' => 70
+            'nameGap' => 80
         );
         $chart->series =
             [
@@ -512,13 +518,15 @@ class AssetManagementService
                 array(
                     'height' => '80%',
                     'top' => 50,
-                    'width' => '90%',
+                    'width' => '85%',
+                    'left' => 100
                 ),
+
         );
 
         $chart->setOption($option);
 
-        $forecast_PVSYST = $chart->render('forecast_PVSYST', ['style' => 'height: 450px; width:23cm;']);
+        $forecast_PVSYST = $chart->render('forecast_PVSYST', ['style' => 'height: 450px; width:28cm;']);
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
@@ -531,13 +539,37 @@ class AssetManagementService
         //Beginn Cumulative Forecast with G4N
         //fuer die Tabelle
 
-        //Forecast / PVSYST - P50
-        //die ersten beiden Eintraege koennen von PVSYT uebernommen werden
+        for ($i = 1; $i < 13; $i++) {
+            $forecast[$i] = $this->functions->getForcastByMonth($anlage,$i);
+        }
+
+        $kumsum[0] = $powerEvu[0];
+        for ($i = 0; $i < 12; $i++) {
+            if ($i + 1 > $report['reportMonth']) {
+                $kumsum[$i] = $forecast[$i] + $kumsum[$i - 1];
+            } else {
+                $kumsum[$i] = $powerEvu[$i] + $kumsum[$i - 1];
+            }
+            $tbody_forcast_G4NP50[] = $kumsum[$i];
+            if ($i + 1 < $report['reportMonth']) {
+                $tbody_forcast_G4NP90[] = $kumsum[$i];
+            } else {
+                $tbody_forcast_G4NP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
+            }
+        }
+        #Forecast / G4N
+        $kumsum[0] = $forecast[1];
+        for ($i = 0; $i < 12; $i++) {
+            $kumsum[$i] = $forecast[$i+1] + $kumsum[$i - 1];
+            $tbody_forcast_plan_G4NP50[] = $kumsum[$i];
+            $tbody_forcast_plan_G4NP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
+        }
+
         $forecast_G4N_table = [
-            'forcast_PVSYSTP50' => $tbody_forcast_PVSYSTP50,
-            'forcast_PVSYSTP90' => $tbody_forcast_PVSYSTP90,
-            'forcast_plan_PVSYSTP50' => $tbody_forcast_plan_PVSYSTP50,
-            'forcast_plan_PVSYSTP90' => $tbody_forcast_plan_PVSYSTP90,
+            'forcast_G4NP50' => $tbody_forcast_G4NP50,
+            'forcast_G4NP90' => $tbody_forcast_G4NP90,
+            'forcast_plan_G4NP50' => $tbody_forcast_plan_G4NP50,
+            'forcast_plan_G4NP90' => $tbody_forcast_plan_G4NP90,
         ];
 
         //beginn chart
@@ -553,33 +585,33 @@ class AssetManagementService
             'splitArea' => array(
                 'show' => true,
             ),
-            'data' => $dataMonthArray
+            'data' => $dataMonthArrayFullYear
         );
         $chart->yAxis = array(
             'type' => 'value',
             'min' => 0,
             'name' => 'KWH',
             'nameLocation' => 'middle',
-            'nameGap' => 70
+            'nameGap' => 80
         );
         $chart->series =
             [
                 [
                     'name' => 'Production ACT / g4n',
                     'type' => 'line',
-                    'data' => $tbody_forcast_PVSYSTP50,
+                    'data' => $tbody_forcast_G4NP50,
                     'visualMap' => 'false'
                 ],
                 [
                     'name' => 'Production ACT /  g4n - P90',
                     'type' => 'line',
-                    'data' => $tbody_forcast_PVSYSTP90,
+                    'data' => $tbody_forcast_G4NP90,
                     'visualMap' => 'false'
                 ],
                 [
                     'name' => 'Plan g4n Forecast - P50',
                     'type' => 'line',
-                    'data' => $tbody_forcast_plan_PVSYSTP50,
+                    'data' => $tbody_forcast_plan_G4NP50,
                     'visualMap' => 'false',
                     'lineStyle' => array(
                         'type' => 'dashed'
@@ -588,7 +620,7 @@ class AssetManagementService
                 [
                     'name' => 'Plan g4n Forecast - P90',
                     'type' => 'line',
-                    'data' => $tbody_forcast_plan_PVSYSTP90,
+                    'data' => $tbody_forcast_plan_G4NP90,
                     'visualMap' => 'false',
                     'lineStyle' => array(
                         'type' => 'dashed'
@@ -616,14 +648,15 @@ class AssetManagementService
                 array(
                     'height' => '80%',
                     'top' => 50,
-                    'width' => '90%',
+                    'width' => '85%',
+                    'left' => 100
                 ),
         );
 
         
         $chart->setOption($option);
 
-        $forecast_G4N = $chart->render('forecast_G4N', ['style' => 'height: 450px; width:23cm;']);
+        $forecast_G4N = $chart->render('forecast_G4N', ['style' => 'height: 450px; width:28cm;']);
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
@@ -678,7 +711,7 @@ class AssetManagementService
             'type' => 'value',
             'name' => 'KWH',
             'nameLocation' => 'middle',
-            'nameGap' => 70
+            'nameGap' => 80
         );
         $chart->series =
             [
@@ -720,9 +753,10 @@ class AssetManagementService
                 ],
             'grid' =>
                 array(
-                    'height' => '70%',
+                    'height' => '80%',
                     'top' => 50,
-                    'width' => '90%',
+                    'width' => '100%',
+                    'left' => 100
                 ),
         );
 
@@ -780,7 +814,7 @@ class AssetManagementService
             'type' => 'value',
             'name' => 'KWH',
             'nameLocation' => 'middle',
-            'nameGap' => 70
+            'nameGap' => 80
         );
         $chart->series =
             [
@@ -822,9 +856,10 @@ class AssetManagementService
                 ],
             'grid' =>
                 array(
-                    'height' => '70%',
+                    'height' => '80%',
                     'top' => 50,
-                    'width' => '90%',
+                    'width' => '100%',
+                    'left' => 100
                 ),
         );
 
@@ -848,7 +883,7 @@ class AssetManagementService
         $chart->xAxis = array(
             'type' => 'category',
             'axisLabel' => array(
-                'show' => true,
+                'show' => false,
                 'margin' => '10',
             ),
             'splitArea' => array(
@@ -860,7 +895,7 @@ class AssetManagementService
             'type' => 'value',
             'name' => 'KWH',
             'nameLocation' => 'middle',
-            'nameGap' => 60
+            'nameGap' => 80
         );
         $chart->series =
             [
@@ -916,16 +951,16 @@ class AssetManagementService
                 ],
             'grid' =>
                 array(
-                    'height' => '80%',
-                    'top' => 50,
-                    'left' => 70,
-                    'width' => '100%',
+                    'height' => '100%',
+                    'top' => 80,
+                    'left' => 90,
+                    'width' => '80%',
                 ),
         );
 
         
         $chart->setOption($option);
-        $production_monthly_chart = $chart->render('production_monthly_chart', ['style' => 'height: 300px; width:14cm;']);
+        $production_monthly_chart = $chart->render('production_monthly_chart', ['style' => 'height: 300px; width:12cm;']);
 
         $chart->tooltip = [];
         $chart->xAxis = [];
@@ -1487,7 +1522,7 @@ class AssetManagementService
             'title' => [
                 'text' => 'Availability: Year to date',
                 'left' => 'center',
-                'top' => -5,
+                'top' => 0,
             ],
             'tooltip' =>
                 [
@@ -1501,11 +1536,15 @@ class AssetManagementService
                     'top' => 30,
                     'padding' => 0,90,0,0,
                 ],
+            'grid' =>
+                array(
+                    'top' => 150,
+                ),
         );
 
         
         $chart->setOption($option);
-        $availability_Year_To_Date = $chart->render('availability_Year_To_Date', ['style' => 'height: 200px; width:400px; margin-top:8px']);
+        $availability_Year_To_Date = $chart->render('availability_Year_To_Date', ['style' => 'height: 300px; width:400px; margin-top:8px']);
 
         $chart->tooltip = [];
         $chart->xAxis = [];
@@ -1551,7 +1590,7 @@ class AssetManagementService
             'title' => [
                 'text' => 'Failure - Year to date',
                 'left' => 'center',
-                'top' => -5,
+                'top' => 0,
             ],
             'tooltip' =>
                 [
@@ -1569,7 +1608,7 @@ class AssetManagementService
 
         
         $chart->setOption($option);
-        $failures_Year_To_Date = $chart->render('failures_Year_To_Date', ['style' => 'height: 200px; width:360px; margin-top:8px;']);
+        $failures_Year_To_Date = $chart->render('failures_Year_To_Date', ['style' => 'height: 300px; width:360px; margin-top:8px;']);
 
         $chart->tooltip = [];
         $chart->xAxis = [];
@@ -1627,7 +1666,7 @@ class AssetManagementService
             'title' => [
                 'text' => 'Plant availability: '.$monthName.' '.$report['reportYear'],
                 'left' => 'center',
-                'top' => -5,
+                'top' => 0,
             ],
             'tooltip' =>
                 [
@@ -1681,7 +1720,7 @@ class AssetManagementService
                             'name' => 'Communication error'
                         ]
                     ],
-                    'bottom' => 50,
+                    
                     'visualMap' => 'false',
                     'label' => [
                         'show' => false
@@ -1702,7 +1741,7 @@ class AssetManagementService
             'title' => [
                 'text' => 'Actual',
                 'left' => 'center',
-                'top' => -5,
+                'top' => 0,
             ],
             'tooltip' =>
                 [
@@ -1717,10 +1756,8 @@ class AssetManagementService
                 ],
         );
 
-
-        
         $chart->setOption($option);
-        $actual = $chart->render('actual', ['style' => 'height: 200px; width:450px; margin-top:8px;']);
+        $actual = $chart->render('actual', ['style' => 'height: 200px; width:450px; margin-top:8px']);
 
         $chart->tooltip = [];
         $chart->xAxis = [];
@@ -2566,6 +2603,7 @@ class AssetManagementService
             'year' => $report['reportYear'],
             'monthArray' => $monthArray,
             'dataMonthArray' => $dataMonthArray,
+            'dataMonthArrayFullYear' => $dataMonthArrayFullYear,
             'dataCfArray' => $dataCfArray,
             'operations_right' => $operations_right,
             'degradation' => $degradation,

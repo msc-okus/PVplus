@@ -1,6 +1,6 @@
-<div style="page-break-after: always; height: 95%!important;">
+{% include 'report/_asset_mangement_partials/_headline.html.twig'%}
     <div class="content_asset_report" >
-        <h3>Cumulative Forecast - PVSYST</h3>
+        <h3 style="color: {{ font_color_second }};">Cumulative Forecast - PVSYST</h3>
         <span class="subheadline">Yearly expected PVSYST vs. actuals</span>
         {% for data in table_overview_monthly.powerEvu %}
         {% endfor %}
@@ -11,7 +11,7 @@
                         <thead>
                         <tr>
                             <th style="text-align: right">Cumulative Forecast - {{ year }}</th>
-                            {% for data in dataMonthArray %}
+                            {% for data in dataMonthArrayFullYear %}
                                 <th style="text-align: center"><div style="width: 100%; height: 50%;">{{ data }} {{ year }}</div></th>
                             {% endfor %}
                         </tr>
@@ -53,16 +53,4 @@
             </tr>
         </table>
     </div>
-
-    <div>
-        <table style="width: 29.7cm;">
-            <tr>
-                <td style="border-bottom: solid 2px #91bc5b;width: 25.4cm;"></td>
-                <td rowspan="2"><img class="g4n_logo" src="{{ baseurl }}/images/green4net.jpg"></td>
-            </tr>
-            <tr>
-                <td></td>
-            </tr>
-        </table>
-    </div>
-</div>
+{% include 'report/_asset_mangement_partials/_footer.html.twig'%}

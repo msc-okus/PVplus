@@ -13,11 +13,11 @@ body{
 
 page[size="A4"][layout="landscape"] {
   width: 29.7cm;
-  height: 21cm;
+  height: 20cm;
 }
 
 .content_asset_report{
-  height:19cm!important;
+  height:18cm!important;
   width: 27.0cm!important;
 }
 
@@ -31,7 +31,7 @@ h2{
 }
 
 h3{
-  color: #15508e;
+  color: #15508e!important;
   font-size: 1.5em;
 }
 
@@ -176,5 +176,6 @@ table .tr_first_column_nonbold {
 table td .explanation{
   border: solid 2px #15508e;
   padding: 5px;
+  margin-top: -15px!important;
 }
 

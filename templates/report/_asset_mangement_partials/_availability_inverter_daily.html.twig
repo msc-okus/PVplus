@@ -1,6 +1,6 @@
-<div style="page-break-after: always; height: 95%!important;">
+{% include 'report/_asset_mangement_partials/_headline.html.twig'%}
     <div class="content_asset_report">
-        <h3>Availability Inverter</h3>
+        <h3 style="color: {{ font_color_second }};">Availability Inverter</h3>
         <span class="subheadline">Daily overview – {{ month }} {{ year }}</span>
 
         <table id="basetable">
@@ -96,15 +96,4 @@
             </tr>
         </table>
     </div>
-    <div>
-        <table style="width: 27.7cm;">
-            <tr>
-                <td style="border-bottom: solid 2px #91bc5b;width: 25.4cm;"></td>
-                <td rowspan="2"><img class="g4n_logo" src="{{ baseurl }}/images/green4net.jpg"></td>
-            </tr>
-            <tr>
-                <td></td>
-            </tr>
-        </table>
-    </div>
-</div>
+{% include 'report/_asset_mangement_partials/_footer.html.twig'%}
