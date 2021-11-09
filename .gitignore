@@ -21,3 +21,4 @@ php.ini
 ###< liip/imagine-bundle ###
 /public/*.pdf
 /public/*.html
+/public/echarts
