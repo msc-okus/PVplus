@@ -43,9 +43,8 @@ class TicketFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         /** @var Ticket $ticket */
-
         $ticket = $options['data'] ?? null;
-        if ($ticket=== null)$builder
+        $builder
             ->add('anlage', AnlageTextType::class,[
 
             ])
@@ -59,7 +58,9 @@ class TicketFormType extends AbstractType
                 ],
                 'required' => true,
                 'placeholder'   => 'please Choose ...'
-            ])
+            ]);
+
+        if ($ticket=== null)$builder
 
             ->add('begin', DateTimeType::class,[
                 'label'         => 'Begin',
@@ -68,170 +69,85 @@ class TicketFormType extends AbstractType
                 'input'         =>'datetime',
                 'widget'        =>'single_text',
                 'data'          => new \DateTime("now")
-                ])
-
-            ->add('end', DateTimeType::class,[
-                'label'         => 'End',
-                'label_html'    => true,
-                'required'      => true,
-                'input'         =>'datetime',
-                'widget'        =>'single_text',
-            ])
-
-            ->add('PR', SwitchType::class, [
-                'label' => 'PR'
-            ])
-            ->add('PA', SwitchType::class,[
-                'label' => 'PA'
-            ])
-
-            ->add('Yield', SwitchType::class,[
-                'label' => 'Yield'
-            ])
-
-            ->add('freeText', CKEditorType::class ,[
-                'config' => array('toolbar' => 'my_toolbar'),
-            ])
-
-            ->add('description', TextType::class,[
-
-            ])
-
-            ->add('systemStatus', ChoiceType::class,[
-                'label'         => 'Select the status of the system',
-                'choices'       => [
-                    'test' => 10,
-                    'test2' => 20
-                ],
-                'required' => true,
-                'placeholder'   => 'Please Choose ...'
-            ])
-
-            ->add('priority', ChoiceType::class,[
-                'label'         => 'Select the priority',
-                'choices'       => [
-                    'Low'       => 10,
-                    'Normal'    => 20,
-                    'High'      => 30,
-                    'Urgent'    => 40
-                ],
-                'required' => true,
-                'placeholder'   => 'please Choose ...'
-
-            ])
-
-            ->add('answer', CKEditorType::class ,[
-                'config' => array('toolbar' => 'my_toolbar'),
-            ])
-
-            ->add('save', SubmitType::class, [
-                'label' => 'Save',
-                'attr' => ['class' => 'primary save'],
-            ])
-
-            ->add('saveclose', SubmitType::class, [
-                'label' => 'Save and Close',
-                'attr' => ['class' => 'primary saveclose'],
-            ])
-
-            ->add('close', SubmitType::class, [
-                'label' => 'Close without save',
-                'attr' => ['class' => 'secondary close', 'formnovalidate' => 'formnovalidate'],
-            ]);
+                ]);
         else $builder
-            ->add('anlage', AnlageTextType::class,[
-                'label' => 'Plant name '
-            ])
-
-            ->add('status', ChoiceType::class,[
-                'label'         => 'Select the status',
-                'choices'       => [
-                    'Open'              => 10,
-                    'Work in Progress'  => 20,
-                    'Closed'            => 30
-                ],
-                'required' => true,
-                'placeholder'   => 'please Choose ...'
-            ])
-
             ->add('begin', DateTimeType::class,[
                 'label'         => 'Begin',
                 'label_html'    => true,
                 'required'      => false,
                 'input'         =>'datetime',
                 'widget'        =>'single_text',
-            ])
-
-            ->add('end', DateTimeType::class,[
-                'label'         => 'End',
-                'label_html'    => true,
-                'required'      => true,
-                'input'         =>'datetime',
-                'widget'        =>'single_text',
-            ])
-
-            ->add('PR', SwitchType::class, [
-                'label' => 'PR'
-            ])
-            ->add('PA', SwitchType::class,[
-                'label' => 'PA'
-            ])
-
-            ->add('Yield', SwitchType::class,[
-                'label' => 'Yield'
-            ])
-
-            ->add('freeText', CKEditorType::class ,[
-                'config' => array('toolbar' => 'my_toolbar'),
-            ])
-
-            ->add('description', TextType::class,[
-
-            ])
-
-            ->add('systemStatus', ChoiceType::class,[
-                'label'         => 'Select the status of the system',
-                'choices'       => [
-                    'test' => 10,
-                    'test2' => 20
-                ],
-                'required' => true,
-                'placeholder'   => 'Please Choose ...'
-            ])
-
-            ->add('priority', ChoiceType::class,[
-                'label'         => 'Select the priority',
-                'choices'       => [
-                    'Low'       => 10,
-                    'Normal'    => 20,
-                    'High'      => 30,
-                    'Urgent'    => 40
-                ],
-                'required' => true,
-                'placeholder'   => 'please Choose ...'
-
-            ])
-
-            ->add('answer', CKEditorType::class ,[
-                'config' => array('toolbar' => 'my_toolbar'),
-            ])
-
-            ->add('save', SubmitType::class, [
-                'label' => 'Save',
-                'attr' => ['class' => 'primary save'],
-            ])
-
-            ->add('saveclose', SubmitType::class, [
-                'label' => 'Save and Close',
-                'attr' => ['class' => 'primary saveclose'],
-            ])
-
-            ->add('close', SubmitType::class, [
-                'label' => 'Close without save',
-                'attr' => ['class' => 'secondary close', 'formnovalidate' => 'formnovalidate'],
             ]);
 
-        ;
+    $builder
+
+        ->add('end', DateTimeType::class,[
+            'label'         => 'End',
+            'label_html'    => true,
+            'required'      => true,
+            'input'         =>'datetime',
+            'widget'        =>'single_text',
+        ])
+
+        ->add('PR', SwitchType::class, [
+            'label' => 'PR'
+        ])
+        ->add('PA', SwitchType::class,[
+            'label' => 'PA'
+        ])
+
+        ->add('Yield', SwitchType::class,[
+            'label' => 'Yield'
+        ])
+
+        ->add('freeText', CKEditorType::class ,[
+            'config' => array('toolbar' => 'my_toolbar'),
+        ])
+
+        ->add('description', TextType::class,[
+
+        ])
+
+        ->add('systemStatus', ChoiceType::class,[
+            'label'         => 'Select the status of the system',
+            'choices'       => [
+                'test' => 10,
+                'test2' => 20
+            ],
+            'required' => true,
+            'placeholder'   => 'Please Choose ...'
+        ])
+
+        ->add('priority', ChoiceType::class,[
+            'label'         => 'Select the priority',
+            'choices'       => [
+                'Low'       => 10,
+                'Normal'    => 20,
+                'High'      => 30,
+                'Urgent'    => 40
+            ],
+            'required' => true,
+            'placeholder'   => 'please Choose ...'
+
+        ])
+
+        ->add('answer', CKEditorType::class ,[
+            'config' => array('toolbar' => 'my_toolbar'),
+        ])
+        ->add('save', SubmitType::class, [
+            'label' => 'Save',
+            'attr' => ['class' => 'primary save'],
+        ])
+
+        ->add('saveclose', SubmitType::class, [
+            'label' => 'Save and Close',
+            'attr' => ['class' => 'primary saveclose'],
+        ])
+
+        ->add('close', SubmitType::class, [
+            'label' => 'Close without save',
+            'attr' => ['class' => 'secondary close', 'formnovalidate' => 'formnovalidate'],
+        ]);
     }
 
 }

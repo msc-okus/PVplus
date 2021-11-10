@@ -700,7 +700,7 @@ class Anlage
     /**
      * @ORM\Column(type="text", nullable=true)
      */
-    private string $epcReportNote;
+    private string $epcReportNote = "";
 
 
     /**
@@ -716,17 +716,17 @@ class Anlage
     /**
      * @ORM\Column(type="boolean", nullable = true)
      */
-    private $hasDc;
+    private $hasDc = false;
 
     /**
      * @ORM\Column(type="boolean", nullable = true)
      */
-    private $hasStrings;
+    private $hasStrings = false;
 
     /**
      * @ORM\Column(type="boolean", nullable = true)
      */
-    private $hasPannelTemp;
+    private $hasPannelTemp = false;
 
     /**
      * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="Anlage")
