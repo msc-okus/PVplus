@@ -54,14 +54,9 @@ class AnlagenAdminController extends BaseController
         }
 
 
-                return $this->render('anlagen/new.html.twig', [
-                    'anlageForm'   => $form->createView(),
-                ]);
-        /*
         return $this->render('anlagen/new.html.twig', [
             'anlageForm'   => $form->createView(),
         ]);
-        */
     }
 
     /**
