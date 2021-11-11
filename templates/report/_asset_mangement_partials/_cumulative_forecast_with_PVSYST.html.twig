@@ -1,0 +1,56 @@
+{% include 'report/_asset_mangement_partials/_headline.html.twig'%}
+    <div class="content_asset_report" >
+        <h3 style="color: {{ font_color_second }};">Cumulative Forecast - PVSYST</h3>
+        <span class="subheadline">Yearly expected PVSYST vs. actuals</span>
+        {% for data in table_overview_monthly.powerEvu %}
+        {% endfor %}
+        <table id="basetable">
+            <tr>
+                <td colspan="2" style="text-align: left">
+                    <table class="asset_report_table_operations_data" style="width: 95%!important;">
+                        <thead>
+                        <tr>
+                            <th style="text-align: right">Cumulative Forecast - {{ year }}</th>
+                            {% for data in dataMonthArrayFullYear %}
+                                <th style="text-align: center"><div style="width: 100%; height: 50%;">{{ data }} {{ year }}</div></th>
+                            {% endfor %}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="tr_first_column" style="text-align: right">Production ACT / PVSYST - P50</td>
+                            {% for data in forecast_PVSYST_table.forcast_PVSYSTP50 %}
+                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_first_column" style="text-align: right">Production ACT /  PVSYST - P90</td>
+                            {% for data in forecast_PVSYST_table.forcast_PVSYSTP90 %}
+                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_first_column" style="text-align: right">Plan PVSYST - P50</td>
+                            {% for data in forecast_PVSYST_table.forcast_plan_PVSYSTP50 %}
+                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_first_column" style="text-align: right">Plan PVSYST - P90</td>
+                            {% for data in forecast_PVSYST_table.forcast_plan_PVSYSTP90 %}
+                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                            {% endfor %}
+                        </tr>
+                        </tbody>
+                    </table>
+                </td>
+
+            </tr>
+            <tr>
+                <td style="text-align: left">
+                    {{ forecast_PVSYST|raw }}
+                </td>
+            </tr>
+        </table>
+    </div>
+{% include 'report/_asset_mangement_partials/_footer.html.twig'%}

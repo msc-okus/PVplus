@@ -1,0 +1,90 @@
+{% include 'report/_asset_mangement_partials/_headline.html.twig'%}
+    <div class="content_asset_report">
+        <h3 style="color: {{ font_color_second }};">Availability – Monthly Overview</h3>
+        <span class="subheadline">Assessment of availability after maintenance, defects and grid failures</span>
+        <table id="basetable" style="width: 75%!important;">
+            <tr>
+                <td colspan="2" style="vertical-align: top">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="table-center">Availability</th>
+                                <th class="table-center">Planned</th>
+                                <th class="table-center">Actual</th>
+                                <th rowspan="2" class="table-center">Difference</th>
+                                <th class="table-center">Difference</th>
+                                <th class="table-center">g4n EXP</th>
+                            </tr>
+                            <tr>
+                                <th class="table-center">Operation year</th>
+                                <th class="table-center">Expected</th>
+                                <th class="table-center">Availibility</th>
+                                <th class="table-center">Egrid to g4n</th>
+                                <th class="table-center">Losses</th>
+                            </tr>
+                            <tr>
+                                <th class="table-center">Jan {{ year }} - {{ montharray[reportmonth-1] }} {{ year }}</th>
+                                <th class="table-center">[%]</th>
+                                <th class="table-center">[%]</th>
+                                <th class="table-center">[%]</th>
+                                <th class="table-center">[%]</th>
+                                <th class="table-center">[kWh]</th>
+                            </tr>
+                        </thead>
+{# Anlage Gesamtverfuegbarkeit: availabilityall/counterall #}
+                        <tbody>
+                            <tr style="background-color: #d9d9d9;">
+                                <td class="tr_next_columns">PA (Plant availability)</td>
+                                <td class="tr_next_columns">100,00</td>
+                                <td class="tr_next_columns">92,36</td>
+                                <td class="tr_next_columns">-7,64</td>
+                                <td class="tr_next_columns">-14,24</td>
+                                <td class="tr_next_columns">-18.059.088,74</td>
+                            </tr>
+                            <tr>
+                                <td class="tr_next_columns">SOF*</td>
+                                <td class="tr_next_columns">0,00</td>
+                                <td class="tr_next_columns">0,00</td>
+                                <td class="tr_next_columns">0,00</td>
+                                <td class="tr_next_columns">0,00</td>
+                                <td class="tr_next_columns"> </td>
+                            </tr>
+                            <tr>
+                                <td class="tr_next_columns">EFOR**</td>
+                                <td class="tr_next_columns">0,00</td>
+                                <td class="tr_next_columns">7,64</td>
+                                <td class="tr_next_columns">-7,64</td>
+                                <td class="tr_next_columns">-6,60</td>
+                                <td class="tr_next_columns">-8.370.509,99</td>
+                            </tr>
+                            <tr>
+                                <td class="tr_next_columns">OMC***</td>
+                                <td class="tr_next_columns">0,00</td>
+                                <td class="tr_next_columns">0,00</td>
+                                <td class="tr_next_columns">0,00</td>
+                                <td class="tr_next_columns">0,00</td>
+                                <td class="tr_next_columns"> </td>
+                            </tr>
+                            <tr style="background-color: #d9d9d9;">
+                                <td class="tr_next_columns">TOTAL</td>
+                                <td class="tr_next_columns">100,00</td>
+                                <td class="tr_next_columns">100,00</td>
+                                <td class="tr_next_columns">0,00</td>
+                                <td class="tr_next_columns"> </td>
+                                <td class="tr_next_columns"> </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td style="vertical-align: top; padding-left: 10px;">
+                    {{ availability_Year_To_Date|raw }}
+                </td>
+                <td style="vertical-align: top; padding-left: 10px;">
+                    {{ failures_Year_To_Date|raw }}
+                </td>
+            </tr>
+        </table>
+    </div>
+{% include 'report/_asset_mangement_partials/_footer.html.twig'%}

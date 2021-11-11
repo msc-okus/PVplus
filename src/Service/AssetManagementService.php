@@ -14,12 +14,11 @@ use App\Repository\ReportsRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\PRRepository;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\Mailer\MailerInterface;
 use Twig\Environment;
 use App\Reports\ReportMonthly\ReportMonthly;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Validator\Constraints\DateTime;
-
+use App\Service\DownloadAnalyseService;
 use Hisune\EchartsPHP\ECharts;
 use Hisune\EchartsPHP\Doc\IDE\Series;
 use Hisune\EchartsPHP\Config;
@@ -28,6 +27,7 @@ use PDOStatement;
 use PDO;
 use PDOException;
 use PDORow;
+use Doctrine\Common\Collections\ArrayCollection;
 
 
 class AssetManagementService
@@ -39,7 +39,6 @@ class AssetManagementService
     private Environment $twig;
     private ReportsRepository $reportsRepository;
     private EntityManagerInterface $em;
-    private MailerInterface $mailer;
     private MessageService $messageService;
     private PvSystMonthRepository $pvSystMonthRepo;
     private Case5Repository $case5Repo;
@@ -47,17 +46,18 @@ class AssetManagementService
     private NormalizerInterface $serializer;
 
     public function __construct(
-        AnlagenRepository $anlagenRepository,
-        PRRepository $PRRepository,
-        ReportsRepository $reportsRepository,
+        AnlagenRepository      $anlagenRepository,
+        PRRepository           $PRRepository,
+        ReportsRepository      $reportsRepository,
         EntityManagerInterface $em,
-        Environment $twig,
-        MailerInterface $mailer,
-        MessageService $messageService,
-        PvSystMonthRepository $pvSystMonthRepo,
-        Case5Repository $case5Repo,
-        FunctionsService $functions,
-        NormalizerInterface $serializer)
+        Environment            $twig,
+        MessageService         $messageService,
+        PvSystMonthRepository  $pvSystMonthRepo,
+        Case5Repository        $case5Repo,
+        FunctionsService       $functions,
+        NormalizerInterface    $serializer,
+        DownloadAnalyseService $analyseService
+    )
     {
 
         $this->anlagenRepository = $anlagenRepository;
@@ -66,14 +66,14 @@ class AssetManagementService
         $this->reportsRepository = $reportsRepository;
         $this->functions = $functions;
         $this->em = $em;
-        $this->mailer = $mailer;
         $this->messageService = $messageService;
         $this->pvSystMonthRepo = $pvSystMonthRepo;
         $this->case5Repo = $case5Repo;
         $this->serializer = $serializer;
+        $this->DownloadAnalyseService = $analyseService;
     }
 
-    public function assetReport($anlagen, $month = 0, $year = 0, $inverter = 1, $docType = 0, $chartTypeToExport = 0, $storeDocument = true): array
+    public function assetReport($anlage, $month = 0, $year = 0, $pages = 0): array
     {
         if ($month != 0 && $year != 0) {
             $yesterday = strtotime("$year-$month-01");
@@ -90,49 +90,25 @@ class AssetManagementService
 
         $output = '';
 
-        /** @var Anlage $anlage */
-        foreach ($anlagen as $anlage) {
-            $report = [];
-            $report['yesterday'] = $yesterday;
-            $report['reportMonth'] = $reportMonth;
-            $report['from'] = $from;
-            $report['to'] = $to;
-            $report['reportYear'] = $reportYear;
-            $report['anlage'] = $anlage;
-            $report['inverter'] = $inverter;
-            $report['prs'] = $this->PRRepository->findPRInMonth($anlage, $reportMonth, $reportYear);
-            $report['lastPR'] = $this->PRRepository->findOneBy(['anlage' => $anlage, 'stamp' => date_create("$year-$month-$lastDayMonth")]);
-            $report['case5s'] = $this->case5Repo->findAllAnlageDay($anlage, $from);
-            $report['pvSyst'] = $this->getPvSystMonthData($anlage, $month, $year);
-            $useGridMeterDayData = $anlage->getUseGridMeterDayData();
-            $showAvailability = $anlage->getAnlId();
-            $showAvailabilitySecond = $anlage->getShowAvailabilitySecond();
-            $usePac = $anlage->getUsePac();
-            $countCase5 = 0;
+        $report = [];
+        $report['yesterday'] = $yesterday;
+        $report['reportMonth'] = $reportMonth;
+        $report['from'] = $from;
+        $report['to'] = $to;
+        $report['reportYear'] = $reportYear;
+        $report['anlage'] = $anlage;
+        $report['prs'] = $this->PRRepository->findPRInMonth($report['anlage'], $reportMonth, $reportYear);
+        $report['lastPR'] = $this->PRRepository->findOneBy(['anlage' => $report['anlage'], 'stamp' => date_create("$year-$month-$lastDayMonth")]);
+        $report['case5s'] = $this->case5Repo->findAllAnlageDay($report['anlage'], $from);
+        $report['pvSyst'] = $this->getPvSystMonthData($report['anlage'], $month, $year);
+        $useGridMeterDayData = $report['anlage']->getUseGridMeterDayData();
+        $showAvailability = $report['anlage']->getAnlId();
+        $showAvailabilitySecond = $report['anlage']->getShowAvailabilitySecond();
+        $usePac = $report['anlage']->getUsePac();
 
-            $output = $this->buildAssetReport($anlage, $report, $docType, $chartTypeToExport);
+        $countCase5 = 0;
 
-            if ($storeDocument) {
-                // Store to Database
-                $reportEntity = new AnlagenReports();
-                $startDate = new \DateTime("$reportYear-$reportMonth-01");
-                $endDate = new \DateTime($startDate->format("Y-m-t"));
-
-                $reportEntity
-                    ->setCreatedAt(new \DateTime())
-                    ->setAnlage($anlage)
-                    ->setEigner($anlage->getEigner())
-                    ->setReportType('monthly-report')
-                    ->setStartDate($startDate)
-                    ->setEndDate($endDate)
-                    ->setMonth($startDate->format('m'))
-                    ->setYear($startDate->format('Y'))
-                    ->setRawReport($output)
-                    ->setContentArray($report);
-                $this->em->persist($reportEntity);
-                $this->em->flush();
-            }
-        }
+        $output = $this->buildAssetReport($report['anlage'], $report, $pages);
 
         return $output;
 
@@ -152,6 +128,7 @@ class AssetManagementService
         $pvSystYear = $this->pvSystMonthRepo->findAllYear($anlage, (int)$month);
         $powerPac = 0;
         $powerYear = 0;
+
         foreach ($pvSystYear as $pvSystYearValue) {
             $powerYear += $pvSystYearValue->getErtragDesign();
         }
@@ -188,12 +165,12 @@ class AssetManagementService
      * @param Anlage $anlage
      * @param array $report
      * @param int $docType ( 0 = PDF, 1 = Excel, 2 = PNG (Grafiken))
-     * @param int $chartTypeToExport ( 0 = , 1 = )
+     * @param int $pages ( 0 = , 1 = )
      * @param bool $exit
      * @return array
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function buildAssetReport(Anlage $anlage, array $report, int $docType = 0, int $chartTypeToExport = 0, $exit = false): array
+    public function buildAssetReport(Anlage $anlage, array $report, int $docType = 0, int $pages = 0, $exit = false): array
     {
 
         $conn = self::getPdoConnection();
@@ -202,6 +179,12 @@ class AssetManagementService
         $showAvailability = $anlage->getShowAvailability();
         $showAvailabilitySecond = $anlage->getShowAvailabilitySecond();
         $usePac = $anlage->getUsePac();
+        $plantSize = $anlage->getPower();
+        $plantName = $anlage->getAnlName();
+        $anlGeoLat = $anlage->getAnlGeoLat();
+        $anlGeoLon = $anlage->getAnlGeoLon();
+        $owner = $anlage->getEigner()->getFirma();
+        $plantId = $anlage->getAnlId();
 
         $monthName = date("F", mktime(0, 0, 0, $report['reportMonth'], 10));
         $currentYear = date("Y");
@@ -218,8 +201,18 @@ class AssetManagementService
             'Jan', 'Feb', 'Mar', 'April', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dez'
         ];
 
-        //die DC Geuppen ermitteln
+        for ($i = 0; $i < count($monthArray); $i++) {
+            $monthExtendetArray[$i]['month'] = $monthArray[$i];
+            $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $i + 1, $report['reportYear']);
+            $monthExtendetArray[$i]['days'] = $daysInMonth;
+            $monthExtendetArray[$i]['hours'] = $daysInMonth * 24;
+        }
+
+        //die AC Geuppen ermitteln
         $acGroups = $anlage->getAcGroups()->toArray();
+        for ($i = 0; $i < count($acGroups); $i++) {
+            $acGroupsCleaned[] = substr($acGroups[$i]->getacGroupName(),strpos($acGroups[$i]->getacGroupName(),'INV'));
+        }
 
         //zum Erzeugen einer Monatsbezogenen Tagesachse
         $start_date = strtotime($report['from']);
@@ -241,7 +234,6 @@ class AssetManagementService
         $powerEvuYearToDate = 0;
         $expectedPvSystYearToDate = 0;
 
-
         for ($i = 1; $i < 13; $i++) {
             if ($i < 10) {
                 $month_transfer = "0$i";
@@ -254,29 +246,50 @@ class AssetManagementService
 
             $data1_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
 
-            $powerEvu[] = round($data1_grid_meter['powerEvu'],0);
-            $powerAct[] = round($data1_grid_meter['powerAct'],0);//Inv out
-            $powerExp[] = round($data1_grid_meter['powerExp'],0);
+            //Das hier ist noetig da alle 12 Monate benötigt werden
+            $sql = "SELECT ertrag_design FROM anlagen_pv_syst_month WHERE anlage_id = $anlId and month = $i";
+            $resultErtrag_design = $connAnlage->query($sql);
+            if ($resultErtrag_design) {
+                if ($resultErtrag_design->num_rows == 1) {
+                    $Ertrag_design = $resultErtrag_design->fetch_assoc();
+                }
+            }
 
-            $powerEvuYearToDate = round($powerEvuYearToDate + $data1_grid_meter['powerEvu'],2);
+            if ($i > $report['reportMonth']) {
+                $data1_grid_meter['powerEvu'] = 0;
+                $data1_grid_meter['powerAct'] = 0;//Inv out
+                $data1_grid_meter['powerExp'] = 0;
+                $data1_grid_meter['powerExpEvu'] = 0;
+            }
+
+            (float)$powerEvu[] = $data1_grid_meter['powerEvu'];
+            (float)$powerAct[] = $data1_grid_meter['powerAct'];//Inv out
+            (float)$powerExp[] = $data1_grid_meter['powerExp'];
+            (float)$powerExpEvu[] = $data1_grid_meter['powerExpEvu'];
+
+            $powerEvuYearToDate = round($powerEvuYearToDate + $data1_grid_meter['powerEvu'], 2);
             $pvSyst = $this->pvSystMonthRepo->findOneMonth($anlage, $i);
 
 
-            if(count($pvSyst) > 0) $expectedPvSystDb = $pvSyst->getErtragDesign();
+            if (count($pvSyst) > 0) $expectedPvSystDb = $pvSyst->getErtragDesign();
 
-            $dataMmonthArray[] = $monthArray[$i - 1];
+            $dataMonthArray[] = $monthArray[$i - 1];
 
 
             if ($data1_grid_meter['powerEvu'] == 0) {
                 $expectedPvSystDb = 0;
             }
-            $expectedPvSyst[] = $expectedPvSystDb;
+            $expectedPvSyst[] = (float)$Ertrag_design['ertrag_design'];
 
             $expectedPvSystYearToDate = $expectedPvSystYearToDate + $expectedPvSystDb;
             unset($pvSyst);
-            if ($currentMonth-1 == $i && $report['reportYear'] == $currentYear) {
+            if ($report['reportMonth'] == $i && $report['reportYear'] == $currentYear) {
                 $i = 13;
             }
+        }
+
+        for ($i = 1; $i < 13; $i++) {
+            $dataMonthArrayFullYear[] = $monthArray[$i - 1];
         }
 
         #fuer die Tabelle
@@ -285,9 +298,20 @@ class AssetManagementService
             'powerAct' => $powerAct,
             'powerExp' => $powerExp,
             'expectedPvSyst' => $expectedPvSyst,
+            'powerExpEvu' => $powerExpEvu
         ];
+        #dd($tbody_a_production);
 
+        //fuer die Tabelle Capacity Factor
+        for ($i = 0; $i < count($monthExtendetArray); $i++) {
+            $dataCfArray[$i]['month'] = $monthExtendetArray[$i]['month'];
+            $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $i + 1, $report['reportYear']);
+            $dataCfArray[$i]['days'] = $daysInMonth;
+            $dataCfArray[$i]['hours'] = $daysInMonth * 24;
+            $dataCfArray[$i]['cf'] =($tbody_a_production['powerEvu'][$i] / 1000) / (($plantSize / 1000) * ($daysInMonth * 24)) * 100;
+        }
 
+        //beginn chart
         $chart = new ECharts();
         $chart->tooltip->show = true;
 
@@ -302,10 +326,15 @@ class AssetManagementService
             'splitArea' => array(
                 'show' => true,
             ),
-            'data' => $dataMmonthArray
+            'data' => array_slice($dataMonthArray, 0, $report['reportMonth'])
         );
         $chart->yAxis = array(
             'type' => 'value',
+            'min' => 0,
+            'name' => 'KWH',
+            'nameLocation' => 'middle',
+            'nameGap' => 80,
+            'offset' => -20,
         );
         $chart->series =
             [
@@ -336,7 +365,7 @@ class AssetManagementService
             ];
 
         $option = array(
-            'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000', '#000ffc'],
+            'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000'],
             'title' => [
                 'text' => 'Year ' . $report['reportYear'],
                 'left' => 'center',
@@ -355,25 +384,498 @@ class AssetManagementService
                 array(
                     'height' => '80%',
                     'top' => 50,
-                    'width' => '90%',
+                    'width' => '80%',
+                    'left' => 100
                 ),
         );
 
-        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
+        
         $chart->setOption($option);
 
-        $operations_right = $chart->render('operations_right', ['style' => 'height: 400px; width:1300px;']);
+        $operations_right = $chart->render('operations_right', ['style' => 'height: 450px; width:700px;']);
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
         $chart->series = [];
         unset($option);
 
-        $operations_freetext_one = '';
-        //End Operations year
+        //End Production
 
-        //Beginn Operations month
+        //Beginn Cumulative Forecast with PVSYST
+        //fuer die Tabelle
 
+
+#dd($this->functions->getForcastByMonth($anlage,$report['reportMonth']));
+        #Forecast / degradation
+        $degradation = 4.98;
+
+        //Cumulative Forecast
+        $kumsum[0] = $powerEvu[0];
+        for ($i = 0; $i < 12; $i++) {
+            if ($i + 1 > $report['reportMonth']) {
+                $kumsum[$i] = $expectedPvSyst[$i] + $kumsum[$i - 1];
+            } else {
+                $kumsum[$i] = $powerEvu[$i] + $kumsum[$i - 1];
+            }
+            $tbody_forcast_PVSYSTP50[] = $kumsum[$i];
+            if ($i + 1 < $report['reportMonth']) {
+                $tbody_forcast_PVSYSTP90[] = $kumsum[$i];
+            } else {
+                $tbody_forcast_PVSYSTP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
+            }
+        }
+        #Forecast / PVSYST - P90
+        $kumsum[0] = $expectedPvSyst[0];
+        for ($i = 0; $i < 12; $i++) {
+            $kumsum[$i] = $expectedPvSyst[$i] + $kumsum[$i - 1];
+            $tbody_forcast_plan_PVSYSTP50[] = $kumsum[$i];
+
+            $tbody_forcast_plan_PVSYSTP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
+
+        }
+
+
+        $forecast_PVSYST_table = [
+            'forcast_PVSYSTP50' => $tbody_forcast_PVSYSTP50,
+            'forcast_PVSYSTP90' => $tbody_forcast_PVSYSTP90,
+            'forcast_plan_PVSYSTP50' => $tbody_forcast_plan_PVSYSTP50,
+            'forcast_plan_PVSYSTP90' => $tbody_forcast_plan_PVSYSTP90,
+        ];
+
+        //beginn chart
+        $chart->tooltip->show = true;
+        $chart->tooltip->trigger = 'item';
+
+        $chart->xAxis = array(
+            'type' => 'category',
+            'axisLabel' => array(
+                'show' => true,
+                'margin' => '0',
+            ),
+            'splitArea' => array(
+                'show' => true,
+            ),
+            'data' => $dataMonthArrayFullYear
+        );
+        $chart->yAxis = array(
+            'type' => 'value',
+            'min' => 0,
+            'name' => 'KWH',
+            'nameLocation' => 'middle',
+            'nameGap' => 80
+        );
+        $chart->series =
+            [
+                [
+                    'name' => 'Production ACT / PVSYST - P50',
+                    'type' => 'line',
+                    'data' => $tbody_forcast_PVSYSTP50,
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'Production ACT / PVSYST - P90',
+                    'type' => 'line',
+                    'data' => $tbody_forcast_PVSYSTP90,
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'Plan PVSYST - P50',
+                    'type' => 'line',
+                    'data' => $tbody_forcast_plan_PVSYSTP50,
+                    'visualMap' => 'false',
+                    'lineStyle' => array(
+                        'type' => 'dashed'
+                    )
+                ],
+                [
+                    'name' => 'Plan PVSYST - P90',
+                    'type' => 'line',
+                    'data' => $tbody_forcast_plan_PVSYSTP90,
+                    'visualMap' => 'false',
+                    'lineStyle' => array(
+                        'type' => 'dashed'
+                    )
+                ]
+            ];
+
+        $option = array(
+            'color' => ['#c55a11', '#0070c0', '#70ad47', '#ff0000'],
+            'title' => [
+                'text' => 'Cumulative forecast plan PVSYST',
+                'left' => 'center',
+            ],
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'left' => 'center',
+                    'top' => 20
+                ],
+            'grid' =>
+                array(
+                    'height' => '80%',
+                    'top' => 50,
+                    'width' => '85%',
+                    'left' => 100
+                ),
+
+        );
+
+        $chart->setOption($option);
+
+        $forecast_PVSYST = $chart->render('forecast_PVSYST', ['style' => 'height: 450px; width:28cm;']);
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+
+        //End Cumulative Forecast with PVSYST
+
+
+        //Beginn Cumulative Forecast with G4N
+        //fuer die Tabelle
+
+        for ($i = 1; $i < 13; $i++) {
+            $forecast[$i] = $this->functions->getForcastByMonth($anlage,$i);
+        }
+
+        $kumsum[0] = $powerEvu[0];
+        for ($i = 0; $i < 12; $i++) {
+            if ($i + 1 > $report['reportMonth']) {
+                $kumsum[$i] = $forecast[$i] + $kumsum[$i - 1];
+            } else {
+                $kumsum[$i] = $powerEvu[$i] + $kumsum[$i - 1];
+            }
+            $tbody_forcast_G4NP50[] = $kumsum[$i];
+            if ($i + 1 < $report['reportMonth']) {
+                $tbody_forcast_G4NP90[] = $kumsum[$i];
+            } else {
+                $tbody_forcast_G4NP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
+            }
+        }
+        #Forecast / G4N
+        $kumsum[0] = $forecast[1];
+        for ($i = 0; $i < 12; $i++) {
+            $kumsum[$i] = $forecast[$i+1] + $kumsum[$i - 1];
+            $tbody_forcast_plan_G4NP50[] = $kumsum[$i];
+            $tbody_forcast_plan_G4NP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
+        }
+
+        $forecast_G4N_table = [
+            'forcast_G4NP50' => $tbody_forcast_G4NP50,
+            'forcast_G4NP90' => $tbody_forcast_G4NP90,
+            'forcast_plan_G4NP50' => $tbody_forcast_plan_G4NP50,
+            'forcast_plan_G4NP90' => $tbody_forcast_plan_G4NP90,
+        ];
+
+        //beginn chart
+        $chart->tooltip->show = true;
+        $chart->tooltip->trigger = 'item';
+
+        $chart->xAxis = array(
+            'type' => 'category',
+            'axisLabel' => array(
+                'show' => true,
+                'margin' => '0',
+            ),
+            'splitArea' => array(
+                'show' => true,
+            ),
+            'data' => $dataMonthArrayFullYear
+        );
+        $chart->yAxis = array(
+            'type' => 'value',
+            'min' => 0,
+            'name' => 'KWH',
+            'nameLocation' => 'middle',
+            'nameGap' => 80
+        );
+        $chart->series =
+            [
+                [
+                    'name' => 'Production ACT / g4n',
+                    'type' => 'line',
+                    'data' => $tbody_forcast_G4NP50,
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'Production ACT /  g4n - P90',
+                    'type' => 'line',
+                    'data' => $tbody_forcast_G4NP90,
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'Plan g4n Forecast - P50',
+                    'type' => 'line',
+                    'data' => $tbody_forcast_plan_G4NP50,
+                    'visualMap' => 'false',
+                    'lineStyle' => array(
+                        'type' => 'dashed'
+                    )
+                ],
+                [
+                    'name' => 'Plan g4n Forecast - P90',
+                    'type' => 'line',
+                    'data' => $tbody_forcast_plan_G4NP90,
+                    'visualMap' => 'false',
+                    'lineStyle' => array(
+                        'type' => 'dashed'
+                    )
+                ]
+            ];
+
+        $option = array(
+            'color' => ['#c55a11', '#0070c0', '#70ad47', '#ff0000'],
+            'title' => [
+                'text' => 'Cumulative forecast plan g4n',
+                'left' => 'center',
+            ],
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'left' => 'center',
+                    'top' => 20
+                ],
+            'grid' =>
+                array(
+                    'height' => '80%',
+                    'top' => 50,
+                    'width' => '85%',
+                    'left' => 100
+                ),
+        );
+
+        
+        $chart->setOption($option);
+
+        $forecast_G4N = $chart->render('forecast_G4N', ['style' => 'height: 450px; width:28cm;']);
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+
+        //End Cumulative Forecast with G4N
+
+
+        //Beginn Cumulative Losses
+        //fuer die Tabelle 2
+        #losses
+
+        for ($i = 0; $i < count($tbody_a_production['powerEvu']); $i++) {
+            if ($i + 1 > $report['reportMonth']) {
+                $diefference_prod_to_pvsyst[] = 0;
+            } else {
+                $diefference_prod_to_pvsyst[] = $tbody_a_production['powerEvu'][$i] - $tbody_a_production['expectedPvSyst'][$i];
+            }
+        }
+
+        for ($i = 0; $i < count($tbody_a_production['powerEvu']); $i++) {
+            $diefference_prod_to_expected_g4n[] = $tbody_a_production['powerEvu'][$i] - $tbody_a_production['powerExpEvu'][$i];
+        }
+
+        for ($i = 0; $i < count($tbody_a_production['powerEvu']); $i++) {
+            $diefference_prod_to_egrid[] = $tbody_a_production['powerEvu'][$i] - $tbody_a_production['powerAct'][$i];
+        }
+
+        $losses_t2 = [
+            'diefference_prod_to_pvsyst' => $diefference_prod_to_pvsyst,
+            'diefference_prod_to_expected_g4n' => $diefference_prod_to_expected_g4n,
+            'diefference_prod_to_egrid' => $diefference_prod_to_egrid,
+        ];
+
+        //beginn chart
+        $chart->tooltip->show = true;
+        $chart->tooltip->trigger = 'item';
+
+        $chart->xAxis = array(
+            'type' => 'category',
+            'axisLabel' => array(
+                'show' => true,
+                'margin' => '0',
+            ),
+            'splitArea' => array(
+                'show' => true,
+            ),
+            'data' => $dataMonthArray
+        );
+        $chart->yAxis = array(
+            'type' => 'value',
+            'name' => 'KWH',
+            'nameLocation' => 'middle',
+            'nameGap' => 80
+        );
+        $chart->series =
+            [
+                [
+                    'name' => 'Difference Egrid to PVSYST',
+                    'type' => 'line',
+                    'data' => $diefference_prod_to_pvsyst,
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'Difference Egrid to expected g4n',
+                    'type' => 'line',
+                    'data' => $diefference_prod_to_expected_g4n,
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'Difference inverter to Egrid',
+                    'type' => 'line',
+                    'data' => $diefference_prod_to_egrid,
+                    'visualMap' => 'false',
+                ]
+            ];
+
+        $option = array(
+            'color' => ['#0070c0', '#c55a11', '#a5a5a5'],
+            'title' => [
+                'text' => 'Monthly losses at plan values(PVSYS-g4n-INV))',
+                'left' => 'center',
+            ],
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'left' => 'center',
+                    'top' => 20
+                ],
+            'grid' =>
+                array(
+                    'height' => '80%',
+                    'top' => 50,
+                    'width' => '100%',
+                    'left' => 100
+                ),
+        );
+
+        
+        $chart->setOption($option);
+
+        $losses_monthly = $chart->render('losses_monthly', ['style' => 'height: 450px; width:23cm;']);
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+
+        //fuer die Tabelle 1
+        $kumsum1[0] = $diefference_prod_to_pvsyst[0];
+        $kumsum2[0] = $diefference_prod_to_expected_g4n[0];
+        $kumsum3[0] = $diefference_prod_to_egrid[0];
+        for ($i = 0; $i < $report['reportMonth']; $i++) {
+            $kumsum1[$i] = $diefference_prod_to_pvsyst[$i] + $kumsum1[$i - 1];
+            $kumsum2[$i] = $diefference_prod_to_expected_g4n[$i] + $kumsum2[$i - 1];
+            $kumsum3[$i] = $diefference_prod_to_egrid[$i] + $kumsum3[$i - 1];
+            if ($i + 1 > $report['reportMonth']) {
+                $difference_Egrid_to_PVSYST[$i] = 0;
+                $difference_Egrid_to_Expected_G4n[$i] = 0;
+                $difference_Inverter_to_Egrid[$i] = 0;
+            } else {
+                $difference_Egrid_to_PVSYST[] = $kumsum1[$i];
+                $difference_Egrid_to_Expected_G4n[] = $kumsum2[$i];
+                $difference_Inverter_to_Egrid[] = $kumsum3[$i];
+            }
+        }
+
+        $losses_t1 = [
+            'difference_Egrid_to_PVSYST' => $difference_Egrid_to_PVSYST,
+            'difference_Egrid_to_Expected_G4n' => $difference_Egrid_to_Expected_G4n,
+            'difference_Inverter_to_Egrid' => $difference_Inverter_to_Egrid,
+        ];
+
+        //beginn chart
+        $chart->tooltip->show = true;
+        $chart->tooltip->trigger = 'item';
+
+        $chart->xAxis = array(
+            'type' => 'category',
+            'axisLabel' => array(
+                'show' => true,
+                'margin' => '0',
+            ),
+            'splitArea' => array(
+                'show' => true,
+            ),
+            'data' => $dataMonthArray
+        );
+        $chart->yAxis = array(
+            'type' => 'value',
+            'name' => 'KWH',
+            'nameLocation' => 'middle',
+            'nameGap' => 80
+        );
+        $chart->series =
+            [
+                [
+                    'name' => 'Difference Egrid to PVSYST',
+                    'type' => 'line',
+                    'data' => $difference_Egrid_to_PVSYST,
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'Difference Egrid to expected g4n',
+                    'type' => 'line',
+                    'data' => $difference_Egrid_to_Expected_G4n,
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'Difference inverter to Egrid',
+                    'type' => 'line',
+                    'data' => $difference_Inverter_to_Egrid,
+                    'visualMap' => 'false',
+                ]
+            ];
+
+        $option = array(
+            'color' => ['#0070c0', '#c55a11', '#a5a5a5'],
+            'title' => [
+                'text' => 'Comulative losses',
+                'left' => 'center',
+            ],
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'left' => 'center',
+                    'top' => 20
+                ],
+            'grid' =>
+                array(
+                    'height' => '80%',
+                    'top' => 50,
+                    'width' => '100%',
+                    'left' => 100
+                ),
+        );
+
+        
+        $chart->setOption($option);
+
+        $losses_year = $chart->render('losses_yearly', ['style' => 'height: 450px; width:23cm;']);
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+        //End Cumulative Losses
+
+
+        //Start Monthley expected vs.actuals
         $chart->tooltip->show = true;
 
         $chart->tooltip->trigger = 'item';
@@ -381,7 +883,7 @@ class AssetManagementService
         $chart->xAxis = array(
             'type' => 'category',
             'axisLabel' => array(
-                'show' => true,
+                'show' => false,
                 'margin' => '10',
             ),
             'splitArea' => array(
@@ -393,9 +895,8 @@ class AssetManagementService
             'type' => 'value',
             'name' => 'KWH',
             'nameLocation' => 'middle',
-            'nameGap' => 90
+            'nameGap' => 80
         );
-
         $chart->series =
             [
                 [
@@ -450,23 +951,26 @@ class AssetManagementService
                 ],
             'grid' =>
                 array(
-                    'height' => '80%',
-                    'top' => 50,
-                    'width' => '100%',
+                    'height' => '100%',
+                    'top' => 80,
+                    'left' => 90,
+                    'width' => '80%',
                 ),
         );
 
-        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
+        
         $chart->setOption($option);
-        $operations_monthly_left = $chart->render('operations_left', ['style' => 'height: 400px; width:1050px;']);
+        $production_monthly_chart = $chart->render('production_monthly_chart', ['style' => 'height: 300px; width:12cm;']);
+
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
         $chart->series = [];
         unset($option);
 
+
         //Tabelle rechts oben
-        $operations_monthly_right_tupper_tr1 = [
+        $operations_monthly_right_pvsyst_tr1 = [
             $monthName . ' ' . $report['reportYear'],
             $powerEvu[$report['reportMonth'] - 1],
             $expectedPvSyst[$report['reportMonth'] - 1],
@@ -489,14 +993,14 @@ class AssetManagementService
                 }
             }
 
-            $operations_monthly_right_tupper_tr2 = [
+            $operations_monthly_right_pvsyst_tr2 = [
                 $powerEvuQ1,
                 $expectedPvSystQ1,
                 abs($powerEvuQ1 - $expectedPvSystQ1),
                 round((1 - $expectedPvSystQ1 / $powerEvuQ1) * 100, 2)
             ];
         } else {
-            $operations_monthly_right_tupper_tr2 = [
+            $operations_monthly_right_pvsyst_tr2 = [
                 '0',
                 '0',
                 '0',
@@ -519,14 +1023,14 @@ class AssetManagementService
                 }
             }
 
-            $operations_monthly_right_tupper_tr3 = [
+            $operations_monthly_right_pvsyst_tr3 = [
                 $powerEvuQ2,
                 $expectedPvSystQ2,
                 abs($powerEvuQ2 - $expectedPvSystQ2),
                 round((1 - $expectedPvSystQ2 / $powerEvuQ2) * 100, 2)
             ];
         } else {
-            $operations_monthly_right_tupper_tr3 = [
+            $operations_monthly_right_pvsyst_tr3 = [
                 '0',
                 '0',
                 '0',
@@ -548,14 +1052,14 @@ class AssetManagementService
                 }
             }
 
-            $operations_monthly_right_tupper_tr4 = [
+            $operations_monthly_right_pvsyst_tr4 = [
                 $powerEvuQ3,
                 $expectedPvSystQ3,
                 abs($powerEvuQ3 - $expectedPvSystQ3),
                 round((1 - $expectedPvSystQ3 / $powerEvuQ3) * 100, 2)
             ];
         } else {
-            $operations_monthly_right_tupper_tr4 = [
+            $operations_monthly_right_pvsyst_tr4 = [
                 '0',
                 '0',
                 '0',
@@ -578,14 +1082,14 @@ class AssetManagementService
                 }
             }
 
-            $operations_monthly_right_tupper_tr5 = [
+            $operations_monthly_right_pvsyst_tr5 = [
                 $powerEvuQ4,
                 $expectedPvSystQ4,
                 abs($powerEvuQ4 - $expectedPvSystQ4),
                 round((1 - $expectedPvSystQ4 / $powerEvuQ4) * 100, 2)
             ];
         } else {
-            $operations_monthly_right_tupper_tr5 = [
+            $operations_monthly_right_pvsyst_tr5 = [
                 '0',
                 '0',
                 '0',
@@ -642,14 +1146,14 @@ class AssetManagementService
             exit;*/
             $expectedPvSystYtoD = $expectedPvSystYtoDFirst;
 
-            $operations_monthly_right_tupper_tr6 = [
-                $powerEvuYtoD,
-                round($expectedPvSystYtoD, 0),
-                round(abs($powerEvuYtoD - $expectedPvSystYtoD), 0),
-                round((1 - $expectedPvSystYtoD / $powerEvuYtoD) * 100, 2)
+            $operations_monthly_right_pvsyst_tr6 = [
+                $powerEvuQ1+$powerEvuQ2+$powerEvuQ3+$powerEvuQ4,
+                $expectedPvSystYtoD,
+                $powerEvuYtoD - $expectedPvSystYtoD,
+                (1 - $expectedPvSystYtoD / $powerEvuYtoD) * 100
             ];
         } else {
-            $operations_monthly_right_tupper_tr6 = [
+            $operations_monthly_right_pvsyst_tr6 = [
                 '0',
                 '0',
                 '0',
@@ -658,222 +1162,110 @@ class AssetManagementService
         }
 
         //Gesamte Laufzeit
-        $start = $anlage->getPacDate()->format('Y-m-d') . ' 00:00';
-        $end = $currentYear . '-' . $report['reportMonth'] . '-' . $daysInReportMonth . ' 23:59';
 
-        //first Part(remaining days from month PackDate) for all Exp PV Syst
-        $daysInMonthPacDate = cal_days_in_month(CAL_GREGORIAN, $monthPacDate, $yearPacDate);
-
-        $daysRemainingInMonthPacDate = $daysInMonthPacDate - ($dayPacDate-1);
-
-        $data2_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
-        $powerEvuGl = $data2_grid_meter['powerEvu'];
-
-        $sql = "SELECT ertrag_design FROM anlagen_pv_syst_month WHERE anlage_id = " . $anlId . " AND month = " . str_replace(0, '', $monthPacDate);
-
-        $resultErtrag_design = $connAnlage->query($sql);
-        if ($resultErtrag_design) {
-            if ($resultErtrag_design->num_rows == 1) {
-                $allErtrag_design = $resultErtrag_design->fetch_assoc();
-                $allExpectedOneFirst = ($allErtrag_design['ertrag_design'] / $daysInMonthPacDate) * $daysRemainingInMonthPacDate;
-            }
-        }
-
-        //second Part(remaining months from year PackDate) for all Exp PV Syst
-        $sql = "SELECT sum(ertrag_design) as allinsecond FROM anlagen_pv_syst_month WHERE anlage_id = " . $anlId . " AND month > " . str_replace(0, '', $monthPacDate);
-        $resultErtrag_design = $connAnlage->query($sql);
-        if ($resultErtrag_design) {
-            if ($resultErtrag_design->num_rows == 1) {
-                $allErtrag_design = $resultErtrag_design->fetch_assoc();
-                $allExpectedOneSecond = $allErtrag_design['allinsecond'];
-            }
-        }
-
-        //third Part(years between Year PackDate and Year now) for all Exp PV Syst
-        $sql = "SELECT sum(ertrag_design) as allinthird FROM anlagen_pv_syst_month WHERE anlage_id = " . $anlId;
-        $resultErtrag_design = $connAnlage->query($sql);
-        if ($resultErtrag_design) {
-            if ($resultErtrag_design->num_rows == 1) {
-                $allErtrag_design = $resultErtrag_design->fetch_assoc();
-                $allExpectedOneThirdTemp = $allErtrag_design['allinthird'];
-            }
-        }
-        $allExpectedOneThird = $allExpectedOneThirdTemp * ($currentYear - 1 - $yearPacDate);
-
-        //fourtht Part(months from current year bevor current month) for all Exp PV Syst
-        $sql = "SELECT sum(ertrag_design) as allinfourtht FROM anlagen_pv_syst_month WHERE anlage_id = " . $anlId . " AND month < " . str_replace(0, '', $currentMonth);
-        $resultErtrag_design = $connAnlage->query($sql);
-        if ($resultErtrag_design) {
-            if ($resultErtrag_design->num_rows == 1) {
-                $allErtrag_design = $resultErtrag_design->fetch_assoc();
-                $allExpectedOneFourtht = $allErtrag_design['allinfourtht'];
-            }
-        }
-
-        $allExpected = $allExpectedOneFirst + $allExpectedOneSecond + $allExpectedOneThird + $allExpectedOneFourtht;
-
-        $operations_monthly_right_tupper_tr7 = [
-            $powerEvuGl,
-            round($allExpected, 0),
-            round(abs($powerEvuGl - $allExpected)),
-            round((1 - $allExpected / $powerEvuGl) * 100, 0)
+        $operations_monthly_right_pvsyst_tr7 = [
+            0.00,
+            0.00,
+            0.00,
+            0.00
         ];
         //Ende Tabelle rechts oben
 
-        //Tabelle rechts unten
-        $operations_monthly_right_tlower_tr1 = [
+        //Tabelle rechts mitte
+        $operations_monthly_right_g4n_tr1 = [
             $monthName . ' ' . $report['reportYear'],
-            round($powerExp[$report['reportMonth'] - 1], 0),
-            round(abs($powerEvu[$report['reportMonth'] - 1] - $powerExp[$report['reportMonth'] - 1]), 0),
-            round((1 - $powerExp[$report['reportMonth'] - 1] / $powerEvu[$report['reportMonth'] - 1]) * 100, 2),
-            round($powerAct[$report['reportMonth'] - 1], 0),
-            round(abs($powerAct[$report['reportMonth'] - 1] - $powerExp[$report['reportMonth'] - 1]), 0),
-            round((1 - $powerExp[$report['reportMonth'] - 1] / $powerAct[$report['reportMonth'] - 1]) * 100, 2),
+            $powerEvu[$report['reportMonth'] - 1],
+            $powerExpEvu[$report['reportMonth'] - 1],
+            $powerEvu[$report['reportMonth'] - 1] - $powerExpEvu[$report['reportMonth'] - 1],
+            (1 - $powerExpEvu[$report['reportMonth'] - 1] / $powerEvu[$report['reportMonth'] - 1]) * 100
         ];
 
         //Parameter fuer die Berechnung Q1
         if ((($currentYear == $report['reportYear'] && $currentMonth > 3) || $currentYear > $report['reportYear'])) {
-            $start = $report['reportYear'] . '-01-01 00:00';
-            $end = $report['reportYear'] . '-03-31 23:59';
-
-            $data2_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
-            $powerEvu = $data2_grid_meter['powerEvu'];
-            $powerAct = $data2_grid_meter['powerAct'];//Inv out
-            $powerExp = $data2_grid_meter['powerExp'];
-
-
-            $operations_monthly_right_tlower_tr2 = [
-                round($powerExp, 0),
-                round(abs($powerEvu - $powerExp), 0),
-                round((1 - $powerExp / $powerEvu) * 100, 2),
-                round($powerAct, 0),
-                round(abs($powerAct - $powerExp), 0),
-                round((1 - $powerExp / $powerAct) * 100, 2)
+            $temp_q1 = $tbody_a_production['powerExpEvu'][0]+$tbody_a_production['powerExpEvu'][1]+$tbody_a_production['powerExpEvu'][2];
+            $operations_monthly_right_g4n_tr2 = [
+                $powerEvuQ1,
+                $temp_q1,
+                $powerEvuQ1- $temp_q1,
+                (($powerEvuQ1- $temp_q1)*100)/$powerEvuQ1,
             ];
         } else {
-            $operations_monthly_right_tlower_tr2 = [
+            $operations_monthly_right_g4n_tr2 = [
                 '0',
                 '0',
                 '0',
                 '0',
-                '0',
-                '0'
             ];
         }
 
         //Parameter fuer die Berechnung Q2
         if ((($currentYear == $report['reportYear'] && $currentMonth > 6) || $currentYear > $report['reportYear'])) {
-            $start = $report['reportYear'] . '-04-01 00:00';
-            $end = $report['reportYear'] . '-06-30 23:59';
-
-            $data2_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
-            $powerEvu = $data2_grid_meter['powerEvu'];
-            $powerAct = $data2_grid_meter['powerAct'];//Inv out
-            $powerExp = $data2_grid_meter['powerExp'];
-
-
-            $operations_monthly_right_tlower_tr3 = [
-                round($powerExp, 0),
-                round(abs($powerEvu - $powerExp), 0),
-                round((1 - $powerExp / $powerEvu) * 100, 2),
-                round($powerAct, 0),
-                round(abs($powerAct - $powerExp), 0),
-                round((1 - $powerExp / $powerAct) * 100, 2)
+            $temp_q2 = $tbody_a_production['powerExpEvu'][3]+$tbody_a_production['powerExpEvu'][4]+$tbody_a_production['powerExpEvu'][5];
+            $operations_monthly_right_g4n_tr3 = [
+                $powerEvuQ2,
+                $temp_q2,
+                $powerEvuQ1-$temp_q2,
+                (($powerEvuQ2-$temp_q2)*100)/$powerEvuQ2,
             ];
         } else {
-            $operations_monthly_right_tlower_tr3 = [
+            $operations_monthly_right_g4n_tr3 = [
                 '0',
                 '0',
                 '0',
                 '0',
-                '0',
-                '0'
             ];
         }
 
         //Parameter fuer die Berechnung Q3
         if ((($currentYear == $report['reportYear'] && $currentMonth > 9) || $currentYear > $report['reportYear'])) {
-            $start = $report['reportYear'] . '-07-1 00:00';
-            $end = $report['reportYear'] . '09-30 23:59';
-
-            $data2_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
-            $powerEvu = $data2_grid_meter['powerEvu'];
-            $powerAct = $data2_grid_meter['powerAct'];//Inv out
-            $powerExp = $data2_grid_meter['powerExp'];
-
-
-            $operations_monthly_right_tlower_tr4 = [
-                round($powerExp, 0),
-                round(abs($powerEvu - $powerExp), 0),
-                round((1 - $powerExp / $powerEvu) * 100, 2),
-                round($powerAct, 0),
-                round(abs($powerAct - $powerExp), 0),
-                round((1 - $powerExp / $powerAct) * 100, 2)
+            $temp_q3 = $tbody_a_production['powerExpEvu'][6]+$tbody_a_production['powerExpEvu'][7]+$tbody_a_production['powerExpEvu'][8];
+            $operations_monthly_right_g4n_tr4 = [
+                $powerEvuQ3,
+                $temp_q3,
+                $powerEvuQ3-$temp_q3,
+                (($powerEvuQ3-$temp_q3)*100)/$powerEvuQ3,
             ];
         } else {
-            $operations_monthly_right_tlower_tr4 = [
+            $operations_monthly_right_g4n_tr4 = [
                 '0',
                 '0',
                 '0',
                 '0',
-                '0',
-                '0'
             ];
         }
 
         //Parameter fuer die Berechnung Q4
         if ($currentYear > $report['reportYear']) {
-            $start = $report['reportYear'] . '-10-01 00:00';
-            $end = $report['reportYear'] . '-12-31 23:59';
-
-            $data2_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
-            $powerEvu = $data2_grid_meter['powerEvu'];
-            $powerAct = $data2_grid_meter['powerAct'];//Inv out
-            $powerExp = $data2_grid_meter['powerExp'];
-
-
-            $operations_monthly_right_tlower_tr5 = [
-                round($powerExp, 0),
-                round(abs($powerEvu - $powerExp), 0),
-                round((1 - $powerExp / $powerEvu) * 100, 2),
-                round($powerAct, 0),
-                round(abs($powerAct - $powerExp), 0),
-                round((1 - $powerExp / $powerAct) * 100, 2)
+            $temp_q4 = $tbody_a_production['powerExpEvu'][9]+$tbody_a_production['powerExpEvu'][10]+$tbody_a_production['powerExpEvu'][11];
+            $operations_monthly_right_g4n_tr5 = [
+                $powerEvuQ4,
+                $temp_q4,
+                $powerEvuQ1-$temp_q4,
+                (($powerEvuQ4-$temp_q4)*100)/$powerEvuQ4,
             ];
         } else {
-            $operations_monthly_right_tlower_tr5 = [
+            $operations_monthly_right_g4n_tr5 = [
                 '0',
                 '0',
                 '0',
                 '0',
-                '0',
-                '0'
             ];
         }
 
         //Parameter fuer Year to Date
         if (!($yearPacDate == $report['reportYear'] && $monthPacDate > $currentMonth)) {
-            $start = $report['reportYear'] . '-01-01 00:00';
-            $end = $report['reportYear'] . '-' . $currentMonth . '-' . $currentDay . ' 23:59';
+            $x=$powerEvuQ1+$powerEvuQ2+$powerEvuQ3+$powerEvuQ4;
+            $y=($powerEvuQ1+$powerEvuQ2+$powerEvuQ3+$powerEvuQ4)-($temp_q1+$temp_q2+$temp_q3+$temp_q4);
+            $difference = ($y*100)/$x;
+            $operations_monthly_right_g4n_tr6 = [
+                $powerEvuQ1+$powerEvuQ2+$powerEvuQ3+$powerEvuQ4,
+                $temp_q1+$temp_q2+$temp_q3+$temp_q4,
+                ($powerEvuQ1+$powerEvuQ2+$powerEvuQ3+$powerEvuQ4)-($temp_q1+$temp_q2+$temp_q3+$temp_q4),
+                $difference
 
-            $data2_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
-            $powerEvu = $data2_grid_meter['powerEvu'];
-            $powerAct = $data2_grid_meter['powerAct'];//Inv out
-            $powerExp = $data2_grid_meter['powerExp'];
-
-
-            $operations_monthly_right_tlower_tr6 = [
-                round($powerExp, 0),
-                round(abs($powerEvu - $powerExp), 0),
-                round((1 - $powerExp / $powerEvu) * 100, 2),
-                round($powerAct, 0),
-                round(abs($powerAct - $powerExp), 0),
-                round((1 - $powerExp / $powerAct) * 100, 2)
             ];
         } else {
-            $operations_monthly_right_tlower_tr6 = [
-                '0',
-                '0',
+            $operations_monthly_right_g4n_tr6 = [
                 '0',
                 '0',
                 '0',
@@ -883,27 +1275,133 @@ class AssetManagementService
 
         //Parameter fuer total Runtime
         if (!($yearPacDate == $report['reportYear'] && $monthPacDate > $currentMonth)) {
-            $start = $yearPacDate . '-' . $monthPacDate . '-' . $dayPacDate . ' 00:00';
-            $end = $report['reportYear'] . '-' . $currentMonth . '-' . $currentDay . ' 23:59';
-
-            $data2_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
-            $powerEvu = $data2_grid_meter['powerEvu'];
-            $powerAct = $data2_grid_meter['powerAct'];//Inv out
-            $powerExp = $data2_grid_meter['powerExp'];
-
-
-            $operations_monthly_right_tlower_tr7 = [
-                round($powerExp, 0),
-                round(abs($powerEvu - $powerExp), 0),
-                round((1 - $powerExp / $powerEvu) * 100, 2),
-                round($powerAct, 0),
-                round(abs($powerAct - $powerExp), 0),
-                round((1 - $powerExp / $powerAct) * 100, 2)
+            $operations_monthly_right_g4n_tr7 = [
+                0.00,
+                0.00,
+                0.00,
+                0.00
             ];
         } else {
-            $operations_monthly_right_tlower_tr7 = [
+            $operations_monthly_right_g4n_tr7 = [
                 '0',
                 '0',
+                '0',
+                '0'
+            ];
+        }
+
+        //Tabelle rechts unten
+        $operations_monthly_right_iout_tr1 = [
+            $monthName . ' ' . $report['reportYear'],
+            $powerEvu[$report['reportMonth'] - 1],
+            $powerAct[$report['reportMonth'] - 1],
+            $powerEvu[$report['reportMonth'] - 1] - $powerAct[$report['reportMonth'] - 1],
+            (1 - $powerAct[$report['reportMonth'] - 1] / $powerEvu[$report['reportMonth'] - 1]) * 100
+        ];
+
+        //Parameter fuer die Berechnung Q1
+        if ((($currentYear == $report['reportYear'] && $currentMonth > 3) || $currentYear > $report['reportYear'])) {
+            $temp_q1 = $tbody_a_production['powerAct'][0]+$tbody_a_production['powerAct'][1]+$tbody_a_production['powerAct'][2];
+            $operations_monthly_right_iout_tr2 = [
+                $powerEvuQ1,
+                $temp_q1,
+                $powerEvuQ1- $temp_q1,
+                (($powerEvuQ1- $temp_q1)*100)/$powerEvuQ1,
+            ];
+        } else {
+            $operations_monthly_right_iout_tr2 = [
+                '0',
+                '0',
+                '0',
+                '0',
+            ];
+        }
+
+        //Parameter fuer die Berechnung Q2
+        if ((($currentYear == $report['reportYear'] && $currentMonth > 6) || $currentYear > $report['reportYear'])) {
+            $temp_q2 = $tbody_a_production['powerAct'][3]+$tbody_a_production['powerAct'][4]+$tbody_a_production['powerAct'][5];
+            $operations_monthly_right_iout_tr3 = [
+                $powerEvuQ2,
+                $temp_q2,
+                $powerEvuQ1-$temp_q2,
+                (($powerEvuQ2-$temp_q2)*100)/$powerEvuQ2,
+            ];
+        } else {
+            $operations_monthly_right_iout_tr3 = [
+                '0',
+                '0',
+                '0',
+                '0',
+            ];
+        }
+
+        //Parameter fuer die Berechnung Q3
+        if ((($currentYear == $report['reportYear'] && $currentMonth > 9) || $currentYear > $report['reportYear'])) {
+            $temp_q3 = $tbody_a_production['powerAct'][6]+$tbody_a_production['powerAct'][7]+$tbody_a_production['powerAct'][8];
+            $operations_monthly_right_iout_tr4 = [
+                $powerEvuQ3,
+                $temp_q3,
+                $powerEvuQ3-$temp_q3,
+                (($powerEvuQ3-$temp_q3)*100)/$powerEvuQ3,
+            ];
+        } else {
+            $operations_monthly_right_iout_tr4 = [
+                '0',
+                '0',
+                '0',
+                '0',
+            ];
+        }
+
+        //Parameter fuer die Berechnung Q4
+        if ($currentYear > $report['reportYear']) {
+            $temp_q4 = $tbody_a_production['powerAct'][9]+$tbody_a_production['powerAct'][10]+$tbody_a_production['powerAct'][11];
+            $operations_monthly_right_iout_tr5 = [
+                $powerEvuQ4,
+                $temp_q4,
+                $powerEvuQ1-$temp_q4,
+                (($powerEvuQ4-$temp_q4)*100)/$powerEvuQ4,
+            ];
+        } else {
+            $operations_monthly_right_iout_tr5 = [
+                '0',
+                '0',
+                '0',
+                '0',
+            ];
+        }
+
+        //Parameter fuer Year to Date
+        if (!($yearPacDate == $report['reportYear'] && $monthPacDate > $currentMonth)) {
+            $x=$powerEvuQ1+$powerEvuQ2+$powerEvuQ3+$powerEvuQ4;
+            $y=($powerEvuQ1+$powerEvuQ2+$powerEvuQ3+$powerEvuQ4)-($temp_q1+$temp_q2+$temp_q3+$temp_q4);
+            $difference = ($y*100)/$x;
+            $operations_monthly_right_iout_tr6 = [
+                $powerEvuQ1+$powerEvuQ2+$powerEvuQ3+$powerEvuQ4,
+                $temp_q1+$temp_q2+$temp_q3+$temp_q4,
+                ($powerEvuQ1+$powerEvuQ2+$powerEvuQ3+$powerEvuQ4)-($temp_q1+$temp_q2+$temp_q3+$temp_q4),
+                $difference
+
+            ];
+        } else {
+            $operations_monthly_right_iout_tr6 = [
+                '0',
+                '0',
+                '0',
+                '0'
+            ];
+        }
+
+        //Parameter fuer total Runtime
+        if (!($yearPacDate == $report['reportYear'] && $monthPacDate > $currentMonth)) {
+            $operations_monthly_right_iout_tr7 = [
+                0.00,
+                0.00,
+                0.00,
+                0.00
+            ];
+        } else {
+            $operations_monthly_right_iout_tr7 = [
                 '0',
                 '0',
                 '0',
@@ -911,392 +1409,42 @@ class AssetManagementService
             ];
         }
         //End Operations month
+        //End Monthley expected vs.actuals
 
-        //Beginn Operations dayly1
+        //Beginn Operations dayly
         //The Table
-        #beginn case5
-        #die Daten  nur im korrekten Monat ausgeben
-        $case5 = $this->serializer->normalize($anlage->getAnlageCase5s()->toArray(), null, ['groups' => 'case5']);
-        $countCase5 = 0;
-        for ($i = 0; $i < count($case5); $i++) {
-            if (date('m', strtotime($case5[$i]['stampFrom'])) == $report['reportMonth'] || date('m', strtotime($case5[$i]['stampTo'])) == $report['reportMonth']) {
-                $case5Values[] =
+        $start = $report['reportYear'].'-'.$report['reportMonth'].'-01 00:00';
+        $end = $report['reportYear'].'-'.$report['reportMonth'].'-'.$daysInReportMonth.' 23:59';
+        $tableType = "default";
+        $landscape = false;
+
+        $output = $this->DownloadAnalyseService->getAllSingleSystemData($anlage, $report['reportYear'], $report['reportMonth'], 2);
+        $dcData = $this->DownloadAnalyseService->getDcSingleSystemData($anlage, $start, $end, '%d.%m.%Y');
+        $dcDataExpected = $this->DownloadAnalyseService->getEcpectedDcSingleSystemData($anlage, $start, $end, '%d.%m.%Y');
+
+        if($output){
+            for ($i = 0; $i < count($output); $i++) {
+                $table_overview_dayly[] =
                     [
-                        "stampFrom" => $case5[$i]['stampFrom'],
-                        "stampTo" => $case5[$i]['stampTo'],
-                        "inverter" => $case5[$i]['inverter'],
-                        "reason" => $case5[$i]['reason'],
+                        "date" => $output[$i]->getstamp()->format('M-d'),
+                        "irradiation" => (float)$output[$i]->getirradiation(),
+                        "powerEGridExtMonth" => (float)$output[$i]->getpowerEGridExt(),
+                        "PowerEvuMonth" => (float)$output[$i]->getPowerEvu(),
+                        "powerActMonth" => (float)$output[$i]->getpowerAct(),
+                        "powerDctMonth" => (float)$dcData[$i]['actdc'],
+                        "powerExpMonth" => (float)$output[$i]->getpowerExp(),
+                        "powerExpDctMonth" => (float)$dcDataExpected[$i]['expdc'],
+                        "prEGridExtMonth" => (float)$output[$i]->getprEGridExtMonth(),
+                        "prEvuMonth" => (float)$output[$i]->getprEvuMonth(),
+                        "prActMonth" => (float)$output[$i]->getprActMonth(),
+                        "prExpMonth" => (float)$output[$i]->getprExpMonth(),
+                        "plantAvailability" => (float)$output[$i]->getplantAvailability(),
+                        "plantAvailabilitySecond" => (float)$output[$i]->getplantAvailabilitySecond(),
+                        "panneltemp" => (float)$output[$i]->getpanneltemp(),
                     ];
-                $countCase5 = count($case5);
             }
         }
-        #end case5
-
-        #beginn create Array for Day Values Table
-        #die Daten dem Array hinzufuegen
-        for ($i = 0; $i < count($report['prs']); $i++) {
-            if($useGridMeterDayData === true) {$powerEGridExt = (float)$report['prs'][$i]->getpowerEGridExt();}
-            if ($showAvailability === true) $plantAvailability = (float)$report['prs'][$i]->getplantAvailability();
-            if ($showAvailabilitySecond === true) $plantAvailabilitySecond = (float)$report['prs'][$i]->getplantAvailabilitySecond();
-
-            $table_overview_dayly[] =
-                [
-                    'datum' => $report['prs'][$i]->getstamp()->format('m-d'),
-                    'powerEGridExt' => $powerEGridExt,
-                    'PowerEvuMonth' => ($anlage->getShowEvuDiag()) ? (float)$report['prs'][$i]->getPowerEvu() : (float)$report['prs'][$i]->getPowerAct(),
-                    'custirr' => round((float)$report['prs'][$i]->getspezYield(),3),
-                    'irradiation' => round((float)$report['prs'][$i]->getirradiation(),3),
-                    'prEvuProz' => round(($anlage->getShowEvuDiag()) ? (float)$report['prs'][$i]->getPrEvu() : (float)$report['prs'][$i]->getPrAct(),3),
-                    'plantAvailability' => round($plantAvailability,3),
-                    'plantAvailabilitySecond' => round($plantAvailabilitySecond,3),
-                    'powerTheo' => round((float)$report['prs'][$i]->getpowerTheo(),3),
-                    'powerExp' => round((float)$report['prs'][$i]->getpowerExp(),3),
-                    'case5perDay' => $report['prs'][$i]->getcase5perDay(),
-                ];
-        }
-        #die Totalzeile
-
-        $table_overview_dayly[] = [
-            'datum' => 'Total',
-            'powerEGridExt' => $powerEGridExt,
-            'PowerEvuMonth' => ($anlage->getShowEvuDiag()) ? (float)$report['lastPR']->getPowerEvuMonth() : (float)$report['lastPR']->getPowerActMonth(),
-            'custirr' => round((float)$report['lastPR']->getspezYield(),3),
-            'irradiation' => round((float)$report['lastPR']->getIrrMonth(),3),
-            'prEvuProz' => round(($anlage->getShowEvuDiag()) ? (float)$report['lastPR']->getprEvuMonth() : (float)$report['lastPR']->getprActMonth(),3),
-            'plantAvailability' => round($plantAvailability,3),
-            'plantAvailabilitySecond' => round($plantAvailabilitySecond,3),
-            'powerTheo' => round((float)$report['lastPR']->getpowerTheoMonth(),3),
-            'powerExp' => round((float)$report['lastPR']->getpowerExpMonth(),3),
-            'case5perDay' => $countCase5,
-        ];
-
-        #beginn create Array for Energy Production Chart
-        #die Daten dem Array hinzufuegen
-        $powerGridExtChart3[] = 0;
-        $prEvuProz[] = 0;
-
-
-        for ($i = 0; $i < count($report['prs']); $i++) {
-            if($useGridMeterDayData === true) {
-                $powerGridExtChart3[] = (float)$report['prs'][$i]->getpowerEGridExt();
-            }else{
-                $powerGridExtChart3[] = ($anlage->getShowEvuDiag()) ? (float)$report['prs'][$i]->getPowerEvu() : (float)$report['prs'][$i]->getPowerAct();
-            }
-
-            $prEvuProz[] = ($anlage->getShowEvuDiag()) ? (float)$report['prs'][$i]->getPrEvu() : (float)$report['prs'][$i]->getPrAct();
-
-        }
-
-        #end create Array for Energy Production Chart
-        $chart->tooltip->show = true;
-
-        $chart->tooltip->trigger = 'item';
-
-        $chart->xAxis = array(
-            'type' => 'category',
-            'axisLabel' => array(
-                'show' => true,
-                'margin' => '5',
-            ),
-            'splitArea' => array(
-                'show' => true,
-            ),
-            'min' => 1,
-            'maxInterval' => 1,
-            'data' => $array_yaxis
-        );
-        $chart->yAxis = [
-            [
-                'type' => 'value',
-                'name' => 'Grid Meter',
-                'min' => 0,
-                'interval' => 50000,
-                'name' => 'KWH',
-                'nameLocation' => 'middle',
-                'nameGap' => 50
-            ],
-            [
-                'type' => 'value',
-                'name' => 'Irradiation',
-                'min' => 0,
-                'max' => 100,
-                'interval' => 5,
-                'name' => '%',
-                'nameLocation' => 'middle',
-                'nameGap' => 25
-            ]
-        ];
-        $chart->series =
-            [
-                [
-                    'name' => 'Grid Meter',
-                    'type' => 'bar',
-
-                    'data' => $powerGridExtChart3,
-                    'visualMap' => 'false'
-                ]
-                ,
-                [
-                    'name' => 'PR',
-                    'type' => 'scatter',
-                    'yAxisIndex' => 1,
-                    'data' => $prEvuProz,
-                    'visualMap' => 'false'
-                ]
-            ];
-
-        $option = array(
-            'color' => ['#ff0000', '#61e915'],
-            'title' => [
-                'text' => $monthName . ' ' . $report['reportYear'],
-                'left' => 'center',
-            ],
-            'tooltip' =>
-                [
-                    'show' => true,
-                ],
-            'legend' =>
-                [
-                    'show' => true,
-                    'left' => 'center',
-                    'top' => 20
-                ],
-            'grid' =>
-                array(
-                    'height' => '80%',
-                    'top' => 50,
-                    'width' => 'auto',
-                ),
-        );
-
-        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
-        $chart->setOption($option);
-
-        $operations_dayly_1 = $chart->render('operations_dayly_1', ['style' => 'height: 400px; width:600px;']);
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
-        //End Operations dayly1
-
-
-        //Beginn Operations dayly2
-        #beginn create Array for Energy Production Chart
-        #die Daten dem Array hinzufuegen
-        $powerGridExtChart4[] = 0;
-        $irradiation[] = 0;
-        for ($i = 0; $i < count($report['prs']); $i++) {
-            if($useGridMeterDayData === true) {
-                $powerGridExtChart4[] = (float)$report['prs'][$i]->getpowerEGridExt();
-            }else{
-                $powerGridExtChart4[] = ($anlage->getShowEvuDiag()) ? (float)$report['prs'][$i]->getPowerEvu() : (float)$report['prs'][$i]->getPowerAct();
-            }
-
-            $irradiation[] = (float)$report['prs'][$i]->getirradiation();
-
-        }
-
-        #end create Array for Energy Production Chart
-
-        $chart->tooltip->show = true;
-        $chart->tooltip->trigger = 'item';
-
-        $chart->xAxis = array(
-            'type' => 'category',
-            'axisLabel' => array(
-                'show' => true,
-                'margin' => '5',
-            ),
-            'splitArea' => array(
-                'show' => true,
-            ),
-            'min' => 1,
-            'maxInterval' => 1,
-            'data' => $array_yaxis
-        );
-        $chart->yAxis = [
-            [
-                'type' => 'value',
-                'min' => 0,
-                'interval' => 50000,
-                'name' => 'KWH',
-                'nameLocation' => 'middle',
-                'nameGap' => 50
-            ],
-            [
-                'type' => 'value',
-                'min' => 0,
-                'interval' => 1,
-                'name' => 'KWH/m2',
-                'nameLocation' => 'middle',
-                'nameGap' => 25
-            ]
-        ];
-        $chart->series =
-            [
-               [
-                    'name' => 'Grid Meter',
-                    'type' => 'bar',
-                    'data' => $powerGridExtChart4,
-                    'visualMap' => 'false'
-                ]
-                ,
-                [
-                    'name' => 'Irradiation',
-                    'type' => 'line',
-                    'yAxisIndex' => 1,
-                    'data' => $irradiation,
-                    'visualMap' => 'false'
-                ]
-            ];
-
-        $option = array(
-            'color' => ['#ff0000', '#fbba00'],
-            'title' => [
-                'text' => $monthName . ' ' . $report['reportYear'],
-                'left' => 'center',
-            ],
-            'tooltip' =>
-                [
-                    'show' => true,
-                ],
-            'legend' =>
-                [
-                    'show' => true,
-                    'left' => 'center',
-                    'top' => 20
-                ],
-            'grid' =>
-                array(
-                    'height' => '80%',
-                    'top' => 50,
-                    'width' => 'auto',
-                ),
-        );
-
-        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
-        $chart->setOption($option);
-
-        $operations_dayly_2 = $chart->render('operations_dayly_2', ['style' => 'height: 400px; width:600px;']);
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
-        //End Operations dayly2
-
-        //Beginn Operations Availability 1
-
-        $chart->tooltip->show = true;
-        $chart->tooltip->trigger = 'item';
-
-        $chart->series =
-            [
-                'name' => 'Grid Meter',
-                'type' => 'pie',
-                'data' => [
-                    ['value' => 1048, 'name' => 'SOF - Maintanance'],
-                    ['value' => 1200, 'name' => 'EFOR Defects/Failures'],
-                    ['value' => 1500, 'name' => 'OMC - GRID outage, GRID rgulate'],
-                    ['value' => 1048, 'name' => 'TOTAL'],
-                ],
-                'visualMap' => 'false'
-
-            ];
-
-        $option = array(
-            'color' => ['#9dc3e6', '#f6b99e', '#7f7f7f', '#e2f0d9'],
-            'title' => [
-                'text' => 'Plant Avialability',
-                'left' => 'center',
-            ],
-            'tooltip' =>
-                [
-                    'show' => true,
-                ],
-            'legend' =>
-                [
-                    'show' => true,
-                    'left' => 'center',
-                    'top' => 20
-                ],
-        );
-
-        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
-        $chart->setOption($option);
-
-        $operations_availability_1 = $chart->render('operations_availability_1', ['style' => 'height: 400px; width:600px;']);
-        $chart->tooltip = [];
-        $chart->series = [];
-        unset($option);
-        //End Operations Availability 1
-
-        //Beginn Operations Availability 2
-        $chart->tooltip->show = true;
-        $chart->tooltip->trigger = 'item';
-
-        $chart->series =
-            [
-                'name' => 'Grid Meter',
-                'type' => 'pie',
-                'data' => [
-                    ['value' => 1048, 'name' => 'SOF - Maintanance'],
-                    ['value' => 1200, 'name' => 'EFOR Defects/Failures'],
-                    ['value' => 1500, 'name' => 'OMC - GRID outage, GRID rgulate']
-                ],
-                'visualMap' => 'false'
-
-            ];
-
-        $option = array(
-            'color' => ['#4472c4', '#ed7d31', '#a5a5a5'],
-            'title' => [
-                'text' => 'Failures',
-                'left' => 'center',
-            ],
-            'tooltip' =>
-                [
-                    'show' => true,
-                ],
-            'legend' =>
-                [
-                    'show' => true,
-                    'left' => 'center',
-                    'top' => 20
-                ],
-        );
-
-        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
-        $chart->setOption($option);
-
-        $operations_availability_2 = $chart->render('operations_availability_2', ['style' => 'height: 400px; width:600px;']);
-        $chart->tooltip = [];
-        $chart->series = [];
-        unset($option);
-        //End Operations Availability 1
-
-        //fuer PA Report Month
-
-        $sql = "SELECT DATE_FORMAT(stamp, '%Y-%m-%d') AS form_date, unit, COUNT(db_id) as anz, sum(pa_0) as summe, sum(pa_0)/COUNT(db_id)*100 as pa FROM ".$anlage->getDbNameIst()." where stamp BETWEEN '".$report['reportYear']."-".$report['reportMonth']."-1 00:00' and '".$report['reportYear']."-".$report['reportMonth']."-".$daysInReportMonth." 23:59' and pa_0 >= 0 group by unit, DATE_FORMAT(stamp, '%Y-%m-%d')";
-
-        $result = $conn->prepare($sql);
-        $result->execute();
-        $i = 0;
-        foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
-            $pa[] = [
-                'form_date' =>  date("d", strtotime($value['form_date'])),
-                'pa' => round($value['pa'],3),
-                'unit' => $value['unit']
-            ];
-            $i++;
-
-            if($i > $daysInReportMonth-1){
-                $i = 0;
-                $outPa[] = $pa;
-                unset($pa);
-            }
-        }
+        //End Operations dayly
 
         //Fuer die PA des aktuellen Jahres
         for ($j = 1; $j <= $report['reportMonth']; $j++) {
@@ -1315,7 +1463,6 @@ class AssetManagementService
                     'unit' => $value['unit']
                 ];
                 $i++;
-
                 #echo date("m", strtotime($value['form_date'])) . '<br>';
                 if ($i == 40) {
 
@@ -1333,128 +1480,318 @@ class AssetManagementService
 
         }
 
-//Beginn Operations Availability overview
-                $dateform = '%d.%m.%Y';
-                $z = 8;
-                $i = 1;
-                $j = 1;
-                $k = 0;
-                $l = 1;
-                $max = 0;
-/*
-                $stmt = $conn->prepare('CALL GetExpectetData(:dateform, :datefrom, :dateto, :groupac)');
-
-                while ($j <= $z) {
-                    $stmt->execute(array(':dateform' => $dateform, ':datefrom' => $report['from'], ':dateto' => $report['to'], ':groupac' => $j));
-                    while ($row = $stmt->fetch()) {
-                        $data[] =
-                            [
-                                $k,
-                                $i,
-                                round($row["act_strom_dc"], 2),
-                            ];
-                        if($max < round($row["act_strom_dc"], 2)){
-                            $max = round($row["act_strom_dc"], 0);
-                        }
-                        $i++;
-                    }
-                    $stmt->closeCursor();
-                    $j++;
-                    $k++;
-                    $i = 1;
-                }
-
-                $chart->tooltip->show = true;
-                $chart->visualMap->calculable = true;
-                $chart->tooltip->trigger = 'item';
-                $chart->tooltip->formatter = '{a} {b}  {c}';
-
-                $chart->xAxis = array(
-                    'type' => 'category',
-                    'axisLabel' => array(
-                        'show' => true,
-                        'margin' => '10.5',
-                        'size' => '10'
-                    ),
-                    'splitArea' => array(
-                        'show' => true,
-                    ),
-                    'data' => array('INV1', 'INV2', 'INV3', 'INV4', 'INV5', 'INV6', 'INV7', 'INV8','INV1', 'INV2', 'INV3', 'INV4', 'INV5', 'INV6', 'INV7', 'INV8','INV1', 'INV2', 'INV3', 'INV4', 'INV5', 'INV6', 'INV7', 'INV8','INV1', 'INV2', 'INV3', 'INV4', 'INV5', 'INV6', 'INV7', 'INV8','INV1', 'INV2', 'INV3', 'INV4', 'INV5', 'INV6', 'INV7', 'INV8','INV1', 'INV2', 'INV3', 'INV4', 'INV5', 'INV6', 'INV7', 'INV8')
-                );
-                $chart->yAxis = array(
-                    'type' => 'value',
-                    'inverse' => true,
-                    'min' => 1,
-                    'max' => $range,
-                    'maxInterval' => 1,
-                    'data' => $array_yaxis,
-                );
-
-                $chart->series = array(
-                    'name' => 'Availability',
-                    'type' => 'heatmap',
-                    'data' => [[0,1,15],[0,2,30],[0,3,350]],
-                    'label' => array(
-                        'show' => true,
-                    ),
-                );
-
-                $option = array(
-                    'title' => [
-                        'text' => '',
+        //Availability: Year to date
+        $chart->tooltip->show = true;
+        $chart->tooltip->trigger = 'item';
+        $chart->series =
+            [
+                [
+                    'type' => 'pie',
+                    'data' => [
+                        [
+                            'value' => 92.36,
+                            'name' => 'PA (Plant availability)'
+                        ],
+                        [
+                            'value' => 0,
+                            'name' => 'SOF'
+                        ],
+                        [
+                            'value' => 7.64,
+                            'name' => 'EFOR**'
+                        ],
+                        [
+                            'value' => 0,
+                            'name' => 'OMC***'
+                        ]
                     ],
-                    'tooltip' =>
-                        [
-                            'show' => true,
-                        ],
-                    'legend' =>
-                        [
-                            'show' => true,
-                            'left' => 'center',
-                            'top' => 'top'
-                        ],
-                    'grid' =>
-                        array(
-                            'height' => '80%',
-                            'top' => 100,
-                            'width' => 'auto',
-                        ),
-                    'toolbox' =>
-                        [
-                            'show' => false,
-                        ],
-                    'visualMap' => [
-                        'show' => true,
-                        'min' => 0,
-                        'max' => $max+500,
-                        'splitNumber' => 8,
-                        'type' => 'piecewise',
-                        'orient' => 'horizontal',
-                        'left' => 'center',
-                        'top' => 40,
-                        'inRange' => [
-                            'color' => ["#f9b783", "#f9806f", "#fa9974", "#fba679", "#fbb178", "#fdcb7d", "#fee983", "#63be7b"]
-
-                        ],
+                    'visualMap' => 'false',
+                    'label' => [
+                        'show' => false
+                    ],
+                    'itemStyle' => [
+                        'borderType' => 'solid',
+                        'borderWidth' => 1,
+                        'borderColor' => '#ffffff'
                     ]
-                );
-                Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
-                $chart->setOption($option);
-                $operations_availability_dayly = $chart->render('operations_availability_dayly', ['style' => 'height: 900px; width:1200px;'], 'cool');
-                $chart->tooltip = [];
-                $chart->xAxis = [];
-                $chart->yAxis = [];
-                $chart->series = [];
-                unset($option);
-*/
-        //End Operations Availability overview
+                ]
+            ];
 
+        $option = array(
+            'color' => ['#9dc3e6', '#f3a672', '#ff0000', '#c5e0b4'],
+            'title' => [
+                'text' => 'Availability: Year to date',
+                'left' => 'center',
+                'top' => 0,
+            ],
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'orient' => 'vertical',
+                    'left' => 'left',
+                    'top' => 30,
+                    'padding' => 0,90,0,0,
+                ],
+            'grid' =>
+                array(
+                    'top' => 150,
+                ),
+        );
 
+        
+        $chart->setOption($option);
+        $availability_Year_To_Date = $chart->render('availability_Year_To_Date', ['style' => 'height: 300px; width:400px; margin-top:8px']);
+
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+
+        //Failures: Year to date
+        $chart->tooltip->show = true;
+        $chart->tooltip->trigger = 'item';
+        $chart->series =
+            [
+                [
+                    'type' => 'pie',
+                    'data' => [
+                        [
+                            'value' => 0,
+                            'name' => 'SOF*'
+                        ],
+                        [
+                            'value' => 100,
+                            'name' => 'EFOR**'
+                        ],
+                        [
+                            'value' => 0,
+                            'name' => 'OMC***'
+                        ]
+                    ],
+                    'visualMap' => 'false',
+                    'label' => [
+                        'show' => false
+                    ],
+                    'itemStyle' => [
+                        'borderType' => 'solid',
+                        'borderWidth' => 1,
+                        'borderColor' => '#ffffff'
+                    ]
+                ]
+            ];
+
+        $option = array(
+            'color' => ['#9dc3e6', '#ffa4a4', '#ffc000'],
+            'title' => [
+                'text' => 'Failure - Year to date',
+                'left' => 'center',
+                'top' => 0,
+            ],
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'orient' => 'vertical',
+                    'left' => 'left',
+                    'top' => 30,
+                    'padding' => 0,90,0,0,
+                ],
+        );
+
+        
+        $chart->setOption($option);
+        $failures_Year_To_Date = $chart->render('failures_Year_To_Date', ['style' => 'height: 300px; width:360px; margin-top:8px;']);
+
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+
+        //Plant Availability
+        $chart->tooltip->show = true;
+        $chart->tooltip->trigger = 'item';
+        $chart->series =
+            [
+                [
+                    'type' => 'pie',
+                    'data' => [
+                        [
+                            'value' => 92,98,
+                            'name' => 'PA (Plant availability)'
+                        ],
+                        [
+                            'value' => 0,
+                            'name' => 'SOF'
+                        ],
+                        [
+                            'value' => 7,02,
+                            'name' => 'EFOR'
+                        ],
+                        [
+                            'value' => 0,
+                            'name' => 'OMC'
+                        ],
+                        [
+                            'value' => 0,
+                            'name' => 'Environment'
+                        ],
+                        [
+                            'value' => 0,
+                            'name' => 'Communication error'
+                        ]
+                    ],
+                    'visualMap' => 'false',
+                    'label' => [
+                        'show' => false
+                    ],
+                    'itemStyle' => [
+                        'borderType' => 'solid',
+                        'borderWidth' => 1,
+                        'borderColor' => '#ffffff'
+                    ]
+                ]
+            ];
+
+        $option = array(
+            'color' => ['#c5e0b4', '#ed7d31', '#941651', '#ffc000', '#548235', '#2e75b6'],
+            'title' => [
+                'text' => 'Plant availability: '.$monthName.' '.$report['reportYear'],
+                'left' => 'center',
+                'top' => 0,
+            ],
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'orient' => 'vertical',
+                    'left' => 'left',
+                    'top' => 30,
+                ],
+        );
+
+        
+        $chart->setOption($option);
+        $plant_availability = $chart->render('plant_availability', ['style' => 'height: 200px; width:450px; margin-top:8px']);
+
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+
+        //Actual
+        $chart->tooltip->show = true;
+        $chart->tooltip->trigger = 'item';
+        $chart->series =
+            [
+                [
+                    'type' => 'pie',
+                    'data' => [
+                        [
+                            'value' => 0,
+                            'name' => 'SOF'
+                        ],
+                        [
+                            'value' => 100,
+                            'name' => 'EFOR'
+                        ],
+                        [
+                            'value' => 0,
+                            'name' => 'OMC'
+                        ],
+                        [
+                            'value' => 0,
+                            'name' => 'Environment'
+                        ],
+                        [
+                            'value' => 0,
+                            'name' => 'Communication error'
+                        ]
+                    ],
+                    
+                    'visualMap' => 'false',
+                    'label' => [
+                        'show' => false
+                    ],
+                    'center' => [
+                        235,100
+                    ],
+                    'itemStyle' => [
+                        'borderType' => 'solid',
+                        'borderWidth' => 1,
+                        'borderColor' => '#ffffff'
+                    ]
+                ]
+            ];
+
+        $option = array(
+            'color' => ['#ed7d31', '#941651', '#ffc000', '#548235', '#2e75b6'],
+            'title' => [
+                'text' => 'Actual',
+                'left' => 'center',
+                'top' => 0,
+            ],
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'orient' => 'vertical',
+                    'left' => 'left',
+                    'top' => 30,
+                ],
+        );
+
+        $chart->setOption($option);
+        $actual = $chart->render('actual', ['style' => 'height: 200px; width:450px; margin-top:8px']);
+
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+
+        //fuer PA Report Month
+
+        $sql = "SELECT DATE_FORMAT(stamp, '%Y-%m-%d') AS form_date, unit, COUNT(db_id) as anz, sum(pa_0) as summe, sum(pa_0)/COUNT(db_id)*100 as pa FROM ".$anlage->getDbNameIst()." where stamp BETWEEN '".$report['reportYear']."-".$report['reportMonth']."-1 00:00' and '".$report['reportYear']."-".$report['reportMonth']."-".$daysInReportMonth." 23:59' and pa_0 >= 0 group by unit, DATE_FORMAT(stamp, '%Y-%m-%d')";
+
+        $result = $conn->prepare($sql);
+        $result->execute();
+
+        $i = 0;
+        foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
+            $pa[] = [
+                'form_date' =>  date("d", strtotime($value['form_date'])),
+                'pa' => round($value['pa'],3),
+                'unit' => $value['unit']
+            ];
+            $i++;
+
+            if($i > $daysInReportMonth-1){
+                $i = 0;
+                $outPa[] = $pa;
+                unset($pa);
+            }
+        }
+        //End PA
 
         //Beginn Operations string_dayly1
-
         if ($anlage->getUseNewDcSchema()) {
-        $sql = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.wr_pdc) AS act_power_dc, sum(b.wr_idc) AS act_current_dc, b.group_ac as invgroup
+            $sql = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.wr_pdc) AS act_power_dc, sum(b.wr_idc) AS act_current_dc, b.group_ac as invgroup
             FROM (db_dummysoll a left JOIN ".$anlage->getDbNameDcIst()." b ON a.stamp = b.stamp) 
             WHERE a.stamp BETWEEN '".$report['reportYear']."-".$report['reportMonth']."-1 00:00' and '".$report['reportYear']."-".$report['reportMonth']."-".$daysInReportMonth." 23:59' and b.group_ac > 0 GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
         } else {
@@ -1485,12 +1822,12 @@ class AssetManagementService
             $dcExpDcIst[] = [
                 'group' => $value['invgroup'],
                 'form_date' => date("d", strtotime($value['form_date'])),
-                'exp_power_dc' => round($value['exp_power_dc'],0),
-                'exp_current_dc' => round($value['exp_current_dc'],0),
-                'act_power_dc' => round($dcIst[$j]['act_power_dc'],0),
-                'act_current_dc' => round($dcIst[$j]['act_current_dc'],0),
-                'diff_current_dc' => round((1 - $value['exp_current_dc'] / $dcIst[$j]['act_current_dc']) * 100, 0),
-                'diff_power_dc' => round((1 - $value['exp_power_dc'] / $dcIst[$j]['act_power_dc']) * 100, 0),
+                'exp_power_dc' => $value['exp_power_dc'],
+                'exp_current_dc' => $value['exp_current_dc'],
+                'act_power_dc' => $dcIst[$j]['act_power_dc'],
+                'act_current_dc' => $dcIst[$j]['act_current_dc'],
+                'diff_current_dc' => (1 - $value['exp_current_dc'] / $dcIst[$j]['act_current_dc']) * 100,
+                'diff_power_dc' => (1 - $value['exp_power_dc'] / $dcIst[$j]['act_power_dc']) * 100,
             ];
             $i++;
             $j++;
@@ -1501,12 +1838,335 @@ class AssetManagementService
             }
         }
 
-        #echo '<pre>';
-       # print_r($outTableCurrentsPower);
-        #echo '</pre>';
-        #exit;
-            #$tableColsLimit
-        
+        //End Operations string
+
+        //Beginn Economics Income per month
+        $sql = "SELECT * FROM economic_var_names WHERE anlage_id = $anlId";
+        $resultEconomicsNamed = $connAnlage->query($sql);
+        if ($resultEconomicsNamed) {
+            if ($resultEconomicsNamed->num_rows == 1) {
+                $conomicsNamed = $resultEconomicsNamed->fetch_assoc();
+            }
+        }
+        $conomicsNames = [];
+        for ($i = 0; $i < count($conomicsNamed); $i++) {
+            if ($conomicsNamed["var_".$i] != ""){
+                $conomicsNames["var_".$i] = $conomicsNamed["var_".$i];
+            }
+        }
+
+        $sql = "SELECT * FROM economic_var_values WHERE anlage_id = $anlId and year =". $report['reportYear'];
+        $resultEconomicsNamed = $connAnlage->query($sql);
+        $economicsValues = $resultEconomicsNamed->fetch_all();
+        $totalsFix = [];
+        for ($i = 0; $i < count($economicsValues); $i++) {
+            (float)$oum[] = $economicsValues[$i][4];
+            $oumTotal = $oumTotal+$economicsValues[$i][4];
+            (float)$electricity[] = $economicsValues[$i][5];
+            $electricityTotal = $electricityTotal+$economicsValues[$i][5];
+            (float)$technicalDispatch[] = $economicsValues[$i][6];
+            $technicalDispatchTotal = $technicalDispatchTotal+$economicsValues[$i][6];
+            (float)$transTeleCom[] = $economicsValues[$i][7];
+            $transTeleComTotal = $transTeleComTotal+$economicsValues[$i][7];
+            (float)$security[] = $economicsValues[$i][8];
+            $securityTotal = $securityTotal+$economicsValues[$i][8];
+            (float)$networkServiceFee[] = $economicsValues[$i][9];
+            $networkServiceFeeToatal = $networkServiceFeeToatal+$economicsValues[$i][9];
+            (float)$legalServices[] = $economicsValues[$i][10];
+            $legalServicesTotal = $legalServicesTotal+$economicsValues[$i][10];
+            (float)$accountancyAndAdministrationCosts[] = $economicsValues[$i][11];
+            $accountancyAndAdministrationCostsTotal = $accountancyAndAdministrationCostsTotal+$economicsValues[$i][11];
+            (float)$Iinsurance[] = $economicsValues[$i][12];
+            $IinsuranceTotal = $IinsuranceTotal+$economicsValues[$i][12];
+            (float)$other[] = $economicsValues[$i][13];
+            $otherTotal = $otherTotal+$economicsValues[$i][13];
+            $fixesTotal[$i] = $oum[$i]+
+                $electricity[$i]+
+                $technicalDispatch[$i]+
+                $transTeleCom[$i]+
+                $security[$i]+
+                $networkServiceFee[$i]+
+                $legalServices[$i]+
+                $legalServices[$i]+
+                $accountancyAndAdministrationCosts[$i]+
+                $Iinsurance[$i]+
+                $other[$i];
+            (float)$variable1[] = $economicsValues[$i][14];
+            $variable1Total = $variable1Total+$economicsValues[$i][14];
+            (float)$variable2[] = $economicsValues[$i][15];
+            $variable2Total = $variable2Total+$economicsValues[$i][15];
+            (float)$variable3[] = $economicsValues[$i][16];
+            $variable3Total = $variable3Total+$economicsValues[$i][16];
+            (float)$variable4[] = $economicsValues[$i][17];
+            $variable4Total = $variable4Total+$economicsValues[$i][17];
+            (float)$variable5[] = $economicsValues[$i][18];
+            $variable5Total = $variable5Total+$economicsValues[$i][18];
+            $variablesTotal[$i] = $variable1[$i]+
+                $variable2[$i]+
+                $variable3[$i]+
+                $variable4[$i]+
+                $variable5[$i];
+            (float)$kwhPrice[] = $economicsValues[$i][19];
+            $monthTotal[] = $fixesTotal[$i]+$variablesTotal[$i];
+        }
+
+        #fuer die Tabelle
+        $economicsMandy = [
+            'oum' => $oum,
+            'electricity' => $electricity,
+            'technicalDispatch' => $technicalDispatch,
+            'transTeleCom' => $transTeleCom,
+            'security' => $security,
+            'networkServiceFee' => $networkServiceFee,
+            'legalServices' => $legalServices,
+            'accountancyAndAdministrationCosts' => $accountancyAndAdministrationCosts,
+            'Iinsurance' => $Iinsurance,
+            'other' => $other,
+            'fixesTotal' => $fixesTotal,
+            'variable1' => $variable1,
+            'variable2' => $variable2,
+            'variable3' => $variable3,
+            'variable4' => $variable4,
+            'variable5' => $variable5,
+            'variablesTotal' => $variablesTotal,
+            'kwhPrice' => $kwhPrice,
+            'monthTotal' => $monthTotal,
+        ];
+
+
+        #dump($economicsMandy);
+
+        #dd($conomicsNames);
+
+        #beginn Operating statement
+        for ($i = 0; $i < count($tbody_a_production['powerEvu']); $i++) {
+            $monthleyFeedInTarif = $kwhPrice[$i];
+            $incomePerMonth['revenues_act'][$i] = $tbody_a_production['powerEvu'][$i] * $monthleyFeedInTarif;
+            $incomePerMonth['PVSYST_plan_proceeds_EXP'][$i] = $tbody_a_production['expectedPvSyst'][$i] * $monthleyFeedInTarif;
+            $incomePerMonth['gvn_plan_proceeds_EXP'][$i] = $tbody_a_production['powerExpEvu'][$i] * $monthleyFeedInTarif;
+            //-Total costs
+            $incomePerMonth['revenues_act_minus_totals'][$i] = round($incomePerMonth['revenues_act'][$i]-$monthTotal[$i],0);
+            $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][$i] = round($incomePerMonth['PVSYST_plan_proceeds_EXP'][$i]-$monthTotal[$i],0);
+            $incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'][$i] = round($incomePerMonth['gvn_plan_proceeds_EXP'][$i]-$monthTotal[$i],0);
+            if($i+1 > $report['reportMonth']){
+                $incomePerMonth['PVSYST_plan_proceeds_EXP'][$i] = null;
+            }
+            $incomePerMonth['monthley_feed_in_tarif'][$i] = $monthleyFeedInTarif;
+        }
+        #end Operating statement
+
+
+        #beginn economics Cumulated Forecast
+        //ohne Kosten(Hilfstabelle)
+        for ($i = 0; $i < count($dataMonthArrayFullYear); $i++) {
+            $ohneKostenForecastPVSYST[$i] = $tbody_a_production['expectedPvSyst'][$i]*$incomePerMonth['monthley_feed_in_tarif'][$i];
+            $ohneKostenForecastG4N[$i] = $forecast[$i+1]*$kwhPrice[$i];
+        }
+
+        //mit Kosten(Hilfstabelle)
+        for ($i = 0; $i < count($dataMonthArrayFullYear); $i++) {
+            $mitKostenForecastPVSYST[$i] = $ohneKostenForecastPVSYST[$i]-$economicsMandy['monthTotal'][$i];
+            $mitKostenForecastG4N[$i] = $ohneKostenForecastG4N[$i]-$economicsMandy['monthTotal'][$i];
+        }
+
+        #dd($mitKostenForecastG4N);
+        $kumsum1[0] = $economicsMandy['monthTotal'][0];
+        $kumsum2[0] = $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][0];
+        $kumsum3[0] = $incomePerMonth['PVSYST_plan_proceeds_EXP'][0];
+        $kumsum4[0] = $incomePerMonth['gvn_plan_proceeds_EXP'][0];
+        for ($i = 0; $i < 12; $i++) {
+            $kumsum1[$i] = $economicsMandy['monthTotal'][$i] + $kumsum1[$i - 1];
+            if($i < $report['reportMonth']){
+                $kumsum2[$i] = $kumsum1[$i];
+            }else{
+                $kumsum2[$i] = $kumsum1[$i]+$mitKostenForecastG4N[$i];
+            }
+            $kumsum3[$i] = $incomePerMonth['PVSYST_plan_proceeds_EXP'][$i] + $kumsum3[$i - 1];
+            $kumsum4[$i] = $incomePerMonth['gvn_plan_proceeds_EXP'][$i] + $kumsum4[$i - 1];
+            $result1[] = $kumsum1[$i];
+            $result2[] = $kumsum2[$i];
+            $result3[] = $kumsum3[$i];
+            $result4[] = $kumsum4[$i];
+        }
+
+        #dump($result1);
+        #dump($result2);
+        #dump($result3);
+        #dd($result4);
+
+        $economicsCumulatedForecast = [
+            'revenues_ACT_and_Revenues_Plan_PVSYT' => $result1,
+            'revenues_ACT_and_Revenues_Plan_G4N' => $result2,
+            'PVSYST_plan_proceeds_P50' => $result3,
+            'g4n_plan_proceeds_EXP_P50' => $result4,
+        ];
+
+        #geginn Chart economics Cumulated Forecast
+        $chart->tooltip->show = true;
+        $chart->tooltip->trigger = 'item';
+
+        $chart->xAxis = array(
+            'type' => 'category',
+            'axisLabel' => array(
+                'show' => true,
+                'margin' => '10',
+            ),
+            'splitArea' => array(
+                'show' => true,
+            ),
+            'data' => $dataMonthArrayFullYear
+        );
+        $chart->yAxis = array(
+            'type' => 'value',
+            'name' => 'EUR',
+            'nameLocation' => 'middle',
+            'nameGap' => 70
+        );
+        $chart->series =
+            [
+                [
+                    'name' => 'Revenues ACT and Revenues Plan PVSYST',
+                    'type' => 'line',
+                    'data' => $economicsCumulatedForecast['revenues_ACT_and_Revenues_Plan_PVSYT'],
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'Revenues ACT and Revenues Plan g4n',
+                    'type' => 'line',
+                    'data' => $economicsCumulatedForecast['revenues_ACT_and_Revenues_Plan_G4N'],
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'PVSYST plan proceeds - P50',
+                    'type' => 'line',
+                    'data' => $economicsCumulatedForecast['PVSYST_plan_proceeds_P50'],
+                    'visualMap' => 'false',
+                ],
+                [
+                    'name' => 'g4n plan proceeds - EXP - P50',
+                    'type' => 'line',
+                    'data' => $economicsCumulatedForecast['g4n_plan_proceeds_EXP_P50'],
+                    'visualMap' => 'false',
+                ]
+            ];
+
+        $option = array(
+            'color' => ['#4472c4', '#ed7d31', '#a5a5a5', '#ffc000'],
+            'title' => [
+                'text' => 'Cumulated Forecast',
+                'left' => 'center',
+            ],
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'left' => 'center',
+                    'top' => 20
+                ],
+            'grid' =>
+                array(
+                    'height' => '70%',
+                    'top' => 50,
+                    'width' => '80%',
+                ),
+        );
+
+
+
+        $chart->setOption($option);
+
+        $economicsCumulatedForecastChart = $chart->render('economicsCumulatedForecastChart', ['style' => 'height: 380px; width:26cm;']);
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+        #end Chart economics Cumulated Forecast
+
+        //beginn chart losses monthly
+        $chart->tooltip->show = true;
+        $chart->tooltip->trigger = 'item';
+
+        $chart->xAxis = array(
+            'type' => 'category',
+            'axisLabel' => array(
+                'show' => true,
+                'margin' => '10',
+            ),
+            'splitArea' => array(
+                'show' => true,
+            ),
+            'data' => $dataMonthArray
+        );
+        $chart->yAxis = array(
+            'type' => 'value',
+            'name' => 'KWH',
+            'nameLocation' => 'middle',
+            'nameGap' => 70
+        );
+        $chart->series =
+            [
+                [
+                    'name' => 'Difference Egrid to PVSYST',
+                    'type' => 'line',
+                    'data' => $diefference_prod_to_pvsyst,
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'Difference Egrid to expected g4n',
+                    'type' => 'line',
+                    'data' => $diefference_prod_to_expected_g4n,
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'Difference inverter to Egrid',
+                    'type' => 'line',
+                    'data' => $diefference_prod_to_egrid,
+                    'visualMap' => 'false',
+                ]
+            ];
+
+        $option = array(
+            'color' => ['#0070c0', '#c55a11', '#a5a5a5'],
+            'title' => [
+                'text' => 'Monthly losses at plan values(PVSYS-g4n-INV))',
+                'left' => 'center',
+            ],
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'left' => 'center',
+                    'top' => 20
+                ],
+            'grid' =>
+                array(
+                    'height' => '70%',
+                    'top' => 50,
+                    'width' => '90%',
+                ),
+        );
+
+
+        $chart->setOption($option);
+
+        $losses_monthly = $chart->render('losses_monthly', ['style' => 'height: 450px; width:23cm;']);
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+        #end elosses monthly
+
+
+        //beginn chart costs per month
+        $chart = new ECharts();
         $chart->tooltip->show = true;
 
         $chart->tooltip->trigger = 'item';
@@ -1515,50 +2175,46 @@ class AssetManagementService
             'type' => 'category',
             'axisLabel' => array(
                 'show' => true,
-                'margin' => '5',
+                'margin' => '10',
             ),
             'splitArea' => array(
                 'show' => true,
             ),
-            'min' => 1,
-            'data' => $array_yaxis
+            'data' => $dataMonthArray,
         );
-        $chart->yAxis = [
-            [
-                'type' => 'value',
-                'name' => 'Grid Meter',
-                'min' => 0,
-                'interval' => 50,
-                'name' => 'A',
-                'nameLocation' => 'middle',
-                'nameGap' => 40
-            ],
-        ];
+        $chart->yAxis = array(
+            'type' => 'value',
+            'min' => 0,
+            'name' => 'EUR',
+            'nameLocation' => 'middle',
+            'nameGap' => 70
+        );
         $chart->series =
             [
                 [
-                    'name' => 'Act Current',
-                    'type' => 'line',
-                    'data' => [
-                        50, 20, 95, 80, 44, 95
-                    ],
+                    'name' => 'Revenues ACT',
+                    'type' => 'bar',
+                    'data' => $incomePerMonth['revenues_act'],
                     'visualMap' => 'false'
                 ],
                 [
-                    'name' => 'Expected Current',
-                    'type' => 'line',
-
-                    'data' => [
-                        60, 30, 100, 99, 60, 102
-                    ],
+                    'name' => 'PVSYST plan proceeds - EXP',
+                    'type' => 'bar',
+                    'data' => $incomePerMonth['PVSYST_plan_proceeds_EXP'],
                     'visualMap' => 'false'
                 ],
+                [
+                    'name' => 'g4n plan proceeds - EXP',
+                    'type' => 'bar',
+                    'data' => $incomePerMonth['gvn_plan_proceeds_EXP'],
+                    'visualMap' => 'false'
+                ]
             ];
 
         $option = array(
-            'color' => ['#6994d6', '#f7d20e'],
+            'color' => ['#9dc3e6', '#f4b183', '#92d050'],
             'title' => [
-                'text' => 'Year ' . $report['reportYear'],
+                'text' => 'Income per month ' . $report['reportYear'],
                 'left' => 'center',
             ],
             'tooltip' =>
@@ -1575,417 +2231,196 @@ class AssetManagementService
                 array(
                     'height' => '80%',
                     'top' => 50,
-                    'width' => 'auto',
+                    'width' => '90%',
                 ),
         );
 
-        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
+        
         $chart->setOption($option);
-        $operations_currents_dayly_1 = $chart->render('operations_currents_dayly_1', ['style' => 'height: 400px; width:600px;']);
+
+        $income_per_month_chart = $chart->render('income_per_month_chart', ['style' => 'height: 350px; width:950px;']);
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
         $chart->series = [];
         unset($option);
-        //End Operations currents_dayly1
-        /*
-                //Beginn Operations Availability overview
-                $dateform = '%d.%m.%Y';
-                $z = 8;
-                $i = 1;
-                $j = 1;
-                $k = 0;
-                $l = 1;
-                $max = 0;
 
-                $stmt = $conn->prepare('CALL GetExpectetData(:dateform, :datefrom, :dateto, :groupac)');
+        //End Economics Income per month
 
-                while ($j <= $z) {
-                    $stmt->execute(array(':dateform' => $dateform, ':datefrom' => $report['from'], ':dateto' => $report['to'], ':groupac' => $j));
-                    while ($row = $stmt->fetch()) {
-                        $data2[] =
-                            [
-                                $k,
-                                $i,
-                                round($row["act_strom_dc"], 2),
-                            ];
-                        if($max < round($row["act_strom_dc"], 2)){
-                            $max = round($row["act_strom_dc"], 0);
-                        }
-                        $i++;
-                    }
-                    $stmt->closeCursor();
-                    $j++;
-                    $k++;
-                    $i = 1;
-                }
+        //Beginn Economics Costs per month and year
 
-                $chart->tooltip->show = true;
-                $chart->visualMap->calculable = true;
-                $chart->tooltip->trigger = 'item';
-                $chart->tooltip->formatter = '{a} {b}  {c}';
-
-                $chart->xAxis = array(
-                    'type' => 'category',
-                    'axisLabel' => array(
-                        'show' => true,
-                        'margin' => '18.5',
-                    ),
-                    'splitArea' => array(
-                        'show' => true,
-                    ),
-                    'data' => array('INV 1', 'INV 2', 'INV 3', 'INV 4', 'INV 5', 'INV 6', 'INV 7', 'INV 8')
-                );
-                $chart->yAxis = array(
-                    'type' => 'value',
-                    'inverse' => true,
-                    'min' => 1,
-                    'max' => $range,
-                    'maxInterval' => 1,
-                    'data' => $array_yaxis,
-                );
-                $chart->series = array(
-                    'name' => 'String currents',
-                    'type' => 'heatmap',
-                    'data' => $data2,
-                    'label' => array(
-                        'show' => true,
-                    ),
-                );
-
-                $option = array(
-                    'title' => [
-                        'text' => '',
+        $chart->tooltip->show = true;
+        $chart->tooltip->trigger = 'item';
+        $chart->series =
+            [
+                [
+                    'type' => 'pie',
+                    'data' => [
+                        [
+                            'value' => $oumTotal,
+                            'name' => 'O&M'
+                        ],
+                        [
+                            'value' => $electricityTotal,
+                            'name' => 'Electricity'
+                        ],
+                        [
+                            'value' => $technicalDispatchTotal,
+                            'name' => 'Technical dispatch (KEGOC)'
+                        ],
+                        [
+                            'value' => $transTeleComTotal,
+                            'name' => 'TransTeleCom (cell equipment maintenance)'
+                        ],
+                        [
+                            'value' => $securityTotal,
+                            'name' => 'Security'
+                        ],
+                        [
+                            'value' => $networkServiceFeeToatal,
+                            'name' => 'Network service fee (ASTEL)'
+                        ],
+                        [
+                            'value' => $legalServicesTotal,
+                            'name' => 'legal services'
+                        ],
+                        [
+                            'value' => $accountancyAndAdministrationCostsTotal,
+                            'name' => 'Accountancy and administration costs'
+                        ],
+                        [
+                            'value' => $IinsuranceTotal,
+                            'name' => 'Insurance'
+                        ],
+                        [
+                            'value' => $otherTotal,
+                            'name' => 'Other'
+                        ],
+                        [
+                            'value' => $variable1Total,
+                            'name' => 'Variable 1'
+                        ],                        [
+                            'value' => $variable2Total,
+                            'name' => 'Variable 2)'
+                        ],
+                        [
+                            'value' => $variable3Total,
+                            'name' => 'Variable 3'
+                        ],
+                        [
+                            'value' => $variable4Total,
+                            'name' => 'Variable 4'
+                        ],
+                        [
+                            'value' => $variable5Total,
+                            'name' => 'Variable 5'
+                        ],
                     ],
-                    'tooltip' =>
-                        [
-                            'show' => true,
-                        ],
-                    'legend' =>
-                        [
-                            'show' => true,
-                            'left' => 'center',
-                            'top' => 'top'
-                        ],
-                    'grid' =>
-                        array(
-                            'height' => '80%',
-                            'top' => 100,
-                            'width' => 'auto',
-                        ),
-                    'toolbox' =>
-                        [
-                            'show' => false,
-                        ],
-                    'visualMap' => [
-                        'show' => true,
-                        'min' => 0,
-                        'max' => $max+500,
-                        'splitNumber' => 8,
-                        'type' => 'piecewise',
-                        'orient' => 'horizontal',
-                        'left' => 'center',
-                        'top' => 40,
-                        'inRange' => [
-                            'color' => ["#f9b783", "#f9806f", "#fa9974", "#fba679", "#fbb178", "#fdcb7d", "#fee983", "#63be7b"]
-
-                        ],
-                    ]
-                );
-                Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
-                $chart->setOption($option);
-                $operations_currents_dayly_2 = $chart->render('operations_currents_dayly_2', ['style' => 'height: 900px; width:600px;'], 'cool');
-                $chart->tooltip = [];
-                $chart->xAxis = [];
-                $chart->yAxis = [];
-                $chart->series = [];
-                unset($option);
-                //End Operations Availability overview
-
-                //Beginn Inverters dayli
-                $chart->tooltip->show = true;
-                $chart->tooltip->trigger = 'item';
-                $chart->visualMap->calculable = true;
-                $chart->xAxis = array(
-                    'type' => 'value',
-                    'scale' => true,
-                    'axisLabel' => array(
-                        'show' => true,
-                        'margin' => '5',
-                    ),
-                    'splitArea' => array(
-                        'show' => true,
-                    ),
-                    'maxInterval' => 1,
-                );
-                $chart->yAxis = array(
-                    'type' => 'value',
-                    'name' => 'Differenz (%)',
-                    'nameLocation' => 'middle',
-                    'nameGap' => 40,
-                    'scale' => true,
-                    'axisLabel' => [
-                        'formatter' => '{value}',
-                        'splitLine' => [
-                            'show' => false
-                            ],
-                        'inverse' => false,
-                        'max' => 100,
-                        ]
-                );
-
-                $chart->series =
-                    [
-                        [
-                            'name' => 'Yield (Grid meter)',
-                            'emphasis' => [
-                                'focus' => 'series'
-                            ],
-                            'type' => 'scatter',
-                            'data' => [
-                                [5, -100], [5.25, -80], [5.50, -70], [5.75, -60], [6, -10], [7, -7], [8, -5], [9, -4], [10, -1], [11, 2], [12, 5], [13, 10], [14, 10], [15, 8], [16, 5], [17, -5], [18, -8.0], [19, -53.6], [20, -80.0], [21, -90]
-                            ],
-                            'visualMap' => 'true'
-                        ],
-                        [
-                            'name' => 'Expected PV SYST',
-                            'emphasis' => [
-                                'focus' => 'series'
-                            ],
-                            'type' => 'scatter',
-                            'data' => [
-                                [5, -100], [6, -92], [7, -86], [8, -2], [9, 3.6], [10, 6], [11, 15], [12, 12], [13, 15], [14, 12], [15, 11], [16, 9.0], [17, -7], [18, -6], [19, -80], [20, -95], [21, -100]
-                            ],
-                            'visualMap' => 'true'
-                        ],
-                        [
-                            'name' => 'Expected g4n',
-                            'emphasis' => [
-                                'focus' => 'series'
-                            ],
-                            'type' => 'scatter',
-                            'data' => [
-                                [5, -100], [6, -93], [7, -68], [8, 3], [9, 9], [10, 12], [11, 18], [12, 25], [13, 22], [14, 19], [15, 17], [16, 5], [17, -3], [18, -5.0], [19, -83.6], [20, -93.0], [21, -100]
-                            ],
-                            'visualMap' => 'true'
-                        ]
-                    ]
-                ;
-
-                $option = array(
-                    #'color' => ['#698ed0', '#f1975a', '#b7b7b7'],
-                    'title' => [
-                        'text' => 'Year '.$report['reportYear'],
-                        'left' => 'center',
+                    'visualMap' => 'false',
+                    'label' => [
+                        'show' => false
                     ],
-                    'tooltip' =>
-                        [
-                            'show' => true,
-                        ],
-                    'legend' =>
-                        [
-                            'show' => false,
-                            'left' => 'center',
-                            'top' => 20
-                        ],
-                    'grid' =>
-                        array(
-                            'height' => '80%',
-                            'top' => 50,
-                            'width' => 'auto',
-                        ),
-                    'visualMap' => [
-                        'show' => true,
-                        'min' => 0,
-                        'max' => 100,
-                        'splitNumber' => 3,
-                        'type' => 'piecewise',
-                        'pieces' => [
-                            [
-                                'min' => -100,
-                                'max' => -10,
-                            ],
-                            [
-                                'min' => -10,
-                                'max' => -5,
-                            ],
-                            [
-                                'min' => -5,
-                                'max' => 30,
-                            ]
-                        ],
-                        'orient' => 'horizontal',
-                        'left' => 'center',
-                        'top' => 20,
-                        'inRange' => [
-                            'color' => ["#ff0000", "#f7d20e", "#00ff00"]
-                        ],
-                        ]
-                );
+                    'center' => [
+                        90,120
+                    ],
+                    'top' => -10,
+                    'itemStyle' => [
+                        'borderType' => 'solid',
+                        'borderWidth' => 1,
+                        'borderColor' => '#ffffff'
+                    ]
+                ],
 
-                Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
-                $chart->setOption($option);
+            ];
 
-                $operations_inverters_dayly_1 = $chart->render('operations_inverters_dayly_1', ['style' => 'height: 400px; width:600px;']);
-                $chart->tooltip = [];
-                $chart->xAxis = [];
-                $chart->yAxis = [];
-                $chart->series = [];
-                unset($option);
-                //End Inverters dayli
-        */
+        $option = array(
+            'color' => [
+                '#5e85cc', '#f4ad7d', '#c6c6c6',
+                '#ffd966', '#8fbae2', '#9dc97f',
+                '#4669a7', '#d87735', '#909090',
+                '#cc9f15', '#4e8abf', '#6a994b',
+                '#8ba7db', '#f4ae7f', '#cecece'
+            ],
+            'title' => [
+                'text' => 'TOTAL Costs per Date - '.$report['reportYear'],
+                'left' => 'center',
+                'top' => 5,
+            ],
 
-        //Beginn Inverters heatmap
-        $data1 = [
-            [1, 0, "#f00"],
-            [2, 0, "#f00"],
-            [3, 0, "#f00"],
-            [4, 0, "#f00"],
-            [5, 0, "#f00"],
-            [6, 10, "#f00"],
-            [7, 65, "#ffd80b"],
-            [8, 70, "#ffd80b"],
-            [9, 75, "#ffd80b"],
-            [10, 80, "#ffd80b"],
-            [11, 90, "#005e00"],
-            [12, 95, "#005e00"],
-            [13, 90, "#005e00"],
-            [14, 99, "#005e00"],
-            [15, 88, "#005e00"],
-            [16, 70, "#005e00"],
-            [17, 60, "#005e00"],
-            [18, 20, "#ffd80b"],
-            [19, 15, "#ffd80b"],
-            [20, 10, "#ffd80b"],
-            [21, 0, "#f00"],
-            [22, 0, "#f00"],
-            [23, 0, "#f00"],
-            [24, 0, "#f00"]
-        ];
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'orient' => 'vertical',
+                    'top' => 30,
+                    'right' => 40,
+                ],
+        );
+        
+        $chart->setOption($option);
+        $total_Costs_Per_Date = $chart->render('total_Costs_Per_Date', ['style' => 'height: 210px; width:26cm; margin-left:80px;']);
 
-        $data2 = [
-            [1, 0, "#f00"],
-            [2, 0, "#f00"],
-            [3, 0, "#f00"],
-            [4, 0, "#f00"],
-            [5, 10, "#f00"],
-            [6, 15, "#f00"],
-            [7, 60, "#ffd80b"],
-            [8, 75, "#ffd80b"],
-            [9, 85, "#ffd80b"],
-            [10, 90, "#ffd80b"],
-            [11, 98, "#005e00"],
-            [12, 95, "#005e00"],
-            [13, 96, "#005e00"],
-            [14, 99, "#005e00"],
-            [15, 93, "#005e00"],
-            [16, 96, "#005e00"],
-            [17, 90, "#005e00"],
-            [18, 20, "#ffd80b"],
-            [19, 15, "#ffd80b"],
-            [20, 10, "#ffd80b"],
-            [21, 0, "#f00"],
-            [22, 0, "#f00"],
-            [23, 0, "#f00"],
-            [24, 0, "#f00"]
-        ];
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+        //End Economics Costs per month and year
 
-        $data3 = [
-            [1, 0, 45, "i3"],
-            [2, 0, 27, "i3"],
-            [3, 0, 60, "i3"],
-            [4, 0, 81, "i3"],
-            [5, 0, 77, "i3"],
-            [6, 15, 81, "i3"],
-            [7, 18, 77, "i3"],
-            [8, 25, 65, "i3"],
-            [9, 38, 33, "i3"],
-            [10, 45, 55, "i3"],
-            [11, 55, 81, "v"],
-            [12, 59, 71, "i3"],
-            [13, 62, 69, "i3"],
-            [14, 58, 87, "i3"],
-            [15, 55, 80, "i3"],
-            [16, 45, 83, "i3"],
-            [17, 40, 43, "i3"],
-            [18, 35, 46, "i3"],
-            [19, 26, 71, "i3"],
-            [20, 20, 57, "i3"],
-            [21, 15, 63, "i3"],
-            [22, 0, 77, "i3"],
-            [23, 0, 62, "i3"],
-            [24, 0, 128, "i3"]
-        ];
-
+        //beginn Operating Statement
+        //beginn chart
+        $chart = new ECharts();
         $chart->tooltip->show = true;
 
         $chart->tooltip->trigger = 'item';
 
         $chart->xAxis = array(
             'type' => 'category',
-            'scale' => true,
-            'name' => 'Time',
-            'nameLocation' => 'middle',
-            'nameGap' => 20,
             'axisLabel' => array(
                 'show' => true,
-                'margin' => '5',
+                'margin' => '10',
             ),
-
-            'min' => 1,
-            'maxInterval' => 1,
-            'data' => array('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24'),
+            'splitArea' => array(
+                'show' => true,
+            ),
+            'data' => $dataMonthArray,
         );
         $chart->yAxis = array(
             'type' => 'value',
-            'name' => 'Panel Temperature (°C)',
+            'min' => 0,
+            'name' => '',
             'nameLocation' => 'middle',
-            'nameGap' => 40,
-            'scale' => true,
-            'axisLabel' => [
-                'formatter' => '{value}',
-                'splitLine' => [
-                    'show' => false
-                ],
-                'inverse' => false,
-                'max' => 65,
-            ]
+            'nameGap' => 70
         );
-
         $chart->series =
             [
                 [
-                    'name' => 'i1',
-                    'type' => 'scatter',
-                    'dimensionIndex' => 2,
-                    'data' => $data1,
-                    'visualMap' => 'true',
-                    'itemStyle' => [
-                        'color' => "function (obj) {
-                                    var value = obj.value;
-                                    return value[2];
-                                }"
-                    ],
+                    'name' => 'Profit ACT',
+                    'type' => 'bar',
+                    'data' => $incomePerMonth['revenues_act_minus_totals'],
+                    'visualMap' => 'false'
                 ],
                 [
-                    'name' => 'i2',
-                    'type' => 'scatter',
-                    'dimensionIndex' => 2,
-                    'data' => $data2,
-                    'visualMap' => 'true',
-                    'itemStyle' => [
-                        'color' => "function (obj) {
-                                    var value = obj.value;
-                                    return value[2];
-                                }"
-                    ],
+                    'name' => 'PVSYST plan proceeds',
+                    'type' => 'bar',
+                    'data' => $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'],
+                    'visualMap' => 'false'
                 ],
+                [
+                    'name' => 'g4n plan proceeds - EXP ',
+                    'type' => 'bar',
+                    'data' => $incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'],
+                    'visualMap' => 'false'
+                ]
             ];
 
         $option = array(
-            'color' => ['#698ed0', '#f1975a', '#b7b7b7'],
+            'color' => ['#9dc3e6', '#f4b183', '#92d050'],
             'title' => [
-                'text' => 'Abweichung Ist-Leistung zu Solleistung ' . $report['reportMonth'],
+                'text' => 'Operating statement - '.$report['reportYear'].' [EUR]' ,
                 'left' => 'center',
             ],
             'tooltip' =>
@@ -1994,79 +2429,291 @@ class AssetManagementService
                 ],
             'legend' =>
                 [
-                    'show' => false,
+                    'show' => true,
                     'left' => 'center',
-                    'botom' => 20
+                    'top' => 20
                 ],
             'grid' =>
                 array(
                     'height' => '80%',
                     'top' => 50,
-                    'width' => 'auto',
+                    'width' => '90%',
                 ),
-
         );
 
-        Config::addExtraScript('cool.js', 'https://dev.g4npvplus.net/echarts/theme/');
+        
         $chart->setOption($option);
 
-        $inverters_heatmap = $chart->render('inverters_heatmap', ['style' => 'height: 400px; width:600px;']);
+        $operating_statement_chart = $chart->render('operating_statement_chart', ['style' => 'height: 350px; width:950px;']);
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
         $chart->series = [];
         unset($option);
-        //End Inverters heatmap
+
+        //end Operating Statement
+
+//xxxx
+        //beginn Losses compared
+        for ($i = 0; $i < $report['reportMonth']; $i++) {
+            $Difference_Profit_ACT_to_PVSYST_plan[] = $incomePerMonth['revenues_act_minus_totals'][$i]-$incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][$i];
+            $Difference_Profit_ACT_to_g4n_plan[] = $incomePerMonth['revenues_act_minus_totals'][$i]-$incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'][$i];
+        }
+
+        $lossesComparedTable = [
+            'Difference_Profit_ACT_to_PVSYST_plan' => $Difference_Profit_ACT_to_PVSYST_plan,
+            'Difference_Profit_ACT_to_g4n_plan' => $Difference_Profit_ACT_to_g4n_plan
+        ];
+
+        #dd($lossesComparedTable);
+        //end Losses compared
+
+        //beginn Chart Losses compared
+        $chart = new ECharts();
+        $chart->tooltip->show = true;
+
+        $chart->tooltip->trigger = 'item';
+
+        $chart->xAxis = array(
+            'type' => 'category',
+            'axisLabel' => array(
+                'show' => true,
+                'margin' => '10',
+            ),
+            'splitArea' => array(
+                'show' => true,
+            ),
+            'data' => $dataMonthArray,
+        );
+        $chart->yAxis = array(
+            'type' => 'value',
+            'name' => 'EUR',
+            'nameLocation' => 'middle',
+            'nameGap' => 70
+        );
+        $chart->series =
+            [
+                [
+                    'name' => 'Difference Income ACT to PVSYST plan',
+                    'type' => 'bar',
+                    'data' => $lossesComparedTable['Difference_Profit_ACT_to_PVSYST_plan'],
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'PVSYST plan proceeds',
+                    'type' => 'bar',
+                    'data' => $lossesComparedTable['Difference_Profit_ACT_to_g4n_plan'],
+                    'visualMap' => 'false'
+                ]
+            ];
+
+        $option = array(
+            'color' => ['#9dc3e6', '#92d050'],
+            'title' => [
+                'text' => 'Losses Compared' ,
+                'left' => 'center',
+            ],
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'left' => 'center',
+                    'top' => 20
+                ],
+            'grid' =>
+                array(
+                    'height' => '80%',
+                    'top' => 50,
+                    'width' => '90%',
+                ),
+        );
+
+
+        $chart->setOption($option);
+
+        $losses_compared_chart = $chart->render('lossesCompared', ['style' => 'height: 350px; width:950px;']);
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+
+        //end Chart Losses compared
+
+        //beginn Table Losses compared cummulated
+
+        dump($lossesComparedTable);
+        unset($result1);
+        unset($result2);
+        $kumsum1[0] = $lossesComparedTable['Difference_Profit_ACT_to_PVSYST_plan'][0];
+        $kumsum2[0] = $lossesComparedTable['Difference_Profit_ACT_to_g4n_plan'][0];
+        for ($i = 0; $i < $report['reportMonth']; $i++) {
+            $kumsum1[$i] = $lossesComparedTable['Difference_Profit_ACT_to_PVSYST_plan'][$i] + $kumsum1[$i - 1];
+            $kumsum2[$i] = $lossesComparedTable['Difference_Profit_ACT_to_g4n_plan'][$i] + $kumsum2[$i - 1];
+            $result1[] = $kumsum1[$i];
+            $result2[] = $kumsum2[$i];
+        }
+
+        $lossesComparedTableCumulated = [
+            'Difference_Profit_ACT_to_PVSYST_plan_cum' => $result1,
+            'Difference_Profit_ACT_to_g4n_plan_cum' => $result2,
+            ];
+
+        //end Table Losses compared cummulated
+
+        //beginn Chart Losses compared cummulated
+        $chart = new ECharts();
+        $chart->tooltip->show = true;
+
+        $chart->tooltip->trigger = 'item';
+
+        $chart->xAxis = array(
+            'type' => 'category',
+            'axisLabel' => array(
+                'show' => true,
+                'margin' => '10',
+            ),
+            'splitArea' => array(
+                'show' => true,
+            ),
+            'data' => $dataMonthArray,
+        );
+        $chart->yAxis = array(
+            'type' => 'value',
+            'name' => 'EUR',
+            'nameLocation' => 'middle',
+            'nameGap' => 70
+        );
+        $chart->series =
+            [
+                [
+                    'name' => 'Difference Income ACT to PVSYST plan',
+                    'type' => 'line',
+                    'data' => $lossesComparedTableCumulated['Difference_Profit_ACT_to_PVSYST_plan_cum'],
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'PVSYST plan proceeds',
+                    'type' => 'line',
+                    'data' => $lossesComparedTableCumulated['Difference_Profit_ACT_to_g4n_plan_cum'],
+                    'visualMap' => 'false'
+                ]
+            ];
+
+        $option = array(
+            'color' => ['#9dc3e6', '#92d050'],
+            'title' => [
+                'text' => 'Commulative Losses Operating statement [EUR] ' ,
+                'left' => 'center',
+            ],
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'left' => 'center',
+                    'top' => 20
+                ],
+            'grid' =>
+                array(
+                    'height' => '80%',
+                    'top' => 50,
+                    'width' => '90%',
+                ),
+        );
+
+
+        $chart->setOption($option);
+
+        $cumulated_losses_compared_chart = $chart->render('cumulatedlossesCompared', ['style' => 'height: 350px; width:950px;']);
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+
+        //end Chart Losses compared cummulated
 
         $conn = null;
 
         $output = [
-            'operations_right' => $operations_right,
+            'plantId' => $plantId,
+            'owner' => $owner,
+            'plantSize' => $plantSize,
+            'plantName' => $plantName,
+            'anlGeoLat' => $anlGeoLat,
+            'anlGeoLon'  => $anlGeoLon,
             'month' => $monthName,
-            'dataMmonthArray' => $dataMmonthArray,
+            'reportmonth' => $report['reportMonth'],
             'year' => $report['reportYear'],
-            'tbody_a_production' => $tbody_a_production,
+            'monthArray' => $monthArray,
+            'dataMonthArray' => $dataMonthArray,
+            'dataMonthArrayFullYear' => $dataMonthArrayFullYear,
+            'dataCfArray' => $dataCfArray,
+            'operations_right' => $operations_right,
+            'degradation' => $degradation,
+            'forecast_PVSYST_table' => $forecast_PVSYST_table,
+            'forecast_G4N_table' => $forecast_G4N_table,
+            'forecast_PVSYST' => $forecast_PVSYST,
+            'forecast_G4N' => $forecast_G4N,
             'table_overview_monthly' => $tbody_a_production,
-            'operations_freetext_one' => 'sssssdasd',
-            'operations_monthly_left' => $operations_monthly_left,
-            'operations_monthly_right_tupper_tr1' => $operations_monthly_right_tupper_tr1,
-            'operations_monthly_right_tupper_tr2' => $operations_monthly_right_tupper_tr2,
-            'operations_monthly_right_tupper_tr3' => $operations_monthly_right_tupper_tr3,
-            'operations_monthly_right_tupper_tr4' => $operations_monthly_right_tupper_tr4,
-            'operations_monthly_right_tupper_tr5' => $operations_monthly_right_tupper_tr5,
-            'operations_monthly_right_tupper_tr6' => $operations_monthly_right_tupper_tr6,
-            'operations_monthly_right_tupper_tr7' => $operations_monthly_right_tupper_tr7,
-            'operations_monthly_right_tlower_tr1' => $operations_monthly_right_tlower_tr1,
-            'operations_monthly_right_tlower_tr2' => $operations_monthly_right_tlower_tr2,
-            'operations_monthly_right_tlower_tr3' => $operations_monthly_right_tlower_tr3,
-            'operations_monthly_right_tlower_tr4' => $operations_monthly_right_tlower_tr4,
-            'operations_monthly_right_tlower_tr5' => $operations_monthly_right_tlower_tr5,
-            'operations_monthly_right_tlower_tr6' => $operations_monthly_right_tlower_tr6,
-            'operations_monthly_right_tlower_tr7' => $operations_monthly_right_tlower_tr7,
-            'table_overview_dayly' => $table_overview_dayly,
+            'losses_t1' => $losses_t1,
+            'losses_t2' => $losses_t2,
+            'losses_year' => $losses_year,
+            'losses_monthly' => $losses_monthly,
+            'production_monthly_chart' => $production_monthly_chart,
+            'operations_monthly_right_pvsyst_tr1' => $operations_monthly_right_pvsyst_tr1,
+            'operations_monthly_right_pvsyst_tr2' => $operations_monthly_right_pvsyst_tr2,
+            'operations_monthly_right_pvsyst_tr3' => $operations_monthly_right_pvsyst_tr3,
+            'operations_monthly_right_pvsyst_tr4' => $operations_monthly_right_pvsyst_tr4,
+            'operations_monthly_right_pvsyst_tr5' => $operations_monthly_right_pvsyst_tr5,
+            'operations_monthly_right_pvsyst_tr6' => $operations_monthly_right_pvsyst_tr6,
+            'operations_monthly_right_pvsyst_tr7' => $operations_monthly_right_pvsyst_tr7,
+            'operations_monthly_right_g4n_tr1' => $operations_monthly_right_g4n_tr1,
+            'operations_monthly_right_g4n_tr2' => $operations_monthly_right_g4n_tr2,
+            'operations_monthly_right_g4n_tr3' => $operations_monthly_right_g4n_tr3,
+            'operations_monthly_right_g4n_tr4' => $operations_monthly_right_g4n_tr4,
+            'operations_monthly_right_g4n_tr5' => $operations_monthly_right_g4n_tr5,
+            'operations_monthly_right_g4n_tr6' => $operations_monthly_right_g4n_tr6,
+            'operations_monthly_right_g4n_tr7' => $operations_monthly_right_g4n_tr7,
+            'operations_monthly_right_iout_tr1' => $operations_monthly_right_iout_tr1,
+            'operations_monthly_right_iout_tr2' => $operations_monthly_right_iout_tr2,
+            'operations_monthly_right_iout_tr3' => $operations_monthly_right_iout_tr3,
+            'operations_monthly_right_iout_tr4' => $operations_monthly_right_iout_tr4,
+            'operations_monthly_right_iout_tr5' => $operations_monthly_right_iout_tr5,
+            'operations_monthly_right_iout_tr6' => $operations_monthly_right_iout_tr6,
+            'operations_monthly_right_iout_tr7' => $operations_monthly_right_iout_tr7,
             'useGridMeterDayData' => $useGridMeterDayData,
-            'plantAvailability' => $outPa,
-            'plantAvailabilityCurrentYear' => $outPaCY,
             'showAvailability' => $showAvailability,
             'showAvailabilitySecond' => $showAvailabilitySecond,
-            'operations_dayly_1' => $operations_dayly_1,
-            'operations_dayly_2' => $operations_dayly_2,
-            'operations_availability_1' => $operations_availability_1,
-            'operations_availability_2' => $operations_availability_2,
-            #'operations_availability_dayly' => $operations_availability_dayly,
-            'operations_currents_dayly_1' => $operations_currents_dayly_1,
-            'operations_currents_dayly_2' => $operations_currents_dayly_2,
-            'operations_currents_dayly_table' => $outTableCurrentsPower,
+            'table_overview_dayly' => $table_overview_dayly,
+            'plantAvailabilityCurrentYear' => $outPaCY,
             'daysInReportMonth' => $daysInReportMonth,
             'tableColsLimit' => $tableColsLimit,
-            'operations_inverters_dayly_1' => $operations_inverters_dayly_1,
-            'operations_inverters_dayly_2' => $operations_inverters_dayly_2,
-            'inverters_heatmap' => $inverters_heatmap,
-            'inverters_heatmap_1' => $inverters_heatmap_1,
-            'inverters_heatmap_2' => $inverters_heatmap_2,
-            'acGroups' => $acGroups
+            'acGroups' => $acGroupsCleaned,
+            'availability_Year_To_Date' => $availability_Year_To_Date,
+            'failures_Year_To_Date' => $failures_Year_To_Date,
+            'plant_availability' => $plant_availability,
+            'actual' => $actual,
+            'plantAvailabilityMonth' => $outPa,
+            'operations_currents_dayly_table' => $outTableCurrentsPower,
+            'income_per_month' => $incomePerMonth,
+            'income_per_month_chart' => $income_per_month_chart,
+            'economicsMandy' => $economicsMandy,
+            'total_Costs_Per_Date' => $total_Costs_Per_Date,
+            'operating_statement_chart' => $operating_statement_chart,
+            'economicsCumulatedForecast' => $economicsCumulatedForecast,
+            'economicsCumulatedForecastChart' => $economicsCumulatedForecastChart,
+            'lossesComparedTable' => $lossesComparedTable,
+            'losses_compared_chart' => $losses_compared_chart,
+            'lossesComparedTableCumulated' => $lossesComparedTableCumulated,
+            'cumulated_losses_compared_chart' => $cumulated_losses_compared_chart,
         ];
-
         return $output;
 
     }

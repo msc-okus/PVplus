@@ -1,0 +1,98 @@
+{% include 'report/_asset_mangement_partials/_headline.html.twig'%}
+    <div class="content_asset_report">
+        <h3 style="color: {{ font_color_second }};">Economics</h3>
+        <span class="subheadline">Losses compared</span>
+
+        <table id="basetable">
+            <tr>
+                <td colspan="2" style="text-align: left">
+                    <table class="asset_report_table_operations_data" style="width: 100%!important;">
+                        <tbody>
+                        <tr style="font-weight: bold;">
+                            <td class="tr_next_columns" style="background-color: #ededed; width: 150px;">Losses Operating statement [EUR]</td>
+                            {% set counter = 1 %}
+                            {% for data in dataMonthArray %}
+                                {% if (counter < 7) %}
+                                    <td class="tr_next_columns" style="background-color: #ededed; text-align: center!important;">{{ data }} {{ year }}</td>
+                                {% endif %}
+                                {% set counter = counter+1 %}
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns" style="background-color: #ededed; "><b>Difference Income ACT to PVSYST plan</b></td>
+                            {% set counter = 1 %}
+                            {% set total = 0 %}
+                            {% for data in lossesComparedTable.Difference_Profit_ACT_to_PVSYST_plan %}
+                                {% if (counter < 7) %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
+                                {% set counter = counter+1 %}
+                                {% set total = total + data %}
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns" style="background-color: #ededed;">Difference Income ACT to g4n plan</td>
+                            {% set counter = 1 %}
+                            {% set total = 0 %}
+                            {% for data in lossesComparedTable.Difference_Profit_ACT_to_g4n_plan %}
+                                {% if (counter < 7) %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
+                                {% set counter = counter+1 %}
+                                {% set total = total + data %}
+                            {% endfor %}
+                        </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="text-align: left">
+                    <table class="asset_report_table_operations_data" style="width: 100%!important;">
+                        <tbody>
+                        <tr style="font-weight: bold;">
+                            <td class="tr_next_columns" style="background-color: #ededed; width: 150px;">Losses Operating statement [EUR]</td>
+                            {% set counter = 1 %}
+                            {% for data in dataMonthArray %}
+                                {% if (counter > 6) %}
+                                    <td class="tr_next_columns" style="background-color: #ededed; text-align: center!important;">{{ data }} {{ year }}</td>
+                                {% endif %}
+                                {% set counter = counter+1 %}
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns" style="background-color: #ededed; "><b>Difference Income ACT to PVSYST plan</b></td>
+                            {% set counter = 1 %}
+                            {% set total = 0 %}
+                            {% for data in lossesComparedTable.Difference_Profit_ACT_to_PVSYST_plan %}
+                                {% if (counter > 6) %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
+                                {% set counter = counter+1 %}
+                                {% set total = total + data %}
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns" style="background-color: #ededed;">Difference Income ACT to g4n plan</td>
+                            {% set counter = 1 %}
+                            {% set total = 0 %}
+                            {% for data in lossesComparedTable.Difference_Profit_ACT_to_g4n_plan %}
+                                {% if (counter > 6) %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
+                                {% set counter = counter+1 %}
+                                {% set total = total + data %}
+                            {% endfor %}
+                        </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align: center!important;">
+                    {{ losses_compared_chart|raw }}
+                </td>
+            </tr>
+        </table>
+    </div>
+{% include 'report/_asset_mangement_partials/_footer.html.twig'%}

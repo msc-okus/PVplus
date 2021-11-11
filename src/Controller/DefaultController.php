@@ -33,66 +33,6 @@ class DefaultController extends BaseController
     /**
      * @param $doctype ( 0 = PDF, 1 = Excel, 2 = PNG (Grafiken) )
      * @param $charttypetoexport (0 = , 1 = )
-     * @Route("/testasset/report/{id}/{month}/{year}/{inverter}/{doctype}/{charttypetoexport}/{storeDocument}", defaults={"storeDocument"=false})
-     */
-    public function testAssetReport($id, $month, $year, $inverter, $doctype, $charttypetoexport, $storeDocument, AssetManagementService $assetManagement, AnlagenRepository $anlagenRepository)
-    {
-        $anlagen = $anlagenRepository->findIdLike([$id]);
-        $output = $assetManagement->assetReport($anlagen, $month, $year, $inverter, $doctype, $charttypetoexport, $storeDocument);
-
-        return $this->render('report/assetreport.goldbeck.html.twig', [
-            'operations_right' => $output['operations_right'],
-            'month' => $output['month'],
-            'dataMmonthArray' => $output['dataMmonthArray'],
-            'year' => $output['year'],
-            'table_overview_monthly' => $output['table_overview_monthly'],
-            'operations_monthly_left' => $output['operations_monthly_left'],
-            'operations_monthly_right_tupper_tr1' => $output['operations_monthly_right_tupper_tr1'],
-            'operations_monthly_right_tupper_tr2' => $output['operations_monthly_right_tupper_tr2'],
-            'operations_monthly_right_tupper_tr3' => $output['operations_monthly_right_tupper_tr3'],
-            'operations_monthly_right_tupper_tr4' => $output['operations_monthly_right_tupper_tr4'],
-            'operations_monthly_right_tupper_tr5' => $output['operations_monthly_right_tupper_tr5'],
-            'operations_monthly_right_tupper_tr6' => $output['operations_monthly_right_tupper_tr6'],
-            'operations_monthly_right_tupper_tr7' => $output['operations_monthly_right_tupper_tr7'],
-            'operations_monthly_right_tlower_tr1' => $output['operations_monthly_right_tlower_tr1'],
-            'operations_monthly_right_tlower_tr2' => $output['operations_monthly_right_tlower_tr2'],
-            'operations_monthly_right_tlower_tr3' => $output['operations_monthly_right_tlower_tr3'],
-            'operations_monthly_right_tlower_tr4' => $output['operations_monthly_right_tlower_tr4'],
-            'operations_monthly_right_tlower_tr5' => $output['operations_monthly_right_tlower_tr5'],
-            'operations_monthly_right_tlower_tr6' => $output['operations_monthly_right_tlower_tr6'],
-            'operations_monthly_right_tlower_tr7' => $output['operations_monthly_right_tlower_tr7'],
-            'table_overview_dayly'  => $output['table_overview_dayly'],
-            'useGridMeterDayData' => $output['useGridMeterDayData'],
-            'plantAvailability' => $output['plantAvailability'],
-            'plantAvailabilityCurrentYear' => $output['plantAvailabilityCurrentYear'],
-            'showAvailability' => $output['showAvailability'],
-            'showAvailabilitySecond' => $output['showAvailabilitySecond'],
-            'operations_freetext_one' => $output['operations_freetext_one'],
-            'operations_dayly_1' => $output['operations_dayly_1'],
-            'operations_dayly_2' =>  $output['operations_dayly_2'],
-            'operations_availability_1' => $output['operations_availability_1'],
-            'operations_availability_2' =>  $output['operations_availability_2'],
-            'operations_availability_dayly' => $output['operations_availability_dayly'],
-            'operations_currents_dayly_1' => $output['operations_currents_dayly_1'],
-            'operations_currents_dayly_2' => $output['operations_currents_dayly_2'],
-            'operations_currents_dayly_table' => $output['operations_currents_dayly_table'],
-            'daysInReportMonth' => $output['daysInReportMonth'],
-            'tableColsLimit' => $output['tableColsLimit'],
-            'operations_inverters_dayly_1' => $output['operations_inverters_dayly_1'],
-            'operations_inverters_dayly_2' => $output['operations_inverters_dayly_2'],
-            'inverters_heatmap' => $output['inverters_heatmap'],
-            'inverters_heatmap_1' => $output['inverters_heatmap_1'],
-            'inverters_heatmap_2' => $output['inverters_heatmap_2'],
-            'acGroups' => $output['acGroups']
-        ]);
-
-    }
-
-
-
-    /**
-     * @param $doctype ( 0 = PDF, 1 = Excel, 2 = PNG (Grafiken) )
-     * @param $charttypetoexport (0 = , 1 = )
      * @param $storeDocument (true / false)
      * @Route("/test/report/{id}/{month}/{year}/{doctype}/{charttypetoexport}/{storeDocument}", defaults={"storeDocument"=false})
      * @deprecated
