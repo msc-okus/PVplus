@@ -1908,9 +1908,6 @@ class AssetManagementService
                 $variable5[$i];
             (float)$kwhPrice[] = $economicsValues[$i][19];
             $monthTotal[] = $fixesTotal[$i]+$variablesTotal[$i];
-            if ($report['reportMonth']-1 == $i && $report['reportYear'] == $currentYear) {
-                $i = 13;
-            }
         }
 
         #fuer die Tabelle
@@ -1957,26 +1954,139 @@ class AssetManagementService
             $incomePerMonth['monthley_feed_in_tarif'][$i] = $monthleyFeedInTarif;
         }
         #end Operating statement
+
+
         #beginn economics Cumulated Forecast
-        $kumsum1[0] = $incomePerMonth['revenues_act_minus_totals'][0];
+        //ohne Kosten(Hilfstabelle)
+        for ($i = 0; $i < count($dataMonthArrayFullYear); $i++) {
+            $ohneKostenForecastPVSYST[$i] = $tbody_a_production['expectedPvSyst'][$i]*$incomePerMonth['monthley_feed_in_tarif'][$i];
+            $ohneKostenForecastG4N[$i] = $forecast[$i+1]*$kwhPrice[$i];
+        }
+
+        //mit Kosten(Hilfstabelle)
+        for ($i = 0; $i < count($dataMonthArrayFullYear); $i++) {
+            $mitKostenForecastPVSYST[$i] = $ohneKostenForecastPVSYST[$i]-$economicsMandy['monthTotal'][$i];
+            $mitKostenForecastG4N[$i] = $ohneKostenForecastG4N[$i]-$economicsMandy['monthTotal'][$i];
+        }
+
+        #dd($mitKostenForecastG4N);
+        $kumsum1[0] = $economicsMandy['monthTotal'][0];
         $kumsum2[0] = $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][0];
-        $kumsum3[0] = $incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'][0];
-        for ($i = 0; $i < $report['reportMonth']; $i++) {
-            $kumsum1[$i] = $incomePerMonth['revenues_act_minus_totals'][$i] + $kumsum1[$i - 1];
-            $kumsum2[$i] = $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][$i] + $kumsum2[$i - 1];
-            $kumsum3[$i] = $incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'][$i] + $kumsum3[$i - 1];
+        $kumsum3[0] = $incomePerMonth['PVSYST_plan_proceeds_EXP'][0];
+        $kumsum4[0] = $incomePerMonth['gvn_plan_proceeds_EXP'][0];
+        for ($i = 0; $i < 12; $i++) {
+            $kumsum1[$i] = $economicsMandy['monthTotal'][$i] + $kumsum1[$i - 1];
+            if($i < $report['reportMonth']){
+                $kumsum2[$i] = $kumsum1[$i];
+            }else{
+                $kumsum2[$i] = $kumsum1[$i]+$mitKostenForecastG4N[$i];
+            }
+            $kumsum3[$i] = $incomePerMonth['PVSYST_plan_proceeds_EXP'][$i] + $kumsum3[$i - 1];
+            $kumsum4[$i] = $incomePerMonth['gvn_plan_proceeds_EXP'][$i] + $kumsum4[$i - 1];
             $result1[] = $kumsum1[$i];
             $result2[] = $kumsum2[$i];
             $result3[] = $kumsum3[$i];
+            $result4[] = $kumsum4[$i];
         }
 
+        #dump($result1);
+        #dump($result2);
+        #dump($result3);
+        #dd($result4);
+
         $economicsCumulatedForecast = [
-            'revenues_ACT_and_Revenues_Plan' => $result1,
-            'PVSYST_plan_proceeds_P50' => $result2,
-            'g4n_plan_proceeds_EXP_P50' => $result3,
+            'revenues_ACT_and_Revenues_Plan_PVSYT' => $result1,
+            'revenues_ACT_and_Revenues_Plan_G4N' => $result2,
+            'PVSYST_plan_proceeds_P50' => $result3,
+            'g4n_plan_proceeds_EXP_P50' => $result4,
         ];
 
-        //beginn chart
+        #geginn Chart economics Cumulated Forecast
+        $chart->tooltip->show = true;
+        $chart->tooltip->trigger = 'item';
+
+        $chart->xAxis = array(
+            'type' => 'category',
+            'axisLabel' => array(
+                'show' => true,
+                'margin' => '10',
+            ),
+            'splitArea' => array(
+                'show' => true,
+            ),
+            'data' => $dataMonthArrayFullYear
+        );
+        $chart->yAxis = array(
+            'type' => 'value',
+            'name' => 'EUR',
+            'nameLocation' => 'middle',
+            'nameGap' => 70
+        );
+        $chart->series =
+            [
+                [
+                    'name' => 'Revenues ACT and Revenues Plan PVSYST',
+                    'type' => 'line',
+                    'data' => $economicsCumulatedForecast['revenues_ACT_and_Revenues_Plan_PVSYT'],
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'Revenues ACT and Revenues Plan g4n',
+                    'type' => 'line',
+                    'data' => $economicsCumulatedForecast['revenues_ACT_and_Revenues_Plan_G4N'],
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'PVSYST plan proceeds - P50',
+                    'type' => 'line',
+                    'data' => $economicsCumulatedForecast['PVSYST_plan_proceeds_P50'],
+                    'visualMap' => 'false',
+                ],
+                [
+                    'name' => 'g4n plan proceeds - EXP - P50',
+                    'type' => 'line',
+                    'data' => $economicsCumulatedForecast['g4n_plan_proceeds_EXP_P50'],
+                    'visualMap' => 'false',
+                ]
+            ];
+
+        $option = array(
+            'color' => ['#4472c4', '#ed7d31', '#a5a5a5', '#ffc000'],
+            'title' => [
+                'text' => 'Cumulated Forecast',
+                'left' => 'center',
+            ],
+            'tooltip' =>
+                [
+                    'show' => true,
+                ],
+            'legend' =>
+                [
+                    'show' => true,
+                    'left' => 'center',
+                    'top' => 20
+                ],
+            'grid' =>
+                array(
+                    'height' => '70%',
+                    'top' => 50,
+                    'width' => '80%',
+                ),
+        );
+
+
+
+        $chart->setOption($option);
+
+        $economicsCumulatedForecastChart = $chart->render('economicsCumulatedForecastChart', ['style' => 'height: 380px; width:26cm;']);
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+        #end Chart economics Cumulated Forecast
+
+        //beginn chart losses monthly
         $chart->tooltip->show = true;
         $chart->tooltip->trigger = 'item';
 
@@ -2052,7 +2162,7 @@ class AssetManagementService
         $chart->yAxis = [];
         $chart->series = [];
         unset($option);
-        #end economics Cumulated Forecast
+        #end elosses monthly
 
 
         //beginn chart costs per month
@@ -2139,8 +2249,6 @@ class AssetManagementService
 
         //Beginn Economics Costs per month and year
 
-        //reminer vor Variables echo $object->{'$t'};
-
         $chart->tooltip->show = true;
         $chart->tooltip->trigger = 'item';
         $chart->series =
@@ -2213,8 +2321,9 @@ class AssetManagementService
                         'show' => false
                     ],
                     'center' => [
-                        200,150
+                        90,120
                     ],
+                    'top' => -10,
                     'itemStyle' => [
                         'borderType' => 'solid',
                         'borderWidth' => 1,
@@ -2250,17 +2359,15 @@ class AssetManagementService
                     'right' => 40,
                 ],
         );
-
-        Config::addExtraScript('cool.js', 'https://gs.g4npvplus.net/echarts/theme/');
+        
         $chart->setOption($option);
-        $total_Costs_Per_Date = $chart->render('total_Costs_Per_Date', ['style' => 'height: 250px; width:800px; margin-left:80px;']);
+        $total_Costs_Per_Date = $chart->render('total_Costs_Per_Date', ['style' => 'height: 210px; width:26cm; margin-left:80px;']);
 
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
         $chart->series = [];
         unset($option);
-
         //End Economics Costs per month and year
 
         //beginn Operating Statement
@@ -2291,7 +2398,7 @@ class AssetManagementService
         $chart->series =
             [
                 [
-                    'name' => 'Income ACT',
+                    'name' => 'Profit ACT',
                     'type' => 'bar',
                     'data' => $incomePerMonth['revenues_act_minus_totals'],
                     'visualMap' => 'false'
@@ -2346,96 +2453,20 @@ class AssetManagementService
 
         //end Operating Statement
 
-        $economicsCumulatedForecast = [
-            'revenues_ACT_and_Revenues_Plan' => $result1,
-            'PVSYST_plan_proceeds_P50' => $result2,
-            'g4n_plan_proceeds_EXP_P50' => $result3,
+//xxxx
+        //beginn Losses compared
+        for ($i = 0; $i < $report['reportMonth']; $i++) {
+            $Difference_Profit_ACT_to_PVSYST_plan[] = $incomePerMonth['revenues_act_minus_totals'][$i]-$incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][$i];
+            $Difference_Profit_ACT_to_g4n_plan[] = $incomePerMonth['revenues_act_minus_totals'][$i]-$incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'][$i];
+        }
+
+        $lossesComparedTable = [
+            'Difference_Profit_ACT_to_PVSYST_plan' => $Difference_Profit_ACT_to_PVSYST_plan,
+            'Difference_Profit_ACT_to_g4n_plan' => $Difference_Profit_ACT_to_g4n_plan
         ];
-        #geginn Chart economics Cumulated Forecast
-        $chart->tooltip->show = true;
-        $chart->tooltip->trigger = 'item';
 
-        $chart->xAxis = array(
-            'type' => 'category',
-            'axisLabel' => array(
-                'show' => true,
-                'margin' => '10',
-            ),
-            'splitArea' => array(
-                'show' => true,
-            ),
-            'data' => $dataMonthArray
-        );
-        $chart->yAxis = array(
-            'type' => 'value',
-            'name' => 'EUR',
-            'nameLocation' => 'middle',
-            'nameGap' => 70
-        );
-        $chart->series =
-            [
-                [
-                    'name' => 'Revenues ACT and Revenues Plan PVSYST',
-                    'type' => 'line',
-                    'data' => $economicsCumulatedForecast['revenues_ACT_and_Revenues_Plan'],
-                    'visualMap' => 'false'
-                ],
-                [
-                    'name' => 'Revenues ACT and Revenues Plan g4n',
-                    'type' => 'line',
-                    'data' => $economicsCumulatedForecast['revenues_ACT_and_Revenues_Plan'],
-                    'visualMap' => 'false'
-                ],
-                [
-                    'name' => 'PVSYST plan proceeds - P50',
-                    'type' => 'line',
-                    'data' => $economicsCumulatedForecast['PVSYST_plan_proceeds_P50'],
-                    'visualMap' => 'false',
-                ],
-                [
-                    'name' => 'g4n plan proceeds - EXP - P50',
-                    'type' => 'line',
-                    'data' => $economicsCumulatedForecast['g4n_plan_proceeds_EXP_P50'],
-                    'visualMap' => 'false',
-                ]
-            ];
-
-        $option = array(
-            'color' => ['#4472c4', '#ed7d31', '#a5a5a5', '#ffc000'],
-            'title' => [
-                'text' => 'Cumulated Forecast',
-                'left' => 'center',
-            ],
-            'tooltip' =>
-                [
-                    'show' => true,
-                ],
-            'legend' =>
-                [
-                    'show' => true,
-                    'left' => 'center',
-                    'top' => 20
-                ],
-            'grid' =>
-                array(
-                    'height' => '70%',
-                    'top' => 50,
-                    'width' => '90%',
-                ),
-        );
-
-        
-
-        $chart->setOption($option);
-
-        $economicsCumulatedForecastChart = $chart->render('economicsCumulatedForecastChart', ['style' => 'height: 420px; width:28cm;']);
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
-        #end Chart economics Cumulated Forecast
-
+        #dd($lossesComparedTable);
+        //end Losses compared
 
         //beginn Chart Losses compared
         $chart = new ECharts();
@@ -2456,7 +2487,6 @@ class AssetManagementService
         );
         $chart->yAxis = array(
             'type' => 'value',
-            'min' => 0,
             'name' => 'EUR',
             'nameLocation' => 'middle',
             'nameGap' => 70
@@ -2466,13 +2496,13 @@ class AssetManagementService
                 [
                     'name' => 'Difference Income ACT to PVSYST plan',
                     'type' => 'bar',
-                    'data' => $incomePerMonth['revenues_act_minus_totals'],
+                    'data' => $lossesComparedTable['Difference_Profit_ACT_to_PVSYST_plan'],
                     'visualMap' => 'false'
                 ],
                 [
                     'name' => 'PVSYST plan proceeds',
                     'type' => 'bar',
-                    'data' => $incomePerMonth['revenues_act_minus_totals'],
+                    'data' => $lossesComparedTable['Difference_Profit_ACT_to_g4n_plan'],
                     'visualMap' => 'false'
                 ]
             ];
@@ -2513,7 +2543,28 @@ class AssetManagementService
 
         //end Chart Losses compared
 
-        //beginn Chart Losses compared
+        //beginn Table Losses compared cummulated
+
+        dump($lossesComparedTable);
+        unset($result1);
+        unset($result2);
+        $kumsum1[0] = $lossesComparedTable['Difference_Profit_ACT_to_PVSYST_plan'][0];
+        $kumsum2[0] = $lossesComparedTable['Difference_Profit_ACT_to_g4n_plan'][0];
+        for ($i = 0; $i < $report['reportMonth']; $i++) {
+            $kumsum1[$i] = $lossesComparedTable['Difference_Profit_ACT_to_PVSYST_plan'][$i] + $kumsum1[$i - 1];
+            $kumsum2[$i] = $lossesComparedTable['Difference_Profit_ACT_to_g4n_plan'][$i] + $kumsum2[$i - 1];
+            $result1[] = $kumsum1[$i];
+            $result2[] = $kumsum2[$i];
+        }
+
+        $lossesComparedTableCumulated = [
+            'Difference_Profit_ACT_to_PVSYST_plan_cum' => $result1,
+            'Difference_Profit_ACT_to_g4n_plan_cum' => $result2,
+            ];
+
+        //end Table Losses compared cummulated
+
+        //beginn Chart Losses compared cummulated
         $chart = new ECharts();
         $chart->tooltip->show = true;
 
@@ -2532,7 +2583,6 @@ class AssetManagementService
         );
         $chart->yAxis = array(
             'type' => 'value',
-            'min' => 0,
             'name' => 'EUR',
             'nameLocation' => 'middle',
             'nameGap' => 70
@@ -2542,13 +2592,13 @@ class AssetManagementService
                 [
                     'name' => 'Difference Income ACT to PVSYST plan',
                     'type' => 'line',
-                    'data' => $incomePerMonth['revenues_act_minus_totals'],
+                    'data' => $lossesComparedTableCumulated['Difference_Profit_ACT_to_PVSYST_plan_cum'],
                     'visualMap' => 'false'
                 ],
                 [
                     'name' => 'PVSYST plan proceeds',
                     'type' => 'line',
-                    'data' => $incomePerMonth['revenues_act_minus_totals'],
+                    'data' => $lossesComparedTableCumulated['Difference_Profit_ACT_to_g4n_plan_cum'],
                     'visualMap' => 'false'
                 ]
             ];
@@ -2587,7 +2637,7 @@ class AssetManagementService
         $chart->series = [];
         unset($option);
 
-        //end Chart Losses compared
+        //end Chart Losses compared cummulated
 
         $conn = null;
 
@@ -2659,7 +2709,9 @@ class AssetManagementService
             'operating_statement_chart' => $operating_statement_chart,
             'economicsCumulatedForecast' => $economicsCumulatedForecast,
             'economicsCumulatedForecastChart' => $economicsCumulatedForecastChart,
+            'lossesComparedTable' => $lossesComparedTable,
             'losses_compared_chart' => $losses_compared_chart,
+            'lossesComparedTableCumulated' => $lossesComparedTableCumulated,
             'cumulated_losses_compared_chart' => $cumulated_losses_compared_chart,
         ];
         return $output;

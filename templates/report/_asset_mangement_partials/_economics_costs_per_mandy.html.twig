@@ -1,17 +1,17 @@
 {% include 'report/_asset_mangement_partials/_headline.html.twig'%}
     <div class="content_asset_report">
         <h3 style="color: {{ font_color_second }};">Economics</h3>
-        <span class="subheadline">Costs per month and year(todo:alle Werte dieser Tabelle sind nicht aktuell sondern nur zum Test)</span>
+        <span class="subheadline">Costs per month and year</span>
 
         <table id="basetable" style="margin-top: -10px">
             <tr>
                 <td colspan="2" style="text-align: left">
                     {% set totalsfix = [] %}
-                    <table class="asset_report_table_operations_data_small" style="width: 100%!important;">
+                    <table class="asset_report_table_operations_data_small" style="width: 95%!important;">
                         <tbody>
                         <tr style="font-weight: bold">
                             <td class="tr_next_columns" style="background-color: #ededed;">costs per month and year [EUR]</td>
-                            {% for data in dataMonthArray %}
+                            {% for data in dataMonthArrayFullYear %}
                                 <td class="tr_next_columns" style="background-color: #ededed; text-align: center;">{{ data }} {{ year }}</td>
                             {% endfor %}
                             <td class="tr_next_columns" style="background-color: #ededed; font-weight: bold; text-align: center;">TOTAL</td>

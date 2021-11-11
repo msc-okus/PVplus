@@ -115,7 +115,9 @@ class AssetManagementController extends BaseController
             'operating_statement_chart' => $output['operating_statement_chart'],
             'economicsCumulatedForecast' => $output['economicsCumulatedForecast'],
             'economicsCumulatedForecastChart' => $output['economicsCumulatedForecastChart'],
+            'lossesComparedTable' => $output['lossesComparedTable'],
             'losses_compared_chart' => $output['losses_compared_chart'],
+            'lossesComparedTableCumulated' => $output['lossesComparedTableCumulated'],
             'cumulated_losses_compared_chart' => $output['cumulated_losses_compared_chart'],
         ]);
         if($export == 0){
