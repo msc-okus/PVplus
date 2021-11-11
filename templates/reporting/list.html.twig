@@ -72,7 +72,7 @@
             {% if is_granted('ROLE_G4N') %}
                 <th>Owner</th>
                 <th {% if pagination.isSorted('report.createdAt') %} class="sorted"{% endif %}>
-                {{ knp_pagination_sortable(pagination, 'created at', ['report.createdAt']) }}</th>
+                    {{ knp_pagination_sortable(pagination, 'created at', ['report.createdAt']) }}</th>
                 <th {% if pagination.isSorted('report.createdBy') %} class="sorted"{% endif %}>
                     {{ knp_pagination_sortable(pagination, 'created by', ['report.createdBy']) }}</th>
             {% endif %}
@@ -90,32 +90,34 @@
         <tbody>
         {% for report in pagination %}
             {% if is_granted('ROLE_G4N') or report.reportStatus <= 5 %}
-            <tr>
-                <td>{{ report.id }}</td>
-                <td>{{ report.anlage.anlName }} {% if is_granted('ROLE_G4N') %} ({{ report.anlage.anlId}}) {% endif %}</td>
-                {% if is_granted('ROLE_G4N') %}
-                    <td>{{ report.eigner.firma }}</td>
-                    <td>{{ report.createdAt|date }}</td>
-                    <td>{{ report.createdBy }}</td>
-                {% endif %}
-                <td>{{ report.month }}</td>
-                <td>{{ report.year }}</td>
-                <td>
-                    {{ report.reportType }}
-                    {% if report.reportType == 'epc-report' %} - {{ report.anlage.epcReportType }}{% endif %}
-                </td>
-                {# <td>{% if report.reportStatus == 0 %} final {% elseif report.reportStatus <= 5 %} proof reading {% elseif report.reportStatus == 9 %} archive {% else %} draft (only g4n) {% endif %}</td>  #}
-                <td>{{ stati[report.reportStatus] }}</td>
-                <td class="text-right">
-                    {# <a href="{{ path('app_reporting_edit', { id: report.id}) }}"><span class="fa fa-pencil"></span></a>&nbsp;{# {{ path('app_reporting_edit', { id: report.id}) }} #}
-                    {% if is_granted('ROLE_G4N') or report.reportStatus <= 1 %}
-                        <a href="{{ path('app_reporting_excel', { id: report.id}) }}" target="_blank" title="load Excel file" class="hollow button tiny action-icon shadow"><span class="fa fa-file-excel"></span></a>
-                        <a href="{{ path('app_reporting_pdf', { id: report.id}) }}"   target="_blank" title="load PDF file" class="hollow button tiny action-icon shadow"><span class="fa fa-file-pdf"></span></a>
+                <tr>
+                    <td>{{ report.id }}</td>
+                    <td>{{ report.anlage.anlName }} {% if is_granted('ROLE_G4N') %} ({{ report.anlage.anlId}}) {% endif %}</td>
+                    {% if is_granted('ROLE_G4N') %}
+                        <td>{{ report.eigner.firma }}</td>
+                        <td>{{ report.createdAt|date }}</td>
+                        <td>{{ report.createdBy }}</td>
                     {% endif %}
-                    {% if is_granted('ROLE_G4N') %}<a href="{{ path('app_reporting_edit', { id: report.id}) }}"  class="hollow button tiny action-icon shadow"><span class="fa fa-pencil"></span></a>{% endif %}
-                    {% if is_granted('ROLE_DEV') %}<a href="{{ path('app_reporting_delete', { id: report.id}) }}" onclick="return window.confirm('Löschen?');" class="hollow alert button tiny action-icon shadow"><span class="fa fa-trash"></span></a>{% endif %}
-                </td>
-            </tr>
+                    <td>{{ report.month }}</td>
+                    <td>{{ report.year }}</td>
+                    <td>
+                        {{ report.reportType }}
+                        {% if report.reportType == 'epc-report' %} - {{ report.anlage.epcReportType }}{% endif %}
+                    </td>
+                    {# <td>{% if report.reportStatus == 0 %} final {% elseif report.reportStatus <= 5 %} proof reading {% elseif report.reportStatus == 9 %} archive {% else %} draft (only g4n) {% endif %}</td>  #}
+                    <td>{{ stati[report.reportStatus] }}</td>
+                    <td class="text-right">
+                        {# <a href="{{ path('app_reporting_edit', { id: report.id}) }}"><span class="fa fa-pencil"></span></a>&nbsp;{# {{ path('app_reporting_edit', { id: report.id}) }} #}
+                        {% if is_granted('ROLE_G4N') or report.reportStatus <= 1 %}
+                            {% if report.reportType != 'am-report' %}
+                                <a href="{{ path('app_reporting_excel', { id: report.id}) }}" target="_blank" title="load Excel file" class="hollow button tiny action-icon shadow"><span class="fa fa-file-excel"></span></a>
+                            {% endif %}
+                            <a href="{{ path('app_reporting_pdf', { id: report.id}) }}"   target="_blank" title="load PDF file" class="hollow button tiny action-icon shadow"><span class="fa fa-file-pdf"></span></a>
+                        {% endif %}
+                        {% if is_granted('ROLE_G4N') %}<a href="{{ path('app_reporting_edit', { id: report.id}) }}"  class="hollow button tiny action-icon shadow"><span class="fa fa-pencil"></span></a>{% endif %}
+                        {% if is_granted('ROLE_DEV') %}<a href="{{ path('app_reporting_delete', { id: report.id}) }}" onclick="return window.confirm('Löschen?');" class="hollow alert button tiny action-icon shadow"><span class="fa fa-trash"></span></a>{% endif %}
+                    </td>
+                </tr>
             {% endif %}
         {% endfor %}
         </tbody>
@@ -131,6 +133,7 @@
                         {% for anlage in anlagen %}
                             <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlId }} - {{ anlage.anlName }}</option>
                         {% endfor %}
+
                     </select>
                 </div>
                 <div class="cell medium-2">
