@@ -27,6 +27,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class ReportingController extends AbstractController
 {
@@ -204,7 +206,7 @@ class ReportingController extends AbstractController
     /**
      * @Route("/reporting/pdf/{id}", name="app_reporting_pdf")
      */
-    public function showReportAsPdf($id, ReportEpcService $reportEpcService, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer): RedirectResponse
+    public function showReportAsPdf($id, ReportEpcService $reportEpcService, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer)
     {
         /** @var AnlagenReports|null $report */
         $session=$this->container->get('session');
@@ -217,6 +219,7 @@ class ReportingController extends AbstractController
         $route          = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
 
         $report = $reportsRepository->find($id);
+        $month = $report->getMonth();
         $reportCreationDate = $report->getCreatedAt()->format('Y-m-d h:i:s');
         $anlage = $report->getAnlage();
         $currentDate = date('Y-m-d H-i');
@@ -287,9 +290,34 @@ class ReportingController extends AbstractController
                 $reportService->buildMonthlyReport($anlage, $report->getContentArray(), $reportCreationDate, 0 ,0, true);
                 // exit für Monthly Reports werden in buildMonthlyReports ausgeführt, wenn 'exit' parameter = true
                 break;
+            case 'am-report':
+                #$reportService->buildAmReport($anlage, $report->getContentArray(), $reportCreationDate, 0 ,0, true);
+                $month = $report->getMonth();
+                $year = $report->getYear();
+                $anlageName = $report->getAnlage();
+                $pos = $this->substr_Index($this->getParameter('kernel.project_dir'), '/', 5);
+                $pathpart = substr($this->getParameter('kernel.project_dir'), $pos);
+
+                $file_with_path = '/usr/home/pvpluy/public_html'.$pathpart.'/public/' . $anlageName.'_AssetReport_'.$month.'_'.$year.'.pdf';
+                $response = new BinaryFileResponse ( $file_with_path );
+                $response->headers->set ( 'Content-Type', 'text/plain' );
+                $response->setContentDisposition(
+                    ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+                    $anlageName.'_AssetReport_'.$month.'_'.$year.'.pdf'
+                );
+                return $response;
+                break;
         }
 
         return $this->redirect($route);
+    }
+
+    /**
+     * @Route("/", name="am_report")
+     */
+    public function xx($response)
+    {
+        return $response;
     }
 
     /**
@@ -515,5 +543,22 @@ class ReportingController extends AbstractController
         }
 
         return $this->redirect($route);
+    }
+
+    function substr_Index( $str, $needle, $nth ){
+        $str2 = '';
+        $posTotal = 0;
+        for($i=0; $i < $nth; $i++){
+
+            if($str2 != ''){
+                $str = $str2;
+            }
+
+            $pos   = strpos($str, $needle);
+            $str2  = substr($str, $pos+1);
+            $posTotal += $pos+1;
+
+        }
+        return $posTotal-1;
     }
 }

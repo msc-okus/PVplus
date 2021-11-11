@@ -131,9 +131,15 @@ class AssetManagementController extends BaseController
             ///usr/www/users/pvpluy/dev.gs/PVplus-4.0
             $pos = $this->substr_Index($this->getParameter('kernel.project_dir'), '/', 5);
             $pathpart = substr($this->getParameter('kernel.project_dir'), $pos);
+            $anlageName = $anlage->getAnlName();
 
-            $pdf->output("/usr/home/pvpluy/public_html$pathpart/public/asset_report_".$plantId.'.pdf');
-            $reportfile = fopen("/usr/home/pvpluy/public_html$pathpart/public/asset_report_$plantId.html", "w") or die("Unable to open file!");
+
+            if($month < 10){
+                $month = '0'.$month;
+            }
+
+            $pdf->output('/usr/home/pvpluy/public_html'.$pathpart.'/public/'.$anlageName.'_AssetReport_'.$month.'_'.$year.'.pdf');
+            $reportfile = fopen('/usr/home/pvpluy/public_html'.$pathpart.'/public/'.$anlageName.'_AssetReport_'.$month.'_'.$year.'.html', "w") or die("Unable to open file!");
             //cleanup html
             $pos = strpos($result, '<html>');
             fwrite($reportfile, substr($result, $pos));
@@ -141,8 +147,8 @@ class AssetManagementController extends BaseController
 
 
             #$pdf->generateFromHtml(substr($result, $pos));
-            $pdf->generateFromFile("/usr/home/pvpluy/public_html$pathpart/public/asset_report_$plantId.html");
-            $filename = 'asset_report_'.$plantId.'.pdf';
+            $pdf->generateFromFile('/usr/home/pvpluy/public_html'.$pathpart.'/public/'.$anlageName.'_AssetReport_'.$month.'_'.$year.'.html');
+            $filename = $anlageName.'_AssetReport_'.$month.'_'.$year.'.pdf';
             $pdf->output($filename);
             // Header content type
             header("Content-type: application/pdf");
@@ -154,7 +160,6 @@ class AssetManagementController extends BaseController
             #return $result;
         }
     }
-
 
     function substr_Index( $str, $needle, $nth ){
         $str2 = '';
