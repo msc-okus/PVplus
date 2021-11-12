@@ -26,9 +26,10 @@
 {% macro addPvSyst(pvsyst) %}
     <tr>
         <td>{{ form_widget(pvsyst.month) }}</td>
+        <td>{{ form_widget(pvsyst.irrDesign) }}</td>
         <td>{{ form_widget(pvsyst.prDesign) }}</td>
         <td>{{ form_widget(pvsyst.ertragDesign) }}</td>
-        <td>{{ form_widget(pvsyst.irrDesign) }}</td>
+
         <td></td>
     </tr>
 {% endmacro %}
@@ -37,10 +38,11 @@
     <tr>
         <td>{{ form_widget(monthlyYield.year) }}</td>
         <td>{{ form_widget(monthlyYield.month) }}</td>
+        <td>{{ form_widget(monthlyYield.pvSystIrr) }}</td>
         <td>{{ form_widget(monthlyYield.pvSystPR) }}</td>
         <td>{{ form_widget(monthlyYield.pvSystErtrag) }}</td>
         <td>{{ form_widget(monthlyYield.externMeterDataMonth) }}</td>
-        <td>{{ form_widget(monthlyYield.pvSystIrr) }}</td>
+
         <td></td>
     </tr>
 {% endmacro %}
@@ -337,9 +339,9 @@
                                     <thead>
                                     <tr>
                                         <th>Month</th>
+                                        <th>Irradiation design [kWh/qm]</th>
                                         <th>PR design [%]</th>
                                         <th>Yield design [kW/h]</th>
-                                        <th>Irradiation[kWh/qm]</th>
                                         <th></th>
                                     </tr>
                                     </thead>
@@ -347,10 +349,9 @@
                                     {% for pvsyst in anlageForm.pvSystMonths %}
                                         <tr class="js-pvsyst-item">
                                             <td>{{ form_widget(pvsyst.month) }}</td>
+                                            <td>{{ form_widget(pvsyst.irrDesign) }}</td>
                                             <td>{{ form_widget(pvsyst.prDesign) }}</td>
                                             <td>{{ form_widget(pvsyst.ertragDesign) }}</td>
-                                            <td>{{ form_widget(pvsyst.irrDesign) }}</td>
-
                                             <td>{% if is_granted('ROLE_DEV') %}<a href="#" class="js-remove-pvsyst"><span class="fa fa-minus-circle"></span></a>{% endif %}</td>
                                         </tr>
                                     {% endfor %}
@@ -377,10 +378,11 @@
                                     <tr>
                                         <th>Year</th>
                                         <th>Month</th>
+                                        <th>PVSYST Irradiation [kWh/qm]</th>
                                         <th>PVSYST PR [%] (recalc)</th>
                                         <th>PVSYST Yield [kW/h] (recalc)</th>
                                         <th>External Meter [kWh]</th>
-                                        <th>Irradiation[kWh/qm]</th>
+
                                         <th></th>
                                     </tr>
                                     </thead>
@@ -389,10 +391,11 @@
                                         <tr class="js-monthly-yield-item">
                                             <td>{{ form_widget(monthlyYield.year) }}</td>
                                             <td>{{ form_widget(monthlyYield.month) }}</td>
+                                            <td>{{ form_widget(monthlyYield.pvSystIrr) }}</td>
                                             <td>{{ form_widget(monthlyYield.pvSystPR) }}</td>
                                             <td>{{ form_widget(monthlyYield.pvSystErtrag) }}</td>
                                             <td>{{ form_widget(monthlyYield.externMeterDataMonth) }}</td>
-                                            <td>{{ form_widget(monthlyYield.pvSystIrr) }}</td>
+
 
                                             <td>{% if is_granted('ROLE_DEV') %}<a href="#" class="js-remove-monthly-yield"><span class="fa fa-minus-circle"></span></a>{% endif %}</td>
                                         </tr>
