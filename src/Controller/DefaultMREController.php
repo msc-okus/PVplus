@@ -274,8 +274,10 @@ class DefaultMREController extends BaseController
 
         $result = $epcNew->monthTable($anlage);
 
+        $output = $functions->printArrayAsTable($result);
+
         return $this->render('cron/showResult.html.twig', [
-            'headline'      => 'Test Forcast',
+            'headline'      => 'Test New EPC Form',
             'availabilitys' => '',
             'output'        => $output,
         ]);

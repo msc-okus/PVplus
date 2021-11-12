@@ -73,6 +73,7 @@ class ReportsEpcNewService
         if (true) { //prüfe auf PVSYST verfügbar
             $pvSystData = $anlage->getPvSystMonthsArray();
         }
+        // Runde 1 //
         for ($n = 1; $n <= $anzahlMonate; $n++) {
             if ($month >= 13) {
                 $month = 1;
@@ -83,26 +84,25 @@ class ReportsEpcNewService
             $from_local     = date_create(date('Y-m-d 00:00', strtotime("$year-$month-01")));
             $to_local       = date_create(date('Y-m-d 23:59', strtotime("$year-$month-$daysInMonth")));
             $hasMonthData   = $to_local <= $date; // Wenn das Datum in $to_local kleiner ist als das Datum in $date, es also für alle Tage des Monats Daten vorliegen, dann ist $hasMonthData === true
-            //dump("Monat $month / $year - $hasMonthData");
+
             if (true) { //prüfe auf PVSYST verfügbar
                 $monthlyRecalculatedData = $this->monthlyDataRepo->findOneBy(['anlage' => $anlage, 'year' => $year, 'month' => $month]);
             }
             switch ($n) {
                 case 1:
-                    $from = date('Y-m-d', strtotime("$year-$month-$facStartDay 00:00"));
+                    $from_local = date_create(date('Y-m-d', strtotime("$year-$month-$facStartDay 00:00")));
 
                     $days = $daysInMonth - $daysInStartMonth +1;
                     break;
                 case $anzahlMonate:
                     $days = $daysInEndMonth;
-                    $to = date('Y-m-d', strtotime("$year-$month-$facEndDay 23:59"));
+                    $to_local = date_create(date('Y-m-d', strtotime("$year-$month-$facEndDay 23:59")));
                     break;
                 default:
                     $days = $daysInMonth;
 
             }
             $prArray = $this->PRCalulation->calcPR($anlage, $from_local, $to_local);
-            dump($monthlyRecalculatedData, $prArray);
 
             if ($anlage->getUseGridMeterDayData()){
                 if ($monthlyRecalculatedData != null && $monthlyRecalculatedData->getExternMeterDataMonth() > 0) {
@@ -117,25 +117,25 @@ class ReportsEpcNewService
             }
             #
 
-            $tableArray[$n]['month']                        = date('m / Y', strtotime("$year-$month-1"));
-            $tableArray[$n]['days']                         = $days;
-            $tableArray[$n]['irrDesign']                    = ($hasMonthData) ? '' : $pvSystData[$month-1]['irrDesign']; // kommt aus der Tabelle PvSyst Werte Design
+            $tableArray[$n]['month']                        = date('m / Y', strtotime("$year-$month-1")); // Spalte B
+            $tableArray[$n]['days']                         = $days; // Spalte C
+            $tableArray[$n]['irrDesign']                    = ($hasMonthData) ? $monthlyRecalculatedData->getPvSystIrr() : $pvSystData[$month-1]['irrDesign']; // Spalte D // kommt aus der Tabelle PvSyst Werte Design
             $tableArray[$n]['yieldDesign']                  = ($hasMonthData) ? $monthlyRecalculatedData->getPvSystErtrag() : $pvSystData[$month-1]['ertragDesign']; // Spalte E // kommt aus der Tabelle PvSyst Werte Design
-            $tableArray[$n]['specificYieldDesign']          = ($hasMonthData) ? $monthlyRecalculatedData->getPvSystErtrag() / $anlage->getKwPeakPvSyst() : $pvSystData[$month-1]['ertragDesign'] / $anlage->getKwPeakPvSyst();  // berechnet aus IrrDesign un der Anlagenleistung (kwPeak)
-            $tableArray[$n]['prDesign']                     = ($hasMonthData) ? $monthlyRecalculatedData->getPvSystPR() : $pvSystData[$month-1]['prDesign']; // kommt aus der Tabelle PvSyst Werte Design
+            $tableArray[$n]['specificYieldDesign']          = ($hasMonthData) ? $monthlyRecalculatedData->getPvSystErtrag() / $anlage->getKwPeakPvSyst() : $pvSystData[$month-1]['ertragDesign'] / $anlage->getKwPeakPvSyst();  // Spalte F // berechnet aus IrrDesign un der Anlagenleistung (kwPeak)
+            $tableArray[$n]['prDesign']                     = ($hasMonthData) ? $monthlyRecalculatedData->getPvSystPR() : $pvSystData[$month-1]['prDesign']; // Spalte G // kommt aus der Tabelle PvSyst Werte Design
             $tableArray[$n]['prGuarantie']                  = ($hasMonthData) ? $monthlyRecalculatedData->getPvSystPR() - $anlage->getTransformerTee() - $anlage->getGuaranteeTee() : $pvSystData[$month-1]['prDesign'] - $anlage->getTransformerTee() - $anlage->getGuaranteeTee(); // Spalte H
-            $tableArray[$n]['theorYieldDesign']             = ($hasMonthData) ? $monthlyRecalculatedData * $anlage->getKwPeakPvSyst() : $pvSystData[$month-1]['irrDesign'] * $anlage->getKwPeakPvSyst();
-            $tableArray[$n]['theorYieldMTDesign']           = "";
-            $tableArray[$n]['irrFTDesign']                  = "";
-            $tableArray[$n]['irr']                          = ($hasMonthData) ? $prArray['irradiation'] : ''; // Irradiation
-            $tableArray[$n]['eGridYield']                   = $eGridReal; // eGrid gemessen (je nach Konfiguration der Anlage aus dem Feld e_z_evu oder aus den Tageswerten der externen Grid Messung
-            $tableArray[$n]['specificYield']                = $eGridReal / $anlage->getKwPeak();
-            $tableArray[$n]['availability']                 = $prArray['availability'];
-            $tableArray[$n]['part']                         = "";
+            $tableArray[$n]['theorYieldDesign']             = ($hasMonthData) ? $monthlyRecalculatedData * $anlage->getKwPeakPvSyst() : $pvSystData[$month-1]['irrDesign'] * $anlage->getKwPeakPvSyst(); // Spalte I
+            $tableArray[$n]['theorYieldMTDesign']           = ""; // Spalte J
+            $tableArray[$n]['irrFTDesign']                  = ""; // Spalte K
+            $tableArray[$n]['irr']                          = ($hasMonthData) ? $prArray['irradiation'] : ''; // Spalte L // Irradiation
+            $tableArray[$n]['eGridYield']                   = $eGridReal; // Spalte QM // eGrid gemessen (je nach Konfiguration der Anlage aus dem Feld e_z_evu oder aus den Tageswerten der externen Grid Messung
+            $tableArray[$n]['specificYield']                = $eGridReal / $anlage->getKwPeak(); // Spalte N
+            $tableArray[$n]['availability']                 = $prArray['availability']; // Spalte O
+            $tableArray[$n]['part']                         = ""; // Spalte P // muss in Runde 2 Berechnet werden
             $tableArray[$n]['prReal_prProg']                = ($hasMonthData) ? $eGridReal : $pvSystData[$month-1]['ertragDesign']; // Spalte Q // PR Real bzw PR prognostiziert wenn noch kein PR Real vorhanden
-            $tableArray[$n]['theorYield']                   = $prArray['irradiation'] * $anlage->getKwPeak(); // theoretical Energy ohne FT Korrektur
-            $tableArray[$n]['theorYieldMT']                 = $prArray['powerTheoTempCorr']; // theoretical Energy mit FT Korrektur
-            $tableArray[$n]['irrMT']                        = ""; // Irradiation mit FT Korrektur (haben wir noch nicht)
+            $tableArray[$n]['theorYield']                   = $prArray['irradiation'] * $anlage->getKwPeak(); // Spalte R // theoretical Energy ohne FT Korrektur
+            $tableArray[$n]['theorYieldMT']                 = $prArray['powerTheoTempCorr']; // Spalte S // theoretical Energy mit FT Korrektur
+            $tableArray[$n]['irrMT']                        = ""; // Spalte T // Irradiation mit FT Korrektur (haben wir noch nicht)
 
             $tableArray[$n]['prReal_withRisk']              = ""; // Spalte U // muss in Runde 2 Berechnet werden
             $tableArray[$n]['eGrid_withRisk']               = ""; // Spalte V //
@@ -150,7 +150,6 @@ class ReportsEpcNewService
 
             $month++;
         }
-        dd($tableArray);
 
         return $tableArray;
     }

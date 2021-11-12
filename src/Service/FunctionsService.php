@@ -869,25 +869,38 @@ class FunctionsService
 
         return $nameArray[$type];
     }
+
+    /**
+     * @param array $content
+     * @return string
+     */
+    public function printArrayAsTable(array $content): string
+    {
+        $_html = "<style>table, th, td {border: 1px solid black; }</style>";
+        $_html .=  "<div class='table-scroll'><table>";
+        $_counter = 0;
+        foreach ($content as $key => $contentRow) {
+            if ($_counter == 0) {
+                $_html .= "<tr><th>Key</th>";
+                foreach ($contentRow as $subkey => $subvalue) {
+                    $_html .= '<th>' . substr($subkey, 0, 30) . '</th>';
+                }
+                $_html .= "</tr>";
+            }
+            $_html .= "<tr><td>$key</td>";
+            foreach ($contentRow as  $cell) {
+                if (is_numeric($cell)) {
+                    $_html .= "<td>" . number_format($cell, 2,',', '.') . "</td>";
+                } else {
+                    $_html .= "<td>$cell</td>";
+                }
+            }
+            $_html .= "</tr>";
+            $_counter++;
+        }
+        $_html .= "</table></div><hr>";
+
+        return $_html;
+    }
 }
 
-/*
- *
-                // Die DC Gruppen Namen werden in diesem Fall je nach Einstellung von 'sourceInvName' ermittelt
- switch ($anlage->getSourceInvName()) {
-                    case 'ac_groups':
-                        foreach ($this->acGroupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
-                            $nameArray['dc'][$inverter->getAcGroup()] = trim($inverter->getAcGroupName(), $trimChar); // trim zum Entfernen event vorhandender Steuerzeichen
-                        }
-                        break;
-                    case 'dc_groups':
-                        foreach ($this->groupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
-                            $nameArray['dc'][$inverter->getDcGroup()] = trim($inverter->getDcGroupName(), $trimChar); // trim zum Entfernen event vorhandender Steuerzeichen
-                        }
-                        break;
-                    default:
-                        foreach ($this->inverterRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
-                            $nameArray['dc'][$inverter->getInvNr()] = trim($inverter->getInverterName(), $trimChar); // trim zum Entfernen event vorhandender Steuerzeichen
-                        }
-                }
- */

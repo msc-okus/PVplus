@@ -78,7 +78,8 @@ class ForecastChartService
             }
 
             $stamp = strtotime($year . 'W' . str_pad($forcastArray[$week]->getWeek(), 2, '0', STR_PAD_LEFT));
-            if (isset($actPerWeek[$forecastArray[$week]->getDay()])) {
+
+            if (isset($actPerWeek[$forcastArray[$week]->getDay()])) {
                 $expectedWeek   += $actPerWeek[$forcastArray[$week]->getDay()];
                 $divMinus       += $actPerWeek[$forcastArray[$week]->getDay()];
                 $divPlus        += $actPerWeek[$forcastArray[$week]->getDay()];
