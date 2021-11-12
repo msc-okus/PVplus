@@ -8,8 +8,8 @@
         chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
 
         let title = chart.titles.create();
-        title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} \n from: {{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to: {{ form.to|date("Y-m-d") }}{% endif %}";
-        title.fontSize = 20;
+        title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+        title.fontSize = 18;
         title.marginBottom = 30;
 
         chart.data = {{ content.data|raw }};
@@ -180,6 +180,10 @@
         chart.exporting.menu.items[0].label = "Download";
         chart.exporting.formatOptions.getKey("json").disabled = true;
         chart.exporting.formatOptions.getKey("html").disabled = true;
+        chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+        chart.exporting.formatOptions.getKey("print").disabled = true;
+        chart.exporting.formatOptions.getKey("pdf").disabled = true;
+        chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
 
 
         // Fix axis scale on load
