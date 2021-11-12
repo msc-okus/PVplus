@@ -10,25 +10,25 @@
                         <tr>
                             <th style="text-align: right">Losses - {{ year }}</th>
                             {% for data in dataMonthArray %}
-                                <th style="text-align: center"><div style="width: 100%; height: 50%;">{{ data }} {{ year }}</div></th>
+                                <th style="text-align: center"><div style="width: 100%; height: 50%;">{{ data }}</div></th>
                             {% endfor %}
                         </tr>
                         </thead>
                         <tbody>
                         <tr>
-                            <td class="tr_first_column" style="text-align: right">Difference Egrid to PVSYST*</td>
+                            <td class="tr_first_column" style="text-align: right">Diff. Egrid to PVSYST*</td>
                             {% for data in losses_t1.difference_Egrid_to_PVSYST %}
                                 <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                             {% endfor %}
                         </tr>
                         <tr>
-                            <td class="tr_first_column" style="text-align: right">Difference Egrid to expected g4n</td>
+                            <td class="tr_first_column" style="text-align: right">Diff. Egrid to expected g4n</td>
                             {% for data in losses_t1.difference_Egrid_to_Expected_G4n %}
                                 <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                             {% endfor %}
                         </tr>
                         <tr>
-                            <td class="tr_first_column" style="text-align: right">Difference inverter to Egrid</td>
+                            <td class="tr_first_column" style="text-align: right">Diff. inverter to Egrid</td>
                             {% for data in losses_t1.difference_Inverter_to_Egrid %}
                                 <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                             {% endfor %}

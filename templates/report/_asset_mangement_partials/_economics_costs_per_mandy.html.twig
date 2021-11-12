@@ -12,7 +12,7 @@
                         <tr style="font-weight: bold">
                             <td class="tr_next_columns" style="background-color: #ededed;">costs per month and year [EUR]</td>
                             {% for data in dataMonthArrayFullYear %}
-                                <td class="tr_next_columns" style="background-color: #ededed; text-align: center;">{{ data }} {{ year }}</td>
+                                <td class="tr_next_columns" style="background-color: #ededed; text-align: center;">{{ data }}<br>{{ year }}</td>
                             {% endfor %}
                             <td class="tr_next_columns" style="background-color: #ededed; font-weight: bold; text-align: center;">TOTAL</td>
                         </tr>
@@ -20,156 +20,291 @@
                             <td class="tr_next_columns" style="background-color: #ededed;">O&M</td>
                             {% set total = 0 %}
                             {% for data in economicsMandy.oum %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% if data == 0 %}
+                                    <td class="tr_next_columns">-</td>
+                                {% else %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
                                 {% set total = total + data %}
                             {% endfor %}
-                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% if total == 0 %}
+                                <td class="tr_next_columns">-</td>
+                            {% else %}
+                                <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% endif %}
                         </tr>
                         <tr>
                             <td class="tr_next_columns" style="background-color: #ededed;">Electricity</td>
                             {% set total = 0 %}
                             {% for data in economicsMandy.electricity %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% if data == 0 %}
+                                    <td class="tr_next_columns">-</td>
+                                {% else %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
                                 {% set total = total + data %}
                             {% endfor %}
-                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% if total == 0 %}
+                                <td class="tr_next_columns">-</td>
+                            {% else %}
+                                <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% endif %}
                         </tr>
                         <tr>
                             <td class="tr_next_columns" style="background-color: #ededed;">Technical dispatch (KEGOC)</td>
                             {% set total = 0 %}
                             {% for data in economicsMandy.technicalDispatch %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% if data == 0 %}
+                                    <td class="tr_next_columns">-</td>
+                                {% else %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
                                 {% set total = total + data %}
                             {% endfor %}
-                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% if total == 0 %}
+                                <td class="tr_next_columns">-</td>
+                            {% else %}
+                                <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% endif %}
                         </tr>
                         <tr>
                             <td class="tr_next_columns" style="background-color: #ededed;">TransTeleCom (cell equipment maintenance)</td>
-                            
                             {% set total = 0 %}
                             {% for data in economicsMandy.transTeleCom %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% if data == 0 %}
+                                    <td class="tr_next_columns">-</td>
+                                {% else %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
                                 {% set total = total + data %}
                             {% endfor %}
-                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% if total == 0 %}
+                                <td class="tr_next_columns">-</td>
+                            {% else %}
+                                <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% endif %}
                         </tr>
                         <tr>
                             <td class="tr_next_columns" style="background-color: #ededed;">Security</td>
                             
                             {% set total = 0 %}
                             {% for data in economicsMandy.security %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% if data == 0 %}
+                                    <td class="tr_next_columns">-</td>
+                                {% else %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
                                 {% set total = total + data %}
                             {% endfor %}
-                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% if total == 0 %}
+                                <td class="tr_next_columns">-</td>
+                            {% else %}
+                                <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% endif %}
                         </tr>
                         <tr>
                             <td class="tr_next_columns" style="background-color: #ededed;">Network service fee (ASTEL)</td>
                             {% set total = 0 %}
                             {% for data in economicsMandy.networkServiceFee %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% if data == 0 %}
+                                    <td class="tr_next_columns">-</td>
+                                {% else %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
                                 {% set total = total + data %}
                             {% endfor %}
-                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% if total == 0 %}
+                                <td class="tr_next_columns">-</td>
+                            {% else %}
+                                <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% endif %}
                         </tr>
                         <tr>
                             <td class="tr_next_columns" style="background-color: #ededed;">legal services</td>
                             {% set total = 0 %}
                             {% for data in economicsMandy.legalServices %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% if data == 0 %}
+                                    <td class="tr_next_columns">-</td>
+                                {% else %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
                                 {% set total = total + data %}
                             {% endfor %}
-                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% if total == 0 %}
+                                <td class="tr_next_columns">-</td>
+                            {% else %}
+                                <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% endif %}
                         </tr>
                         <tr>
                             <td class="tr_next_columns" style="background-color: #ededed;">Accountancy and administration costs</td>
                             {% set total = 0 %}
                             {% for data in economicsMandy.accountancyAndAdministrationCosts %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% if data == 0 %}
+                                    <td class="tr_next_columns">-</td>
+                                {% else %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
                                 {% set total = total + data %}
                             {% endfor %}
-                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% if total == 0 %}
+                                <td class="tr_next_columns">-</td>
+                            {% else %}
+                                <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% endif %}
                         </tr>
                         <tr>
                             <td class="tr_next_columns" style="background-color: #ededed;">Insurance</td>
                             {% set total = 0 %}
                             {% for data in economicsMandy.Iinsurance %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% if data == 0 %}
+                                    <td class="tr_next_columns">-</td>
+                                {% else %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
                                 {% set total = total + data %}
                             {% endfor %}
-                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% if total == 0 %}
+                                <td class="tr_next_columns">-</td>
+                            {% else %}
+                                <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% endif %}
                         </tr>
                         <tr>
                             <td class="tr_next_columns" style="background-color: #ededed;">Other</td>
                             {% set total = 0 %}
                             {% for data in economicsMandy.other %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% if data == 0 %}
+                                    <td class="tr_next_columns">-</td>
+                                {% else %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
                                 {% set total = total + data %}
                             {% endfor %}
-                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% if total == 0 %}
+                                <td class="tr_next_columns">-</td>
+                            {% else %}
+                                <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% endif %}
                         </tr>
                         <tr style="background-color: #e2efda!important; font-weight: bold;">
                             <td class="tr_next_columns" style="background-color: #ededed;">TOTAL fixed costs</td>
                             {% set total = 0 %}
                             {% for data in economicsMandy.fixesTotal %}
-                                <td class="tr_next_columns" style="background-color: #ededed;">{{ data|number_format(0, ',', '.') }}</td>
+                                {% if data == 0 %}
+                                    <td class="tr_next_columns">-</td>
+                                {% else %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
                                 {% set total = total + data %}
                             {% endfor %}
-                            <td class="tr_next_columns" style="background-color: #ededed;">{{ total|number_format(0, ',', '.') }}</td>
+                            {% if total == 0 %}
+                                <td class="tr_next_columns">-</td>
+                            {% else %}
+                                <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% endif %}
                         </tr>
                         <tr>
                             <td class="tr_next_columns" style="background-color: #ededed;">Variable 1</td>
                             {% set total = 0 %}
                             {% for data in economicsMandy.variable1 %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% if data == 0 %}
+                                    <td class="tr_next_columns">-</td>
+                                {% else %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
                                 {% set total = total + data %}
                             {% endfor %}
-                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% if total == 0 %}
+                                <td class="tr_next_columns">-</td>
+                            {% else %}
+                                <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% endif %}
                         </tr>
                         <tr>
                             <td class="tr_next_columns" style="background-color: #ededed;">Variable 2</td>
                             {% set total = 0 %}
                             {% for data in economicsMandy.variable2 %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% if data == 0 %}
+                                    <td class="tr_next_columns">-</td>
+                                {% else %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
                                 {% set total = total + data %}
                             {% endfor %}
-                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% if total == 0 %}
+                                <td class="tr_next_columns">-</td>
+                            {% else %}
+                                <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% endif %}
                         </tr>
                         <tr>
                             <td class="tr_next_columns" style="background-color: #ededed;">Variable 3</td>
                             {% set total = 0 %}
                             {% for data in economicsMandy.variable3 %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% if data == 0 %}
+                                    <td class="tr_next_columns">-</td>
+                                {% else %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
                                 {% set total = total + data %}
                             {% endfor %}
-                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% if total == 0 %}
+                                <td class="tr_next_columns">-</td>
+                            {% else %}
+                                <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% endif %}
                         </tr>
                         <tr>
                             <td class="tr_next_columns" style="background-color: #ededed;">Variable 4</td>
                             {% set total = 0 %}
                             {% for data in economicsMandy.variable4 %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% if data == 0 %}
+                                    <td class="tr_next_columns">-</td>
+                                {% else %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
                                 {% set total = total + data %}
                             {% endfor %}
-                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% if total == 0 %}
+                                <td class="tr_next_columns">-</td>
+                            {% else %}
+                                <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% endif %}
                         </tr>
                         <tr>
                             <td class="tr_next_columns" style="background-color: #ededed;">Variable 5</td>
                             {% set total = 0 %}
                             {% for data in economicsMandy.variable5 %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% if data == 0 %}
+                                    <td class="tr_next_columns">-</td>
+                                {% else %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
                                 {% set total = total + data %}
                             {% endfor %}
-                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% if total == 0 %}
+                                <td class="tr_next_columns">-</td>
+                            {% else %}
+                                <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% endif %}
                         </tr>
                         <tr style="background-color: #e2efda!important; font-weight: bold;">
                             <td class="tr_next_columns" style="background-color: #ededed;">TOTAL variable costs</td>
                             {% set total = 0 %}
                             {% for data in economicsMandy.variablesTotal %}
-                                <td class="tr_next_columns" style="background-color: #ededed;">{{ data|number_format(0, ',', '.') }}</td>
+                                {% if data == 0 %}
+                                    <td class="tr_next_columns">-</td>
+                                {% else %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
                                 {% set total = total + data %}
                             {% endfor %}
-                            <td class="tr_next_columns" style="background-color: #ededed;">{{ total|number_format(0, ',', '.') }}</td>
+                            {% if total == 0 %}
+                                <td class="tr_next_columns">-</td>
+                            {% else %}
+                                <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% endif %}
                         </tr>
                         <tr>
                             <td colspan="14" style="line-height: 5px!important;" style="background-color: #ededed;"></td>
@@ -179,10 +314,18 @@
                             
                             {% set total = 0 %}
                             {% for data in economicsMandy.monthTotal %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% if data == 0 %}
+                                    <td class="tr_next_columns">-</td>
+                                {% else %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endif %}
                                 {% set total = total + data %}
                             {% endfor %}
-                            <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% if total == 0 %}
+                                <td class="tr_next_columns">-</td>
+                            {% else %}
+                                <td class="tr_next_columns">{{ total|number_format(0, ',', '.') }}</td>
+                            {% endif %}
                         </tr>
                         </tbody>
                     </table>
