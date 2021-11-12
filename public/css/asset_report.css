@@ -179,3 +179,11 @@ table td .explanation{
   margin-top: -15px!important;
 }
 
+.explanation{
+  position: relative;
+  width: 17cm;
+  border: solid 2px #15508e;
+  padding: 5px;
+  font-size: 12px;
+}
+

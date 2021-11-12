@@ -1859,7 +1859,7 @@ class AssetManagementService
         $resultEconomicsNamed = $connAnlage->query($sql);
         $economicsValues = $resultEconomicsNamed->fetch_all();
         $totalsFix = [];
-        for ($i = 0; $i < count($economicsValues); $i++) {
+        for ($i = 0; $i < 12; $i++) {
             (float)$oum[] = $economicsValues[$i][4];
             $oumTotal = $oumTotal+$economicsValues[$i][4];
             (float)$electricity[] = $economicsValues[$i][5];
@@ -1939,7 +1939,7 @@ class AssetManagementService
         #dd($conomicsNames);
 
         #beginn Operating statement
-        for ($i = 0; $i < count($tbody_a_production['powerEvu']); $i++) {
+        for ($i = 0; $i < 12; $i++) {
             $monthleyFeedInTarif = $kwhPrice[$i];
             $incomePerMonth['revenues_act'][$i] = $tbody_a_production['powerEvu'][$i] * $monthleyFeedInTarif;
             $incomePerMonth['PVSYST_plan_proceeds_EXP'][$i] = $tbody_a_production['expectedPvSyst'][$i] * $monthleyFeedInTarif;
@@ -1948,9 +1948,7 @@ class AssetManagementService
             $incomePerMonth['revenues_act_minus_totals'][$i] = round($incomePerMonth['revenues_act'][$i]-$monthTotal[$i],0);
             $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][$i] = round($incomePerMonth['PVSYST_plan_proceeds_EXP'][$i]-$monthTotal[$i],0);
             $incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'][$i] = round($incomePerMonth['gvn_plan_proceeds_EXP'][$i]-$monthTotal[$i],0);
-            if($i+1 > $report['reportMonth']){
-                $incomePerMonth['PVSYST_plan_proceeds_EXP'][$i] = null;
-            }
+
             $incomePerMonth['monthley_feed_in_tarif'][$i] = $monthleyFeedInTarif;
         }
         #end Operating statement
@@ -2453,9 +2451,8 @@ class AssetManagementService
 
         //end Operating Statement
 
-//xxxx
         //beginn Losses compared
-        for ($i = 0; $i < $report['reportMonth']; $i++) {
+        for ($i = 0; $i < 12; $i++) {
             $Difference_Profit_ACT_to_PVSYST_plan[] = $incomePerMonth['revenues_act_minus_totals'][$i]-$incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][$i];
             $Difference_Profit_ACT_to_g4n_plan[] = $incomePerMonth['revenues_act_minus_totals'][$i]-$incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'][$i];
         }
@@ -2550,7 +2547,7 @@ class AssetManagementService
         unset($result2);
         $kumsum1[0] = $lossesComparedTable['Difference_Profit_ACT_to_PVSYST_plan'][0];
         $kumsum2[0] = $lossesComparedTable['Difference_Profit_ACT_to_g4n_plan'][0];
-        for ($i = 0; $i < $report['reportMonth']; $i++) {
+        for ($i = 0; $i < 12; $i++) {
             $kumsum1[$i] = $lossesComparedTable['Difference_Profit_ACT_to_PVSYST_plan'][$i] + $kumsum1[$i - 1];
             $kumsum2[$i] = $lossesComparedTable['Difference_Profit_ACT_to_g4n_plan'][$i] + $kumsum2[$i - 1];
             $result1[] = $kumsum1[$i];

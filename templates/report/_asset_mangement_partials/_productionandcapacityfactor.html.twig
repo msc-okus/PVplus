@@ -8,10 +8,10 @@
                     <table class="asset_report_table_operations_data" style="width: 100%!important;">
                         <thead>
                         <tr>
-                            <th style="text-align: right;">Production</th>
+                            <th style="text-align: right;">Production {{ year }}</th>
                             {% set counter = 1 %}
                             {% for data in dataMonthArray %}
-                                    <th style="text-align: center;">{{ data }} {{ year }}</th>
+                                    <th style="text-align: center;">{{ data }}</th>
                                 {% set counter = counter+1 %}
                             {% endfor %}
                         </tr>
