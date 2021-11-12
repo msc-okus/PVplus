@@ -27,6 +27,7 @@ class AnlageConfigFormType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $variable_lenght = 20;
         $timearray = [
             '+5'    => '+5',
             '+4'    => '+4',
@@ -130,9 +131,10 @@ class AnlageConfigFormType extends AbstractType
                 'choices'       => ['No' => '0', 'Yes' => '1'],
                 'empty_data'    => '0',
             ])
+
             ->add('var_1', TextType::class, [
-                'data'          => '',
                 'label'         => 'Variable 1',
+                'attr'          => ['maxlength' => $variable_lenght],
                 'empty_data'    => '',
                 'required'      => false,
                 'mapped'        => false,
@@ -140,6 +142,7 @@ class AnlageConfigFormType extends AbstractType
 
             ->add('var_2', TextType::class, [
                 'label'         => 'Variable 2',
+                'attr'          => ['maxlength' => $variable_lenght],
                 'empty_data'    => '',
                 'required'      => false,
                 'mapped'        => false,
@@ -147,6 +150,7 @@ class AnlageConfigFormType extends AbstractType
 
             ->add('var_3', TextType::class, [
                 'label'         => 'Variable 3',
+                'attr'          => ['maxlength' => $variable_lenght],
                 'empty_data'    => '',
                 'required'      => false,
                 'mapped'        => false,
@@ -154,6 +158,7 @@ class AnlageConfigFormType extends AbstractType
 
             ->add('var_4', TextType::class, [
                 'label'         => 'Variable 4',
+                'attr'          => ['maxlength' => $variable_lenght],
                 'empty_data'    => '',
                 'required'      => false,
                 'mapped'        => false,
@@ -161,6 +166,7 @@ class AnlageConfigFormType extends AbstractType
 
             ->add('var_5', TextType::class, [
                 'label'         => 'Variable 5',
+                'attr'          => ['maxlength' => $variable_lenght],
                 'empty_data'    => '',
                 'required'      => false,
                 'mapped'        => false,
@@ -168,6 +174,7 @@ class AnlageConfigFormType extends AbstractType
 
             ->add('var_6', TextType::class, [
                 'label'         => 'Variable 6',
+                'attr'          => ['maxlength' => $variable_lenght],
                 'empty_data'    => '',
                 'required'      => false,
                 'mapped'        => false,
@@ -175,6 +182,7 @@ class AnlageConfigFormType extends AbstractType
 
             ->add('var_7', TextType::class, [
                 'label'         => 'Variable 7',
+                'attr'          => ['maxlength' => $variable_lenght],
                 'empty_data'    => '',
                 'required'      => false,
                 'mapped'        => false,
@@ -182,6 +190,7 @@ class AnlageConfigFormType extends AbstractType
 
             ->add('var_8', TextType::class, [
                 'label'         => 'Variable 8',
+                'attr'          => ['maxlength' => $variable_lenght],
                 'empty_data'    => '',
                 'required'      => false,
                 'mapped'        => false,
@@ -189,6 +198,7 @@ class AnlageConfigFormType extends AbstractType
 
             ->add('var_9', TextType::class, [
                 'label'         => 'Variable 9',
+                'attr'          => ['maxlength' => $variable_lenght],
                 'empty_data'    => '',
                 'required'      => false,
                 'mapped'        => false,
@@ -196,6 +206,7 @@ class AnlageConfigFormType extends AbstractType
 
             ->add('var_10', TextType::class, [
                 'label'         => 'Variable 10',
+                'attr'          => ['maxlength' => $variable_lenght],
                 'empty_data'    => '',
                 'required'      => false,
                 'mapped'        => false,
@@ -203,6 +214,7 @@ class AnlageConfigFormType extends AbstractType
 
             ->add('var_11', TextType::class, [
                 'label'         => 'Variable 11',
+                'attr'          => ['maxlength' => $variable_lenght],
                 'empty_data'    => '',
                 'required'      => false,
                 'mapped'        => false,
@@ -210,6 +222,7 @@ class AnlageConfigFormType extends AbstractType
 
             ->add('var_12', TextType::class, [
                 'label'         => 'Variable 12',
+                'attr'          => ['maxlength' => $variable_lenght],
                 'empty_data'    => '',
                 'required'      => false,
                 'mapped'        => false,
@@ -217,6 +230,7 @@ class AnlageConfigFormType extends AbstractType
 
             ->add('var_13', TextType::class, [
                 'label'         => 'Variable 13',
+                'attr'          => ['maxlength' => $variable_lenght],
                 'empty_data'    => '',
                 'required'      => false,
                 'mapped'        => false,
@@ -224,6 +238,7 @@ class AnlageConfigFormType extends AbstractType
 
             ->add('var_14', TextType::class, [
                 'label'         => 'Variable 14',
+                'attr'          => ['maxlength' => $variable_lenght],
                 'empty_data'    => '',
                 'required'      => false,
                 'mapped'        => false,
@@ -231,6 +246,7 @@ class AnlageConfigFormType extends AbstractType
 
             ->add('var_15', TextType::class, [
                 'label'         => 'Variable 15',
+                'attr'          => ['maxlength' => $variable_lenght],
                 'empty_data'    => '',
                 'required'      => false,
                 'mapped'        => false,

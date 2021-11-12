@@ -32,6 +32,11 @@ class PvSystMonthListEmbeddedFormType extends AbstractType
                 'empty_data'    => '',
                 'required'      => false,
             ])
+            ->add('irrDesign',  TextType::class, [
+                'label'         => 'Irradiation',
+                'empty_data'    => '',
+                'required'      => false,
+            ])
         ;
     }
 

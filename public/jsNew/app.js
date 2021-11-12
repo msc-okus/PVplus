@@ -12,7 +12,8 @@ function ticken(){
     let heute;
 
     heute = new Date();
-    StundenZahl = heute.getUTCHours() + 1;
+
+    StundenZahl = heute.getHours();
     MinutenZahl = heute.getMinutes();
 
     stunden = StundenZahl + ":";
