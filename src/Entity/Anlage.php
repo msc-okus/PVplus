@@ -230,9 +230,9 @@ class Anlage
     /**
      * @var string|null
      *
-     * @ORM\Column(name="anl_db_unit", type="string", length=10, nullable=true, options={"default"="w"})
+     * @ORM\Column(name="anl_db_unit", type="string", length=10, nullable=true, options={"default"="kwh"})
      */
-    private ?string $anlDbUnit = 'w';
+    private ?string $anlDbUnit = 'kwh';
 
     /**
      * @var string
@@ -2391,6 +2391,21 @@ class Anlage
     public function getPvSystMonths(): Collection
     {
         return $this->anlagenPvSystMonths;
+    }
+
+    public function getPvSystMonthsArray(): array
+    {
+        $array = [];
+        /** @var AnlagenPvSystMonth $month */
+        foreach ($this->getPvSystMonths() as $month) {
+            $array[] = [
+                'prDesign'  => $month->getPrDesign(),
+                'ertragDesign' => $month->getErtragDesign(),
+                'irrDesign' => 0
+            ];
+        }
+
+        return $array ;
     }
 
     public function addPvSystMonth(AnlagenPvSystMonth $anlagenPvSystMonth): self

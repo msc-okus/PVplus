@@ -1,4 +1,4 @@
-@ƒimport 'settings';
+@import 'settings';
 
 /* source-sans-pro-regular - latin */
 @font-face {
@@ -443,7 +443,6 @@
                     &.alert>td,
                     &>td.alert {background-color: $danger; border-radius: 0;}
                 }
-
             }
             #statusTable {
                 th, td {white-space: nowrap; vertical-align: top; padding-left: 0; padding-right: 0; text-align: center;}
@@ -527,7 +526,7 @@
     .amcharts-amexport-item {
         &.amcharts-amexport-item-level-0 {
             width: 80px !important;
-            margin-top: -50px !important;
+            margin-top: 0 !important;
             opacity: 0.8 !important;
             font-size: 12px !important;
             min-height: 20px;

@@ -677,7 +677,7 @@ footer {
 
 .amcharts-amexport-item.amcharts-amexport-item-level-0 {
   width: 80px !important;
-  margin-top: -50px !important;
+  margin-top: 0 !important;
   opacity: 0.8 !important;
   font-size: 12px !important;
   min-height: 20px;

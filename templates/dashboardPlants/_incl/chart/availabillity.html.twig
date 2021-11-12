@@ -109,19 +109,19 @@
             <dl>
                 <dt>Case 1</dt>
                 <dd>irradiation below limit value<br>
-                    <small>G [W/qm] > 0 & G [W/qm] <= {{ aktAnlage.minIrradiationAvailability }}</small></dd>
+                    <small>G [W/qm] > {{ aktAnlage.threshold1PA }} && G [W/qm] <= {{ aktAnlage.threshold2PA }}</small></dd>
 
                 <dt>Case 2</dt>
                 <dd>inverter available under operating conditions<br>
-                    <small>G [W/qm] > {{ aktAnlage.minIrradiationAvailability }}</small></dd>
+                    <small>G [W/qm] > {{ aktAnlage.threshold2PA }}</small></dd>
 
                 <dt>Case 3</dt>
                 <dd>inverter not available under operating conditions<br>
-                    <small>G [W/qm] > {{ aktAnlage.minIrradiationAvailability }} & Pac [kWh] <= 0</small></dd>
+                    <small>G [W/qm] > {{ aktAnlage.threshold2PA }} && Pac [kWh] <= 0</small></dd>
 
                 <dt>Case 4</dt>
                 <dd>inverter not available because of curtailment<br>
-                    <small>G [W/qm] > {{ aktAnlage.minIrradiationAvailability }} and Pac [kWh] > 0 and CosPhi = 0</small></dd>
+                    <small>G [W/qm] > {{ aktAnlage.threshold2PA }} && Pac [kWh] > 0 && CosPhi = 0</small></dd>
 
                 <dt>Case 5</dt>
                 <dd>inverter not available because of maintenance<br>

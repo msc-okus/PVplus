@@ -531,12 +531,6 @@ class AnlageFormType extends AbstractType
                 'disabled'      => true,
                 'widget' => 'single_text',
             ])
-            /*
-            ->add('useCosPhi', CheckboxType::class, [
-               'false_values'  => ['1', 'no', 'No', 'NO'],
-               'attr'          => ['class' => 'switch-input'],
-            ])
-            */
             ->add('useCosPhi', ChoiceType::class, [
                 'label'         => 'Aktiviere cosPhi',
                 'help'          => '[useCosPhi]',
@@ -709,7 +703,6 @@ class AnlageFormType extends AbstractType
                 'delete_empty'  => true,
                 'by_reference'  => false,
             ])
-
 
             ##############################################
             ####          STEUERELEMENTE              ####

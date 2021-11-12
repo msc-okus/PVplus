@@ -13,6 +13,7 @@ use App\Repository\Case5Repository;
 use App\Service\ExportService;
 use App\Service\FunctionsService;
 use App\Service\ReportEpcService;
+use App\Service\ReportsEpcNewService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -38,12 +39,11 @@ class DefaultMREController extends BaseController
     public function bavelseExport(ExportService $bavelseExport, AnlagenRepository $anlagenRepository ): Response
     {
         $output = '';
-
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => '97']);
 
-        $from = date_create('2021-09-01');
-        $to   = date_create('2021-09-30');
+        $from = date_create('2021-10-01');
+        $to   = date_create('2021-10-31');
         $output = $bavelseExport->gewichtetTagesstrahlung($anlage, $from, $to);
 
         return $this->render('cron/showResult.html.twig', [
@@ -59,12 +59,11 @@ class DefaultMREController extends BaseController
     public function exportRawDataExport($id, ExportService $bavelseExport, AnlagenRepository $anlagenRepository ): Response
     {
         $output = '';
-
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
 
         $from = date_create('2021-01-01');
-        $to   = date_create('2021-07-31');
+        $to   = date_create('2021-10-31');
         $output = $bavelseExport->getRawData($anlage, $from, $to);
 
         return $this->render('cron/showResult.html.twig', [
@@ -85,8 +84,7 @@ class DefaultMREController extends BaseController
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
 
         $daysOfMonth = date('t', strtotime($year.'-'.$month.'-1'));
-        $from = date_create("$year-$month-1");
-        $to   = date_create("$year-$month-$daysOfMonth");
+
 
         $output .= self::printArrayAsTable($export->getFacPRData($anlage, $from, $to));
         $output .= "<hr>";
@@ -247,7 +245,7 @@ class DefaultMREController extends BaseController
     public function testForcast(AnlagenRepository $anlagenRepository, FunctionsService $functions): Response
     {
         $output = '';
-        $month = 2;
+        $month = 11;
 
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => 104]);
@@ -262,4 +260,26 @@ class DefaultMREController extends BaseController
         ]);
     }
 
+    /**
+     * @Route ("/test/epc")
+     */
+    public function testNewEpc(AnlagenRepository $anlagenRepository, FunctionsService $functions, ReportsEpcNewService $epcNew): Response
+    {
+        $output = "";
+
+        /** @var Anlage $anlage */
+        $anlage = $anlagenRepository->findOneBy(['anlId' => 84]);
+        $from = $anlage->getEpcReportStart();
+        $to   = $anlage->getEpcReportEnd();
+
+        $result = $epcNew->monthTable($anlage);
+
+        $output = $functions->printArrayAsTable($result);
+
+        return $this->render('cron/showResult.html.twig', [
+            'headline'      => 'Test New EPC Form',
+            'availabilitys' => '',
+            'output'        => $output,
+        ]);
+    }
 }
