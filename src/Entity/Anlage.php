@@ -59,8 +59,6 @@ class Anlage
     private string $eignerId;
 
     /**
-     * @var string
-     *
      * @ORM\Column(name="anl_type", type="string", length=25, nullable=false)
      * @Groups({"main"})
      */
@@ -479,7 +477,7 @@ class Anlage
     private bool $usePac = false;
 
     /**
-     * @ORM\OneToMany(targetEntity=AnlageForecast::class, mappedBy="anlage", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity=AnlageForcast::class, mappedBy="anlage", cascade={"persist", "remove"})
      */
     private Collection $anlageForecasts;
 
@@ -700,8 +698,7 @@ class Anlage
     /**
      * @ORM\Column(type="text", nullable=true)
      */
-    private string $epcReportNote = "";
-
+    private string $epcReportNote;
 
     /**
      * @ORM\Column(type="integer")
@@ -716,20 +713,20 @@ class Anlage
     /**
      * @ORM\Column(type="boolean", nullable = true)
      */
-    private $hasDc = false;
+    private bool $hasDc = true;
 
     /**
      * @ORM\Column(type="boolean", nullable = true)
      */
-    private $hasStrings = false;
+    private bool $hasStrings = false;
 
     /**
      * @ORM\Column(type="boolean", nullable = true)
      */
-    private $hasPannelTemp = false;
+    private bool $hasPannelTemp = false;
 
     /**
-     * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="Anlage")
+     * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="anlage")
      */
     private $tickets;
 
@@ -742,6 +739,21 @@ class Anlage
      * @ORM\OneToMany(targetEntity=EconomicVarValues::class, mappedBy="anlage", orphanRemoval=true, cascade={"persist", "remove"})
      */
     private $economicVarValues;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private $useDayForecast = false;
+
+    /**
+     * @ORM\Column(type="string", length=20, nullable=true)
+     */
+    private ?string $degradationForecast = '0';
+
+    /**
+     * @ORM\Column(type="string", length=20, nullable=true)
+     */
+    private ?string $lossesForecast = '0';
 
 
 
@@ -805,7 +817,7 @@ class Anlage
         return $this->anlType;
     }
 
-    public function setAnlType(string $anlType): self
+    public function setAnlType(?string $anlType): self
     {
         $this->anlType = $anlType;
 
@@ -2035,14 +2047,14 @@ class Anlage
     }
 
     /**
-     * @return Collection|AnlageForecast[]
+     * @return Collection|AnlageForcast[]
      */
     public function getAnlageForecasts(): Collection
     {
         return $this->anlageForecasts;
     }
 
-    public function addAnlageForecast(AnlageForecast $anlageForecast): self
+    public function addAnlageForecast(AnlageForcast $anlageForecast): self
     {
         if (!$this->anlageForecasts->contains($anlageForecast)) {
             $this->anlageForecasts[] = $anlageForecast;
@@ -2052,7 +2064,7 @@ class Anlage
         return $this;
     }
 
-    public function removeAnlageForecast(AnlageForecast $anlageForecast): self
+    public function removeAnlageForecast(AnlageForcast $anlageForecast): self
     {
         if ($this->anlageForecasts->removeElement($anlageForecast)) {
             // set the owning side to null (unless already changed)
@@ -2210,7 +2222,6 @@ class Anlage
 
     public function setShowForecast(bool $showForecast): self
     {
-        //dd($showForecast);
         $this->showForecast = $showForecast;
 
         return $this;
@@ -2998,6 +3009,42 @@ class Anlage
                 $economicVarValue->setAnlage(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUseDayForecast(): ?bool
+    {
+        return $this->useDayForecast;
+    }
+
+    public function setUseDayForecast(bool $useDayForecast): self
+    {
+        $this->useDayForecast = $useDayForecast;
+
+        return $this;
+    }
+
+    public function getDegradationForecast(): float
+    {
+        return (float)$this->degradationForecast;
+    }
+
+    public function setDegradationForecast(?string $degradationForecast): self
+    {
+        $this->degradationForecast = $degradationForecast;
+
+        return $this;
+    }
+
+    public function getLossesForecast(): float
+    {
+        return (float)$this->lossesForecast;
+    }
+
+    public function setLossesForecast(?string $lossesForecast): self
+    {
+        $this->lossesForecast = $lossesForecast;
 
         return $this;
     }

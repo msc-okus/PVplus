@@ -2,6 +2,7 @@
 namespace App\Form\WeatherStation;
 
 use App\Entity\WeatherStation;
+use App\Helper\G4NTrait;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -12,43 +13,10 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class WeatherStationFormType extends AbstractType
 {
+    use G4NTrait;
+
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $timearray = [
-            '+5'    => '+5',
-            '+4'    => '+4',
-            '+3.75' => '+3.75',
-            '+3.50' => '+3.50',
-            '+3.25' => '+3.25',
-            '+3'    => '+3',
-            '+2.75' => '+2.75',
-            '+2.50' => '+2.50',
-            '+2.25' => '+2.25',
-            '+2'    => '+2',
-            '+1.75' => '+1.75',
-            '+1.50' => '+1.50',
-            '+1.25' => '+1.25',
-            '+1'    => '+1',
-            '+0.75' => '+0.75',
-            '+0.50' => '+0.50',
-            '+0.25' => '+0.25',
-            '+0'    => '+0',
-            '-0.25' => '-0.25',
-            '-0.50' => '-0.50',
-            '-0.75' => '-0.75',
-            '-1'    => '-1',
-            '-1.25' => '-1.25',
-            '-1.50' => '-1.50',
-            '-1.75' => '-1.75',
-            '-2'    => '-2',
-            '-2.25' => '-2.25',
-            '-2.50' => '-2.50',
-            '-2.75' => '-2.75',
-            '-3'    => '-3',
-            '-4'    => '-4',
-            '-5'    => '-5',
-        ];
-
         /** @var WeatherStation $station */
         $station = $options['data'] ?? null;
         $isEdit = $station && $station->getId();
@@ -107,9 +75,8 @@ class WeatherStationFormType extends AbstractType
             ])
             ->add('timeZoneWeatherStation', ChoiceType::class, [
                 'label'         => 'Zeitzone Wetterstation',
-                'choices'       => $timearray,
+                'choices'       => self::timeArray(),
                 'empty_data'    => '+0',
-                'placeholder'   => 'Please Choose',
             ])
             ->add('labelUpper', TextType::class, [
                 'label'         => 'Beschreibung für Irr Upper',

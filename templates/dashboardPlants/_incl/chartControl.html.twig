@@ -5,8 +5,6 @@
     <input type="hidden" name="aid" value="{{ aktAnlage.AnlId }}">
     <input type="hidden" name="mysubmit" id="mysubmit" value="no">
 
-
-
     <div class="cell medium-6 large-4 xlarge-2">
         <select class="js-submit-onchange selectedChart" title="Please select a view from the list." data-toggle="tooltip" name="selectedChart">
             <optgroup label="Analysis">
@@ -69,7 +67,6 @@
 
         </select>
     </div>
-
     <div class="cell medium-6 large-4 xlarge-3">
         {{ groupMenuNew(form, aktAnlage) }}
     </div>
@@ -85,19 +82,20 @@
             });
         </script>
     </div>
-    <div class="cell medium-12 large-12 xlarge-1" {% if (form.selectedChart == 'availability') or (form.selectedChart =='pr_and_av') or (form.selectedChart =='forecast') or (form.selectedChart == 'status_log') or (form.selectedChart == 'pvsyst') %}hidden{% endif %}>
-    15 minutes
-    <div >
-            <div class="switch tiny cell ">
+    {% if (form.selectedChart != 'availability') and (form.selectedChart != 'pr_and_av') and (form.selectedChart != 'forecast') and (form.selectedChart != 'status_log') and (form.selectedChart != 'pvsyst') %}
+        <div class="cell medium-2 large-4 xlarge-1">
+            <div class="switch tiny align-center-middle">
+                <label class="" style="line-height: 1;"><small>Interval min.</small></label>
                 <input class="switch-input js-submit-onchange" id="hour" type="checkbox" name="hour" onclick="Display()" {%if form.hour == true  %} checked {% endif %}>
                 <label class="switch-paddle" for="hour">
                     <span class="show-for-sr"></span>
+                    <span class="switch-active" aria-hidden="true">60</span>
+                    <span class="switch-inactive" aria-hidden="true">15</span>
                 </label>
             </div>
-    </div>
-    1 hour
-    </div>
-    <div class="cell medium-8 large-12 xlarge-5 ">
+        </div>
+    {% endif %}
+    <div class="cell medium-6 large-8 xlarge-4">
         <div class="small button-group round toggle">
             <label class="button js-submit-onchange {% if form.optionDate == 1 or not form.optionDate %}active{% endif %} {% if form.selectedChart == 'pr_and_av' %}disabled{% endif %}">
                 <input type="radio" name="optionDate" value="1" {% if form.optionDate == 1 or not form.optionDate %}checked="checked"{% endif %}>one day

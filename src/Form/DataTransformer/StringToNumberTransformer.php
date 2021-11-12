@@ -21,14 +21,13 @@ class StringToNumberTransformer implements DataTransformerInterface
     public function reverseTransform($value)
     {
         $value = (String)$value;
-        if($value == null) return 0;
-        dump($value);
-        if($value != null) {
-            dump("entro");
+        if ($value === null) {
+            return 0;
+        } else {
             $value = str_replace(',', '.', $value);
             $value = str_replace(' ', '', $value);
         }
-        dump($value);
+
         return (float)$value;
     }
 

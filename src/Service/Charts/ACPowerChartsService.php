@@ -66,10 +66,8 @@ class ACPowerChartsService
             // add Irradiation
             if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false){
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
-                dump($dataArrayIrradiation);
             } else {
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
-                dump($dataArrayIrradiation);
             }
             // add Temperature
             // $panelTemparray = $this->getAirAndPanelTemp($anlage, $from, $to);
@@ -83,14 +81,13 @@ class ACPowerChartsService
                 $stamp = $rowExp["stamp"];
                 $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
-                dump($stampAdjust, $stampAdjust2);
                 $acIst = 0;
                 $eZEvu = 0;
                 $cosPhi = 0;
                 if($hour) {
                     $sql_b = "SELECT stamp, sum(wr_pac) as acIst, wr_cos_phi_korrektur as cosPhi
                             FROM " . $anlage->getDbNameIst() .
-                        " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'  and wr_pac > 0  GROUP by  date_format(stamp, '$form') LIMIT 1";
+                        " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'  and wr_pac >= 0  GROUP by  date_format(stamp, '$form') LIMIT 1";
 
                     $sql_b1 = "SELECT sum(e_z_evu) as eZEvu
                             FROM " . $anlage->getDbNameIst() .
@@ -99,12 +96,11 @@ class ACPowerChartsService
                 else {
                     $sql_b = "SELECT stamp, sum(wr_pac) as acIst, e_z_evu as eZEvu, wr_cos_phi_korrektur as cosPhi 
                              FROM " . $anlage->getDbNameIst() .
-                            " WHERE stamp = '$stampAdjust' and wr_pac > 0 GROUP by stamp LIMIT 1";
+                            " WHERE stamp = '$stampAdjust' and wr_pac >= 0 GROUP by stamp LIMIT 1";
                     $sql_b1 = "SELECT e_z_evu as eZEvu
                                FROM " . $anlage->getDbNameIst() .
                              " WHERE stamp >= '$stampAdjust' GROUP by  stamp LIMIT 1";
                 }
-                dump($sql_b, $sql_b1);
      //           $sql_b = "SELECT stamp, sum(wr_pac) as acIst, e_z_evu as eZEvu, wr_cos_phi_korrektur as cosPhi FROM " . $anlage->getDbNameIst() . " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' and wr_pac > 0 GROUP by date_format(stamp, '$form') LIMIT 1";
                 $resultB = $conn->query($sql_b);
                 $ResultB1 = $conn->query($sql_b1);
@@ -118,10 +114,8 @@ class ACPowerChartsService
                 }
                 if($resultB->rowCount()==1){
                     $row1 = $ResultB1->fetch(PDO::FETCH_ASSOC);
-                    dump($row1);
                     ($hour) ? $eZEvu = $row1["eZEvu"]/($anlage->getAnzInverterFromGroupsAC()): $eZEvu = $row1["eZEvu"];
                     $evuSum += $eZEvu;
-                    dump($evuSum);
                 }
                 $acIst = self::checkUnitAndConvert($acIst, $anlage->getAnlDbUnit());
                 ($acIst > 0) ? $actout = round($acIst, 2) : $actout = 0; // neagtive Werte auschließen
@@ -260,9 +254,7 @@ class ACPowerChartsService
                     while ($rowIst = $resultIst->fetch(PDO::FETCH_ASSOC)) {
                         if ($counterInv > $maxInverter) $maxInverter = $counterInv;
                         $actPower = $rowIst['actPower'];
-                        dump($actPower);
                         if($hour) $actPower=$actPower;
-                        dump($actPower);
                         ($actPower > 0) ? $actPower = round(self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()), 2) : $actPower = 0; // neagtive Werte auschließen
                         if (!($actPower == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                             switch ($anlage->getConfigType()) {
@@ -662,7 +654,6 @@ class ACPowerChartsService
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                 if ($counterInv > $maxInverter) $maxInverter = $counterInv;
                 $stamp = $row["stamp"];
-                dump($row["i_ac_p1"]);
                 if($hour) {
                     $dataArray['chart'][$counter] = [
                         //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms

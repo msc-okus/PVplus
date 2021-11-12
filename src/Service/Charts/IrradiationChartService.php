@@ -105,9 +105,7 @@ class IrradiationChartService
         $dataArray['maxSeries'] = 0;
         // Strom für diesen Zeitraum und diesen Inverter
         if($hour) $sql_irr_plant = "SELECT a.stamp as stamp, (b.irr_anlage) AS irr_anlage FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameIst() . ") b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' group by date_format(a.stamp, '$form');";
-
         else $sql_irr_plant = "SELECT a.stamp as stamp, b.irr_anlage AS irr_anlage FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameIst() . ") b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' group by date_format(a.stamp, '$form');";
-       dump($sql_irr_plant);
         $result = $conn->query($sql_irr_plant);
         if ($result != false) {
             if ($result->num_rows > 0) {
@@ -122,7 +120,6 @@ class IrradiationChartService
 
                     else $sqlWeather = "SELECT * FROM " . $anlage->getDbNameWeather() . " WHERE stamp = '$stamp' group by date_format(stamp, '$form')";
                         //SELECT * FROM pvp_data.db__pv_ws_CX104  WHERE stamp >= '2021-10-27 09:00:00' AND stamp < '2021-10-27 10:00:00' group by date_format(stamp, '%y%m%d%H');
-                    dump($sqlWeather);
                     $resultWeather = $conn->query($sqlWeather);
 
                     if ($resultWeather->num_rows == 1) {
@@ -131,10 +128,8 @@ class IrradiationChartService
                             $dataArray['chart'][$counter]['g4n'] = (float)(($weatherRow["g_upper"] * $anlage->getPowerEast() + $weatherRow["g_lower"] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()));
                         } else {
                             if ($anlage->getWeatherStation()->getChangeSensor() == "Yes") {
-                                dump((float)$weatherRow["g_lower"]);
                                 $dataArray['chart'][$counter]['g4n'] = (float)$weatherRow["g_lower"]; // getauscht, nutze unterene Sensor
                             } else {
-                                dump((float)$weatherRow["g_upper"]);
                                 $dataArray['chart'][$counter]['g4n'] = (float)$weatherRow["g_upper"]; // nicht getauscht, nutze oberen Sensor
                             }
                         }

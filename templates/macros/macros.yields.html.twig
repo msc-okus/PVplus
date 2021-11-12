@@ -1,0 +1,39 @@
+{% macro addmonthlyYield(monthlyYield, formMacros, anlageForm) %}
+    <div class="tabs-panel" id="monthly-yield">
+    <div class="grid-x grid-margin-x">
+        <div class="cell">
+            <fieldset class="fieldset js-monthly-yield-wrapper"
+                      data-prototype="{{ formMacros.addMonthlyYield(anlageForm.monthlyYields.vars.prototype)|e('html_attr') }}"
+                      data-index="{{ anlageForm.monthlyYields|length }}"
+            >
+                <legend>Monthly recalculated Values from PVSYST</legend>
+                <table id="monthly-yield-values">
+                    <thead>
+                    <tr>
+                        <th>Year</th>
+                        <th>Month</th>
+                        <th>PVSYST PR [%] (recalc)</th>
+                        <th>PVSYST Yield [kW/h] (recalc)</th>
+                        <th>External Meter [kWh]</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for monthlyYield in anlageForm.monthlyYields %}
+                        <tr class="js-monthly-yield-item">
+                            <td>{{ form_widget(monthlyYield.year) }}</td>
+                            <td>{{ form_widget(monthlyYield.month) }}</td>
+                            <td>{{ form_widget(monthlyYield.pvSystPR) }}</td>
+                            <td>{{ form_widget(monthlyYield.pvSystErtrag) }}</td>
+                            <td>{{ form_widget(monthlyYield.externMeterDataMonth) }}</td>
+
+                            <td>{% if is_granted('ROLE_DEV') %}<a href="#" class="js-remove-monthly-yield"><span class="fa fa-minus-circle"></span></a>{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <button type="button" class="button secondary small js-add-monthly-yield"> <span class="fa fa-plus-circle"></span>&nbsp;Add Monthly Yield</button>
+            </fieldset>
+        </div>
+    </div>
+{% endmacro %}

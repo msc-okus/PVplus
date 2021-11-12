@@ -4,7 +4,7 @@ namespace App\Service\Charts;
 
 use App\Entity\Anlage;
 use App\Helper\G4NTrait;
-use App\Repository\ForecastRepository;
+use App\Repository\ForcastRepository;
 use App\Repository\InvertersRepository;
 use App\Service\FunctionsService;
 use PDO;
@@ -13,17 +13,17 @@ class ForecastChartService
 {
     use G4NTrait;
 
-    private ForecastRepository $forecastRepo;
+    private ForcastRepository $forcastRepo;
     private InvertersRepository $invertersRepo;
     private FunctionsService $functions;
 
     public function __construct(
-        ForecastRepository $forecastRepo,
+        ForcastRepository $forcastRepo,
         InvertersRepository $invertersRepo,
         FunctionsService $functions)
     {
 
-        $this->forecastRepo = $forecastRepo;
+        $this->forcastRepo = $forcastRepo;
         $this->invertersRepo = $invertersRepo;
         $this->functions = $functions;
     }
@@ -43,12 +43,12 @@ class ForecastChartService
         }
         $facWeek = $facDateForecast->format('W'); // Woche des FAC Datums
 
-        /** @var [] AnlageForecast $forecasts */
-        $forecasts = $this->forecastRepo->findBy(['anlage' => $anlage]);
-        $forecastArray = [];
+        /** @var [] AnlageForcast $forcasts */
+        $forcasts = $this->forcastRepo->findBy(['anlage' => $anlage]);
+        $forcastArray = [];
         //Kopiere alle Forcast Werte in ein Array mit dem Index der Kalenderwoche
-        foreach ($forecasts as $forecast) {
-            $forecastArray[$forecast->getWeek()] = $forecast;
+        foreach ($forcasts as $forcast) {
+            $forcastArray[$forcast->getWeek()] = $forcast;
         }
 
         $conn = self::getPdoConnection();
@@ -77,17 +77,17 @@ class ForecastChartService
                 $week++;
             }
 
-            $stamp = strtotime($year . 'W' . str_pad($forecastArray[$week]->getWeek(), 2, '0', STR_PAD_LEFT));
+            $stamp = strtotime($year . 'W' . str_pad($forcastArray[$week]->getWeek(), 2, '0', STR_PAD_LEFT));
             if (isset($actPerWeek[$forecastArray[$week]->getDay()])) {
-                $expectedWeek   += $actPerWeek[$forecastArray[$week]->getDay()];
-                $divMinus       += $actPerWeek[$forecastArray[$week]->getDay()];
-                $divPlus        += $actPerWeek[$forecastArray[$week]->getDay()];
+                $expectedWeek   += $actPerWeek[$forcastArray[$week]->getDay()];
+                $divMinus       += $actPerWeek[$forcastArray[$week]->getDay()];
+                $divPlus        += $actPerWeek[$forcastArray[$week]->getDay()];
             } else {
-                $expectedWeek   += $forecastArray[$week]->getPowerWeek();
-                $divMinus       += $forecastArray[$week]->getDivMinWeek();
-                $divPlus        += $forecastArray[$week]->getDivMaxWeek();
+                $expectedWeek   += $forcastArray[$week]->getPowerWeek();
+                $divMinus       += $forcastArray[$week]->getDivMinWeek();
+                $divPlus        += $forcastArray[$week]->getDivMaxWeek();
             }
-            $forecastValue      += $forecastArray[$week]->getPowerWeek();
+            $forecastValue      += $forcastArray[$week]->getPowerWeek();
 
             $dataArray['chart'][] = [
                 'date'      => date('Y-m-d', $stamp),

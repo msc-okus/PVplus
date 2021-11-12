@@ -6,7 +6,7 @@ namespace App\Service;
 
 use App\Entity\WeatherStation;
 use App\Helper\G4NTrait;
-use App\Repository\ForecastRepository;
+use App\Repository\ForcastRepository;
 use App\Repository\GridMeterDayRepository;
 use App\Repository\GroupModulesRepository;
 use App\Repository\GroupMonthsRepository;
@@ -24,15 +24,15 @@ class WeatherFunctionsService
     private GroupModulesRepository $groupModulesRepo;
     private GroupsRepository $groupsRepo;
     private GridMeterDayRepository $gridMeterDayRepo;
-    private ForecastRepository $forecastRepo;
+    private ForcastRepository $forecastRepo;
 
     public function __construct(
-        PVSystDatenRepository $pvSystRepo,
-        GroupMonthsRepository $groupMonthsRepo,
+        PVSystDatenRepository  $pvSystRepo,
+        GroupMonthsRepository  $groupMonthsRepo,
         GroupModulesRepository $groupModulesRepo,
-        GroupsRepository $groupsRepo,
+        GroupsRepository       $groupsRepo,
         GridMeterDayRepository $gridMeterDayRepo,
-        ForecastRepository $forecastRepo)
+        ForcastRepository      $forecastRepo)
     {
         $this->pvSystRepo = $pvSystRepo;
         $this->groupMonthsRepo = $groupMonthsRepo;

@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use phpDocumentor\Reflection\Types\Boolean;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
@@ -44,7 +45,7 @@ class WeatherStation
     /**
      * @ORM\Column(type="text")
      */
-    private $description;
+    private ?string $description;
 
     /**
      * @ORM\Column(type="boolean")
@@ -64,7 +65,7 @@ class WeatherStation
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private ?string $timeZoneWeatherStation;
+    private ?string $timeZoneWeatherStation = '+0';
 
     /**
      * @ORM\OneToMany(targetEntity=Anlage::class, mappedBy="weatherStation")
@@ -89,17 +90,17 @@ class WeatherStation
     /**
      * @ORM\Column(type="string", length=40)
      */
-    private $labelUpper;
+    private ?string $labelUpper;
 
     /**
      * @ORM\Column(type="string", length=40)
      */
-    private $labelLower;
+    private ?string $labelLower;
 
     /**
      * @ORM\Column(type="string", length=40)
      */
-    private $labelHorizontal;
+    private ?string $labelHorizontal;
 
     public function __construct()
     {

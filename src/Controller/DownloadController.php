@@ -138,7 +138,6 @@ class DownloadController extends AbstractController
                 $downloadAnalyseModel = $formPdfDownload->getData();
             }
 
-            #dd($downloadAnalyseModel);
             if($formview != 'download'){
                 $doctype = 'default';
                 $anlage = $downloadAnalyseModel->anlage;

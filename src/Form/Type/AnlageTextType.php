@@ -11,6 +11,13 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class AnlageTextType extends AbstractType
 {
+    private AnlagenRepository $anlnRepo;
+
+    public function __construct(AnlagenRepository $anlRepo)
+    {
+        $this->anlnRepo = $anlRepo;
+    }
+
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
@@ -18,16 +25,11 @@ class AnlageTextType extends AbstractType
         ]);
     }
 
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return "anlage_text_type";
     }
 
-    private $anlnRepo;
-    public function __construct(AnlagenRepository $anlRepo)
-    {
-        $this->anlnRepo = $anlRepo;
-    }
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder->addModelTransformer(new NameToAnlageTransformer($this->anlnRepo));

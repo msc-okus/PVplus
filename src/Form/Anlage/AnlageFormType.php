@@ -9,6 +9,7 @@ use App\Form\EconomimcVarNamesFormType;
 use App\Form\EventMail\EventMailListEmbeddedFormType;
 use App\Form\Groups\GroupsListEmbeddedFormType;
 use App\Form\GroupsAc\AcGroupsListEmbeddedFormType;
+use App\Form\Type\SwitchType;
 use App\Helper\G4NTrait;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -28,7 +29,7 @@ class AnlageFormType extends AbstractType
 {
     use G4NTrait;
 
-    private $security;
+    private Security $security;
 
     public function __construct(Security $security) {
         $this->security = $security;
@@ -36,40 +37,6 @@ class AnlageFormType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $timearray = [
-            '+5'    => '+5',
-            '+4'    => '+4',
-            '+3.75' => '+3.75',
-            '+3.50' => '+3.50',
-            '+3.25' => '+3.25',
-            '+3'    => '+3',
-            '+2.75' => '+2.75',
-            '+2.50' => '+2.50',
-            '+2.25' => '+2.25',
-            '+2'    => '+2',
-            '+1.75' => '+1.75',
-            '+1.50' => '+1.50',
-            '+1.25' => '+1.25',
-            '+1'    => '+1',
-            '+0.75' => '+0.75',
-            '+0.50' => '+0.50',
-            '+0.25' => '+0.25',
-            '+0'    => '+0',
-            '-0.25' => '-0.25',
-            '-0.50' => '-0.50',
-            '-0.75' => '-0.75',
-            '-1'    => '-1',
-            '-1.25' => '-1.25',
-            '-1.50' => '-1.50',
-            '-1.75' => '-1.75',
-            '-2'    => '-2',
-            '-2.25' => '-2.25',
-            '-2.50' => '-2.50',
-            '-2.75' => '-2.75',
-            '-3'    => '-3',
-            '-4'    => '-4',
-            '-5'    => '-5',
-        ];
         $prArray = [
             'No Cust PR'                => 'no',
             'Groningen'                 => 'Groningen',
@@ -182,7 +149,7 @@ class AnlageFormType extends AbstractType
             ->add('anlZeitzone', ChoiceType::class, [
                 'label'         => 'Zeit Korrektur Anlage',
                 'help'          => '[anlZeitzone]',
-                'choices'       => $timearray,
+                'choices'       => self::timeArray(),
                 'placeholder'   => 'Please Choose',
                 'empty_data'    => '+0',
             ])
@@ -494,6 +461,27 @@ class AnlageFormType extends AbstractType
                 'label'         => 'Anlage hat Pannel Temperatur',
                 'help'          => '[hasPannelTemp]',
                 'choices'       => ['No' => '0', 'Yes' => '1'],
+                'empty_data'    => '0',
+            ])
+            ->add('useDayForecast', ChoiceType::class, [
+                'label'         => 'use Forecast by Day',
+                'help'          => '[useDayForecast]',
+                'choices'       => ['No' => '0', 'Yes' => '1'],
+                'required'      => false,
+                'empty_data'    => 0,
+            ])
+            ->add('degradationForecast', TextType::class, [
+                'label'         => 'Degradation, only Forecast [%]',
+                'help'          => '[degradationForecast]',
+                'label_html'    => true,
+                'required'      => false,
+                'empty_data'    => '0',
+            ])
+            ->add('lossesForecast', TextType::class, [
+                'label'         => 'Losses, only Forecast [%]',
+                'help'          => '[lossesForecast]',
+                'label_html'    => true,
+                'required'      => false,
                 'empty_data'    => '0',
             ])
             ################################################
