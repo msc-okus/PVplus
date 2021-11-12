@@ -44,6 +44,11 @@ class AnlagenPvSystMonth
     private string $ertragDesign;
 
     /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private string $irrDesign;
+
+    /**
      * @ORM\Column(type="integer")
      */
     private int $month;
@@ -77,9 +82,9 @@ class AnlagenPvSystMonth
         return $this;
     }
 
-    public function getPrDesign(): ?string
+    public function getPrDesign(): ?float
     {
-        return $this->prDesign;
+        return (float)$this->prDesign;
     }
 
     public function setPrDesign(string $prDesign): self
@@ -89,14 +94,26 @@ class AnlagenPvSystMonth
         return $this;
     }
 
-    public function getErtragDesign(): ?string
+    public function getErtragDesign(): ?float
     {
-        return $this->ertragDesign;
+        return (float)$this->ertragDesign;
     }
 
     public function setErtragDesign(string $ertragDesign): self
     {
         $this->ertragDesign = $ertragDesign;
+
+        return $this;
+    }
+
+    public function getIrrDesign(): ?float
+    {
+        return (float)$this->irrDesign;
+    }
+
+    public function setIrrDesign(?string $irrDesign): self
+    {
+        $this->irrDesign = $irrDesign;
 
         return $this;
     }

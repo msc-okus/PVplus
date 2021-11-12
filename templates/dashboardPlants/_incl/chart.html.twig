@@ -1,8 +1,6 @@
 {% from "dashboardPlants/_incl/macrosStatus.html.twig" import statusTable as statusTable %}
 {% from "dashboardPlants/_incl/macrosStatus.html.twig" import pvSystTable as pvSystTable %}
 
-<h3>{{ content.headline }} - {{ aktAnlage.anlName }}</h3>
-<h4>from: {{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to: {{ form.to|date("Y-m-d") }}{% endif %}</h4>
 {% if form.selectedChart != 'status_log' and form.selectedChart != 'availability' and form.selectedChart != 'pvsyst' %}
     <div id="amchart-holder"></div>
 {% endif %}
@@ -33,7 +31,10 @@
                 "style": "decimal",
                 "minimumFractionDigits": 0
             };
-
+            let title = chart.titles.create();
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.fontSize = 18;
+            title.marginBottom = 30;
             // Legend
             chart.legend = new am4charts.Legend();
             chart.legend.useDefaultMarker = false;
@@ -89,6 +90,13 @@
             chart.cursor.behavior = "zoomX";
             chart.exporting.menu = new am4core.ExportMenu();
             chart.exporting.menu.items[0].label = "Download";
+            chart.exporting.formatOptions.getKey("json").disabled = true;
+            chart.exporting.formatOptions.getKey("html").disabled = true;
+            chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+            chart.exporting.formatOptions.getKey("print").disabled = true;
+            chart.exporting.formatOptions.getKey("pdf").disabled = true;
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            ;
             
             chart.events.on("ready", function(ev) {
                 //yAxes1.min = 0; //yAxes1.minZoomed;
@@ -107,7 +115,10 @@
             {% endif %}
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
-
+            let title = chart.titles.create();
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.fontSize = 18;
+            title.marginBottom = 30;
             chart.data = {{ content.data|raw }};
             chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
             chart.numberFormatter.intlLocales = "de-DE";
@@ -167,6 +178,13 @@
             chart.scrollbarY = new am4core.Scrollbar();
             chart.scrollbarY.marginLeft = "20";
             chart.exporting.menu.items[0].label = "Download";
+            chart.exporting.formatOptions.getKey("json").disabled = true;
+            chart.exporting.formatOptions.getKey("html").disabled = true;
+            chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+            chart.exporting.formatOptions.getKey("print").disabled = true;
+            chart.exporting.formatOptions.getKey("pdf").disabled = true;
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+
 
         }); // end am4core.ready()
     </script>
@@ -180,7 +198,10 @@
             {% endif %}
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
-
+            let title = chart.titles.create();
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.fontSize = 18;
+            title.marginBottom = 30;
             chart.data = {{ content.data|raw }};
             chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
             chart.numberFormatter.intlLocales = "de-DE";
@@ -250,6 +271,13 @@
             chart.scrollbarY = new am4core.Scrollbar();
             chart.scrollbarY.marginLeft = "20";
             chart.exporting.menu.items[0].label = "Download";
+            chart.exporting.formatOptions.getKey("json").disabled = true;
+            chart.exporting.formatOptions.getKey("html").disabled = true;
+            chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+            chart.exporting.formatOptions.getKey("print").disabled = true;
+            chart.exporting.formatOptions.getKey("pdf").disabled = true;
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+
 
         }); // end am4core.ready()
     </script>
@@ -262,7 +290,10 @@
             am4core.useTheme(am4themes_animated);
             {% endif %}
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
-
+            let title = chart.titles.create();
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.fontSize = 18;
+            title.marginBottom = 30;
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
 
             chart.data = {{ content.data|raw }};
@@ -327,6 +358,13 @@
             chart.scrollbarY = new am4core.Scrollbar();
             chart.scrollbarY.marginLeft = "20"
             chart.exporting.menu.items[0].label = "Download";
+            chart.exporting.formatOptions.getKey("json").disabled = true;
+            chart.exporting.formatOptions.getKey("html").disabled = true;
+            chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+            chart.exporting.formatOptions.getKey("print").disabled = true;
+            chart.exporting.formatOptions.getKey("pdf").disabled = true;
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+
 
         }); // end am4core.ready()
     </script>
@@ -339,7 +377,10 @@
                 am4core.useTheme(am4themes_animated);
             {% endif %}
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
-
+            let title = chart.titles.create();
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.fontSize = 18;
+            title.marginBottom = 30;
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
 
             chart.data = {{ content.data|raw }};
@@ -404,6 +445,13 @@
             chart.scrollbarY = new am4core.Scrollbar();
             chart.scrollbarY.marginLeft = "20"
             chart.exporting.menu.items[0].label = "Download";
+            chart.exporting.formatOptions.getKey("json").disabled = true;
+            chart.exporting.formatOptions.getKey("html").disabled = true;
+            chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+            chart.exporting.formatOptions.getKey("print").disabled = true;
+            chart.exporting.formatOptions.getKey("pdf").disabled = true;
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+
 
         }); // end am4core.ready()
     </script>
@@ -435,7 +483,10 @@
 
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
-
+            let title = chart.titles.create();
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.fontSize = 18;
+            title.marginBottom = 30;
             chart.data = {{ content.data|raw }};
             chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
             chart.numberFormatter.intlLocales = "de-DE";
@@ -481,6 +532,13 @@
             chart.scrollbarY = new am4core.Scrollbar();
             chart.scrollbarY.marginLeft = "20";
             chart.exporting.menu.items[0].label = "Download";
+            chart.exporting.formatOptions.getKey("json").disabled = true;
+            chart.exporting.formatOptions.getKey("html").disabled = true;
+            chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+            chart.exporting.formatOptions.getKey("print").disabled = true;
+            chart.exporting.formatOptions.getKey("pdf").disabled = true;
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+
 
         }); // end am4core.ready()
     </script>
@@ -496,7 +554,10 @@
 
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
-
+            let title = chart.titles.create();
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.fontSize = 18;
+            title.marginBottom = 30;
             chart.data = {{ content.data|raw }};
             chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
             chart.numberFormatter.intlLocales = "de-DE";
@@ -556,6 +617,13 @@
             chart.scrollbarY = new am4core.Scrollbar();
             chart.scrollbarY.marginLeft = "20";
             chart.exporting.menu.items[0].label = "Download";
+            chart.exporting.formatOptions.getKey("json").disabled = true;
+            chart.exporting.formatOptions.getKey("html").disabled = true;
+            chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+            chart.exporting.formatOptions.getKey("print").disabled = true;
+            chart.exporting.formatOptions.getKey("pdf").disabled = true;
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+
 
         }); // end am4core.ready()
     </script>
@@ -578,7 +646,10 @@
                 "style": "decimal",
                 "minimumFractionDigits": 0
             };
-
+            let title = chart.titles.create();
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.fontSize = 18;
+            title.marginBottom = 30;
             // Legend
             chart.legend = new am4charts.Legend();
             chart.legend.useDefaultMarker = false;
@@ -618,6 +689,13 @@
             chart.scrollbarY = new am4core.Scrollbar();
             chart.scrollbarY.marginLeft = "20";
             chart.exporting.menu.items[0].label = "Download";
+            chart.exporting.formatOptions.getKey("json").disabled = true;
+            chart.exporting.formatOptions.getKey("html").disabled = true;
+            chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+            chart.exporting.formatOptions.getKey("print").disabled = true;
+            chart.exporting.formatOptions.getKey("pdf").disabled = true;
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+
 
         }); // end am4core.ready()
     </script>
@@ -632,7 +710,10 @@
 
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
-
+            let title = chart.titles.create();
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.fontSize = 18;
+            title.marginBottom = 30;
             chart.data = {{ content.data|raw }};
             chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
 
@@ -674,6 +755,13 @@
             chart.scrollbarY = new am4core.Scrollbar();
             chart.scrollbarY.marginLeft = "20";
             chart.exporting.menu.items[0].label = "Download";
+            chart.exporting.formatOptions.getKey("json").disabled = true;
+            chart.exporting.formatOptions.getKey("html").disabled = true;
+            chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+            chart.exporting.formatOptions.getKey("print").disabled = true;
+            chart.exporting.formatOptions.getKey("pdf").disabled = true;
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+
 
         }); // end am4core.ready()
     </script>
@@ -688,7 +776,10 @@
 
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
-
+            let title = chart.titles.create();
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.fontSize = 18;
+            title.marginBottom = 30;
             chart.data = {{ content.data|raw }};
             chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
             chart.numberFormatter.intlLocales = "de-DE";
@@ -736,6 +827,13 @@
             chart.scrollbarY = new am4core.Scrollbar();
             chart.scrollbarY.marginLeft = "20";
             chart.exporting.menu.items[0].label = "Download";
+            chart.exporting.formatOptions.getKey("json").disabled = true;
+            chart.exporting.formatOptions.getKey("html").disabled = true;
+            chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+            chart.exporting.formatOptions.getKey("print").disabled = true;
+            chart.exporting.formatOptions.getKey("pdf").disabled = true;
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+
 
         }); // end am4core.ready()
     </script>
@@ -746,7 +844,10 @@
             // Create chart instance
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
-
+            let title = chart.titles.create();
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.fontSize = 18;
+            title.marginBottom = 30;
             chart.data = {{ content.data|raw }};
             chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
             chart.numberFormatter.intlLocales = "de-DE";
@@ -813,12 +914,26 @@
             chart.cursor.behavior = "zoomX";
             chart.exporting.menu = new am4core.ExportMenu();
             chart.exporting.menu.items[0].label = "Download";
+            chart.exporting.formatOptions.getKey("json").disabled = true;
+            chart.exporting.formatOptions.getKey("html").disabled = true;
+            chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+            chart.exporting.formatOptions.getKey("print").disabled = true;
+            chart.exporting.formatOptions.getKey("pdf").disabled = true;
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+
 
             chart.events.on("ready", function(ev) {
                 yAxes1.min = 0; //yAxes1.minZoomed;
                 yAxes1.max = yAxes1.maxZoomed;
             });
             chart.exporting.menu.items[0].label = "Download";
+            chart.exporting.formatOptions.getKey("json").disabled = true;
+            chart.exporting.formatOptions.getKey("html").disabled = true;
+            chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+            chart.exporting.formatOptions.getKey("print").disabled = true;
+            chart.exporting.formatOptions.getKey("pdf").disabled = true;
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+
 
         }); // end am4core.ready()
     </script>
@@ -831,7 +946,10 @@
 
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
-
+            let title = chart.titles.create();
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.fontSize = 18;
+            title.marginBottom = 30;
             chart.data = {{ content.data|raw }};
             chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
             chart.numberFormatter.intlLocales = "de-DE";
@@ -880,6 +998,13 @@
                 yAxes1.max = yAxes1.maxZoomed;
             });
             chart.exporting.menu.items[0].label = "Download";
+            chart.exporting.formatOptions.getKey("json").disabled = true;
+            chart.exporting.formatOptions.getKey("html").disabled = true;
+            chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+            chart.exporting.formatOptions.getKey("print").disabled = true;
+            chart.exporting.formatOptions.getKey("pdf").disabled = true;
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+
 
         }); // end am4core.ready()
     </script>
@@ -895,7 +1020,10 @@
 
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
-
+            let title = chart.titles.create();
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.fontSize = 18;
+            title.marginBottom = 30;
             chart.data = {{ content.data|raw }};
             chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
             chart.numberFormatter.intlLocales = "de-DE";
@@ -947,6 +1075,13 @@
             chart.scrollbarY = new am4core.Scrollbar();
             chart.scrollbarY.marginLeft = "20";
             chart.exporting.menu.items[0].label = "Download";
+            chart.exporting.formatOptions.getKey("json").disabled = true;
+            chart.exporting.formatOptions.getKey("html").disabled = true;
+            chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+            chart.exporting.formatOptions.getKey("print").disabled = true;
+            chart.exporting.formatOptions.getKey("pdf").disabled = true;
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+
 
         }); // end am4core.ready()
     </script>
@@ -961,7 +1096,10 @@
 
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
-
+            let title = chart.titles.create();
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.fontSize = 18;
+            title.marginBottom = 30;
             chart.data = {{ content.data|raw }};
             chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
             chart.numberFormatter.intlLocales = "de-DE";
@@ -1000,6 +1138,13 @@
             chart.scrollbarY = new am4core.Scrollbar();
             chart.scrollbarY.marginLeft = "20";
             chart.exporting.menu.items[0].label = "Download";
+            chart.exporting.formatOptions.getKey("json").disabled = true;
+            chart.exporting.formatOptions.getKey("html").disabled = true;
+            chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+            chart.exporting.formatOptions.getKey("print").disabled = true;
+            chart.exporting.formatOptions.getKey("pdf").disabled = true;
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+
 
         }); // end am4core.ready()
     </script>
@@ -1021,7 +1166,10 @@
                 "style": "decimal",
                 "minimumFractionDigits": 0
             };
-
+            let title = chart.titles.create();
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.fontSize = 18;
+            title.marginBottom = 30;
             // Legend
             chart.legend = new am4charts.Legend();
             chart.legend.useDefaultMarker = false;
@@ -1073,6 +1221,13 @@
             chart.scrollbarY = new am4core.Scrollbar();
             chart.scrollbarY.marginLeft = "20";
             chart.exporting.menu.items[0].label = "Download";
+            chart.exporting.formatOptions.getKey("json").disabled = true;
+            chart.exporting.formatOptions.getKey("html").disabled = true;
+            chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+            chart.exporting.formatOptions.getKey("print").disabled = true;
+            chart.exporting.formatOptions.getKey("pdf").disabled = true;
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+
 
         }); // end am4core.ready()
     </script>
@@ -1082,6 +1237,8 @@
 {% elseif form.selectedChart == 'status_log' %}
     {{ statusTable(content.status) }}
 {% elseif form.selectedChart == 'availability' %}
+    <h3>{{ content.headline }} - {{ aktAnlage.anlName }}</h3>
+    <h4>from: {{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to: {{ form.to|date("Y-m-d") }}{% endif %}</h4>
     {% include 'dashboardPlants/_incl/chart/availabillity.html.twig' %}
 {% elseif form.selectedChart == 'pvsyst' %}
     {{ pvSystTable(content.pvSysts) }}

@@ -101,9 +101,10 @@ class ACPowerChartsService
                                FROM " . $anlage->getDbNameIst() .
                              " WHERE stamp >= '$stampAdjust' GROUP by  stamp LIMIT 1";
                 }
+                dump($sql_b, $sql_b1);
      //           $sql_b = "SELECT stamp, sum(wr_pac) as acIst, e_z_evu as eZEvu, wr_cos_phi_korrektur as cosPhi FROM " . $anlage->getDbNameIst() . " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' and wr_pac > 0 GROUP by date_format(stamp, '$form') LIMIT 1";
                 $resultB = $conn->query($sql_b);
-                $ResultB1 = $conn->query($sql_b1);
+                $resultB1 = $conn->query($sql_b1);
                 if ($resultB->rowCount() == 1) {
                     $row = $resultB->fetch(PDO::FETCH_ASSOC);
 
@@ -113,7 +114,7 @@ class ACPowerChartsService
                     $acIst = $row["acIst"];
                 }
                 if($resultB->rowCount()==1){
-                    $row1 = $ResultB1->fetch(PDO::FETCH_ASSOC);
+                    $row1 = $resultB1->fetch(PDO::FETCH_ASSOC);
                     ($hour) ? $eZEvu = $row1["eZEvu"]/($anlage->getAnzInverterFromGroupsAC()): $eZEvu = $row1["eZEvu"];
                     $evuSum += $eZEvu;
                 }

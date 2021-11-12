@@ -227,7 +227,7 @@ class AvailabilityService
                         (($strahlung > $threshold1PA) && isset($case5Array[$inverter][$stamp])) ? $case5 = true : $case5 = false;
 
                         // Case 1 (first part of ti)
-                        if ($strahlung > $threshold1PA && $strahlung <= $threshold2PA) { //$strahlung > $threshold1PA && $strahlung <= $threshold2PA && $case5 === false
+                        if ($strahlung > $threshold1PA && $strahlung <= $threshold2PA && $case5 === false) { //$strahlung > $threshold1PA && $strahlung <= $threshold2PA && $case5 === false
                             $availability[$inverter]['case1']++;
                             if ($case3Helper[$inverter] < $maxFailTime) {
                                 $availability[$inverter]['case3'] -= $case3Helper[$inverter] / 15;
@@ -236,7 +236,7 @@ class AvailabilityService
                             $case3Helper[$inverter] = 0;
                         }
                         // Case 2 (second part of ti - means case1 + case2 = ti)
-                        if ($strahlung > $threshold2PA && ($powerAc > 0 )) { // $strahlung > $threshold2PA && ($powerAc > 0 || $powerAc === null) && $case5 === false
+                        if ($strahlung > $threshold2PA && ($powerAc > 0 || $powerAc === null) && $case5 === false) { // $strahlung > $threshold2PA && ($powerAc > 0 || $powerAc === null) && $case5 === false
                             $availability[$inverter]['case2']++;
 
                             if ($case3Helper[$inverter] < $maxFailTime) {
@@ -264,7 +264,7 @@ class AvailabilityService
                             $availability[$inverter]['case5']++;
                         }
                         // Case 6 (Datenlücken Inverter Daten | keine Datenlücken für Strahlung)
-                        if ($powerAc === null && $case5 === false) { // Nur Hochzählen, wenn Datenlücke nicht durch Case 5 abgefangen
+                        if ($powerAc === null && $case5 === false && $strahlung > $threshold1PA) { // Nur Hochzählen, wenn Datenlücke nicht durch Case 5 abgefangen
                             $availability[$inverter]['case6']++;
                         }
                         // Control ti,theo
@@ -273,9 +273,7 @@ class AvailabilityService
                         }
                     }
                 }
-
             }
-
         }
         unset($resultEinstrahlung);
         $conn = null;
@@ -325,11 +323,9 @@ class AvailabilityService
                 $invAPart2 = 0;
                 $invAPart3 = 0;
             }
-            $sumPart1 += $invAPart1;
-            $sumPart2 += $invAPart2;
-            $pa += $invAPart3;
-            //$output2 .= "Inverter: $inverter | Case1: ".$row['case1']." | Case2: ".$row['case2']." | Case3: ".$row['case3']." | Case4: ".$row['case4']." | Case5: ".$row['case5']." | Control: ".$row['control']."<br>";
-            //$output .= "Inverter: $inverter: PA Part 1: $invAPart1 | PA Part 2: $invAPart2 | PA Part 3: $invAPart3<br>";
+            $sumPart1   += $invAPart1;
+            $sumPart2   += $invAPart2;
+            $pa         += $invAPart3;
         }
         return $pa;
     }
@@ -339,7 +335,7 @@ class AvailabilityService
         $conn = self::getPdoConnection();
         $istData = [];
         $dbNameIst = $anlage->getDbNameIst();
-        $sql = "SELECT a.stamp as stamp, wr_cos_phi_korrektur as cos_phi, b.unit as inverter, b.wr_pac as power_ac FROM (db_dummysoll a left JOIN $dbNameIst b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' AND '$to' ORDER BY a.stamp, b.unit";
+        // $sql = "SELECT a.stamp as stamp, wr_cos_phi_korrektur as cos_phi, b.unit as inverter, b.wr_pac as power_ac FROM (db_dummysoll a left JOIN $dbNameIst b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' AND '$to' ORDER BY a.stamp, b.unit";
         $sql = "SELECT stamp, wr_cos_phi_korrektur as cos_phi, unit as inverter, wr_pac as power_ac FROM  $dbNameIst  WHERE stamp BETWEEN '$from' AND '$to' ORDER BY stamp, unit";
 
         $result = $conn->query($sql);

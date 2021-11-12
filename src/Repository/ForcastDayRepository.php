@@ -23,15 +23,15 @@ class ForcastDayRepository extends ServiceEntityRepository
     public function findForcastDayByMonth(Anlage $anlage, int $month)
     {
 
-        $firstDayMonth = date('z', strtotime("2000-$month-01"));
-        $daysInMonth = date('t', strtotime("2000-$month-01"));
-        $lastDayMonth = date('z', strtotime("2000-$month-$daysInMonth"));
+        $firstDayMonth = date('z', strtotime("2001-$month-01"));
+        $daysInMonth = date('t', strtotime("2001-$month-01"));
+        $lastDayMonth = date('z', strtotime("2001-$month-$daysInMonth"));
 
         $forecast = $this->createQueryBuilder('f')
             ->andWhere('f.anlage = :anlageId AND f.day <= :lastDay AND f.day >= :firstDay')
             ->setParameter('anlageId', $anlage->getAnlId())
-            ->setParameter('firstDay', $firstDayMonth)
-            ->setParameter('lastDay', $lastDayMonth)
+            ->setParameter('firstDay', $firstDayMonth + 1) // plus 1, because 'date' count the first day in year with 0
+            ->setParameter('lastDay', $lastDayMonth + 1) // plus 1, because 'date' count the first day in year with 0
             ->getQuery()
             ->getResult()
             ;

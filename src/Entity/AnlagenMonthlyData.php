@@ -43,6 +43,11 @@ class AnlagenMonthlyData
     /**
      * @ORM\Column(type="string", length=20)
      */
+    private string $pvSystIrr;
+
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
     private string $externMeterDataMonth;
 
     /**
@@ -72,9 +77,9 @@ class AnlagenMonthlyData
         return $this;
     }
 
-    public function getPvSystErtrag(): ?string
+    public function getPvSystErtrag(): ?float
     {
-        return $this->pvSystErtrag;
+        return (float)$this->pvSystErtrag;
     }
 
     public function setPvSystErtrag(string $pvSystErtrag): self
@@ -84,14 +89,26 @@ class AnlagenMonthlyData
         return $this;
     }
 
-    public function getPvSystPR(): ?string
+    public function getPvSystPR(): ?float
     {
-        return $this->pvSystPR;
+        return (float)$this->pvSystPR;
     }
 
     public function setPvSystPR(string $pvSystPR): self
     {
         $this->pvSystPR = $pvSystPR;
+
+        return $this;
+    }
+
+    public function getPvSystIrr(): ?float
+    {
+        return (float)$this->pvSystIrr;
+    }
+
+    public function setPvSystIrr(string $pvSystIrr): self
+    {
+        $this->pvSystIrr = $pvSystIrr;
 
         return $this;
     }

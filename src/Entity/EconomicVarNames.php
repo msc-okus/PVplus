@@ -35,6 +35,12 @@ class EconomicVarNames
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     *      * @Assert\Length(
+     *      min = 2,
+     *      max = 50,
+     *      minMessage = "Your first name must be at least {{ limit }} characters long",
+     *      maxMessage = "Your first name cannot be longer than {{ limit }} characters"
+     * )
      */
     private ?string $var_1 = "";
 
@@ -116,24 +122,8 @@ class EconomicVarNames
 
     public function __construct()
     {
-        /*
-        $this->anlage = new Anlage();
-        $this->var_1="";
-        $this->var_2="";
-        $this->var_3="";
-        $this->var_4="";
-        $this->var_5="";
-        $this->var_6="";
-        $this->var_7="";
-        $this->var_8="";
-        $this->var_9="";
-        $this->var_10="";
-        $this->var_11="";
-        $this->var_12="";
-        $this->var_13="";
-        $this->var_14="";
-        $this->var_15="";
-        */
+
+
     }
     public function setparams(Anlage $anlage, string $var1, string $var2, string $var3, string $var4, string $var5, string $var6, string $var7, string $var8, string $var9, string $var10
         , string $var11, string $var12, string $var13, string $var14, string $var15)

@@ -38,6 +38,12 @@ class MonthlyYieldListEmbeddedFormType extends AbstractType
                 'empty_data'    => 0,
                 'required'      => false,
             ])
+            ->add('pvSystIrr', TextType::class, [
+                'label'         => 'Irradiation',
+                'empty_data'    => 0,
+                'required'      => false,
+            ])
+
         ;
     }
 
