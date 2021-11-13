@@ -133,7 +133,7 @@ class ForecastChartService
         $conn = null;
 
         /** @var [] AnlageForecast $forecasts */
-        $forecasts = $this->forecastRepo->findBy(['anlage' => $anlage]);
+        $forecasts = $this->forcastRepo->findBy(['anlage' => $anlage]);
         $counter = 0;
         $forecastValue  = 0;
         $expectedWeek   = 0;

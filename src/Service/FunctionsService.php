@@ -879,18 +879,18 @@ class FunctionsService
         $_html = "<style>table, th, td {border: 1px solid black; }</style>";
         $_html .=  "<div class='table-scroll'><table>";
         $_counter = 0;
-        foreach ($content as $key => $contentRow) {
+        for ($key = 1; $key <= count($content); $key++) {
             if ($_counter == 0) {
                 $_html .= "<tr><th>Key</th>";
-                foreach ($contentRow as $subkey => $subvalue) {
+                foreach ($content[$key] as $subkey => $subvalue) {
                     $_html .= '<th>' . substr($subkey, 0, 30) . '</th>';
                 }
                 $_html .= "</tr>";
             }
             $_html .= "<tr><td>$key</td>";
-            foreach ($contentRow as  $cell) {
+            foreach ($content[$key] as  $cell) {
                 if (is_numeric($cell)) {
-                    $_html .= "<td>" . number_format($cell, 2,',', '.') . "</td>";
+                    $_html .= "<td>" . number_format($cell, 3,',', '.') . "</td>";
                 } else {
                     $_html .= "<td>$cell</td>";
                 }

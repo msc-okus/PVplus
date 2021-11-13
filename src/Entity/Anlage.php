@@ -2401,7 +2401,7 @@ class Anlage
             $array[] = [
                 'prDesign'  => $month->getPrDesign(),
                 'ertragDesign' => $month->getErtragDesign(),
-                'irrDesign' => 0
+                'irrDesign' => $month->getIrrDesign(),
             ];
         }
 
