@@ -414,7 +414,7 @@
                         {% if econames.getVar1()!="" %}
                             {{ form_row(anlageForm.var_1,{'value': econames.getVar1()  }) }}
                         {% else %}
-                                {{ form_row(anlageForm.var_1) }}
+                                {{ form_row(anlageForm.var_1,{'value': econames.getVar1()   }) }}
                         {% endif %}
 
                         {% if econames.getVar2()!="" %}
