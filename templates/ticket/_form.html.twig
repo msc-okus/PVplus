@@ -1,12 +1,13 @@
 {% block JavaScripts %}
-<script> function Display() {
+<script>
+    function Display() {
         // Get the checkbox
         var checkBox = document.getElementById("exampleSwitch");
         // Get the output text
         var div = document.getElementById("midiv");
 
         // If the checkbox is checked, display the output text
-        if (checkBox.checked == false){
+        if (checkBox.checked === false){
             div.style.visibility = "hidden";
         } else {
             div.style.visibility = "visible";
@@ -15,8 +16,7 @@
 </script>
 {% endblock %}
 
-{{ form_start(ticketForm, {'attr': {'novalidate': 'no'}}) }}
-
+{{ form_start(ticketForm) }}
 <div class="grid-x">
     <div class="cell medium-10">
         <ul class="tabs" data-tabs id="weather" data-deep-link="true">
@@ -53,6 +53,7 @@
                         </div>
                     </div>
                 </fieldset>
+                {#
                 <h5>Show hidden mysteries?</h5>
                 <div class="switch tiny cell medium-3 small-6">
                     <input class="switch-input" id="exampleSwitch" type="checkbox" name="exampleSwitch" onclick="Display()">
@@ -69,20 +70,17 @@
                         </div>
                     </div>
                 </fieldset>
-                <div class="grid-x grid-margin-x grid-padding-x action-menu">
-                    <div class="cell medium-12 small-12">
-                        {{ form_widget(ticketForm.save) }}
-                        {{ form_widget(ticketForm.saveclose) }}
-                        {{ form_widget(ticketForm.close) }}
-                    </div>
-                </div>
-
+                #}
             </div>
-
         </div>
-
     </div>
-
 </div>
 
+<div class="grid-x grid-padding-y action-menu">
+    <div class="cell">
+        {{ form_widget(ticketForm.save) }}
+        {{ form_widget(ticketForm.saveclose) }}
+        {{ form_widget(ticketForm.close) }}
+    </div>
+</div>
 {{ form_end(ticketForm) }}

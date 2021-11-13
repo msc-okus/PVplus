@@ -18981,7 +18981,7 @@ ticket-alt:
   changes:
     - 5.0.0
     - 5.10.2
-  label: Alternate Ticket
+  label: Alternate ticket
   search:
     terms:
       - movie

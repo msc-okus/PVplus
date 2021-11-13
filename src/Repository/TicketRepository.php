@@ -54,7 +54,7 @@ class TicketRepository extends ServiceEntityRepository
 
     }
     // /**
-    //  * @return Ticket[] Returns an array of Ticket objects
+    //  * @return ticket[] Returns an array of ticket objects
     //  */
     /*
     public function findByExampleField($value)
@@ -71,7 +71,7 @@ class TicketRepository extends ServiceEntityRepository
     */
 
     /*
-    public function findOneBySomeField($value): ?Ticket
+    public function findOneBySomeField($value): ?ticket
     {
         return $this->createQueryBuilder('t')
             ->andWhere('t.exampleField = :val')

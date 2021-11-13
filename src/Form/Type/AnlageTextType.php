@@ -21,7 +21,7 @@ class AnlageTextType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'invalid_message'=>'No plant found by that name'
+            'invalid_message'   => 'No plant found by that name'
         ]);
     }
 

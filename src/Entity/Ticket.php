@@ -52,17 +52,17 @@ class Ticket
     /**
      * @ORM\Column(type="boolean")
      */
-    private $PR;
+    private $PR = false;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $PA;
+    private $PA = false;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $yield;
+    private $yield = false;
 
     /**
      * @ORM\Column(type="text", nullable=true)

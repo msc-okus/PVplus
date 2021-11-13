@@ -22,6 +22,7 @@ use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Session\Session;
 
@@ -32,7 +33,7 @@ $session = new Session();
 class TicketController extends BaseController
 {
     /**
-     * @Route("/ticket/create", name="Ticket_create")
+     * @Route("/ticket/create", name="app_ticket_create")
      */
     public function create(EntityManagerInterface $em, Request $request)
     {
@@ -52,10 +53,9 @@ class TicketController extends BaseController
             $ticket->setEditor($this->getUser()->getUsername());
             $em->persist($ticket);
             $em->flush();
-            return $this->redirect($Route);
-            $this->addFlash('success', 'User saved!');
+            $this->addFlash('success', 'Ticket saved!');
             if ($form->get('saveclose')->isClicked()) {
-                return $this->redirectToRoute('app_ticket_list');
+                return $this->redirect($Route);
             }
         }
 
@@ -64,7 +64,7 @@ class TicketController extends BaseController
 
             return $this->redirect($Route);
         }
-        return $this->render('Ticket/create.html.twig',[
+        return $this->render('ticket/create.html.twig',[
             'ticketForm'=>$form->createView()
     ]);
     }
@@ -72,7 +72,8 @@ class TicketController extends BaseController
     /**
      * @Route("/ticket/edit/{id}", name="app_ticket_edit")
      */
-    public function edit($id, TicketRepository $ticketRepo, EntityManagerInterface $em, Request $request){
+    public function edit($id, TicketRepository $ticketRepo, EntityManagerInterface $em, Request $request)
+    {
         $session=$this->container->get('session');
         $ticket = $ticketRepo->find($id);
         //reading data from session
@@ -94,8 +95,7 @@ class TicketController extends BaseController
             if($ticket->getStatus() === 30 && $ticket->getend()===null)$ticket->setEnd(new \DateTime("now"));
             $em->persist($ticket);
             $em->flush();
-            return $this->redirect($Route);
-            $this->addFlash('success', 'User saved!');
+            $this->addFlash('success', 'Ticket saved!');
             if ($form->get('saveclose')->isClicked()) {
                 return $this->redirect($Route);
             }
@@ -106,7 +106,7 @@ class TicketController extends BaseController
 
             return $this->redirect($Route);
         }
-        return $this->render('Ticket/edit.html.twig', [
+        return $this->render('ticket/edit.html.twig', [
             'ticketForm'    => $form->createView(),
             'ticket'        => $ticket,
         ]);
@@ -116,7 +116,8 @@ class TicketController extends BaseController
      * @Route("/ticket/list", name="app_ticket_list")
      *
      */
-    public function list (TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request){
+    public function list (TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request): Response
+    {
         $session=$this->container->get('session');
         $tickets = $ticketRepo->findAll();
         //Reading data from request
@@ -138,7 +139,7 @@ class TicketController extends BaseController
         $session->set('anlage', $anlage);
         $session->set('id', $id);
         $session->set('prio', $prio);
-        return $this->render('Ticket/list.html.twig',[
+        return $this->render('ticket/list.html.twig',[
             'pagination' => $pagination,
             'ticket'     => $tickets,
             'anlagep'    => $anlage,

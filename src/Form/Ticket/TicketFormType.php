@@ -32,6 +32,7 @@ class TicketFormType extends AbstractType
         if ($ticket === null) {
             $builder
                 ->add('anlage', AnlageTextType::class, [
+                    'label' => 'Plant name '
 
                 ])
                 ->add('status', ChoiceType::class, [
@@ -59,15 +60,24 @@ class TicketFormType extends AbstractType
                     'input' => 'datetime',
                     'widget' => 'single_text',
                 ])
+                /*
                 ->add('PR', SwitchType::class, [
-                    'label' => 'PR'
+                    'label'         => 'PR',
+                    'required'      => false,
+                    'empty_data'    => 0,
                 ])
                 ->add('PA', SwitchType::class, [
-                    'label' => 'PA'
+                    'label'         => 'PA',
+                    'required'      => false,
+                    'empty_data'    => 0,
+                    'mapped'        => false,
                 ])
                 ->add('Yield', SwitchType::class, [
-                    'label' => 'Yield'
+                    'label'         => 'Yield',
+                    'required'      => false,
+                    'empty_data'    => 0,
                 ])
+                */
                 ->add('freeText', CKEditorType::class, [
                     'config' => array('toolbar' => 'my_toolbar'),
                 ])
@@ -140,17 +150,27 @@ class TicketFormType extends AbstractType
                     'input' => 'datetime',
                     'widget' => 'single_text',
                 ])
+                /*
                 ->add('PR', SwitchType::class, [
-                    'label' => 'PR'
+                    'label'         => 'PR',
+                    'required'      => false,
+                    'empty_data'    => 0,
                 ])
                 ->add('PA', SwitchType::class, [
-                    'label' => 'PA'
+                    'label'         => 'PA',
+                    'required'      => false,
+                    'empty_data'    => 0,
+                    'mapped'        => false,
                 ])
                 ->add('Yield', SwitchType::class, [
-                    'label' => 'Yield'
+                    'label'         => 'Yield',
+                    'required'      => false,
+                    'empty_data'    => 0,
                 ])
+                */
                 ->add('freeText', CKEditorType::class, [
-                    'config' => array('toolbar' => 'my_toolbar'),
+                    'config'        => array('toolbar' => 'my_toolbar'),
+                    'required'      => false,
                 ])
                 ->add('description', TextType::class, [
 
@@ -178,6 +198,7 @@ class TicketFormType extends AbstractType
                 ])
                 ->add('answer', CKEditorType::class, [
                     'config' => array('toolbar' => 'my_toolbar'),
+                    'required'      => false,
                 ])
                 ->add('save', SubmitType::class, [
                     'label' => 'Save',
