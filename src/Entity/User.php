@@ -38,6 +38,7 @@ class User implements UserInterface
         'Developer' => 'ROLE_DEV',
         'Admin' => 'ROLE_ADMIN',
         'Green4Net User' => 'ROLE_G4N',
+        'AssetManagement' => 'ROLE_AM',
         'Operator' => 'ROLE_OPERATOR',
         'Owner (full)' => 'ROLE_OWNER_FULL',
         'Owner' => 'ROLE_OWNER'

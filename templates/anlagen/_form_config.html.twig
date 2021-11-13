@@ -168,8 +168,10 @@
                 <li class="tabs-title"><a data-tabs-target="legend" href="#legend">Legend Configuration</a></li>
                 <li class="tabs-title"><a data-tabs-target="pvsyst" href="#pvsyst">PVSYST Month Values Design</a></li>
                 <li class="tabs-title"><a data-tabs-target="monthly-yield" href="#monthly-yield">Monthly recalculated Values</a></li>
-                <li class="tabs-title"><a data-tabs-target="economics" href="#economics">Economic Variables </a></li>
-                <li class="tabs-title"><a data-tabs-target="economicsvalues" href="#economicsvalues">Economic Reports </a></li>
+                {% if is_granted('ROLE_AM') %}
+                    <li class="tabs-title"><a data-tabs-target="economics" href="#economics">Economic Variables </a></li>
+                    <li class="tabs-title"><a data-tabs-target="economicsvalues" href="#economicsvalues">Economic Reports </a></li>
+                {% endif %}
             </ul>
 
             <div class="tabs-content" data-tabs-content="config-tabs">
@@ -364,7 +366,6 @@
                 </div>
 
                 {# Monthly Theoretival Yield Values from PVSYST #}
-
                 <div class="tabs-panel" id="monthly-yield">
                     <div class="grid-x grid-margin-x">
                         <div class="cell">
@@ -407,7 +408,10 @@
                         </div>
                     </div>
                 </div>
-                <div class="tabs-panel" id="economics">
+
+                {% if is_granted('ROLE_AM') %}
+                    {# Economics Variable Names #}
+                    <div class="tabs-panel" id="economics">
                     <fieldset class="fieldset">
 
                         <legend>Variable names</legend>
@@ -504,7 +508,9 @@
 
                     </fieldset>
                 </div>
-                <div class="tabs-panel" id="economicsvalues">
+
+                    {# Economics Values #}
+                    <div class="tabs-panel" id="economicsvalues">
                     <fieldset class="fieldset js-economicVarValues-wrapper"
                               data-prototype="{{  formMacros.addeconomicVarValue(anlageForm.economicVarValues.vars.prototype,econames)|e('html_attr') }}"
                               data-index="{{ anlageForm.economicVarValues | length }}">
@@ -621,6 +627,7 @@
                         <button type="button" class="button secondary small js-economic-var-value-add"> <span class="fa fa-plus-circle"></span>&nbsp;Add Economic Report</button>
                     </fieldset>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>

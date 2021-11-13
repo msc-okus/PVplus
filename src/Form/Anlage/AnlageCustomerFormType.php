@@ -90,114 +90,113 @@ class AnlageCustomerFormType extends AbstractType
                 'delete_empty'  => true,
                 'by_reference'  => false,
             ])
-            ->add('var_1', TextType::class, [
-                'data'          => '',
-                'label'         => 'Variable 1',
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_2', TextType::class, [
-                'label'         => 'Variable 2',
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_3', TextType::class, [
-                'label'         => 'Variable 3',
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_4', TextType::class, [
-                'label'         => 'Variable 4',
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_5', TextType::class, [
-                'label'         => 'Variable 5',
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_6', TextType::class, [
-                'label'         => 'Variable 6',
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_7', TextType::class, [
-                'label'         => 'Variable 7',
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_8', TextType::class, [
-                'label'         => 'Variable 8',
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_9', TextType::class, [
-                'label'         => 'Variable 9',
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_10', TextType::class, [
-                'label'         => 'Variable 10',
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_11', TextType::class, [
-                'label'         => 'Variable 11',
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_12', TextType::class, [
-                'label'         => 'Variable 12',
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_13', TextType::class, [
-                'label'         => 'Variable 13',
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_14', TextType::class, [
-                'label'         => 'Variable 14',
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_15', TextType::class, [
-                'label'         => 'Variable 15',
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
+        ;
+        if ($this->security->isGranted('ROLE_AM')) {
+            $builder
+                ->add('var_1', TextType::class, [
+                    'data' => '',
+                    'label' => 'Variable 1',
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_2', TextType::class, [
+                    'label' => 'Variable 2',
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_3', TextType::class, [
+                    'label' => 'Variable 3',
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_4', TextType::class, [
+                    'label' => 'Variable 4',
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_5', TextType::class, [
+                    'label' => 'Variable 5',
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_6', TextType::class, [
+                    'label' => 'Variable 6',
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_7', TextType::class, [
+                    'label' => 'Variable 7',
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_8', TextType::class, [
+                    'label' => 'Variable 8',
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_9', TextType::class, [
+                    'label' => 'Variable 9',
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_10', TextType::class, [
+                    'label' => 'Variable 10',
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_11', TextType::class, [
+                    'label' => 'Variable 11',
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_12', TextType::class, [
+                    'label' => 'Variable 12',
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_13', TextType::class, [
+                    'label' => 'Variable 13',
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_14', TextType::class, [
+                    'label' => 'Variable 14',
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_15', TextType::class, [
+                    'label' => 'Variable 15',
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('economicVarValues', CollectionType::class, [
+                    'entry_type'    => EconomicVarsValuesEmbeddedFormType::class,
+                    'allow_add'     => true,
+                    'allow_delete'  => true,
+                    'delete_empty'  => true,
+                    'by_reference'  => false,
+                ])
+            ;
+        }
             ##############################################
             ####          STEUERELEMENTE              ####
             ##############################################
+        $builder
             ->add('save', SubmitType::class, [
                 'label' => 'Save Plant',
                 'attr'  => ['class' => 'primary save'],
@@ -209,14 +208,6 @@ class AnlageCustomerFormType extends AbstractType
             ->add('close', SubmitType::class, [
                 'label' => 'Close without save',
                 'attr'  => ['class' => 'secondary close', 'formnovalidate' => 'formnovalidate'],
-            ])
-
-            ->add('economicVarValues', CollectionType::class, [
-                'entry_type'    => EconomicVarsValuesEmbeddedFormType::class,
-                'allow_add'     => true,
-                'allow_delete'  => true,
-                'delete_empty'  => true,
-                'by_reference'  => false,
             ])
         ;
 

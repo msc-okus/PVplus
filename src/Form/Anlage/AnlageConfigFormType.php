@@ -28,40 +28,6 @@ class AnlageConfigFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $variable_lenght = 20;
-        $timearray = [
-            '+5'    => '+5',
-            '+4'    => '+4',
-            '+3.75' => '+3.75',
-            '+3.50' => '+3.50',
-            '+3.25' => '+3.25',
-            '+3'    => '+3',
-            '+2.75' => '+2.75',
-            '+2.50' => '+2.50',
-            '+2.25' => '+2.25',
-            '+2'    => '+2',
-            '+1.75' => '+1.75',
-            '+1.50' => '+1.50',
-            '+1.25' => '+1.25',
-            '+1'    => '+1',
-            '+0.75' => '+0.75',
-            '+0.50' => '+0.50',
-            '+0.25' => '+0.25',
-            '+0'    => '+0',
-            '-0.25' => '-0.25',
-            '-0.50' => '-0.50',
-            '-0.75' => '-0.75',
-            '-1'    => '-1',
-            '-1.25' => '-1.25',
-            '-1.50' => '-1.50',
-            '-1.75' => '-1.75',
-            '-2'    => '-2',
-            '-2.25' => '-2.25',
-            '-2.50' => '-2.50',
-            '-2.75' => '-2.75',
-            '-3'    => '-3',
-            '-4'    => '-4',
-            '-5'    => '-5',
-        ];
 
         $builder
             ->add('anlName', TextType::class, [
@@ -131,129 +97,122 @@ class AnlageConfigFormType extends AbstractType
                 'choices'       => ['No' => '0', 'Yes' => '1'],
                 'empty_data'    => '0',
             ])
+        ;
 
-            ->add('var_1', TextType::class, [
-                'label'         => 'Variable 1',
-                'attr'          => ['maxlength' => $variable_lenght],
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
+        if ($this->security->isGranted('ROLE_AM')) {
+            $builder
+                ->add('var_1', TextType::class, [
+                    'label' => 'Variable 1',
+                    'attr' => ['maxlength' => $variable_lenght],
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_2', TextType::class, [
+                    'label' => 'Variable 2',
+                    'attr' => ['maxlength' => $variable_lenght],
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_3', TextType::class, [
+                    'label' => 'Variable 3',
+                    'attr' => ['maxlength' => $variable_lenght],
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_4', TextType::class, [
+                    'label' => 'Variable 4',
+                    'attr' => ['maxlength' => $variable_lenght],
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_5', TextType::class, [
+                    'label' => 'Variable 5',
+                    'attr' => ['maxlength' => $variable_lenght],
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_6', TextType::class, [
+                    'label' => 'Variable 6',
+                    'attr' => ['maxlength' => $variable_lenght],
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_7', TextType::class, [
+                    'label' => 'Variable 7',
+                    'attr' => ['maxlength' => $variable_lenght],
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_8', TextType::class, [
+                    'label' => 'Variable 8',
+                    'attr' => ['maxlength' => $variable_lenght],
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_9', TextType::class, [
+                    'label' => 'Variable 9',
+                    'attr' => ['maxlength' => $variable_lenght],
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_10', TextType::class, [
+                    'label' => 'Variable 10',
+                    'attr' => ['maxlength' => $variable_lenght],
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_11', TextType::class, [
+                    'label' => 'Variable 11',
+                    'attr' => ['maxlength' => $variable_lenght],
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_12', TextType::class, [
+                    'label' => 'Variable 12',
+                    'attr' => ['maxlength' => $variable_lenght],
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_13', TextType::class, [
+                    'label' => 'Variable 13',
+                    'attr' => ['maxlength' => $variable_lenght],
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_14', TextType::class, [
+                    'label' => 'Variable 14',
+                    'attr' => ['maxlength' => $variable_lenght],
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+                ->add('var_15', TextType::class, [
+                    'label' => 'Variable 15',
+                    'attr' => ['maxlength' => $variable_lenght],
+                    'empty_data' => '',
+                    'required' => false,
+                    'mapped' => false,
+                ])
+            ;
+        }
 
-            ->add('var_2', TextType::class, [
-                'label'         => 'Variable 2',
-                'attr'          => ['maxlength' => $variable_lenght],
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_3', TextType::class, [
-                'label'         => 'Variable 3',
-                'attr'          => ['maxlength' => $variable_lenght],
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_4', TextType::class, [
-                'label'         => 'Variable 4',
-                'attr'          => ['maxlength' => $variable_lenght],
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_5', TextType::class, [
-                'label'         => 'Variable 5',
-                'attr'          => ['maxlength' => $variable_lenght],
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_6', TextType::class, [
-                'label'         => 'Variable 6',
-                'attr'          => ['maxlength' => $variable_lenght],
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_7', TextType::class, [
-                'label'         => 'Variable 7',
-                'attr'          => ['maxlength' => $variable_lenght],
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_8', TextType::class, [
-                'label'         => 'Variable 8',
-                'attr'          => ['maxlength' => $variable_lenght],
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_9', TextType::class, [
-                'label'         => 'Variable 9',
-                'attr'          => ['maxlength' => $variable_lenght],
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_10', TextType::class, [
-                'label'         => 'Variable 10',
-                'attr'          => ['maxlength' => $variable_lenght],
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_11', TextType::class, [
-                'label'         => 'Variable 11',
-                'attr'          => ['maxlength' => $variable_lenght],
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_12', TextType::class, [
-                'label'         => 'Variable 12',
-                'attr'          => ['maxlength' => $variable_lenght],
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_13', TextType::class, [
-                'label'         => 'Variable 13',
-                'attr'          => ['maxlength' => $variable_lenght],
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_14', TextType::class, [
-                'label'         => 'Variable 14',
-                'attr'          => ['maxlength' => $variable_lenght],
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
-
-            ->add('var_15', TextType::class, [
-                'label'         => 'Variable 15',
-                'attr'          => ['maxlength' => $variable_lenght],
-                'empty_data'    => '',
-                'required'      => false,
-                'mapped'        => false,
-            ])
             ################################################
             ####              Relations                 ####
             ################################################
+        $builder
             ->add('eventMails', CollectionType::class, [
                 'entry_type'    => EventMailListEmbeddedFormType::class,
                 'allow_add'     => true,
@@ -289,17 +248,23 @@ class AnlageConfigFormType extends AbstractType
                 'delete_empty'  => true,
                 'by_reference'  => false,
             ])
+        ;
+        if ($this->security->isGranted('ROLE_AM')) {
+            $builder
+                ->add('economicVarValues', CollectionType::class, [
+                    'entry_type'    => EconomicVarsValuesEmbeddedFormType::class,
+                    'allow_add'     => true,
+                    'allow_delete'  => true,
+                    'delete_empty'  => true,
+                    'by_reference'  => false,
+                ])
+            ;
+        }
 
-            ->add('economicVarValues', CollectionType::class, [
-                'entry_type'    => EconomicVarsValuesEmbeddedFormType::class,
-                'allow_add'     => true,
-                'allow_delete'  => true,
-                'delete_empty'  => true,
-                'by_reference'  => false,
-            ])
             ##############################################
             ####          STEUERELEMENTE              ####
             ##############################################
+        $builder
             ->add('save', SubmitType::class, [
                 'label' => 'Save Plant',
                 'attr'  => ['class' => 'primary save'],
