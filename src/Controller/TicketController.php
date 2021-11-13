@@ -76,6 +76,7 @@ class TicketController extends BaseController
     {
         $session=$this->container->get('session');
         $ticket = $ticketRepo->find($id);
+        dump($ticket->getAnlage()->getAnlName());
         //reading data from session
         $form = $this->createForm(TicketFormType::class, $ticket);
         $searchstatus = $session->get('search');

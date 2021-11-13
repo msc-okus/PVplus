@@ -29,11 +29,11 @@ class TicketFormType extends AbstractType
         /** @var Ticket $ticket */
 
         $ticket = $options['data'] ?? null;
+
         if ($ticket === null) {
             $builder
                 ->add('anlage', AnlageTextType::class, [
-                    'label' => 'Plant name '
-
+                    'label' => 'Plant name ',
                 ])
                 ->add('status', ChoiceType::class, [
                     'label' => 'Select the status',
@@ -60,24 +60,7 @@ class TicketFormType extends AbstractType
                     'input' => 'datetime',
                     'widget' => 'single_text',
                 ])
-                /*
-                ->add('PR', SwitchType::class, [
-                    'label'         => 'PR',
-                    'required'      => false,
-                    'empty_data'    => 0,
-                ])
-                ->add('PA', SwitchType::class, [
-                    'label'         => 'PA',
-                    'required'      => false,
-                    'empty_data'    => 0,
-                    'mapped'        => false,
-                ])
-                ->add('Yield', SwitchType::class, [
-                    'label'         => 'Yield',
-                    'required'      => false,
-                    'empty_data'    => 0,
-                ])
-                */
+
                 ->add('freeText', CKEditorType::class, [
                     'config' => array('toolbar' => 'my_toolbar'),
                 ])
@@ -124,7 +107,8 @@ class TicketFormType extends AbstractType
         else {
             $builder
                 ->add('anlage', AnlageTextType::class, [
-                    'label' => 'Plant name '
+                    'label' => 'Plant name ',
+                    'attr' => ['value' => $ticket->getAnlage()->getAnlName()]
                 ])
                 ->add('status', ChoiceType::class, [
                     'label' => 'Select the status',
@@ -150,24 +134,7 @@ class TicketFormType extends AbstractType
                     'input' => 'datetime',
                     'widget' => 'single_text',
                 ])
-                /*
-                ->add('PR', SwitchType::class, [
-                    'label'         => 'PR',
-                    'required'      => false,
-                    'empty_data'    => 0,
-                ])
-                ->add('PA', SwitchType::class, [
-                    'label'         => 'PA',
-                    'required'      => false,
-                    'empty_data'    => 0,
-                    'mapped'        => false,
-                ])
-                ->add('Yield', SwitchType::class, [
-                    'label'         => 'Yield',
-                    'required'      => false,
-                    'empty_data'    => 0,
-                ])
-                */
+
                 ->add('freeText', CKEditorType::class, [
                     'config'        => array('toolbar' => 'my_toolbar'),
                     'required'      => false,
