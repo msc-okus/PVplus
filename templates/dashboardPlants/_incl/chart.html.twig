@@ -1054,18 +1054,20 @@
             series1.defaultState.transitionDuration = 300;
             series1.tensionX = 0.8;
 
-            let series2 = chart.series.push(new am4charts.LineSeries());
-            series2.name = "{{ content.series2.name }}";
-            series2.ttname = "{{ content.series2.tooltipText }}";
-            series2.dataFields.dateX = "date";
-            series2.dataFields.valueY = "val2";
-            series2.tooltipText = "{ttname}: {valueY} [/]";
-            series2.stroke = am4core.color("#016195");
-            series2.fill = "#016195";
-            series2.strokeWidth = 1;
-            series2.sequencedInterpolation = true;
-            series2.defaultState.transitionDuration = 300;
-            series2.tensionX = 0.8;
+            {% if aktAnlage.showOnlyUpperIrr == false %}
+                let series2 = chart.series.push(new am4charts.LineSeries());
+                series2.name = "{{ content.series2.name }}";
+                series2.ttname = "{{ content.series2.tooltipText }}";
+                series2.dataFields.dateX = "date";
+                series2.dataFields.valueY = "val2";
+                series2.tooltipText = "{ttname}: {valueY} [/]";
+                series2.stroke = am4core.color("#016195");
+                series2.fill = "#016195";
+                series2.strokeWidth = 1;
+                series2.sequencedInterpolation = true;
+                series2.defaultState.transitionDuration = 300;
+                series2.tensionX = 0.8;
+            {% endif %}
 
             chart.cursor = new am4charts.XYCursor();
             chart.cursor.xAxis = dateAxis;

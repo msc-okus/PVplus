@@ -68,7 +68,6 @@ class PlantUploadAdminController extends BaseController
             $upload = new AnlageFileUpload();
 
             $uploadedFile = $form['imageFile']->getData();
-            #dd($uploadedFile);
             if ($uploadedFile) {
 
                 $newFile = $uploaderHelper->uploadPlantImage($uploadedFile, $id);
@@ -98,7 +97,6 @@ class PlantUploadAdminController extends BaseController
                     'imageuploadet' => $imageuploadet
                 ]);
             }
-            #dd($newFilename);
     }
 
         return $this->render('fileUpload/fileupload.html.twig', [

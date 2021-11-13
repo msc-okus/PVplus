@@ -109,7 +109,6 @@ class ChartService
 
         $from   = self::timeShift($anlage, $form['from'],true);
         $to     = self::timeShift($anlage, $form['to'],true);
-        dump($from,$to);
         if ($anlage) {
             switch ($form['selectedChart']) {
                 // AC Charts //
@@ -270,7 +269,7 @@ class ChartService
                         $resultArray['inverterArray'] = json_encode($dataArray['inverterArray']);
                     }
                     break;
-                case ("dc_grp_power_diff"): // DC - Inverter (DC - Inverter Group)
+                case ("dc_grp_power_diff"): // [DC4] DC - Inverter (DC - Inverter Group)
                     $dataArray = $this->dcChart->getGroupPowerDifferenceDC($anlage, $from, $to);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);

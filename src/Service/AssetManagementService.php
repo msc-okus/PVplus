@@ -300,7 +300,6 @@ class AssetManagementService
             'expectedPvSyst' => $expectedPvSyst,
             'powerExpEvu' => $powerExpEvu
         ];
-        #dd($tbody_a_production);
 
         //fuer die Tabelle Capacity Factor
         for ($i = 0; $i < count($monthExtendetArray); $i++) {
@@ -404,8 +403,6 @@ class AssetManagementService
         //Beginn Cumulative Forecast with PVSYST
         //fuer die Tabelle
 
-
-#dd($this->functions->getForcastByMonth($anlage,$report['reportMonth']));
         #Forecast / degradation
         $degradation = 4.98;
 
@@ -1934,10 +1931,6 @@ class AssetManagementService
         ];
 
 
-        #dump($economicsMandy);
-
-        #dd($conomicsNames);
-
         #beginn Operating statement
         for ($i = 0; $i < 12; $i++) {
             $monthleyFeedInTarif = $kwhPrice[$i];
@@ -1967,7 +1960,6 @@ class AssetManagementService
             $mitKostenForecastG4N[$i] = $ohneKostenForecastG4N[$i]-$economicsMandy['monthTotal'][$i];
         }
 
-        #dd($mitKostenForecastG4N);
         $kumsum1[0] = $economicsMandy['monthTotal'][0];
         $kumsum2[0] = $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][0];
         $kumsum3[0] = $incomePerMonth['PVSYST_plan_proceeds_EXP'][0];
@@ -1986,11 +1978,6 @@ class AssetManagementService
             $result3[] = $kumsum3[$i];
             $result4[] = $kumsum4[$i];
         }
-
-        #dump($result1);
-        #dump($result2);
-        #dump($result3);
-        #dd($result4);
 
         $economicsCumulatedForecast = [
             'revenues_ACT_and_Revenues_Plan_PVSYT' => $result1,
@@ -2462,7 +2449,6 @@ class AssetManagementService
             'Difference_Profit_ACT_to_g4n_plan' => $Difference_Profit_ACT_to_g4n_plan
         ];
 
-        #dd($lossesComparedTable);
         //end Losses compared
 
         //beginn Chart Losses compared
@@ -2542,7 +2528,6 @@ class AssetManagementService
 
         //beginn Table Losses compared cummulated
 
-        dump($lossesComparedTable);
         unset($result1);
         unset($result2);
         $kumsum1[0] = $lossesComparedTable['Difference_Profit_ACT_to_PVSYST_plan'][0];

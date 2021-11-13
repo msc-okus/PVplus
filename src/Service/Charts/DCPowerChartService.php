@@ -321,16 +321,15 @@ class DCPowerChartService
                 if (!($expected == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                     $dataArray['chart'][$counter]['expected'] = $expected;
                 }
-                if($hour) {
-                    $sql = "SELECT sum(wr_pdc) as avg(actPower), wr_temp as temp FROM ";
+                $sql = "SELECT sum(wr_pdc) as actPower, wr_temp as temp FROM ";
+                if ($hour) {
                     if ($anlage->getUseNewDcSchema()) {
                         $sql .= $anlage->getDbNameDCIst() . " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' AND wr_group = '$group' GROUP BY wr_num;";
                     } else {
                         $sql .= $anlage->getDbNameAcIst() . " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' AND group_dc = '$group' GROUP BY unit;";
                     }
                 }
-                else{
-                    $sql = "SELECT sum(wr_pdc) as actPower, wr_temp as temp FROM ";
+                else {
                     if ($anlage->getUseNewDcSchema()) {
                         $sql .= $anlage->getDbNameDCIst() . " WHERE stamp = '$stampAdjust' AND wr_group = '$group' GROUP BY wr_num;";
                     } else {
@@ -399,33 +398,33 @@ class DCPowerChartService
      * @param $from
      * @param $to
      * @return array
-     * DC - Inverter / DC - Inverter Group // dc_grp_power_diff Bar Chart
+     * [DC4] DC - Inverter / DC - Inverter Group // dc_grp_power_diff Bar Chart
      */
     public function getGroupPowerDifferenceDC(Anlage $anlage, $from, $to): array
     {
-        $conn = self::connectToDatabase();
+        $conn = self::getPdoConnection();
         $dataArray = [];
         $istGruppenArray = [];
         $dcGroups = $anlage->getGroupsDc();
-        // IST Strom für diesen Zeitraum nach Gruppen gruppiert
+        // IST Leistung für diesen Zeitraum nach Gruppen gruppiert
         if ($anlage->getUseNewDcSchema()) {
             $sqlIst = "SELECT sum(wr_pdc) as power_dc_ist, wr_group as inv_group FROM " . $anlage->getDbNameDCIst() . " WHERE stamp BETWEEN '$from' AND '$to' GROUP BY wr_group ;";
         } else {
             $sqlIst = "SELECT sum(wr_pdc) as power_dc_ist, group_dc as inv_group FROM " . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '$from' AND '$to' GROUP BY group_dc ;";
         }
         $resultIst = $conn->query($sqlIst);
-        while ($rowIst = $resultIst->fetch_assoc()) { // Speichern des SQL ergebnisses in einem Array, Gruppe ist assosiativer Array Index
+        while ($rowIst = $resultIst->fetch(PDO::FETCH_ASSOC)) { // Speichern des SQL ergebnisses in einem Array, Gruppe ist assosiativer Array Index
             $istGruppenArray[$rowIst['inv_group']] = $rowIst['power_dc_ist'];
         }
-        // SOLL Strom für diesen Zeitraum nach Gruppen gruppiert
-        $sql_soll = "SELECT stamp, sum(soll_pdcwr) as soll, wr_num as inv_group FROM " . $anlage->getDbNameDcSoll() . " 
-                         WHERE stamp BETWEEN '$from' AND '$to' GROUP BY wr_num ORDER BY wr_num * 1"; // 'wr_num * 1' damit die Sortierung als Zahl und nicht als Text erfolgt
+        // SOLL Leistung für diesen Zeitraum nach Gruppen gruppiert
+        $sql_soll = "SELECT stamp, sum(soll_pdcwr) as soll, group_dc as inv_group FROM " . $anlage->getDbNameDcSoll() . " 
+                         WHERE stamp BETWEEN '$from' AND '$to' GROUP BY group_dc ORDER BY group_dc * 1"; // 'wr_num * 1' damit die Sortierung als Zahl und nicht als Text erfolgt
 
         $result = $conn->query($sql_soll);
         $counter = 0;
-        if ($result->num_rows > 0) {
+        if ($result->rowCount() > 0) {
             $dataArray['maxSeries'] = 0;
-            while ($row = $result->fetch_assoc()) {
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                 $dataArray['rangeValue'] = round($row["soll"], 2);
                 $invGroupSoll = $row["inv_group"];
                 $dataArray['chart'][$counter] = [
@@ -438,7 +437,7 @@ class DCPowerChartService
                 $counter++;
             }
         }
-        $conn->close();
+        $conn = null;
 
         return $dataArray;
     }
