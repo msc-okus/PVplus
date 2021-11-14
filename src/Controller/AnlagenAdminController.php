@@ -18,6 +18,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
 
@@ -57,17 +58,12 @@ class AnlagenAdminController extends BaseController
                 return $this->render('anlagen/new.html.twig', [
                     'anlageForm'   => $form->createView(),
                 ]);
-        /*
-        return $this->render('anlagen/new.html.twig', [
-            'anlageForm'   => $form->createView(),
-        ]);
-        */
     }
 
     /**
      * @Route("/admin/anlagen/list", name="app_admin_anlagen_list")
      */
-    public function list(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository)
+    public function list(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository): Response
     {
         $q = $request->query->get('qp');
         if ($request->query->get('search') == 'yes' && $q == '') $request->getSession()->set('qp', '');

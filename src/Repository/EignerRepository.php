@@ -25,7 +25,7 @@ class EignerRepository extends ServiceEntityRepository
 
     public static function activeAnlagenCriteria($role): Criteria
     {
-        if ($role == true) {
+        if ($role === true) {
             return Criteria::create()
                 ->andWhere(Criteria::expr()->eq('anlHidePlant', 'No'));
         } else {
@@ -39,13 +39,16 @@ class EignerRepository extends ServiceEntityRepository
     /**
      * @return Eigner[]
      */
-    public function findAllDashboard()
+    public function findAllDashboard(): array
     {
-        return $this->createQueryBuilder('a')
-            ->innerJoin('a.anlage', 'b')
-            ->addSelect('b')
-            ->andWhere('a.active = 1')
-            ->orderBy('b.anlName', 'ASC')
+        return $this->createQueryBuilder('eigner')
+            ->innerJoin('eigner.anlage', 'anlage')
+            ->addSelect('anlage')
+            ->leftJoin('anlage.economicVarNames', 'eco')
+            ->addSelect('eco')
+            ->andWhere('eigner.active = 1')
+            ->orderBy('eigner.firma', 'ASC')
+            ->orderBy('anlage.anlName', 'ASC')
             ->getQuery()
             ->getResult()
             ;
