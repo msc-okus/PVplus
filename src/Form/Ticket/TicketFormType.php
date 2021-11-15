@@ -62,7 +62,7 @@ class TicketFormType extends AbstractType
             $builder
                 ->add('anlage', AnlageTextType::class, [
                     'label' => 'Plant name ',
-                    'attr' => [ 'value' => $ticket->getAnlage()->getAnlName(),
+                    'attr' => [
                                 'readonly' => true,
                                 'class' => 'js-autocomplete-anlagen input-group-field',
                                 'data-autocomplete-url' => '/admin/anlagen/find'
