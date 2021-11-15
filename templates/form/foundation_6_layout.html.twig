@@ -85,14 +85,11 @@
         </div>
     {% endif %}
 {%- endblock datetime_widget %}
-
+{#
 {% block anlage_text_type_widget %}
-    <script src="{{ asset('jsNew/algolia-autocomplete-anlagen.js') }}" ></script>
-    <script src="https://cdn.jsdelivr.net/autocomplete.js/0/autocomplete.jquery.min.js"></script>
-        <input type="text" {{ block('widget_attributes')}} class="js-autocomplete-anlagen input-group-field" data-autocomplete-url="/admin/anlagen/find" value="" placeholder="Insert the Plant">
-
-
+        <input type="text" {{ block('widget_attributes')}} class="js-autocomplete-anlagen input-group-field" data-autocomplete-url="/admin/anlagen/find" placeholder="Insert the Plant">
 {% endblock %}
+#}
 {% block switch_type_widget %}
 
     <div class="switch tiny">

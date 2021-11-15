@@ -1,19 +1,21 @@
 {% block JavaScripts %}
-<script>
-    function Display() {
-        // Get the checkbox
-        var checkBox = document.getElementById("exampleSwitch");
-        // Get the output text
-        var div = document.getElementById("midiv");
+    <script src="{{ asset('jsNew/algolia-autocomplete-anlagen.js') }}" ></script>
+    <script src="https://cdn.jsdelivr.net/autocomplete.js/0/autocomplete.jquery.min.js"></script>
+    <script>
+        function Display() {
+            // Get the checkbox
+            var checkBox = document.getElementById("exampleSwitch");
+            // Get the output text
+            var div = document.getElementById("midiv");
 
-        // If the checkbox is checked, display the output text
-        if (checkBox.checked === false){
-            div.style.visibility = "hidden";
-        } else {
-            div.style.visibility = "visible";
+            // If the checkbox is checked, display the output text
+            if (checkBox.checked === false){
+                div.style.visibility = "hidden";
+            } else {
+                div.style.visibility = "visible";
+            }
         }
-    }
-</script>
+    </script>
 {% endblock %}
 
 {{ form_start(ticketForm) }}
@@ -28,7 +30,7 @@
                     <legend>Plant</legend>
                     <div class="grid-x grid-margin-x grid-padding-x">
                         <div class="cell medium-6 small-12">
-                            {{ form_row(ticketForm.anlage,{'value': 'hola'}) }}
+                            {{ form_row(ticketForm.anlage) }}
                         </div>
                         <div class="cell medium-6 small-12">
                             {{ form_row(ticketForm.systemStatus) }}
@@ -53,7 +55,7 @@
                         </div>
                     </div>
                 </fieldset>
-                {#
+
                 <h5>Show hidden mysteries?</h5>
                 <div class="switch tiny cell medium-3 small-6">
                     <input class="switch-input" id="exampleSwitch" type="checkbox" name="exampleSwitch" onclick="Display()">
@@ -70,7 +72,7 @@
                         </div>
                     </div>
                 </fieldset>
-                #}
+
             </div>
         </div>
     </div>
