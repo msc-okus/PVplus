@@ -559,13 +559,13 @@ class FunctionsService
             foreach ($array as $stamp => $irr) {
                 if(is_array($irr) || is_object($irr)) {
                     foreach ($irr as $key => $value) {
-                        if (is_float($value) || is_integer($value)) {
+
                             if (isset($sumArray[$key])) {
-                                $sumArray[$key] += round($value / $umrechnung, 3);
+                                $sumArray[$key] += round((float)$value / $umrechnung, 3);
                             } else {
-                                $sumArray[$key] = round($value / $umrechnung, 3);
+                                $sumArray[$key] = round((float)$value / $umrechnung, 3);
                             }
-                        }
+
                     }
                 }
             }
@@ -874,10 +874,10 @@ class FunctionsService
      * @param array $content
      * @return string
      */
-    public function printArrayAsTable(array $content): string
+    public function printArrayAsTable(array $content, $decimal = 2): string
     {
         $_html = "<style>table, th, td {border: 1px solid black; }</style>";
-        $_html .=  "<div class='table-scroll'><table>";
+        $_html .=  "<div class='table-scroll'><table style='font-size: 80%'>";
         $_counter = 0;
         for ($key = 1; $key <= count($content); $key++) {
             if ($_counter == 0) {
@@ -890,7 +890,7 @@ class FunctionsService
             $_html .= "<tr><td>$key</td>";
             foreach ($content[$key] as  $cell) {
                 if (is_numeric($cell)) {
-                    $_html .= "<td>" . number_format($cell, 3,',', '.') . "</td>";
+                    $_html .= "<td style='text-align: right;'>" . number_format($cell, $decimal,',', '.') . "</td>";
                 } else {
                     $_html .= "<td>$cell</td>";
                 }

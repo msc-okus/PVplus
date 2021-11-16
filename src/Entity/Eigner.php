@@ -38,97 +38,96 @@ class Eigner
      *
      * @ORM\Column(name="firma", type="string", length=100, nullable=false)
      */
-    private string $firma;
+    private $firma;
 
     /**
      * @var string
      *
      * @ORM\Column(name="zusatz", type="string", length=100, nullable=false)
      */
-    private string $zusatz;
+    private $zusatz;
 
     /**
      * @var string
      *
      * @ORM\Column(name="anrede", type="string", length=100, nullable=false)
      */
-    private string $anrede;
+    private $anrede;
 
     /**
      * @var string
      *
      * @ORM\Column(name="vorname", type="string", length=100, nullable=false)
      */
-    private string $vorname;
+    private $vorname;
 
     /**
      * @var string
      *
      * @ORM\Column(name="nachname", type="string", length=100, nullable=false)
      */
-    private string $nachname;
+    private $nachname;
 
     /**
      * @var string
      *
      * @ORM\Column(name="strasse", type="string", length=100, nullable=false)
      */
-    private string $strasse;
+    private $strasse;
 
     /**
      * @var string
      *
      * @ORM\Column(name="plz", type="string", length=10, nullable=false)
      */
-    private string $plz;
+    private $plz;
 
     /**
      * @var string
      *
      * @ORM\Column(name="ort", type="string", length=100, nullable=false)
      */
-    private string $ort;
+    private $ort;
 
     /**
      * @var string
      *
      * @ORM\Column(name="nachricht", type="text", length=65535, nullable=true)
      */
-    private string $nachricht;
+    private $nachricht;
 
     /**
      * @var string
      *
      * @ORM\Column(name="telefon1", type="string", length=100, nullable=false)
      */
-    private string $telefon1;
+    private $telefon1;
 
     /**
      * @var string
      *
      * @ORM\Column(name="telefon2", type="string", length=100, nullable=false)
      */
-    private string $telefon2;
+    private $telefon2;
 
     /**
      * @var string
      *
      * @ORM\Column(name="mobil", type="string", length=100, nullable=false)
      */
-    private string $mobil;
+    private $mobil;
 
     /**
      * @var string
      *
      * @ORM\Column(name="fax", type="string", length=100, nullable=false)
      */
-    private string $fax;
+    private $fax;
 
     /**
      * @var string
      *
      * @ORM\Column(name="home_dir", type="string", length=100, nullable=false, options={"default"="user/home/"})
-     * @deprecated
      */
     private $homeDir = 'user/home/';
 
@@ -136,7 +135,6 @@ class Eigner
      * @var string
      *
      * @ORM\Column(name="home_folder", type="text", length=65535, nullable=true)
-     * @deprecated
      */
     private $homeFolder;
 
@@ -145,98 +143,98 @@ class Eigner
      *
      * @ORM\Column(name="email", type="text", length=65535, nullable=false)
      */
-    private string $email;
+    private $email;
 
     /**
      * @var string
      *
      * @ORM\Column(name="web", type="text", length=65535, nullable=true)
      */
-    private string $web;
+    private $web;
 
     /**
      * @var string
      *
      * @ORM\Column(name="bv_anrede", type="string", length=100, nullable=false)
      */
-    private string $bvAnrede;
+    private $bvAnrede;
 
     /**
      * @var string
      *
      * @ORM\Column(name="bv_vorname", type="string", length=100, nullable=false)
      */
-    private string $bvVorname;
+    private $bvVorname;
 
     /**
      * @var string
      *
      * @ORM\Column(name="bv_nachname", type="string", length=100, nullable=false)
      */
-    private string $bvNachname;
+    private $bvNachname;
 
     /**
      * @var string
      *
      * @ORM\Column(name="bv_email", type="text", length=65535, nullable=false)
      */
-    private string $bvEmail;
+    private $bvEmail;
 
     /**
      * @var string
      *
      * @ORM\Column(name="bv_telefon1", type="string", length=100, nullable=false)
      */
-    private string $bvTelefon1;
+    private $bvTelefon1;
 
     /**
      * @var string
      *
      * @ORM\Column(name="bv_telefon2", type="string", length=100, nullable=false)
      */
-    private string $bvTelefon2;
+    private $bvTelefon2;
 
     /**
      * @var string
      *
      * @ORM\Column(name="bv_mobil", type="string", length=100, nullable=false)
      */
-    private string $bvMobil;
+    private $bvMobil;
 
     /**
      * @var int
      *
      * @ORM\Column(name="active", type="bigint", nullable=false)
      */
-    private int $active = 0;
+    private $active = '0';
 
     /**
      * @var int
      *
      * @ORM\Column(name="editlock", type="bigint", nullable=false, options={"default"="1"})
      */
-    private int $editlock = 1;
+    private $editlock = '1';
 
     /**
      * @var int
      *
      * @ORM\Column(name="userlock", type="bigint", nullable=false)
      */
-    private int $userlock = 0;
+    private $userlock = '0';
 
     /**
      * @var string
      *
      * @ORM\Column(name="language", type="string", length=10, nullable=false, options={"default"="EN"})
      */
-    private string $language = 'EN';
+    private $language = 'EN';
 
     /**
      * @var string
      *
      * @ORM\Column(name="level", type="string", length=5, nullable=false, options={"default"="1"})
      */
-    private string $level = '1';
+    private $level = '1';
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, inversedBy="eigners")
@@ -248,7 +246,7 @@ class Eigner
     /**
      * @ORM\Column(type="string", length=15, nullable=true)
      */
-    private string $activateAlertMessage;
+    private $activateAlertMessage;
 
     /**
      * @ORM\OneToMany(targetEntity=Anlage::class, mappedBy="eigner")

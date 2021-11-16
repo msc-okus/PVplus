@@ -114,13 +114,13 @@ class PRCalulationService
             $powerEGridExtPac   = $this->functions->getSumeGridMeter($anlage, $pacDate, $to);
             $powerEGridExtYear  = $this->functions->getSumeGridMeter($anlage, date('Y-01-01 00:00', strtotime($from)), $to);
 
-            if($anlage->getUsePac()) {
+            if ($anlage->getUsePac()) {
                 $weather = $this->functions->getWeather($anlage->getWeatherStation(), $from, $to, $pacDate, $pacDateEnd); // Strahlung und andere Wetter Daten als Array
             } else {
                 $weather = $this->functions->getWeather($anlage->getWeatherStation(), $from, $to, false, false); // Strahlung und andere Wetter Daten als Array
             }
 
-            // Berechne Summe und mittelwert der JSON Array
+            // Berechne Summe und Mittelwert der JSON Arrays
             ($powerActArray['irrAnlage']) ?  $irrAnlageArray  = $this->functions->buildSumFromArray($powerActArray['irrAnlage'], 4) : $irrAnlageArray = []; // Strahlung (Irradiation) in Wh/qm
             ($powerActArray['tempAnlage']) ? $tempAnlageArray = $this->functions->buildAvgFromArray($powerActArray['tempAnlage']) : $tempAnlageArray = [];           // Temperatur
             ($powerActArray['windAnlage']) ? $windAnlageArray = $this->functions->buildAvgFromArray($powerActArray['windAnlage']) : $windAnlageArray = [];           // Wind
@@ -530,12 +530,12 @@ class PRCalulationService
                 $localEndDate   = $startDate->format('Y-m-d-23:59');
                 break;
             case 'year':
-                // PR für das Jahr brechnen (vom 1. Jan bis zum 31.Dez)
+                // PR für das Jahr brechnen (vom 1. Jan bis zum 31. Dez)
                 $localStartDate = $startDate->format('Y-01-01 00:00');
                 $localEndDate   = $startDate->format('Y-12-31 23:59');
                 break;
             case 'pac':
-                // PR Berechnen für PAC Datum bis $endDate
+                // PR für PAC Datum bis $endDate berechnen
                 $localStartDate = $anlage->getPacDate()->format('Y-m-d 00:00');
                 if ($endDate === null) {
                     $localEndDate   = $startDate->format('Y-m-d-23:59');
@@ -544,7 +544,7 @@ class PRCalulationService
                 }
                 break;
             default:
-                // PR berechnen für einen Tag (wenn $endDate = null) oder für beliebigen Zeitraum (auch für Rumpfmonate in epc Berichten)
+                // PR für einen Tag (wenn $endDate = null) oder für beliebigen Zeitraum (auch für Rumpfmonate in epc Berichten) berechnen
                 $localStartDate = $startDate->format('Y-m-d 00:00');
                 if ($endDate === null) {
                     $localEndDate   = $startDate->format('Y-m-d 23:59');
@@ -581,7 +581,7 @@ class PRCalulationService
         switch ($anlage->getUseCustPRAlgorithm()) {
             case 'Groningen':
                 // PowerTheoretical für das Jahr und PAC berechnen unter Berücksichtigung umgerechneten Globalstrahlung
-                // Umrechnung Global auf Modulstrahlung erfolgt schon beim Import
+                // Umrechnung global auf Modulstrahlung erfolgt schon beim Import
                 // (Bsp. Groningen: IrrUpper = umgerechnete Globalstrahlung, IrrLower = gemesene Modulstrahlung, IrrHori = gemessene Horizontal Strahlung)
 
                 if ($powerTheo > 0 && $availability > 0) { // Verhinder Divison by zero
@@ -593,7 +593,7 @@ class PRCalulationService
                 break;
             case 'Veendam':
                 if ($availability > 0) { // Verhinder Divison by zero
-                    if ($powerTheo > 0 && $availability > 0) {
+                    if ($powerTheo > 0) {
                         $result['prEvu']      = ($power['powerEvu']      / ($powerTheo / 100 * $availability)) * 100;
                         $result['prAct']      = ($power['powerAct']      / ($powerTheo / 100 * $availability)) * 100;
                         $result['prExp']      = ($power['powerExp']      / ($powerTheo / 100 * $availability)) * 100;
