@@ -162,9 +162,7 @@ class ACPowerChartsService
      */
     public function getAC2(Anlage $anlage, $from, $to, int $group, bool $hour): array
     {
-
-
-        if(false){
+        if(true){
             $dataArray = [];
             $dataArray['maxSeries'] = 0;
             $nameArray = $this->functions->getNameArray($anlage , 'ac');
@@ -200,8 +198,22 @@ class ACPowerChartsService
 
             $resultExp = $conn->query($sqlExpected);
             $resultActual = $conn->query($sqlIst);
-            while(($rowExp = $resultExp->fetch(PDO::FETCH_ASSOC)) && ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC))){
-                dump($rowExp, $rowActual);
+            if ($resultExp->rowCount() > 0) {
+                $counter = 0;
+
+                switch ($anlage->getConfigType()) {
+                    case 3: // Groningen
+                        break;
+                    default:
+                        $dataArray['offsetLegend'] = $acGroups[$group]['GMIN'] - 1;
+                }
+                $dataArray['label'] = $acGroups[$group]['GroupName'];
+                while ($rowExp = $resultExp->fetch(PDO::FETCH_ASSOC)) {
+
+                }
+                while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
+
+                }
             }
 
         }
