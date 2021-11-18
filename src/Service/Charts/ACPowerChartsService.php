@@ -162,7 +162,8 @@ class ACPowerChartsService
      */
     public function getAC2(Anlage $anlage, $from, $to, int $group, bool $hour): array
     {
-        if(true){
+        $j = 0;
+        if(false){
             $dataArray = [];
             $dataArray['maxSeries'] = 0;
             $nameArray = $this->functions->getNameArray($anlage , 'ac');
@@ -198,6 +199,9 @@ class ACPowerChartsService
 
             $resultExp = $conn->query($sqlExpected);
             $resultActual = $conn->query($sqlIst);
+            dump("actual",$resultActual->rowCount());
+            dump("expected", $resultExp->rowCount());
+
             if ($resultExp->rowCount() > 0) {
                 $counter = 0;
 
@@ -209,10 +213,9 @@ class ACPowerChartsService
                 }
                 $dataArray['label'] = $acGroups[$group]['GroupName'];
                 while ($rowExp = $resultExp->fetch(PDO::FETCH_ASSOC)) {
-
-                }
-                while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
-
+                    for($j; $j < 20; $j++){
+                        $rowActual = $resultActual->fetch(PDO::FETCH_ASSOC);
+}
                 }
             }
 
@@ -497,41 +500,42 @@ class ACPowerChartsService
      */
     public function getGroupPowerDifferenceAC(Anlage $anlage, $from, $to):?array
     {
-        $conn = self::getPdoConnection();
-        $dataArray = [];
-        $acGroups = $anlage->getGroupsAc();
 
-        // Strom für diesen Zeitraum und diese Gruppe
-        $sql_soll = "SELECT stamp, sum(ac_exp_power) as soll, group_ac as inv_group FROM " . $anlage->getDbNameDcSoll() . " WHERE stamp BETWEEN '$from' AND '$to' GROUP BY group_ac ORDER BY group_ac * 1"; // 'wr_num * 1' damit die Sortierung als Zahl und nicht als Text erfolgt
-        $result = $conn->query($sql_soll);
-        $counter = 0;
-        if ($result->rowCount() > 0) {
+            $conn = self::getPdoConnection();
+            $dataArray = [];
+            $acGroups = $anlage->getGroupsAc();
 
-            $dataArray['maxSeries'] = 0;
-            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                $dataArray['rangeValue'] = round($row["soll"], 2);
-                $invGroupSoll = $row["inv_group"];
-                $dataArray['chart'][$counter] = [
-                    "category" => $acGroups[$invGroupSoll]['GroupName'],
-                    "link" => $invGroupSoll,
-                    "exp" => round($row["soll"], 2),
-                ];
-                $sqlInv = "SELECT sum(wr_pac) as acinv, group_ac as inv_group FROM " . $anlage->getDbNameIst() . " WHERE stamp BETWEEN '$from' AND '$to' AND group_ac = '$invGroupSoll';";
-                $resultInv = $conn->query($sqlInv);
-                if ($resultInv->rowCount() > 0) {
-                    $wrcounter = 0;
-                    while ($rowInv = $resultInv->fetch(PDO::FETCH_ASSOC)) {
-                        $wrcounter++;
-                        $dataArray['chart'][$counter]['act'] = self::checkUnitAndConvert($rowInv['acinv'], $anlage->getAnlDbUnit());
-                        if ($wrcounter > $dataArray['maxSeries']) $dataArray['maxSeries'] = $wrcounter;
-                    }
+            // Strom für diesen Zeitraum und diese Gruppe
+            $sql_soll = "SELECT stamp, sum(ac_exp_power) as soll, group_ac as inv_group FROM " . $anlage->getDbNameDcSoll() . " WHERE stamp BETWEEN '$from' AND '$to' GROUP BY group_ac ORDER BY group_ac * 1"; // 'wr_num * 1' damit die Sortierung als Zahl und nicht als Text erfolgt
+            $sqlInv = "SELECT sum(wr_pac) as acinv, group_ac as inv_group FROM " . $anlage->getDbNameIst() . " WHERE stamp BETWEEN '$from' AND '$to' GROUP BY group_ac ORDER BY group_ac * 1;";
+            $result = $conn->query($sql_soll);
+            $resultInv = $conn->query($sqlInv);
+            $counter = 0;
+            $wrcounter = 0;
+            if ($result->rowCount() > 0) {
+
+                $dataArray['maxSeries'] = 0;
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                    $dataArray['rangeValue'] = round($row["soll"], 2);
+                    $invGroupSoll = $row["inv_group"];
+                    $dataArray['chart'][$counter] = [
+                        "category" => $acGroups[$invGroupSoll]['GroupName'],
+                        "link" => $invGroupSoll,
+                        "exp" => round($row["soll"], 2),
+                    ];
+                     if($rowInv = $resultInv->fetch(PDO::FETCH_ASSOC)) {
+                         $wrcounter++;
+                         $dataArray['chart'][$counter]['act'] = self::checkUnitAndConvert($rowInv['acinv'], $anlage->getAnlDbUnit());
+                         if ($wrcounter > $dataArray['maxSeries']) $dataArray['maxSeries'] = $wrcounter;
+                     }
+
+                    $counter++;
                 }
-                $counter++;
             }
-        }
-        $conn = null;
+            $conn = null;
 
-        return $dataArray;
+            return $dataArray;
+
     }
 
     /**
