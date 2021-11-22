@@ -259,7 +259,6 @@ class ChartService
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        //$resultArray['label'] = $dataArray['label'];
                         $resultArray['headline'] = 'DC Production by Group [kWh]';
                         $resultArray['series1']['name'] = "Expected";
                         $resultArray['series1']['tooltipText'] = "Expected ";
