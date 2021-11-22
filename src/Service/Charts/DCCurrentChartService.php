@@ -268,7 +268,7 @@ class DCCurrentChartService
                     $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
                     $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
                     //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-                    dump($rowExp['sollCurrent']);
+
                     $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
                     $currentExp = round($row['sollCurrent'], 2);
                     if ($currentExp === null) $currentExp = 0;
