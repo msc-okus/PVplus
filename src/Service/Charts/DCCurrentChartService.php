@@ -161,7 +161,7 @@ class DCCurrentChartService
      */
     public function getCurr3(Anlage $anlage, $from, $to, int $group = 1, bool $hour): array
     {
-        if(true) {
+        if(false) {
             if ($hour) $form = '%y%m%d%H';
             else $form = '%y%m%d%H%i';
             $conn = self::getPdoConnection();
@@ -178,9 +178,8 @@ class DCCurrentChartService
             }
             $dataArray['inverterArray'] = $nameArray;
 
-            // Strom für diesen Zeitraum und diesen Inverter
             $sql_strom = "SELECT a.stamp as stamp, b.soll_imppwr as sollCurrent 
-                      FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " ) b ON a.stamp = b.stamp) 
+                      FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE wr_num = '$group') b ON a.stamp = b.stamp) 
                       WHERE a.stamp BETWEEN '$from' AND '$to' GROUP BY date_format(a.stamp, '$form')";
 
             if ($anlage->getUseNewDcSchema()) {
@@ -207,6 +206,7 @@ class DCCurrentChartService
                     $stamp = $rowExp['stamp'];
                     //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
                     $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
+                    dump($rowExp['sollCurrent']);
                     $currentExp = round($rowExp['sollCurrent'], 2);
                     if ($currentExp === null) $currentExp = 0;
                     if (!($currentExp == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
@@ -268,6 +268,7 @@ class DCCurrentChartService
                     $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
                     $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
                     //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
+                    dump($rowExp['sollCurrent']);
                     $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
                     $currentExp = round($row['sollCurrent'], 2);
                     if ($currentExp === null) $currentExp = 0;
