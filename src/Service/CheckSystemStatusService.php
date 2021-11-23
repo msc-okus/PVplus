@@ -48,9 +48,8 @@ class CheckSystemStatusService
         $sqlTimeStamp               = date('Y-m-d H:i:s',$timestampModulo);
         $from                       = date("Y-m-d 00:00:00", $currentTimeStamp);
         $to                         = date("Y-m-d H:i:00", $timestampModulo - 1800);
-        //$to                         = date("Y-m-d 23:59:00", $timestampModulo);
-        $fromYesterday              = date("Y-m-d 00:00:00", $currentTimeStamp - 24 * 3600);
-        $toYestreday                = date("Y-m-d 23:59:00", $timestampModulo - 24 * 3600);
+        //$fromYesterday              = date("Y-m-d 00:00:00", $currentTimeStamp - 24 * 3600);
+        //$toYestreday                = date("Y-m-d 23:59:00", $timestampModulo - 24 * 3600);
         $timestampModuloYesterday   = $timestampModulo - (24 * 3600);
 
         /*******************************/
@@ -133,7 +132,8 @@ class CheckSystemStatusService
                     $powerActArray = $this->functions->getSumPowerAcAct($anlage, $forecastDate->format('Y-m-d 00:00:00'), $forecastDate->format('Y-m-d 23:00:00'), $pacDate, $forecastDate->format('Y-m-d 23:00:00'));
 
                     $forecastYear = $powerActArray['powerEvuYear'] - $this->forecastRepo->calcForecastByDate($anlage, $forecastDate);
-                    if ($forecastYear === null) $forecastYear = 0;
+                    if ($forecastYear === null) {$forecastYear = 0;}
+
                     $forecastDivMinusYear = 0;
                     $forecastDivPlusYear = 0;
 
