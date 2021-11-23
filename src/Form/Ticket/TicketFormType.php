@@ -34,6 +34,10 @@ class TicketFormType extends AbstractType
             $builder
                 ->add('anlage', AnlageTextType::class, [
                     'label' => 'Plant name ',
+                    'attr' => [
+                        'class' => 'js-autocomplete-anlagen input-group-field',
+                        'data-autocomplete-url' => '/admin/anlagen/find'
+                    ]
                 ])
                 ->add('status', ChoiceType::class, [
                     'label' => 'Select the status',
@@ -52,63 +56,17 @@ class TicketFormType extends AbstractType
                     'input' => 'datetime',
                     'widget' => 'single_text',
                     'data' => new \DateTime("now")
-                ])
-                ->add('end', DateTimeType::class, [
-                    'label' => 'End',
-                    'label_html' => true,
-                    'required' => true,
-                    'input' => 'datetime',
-                    'widget' => 'single_text',
-                ])
-
-                ->add('freeText', CKEditorType::class, [
-                    'config' => array('toolbar' => 'my_toolbar'),
-                ])
-                ->add('description', TextType::class, [
-
-                ])
-                ->add('systemStatus', ChoiceType::class, [
-                    'label' => 'Select the status of the system',
-                    'choices' => [
-                        'test' => 10,
-                        'test2' => 20
-                    ],
-                    'required' => true,
-                    'placeholder' => 'Please Choose ...'
-                ])
-                ->add('priority', ChoiceType::class, [
-                    'label' => 'Select the priority',
-                    'choices' => [
-                        'Low' => 10,
-                        'Normal' => 20,
-                        'High' => 30,
-                        'Urgent' => 40
-                    ],
-                    'required' => true,
-                    'placeholder' => 'please Choose ...'
-
-                ])
-                ->add('answer', CKEditorType::class, [
-                    'config' => array('toolbar' => 'my_toolbar'),
-                ])
-                ->add('save', SubmitType::class, [
-                    'label' => 'Save',
-                    'attr' => ['class' => 'primary save'],
-                ])
-                ->add('saveclose', SubmitType::class, [
-                    'label' => 'Save and Close',
-                    'attr' => ['class' => 'primary saveclose'],
-                ])
-                ->add('close', SubmitType::class, [
-                    'label' => 'Close without save',
-                    'attr' => ['class' => 'secondary close', 'formnovalidate' => 'formnovalidate'],
                 ]);
         }
         else {
             $builder
                 ->add('anlage', AnlageTextType::class, [
                     'label' => 'Plant name ',
-                    'attr' => ['value' => $ticket->getAnlage()->getAnlName()]
+                    'attr' => [
+                                'readonly' => true,
+                                'class' => 'js-autocomplete-anlagen input-group-field',
+                                'data-autocomplete-url' => '/admin/anlagen/find'
+                                ]
                 ])
                 ->add('status', ChoiceType::class, [
                     'label' => 'Select the status',
@@ -126,59 +84,73 @@ class TicketFormType extends AbstractType
                     'required' => false,
                     'input' => 'datetime',
                     'widget' => 'single_text',
-                ])
-                ->add('end', DateTimeType::class, [
-                    'label' => 'End',
-                    'label_html' => true,
-                    'required' => true,
-                    'input' => 'datetime',
-                    'widget' => 'single_text',
-                ])
-
-                ->add('freeText', CKEditorType::class, [
-                    'config'        => array('toolbar' => 'my_toolbar'),
-                    'required'      => false,
-                ])
-                ->add('description', TextType::class, [
-
-                ])
-                ->add('systemStatus', ChoiceType::class, [
-                    'label' => 'Select the status of the system',
-                    'choices' => [
-                        'test' => 10,
-                        'test2' => 20
-                    ],
-                    'required' => true,
-                    'placeholder' => 'Please Choose ...'
-                ])
-                ->add('priority', ChoiceType::class, [
-                    'label' => 'Select the priority',
-                    'choices' => [
-                        'Low' => 10,
-                        'Normal' => 20,
-                        'High' => 30,
-                        'Urgent' => 40
-                    ],
-                    'required' => true,
-                    'placeholder' => 'please Choose ...'
-
-                ])
-                ->add('answer', CKEditorType::class, [
-                    'config' => array('toolbar' => 'my_toolbar'),
-                    'required'      => false,
-                ])
-                ->add('save', SubmitType::class, [
-                    'label' => 'Save',
-                    'attr' => ['class' => 'primary save'],
-                ])
-                ->add('saveclose', SubmitType::class, [
-                    'label' => 'Save and Close',
-                    'attr' => ['class' => 'primary saveclose'],
-                ])
-                ->add('close', SubmitType::class, [
-                    'label' => 'Close without save',
-                    'attr' => ['class' => 'secondary close', 'formnovalidate' => 'formnovalidate'],
                 ]);
         }
+        $builder
+
+            ->add('end', DateTimeType::class, [
+                'label' => 'End',
+                'label_html' => true,
+                'required' => true,
+                'input' => 'datetime',
+                'widget' => 'single_text',
+            ])
+
+            ->add('freeText', CKEditorType::class, [
+                'config' => array('toolbar' => 'my_toolbar'),
+            ])
+            ->add('description', TextType::class, [
+
+            ])
+            ->add('systemStatus', ChoiceType::class, [
+                'label' => 'Select the status of the system',
+                'choices' => [
+                    'test' => 10,
+                    'test2' => 20
+                ],
+                'required' => true,
+                'placeholder' => 'Please Choose ...'
+            ])
+            ->add('priority', ChoiceType::class, [
+                'label' => 'Select the priority',
+                'choices' => [
+                    'Low' => 10,
+                    'Normal' => 20,
+                    'High' => 30,
+                    'Urgent' => 40
+                ],
+                'required' => true,
+                'placeholder' => 'please Choose ...'
+
+            ])
+            ->add('answer', CKEditorType::class, [
+                'config' => array('toolbar' => 'my_toolbar'),
+            ])
+            ->add('PR', SwitchType::class, [
+                'label' => 'PR',
+                'required' =>false
+            ])
+            ->add('PA', SwitchType::class,[
+                'label' => 'PA',
+                'required' =>false
+            ])
+
+            ->add('Yield', SwitchType::class,[
+                'label' => 'Yield',
+                'required' =>false
+            ])
+            ->add('save', SubmitType::class, [
+                'label' => 'Save',
+                'attr' => ['class' => 'primary save'],
+            ])
+            ->add('saveclose', SubmitType::class, [
+                'label' => 'Save and Close',
+                'attr' => ['class' => 'primary saveclose'],
+            ])
+            ->add('close', SubmitType::class, [
+                'label' => 'Close without save',
+                'attr' => ['class' => 'secondary close', 'formnovalidate' => 'formnovalidate'],
+            ]);
+
     }
 }
