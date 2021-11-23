@@ -94,6 +94,26 @@ class AnlageModules
      */
     private $degradation;
 
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private string $irrDiscount1 = '0';
+
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private string $irrDiscount2 = '0';
+
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private string $irrDiscount3 = '0';
+
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private string $irrDiscount4 = '0';
+
     public function __construct()
     {
         $this->anlageGroupModules = new ArrayCollection();
@@ -346,6 +366,54 @@ class AnlageModules
     public function setDegradation(string $degradation): self
     {
         $this->degradation =  str_replace(',', '.', $degradation);
+
+        return $this;
+    }
+
+    public function getIrrDiscount1(): ?float
+    {
+        return (float)$this->irrDiscount1;
+    }
+
+    public function setIrrDiscount1(string $irrDiscount1): self
+    {
+        $this->irrDiscount1 = str_replace(',', '.', $irrDiscount1);
+
+        return $this;
+    }
+
+    public function getIrrDiscount2(): ?float
+    {
+        return (float)$this->irrDiscount2;
+    }
+
+    public function setIrrDiscount2(string $irrDiscount2): self
+    {
+        $this->irrDiscount2 = str_replace(',', '.', $irrDiscount2);
+
+        return $this;
+    }
+
+    public function getIrrDiscount3(): ?float
+    {
+        return (float)$this->irrDiscount3;
+    }
+
+    public function setIrrDiscount3(string $irrDiscount3): self
+    {
+        $this->irrDiscount3 = str_replace(',', '.', $irrDiscount3);
+
+        return $this;
+    }
+
+    public function getIrrDiscount4(): ?float
+    {
+        return (float)$this->irrDiscount4;
+    }
+
+    public function setIrrDiscount4(string $irrDiscount4): self
+    {
+        $this->irrDiscount4 = str_replace(',', '.', $irrDiscount4);
 
         return $this;
     }

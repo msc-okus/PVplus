@@ -272,14 +272,20 @@ class DefaultMREController extends BaseController
         $from = $anlage->getEpcReportStart();
         $to   = $anlage->getEpcReportEnd();
 
-        $result = $epcNew->monthTable($anlage);
+        $monthTable = $epcNew->monthTable($anlage);
 
-        $output = $functions->printArrayAsTable($result);
+        $forcastTable = $epcNew->forcastTable($anlage, $monthTable);
 
-        return $this->render('cron/showResult.html.twig', [
-            'headline'      => 'Test New EPC Form',
-            'availabilitys' => '',
-            'output'        => $output,
+        $output = $functions->printArrayAsTable($forcastTable);
+        $output .= $functions->print2DArrayAsTable($monthTable);
+
+        return $this->render('report/epcReport.html.twig', [
+            'anlage'        => $anlage,
+            'monthsTable'   => $monthTable,
+            'legend'        => $anlage->getLegendEpcReports(),
+            'font_color' => '#9aacc3',
+            'font_color_second' => '#2e639a',
+            'font_color_third' => '#36639c',
         ]);
     }
 }

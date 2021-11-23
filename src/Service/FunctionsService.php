@@ -872,22 +872,26 @@ class FunctionsService
 
     /**
      * @param array $content
+     * @param int $decimal
      * @return string
      */
-    public function printArrayAsTable(array $content, $decimal = 2): string
+    public function print2DArrayAsTable(array $content, int $decimal = 2): string
     {
-        $_html = "<style>table, th, td {border: 1px solid black; }</style>";
+        $_html = "<style>
+                    table, th, td {border: 1px solid black; }
+                    thead {background-color: #b4c6e7;}  
+                  </style>";
         $_html .=  "<div class='table-scroll'><table style='font-size: 80%'>";
         $_counter = 0;
         for ($key = 1; $key <= count($content); $key++) {
             if ($_counter == 0) {
-                $_html .= "<tr><th>Key</th>";
+                $_html .= "<thead><tr><th>Key</th>";
                 foreach ($content[$key] as $subkey => $subvalue) {
                     $_html .= '<th>' . substr($subkey, 0, 30) . '</th>';
                 }
-                $_html .= "</tr>";
+                $_html .= "</tr></thead>";
             }
-            $_html .= "<tr><td>$key</td>";
+            $_html .= "<tbody><tr><td>$key</td>";
             foreach ($content[$key] as  $cell) {
                 if (is_numeric($cell)) {
                     $_html .= "<td style='text-align: right;'>" . number_format($cell, $decimal,',', '.') . "</td>";
@@ -898,6 +902,32 @@ class FunctionsService
             $_html .= "</tr>";
             $_counter++;
         }
+        $_html .= "</tbody></table></div><hr>";
+
+        return $_html;
+    }
+
+    /**
+     * @param array $content
+     * @param int $decimal
+     * @return string
+     */
+    public function printArrayAsTable(array $content, int $decimal = 2): string
+    {
+        $_html = "<style>
+                    table, th, td {border: 1px solid black; }
+                    thead {background-color: #b4c6e7;}  
+                  </style>";
+        $_html .=  "<div class='table-scroll'><table style='font-size: 80%'>";
+        foreach ($content as $key => $cell) {
+            $_html .= "<tr><td>$key</td>";
+            if (is_numeric($cell)) {
+                $_html .= "<td style='text-align: right;'>" . number_format($cell, $decimal,',', '.') . "</td>";
+            } else {
+                $_html .= "<td>$cell</td>";
+            }
+        }
+        $_html .= "</tr>";
         $_html .= "</table></div><hr>";
 
         return $_html;

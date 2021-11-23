@@ -582,7 +582,7 @@ class PRCalulationService
             case 'Groningen':
                 // PowerTheoretical für das Jahr und PAC berechnen unter Berücksichtigung umgerechneten Globalstrahlung
                 // Umrechnung global auf Modulstrahlung erfolgt schon beim Import
-                // (Bsp. Groningen: IrrUpper = umgerechnete Globalstrahlung, IrrLower = gemesene Modulstrahlung, IrrHori = gemessene Horizontal Strahlung)
+                // (Bsp. Groningen: IrrUpper = umgerechnete Globalstrahlung, IrrLower = gemesene Modulstrahlung, IrrHori = gemessene horizontal Strahlung)
 
                 if ($powerTheo > 0 && $availability > 0) { // Verhinder Divison by zero
                     $result['prEvu']      = ($power['powerEvu']      / ($powerTheo / 1000 * $availability)) * (10 / 0.9945);

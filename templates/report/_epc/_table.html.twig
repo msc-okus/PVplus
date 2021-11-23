@@ -1,0 +1,69 @@
+{% extends 'report/_epc/_pageBase.html.twig' %}
+
+{% block page %}
+    <h3 style="color: {{ font_color_second }};">Monthly Values</h3>
+    <table class="basetable monthtable">
+        <thead>
+            <tr>
+                <th style="min-width: 70px"></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for month in monthsTable %}
+            <tr>
+                <td class="text-left"">{{ month.B_month }}</td>
+                <td>{{ month.C_days }}</td>
+                <td>{{ month.D_irrDesign|format_number(style='decimal') }}</td>
+                <td>{{ month.E_yieldDesign|format_number(style='decimal') }}</td>
+                <td>{{ month.F_specificYieldDesign|format_number(style='decimal') }}</td>
+                <td>{{ month.G_prDesign|format_number(style='decimal') }}</td>
+                <td>{{ month.H_prGuarantie|format_number(style='decimal') }}</td>
+                <td>{{ month.I_theorYieldDesign|format_number(style='decimal') }}</td>
+                <td>&nbsp;</td>
+                <td>{{ month.L_irr|format_number(style='decimal') }}</td>
+                <td>{{ month.M_eGridYield|format_number(style='decimal') }}</td>
+                <td>{{ month.N_specificYield|format_number(style='decimal') }}</td>
+                <td>{{ month.O_availability|format_number(style='decimal') }}</td>
+                <td>{{ month.P_part|format_number(style='decimal') }}</td>
+                <td>{{ month.Q_prReal_prProg|format_number(style='decimal') }}</td>
+                <td>{{ month.R_theorYield|format_number(style='decimal') }}</td>
+                <td>&nbsp;</td>
+                <td>{{ month.U_prReal_withRisk|format_number(style='decimal') }}</td>
+                <td>{{ month.V_eGrid_withRisk|format_number(style='decimal') }}</td>
+                <td>{{ month.W_yield_guaranteed_exp|format_number(style='decimal') }}</td>
+                <td>{{ month.X_eGridMinuseGridGuar|format_number(style='decimal') }}</td>
+                <td>{{ month.Y_prRealMinusPrGuraReduction|format_number(style='decimal') }}</td>
+                <td>{{ month.Z_yieldEGridForecast|format_number(style='decimal') }}</td>
+                <td>{{ month.AA_yieldEGridMinusGuranteed|format_number(style='decimal') }}</td>
+                <td>{{ month.AB_prRealMinusPrGura|format_number(style='decimal') }}</td>
+                <td>{{ month.AC_eGridDivExpected|format_number(style='decimal') }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

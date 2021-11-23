@@ -747,5 +747,8 @@ class Eigner
         return $this;
     }
 
-
+    public function getCustomerLogo(): string
+    {
+        return "/goldbeck/reports/asset_management/goldbecksolar_logo.svg";
+    }
 }

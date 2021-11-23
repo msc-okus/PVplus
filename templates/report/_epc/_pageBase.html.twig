@@ -1,0 +1,29 @@
+<div style="page-break-after: always; height: 100%!important;">
+    <div>
+        <table style="width: 297mm; margin-top: 15px!important;">
+            <tr>
+                <td style="border-bottom: solid 2px #00386d; width: 254mm;"></td>
+                <td rowspan="2"> <img class="customer_logo" src="{{ asset(anlage.eigner.getCustomerLogo) }}"></td>
+            </tr>
+            <tr>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+    <div class="content_report">
+        {% block page %}
+
+        {% endblock page %}
+    </div>
+    <div style="top: 15px; position: relative;">
+        <table style="width: 297mm;">
+            <tr>
+                <td style="border-bottom: solid 2px #91bc5b;width: 254mm;"></td>
+                <td rowspan="2"><img class="g4n_logo" src="{{ asset('/images/green4net.jpg') }}" style="height: 30px!important;"></td>
+            </tr>
+            <tr>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+</div>

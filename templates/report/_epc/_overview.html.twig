@@ -1,0 +1,38 @@
+{% extends 'report/_epc/_pageBase.html.twig' %}
+
+{% block page %}
+    {% set sumRow1 = monthsTable|length - 2 %}
+    {% set sumRow2 = monthsTable|length-1 %}
+    {% set sumRow2 = monthsTable|length %}
+    <h3 style="color: {{ font_color_second }};">Basic Values</h3>
+    <table class="basetable">
+        <thead>
+            <tr>
+                <th style="min-width: 60px;">Start&nbsp;FAC</th>
+                <th style="min-width: 60px;">End&nbsp;FAC</th>
+                <th>PR&nbsp;Design [%]</th>
+                <th>PR&nbsp;Guaranteed [%]</th>
+                <th>Expected Energy [kWh]</th>
+                <th>Guaranteed Expected<br>Energy [kWh]</th>
+                <th>Abschlag Trafoverlust [%]</th>
+                <th>Abschlag Garantie [%]</th>
+                <th>Plant Size as build [kWp]</th>
+                <th>Plant Size as planed [kWp]</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ anlage.facDateStart|date('Y-m-d') }}</td>
+                <td>{{ anlage.facDate|date('Y-m-d') }}</td>
+                <td>{{ anlage.designPR|format_number(style='decimal') }}</td>
+                <td>{{ anlage.contractualPR|format_number(style='decimal') }}</td>
+                <td>{{ monthsTable[sumRow1].M_eGridYield|format_number(style='decimal') }}</td>
+                <td>{{ anlage.kwPeakPvSyst|format_number(style='decimal') }}</td>
+                <td>{{ anlage.transformerTee|format_number(style='decimal') }}</td>
+                <td>{{ anlage.guaranteeTee|format_number(style='decimal') }}</td>
+                <td>{{ anlage.kwPeak|format_number(style='decimal') }}</td>
+                <td>{{ anlage.kwPeakPvSyst|format_number(style='decimal') }}</td>
+            </tr>
+        </tbody>
+    </table>
+{% endblock %}
