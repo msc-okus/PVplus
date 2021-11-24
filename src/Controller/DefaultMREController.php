@@ -280,12 +280,13 @@ class DefaultMREController extends BaseController
         $output .= $functions->print2DArrayAsTable($monthTable);
 
         return $this->render('report/epcReport.html.twig', [
-            'anlage'        => $anlage,
-            'monthsTable'   => $monthTable,
-            'legend'        => $anlage->getLegendEpcReports(),
-            'font_color' => '#9aacc3',
+            'anlage'            => $anlage,
+            'monthsTable'       => $monthTable,
+            'forcast'           => $forcastTable,
+            'legend'            => $anlage->getLegendEpcReports(),
+            'font_color'        => '#9aacc3',
             'font_color_second' => '#2e639a',
-            'font_color_third' => '#36639c',
+            'font_color_third'  => '#36639c',
         ]);
     }
 }

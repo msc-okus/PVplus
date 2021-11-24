@@ -24,27 +24,14 @@ body * {
   width: 270mm!important;
 }
 
-h1 {
-  margin-bottom: 10px;
-}
+h1, h2, h3, h4 { color: #15508e!important; margin: 20px 0 5px 0;}
+h1 { font-size: 20px; }
+h2 { font-size: 18px;}
+h3 { font-size: 16px;}
+h4 { font-size: 14px;}
 
-h2 {
-  margin:0 0 5px 0;
-  padding: 0;
-}
-
-h3 {
-  color: #15508e!important;
-  font-size: 1.5em;
-}
-
-.page-break {
-  page-break-before: always;
-}
-
-small {
-  font-size: 80%;
-}
+.page-break { page-break-before: always; }
+small { font-size: 80%; }
 
 .subheadline{
   margin-bottom: 20px;
@@ -62,7 +49,7 @@ small {
 table {
   border-collapse: collapse;
   width: auto !important;
-  margin-bottom: 1.5rem;
+  /*margin-bottom: 1.5rem;*/
 }
 table {
 
@@ -90,18 +77,20 @@ table th {
   text-align: right;
   border: solid 1px #000;
 }
-
+.strong td {font-weight: bold; }
 .basetable {
   width: 100% !important;
 }
+.pldtable {
+}
 
-.basetable td, .basetable th {
+.basetable td, .basetable th, .pldtable td, .pldtable th {
   border: solid 1px;
   padding: 4px;
   text-align: left;
 }
 
-.basetable th {
+.basetable th, .pldtable th {
   vertical-align: top;
 }
 
@@ -110,48 +99,41 @@ table th {
 .monthtable td, .monthtable th{
   text-align: right;
   font-size: 8px;
-  padding: 4px 2px;
+  padding: 4px 3px;
 }
-
+.monthtable th{
+  text-align: center;
+  vertical-align: middle;
+}
 .customer_logo{
   height:40px !important;
 }
 
 .g4n_logo{
-  height:60px !important;
+  height:30px !important;
 }
 
-.td_texthint{
-  text-align: left; padding-left: 40px;
-}
+.text-left { text-align: left!important; }
+.text-right { text-align: right!important; }
+.text-center { text-align: center!important; }
 
-.texthint{
-  background-color: #bdd7ee !important;
-  padding: 0 5px;
-}
+.col-50 { width: 50%;}
+.cell {}
 
-.td_texthint_2{
-  text-align: left;
-  width: 130px;
+.float-left {
+  float: left !important; }
+
+.float-right {
+  float: right !important; }
+
+.float-center {
   display: block;
+  margin-right: auto;
+  margin-left: auto;
 }
+.clearfix::before, .clearfix::after {
+  display: table;
+  content: ' '; }
 
-.legend_colors td{
-  width: 50px;
-  border: solid 1px;
-}
-
-table td .explanation{
-  border: solid 2px #15508e;
-  padding: 5px;
-  margin-top: -15px!important;
-}
-
-.explanation{
-  position: relative;
-  width: 17cm;
-  border: solid 2px #15508e;
-  padding: 5px;
-  font-size: 12px;
-}
-
+.clearfix::after {
+  clear: both; }

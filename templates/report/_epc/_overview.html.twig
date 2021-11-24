@@ -35,4 +35,118 @@
             </tr>
         </tbody>
     </table>
+
+    <div class="col-50 float-left" >
+        <div class="cell" style="padding-right: 10px;">
+            <h3>Result {{ forcast.forcast }}</h3>
+            <table class="pldtable">
+                <thead>
+                <tr>
+                    <th style="width: 140px">Parameter</th>
+                    <th style="width: 100px">Value</th>
+                    <th>Explanation</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Expected Enery [kWh]</td>
+                        <td class="text-right">{{ forcast.expected_energy_forecast|format_number(style='decimal') }}</td>
+                        <td>monatlich aktualisierter PVSYST-Ertrag über FAC Periode</td>
+                    </tr>
+                    <tr>
+                        <td>Guaranteed Expected Energy [kWh]</td>
+                        <td class="text-right">{{ forcast.guaranteed_energy_forecast|format_number(style='decimal') }}</td>
+                        <td>Expected Energy - {{ anlage.transformerTee|format_number(style='decimal') }}% Trafoverlust - {{ anlage.guaranteeTee|format_number(style='decimal') }}% Sicherheitsabschlag</td>
+                    </tr>
+                    <tr>
+                        <td>Measured Energy [kWh]</td>
+                        <td class="text-right">{{ forcast.measured_energy_forecast|format_number(style='decimal') }}</td>
+                        <td>Einspeisung am Grid meter, inklusive Forecast mit Risikoauf-/abschlägen</td>
+                    </tr>
+                    <tr>
+                        <td>Difference Calculation [%]</td>
+                        <td class="text-right">{{ forcast.difference_calc_forecast|format_number(style='decimal') }}</td>
+                        <td>Measured Energy - guaranteed Expected Energy</td>
+                    </tr>
+                    <tr>
+                        <td>Availability [%]</td>
+                        <td class="text-right">{{ forcast.pa_forecast|format_number(style='decimal') }}</td>
+                        <td>Verfügbarkeit nach Annex 5.2 incl. downtime-Korrektur </td>
+                    </tr>
+                    <tr class="strong">
+                        <td>PLD [EUR]</td>
+                        <td class="text-right">{{ forcast.pld_forecast|format_number(style='decimal') }}</td>
+                        <td>{% if forcast.pld_forecast > 0 %}PLD Zahlung{% else %}Keine PLD Zahlung{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <td>Percent Difference Calculation [%]</td>
+                        <td class="text-right">{{ forcast.percent_diff_calc_forecast|format_number(style='decimal') }}</td>
+                        <td>(Measured Energy - guar. Expected Energy) x 100 / guar. Expected Energy</td>
+                    </tr>
+                    <tr>
+                        <td>Ratio</td>
+                        <td class="text-right">{{ forcast.ratio_forecast|format_number(style='decimal') }}</td>
+                        <td>Measured Energy x 100 / guar. Expected Energy</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="col-50 float-left">
+        <div class="cell" style="padding-left: 10px;">
+            <h3>Result {{ forcast.real }}</h3>
+            <table class="pldtable">
+                <thead>
+                <tr>
+                    <th style="width: 140px">Parameter</th>
+                    <th style="width: 100px">Value</th>
+                    <th>Explanation</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Expected Enery [kWh]</td>
+                        <td class="text-right">{{ forcast.expected_energy_real|format_number(style='decimal') }}</td>
+                        <td>monatlich aktualisierter PVSYST-Ertrag über FAC Periode</td>
+                    </tr>
+                    <tr>
+                        <td>Guaranteed Expected Energy [kWh]</td>
+                        <td class="text-right">{{ forcast.guaranteed_energy_real|format_number(style='decimal') }}</td>
+                        <td>Expected Energy - {{ anlage.transformerTee|format_number(style='decimal') }}% Trafoverlust - {{ anlage.guaranteeTee|format_number(style='decimal') }}% Sicherheitsabschlag</td>
+                    </tr>
+                    <tr>
+                        <td>Measured Energy [kWh]</td>
+                        <td class="text-right">{{ forcast.measured_energy_real|format_number(style='decimal') }}</td>
+                        <td>Einspeisung am Grid meter, inklusive Forecast mit Risikoauf-/abschlägen</td>
+                    </tr>
+                    <tr>
+                        <td>Difference Calculation [%]</td>
+                        <td class="text-right">{{ forcast.difference_calc_real|format_number(style='decimal') }}</td>
+                        <td>Measured Energy - guaranteed Expected Energy</td>
+                    </tr>
+                    <tr>
+                        <td>Availability [%]</td>
+                        <td class="text-right">{{ forcast.pa_real|format_number(style='decimal') }}</td>
+                        <td>Verfügbarkeit nach Annex 5.2 incl. downtime-Korrektur </td>
+                    </tr>
+                    <tr class="strong">
+                        <td>PLD [EUR]</td>
+                        <td class="text-right">{{ forcast.pld_real|format_number(style='decimal') }}</td>
+                        <td>{% if forcast.pld_real > 0 %}PLD Zahlung{% else %}Keine PLD Zahlung{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <td>Percent Difference Calculation [%]</td>
+                        <td class="text-right">{{ forcast.percent_diff_calc_real|format_number(style='decimal') }}</td>
+                        <td>(Measured Energy - guar. Expected Energy) x 100 / guar. Expected Energy</td>
+                    </tr>
+                    <tr>
+                        <td>Ratio</td>
+                        <td class="text-right">{{ forcast.ratio_real|format_number(style='decimal') }}</td>
+                        <td>Measured Energy x 100 / guar. Expected Energy</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 {% endblock %}

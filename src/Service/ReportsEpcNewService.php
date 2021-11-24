@@ -62,6 +62,7 @@ class ReportsEpcNewService
         $tableArray[$zeileSumme1]['S_theorYieldMT']              = 0;
         $tableArray[$zeileSumme1]['W_yield_guaranteed_exp']      = 0;
         $tableArray[$zeileSumme1]['AA_yieldEGridMinusGuranteed'] = 0;
+        $tableArray[$zeileSumme1]['current_month']               = 0;
         $tableArray[$zeileSumme2]['C_days']                      = 0;
         $tableArray[$zeileSumme2]['D_irrDesign']                 = 0;
         $tableArray[$zeileSumme2]['E_yieldDesign']               = 0;
@@ -73,6 +74,7 @@ class ReportsEpcNewService
         $tableArray[$zeileSumme2]['S_theorYieldMT']              = 0;
         $tableArray[$zeileSumme2]['W_yield_guaranteed_exp']      = 0;
         $tableArray[$zeileSumme2]['AA_yieldEGridMinusGuranteed'] = 0;
+        $tableArray[$zeileSumme2]['current_month']               = 0;
         $tableArray[$zeileSumme3]['C_days']                      = 0;
         $tableArray[$zeileSumme3]['D_irrDesign']                 = 0;
         $tableArray[$zeileSumme3]['E_yieldDesign']               = 0;
@@ -84,6 +86,7 @@ class ReportsEpcNewService
         $tableArray[$zeileSumme3]['S_theorYieldMT']              = 0;
         $tableArray[$zeileSumme3]['W_yield_guaranteed_exp']      = 0;
         $tableArray[$zeileSumme3]['AA_yieldEGridMinusGuranteed'] = 0;
+        $tableArray[$zeileSumme3]['current_month']               = 0;
 
 
         $startYear = $anlage->getEpcReportStart()->format('Y');
@@ -128,7 +131,7 @@ class ReportsEpcNewService
             $from_local = date_create(date('Y-m-d 00:00', strtotime("$year-$month-01")));
             $to_local = date_create(date('Y-m-d 23:59', strtotime("$year-$month-$daysInMonth")));
             $hasMonthData = $to_local < $date; // Wenn das Datum in $to_local kleiner ist als das Datum in $date, es also für alle Tage des Monats Daten vorliegen, dann ist $hasMonthData === true
-            ##if ($month == 10 || $month == 11) dump($to_local, $date, $hasMonthData);
+            $isCurrentMonth = $to_local->format('Y') == $currentYear && $to_local->format('m') == $currentMonth-1;
 
             if (true) { //prüfe auf PVSYST verfügbar
                 $monthlyRecalculatedData = $this->monthlyDataRepo->findOneBy(['anlage' => $anlage, 'year' => $year, 'month' => $month]);
@@ -189,6 +192,7 @@ class ReportsEpcNewService
             $tableArray[$n]['AA_yieldEGridMinusGuranteed']             = $tableArray[$n]['M_eGridYield'] - $tableArray[$n]['W_yield_guaranteed_exp']; // Spalte AA
             $tableArray[$n]['AB_prRealMinusPrGura']                    = $tableArray[$n]['Q_prReal_prProg'] - $tableArray[$n]['H_prGuarantie']; // Spalte AB
             $tableArray[$n]['AC_eGridDivExpected']                     = 0; // Spalte AC // muss in Runde 2 Berechnet werden
+            $tableArray[$n]['current_month']                           = ($isCurrentMonth) ? -1 : 0;
 
             $tableArray[$zeileSumme1]['B_month']                      = "2 years (incl. Forecast)"; // Spalte B
             $tableArray[$zeileSumme1]['C_days']                       += $days; // Spalte C
@@ -287,7 +291,7 @@ class ReportsEpcNewService
         $riskForcastPROffset    = $tableArray[$zeileSumme2]['Q_prReal_prProg'] - $tableArray[$zeileSumme2]['G_prDesign'];
         $riskForcastYield1      = $tableArray[$zeileSumme2]['Q_prReal_prProg'] / $tableArray[$zeileSumme2]['G_prDesign'];
         $riskForcastYield2      = $tableArray[$zeileSumme2]['M_eGridYield'] / $tableArray[$zeileSumme2]['E_yieldDesign'];;
-        dump("RiskOffset: $riskForcastPROffset | RiskForcast 1: $riskForcastYield1 | RiskForcast 2: $riskForcastYield2");
+        #dump("RiskOffset: $riskForcastPROffset | RiskForcast 1: $riskForcastYield1 | RiskForcast 2: $riskForcastYield2");
 
         $month = $startMonth;
         $year = $startYear;
@@ -343,6 +347,8 @@ class ReportsEpcNewService
 
     public function forcastTable(Anlage $anlage, array $monthTable, ?DateTime  $date = null): array
     {
+        if ($date === null) $date = new DateTime();
+
         $result = [];
         $zeileSumme1 = count($monthTable) - 2;
         $zeileSumme2 = count($monthTable) - 1;
@@ -362,7 +368,7 @@ class ReportsEpcNewService
         $g12 = $b12;
         $pldReal    = (($g9 - ($g10 / $g12)) / $g8) * 100 * $anlage->getPldYield();
 
-        $result['forcast']                      = "forcast";
+        $result['forcast']                      = "Forcast " . $anlage->getFacDateStart()->format('M y') . " - " . $anlage->getFacDate()->format('M y');
         $result['expected_energy_forecast']     = $monthTable[$zeileSumme1]['E_yieldDesign']; // B8
         $result['guaranteed_energy_forecast']   = $monthTable[$zeileSumme1]['W_yield_guaranteed_exp']; // B9
         $result['measured_energy_forecast']     = $monthTable[$zeileSumme1]['V_eGrid_withRisk']; // B10
@@ -372,9 +378,7 @@ class ReportsEpcNewService
         $result['percent_diff_calc_forecast']   = ($monthTable[$zeileSumme1]['V_eGrid_withRisk'] - $monthTable[$zeileSumme1]['W_yield_guaranteed_exp']) * 100 / $monthTable[$zeileSumme1]['W_yield_guaranteed_exp'];
         $result['ratio_forecast']               = $monthTable[$zeileSumme1]['V_eGrid_withRisk'] * 100 / $monthTable[$zeileSumme1]['W_yield_guaranteed_exp'];
 
-        $result['-']                            = "";
-
-        $result['real']                         = "real";
+        $result['real']                         = "Real " . $anlage->getFacDateStart()->format('M y') . " - " . $date->format('M y');
         $result['expected_energy_real']         = $monthTable[$zeileSumme2]['E_yieldDesign'];
         $result['guaranteed_energy_real']       = $monthTable[$zeileSumme2]['W_yield_guaranteed_exp'];
         $result['measured_energy_real']         = $monthTable[$zeileSumme2]['V_eGrid_withRisk'];
