@@ -6,7 +6,6 @@ namespace App\Service;
 use App\Entity\Anlage;
 use App\Entity\AnlagenPvSystMonth;
 use App\Entity\AnlagePR;
-use App\Entity\AnlagenReports;
 use App\Helper\G4NTrait;
 use App\Repository\Case5Repository;
 use App\Repository\PvSystMonthRepository;
@@ -15,19 +14,9 @@ use App\Repository\AnlagenRepository;
 use App\Repository\PRRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Twig\Environment;
-use App\Reports\ReportMonthly\ReportMonthly;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Validator\Constraints\DateTime;
-use App\Service\DownloadAnalyseService;
 use Hisune\EchartsPHP\ECharts;
-use Hisune\EchartsPHP\Doc\IDE\Series;
-use Hisune\EchartsPHP\Config;
-use Nuzkito\ChromePdf\ChromePdf;
-use PDOStatement;
 use PDO;
-use PDOException;
-use PDORow;
-use Doctrine\Common\Collections\ArrayCollection;
 
 
 class AssetManagementService

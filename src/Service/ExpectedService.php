@@ -3,6 +3,7 @@
 
 namespace App\Service;
 
+use App\Entity\AnlageModules;
 use App\Repository\AnlageMonthRepository;
 use PDO;
 use App\Entity\Anlage;
@@ -107,14 +108,14 @@ class ExpectedService
 
                     $stamp      = $weather["stamp"];
                     $pannelTemp = (float)$weather["panel_temp"];   // Pannel Temperatur
-                    $irrUpper   = (float)$weather["irr_upper"];    // Strahlung an obern Sensor
-                    $irrLower   = (float)$weather["irr_lower"];    // Strahlung an unterem Sensor
+                    $irrUpperBase   = (float)$weather["irr_upper"];    // Strahlung an obern Sensor
+                    $irrLowerBase   = (float)$weather["irr_lower"];    // Strahlung an unterem Sensor
 
                     // Strahlung berechnen, für Analgen die KEINE 'Ost/West' Ausrichtung haben
                     if ($anlage->getUseLowerIrrForExpected()) {
-                        $irr = $irrLower;
+                        $irrBase = $irrLowerBase;
                     } else {
-                        $irr = $this->functions->calcIrr($irrUpper, $irrLower, $stamp, $anlage, $group, $currentWeatherStation, $groupMonth);
+                        $irrBase = $this->functions->calcIrr($irrUpperBase, $irrLowerBase, $stamp, $anlage, $group, $currentWeatherStation, $groupMonth);
                     }
 
                     /** @var AnlageGroupModules[] $modules */
@@ -122,6 +123,9 @@ class ExpectedService
                     $expPowerDc = $expCurrentDc = 0;
                     foreach ($modules as $modul) {
                         //
+                        $irr        = $this->calcIrradiationDiscountByModule($modul->getModuleType(), $irrBase);
+                        $irrUpper   = $this->calcIrradiationDiscountByModule($modul->getModuleType(), $irrUpperBase);
+                        $irrLower   = $this->calcIrradiationDiscountByModule($modul->getModuleType(), $irrLowerBase);
                         if ($anlage->getIsOstWestAnlage()) {
                             // Ist 'Ost/West' Anlage, dann nutze $irrUpper (Strahlung Osten) und $irrLower (Strahlung Westen) und multipliziere mit der Anzahl Strings Ost / West
                             $expPowerDcHlp      = $modul->getModuleType()->getFactorPower($irrUpper) * $modul->getNumStringsPerUnitEast() * $modul->getNumModulesPerString() / 1000 / 4; // Ost
@@ -165,12 +169,12 @@ class ExpectedService
                     $val4 = 600;
                     $val5 = 800;
                     $val6 = 1000;
-                    if ($irr <= $val1) {$shadow_loss = $shadow_loss * 0.05;}
-                    elseif ($irr > $val1 && $irr <= $val2) {$shadow_loss = $shadow_loss * 0.21;}
-                    elseif ($irr > $val2 && $irr <= $val3) {$shadow_loss = $shadow_loss * 0.35;}
-                    elseif ($irr > $val3 && $irr <= $val4) {$shadow_loss = $shadow_loss * 0.57;}
-                    elseif ($irr > $val4 && $irr <= $val5) {$shadow_loss = $shadow_loss * 0.71;}
-                    elseif ($irr > $val5 && $irr <= $val6) {$shadow_loss = $shadow_loss * 0.8;}
+                    if ($irrBase <= $val1) {$shadow_loss = $shadow_loss * 0.05;}
+                    elseif ($irrBase > $val1 && $irrBase <= $val2) {$shadow_loss = $shadow_loss * 0.21;}
+                    elseif ($irrBase > $val2 && $irrBase <= $val3) {$shadow_loss = $shadow_loss * 0.35;}
+                    elseif ($irrBase > $val3 && $irrBase <= $val4) {$shadow_loss = $shadow_loss * 0.57;}
+                    elseif ($irrBase > $val4 && $irrBase <= $val5) {$shadow_loss = $shadow_loss * 0.71;}
+                    elseif ($irrBase > $val5 && $irrBase <= $val6) {$shadow_loss = $shadow_loss * 0.8;}
 
                     // Verluste auf der DC Seite brechnen
                     // Schattenverluste + Kabel Verluste + Sicherheitsverlust
@@ -212,5 +216,22 @@ class ExpectedService
         }
 
         return $resultArray;
+    }
+
+    private function calcIrradiationDiscountByModule(AnlageModules $modul, float $irradiation): float
+    {
+        if ($irradiation > 0 && $irradiation <= 50) {
+            $factor = 1 - ($modul->getIrrDiscount1() / 100);
+        } elseif ($irradiation > 50 && $irradiation <= 100) {
+            $factor = 1 - ($modul->getIrrDiscount2() / 100);
+        } elseif ($irradiation > 100 && $irradiation <= 150) {
+            $factor = 1 - ($modul->getIrrDiscount3() / 100);
+        } elseif ($irradiation > 150 && $irradiation <= 200) {
+            $factor = 1 - ($modul->getIrrDiscount4() / 100);
+        } else {
+            $factor = 1;
+        }
+
+        return $irradiation * $factor;
     }
 }

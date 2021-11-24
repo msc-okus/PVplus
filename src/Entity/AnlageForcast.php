@@ -19,7 +19,7 @@ class AnlageForcast
     private int $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="anlageForcasts")
+     * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="anlageForecasts")
      */
     private ?Anlage $anlage;
 

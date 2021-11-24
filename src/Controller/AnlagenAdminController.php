@@ -18,6 +18,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
 
@@ -57,17 +58,12 @@ class AnlagenAdminController extends BaseController
                 return $this->render('anlagen/new.html.twig', [
                     'anlageForm'   => $form->createView(),
                 ]);
-        /*
-        return $this->render('anlagen/new.html.twig', [
-            'anlageForm'   => $form->createView(),
-        ]);
-        */
     }
 
     /**
      * @Route("/admin/anlagen/list", name="app_admin_anlagen_list")
      */
-    public function list(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository)
+    public function list(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository): Response
     {
         $q = $request->query->get('qp');
         if ($request->query->get('search') == 'yes' && $q == '') $request->getSession()->set('qp', '');
@@ -291,28 +287,28 @@ class AnlagenAdminController extends BaseController
                   `group_ac` int(11) NOT NULL,
                   `unit` int(11) NOT NULL,
                   `wr_num` int(11) NOT NULL,
-                  `wr_idc` varchar(20) NOT NULL,
-                  `wr_pac` varchar(20) NOT NULL,
-                  `p_ac_blind` varchar(20) NOT NULL,
-                  `i_ac` varchar(20) NOT NULL,
-                  `i_ac_p1` varchar(20) NOT NULL,
-                  `i_ac_p2` varchar(20) NOT NULL,
-                  `i_ac_p3` varchar(20) NOT NULL,
-                  `u_ac` varchar(20) NOT NULL,
-                  `u_ac_p1` varchar(20) NOT NULL,
-                  `u_ac_p2` varchar(20) NOT NULL,
-                  `u_ac_p3` varchar(20) NOT NULL,
-                  `p_ac_apparent` varchar(20) NOT NULL,
-                  `frequency` varchar(20) NOT NULL,
-                  `wr_udc` varchar(20) NOT NULL,
-                  `wr_pdc` varchar(20) NOT NULL,
-                  `wr_temp` varchar(20) NOT NULL,
-                  `temp_corr` varchar(20) NOT NULL,
-                  `theo_power` varchar(20) NOT NULL,
+                  `wr_idc` varchar(20) DEFAULT NULL,
+                  `wr_pac` varchar(20) DEFAULT NULL,
+                  `p_ac_blind` varchar(20) DEFAULT NULL,
+                  `i_ac` varchar(20) DEFAULT NULL,
+                  `i_ac_p1` varchar(20) DEFAULT NULL,
+                  `i_ac_p2` varchar(20) DEFAULT NULL,
+                  `i_ac_p3` varchar(20) DEFAULT NULL,
+                  `u_ac` varchar(20) DEFAULT NULL,
+                  `u_ac_p1` varchar(20) DEFAULT NULL,
+                  `u_ac_p2` varchar(20) DEFAULT NULL,
+                  `u_ac_p3` varchar(20) DEFAULT NULL,
+                  `p_ac_apparent` varchar(20) DEFAULT NULL,
+                  `frequency` varchar(20) DEFAULT NULL,
+                  `wr_udc` varchar(20) DEFAULT NULL,
+                  `wr_pdc` varchar(20) DEFAULT NULL,
+                  `wr_temp` varchar(20) DEFAULT NULL,
+                  `temp_corr` varchar(20) DEFAULT NULL,
+                  `theo_power` varchar(20) DEFAULT NULL,
                   `wr_mpp_current` json NOT NULL,
                   `wr_mpp_voltage` json NOT NULL,
-                  `wr_cos_phi_korrektur` varchar(20) NOT NULL,
-                  `e_z_evu` varchar(20) NOT NULL,
+                  `wr_cos_phi_korrektur` varchar(20) DEFAULT NULL,
+                  `e_z_evu` varchar(20) DEFAULT NULL,
                   `irr_anlage` json NOT NULL,
                   `temp_anlage` json NOT NULL,
                   `temp_inverter` json NOT NULL,

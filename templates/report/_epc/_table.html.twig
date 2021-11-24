@@ -1,0 +1,117 @@
+{% extends 'report/_epc/_pageBase.html.twig' %}
+
+{% block page %}
+    <h3 style="color: {{ font_color_second }};">Monthly Values</h3>
+    <table class="basetable monthtable">
+        <thead>
+            <tr>
+                <th>A</th>
+                <th>B</th>
+                <th>C</th>
+                <th>D</th>
+                <th>E</th>
+                <th>F</th>
+                <th>G</th>
+                <th>H</th>
+                <th></th>
+                <th>L</th>
+                <th>M</th>
+                <th>N</th>
+                <th>O</th>
+                <th>P</th>
+                <!--<th>Q</th>-->
+                <!--<th>R</th>-->
+                <th></th>
+                <th>U</th>
+                <th>V</th>
+                <th>W</th>
+                <th>X</th>
+                <th>Y</th>
+                <!--<th>Z</th>-->
+                <!--<th>AA</th>-->
+                <!--<th>AB</th>-->
+                <!--<th>AC</th>-->
+            </tr>
+            <tr>
+                <th></th>
+                <th></th>
+                <th colspan="6">Design_M expected / predicted</th>
+                <th></th>
+                <th colspan="5">Measured</th>
+
+                <th></th>
+                <th colspan="5">Data Analysis</th>
+                <!--<th>Z</th>-->
+                <!--<th>AA</th>-->
+                <!--<th>AB</th>-->
+                <!--<th>AC</th>-->
+            </tr>
+            <tr>
+                <th style="min-width: 80px">Month</th>
+                <th>Days</th>
+                <th>Irradiation [kWh/m²]</th>
+                <th>Yield [kWh]</th>
+                <th>spezif. Yield [kWh/kWp]</th>
+                <th>PR [%]</th>
+                <th>PR<sub>Guar_M</sub> [%]</th>
+                <th>Theoretical Energy design <br>
+                    ohne FT Korrektur</th>
+                <th class="dark-bg"></th>
+                <th>Irr. [kWh/m2] average</th>
+                <th>Yield E-Grid [kWh]</th>
+                <th>spezif. Yield<sub>real_M/prog_M</sub> [kWh]</th>
+                <th>PA [%]</th>
+                <th>Part [%]</th>
+                <!--<th>PR<sub>real_M/Prog_M</sub> [%]</th>-->
+                <!--<th>Theo. Energy ohne FT-Korr. [kWh]</th>-->
+                <th class="dark-bg"></th>
+                <th>PR<sub>Real_M/Prog_M</sub> [%]<br>
+                    Mit Auf-/Abschläge für Forecast (aus PR differenz)</th>
+                <th>Alternative 2: E grid measured: Berechnung aus PR mit Risikoauf-/abschlag</th>
+                <th>Guaranteed Expected Ertrag [kWh]</th>
+                <th>Egrid measured - Egrid guaranteed expected
+                    Mit Risikoauf-/abschlägen</th>
+                <th>PR<sub>real_M - PRGuar_M</sub> [%]
+                    Mit Risikoauf-/abschlägen</th>
+                <!--<th>Alternative 1: Egrid measured: mit Ertragsfaktor für Forecast</th>-->
+                <!--<th>Egrid measured - Egrid guaranteed expected
+                    Ohne Risikoauf-/abschlägen</th>-->
+                <!--<th>PR<sub>real_M - PRGuar_M</sub> [%]
+                    Ohne Risikoauf-/abschlägen</th>-->
+                <!--<th>Egrid/guar. Expexted yield</th>-->
+            </tr>
+        </thead>
+        <tbody>
+        {% for month in monthsTable %}
+            <tr {% if month.current_month < 0 %}style="background-color: #ffb700;"{% endif %} class="{{ month.style }}">
+                <td class="text-center">{{ month.B_month }}</td>
+                <td class="text-center">{{ month.C_days }}</td>
+                <td>{{ month.D_irrDesign|number_format(2, ',', '.') }}</td>
+                <td>{{ month.E_yieldDesign|number_format(2, ',', '.') }}</td>
+                <td>{{ month.F_specificYieldDesign|number_format(2, ',', '.') }}</td>
+                <td>{{ month.G_prDesign|number_format(2, ',', '.') }}</td>
+                <td>{{ month.H_prGuarantie|number_format(2, ',', '.') }}</td>
+                <td>{{ month.I_theorYieldDesign|number_format(2, ',', '.') }}</td>
+                <td class="dark-bg">&nbsp;</td>
+                <td>{{ month.L_irr|number_format(2, ',', '.') }}</td>
+                <td>{{ month.M_eGridYield|number_format(2, ',', '.') }}</td>
+                <td>{{ month.N_specificYield|number_format(2, ',', '.') }}</td>
+                <td>{% if month.O_availability > 0 %}{{ month.O_availability|number_format(2, ',', '.') }}{% endif %}</td>
+                <td>{% if month.P_part > 0 %}{{ month.P_part|number_format(2, ',', '.') }}{% endif %}</td>
+                <!--<td>{{ month.Q_prReal_prProg|number_format(2, ',', '.') }}</td>-->
+                <!--<td>{{ month.R_theorYield|number_format(2, ',', '.') }}</td>-->
+                <td class="dark-bg">&nbsp;</td>
+                <td>{{ month.U_prReal_withRisk|number_format(2, ',', '.') }}</td>
+                <td>{{ month.V_eGrid_withRisk|number_format(2, ',', '.') }}</td>
+                <td>{{ month.W_yield_guaranteed_exp|number_format(2, ',', '.') }}</td>
+                <td>{{ month.X_eGridMinuseGridGuar|number_format(2, ',', '.') }}</td>
+                <td>{{ month.Y_prRealMinusPrGuraReduction|number_format(2, ',', '.') }}</td>
+                <!--<td>{{ month.Z_yieldEGridForecast|number_format(2, ',', '.') }}</td>-->
+                <!--<td>{{ month.AA_yieldEGridMinusGuranteed|number_format(2, ',', '.') }}</td>-->
+                <!--<td>{{ month.AB_prRealMinusPrGura|number_format(2, ',', '.') }}</td>-->
+                <!--<td>{{ month.AC_eGridDivExpected|number_format(2, ',', '.') }}</td>-->
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

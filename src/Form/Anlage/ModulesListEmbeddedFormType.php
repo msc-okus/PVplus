@@ -65,6 +65,22 @@ class ModulesListEmbeddedFormType extends AbstractType
                 'label'         => 'C',
                 'empty_data'    => '',
             ])
+            ->add('irrDiscount1',TextType::class, [
+                'label'         => 'Irr Discount 0-50',
+                'empty_data'    => '0',
+            ])
+            ->add('irrDiscount2',TextType::class, [
+                'label'         => 'Irr Discount 51-100',
+                'empty_data'    => '0',
+            ])
+            ->add('irrDiscount3',TextType::class, [
+                'label'         => 'Irr Discount 101-150',
+                'empty_data'    => '0',
+            ])
+            ->add('irrDiscount4',TextType::class, [
+                'label'         => 'Irr Discount 151-200',
+                'empty_data'    => '0',
+            ])
         ;
     }
 

@@ -258,11 +258,9 @@ class Eigner
      */
     private $anlagenReports;
 
-    //private $security;
 
-    public function __construct() //Security $security
+    public function __construct()
     {
-        //$this->security = $security;
         $this->user = new ArrayCollection();
         $this->anlage = new ArrayCollection();
         $this->anlagenReports = new ArrayCollection();
@@ -749,5 +747,8 @@ class Eigner
         return $this;
     }
 
-
+    public function getCustomerLogo(): string
+    {
+        return "/goldbeck/reports/asset_management/goldbecksolar_logo.svg";
+    }
 }

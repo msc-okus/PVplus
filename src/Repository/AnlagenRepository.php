@@ -225,15 +225,17 @@ class AnlagenRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('c')
             ->innerJoin('c.eigner', 'a')
-            ->addSelect('a');
+            ->leftJoin('c.economicVarNames', 'eco')
+            ->addSelect('a')
+            ->addSelect('eco');
 
         if ($term) {
             $qb ->andWhere('c.anlName LIKE :term OR c.anlPlz LIKE :term OR c.anlOrt LIKE :term OR a.firma LIKE :term' )
                 ->setParameter('term', '%' . $term . '%');
         }
-
         return $qb  ->orderBy('a.firma', 'ASC')
                     ->addOrderBy('c.anlName', 'ASC');
+
     }
 
     /**
@@ -268,6 +270,8 @@ class AnlagenRepository extends ServiceEntityRepository
 
     /**
      * @param string|null $term
+     * @param array $eigners
+     * @param array $grantedPlantList
      * @return QueryBuilder
      */
     public function getWithSearchQueryBuilderOwner(?string $term, array $eigners = [], array $grantedPlantList = []): QueryBuilder

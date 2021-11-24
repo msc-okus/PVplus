@@ -1,0 +1,27 @@
+{% extends 'report/_epc/_pageBase.html.twig' %}
+
+{% block page %}
+    <h3 style="color: {{ font_color_second }};">Legend</h3>
+    <table class="basetable">
+        <thead>
+            <tr>
+                <th>Row</th>
+                <th>Title</th>
+                <th>Unit</th>
+                <th>Description</th>
+                <th>Source</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for legendRow in legend %}
+            <tr>
+                <td>{{ legendRow.row }}</td>
+                <td>{{ legendRow.title }}</td>
+                <td>{{ legendRow.unit }}</td>
+                <td>{{ legendRow.description }}</td>
+                <td>{{ legendRow.source }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
