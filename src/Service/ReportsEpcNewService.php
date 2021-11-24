@@ -11,6 +11,7 @@ use App\Repository\PRRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use Hisune\EchartsPHP\ECharts;
 
 class ReportsEpcNewService
 {
@@ -193,6 +194,7 @@ class ReportsEpcNewService
             $tableArray[$n]['AB_prRealMinusPrGura']                    = $tableArray[$n]['Q_prReal_prProg'] - $tableArray[$n]['H_prGuarantie']; // Spalte AB
             $tableArray[$n]['AC_eGridDivExpected']                     = 0; // Spalte AC // muss in Runde 2 Berechnet werden
             $tableArray[$n]['current_month']                           = ($isCurrentMonth) ? -1 : 0;
+            $tableArray[$n]['style']                                   = "";
 
             $tableArray[$zeileSumme1]['B_month']                      = "2 years (incl. Forecast)"; // Spalte B
             $tableArray[$zeileSumme1]['C_days']                       += $days; // Spalte C
@@ -222,6 +224,7 @@ class ReportsEpcNewService
             $tableArray[$zeileSumme1]['AA_yieldEGridMinusGuranteed']   += $tableArray[$n]['AA_yieldEGridMinusGuranteed']; // Spalte AA
             $tableArray[$zeileSumme1]['AB_prRealMinusPrGura']          = $tableArray[$zeileSumme1]['Q_prReal_prProg'] - $tableArray[$zeileSumme1]['H_prGuarantie']; // Spalte AB
             $tableArray[$zeileSumme1]['AC_eGridDivExpected']           = 0; // Spalte AC // muss in Runde 2 Berechnet werden
+            $tableArray[$zeileSumme1]['style']                         = "strong line";
 
             $tableArray[$zeileSumme2]['B_month']                      = "Current up to date"; // Spalte B
             $tableArray[$zeileSumme2]['C_days']                       += ($hasMonthData) ? $days : 0; // Spalte C
@@ -251,8 +254,9 @@ class ReportsEpcNewService
             $tableArray[$zeileSumme2]['AA_yieldEGridMinusGuranteed']   += ($hasMonthData) ? $tableArray[$n]['AA_yieldEGridMinusGuranteed'] : 0; // Spalte AA
             $tableArray[$zeileSumme2]['AB_prRealMinusPrGura']          = $tableArray[$zeileSumme2]['Q_prReal_prProg'] - $tableArray[$zeileSumme2]['H_prGuarantie']; // Spalte AB
             $tableArray[$zeileSumme2]['AC_eGridDivExpected']           = 0; // Spalte AC // muss in Runde 2 Berechnet werden
+            $tableArray[$zeileSumme2]['style']                         = "strong";
 
-            $tableArray[$zeileSumme3]['B_month']                      = "Forecast period (after current date)"; // Spalte B
+            $tableArray[$zeileSumme3]['B_month']                      = "Forecast period (after current month)"; // Spalte B
             $tableArray[$zeileSumme3]['C_days']                       += ($hasMonthData) ? 0 : $days; // Spalte C
             $tableArray[$zeileSumme3]['D_irrDesign']                  += ($hasMonthData) ? 0 : $tableArray[$n]['D_irrDesign']; // Spalte D // kommt aus der Tabelle PvSyst Werte Design
             $tableArray[$zeileSumme3]['E_yieldDesign']                += ($hasMonthData) ? 0 : $tableArray[$n]['E_yieldDesign']; // Spalte E // kommt aus der Tabelle PvSyst Werte Design
@@ -280,6 +284,7 @@ class ReportsEpcNewService
             $tableArray[$zeileSumme3]['AA_yieldEGridMinusGuranteed']  += ($hasMonthData) ? 0 : $tableArray[$n]['AA_yieldEGridMinusGuranteed']; // Spalte AA // muss in Runde 2 Berechnet werden
             $tableArray[$zeileSumme3]['AB_prRealMinusPrGura']         = $tableArray[$zeileSumme3]['Q_prReal_prProg'] - $tableArray[$zeileSumme3]['H_prGuarantie']; // Spalte AB
             $tableArray[$zeileSumme3]['AC_eGridDivExpected']          = 0; // Spalte AC // muss in Runde 2 Berechnet werden
+            $tableArray[$zeileSumme3]['style']                         = "strong";
 
             $month++;
         }
@@ -389,5 +394,62 @@ class ReportsEpcNewService
         $result['ratio_real']                   = $monthTable[$zeileSumme2]['V_eGrid_withRisk'] * 100 / $monthTable[$zeileSumme2]['W_yield_guaranteed_exp'];
 
         return $result;
+    }
+
+    public function chartYieldPercenDiff(Anlage $anlage, array $monthTable, ?DateTime  $date = null): string
+    {
+        if ($date === null) $date = new DateTime();
+        $anzahlMonate = ((int)$anlage->getEpcReportEnd()->format('Y') - (int)$anlage->getEpcReportStart()->format('Y')) * 12 + ((int)$anlage->getEpcReportEnd()->format('m') - (int)$anlage->getEpcReportStart()->format('m')) + 1;
+        $xAxis = $yAxis = [];
+
+        for ($n = 1; $n <= $anzahlMonate; $n++){
+            $xAxis[] = $monthTable[$n]['B_month'];
+            $yAxis[] = round($monthTable[$n]['AC_eGridDivExpected'],2);
+        }
+        $chart = new ECharts();
+        $chart->xAxis[] = [
+            'type'      => 'category',
+            'data'      => $xAxis,
+            'axisLabel' =>  [
+                'rotate'    => 30,
+            ],
+        ];
+        $chart->yAxis[] = [
+            'type'      => 'value',
+            'splitLine' => [
+                'lineStyle' => [
+                    'type'      => 'dashed',
+                ],
+            ],
+            'axisLabel' =>  [
+                'formatter'     => '{value} %',
+                'align'         => 'right',
+            ],
+        ];
+        $chart->series[] = [
+            'type'      => 'bar',
+            'data'      => $yAxis,
+            'visualMap' => false,
+            'label'     => [
+                'show'      => true,
+                'position'  => 'inside',
+                'formatter' => '{c} %',
+                'rotate'    => 90,
+            ],
+
+        ];
+
+        $options = [
+            'color'     => ['#3366CC'],
+            'grid'      => [
+                'height'    => '70%',
+                'top'       => 50,
+                'left'      => 50,
+                'width'     => '95%',
+            ],
+        ];
+        $chart->setOption($options);
+
+        return $chart->render('chartYieldPercenDiff');
     }
 }

@@ -5,6 +5,7 @@
     <table class="basetable">
         <thead>
             <tr>
+                <th>Row</th>
                 <th>Title</th>
                 <th>Unit</th>
                 <th>Description</th>
@@ -14,6 +15,7 @@
         <tbody>
         {% for legendRow in legend %}
             <tr>
+                <td>{{ legendRow.row }}</td>
                 <td>{{ legendRow.title }}</td>
                 <td>{{ legendRow.unit }}</td>
                 <td>{{ legendRow.description }}</td>

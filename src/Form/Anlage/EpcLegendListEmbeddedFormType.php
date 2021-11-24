@@ -38,7 +38,7 @@ class EpcLegendListEmbeddedFormType extends AbstractType
                 'required'      => false,
             ])
             ->add('source', TextType::class, [
-                'label'         => 'Description',
+                'label'         => 'Source',
                 'empty_data'    => '',
                 'required'      => false,
             ])

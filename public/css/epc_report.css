@@ -78,6 +78,8 @@ table th {
   border: solid 1px #000;
 }
 .strong td {font-weight: bold; }
+.line { border-top: solid 2px #1e1e1e;}
+
 .basetable {
   width: 100% !important;
 }
@@ -85,7 +87,7 @@ table th {
 }
 
 .basetable td, .basetable th, .pldtable td, .pldtable th {
-  border: solid 1px;
+  border: solid 1px #9f9f9f;
   padding: 4px;
   text-align: left;
 }
@@ -93,6 +95,8 @@ table th {
 .basetable th, .pldtable th {
   vertical-align: top;
 }
+.basetable tr:nth-child(even) { background-color: #eeeeee; }
+.basetable tr:nth-child(odd) { }
 
 .monthtable {
 }
@@ -117,8 +121,14 @@ table th {
 .text-right { text-align: right!important; }
 .text-center { text-align: center!important; }
 
+.dark-bg {background-color: #9f9f9f;}
+
 .col-50 { width: 50%;}
 .cell {}
+.box {
+  border: solid 1px #9f9f9f;
+  padding: 5px;
+}
 
 .float-left {
   float: left !important; }

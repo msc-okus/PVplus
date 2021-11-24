@@ -1,13 +1,11 @@
 <div style="page-break-after: always; height: 100%!important;">
     <div>
         <table style="width: 297mm; margin-top: 15px!important;">
-            <tr>
-                <td style="border-bottom: solid 2px #00386d; width: 254mm;"></td>
-                <td rowspan="2"> <img class="customer_logo" src="{{ asset(anlage.eigner.getCustomerLogo) }}"></td>
+            <tr style="border-bottom: solid 2px #00386d;">
+                <td style=" width: 254mm;" class="text-left"><h1>{{ anlage.projektNr }} {{ anlage.anlName }} <small>({{ anlage.power }} kWp)</small></h1> </td>
+                <td> <img class="customer_logo" src="{{ asset(anlage.eigner.getCustomerLogo) }}"></td>
             </tr>
-            <tr>
-                <td></td>
-            </tr>
+
         </table>
     </div>
     <div class="content_report">

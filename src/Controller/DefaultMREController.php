@@ -275,6 +275,7 @@ class DefaultMREController extends BaseController
         $monthTable = $epcNew->monthTable($anlage);
 
         $forcastTable = $epcNew->forcastTable($anlage, $monthTable);
+        $chart = $epcNew->chartYieldPercenDiff($anlage, $monthTable);
 
         $output = $functions->printArrayAsTable($forcastTable);
         $output .= $functions->print2DArrayAsTable($monthTable);
@@ -284,6 +285,7 @@ class DefaultMREController extends BaseController
             'monthsTable'       => $monthTable,
             'forcast'           => $forcastTable,
             'legend'            => $anlage->getLegendEpcReports(),
+            'chart'             => $chart,
             'font_color'        => '#9aacc3',
             'font_color_second' => '#2e639a',
             'font_color_third'  => '#36639c',
