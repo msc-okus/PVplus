@@ -63,10 +63,10 @@ class TicketFormType extends AbstractType
                 ->add('anlage', AnlageTextType::class, [
                     'label' => 'Plant name ',
                     'attr' => [
-                                'readonly' => true,
-                                'class' => 'js-autocomplete-anlagen input-group-field',
-                                'data-autocomplete-url' => '/admin/anlagen/find'
-                                ]
+                        'readonly' => true,
+                        'class' => 'js-autocomplete-anlagen input-group-field',
+                        'data-autocomplete-url' => '/admin/anlagen/find'
+                    ]
                 ])
                 ->add('status', ChoiceType::class, [
                     'label' => 'Select the status',
@@ -127,29 +127,29 @@ class TicketFormType extends AbstractType
                 'config' => array('toolbar' => 'my_toolbar'),
             ])
             ->add('PR', SwitchType::class, [
-                'label' => 'PR',
-                'required' =>false
+                'label'     => 'PR',
+                'required'  => false
             ])
             ->add('PA', SwitchType::class,[
-                'label' => 'PA',
-                'required' =>false
+                'label'     => 'PA',
+                'required'  => false
             ])
 
             ->add('Yield', SwitchType::class,[
-                'label' => 'Yield',
-                'required' =>false
+                'label'     => 'Yield',
+                'required'  => false
             ])
             ->add('save', SubmitType::class, [
-                'label' => 'Save',
-                'attr' => ['class' => 'primary save'],
+                'label'     => 'Save',
+                'attr'      => ['class' => 'primary save'],
             ])
             ->add('saveclose', SubmitType::class, [
-                'label' => 'Save and Close',
-                'attr' => ['class' => 'primary saveclose'],
+                'label'     => 'Save and Close',
+                'attr'      => ['class' => 'primary saveclose'],
             ])
             ->add('close', SubmitType::class, [
-                'label' => 'Close without save',
-                'attr' => ['class' => 'secondary close', 'formnovalidate' => 'formnovalidate'],
+                'label'     => 'Close without save',
+                'attr'      => ['class' => 'secondary close', 'formnovalidate' => 'formnovalidate'],
             ]);
 
     }

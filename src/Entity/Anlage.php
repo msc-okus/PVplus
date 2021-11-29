@@ -671,6 +671,11 @@ class Anlage
     private string $pldNPValue = '';
 
     /**
+     * @ORM\Column(type="boolean")
+     */
+    private bool $usePnomForPld = false;
+
+    /**
      * @ORM\Column(type="string", length=20)
      */
     private string $pldDivisor = '';
@@ -2546,6 +2551,21 @@ class Anlage
         $this->guaranteeTee = $guaranteeTee;
 
         return $this;
+    }
+
+    public function getUsePnomForPld(): bool
+    {
+        return $this->usePnomForPld;
+    }
+
+    public function isUsePnomForPld(): bool
+    {
+        return $this->usePnomForPld;
+    }
+
+    public function setUsePnomForPld(bool $usePnomForPld): void
+    {
+        $this->usePnomForPld = $usePnomForPld;
     }
 
     public function getPldYield(): ?string
