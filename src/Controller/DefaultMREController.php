@@ -86,7 +86,7 @@ class DefaultMREController extends BaseController
         $daysOfMonth = date('t', strtotime($year.'-'.$month.'-1'));
 
 
-        $output .= self::printArrayAsTable($export->getFacPRData($anlage, $from, $to));
+        $output .= self::printArrayAsTable($export->getFacPRData($anlage));
         $output .= "<hr>";
         //$output .= self::printArrayAsTable($export->getFacPAData($anlage, $from, $to));
         $output .= "<hr>";
@@ -98,7 +98,6 @@ class DefaultMREController extends BaseController
             'output'        => $output,
         ]);
     }
-
 
     /**
      * @Route ("/test/olli")
@@ -261,21 +260,20 @@ class DefaultMREController extends BaseController
     }
 
     /**
-     * @Route ("/test/epc")
+     * @Route ("/test/epc/{id}", defaults={"id"=93})
      */
-    public function testNewEpc(AnlagenRepository $anlagenRepository, FunctionsService $functions, ReportsEpcNewService $epcNew): Response
+    public function testNewEpc($id, AnlagenRepository $anlagenRepository, FunctionsService $functions, ReportsEpcNewService $epcNew): Response
     {
-        $output = "";
-
         /** @var Anlage $anlage */
-        $anlage = $anlagenRepository->findOneBy(['anlId' => 93]);
+        $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
         $from = $anlage->getEpcReportStart();
         $to   = $anlage->getEpcReportEnd();
 
         $monthTable = $epcNew->monthTable($anlage);
 
         $forcastTable = $epcNew->forcastTable($anlage, $monthTable);
-        $chart = $epcNew->chartYieldPercenDiff($anlage, $monthTable);
+        $chartYieldPercenDiff = $epcNew->chartYieldPercenDiff($anlage, $monthTable);
+        $chartYieldCumulativ = $epcNew->chartYieldCumulative($anlage, $monthTable);
 
         $output = $functions->printArrayAsTable($forcastTable);
         $output .= $functions->print2DArrayAsTable($monthTable);
@@ -285,7 +283,8 @@ class DefaultMREController extends BaseController
             'monthsTable'       => $monthTable,
             'forcast'           => $forcastTable,
             'legend'            => $anlage->getLegendEpcReports(),
-            'chart'             => $chart,
+            'chart1'            => $chartYieldPercenDiff,
+            'chart2'            => $chartYieldCumulativ,
             'font_color'        => '#9aacc3',
             'font_color_second' => '#2e639a',
             'font_color_third'  => '#36639c',

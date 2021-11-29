@@ -416,7 +416,7 @@ class AnlageFormType extends AbstractType
                 'empty_data'    => '0',
             ])
             ->add('pldYield', TextType::class, [
-                'label'         => 'PLD Ertrag [faktor]',
+                'label'         => 'PLD Ertrag <br>[faktor]',
                 'help'          => '[pldYield]',
                 'label_html'    => true,
                 'required'      => false,
@@ -430,6 +430,12 @@ class AnlageFormType extends AbstractType
                 'empty_data'    => 'expected',
                 'expanded'      => false,
                 'multiple'      => false,
+            ])
+            ->add('usePnomForPld', SwitchType::class,[
+                'label'         => 'use Pnom for PLD <br>calculation',
+                'help'          => '[usePnomForPld]',
+                'label_html'    => true,
+                'required'      => false
             ])
             ->add('transformerTee', TextType::class, [
                 'label'         => 'Abschalg Trafoverlust [%]',

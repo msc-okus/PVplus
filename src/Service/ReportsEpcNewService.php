@@ -203,7 +203,7 @@ class ReportsEpcNewService
             $tableArray[$zeileSumme1]['F_specificYieldDesign']        += $tableArray[$n]['F_specificYieldDesign'];  // Spalte F // berechnet aus IrrDesign un der Anlagenleistung (kwPeak)
             $tableArray[$zeileSumme1]['G_prDesign']                   =  $tableArray[$zeileSumme1]['F_specificYieldDesign'] / $tableArray[$zeileSumme1]['D_irrDesign'] * 100; // Spalte G // kommt aus der Tabelle PvSyst Werte Design
             $tableArray[$zeileSumme1]['H_prGuarantie']                =  $tableArray[$zeileSumme1]['G_prDesign'] - $anlage->getTransformerTee() - $anlage->getGuaranteeTee(); // Spalte H
-            $tableArray[$zeileSumme1]['I_theorYieldDesign']           += ($hasMonthData) ? $monthlyRecalculatedData->getPvSystIrr() * $anlage->getKwPeakPvSyst() : $pvSystData[$month - 1]['irrDesign'] * $anlage->getKwPeakPvSyst(); // Spalte I
+            $tableArray[$zeileSumme1]['I_theorYieldDesign']           += $tableArray[$n]['I_theorYieldDesign']; // Spalte I
             $tableArray[$zeileSumme1]['J_theorYieldMTDesign']         = ''; // Spalte J
             $tableArray[$zeileSumme1]['K_irrFTDesign']                = ''; // Spalte K
             $tableArray[$zeileSumme1]['L_irr']                        += $tableArray[$n]['L_irr']; // Spalte L // Irradiation
@@ -233,7 +233,7 @@ class ReportsEpcNewService
             $tableArray[$zeileSumme2]['F_specificYieldDesign']        += ($hasMonthData) ? $tableArray[$n]['F_specificYieldDesign'] : 0;  // Spalte F // berechnet aus IrrDesign un der Anlagenleistung (kwPeak)
             $tableArray[$zeileSumme2]['G_prDesign']                   =  $tableArray[$zeileSumme2]['F_specificYieldDesign'] / $tableArray[$zeileSumme2]['D_irrDesign'] * 100; // Spalte G // kommt aus der Tabelle PvSyst Werte Design
             $tableArray[$zeileSumme2]['H_prGuarantie']                =  $tableArray[$zeileSumme2]['G_prDesign'] - $anlage->getTransformerTee() - $anlage->getGuaranteeTee(); // Spalte H
-            $tableArray[$zeileSumme2]['I_theorYieldDesign']           += ($hasMonthData) ? $tableArray[$zeileSumme1]['I_theorYieldDesign'] : 0; // Spalte I
+            $tableArray[$zeileSumme2]['I_theorYieldDesign']           += ($hasMonthData) ? $tableArray[$n]['I_theorYieldDesign'] : 0; // Spalte I
             $tableArray[$zeileSumme2]['J_theorYieldMTDesign']         = ''; // Spalte J
             $tableArray[$zeileSumme2]['K_irrFTDesign']                = ''; // Spalte K
             $tableArray[$zeileSumme2]['L_irr']                        += ($hasMonthData) ? $tableArray[$n]['L_irr'] : 0; // Spalte L // Irradiation
@@ -263,7 +263,7 @@ class ReportsEpcNewService
             $tableArray[$zeileSumme3]['F_specificYieldDesign']        += ($hasMonthData) ? 0 : $tableArray[$n]['F_specificYieldDesign'];  // Spalte F // berechnet aus IrrDesign un der Anlagenleistung (kwPeak)
             $tableArray[$zeileSumme3]['G_prDesign']                   =  ($hasMonthData) ? 0 : $tableArray[$zeileSumme3]['F_specificYieldDesign'] / $tableArray[$zeileSumme3]['D_irrDesign'] * 100; // Spalte G // kommt aus der Tabelle PvSyst Werte Design
             $tableArray[$zeileSumme3]['H_prGuarantie']                =  $tableArray[$zeileSumme3]['G_prDesign'] - $anlage->getTransformerTee() - $anlage->getGuaranteeTee(); // Spalte H
-            $tableArray[$zeileSumme3]['I_theorYieldDesign']           += ($hasMonthData) ? 0 : $tableArray[$zeileSumme1]['I_theorYieldDesign']; // Spalte I
+            $tableArray[$zeileSumme3]['I_theorYieldDesign']           += ($hasMonthData) ? 0 : $tableArray[$n]['I_theorYieldDesign']; // Spalte I
             $tableArray[$zeileSumme3]['J_theorYieldMTDesign']         = ''; // Spalte J
             $tableArray[$zeileSumme3]['K_irrFTDesign']                = ''; // Spalte K
             $tableArray[$zeileSumme3]['L_irr']                        += ($hasMonthData) ? 0 : $tableArray[$n]['L_irr']; // Spalte L // Irradiation
@@ -359,21 +359,32 @@ class ReportsEpcNewService
         $zeileSumme2 = count($monthTable) - 1;
         $zeileSumme3 = count($monthTable) - 0;
 
+        $pNom = ($anlage->isUsePnomForPld()) ? $anlage->getPower() : 1;
+
         $b8 = $monthTable[$zeileSumme1]['E_yieldDesign'];
         $b9 = $monthTable[$zeileSumme1]['W_yield_guaranteed_exp'];
         $b10 = $monthTable[$zeileSumme1]['V_eGrid_withRisk'];
         $b11 = $monthTable[$zeileSumme1]['V_eGrid_withRisk'] - $monthTable[$zeileSumme1]['W_yield_guaranteed_exp'];
         $b12 = $monthTable[$zeileSumme2]['O_availability'] / 100;
-        $pldForcast = (($b9 - ($b10 / $b12)) / $b8) * 100 * $anlage->getPldYield();
+        if ( $anlage->getPldDivisor() == 'expected') {
+            $pldForcast = (($b9 - ($b10 / $b12)) / $b8) * 100 * $pNom * $anlage->getPldYield();
+            dump("(($b9 - ($b10 / $b12)) / $b8) * 100 * $pNom *");
+        } else {
+            $pldForcast = (($b9 - ($b10 / $b12)) / $b9) * 100 * $pNom * $anlage->getPldYield();
+        }
 
         $g8 = $monthTable[$zeileSumme2]['E_yieldDesign'];
         $g9 = $monthTable[$zeileSumme2]['W_yield_guaranteed_exp'];
         $g10 = $monthTable[$zeileSumme2]['V_eGrid_withRisk'];
         $g11 = $monthTable[$zeileSumme2]['V_eGrid_withRisk'] - $monthTable[$zeileSumme2]['W_yield_guaranteed_exp'];
         $g12 = $b12;
-        $pldReal    = (($g9 - ($g10 / $g12)) / $g8) * 100 * $anlage->getPldYield();
+        if ( $anlage->getPldDivisor() == 'expected') {
+            $pldReal    = (($g9 - ($g10 / $g12)) / $g8) * 100 * $pNom * $anlage->getPldYield();
+        } else {
+            $pldReal    = (($g9 - ($g10 / $g12)) / $g9) * 100 * $pNom * $anlage->getPldYield();
+        }
 
-        $result['forcast']                      = "Forcast " . $anlage->getFacDateStart()->format('M y') . " - " . $anlage->getFacDate()->format('M y');
+        $result['forcast']                      = "Forecast " . $anlage->getFacDateStart()->format('M y') . " - " . $anlage->getFacDate()->format('M y');
         $result['expected_energy_forecast']     = $monthTable[$zeileSumme1]['E_yieldDesign']; // B8
         $result['guaranteed_energy_forecast']   = $monthTable[$zeileSumme1]['W_yield_guaranteed_exp']; // B9
         $result['measured_energy_forecast']     = $monthTable[$zeileSumme1]['V_eGrid_withRisk']; // B10
@@ -442,14 +453,66 @@ class ReportsEpcNewService
         $options = [
             'color'     => ['#3366CC'],
             'grid'      => [
-                'height'    => '70%',
                 'top'       => 50,
-                'left'      => 50,
-                'width'     => '95%',
+                'left'      => 120,
+                'width'     => '85%'
             ],
         ];
         $chart->setOption($options);
 
-        return $chart->render('chartYieldPercenDiff');
+        return $chart->render('chartYieldPercentDiff', ['style' => 'height: 250px; margin-bottom: 40px;']);
+    }
+
+    public function chartYieldCumulative(Anlage $anlage, array $monthTable, ?DateTime  $date = null): string
+    {
+        if ($date === null) $date = new DateTime();
+        $anzahlMonate = ((int)$anlage->getEpcReportEnd()->format('Y') - (int)$anlage->getEpcReportStart()->format('Y')) * 12 + ((int)$anlage->getEpcReportEnd()->format('m') - (int)$anlage->getEpcReportStart()->format('m')) + 1;
+        $xAxis = $yAxis = [];
+        $lastY = 0;
+        for ($n = 1; $n <= $anzahlMonate; $n++){
+            $xAxis[] = $monthTable[$n]['B_month'];
+            $yAxis[] = round($lastY + $monthTable[$n]['M_eGridYield'],2);
+            $lastY   = $lastY + $monthTable[$n]['M_eGridYield'];
+        }
+
+        $chart = new ECharts();
+        $chart->xAxis[] = [
+            'type'      => 'category',
+            'data'      => $xAxis,
+            'axisLabel' =>  [
+                'rotate'    => 30,
+            ],
+        ];
+        $chart->yAxis[] = [
+            'type'      => 'value',
+            'splitLine' => [
+                'lineStyle' => [
+                    'type'      => 'dashed',
+                ],
+            ],
+            'axisLabel' =>  [
+                'formatter'     => '{value} kWh',
+                'align'         => 'right',
+            ],
+        ];
+        $chart->series[] = [
+            'type'      => 'bar',
+            'data'      => $yAxis,
+            'visualMap' => false,
+
+
+        ];
+
+        $options = [
+            'color'     => ['#3366CC'],
+            'grid'      => [
+                'top'       => 50,
+                'left'      => 120,
+                'width'     => '85%'
+            ],
+        ];
+        $chart->setOption($options);
+
+        return $chart->render('chartYieldCumulative', ['style' => 'height: 250px; margin-bottom: 40px;']);
     }
 }
