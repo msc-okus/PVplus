@@ -258,6 +258,21 @@ class Eigner
      */
     private $anlagenReports;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $fontColor = '#9aacc3';
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $fontColor2 = '#2e639a';
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $fontColor3 = '#36639c';
+
     //private $security;
 
     public function __construct() //Security $security
@@ -745,6 +760,42 @@ class Eigner
                 $anlagenReport->setEigner(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getFontColor(): ?string
+    {
+        return $this->fontColor;
+    }
+
+    public function setFontColor(?string $fontColor): self
+    {
+        $this->fontColor = $fontColor;
+
+        return $this;
+    }
+
+    public function getFontColor2(): ?string
+    {
+        return $this->fontColor2;
+    }
+
+    public function setFontColor2(?string $fontColor2): self
+    {
+        $this->fontColor2 = $fontColor2;
+
+        return $this;
+    }
+
+    public function getFontColor3(): ?string
+    {
+        return $this->fontColor3;
+    }
+
+    public function setFontColor3(?string $fontColor3): self
+    {
+        $this->fontColor3 = $fontColor3;
 
         return $this;
     }
