@@ -5,7 +5,7 @@
     {% set sumRow2 = monthsTable|length-1 %}
     {% set sumRow2 = monthsTable|length %}
     {% set guaranteedExpected = (1 - (anlage.transformerTee + anlage.guaranteeTee) / 100 ) * anlage.contractualPower %}
-    <h3 style="color: {{ font_color_second }};">Basic Values</h3>
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Basic Values</h3>
     <table class="basetable">
         <thead>
             <tr>

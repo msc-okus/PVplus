@@ -22,9 +22,7 @@ class AssetManagementController extends BaseController
     }
 
     /**
-     * @param $doctype ( 0 = PDF, 1 = Excel, 2 = PNG (Grafiken) )
-     * @param $charttypetoexport (0 = , 1 = )
-     * @Route("/asset/report/{id}/{month}/{year}/{export}/{pages}",name="report_asset_management")
+     * @Route("/asset/report/{id}/{month}/{year}/{export}/{pages}", name="report_asset_management", defaults={"export" = 0, "pages" = 0})
      */
     public function assetReport($id, $month, $year, $export, $pages, AssetManagementService $assetManagement, AnlagenRepository $anlagenRepository, Request $request)
     {
@@ -34,34 +32,35 @@ class AssetManagementController extends BaseController
         $baseurl = $request->getSchemeAndHttpHost();
         $plantId = $output['plantId'];
         $result = $this->render('report/assetreport.html.twig', [
-            'baseurl' => $baseurl,
-            'owner' => $output['owner'],
-            'plantSize' => $output['plantSize'],
-            'plantName' => $output['plantName'],
-            'anlGeoLat' => $output['anlGeoLat'],
-            'anlGeoLon'  => $output['anlGeoLon'],
-            'year' => $output['year'],
-            'month' => $output['month'],
-            'reportmonth' => $output['reportmonth'],
-            'customer_logo' => $baseurl.'/goldbeck/reports/asset_management/goldbecksolar_logo.svg',
-            'font_color' => '#9aacc3',
-            'font_color_second' => '#2e639a',
-            'font_color_third' => '#36639c',
-            'montharray' => $output['monthArray'],
-            'degradation' => $output['degradation'],
+            'anlage'            => $anlage,
+            'baseurl'           => $baseurl,
+            'owner'             => $output['owner'],
+            'plantSize'         => $output['plantSize'],
+            'plantName'         => $output['plantName'],
+            'anlGeoLat'         => $output['anlGeoLat'],
+            'anlGeoLon'         => $output['anlGeoLon'],
+            'year'              => $output['year'],
+            'month'             => $output['month'],
+            'reportmonth'       => $output['reportmonth'],
+            'customer_logo'     => $baseurl.'/goldbeck/reports/asset_management/goldbecksolar_logo.svg',
+            #'font_color'        => '#9aacc3',
+            #'font_color_second' => '#2e639a',
+            #'font_color_third'  => '#36639c',
+            'montharray'        => $output['monthArray'],
+            'degradation'       => $output['degradation'],
             'forecast_PVSYST_table' => $output['forecast_PVSYST_table'],
-            'forecast_PVSYST' => $output['forecast_PVSYST'],
-            'forecast_G4N_table' => $output['forecast_G4N_table'],
-            'forecast_G4N' => $output['forecast_G4N'],
-            'dataMonthArray' => $output['dataMonthArray'],
+            'forecast_PVSYST'       => $output['forecast_PVSYST'],
+            'forecast_G4N_table'    => $output['forecast_G4N_table'],
+            'forecast_G4N'          => $output['forecast_G4N'],
+            'dataMonthArray'        => $output['dataMonthArray'],
             'dataMonthArrayFullYear' => $output['dataMonthArrayFullYear'],
-            'dataCfArray' => $output['dataCfArray'],
-            'operations_right' => $output['operations_right'],
+            'dataCfArray'           => $output['dataCfArray'],
+            'operations_right'      => $output['operations_right'],
             'table_overview_monthly' => $output['table_overview_monthly'],
-            'losses_t1' => $output['losses_t1'],
-            'losses_t2' => $output['losses_t2'],
-            'losses_year' => $output['losses_year'],
-            'losses_monthly' => $output['losses_monthly'],
+            'losses_t1'             => $output['losses_t1'],
+            'losses_t2'             => $output['losses_t2'],
+            'losses_year'           => $output['losses_year'],
+            'losses_monthly'        => $output['losses_monthly'],
             'production_monthly_chart' => $output['production_monthly_chart'],
             'operations_monthly_right_pvsyst_tr1' => $output['operations_monthly_right_pvsyst_tr1'],
             'operations_monthly_right_pvsyst_tr2' => $output['operations_monthly_right_pvsyst_tr2'],
