@@ -258,19 +258,19 @@ class Eigner
      */
     private $anlagenReports;
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", length=10, nullable=true)
      */
-    private $fontColor = '#9aacc3';
+    private string $fontColor = '#9aacc3';
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", length=10, nullable=true)
      */
-    private $fontColor2 = '#2e639a';
+    private string $fontColor2 = '#2e639a';
 
     /**
-     * @ORM\Column(type="string", length=255, nullable=true)
+     * @ORM\Column(type="string", length=10, nullable=true)
      */
-    private $fontColor3 = '#36639c';
+    private string $fontColor3 = '#36639c';
 
     public function __construct()
     {

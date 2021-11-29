@@ -285,9 +285,6 @@ class DefaultMREController extends BaseController
             'legend'            => $anlage->getLegendEpcReports(),
             'chart1'            => $chartYieldPercenDiff,
             'chart2'            => $chartYieldCumulativ,
-            'font_color'        => '#9aacc3',
-            'font_color_second' => '#2e639a',
-            'font_color_third'  => '#36639c',
         ]);
     }
 }
