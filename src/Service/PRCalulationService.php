@@ -136,7 +136,6 @@ class PRCalulationService
             // pro Tag
             // FIRST
             $availability = $this->availabilityService->calcAvailability($anlage, date_create($day." 00:00"), date_create($day." 23:59"));
-            #if (!$availability) $availability = 0;
             // SECOND
             $availabilitySecond = $this->anlageAvailabilityRepo->sumAvailabilitySecondPerDay($anlage->getAnlId(), $day);
             if (!$availabilitySecond) $availabilitySecond = 0;
@@ -146,8 +145,6 @@ class PRCalulationService
             $anzPRRecordsPerMonth = $this->PRRepository->anzRecordsPRPerPac($anlage->getAnlId(), $startMonth, $to);
             if ($anzPRRecordsPerMonth == 0) $anzPRRecordsPerMonth = 1;
             // FIRST
-            #$availabilityPerMonth = $this->PRRepository->sumAvailabilityPerPac($anlage->getAnlId(), $startMonth, $to);
-            #$availabilityPerMonth = $availabilityPerMonth / $anzPRRecordsPerMonth;
             $availabilityPerMonth = $this->availabilityService->calcAvailability($anlage, date_create($startMonth), date_create($to));
             // SECOND
             $availabilitySecondPerMonth = $this->PRRepository->sumAvailabilitySecondPerPac($anlage->getAnlId(), $startMonth, $to);
@@ -155,11 +152,9 @@ class PRCalulationService
 
             // pro Jahr
             // FIRST
-            #$availabilityPerYear = $this->PRRepository->sumAvailabilityPerYear($anlage->getAnlId(), $year, $to);
             $anzPRRecordsPerYear = $this->PRRepository->anzRecordsPRPerYear($anlage->getAnlId(), $year, $to);
             $availabilityPerYear = $this->availabilityService->calcAvailability($anlage, date_create("$year-01-01 00:00"), date_create($to));
             if ($anzPRRecordsPerYear == 0) $anzPRRecordsPerYear = 1;
-            #$availabilityPerYear = $availabilityPerYear / $anzPRRecordsPerYear;
             // SECOND
             $availabilityPerYearSecond = $this->PRRepository->sumAvailabilitySecondPerYear($anlage->getAnlId(), $year, $to);
             if ($availabilityPerYearSecond == null) {
@@ -174,10 +169,7 @@ class PRCalulationService
                 $anzPRRecordsPerPac = $this->PRRepository->anzRecordsPRPerPac($anlage->getAnlId(), $pacDate, $pacDateEnd);
                 if ($anzPRRecordsPerPac == 0) $anzPRRecordsPerPac = 1;
                 // FIRST
-                #$availabilityPerPac = $this->PRRepository->sumAvailabilityPerPac($anlage->getAnlId(), $pacDate, $pacDateEnd);
-                #$availabilityPerPac = $availabilityPerPac / $anzPRRecordsPerPac;
                 $availabilityPerPac = $this->availabilityService->calcAvailability($anlage, date_create($pacDate), date_create($pacDateEnd));
-
                 // SECOND
                 $availabilitySecondPerPac = $this->PRRepository->sumAvailabilitySecondPerPac($anlage->getAnlId(), $pacDate, $pacDateEnd);
                 $availabilitySecondPerPac = $availabilitySecondPerPac / $anzPRRecordsPerPac;
@@ -301,12 +293,12 @@ class PRCalulationService
                     break;
                 case 'Lelystad':
                     // Summe der theo Power aus den IST Werten (koriegiert mit TemperaturKorrektur)
-                    if ($anlage->getTempCorrCellTypeAvg() != 0) {
-                        $powerTheo = $powerActArray['theoPower'];
-                        $powerTheoMonth = $powerActArray['theoPowerMonth'];
-                        $powerTheoPac = $powerActArray['theoPowerPac'];
-                        $powerTheoYear = $powerActArray['theoPowerYear'];
-                    }
+
+                    $powerTheo = $powerActArray['theoPower'];
+                    $powerTheoMonth = $powerActArray['theoPowerMonth'];
+                    $powerTheoPac = $powerActArray['theoPowerPac'];
+                    $powerTheoYear = $powerActArray['theoPowerYear'];
+
                     if ($powerTheo > 0) { // Verhinder Divison by zero
                         $prEvu              = ($powerEvu            / $powerTheo) * 100;
                         $prAct              = ($powerAct            / $powerTheo) * 100;
@@ -566,14 +558,17 @@ class PRCalulationService
         if($anzTage === 0) $anzTage = 1; //verhindert diffision by zero
         $availability = $this->availabilityService->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate));
 
-
-        //Strahlung berechnen – Strahlung (upper = Ost / lower = West)
+        //Strahlung berechnen – (upper = Ost / lower = West)
         if ($anlage->getIsOstWestAnlage()) {
             $irr = ($weather['upperIrr'] * $anlage->getPowerEast() + $weather['lowerIrr'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
         } else {
             $irr = $weather['upperIrr'] / 4 / 1000; // Umrechnug zu kWh
         }
-        $powerTheo = $anlage->getPower() * $irr;
+        if ($power['powerExp'] == 0) {
+            $powerTheo = $anlage->getPower() * $irr;
+        } else {
+            $powerTheo = $power['powerExp'];
+        }
         $result['powerTheo'] = $powerTheo;
         $tempCorrection = 0;
 
@@ -602,10 +597,8 @@ class PRCalulationService
                 }
                 break;
             case 'Lelystad':
-                if ($anlage->getTempCorrCellTypeAvg() != 0) {
-                    $powerTheo = $power['powerTheo'];
-                    $result['powerTheo'] = $powerTheo;
-                }
+                $powerTheo = $power['powerTheo'];
+                $result['powerTheo'] = $powerTheo;
                 if ($powerTheo > 0) { // Verhinder Divison by zero
                     $result['prEvu']      = ($power['powerEvu']      / $powerTheo) * 100;
                     $result['prAct']      = ($power['powerAct']      / $powerTheo) * 100;
@@ -636,6 +629,19 @@ class PRCalulationService
         $result['availability']      = $availability;
 
         return $result;
+    }
+
+    public function calcPrByValues(Anlage $anlage, $irr, $spezYield, $eGrid, $theoPowerFT, $pa): float
+    {
+        switch ($anlage->getUseCustPRAlgorithm()) {
+            case 'Lelystad':
+                // Summe der theo Power aus den IST Werten (koriegiert mit TemperaturKorrektur)
+                return $eGrid / $theoPowerFT * 100;
+                break;
+            default:
+                // wenn es keinen spezielen Algoritmus gibt
+                return $spezYield / $irr * 100;
+        }
     }
 
 

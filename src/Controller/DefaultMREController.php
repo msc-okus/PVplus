@@ -42,8 +42,8 @@ class DefaultMREController extends BaseController
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => '97']);
 
-        $from = date_create('2021-10-01');
-        $to   = date_create('2021-10-31');
+        $from = date_create('2021-09-01');
+        $to   = date_create('2021-09-30');
         $output = $bavelseExport->gewichtetTagesstrahlung($anlage, $from, $to);
 
         return $this->render('cron/showResult.html.twig', [
@@ -260,9 +260,9 @@ class DefaultMREController extends BaseController
     }
 
     /**
-     * @Route ("/test/epc/{id}", defaults={"id"=93})
+     * @Route ("/test/epc/{id}/{raw}", defaults={"id"=93, "raw"=false})
      */
-    public function testNewEpc($id, AnlagenRepository $anlagenRepository, FunctionsService $functions, ReportsEpcNewService $epcNew): Response
+    public function testNewEpc($id, $raw, AnlagenRepository $anlagenRepository, FunctionsService $functions, ReportsEpcNewService $epcNew): Response
     {
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
@@ -278,6 +278,13 @@ class DefaultMREController extends BaseController
         $output = $functions->printArrayAsTable($forcastTable);
         $output .= $functions->print2DArrayAsTable($monthTable);
 
+        if ($raw) {
+            return $this->render('cron/showResult.html.twig', [
+                'headline'      => 'Tabelle New EPC',
+                'availabilitys' => '',
+                'output'        => $output,
+            ]);
+        }
         return $this->render('report/epcReport.html.twig', [
             'anlage'            => $anlage,
             'monthsTable'       => $monthTable,

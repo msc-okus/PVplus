@@ -721,11 +721,11 @@ class FunctionsService
         $result     = [];
         $powerEvu = 0;
         $powerExp = 0;
-
+        $powerExpEvu = 0;
 
         ############# für den angeforderten Zeitraum #############
 
-        // Wenn externe Tagesdaten genutzt werden sollen lade diese aus der DB und ÜBERSCHREIBE die Daten aus den 15Minuten Werten
+        // Wenn externe Tagesdaten genutzt werden, sollen lade diese aus der DB und ÜBERSCHREIBE die Daten aus den 15Minuten Werten
         $powerEGridExt = $this->getSumeGridMeter($anlage, $from, $to);
 
         // EVU Leistung ermitteln –
