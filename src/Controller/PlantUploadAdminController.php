@@ -61,7 +61,7 @@ class PlantUploadAdminController extends BaseController
 
         $filesInDB = $repositoryUpload->findBy(['plant_id' => $id]);
 
-        $anlage = $repositoryAnlage->findIdLike([$id]);
+        $anlage = $repositoryAnlage->findIdLike([$id])[0];
 
         $isupload = '';
         if($form->isSubmitted()){
@@ -77,7 +77,7 @@ class PlantUploadAdminController extends BaseController
                 $mimeType = $newFile['mimeType'];
 
                 $isupload = 'yes';
-
+                dump($anlage);
                 $upload->setStamp(date_create(date('Y-m-d H:i:s')))
                 ->setUploadPath($uploadsPath)
                     ->setCreatedAt(date_create(date('Y-m-d H:i:s')))

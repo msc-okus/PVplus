@@ -272,6 +272,11 @@ class Eigner
      */
     private $fontColor3 = '#36639c';
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $Logo;
+
     public function __construct()
     {
         $this->user = new ArrayCollection();
@@ -762,7 +767,7 @@ class Eigner
 
     public function getCustomerLogo(): string
     {
-        return "/goldbeck/reports/asset_management/goldbecksolar_logo.svg";
+        return $this->Logo;
     }
 
     public function getFontColor(): ?string
@@ -797,6 +802,18 @@ class Eigner
     public function setFontColor3(?string $fontColor3): self
     {
         $this->fontColor3 = $fontColor3;
+
+        return $this;
+    }
+
+    public function getLogo(): ?string
+    {
+        return $this->Logo;
+    }
+
+    public function setLogo(?string $Logo): self
+    {
+        $this->Logo = $Logo;
 
         return $this;
     }
