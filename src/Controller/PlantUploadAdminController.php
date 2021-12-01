@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\AnlageFile;
 use App\Entity\AnlageFileUpload;
 use App\Repository\AnlagenRepository;
 use App\Repository\AnlageFileUploadRepository;
@@ -52,7 +53,7 @@ class PlantUploadAdminController extends BaseController
     public function temporaryUploadAction($id, Request $request, UploaderHelper $uploaderHelper, EntityManagerInterface $entityManager)
     {
         #$anlage = new AnlageFileUpload();
-        $repositoryUpload = $entityManager->getRepository(AnlageFileUpload::class);
+        $repositoryUpload = $entityManager->getRepository(AnlageFile::class);
         $repositoryAnlage = $entityManager->getRepository(Anlage::class);
         //create Form
         /** @var UploadedFile $uploadedFile */
@@ -65,28 +66,23 @@ class PlantUploadAdminController extends BaseController
 
         $isupload = '';
         if($form->isSubmitted()){
-            $upload = new AnlageFileUpload();
+            $upload = new AnlageFile();
 
             $uploadedFile = $form['imageFile']->getData();
             if ($uploadedFile) {
 
                 $newFile = $uploaderHelper->uploadPlantImage($uploadedFile, $id);
                 $uploadsPath = substr ($this->uploadsPath,strpos($this->uploadsPath, '/uploads')).'/'.UploaderHelper::PLANT_IMAGE.'/'.$id;
-                $originalFilename = $newFile['originalFilename'];
                 $newFilename = $newFile['newFilename'];
                 $mimeType = $newFile['mimeType'];
 
                 $isupload = 'yes';
-                dump($anlage);
-                $upload->setStamp(date_create(date('Y-m-d H:i:s')))
-                ->setUploadPath($uploadsPath)
-                    ->setCreatedAt(date_create(date('Y-m-d H:i:s')))
-                    ->setCreatedBy('John Wayne')
-                    ->setFilename($newFilename)
-                    ->setMimeType($mimeType)
-                    ->setOriginalFileName($originalFilename)
-                    ->setPlantId($anlage)
-                ;
+                $upload ->setFilename($newFilename)
+                        ->setNimeType($mimeType)
+                        ->setPath($uploadsPath)
+                        ->setPlant($anlage)
+                        ->setStamp(date_create(date('Y-m-d H:i:s')));
+
                 $entityManager->persist($upload);
                 $entityManager->flush();
 

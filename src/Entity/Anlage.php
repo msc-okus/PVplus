@@ -755,6 +755,11 @@ class Anlage
      */
     private ?string $lossesForecast = '0';
 
+    /**
+     * @ORM\OneToMany(targetEntity=AnlageFile::class, mappedBy="plant", orphanRemoval=true)
+     */
+    private $anlageFiles;
+
 
 
     public function __construct()
@@ -781,6 +786,7 @@ class Anlage
         $this->logs = new ArrayCollection();
         $this->tickets = new ArrayCollection();
         $this->economicVarValues = new ArrayCollection();
+        $this->anlageFiles = new ArrayCollection();
     }
 
     public function getAnlId(): ?string
@@ -3060,6 +3066,36 @@ class Anlage
     public function setLossesForecast(?string $lossesForecast): self
     {
         $this->lossesForecast = $lossesForecast;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|AnlageFile[]
+     */
+    public function getAnlageFiles(): Collection
+    {
+        return $this->anlageFiles;
+    }
+
+    public function addAnlageFile(AnlageFile $anlageFile): self
+    {
+        if (!$this->anlageFiles->contains($anlageFile)) {
+            $this->anlageFiles[] = $anlageFile;
+            $anlageFile->setPlant($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAnlageFile(AnlageFile $anlageFile): self
+    {
+        if ($this->anlageFiles->removeElement($anlageFile)) {
+            // set the owning side to null (unless already changed)
+            if ($anlageFile->getPlant() === $this) {
+                $anlageFile->setPlant(null);
+            }
+        }
 
         return $this;
     }

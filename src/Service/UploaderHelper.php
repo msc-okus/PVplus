@@ -17,6 +17,7 @@ class UploaderHelper
 {
     const PLANT_IMAGE = 'plants';
     const PLANT_REFERENCE = 'plant_reference';
+    const EIGNER_LOGO = 'eigners';
 
     private FilesystemInterface $filesystem;
     private RequestStackContext $requestStackContext;
@@ -40,13 +41,28 @@ class UploaderHelper
         );
 
         $result = [
-            'originalFilename' => $originalFilename,
             'mimeType' => $mimeType,
             'newFilename' => $newFilename
         ];
 
         return $result;
     }
+    public function uploadEignerLogo(UploadedFile $uploadedFile, $id): array
+    {        $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
+        $mimeType = pathinfo($uploadedFile->getClientMimeType(), PATHINFO_FILENAME);
+        $newFilename = Urlizer::urlize($originalFilename).'-'.uniqid().'.'.$uploadedFile->guessExtension();
+
+        $this->filesystem->write(
+            self::EIGNER_LOGO.'/'.$id.'/'.$newFilename,
+            file_get_contents($uploadedFile->getPathname())
+        );
+
+        $result = [
+            'mimeType' => $mimeType,
+            'newFilename' => $newFilename
+        ];
+
+        return $result;}
 
     public function _uploadArticleImage(File $file, ?string $existingFilename): string
     {

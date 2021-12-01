@@ -23,4 +23,4 @@ php.ini
 /public/*.pdf
 /public/*.html
 /public/echarts
-/public/uploads
+/public/uploads/*
