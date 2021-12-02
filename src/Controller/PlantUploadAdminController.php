@@ -37,7 +37,7 @@ use Symfony\Component\OptionsResolver\OptionsResolverInterface;
 use Symfony\Component\Form\FormBuilderInterface;
 
 
-class PlantUploadAdminController extends BaseController
+class  PlantUploadAdminController extends BaseController
 {
     private $uploadsPath;
 
@@ -72,9 +72,10 @@ class PlantUploadAdminController extends BaseController
             if ($uploadedFile) {
 
                 $newFile = $uploaderHelper->uploadPlantImage($uploadedFile, $id);
-                $uploadsPath = substr ($this->uploadsPath,strpos($this->uploadsPath, '/uploads')).'/'.UploaderHelper::PLANT_IMAGE.'/'.$id;
+
                 $newFilename = $newFile['newFilename'];
                 $mimeType = $newFile['mimeType'];
+                $uploadsPath =$this->uploadsPath.'/'.UploaderHelper::EIGNER_LOGO.'/'.$id.'/'.$newFilename.$mimeType;
 
                 $isupload = 'yes';
                 $upload ->setFilename($newFilename)
