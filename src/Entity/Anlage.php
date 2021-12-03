@@ -7,15 +7,8 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-
-use phpDocumentor\Reflection\Types\Float_;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\NumericFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
 
@@ -448,6 +441,11 @@ class Anlage
     private Collection $anlageCase5s;
 
     /**
+     * @ORM\OneToMany(targetEntity=AnlageCase6::class, mappedBy="anlage", cascade={"persist", "remove"})
+     */
+    private Collection $anlageCase6s;
+
+    /**
      * @ORM\OneToMany(targetEntity=AnlagePVSystDaten::class, mappedBy="anlage", cascade={"persist", "remove"})
      */
     private Collection $anlagePVSystDatens;
@@ -481,6 +479,11 @@ class Anlage
      * @ORM\OneToMany(targetEntity=AnlageForcast::class, mappedBy="anlage", cascade={"persist", "remove"})
      */
     private Collection $anlageForecasts;
+
+    /**
+     * @ORM\OneToMany(targetEntity=AnlageForcastDay::class, mappedBy="anlage", cascade={"persist", "remove"})
+     */
+    private Collection $anlageForecastDays;
 
     /**
      * @ORM\OneToMany(targetEntity=AnlageGroups::class, mappedBy="anlage", cascade={"persist", "remove"})
@@ -772,8 +775,10 @@ class Anlage
         $this->pr = new ArrayCollection();
         $this->eventMails = new ArrayCollection();
         $this->anlageCase5s = new ArrayCollection();
+        $this->anlageCase6s = new ArrayCollection();
         $this->anlagePVSystDatens = new ArrayCollection();
         $this->anlageForecasts = new ArrayCollection();
+        $this->anlageForecastDays = new ArrayCollection();
         $this->groups = new ArrayCollection();
         $this->modules = new ArrayCollection();
         $this->timesConfigs = new ArrayCollection();
@@ -1963,6 +1968,49 @@ class Anlage
     }
 
     /**
+     * @return Collection|AnlageCase6[]
+     */
+    public function getAnlageCase6s(): Collection
+    {
+        return $this->anlageCase6s;
+    }
+
+    /**
+     * @return Collection|AnlageCase6[]
+     */
+    public function getAnlageCase6sDate($date): Collection
+    {
+        $criteria = AnlagenRepository::case6ByDateCriteria($date);
+
+        return $this->anlageCase5s->matching($criteria);
+
+    }
+
+    public function addAnlageCase6(AnlageCase6 $anlageCase6): self
+    {
+        if (!$this->anlageCase6s->contains($anlageCase6)) {
+            $this->anlageCase6s[] = $anlageCase6;
+            $anlageCase6->setAnlage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAnlageCase6(AnlageCase6 $anlageCase6): self
+    {
+        if ($this->anlageCase6s->contains($anlageCase6)) {
+            $this->anlageCase6s->removeElement($anlageCase6);
+            // set the owning side to null (unless already changed)
+            if ($anlageCase6->getAnlage() === $this) {
+                $anlageCase6->setAnlage(null);
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
      * @return Collection|AnlagePVSystDaten[]
      */
     public function getAnlagePVSystDatens(): Collection
@@ -2081,6 +2129,37 @@ class Anlage
 
         return $this;
     }
+
+    /**
+     * @return Collection|AnlageForcastDay[]
+     */
+    public function getAnlageForecastDays(): Collection
+    {
+        return $this->anlageForecastDays;
+    }
+
+    public function addAnlageForecastDay(AnlageForcastDay $anlageForecastDay): self
+    {
+        if (!$this->anlageForecastDays->contains($anlageForecastDay)) {
+            $this->anlageForecastDays[] = $anlageForecastDay;
+            $anlageForecastDay->setAnlage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAnlageForecastDay(AnlageForcastDay $anlageForecastDay): self
+    {
+        if ($this->anlageForecastDays->removeElement($anlageForecastDay)) {
+            // set the owning side to null (unless already changed)
+            if ($anlageForecastDay->getAnlage() === $this) {
+                $anlageForecastDay->setAnlage(null);
+            }
+        }
+
+        return $this;
+    }
+
 
     /**
      * @return Collection|AnlageGroups[]

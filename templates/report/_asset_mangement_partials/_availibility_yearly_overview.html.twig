@@ -1,8 +1,81 @@
-{% include 'report/_asset_mangement_partials/_headline.html.twig'%}
-    <div class="content_asset_report">
-        <h3 style="color: {{ anlage.eigner.fontColor2 }};">Availability – Yearly Overview</h3>
-        {% set countinverters = 0 %}
-        <table id="basetable">
+{% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
+
+{% block page %}
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Availability – Yearly Overview</h3>
+    {% set countinverters = 0 %}
+    <table id="basetable">
+        <tr>
+            <td style="vertical-align: top;">
+                {% set daysInReportMonth = daysInReportMonth %}
+                {% set tableColsLimit_twig = tableColsLimit %}
+                {% set tbody = "" %}
+                {% set itemcounter = 1 %}
+                {% set itemcounter2 = 0 %}
+                {% set unitcounter = 0 %}
+                {% set unitcounter2 = 0 %}
+                {% set counterall = 0 %}
+                {% set availabilityall = 0 %}
+                <table class="asset_report_table_operations_data" style="margin-bottom: 5px!important; width: 100%!important;">
+                    {% for data in plantAvailabilityCurrentYear %}
+                        {% set countinverters = data[0]|length %}
+                        {% if (itemcounter == 1 ) %}
+                            <tr>
+                                <td class="tr_first_column" style="padding:0 !important; border-right: 0px!important; width: 70px!important; text-align: center;">
+                                    Month
+                                </td>
+                                {% for datatr in data[0] %}
+                                    {% if(unitcounter2 < countinverters/2) %}
+                                        {% if unitcounter2 == (countinverters/2)-1 %}
+                                            <td style="padding:0 !important; border-right:solid 1px!important;">
+                                                <table class = "streamdayly" style="padding:0 !important; margin:0 !important;">
+                                                    <tr><th style="padding:0 !important;margin:0 !important; height:28px; width:54px; border-right: 0px!important; text-align: center;">{{ acGroups[unitcounter2] }}</th></tr>
+                                                    <tr><th style="padding:0 !important;margin:0 !important; border-right: 0px!important; text-align: center;">[%]</th></tr>
+                                                </table>
+                                            </td>
+                                        {% else %}
+                                            <td style="padding:0 !important; border-right:0px!important;">
+                                                <table class = "streamdayly" style="padding:0 !important; margin:0 !important;">
+                                                    <tr><th style="padding:0 !important;margin:0 !important; height:28px; width:54px; border-right: 0px!important; text-align: center;">{{ acGroups[unitcounter2] }}</th></tr>
+                                                    <tr><th style="padding:0 !important;margin:0 !important; border-right: 0px!important; text-align: center;">[%]</th></tr>
+                                                </table>
+                                            </td>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% set unitcounter2 = unitcounter2+1 %}
+                                {% endfor %}
+                            </tr>
+                        {% endif %}
+
+                        <tr>
+                            {% for datatr in data[0] %}
+                                {% if (datatr.pa >= 98) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (datatr.pa < 98) %}{% set color = "#cee4c0" %}{% endif %}
+                                {% if (datatr.pa < 92) %}{% set color = "#ffff00" %}{% endif %}
+                                {% if (datatr.pa < 85) %}{% set color = "#ffc000" %}{% endif %}
+                                {% if (datatr.pa <= 80) %}{% set color = "#cc0000" %}{% endif %}
+                                {% if (datatr.pa == 100) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (unitcounter == 0 ) %}
+                                    <td class="tr_first_column">{{ montharray[itemcounter2] }}</td>
+                                    <td class="tr_next_columns" style="background-color:{{ color }};">{{ datatr.pa|number_format(2, ',', '.') }}</td>
+                                {% endif %}
+                                {% if (unitcounter > 0 and unitcounter < countinverters/2) %}
+                                    <td class="tr_next_columns"style="background-color:{{ color }};">{{ datatr.pa|number_format(2, ',', '.') }}</td>
+                                {% endif %}
+                                {% set availabilityall = availabilityall+datatr.pa %}
+                                {% set counterall = counterall+1 %}
+                                {% set unitcounter = unitcounter+1 %}
+                            {% endfor %}
+                            {% set unitcounter = 0 %}
+                        </tr>
+                        {% set itemcounter = itemcounter+1 %}
+                        {% set itemcounter2 = itemcounter2+1 %}
+                    {% endfor %}
+                    {% set itemcounter = 1 %}
+                    {% set itemcounter2 = 0 %}
+                </table>
+            </td>
+        </tr>
+        {% if(countinverters > 20) %}
             <tr>
                 <td style="vertical-align: top;">
                     {% set daysInReportMonth = daysInReportMonth %}
@@ -12,8 +85,6 @@
                     {% set itemcounter2 = 0 %}
                     {% set unitcounter = 0 %}
                     {% set unitcounter2 = 0 %}
-                    {% set counterall = 0 %}
-                    {% set availabilityall = 0 %}
                     <table class="asset_report_table_operations_data" style="margin-bottom: 5px!important; width: 100%!important;">
                         {% for data in plantAvailabilityCurrentYear %}
                             {% set countinverters = data[0]|length %}
@@ -23,8 +94,8 @@
                                         Month
                                     </td>
                                     {% for datatr in data[0] %}
-                                        {% if(unitcounter2 < countinverters/2) %}
-                                            {% if unitcounter2 == (countinverters/2)-1 %}
+                                        {% if(unitcounter2 > (countinverters/2)-1) %}
+                                            {% if unitcounter2 == countinverters-1 %}
                                                 <td style="padding:0 !important; border-right:solid 1px!important;">
                                                     <table class = "streamdayly" style="padding:0 !important; margin:0 !important;">
                                                         <tr><th style="padding:0 !important;margin:0 !important; height:28px; width:54px; border-right: 0px!important; text-align: center;">{{ acGroups[unitcounter2] }}</th></tr>
@@ -53,15 +124,13 @@
                                     {% if (datatr.pa < 85) %}{% set color = "#ffc000" %}{% endif %}
                                     {% if (datatr.pa <= 80) %}{% set color = "#cc0000" %}{% endif %}
                                     {% if (datatr.pa == 100) %}{% set color = "#00b050" %}{% endif %}
-                                    {% if (unitcounter == 0 ) %}
+                                    {% if (unitcounter == countinverters/2 ) %}
                                         <td class="tr_first_column">{{ montharray[itemcounter2] }}</td>
                                         <td class="tr_next_columns" style="background-color:{{ color }};">{{ datatr.pa|number_format(2, ',', '.') }}</td>
                                     {% endif %}
-                                    {% if (unitcounter > 0 and unitcounter < countinverters/2) %}
+                                    {% if (unitcounter > (countinverters/2)-1 and unitcounter < countinverters-1) %}
                                         <td class="tr_next_columns"style="background-color:{{ color }};">{{ datatr.pa|number_format(2, ',', '.') }}</td>
                                     {% endif %}
-                                    {% set availabilityall = availabilityall+datatr.pa %}
-                                    {% set counterall = counterall+1 %}
                                     {% set unitcounter = unitcounter+1 %}
                                 {% endfor %}
                                 {% set unitcounter = 0 %}
@@ -74,102 +143,32 @@
                     </table>
                 </td>
             </tr>
-            {% if(countinverters > 20) %}
-                <tr>
-                    <td style="vertical-align: top;">
-                        {% set daysInReportMonth = daysInReportMonth %}
-                        {% set tableColsLimit_twig = tableColsLimit %}
-                        {% set tbody = "" %}
-                        {% set itemcounter = 1 %}
-                        {% set itemcounter2 = 0 %}
-                        {% set unitcounter = 0 %}
-                        {% set unitcounter2 = 0 %}
-                        <table class="asset_report_table_operations_data" style="margin-bottom: 5px!important; width: 100%!important;">
-                            {% for data in plantAvailabilityCurrentYear %}
-                                {% set countinverters = data[0]|length %}
-                                {% if (itemcounter == 1 ) %}
-                                    <tr>
-                                        <td class="tr_first_column" style="padding:0 !important; border-right: 0px!important; width: 70px!important; text-align: center;">
-                                            Month
-                                        </td>
-                                        {% for datatr in data[0] %}
-                                            {% if(unitcounter2 > (countinverters/2)-1) %}
-                                                {% if unitcounter2 == countinverters-1 %}
-                                                    <td style="padding:0 !important; border-right:solid 1px!important;">
-                                                        <table class = "streamdayly" style="padding:0 !important; margin:0 !important;">
-                                                            <tr><th style="padding:0 !important;margin:0 !important; height:28px; width:54px; border-right: 0px!important; text-align: center;">{{ acGroups[unitcounter2] }}</th></tr>
-                                                            <tr><th style="padding:0 !important;margin:0 !important; border-right: 0px!important; text-align: center;">[%]</th></tr>
-                                                        </table>
-                                                    </td>
-                                                {% else %}
-                                                    <td style="padding:0 !important; border-right:0px!important;">
-                                                        <table class = "streamdayly" style="padding:0 !important; margin:0 !important;">
-                                                            <tr><th style="padding:0 !important;margin:0 !important; height:28px; width:54px; border-right: 0px!important; text-align: center;">{{ acGroups[unitcounter2] }}</th></tr>
-                                                            <tr><th style="padding:0 !important;margin:0 !important; border-right: 0px!important; text-align: center;">[%]</th></tr>
-                                                        </table>
-                                                    </td>
-                                                {% endif %}
-                                            {% endif %}
-                                            {% set unitcounter2 = unitcounter2+1 %}
-                                        {% endfor %}
-                                    </tr>
-                                {% endif %}
-
-                                <tr>
-                                    {% for datatr in data[0] %}
-                                        {% if (datatr.pa >= 98) %}{% set color = "#00b050" %}{% endif %}
-                                        {% if (datatr.pa < 98) %}{% set color = "#cee4c0" %}{% endif %}
-                                        {% if (datatr.pa < 92) %}{% set color = "#ffff00" %}{% endif %}
-                                        {% if (datatr.pa < 85) %}{% set color = "#ffc000" %}{% endif %}
-                                        {% if (datatr.pa <= 80) %}{% set color = "#cc0000" %}{% endif %}
-                                        {% if (datatr.pa == 100) %}{% set color = "#00b050" %}{% endif %}
-                                        {% if (unitcounter == countinverters/2 ) %}
-                                            <td class="tr_first_column">{{ montharray[itemcounter2] }}</td>
-                                            <td class="tr_next_columns" style="background-color:{{ color }};">{{ datatr.pa|number_format(2, ',', '.') }}</td>
-                                        {% endif %}
-                                        {% if (unitcounter > (countinverters/2)-1 and unitcounter < countinverters-1) %}
-                                            <td class="tr_next_columns"style="background-color:{{ color }};">{{ datatr.pa|number_format(2, ',', '.') }}</td>
-                                        {% endif %}
-                                        {% set unitcounter = unitcounter+1 %}
-                                    {% endfor %}
-                                    {% set unitcounter = 0 %}
-                                </tr>
-                                {% set itemcounter = itemcounter+1 %}
-                                {% set itemcounter2 = itemcounter2+1 %}
-                            {% endfor %}
-                            {% set itemcounter = 1 %}
-                            {% set itemcounter2 = 0 %}
-                        </table>
-                    </td>
-                </tr>
-            {% endif %}
-            <tr>
-                <td style="text-align: right!important; float: right;">
-                    <table class="legend_colors" style="margin-bottom: 0!important;">
-                        <tr>
-                            <td rowspan="2" style=" text-align: center;">Explanation</td>
-                            <td>0-2%</td>
-                            <td>2,1-8%</td>
-                            <td>8,1-15%</td>
-                            <td>15,1-20%</td>
-                            <td>20%-</td>
-                        </tr>
-                        <tr>
-                            <td style="background-color: #00b050;">&nbsp;</td>
-                            <td style="background-color: #cee4c0;">&nbsp;</td>
-                            <td style="background-color: #ffff00;">&nbsp;</td>
-                            <td style="background-color: #ffc000;">&nbsp;</td>
-                            <td style="background-color: #cc0000;">&nbsp;</td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        </table>
-        <div class="explanation" >
-            <b>Explanation:</b>
-            <br>The PV plant shows a system availability of {{ (availabilityall/counterall)|number_format(2, ',', '.') }}% for the period from 01/01/{{ year}} to {{ reportmonth }}/{{ daysInReportMonth }}/{{ year}} (reporting period).<br>
-            The main reason for the relatively low availability is the fact that inverters 1.1 (transformer station 1) have not been working since April. They should be checked for defects.
-        </div>
+        {% endif %}
+        <tr>
+            <td style="text-align: right!important; float: right;">
+                <table class="legend_colors" style="margin-bottom: 0!important;">
+                    <tr>
+                        <td rowspan="2" style=" text-align: center;">Explanation</td>
+                        <td>0-2%</td>
+                        <td>2,1-8%</td>
+                        <td>8,1-15%</td>
+                        <td>15,1-20%</td>
+                        <td>20%-</td>
+                    </tr>
+                    <tr>
+                        <td style="background-color: #00b050;">&nbsp;</td>
+                        <td style="background-color: #cee4c0;">&nbsp;</td>
+                        <td style="background-color: #ffff00;">&nbsp;</td>
+                        <td style="background-color: #ffc000;">&nbsp;</td>
+                        <td style="background-color: #cc0000;">&nbsp;</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <div class="explanation" >
+        <b>Explanation:</b>
+        <br>The PV plant shows a system availability of {{ (availabilityall/counterall)|number_format(2, ',', '.') }}% for the period from 01/01/{{ year}} to {{ reportmonth }}/{{ daysInReportMonth }}/{{ year}} (reporting period).<br>
+        The main reason for the relatively low availability is the fact that inverters 1.1 (transformer station 1) have not been working since April. They should be checked for defects.
     </div>
-
-{% include 'report/_asset_mangement_partials/_footer.html.twig'%}
+{% endblock page %}

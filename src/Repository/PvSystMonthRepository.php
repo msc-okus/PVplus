@@ -5,6 +5,8 @@ namespace App\Repository;
 use App\Entity\Anlage;
 use App\Entity\AnlagenPvSystMonth;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -60,6 +62,10 @@ class PvSystMonthRepository extends ServiceEntityRepository
             ;
     }
 
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
     public function findOneMonth(Anlage $anlage, $month)
     {
         return $this->createQueryBuilder('a')
@@ -70,8 +76,7 @@ class PvSystMonthRepository extends ServiceEntityRepository
             ->orderBy('a.month', 'ASC')
 
             ->getQuery()
-            ->getSingleResult()
-            ;
+            ->getSingleResult();
     }
 
 }

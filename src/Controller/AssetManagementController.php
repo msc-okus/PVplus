@@ -33,7 +33,7 @@ class AssetManagementController extends BaseController
         $plantId = $output['plantId'];
         $result = $this->render('report/assetreport.html.twig', [
             'anlage'            => $anlage,
-            'baseurl'           => $baseurl,
+            #'baseurl'           => $baseurl,
             'owner'             => $output['owner'],
             'plantSize'         => $output['plantSize'],
             'plantName'         => $output['plantName'],
@@ -42,10 +42,7 @@ class AssetManagementController extends BaseController
             'year'              => $output['year'],
             'month'             => $output['month'],
             'reportmonth'       => $output['reportmonth'],
-            'customer_logo'     => $baseurl.'/goldbeck/reports/asset_management/goldbecksolar_logo.svg',
-            #'font_color'        => '#9aacc3',
-            #'font_color_second' => '#2e639a',
-            #'font_color_third'  => '#36639c',
+            #'customer_logo'     => $baseurl.'/goldbeck/reports/asset_management/goldbecksolar_logo.svg',
             'montharray'        => $output['monthArray'],
             'degradation'       => $output['degradation'],
             'forecast_PVSYST_table' => $output['forecast_PVSYST_table'],
@@ -109,19 +106,15 @@ class AssetManagementController extends BaseController
             'lossesComparedTableCumulated' => $output['lossesComparedTableCumulated'],
             'cumulated_losses_compared_chart' => $output['cumulated_losses_compared_chart'],
         ]);
-        if($export == 0){
-            return $result;
-        }else{
+        if ($export == 1) {
             // specify the route to the binary.
             $pdf = new ChromePdf('/usr/bin/chromium');
-
 
             // Route when PDF will be saved.
             ///usr/www/users/pvpluy/dev.gs/PVplus-4.0
             $pos = $this->substr_Index($this->getParameter('kernel.project_dir'), '/', 5);
             $pathpart = substr($this->getParameter('kernel.project_dir'), $pos);
             $anlageName = $anlage->getAnlName();
-
 
             if($month < 10){
                 $month = '0'.$month;
@@ -134,11 +127,11 @@ class AssetManagementController extends BaseController
             fwrite($reportfile, substr($result, $pos));
             fclose($reportfile);
 
-
             #$pdf->generateFromHtml(substr($result, $pos));
             $pdf->generateFromFile('/usr/home/pvpluy/public_html'.$pathpart.'/public/'.$anlageName.'_AssetReport_'.$month.'_'.$year.'.html');
             $filename = $anlageName.'_AssetReport_'.$month.'_'.$year.'.pdf';
             $pdf->output($filename);
+
             // Header content type
             header("Content-type: application/pdf");
             header("Content-Length: " . filesize($filename));
@@ -146,8 +139,8 @@ class AssetManagementController extends BaseController
 
             // Send the file to the browser.
             readfile($filename);
-            #return $result;
         }
+        return $result;
     }
 
     function substr_Index( $str, $needle, $nth ){

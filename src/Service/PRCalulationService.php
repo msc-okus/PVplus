@@ -631,7 +631,7 @@ class PRCalulationService
         return $result;
     }
 
-    public function calcPrByValues(Anlage $anlage, $irr, $spezYield, $eGrid, $theoPowerFT, $pa): float
+    public function calcPrByValues(Anlage $anlage, float $irr, float $spezYield, float $eGrid, float $theoPowerFT,  $pa): float
     {
         switch ($anlage->getUseCustPRAlgorithm()) {
             case 'Lelystad':
@@ -643,6 +643,5 @@ class PRCalulationService
                 return $spezYield / $irr * 100;
         }
     }
-
 
 }

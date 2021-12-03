@@ -45,6 +45,15 @@ class AnlagenRepository extends ServiceEntityRepository
             ;
     }
 
+    public static function case6ByDateCriteria($date): Criteria
+    {
+        return Criteria::create()
+            ->andWhere(Criteria::expr()->gte('stampFrom', date_create($date)->format('Y-m-d 00:00')))
+            ->andWhere(Criteria::expr()->lte('stampFrom', date_create($date)->format('Y-m-d 23:59')))
+            ->orderBy(['inverter' => 'ASC'])
+            ;
+    }
+
     public static function lastAnlagenStatusCriteria(): Criteria
     {
         return Criteria::create()

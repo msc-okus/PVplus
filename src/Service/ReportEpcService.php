@@ -47,7 +47,7 @@ class ReportEpcService
         $this->availabilityService = $availabilityService;
     }
 
-    public function createEpcReport(Anlage $anlage, $createPdf = false)
+    public function createEpcReport(Anlage $anlage, $createPdf = false): string
     {
         $currentDate = date('Y-m-d H-i');
         $pdfFilename = 'EPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';

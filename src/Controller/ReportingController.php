@@ -13,6 +13,7 @@ use App\Reports\Goldbeck\EPCMonthlyYieldGuaranteeReport;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
 use App\Repository\UserRepository;
+use App\Service\AssetManagementService;
 use App\Service\ReportEpcService;
 use App\Service\ReportService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -107,6 +108,7 @@ class ReportingController extends AbstractController
                     break;
                 case 'am':
                     return $this->redirectToRoute('report_asset_management', ['id' => $anlageId, 'month' => $reportMonth, 'year' => $reportYear, 'export' => 1, 'pages' => 0]);
+                    //$output = $assetManagement->assetReport($aktAnlagen[0], $reportMonth, $reportYear, 1);
                     break;
 
             }

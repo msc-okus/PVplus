@@ -1,94 +1,93 @@
-{% include 'report/_asset_mangement_partials/_headline.html.twig'%}
-    <div class="content_asset_report">
-        <h3 style="color: {{ anlage.eigner.fontColor2 }};">Availability – Monthly Overview</h3>
-        <span class="subheadline" style="color: {{ anlage.eigner.fontColor3 }};">Resolution according to failure groups(todo:alle Werte dieser Tabelle sind statisch und nur zum Test)</span>
-        <table id="basetable">
-            <tr>
-                <td style="vertical-align: top; text-align: left; width: 400px;">
-                    <table style="width: 400px;">
-                        <thead>
-                        <tr>
-                            <th class="table-center">Availability</th>
-                            <th class="table-center">Planned</th>
-                            <th class="table-center">Actual</th>
-                            <th rowspan="2" class="table-center">Difference</th>
-                        </tr>
-                        <tr>
-                            <th class="table-center">Month</th>
-                            <th class="table-center">Expected</th>
-                            <th class="table-center">Availibility</th>
-                        </tr>
-                        <tr>
-                            <th class="table-center">{{ montharray[reportmonth-1] }} {{ year }}</th>
-                            <th class="table-center">[%]</th>
-                            <th class="table-center">[%]</th>
-                            <th class="table-center">[%]</th>
-                        </tr>
-                        </thead>
-                        {# Anlage Gesamtverfuegbarkeit: availabilityall/counterall #}
-                        <tbody>
-                        <tr style="background-color: #d9d9d9;">
-                            <td class="tr_next_columns">PA (Plant availability)</td>
-                            <td class="tr_next_columns">100,00</td>
-                            <td class="tr_next_columns">92,98</td>
-                            <td class="tr_next_columns">7,02</td>
-                        </tr>
-                        <tr>
-                            <td class="tr_next_columns">SOF*</td>
-                            <td class="tr_next_columns">0,00</td>
-                            <td class="tr_next_columns">0,00</td>
-                            <td class="tr_next_columns"></td>
-                        </tr>
-                        <tr>
-                            <td class="tr_next_columns">EFOR*</td>
-                            <td class="tr_next_columns">0,00</td>
-                            <td class="tr_next_columns">7,02</td>
-                            <td class="tr_next_columns"></td>
-                        </tr>
-                        <tr>
-                            <td class="tr_next_columns">OMC*</td>
-                            <td class="tr_next_columns">0,00</td>
-                            <td class="tr_next_columns">0,00</td>
-                            <td class="tr_next_columns"></td>
-                        </tr>
-                        <tr>
-                            <td class="tr_next_columns">Environment*</td>
-                            <td class="tr_next_columns">0,00</td>
-                            <td class="tr_next_columns">0,00</td>
-                            <td class="tr_next_columns">0,00</td>
-                        </tr>
-                        <tr>
-                            <td class="tr_next_columns">Communication error*</td>
-                            <td class="tr_next_columns">0,00</td>
-                            <td class="tr_next_columns">0,00</td>
-                            <td class="tr_next_columns"></td>
-                        </tr>
-                        <tr>
-                            <td class="tr_next_columns">TOTAL</td>
-                            <td class="tr_next_columns">0,00</td>
-                            <td class="tr_next_columns">7,02</td>
-                            <td class="tr_next_columns">0,00</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    <ul style="font-size: 9px; padding-left: 12px;">
-                        <li>SOF: Maintenance</li>
-                        <li>EFOR: Defects / Failures</li>
-                        <li>OMC: Grid / Grid regulate</li>
-                        <li>Environment: Snow, storm, wather</li>
-                        <li>Communication error: Data gaps, transmission error</li>
-                    </ul>
-                </td>
-                <td style="vertical-align: top; padding-left: 10px;">
-                    {{ plant_availability|raw }}
-                </td>
+{% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
 
-            </tr>
-        </table>
-        <div class="explanation">
-            Explanation: For example !<br>
-            What a listing of the downtimes could look like. A detailed failure report based on the g4n error messages should / will be supplied as an attachment.
-        </div>
+{% block page %}
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Availability – Monthly Overview</h3>
+    <span class="subheadline" style="color: {{ anlage.eigner.fontColor3 }};">Resolution according to failure groups(todo:alle Werte dieser Tabelle sind statisch und nur zum Test)</span>
+    <table id="basetable">
+        <tr>
+            <td style="vertical-align: top; text-align: left; width: 400px;">
+                <table style="width: 400px;">
+                    <thead>
+                    <tr>
+                        <th class="table-center">Availability</th>
+                        <th class="table-center">Planned</th>
+                        <th class="table-center">Actual</th>
+                        <th rowspan="2" class="table-center">Difference</th>
+                    </tr>
+                    <tr>
+                        <th class="table-center">Month</th>
+                        <th class="table-center">Expected</th>
+                        <th class="table-center">Availibility</th>
+                    </tr>
+                    <tr>
+                        <th class="table-center">{{ montharray[reportmonth-1] }} {{ year }}</th>
+                        <th class="table-center">[%]</th>
+                        <th class="table-center">[%]</th>
+                        <th class="table-center">[%]</th>
+                    </tr>
+                    </thead>
+                    {# Anlage Gesamtverfuegbarkeit: availabilityall/counterall #}
+                    <tbody>
+                    <tr style="background-color: #d9d9d9;">
+                        <td class="tr_next_columns">PA (Plant availability)</td>
+                        <td class="tr_next_columns">100,00</td>
+                        <td class="tr_next_columns">92,98</td>
+                        <td class="tr_next_columns">7,02</td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">SOF*</td>
+                        <td class="tr_next_columns">0,00</td>
+                        <td class="tr_next_columns">0,00</td>
+                        <td class="tr_next_columns"></td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">EFOR*</td>
+                        <td class="tr_next_columns">0,00</td>
+                        <td class="tr_next_columns">7,02</td>
+                        <td class="tr_next_columns"></td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">OMC*</td>
+                        <td class="tr_next_columns">0,00</td>
+                        <td class="tr_next_columns">0,00</td>
+                        <td class="tr_next_columns"></td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">Environment*</td>
+                        <td class="tr_next_columns">0,00</td>
+                        <td class="tr_next_columns">0,00</td>
+                        <td class="tr_next_columns">0,00</td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">Communication error*</td>
+                        <td class="tr_next_columns">0,00</td>
+                        <td class="tr_next_columns">0,00</td>
+                        <td class="tr_next_columns"></td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">TOTAL</td>
+                        <td class="tr_next_columns">0,00</td>
+                        <td class="tr_next_columns">7,02</td>
+                        <td class="tr_next_columns">0,00</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <ul style="font-size: 9px; padding-left: 12px;">
+                    <li>SOF: Maintenance</li>
+                    <li>EFOR: Defects / Failures</li>
+                    <li>OMC: Grid / Grid regulate</li>
+                    <li>Environment: Snow, storm, wather</li>
+                    <li>Communication error: Data gaps, transmission error</li>
+                </ul>
+            </td>
+            <td style="vertical-align: top; padding-left: 10px;">
+                {{ plant_availability|raw }}
+            </td>
+
+        </tr>
+    </table>
+    <div class="explanation">
+        Explanation: For example !<br>
+        What a listing of the downtimes could look like. A detailed failure report based on the g4n error messages should / will be supplied as an attachment.
     </div>
-
-{% include 'report/_asset_mangement_partials/_footer.html.twig'%}
+{% endblock page %}
