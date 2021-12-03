@@ -136,8 +136,15 @@ class OwnerFormType extends AbstractType
                 'label' => 'Logo',
                 'mapped' => false,
                 'constraints' => [
-                    new Image([
-                        'maxSize' => '5M'
+                    new image([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png',
+                            'image/gif',
+                            'image/jpg'
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid image type(jpeg, png, gif)',
                     ])
                 ]
             ])

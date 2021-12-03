@@ -25,6 +25,10 @@
                 {{ form_row(ownerForm.mobil) }}
                 {{ form_row(ownerForm.email) }}
                 {{ form_row(ownerForm.imageFile) }}
+                {%  if isupload == 'yes' %}
+                Last Uploaded:<br>
+                <img class="article-img" src="{{ asset(imageuploadet)|imagine_filter('squared_thumbnail_small') }}"><br>
+                {% endif %}
             </div>
             <div class="tabs-panel" id="owner2">
                 {{ form_row(ownerForm.bv_anrede) }}

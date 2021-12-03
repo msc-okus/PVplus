@@ -6,6 +6,7 @@ use App\Entity\Anlage;
 use App\Entity\AnlageFile;
 use App\Entity\Eigner;
 use App\Form\Owner\OwnerFormType;
+use App\Repository\AnlageFileRepository;
 use App\Repository\EignerRepository;
 use App\Service\G4NSendMailService;
 use App\Service\UploaderHelper;
@@ -100,14 +101,18 @@ class EignerController extends BaseController
     /**
      * @Route("/admin/owner/edit/{id}", name="app_admin_owner_edit")
      */
-    public function edit($id, EntityManagerInterface $em, Request $request, EignerRepository $ownerRepo, UploaderHelper $uploaderHelper): Response
+    public function edit($id, EntityManagerInterface $em, Request $request, EignerRepository $ownerRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $RepositoryUpload): Response
     {
-        $repositoryUpload = $em->getRepository(AnlageFile::class);
-        $repositoryAnlage = $em->getRepository(Anlage::class);
         $owner = $ownerRepo->find($id);
+        $imageuploaded = $RepositoryUpload->findOneBy(['path' => $owner->getLogo()]);
+
         $form = $this->createForm(OwnerFormType::class, $owner);
-       // $anlage = $repositoryAnlage->findIdLike([$id])[0];
+        if($imageuploaded != null) {
+            $isupload = 'yes';
+        }
+        else $isupload = 'no';
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
 //upload image
             $upload = new AnlageFile();
@@ -115,26 +120,32 @@ class EignerController extends BaseController
             $uploadedFile = $form['imageFile']->getData();
             if ($uploadedFile) {
 
-                $newFile = $uploaderHelper->uploadEignerLogo($uploadedFile, $id);
+                $newFile = $uploaderHelper->uploadImage($uploadedFile, $id, "owner");
                 $newFilename = $newFile['newFilename'];
                 $mimeType = $newFile['mimeType'];
-                $uploadsPath ='uploads/'.UploaderHelper::EIGNER_LOGO.'/'.$id.'/'.$newFilename.$mimeType;
-
-                $isupload = 'yes';
+                $uploadsPath ='uploads/'.UploaderHelper::EIGNER_LOGO.'/'.$id.'/'.$newFilename;
                 $upload->setFilename($newFilename)
                     ->setNimeType($mimeType)
                     ->setPath($uploadsPath)
                     ->setPlant(null)
-                    ->setStamp(date_create(date('Y-m-d H:i:s')));
+                    ->setStamp(date('Y-m-d H:i:s'));
 
                 $em->persist($upload);
                 $em->flush();
+
                 $owner->setLogo($uploadsPath);
             }
                 //the rest
             $em->persist($owner);
             $em->flush();
-            $this->addFlash('success', 'Owner saved!');
+
+            if($form->get('save')->isClicked()) {
+                return $this->render('owner/edit.html.twig', [
+                    'ownerForm' => $form->createView(),
+                    'isupload' => $isupload,
+                    'imageuploadet' => $imageuploaded->getPath()
+                ]);
+            }
             if ($form->get('saveclose')->isClicked()) {
                 return $this->redirectToRoute('app_admin_owner_list');
             }
@@ -148,6 +159,9 @@ class EignerController extends BaseController
 
         return $this->render('owner/edit.html.twig', [
             'ownerForm' => $form->createView(),
+            'fileUploadForm' => $form->createView(),
+            'isupload' => $isupload,
+            'imageuploadet' => $imageuploaded->getPath()
         ]);
     }
 }
