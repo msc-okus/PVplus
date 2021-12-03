@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Repository\GridMeterDayRepository;
 use App\Repository\InvertersRepository;
 use App\Service\Charts\ACPowerChartsService;
 use App\Service\Charts\DCCurrentChartService;
@@ -29,6 +30,7 @@ class ChartService
     private AnlagenStatusRepository $statusRepository;
     private AnlageAvailabilityRepository $availabilityRepository;
     private PRRepository $prRepository;
+    private GridMeterDayRepository $gridMeterDayRepository;
     private PVSystDatenRepository $pvSystRepository;
     private InvertersRepository $invertersRepo;
     private FunctionsService $functions;
@@ -51,7 +53,8 @@ class ChartService
                                 DCPowerChartService          $dcChart,
                                 DCCurrentChartService        $currentChart,
                                 VoltageChartService          $voltageChart,
-                                IrradiationChartService      $irradiationChart)
+                                IrradiationChartService      $irradiationChart,
+                                GridMeterDayRepository $gridMeterDayRepository )
     {
         $this->security = $security;
         $this->statusRepository = $statusRepository;
@@ -66,6 +69,7 @@ class ChartService
         $this->dcChart = $dcChart;
         $this->currentChart = $currentChart;
         $this->voltageChart = $voltageChart;
+        $this->gridMeterDayRepository=$gridMeterDayRepository;
     }
 
     /**
@@ -440,6 +444,9 @@ class ChartService
                     $resultArray['headline'] = 'Show PR & pvSyst';
                     $resultArray['pvSysts'] = $this->getpvSyst($anlage, $from, $to);
                     break;
+                case("grid"):
+                    $resultArray['headline'] = 'Show Grid';
+                    $resultArray['grid'] = $this->getGrid($anlage, $from, $to);
                 case ("forecast"):
                     if ($anlage->getUsePac()) {
                         $dataArray = $this->forecastChart->getForecastFac($anlage, $to);
@@ -610,5 +617,18 @@ class ChartService
         return $dataArray;
     }
 
+    public function getGrid(Anlage $anlage, $from, $to):array
+    {
+        $dataArray = [];
+        $repo = $this->gridMeterDayRepository;
+        $counter = 0;
+        $Grids=$this->gridMeterDayRepository->getDateRange($anlage, $from, $to);
+        foreach($Grids as $Grid){
+            $dataArray[$counter]['date'] = $Grid['stamp'];
+            $dataArray[$counter]['electricityGrid'] = $Grid['eGrid'];
+            $counter++;
+        }
+        return $dataArray;
+    }
 
 }
