@@ -17,6 +17,7 @@ class UploaderHelper
 {
     const PLANT_IMAGE = 'plants';
     const PLANT_REFERENCE = 'plant_reference';
+    const EIGNER_LOGO = 'eigners';
 
     private FilesystemInterface $filesystem;
     private RequestStackContext $requestStackContext;
@@ -29,18 +30,33 @@ class UploaderHelper
         $this->logger = $logger;
     }
 
-    public function uploadPlantImage(UploadedFile $uploadedFile, $id): array
+    public function uploadImage(UploadedFile $uploadedFile, $id, String $type): array
     {
         $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
         $mimeType = pathinfo($uploadedFile->getClientMimeType(), PATHINFO_FILENAME);
+
         $newFilename = Urlizer::urlize($originalFilename).'-'.uniqid().'.'.$uploadedFile->guessExtension();
+        switch($type){
+            case "plant":
+                $foldern = self::PLANT_IMAGE."/";
+                break;
+            case "owner":
+                $foldern = self::EIGNER_LOGO."/";
+                break;
+
+            case "reference/";
+                $foldern = self::PLANT_REFERENCE."/";
+                break;
+            default:
+                $foldern = "/";
+
+        }
+
         $this->filesystem->write(
-            self::PLANT_IMAGE.'/'.$id.'/'.$newFilename,
+            $foldern.$id.'/'.$newFilename,
             file_get_contents($uploadedFile->getPathname())
         );
-
         $result = [
-            'originalFilename' => $originalFilename,
             'mimeType' => $mimeType,
             'newFilename' => $newFilename
         ];
@@ -48,24 +64,6 @@ class UploaderHelper
         return $result;
     }
 
-    public function _uploadArticleImage(File $file, ?string $existingFilename): string
-    {
-        $newFilename = $this->uploadFile($file, self::PLANT_IMAGE, true);
-
-        if ($existingFilename) {
-            try {
-                $result = $this->filesystem->delete(self::PLANT_IMAGE.'/'.$existingFilename);
-
-                if ($result === false) {
-                    throw new \Exception(sprintf('Could not delete old uploaded file "%s"', $existingFilename));
-                }
-            } catch (FileNotFoundException $e) {
-                $this->logger->alert(sprintf('Old uploaded file "%s" was missing when trying to delete', $existingFilename));
-            }
-        }
-
-        return $newFilename;
-    }
 
     public function uploadArticleReference(File $file): string
     {

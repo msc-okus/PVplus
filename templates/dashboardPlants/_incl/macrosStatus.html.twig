@@ -123,3 +123,24 @@
     </div>
 {% endmacro pvSystTable %}
 
+{% macro gridTable(Grids) %}
+    <div class="status-log table-scroll" style="margin: 0 10px;">
+        <table id="statusTable" class=" " style="width: 100%">
+            <thead>
+            <tr>
+                <th style="text-align: center">Date</th>
+                <th style="text-align: center">electricity Grid</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for Grid in Grids %}
+                <tr>
+                    <td>{{ Grid.date|date("y-m-d") }}</td>
+                    <td>{{ Grid.electricityGrid|number_format(1, '.', ',') }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endmacro %}
+

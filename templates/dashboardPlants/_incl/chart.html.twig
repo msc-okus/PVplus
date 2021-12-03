@@ -1,7 +1,8 @@
 {% from "dashboardPlants/_incl/macrosStatus.html.twig" import statusTable as statusTable %}
 {% from "dashboardPlants/_incl/macrosStatus.html.twig" import pvSystTable as pvSystTable %}
+{% from "dashboardPlants/_incl/macrosStatus.html.twig" import gridTable as gridTable %}
 
-{% if form.selectedChart != 'status_log' and form.selectedChart != 'availability' and form.selectedChart != 'pvsyst' %}
+{% if form.selectedChart != 'status_log' and form.selectedChart != 'availability' and form.selectedChart != 'pvsyst' and form.selectedChart != 'grid'%}
     <div id="amchart-holder"></div>
 {% endif %}
 
@@ -1244,6 +1245,8 @@
     {% include 'dashboardPlants/_incl/chart/availabillity.html.twig' %}
 {% elseif form.selectedChart == 'pvsyst' %}
     {{ pvSystTable(content.pvSysts) }}
+{% elseif form.selectedChart == 'grid' %}
+    {{ gridTable(content.grid) }}
 {% elseif form.selectedChart == 'forecast' %}
     {% include 'dashboardPlants/_incl/chart/forecast.html.twig' %}
 {% endif %}

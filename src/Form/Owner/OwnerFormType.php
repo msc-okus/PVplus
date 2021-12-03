@@ -4,10 +4,12 @@ namespace App\Form\Owner;
 use App\Entity\Eigner;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Image;
 
 class OwnerFormType extends AbstractType
 {
@@ -129,6 +131,22 @@ class OwnerFormType extends AbstractType
                 'choices'  => ['EN' => 'EN', 'DE' => 'DE'],
                 'placeholder' => 'Please Choose',
                 'empty_data'    => 'EN',
+            ])
+            ->add('imageFile', FileType::class, [
+                'label' => 'Logo',
+                'mapped' => false,
+                'constraints' => [
+                    new image([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png',
+                            'image/gif',
+                            'image/jpg'
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid image type(jpeg, png, gif)',
+                    ])
+                ]
             ])
 
 

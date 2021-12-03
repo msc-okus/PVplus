@@ -53,4 +53,21 @@ class GridMeterDayRepository extends ServiceEntityRepository
 
         return $result;
     }
+    public function getDateRange( $anlage, $from, $to)
+    {
+        $from = date('Y-m-d', strtotime($from));
+        $to = date('Y-m-d', strtotime($to));
+
+        $result = $this->createQueryBuilder('a')
+            ->andWhere('a.anlage = :anlage')
+            ->andWhere('a.stamp >= :from AND a.stamp <= :to')
+            ->setParameter('anlage', $anlage)
+            ->setParameter('from', $from)
+            ->setParameter('to', $to)
+            ->select('a.stamp, a.gridMeterValue AS eGrid')
+            ->getQuery()
+            ->getResult();
+
+        return $result;
+    }
 }
