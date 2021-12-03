@@ -8,6 +8,7 @@
                     <th>Date</th>
                     <th>Inverter</th>
                     {% if second %}<th></th>{% endif %}
+                    <th>Case 0</th>
                     <th>Case 1</th>
                     <th>Case 2</th>
                     <th>Case 3</th>
@@ -25,6 +26,7 @@
                     <td>{{ stati.stamp|date("y-m-d") }} </td>
                     <td>{{ stati.inverter }}</td>
                     {% if second %}<td>PA.1<br><span class="topline">PA.2</span></td>{% endif %}
+                    <td>{{ stati.case0 }}{% if second %}<br><span class="topline">{{ stati.case0second }}</span>{% endif %}</td>
                     <td>{{ stati.case1 }}{% if second %}<br><span class="topline">{{ stati.case1second }}</span>{% endif %}</td>
                     <td>{{ stati.case2 }}{% if second %}<br><span class="topline">{{ stati.case2second }}</span>{% endif %}</td>
                     <td>{{ stati.case3 }}{% if second %}<br><span class="topline">{{ stati.case3second }}</span>{% endif %}</td>
@@ -107,6 +109,10 @@
         <div class="callout secondary text-left" >
             <h4><b>Explanation</b></h4>
             <dl>
+                <dt>Case 0</dt>
+                <dd>data gap<br>
+                    <small></small></dd>
+
                 <dt>Case 1</dt>
                 <dd>irradiation below limit value<br>
                     <small>G [W/qm] > {{ aktAnlage.threshold1PA }} && G [W/qm] <= {{ aktAnlage.threshold2PA }}</small></dd>
@@ -128,7 +134,7 @@
                     <small></small></dd>
 
                 <dt>Case 6</dt>
-                <dd>data gap<br>
+                <dd>data gap are defined to unavialability<br>
                     <small></small></dd>
 
                 <dt>Control</dt>

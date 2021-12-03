@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Entity;
 
 use App\Repository\ForcastDayRepository;
@@ -19,7 +18,7 @@ class AnlageForcastDay
     private int $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="anlageForcasts")
+     * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="anlageForecastDays")
      */
     private ?Anlage $anlage;
 

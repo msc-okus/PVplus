@@ -1,50 +1,50 @@
-{% include 'report/_asset_mangement_partials/_headline.html.twig'%}
-    <div class="content_asset_report">
-        <h3 style="color: {{ anlage.eigner.fontColor2 }};">Monthly Production</h3>
-        <span class="subheadline">Monthly expected vs. actuals</span>
-        <table id="basetable">
-            <tr>
-                <td colspan="2" style="text-align: left">
-                    <table class="asset_report_table_operations_data" style="width: 100%!important;">
-                        <thead>
-                        <tr>
-                            <th style="text-align: right">Monthly Losses - {{ year }}</th>
-                            {% for data in dataMonthArray %}
-                                <th style="text-align: center"><div style="width: 100%; height: 50%;">{{ data }}</div></th>
-                            {% endfor %}
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td class="tr_first_column" style="text-align: right">Diff. Egrid to PVSYST*</td>
-                            {% for data in losses_t2.diefference_prod_to_pvsyst %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td class="tr_first_column" style="text-align: right">Diff. Egrid to expected g4n</td>
-                            {% for data in losses_t2.diefference_prod_to_expected_g4n %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td class="tr_first_column" style="text-align: right">Diff. inverter to Egrid</td>
-                            {% for data in losses_t2.diefference_prod_to_egrid %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                            {% endfor %}
-                        </tr>
-                        </tbody>
-                    </table>
-                    <table>
-                        <tr>
-                            <td class="td_texthint_2" style="vertical-align: top">* Plan value PVSYST P50</td>
-                        </tr>
-                        <tr>
-                            <td style="text-align: left">{{ losses_monthly|raw }}</td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        </table>
-    </div>
-{% include 'report/_asset_mangement_partials/_footer.html.twig'%}
+{% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
+
+{% block page %}
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Monthly Production</h3>
+    <span class="subheadline">Monthly expected vs. actuals</span>
+    <table id="basetable">
+        <tr>
+            <td colspan="2" style="text-align: left">
+                <table class="asset_report_table_operations_data" style="width: 100%!important;">
+                    <thead>
+                    <tr>
+                        <th style="text-align: right">Monthly Losses - {{ year }}</th>
+                        {% for data in dataMonthArray %}
+                            <th style="text-align: center"><div style="width: 100%; height: 50%;">{{ data }}</div></th>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="tr_first_column" style="text-align: right">Diff. Egrid to PVSYST*</td>
+                        {% for data in losses_t2.diefference_prod_to_pvsyst %}
+                            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tr_first_column" style="text-align: right">Diff. Egrid to expected g4n</td>
+                        {% for data in losses_t2.diefference_prod_to_expected_g4n %}
+                            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tr_first_column" style="text-align: right">Diff. inverter to Egrid</td>
+                        {% for data in losses_t2.diefference_prod_to_egrid %}
+                            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                        {% endfor %}
+                    </tr>
+                    </tbody>
+                </table>
+                <table>
+                    <tr>
+                        <td class="td_texthint_2" style="vertical-align: top">* Plan value PVSYST P50</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left">{{ losses_monthly|raw }}</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+{% endblock page %}

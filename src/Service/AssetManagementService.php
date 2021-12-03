@@ -5,7 +5,6 @@ namespace App\Service;
 
 use App\Entity\Anlage;
 use App\Entity\AnlagenPvSystMonth;
-use App\Entity\AnlagePR;
 use App\Helper\G4NTrait;
 use App\Repository\Case5Repository;
 use App\Repository\PvSystMonthRepository;
@@ -33,6 +32,7 @@ class AssetManagementService
     private Case5Repository $case5Repo;
     private FunctionsService $functions;
     private NormalizerInterface $serializer;
+    private DownloadAnalyseService $DownloadAnalyseService;
 
     public function __construct(
         AnlagenRepository      $anlagenRepository,

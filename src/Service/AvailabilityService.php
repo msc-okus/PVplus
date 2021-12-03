@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\TimesConfig;
+use App\Repository\Case6Repository;
 use App\Repository\TimesConfigRepository;
 use DateTime;
 use PDO;
@@ -21,14 +22,16 @@ class AvailabilityService
     private EntityManagerInterface $em;
     private AnlageAvailabilityRepository $availabilityRepository;
     private Case5Repository $case5Repository;
+    private Case6Repository $case6Repository;
     private TimesConfig $timesConfig;
     private TimesConfigRepository $timesConfigRepo;
 
-    public function __construct(EntityManagerInterface $em, AnlageAvailabilityRepository $availabilityRepository, Case5Repository $case5Repository, TimesConfigRepository $timesConfigRepo)
+    public function __construct(EntityManagerInterface $em, AnlageAvailabilityRepository $availabilityRepository, Case5Repository $case5Repository, Case6Repository  $case6Repository, TimesConfigRepository $timesConfigRepo)
     {
         $this->em = $em;
         $this->availabilityRepository = $availabilityRepository;
         $this->case5Repository = $case5Repository;
+        $this->case6Repository = $case6Repository;
         $this->timesConfigRepo = $timesConfigRepo;
     }
 
@@ -104,6 +107,7 @@ class AvailabilityService
 
                 if (!$second) {
                     // First Availability (Standard Berechneung)
+                    $anlagenAvailability->setcase0($availability['case0']);
                     $anlagenAvailability->setCase1($availability['case1']);
                     $anlagenAvailability->setCase2($availability['case2']);
                     $anlagenAvailability->setCase3($availability['case3']);
@@ -117,6 +121,7 @@ class AvailabilityService
                     $anlagenAvailability->setRemarks("");
                 } else {
                     // Second Availability (optionale Berechneung)
+                    $anlagenAvailability->setcase0Second($availability['case0']);
                     $anlagenAvailability->setCase1Second($availability['case1']);
                     $anlagenAvailability->setCase2Second($availability['case2']);
                     $anlagenAvailability->setCase3Second($availability['case3']);
@@ -177,7 +182,7 @@ class AvailabilityService
             } else {
                 $anzInverter = $anlage->getAnzInverterFromGroupsAC();
             }
-            $case5Array = [];
+            $case5Array = $case6Array = [];
 
             // suche Case 5 Fälle und schreibe diese in case5Array[inverter][stamp] = true|false
             foreach ($this->case5Repository->findAllCase5($anlage, $from, $to) as $case) {
@@ -187,6 +192,18 @@ class AvailabilityService
                     foreach (explode(',', $case['inverter'], 999) as $inverter) {
                         $inverter = trim($inverter, ' ');
                         $case5Array[$inverter][date('Y-m-d H:i:00', $c5Stamp)] = true;
+                    }
+                }
+            }
+
+            // suche Case 6 Fälle und schreibe diese in case6Array[inverter][stamp] = true|false
+            foreach ($this->case6Repository->findAllCase6($anlage, $from, $to) as $case) {
+                $c6From = strtotime($case['stampFrom']);
+                $c6To   = strtotime($case['stampTo']);
+                for ($c6Stamp = $c6From; $c6Stamp < $c6To; $c6Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
+                    foreach (explode(',', $case['inverter'], 999) as $inverter) {
+                        $inverter = trim($inverter, ' ');
+                        $case6Array[$inverter][date('Y-m-d H:i:00', $c6Stamp)] = true;
                     }
                 }
             }
@@ -207,6 +224,7 @@ class AvailabilityService
 
                 for ($inverter = $startInverter; $inverter <= $anzInverter; $inverter++) {
                     // Nur beim ersten durchlauf, Werte setzen, damit nicht 'undifined'
+                    if (!isset($availability[$inverter]['case0'])) $availability[$inverter]['case0'] = 0;
                     if (!isset($availability[$inverter]['case1'])) $availability[$inverter]['case1'] = 0;
                     if (!isset($availability[$inverter]['case2'])) $availability[$inverter]['case2'] = 0;
                     if (!isset($availability[$inverter]['case3'])) {
@@ -225,9 +243,14 @@ class AvailabilityService
                     if ($strahlung !== null) {
                         // Schaue in case5Array nach, ob ein Eintrag für diesen Inverter und diesen Timestamp vorhanden ist
                         (($strahlung > $threshold1PA) && isset($case5Array[$inverter][$stamp])) ? $case5 = true : $case5 = false;
+                        (($strahlung > $threshold1PA) && isset($case6Array[$inverter][$stamp])) ? $case6 = true : $case6 = false;
 
+                        // Case 0 (Datenlücken Inverter Daten | keine Datenlücken für Strahlung)
+                        if ($powerAc === null && $case5 === false && $strahlung > $threshold1PA) { // Nur Hochzählen, wenn Datenlücke nicht durch Case 5 abgefangen
+                            $availability[$inverter]['case0']++;
+                        }
                         // Case 1 (first part of ti)
-                        if ($strahlung > $threshold1PA && $strahlung <= $threshold2PA && $case5 === false) { //$strahlung > $threshold1PA && $strahlung <= $threshold2PA && $case5 === false
+                        if ($strahlung > $threshold1PA && $strahlung <= $threshold2PA && $case5 === false) {
                             $availability[$inverter]['case1']++;
                             if ($case3Helper[$inverter] < $maxFailTime) {
                                 $availability[$inverter]['case3'] -= $case3Helper[$inverter] / 15;
@@ -236,7 +259,7 @@ class AvailabilityService
                             $case3Helper[$inverter] = 0;
                         }
                         // Case 2 (second part of ti - means case1 + case2 = ti)
-                        if ($strahlung > $threshold2PA && ($powerAc > 0 || $powerAc === null) && $case5 === false) { // $strahlung > $threshold2PA && ($powerAc > 0 || $powerAc === null) && $case5 === false
+                        if ($strahlung > $threshold2PA && ($powerAc > 0 || $powerAc === null) && $case5 === false && $case6 === false) {
                             $availability[$inverter]['case2']++;
 
                             if ($case3Helper[$inverter] < $maxFailTime) {
@@ -246,7 +269,7 @@ class AvailabilityService
                             $case3Helper[$inverter] = 0;
                         }
                         // Case 3
-                        if ($strahlung > $threshold2PA && ($powerAc <= 0) ) { // $strahlung > $threshold2PA && ($powerAc <= 0 && $powerAc !== null) && $case5 === false
+                        if ($strahlung > $threshold2PA && ($powerAc <= 0 && $powerAc !== null) ) {
                             $availability[$inverter]['case3']++;
                             $case3Helper[$inverter] += 15;
                         }
@@ -263,8 +286,8 @@ class AvailabilityService
                         if ($case5 === true) {
                             $availability[$inverter]['case5']++;
                         }
-                        // Case 6 (Datenlücken Inverter Daten | keine Datenlücken für Strahlung)
-                        if ($powerAc === null && $case5 === false && $strahlung > $threshold1PA) { // Nur Hochzählen, wenn Datenlücke nicht durch Case 5 abgefangen
+                        // Case 6
+                        if ($case6 === true) {
                             $availability[$inverter]['case6']++;
                         }
                         // Control ti,theo

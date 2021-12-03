@@ -1,145 +1,145 @@
-{% include 'report/_asset_mangement_partials/_headline.html.twig'%}
-    <div class="content_asset_report">
-        <h3 style="color: {{ anlage.eigner.fontColor2 }};">Economics</h3>
-        <span class="subheadline">Commulative forecast</span>
-        <table id="basetable">
-            <tr>
-                <td colspan="2" style="text-align: left">
-                    <table class="asset_report_table_operations_data" style="width: 100%!important;">
-                        <tbody>
-                        <tr style="font-weight: bold;">
-                            <td class="tr_next_columns" style="background-color: #ededed; width: 200px;">Cumulated Forecast [EUR]</td>
-                            {% set counter = 1 %}
-                            {% for data in dataMonthArrayFullYear %}
-                                {% if (counter < 7) %}
-                                    <td class="tr_next_columns" style="background-color: #ededed; text-align: center!important;">{{ data }} {{ year }}</td>
-                                {% endif %}
-                                {% set counter = counter+1 %}
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td class="tr_next_columns" style="background-color: #ededed; "><b>Revenues ACT and Revenues Plan PVSYST</b></td>
-                            {% set counter = 1 %}
-                            {% set total = 0 %}
-                            {% for data in economicsCumulatedForecast.revenues_ACT_and_Revenues_Plan_PVSYT %}
-                                {% if (counter < 7) %}
-                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                                {% endif %}
-                                {% set counter = counter+1 %}
-                                {% set total = total + data %}
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td class="tr_next_columns" style="background-color: #ededed; "><b>Revenues ACT and Revenues Plan g4n</b></td>
-                            {% set counter = 1 %}
-                            {% set total = 0 %}
-                            {% for data in economicsCumulatedForecast.revenues_ACT_and_Revenues_Plan_G4N %}
-                                {% if (counter < 7) %}
-                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                                {% endif %}
-                                {% set counter = counter+1 %}
-                                {% set total = total + data %}
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td class="tr_next_columns" style="background-color: #ededed;"><b>PVSYST</b> plan proceeds<b> - P50</b></td>
-                            {% set counter = 1 %}
-                            {% set total = 0 %}
-                            {% for data in economicsCumulatedForecast.PVSYST_plan_proceeds_P50 %}
-                                {% if (counter < 7) %}
-                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                                {% endif %}
-                                {% set counter = counter+1 %}
-                                {% set total = total + data %}
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td class="tr_next_columns" style="background-color: #ededed; "><span style="font-weight: bold">g4n</span> plan proceeds - <span style="font-weight: bold">EXP - P50</span></td>
-                            {% set counter = 1 %}
-                            {% set total = 0 %}
-                            {% for data in economicsCumulatedForecast.g4n_plan_proceeds_EXP_P50 %}
-                                {% if (counter < 7) %}
-                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                                {% endif %}
-                                {% set counter = counter+1 %}
-                                {% set total = total + data %}
-                            {% endfor %}
-                        </tr>
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2" style="text-align: left">
-                    <table class="asset_report_table_operations_data" style="width: 100%!important;">
-                        <tbody>
-                        <tr style="font-weight: bold;">
-                            <td class="tr_next_columns" style="background-color: #ededed; width: 200px;">Cumulated Forecast [EUR]</td>
-                            {% set counter = 1 %}
-                            {% for data in dataMonthArrayFullYear %}
-                                {% if (counter > 6) %}
-                                    <td class="tr_next_columns" style="background-color: #ededed; text-align: center!important;">{{ data }} {{ year }}</td>
-                                {% endif %}
-                                {% set counter = counter+1 %}
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td class="tr_next_columns" style="background-color: #ededed; "><b>Revenues ACT and Revenues Plan PVSYST</b></td>
-                            {% set counter = 1 %}
-                            {% set total = 0 %}
-                            {% for data in economicsCumulatedForecast.revenues_ACT_and_Revenues_Plan_PVSYT %}
-                                {% if (counter > 6) %}
-                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                                {% endif %}
-                                {% set counter = counter+1 %}
-                                {% set total = total + data %}
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td class="tr_next_columns" style="background-color: #ededed; "><b>Revenues ACT and Revenues Plan g4n</b></td>
-                            {% set counter = 1 %}
-                            {% set total = 0 %}
-                            {% for data in economicsCumulatedForecast.revenues_ACT_and_Revenues_Plan_G4N %}
-                                {% if (counter > 6) %}
-                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                                {% endif %}
-                                {% set counter = counter+1 %}
-                                {% set total = total + data %}
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td class="tr_next_columns" style="background-color: #ededed;"><b>PVSYST</b> plan proceeds<b> - P50</b></td>
-                            {% set counter = 1 %}
-                            {% set total = 0 %}
-                            {% for data in economicsCumulatedForecast.PVSYST_plan_proceeds_P50 %}
-                                {% if (counter > 6) %}
-                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                                {% endif %}
-                                {% set counter = counter+1 %}
-                                {% set total = total + data %}
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td class="tr_next_columns" style="background-color: #ededed; "><span style="font-weight: bold">g4n</span> plan proceeds - <span style="font-weight: bold">EXP - P50</span></td>
-                            {% set counter = 1 %}
-                            {% set total = 0 %}
-                            {% for data in economicsCumulatedForecast.g4n_plan_proceeds_EXP_P50 %}
-                                {% if (counter > 6) %}
-                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                                {% endif %}
-                                {% set counter = counter+1 %}
-                                {% set total = total + data %}
-                            {% endfor %}
-                        </tr>
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td style="text-align: center!important;">
-                    {{ economicsCumulatedForecastChart|raw }}
-                </td>
-            </tr>
-        </table>
-    </div>
-{% include 'report/_asset_mangement_partials/_footer.html.twig'%}
+{% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
+
+{% block page %}
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Economics</h3>
+    <span class="subheadline">Commulative forecast</span>
+    <table id="basetable">
+        <tr>
+            <td colspan="2" style="text-align: left">
+                <table class="asset_report_table_operations_data" style="width: 100%!important;">
+                    <tbody>
+                    <tr style="font-weight: bold;">
+                        <td class="tr_next_columns" style="background-color: #ededed; width: 200px;">Cumulated Forecast [EUR]</td>
+                        {% set counter = 1 %}
+                        {% for data in dataMonthArrayFullYear %}
+                            {% if (counter < 7) %}
+                                <td class="tr_next_columns" style="background-color: #ededed; text-align: center!important;">{{ data }} {{ year }}</td>
+                            {% endif %}
+                            {% set counter = counter+1 %}
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns" style="background-color: #ededed; "><b>Revenues ACT and Revenues Plan PVSYST</b></td>
+                        {% set counter = 1 %}
+                        {% set total = 0 %}
+                        {% for data in economicsCumulatedForecast.revenues_ACT_and_Revenues_Plan_PVSYT %}
+                            {% if (counter < 7) %}
+                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                            {% endif %}
+                            {% set counter = counter+1 %}
+                            {% set total = total + data %}
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns" style="background-color: #ededed; "><b>Revenues ACT and Revenues Plan g4n</b></td>
+                        {% set counter = 1 %}
+                        {% set total = 0 %}
+                        {% for data in economicsCumulatedForecast.revenues_ACT_and_Revenues_Plan_G4N %}
+                            {% if (counter < 7) %}
+                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                            {% endif %}
+                            {% set counter = counter+1 %}
+                            {% set total = total + data %}
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns" style="background-color: #ededed;"><b>PVSYST</b> plan proceeds<b> - P50</b></td>
+                        {% set counter = 1 %}
+                        {% set total = 0 %}
+                        {% for data in economicsCumulatedForecast.PVSYST_plan_proceeds_P50 %}
+                            {% if (counter < 7) %}
+                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                            {% endif %}
+                            {% set counter = counter+1 %}
+                            {% set total = total + data %}
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns" style="background-color: #ededed; "><span style="font-weight: bold">g4n</span> plan proceeds - <span style="font-weight: bold">EXP - P50</span></td>
+                        {% set counter = 1 %}
+                        {% set total = 0 %}
+                        {% for data in economicsCumulatedForecast.g4n_plan_proceeds_EXP_P50 %}
+                            {% if (counter < 7) %}
+                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                            {% endif %}
+                            {% set counter = counter+1 %}
+                            {% set total = total + data %}
+                        {% endfor %}
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="text-align: left">
+                <table class="asset_report_table_operations_data" style="width: 100%!important;">
+                    <tbody>
+                    <tr style="font-weight: bold;">
+                        <td class="tr_next_columns" style="background-color: #ededed; width: 200px;">Cumulated Forecast [EUR]</td>
+                        {% set counter = 1 %}
+                        {% for data in dataMonthArrayFullYear %}
+                            {% if (counter > 6) %}
+                                <td class="tr_next_columns" style="background-color: #ededed; text-align: center!important;">{{ data }} {{ year }}</td>
+                            {% endif %}
+                            {% set counter = counter+1 %}
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns" style="background-color: #ededed; "><b>Revenues ACT and Revenues Plan PVSYST</b></td>
+                        {% set counter = 1 %}
+                        {% set total = 0 %}
+                        {% for data in economicsCumulatedForecast.revenues_ACT_and_Revenues_Plan_PVSYT %}
+                            {% if (counter > 6) %}
+                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                            {% endif %}
+                            {% set counter = counter+1 %}
+                            {% set total = total + data %}
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns" style="background-color: #ededed; "><b>Revenues ACT and Revenues Plan g4n</b></td>
+                        {% set counter = 1 %}
+                        {% set total = 0 %}
+                        {% for data in economicsCumulatedForecast.revenues_ACT_and_Revenues_Plan_G4N %}
+                            {% if (counter > 6) %}
+                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                            {% endif %}
+                            {% set counter = counter+1 %}
+                            {% set total = total + data %}
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns" style="background-color: #ededed;"><b>PVSYST</b> plan proceeds<b> - P50</b></td>
+                        {% set counter = 1 %}
+                        {% set total = 0 %}
+                        {% for data in economicsCumulatedForecast.PVSYST_plan_proceeds_P50 %}
+                            {% if (counter > 6) %}
+                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                            {% endif %}
+                            {% set counter = counter+1 %}
+                            {% set total = total + data %}
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns" style="background-color: #ededed; "><span style="font-weight: bold">g4n</span> plan proceeds - <span style="font-weight: bold">EXP - P50</span></td>
+                        {% set counter = 1 %}
+                        {% set total = 0 %}
+                        {% for data in economicsCumulatedForecast.g4n_plan_proceeds_EXP_P50 %}
+                            {% if (counter > 6) %}
+                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                            {% endif %}
+                            {% set counter = counter+1 %}
+                            {% set total = total + data %}
+                        {% endfor %}
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align: center!important;">
+                {{ economicsCumulatedForecastChart|raw }}
+            </td>
+        </tr>
+    </table>
+{% endblock page %}
