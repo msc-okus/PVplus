@@ -78,7 +78,7 @@ class DefaultController extends BaseController
      */
     public function checkSystemStatus(CheckSystemStatusService $checkSystemStatus)
     {
-        $output = $checkSystemStatus->checkSystemStatus();
+        $output = $checkSystemStatus->checkSyxstemStatus();
 
         return $this->render('cron/showResult.html.twig', [
             'headline' => 'Systemstatus',

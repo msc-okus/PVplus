@@ -1,96 +1,96 @@
-{% include 'report/_asset_mangement_partials/_headline.html.twig'%}
-    <div class="content_asset_report">
-        <h3 style="color: {{ font_color_second }};">Production & Capacity factor</h3>
-        <span class="subheadline">Yearly expected vs. actuals</span>
-        <table id="basetable">
-            <tr>
-                <td colspan="2" style="text-align: left">
-                    <table class="asset_report_table_operations_data" style="width: 100%!important;">
-                        <thead>
-                        <tr>
-                            <th style="text-align: right;">Production {{ year }}</th>
-                            {% set counter = 1 %}
-                            {% for data in dataMonthArray %}
-                                    <th style="text-align: center;">{{ data }}</th>
-                                {% set counter = counter+1 %}
-                            {% endfor %}
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td class="tr_first_column" style="text-align: right;">Yield (Grid meter) [kWh]</td>
-                            {% set powerEvuTotal = 0 %}
-                            {% for data in table_overview_monthly.powerEvu %}
-                                {% set powerEvuTotal = powerEvuTotal+data %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td class="tr_first_column" style="text-align: right;">Expected PV SYST [kWh]</td>
-                            {% for data in table_overview_monthly.expectedPvSyst %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td class="tr_first_column" style="text-align: right;">Expected g4n [kWh]</td>
-                            {% for data in table_overview_monthly.powerExpEvu %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td class="tr_first_column" style="text-align: right;">Inverter out [kWh]</td>
-                            {% for data in table_overview_monthly.powerAct %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                            {% endfor %}
-                        </tr>
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td style="vertical-align: top;">
-                    <table>
-                        <tr>
-                            <td style="text-align: left">
-                                <span class="subheadline">Capacity Factor</span><br>
-                                <img width="130" src="{{ baseurl }}/goldbeck/reports/asset_management/cf.png"></td>
-                        </tr>
-                    </table>
-                    <table class="asset_report_table_operations_data" style="width: 300px!important;">
-                        <thead>
-                        <tr>
-                            <th style="text-align: center;">Month</th>
-                            <th style="text-align: center;">Day</th>
-                            <th style="text-align: center;">hours [h]</th>
-                            <th style="text-align: center;">CF [%]</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% set average = 0 %}
-                        {% set sumdays = 0 %}
-                        {% set sumhours = 0 %}
-                        {% set itemsinarray = 0 %}
-                        {% for data in dataCfArray %}
-                            {% set sumdays = sumdays+data.days %}
-                            {% set sumhours = sumhours+data.hours %}
-                            {% set average = average+data.cf %}
-                            <tr><td class="tr_first_column" style="text-align: center;">{{ data.month }}</td><td class="tr_next_columns">{{ data.days }}</td><td class="tr_next_columns">{{ data.hours }}</td><td class="tr_next_columns">{{ data.cf|number_format(2, ',', '.') }}</td></tr>
-                            {% set itemsinarray = loop.length %}
+{% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
+
+{% block page %}
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Production & Capacity factor</h3>
+    <span class="subheadline">Yearly expected vs. actuals</span>
+    <table id="basetable">
+        <tr>
+            <td colspan="2" style="text-align: left">
+                <table class="asset_report_table_operations_data" style="width: 100%!important;">
+                    <thead>
+                    <tr>
+                        <th style="text-align: right;">Production {{ year }}</th>
+                        {% set counter = 1 %}
+                        {% for data in dataMonthArray %}
+                                <th style="text-align: center;">{{ data }}</th>
+                            {% set counter = counter+1 %}
                         {% endfor %}
-                        <tr><td colspan="3" style="font-weight: bold">Average<td style="font-weight: bold">{{ (average/reportmonth)|number_format(3, ',', '.') }}</td></tr>
-                        <tr>
-                            <td class="tr_first_column" style="text-align: center;">TOTAL</td>
-                            <td class="tr_first_column" style="text-align: right;">{{ sumdays }}</td>
-                            <td class="tr_first_column" style="text-align: right;">{{ sumhours }}</td>
-                            <td class="tr_first_column" style="text-align: right;">{{ (((powerEvuTotal/1000)/((plantSize/1000)*sumhours))*100)|round(3, 'ceil')|number_format(2, ',', '.') }}</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </td>
-                <td style="text-align: right!important; float: right;">
-                    {{ operations_right|raw }}
-                </td>
-            </tr>
-        </table>
-    </div>
-{% include 'report/_asset_mangement_partials/_footer.html.twig'%}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="tr_first_column" style="text-align: right;">Yield (Grid meter) [kWh]</td>
+                        {% set powerEvuTotal = 0 %}
+                        {% for data in table_overview_monthly.powerEvu %}
+                            {% set powerEvuTotal = powerEvuTotal+data %}
+                            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tr_first_column" style="text-align: right;">Expected PV SYST [kWh]</td>
+                        {% for data in table_overview_monthly.expectedPvSyst %}
+                            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tr_first_column" style="text-align: right;">Expected g4n [kWh]</td>
+                        {% for data in table_overview_monthly.powerExpEvu %}
+                            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tr_first_column" style="text-align: right;">Inverter out [kWh]</td>
+                        {% for data in table_overview_monthly.powerAct %}
+                            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                        {% endfor %}
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td style="vertical-align: top;">
+                <table>
+                    <tr>
+                        <td style="text-align: left">
+                            <span class="subheadline">Capacity Factor</span><br>
+                            <img width="130" src="{{ absolute_url(asset('goldbeck/reports/asset_management/cf.png')) }}"></td>
+                    </tr>
+                </table>
+                <table class="asset_report_table_operations_data" style="width: 300px!important;">
+                    <thead>
+                    <tr>
+                        <th style="text-align: center;">Month</th>
+                        <th style="text-align: center;">Day</th>
+                        <th style="text-align: center;">hours [h]</th>
+                        <th style="text-align: center;">CF [%]</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% set average = 0 %}
+                    {% set sumdays = 0 %}
+                    {% set sumhours = 0 %}
+                    {% set itemsinarray = 0 %}
+                    {% for data in dataCfArray %}
+                        {% set sumdays = sumdays+data.days %}
+                        {% set sumhours = sumhours+data.hours %}
+                        {% set average = average+data.cf %}
+                        <tr><td class="tr_first_column" style="text-align: center;">{{ data.month }}</td><td class="tr_next_columns">{{ data.days }}</td><td class="tr_next_columns">{{ data.hours }}</td><td class="tr_next_columns">{{ data.cf|number_format(2, ',', '.') }}</td></tr>
+                        {% set itemsinarray = loop.length %}
+                    {% endfor %}
+                    <tr><td colspan="3" style="font-weight: bold">Average<td style="font-weight: bold">{{ (average/reportmonth)|number_format(3, ',', '.') }}</td></tr>
+                    <tr>
+                        <td class="tr_first_column" style="text-align: center;">TOTAL</td>
+                        <td class="tr_first_column" style="text-align: right;">{{ sumdays }}</td>
+                        <td class="tr_first_column" style="text-align: right;">{{ sumhours }}</td>
+                        <td class="tr_first_column" style="text-align: right;">{{ (((powerEvuTotal/1000)/((plantSize/1000)*sumhours))*100)|round(3, 'ceil')|number_format(2, ',', '.') }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+            <td style="text-align: right!important; float: right;">
+                {{ operations_right|raw }}
+            </td>
+        </tr>
+    </table>
+{%  endblock page %}

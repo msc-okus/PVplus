@@ -2,7 +2,7 @@
     <div>
         <table style="width: 297mm; margin-top: 15px!important;">
             <tr style="border-bottom: solid 2px #00386d;">
-                <td style=" width: 254mm;" class="text-left"><h1>{{ anlage.projektNr }} {{ anlage.anlName }} <small>({{ anlage.power }} kWp)</small></h1> </td>
+                <td style=" width: 254mm;" class="text-left"><h1>{{ anlage.projektNr }} {{ anlage.anlName }} <small>({{ anlage.power|number_format(2, ',', '.') }} kWp)</small></h1> </td>
                 <td> <img class="customer_logo" src="{{ asset(anlage.eigner.getCustomerLogo) }}"></td>
             </tr>
 

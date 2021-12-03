@@ -5,7 +5,7 @@
     {% set sumRow2 = monthsTable|length-1 %}
     {% set sumRow2 = monthsTable|length %}
     {% set guaranteedExpected = (1 - (anlage.transformerTee + anlage.guaranteeTee) / 100 ) * anlage.contractualPower %}
-    <h3 style="color: {{ font_color_second }};">Basic Values</h3>
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Basic Values</h3>
     <table class="basetable">
         <thead>
             <tr>
@@ -15,8 +15,8 @@
                 <th>PR&nbsp;Guaranteed [%]</th>-->
                 <th>Expected Energy [kWh]</th>
                 <th>Guaranteed Expected<br>Energy [kWh]</th>
-                <th>Abschlag Trafoverlust [%]</th>
-                <th>Abschlag Garantie [%]</th>
+                <th>Transformer reduction [%]</th>
+                <th>Guarantee reduction [%]</th>
                 <th>Plant Size as build [kWp]</th>
                 <th>Plant Size as planed [kWp]</th>
             </tr>
@@ -65,7 +65,7 @@
                         <td>Einspeisung am Grid meter, inklusive Forecast mit Risikoauf-/abschlägen</td>
                     </tr>
                     <tr>
-                        <td>Difference Calculation [%]</td>
+                        <td>Difference Calculation [kWh]</td>
                         <td class="text-right">{{ forcast.difference_calc_forecast|number_format(2, ',', '.') }}</td>
                         <td>Measured Energy - guaranteed Expected Energy</td>
                     </tr>
@@ -106,7 +106,7 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Expected Enery [kWh]</td>
+                        <td>Expected Energy [kWh]</td>
                         <td class="text-right">{{ forcast.expected_energy_real|number_format(2, ',', '.') }}</td>
                         <td>monatlich aktualisierter PVSYST-Ertrag über FAC Periode</td>
                     </tr>
@@ -121,7 +121,7 @@
                         <td>Einspeisung am Grid meter, inklusive Forecast mit Risikoauf-/abschlägen</td>
                     </tr>
                     <tr>
-                        <td>Difference Calculation [%]</td>
+                        <td>Difference Calculation [kWh]</td>
                         <td class="text-right">{{ forcast.difference_calc_real|number_format(2, ',', '.') }}</td>
                         <td>Measured Energy - guaranteed Expected Energy</td>
                     </tr>
@@ -153,7 +153,7 @@
     <span class="clearfix"></span>
     <div style="height: 50px"></div>
     <div class="" style="text-align: center;">
-        <svg width="500" height="41" viewBox="0 0 9929.0 952.0" version="1.1" xmlns="http://www.w3.org/2000/svg">
+        <svg width="500" height="41" viewBox="0 0 9929.0 952.0" xmlns="http://www.w3.org/2000/svg">
             <style>
                 .ts3{font-family:Arial, "Helvetica Neue", Helvetica, sans-serif; font-weight: normal; font-style: normal; font-size: 100.0px;fill:rgb(255,200,200);pointer-events: none;}
                 .ts2{font-family:Arial, "Helvetica Neue", Helvetica, sans-serif; font-weight: normal; font-style: normal; font-size: 240.0px;fill:rgb(0,0,0);pointer-events: none;}
@@ -171,9 +171,9 @@
             <rect x="4489" y="313" width="1927" height="5" style="fill:rgb(0,0,0);stroke-width:0;"/>
             <path d="M4465.0 55.0L4465.0 45.0C4403.39990234375 108.13470458984375 4365.0 185.6599884033203 4365.0 315.5C4365.0 445.34002685546875 4403.39990234375 522.8652954101562 4465.0 586.0L4465.0 576.0C4414.48779296875 515.1992797851562 4383.0 440.5400085449219 4383.0 315.5C4383.0 190.45999145507812 4414.48779296875 115.80070495605469 4465.0 55.0L4465.0 55.0" style="fill:rgb(0,0,0);stroke-width:0;"/>
             <path d="M6440.0 55.0L6440.0 45.0C6501.60009765625 108.13470458984375 6540.0 185.6599884033203 6540.0 315.5C6540.0 445.34002685546875 6501.60009765625 522.8652954101562 6440.0 586.0L6440.0 576.0C6490.51220703125 515.1992797851562 6522.0 440.5400085449219 6522.0 315.5C6522.0 190.45999145507812 6490.51220703125 115.80070495605469 6440.0 55.0L6440.0 55.0" style="fill:rgb(0,0,0);stroke-width:0;"/>
-            <text x="2193.0" y="856.0" class="ts1">Guarantied Expected Energy</text>
+            <text x="2193.0" y="856.0" class="ts1">{% if anlage.pldDivisor == 'expected' %}Expected Energy{% else %}Guarantied Expected Energy{% endif %}</text>
             <rect x="905" y="630" width="5654" height="8" style="fill:rgb(0,0,0);stroke-width:0;"/>
-            <text x="6619.0" y="720.0" class="ts1"> x 100 x Installed Power x {{ anlage.pldYield|number_format(2, ',', '.') }} €</text>
+            <text x="6619.0" y="720.0" class="ts1"> x 100 {% if anlage.isUsePnomForPld %}x Installed Power {% endif %}x {{ anlage.pldYield|number_format(2, ',', '.') }} €</text>
         </svg>
     </div>
 
@@ -181,7 +181,7 @@
     <div style="height: 50px"></div>
     <div class="col-50 float-left ">
         <div class="cell box" style="margin-right: 10px;">
-            <svg width="500" height="41" viewBox="0 0 9929.0 952.0" version="1.1" xmlns="http://www.w3.org/2000/svg">
+            <svg width="500" height="41" viewBox="0 0 9929.0 952.0" xmlns="http://www.w3.org/2000/svg">
             <style>
                 .ts3{font-family:Arial, "Helvetica Neue", Helvetica, sans-serif; font-weight: normal; font-style: normal; font-size: 100.0px;fill:rgb(255,200,200);pointer-events: none;}
                 .ts2{font-family:Arial, "Helvetica Neue", Helvetica, sans-serif; font-weight: normal; font-style: normal; font-size: 240.0px;fill:rgb(0,0,0);pointer-events: none;}
@@ -191,23 +191,23 @@
             <text x="0" y="720.0" class="ts1">{{ forcast.pld_forecast|number_format(2, ',', '.') }} €</text>
             <text x="1408.0" y="720.0" class="ts2">=</text>
             <text x="1578.0" y="720.0" class="ts1"> </text>
-            <text x="1900.0" y="402.0" class="ts1">{{ forcast.expected_energy_forecast|number_format(2, ',', '.') }}</text>
+            <text x="1900.0" y="402.0" class="ts1">{{ forcast.guaranteed_energy_forecast|number_format(2, ',', '.') }}</text>
             <text x="4098.0" y="402.0" class="ts2">&#8722;</text>
             <text x="4268.0" y="402.0" class="ts1"> </text>
             <text x="4700.0" y="217.0" class="ts1">{{ forcast.measured_energy_forecast|number_format(2, ',', '.') }}</text>
-            <text x="5100.0" y="535.0" class="ts1">{{ forcast.pa_forecast|number_format(2, ',', '.') }}</text>
+            <text x="5100.0" y="535.0" class="ts1">{{ (forcast.pa_forecast / 100)|number_format(4, ',', '.') }}</text>
             <rect x="4489" y="313" width="1927" height="5" style="fill:rgb(0,0,0);stroke-width:0;"/>
             <path d="M4465.0 55.0L4465.0 45.0C4403.39990234375 108.13470458984375 4365.0 185.6599884033203 4365.0 315.5C4365.0 445.34002685546875 4403.39990234375 522.8652954101562 4465.0 586.0L4465.0 576.0C4414.48779296875 515.1992797851562 4383.0 440.5400085449219 4383.0 315.5C4383.0 190.45999145507812 4414.48779296875 115.80070495605469 4465.0 55.0L4465.0 55.0" style="fill:rgb(0,0,0);stroke-width:0;"/>
             <path d="M6440.0 55.0L6440.0 45.0C6501.60009765625 108.13470458984375 6540.0 185.6599884033203 6540.0 315.5C6540.0 445.34002685546875 6501.60009765625 522.8652954101562 6440.0 586.0L6440.0 576.0C6490.51220703125 515.1992797851562 6522.0 440.5400085449219 6522.0 315.5C6522.0 190.45999145507812 6490.51220703125 115.80070495605469 6440.0 55.0L6440.0 55.0" style="fill:rgb(0,0,0);stroke-width:0;"/>
-            <text x="2593.0" y="876.0" class="ts1">{{ forcast.expected_energy_forecast|number_format(2, ',', '.') }}</text>
+                <text x="2593.0" y="876.0" class="ts1">{% if anlage.pldDivisor == 'expected' %}{{ forcast.expected_energy_forecast|number_format(2, ',', '.') }}{% else %}{{ forcast.guaranteed_energy_forecast|number_format(2, ',', '.') }}{% endif %}</text>
             <rect x="1805" y="630" width="4750" height="8" style="fill:rgb(0,0,0);stroke-width:0;"/>
-            <text x="6700.0" y="720.0" class="ts1"> x 100 x {{ anlage.kwPeak|number_format(2, ',', '.') }} x {{ anlage.pldYield|number_format(2, ',', '.') }} €</text>
+            <text x="6700.0" y="720.0" class="ts1"> x 100{% if anlage.isUsePnomForPld %}x {{ anlage.kwPeak|number_format(2, ',', '.') }} {% endif %}x {{ anlage.pldYield|number_format(2, ',', '.') }} €</text>
         </svg>
         </div>
     </div>
     <div class="col-50 float-left">
         <div class="cell box" style="margin-left: 10px;">
-            <svg width="500" height="41" viewBox="0 0 9929.0 952.0" version="1.1" xmlns="http://www.w3.org/2000/svg">
+            <svg width="500" height="41" viewBox="0 0 9929.0 952.0" xmlns="http://www.w3.org/2000/svg">
             <style>
                 .ts3{font-family:Arial, "Helvetica Neue", Helvetica, sans-serif; font-weight: normal; font-style: normal; font-size: 100.0px;fill:rgb(255,200,200);pointer-events: none;}
                 .ts2{font-family:Arial, "Helvetica Neue", Helvetica, sans-serif; font-weight: normal; font-style: normal; font-size: 240.0px;fill:rgb(0,0,0);pointer-events: none;}
@@ -217,17 +217,17 @@
             <text x="0" y="720.0" class="ts1">{{ forcast.pld_real|number_format(2, ',', '.') }} €</text>
             <text x="1408.0" y="720.0" class="ts2">=</text>
             <text x="1578.0" y="720.0" class="ts1"> </text>
-            <text x="1900.0" y="402.0" class="ts1">{{ forcast.expected_energy_real|number_format(2, ',', '.') }}</text>
+            <text x="1900.0" y="402.0" class="ts1">{{ forcast.guaranteed_energy_real|number_format(2, ',', '.') }}</text>
             <text x="4098.0" y="402.0" class="ts2">&#8722; </text>
             <text x="4268.0" y="402.0" class="ts1"> </text>
             <text x="4700.0" y="217.0" class="ts1">{{ forcast.measured_energy_real|number_format(2, ',', '.') }}</text>
-            <text x="5100.0" y="535.0" class="ts1">{{ forcast.pa_real|number_format(2, ',', '.') }}</text>
+            <text x="5100.0" y="535.0" class="ts1">{{ (forcast.pa_real / 100)|number_format(4, ',', '.') }}</text>
             <rect x="4489" y="313" width="1927" height="5" style="fill:rgb(0,0,0);stroke-width:0;"/>
             <path d="M4465.0 55.0L4465.0 45.0C4403.39990234375 108.13470458984375 4365.0 185.6599884033203 4365.0 315.5C4365.0 445.34002685546875 4403.39990234375 522.8652954101562 4465.0 586.0L4465.0 576.0C4414.48779296875 515.1992797851562 4383.0 440.5400085449219 4383.0 315.5C4383.0 190.45999145507812 4414.48779296875 115.80070495605469 4465.0 55.0L4465.0 55.0" style="fill:rgb(0,0,0);stroke-width:0;"/>
             <path d="M6440.0 55.0L6440.0 45.0C6501.60009765625 108.13470458984375 6540.0 185.6599884033203 6540.0 315.5C6540.0 445.34002685546875 6501.60009765625 522.8652954101562 6440.0 586.0L6440.0 576.0C6490.51220703125 515.1992797851562 6522.0 440.5400085449219 6522.0 315.5C6522.0 190.45999145507812 6490.51220703125 115.80070495605469 6440.0 55.0L6440.0 55.0" style="fill:rgb(0,0,0);stroke-width:0;"/>
-            <text x="2593.0" y="876.0" class="ts1">{{ forcast.expected_energy_real|number_format(2, ',', '.') }}</text>
+            <text x="2593.0" y="876.0" class="ts1">{% if anlage.pldDivisor == 'expected' %}{{ forcast.expected_energy_real|number_format(2, ',', '.') }}{% else %}{{ forcast.guaranteed_energy_real|number_format(2, ',', '.') }}{% endif %}</text>
             <rect x="1805" y="630" width="4750" height="8" style="fill:rgb(0,0,0);stroke-width:0;"/>
-            <text x="6700.0" y="720.0" class="ts1"> x 100  x {{ anlage.kwPeak|number_format(2, ',', '.') }} x {{ anlage.pldYield|number_format(2, ',', '.') }} €</text>
+            <text x="6700.0" y="720.0" class="ts1"> x 100 {% if anlage.isUsePnomForPld %}x {{ anlage.kwPeak|number_format(2, ',', '.') }} {% endif %}x {{ anlage.pldYield|number_format(2, ',', '.') }} €</text>
         </svg>
         </div>
     </div>

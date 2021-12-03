@@ -37,52 +37,57 @@ class AnlageAvailability
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private int $case_1;
+    private ?int $case_0;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private int $case_2;
+    private ?int $case_1;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private int $case_3;
+    private ?int $case_2;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private int $case_4;
+    private ?int $case_3;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private int $case_5;
+    private ?int $case_4;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private int $case_6;
+    private ?int $case_5;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private int $control;
+    private ?int $case_6;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private ?int $control;
 
     /**
      * @ORM\Column(type="float", nullable=true)
      */
-    private float $invAPart1;
+    private ?float $invAPart1;
 
     /**
      * @ORM\Column(type="float", nullable=true)
      */
-    private float $invAPart2;
+    private ?float $invAPart2;
 
     /**
      * @ORM\Column(type="float", nullable=true)
      */
-    private float $invA;
+    private ?float $invA;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -92,57 +97,62 @@ class AnlageAvailability
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private int $case_1_second;
+    private ?int $case_0_second;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private int $case_2_second;
+    private ?int $case_1_second;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private int $case_3_second;
+    private ?int $case_2_second;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private int $case_4_second;
+    private ?int $case_3_second;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private int $case_5_second;
+    private ?int $case_4_second;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private int $case_6_second;
+    private ?int $case_5_second;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
      */
-    private int $control_second;
+    private ?int $case_6_second;
+
+    /**
+     * @ORM\Column(type="integer", nullable=true)
+     */
+    private ?int $control_second;
 
     /**
      * @ORM\Column(type="float", nullable=true)
      */
-    private float $invAPart1_second;
+    private ?float $invAPart1_second;
 
     /**
      * @ORM\Column(type="float", nullable=true)
      */
-    private float $invAPart2_second;
+    private ?float $invAPart2_second;
 
     /**
      * @ORM\Column(type="float", nullable=true)
      */
-    private float $invASecond;
+    private ?float $invASecond;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private string $remarks_second;
+    private ?string $remarks_second;
 
 
     public function getId(): ?int
@@ -177,6 +187,16 @@ class AnlageAvailability
     public function getInverter(): ?string
     {
         return $this->inverter;
+    }
+
+    public function getCase0(): int
+    {
+        return $this->case_0;
+    }
+
+    public function setCase0(int $case_0): void
+    {
+        $this->case_0 = $case_0;
     }
 
     public function getCase1(): ?int
@@ -317,7 +337,19 @@ class AnlageAvailability
 
         return $this;
     }
+
 ########
+
+    public function getCase0Second(): int
+    {
+        return $this->case_0_second;
+    }
+
+    public function setCase0Second(int $case_0_second): void
+    {
+        $this->case_0_second = $case_0_second;
+    }
+
     public function getCase1Second(): ?int
     {
         return $this->case_1_second;

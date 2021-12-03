@@ -1,6 +1,8 @@
 {% extends 'report/_epc/_pageBase.html.twig' %}
 
 {% block page %}
-    <h3 style="color: {{ font_color_second }};">Yield: Percent Difference Calculation</h3>
-    {{ chart|raw }}
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Yield: Percent Difference Calculation</h3>
+    {{ chart1|raw }}
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Yield: Cumulative</h3>
+    {{ chart2|raw }}
 {% endblock %}

@@ -47,7 +47,7 @@ class ReportEpcService
         $this->availabilityService = $availabilityService;
     }
 
-    public function createEpcReport(Anlage $anlage, $createPdf = false)
+    public function createEpcReport(Anlage $anlage, $createPdf = false): string
     {
         $currentDate = date('Y-m-d H-i');
         $pdfFilename = 'EPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
@@ -373,7 +373,7 @@ class ReportEpcService
         // Real / Aktuell (nur bis zum aktuellen Monat, Bsp Sep20 bis Jan 20
         $report[0][] = [
             'month'                 => 'Real<br>' . $realDateText,
-            'days'                  => 'months: '.$monateReal,
+            'days'                  => 'months: ' . $monateReal,
             'irradiation'           => $this->format($sumIrrMonth),
             'prDesign'              => $this->format($anlage->getDesignPR()),
             'ertragDesign'          => $this->format($sumErtragDesignReal),

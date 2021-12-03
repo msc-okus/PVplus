@@ -1,97 +1,96 @@
-{% include 'report/_asset_mangement_partials/_headline.html.twig'%}
-    <div class="content_asset_report">
-        <h3 style="color: {{ font_color_second }};">Inverters Power – DC Heatmap</h3>
-        <span class="subheadline">Overview: daily difference between g4n expected vs. actuals [%]</span>
+{% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
 
-        <table id="basetable">
-            <tr>
-                <td style="vertical-align: top;">
-                    {% set daysInReportMonth = daysInReportMonth %}
-                    {% set tableColsLimit_twig = tableColsLimit %}
-                    {% set tbody = "" %}
-                    {% set itemcounter = 1 %}
-                    {% set itemcounter2 = 0 %}
-                    {% set unitcounter = 0 %}
-                    {% set unitcounter2 = 0 %}
-                    {% set counterall = 0 %}
-                    {% set availabilityall = 0 %}
-                    <table class="asset_report_table_operations_data" style="margin-bottom: 5px!important;">
-                        {% for data in operations_currents_dayly_table %}
-                            <td style = 'border: none !important; padding:0 !important;vertical-align: bottom !important;'>
-                                <table class = "streamdayly" style="margin:0 !important;">
-                                    <thead>
-                                    {% if (itemcounter == 1 ) %}
-                                        <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;" rowspan="3" style="border-left: solid 1px !important;">Day</th><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">{{ acGroups[unitcounter2] }}</th></tr>
+{% block page %}
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Inverters Power – DC Heatmap</h3>
+    <span class="subheadline">Overview: daily difference between g4n expected vs. actuals [%]</span>
+
+    <table id="basetable">
+        <tr>
+            <td style="vertical-align: top;">
+                {% set daysInReportMonth = daysInReportMonth %}
+                {% set tableColsLimit_twig = tableColsLimit %}
+                {% set tbody = "" %}
+                {% set itemcounter = 1 %}
+                {% set itemcounter2 = 0 %}
+                {% set unitcounter = 0 %}
+                {% set unitcounter2 = 0 %}
+                {% set counterall = 0 %}
+                {% set availabilityall = 0 %}
+                <table class="asset_report_table_operations_data" style="margin-bottom: 5px!important;">
+                    {% for data in operations_currents_dayly_table %}
+                        <td style = 'border: none !important; padding:0 !important;vertical-align: bottom !important;'>
+                            <table class = "streamdayly" style="margin:0 !important;">
+                                <thead>
+                                {% if (itemcounter == 1 ) %}
+                                    <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;" rowspan="3" style="border-left: solid 1px !important;">Day</th><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">{{ acGroups[unitcounter2] }}</th></tr>
+                                    <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">[%]</th></tr>
+                                {% endif %}
+                                {% if (itemcounter > 1) %}
+                                    {% if loop.last %}
+                                        <tr><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; text-align: center;">{{ acGroups[unitcounter2] }}</th></tr>
+                                        <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important;  text-align: center;">[%]</th></tr>
+                                    {% else %}
+                                        <tr><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">{{ acGroups[unitcounter2] }}</th></tr>
                                         <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">[%]</th></tr>
                                     {% endif %}
-                                    {% if (itemcounter > 1) %}
-                                        {% if loop.last %}
-                                            <tr><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; text-align: center;">{{ acGroups[unitcounter2] }}</th></tr>
-                                            <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important;  text-align: center;">[%]</th></tr>
-                                        {% else %}
-                                            <tr><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">{{ acGroups[unitcounter2] }}</th></tr>
-                                            <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">[%]</th></tr>
-                                        {% endif %}
 
+                                {% endif %}
+                                </thead>
+                                {% set color = "#ffffff" %}
+                                {% for datatr in data %}
+                                    {% set value = (((datatr.act_power_dc - datatr.exp_power_dc)*100)/datatr.exp_power_dc)|number_format(0, ',', '.') %}
+                                    {% if (value <= -2) %}{% set color = "#00b050" %}{% endif %}
+                                    {% if (value < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                    {% if (value < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                    {% if (value < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                    {% if (value <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                    {% if (value >= 0) %}{% set color = "#00b050" %}{% endif %}
+
+                                    {% if (itemcounter == 1 ) %}
+                                        <tr><td class="tr_first_column" style="font-size: 7.3px!important;">{{ datatr.form_date }}</td><td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ value|number_format(0, ',', '.') }}</td></tr>
                                     {% endif %}
-                                    </thead>
-                                    {% set color = "#ffffff" %}
-                                    {% for datatr in data %}
-                                        {% set value = (((datatr.act_power_dc - datatr.exp_power_dc)*100)/datatr.exp_power_dc)|number_format(0, ',', '.') %}
-                                        {% if (value <= -2) %}{% set color = "#00b050" %}{% endif %}
-                                        {% if (value < -2) %}{% set color = "#cee4c0" %}{% endif %}
-                                        {% if (value < -8) %}{% set color = "#ffff00" %}{% endif %}
-                                        {% if (value < -15) %}{% set color = "#ffc000" %}{% endif %}
-                                        {% if (value <= -20) %}{% set color = "#cc0000" %}{% endif %}
-                                        {% if (value >= 0) %}{% set color = "#00b050" %}{% endif %}
-
-                                        {% if (itemcounter == 1 ) %}
-                                            <tr><td class="tr_first_column" style="font-size: 7.3px!important;">{{ datatr.form_date }}</td><td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ value|number_format(0, ',', '.') }}</td></tr>
-                                        {% endif %}
-                                        {% if (itemcounter > 1) %}
-                                            <tr><td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ value|number_format(0, ',', '.') }}</td></tr>
-                                        {% endif %}
-                                    {% endfor %}
-                                </table>
-                            </td>
-                            {% set unitcounter2 = unitcounter2+1 %}
-                            {% set itemcounter = itemcounter+1 %}
-                            {% set unitcounter = unitcounter+1 %}
-                        {% endfor %}
-                        {% set itemcounter = 1 %}
+                                    {% if (itemcounter > 1) %}
+                                        <tr><td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ value|number_format(0, ',', '.') }}</td></tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </table>
                         </td>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td style="text-align: right!important; float: right;">
-                    <table class="legend_colors" style="margin-bottom: 0!important;">
-                        <tr>
-                            <td rowspan="2" style="font-size: 7.3px!important; text-align: center;">Explanation</td>
-                            <td style="font-size: 7.3px!important;">0-2%</td>
-                            <td style="font-size: 7.3px!important;">2,1-8%</td>
-                            <td style="font-size: 7.3px!important;">8,1-15%</td>
-                            <td style="font-size: 7.3px!important;">15,1-20%</td>
-                            <td style="font-size: 7.3px!important;">20%-</td>
-                        </tr>
-                        <tr>
-                            <td style="background-color: #00b050;font-size: 7.3px!important;">&nbsp;</td>
-                            <td style="background-color: #cee4c0;font-size: 7.3px!important;">&nbsp;</td>
-                            <td style="background-color: #ffff00;font-size: 7.3px!important;">&nbsp;</td>
-                            <td style="background-color: #ffc000;font-size: 7.3px!important;">&nbsp;</td>
-                            <td style="background-color: #cc0000;font-size: 7.3px!important;">&nbsp;</td>
-                        </tr>
-                    </table>
-                </td>
-            </tr>
-        </table>
-        <div class="explanation" style=" margin-top: -8px;">
-            <b>Explanation:</b>
-            <br>
-            The Figure shows inverter daily outputs compared to daily target values calculated by the g4n system. These target values are based on an algorithm developed by g4n.
-            <br><br>
-            - DC performance shows the same pattern as shown above for string currents.
-        </div>
+                        {% set unitcounter2 = unitcounter2+1 %}
+                        {% set itemcounter = itemcounter+1 %}
+                        {% set unitcounter = unitcounter+1 %}
+                    {% endfor %}
+                    {% set itemcounter = 1 %}
+                    </td>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align: right!important; float: right;">
+                <table class="legend_colors" style="margin-bottom: 0!important;">
+                    <tr>
+                        <td rowspan="2" style="font-size: 7.3px!important; text-align: center;">Explanation</td>
+                        <td style="font-size: 7.3px!important;">0-2%</td>
+                        <td style="font-size: 7.3px!important;">2,1-8%</td>
+                        <td style="font-size: 7.3px!important;">8,1-15%</td>
+                        <td style="font-size: 7.3px!important;">15,1-20%</td>
+                        <td style="font-size: 7.3px!important;">20%-</td>
+                    </tr>
+                    <tr>
+                        <td style="background-color: #00b050;font-size: 7.3px!important;">&nbsp;</td>
+                        <td style="background-color: #cee4c0;font-size: 7.3px!important;">&nbsp;</td>
+                        <td style="background-color: #ffff00;font-size: 7.3px!important;">&nbsp;</td>
+                        <td style="background-color: #ffc000;font-size: 7.3px!important;">&nbsp;</td>
+                        <td style="background-color: #cc0000;font-size: 7.3px!important;">&nbsp;</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <div class="explanation" style=" margin-top: -8px;">
+        <b>Explanation:</b>
+        <br>
+        The Figure shows inverter daily outputs compared to daily target values calculated by the g4n system. These target values are based on an algorithm developed by g4n.
+        <br><br>
+        - DC performance shows the same pattern as shown above for string currents.
     </div>
-
-{% include 'report/_asset_mangement_partials/_footer.html.twig'%}
+{% endblock page %}
