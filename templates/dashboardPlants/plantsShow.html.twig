@@ -29,7 +29,6 @@
 
 {% block styles %}
     {{ parent() }}
-    {# <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/zf/dt-1.10.21/datatables.min.css"/>  #}
 {% endblock %}
 
 {% block javascriptstop %}
@@ -54,7 +53,6 @@
 
 {% block javascripts %}
     {{ parent() }}
-    {# <script type="text/javascript" src="https://cdn.datatables.net/v/zf/dt-1.10.21/datatables.min.js"></script> #}
     <script>
         $(".js-submit-onchange").change(function() {
             $("#mysubmit").val('yes');
