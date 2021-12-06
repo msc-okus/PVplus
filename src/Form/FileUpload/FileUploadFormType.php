@@ -30,6 +30,17 @@ class FileUploadFormType extends AbstractType
                     ])
                 ]
             ])
+            ->add('File', FileType::class,[
+                'mapped' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'application/csv'
+                        ]
+                    ])
+                ]
+            ])
 
             ##############################################
             ####          STEUERELEMENTE              ####
