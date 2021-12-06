@@ -935,10 +935,12 @@ class FunctionsService
     }
     public function readInverters(String $invS,anlage $anlage):array
     {
+        $maxInv = count($this->getNameArray($anlage));
         $invS = u($invS)->replace(" ", "");
+        $tempArray = u($invS)->split(',');
+        $returnArray[] = [];
+
         if ($invS != "*") {
-            $tempArray = u($invS)->split(',');
-            $returnArray[] = [];
             foreach ($tempArray as $item) {
                 if (u($item)->containsAny('-')) {
                     $nums[] = u($item)->split('-');
@@ -946,18 +948,20 @@ class FunctionsService
                     $to = (int)((string)$nums[0][1]);
                     $i = $from;
                     while ($i <= $to) {
-                        $returnArray[] = u($i);
+                        if($i < $maxInv) {
+                            $returnArray[] = u($i);
+                        }
                         $i++;
                     }
                     unset($nums);
-                } else $returnArray[] = $item;
+                } else if ((int)((string)$item < $maxInv))$returnArray[] = $item;
             }
 
         }
         else{
-            $to = count($this->getNameArray($anlage));
+
             $i = 1;
-            while($i<=$to){
+            while($i<=$maxInv){
                 $returnArray[]=$i;
                 $i++;
             }
