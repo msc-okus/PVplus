@@ -135,6 +135,7 @@ class ReportsEpcNewService
             $isCurrentMonth = $to_local->format('Y') == $currentYear && $to_local->format('m') == $currentMonth-1;
 
             $monthlyRecalculatedData = $this->monthlyDataRepo->findOneBy(['anlage' => $anlage, 'year' => $year, 'month' => $month]);
+            dump("'year' => $year, 'month' => $month");
 
             switch ($n) {
                 case 1:
@@ -166,12 +167,12 @@ class ReportsEpcNewService
 
             $tableArray[$n]['B_month']                                = date('m / Y', strtotime("$year-$month-1")); // Spalte B
             $tableArray[$n]['C_days']                                 = $days; // Spalte C
-            $tableArray[$n]['D_irrDesign']                            = ($monthlyRecalculatedData) ? ($hasMonthData) ? $monthlyRecalculatedData->getPvSystIrr() : $pvSystData[$month - 1]['irrDesign'] * $factor : 0; // Spalte D // kommt aus der Tabelle PvSyst Werte Design
-            $tableArray[$n]['E_yieldDesign']                          = ($monthlyRecalculatedData) ? ($hasMonthData) ? $monthlyRecalculatedData->getPvSystErtrag() : $pvSystData[$month - 1]['ertragDesign'] * $factor : 0; // Spalte E // kommt aus der Tabelle PvSyst Werte Design
+            $tableArray[$n]['D_irrDesign']                            = ($monthlyRecalculatedData !== null) ? ($hasMonthData) ? $monthlyRecalculatedData->getPvSystIrr() : $pvSystData[$month - 1]['irrDesign'] * $factor : 0; // Spalte D // kommt aus der Tabelle PvSyst Werte Design
+            $tableArray[$n]['E_yieldDesign']                          = ($monthlyRecalculatedData !== null) ? ($hasMonthData) ? $monthlyRecalculatedData->getPvSystErtrag() : $pvSystData[$month - 1]['ertragDesign'] * $factor : 0; // Spalte E // kommt aus der Tabelle PvSyst Werte Design
             $tableArray[$n]['F_specificYieldDesign']                  = $tableArray[$n]['E_yieldDesign'] / $anlage->getKwPeakPvSyst();  // Spalte F // berechnet aus IrrDesign un der Anlagenleistung (kwPeak)
             $tableArray[$n]['G_prDesign']                             = $tableArray[$n]['F_specificYieldDesign'] / $tableArray[$n]['D_irrDesign'] * 100; // Spalte G // kommt aus der Tabelle PvSyst Werte Design
             $tableArray[$n]['H_prGuarantie']                          = $tableArray[$n]['G_prDesign'] - $anlage->getTransformerTee() - $anlage->getGuaranteeTee(); // Spalte H
-            $tableArray[$n]['I_theorYieldDesign']                     = ($monthlyRecalculatedData) ? ($hasMonthData) ? $monthlyRecalculatedData->getPvSystIrr() * $anlage->getKwPeakPvSyst() : $pvSystData[$month - 1]['irrDesign'] * $anlage->getKwPeakPvSyst() * $factor : 0; // Spalte I
+            $tableArray[$n]['I_theorYieldDesign']                     = ($monthlyRecalculatedData !== null) ? ($hasMonthData) ? $monthlyRecalculatedData->getPvSystIrr() * $anlage->getKwPeakPvSyst() : $pvSystData[$month - 1]['irrDesign'] * $anlage->getKwPeakPvSyst() * $factor : 0; // Spalte I
             $tableArray[$n]['J_theorYieldMTDesign']                   = ''; // Spalte J
             $tableArray[$n]['K_irrFTDesign']                          = ""; // Spalte K
             $tableArray[$n]['L_irr']                                  = ($hasMonthData) ? $prArray['irradiation'] : $tableArray[$n]['D_irrDesign']; // Spalte L // Irradiation
@@ -372,7 +373,6 @@ class ReportsEpcNewService
         $b12 = $monthTable[$zeileSumme2]['O_availability'] / 100;
         if ( $anlage->getPldDivisor() == 'expected') {
             $pldForcast = (($b9 - ($b10 / $b12)) / $b8) * 100 * $pNom * $anlage->getPldYield();
-            dump("(($b9 - ($b10 / $b12)) / $b8) * 100 * $pNom *");
         } else {
             $pldForcast = (($b9 - ($b10 / $b12)) / $b9) * 100 * $pNom * $anlage->getPldYield();
         }
