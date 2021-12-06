@@ -367,21 +367,21 @@ class ReportsEpcNewService
 
         $pNom = ($anlage->isUsePnomForPld()) ? $anlage->getPower() : 1;
 
-        $b8 = $monthTable[$zeileSumme1]['E_yieldDesign'];
-        $b9 = $monthTable[$zeileSumme1]['W_yield_guaranteed_exp'];
-        $b10 = $monthTable[$zeileSumme1]['V_eGrid_withRisk'];
-        $b11 = $monthTable[$zeileSumme1]['V_eGrid_withRisk'] - $monthTable[$zeileSumme1]['W_yield_guaranteed_exp'];
-        $b12 = $monthTable[$zeileSumme2]['O_availability'] / 100;
+        $b8 = round($monthTable[$zeileSumme1]['E_yieldDesign'],3);
+        $b9 = round($monthTable[$zeileSumme1]['W_yield_guaranteed_exp'],3);
+        $b10 = round($monthTable[$zeileSumme1]['V_eGrid_withRisk'],3);
+        $b11 = round($monthTable[$zeileSumme1]['V_eGrid_withRisk'] - $monthTable[$zeileSumme1]['W_yield_guaranteed_exp'],3);
+        $b12 = round($monthTable[$zeileSumme2]['O_availability'] / 100,4);
         if ( $anlage->getPldDivisor() == 'expected') {
             $pldForcast = (($b9 - ($b10 / $b12)) / $b8) * 100 * $pNom * $anlage->getPldYield();
         } else {
             $pldForcast = (($b9 - ($b10 / $b12)) / $b9) * 100 * $pNom * $anlage->getPldYield();
         }
 
-        $g8 = $monthTable[$zeileSumme2]['E_yieldDesign'];
-        $g9 = $monthTable[$zeileSumme2]['W_yield_guaranteed_exp'];
-        $g10 = $monthTable[$zeileSumme2]['V_eGrid_withRisk'];
-        $g11 = $monthTable[$zeileSumme2]['V_eGrid_withRisk'] - $monthTable[$zeileSumme2]['W_yield_guaranteed_exp'];
+        $g8 = round($monthTable[$zeileSumme2]['E_yieldDesign'],3);
+        $g9 = round($monthTable[$zeileSumme2]['W_yield_guaranteed_exp'],3);
+        $g10 = round($monthTable[$zeileSumme2]['V_eGrid_withRisk'],3);
+        $g11 = round($monthTable[$zeileSumme2]['V_eGrid_withRisk'] - $monthTable[$zeileSumme2]['W_yield_guaranteed_exp'],3);
         $g12 = $b12;
         if ( $anlage->getPldDivisor() == 'expected') {
             $pldReal    = (($g9 - ($g10 / $g12)) / $g8) * 100 * $pNom * $anlage->getPldYield();

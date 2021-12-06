@@ -16,7 +16,7 @@ class MonthlyYieldListEmbeddedFormType extends AbstractType
     {
         $builder
             ->add('year', ChoiceType::class, [
-                'choices'       => [2019 => 2019, 2020 => 2020, 2021 =>2021],
+                'choices'       => [2019 => 2019, 2020 => 2020, 2021 =>2021, 2022 =>2022],
                 'placeholder'   => 'please choose'
             ])
             ->add('month', ChoiceType::class, [
