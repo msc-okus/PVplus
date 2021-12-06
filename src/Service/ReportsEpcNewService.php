@@ -186,7 +186,8 @@ class ReportsEpcNewService
             $tableArray[$n]['T_irrMT']                                = ""; // Spalte T // Irradiation mit FT Korrektur (haben wir noch nicht)
             $tableArray[$n]['U_prReal_withRisk']                      = 0; // Spalte U // muss in Runde 2 Berechnet werden
             $tableArray[$n]['V_eGrid_withRisk']                       = 0; // Spalte V // muss in Runde 2 Berechnet werden
-            $tableArray[$n]['W_yield_guaranteed_exp']                 = $tableArray[$n]['E_yieldDesign'] * (1 - ($anlage->getTransformerTee() + $anlage->getGuaranteeTee()) / 100); // Spalte W //
+            #$tableArray[$n]['W_yield_guaranteed_exp']                 = $tableArray[$n]['E_yieldDesign'] * (1 - ($anlage->getTransformerTee() + $anlage->getGuaranteeTee()) / 100); // Spalte W //
+            $tableArray[$n]['W_yield_guaranteed_exp']                 = $tableArray[$n]['E_yieldDesign'] * (1 - $anlage->getTransformerTee() / 100) * (1 - $anlage->getGuaranteeTee() / 100); // Spalte W //
             $tableArray[$n]['X_eGridMinuseGridGuar']                  = 0; // Spalte X
             $tableArray[$n]['Y_prRealMinusPrGuraReduction']           = 0; // Spalte Y
             $tableArray[$n]['Z_yieldEGridForecast']                   = 0; // Spalte Z // muss in Runde 2 Berechnet werden
@@ -368,7 +369,6 @@ class ReportsEpcNewService
         $b12 = $monthTable[$zeileSumme2]['O_availability'] / 100;
         if ( $anlage->getPldDivisor() == 'expected') {
             $pldForcast = (($b9 - ($b10 / $b12)) / $b8) * 100 * $pNom * $anlage->getPldYield();
-            dump("(($b9 - ($b10 / $b12)) / $b8) * 100 * $pNom *");
         } else {
             $pldForcast = (($b9 - ($b10 / $b12)) / $b9) * 100 * $pNom * $anlage->getPldYield();
         }
