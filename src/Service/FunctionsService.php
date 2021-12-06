@@ -21,6 +21,7 @@ use App\Repository\GroupMonthsRepository;
 use App\Repository\GroupsRepository;
 use App\Repository\PVSystDatenRepository;
 use phpDocumentor\Reflection\Types\Float_;
+use function Symfony\Component\String\u;
 
 class FunctionsService
 {
@@ -931,6 +932,28 @@ class FunctionsService
         $_html .= "</table></div><hr>";
 
         return $_html;
+    }
+    public function readInverters(String $invS):array
+    {
+        $tempArray = u($invS)->split(',');
+        $returnArray[] = [];
+        foreach ($tempArray as $item)
+        {
+            if(u($item)->containsAny('-'))
+            {
+                $nums[] = u($item)->split('-');
+                $from = (int)((string)$nums[0][0]);
+                $to = (int)((string)$nums[0][1]);
+                $i = $from;
+                while($i <= $to){
+                    $returnArray[] = u($i);
+                    $i++;
+                }
+                unset($nums);
+            }
+            else $returnArray[] = $item;
+        }
+        return $returnArray;
     }
 }
 
