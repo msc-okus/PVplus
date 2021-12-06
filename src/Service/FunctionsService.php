@@ -933,27 +933,37 @@ class FunctionsService
 
         return $_html;
     }
-    public function readInverters(String $invS):array
+    public function readInverters(String $invS,anlage $anlage):array
     {
-        $tempArray = u($invS)->split(',');
-        $returnArray[] = [];
-        foreach ($tempArray as $item)
-        {
-            if(u($item)->containsAny('-'))
-            {
-                $nums[] = u($item)->split('-');
-                $from = (int)((string)$nums[0][0]);
-                $to = (int)((string)$nums[0][1]);
-                $i = $from;
-                while($i <= $to){
-                    $returnArray[] = u($i);
-                    $i++;
-                }
-                unset($nums);
+        $invS = u($invS)->replace(" ", "");
+        if ($invS != "*") {
+            $tempArray = u($invS)->split(',');
+            $returnArray[] = [];
+            foreach ($tempArray as $item) {
+                if (u($item)->containsAny('-')) {
+                    $nums[] = u($item)->split('-');
+                    $from = (int)((string)$nums[0][0]);
+                    $to = (int)((string)$nums[0][1]);
+                    $i = $from;
+                    while ($i <= $to) {
+                        $returnArray[] = u($i);
+                        $i++;
+                    }
+                    unset($nums);
+                } else $returnArray[] = $item;
             }
-            else $returnArray[] = $item;
+
         }
-        return $returnArray;
+        else{
+            $to = count($this->getNameArray($anlage));
+            $i = 1;
+            while($i<=$to){
+                $returnArray[]=$i;
+                $i++;
+            }
+        }
+            return $returnArray;
     }
+
 }
 

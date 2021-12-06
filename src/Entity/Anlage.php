@@ -3199,5 +3199,7 @@ class Anlage
 
         return $this;
     }
+    public function getInverterNr():int
+    {}
 
 }

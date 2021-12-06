@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Repository\AnlagenRepository;
 use App\Service\FunctionsService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -21,8 +22,8 @@ class DefaultJMController extends AbstractController
     /**
      * @Route("/default/test", name="default_j_m")
      */
-    public function test(FunctionsService $functionsService){
-        $functionsService->readInverters("7-14, 21, 32-33");
+    public function test(FunctionsService $functionsService, AnlagenRepository $repo){
+        dd($functionsService->readInverters(" 2, 14 , 25-28", $repo->findIdLike(94)[0]));
         return $this->redirectToRoute("/default/test");
     }
 }
