@@ -19,7 +19,7 @@ use Symfony\Component\Security\Core\Security;
 
 class AnlageConfigFormType extends AbstractType
 {
-    private $security;
+    private Security $security;
 
     public function __construct(Security $security) {
         $this->security = $security;

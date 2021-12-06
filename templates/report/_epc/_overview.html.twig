@@ -173,7 +173,7 @@
             <path d="M6440.0 55.0L6440.0 45.0C6501.60009765625 108.13470458984375 6540.0 185.6599884033203 6540.0 315.5C6540.0 445.34002685546875 6501.60009765625 522.8652954101562 6440.0 586.0L6440.0 576.0C6490.51220703125 515.1992797851562 6522.0 440.5400085449219 6522.0 315.5C6522.0 190.45999145507812 6490.51220703125 115.80070495605469 6440.0 55.0L6440.0 55.0" style="fill:rgb(0,0,0);stroke-width:0;"/>
             <text x="2193.0" y="856.0" class="ts1">{% if anlage.pldDivisor == 'expected' %}Expected Energy{% else %}Guarantied Expected Energy{% endif %}</text>
             <rect x="905" y="630" width="5654" height="8" style="fill:rgb(0,0,0);stroke-width:0;"/>
-            <text x="6619.0" y="720.0" class="ts1"> x 100 {% if anlage.isUsePnomForPld %}x Installed Power {% endif %}x {{ anlage.pldYield|number_format(2, ',', '.') }} €</text>
+            <text x="6619.0" y="720.0" class="ts1"> x 100{% if anlage.isUsePnomForPld %} x Installed Power {% endif %} x {{ anlage.pldYield|number_format(2, ',', '.') }} €</text>
         </svg>
     </div>
 
@@ -201,7 +201,7 @@
             <path d="M6440.0 55.0L6440.0 45.0C6501.60009765625 108.13470458984375 6540.0 185.6599884033203 6540.0 315.5C6540.0 445.34002685546875 6501.60009765625 522.8652954101562 6440.0 586.0L6440.0 576.0C6490.51220703125 515.1992797851562 6522.0 440.5400085449219 6522.0 315.5C6522.0 190.45999145507812 6490.51220703125 115.80070495605469 6440.0 55.0L6440.0 55.0" style="fill:rgb(0,0,0);stroke-width:0;"/>
                 <text x="2593.0" y="876.0" class="ts1">{% if anlage.pldDivisor == 'expected' %}{{ forcast.expected_energy_forecast|number_format(2, ',', '.') }}{% else %}{{ forcast.guaranteed_energy_forecast|number_format(2, ',', '.') }}{% endif %}</text>
             <rect x="1805" y="630" width="4750" height="8" style="fill:rgb(0,0,0);stroke-width:0;"/>
-            <text x="6700.0" y="720.0" class="ts1"> x 100{% if anlage.isUsePnomForPld %}x {{ anlage.kwPeak|number_format(2, ',', '.') }} {% endif %}x {{ anlage.pldYield|number_format(2, ',', '.') }} €</text>
+            <text x="6700.0" y="720.0" class="ts1"> x 100{% if anlage.isUsePnomForPld %} x {{ anlage.kwPeak|number_format(2, ',', '.') }} {% endif %}x {{ anlage.pldYield|number_format(2, ',', '.') }} €</text>
         </svg>
         </div>
     </div>
