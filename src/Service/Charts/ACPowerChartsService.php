@@ -89,7 +89,7 @@ class ACPowerChartsService
                     ($rowExp['soll_nolimit'] == null || $rowExp['soll_nolimit'] < 0) ? $expectedNoLimit = 0 : $expectedNoLimit = round($rowExp['soll_nolimit'], 2);
                     $expDiffInvOut = round($expectedInvOut - $expectedInvOut * 10 / 100, 2);   // Minus 10 % Toleranz Invberter Out.
                     $expDiffEvu = round($expectedEvu - $expectedEvu * 10 / 100, 2);         // Minus 10 % Toleranz Grid (EVU).
-                    $cosPhi = abs($rowActual["cosPhi"]);
+                    $cosPhi = abs((float)$rowActual["cosPhi"]);
                     $acIst = $rowActual["acIst"];
                     $cosPhiSum += $cosPhi * $acIst;
                     $eZEvu = $rowEvu["eZEvu"] / ($anlage->getAnzInverterFromGroupsAC());
@@ -249,7 +249,7 @@ class ACPowerChartsService
                                 if ($counterInv > $dataArray['maxSeries']) $dataArray['maxSeries'] = $counterInv - 1;
                         }
 
-                        if ($anlage->getShowCosPhiDiag()) $dataArray['chart'][$counter]['cosPhi'] = abs($rowActual['wr_cos_phi_korrektur']);
+                        if ($anlage->getShowCosPhiDiag()) $dataArray['chart'][$counter]['cosPhi'] = abs((float)$rowActual['wr_cos_phi_korrektur']);
                     }
                     $counterInv--;
                     ($counterInv > 0) ? $dataArray['chart'][$counter]['expected'] = $expected / $counterInv : $dataArray['chart'][$counter]['exp'] = $expected;
@@ -275,7 +275,7 @@ class ACPowerChartsService
      * @param int $group
      * @return array
      */
-    public function getAC3(Anlage $anlage, $from, $to, int $group = 1, bool $hour): array
+    public function getAC3(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
             if ($hour) $form = '%y%m%d%H';
             else $form = '%y%m%d%H%i';
@@ -355,7 +355,7 @@ class ACPowerChartsService
                             $dataArray['chart'][$counter][$nameArray[$group]] = $actPower;
                     }
 
-                    if ($anlage->getShowCosPhiDiag()) $dataArray['chart'][$counter]['cosPhi'] = abs($rowIst['wr_cos_phi_korrektur']);
+                    if ($anlage->getShowCosPhiDiag()) $dataArray['chart'][$counter]['cosPhi'] = abs((float)$rowIst['wr_cos_phi_korrektur']);
 
                      $dataArray['chart'][$counter]['expected'] = (float)$expected;
 
@@ -433,7 +433,7 @@ class ACPowerChartsService
      * @return array
      * AC - Actual, Groups
      */
-    public function getActVoltageGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour):?array
+    public function getActVoltageGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false):?array
     {
 
         if($hour) $form = '%y%m%d%H';
@@ -527,7 +527,7 @@ class ACPowerChartsService
      * @return array
      * AC - Actual, Groups
      */
-    public function getActCurrentGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour):?array
+    public function getActCurrentGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false):?array
     {
         if($hour) $form = '%y%m%d%H';
         else $form = '%y%m%d%H%i';
@@ -617,7 +617,7 @@ class ACPowerChartsService
      * @return array
      * AC - Actual, Groups
      */
-    public function getActFrequncyGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour):?array
+    public function getActFrequncyGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false):?array
     {
         if($hour) $form = '%y%m%d%H';
         else $form = '%y%m%d%H%i';
@@ -696,7 +696,7 @@ class ACPowerChartsService
      * @return array
      * AC - Actual, Groups
      */
-    public function getReactivePowerGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour): array
+    public function getReactivePowerGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
         if($hour) $form = '%y%m%d%H';
         else $form = '%y%m%d%H%i';

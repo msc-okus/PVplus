@@ -92,9 +92,9 @@ class DownloadController extends AbstractController
     }
 
     /**
-     * @Route("/download/analyse/{formview}/{plantIdexp}", name="app_analyse_download", defaults={"formview"="-", "anlagenidexp"="0"})
+     * @Route("/download/analyse/{formview}/{plantIdexp}", name="app_analyse_download", defaults={"formview"="-", "plantIdexp"="0"})
      */
-    public function downloadAnalyse($formview, $plantIdexp = null, Request $request, DownloadAnalyseService $analyseService){
+    public function downloadAnalyse($formview, $plantIdexp, Request $request, DownloadAnalyseService $analyseService){
 
         //das Formular für die Datumsselektion
         $form = $this->createForm(DownloadAnalyseFormType::class);

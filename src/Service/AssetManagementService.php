@@ -77,27 +77,25 @@ class AssetManagementService
         $from = "$reportYear-$reportMonth-01 00:00";
         $to = "$reportYear-$reportMonth-$lastDayMonth 23:59";
 
-        $output = '';
-
         $report = [];
         $report['yesterday'] = $yesterday;
         $report['reportMonth'] = $reportMonth;
         $report['from'] = $from;
         $report['to'] = $to;
         $report['reportYear'] = $reportYear;
-        $report['anlage'] = $anlage;
-        $report['prs'] = $this->PRRepository->findPRInMonth($report['anlage'], $reportMonth, $reportYear);
-        $report['lastPR'] = $this->PRRepository->findOneBy(['anlage' => $report['anlage'], 'stamp' => date_create("$year-$month-$lastDayMonth")]);
-        $report['case5s'] = $this->case5Repo->findAllAnlageDay($report['anlage'], $from);
-        $report['pvSyst'] = $this->getPvSystMonthData($report['anlage'], $month, $year);
-        $useGridMeterDayData = $report['anlage']->getUseGridMeterDayData();
-        $showAvailability = $report['anlage']->getAnlId();
-        $showAvailabilitySecond = $report['anlage']->getShowAvailabilitySecond();
-        $usePac = $report['anlage']->getUsePac();
+        #$report['anlage'] = $anlage;
+        #$report['prs'] = $this->PRRepository->findPRInMonth($anlage, $reportMonth, $reportYear);
+        #$report['lastPR'] = $this->PRRepository->findOneBy(['anlage' => $anlage, 'stamp' => date_create("$year-$month-$lastDayMonth")]);
+        #$report['case5s'] = $this->case5Repo->findAllAnlageDay($anlage, $from);
+        #$report['pvSyst'] = $this->getPvSystMonthData($anlage, $month, $year);
+        $useGridMeterDayData = $anlage->getUseGridMeterDayData();
+        $showAvailability = $anlage->getAnlId();
+        $showAvailabilitySecond = $anlage->getShowAvailabilitySecond();
+        $usePac = $anlage->getUsePac();
 
         $countCase5 = 0;
 
-        $output = $this->buildAssetReport($report['anlage'], $report, $pages);
+        $output = $this->buildAssetReport($anlage, $report, $pages);
 
         return $output;
 
@@ -138,7 +136,7 @@ class AssetManagementService
             }
         }
 
-        $resultArray = [
+        return [
             'prMonth' => $prPvSystMonth,
             'prPac' => $anlage->getDesignPR(),
             'prYear' => $anlage->getDesignPR(),
@@ -146,8 +144,6 @@ class AssetManagementService
             'powerPac' => $powerPac,
             'powerYear' => $powerYear
         ];
-
-        return $resultArray;
     }
 
     /**
@@ -259,11 +255,9 @@ class AssetManagementService
             $powerEvuYearToDate = round($powerEvuYearToDate + $data1_grid_meter['powerEvu'], 2);
             $pvSyst = $this->pvSystMonthRepo->findOneMonth($anlage, $i);
 
-
-            if (count($pvSyst) > 0) $expectedPvSystDb = $pvSyst->getErtragDesign();
+            if ($pvSyst) $expectedPvSystDb = $pvSyst->getErtragDesign();
 
             $dataMonthArray[] = $monthArray[$i - 1];
-
 
             if ($data1_grid_meter['powerEvu'] == 0) {
                 $expectedPvSystDb = 0;
@@ -302,7 +296,6 @@ class AssetManagementService
         //beginn chart
         $chart = new ECharts();
         $chart->tooltip->show = true;
-
         $chart->tooltip->trigger = 'item';
 
         $chart->xAxis = array(
@@ -429,8 +422,8 @@ class AssetManagementService
         ];
 
         //beginn chart
-        $chart->tooltip->show = true;
-        $chart->tooltip->trigger = 'item';
+        ## $chart->tooltip->show = true;
+        ## $chart->tooltip->trigger = 'item';
 
         $chart->xAxis = array(
             'type' => 'category',
@@ -559,8 +552,8 @@ class AssetManagementService
         ];
 
         //beginn chart
-        $chart->tooltip->show = true;
-        $chart->tooltip->trigger = 'item';
+        # $chart->tooltip->show = true;
+        # $chart->tooltip->trigger = 'item';
 
         $chart->xAxis = array(
             'type' => 'category',
@@ -679,8 +672,8 @@ class AssetManagementService
         ];
 
         //beginn chart
-        $chart->tooltip->show = true;
-        $chart->tooltip->trigger = 'item';
+        # $chart->tooltip->show = true;
+        # $chart->tooltip->trigger = 'item';
 
         $chart->xAxis = array(
             'type' => 'category',
@@ -782,8 +775,8 @@ class AssetManagementService
         ];
 
         //beginn chart
-        $chart->tooltip->show = true;
-        $chart->tooltip->trigger = 'item';
+        # $chart->tooltip->show = true;
+        # $chart->tooltip->trigger = 'item';
 
         $chart->xAxis = array(
             'type' => 'category',
@@ -862,9 +855,9 @@ class AssetManagementService
 
 
         //Start Monthley expected vs.actuals
-        $chart->tooltip->show = true;
+        # $chart->tooltip->show = true;
 
-        $chart->tooltip->trigger = 'item';
+        # $chart->tooltip->trigger = 'item';
 
         $chart->xAxis = array(
             'type' => 'category',
@@ -1467,8 +1460,8 @@ class AssetManagementService
         }
 
         //Availability: Year to date
-        $chart->tooltip->show = true;
-        $chart->tooltip->trigger = 'item';
+        # $chart->tooltip->show = true;
+        # $chart->tooltip->trigger = 'item';
         $chart->series =
             [
                 [
@@ -1539,8 +1532,8 @@ class AssetManagementService
         unset($option);
 
         //Failures: Year to date
-        $chart->tooltip->show = true;
-        $chart->tooltip->trigger = 'item';
+        # $chart->tooltip->show = true;
+        # $chart->tooltip->trigger = 'item';
         $chart->series =
             [
                 [
@@ -1603,8 +1596,8 @@ class AssetManagementService
         unset($option);
 
         //Plant Availability
-        $chart->tooltip->show = true;
-        $chart->tooltip->trigger = 'item';
+        # $chart->tooltip->show = true;
+        # $chart->tooltip->trigger = 'item';
         $chart->series =
             [
                 [
@@ -1678,8 +1671,8 @@ class AssetManagementService
         unset($option);
 
         //Actual
-        $chart->tooltip->show = true;
-        $chart->tooltip->trigger = 'item';
+        # $chart->tooltip->show = true;
+        # $chart->tooltip->trigger = 'item';
         $chart->series =
             [
                 [
@@ -1812,8 +1805,8 @@ class AssetManagementService
                 'exp_current_dc' => $value['exp_current_dc'],
                 'act_power_dc' => $dcIst[$j]['act_power_dc'],
                 'act_current_dc' => $dcIst[$j]['act_current_dc'],
-                'diff_current_dc' => (1 - $value['exp_current_dc'] / $dcIst[$j]['act_current_dc']) * 100,
-                'diff_power_dc' => (1 - $value['exp_power_dc'] / $dcIst[$j]['act_power_dc']) * 100,
+                'diff_current_dc' => ($dcIst[$j]['act_current_dc'] != 0) ? (1 - $value['exp_current_dc'] / $dcIst[$j]['act_current_dc']) * 100 : 0,
+                'diff_power_dc' => ($dcIst[$j]['act_power_dc'] != 0) ? (1 - $value['exp_power_dc'] / $dcIst[$j]['act_power_dc']) * 100 : 0,
             ];
             $i++;
             $j++;
@@ -1976,8 +1969,8 @@ class AssetManagementService
         ];
 
         #geginn Chart economics Cumulated Forecast
-        $chart->tooltip->show = true;
-        $chart->tooltip->trigger = 'item';
+        # $chart->tooltip->show = true;
+        # $chart->tooltip->trigger = 'item';
 
         $chart->xAxis = array(
             'type' => 'category',
@@ -2061,8 +2054,8 @@ class AssetManagementService
         #end Chart economics Cumulated Forecast
 
         //beginn chart losses monthly
-        $chart->tooltip->show = true;
-        $chart->tooltip->trigger = 'item';
+        # $chart->tooltip->show = true;
+        # $chart->tooltip->trigger = 'item';
 
         $chart->xAxis = array(
             'type' => 'category',
@@ -2141,9 +2134,9 @@ class AssetManagementService
 
         //beginn chart costs per month
         $chart = new ECharts();
-        $chart->tooltip->show = true;
+        # $chart->tooltip->show = true;
 
-        $chart->tooltip->trigger = 'item';
+        # $chart->tooltip->trigger = 'item';
 
         $chart->xAxis = array(
             'type' => 'category',
@@ -2223,8 +2216,8 @@ class AssetManagementService
 
         //Beginn Economics Costs per month and year
 
-        $chart->tooltip->show = true;
-        $chart->tooltip->trigger = 'item';
+        # $chart->tooltip->show = true;
+        # $chart->tooltip->trigger = 'item';
         $chart->series =
             [
                 [
@@ -2347,9 +2340,9 @@ class AssetManagementService
         //beginn Operating Statement
         //beginn chart
         $chart = new ECharts();
-        $chart->tooltip->show = true;
+        # $chart->tooltip->show = true;
 
-        $chart->tooltip->trigger = 'item';
+        # $chart->tooltip->trigger = 'item';
 
         $chart->xAxis = array(
             'type' => 'category',
@@ -2442,9 +2435,9 @@ class AssetManagementService
 
         //beginn Chart Losses compared
         $chart = new ECharts();
-        $chart->tooltip->show = true;
+        # $chart->tooltip->show = true;
 
-        $chart->tooltip->trigger = 'item';
+        # $chart->tooltip->trigger = 'item';
 
         $chart->xAxis = array(
             'type' => 'category',
@@ -2537,9 +2530,9 @@ class AssetManagementService
 
         //beginn Chart Losses compared cummulated
         $chart = new ECharts();
-        $chart->tooltip->show = true;
+        # $chart->tooltip->show = true;
 
-        $chart->tooltip->trigger = 'item';
+        # $chart->tooltip->trigger = 'item';
 
         $chart->xAxis = array(
             'type' => 'category',

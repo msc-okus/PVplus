@@ -34,7 +34,7 @@ class DCCurrentChartService
         $this->irradiationChart = $irradiationChart;
     }
 
-    public function getCurr1(Anlage $anlage, $from, $to, $group = 1, bool $hour): array
+    public function getCurr1(Anlage $anlage, $from, $to, $group = 1,  bool $hour = false): array
     {
             if ($hour) $form = '%y%m%d%H';
             else $form = '%y%m%d%H%i';
@@ -88,7 +88,7 @@ class DCCurrentChartService
      * @return array
      * dc_current_group
      */
-    public function getCurr2(Anlage $anlage, $from, $to, int $set = 1, bool $hour): array
+    public function getCurr2(Anlage $anlage, $from, $to, int $set = 1,  bool $hour = false): array
     {
 
     if ($hour) $form = '%y%m%d%H';
@@ -159,7 +159,7 @@ class DCCurrentChartService
      * @return array
      *  // dc_current_inverter
      */
-    public function getCurr3(Anlage $anlage, $from, $to, int $group = 1, bool $hour): array
+    public function getCurr3(Anlage $anlage, $from, $to, int $group = 1,  bool $hour = false): array
     {
         if(false) {
             if ($hour) $form = '%y%m%d%H';
@@ -330,7 +330,7 @@ class DCCurrentChartService
      * @return array|false
      *  // dc_current_mpp
      */
-    public function getCurr4(Anlage $anlage, $from, $to, int $inverter = 1, bool $hour): array
+    public function getCurr4(Anlage $anlage, $from, $to, int $inverter = 1,  bool $hour = false): array
     {
         if($hour) $form = '%y%m%d%H';
         else $form = '%y%m%d%H%i';
