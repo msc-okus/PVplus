@@ -66,7 +66,7 @@ class ModulesListEmbeddedFormType extends AbstractType
                 'empty_data'    => '',
             ])
             ->add('irrDiscount1',TextType::class, [
-                'label'         => 'Irr Discount 0-50',
+                'label'         => 'Irr Discount 1-50',
                 'empty_data'    => '0',
             ])
             ->add('irrDiscount2',TextType::class, [
@@ -79,6 +79,22 @@ class ModulesListEmbeddedFormType extends AbstractType
             ])
             ->add('irrDiscount4',TextType::class, [
                 'label'         => 'Irr Discount 151-200',
+                'empty_data'    => '0',
+            ])
+            ->add('irrDiscount5',TextType::class, [
+                'label'         => 'Irr Discount 201-250',
+                'empty_data'    => '0',
+            ])
+            ->add('irrDiscount6',TextType::class, [
+                'label'         => 'Irr Discount 251-300',
+                'empty_data'    => '0',
+            ])
+            ->add('irrDiscount7',TextType::class, [
+                'label'         => 'Irr Discount 301-350',
+                'empty_data'    => '0',
+            ])
+            ->add('irrDiscount8',TextType::class, [
+                'label'         => 'Irr Discount 351-400',
                 'empty_data'    => '0',
             ])
         ;
