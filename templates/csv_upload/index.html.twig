@@ -3,6 +3,7 @@
 {% block title %}Hello CsvUploadController!{% endblock %}
 
 {% block body %}
+    {{ form_start(uploadForm, {'attr': {'novalidate': 'no'}}) }}
 <style>
     .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
     .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
@@ -13,8 +14,12 @@
 
     This friendly message is coming from:
     <ul>
+        {{ form_row(uploadForm.imageFile) }}
         <li>Your controller at <code><a href="{{ '/Users/jose/PhpstormProjects/PVplus-4.0/src/Controller/CsvUploadController.php'|file_link(0) }}">src/Controller/CsvUploadController.php</a></code></li>
         <li>Your template at <code><a href="{{ '/Users/jose/PhpstormProjects/PVplus-4.0/templates/csv_upload/index.html.twig'|file_link(0) }}">templates/csv_upload/index.html.twig</a></code></li>
+        {{ form_widget(uploadForm.save) }}
     </ul>
 </div>
+
+    {{ form_end(uploadForm) }}
 {% endblock %}

@@ -7,6 +7,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Validator\Constraints\Image;
 
 class FileUploadFormType extends AbstractType
@@ -36,7 +37,7 @@ class FileUploadFormType extends AbstractType
                     new File([
                         'maxSize' => '5M',
                         'mimeTypes' => [
-                            'application/csv'
+               //             'application/csv'
                         ]
                     ])
                 ]
@@ -46,6 +47,11 @@ class FileUploadFormType extends AbstractType
             ####          STEUERELEMENTE              ####
             ##############################################
 
+
+            ->add('save', SubmitType::class, [
+                'label' => 'Save Owner',
+                'attr' => ['class' => 'primary save'],
+            ])
             ->add('export', SubmitType::class, [
                 'label'     => 'Upload',
                 'attr'      => ['class' => 'primary save'],
