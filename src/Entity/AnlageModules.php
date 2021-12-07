@@ -114,6 +114,26 @@ class AnlageModules
      */
     private string $irrDiscount4 = '0';
 
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private string $irrDiscount5 = '0';
+
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private string $irrDiscount6 = '0';
+
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private string $irrDiscount7 = '0';
+
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private string $irrDiscount8 = '0';
+
     public function __construct()
     {
         $this->anlageGroupModules = new ArrayCollection();
@@ -417,4 +437,45 @@ class AnlageModules
 
         return $this;
     }
+
+    public function getIrrDiscount5(): string
+    {
+        return $this->irrDiscount5;
+    }
+
+    public function setIrrDiscount5(string $irrDiscount5): void
+    {
+        $this->irrDiscount5 = $irrDiscount5;
+    }
+
+    public function getIrrDiscount6(): string
+    {
+        return $this->irrDiscount6;
+    }
+
+    public function setIrrDiscount6(string $irrDiscount6): void
+    {
+        $this->irrDiscount6 = $irrDiscount6;
+    }
+
+    public function getIrrDiscount7(): string
+    {
+        return $this->irrDiscount7;
+    }
+
+    public function setIrrDiscount7(string $irrDiscount7): void
+    {
+        $this->irrDiscount7 = $irrDiscount7;
+    }
+
+    public function getIrrDiscount8(): string
+    {
+        return $this->irrDiscount8;
+    }
+
+    public function setIrrDiscount8(string $irrDiscount8): void
+    {
+        $this->irrDiscount8 = $irrDiscount8;
+    }
+
 }

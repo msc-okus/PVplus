@@ -126,7 +126,7 @@
     </table>
     {{ knp_pagination_render(pagination) }}
     <hr>
-    {% if is_granted('ROLE_DEV') %}
+    {% if is_granted('ROLE_ADMIN') %}
         <form>
             <div class="grid-x grid-margin-x align-middle">
                 <div class="cell medium-2">
