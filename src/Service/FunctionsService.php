@@ -250,35 +250,39 @@ class FunctionsService
         $conn = self::getPdoConnection();
         $dbTable = $anlage->getDbNameDcSoll();
         $sumPowerExp = $sumPowerExpMonth = $sumPowerExpPac = $sumPowerExpYear = 0;
+        $sumPowerExpEVU = $sumPowerExpEVUMonth = $sumPowerExpEVUPac = $sumPowerExpEVUYear = 0;
 
         // Day
-        $sql = "SELECT sum(ac_exp_power) as sum_power_ac FROM $dbTable WHERE stamp BETWEEN '$from' AND '$to'";
+        $sql = "SELECT sum(ac_exp_power) as sum_power_ac, sum(ac_exp_power_evu) as sum_power_ac_evu FROM $dbTable WHERE stamp BETWEEN '$from' AND '$to'";
         $res = $conn->query($sql);
         if ($res) {
             while ($ro = $res->fetch(PDO::FETCH_ASSOC)) {
                 $sumPowerExp = $ro['sum_power_ac'];
+                $sumPowerExpEVU = $ro['sum_power_ac_evu'];
             }
         }
         unset($res);
 
         // Month
         $startMonth = date('Y-m-01 00:00', strtotime($to));
-        $sql = "SELECT sum(ac_exp_power) as sum_power_ac FROM $dbTable WHERE stamp BETWEEN '$startMonth' AND '$to'";
+        $sql = "SELECT sum(ac_exp_power) as sum_power_ac, sum(ac_exp_power_evu) as sum_power_ac_evu FROM $dbTable WHERE stamp BETWEEN '$startMonth' AND '$to'";
         $res = $conn->query($sql);
         if ($res) {
             while ($ro = $res->fetch(PDO::FETCH_ASSOC)) {
                 $sumPowerExpMonth = $ro['sum_power_ac'];
+                $sumPowerExpEVUMonth = $ro['sum_power_ac_evu'];
             }
         }
         unset($res);
 
         // Pac
         if($anlage->getUsePac()) {
-            $sql = "SELECT sum(ac_exp_power) as sum_power_ac FROM $dbTable WHERE stamp BETWEEN '$pacDate' AND '$to'";
+            $sql = "SELECT sum(ac_exp_power) as sum_power_ac, sum(ac_exp_power_evu) as sum_power_ac_evu FROM $dbTable WHERE stamp BETWEEN '$pacDate' AND '$to'";
             $res = $conn->query($sql);
             if ($res) {
                 while ($ro = $res->fetch(PDO::FETCH_ASSOC)) {
                     $sumPowerExpPac = $ro['sum_power_ac'];
+                    $sumPowerExpEVUPac = $ro['sum_power_ac_evu'];
                 }
             }
             unset($res);
@@ -286,11 +290,12 @@ class FunctionsService
 
         // Year
         $startYear = date('Y-01-01 00:00', strtotime($to));
-        $sql = "SELECT sum(ac_exp_power) as sum_power_ac FROM $dbTable WHERE stamp BETWEEN '$startYear' AND '$to'";
+        $sql = "SELECT sum(ac_exp_power) as sum_power_ac, sum(ac_exp_power_evu) as sum_power_ac_evu FROM $dbTable WHERE stamp BETWEEN '$startYear' AND '$to'";
         $res = $conn->query($sql);
         if ($res) {
             while ($ro = $res->fetch(PDO::FETCH_ASSOC)) {
                 $sumPowerExpYear = $ro['sum_power_ac'];
+                $sumPowerExpEVUYear = $ro['sum_power_ac_evu'];
             }
         }
         unset($res);
@@ -299,6 +304,11 @@ class FunctionsService
         $powerExpArray['sumPowerExpMonth']  = round($sumPowerExpMonth, 4);
         $powerExpArray['sumPowerExpPac']    = round($sumPowerExpPac, 4);
         $powerExpArray['sumPowerExpYear']   = round($sumPowerExpYear, 4);
+
+        $powerExpArray['sumPowerEvuExp']       = round($sumPowerExpEVU, 4);
+        $powerExpArray['sumPowerEvuExpMonth']  = round($sumPowerExpEVUMonth, 4);
+        $powerExpArray['sumPowerEvuExpPac']    = round($sumPowerExpEVUPac, 4);
+        $powerExpArray['sumPowerEvuExpYear']   = round($sumPowerExpEVUYear, 4);
 
         $conn = null;
 
@@ -770,11 +780,11 @@ class FunctionsService
         $conn = self::getPdoConnection();
         $result     = [];
         $powerEvu = 0;
-        $powerExp = 0;
+        $powerExp = $powerExpEvu = 0;
 
         ############# für den angeforderten Zeitraum #############
 
-        // Wenn externe Tagesdaten genutzt werden sollen lade diese aus der DB und ÜBERSCHREIBE die Daten aus den 15Minuten Werten
+        // Wenn externe Tagesdaten genutzt werden sollen, lade diese aus der DB und ÜBERSCHREIBE die Daten aus den 15Minuten Werten
         if ($anlage->getUseGridMeterDayData()) {
             $year = date("Y", strtotime($from));
             $month = date("m", strtotime($from));
@@ -799,11 +809,12 @@ class FunctionsService
         unset($res);
 
         // Expected Leistung ermitteln
-        $sql = "SELECT sum(ac_exp_power) as sum_power_ac FROM ".$anlage->getDbNameDcSoll()." WHERE stamp >= '$from' AND stamp <= '$to' AND group_ac = $acGroup";
+        $sql = "SELECT sum(ac_exp_power) as sum_power_ac, sum(ac_exp_power_evu) as sum_power_ac_evu FROM ".$anlage->getDbNameDcSoll()." WHERE stamp >= '$from' AND stamp <= '$to' AND group_ac = $acGroup";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
             $powerExp = round($row['sum_power_ac'],4);
+            $powerExpEvu = round($row['sum_power_ac_evu'], 4);
         }
         unset($res);
 
@@ -815,6 +826,7 @@ class FunctionsService
             $result['powerEvu']      = $powerEvu;
             $result['powerAct']      = round($row["sum_power_ac"],4);
             $result['powerExp']      = $powerExp;
+            $result['powerExpEvu']   = $powerExpEvu;
             $result['powerEGridExt'] = $powerEGridExt;
             $result['powerTheo']     = round($row['theo_power'],4);
         }
