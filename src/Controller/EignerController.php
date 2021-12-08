@@ -119,7 +119,7 @@ class EignerController extends BaseController
 
             $uploadedFile = $form['imageFile']->getData();
             if ($uploadedFile) {
-
+                $isupload = "yes";
                 $newFile = $uploaderHelper->uploadImage($uploadedFile, $id, "owner");
                 $newFilename = $newFile['newFilename'];
                 $mimeType = $newFile['mimeType'];
@@ -138,7 +138,7 @@ class EignerController extends BaseController
                 //the rest
             $em->persist($owner);
             $em->flush();
-
+            $imageuploaded = $RepositoryUpload->findOneBy(['path' => $owner->getLogo()]);
             if($form->get('save')->isClicked()) {
                 return $this->render('owner/edit.html.twig', [
                     'ownerForm' => $form->createView(),
@@ -156,12 +156,17 @@ class EignerController extends BaseController
 
             return $this->redirectToRoute('app_admin_owner_list');
         }
-
+        if($imageuploaded != null)
         return $this->render('owner/edit.html.twig', [
             'ownerForm' => $form->createView(),
             'fileUploadForm' => $form->createView(),
             'isupload' => $isupload,
             'imageuploadet' => $imageuploaded->getPath()
+        ]);
+        else         return $this->render('owner/edit.html.twig', [
+            'ownerForm' => $form->createView(),
+            'fileUploadForm' => $form->createView(),
+            'isupload' => $isupload,
         ]);
     }
 }
