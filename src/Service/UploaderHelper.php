@@ -18,6 +18,8 @@ class UploaderHelper
     const PLANT_IMAGE = 'plants';
     const PLANT_REFERENCE = 'plant_reference';
     const EIGNER_LOGO = 'eigners';
+    const CSV = 'csv';
+
 
     private FilesystemInterface $filesystem;
     private RequestStackContext $requestStackContext;
@@ -43,9 +45,11 @@ class UploaderHelper
             case "owner":
                 $foldern = self::EIGNER_LOGO."/";
                 break;
-
-            case "reference/";
+            case "reference";
                 $foldern = self::PLANT_REFERENCE."/";
+                break;
+            case "csv";
+                $foldern = self::CSV."/";
                 break;
             default:
                 $foldern = "/";
@@ -58,7 +62,8 @@ class UploaderHelper
         );
         $result = [
             'mimeType' => $mimeType,
-            'newFilename' => $newFilename
+            'newFilename' => $newFilename,
+            'path' => $foldern.$id.'/'.$newFilename,
         ];
 
         return $result;
@@ -117,6 +122,7 @@ class UploaderHelper
         $newFilename = Urlizer::urlize(pathinfo($originalFilename, PATHINFO_FILENAME)).'-'.uniqid().'.'.$file->guessExtension();
 
         $stream = fopen($file->getPathname(), 'r');
+        dump($file->getPathname(),$directory);
         $result = $this->filesystem->writeStream(
             $directory.'/'.$newFilename,
             $stream,

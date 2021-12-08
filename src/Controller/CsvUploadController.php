@@ -8,6 +8,7 @@ use App\Form\Owner\OwnerFormType;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Finder\Finder;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -33,11 +34,18 @@ class CsvUploadController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked()) ) {
             dump("entro");
-            $uploadedFile = $form['imageFile']->getData();
+            $uploadedFile = $form['File']->getData();
+            dump($uploadedFile);
             if ($uploadedFile) {
 
-                dump($newFile = $uploaderHelper->uploadFile($uploadedFile, "csv",true));
-
+                dump("entro");
+                dump($newFile = $uploaderHelper->uploadImage($uploadedFile, "1","csv"));
+                $finder = new Finder();
+                $finder->Files()->in("./");//->in("/public/uploads/".$newFile['path'], 'r');
+                foreach ($finder as $file) {
+                    $contents = $file->getContents();
+                    dump($contents);
+                }
             }
 
         }
