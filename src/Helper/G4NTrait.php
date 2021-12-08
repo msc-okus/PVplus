@@ -122,7 +122,7 @@ trait G4NTrait
     }
 
     public static function checkUnitAndConvert($value, $unit) {
-        ($unit === 'w') ? $returnValue = round($value / 1000 / 4, 2) : $returnValue = round($value,2);
+        ($unit === 'w') ? $returnValue = ($value / 1000 / 4) : $returnValue = $value;
 
         return $returnValue;
     }
