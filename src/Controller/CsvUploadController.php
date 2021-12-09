@@ -41,7 +41,8 @@ class CsvUploadController extends AbstractController
                 dump("entro");
                 dump($newFile = $uploaderHelper->uploadImage($uploadedFile, "1","csv"));
                 $finder = new Finder();
-                $finder->Files()->in("./");//->in("/public/uploads/".$newFile['path'], 'r');
+
+                $finder->Files()->in(__DIR__."/public/uploads/csv/");
                 foreach ($finder as $file) {
                     $contents = $file->getContents();
                     dump($contents);
