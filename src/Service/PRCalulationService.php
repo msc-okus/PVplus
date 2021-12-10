@@ -547,6 +547,7 @@ class PRCalulationService
 
         // Wetter Daten ermitteln
         $weather    = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate);
+
         // Leistungsdaten ermitteln
         $power      = $this->functions->getSumAcPower($anlage, $localStartDate, $localEndDate);
         $result['powerEvu']         = $power['powerEvu'];

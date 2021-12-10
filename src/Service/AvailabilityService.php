@@ -294,7 +294,7 @@ class AvailabilityService
                             $availability[$inverter]['case5']++;
                         }
                         // Case 6
-                        if ($case6 === true && $case3 === false) {
+                        if ($case6 === true && $case3 === false && $case0 === true) {
                             $availability[$inverter]['case6']++;
                         }
                         // Control ti,theo

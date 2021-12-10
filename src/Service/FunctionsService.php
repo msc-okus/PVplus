@@ -320,6 +320,7 @@ class FunctionsService
      *
      * @param Anlage $anlage
      * @param int $month
+     * @param int|null $betriebsJahre
      * @return float
      */
     public function getForcastByMonth(Anlage $anlage, int $month, ?int $betriebsJahre = null ): float
@@ -336,6 +337,7 @@ class FunctionsService
 
         return $sum;
     }
+
     /**
      * @param Anlage $anlage
      * @param $startdate
@@ -412,7 +414,7 @@ class FunctionsService
      * @param string $select ('all', 'date, 'month', 'year', 'pac')
      * @return array
      */
-    public function getSumPowerEGridExt(Anlage $anlage, $from, $to, $pacDateStart, $pacDateEnd, string $select = 'all') :array
+    public function getSumPowerEGridExt(Anlage $anlage, $from, $to, $pacDateStart, $pacDateEnd, string $select = 'all'): array
     {
         $startYear  = date('Y-01-01 00:00', strtotime($from));
         $startMonth = date('Y-m-01 00:00', strtotime($from));
@@ -431,13 +433,14 @@ class FunctionsService
     }
 
     /**
-     * @param $dbTable
-     * @param $irchange
+     * @param WeatherStation $weatherStation
      * @param $from
      * @param $to
+     * @param $pacDateStart
+     * @param $pacDateEnd
      * @return array
      */
-    public function getWeather(WeatherStation $weatherStation, $from, $to, $pacDateStart, $pacDateEnd) :array
+    public function getWeather(WeatherStation $weatherStation, $from, $to, $pacDateStart, $pacDateEnd): array
     {
         $conn = self::getPdoConnection();
         $jahresanfang = date('Y-01-01 00:00', strtotime($from)); // für das ganze Jahr - Zeitraum
@@ -539,9 +542,10 @@ class FunctionsService
 
     /**
      * @param $irrArray
+     * @param float $umrechnung
      * @return array
      */
-    public function buildSumFromIrrArray($irrArray, $umrechnung = 1) :array
+    public function buildSumFromIrrArray($irrArray, float $umrechnung = 1.0): array
     {
         $irrSumArray = [];
         if (is_array($irrArray)) {
@@ -562,7 +566,7 @@ class FunctionsService
      * @param int $umrechnung = Faktor zum Umrechenen auf Wh (4) oder kWh (4000) etc
      * @return array
      */
-    public function buildSumFromArray($array, int $umrechnung = 1) :array
+    public function buildSumFromArray($array, int $umrechnung = 1): array
     {
         $sumArray = [];
         if (is_array($array)) {
@@ -589,9 +593,8 @@ class FunctionsService
      * @param int $umrechnung
      * @return array
      */
-    public function buildAvgFromArray($array, int $umrechnung = 1) :array
+    public function buildAvgFromArray($array, int $umrechnung = 1): array
     {
-
         $sumArray = [];
         $counter = 0;
 
@@ -619,16 +622,16 @@ class FunctionsService
     }
 
     /**
-     * @param $irrUpper
-     * @param $irrLower
+     * @param float $irrUpper
+     * @param float $irrLower
      * @param $date
      * @param Anlage $anlage
      * @param AnlageGroups $group
      * @param WeatherStation $weatherStation
      * @param AnlageGroupMonths|null $groupMonth
-     * @return float|int
+     * @return float
      */
-    public function calcIrr(float $irrUpper, float $irrLower, $date, Anlage $anlage, AnlageGroups $group, WeatherStation $weatherStation, ?AnlageGroupMonths $groupMonth)
+    public function calcIrr(float $irrUpper, float $irrLower, $date, Anlage $anlage, AnlageGroups $group, WeatherStation $weatherStation, ?AnlageGroupMonths $groupMonth): float
     {
         $gewichtetStrahlung = 0;
         $month              = date("m", strtotime($date));
@@ -668,7 +671,7 @@ class FunctionsService
         return $gewichtetStrahlung;
     }
 
-    public function tempCorrection(Anlage $anlage, $tempCellTypeAvg, $windSpeed, $airTemp, $gPOA) : float
+    public function tempCorrection(Anlage $anlage, $tempCellTypeAvg, $windSpeed, $airTemp, $gPOA): float
     {
         $gamma              = $anlage->getTempCorrGamma();
         $a                  = $anlage->getTempCorrA();
@@ -679,10 +682,11 @@ class FunctionsService
         $tempCell       = $tempModulBack + ($gPOA / 1000) * $deltaTcnd;
 
         ($tempCellTypeAvg > 0) ? $tempCorrection = 1 - ($tempCellTypeAvg - $tempCell) * $gamma / 1000 : $tempCorrection = 1;
+
         return $tempCorrection;
     }
 
-    public function getSumeGridMeter(Anlage $anlage, $from, $to, bool $day = false) :float
+    public function getSumeGridMeter(Anlage $anlage, $from, $to, bool $day = false): float
     {
         if ($anlage->getUseGridMeterDayData()) {
             // Berechnung der externen Zählewrwerte unter berücksichtigung der Manuel eingetragenen Monatswerte.

@@ -330,7 +330,7 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
                 'availability'   => [
                     'type'          => 'number',
                     'label'         => 'Availability<br>[%]',
-                    'formatValue'   => function($value) {return number_format($value, 2, ',', '.');},
+                    'formatValue'   => function($value) {return number_format((float)$value, 2, ',', '.');},
                 ],
                 'dummy' => [
                     'type'          => 'string',
@@ -355,7 +355,7 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
                 'anteil'=> [
                     'type'          => 'number',
                     'label'         => 'Ratio<br><br>[%]',
-                    'formatValue'   => function($value) {return number_format($value, 2, ',', '.');},
+                    'formatValue'   => function($value) {return number_format((float)$value, 2, ',', '.');},
                 ],
                 'specPowerGuar' => [
                     'type'          => 'number',

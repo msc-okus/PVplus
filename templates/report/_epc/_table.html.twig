@@ -96,7 +96,7 @@
                 <td>{{ month.L_irr|number_format(2, ',', '.') }}</td>
                 <td>{{ month.M_eGridYield|number_format(2, ',', '.') }}</td>
                 <td>{{ month.N_specificYield|number_format(2, ',', '.') }}</td>
-                <td>{% if month.O_availability > 0 %}{{ month.O_availability|number_format(2, ',', '.') }}{% endif %}</td>
+                <td>{% if month.O_availability > 0 %}{{ month.O_availability|number_format(3, ',', '.') }}{% endif %}</td>
                 <td>{% if month.P_part > 0 %}{{ month.P_part|number_format(2, ',', '.') }}{% endif %}</td>
                 <!--<td>{{ month.Q_prReal_prProg|number_format(2, ',', '.') }}</td>-->
                 <!--<td>{{ month.R_theorYield|number_format(2, ',', '.') }}</td>-->

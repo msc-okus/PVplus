@@ -559,6 +559,11 @@ class Anlage
     /**
      * @ORM\Column(type="string", length=20, nullable=true)
      */
+    private ?string $kwPeakPLDCalculation;
+
+    /**
+     * @ORM\Column(type="string", length=20, nullable=true)
+     */
     private ?string $designPR;
 
     /**
@@ -2438,6 +2443,16 @@ class Anlage
         $this->kwPeakPvSyst = $kwPeakPvSyst;
 
         return $this;
+    }
+
+    public function getKwPeakPLDCalculation(): ?string
+    {
+        return $this->kwPeakPLDCalculation;
+    }
+
+    public function setKwPeakPLDCalculation(?string $kwPeakPLDCalculation): void
+    {
+        $this->kwPeakPLDCalculation = $kwPeakPLDCalculation;
     }
 
     public function getDesignPR(): ?string
