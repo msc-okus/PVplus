@@ -312,7 +312,7 @@ class ReportEpcService
                 if ($run === 2) {// Monatswerte berechnen
                     if ($n == $anzahlMonate) $realDateText .= $realDateTextEnd;
                     $sumSpezErtragDesign = $sumErtragDesign / (float)$anlage->getKwPeakPvSyst();
-                    $anteil              = $spezErtragDesign / $sumSpezErtragDesign;
+                    $anteil              = ($sumSpezErtragDesign > 0) ? $spezErtragDesign / $sumSpezErtragDesign : 0;
                     $sumAnteil          += $anteil;
                     $sumPrRealPrProg    += $prRealprProg * $anteil;
                     if ($pr) {
