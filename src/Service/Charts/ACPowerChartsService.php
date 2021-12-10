@@ -39,10 +39,10 @@ class ACPowerChartsService
      * @param Anlage $anlage
      * @param $from
      * @param $to
-     * @param $hour
-     * @return array|false
+     * @param bool $hour
+     * @return array
      */
-    public function getAC1(Anlage $anlage, $from, $to,?bool $hour = false)
+    public function getAC1(Anlage $anlage, $from, $to, bool $hour = false): array
     {
             $conn = self::getPdoConnection();
             if ($hour) $form = '%y%m%d%H';
@@ -89,7 +89,7 @@ class ACPowerChartsService
                     ($rowExp['soll_nolimit'] == null || $rowExp['soll_nolimit'] < 0) ? $expectedNoLimit = 0 : $expectedNoLimit = round($rowExp['soll_nolimit'], 2);
                     $expDiffInvOut = round($expectedInvOut - $expectedInvOut * 10 / 100, 2);   // Minus 10 % Toleranz Invberter Out.
                     $expDiffEvu = round($expectedEvu - $expectedEvu * 10 / 100, 2);         // Minus 10 % Toleranz Grid (EVU).
-                    $cosPhi = abs($rowActual["cosPhi"]);
+                    $cosPhi = abs((float)$rowActual["cosPhi"]);
                     $acIst = $rowActual["acIst"];
                     $cosPhiSum += $cosPhi * $acIst;
                     $eZEvu = $rowEvu["eZEvu"] / ($anlage->getAnzInverterFromGroupsAC());
@@ -157,10 +157,10 @@ class ACPowerChartsService
      * @param $from
      * @param $to
      * @param int $group
-     *
+     * @param bool $hour
      * @return array
      */
-    public function getAC2(Anlage $anlage, $from, $to, int $group, bool $hour): array
+    public function getAC2(Anlage $anlage, $from, $to, int $group, bool $hour = false): array
     {
             $dataArray = [];
             $dataArray['maxSeries'] = 0;
@@ -182,11 +182,10 @@ class ACPowerChartsService
                     $type .= " group_dc = '$group'";
             }
 
-            $sqlIst = "SELECT a.stamp stamp, sum(wr_pac) as actPower, wr_cos_phi_korrektur as cosPhi
-                        FROM ( db_dummysoll  a left JOIN (SELECT * FROM " . $anlage->getDbNameIst() . " WHERE " . $type . "  AND wr_pac >= 0 ) b ON a.stamp = b.stamp)
-                        WHERE  a.stamp BETWEEN '$from' AND '$to'
-                        GROUP BY  date_format(a.stamp, '$form'), unit";
-
+            $sqlIst = "SELECT a.stamp as stamp, sum(b.wr_pac) as actPower, b.wr_cos_phi_korrektur as cosPhi, b.unit
+                        FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameIst() . " WHERE " . $type . " AND wr_pac >= 0 ) b ON a.stamp = b.stamp)
+                        WHERE a.stamp BETWEEN '$from' AND '$to'
+                        GROUP BY date_format(a.stamp, '$form'), b.unit";
 
 
             $sqlExpected = "SELECT a.stamp , sum(b.ac_exp_power) as soll
@@ -195,7 +194,6 @@ class ACPowerChartsService
                     GROUP by date_format(a.stamp, '$form')";
 
             $conn = self::getPdoConnection();
-
 
             $resultExp = $conn->query($sqlExpected);
             $resultActual = $conn->query($sqlIst);
@@ -224,7 +222,7 @@ class ACPowerChartsService
                     } else {
                         $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
                     }
-                    //problem located between here
+
 
                     while($counterInv <= $maxInverter){
                         $rowActual = $resultActual->fetch(PDO::FETCH_ASSOC);
@@ -251,10 +249,10 @@ class ACPowerChartsService
                                 if ($counterInv > $dataArray['maxSeries']) $dataArray['maxSeries'] = $counterInv - 1;
                         }
 
-                        if ($anlage->getShowCosPhiDiag()) $dataArray['chart'][$counter]['cosPhi'] = abs($rowActual['wr_cos_phi_korrektur']);
+
+                        if ($anlage->getShowCosPhiDiag()) $dataArray['chart'][$counter]['cosPhi'] = abs((float)$rowActual['wr_cos_phi_korrektur']);
                         dump($counterInv);
                         $counterInv++;
-
                     }
 
                     //and here
@@ -271,7 +269,6 @@ class ACPowerChartsService
 
                 }
             }
-
         $conn = null;
         return $dataArray;
     }
@@ -282,9 +279,10 @@ class ACPowerChartsService
      * @param $from
      * @param $to
      * @param int $group
+     * @param bool $hour
      * @return array
      */
-    public function getAC3(Anlage $anlage, $from, $to, int $group = 1, bool $hour): array
+    public function getAC3(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
             if ($hour) $form = '%y%m%d%H';
             else $form = '%y%m%d%H%i';
@@ -364,7 +362,7 @@ class ACPowerChartsService
                             $dataArray['chart'][$counter][$nameArray[$group]] = $actPower;
                     }
 
-                    if ($anlage->getShowCosPhiDiag()) $dataArray['chart'][$counter]['cosPhi'] = abs($rowIst['wr_cos_phi_korrektur']);
+                    if ($anlage->getShowCosPhiDiag()) $dataArray['chart'][$counter]['cosPhi'] = abs((float)$rowIst['wr_cos_phi_korrektur']);
 
                      $dataArray['chart'][$counter]['expected'] = (float)$expected;
 
@@ -442,7 +440,7 @@ class ACPowerChartsService
      * @return array
      * AC - Actual, Groups
      */
-    public function getActVoltageGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour):?array
+    public function getActVoltageGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false):?array
     {
 
         if($hour) $form = '%y%m%d%H';
@@ -536,7 +534,7 @@ class ACPowerChartsService
      * @return array
      * AC - Actual, Groups
      */
-    public function getActCurrentGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour):?array
+    public function getActCurrentGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false):?array
     {
         if($hour) $form = '%y%m%d%H';
         else $form = '%y%m%d%H%i';
@@ -626,7 +624,7 @@ class ACPowerChartsService
      * @return array
      * AC - Actual, Groups
      */
-    public function getActFrequncyGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour):?array
+    public function getActFrequncyGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false):?array
     {
         if($hour) $form = '%y%m%d%H';
         else $form = '%y%m%d%H%i';
@@ -705,7 +703,7 @@ class ACPowerChartsService
      * @return array
      * AC - Actual, Groups
      */
-    public function getReactivePowerGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour): array
+    public function getReactivePowerGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
         if($hour) $form = '%y%m%d%H';
         else $form = '%y%m%d%H%i';

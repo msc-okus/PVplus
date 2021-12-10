@@ -274,7 +274,6 @@ class AvailabilityService
                         }
                         // Case 3
                         if ($strahlung > $threshold2PA && ($powerAc <= 0 && $powerAc !== null) ) {
-                            dump($strahlung);
                             $case3 = true;
                             $availability[$inverter]['case3']++;
                             $case3Helper[$inverter] += 15;
@@ -294,7 +293,7 @@ class AvailabilityService
                             $availability[$inverter]['case5']++;
                         }
                         // Case 6
-                        if ($case6 === true && $case3 === false) {
+                        if ($case6 === true && $case3 === false && $case0 === true) {
                             $availability[$inverter]['case6']++;
                         }
                         // Control ti,theo

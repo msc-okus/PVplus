@@ -41,7 +41,7 @@ class DCPowerChartService
      * @return array
      * [DC1]
      */
-    public function getDC1(Anlage $anlage, $from, $to, bool $hour):?array
+    public function getDC1(Anlage $anlage, $from, $to,  bool $hour = false):?array
     {
         if(true){
             if ($hour) $form = '%y%m%d%H';
@@ -118,7 +118,7 @@ class DCPowerChartService
         }
 
         $conn = null;
-        dump($dataArray);
+
         return $dataArray;
     }
 
@@ -128,10 +128,11 @@ class DCPowerChartService
      * @param $from
      * @param $to
      * @param int $group
+     * @param bool $hour
      * @return array
      * [DC2]
      */
-    public function getDC2(Anlage $anlage, $from, $to, int $group = 1, $hour): array
+    public function getDC2(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
             if ($hour) $form = '%y%m%d%H';
             else $form = '%y%m%d%H%i';
@@ -228,7 +229,7 @@ class DCPowerChartService
 
 
         $conn = null;
-        dump($dataArray);
+
         return $dataArray;
     }
 
@@ -238,10 +239,11 @@ class DCPowerChartService
      * @param $from
      * @param $to
      * @param int $group
+     * @param bool $hour
      * @return array
      * [DC3]
      */
-    public function getDC3(Anlage $anlage, $from, $to, int $group = 1, bool $hour):array
+    public function getDC3(Anlage $anlage, $from, $to, int $group = 1,  bool $hour = false):array
     {
             if($hour) $form = '%y%m%d%H';
             else $form = '%y%m%d%H%i';

@@ -127,10 +127,10 @@ class PRCalulationService
 
             // Berechne Expected G4N für Tag, Jahr und PAC
             $powerExpArray  = $this->functions->getSumPowerAcExp($anlage, $from, $to, $pacDate, $pacDateEnd); // Summe Leistung AC SOLL
-            $powerExp       = $powerExpArray['sumPowerExp'];
-            $powerExpMonth  = $powerExpArray['sumPowerExpMonth'];
-            $powerExpYear   = $powerExpArray['sumPowerExpYear'];
-            $powerExpPac    = $powerExpArray['sumPowerExpPac'];
+            $powerExp       = ($powerExpArray['sumPowerEvuExp'] > 0)    ? $powerExpArray['sumPowerEvuExp']          : $powerExpArray['sumPowerExp'];
+            $powerExpMonth  = ($powerExpArray['sumPowerEvuExpMonth'] > 0)  ? $powerExpArray['sumPowerEvuExpMonth']  : $powerExpArray['sumPowerExpMonth'];
+            $powerExpYear   = ($powerExpArray['sumPowerEvuExpYear'] > 0)   ? $powerExpArray['sumPowerEvuExpYear']   : $powerExpArray['sumPowerExpYear'];
+            $powerExpPac    = ($powerExpArray['sumPowerEvuExpPac'] > 0)    ? $powerExpArray['sumPowerEvuExpPac']    : $powerExpArray['sumPowerExpPac'];
 
             // PlantAvailability berechnen FIRST
             // pro Tag
@@ -547,11 +547,12 @@ class PRCalulationService
 
         // Wetter Daten ermitteln
         $weather    = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate);
+
         // Leistungsdaten ermitteln
         $power      = $this->functions->getSumAcPower($anlage, $localStartDate, $localEndDate);
         $result['powerEvu']         = $power['powerEvu'];
         $result['powerAct']         = $power['powerAct'];
-        $result['powerExp']         = $power['powerExp'];
+        $result['powerExp']         = ($power['powerExpEvu'] > 0 ) ? $power['powerExpEvu'] : $power['powerExp'];
         $result['powerEGridExt']    = $power['powerEGridExt'];
         // Verfügbarkeit ermitteln
         $anzTage = date_diff(date_create($localStartDate), date_create($localEndDate))->days + 1;
@@ -640,7 +641,7 @@ class PRCalulationService
                 break;
             default:
                 // wenn es keinen spezielen Algoritmus gibt
-                return $spezYield / $irr * 100;
+                return ($irr > 0) ? $spezYield / $irr * 100 : 0;
         }
     }
 

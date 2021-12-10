@@ -13,9 +13,9 @@
         <tr>
             <td style="text-align: left; padding-top: 20px !important;">
                 <h2 style="font-family: Century Gothic; color: #36639c"><span style=" color: #91bc5b; font-size: 30px;">{{ month }} {{ year }}</span></h2>
-                <h2 style="color: #36639c;">Plant name: {{ plantName }}</h2>
-                <h2 style="color: #36639c;">Plant size: {{ plantSize }} kWp</h2>
-                <h2 style="color: #36639c">Plant - coordinates: {{ anlGeoLat }}N | {{ anlGeoLon }}O</h2>
+                <h2 style="color: #36639c;">Plant name: {{ anlage.anlName }}</h2>
+                <h2 style="color: #36639c;">Plant size: {{ anlage.kwPeak }} kWp</h2>
+                <h2 style="color: #36639c">Plant - coordinates: {{ anlage.anlGeoLat }}N | {{ anlage.anlGeoLon }}O</h2>
             </td>
         </tr>
     </table>

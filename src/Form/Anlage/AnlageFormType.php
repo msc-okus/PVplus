@@ -204,7 +204,7 @@ class AnlageFormType extends AbstractType
             ####       Plant Data / Configuration       ####
             ################################################
             ->add('kwPeak', TextType::class, [
-                'label'         => 'Anlagenleistung [kWp]',
+                'label'         => 'Anlagenleistung [kWp] (für PA Berechnung)',
                 'help'          => '[power]',
                 'label_html'    => true,
                 'required'      => false,
@@ -218,6 +218,13 @@ class AnlageFormType extends AbstractType
                 'empty_data'    => '',
             ])
 
+            ->add('kwPeakPLDCalculation', TextType::class, [
+                'label'         => 'Anlagenleistung für PLD Berechnung [kWp]',
+                'help'          => '[kwPeakPLDCalculation]',
+                'label_html'    => true,
+                'required'      => false,
+                'empty_data'    => '',
+            ])
 
             ->add('useCustPRAlgorithm', ChoiceType::class, [
                 'label'         => 'Wähle und aktiviere Kundenspezifische PR Berechnung',
