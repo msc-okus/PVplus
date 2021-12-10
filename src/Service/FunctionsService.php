@@ -938,7 +938,7 @@ class FunctionsService
         $maxInv = count($this->getNameArray($anlage));
         $invS = u($invS)->replace(" ", "");
         $tempArray = u($invS)->split(',');
-        $returnArray[] = [];
+
 
         if ($invS != "*") {
             foreach ($tempArray as $item) {
@@ -948,13 +948,13 @@ class FunctionsService
                     $to = (int)((string)$nums[0][1]);
                     $i = $from;
                     while ($i <= $to) {
-                        if($i < $maxInv) {
+
                             $returnArray[] = u($i);
-                        }
+
                         $i++;
                     }
                     unset($nums);
-                } else if ((int)((string)$item < $maxInv))$returnArray[] = $item;
+                } else $returnArray[] = $item;
             }
 
         }
@@ -966,6 +966,7 @@ class FunctionsService
                 $i++;
             }
         }
+        if ($returnArray === null) $returnArray = [];
             return $returnArray;
     }
 
