@@ -274,7 +274,6 @@ class AvailabilityService
                         }
                         // Case 3
                         if ($strahlung > $threshold2PA && ($powerAc <= 0 && $powerAc !== null) ) {
-                            #dump($strahlung);
                             $case3 = true;
                             $availability[$inverter]['case3']++;
                             $case3Helper[$inverter] += 15;

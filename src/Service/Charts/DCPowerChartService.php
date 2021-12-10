@@ -118,7 +118,7 @@ class DCPowerChartService
         }
 
         $conn = null;
-        dump($dataArray);
+
         return $dataArray;
     }
 
@@ -128,6 +128,7 @@ class DCPowerChartService
      * @param $from
      * @param $to
      * @param int $group
+     * @param bool $hour
      * @return array
      * [DC2]
      */
@@ -228,7 +229,7 @@ class DCPowerChartService
 
 
         $conn = null;
-        dump($dataArray);
+
         return $dataArray;
     }
 
@@ -238,6 +239,7 @@ class DCPowerChartService
      * @param $from
      * @param $to
      * @param int $group
+     * @param bool $hour
      * @return array
      * [DC3]
      */
