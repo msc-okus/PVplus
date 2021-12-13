@@ -33,6 +33,7 @@ class FileUploadFormType extends AbstractType
             ])
             ->add('File', FileType::class,[
                 'mapped' => false,
+                'label' => "CSV File",
                 'constraints' => [
                     new File([
                         'maxSize' => '5M',
@@ -47,12 +48,7 @@ class FileUploadFormType extends AbstractType
             ####          STEUERELEMENTE              ####
             ##############################################
 
-
-            ->add('save', SubmitType::class, [
-                'label' => 'Save Owner',
-                'attr' => ['class' => 'primary save'],
-            ])
-            ->add('export', SubmitType::class, [
+            ->add('import', SubmitType::class, [
                 'label'     => 'Upload',
                 'attr'      => ['class' => 'primary save'],
             ]);

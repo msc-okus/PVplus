@@ -1,0 +1,33 @@
+
+{{ form_start(uploadForm, {'attr': {'novalidate': 'no'}}) }}
+<div class="grid-x">
+        <div class="cell">
+                <ul class="tabs" data-tabs id="anlage-tabs" data-deep-link="true">
+                        {% if is_granted('ROLE_G4N') %}
+                        <li class="tabs-title is-active"><a data-tabs-target="plant-data" href="#plant-data" aria-selected="true" >upload</a></li>
+                        {% endif %}
+                        {% if is_granted('ROLE_G4N') %}
+                        <li class="tabs-title"><a data-tabs-target="plant-data-2" href="#plant-data-2">Preview</a></li>
+                        {% endif %}
+                </ul>
+                <div class="tabs-content" data-tabs-content="anlage-tabs">
+                        <div class="tabs-panel is-active" id="plant-data">
+                                <div class="cell medium-2">        Anlagen (coming soon)            </div>
+
+                                <div class="cell medium-2">        {{ form_row(uploadForm.File) }}  </div>
+
+                                {{ form_widget(uploadForm.import) }}
+                        </div>
+
+                        <div class="tabs-panel" id="plant-data-2">
+
+                        </div>
+                </div>
+
+
+        </div>
+</div>
+
+
+<div style="display: none">{{ form_rest(uploadForm) }}</div>
+{{ form_end(uploadForm) }}

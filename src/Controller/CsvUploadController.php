@@ -35,18 +35,23 @@ class CsvUploadController extends AbstractController
         $form = $this->createForm(FileUploadFormType::class);
         $anlage = null;
         $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked()) ) {
-            dump("entro");
+
+        if ($form->isSubmitted() && $form->isValid() && ($form->get('import')->isClicked()) ) {
+
             $uploadedFile = $form['File']->getData();
-            dump($uploadedFile);
+
             if ($uploadedFile) {
 
+                //Here we upload the file and read it
                 $newFile = $uploaderHelper->uploadImage($uploadedFile, "1","csv");
                 $finder = new Finder();
-
                 $finder->in("/usr/www/users/pvpluy/dev.jm/PVplus-4.0/public/uploads/csv/1/")->name($newFile['newFilename']);
-                foreach ($finder as $file){
+
+                foreach ($finder as $file){//there will be only one file but we have to iterate like this
+
                 $contents = $file->getContents();
+
+
                 foreach(\symfony\component\string\u($contents)->split(";;;;;") as $row){
                     $row = (String)$row;
                     $fields[]=[];
@@ -68,14 +73,15 @@ class CsvUploadController extends AbstractController
                                 $case6->setStampTo(preg_replace('/[\x00-\x1F\x7F]/u', '', $to));
                                 $case6->setInverter($inverter);
                                 $case6->setReason(preg_replace('/[\x00-\x1F\x7F]/u', '', $reason));
-                                dump($case6);
-                                dump($case6->check());
+
+                                $array[] = [$case6, $case6->check()];
                             }
                         }
 
                     }
 
                 }
+                    dump($array);
             }
             }
 
