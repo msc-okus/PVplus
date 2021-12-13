@@ -2,24 +2,69 @@
 {{ form_start(uploadForm, {'attr': {'novalidate': 'no'}}) }}
 <div class="grid-x">
         <div class="cell">
-                <ul class="tabs" data-tabs id="anlage-tabs" data-deep-link="true">
-                        {% if is_granted('ROLE_G4N') %}
-                        <li class="tabs-title is-active"><a data-tabs-target="plant-data" href="#plant-data" aria-selected="true" >upload</a></li>
-                        {% endif %}
-                        {% if is_granted('ROLE_G4N') %}
-                        <li class="tabs-title"><a data-tabs-target="plant-data-2" href="#plant-data-2">Preview</a></li>
-                        {% endif %}
-                </ul>
-                <div class="tabs-content" data-tabs-content="anlage-tabs">
-                        <div class="tabs-panel is-active" id="plant-data">
-                                <div class="cell medium-2">        Anlagen (coming soon)            </div>
-
-                                <div class="cell medium-2">        {{ form_row(uploadForm.File) }}  </div>
-
-                                {{ form_widget(uploadForm.import) }}
+                <ul class="tabs" data-tabs id="uploads-tabs" data-deep-link="true">
+                        <div class="grid-x grid-padding-x">
+                                {% if is_granted('ROLE_G4N') %}
+                                        {%if case6 ==null %}
+                                                <li class="tabs-title is-active" aria-selected="true"><a data-tabs-target="uploads" href="#uploads"  >upload</a></li>
+                                        {% else %}
+                                                <li  class="tabs-title is-active" aria-selected="true"><a data-tabs-target="uploads" href="#uploads"  >Preview</a></li>
+                                        {% endif %}
+                                {% endif %}
                         </div>
+                </ul>
+                <div class="tabs-content" data-tabs-content="uploads-tabs">
+                        <div class="grid-x grid-padding-x">
+                                {% if case6 ==  null %}
+                                        <div   class="tabs-panel is-active" id="uploads">
+                                                <div class="cell medium-2">        Anlagen (coming soon)            </div>
+                                                <div class="cell medium-2">        {{ form_row(uploadForm.File) }}  </div>
+                                                {{ form_widget(uploadForm.import) }}
+                                        </div>
+                                {% else %}
+                                        <div class="tabs-panel is-active" id="uploads">
+                                                <legend>Case 6</legend>
+                                                <table id="case 6">
+                                                        <thead>
+                                                                <tr>
+                                                                        <th>inverter</th>
+                                                                        <th> </th>
+                                                                        <th>Beginning</th>
+                                                                        <th> </th>
+                                                                        <th>Ending</th>
+                                                                        <th> </th>
+                                                                        <th>Reason</th>
+                                                                        <th> </th>
+                                                                        <th>Errors</th>
+                                                                </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                        {% for case in case6 %}
+                                                                <tr>
+                                                                        <td> {{ case.0.inverter }}</td>
+                                                                        <td> </td>
+                                                                        <td> {{ case.0.stampFrom }}</td>
+                                                                        <td> </td>
+                                                                        <td> {{ case.0.stampTo }}</td>
+                                                                        <td> </td>
+                                                                        <td> {{ case.0.reason }}</td>
+                                                                        <td> </td>
+                                                                        <td> {{ case.1 }}</td>
+                                                                        {% if case.1 != "" %}
+                                                                                <td><button type="button" class="hollow button tiny action-icon shadow"> <span class="fa fa-pencil"></span></button></td>
+                                                                        {% else %} <td> </td>
+                                                                        {%  endif %}
+                                                                        <td><button type="button" class="hollow button tiny action-icon shadow" onclick="Destroy()"> <span class="fa fa-close"></span></button></td>
 
-                        <div class="tabs-panel" id="plant-data-2">
+
+                                                                </tr>
+                                                        {% endfor %}
+                                                        </tbody>
+                                                </table>
+                                        </div>
+
+                                {% endif %}
+
 
                         </div>
                 </div>

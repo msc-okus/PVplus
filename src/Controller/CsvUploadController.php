@@ -27,9 +27,22 @@ class CsvUploadController extends AbstractController
             'controller_name' => 'CsvUploadController',
         ]);
     }
+
+    /**
+     *@Route("/csv/upload/delete", name="csv_upload_delete")
+     */
+    public function delete_case($array, $id):Response
+    {
+        dd($array);
+        return $this->render('csv_upload/index.html.twig', [
+            'uploadForm' => $form->createView(),
+            'case6' => $array
+        ]);
+    }
     /**
      * @Route("/csv/upload/load", name="csv_upload_load")
      */
+
     public function load(Request $request, EntityManagerInterface $em, UploaderHelper $uploaderHelper, AnlagenRepository $anlRepo, FunctionsService $fun):Response
     {
         $form = $this->createForm(FileUploadFormType::class);
@@ -65,30 +78,30 @@ class CsvUploadController extends AbstractController
                         $inv = (String)$fields[4];
                         $reason = (string)$fields[5];
                         if($anlage != null) {
-                            $invs = $fun->readInverters($inv, $anlage);
-                            foreach ($invs as $inverter) {
+
                                 $case6 = new AnlageCase6();
                                 $case6->setAnlage($anlage);
                                 $case6->setStampFrom(preg_replace('/[\x00-\x1F\x7F]/u', '', $from));
                                 $case6->setStampTo(preg_replace('/[\x00-\x1F\x7F]/u', '', $to));
-                                $case6->setInverter($inverter);
+                                $case6->setInverter($inv);
                                 $case6->setReason(preg_replace('/[\x00-\x1F\x7F]/u', '', $reason));
 
                                 $array[] = [$case6, $case6->check()];
-                            }
+
                         }
-
                     }
-
                 }
-                    dump($array);
             }
+                return $this->render('csv_upload/index.html.twig', [
+                    'uploadForm' => $form->createView(),
+                    'case6' => $array
+                ]);
             }
 
         }
         return $this->render('csv_upload/index.html.twig', [
-            'controller_name' => 'CsvUploadController',
             'uploadForm' => $form->createView(),
+            'case6' => null
         ]);
     }
 }
