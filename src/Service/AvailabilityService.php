@@ -365,7 +365,7 @@ class AvailabilityService
         $istData = [];
         $dbNameIst = $anlage->getDbNameIst();
         // $sql = "SELECT a.stamp as stamp, wr_cos_phi_korrektur as cos_phi, b.unit as inverter, b.wr_pac as power_ac FROM (db_dummysoll a left JOIN $dbNameIst b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' AND '$to' ORDER BY a.stamp, b.unit";
-        $sql = "SELECT stamp, wr_cos_phi_korrektur as cos_phi, unit as inverter, wr_pac as power_ac FROM  $dbNameIst  WHERE stamp BETWEEN '$from' AND '$to' ORDER BY stamp, unit";
+        $sql = "SELECT stamp, wr_cos_phi_korrektur as cos_phi, unit as inverter, wr_pac as power_ac FROM $dbNameIst WHERE stamp BETWEEN '$from' AND '$to' ORDER BY stamp, unit";
 
         $result = $conn->query($sql);
         if ($result->rowCount() > 0) {

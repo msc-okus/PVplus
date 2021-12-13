@@ -2433,9 +2433,9 @@ class Anlage
         return $this;
     }
 
-    public function getKwPeakPvSyst(): ?string
+    public function getKwPeakPvSyst(): ?float
     {
-        return $this->kwPeakPvSyst;
+        return (float)$this->kwPeakPvSyst;
     }
 
     public function setKwPeakPvSyst(?string $kwPeakPvSyst): self
@@ -2445,9 +2445,9 @@ class Anlage
         return $this;
     }
 
-    public function getKwPeakPLDCalculation(): ?string
+    public function getKwPeakPLDCalculation(): ?float
     {
-        return $this->kwPeakPLDCalculation;
+        return (float)$this->kwPeakPLDCalculation;
     }
 
     public function setKwPeakPLDCalculation(?string $kwPeakPLDCalculation): void
