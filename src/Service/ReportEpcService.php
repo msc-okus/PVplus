@@ -229,28 +229,25 @@ class ReportEpcService
                             $irrMonth       = $prArray['irradiation'];
                             $prAvailability = $prArray['availability'];
                             if ($anlage->getUseGridMeterDayData()){
-                                if ($monthlyData != null && $monthlyData->getExternMeterDataMonth() > 0) {
-                                    $eGridReal = $monthlyData->getExternMeterDataMonth();
-                                } else {
-                                    $eGridReal = $prArray['powerEGridExt'];
-                                }
+                                $eGridReal = $prArray['powerEGridExt'];
                                 $prReal     = $prArray['prEGridExt'];
                                 $prStandard = $prArray['prDefaultEGridExt'];
+                            }
+                            if ($monthlyData != null && $monthlyData->getExternMeterDataMonth() > 0) {
+                                $eGridReal = $monthlyData->getExternMeterDataMonth();
                             }
                             break;
                         default:
                             $eGridReal = $pr->getPowerEvuMonth();
                             $irrMonth = $pr->getIrrMonth();
-                            #$prAvailability = $pr->getPlantAvailabilityPerMonth();
                             $prAvailability = $this->availabilityService->calcAvailability($anlage, date_create("$year-$month-01 00:00"), date_create("$year-$month-$days 23:59"));
                             if ($anlage->getUseGridMeterDayData()){
-                                if ($monthlyData != null && $monthlyData->getExternMeterDataMonth() > 0) {
-                                    $eGridReal = $monthlyData->getExternMeterDataMonth();// / $daysInMonth * $days;
-                                } else {
-                                    $eGridReal = $this->gridMeterRepo->sumByDateRange($anlage, $from, $to);
-                                }
+                                $eGridReal = $this->gridMeterRepo->sumByDateRange($anlage, $from, $to);
                                 $prReal = $pr->getPrEGridExtMonth();
                                 $prStandard = $this->format($pr->getPrDefaultMonthEGridExt());
+                            }
+                            if ($monthlyData != null && $monthlyData->getExternMeterDataMonth() > 0) {
+                                $eGridReal = $monthlyData->getExternMeterDataMonth();// / $daysInMonth * $days;
                             }
                     }
 

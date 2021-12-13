@@ -269,11 +269,14 @@ class DefaultMREController extends BaseController
         $from = $anlage->getEpcReportStart();
         $to   = $anlage->getEpcReportEnd();
 
-        $monthTable = $epcNew->monthTable($anlage);
+        $date = date_create("2022-01-01");
+        $date = new \DateTime();
 
-        $forcastTable = $epcNew->forcastTable($anlage, $monthTable);
-        $chartYieldPercenDiff = $epcNew->chartYieldPercenDiff($anlage, $monthTable);
-        $chartYieldCumulativ = $epcNew->chartYieldCumulative($anlage, $monthTable);
+        $monthTable = $epcNew->monthTable($anlage, $date);
+
+        $forcastTable = $epcNew->forcastTable($anlage, $monthTable, $date);
+        $chartYieldPercenDiff = $epcNew->chartYieldPercenDiff($anlage, $monthTable, $date);
+        $chartYieldCumulativ = $epcNew->chartYieldCumulative($anlage, $monthTable, $date);
 
         $output = $functions->printArrayAsTable($forcastTable);
         $output .= $functions->print2DArrayAsTable($monthTable);

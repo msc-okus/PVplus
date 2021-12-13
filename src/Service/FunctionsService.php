@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\Entity\AnlageForcast;
+
 use App\Entity\AnlageForcastDay;
 use App\Repository\AcGroupsRepository;
 use App\Repository\ForcastDayRepository;
@@ -20,7 +20,7 @@ use App\Repository\GroupModulesRepository;
 use App\Repository\GroupMonthsRepository;
 use App\Repository\GroupsRepository;
 use App\Repository\PVSystDatenRepository;
-use phpDocumentor\Reflection\Types\Float_;
+USE \DateTime;
 
 class FunctionsService
 {
@@ -671,21 +671,6 @@ class FunctionsService
         return $gewichtetStrahlung;
     }
 
-    public function tempCorrection(Anlage $anlage, $tempCellTypeAvg, $windSpeed, $airTemp, $gPOA): float
-    {
-        $gamma              = $anlage->getTempCorrGamma();
-        $a                  = $anlage->getTempCorrA();
-        $b                  = $anlage->getTempCorrB();
-        $deltaTcnd          = $anlage->getTempCorrDeltaTCnd();
-
-        $tempModulBack  = $gPOA * pow(M_E, $a + $b * $windSpeed) + $airTemp;
-        $tempCell       = $tempModulBack + ($gPOA / 1000) * $deltaTcnd;
-
-        ($tempCellTypeAvg > 0) ? $tempCorrection = 1 - ($tempCellTypeAvg - $tempCell) * $gamma / 1000 : $tempCorrection = 1;
-
-        return $tempCorrection;
-    }
-
     public function getSumeGridMeter(Anlage $anlage, $from, $to, bool $day = false): float
     {
         if ($anlage->getUseGridMeterDayData()) {
@@ -699,7 +684,7 @@ class FunctionsService
             $powerEGridExt = $this->gridMeterDayRepo->sumByDateRange($anlage, $from, $to);
 
             if (!$powerEGridExt) $powerEGridExt = 0;
-            // wen Tageswere angefordert, dann nicht mit Monatswerten verrechnen, wenn keine Tageswrete vorhanden sind, wird 0 zurückgegeben.
+            // wenn Tageswerte angefordert, dann nicht mit Monatswerten verrechnen, wenn keine Tageswerte vorhanden sind, wird 0 zurückgegeben.
             if (! $day) {
                 $year = (int)date("Y", strtotime($from));
                 $month = (int)date("m", strtotime($from));
@@ -729,7 +714,7 @@ class FunctionsService
     }
 
 
-    public function getSumAcPower(Anlage $anlage, $from, $to) :array
+    public function getSumAcPower(Anlage $anlage, $from, $to): array
     {
         $conn = self::getPdoConnection();
         $result     = [];
@@ -751,6 +736,28 @@ class FunctionsService
             $powerEvu = round($row['power_evu'], 4);
         }
         unset($res);
+        if ($anlage->getUseGridMeterDayData() == false) {
+            $monthlyDatas = $this->monthlyDataRepo->findBy(['anlage' => $anlage], ['year' => 'asc', 'month' => 'asc']);
+
+            foreach ($monthlyDatas as $monthlyData) {
+                $tempFrom = new DateTime($monthlyData->getYear()."-".$monthlyData->getMonth()."-01 00:00");
+                $tempDaysInMonth = $tempFrom->format('t');
+                $tempTo = new DateTime($monthlyData->getYear()."-".$monthlyData->getMonth()."-".$tempDaysInMonth." 23:59");
+
+                // NOT SURE if this works. Soll vor Überschneidungen mit Datum die nicht am Anfang bzw am Ende des Monats liegen schützen.
+                #if (strtotime($from) > $tempFrom->getTimestamp() && $monthlyData->getMonth() == (int)$tempFrom->format("m")) $tempFrom = new DateTime($from);
+                #if (strtotime($to) > $tempTo->getTimestamp() && $monthlyData->getMonth() == (int)$tempTo->format("m")) $tempTo = new DateTime($to);
+
+                $sql = "SELECT sum(e_z_evu) as power_evu FROM ".$anlage->getDbNameAcIst()." WHERE stamp BETWEEN '".$tempFrom->format('Y-m-d H:i')."' AND '".$tempTo->format('Y-m-d H:i')."' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
+                $res = $conn->query($sql);
+                if ($res->rowCount() == 1) {
+                    $row = $res->fetch(PDO::FETCH_ASSOC);
+                    $powerEvu -= round($row['power_evu'], 4);
+                    $powerEvu += $monthlyData->getExternMeterDataMonth();
+                }
+                unset($res);
+            }
+        }
 
         // Expected Leistung ermitteln
         $sql = "SELECT sum(ac_exp_power) as sum_power_ac, sum(ac_exp_power_evu) as sum_power_ac_evu FROM ".$anlage->getDbNameDcSoll()." WHERE stamp >= '$from' AND stamp <= '$to'";
