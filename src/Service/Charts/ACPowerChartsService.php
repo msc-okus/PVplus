@@ -222,7 +222,9 @@ class ACPowerChartsService
                     } else {
                         $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
                     }
-                    while ($counterInv <= $maxInverter){
+
+
+                    while($counterInv <= $maxInverter){
                         $rowActual = $resultActual->fetch(PDO::FETCH_ASSOC);
 
                         $actPower = $rowActual['actPower'];
@@ -236,9 +238,9 @@ class ACPowerChartsService
                                     break;
                                 default:
                                     $dataArray['chart'][$counter][$nameArray[$counterInv + $dataArray['offsetLegend']]] = $actPower;
-                                    $counterInv++;
                             }
                         }
+
                         switch ($anlage->getConfigType()) {
                             case 3:
                                 if ($counterInv > $dataArray['maxSeries']) $dataArray['maxSeries'] = $counterInv;
@@ -247,11 +249,17 @@ class ACPowerChartsService
                                 if ($counterInv > $dataArray['maxSeries']) $dataArray['maxSeries'] = $counterInv - 1;
                         }
 
+
                         if ($anlage->getShowCosPhiDiag()) $dataArray['chart'][$counter]['cosPhi'] = abs((float)$rowActual['wr_cos_phi_korrektur']);
+                        dump($counterInv);
+                        $counterInv++;
                     }
+
+                    //and here
                     $counterInv--;
                     ($counterInv > 0) ? $dataArray['chart'][$counter]['expected'] = $expected / $counterInv : $dataArray['chart'][$counter]['exp'] = $expected;
                     //add Irradiation
+
                     if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
                         $dataArray['chart'][$counter]["irradiation"] = $dataArrayIrradiation['chart'][$counter]['val1'];
                     } else {
