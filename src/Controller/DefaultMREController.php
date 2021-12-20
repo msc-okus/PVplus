@@ -270,7 +270,7 @@ class DefaultMREController extends BaseController
         $to   = $anlage->getEpcReportEnd();
 
         $date = date_create("2022-01-01");
-        $date = new \DateTime();
+        #$date = null;
 
         $monthTable = $epcNew->monthTable($anlage, $date);
 

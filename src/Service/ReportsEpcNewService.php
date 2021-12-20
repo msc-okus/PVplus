@@ -182,6 +182,25 @@ class ReportsEpcNewService
             $tableArray[$n]['J_theorYieldMTDesign']                   = ''; // Spalte J
             $tableArray[$n]['K_irrFTDesign']                          = ""; // Spalte K
             $tableArray[$n]['L_irr']                                  = ($hasMonthData) ? $prArray['irradiation'] : $tableArray[$n]['D_irrDesign']; // Spalte L // Irradiation
+            if($anlage->getAnlId() == 84) {
+                switch ($n) {
+                    case 4:
+                        $tableArray[$n]['L_irr'] = 107.66;
+                        break;
+                    case 6:
+                        $tableArray[$n]['L_irr'] = 179.05;
+                        break;
+                    case 7:
+                        $tableArray[$n]['L_irr'] = 151.38;
+                        break;
+                    case 21:
+                        $tableArray[$n]['L_irr'] = 136.68;
+                        break;
+                    case 22:
+                        $tableArray[$n]['L_irr'] = 81.21;
+                        break;
+                }
+            }
             $tableArray[$n]['M_eGridYield']                           = ($hasMonthData) ? $eGridReal : $pvSystData[$month - 1]['ertragDesign'] * $factor; // Spalte M // eGrid gemessen (je nach Konfiguration der Anlage aus dem Feld e_z_evu oder aus den Tageswerten der externen Grid Messung
             $tableArray[$n]['N_specificYield']                        = $tableArray[$n]['M_eGridYield'] / $anlage->getKwPeak(); // Spalte N
             $tableArray[$n]['O_availability']                         = ($hasMonthData) ? $prArray['availability'] : ''; // Spalte O
@@ -201,6 +220,7 @@ class ReportsEpcNewService
             $tableArray[$n]['AC_eGridDivExpected']                     = 0; // Spalte AC // muss in Runde 2 Berechnet werden
             $tableArray[$n]['current_month']                           = ($isCurrentMonth) ? -1 : 0;
             $tableArray[$n]['style']                                   = "";
+
 
             $tableArray[$zeileSumme1]['B_month']                      = "2 years (incl. Forecast)"; // Spalte B
             $tableArray[$zeileSumme1]['C_days']                       += $days; // Spalte C
@@ -381,7 +401,7 @@ class ReportsEpcNewService
 
         $b8 = round($monthTable[$zeileSumme1]['E_yieldDesign'],3);
         $b9 = round($monthTable[$zeileSumme1]['W_yield_guaranteed_exp'],3);
-        $b10 = round($monthTable[$zeileSumme1]['V_eGrid_withRisk'],3);
+        $b10 = round($monthTable[$zeileSumme1]['V_eGrid_withRisk'],2);
         $b11 = round($monthTable[$zeileSumme1]['V_eGrid_withRisk'] - $monthTable[$zeileSumme1]['W_yield_guaranteed_exp'],3);
         $b12 = round($monthTable[$zeileSumme2]['O_availability'] / 100,4);
         if ( $anlage->getPldDivisor() == 'expected') {
