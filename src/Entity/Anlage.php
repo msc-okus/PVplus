@@ -930,9 +930,9 @@ class Anlage
         return $this;
     }
 
-    public function getKwPeak(): ?string
+    public function getKwPeak(): ?float
     {
-        return $this->power;
+        return (float)$this->power;
     }
 
     public function setKwPeak(string $power): self
@@ -942,9 +942,9 @@ class Anlage
         return $this;
     }
 
-    public function getPowerEast(): ?string
+    public function getPowerEast(): ?float
     {
-        return $this->powerEast;
+        return (float)$this->powerEast;
     }
 
     public function setPowerEast(string $powerEast): self
@@ -954,9 +954,9 @@ class Anlage
         return $this;
     }
 
-    public function getPowerWest(): ?string
+    public function getPowerWest(): ?float
     {
-        return $this->powerWest;
+        return (float)$this->powerWest;
     }
 
     public function setPowerWest(string $powerWest): self
@@ -1901,9 +1901,9 @@ class Anlage
         return $this;
     }
 
-    public function getContractualPR(): ?string
+    public function getContractualPR(): ?float
     {
-        return $this->contractualPR;
+        return (float)$this->contractualPR;
     }
 
     public function setContractualPR(string $contractualPR): self
@@ -1913,12 +1913,12 @@ class Anlage
         return $this;
     }
 
-    public function getContractualPower(): ?string
+    public function getContractualPower(): ?float
     {
-        return $this->contractualPower;
+        return (float)$this->contractualPower;
     }
 
-    public function getGuaranteedExpectedEnergy($expectedEnergy):float
+    public function getGuaranteedExpectedEnergy($expectedEnergy): float
     {
         return $expectedEnergy * (1 - ($this->getTransformerTee() / 100)) * (1 - ($this->getGuaranteeTee() / 100));
     }
@@ -2455,9 +2455,9 @@ class Anlage
         $this->kwPeakPLDCalculation = $kwPeakPLDCalculation;
     }
 
-    public function getDesignPR(): ?string
+    public function getDesignPR(): ?float
     {
-        return $this->designPR;
+        return (float)$this->designPR;
     }
 
     public function setDesignPR(?string $designPR): self
@@ -2544,9 +2544,9 @@ class Anlage
         return $result[0];
     }
 
-    public function getLid(): string
+    public function getLid(): float
     {
-        return $this->lid;
+        return (float)$this->lid;
     }
 
     public function setLid(string $lid): self
@@ -2556,9 +2556,9 @@ class Anlage
         return $this;
     }
 
-    public function getAnnualDegradation(): ?string
+    public function getAnnualDegradation(): ?float
     {
-        return $this->annualDegradation;
+        return (float)$this->annualDegradation;
     }
 
     public function setAnnualDegradation(?string $annualDegradation): self
@@ -2568,9 +2568,9 @@ class Anlage
         return $this;
     }
 
-    public function getPldPR(): ?string
+    public function getPldPR(): ?float
     {
-        return $this->pldPR;
+        return (float)$this->pldPR;
     }
 
     public function setPldPR(?string $pldPR): self

@@ -153,9 +153,15 @@ class ReportEpcService
 
     public function reportPRGuarantee(Anlage $anlage): array
     {
-        $anzahlMonate = ((int)$anlage->getEpcReportEnd()->format('Y') - (int)$anlage->getEpcReportStart()->format('Y')) * 12 + ((int)$anlage->getEpcReportEnd()->format('m') - (int)$anlage->getEpcReportStart()->format('m')) + 1;
-        $startYear = $anlage->getEpcReportStart()->format('Y');
-        $currentMonth = (int)date('m');
+        $anzahlMonate   = ((int)$anlage->getEpcReportEnd()->format('Y') - (int)$anlage->getEpcReportStart()->format('Y')) * 12 + ((int)$anlage->getEpcReportEnd()->format('m') - (int)$anlage->getEpcReportStart()->format('m')) + 1;
+        $startYear      = $anlage->getEpcReportStart()->format('Y');
+        $currentMonth   = (int)date('m');
+        $currentYear    = (int)date('Y');
+        if ($currentMonth == 1) { // Ausnahme um den Jahreswechsel abzubilden
+            $currentMonth   = 13;
+            $currentYear    -= 1;
+        }
+
         $sumPrRealPrProg = $sumDays = $sumErtragDesign = $sumEGridReal = $sumAnteil = $sumPrReal = $sumSpecPowerGuar = $sumSpecPowerRealProg = $counter = $sumPrDesign = $sumSpezErtragDesign = 0;
         $sumIrrMonth = $sumDaysReal = $sumErtragDesignReal = $sumEGridRealReal = $sumPrRealReal = $sumEGridRealDesignReal = $sumEGridRealDesign = $sumPrRealPrProgReal = 0;
         $sumSpecPowerGuarReal = $sumSpecPowerRealProgReal = $monateReal = $counterReal = $prAvailability = 0;
@@ -252,9 +258,8 @@ class ReportEpcService
                     }
 
                     $prRealprProg = $prReal;
-
                     $realDateTextEnd = date('My', strtotime("$year-$month-1"));
-                    if ($month == $currentMonth - 1 && $year == date('Y') && $run === 2){
+                    if (($month == $currentMonth - 1 && $year == $currentYear) && $run === 2){
                         // für das Einfärben der Zeile des aktuellen Monats
                         $currentMonthClass = "current-month";
                         $prArrayFormel = $this->PRCalulation->calcPR($anlage, $anlage->getEpcReportStart(), date_create($to));
@@ -465,7 +470,7 @@ class ReportEpcService
             'pld'                   => $anlage->getPldPR(),
         ];
 
-
+        ##dd("STOP");
         return $report;
     }
 

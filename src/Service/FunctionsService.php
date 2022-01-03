@@ -673,6 +673,9 @@ class FunctionsService
 
     public function getSumeGridMeter(Anlage $anlage, $from, $to, bool $day = false): float
     {
+
+        #dump("from: $from  to: $to - ".self::g4nDateDiffMonth($from, $to));
+
         if ($anlage->getUseGridMeterDayData()) {
             // Berechnung der externen Zählewrwerte unter berücksichtigung der Manuel eingetragenen Monatswerte.
             // Darüber kann eine Koorektur der Zählerwerte erfolgen.
@@ -688,8 +691,9 @@ class FunctionsService
             if (! $day) {
                 $year = (int)date("Y", strtotime($from));
                 $month = (int)date("m", strtotime($from));
-
-                for ($n = 1; $n <= self::g4nDateDiffMonth($from, $to); $n++) {
+                $monthes = self::g4nDateDiffMonth($from, $to);
+                #dump("Monate: $monthes");
+                for ($n = 1; $n <= $monthes; $n++) {
                     $monthlyData = $this->monthlyDataRepo->findOneBy(['anlage' => $anlage, 'year' => $year, 'month' => $month]);
                     if ($monthlyData != null && $monthlyData->getExternMeterDataMonth() > 0) {
                         $currentDate = strtotime($year . '-' . $month . '-01');
@@ -736,9 +740,8 @@ class FunctionsService
             $powerEvu = round($row['power_evu'], 4);
         }
         unset($res);
-        if ($anlage->getUseGridMeterDayData() == false) {
+        if ($anlage->getUseGridMeterDayData() === false) {
             $monthlyDatas = $this->monthlyDataRepo->findBy(['anlage' => $anlage], ['year' => 'asc', 'month' => 'asc']);
-
             foreach ($monthlyDatas as $monthlyData) {
                 $tempFrom = new DateTime($monthlyData->getYear()."-".$monthlyData->getMonth()."-01 00:00");
                 $tempDaysInMonth = $tempFrom->format('t');
