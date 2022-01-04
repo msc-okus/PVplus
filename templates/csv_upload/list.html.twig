@@ -28,6 +28,8 @@
                 <th>Reason</th>
                 <th> </th>
                 <th>Errors</th>
+                <th> </th>
+                <th>Stamp</th>
 
             </tr>
             </thead>
@@ -51,7 +53,7 @@
                         <td><button type="button" class="hollow button tiny action-icon shadow"> <span class="fa fa-pencil"></span></button></td>
                     {% else %} <td> </td>
                     {%  endif %}
-                    <td><button type="button" class="hollow button tiny action-icon shadow" onclick="Destroy({{case.id}})"> <span class="fa fa-close"></span></button></td>
+                    <td><a class="hollow alert button tiny action-icon shadow" href="{{ path('csv_upload_delete', { id: case.id}) }}" > <span class="fa fa-close"></span></a></td>
 
 
                 </tr>

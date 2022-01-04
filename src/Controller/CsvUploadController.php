@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use ApiPlatform\Core\Api\UrlGeneratorInterface;
 use App\Entity\AnlageCase6;
 use App\Entity\AnlageFile;
 use App\Entity\Case6Draft;
@@ -31,15 +32,15 @@ class CsvUploadController extends AbstractController
     }
 
     /**
-     *@Route("/csv/upload/delete", name="csv_upload_delete")
+     *@Route("/csv/upload/delete/{id}", name="csv_upload_delete")
      */
-    public function delete_case($array, $id):Response
+    public function delete_case($id, EntityManagerInterface $em):RedirectResponse
     {
-        dd($array);
-        return $this->render('csv_upload/index.html.twig', [
-            'uploadForm' => $form->createView(),
-            'case6' => $array
-        ]);
+        dd($id);
+        $Route = $this->generateUrl('csv_upload_list',[], UrlGeneratorInterface::ABS_PATH);
+        $Route = $Route."/".$anlage->getAnlId();
+        return $this->redirect($Route);
+
     }
     /**
      * @Route("/csv/upload/list/{anlId}", name="csv_upload_list")
@@ -48,8 +49,7 @@ class CsvUploadController extends AbstractController
 
         $anlage = $anlRepo->findIdLike($anlId);
 
-        $array = $draftRepo->findAllByAnlage($anlage);
-        dd($array);
+        $array = $draftRepo->findAllByAnlage($anlage[0]);
         return $this->render('csv_upload/list.html.twig', [
             'case6' => $array
         ]);
@@ -107,8 +107,9 @@ class CsvUploadController extends AbstractController
                         }
                     }
                     $em->flush();
-                    //dd($draftRepo->findAllByAnlage($anlage));
+                    $Route = $this->generateUrl('csv_upload_list',["anlId" => $anlage->getAnlId()], UrlGeneratorInterface::ABS_PATH);
 
+                    return $this->redirect($Route);
                 }
             }
 
