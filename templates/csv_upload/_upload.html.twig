@@ -27,6 +27,9 @@
                                                 <table id="case 6">
                                                         <thead>
                                                                 <tr>
+                                                                        <th> </th>
+                                                                        <th>Id</th>
+                                                                        <th> </th>
                                                                         <th>inverter</th>
                                                                         <th> </th>
                                                                         <th>Beginning</th>
@@ -36,25 +39,30 @@
                                                                         <th>Reason</th>
                                                                         <th> </th>
                                                                         <th>Errors</th>
+
                                                                 </tr>
                                                         </thead>
                                                         <tbody>
                                                         {% for case in case6 %}
                                                                 <tr>
-                                                                        <td> {{ case.0.inverter }}</td>
                                                                         <td> </td>
-                                                                        <td> {{ case.0.stampFrom }}</td>
+                                                                        <td> {{ case.id }}</td>
                                                                         <td> </td>
-                                                                        <td> {{ case.0.stampTo }}</td>
+                                                                        <td> {{ case.inverter }}</td>
                                                                         <td> </td>
-                                                                        <td> {{ case.0.reason }}</td>
+                                                                        <td> {{ case.stampFrom }}</td>
                                                                         <td> </td>
-                                                                        <td> {{ case.1 }}</td>
-                                                                        {% if case.1 != "" %}
+                                                                        <td> {{ case.stampTo }}</td>
+                                                                        <td> </td>
+                                                                        <td> {{ case.reason }}</td>
+                                                                        <td> </td>
+                                                                        <td> </td>
+                                                                        <td> {{ case.createdAt|date }}</td>
+                                                                        {% if case.error != "" %}
                                                                                 <td><button type="button" class="hollow button tiny action-icon shadow"> <span class="fa fa-pencil"></span></button></td>
                                                                         {% else %} <td> </td>
                                                                         {%  endif %}
-                                                                        <td><button type="button" class="hollow button tiny action-icon shadow" onclick="Destroy(loop.index-1)"> <span class="fa fa-close"></span></button></td>
+                                                                        <td><button type="button" class="hollow button tiny action-icon shadow" onclick="Destroy({{case.id}})"> <span class="fa fa-close"></span></button></td>
 
 
                                                                 </tr>

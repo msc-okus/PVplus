@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+{% block JavaScript %}
+    <script>
+        function Destroy(id) {
+            let array ="{{ id }}";
+            alert(array);
+        }
+    </script
+{% endblock %}
+{% block title %} Preview {% endblock %}
+
+{% block body %}
+
+    <div class="tabs-panel is-active" id="uploads">
+        <legend>Case 6</legend>
+        <table id="case 6">
+            <thead>
+            <tr>
+                <th> </th>
+                <th>Id</th>
+                <th> </th>
+                <th>inverter</th>
+                <th> </th>
+                <th>Beginning</th>
+                <th> </th>
+                <th>Ending</th>
+                <th> </th>
+                <th>Reason</th>
+                <th> </th>
+                <th>Errors</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            {% for case in case6 %}
+                <tr>
+                    <td> </td>
+                    <td> {{ case.id }}</td>
+                    <td> </td>
+                    <td> {{ case.inverter }}</td>
+                    <td> </td>
+                    <td> {{ case.stampFrom }}</td>
+                    <td> </td>
+                    <td> {{ case.stampTo }}</td>
+                    <td> </td>
+                    <td> {{ case.reason }}</td>
+                    <td> </td>
+                    <td> </td>
+                    <td> {{ case.createdAt|date }}</td>
+                    {% if case.error != "" %}
+                        <td><button type="button" class="hollow button tiny action-icon shadow"> <span class="fa fa-pencil"></span></button></td>
+                    {% else %} <td> </td>
+                    {%  endif %}
+                    <td><button type="button" class="hollow button tiny action-icon shadow" onclick="Destroy({{case.id}})"> <span class="fa fa-close"></span></button></td>
+
+
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+
+{% endblock %}
