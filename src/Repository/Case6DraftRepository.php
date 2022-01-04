@@ -20,6 +20,15 @@ class Case6DraftRepository extends ServiceEntityRepository
         parent::__construct($registry, Case6Draft::class);
     }
 
+    public function findById(string $id){
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getResult();
+        ;
+    }
+
     public function findAllByAnlage(Anlage $anlage){
 
         return $this->createQueryBuilder('a')
