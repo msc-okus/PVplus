@@ -41,20 +41,13 @@ class AnlagenAdminController extends BaseController
             $em->persist($anlage);
             $em->flush();
             self::createDatabasesForPlant($anlage);
-
             $this->addFlash('success', 'New Plant created');
-
             return $this->redirectToRoute('app_admin_anlagen_list');
-
         }
-
         if ($form->isSubmitted() && $form->get('close')->isClicked()) {
             $this->addFlash('warning', 'Canceled. No data was saved.');
-
             return $this->redirectToRoute('app_admin_anlagen_list');
         }
-
-
                 return $this->render('anlagen/new.html.twig', [
                     'anlageForm'   => $form->createView(),
                 ]);
