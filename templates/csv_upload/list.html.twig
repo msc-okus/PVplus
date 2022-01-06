@@ -43,18 +43,14 @@
                     <td> {{ case.error }}</td>
                     <td> </td>
                     <td> {{ case.createdAt|date }}</td>
-                    {% if case.error != "" %}
-                        <td><button type="button" class="hollow button tiny action-icon shadow"> <span class="fa fa-pencil"></span></button></td>
-                    {% else %} <td> </td>
-                    {%  endif %}
                     <td><a class="hollow alert button tiny action-icon shadow" href="{{ path('csv_upload_delete', { id: case.id}) }}" > <span class="fa fa-close"></span></a></td>
-
-
                 </tr>
             {% endfor %}
             </tbody>
         </table>
-        <td><a class="hollow alert button tiny action-icon shadow" href="{{ path('csv_upload_save', {anlId: anlId}) }}" > <span >Save</span></a></td>
+        <button class="hollow alert button  action-icon shadow" href="{{ path('csv_upload_save', {anlId: anlId}) }}" > <span >Save</span></button>
+        <button class="hollow alert button  action-icon shadow" href="{{ path('csv_upload_saveandfix', {anlId: anlId}) }}" > <span >Resolve Errors</span></button>
+
     </div>
 
 
