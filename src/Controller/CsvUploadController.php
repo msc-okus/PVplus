@@ -51,19 +51,76 @@ class CsvUploadController extends AbstractController
      * @Route("/csv/upload/list/{anlId}", name="csv_upload_list")
      */
     public function list($anlId,Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo){
-
         $anlage = $anlRepo->findIdLike($anlId);
-
         $array = $draftRepo->findAllByAnlage($anlage[0]);
+
         return $this->render('csv_upload/list.html.twig', [
-            'case6' => $array
+            'case6' => $array,
+            'anlId' => $anlId
         ]);
     }
     /**
-     * @Route("/csv/upload/load", name="csv_upload_load")
+     * @Route("/csv/upload/saveandfix/{anlId}", name="csv_upload_saveandfix")
      */
+    public function saveandfix($anlId,Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo, EntityManagerInterface $em){
+        $anlage = $anlRepo->findIdLike($anlId)[0];
+        $array = $draftRepo->findAllByAnlage($anlage);
+        foreach($array as $case6d){
+            if($case6d->check() == "") {
+                $case6 = new AnlageCase6();
+                $case6->setAnlage($anlage);
+                $case6->setInverter($case6d->getInverter());
+                $case6->setReason($case6d->getReason());
+                $case6->setStampFrom($case6d->getStampFrom());
+                $case6->setStampTo($case6d->getStampTo());
+                $em->remove($case6d);
+                $em->persist($case6);
+            }
+            else $arraye[]=$case6d;
+            }
+        $em->flush();
+            if($arraye != []){
+                return $this->render('csv_upload/fix.html.twig',[
+                    'case6' => $arraye
+                ]);
+            }
 
-    public function load(Request $request, EntityManagerInterface $em, UploaderHelper $uploaderHelper, AnlagenRepository $anlRepo,  FunctionsService $fun):Response
+        $Route = $this->generateUrl('csv_upload_list',["anlId" => $anlage->getAnlId()], UrlGeneratorInterface::ABS_PATH);
+
+        return $this->redirect($Route);
+    }
+    //there is need to hide this, so none can call it from the searchbar
+        /**
+        * @Route("/csv/upload/save/{anlId}", name="csv_upload_save")
+        */
+    public function save($anlId,Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo, EntityManagerInterface $em){
+        $anlage = $anlRepo->findIdLike($anlId)[0];
+        $array = $draftRepo->findAllByAnlage($anlage);
+
+        foreach($array as $case6d){
+            if($case6d->check() == "") {
+                $case6 = new AnlageCase6();
+                $case6->setAnlage($anlage);
+                $case6->setInverter($case6d->getInverter());
+                $case6->setReason($case6d->getReason());
+                $case6->setStampFrom($case6d->getStampFrom());
+                $case6->setStampTo($case6d->getStampTo());
+                $em->remove($case6d);
+                $em->persist($case6);
+            }
+        }
+
+        $em->flush();
+        $Route = $this->generateUrl('csv_upload_list',["anlId" => $anlage->getAnlId()], UrlGeneratorInterface::ABS_PATH);
+
+        return $this->redirect($Route);
+    }
+
+        /**
+         * @Route("/csv/upload/load", name="csv_upload_load")
+         */
+
+    public function load(Request $request, EntityManagerInterface $em, UploaderHelper $uploaderHelper, AnlagenRepository $anlRepo):Response
     {
         $form = $this->createForm(FileUploadFormType::class);
         $anlage = null;
@@ -124,4 +181,5 @@ class CsvUploadController extends AbstractController
             'case6' => null
         ]);
     }
+
 }
