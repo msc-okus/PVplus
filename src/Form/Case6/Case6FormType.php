@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Form;
+namespace App\Form\Case6;
 
 use App\Entity\AnlageCase6;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -17,6 +18,10 @@ class Case6FormType extends AbstractType
             ->add('inverter')
             ->add('reason')
             ->add('anlage')
+            ->add('save', SubmitType::class, [
+                'label'     => 'Save',
+                'attr'      => ['class' => 'primary save'],
+            ])
         ;
     }
 

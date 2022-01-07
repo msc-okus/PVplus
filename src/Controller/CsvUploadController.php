@@ -5,8 +5,12 @@ namespace App\Controller;
 use ApiPlatform\Core\Api\UrlGeneratorInterface;
 use App\Entity\AnlageCase6;
 use App\Entity\AnlageFile;
+use App\Entity\Case6Array;
 use App\Entity\Case6Draft;
+
+use App\Form\Case6\Case6ArrayFormType;
 use App\Form\FileUpload\FileUploadFormType;
+use App\Form\Model\Case6fix;
 use App\Form\Owner\OwnerFormType;
 use App\Repository\AnlagenRepository;
 use App\Repository\Case6DraftRepository;
@@ -62,7 +66,9 @@ class CsvUploadController extends AbstractController
     /**
      * @Route("/csv/upload/saveandfix/{anlId}", name="csv_upload_saveandfix")
      */
-    public function saveandfix($anlId,Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo, EntityManagerInterface $em){
+    public function saveandfix($anlId,Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo, EntityManagerInterface $em,Request $request){
+
+
         $anlage = $anlRepo->findIdLike($anlId)[0];
         $array = $draftRepo->findAllByAnlage($anlage);
         foreach($array as $case6d){
@@ -80,7 +86,12 @@ class CsvUploadController extends AbstractController
             }
         $em->flush();
             if($arraye != []){
-                return $this->render('csv_upload/fix.html.twig',[
+                $casefix = new Case6Array();
+                $casefix->setCase6s($arraye);
+                $form = $this->createForm(Case6ArrayFormType::class, $casefix);
+                $form->handleRequest($request);
+                return $this->render('csv_upload/fixing.html.twig',[
+                    'caseForm' => $form,
                     'case6' => $arraye
                 ]);
             }

@@ -1,12 +1,15 @@
 {% extends 'base.html.twig' %}
 
+{% import _self as formMacros %}
+
+
 {% block title %} Fixing errors {% endblock %}
 
 {% block body %}
 
     <div class="tabs-panel is-active" id="uploads">
         <legend>Case 6</legend>
-        <table id="case 6">
+        <table id="case_6">
             <thead>
             <tr>
                 <th> </th>
@@ -28,31 +31,35 @@
             </thead>
             <tbody>
             {% for case in case6 %}
+                {% set form = caseForm.createView %}
+                {{ form_start(form) }}
                 <tr>
                     <td> </td>
-                    <td> {{ case.id }}</td>
+                    <td> {{ case.id }} </td>
                     <td> </td>
-                    <td> {{ case.inverter }}</td>
+                    <td> {{ form_widget(form.inverter, {'attr':{'value' : case.inverter } }) }} </td>
                     <td> </td>
-                    <td> {{ case.stampFrom }}</td>
+                    <td> {{ form_widget(form.stampFrom, {'attr':{'value' : case.stampFrom } }) }} </td>
                     <td> </td>
-                    <td> {{ case.stampTo }}</td>
+                    <td> {{ form_widget(form.stampTo, {'attr':{'value' : case.stampTo } }) }} </td>
                     <td> </td>
-                    <td> {{ case.reason }}</td>
+                    <td> {{ form_widget(form.reason, {'attr':{'value' : case.reason } }) }} </td>
                     <td> </td>
                     <td> {{ case.error }}</td>
                     <td> </td>
                     <td> {{ case.createdAt|date }}</td>
                     <td> </td>
                     <td><a class="hollow alert button tiny action-icon shadow" href="{{ path('csv_upload_delete', { id: case.id}) }}" > <span class="fa fa-close"></span></a></td>
-
-
+                    <div style="display: none">{{ form_rest(form) }}</div>
                 </tr>
+                {{ form_end(form) }}
             {% endfor %}
             </tbody>
         </table>
-        <a class="hollow alert button tiny action-icon shadow" href="{{ path('csv_upload_list', {anlId: anlId}) }}" > <span >Save</span></a>
+
+       {#  <a class="hollow alert button tiny action-icon shadow" href="{{ path('csv_upload_list', {anlId: anlId}) }}" > <span >Save</span></a> #}
     </div>
+
 
 
 {% endblock %}
