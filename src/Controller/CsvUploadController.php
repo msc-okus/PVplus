@@ -36,12 +36,12 @@ class CsvUploadController extends AbstractController
      */
     public function delete_case($id, EntityManagerInterface $em, Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo):Response
     {
-        $case4draft = $draftRepo->findById($id)[0];
+        $case6draft = $draftRepo->findById($id)[0];
 
-        $anlage = $case4draft->getAnlage();
+        $anlage = $case6draft->getAnlage();
         $Route = $this->generateUrl('csv_upload_list',["anlId" => $anlage->getAnlId()], UrlGeneratorInterface::ABS_PATH);
-        if ($case4draft) {
-            $em->remove($case4draft);
+        if ($case6draft) {
+            $em->remove($case6draft);
             $em->flush();
         }
         return $this->redirect($Route);
