@@ -85,7 +85,7 @@ class CsvUploadController extends AbstractController
             else $arraye[]=$case6d;
             }
         $em->flush();
-            if($arraye != []){
+            if($arraye != []){//hacer arraye un array de case6 en vez de case6draft, para que encaje con la plantilla del form
                 $casefix = new Case6Array();
                 $casefix->setCase6s($arraye);
                 $form = $this->createForm(Case6ArrayFormType::class, $casefix);
