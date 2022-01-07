@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %} Preview {% endblock %}
+{% block title %} Fixing errors {% endblock %}
 
 {% block body %}
 
@@ -43,14 +43,15 @@
                     <td> {{ case.error }}</td>
                     <td> </td>
                     <td> {{ case.createdAt|date }}</td>
+                    <td> </td>
                     <td><a class="hollow alert button tiny action-icon shadow" href="{{ path('csv_upload_delete', { id: case.id}) }}" > <span class="fa fa-close"></span></a></td>
+
+
                 </tr>
             {% endfor %}
             </tbody>
         </table>
-        <button class="hollow alert button  action-icon shadow" href="{{ path('csv_upload_save', {anlId: anlId}) }}" > <span >Save</span></button>
-        <button class="hollow alert button  action-icon shadow" href="{{ path('csv_upload_saveandfix', {anlId: anlId}) }}" > <span >Resolve Errors</span></button>
-
+        <a class="hollow alert button tiny action-icon shadow" href="{{ path('csv_upload_list', {anlId: anlId}) }}" > <span >Save</span></a>
     </div>
 
 
