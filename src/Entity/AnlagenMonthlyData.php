@@ -113,9 +113,9 @@ class AnlagenMonthlyData
         return $this;
     }
 
-    public function getExternMeterDataMonth(): ?string
+    public function getExternMeterDataMonth(): ?float
     {
-        return $this->externMeterDataMonth;
+        return (float)$this->externMeterDataMonth;
     }
 
     public function setExternMeterDataMonth(string $externMeterDataMonth): self

@@ -436,6 +436,7 @@ class ReportEpcService
                 'pld'               => $this->format($pld),
             ];
         }
+
         // Daten für PR Forecast
         $report['prForecast'][]= [
             'PRDiffYear'        => $this->format($prDiffForecast),
@@ -470,7 +471,7 @@ class ReportEpcService
             'pld'                   => $anlage->getPldPR(),
         ];
 
-        ##dd("STOP");
+        #dd("STOP");
         return $report;
     }
 
@@ -941,9 +942,8 @@ class ReportEpcService
         return $report;
     }
 
-    private function format($value, $round = 2):float
+    private function format($value, $round = 2): float
     {
-        //return number_format(round($value, $round), $round, ',', '.');
         return round($value, $round);
     }
 }

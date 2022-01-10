@@ -1115,14 +1115,6 @@ class AssetManagementService
                 }
             }
 
-            /*echo $sql.'<br>';
-            echo $ytdErtrag_design['ertrag_design'].'<br>';
-            echo cal_days_in_month(CAL_GREGORIAN, ($currentMonth), $currentYear).'<br>';
-            echo $expectedPvSystYtoDFirst.'<br>';
-            echo $expectedPvSystYtoDSecond.'<br>';
-            $expectedPvSystYtoD = $expectedPvSystYtoDFirst + $expectedPvSystYtoDSecond;
-            echo $expectedPvSystYtoD.'<br>';
-            exit;*/
             $expectedPvSystYtoD = $expectedPvSystYtoDFirst;
 
             $operations_monthly_right_pvsyst_tr6 = [
