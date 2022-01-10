@@ -65,6 +65,7 @@
         "symfony/twig-bundle": "5.4.*",
         "symfony/validator": "5.4.*",
         "symfony/var-dumper": "5.4.*",
+        "symfony/webpack-encore-bundle": "^1.8",
         "symfony/yaml": "5.4.*",
         "tecnickcom/tc-lib-pdf": "dev-main",
         "twig/cssinliner-extra": "^3.0",
