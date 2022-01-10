@@ -331,7 +331,6 @@ class ReportsEpcNewService
         $riskForcastPROffset    = $tableArray[$zeileSumme2]['Q_prReal_prProg'] - $tableArray[$zeileSumme2]['G_prDesign'];
         $riskForcastYield1      = $tableArray[$zeileSumme2]['Q_prReal_prProg'] / $tableArray[$zeileSumme2]['G_prDesign'];
         $riskForcastYield2      = $tableArray[$zeileSumme2]['M_eGridYield'] / $tableArray[$zeileSumme2]['E_yieldDesign'];
-        #dump("$riskForcastPROffset | $riskForcastYield1 | $riskForcastYield2");
 
         $month = $startMonth;
         $year = $startYear;

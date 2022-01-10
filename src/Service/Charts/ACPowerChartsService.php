@@ -251,7 +251,6 @@ class ACPowerChartsService
 
 
                         if ($anlage->getShowCosPhiDiag()) $dataArray['chart'][$counter]['cosPhi'] = abs((float)$rowActual['wr_cos_phi_korrektur']);
-                        dump($counterInv);
                         $counterInv++;
                     }
 
