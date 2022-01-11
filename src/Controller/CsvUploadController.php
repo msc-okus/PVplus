@@ -69,34 +69,61 @@ class CsvUploadController extends AbstractController
     public function saveandfix($anlId,Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo, EntityManagerInterface $em,Request $request){
 
 
-        $anlage = $anlRepo->findIdLike($anlId)[0];
-        $array = $draftRepo->findAllByAnlage($anlage);
-        foreach($array as $case6d){
-            if($case6d->check() == "") {
+            $anlage = $anlRepo->findIdLike($anlId)[0];
+            $array = $draftRepo->findAllByAnlage($anlage);
+
+            foreach ($array as $case6d) {
                 $case6 = new AnlageCase6();
                 $case6->setAnlage($anlage);
                 $case6->setInverter($case6d->getInverter());
                 $case6->setReason($case6d->getReason());
                 $case6->setStampFrom($case6d->getStampFrom());
                 $case6->setStampTo($case6d->getStampTo());
-                $em->remove($case6d);
-                $em->persist($case6);
+                if ($case6d->check() == "") {
+                    $em->remove($case6d);
+                    $em->persist($case6);
+                } else {
+                    $arraye[] = $case6d;
+                    $arrayc[] = $case6;
+                }
             }
-            else $arraye[]=$case6d;
-            }
-        $em->flush();
-            if($arraye != []){//hacer arraye un array de case6 en vez de case6draft, para que encaje con la plantilla del form
+            $em->flush();
+            if ($arraye != []) {//hacer arraye un array de case6 en vez de case6draft, para que encaje con la plantilla del form
                 $casefix = new Case6Array();
-                $casefix->setCase6s($arraye);
+
+                $casefix->setCase6s($arrayc);
                 $form = $this->createForm(Case6ArrayFormType::class, $casefix);
                 $form->handleRequest($request);
-                return $this->render('csv_upload/fixing.html.twig',[
+                if ($form->isSubmitted() &&  ($form->get('save')->isClicked())){
+                    $index = 0;
+                    foreach ($form->getData()->getCase6s() as $case6){
+                            $case6d = $arraye[$index];
+                            $em->remove($case6d);
+                            if($case6->check() != "") {
+                                $em->persist($case6);
+                            }
+                            else {
+                                $newdraft = new Case6Draft();
+                                $newdraft->setInverter($case6->getInverter());
+                                $newdraft->setAnlage($anlage);
+                                $newdraft->setStampFrom($case6->getStampFrom());
+                                $newdraft->setStampTo($case6->getStampTo());
+                                $newdraft->setReason($case6->getError());
+                                $newdraft->setError($case6->check());
+                                $em->persist($newdraft);
+                            }
+                        $index++;
+                    }
+                    $em->flush();
+
+                }
+
+                else return $this->render('csv_upload/fixing.html.twig', [
                     'caseForm' => $form,
                     'case6' => $arraye
                 ]);
             }
-
-        $Route = $this->generateUrl('csv_upload_list',["anlId" => $anlage->getAnlId()], UrlGeneratorInterface::ABS_PATH);
+        $Route = $this->generateUrl('csv_upload_list',["anlId" => $anlId], UrlGeneratorInterface::ABS_PATH);
 
         return $this->redirect($Route);
     }

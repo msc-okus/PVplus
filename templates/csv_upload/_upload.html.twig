@@ -1,4 +1,6 @@
 
+
+{% block body %}
 {{ form_start(uploadForm, {'attr': {'novalidate': 'no'}}) }}
 <div class="grid-x">
         <div class="cell">
@@ -15,7 +17,7 @@
                 </ul>
                 <div class="tabs-content" data-tabs-content="uploads-tabs">
                         <div class="grid-x grid-padding-x">
-                                {% if case6 ==  null %}
+
                                         <div   class="tabs-panel is-active" id="uploads">
                                                 <div class="cell medium-2">        Anlagen (coming soon)            </div>
                                                 <div class="cell medium-2">        {{ form_row(uploadForm.File) }}  </div>
@@ -31,3 +33,4 @@
 
 <div style="display: none">{{ form_rest(uploadForm) }}</div>
 {{ form_end(uploadForm) }}
+{% endblock %}

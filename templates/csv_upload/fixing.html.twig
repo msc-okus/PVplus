@@ -7,6 +7,9 @@
 
 {% block body %}
 
+    {% set form = caseForm.createView %}
+
+    {{ form_start(form) }}
     <div class="tabs-panel is-active" id="uploads">
         <legend>Case 6</legend>
         <table id="case_6">
@@ -30,34 +33,39 @@
             </tr>
             </thead>
             <tbody>
-            {% for case in case6 %}
-                {% set form = caseForm.createView %}
-                {{ form_start(form) }}
+
+
+                {% for forme in form.Case6s %}
+
                 <tr>
                     <td> </td>
-                    <td> {{ case.id }} </td>
+                    <td> {{ case6[loop.index0].id }} </td>
                     <td> </td>
-                    <td> {{ form_widget(form.inverter, {'attr':{'value' : case.inverter } }) }} </td>
+                    <td> {{ form_widget(forme.inverter, {'attr':{} }) }} </td>
                     <td> </td>
-                    <td> {{ form_widget(form.stampFrom, {'attr':{'value' : case.stampFrom } }) }} </td>
+                    <td> {{ form_widget(forme.stampFrom, {'attr':{} }) }} </td>
                     <td> </td>
-                    <td> {{ form_widget(form.stampTo, {'attr':{'value' : case.stampTo } }) }} </td>
+                    <td> {{ form_widget(forme.stampTo, {'attr':{} }) }} </td>
                     <td> </td>
-                    <td> {{ form_widget(form.reason, {'attr':{'value' : case.reason } }) }} </td>
+                    <td> {{ form_widget(forme.reason, {'attr':{} }) }} </td>
                     <td> </td>
-                    <td> {{ case.error }}</td>
+                    <td> {{ case6[loop.index0].error }}</td>
                     <td> </td>
-                    <td> {{ case.createdAt|date }}</td>
+                    <td> {{ case6[loop.index0].createdAt|date }}</td>
                     <td> </td>
-                    <td><a class="hollow alert button tiny action-icon shadow" href="{{ path('csv_upload_delete', { id: case.id}) }}" > <span class="fa fa-close"></span></a></td>
-                    <div style="display: none">{{ form_rest(form) }}</div>
+                    <td><a class="hollow alert button tiny action-icon shadow" href="{{ path('csv_upload_delete', { id: case6[loop.index0].id}) }}" > <span class="fa fa-close"></span></a></td>
                 </tr>
-                {{ form_end(form) }}
-            {% endfor %}
+                {%  endfor %}
+
+
+
             </tbody>
         </table>
+        {{  form_widget(form.save) }}
+        <div style="display: none">{{ form_rest(form) }}</div>
+        {{ form_end(form) }}
 
-       {#  <a class="hollow alert button tiny action-icon shadow" href="{{ path('csv_upload_list', {anlId: anlId}) }}" > <span >Save</span></a> #}
+
     </div>
 
 
