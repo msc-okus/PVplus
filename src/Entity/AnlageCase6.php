@@ -127,9 +127,9 @@ class AnlageCase6
         $nrInv = $this->anlage->getAnzInverterFromGroupsAC();
         $answer = "";
         if(strtotime($this->stampFrom) > strtotime($this->stampTo))
-            $answer = $answer." Date inconsistent";
+            $answer = $answer." Date inconsistent; ";
         if(strtotime($this->stampFrom) > strtotime('now') or (strtotime($this->stampTo) > strtotime('now')))
-            $answer = $answer." Date in the future";
+            $answer = $answer." Date in the future; ";
         if((int)$this->inverter > $nrInv)
             $answer = $answer." Inverter not in the plant";
 

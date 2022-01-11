@@ -68,47 +68,46 @@ class CsvUploadController extends AbstractController
      */
     public function saveandfix($anlId,Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo, EntityManagerInterface $em,Request $request){
 
-
             $anlage = $anlRepo->findIdLike($anlId)[0];
             $array = $draftRepo->findAllByAnlage($anlage);
 
-            foreach ($array as $case6d) {
+            foreach ($array as $case6draft) {//we iterate over all the cases of this plant and see which we can save and which we must fix
                 $case6 = new AnlageCase6();
                 $case6->setAnlage($anlage);
-                $case6->setInverter($case6d->getInverter());
-                $case6->setReason($case6d->getReason());
-                $case6->setStampFrom($case6d->getStampFrom());
-                $case6->setStampTo($case6d->getStampTo());
-                if ($case6d->check() == "") {
-                    $em->remove($case6d);
+                $case6->setInverter($case6draft->getInverter());
+                $case6->setReason($case6draft->getReason());
+                $case6->setStampFrom($case6draft->getStampFrom());
+                $case6->setStampTo($case6draft->getStampTo());
+                if ($case6->check() == "") {
+                    $em->remove($case6draft);
                     $em->persist($case6);
                 } else {
-                    $arraye[] = $case6d;
-                    $arrayc[] = $case6;
+                    $arraydraft[] = $case6draft;//this array contains all the drafts that were not submited beacause they have errors
+                    $arraycase[] = $case6;// it contains exactly the same as the array above but case6 instead of case6drafts
+                    //we make this because we need case6's to call the form
                 }
             }
             $em->flush();
-            if ($arraye != []) {//hacer arraye un array de case6 en vez de case6draft, para que encaje con la plantilla del form
+            if ($arraydraft != []) {
                 $casefix = new Case6Array();
-
-                $casefix->setCase6s($arrayc);
-                $form = $this->createForm(Case6ArrayFormType::class, $casefix);
+                $casefix->setCase6s($arraycase);
+                $form = $this->createForm(Case6ArrayFormType::class, $casefix);//we make the form with the array of case6's as Case6Array class
                 $form->handleRequest($request);
-                if ($form->isSubmitted() &&  ($form->get('save')->isClicked())){
+                if ($form->isSubmitted() &&  ($form->get('save')->isClicked())){ // if the form has been submitted we proceed to do more or less the same as above*
                     $index = 0;
                     foreach ($form->getData()->getCase6s() as $case6){
-                            $case6d = $arraye[$index];
-                            $em->remove($case6d);
-                            if($case6->check() != "") {
-                                $em->persist($case6);
+                            $case6draft = $arraydraft[$index];//*thats why I say more or less: we need the array from above to get the id of the draft to remove it
+                            $em->remove($case6draft);
+                            if($case6->check() == "") {
+                                $em->persist($case6);//if there is no errors we persist the case6
                             }
-                            else {
+                            else {//if there is errors we create a new draft
                                 $newdraft = new Case6Draft();
                                 $newdraft->setInverter($case6->getInverter());
                                 $newdraft->setAnlage($anlage);
                                 $newdraft->setStampFrom($case6->getStampFrom());
                                 $newdraft->setStampTo($case6->getStampTo());
-                                $newdraft->setReason($case6->getError());
+                                $newdraft->setReason($case6->check());
                                 $newdraft->setError($case6->check());
                                 $em->persist($newdraft);
                             }
@@ -120,7 +119,7 @@ class CsvUploadController extends AbstractController
 
                 else return $this->render('csv_upload/fixing.html.twig', [
                     'caseForm' => $form,
-                    'case6' => $arraye
+                    'case6' => $arraydraft
                 ]);
             }
         $Route = $this->generateUrl('csv_upload_list',["anlId" => $anlId], UrlGeneratorInterface::ABS_PATH);
