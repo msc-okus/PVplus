@@ -33,10 +33,7 @@
             </tr>
             </thead>
             <tbody>
-
-
                 {% for forme in form.Case6s %}
-
                 <tr>
                     <td> </td>
                     <td> {{ case6[loop.index0].id }} </td>
@@ -56,9 +53,6 @@
                     <td><a class="hollow alert button tiny action-icon shadow" href="{{ path('csv_upload_delete', { id: case6[loop.index0].id}) }}" > <span class="fa fa-close"></span></a></td>
                 </tr>
                 {%  endfor %}
-
-
-
             </tbody>
         </table>
         {{  form_widget(form.save) }}
