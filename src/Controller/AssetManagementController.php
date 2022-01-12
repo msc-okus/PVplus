@@ -29,8 +29,8 @@ class AssetManagementController extends BaseController
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
 
         $output = $assetManagement->assetReport($anlage, $month, $year, $pages);
-        $baseurl = $request->getSchemeAndHttpHost();
-        $plantId = $output['plantId'];
+        //$baseurl = $request->getSchemeAndHttpHost();
+        //$plantId = $output['plantId'];
         $result = $this->render('report/assetreport.html.twig', [
             'anlage'            => $anlage,
             'year'              => $output['year'],
@@ -100,7 +100,7 @@ class AssetManagementController extends BaseController
             // specify the route to the binary.
             $pdf = new ChromePdf('/usr/bin/chromium');
 
-            // Route when PDF will be saved.
+            // Route where PDF will be saved.
             ///usr/www/users/pvpluy/dev.gs/PVplus-4.0
             $pos = $this->substr_Index($this->getParameter('kernel.project_dir'), '/', 5);
             $pathpart = substr($this->getParameter('kernel.project_dir'), $pos);

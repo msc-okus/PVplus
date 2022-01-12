@@ -155,7 +155,7 @@ class AssetManagementService
      * @return array
      * @throws \Symfony\Component\Serializer\Exception\ExceptionInterface
      */
-    public function buildAssetReport(Anlage $anlage, array $report, int $docType = 0, int $pages = 0, $exit = false): array
+    public function buildAssetReport(Anlage $anlage, array $report, int $docType = 0, int $pages = 0, $exit = false,): array
     {
 
         $conn = self::getPdoConnection();
