@@ -56,7 +56,7 @@ class AnlageCase6
      * @Groups ({"case6"})
      * @ORM\Column(type="text", nullable=true)
      */
-    private string $reason;
+    private string $reason = "";
 
     public function getId(): ?int
     {
@@ -131,7 +131,11 @@ class AnlageCase6
         if(strtotime($this->stampFrom) > strtotime('now') or (strtotime($this->stampTo) > strtotime('now')))
             $answer = $answer." Date in the future; ";
         if((int)$this->inverter > $nrInv)
-            $answer = $answer." Inverter not in the plant";
+            $answer = $answer." Inverter not in the plant;";
+        if(str_split($this->stampFrom,2)[7] != "00" && str_split($this->stampFrom,2)[7] != "15" && str_split($this->stampFrom,2)[7] != "30" && str_split($this->stampFrom,2)[7] != "45")
+            $answer = $answer." stampFrom minutes must be 00, 15, 30, 45;";
+        if(str_split($this->stampTo,2)[7] != "00" && str_split($this->stampTo,2)[7] != "15" && str_split($this->stampTo,2)[7] != "30" && str_split($this->stampTo,2)[7] != "45")
+            $answer = $answer." stampTo minutes must be 00, 15, 30, 45";
 
         return $answer;
     }

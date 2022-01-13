@@ -70,7 +70,7 @@ class CsvUploadController extends AbstractController
 
             $anlage = $anlRepo->findIdLike($anlId)[0];
             $array = $draftRepo->findAllByAnlage($anlage);
-
+            $array[0]->check();
             foreach ($array as $case6draft) {//we iterate over all the cases of this plant and see which we can save and which we must fix
                 $case6 = new AnlageCase6();
                 $case6->setAnlage($anlage);
@@ -78,6 +78,7 @@ class CsvUploadController extends AbstractController
                 $case6->setReason($case6draft->getReason());
                 $case6->setStampFrom($case6draft->getStampFrom());
                 $case6->setStampTo($case6draft->getStampTo());
+                dump($case6->check());
                 if ($case6->check() == "") {
                     $em->remove($case6draft);
                     $em->persist($case6);
@@ -107,7 +108,8 @@ class CsvUploadController extends AbstractController
                                 $newdraft->setAnlage($anlage);
                                 $newdraft->setStampFrom($case6->getStampFrom());
                                 $newdraft->setStampTo($case6->getStampTo());
-                                $newdraft->setReason($case6->check());
+                                $newdraft->setReason($case6->getReason());
+                                if($case6->getReason() == null)$newdraft->setReason("");
                                 $newdraft->setError($case6->check());
                                 $em->persist($newdraft);
                             }
@@ -179,11 +181,10 @@ class CsvUploadController extends AbstractController
 
                     $contents = $file->getContents();
 
-
                     foreach (\symfony\component\string\u($contents)->split("\r\n") as $row) {
                         $row = (string)$row;
                         $fields[] = [];
-                        if (!strpos($row, "id;anlage;from;to;inv;reason")) {
+                        if (!strpos($row, "id;anlage;from;to;inv;reason") && strcmp($row, ";;;;;\r") != 0) {
                             $fields = \symfony\component\string\u($row)->split(";");
                             $Plant = (string)$fields[1];
                             $anlage = $anlRepo->findIdLike($Plant)[0];
@@ -193,7 +194,7 @@ class CsvUploadController extends AbstractController
                             $reason = (string)$fields[5];
                             if ($anlage != null) {
 
-
+                                $anlId = $anlage->getAnlId();
                                 $case6Draft = new Case6Draft();
                                 $case6Draft->setAnlage($anlage);
                                 $case6Draft->setStampFrom(preg_replace('/[\x00-\x1F\x7F]/u', '', $from));
@@ -205,8 +206,9 @@ class CsvUploadController extends AbstractController
                             }
                         }
                     }
+
                     $em->flush();
-                    $Route = $this->generateUrl('csv_upload_list',["anlId" => $anlage->getAnlId()], UrlGeneratorInterface::ABS_PATH);
+                    $Route = $this->generateUrl('csv_upload_list',["anlId" => $anlId], UrlGeneratorInterface::ABS_PATH);
 
                     return $this->redirect($Route);
                 }
