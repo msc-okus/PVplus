@@ -154,7 +154,7 @@ class Case6Draft
 
         if(date('i', strtotime($this->stampFrom)) != "00" && date('i', strtotime($this->stampFrom)) != "15" && date('i', strtotime($this->stampFrom)) != "30" && date('i', strtotime($this->stampFrom)) != "45")
             $answer = $answer." stampFrom minutes must be 00, 15, 30, 45;";
-        if(date('i', strtotime($this->stampFrom)) != "00" && date('i', strtotime($this->stampFrom)) != "15" && date('i', strtotime($this->stampFrom)) != "30" && date('i', strtotime($this->stampFrom)) != "45")
+        if(date('i', strtotime($this->stampTo)) != "00" && date('i', strtotime($this->stampTo)) != "15" && date('i', strtotime($this->stampTo)) != "30" && date('i', strtotime($this->stampTo)) != "45")
             $answer = $answer." stampTo minutes must be 00, 15, 30, 45";
         return $answer;
     }
