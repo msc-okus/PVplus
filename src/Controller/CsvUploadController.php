@@ -57,7 +57,7 @@ class CsvUploadController extends AbstractController
     public function list($anlId,Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo){
         $anlage = $anlRepo->findIdLike($anlId);
         $array = $draftRepo->findAllByAnlage($anlage[0]);
-        dump($array);
+
         return $this->render('csv_upload/list.html.twig', [
             'case6' => $array,
             'anlId' => $anlId

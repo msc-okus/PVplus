@@ -18,7 +18,10 @@ class Case6FormType extends AbstractType
             ->add('stampFrom')
             ->add('stampTo')
             ->add('inverter')
-            ->add('reason')
+            ->add('reason', \Symfony\Component\Form\Extension\Core\Type\TextType::class,[
+                'empty_data' => ' ',
+                'required' => false
+            ])
             ->add('anlage')
             ->add('save', SubmitType::class, [
                 'label'     => 'Save',
