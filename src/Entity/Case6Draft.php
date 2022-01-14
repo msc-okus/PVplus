@@ -151,9 +151,11 @@ class Case6Draft
             $answer = $answer." Date in the future; ";
         if((int)$this->inverter > $nrInv)
             $answer = $answer." Inverter not in the plant";
-        if(str_split($this->stampFrom,2)[6] != "00" && str_split($this->stampFrom,2)[6] != "15" && str_split($this->stampFrom,2)[6] != "30" && str_split($this->stampFrom,2)[6] != "45")$answer = $answer." stampFrom minutes must be 00, 15, 30, 45;";
-        if(str_split($this->stampTo,2)[6] != "00" && str_split($this->stampTo,2)[6] != "15" && str_split($this->stampTo,2)[6] != "30" && str_split($this->stampTo,2)[6] != "45") $answer = $answer." stampTo minutes must be 00, 15, 30, 45";
 
+        if(date('i', strtotime($this->stampFrom)) != "00" && date('i', strtotime($this->stampFrom)) != "15" && date('i', strtotime($this->stampFrom)) != "30" && date('i', strtotime($this->stampFrom)) != "45")
+            $answer = $answer." stampFrom minutes must be 00, 15, 30, 45;";
+        if(date('i', strtotime($this->stampFrom)) != "00" && date('i', strtotime($this->stampFrom)) != "15" && date('i', strtotime($this->stampFrom)) != "30" && date('i', strtotime($this->stampFrom)) != "45")
+            $answer = $answer." stampTo minutes must be 00, 15, 30, 45";
         return $answer;
     }
 }

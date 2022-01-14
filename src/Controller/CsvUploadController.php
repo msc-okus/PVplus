@@ -57,7 +57,7 @@ class CsvUploadController extends AbstractController
     public function list($anlId,Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo){
         $anlage = $anlRepo->findIdLike($anlId);
         $array = $draftRepo->findAllByAnlage($anlage[0]);
-
+        dump($array);
         return $this->render('csv_upload/list.html.twig', [
             'case6' => $array,
             'anlId' => $anlId
@@ -78,7 +78,6 @@ class CsvUploadController extends AbstractController
                 $case6->setReason($case6draft->getReason());
                 $case6->setStampFrom($case6draft->getStampFrom());
                 $case6->setStampTo($case6draft->getStampTo());
-                dump($case6->check());
                 if ($case6->check() == "") {
                     $em->remove($case6draft);
                     $em->persist($case6);
@@ -109,14 +108,19 @@ class CsvUploadController extends AbstractController
                                 $newdraft->setStampFrom($case6->getStampFrom());
                                 $newdraft->setStampTo($case6->getStampTo());
                                 $newdraft->setReason($case6->getReason());
-                                if($case6->getReason() == null)$newdraft->setReason("");
                                 $newdraft->setError($case6->check());
                                 $em->persist($newdraft);
+                                //$newArrayDraft[]=$newdraft;
                             }
                         $index++;
                     }
                     $em->flush();
-
+                    /*
+                    return $this->render('csv_upload/fixing.html.twig', [
+                        'caseForm' => $form,
+                        'case6' => $newArrayDraft
+                    ]);
+                    */
                 }
 
                 else return $this->render('csv_upload/fixing.html.twig', [
