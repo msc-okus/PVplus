@@ -72,8 +72,7 @@
         "twig/extra-bundle": "^2.12|^3.0",
         "twig/inky-extra": "^3.0",
         "twig/intl-extra": "^3.0",
-        "twig/twig": "^3.0",
-        "zurb/foundation": "^6.6"
+        "twig/twig": "^3.0"
     },
     "require-dev": {
         "symfony/stopwatch": "^5.4",

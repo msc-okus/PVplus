@@ -766,7 +766,7 @@ class FunctionsService
             //$monthlyDatas = $this->monthlyDataRepo->findBy(['anlage' => $anlage], ['year' => 'asc', 'month' => 'asc']);
             $monthlyDatas = $this->monthlyDataRepo->findByDateRange($anlage, date_create($from), date_create($to));
             if($old > 4860000){
-                dump($monthlyDatas);
+                #dump($monthlyDatas);
             }
             foreach ($monthlyDatas as $monthlyData) {
                 $tempFrom = new DateTime($monthlyData->getYear()."-".$monthlyData->getMonth()."-01 00:00");

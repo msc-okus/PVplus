@@ -932,8 +932,5 @@
     },
     "wrench/wrench": {
         "version": "v2.0.11"
-    },
-    "zurb/foundation": {
-        "version": "v6.6.3"
     }
 }
