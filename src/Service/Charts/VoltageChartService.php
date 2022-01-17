@@ -43,7 +43,7 @@ class VoltageChartService
      * @return array
      *  // dc_current_inverter
      */
-    public function getVoltageGroups(Anlage $anlage, $from, $to, int $set = 1, bool $hour): array
+    public function getVoltageGroups(Anlage $anlage, $from, $to, int $set = 1,  bool $hour = false): array
     {
         if($hour) $form = '%y%m%d%H';
         else $form = '%y%m%d%H%i';
@@ -109,7 +109,7 @@ class VoltageChartService
      * @return array|false
      *  // dc_voltage_mpp
      */
-    public function getVoltageMpp(Anlage $anlage, $from, $to, int $inverter = 1, bool $hour): array
+    public function getVoltageMpp(Anlage $anlage, $from, $to, int $inverter = 1,  bool $hour = false): array
     {
         if($hour) $form = '%y%m%d%H';
         else $form = '%y%m%d%H%i';

@@ -314,13 +314,6 @@ class ReportingController extends AbstractController
         return $this->redirect($route);
     }
 
-    /**
-     * @Route("/", name="am_report")
-     */
-    public function xx($response)
-    {
-        return $response;
-    }
 
     /**
      * @Route("/reporting/excel/{id}", name="app_reporting_excel")

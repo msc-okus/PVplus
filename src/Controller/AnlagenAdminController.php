@@ -17,6 +17,7 @@ use App\Repository\EconomicVarValuesRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -28,7 +29,7 @@ class AnlagenAdminController extends BaseController
     /**
      * @Route("/admin/anlagen/new", name="app_admin_anlagen_new")
      */
-    public function new(EntityManagerInterface $em, Request $request)
+    public function new(EntityManagerInterface $em, Request $request): RedirectResponse|Response
     {
         $form = $this->createForm(AnlageNewFormType::class);
         $form->handleRequest($request);
@@ -84,7 +85,7 @@ class AnlagenAdminController extends BaseController
     /**
      * @Route("/admin/anlagen/edit/{id}", name="app_admin_anlagen_edit")
      */
-    public function edit($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository)
+    public function edit($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository): RedirectResponse|Response
     {
         $anlage = $anlagenRepository->find($id);
         $form = $this->createForm(AnlageFormType::class, $anlage, [
@@ -124,9 +125,10 @@ class AnlagenAdminController extends BaseController
      * @param EntityManagerInterface $em
      * @param Request $request
      * @param AnlagenRepository $anlagenRepository
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @param EconomicVarNamesRepository $ecoNamesRepo
+     * @return RedirectResponse|Response
      */
-    public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo)
+    public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo): RedirectResponse|Response
     {
         $anlage = $anlagenRepository->find($id);
         $economicVarNames1 =new EconomicVarNames();
@@ -180,7 +182,7 @@ class AnlagenAdminController extends BaseController
     /**
      * @Route("/admin/anlagen/editdcgroups/{id}", name="app_admin_anlagen_edit_dcgroups")
      */
-    public function editDcGroups($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository)
+    public function editDcGroups($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository): RedirectResponse|Response
     {
         $anlage = $anlagenRepository->find($id);
         $form = $this->createForm(AnlageDcGroupsFormType::class, $anlage, [
@@ -214,7 +216,7 @@ class AnlagenAdminController extends BaseController
     /**
      * @Route("/admin/anlagen/editacgroups/{id}", name="app_admin_anlagen_edit_acgroups")
      */
-    public function editAcGroups($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository)
+    public function editAcGroups($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository): RedirectResponse|Response
     {
         $anlage = $anlagenRepository->find($id);
         $form = $this->createForm(AnlageAcGroupsFormType::class, $anlage, [
@@ -249,7 +251,7 @@ class AnlagenAdminController extends BaseController
      * @IsGranted("ROLE_DEV")
      * @Route("/admin/anlagen/delete/{id}", name="app_admin_anlage_delete")
      */
-    public function delete($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository,  Security $security)
+    public function delete($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository,  Security $security): RedirectResponse
     {
         if ($this->isGranted('ROLE_DEV'))
         {
@@ -266,10 +268,10 @@ class AnlagenAdminController extends BaseController
      * Erzeugt alle Datenbanken für die Anlage
      * Braucht aber Zugriff auf die Datenbank der Anlagen (nicht per Doctrin)
      * @param Anlage $anlage
+     * @return bool
      */
-    private function createDatabasesForPlant(Anlage $anlage)
+    private function createDatabasesForPlant(Anlage $anlage): bool
     {
-        /* @var Anlage $anlage */
         if ($anlage) {
             $databaseAcIst = "CREATE TABLE IF NOT EXISTS " . $anlage->getDbNameIst() . " (
                   `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
@@ -296,12 +298,12 @@ class AnlagenAdminController extends BaseController
                   `wr_udc` varchar(20) DEFAULT NULL,
                   `wr_pdc` varchar(20) DEFAULT NULL,
                   `wr_temp` varchar(20) DEFAULT NULL,
+                  `wr_cos_phi_korrektur` varchar(20) DEFAULT NULL,
+                  `e_z_evu` varchar(20) DEFAULT NULL,
                   `temp_corr` varchar(20) DEFAULT NULL,
                   `theo_power` varchar(20) DEFAULT NULL,
                   `wr_mpp_current` json NOT NULL,
                   `wr_mpp_voltage` json NOT NULL,
-                  `wr_cos_phi_korrektur` varchar(20) DEFAULT NULL,
-                  `e_z_evu` varchar(20) DEFAULT NULL,
                   `irr_anlage` json NOT NULL,
                   `temp_anlage` json NOT NULL,
                   `temp_inverter` json NOT NULL,
@@ -372,12 +374,12 @@ class AnlagenAdminController extends BaseController
                 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;";
 
 
-            $conn = self::connectToDatabase();
-            $conn->query($databaseAcIst);
-            $conn->query($databaseDcIst);
-            $conn->query($databaseAcSoll);
-            $conn->query($databaseDcSoll);
-            $conn->close();
+            $conn = self::getPdoConnection();
+            $conn->exec($databaseAcIst);
+            $conn->exec($databaseDcIst);
+            $conn->exec($databaseAcSoll);
+            $conn->exec($databaseDcSoll);
+            $conn = null;
 
             return true;
         } else {

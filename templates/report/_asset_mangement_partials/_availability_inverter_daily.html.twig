@@ -14,7 +14,7 @@
                 {% set itemcounter2 = 0 %}
                 {% set unitcounter = 0 %}
                 {% set unitcounter2 = 0 %}
-                {% set counterall = 0 %}
+                {% set counterall = 1 %}
                 {% set availabilityall = 0 %}
                 <table class="asset_report_table_operations_data" style="margin-bottom: 5px!important;">
                     {% for data in plantAvailabilityMonth %}
@@ -38,12 +38,12 @@
                                 </thead>
                                 {% set color = "#ffffff" %}
                                 {% for datatr in data %}
-                                    {% if (datatr.pa >= 98) %}{% set color = "#00b050" %}{% endif %}
-                                    {% if (datatr.pa < 98) %}{% set color = "#cee4c0" %}{% endif %}
-                                    {% if (datatr.pa < 92) %}{% set color = "#ffff00" %}{% endif %}
-                                    {% if (datatr.pa < 85) %}{% set color = "#ffc000" %}{% endif %}
-                                    {% if (datatr.pa <= 80) %}{% set color = "#cc0000" %}{% endif %}
-                                    {% if (datatr.pa == 100) %}{% set color = "#00b050" %}{% endif %}
+                                    {% if (datatr.pa >= 98) %}  {% set color = "#00b050" %}{% endif %}
+                                    {% if (datatr.pa < 98) %}   {% set color = "#cee4c0" %}{% endif %}
+                                    {% if (datatr.pa < 92) %}   {% set color = "#ffff00" %}{% endif %}
+                                    {% if (datatr.pa < 85) %}   {% set color = "#ffc000" %}{% endif %}
+                                    {% if (datatr.pa <= 80) %}  {% set color = "#cc0000" %}{% endif %}
+                                    {% if (datatr.pa == 100) %} {% set color = "#00b050" %}{% endif %}
 
                                     {% if (itemcounter == 1 ) %}
                                         <tr><td class="tr_first_column" style="font-size: 7.3px!important;">{{ datatr.form_date }}</td><td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ datatr.pa|number_format(0, ',', '.') }}</td></tr>
@@ -87,7 +87,7 @@
     </table>
     <div class="explanation">
         <b>Explanation:</b>
-        <br>The PV plant shows a system availability of {{ (availabilityall/counterall)|number_format(3, ',', '.') }}% for the period from 01/01/{{ year}} to {{ reportmonth }}/{{ daysInReportMonth }}/{{ year}} (reporting period).<br>
+        <br>The PV plant shows a system availability of {{ (availabilityall / counterall)|number_format(3, ',', '.') }}% for the period from 01/01/{{ year}} to {{ reportmonth }}/{{ daysInReportMonth }}/{{ year}} (reporting period).<br>
         The main reason for the relatively low availability is the fact that inverters 1.1 (transformer station 1) have not been working since April. They should be checked for defects.
     </div>
 {% endblock page %}

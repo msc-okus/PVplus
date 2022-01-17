@@ -127,10 +127,10 @@ class PRCalulationService
 
             // Berechne Expected G4N für Tag, Jahr und PAC
             $powerExpArray  = $this->functions->getSumPowerAcExp($anlage, $from, $to, $pacDate, $pacDateEnd); // Summe Leistung AC SOLL
-            $powerExp       = $powerExpArray['sumPowerExp'];
-            $powerExpMonth  = $powerExpArray['sumPowerExpMonth'];
-            $powerExpYear   = $powerExpArray['sumPowerExpYear'];
-            $powerExpPac    = $powerExpArray['sumPowerExpPac'];
+            $powerExp       = ($powerExpArray['sumPowerEvuExp'] > 0)    ? $powerExpArray['sumPowerEvuExp']          : $powerExpArray['sumPowerExp'];
+            $powerExpMonth  = ($powerExpArray['sumPowerEvuExpMonth'] > 0)  ? $powerExpArray['sumPowerEvuExpMonth']  : $powerExpArray['sumPowerExpMonth'];
+            $powerExpYear   = ($powerExpArray['sumPowerEvuExpYear'] > 0)   ? $powerExpArray['sumPowerEvuExpYear']   : $powerExpArray['sumPowerExpYear'];
+            $powerExpPac    = ($powerExpArray['sumPowerEvuExpPac'] > 0)    ? $powerExpArray['sumPowerEvuExpPac']    : $powerExpArray['sumPowerExpPac'];
 
             // PlantAvailability berechnen FIRST
             // pro Tag
@@ -165,7 +165,7 @@ class PRCalulationService
 
             // auf Basis des PAC (Productions Start Datum)
             // FIRST und SECOND
-            if ($anlage->getPacDate()) { // Nur wenn pacDate gesetzt ist
+            if ($anlage->getPacDate()) { // Nur, wenn pacDate gesetzt ist
                 $anzPRRecordsPerPac = $this->PRRepository->anzRecordsPRPerPac($anlage->getAnlId(), $pacDate, $pacDateEnd);
                 if ($anzPRRecordsPerPac == 0) $anzPRRecordsPerPac = 1;
                 // FIRST
@@ -547,15 +547,17 @@ class PRCalulationService
 
         // Wetter Daten ermitteln
         $weather    = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate);
+
         // Leistungsdaten ermitteln
         $power      = $this->functions->getSumAcPower($anlage, $localStartDate, $localEndDate);
         $result['powerEvu']         = $power['powerEvu'];
         $result['powerAct']         = $power['powerAct'];
-        $result['powerExp']         = $power['powerExp'];
+        $result['powerExp']         = ($power['powerExpEvu'] > 0 ) ? $power['powerExpEvu'] : $power['powerExp'];
         $result['powerEGridExt']    = $power['powerEGridExt'];
+
         // Verfügbarkeit ermitteln
         $anzTage = date_diff(date_create($localStartDate), date_create($localEndDate))->days + 1;
-        if($anzTage === 0) $anzTage = 1; //verhindert diffision by zero
+        if ($anzTage === 0) $anzTage = 1; //verhindert diffision by zero
         $availability = $this->availabilityService->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate));
 
         //Strahlung berechnen – (upper = Ost / lower = West)
@@ -564,10 +566,10 @@ class PRCalulationService
         } else {
             $irr = $weather['upperIrr'] / 4 / 1000; // Umrechnug zu kWh
         }
-        if ($power['powerExp'] == 0) {
+        if ($power['powerTheo'] == 0) {
             $powerTheo = $anlage->getPower() * $irr;
         } else {
-            $powerTheo = $power['powerExp'];
+            $powerTheo = $power['powerTheo'];
         }
         $result['powerTheo'] = $powerTheo;
         $tempCorrection = 0;
@@ -640,7 +642,7 @@ class PRCalulationService
                 break;
             default:
                 // wenn es keinen spezielen Algoritmus gibt
-                return $spezYield / $irr * 100;
+                return ($irr > 0) ? $spezYield / $irr * 100 : 0;
         }
     }
 

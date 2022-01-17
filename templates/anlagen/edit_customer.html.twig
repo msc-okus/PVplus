@@ -18,8 +18,10 @@
 
 {% block javascripts %}
     {{ parent() }}
+    {{ encore_entry_script_tags('plant_edit') }}
+    {#
     <script>
-        {# legend-monthly #}
+        // legend-monthly
         var $wrapper_monthly = $('.js-legend-monthly-wrapper');
         $wrapper_monthly.on('click', '.js-remove-legend-monthly', function(e) {
             e.preventDefault();
@@ -35,7 +37,7 @@
             $('#legend-monthly>tbody').append(newForm);
         });
 
-        {# legend-monthly #}
+        // legend-monthly
         var $wrapper_epc = $('.js-legend-epc-wrapper');
         $wrapper_epc.on('click', '.js-remove-legend-epc', function(e) {
             e.preventDefault();
@@ -51,7 +53,7 @@
             $('#legend-epc>tbody').append(newForm);
         });
 
-        {# pvsyst #}
+        // pvsyst
         var $wrapper_pvsyst = $('.js-pvsyst-wrapper');
         $wrapper_pvsyst.on('click', '.js-remove-pvsyst', function(e) {
             e.preventDefault();
@@ -67,7 +69,7 @@
             $('#pvsyst-values>tbody').append(newForm);
         });
 
-        {# monthly-yield #}
+        // monthly-yield
         var $wrapper_yield = $('.js-monthly-yield-wrapper');
         $wrapper_yield.on('click', '.js-remove-monthly-yield', function(e) {
             e.preventDefault();
@@ -96,4 +98,5 @@
             $('#economicsvalues-values>tbody').append(newForm);
         })
     </script>
+    #}
 {% endblock %}

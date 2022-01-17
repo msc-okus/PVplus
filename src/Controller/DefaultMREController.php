@@ -42,8 +42,8 @@ class DefaultMREController extends BaseController
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => '97']);
 
-        $from = date_create('2021-09-01');
-        $to   = date_create('2021-09-30');
+        $from = date_create('2022-01-01');
+        $to   = date_create('2022-01-31');
         $output = $bavelseExport->gewichtetTagesstrahlung($anlage, $from, $to);
 
         return $this->render('cron/showResult.html.twig', [
@@ -269,11 +269,14 @@ class DefaultMREController extends BaseController
         $from = $anlage->getEpcReportStart();
         $to   = $anlage->getEpcReportEnd();
 
-        $monthTable = $epcNew->monthTable($anlage);
+        $date = date_create("2022-01-01");
+        #$date = null;
 
-        $forcastTable = $epcNew->forcastTable($anlage, $monthTable);
-        $chartYieldPercenDiff = $epcNew->chartYieldPercenDiff($anlage, $monthTable);
-        $chartYieldCumulativ = $epcNew->chartYieldCumulative($anlage, $monthTable);
+        $monthTable = $epcNew->monthTable($anlage, $date);
+
+        $forcastTable = $epcNew->forcastTable($anlage, $monthTable, $date);
+        $chartYieldPercenDiff = $epcNew->chartYieldPercenDiff($anlage, $monthTable, $date);
+        $chartYieldCumulativ = $epcNew->chartYieldCumulative($anlage, $monthTable, $date);
 
         $output = $functions->printArrayAsTable($forcastTable);
         $output .= $functions->print2DArrayAsTable($monthTable);

@@ -14,11 +14,11 @@
                 <!--<th>PR&nbsp;Design [%]</th>
                 <th>PR&nbsp;Guaranteed [%]</th>-->
                 <th>Expected Energy [kWh]</th>
-                <th>Guaranteed Expected<br>Energy [kWh]</th>
+                <th>Guaranteed<br>Expected Energy [kWh]</th>
                 <th>Transformer reduction [%]</th>
                 <th>Guarantee reduction [%]</th>
-                <th>Plant Size as build [kWp]</th>
-                <th>Plant Size as planed [kWp]</th>
+                <th>Plant Size as built [kWp]</th>
+                <th>Plant Size as planned [kWp]</th>
             </tr>
         </thead>
         <tbody>
@@ -31,7 +31,7 @@
                 <td>{{ guaranteedExpected|number_format(2, ',', '.') }}</td>
                 <td>{{ anlage.transformerTee|number_format(2, ',', '.') }}</td>
                 <td>{{ anlage.guaranteeTee|number_format(2, ',', '.') }}</td>
-                <td>{{ anlage.kwPeak|number_format(2, ',', '.') }}</td>
+                <td>{% if anlage.kwPeakPLDCalculation > 0 %}{{ anlage.kwPeakPLDCalculation|number_format(2, ',', '.') }}{% else %}{{ anlage.power|number_format(2, ',', '.') }}{% endif%}</td>
                 <td>{{ anlage.kwPeakPvSyst|number_format(2, ',', '.') }}</td>
             </tr>
         </tbody>
@@ -50,19 +50,19 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Expected Enery [kWh]</td>
+                        <td>Expected Energy [kWh]</td>
                         <td class="text-right">{{ forcast.expected_energy_forecast|number_format(2, ',', '.') }}</td>
-                        <td>monatlich aktualisierter PVSYST-Ertrag über FAC Periode</td>
+                        <td>monthly updated PVSYST yield over FAC period</td>
                     </tr>
                     <tr>
                         <td>Guaranteed Expected Energy [kWh]</td>
                         <td class="text-right">{{ forcast.guaranteed_energy_forecast|number_format(2, ',', '.') }}</td>
-                        <td>Expected Energy - {{ anlage.transformerTee|number_format(2, ',', '.') }}% Trafoverlust - {{ anlage.guaranteeTee|number_format(2, ',', '.') }}% Sicherheitsabschlag</td>
+                        <td>Expected Energy - {{ anlage.transformerTee|number_format(2, ',', '.') }}% transformer loss - {{ anlage.guaranteeTee|number_format(2, ',', '.') }}% safety reduction</td>
                     </tr>
                     <tr>
                         <td>Measured Energy [kWh]</td>
                         <td class="text-right">{{ forcast.measured_energy_forecast|number_format(2, ',', '.') }}</td>
-                        <td>Einspeisung am Grid meter, inklusive Forecast mit Risikoauf-/abschlägen</td>
+                        <td>Feed-in at the grid meter, including forecast with risk surcharges / discounts</td>
                     </tr>
                     <tr>
                         <td>Difference Calculation [kWh]</td>
@@ -72,12 +72,12 @@
                     <tr>
                         <td>Availability [%]</td>
                         <td class="text-right">{{ forcast.pa_forecast|number_format(2, ',', '.') }}</td>
-                        <td>Verfügbarkeit nach Annex 5.2 incl. downtime-Korrektur </td>
+                        <td>Availability according to Annex 5.2 including downtime correction</td>
                     </tr>
                     <tr class="strong">
                         <td>PLD [€]</td>
                         <td class="text-right">{{ forcast.pld_forecast|number_format(2, ',', '.') }}</td>
-                        <td>{% if forcast.pld_forecast > 0 %}PLD Zahlung{% else %}Keine PLD Zahlung{% endif %}</td>
+                        <td>{% if forcast.pld_forecast > 0 %}PLD payment{% else %}No PLD payment{% endif %}</td>
                     </tr>
                     <tr>
                         <td>Percent Difference Calculation [%]</td>
@@ -108,17 +108,17 @@
                     <tr>
                         <td>Expected Energy [kWh]</td>
                         <td class="text-right">{{ forcast.expected_energy_real|number_format(2, ',', '.') }}</td>
-                        <td>monatlich aktualisierter PVSYST-Ertrag über FAC Periode</td>
+                        <td>monthly updated PVSYST yield over FAC period</td>
                     </tr>
                     <tr>
                         <td>Guaranteed Expected Energy [kWh]</td>
                         <td class="text-right">{{ forcast.guaranteed_energy_real|number_format(2, ',', '.') }}</td>
-                        <td>Expected Energy - {{ anlage.transformerTee|number_format(2, ',', '.') }}% Trafoverlust - {{ anlage.guaranteeTee|number_format(2, ',', '.') }}% Sicherheitsabschlag</td>
+                        <td>Expected Energy - {{ anlage.transformerTee|number_format(2, ',', '.') }}% transformer loss - {{ anlage.guaranteeTee|number_format(2, ',', '.') }}% safety reduction</td>
                     </tr>
                     <tr>
                         <td>Measured Energy [kWh]</td>
                         <td class="text-right">{{ forcast.measured_energy_real|number_format(2, ',', '.') }}</td>
-                        <td>Einspeisung am Grid meter, inklusive Forecast mit Risikoauf-/abschlägen</td>
+                        <td>Feed-in at the grid meter, including forecast with risk surcharges / discounts</td>
                     </tr>
                     <tr>
                         <td>Difference Calculation [kWh]</td>
@@ -128,12 +128,12 @@
                     <tr>
                         <td>Availability [%]</td>
                         <td class="text-right">{{ forcast.pa_real|number_format(2, ',', '.') }}</td>
-                        <td>Verfügbarkeit nach Annex 5.2 incl. downtime-Korrektur </td>
+                        <td>Availability according to Annex 5.2 including downtime correction</td>
                     </tr>
                     <tr class="strong">
                         <td>PLD [€]</td>
                         <td class="text-right">{{ forcast.pld_real|number_format(2, ',', '.') }}</td>
-                        <td>{% if forcast.pld_real > 0 %}PLD Zahlung{% else %}Keine PLD Zahlung{% endif %}</td>
+                        <td>{% if forcast.pld_real > 0 %}PLD payment{% else %}No PLD payment{% endif %}</td>
                     </tr>
                     <tr>
                         <td>Percent Difference Calculation [%]</td>
@@ -163,7 +163,7 @@
             <text x="45.0" y="720.0" class="ts1">PLD </text>
             <text x="608.0" y="720.0" class="ts2">=</text>
             <text x="778.0" y="720.0" class="ts1"> </text>
-            <text x="924.0" y="402.0" class="ts1">Guarantied Expected Energy </text>
+            <text x="924.0" y="402.0" class="ts1">Guaranteed Expected Energy </text>
             <text x="4098.0" y="402.0" class="ts2">&#8722;</text>
             <text x="4268.0" y="402.0" class="ts1"> </text>
             <text x="4508.0" y="217.0" class="ts1">Measured Energy</text>
@@ -171,9 +171,9 @@
             <rect x="4489" y="313" width="1927" height="5" style="fill:rgb(0,0,0);stroke-width:0;"/>
             <path d="M4465.0 55.0L4465.0 45.0C4403.39990234375 108.13470458984375 4365.0 185.6599884033203 4365.0 315.5C4365.0 445.34002685546875 4403.39990234375 522.8652954101562 4465.0 586.0L4465.0 576.0C4414.48779296875 515.1992797851562 4383.0 440.5400085449219 4383.0 315.5C4383.0 190.45999145507812 4414.48779296875 115.80070495605469 4465.0 55.0L4465.0 55.0" style="fill:rgb(0,0,0);stroke-width:0;"/>
             <path d="M6440.0 55.0L6440.0 45.0C6501.60009765625 108.13470458984375 6540.0 185.6599884033203 6540.0 315.5C6540.0 445.34002685546875 6501.60009765625 522.8652954101562 6440.0 586.0L6440.0 576.0C6490.51220703125 515.1992797851562 6522.0 440.5400085449219 6522.0 315.5C6522.0 190.45999145507812 6490.51220703125 115.80070495605469 6440.0 55.0L6440.0 55.0" style="fill:rgb(0,0,0);stroke-width:0;"/>
-            <text x="2193.0" y="856.0" class="ts1">{% if anlage.pldDivisor == 'expected' %}Expected Energy{% else %}Guarantied Expected Energy{% endif %}</text>
+            <text x="2193.0" y="856.0" class="ts1">{% if anlage.pldDivisor == 'expected' %}Expected Energy{% else %}Guaranteed Expected Energy{% endif %}</text>
             <rect x="905" y="630" width="5654" height="8" style="fill:rgb(0,0,0);stroke-width:0;"/>
-            <text x="6619.0" y="720.0" class="ts1"> x 100 {% if anlage.isUsePnomForPld %}x Installed Power {% endif %}x {{ anlage.pldYield|number_format(2, ',', '.') }} €</text>
+            <text x="6619.0" y="720.0" class="ts1"> x 100{% if anlage.isUsePnomForPld %} x Installed Power {% endif %} x {{ anlage.pldYield|number_format(2, ',', '.') }} €</text>
         </svg>
     </div>
 
@@ -201,7 +201,7 @@
             <path d="M6440.0 55.0L6440.0 45.0C6501.60009765625 108.13470458984375 6540.0 185.6599884033203 6540.0 315.5C6540.0 445.34002685546875 6501.60009765625 522.8652954101562 6440.0 586.0L6440.0 576.0C6490.51220703125 515.1992797851562 6522.0 440.5400085449219 6522.0 315.5C6522.0 190.45999145507812 6490.51220703125 115.80070495605469 6440.0 55.0L6440.0 55.0" style="fill:rgb(0,0,0);stroke-width:0;"/>
                 <text x="2593.0" y="876.0" class="ts1">{% if anlage.pldDivisor == 'expected' %}{{ forcast.expected_energy_forecast|number_format(2, ',', '.') }}{% else %}{{ forcast.guaranteed_energy_forecast|number_format(2, ',', '.') }}{% endif %}</text>
             <rect x="1805" y="630" width="4750" height="8" style="fill:rgb(0,0,0);stroke-width:0;"/>
-            <text x="6700.0" y="720.0" class="ts1"> x 100{% if anlage.isUsePnomForPld %}x {{ anlage.kwPeak|number_format(2, ',', '.') }} {% endif %}x {{ anlage.pldYield|number_format(2, ',', '.') }} €</text>
+            <text x="6700.0" y="720.0" class="ts1"> x 100{% if anlage.isUsePnomForPld %} x {% if anlage.kwPeakPLDCalculation > 0 %}{{ anlage.kwPeakPLDCalculation|number_format(2, ',', '.') }}{% else %}{{ anlage.power|number_format(2, ',', '.') }}{% endif%} {% endif %}x {{ anlage.pldYield|number_format(2, ',', '.') }} €</text>
         </svg>
         </div>
     </div>
@@ -227,7 +227,7 @@
             <path d="M6440.0 55.0L6440.0 45.0C6501.60009765625 108.13470458984375 6540.0 185.6599884033203 6540.0 315.5C6540.0 445.34002685546875 6501.60009765625 522.8652954101562 6440.0 586.0L6440.0 576.0C6490.51220703125 515.1992797851562 6522.0 440.5400085449219 6522.0 315.5C6522.0 190.45999145507812 6490.51220703125 115.80070495605469 6440.0 55.0L6440.0 55.0" style="fill:rgb(0,0,0);stroke-width:0;"/>
             <text x="2593.0" y="876.0" class="ts1">{% if anlage.pldDivisor == 'expected' %}{{ forcast.expected_energy_real|number_format(2, ',', '.') }}{% else %}{{ forcast.guaranteed_energy_real|number_format(2, ',', '.') }}{% endif %}</text>
             <rect x="1805" y="630" width="4750" height="8" style="fill:rgb(0,0,0);stroke-width:0;"/>
-            <text x="6700.0" y="720.0" class="ts1"> x 100 {% if anlage.isUsePnomForPld %}x {{ anlage.kwPeak|number_format(2, ',', '.') }} {% endif %}x {{ anlage.pldYield|number_format(2, ',', '.') }} €</text>
+            <text x="6700.0" y="720.0" class="ts1"> x 100 {% if anlage.isUsePnomForPld %}x {% if anlage.kwPeakPLDCalculation > 0 %}{{ anlage.kwPeakPLDCalculation|number_format(2, ',', '.') }}{% else %}{{ anlage.power|number_format(2, ',', '.') }}{% endif%} {% endif %}x {{ anlage.pldYield|number_format(2, ',', '.') }} €</text>
         </svg>
         </div>
     </div>

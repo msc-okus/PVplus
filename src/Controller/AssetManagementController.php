@@ -14,7 +14,7 @@ class AssetManagementController extends BaseController
 {
     use G4NTrait;
 
-    private $urlGenerator;
+    private UrlGeneratorInterface $urlGenerator;
 
     public function __construct(UrlGeneratorInterface $urlGenerator)
     {
@@ -33,16 +33,9 @@ class AssetManagementController extends BaseController
         $plantId = $output['plantId'];
         $result = $this->render('report/assetreport.html.twig', [
             'anlage'            => $anlage,
-            #'baseurl'           => $baseurl,
-            'owner'             => $output['owner'],
-            'plantSize'         => $output['plantSize'],
-            'plantName'         => $output['plantName'],
-            'anlGeoLat'         => $output['anlGeoLat'],
-            'anlGeoLon'         => $output['anlGeoLon'],
             'year'              => $output['year'],
             'month'             => $output['month'],
             'reportmonth'       => $output['reportmonth'],
-            #'customer_logo'     => $baseurl.'/goldbeck/reports/asset_management/goldbecksolar_logo.svg',
             'montharray'        => $output['monthArray'],
             'degradation'       => $output['degradation'],
             'forecast_PVSYST_table' => $output['forecast_PVSYST_table'],
@@ -80,9 +73,6 @@ class AssetManagementController extends BaseController
             'operations_monthly_right_iout_tr5' => $output['operations_monthly_right_iout_tr5'],
             'operations_monthly_right_iout_tr6' => $output['operations_monthly_right_iout_tr6'],
             'operations_monthly_right_iout_tr7' => $output['operations_monthly_right_iout_tr7'],
-            'useGridMeterDayData' => $output['useGridMeterDayData'],
-            'showAvailability' => $output['showAvailability'],
-            'showAvailabilitySecond' => $output['showAvailabilitySecond'],
             'table_overview_dayly' => $output['table_overview_dayly'],
             'plantAvailabilityCurrentYear' => $output['plantAvailabilityCurrentYear'],
             'daysInReportMonth' => $output['daysInReportMonth'],
@@ -143,7 +133,8 @@ class AssetManagementController extends BaseController
         return $result;
     }
 
-    function substr_Index( $str, $needle, $nth ){
+    function substr_Index($str, $needle, $nth ): bool|int
+    {
         $str2 = '';
         $posTotal = 0;
         for($i=0; $i < $nth; $i++){

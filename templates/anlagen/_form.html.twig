@@ -182,8 +182,9 @@
                             <fieldset class="fieldset">
                                 <legend>Anlagenleistung</legend>
                                 <div class="grid-x grid-padding-x">
-                                    <div class="cell medium-6">{{ form_row(anlageForm.kwPeak) }}</div>
-                                    <div class="cell medium-6">{{ form_row(anlageForm.kwPeakPvSyst) }}</div>
+                                    <div class="cell medium-4">{{ form_row(anlageForm.kwPeak) }}</div>
+                                    <div class="cell medium-4">{{ form_row(anlageForm.kwPeakPvSyst) }}</div>
+                                    <div class="cell medium-4">{{ form_row(anlageForm.kwPeakPLDCalculation) }}</div>
                                 </div>
                             </fieldset>
                             <fieldset class="fieldset">
@@ -286,7 +287,7 @@
                                 <div class="grid-x grid-padding-x">
                                     <div class="cell medium-3">{{ form_row(anlageForm.epcReportStart) }}</div>
                                     <div class="cell medium-3">{{ form_row(anlageForm.epcReportEnd) }}</div>
-                                    <div class="cell medium-3"></div>git
+                                    <div class="cell medium-3"></div>
                                     <div class="cell medium-3"></div>
                                 </div>
                             </fieldset>
@@ -355,10 +356,14 @@
                                                     <fieldset class="fieldset">
                                                         <legend>Irradiation Discount</legend>
                                                         <div class="grid-x grid-padding-x">
-                                                            <div class="cell medium-3">{{ form_row(module.irrDiscount1) }}</div>
-                                                            <div class="cell medium-3">{{ form_row(module.irrDiscount2) }}</div>
-                                                            <div class="cell medium-3">{{ form_row(module.irrDiscount3) }}</div>
-                                                            <div class="cell medium-3">{{ form_row(module.irrDiscount4) }}</div>
+                                                            <div class="cell medium-1">{{ form_row(module.irrDiscount1) }}</div>
+                                                            <div class="cell medium-1">{{ form_row(module.irrDiscount2) }}</div>
+                                                            <div class="cell medium-1">{{ form_row(module.irrDiscount3) }}</div>
+                                                            <div class="cell medium-1">{{ form_row(module.irrDiscount4) }}</div>
+                                                            <div class="cell medium-1">{{ form_row(module.irrDiscount5) }}</div>
+                                                            <div class="cell medium-1">{{ form_row(module.irrDiscount6) }}</div>
+                                                            <div class="cell medium-1">{{ form_row(module.irrDiscount7) }}</div>
+                                                            <div class="cell medium-1">{{ form_row(module.irrDiscount8) }}</div>
                                                         </div>
                                                     </fieldset>
                                                 </div>

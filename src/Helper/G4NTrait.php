@@ -122,7 +122,7 @@ trait G4NTrait
     }
 
     public static function checkUnitAndConvert($value, $unit) {
-        ($unit === 'w') ? $returnValue = round($value / 1000 / 4, 2) : $returnValue = round($value,2);
+        ($unit === 'w') ? $returnValue = ($value / 1000 / 4) : $returnValue = $value;
 
         return $returnValue;
     }
@@ -296,27 +296,26 @@ trait G4NTrait
      */
     public function g4nDateDiffMonth($from, $to) : int
     {
-        $fromYear = (int)date('Y', strtotime($from));
-        $fromMonth = (int)date('m', strtotime($from));
-        $fromDay = (int)date('d', strtotime($from));
-        $toYear = (int)date('Y', strtotime($to));
-        $toMonth = (int)date('m', strtotime($to));
-        $toDay = (int)date('d', strtotime($to));
-        $daysInMonth = (int)date('t', strtotime($from));
-
-        //prüfe ob Start Monat und Jahr gleich dem End Monat und Jahr, wenn dann die Anzahl der Tage < max Tage des Monats dann kein ganzer Monat ($month = 0)
+        $fromYear       = (int)date('Y', strtotime($from));
+        $fromMonth      = (int)date('m', strtotime($from));
+        $fromDay        = (int)date('d', strtotime($from));
+        $toYear         = (int)date('Y', strtotime($to));
+        $toMonth        = (int)date('m', strtotime($to));
+        $toDay          = (int)date('d', strtotime($to));
+        $daysInMonth    = (int)date('t', strtotime($from));
+        //prüfe, ob Start Monat und Jahr gleich dem End Monat und Jahr, wenn dann die Anzahl der Tage < max Tage des Monats dann kein ganzer Monat ($month = 0)
         if ($fromMonth == $toMonth && $fromYear == $toYear && $toDay - $fromDay < $daysInMonth) {
             $month = 1; // muss 1 damit auch Rumpf Monate bearbeitet werden ?? TODO: nicht sicher ob das immer passt - beobachetn
         } else {
             if ($fromMonth > $toMonth) {
                 $month = 12 - $fromMonth + $toMonth + 1;
-                if ($fromYear - $toYear > 1) $month += ($toYear - $fromYear) * 12;
+                if ($toYear - $fromYear > 1) $month += ($toYear - $fromYear) * 12;
             } elseif ($fromMonth < $toMonth) {
                 $month = $toMonth - $fromMonth + 1;
-                if ($fromYear - $toYear > 0) $month += ($toYear - $fromYear) * 12;
+                if ($toYear - $fromYear > 0) $month += ($toYear - $fromYear) * 12;
             } else {
                 $month = 1;
-                if ($fromYear - $toYear > 0) $month += ($toYear - $fromYear) * 12;
+                if ($toYear - $fromYear > 0) $month += ($toYear - $fromYear) * 12;
             }
         }
 
