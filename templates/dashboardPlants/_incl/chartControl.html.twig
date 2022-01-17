@@ -73,18 +73,12 @@
             <input id="startDate" name="to" class="input-group-field js-submit-onchange" size="16" type="text" value="{{ form.to|date('Y-m-d') }}" data-date-format="yyyy-mm-dd" style="max-width: 158px;">
             <span class="input-group-label"><i class="fa fa-calendar"></i></span>
         </div>
-
-        <script>
-            $(function(){
-                $('#startDate').fdatepicker();
-            });
-        </script>
     </div>
     {% if (form.selectedChart != 'availability') and (form.selectedChart != 'pr_and_av') and (form.selectedChart != 'forecast') and (form.selectedChart != 'status_log') and (form.selectedChart != 'pvsyst') and (form.selectedChart != 'grid')%}
         <div class="cell medium-2 large-4 xlarge-1">
             <div class="switch tiny align-center-middle">
                 <label class="" style="line-height: 1;"><small>Interval min.</small></label>
-                <input class="switch-input js-submit-onchange" id="hour" type="checkbox" name="hour" onclick="Display()" {%if form.hour == true  %} checked {% endif %}>
+                <input class="switch-input js-submit-onchange" id="hour" type="checkbox" name="hour" {%if form.hour == true  %} checked {% endif %}>
                 <label class="switch-paddle" for="hour">
                     <span class="show-for-sr"></span>
                     <span class="switch-active" aria-hidden="true">60</span>

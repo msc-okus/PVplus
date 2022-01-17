@@ -759,15 +759,9 @@ class FunctionsService
         $conn = self::getPdoConnection();
 
         $old = $evu;
-        if($old > 4860000){
-
-        }
         if ($anlage->getUseGridMeterDayData() === false) {
             //$monthlyDatas = $this->monthlyDataRepo->findBy(['anlage' => $anlage], ['year' => 'asc', 'month' => 'asc']);
             $monthlyDatas = $this->monthlyDataRepo->findByDateRange($anlage, date_create($from), date_create($to));
-            if($old > 4860000){
-                dump($monthlyDatas);
-            }
             foreach ($monthlyDatas as $monthlyData) {
                 $tempFrom = new DateTime($monthlyData->getYear()."-".$monthlyData->getMonth()."-01 00:00");
                 $tempDaysInMonth = $tempFrom->format('t');
@@ -787,9 +781,7 @@ class FunctionsService
                 unset($res);
             }
         }
-        if($old > 4860000){
 
-        }
         return $evu;
     }
     public function getSumAcPowerByGroup(Anlage $anlage, $from, $to, $acGroup) :array

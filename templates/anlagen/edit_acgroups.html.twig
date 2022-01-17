@@ -17,22 +17,5 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script>
-        {# AC Gruppe #}
-        var $wrapper_acgroup = $('.js-acgroup-wrapper');
-        $wrapper_acgroup.on('click', '.js-remove-acgroup', function(e) {
-            e.preventDefault();
-            $(this).closest('.js-acgroup-item')
-                .remove();
-        });
-        $wrapper_acgroup.on('click', '.js-add-acgroup', function(e) {
-            e.preventDefault();
-            var prototype = $wrapper_acgroup.data('prototype');
-            var index = $wrapper_acgroup.data('index');
-            var newForm = prototype.replace(/__name__/g, index);
-            $wrapper_acgroup.data('index', index + 1);
-            $('#js-acgroup>tbody').append(newForm);
-            Foundation.reInit('accordion');
-        });
-    </script>
+    {{ encore_entry_script_tags('plant_edit') }}
 {% endblock %}

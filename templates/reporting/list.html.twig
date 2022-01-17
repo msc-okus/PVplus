@@ -1,11 +1,16 @@
 {% extends 'base.html.twig' %}
-{% block javascripts %}
+
+{% import 'macros/macros.reports.html.twig' as macrolibrary %} {# I will bring the searchbar here for convenience #}
+
+{% block stylesheets %}
     {{ parent() }}
-    <script src="https://cdn.jsdelivr.net/autocomplete.js/0/autocomplete.jquery.min.js"></script>
-    <script src="{{ asset('jsNew/algolia-autocomplete.js') }}"></script>
+    {{ encore_entry_link_tags('reports_list') }}
 {% endblock %}
 
-{% import 'macros/macros.reports.html.twig' as macrolibrary %} {# I will bring the searchbar here for convenience#}
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('reports_list') }}
+{% endblock %}
 
 {% block title %}
     {{ parent() }}List Reports
@@ -13,14 +18,11 @@
 
 {% block body %}
     <h1>List Reports</h1>
-    {#
-    {{ macrolibrary.searchbox(app.request.query.get('qr'), 'qr') }}
-    #}
     {# begining of the searchbar #}
     <form>
         <div class="grid-x grid-margin-x align-middle">
             <div class="cell medium-2" style="margin-top:-17px!important;">
-                <input type="text" name="anlage" class="input-group-field" data-autocomplete-url="/admin/anlagen/find" value="{{ anlage }}" placeholder="Search plants">
+                <input type="text" name="anlage" class="input-group-field js-autocomplete-plant"  value="{{ anlage }}" placeholder="Search plants">
             </div>
             <div class="cell medium-2">
                 <select name="searchstatus">
@@ -116,8 +118,8 @@
                                 <a href="{{ path('app_reporting_pdf', { id: report.id}) }}"   target="_blank" title="load PDF file" class="hollow button tiny action-icon shadow"><span class="fa fa-file-pdf"></span></a>
                             {% endif %}
                         {% endif %}
-                        {% if is_granted('ROLE_G4N') %}<a href="{{ path('app_reporting_edit', { id: report.id}) }}"  class="hollow button tiny action-icon shadow"><span class="fa fa-pencil"></span></a>{% endif %}
-                        {% if is_granted('ROLE_DEV') %}<a href="{{ path('app_reporting_delete', { id: report.id}) }}" onclick="return window.confirm('Löschen?');" class="hollow alert button tiny action-icon shadow"><span class="fa fa-trash"></span></a>{% endif %}
+                        {% if is_granted('ROLE_G4N') %}<a href="{{ path('app_reporting_edit', { id: report.id}) }}"  class="hollow button tiny action-icon shadow"><span class="fa fa-edit"></span></a>{% endif %}
+                        {% if is_granted('ROLE_DEV') %}<a href="{{ path('app_reporting_delete', { id: report.id}) }}" onclick="return window.confirm('Löschen?');" class="hollow alert button tiny action-icon shadow"><span class="fa fa-trash-alt"></span></a>{% endif %}
                     </td>
                 </tr>
             {% endif %}
@@ -179,8 +181,4 @@
             </div>
         </form>
     {% endif %}
-{% endblock %}
-{% block stylesheets %}
-    {{ parent() }}
-    <link rel="stylesheet" href="{{ asset('css/algolia-autocomplete.css') }}">
 {% endblock %}
