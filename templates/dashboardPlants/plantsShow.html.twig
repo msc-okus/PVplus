@@ -1,7 +1,17 @@
 {% extends "base.html.twig" %}
 
-{% block title %}
+{% block title %}{% endblock %}
 
+{% block styles %}
+    {{ parent() }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.amcharts.com/lib/4/core.js" type="text/javascript"></script>
+    <script src="https://cdn.amcharts.com/lib/4/charts.js" type="text/javascript"></script>
+    <script src="https://cdn.amcharts.com/lib/4/themes/animated.js" type="text/javascript"></script>
+    {{ encore_entry_script_tags('dashboard') }}
 {% endblock %}
 
 {% block body %}
@@ -27,20 +37,3 @@
     {% endif %}
 {% endblock %}
 
-{% block styles %}
-    {{ parent() }}
-{% endblock %}
-
-{% block javascriptstop %}
-    {{ parent() }}
-    <script src="https://cdn.amcharts.com/lib/4/core.js" type="text/javascript"></script>
-    <script src="https://cdn.amcharts.com/lib/4/charts.js" type="text/javascript"></script>
-    <script src="https://cdn.amcharts.com/lib/4/themes/animated.js" type="text/javascript"></script>
-    {{ encore_entry_script_tags('dashboard') }}
-{% endblock %}
-
-
-{% block javascripts %}
-    {{ parent() }}
-
-{% endblock %}

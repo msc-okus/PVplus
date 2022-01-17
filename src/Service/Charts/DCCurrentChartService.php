@@ -75,7 +75,7 @@ class DCCurrentChartService
             }
 
         $conn = null;
-
+dump($dataArray);
         return $dataArray;
     }
 
