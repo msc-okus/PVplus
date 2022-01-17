@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+{% block JavaScript %}
+<script>
+    function Destroy(id) {
+        let array ="{{ id }}";
+        alert(array);
+    }
+</script
+{% endblock %}
+{% block title %}{% endblock %}
+
+{% block body %}
+
+    {{ include('csv_upload/_upload.html.twig') }}
+
+{% endblock %}

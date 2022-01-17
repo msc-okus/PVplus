@@ -20,7 +20,7 @@ use App\Repository\GroupModulesRepository;
 use App\Repository\GroupMonthsRepository;
 use App\Repository\GroupsRepository;
 use App\Repository\PVSystDatenRepository;
-USE \DateTime;
+use \DateTime;
 
 class FunctionsService
 {
@@ -953,5 +953,42 @@ class FunctionsService
 
         return $_html;
     }
+    public function readInverters(String $invS,anlage $anlage):array
+    {
+        $maxInv = count($this->getNameArray($anlage));
+        $invS = u($invS)->replace(" ", "");
+        $tempArray = u($invS)->split(',');
+
+
+        if ($invS != "*") {
+            foreach ($tempArray as $item) {
+                if (u($item)->containsAny('-')) {
+                    $nums[] = u($item)->split('-');
+                    $from = (int)((string)$nums[0][0]);
+                    $to = (int)((string)$nums[0][1]);
+                    $i = $from;
+                    while ($i <= $to) {
+
+                            $returnArray[] = u($i);
+
+                        $i++;
+                    }
+                    unset($nums);
+                } else $returnArray[] = $item;
+            }
+
+        }
+        else{
+
+            $i = 1;
+            while($i<=$maxInv){
+                $returnArray[]=$i;
+                $i++;
+            }
+        }
+        if ($returnArray === null) $returnArray = [];
+            return $returnArray;
+    }
+
 }
 

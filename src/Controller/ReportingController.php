@@ -514,7 +514,7 @@ class ReportingController extends AbstractController
 
     /**
      * @IsGranted("ROLE_DEV")
-     * @Route ("app_reporting/pdf/delete/{id}", name="app_reporting_delete")
+     * @Route ("app_reporting/pdf/delete", name="app_reporting_delete")
      */
     public function deleteReport($id, ReportsRepository $reportsRepository, Security $security, EntityManagerInterface $em): RedirectResponse
     {

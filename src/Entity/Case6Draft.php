@@ -2,61 +2,56 @@
 
 namespace App\Entity;
 
-use App\Repository\Case6Repository;
+use App\Repository\Case6DraftRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * @ORM\Entity(repositoryClass=Case6Repository::class)
- * @ORM\Table(indexes={@ORM\Index(columns={"stamp_from"}), @ORM\Index(columns={"stamp_to"}), @ORM\Index(columns={"inverter"})}, uniqueConstraints={@ORM\UniqueConstraint(name="uniqueCase6", columns={"anlage_id", "stamp_from", "stamp_to", "inverter"})})
- * @UniqueEntity(
- *     fields={"anlage", "stampFrom", "stampTo", "inverter"},
- *     errorPath="inverter",
- *     message="This Inverter at this time has already a case6."
- * )
+ * @ORM\Entity(repositoryClass=Case6DraftRepository::class)
  */
-class AnlageCase6
+class Case6Draft
 {
-
+    use TimestampableEntity;
+    use BlameableEntity;
     /**
-     * @Groups({"case6"})
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private int $id;
+    private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="anlageCase6s")
+     * @ORM\ManyToOne(targetEntity=Anlage::class)
+     * @ORM\JoinColumn(nullable=false)
      */
-    private ?Anlage $anlage;
+    private $anlage;
 
     /**
-     * @Groups ({"case6"})
-     * @ORM\Column(type="string", length=20)
+     * @ORM\Column(type="string", length=30)
      */
-    private string $stampFrom;
+    private $stampFrom;
 
     /**
-     * @Groups ({"case6"})
-     * @ORM\Column(type="string", length=20)
+     * @ORM\Column(type="string", length=30)
      */
-    private string $stampTo;
+    private $stampTo;
 
     /**
-     * @Groups ({"case6"})
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(type="string", length=30)
      */
-    private string $inverter;
+    private $inverter;
 
     /**
-     * @Groups ({"case6"})
-     * @ORM\Column(type="text", nullable=true)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private string $reason = "";
+    private $reason;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $error;
+
 
     public function getId(): ?int
     {
@@ -116,9 +111,33 @@ class AnlageCase6
         return $this->reason;
     }
 
-    public function setReason(string $reason): self
+    public function setReason(?string $reason): self
     {
         $this->reason = $reason;
+
+        return $this;
+    }
+
+    public function getError(): ?string
+    {
+        return $this->error;
+    }
+
+    public function setError(?string $error): self
+    {
+        $this->error = $error;
+
+        return $this;
+    }
+
+    public function getCreatedBy(): ?string
+    {
+        return $this->createdBy;
+    }
+
+    public function setCreatedBy(?string $createdBy): self
+    {
+        $this->createdBy = $createdBy;
 
         return $this;
     }
@@ -131,13 +150,12 @@ class AnlageCase6
         if(strtotime($this->stampFrom) > strtotime('now') or (strtotime($this->stampTo) > strtotime('now')))
             $answer = $answer." Date in the future; ";
         if((int)$this->inverter > $nrInv)
-            $answer = $answer." Inverter not in the plant;";
-        dump(date('y', strtotime($this->stampFrom)),date('Y-m-d H:i',strtotime($this->stampFrom)),$this->stampFrom, date('i', strtotime($this->stampTo)));
+            $answer = $answer." Inverter not in the plant";
+
         if(date('i', strtotime($this->stampFrom)) != "00" && date('i', strtotime($this->stampFrom)) != "15" && date('i', strtotime($this->stampFrom)) != "30" && date('i', strtotime($this->stampFrom)) != "45")
             $answer = $answer." stampFrom minutes must be 00, 15, 30, 45;";
         if(date('i', strtotime($this->stampTo)) != "00" && date('i', strtotime($this->stampTo)) != "15" && date('i', strtotime($this->stampTo)) != "30" && date('i', strtotime($this->stampTo)) != "45")
             $answer = $answer." stampTo minutes must be 00, 15, 30, 45";
-
         return $answer;
     }
 }
