@@ -245,42 +245,6 @@
                         </div>
                     </div>
                     {% endif %}
-                    <!--
-                    <div class="grid-x">
-                        <div class="cell small-3">
-                            <p class="headline">per year</p>
-                            <p class="headline">availability [%]</p>
-                            <p class="headline">PR [%]</p>
-                            <p class="headline">Power p. Year [kWh]</p>
-                        </div>
-                        <div class="cell small-3 text-right">
-                            <p class="headline">actual</p>
-                            {% if pr is defined %}
-                                <p>{{ (pr.plantAvailabilityPerYear)|number_format(2, ',', '.') }}</p>
-                                <p>&nbsp;</p>
-                                {% if anlage.showEvuDiag == 1 %}
-                                    <p>{{ (pr.powerEvuYear)|number_format(0, ',', '.') }}</p>
-                                {% else %}
-                                    <p>{{ (pr.powerActYear)|number_format(0, ',', '.') }}</p>
-                                {% endif %}
-                            {% endif %}
-                        </div>
-                        <div class="cell small-3 text-right">
-                            <p class="headline">contractual</p>
-                            <p>{% if anlage.contractualAvailability > 0 %}{{ (anlage.contractualAvailability)|number_format(2, ',', '.') }}{% else %}--{% endif %}</p>
-                            <p>{% if anlage.contractualPR > 0 %}{{ (anlage.contractualPR)|number_format(2, ',', '.') }}{% else %}--{% endif %}</p>
-                            <p>{% if anlage.contractualPower > 0 %}{{ (anlage.contractualPower)|number_format(0, ',', '.') }}{% else %}--{% endif %}</p>
-                        </div>
-                        <div class="cell small-3 text-right">
-                            <p class="headline">difference</p>
-                            {% if pr is defined %}
-                                <p>{% if anlage.contractualAvailability > 0 %}{{ (pr.plantAvailabilityPerYear - anlage.contractualAvailability)|number_format(2, ',', '.') }}{% else %}--{% endif %}</p>
-                                <p>&nbsp;</p>
-                                <p>{% if anlage.contractualPower > 0 %}{{ (pr.powerEvuYear - anlage.contractualPower)|number_format(0,',','.') }}{% else %}--{% endif %}</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                    -->
                 {% endif %}
             </a>
             {# STATUS der Anlage anlage.isInTimeRange or #}
@@ -393,7 +357,7 @@
                                 {% elseif status.anlagenStatus > 20 %}
                                     <p class="icon-anlagen-status alert"><i class="fa fa-exclamation-triangle"></i></p>
                                 {% endif %}
-                                {{ status.anlagenStatus }}
+                               {% if is_granted('ROLE_G4N') %}{{ status.anlagenStatus }}{% endif %}
                             {% endif %}
                         </div>
                     </div>

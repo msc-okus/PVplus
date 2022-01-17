@@ -35,6 +35,11 @@ class Ticket
     private int $status;
 
     /**
+     * @ORM\Column(type="string")
+     */
+    private string $errorType; // SFOR, EFOR, OMC
+
+    /**
      * @ORM\Column(type="string", length=255)
      */
     private string $editor;
@@ -161,6 +166,16 @@ class Ticket
         $this->status = $Status;
 
         return $this;
+    }
+
+    public function getErrorType(): string
+    {
+        return $this->errorType;
+    }
+
+    public function setErrorType(string $errorType): void
+    {
+        $this->errorType = $errorType;
     }
 
     public function getEditor(): ?string

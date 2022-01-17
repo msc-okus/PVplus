@@ -114,7 +114,7 @@ class EignerController extends BaseController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
-//upload image
+            //upload image
             $upload = new AnlageFile();
 
             $uploadedFile = $form['imageFile']->getData();
@@ -125,7 +125,7 @@ class EignerController extends BaseController
                 $mimeType = $newFile['mimeType'];
                 $uploadsPath ='uploads/'.UploaderHelper::EIGNER_LOGO.'/'.$id.'/'.$newFilename;
                 $upload->setFilename($newFilename)
-                    ->setNimeType($mimeType)
+                    ->setMimeType($mimeType)
                     ->setPath($uploadsPath)
                     ->setPlant(null)
                     ->setStamp(date('Y-m-d H:i:s'));
