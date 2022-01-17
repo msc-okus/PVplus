@@ -11,7 +11,7 @@ import '../styles/app.scss';
 import 'foundation-sites';
 import 'foundation-datepicker';
 import ticken from './components/tick_tack'
-//global.ticken = ticken;
+global.ticken = ticken;
 
 import $ from 'jquery';
 //global.$ = $;

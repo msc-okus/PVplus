@@ -64,6 +64,7 @@ class FunctionsService
      * @param $pacDateStart
      * @param $pacDateEnd
      * @return array
+     * @deprecated
      */
     public function getSumPowerAcAct(Anlage $anlage, $from, $to, $pacDateStart, $pacDateEnd) :array
     {
