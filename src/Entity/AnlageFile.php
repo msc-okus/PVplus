@@ -19,31 +19,31 @@ class AnlageFile
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\Column(type="string", length=50)
      */
-    private $stamp;
+    private string $stamp;
 
     /**
      * @ORM\Column(type="string", length=150)
      */
-    private $filename;
+    private string $filename;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $path;
+    private string $path;
 
     /**
      * @ORM\Column(type="string", length=50, nullable=true)
      */
-    private $nimeType;
+    private string $mimeType;
 
     /**
      * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="anlageFiles")
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $plant;
 
@@ -88,14 +88,14 @@ class AnlageFile
         return $this;
     }
 
-    public function getNimeType(): ?string
+    public function getMimeType(): ?string
     {
-        return $this->nimeType;
+        return $this->mimeType;
     }
 
-    public function setNimeType(?string $nimeType): self
+    public function setMimeType(?string $mimeType): self
     {
-        $this->nimeType = $nimeType;
+        $this->mimeType = $mimeType;
 
         return $this;
     }
