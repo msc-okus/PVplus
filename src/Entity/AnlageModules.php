@@ -438,9 +438,9 @@ class AnlageModules
         return $this;
     }
 
-    public function getIrrDiscount5(): string
+    public function getIrrDiscount5(): float
     {
-        return $this->irrDiscount5;
+        return (float)$this->irrDiscount5;
     }
 
     public function setIrrDiscount5(string $irrDiscount5): void
