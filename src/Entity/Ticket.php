@@ -30,6 +30,11 @@ class Ticket
     private Anlage $anlage;
 
     /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private bool $autoTicket = false; // automatisches Ticket ausgelöst durch Fehlererkennung im Import oder Fehlermeldung Algoritmuas
+
+    /**
      * @ORM\Column(type="integer")
      */
     private int $status;
@@ -154,6 +159,21 @@ class Ticket
         $this->anlage= $Anlage;
 
         return $this;
+    }
+
+    public function getAutoTicket(): bool
+    {
+        return $this->autoTicket;
+    }
+
+    public function isAutoTicket(): bool
+    {
+        return $this->autoTicket;
+    }
+
+    public function setAutoTicket(bool $autoTicket): void
+    {
+        $this->autoTicket = $autoTicket;
     }
 
     public function getStatus(): ?int
