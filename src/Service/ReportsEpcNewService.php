@@ -429,8 +429,8 @@ class ReportsEpcNewService
         $result['pld_forecast']                 = $pldForcast;
         $result['percent_diff_calc_forecast']   = ($monthTable[$zeileSumme1]['V_eGrid_withRisk'] - $monthTable[$zeileSumme1]['W_yield_guaranteed_exp']) * 100 / $monthTable[$zeileSumme1]['W_yield_guaranteed_exp'];
         $result['ratio_forecast']               = $monthTable[$zeileSumme1]['V_eGrid_withRisk'] * 100 / $monthTable[$zeileSumme1]['W_yield_guaranteed_exp'];
-
-        $result['real']                         = "Real " . $anlage->getEpcReportStart()->format('M y') . " - " . $date->sub(new \DateInterval('P1M'))->format('M y');
+        $to = clone $date;
+        $result['real']                         = "Real " . $anlage->getEpcReportStart()->format('M y') . " - " . $to->sub(new \DateInterval('P1M'))->format('M y');
         $result['expected_energy_real']         = $monthTable[$zeileSumme2]['E_yieldDesign'];
         $result['guaranteed_energy_real']       = $monthTable[$zeileSumme2]['W_yield_guaranteed_exp'];
         $result['measured_energy_real']         = $monthTable[$zeileSumme2]['V_eGrid_withRisk'];
