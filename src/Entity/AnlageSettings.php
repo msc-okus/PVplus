@@ -15,27 +15,27 @@ class AnlageSettings
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\OneToOne(targetEntity=Anlage::class, inversedBy="settings", cascade={"persist", "remove"})
      */
-    private $anlage;
+    private Anlage $anlage;
 
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private $name0;
+    private string $name0;
 
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private $name1;
+    private string $name1;
 
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private $name2;
+    private string $name2;
 
     public function getId(): ?int
     {
@@ -54,9 +54,13 @@ class AnlageSettings
         return $this;
     }
 
-    public function getName0(): ?string
+    public function getName0(): string
     {
-        return $this->name0;
+        if ($this->name0 === null){
+            return 'AM';
+        } else {
+            return $this->name0;
+        }
     }
 
     public function setName0(string $name0): self
@@ -66,9 +70,13 @@ class AnlageSettings
         return $this;
     }
 
-    public function getName1(): ?string
+    public function getName1(): string
     {
-        return $this->name1;
+        if ($this->name1 === null){
+            return 'EPC';
+        } else {
+            return $this->name1;
+        }
     }
 
     public function setName1(string $name1): self
@@ -78,9 +86,13 @@ class AnlageSettings
         return $this;
     }
 
-    public function getName2(): ?string
+    public function getName2(): string
     {
-        return $this->name2;
+        if ($this->name2 === null){
+            return 'O&M';
+        } else {
+            return $this->name2;
+        }
     }
 
     public function setName2(string $name2): self

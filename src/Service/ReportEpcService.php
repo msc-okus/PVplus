@@ -16,6 +16,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Reports\Goldbeck\EPCMonthlyPRGuaranteeReport;
 use App\Reports\Goldbeck\EPCMonthlyYieldGuaranteeReport;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
+use DateTime;
 
 
 class ReportEpcService
@@ -31,10 +32,12 @@ class ReportEpcService
     private FunctionsService $functions;
     private PRCalulationService $PRCalulation;
     private AvailabilityService $availabilityService;
+    private ReportsEpcNewService $epcNew;
 
     public function __construct(AnlagenRepository $anlageRepo, GridMeterDayRepository $gridMeterRepo, PRRepository $prRepository,
                                 MonthlyDataRepository $monthlyDataRepo, EntityManagerInterface $em, NormalizerInterface $serializer,
-                                FunctionsService $functions, PRCalulationService $PRCalulation, AvailabilityService $availabilityService)
+                                FunctionsService $functions, PRCalulationService $PRCalulation, AvailabilityService $availabilityService,
+                                ReportsEpcNewService $epcNew)
     {
         $this->anlageRepo = $anlageRepo;
         $this->gridMeterRepo = $gridMeterRepo;
@@ -45,9 +48,10 @@ class ReportEpcService
         $this->functions = $functions;
         $this->PRCalulation = $PRCalulation;
         $this->availabilityService = $availabilityService;
+        $this->epcNew = $epcNew;
     }
 
-    public function createEpcReport(Anlage $anlage, $createPdf = false): string
+    public function createEpcReport(Anlage $anlage, DateTime $date, $createPdf = false): string
     {
         $currentDate = date('Y-m-d H-i');
         $pdfFilename = 'EPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
@@ -73,58 +77,59 @@ class ReportEpcService
                     'forecast_real' => $reportArray['prForecast'],
                     'formel'        => $reportArray['formel'],
                 ]);
+                $output = $report->run()->render(true);
                 break;
             case 'yieldGuarantee':
-                $reportArray = $this->reportYieldGuarantee($anlage);
+                $monthTable                             = $this->epcNew->monthTable($anlage, $date);
+                $reportArray['monthTable']              = $monthTable;
+                $reportArray['forcastTable']            = $this->epcNew->forcastTable($anlage, $monthTable, $date);
+                $reportArray['chartYieldPercenDiff']    = $this->epcNew->chartYieldPercenDiff($anlage, $monthTable, $date);
+                $reportArray['chartYieldCumulativ']     = $this->epcNew->chartYieldCumulative($anlage, $monthTable, $date);
 
-                $report = new EPCMonthlyYieldGuaranteeReport([
-                    'headlines' => [
-                        [
-                            'projektNr'     => $anlage->getProjektNr(),
-                            'anlage'        => $anlage->getAnlName(),
-                            'eigner'        => $anlage->getEigner()->getFirma(),
-                            'date'          => $currentDate,
-                            'kwpeak'        => $anlage->getKwPeak(),
-                        ],
-                    ],
-                    'main'          => $reportArray[0],
-                    'forecast24'    => $reportArray[1],
-                    'header'        => $reportArray[2],
-                    'forecast_real' => $reportArray[3],
-                    'legend'        => $this->serializer->normalize($anlage->getLegendEpcReports()->toArray(), null, ['groups' => 'legend']),
-                ]);
+                $output = $this->functions->printArrayAsTable($reportArray['forcastTable']);
+                $output .= $this->functions->print2DArrayAsTable($reportArray['monthTable']);
                 break;
             default:
-                $error = true;
-                $reportArray = [];
-                $report = null;
+                $output         = '';
+                $error          = true;
+                $reportArray    = [];
+                $report         = null;
         }
 
         if (!$error) {
-            $output = $report->run()->render(true);
-
             // Speichere Report als 'epc-reprt' in die Report Entity
-            if (true) {
-                $reportEntity = new AnlagenReports();
-                $startDate = $anlage->getFacDateStart();
-                $endDate = $anlage->getFacDate();
-                $reportEntity
-                    ->setCreatedAt(new \DateTime())
-                    ->setAnlage($anlage)
-                    ->setEigner($anlage->getEigner())
-                    ->setReportType('epc-report')
-                    ->setStartDate(self::getCetTime('object'))
-                    ->setMonth(self::getCetTime('object')->sub(new \DateInterval('P1M'))->format('m'))
-                    ->setYear(self::getCetTime('object')->format('Y'))
-                    ->setEndDate($endDate)
-                    ->setRawReport($output)
-                    ->setContentArray($reportArray);
-                $this->em->persist($reportEntity);
-                $this->em->flush();
+            $reportEntity = new AnlagenReports();
+            $startDate = $anlage->getFacDateStart();
+            $endDate = $anlage->getFacDate();
+            $reportEntity
+                ->setCreatedAt(new DateTime())
+                ->setAnlage($anlage)
+                ->setEigner($anlage->getEigner())
+                ->setReportType('epc-report')
+                ->setStartDate(self::getCetTime('object'))
+                ->setEndDate($endDate)
+                ->setRawReport($output)
+                ->setContentArray($reportArray);
+            switch ($anlage->getEpcReportType()) {
+                case 'prGuarantee':
+                    $reportEntity
+                        ->setMonth(self::getCetTime('object')->sub(new \DateInterval('P1M'))->format('m'))
+                        ->setYear(self::getCetTime('object')->format('Y'));
+                    break;
+
+                case 'yieldGuarantee':
+                    $reportEntity
+                        ->setMonth($date->format('m'))
+                        ->setYear($date->format('Y'));
+                    break;
             }
 
+            $this->em->persist($reportEntity);
+            $this->em->flush();
+
+
             // erzeuge PDF mit CloudExport von KoolReport
-            if ($createPdf) {
+            if ($createPdf && $anlage->getEpcReportType() == 'prGuarantee') {
                 $secretToken = '2bf7e9e8c86aa136b2e0e7a34d5c9bc2f4a5f83291a5c79f5a8c63a3c1227da9';
                 $settings = [
                     // 'useLocalTempFolder' => true,
@@ -144,7 +149,8 @@ class ReportEpcService
                     ->pdf($pdfOptions)
                     ->toBrowser($pdfFilename);
             }
-        } else {
+        }
+        else {
             $output = "<h1>Fehler: Es Ist kein Report ausgewählt.</h1>";
         }
 
@@ -475,6 +481,11 @@ class ReportEpcService
         return $report;
     }
 
+    /**
+     * @param Anlage $anlage
+     * @return array
+     * @deprecated
+     */
     public function reportYieldGuarantee(Anlage $anlage):array
     {
         $anzahlMonate = ((int)$anlage->getEpcReportEnd()->format('Y') - (int)$anlage->getEpcReportStart()->format('Y')) * 12 + ((int)$anlage->getEpcReportEnd()->format('m') - (int)$anlage->getEpcReportStart()->format('m')) + 1;

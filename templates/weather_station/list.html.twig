@@ -22,8 +22,8 @@
                 <td><a href="{{ path('app_admin_weather_edit', { id: station.id}) }}">{{ station.databaseIdent }}</a></td>
                 <td>{{ station.location }}</td>
                 <td>
-                    <a href="{{ path('app_admin_weather_edit', { id: station.id}) }}">
-                        <span class="fa fa-pencil"></span>
+                    <a href="{{ path('app_admin_weather_edit', { id: station.id}) }}" class="hollow button tiny action-icon shadow">
+                        <span class="fa fa-edit"></span>
                     </a>
                 </td>
             </tr>

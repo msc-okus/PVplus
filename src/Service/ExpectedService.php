@@ -5,6 +5,7 @@ namespace App\Service;
 
 use App\Entity\AnlageModules;
 use App\Repository\AnlageMonthRepository;
+use JetBrains\PhpStorm\Pure;
 use PDO;
 use App\Entity\Anlage;
 use App\Entity\AnlageGroupModules;
@@ -106,8 +107,8 @@ class ExpectedService
             for ($unit = $group->getUnitFirst(); $unit <= $group->getUnitLast(); $unit++) {
                 foreach($weatherArray[$currentWeatherStation->getDatabaseIdent()] as $weather) {
 
-                    $stamp      = $weather["stamp"];
-                    $pannelTemp = (float)$weather["panel_temp"];   // Pannel Temperatur
+                    $stamp          = $weather["stamp"];
+                    $pannelTemp     = (float)$weather["panel_temp"];   // Pannel Temperatur
                     $irrUpperBase   = (float)$weather["irr_upper"];    // Strahlung an obern Sensor
                     $irrLowerBase   = (float)$weather["irr_lower"];    // Strahlung an unterem Sensor
 
@@ -220,24 +221,25 @@ class ExpectedService
 
     private function calcIrradiationDiscountByModule(AnlageModules $modul, float $irradiation): float
     {
-        if ($irradiation > 0 && $irradiation <= 50) {
-            $factor = 1 - ($modul->getIrrDiscount1() / 100);
-        } elseif ($irradiation > 50 && $irradiation <= 100) {
-            $factor = 1 - ($modul->getIrrDiscount2() / 100);
-        } elseif ($irradiation > 100 && $irradiation <= 150) {
-            $factor = 1 - ($modul->getIrrDiscount3() / 100);
-        } elseif ($irradiation > 150 && $irradiation <= 200) {
-            $factor = 1 - ($modul->getIrrDiscount4() / 100);
-        } elseif ($irradiation > 200 && $irradiation <= 250) {
-            $factor = 1 - ($modul->getIrrDiscount5() / 100);
-        } elseif ($irradiation > 250 && $irradiation <= 300) {
-            $factor = 1 - ($modul->getIrrDiscount6() / 100);
-        } elseif ($irradiation > 300 && $irradiation <= 350) {
-            $factor = 1 - ($modul->getIrrDiscount7() / 100);
-        } elseif ($irradiation > 350 && $irradiation <= 400) {
-            $factor = 1 - ($modul->getIrrDiscount8() / 100);
-        } else {
-            $factor = 1;
+        $factor = 1;
+        if ($modul->getDisableIrrDiscount() !== true) {
+            if ($irradiation > 0 && $irradiation <= 50) {
+                $factor = 1 - ($modul->getIrrDiscount1() / 100);
+            } elseif ($irradiation > 50 && $irradiation <= 100) {
+                $factor = 1 - ($modul->getIrrDiscount2() / 100);
+            } elseif ($irradiation > 100 && $irradiation <= 150) {
+                $factor = 1 - ($modul->getIrrDiscount3() / 100);
+            } elseif ($irradiation > 150 && $irradiation <= 200) {
+                $factor = 1 - ($modul->getIrrDiscount4() / 100);
+            } elseif ($irradiation > 200 && $irradiation <= 250) {
+                $factor = 1 - ($modul->getIrrDiscount5() / 100);
+            } elseif ($irradiation > 250 && $irradiation <= 300) {
+                $factor = 1 - ($modul->getIrrDiscount6() / 100);
+            } elseif ($irradiation > 300 && $irradiation <= 350) {
+                $factor = 1 - ($modul->getIrrDiscount7() / 100);
+            } elseif ($irradiation > 350 && $irradiation <= 400) {
+                $factor = 1 - ($modul->getIrrDiscount8() / 100);
+            }
         }
 
         return $irradiation * $factor;
