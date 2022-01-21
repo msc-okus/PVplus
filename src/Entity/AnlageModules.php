@@ -347,7 +347,7 @@ class AnlageModules
         } else {
             @list($a3, $b3, $c3) = explode(":", $this->getOperatorPowerD());
             ($b3 and $c3) ? $d = $a3 * $b3 ** $c3 : $d = $a3;
-            $power = ($irr > 0) ? ($a * $irr ** 3) + ($b * $irr ** 2) + ($d * $irr) + $c : 0;
+            $power = ($irr > 0) ? ($a * $irr ** 3) + ($b * $irr ** 2) + ($c * $irr) + $d : 0;
         }
 
         return $power;

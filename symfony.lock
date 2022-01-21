@@ -353,12 +353,6 @@
     "monolog/monolog": {
         "version": "2.1.0"
     },
-    "mpdf/mpdf": {
-        "version": "v8.0.7"
-    },
-    "myclabs/deep-copy": {
-        "version": "1.10.1"
-    },
     "myclabs/php-enum": {
         "version": "1.8.0"
     },
@@ -499,9 +493,6 @@
         "files": [
             "config/packages/sensio_framework_extra.yaml"
         ]
-    },
-    "setasign/fpdi": {
-        "version": "v2.3.3"
     },
     "stof/doctrine-extensions-bundle": {
         "version": "1.2",

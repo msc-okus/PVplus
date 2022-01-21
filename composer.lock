@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b329d3e238293876dbe3493eb8328a6f",
+    "content-hash": "f2ee3c7ffd1b397666981c7add661dc9",
     "packages": [
         {
             "name": "api-platform/core",
@@ -1135,20 +1135,20 @@
         },
         {
             "name": "doctrine/dbal",
-            "version": "3.2.1",
+            "version": "3.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/dbal.git",
-                "reference": "4caf37acf14b513a91dd4f087f7eda424fa25542"
+                "reference": "a4b37db6f186b6843474189b424aed6a7cc5de4b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/dbal/zipball/4caf37acf14b513a91dd4f087f7eda424fa25542",
-                "reference": "4caf37acf14b513a91dd4f087f7eda424fa25542",
+                "url": "https://api.github.com/repos/doctrine/dbal/zipball/a4b37db6f186b6843474189b424aed6a7cc5de4b",
+                "reference": "a4b37db6f186b6843474189b424aed6a7cc5de4b",
                 "shasum": ""
             },
             "require": {
-                "composer/package-versions-deprecated": "^1.11.99",
+                "composer-runtime-api": "^2",
                 "doctrine/cache": "^1.11|^2.0",
                 "doctrine/deprecations": "^0.5.3",
                 "doctrine/event-manager": "^1.0",
@@ -1159,13 +1159,13 @@
             "require-dev": {
                 "doctrine/coding-standard": "9.0.0",
                 "jetbrains/phpstorm-stubs": "2021.1",
-                "phpstan/phpstan": "1.3.0",
+                "phpstan/phpstan": "1.4.0",
                 "phpstan/phpstan-strict-rules": "^1.1",
                 "phpunit/phpunit": "9.5.11",
                 "psalm/plugin-phpunit": "0.16.1",
                 "squizlabs/php_codesniffer": "3.6.2",
                 "symfony/cache": "^5.2|^6.0",
-                "symfony/console": "^2.0.5|^3.0|^4.0|^5.0|^6.0",
+                "symfony/console": "^2.7|^3.0|^4.0|^5.0|^6.0",
                 "vimeo/psalm": "4.16.1"
             },
             "suggest": {
@@ -1226,7 +1226,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/dbal/issues",
-                "source": "https://github.com/doctrine/dbal/tree/3.2.1"
+                "source": "https://github.com/doctrine/dbal/tree/3.3.0"
             },
             "funding": [
                 {
@@ -1242,7 +1242,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-01-05T08:52:06+00:00"
+            "time": "2022-01-18T00:13:52+00:00"
         },
         {
             "name": "doctrine/deprecations",
@@ -2546,34 +2546,34 @@
         },
         {
             "name": "friendsofsymfony/ckeditor-bundle",
-            "version": "2.3.0",
+            "version": "2.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/FriendsOfSymfony/FOSCKEditorBundle.git",
-                "reference": "282c79b0d3eda68855ea4c8732ab8d249cd5fbd0"
+                "reference": "a4df4056b2832881e17b939e83f25406a6cc6414"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/FriendsOfSymfony/FOSCKEditorBundle/zipball/282c79b0d3eda68855ea4c8732ab8d249cd5fbd0",
-                "reference": "282c79b0d3eda68855ea4c8732ab8d249cd5fbd0",
+                "url": "https://api.github.com/repos/FriendsOfSymfony/FOSCKEditorBundle/zipball/a4df4056b2832881e17b939e83f25406a6cc6414",
+                "reference": "a4df4056b2832881e17b939e83f25406a6cc6414",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
                 "ext-zip": "*",
                 "php": "^7.1|^8.0",
-                "symfony/asset": "^4.4 || ^5.0",
-                "symfony/config": "^4.4 || ^5.0",
-                "symfony/dependency-injection": "^4.4 || ^5.0",
-                "symfony/expression-language": "^4.4 || ^5.0",
-                "symfony/form": "^4.4 || ^5.0",
-                "symfony/framework-bundle": "^4.4 || ^5.0",
-                "symfony/http-foundation": "^4.4 || ^5.0",
-                "symfony/http-kernel": "^4.4 || ^5.0",
-                "symfony/options-resolver": "^4.4 || ^5.0",
-                "symfony/property-access": "^4.4 || ^5.0",
-                "symfony/routing": "^4.4 || ^5.0",
-                "symfony/twig-bundle": "^4.4 || ^5.0",
+                "symfony/asset": "^4.4 || ^5.0 || ^6.0",
+                "symfony/config": "^4.4 || ^5.0 || ^6.0",
+                "symfony/dependency-injection": "^4.4 || ^5.0 || ^6.0",
+                "symfony/expression-language": "^4.4 || ^5.0 || ^6.0",
+                "symfony/form": "^4.4 || ^5.0 || ^6.0",
+                "symfony/framework-bundle": "^4.4 || ^5.0 || ^6.0",
+                "symfony/http-foundation": "^4.4 || ^5.0 || ^6.0",
+                "symfony/http-kernel": "^4.4 || ^5.0 || ^6.0",
+                "symfony/options-resolver": "^4.4 || ^5.0 || ^6.0",
+                "symfony/property-access": "^4.4 || ^5.0 || ^6.0",
+                "symfony/routing": "^4.4 || ^5.0 || ^6.0",
+                "symfony/twig-bundle": "^4.4 || ^5.0 || ^6.0",
                 "twig/twig": "^2.4 || ^3.0"
             },
             "conflict": {
@@ -2583,9 +2583,9 @@
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^2.0",
                 "matthiasnoback/symfony-dependency-injection-test": "^3.0 || ^4.0",
-                "symfony/console": "^4.4 || ^5.0",
-                "symfony/phpunit-bridge": "^4.4 || ^5.0",
-                "symfony/yaml": "^4.4 || ^5.0"
+                "symfony/console": "^4.4 || ^5.0 || ^6.0",
+                "symfony/phpunit-bridge": "^4.4 || ^5.0 || ^6.0",
+                "symfony/yaml": "^4.4 || ^5.0 || ^6.0"
             },
             "suggest": {
                 "egeloen/form-extra-bundle": "Allows to load CKEditor asynchronously"
@@ -2621,9 +2621,9 @@
             ],
             "support": {
                 "issues": "https://github.com/FriendsOfSymfony/FOSCKEditorBundle/issues",
-                "source": "https://github.com/FriendsOfSymfony/FOSCKEditorBundle/tree/2.3.0"
+                "source": "https://github.com/FriendsOfSymfony/FOSCKEditorBundle/tree/2.4.0"
             },
-            "time": "2020-12-26T14:29:00+00:00"
+            "time": "2022-01-07T12:34:18+00:00"
         },
         {
             "name": "gedmo/doctrine-extensions",
@@ -3050,7 +3050,7 @@
         },
         {
             "name": "illuminate/bus",
-            "version": "v8.79.0",
+            "version": "v8.80.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/bus.git",
@@ -3103,16 +3103,16 @@
         },
         {
             "name": "illuminate/collections",
-            "version": "v8.79.0",
+            "version": "v8.80.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/collections.git",
-                "reference": "cfa88a486e04c3531d997b5f6e0a95cc148a5cd5"
+                "reference": "ed630f15e937c5c928a9454748ff727ce5ea01ec"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/collections/zipball/cfa88a486e04c3531d997b5f6e0a95cc148a5cd5",
-                "reference": "cfa88a486e04c3531d997b5f6e0a95cc148a5cd5",
+                "url": "https://api.github.com/repos/illuminate/collections/zipball/ed630f15e937c5c928a9454748ff727ce5ea01ec",
+                "reference": "ed630f15e937c5c928a9454748ff727ce5ea01ec",
                 "shasum": ""
             },
             "require": {
@@ -3153,11 +3153,11 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2022-01-07T15:10:06+00:00"
+            "time": "2022-01-17T15:04:13+00:00"
         },
         {
             "name": "illuminate/container",
-            "version": "v8.79.0",
+            "version": "v8.80.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/container.git",
@@ -3208,16 +3208,16 @@
         },
         {
             "name": "illuminate/contracts",
-            "version": "v8.79.0",
+            "version": "v8.80.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/contracts.git",
-                "reference": "9baa9f781071e67d7b171775bd3be7ead13ddd29"
+                "reference": "5e0fd287a1b22a6b346a9f7cd484d8cf0234585d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/contracts/zipball/9baa9f781071e67d7b171775bd3be7ead13ddd29",
-                "reference": "9baa9f781071e67d7b171775bd3be7ead13ddd29",
+                "url": "https://api.github.com/repos/illuminate/contracts/zipball/5e0fd287a1b22a6b346a9f7cd484d8cf0234585d",
+                "reference": "5e0fd287a1b22a6b346a9f7cd484d8cf0234585d",
                 "shasum": ""
             },
             "require": {
@@ -3252,11 +3252,11 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2021-12-14T14:40:44+00:00"
+            "time": "2022-01-13T14:47:47+00:00"
         },
         {
             "name": "illuminate/events",
-            "version": "v8.79.0",
+            "version": "v8.80.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/events.git",
@@ -3311,16 +3311,16 @@
         },
         {
             "name": "illuminate/filesystem",
-            "version": "v8.79.0",
+            "version": "v8.80.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/filesystem.git",
-                "reference": "def8901b69cd04902de0c2752683bab5e4d121b5"
+                "reference": "73db3e9a233ed587ba54f52ab8580f3c7bc872b2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/filesystem/zipball/def8901b69cd04902de0c2752683bab5e4d121b5",
-                "reference": "def8901b69cd04902de0c2752683bab5e4d121b5",
+                "url": "https://api.github.com/repos/illuminate/filesystem/zipball/73db3e9a233ed587ba54f52ab8580f3c7bc872b2",
+                "reference": "73db3e9a233ed587ba54f52ab8580f3c7bc872b2",
                 "shasum": ""
             },
             "require": {
@@ -3369,11 +3369,11 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2022-01-05T14:40:14+00:00"
+            "time": "2022-01-15T15:00:40+00:00"
         },
         {
             "name": "illuminate/macroable",
-            "version": "v8.79.0",
+            "version": "v8.80.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/macroable.git",
@@ -3419,7 +3419,7 @@
         },
         {
             "name": "illuminate/pipeline",
-            "version": "v8.79.0",
+            "version": "v8.80.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/pipeline.git",
@@ -3467,16 +3467,16 @@
         },
         {
             "name": "illuminate/support",
-            "version": "v8.79.0",
+            "version": "v8.80.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/support.git",
-                "reference": "250fd3002747e7fe3a78d802b091c867e321087d"
+                "reference": "69afbd89e6b6bf847e3df59e0f72cd820b18e8da"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/support/zipball/250fd3002747e7fe3a78d802b091c867e321087d",
-                "reference": "250fd3002747e7fe3a78d802b091c867e321087d",
+                "url": "https://api.github.com/repos/illuminate/support/zipball/69afbd89e6b6bf847e3df59e0f72cd820b18e8da",
+                "reference": "69afbd89e6b6bf847e3df59e0f72cd820b18e8da",
                 "shasum": ""
             },
             "require": {
@@ -3531,20 +3531,20 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2022-01-11T15:43:56+00:00"
+            "time": "2022-01-17T15:24:30+00:00"
         },
         {
             "name": "illuminate/view",
-            "version": "v8.79.0",
+            "version": "v8.80.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/view.git",
-                "reference": "ec853721a70c11d51c6162a58410abb319a073b1"
+                "reference": "d1556d48872380623a03e99e3053903d7e3a2b33"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/view/zipball/ec853721a70c11d51c6162a58410abb319a073b1",
-                "reference": "ec853721a70c11d51c6162a58410abb319a073b1",
+                "url": "https://api.github.com/repos/illuminate/view/zipball/d1556d48872380623a03e99e3053903d7e3a2b33",
+                "reference": "d1556d48872380623a03e99e3053903d7e3a2b33",
                 "shasum": ""
             },
             "require": {
@@ -3585,7 +3585,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2021-12-16T19:23:48+00:00"
+            "time": "2022-01-15T17:24:59+00:00"
         },
         {
             "name": "imagine/imagine",
@@ -5904,139 +5904,6 @@
             "time": "2021-10-01T21:08:31+00:00"
         },
         {
-            "name": "mpdf/mpdf",
-            "version": "v8.0.15",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/mpdf/mpdf.git",
-                "reference": "d8a5294a6cc2e814c4157aecc8d7ac25014b18ed"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/mpdf/mpdf/zipball/d8a5294a6cc2e814c4157aecc8d7ac25014b18ed",
-                "reference": "d8a5294a6cc2e814c4157aecc8d7ac25014b18ed",
-                "shasum": ""
-            },
-            "require": {
-                "ext-gd": "*",
-                "ext-mbstring": "*",
-                "myclabs/deep-copy": "^1.7",
-                "paragonie/random_compat": "^1.4|^2.0|^9.99.99",
-                "php": "^5.6 || ^7.0 || ~8.0.0 || ~8.1.0",
-                "psr/log": "^1.0 || ^2.0",
-                "setasign/fpdi": "^2.1"
-            },
-            "require-dev": {
-                "mockery/mockery": "^1.3.0",
-                "mpdf/qrcode": "^1.1.0",
-                "squizlabs/php_codesniffer": "^3.5.0",
-                "tracy/tracy": "^2.4",
-                "yoast/phpunit-polyfills": "^1.0"
-            },
-            "suggest": {
-                "ext-bcmath": "Needed for generation of some types of barcodes",
-                "ext-xml": "Needed mainly for SVG manipulation",
-                "ext-zlib": "Needed for compression of embedded resources, such as fonts"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Mpdf\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "GPL-2.0-only"
-            ],
-            "authors": [
-                {
-                    "name": "Matěj Humpál",
-                    "role": "Developer, maintainer"
-                },
-                {
-                    "name": "Ian Back",
-                    "role": "Developer (retired)"
-                }
-            ],
-            "description": "PHP library generating PDF files from UTF-8 encoded HTML",
-            "homepage": "https://mpdf.github.io",
-            "keywords": [
-                "pdf",
-                "php",
-                "utf-8"
-            ],
-            "support": {
-                "docs": "http://mpdf.github.io",
-                "issues": "https://github.com/mpdf/mpdf/issues",
-                "source": "https://github.com/mpdf/mpdf"
-            },
-            "funding": [
-                {
-                    "url": "https://www.paypal.me/mpdf",
-                    "type": "custom"
-                }
-            ],
-            "time": "2021-11-10T08:15:22+00:00"
-        },
-        {
-            "name": "myclabs/deep-copy",
-            "version": "1.10.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/myclabs/DeepCopy.git",
-                "reference": "776f831124e9c62e1a2c601ecc52e776d8bb7220"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/myclabs/DeepCopy/zipball/776f831124e9c62e1a2c601ecc52e776d8bb7220",
-                "reference": "776f831124e9c62e1a2c601ecc52e776d8bb7220",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^7.1 || ^8.0"
-            },
-            "replace": {
-                "myclabs/deep-copy": "self.version"
-            },
-            "require-dev": {
-                "doctrine/collections": "^1.0",
-                "doctrine/common": "^2.6",
-                "phpunit/phpunit": "^7.1"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "DeepCopy\\": "src/DeepCopy/"
-                },
-                "files": [
-                    "src/DeepCopy/deep_copy.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "Create deep copies (clones) of your objects",
-            "keywords": [
-                "clone",
-                "copy",
-                "duplicate",
-                "object",
-                "object graph"
-            ],
-            "support": {
-                "issues": "https://github.com/myclabs/DeepCopy/issues",
-                "source": "https://github.com/myclabs/DeepCopy/tree/1.10.2"
-            },
-            "funding": [
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/myclabs/deep-copy",
-                    "type": "tidelift"
-                }
-            ],
-            "time": "2020-11-13T09:40:50+00:00"
-        },
-        {
             "name": "myclabs/php-enum",
             "version": "1.8.3",
             "source": {
@@ -8190,78 +8057,6 @@
             "time": "2020-08-25T19:10:18+00:00"
         },
         {
-            "name": "setasign/fpdi",
-            "version": "v2.3.6",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Setasign/FPDI.git",
-                "reference": "6231e315f73e4f62d72b73f3d6d78ff0eed93c31"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Setasign/FPDI/zipball/6231e315f73e4f62d72b73f3d6d78ff0eed93c31",
-                "reference": "6231e315f73e4f62d72b73f3d6d78ff0eed93c31",
-                "shasum": ""
-            },
-            "require": {
-                "ext-zlib": "*",
-                "php": "^5.6 || ^7.0 || ^8.0"
-            },
-            "conflict": {
-                "setasign/tfpdf": "<1.31"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "~5.7",
-                "setasign/fpdf": "~1.8",
-                "setasign/tfpdf": "1.31",
-                "squizlabs/php_codesniffer": "^3.5",
-                "tecnickcom/tcpdf": "~6.2"
-            },
-            "suggest": {
-                "setasign/fpdf": "FPDI will extend this class but as it is also possible to use TCPDF or tFPDF as an alternative. There's no fixed dependency configured."
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "setasign\\Fpdi\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Jan Slabon",
-                    "email": "jan.slabon@setasign.com",
-                    "homepage": "https://www.setasign.com"
-                },
-                {
-                    "name": "Maximilian Kresse",
-                    "email": "maximilian.kresse@setasign.com",
-                    "homepage": "https://www.setasign.com"
-                }
-            ],
-            "description": "FPDI is a collection of PHP classes facilitating developers to read pages from existing PDF documents and use them as templates in FPDF. Because it is also possible to use FPDI with TCPDF, there are no fixed dependencies defined. Please see suggestions for packages which evaluates the dependencies automatically.",
-            "homepage": "https://www.setasign.com/fpdi",
-            "keywords": [
-                "fpdf",
-                "fpdi",
-                "pdf"
-            ],
-            "support": {
-                "issues": "https://github.com/Setasign/FPDI/issues",
-                "source": "https://github.com/Setasign/FPDI/tree/v2.3.6"
-            },
-            "funding": [
-                {
-                    "url": "https://tidelift.com/funding/github/packagist/setasign/fpdi",
-                    "type": "tidelift"
-                }
-            ],
-            "time": "2021-02-11T11:37:01+00:00"
-        },
-        {
             "name": "stof/doctrine-extensions-bundle",
             "version": "v1.7.0",
             "source": {
@@ -9679,16 +9474,16 @@
         },
         {
             "name": "symfony/flex",
-            "version": "v1.17.6",
+            "version": "v1.18.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/flex.git",
-                "reference": "7a79135e1dc66b30042b4d968ecba0908f9374bc"
+                "reference": "90ee9ddddaadee602dff23ae530310a59936bc8b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/flex/zipball/7a79135e1dc66b30042b4d968ecba0908f9374bc",
-                "reference": "7a79135e1dc66b30042b4d968ecba0908f9374bc",
+                "url": "https://api.github.com/repos/symfony/flex/zipball/90ee9ddddaadee602dff23ae530310a59936bc8b",
+                "reference": "90ee9ddddaadee602dff23ae530310a59936bc8b",
                 "shasum": ""
             },
             "require": {
@@ -9724,7 +9519,7 @@
             "description": "Composer plugin for Symfony",
             "support": {
                 "issues": "https://github.com/symfony/flex/issues",
-                "source": "https://github.com/symfony/flex/tree/v1.17.6"
+                "source": "https://github.com/symfony/flex/tree/v1.18.1"
             },
             "funding": [
                 {
@@ -9740,7 +9535,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-11-29T15:39:37+00:00"
+            "time": "2022-01-19T17:52:31+00:00"
         },
         {
             "name": "symfony/form",
