@@ -32,7 +32,7 @@ class Ticket
     /**
      * @ORM\Column(type="boolean", nullable=true)
      */
-    private bool $autoTicket = false; // automatisches Ticket ausgelöst durch Fehlererkennung im Import oder Fehlermeldung Algoritmuas
+    private ?bool $autoTicket = false; // automatisches Ticket ausgelöst durch Fehlererkennung im Import oder Fehlermeldung Algoritmuas
 
     /**
      * @ORM\Column(type="integer")
@@ -161,17 +161,17 @@ class Ticket
         return $this;
     }
 
-    public function getAutoTicket(): bool
+    public function getAutoTicket(): ?bool
     {
         return $this->autoTicket;
     }
 
-    public function isAutoTicket(): bool
+    public function isAutoTicket(): ?bool
     {
         return $this->autoTicket;
     }
 
-    public function setAutoTicket(bool $autoTicket): void
+    public function setAutoTicket(?bool $autoTicket): void
     {
         $this->autoTicket = $autoTicket;
     }
