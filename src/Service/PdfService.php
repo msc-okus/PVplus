@@ -25,9 +25,9 @@ class PdfService
     public function createPdfTemp(Anlage $anlage, string $html, string $source = 'string'): string
     {
         $pdf = new ChromePdf('/usr/bin/chromium');
-        $fullfilename = $this->tempPathBaseUrl.'/'.$anlage->getAnlName().'_tempPDF.pdf';
+        $fullfilename = $this->tempPathBaseUrl.'/'.$anlage->getAnlName().'_tempPDF';
 
-        $pdf->output($fullfilename);
+        $pdf->output($fullfilename.'.pdf');
         switch ($source) {
             case 'string':
                 $pdf->generateFromHtml($html);

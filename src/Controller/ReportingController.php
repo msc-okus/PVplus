@@ -290,7 +290,6 @@ class ReportingController extends AbstractController
                             'chart2'            => $reportArray['chartYieldCumulativ'],
                         ]);
 
-
                         $response = new BinaryFileResponse($pdf->createPdfTemp($anlage, $result));
                         $response->headers->set ( 'Content-Type', 'application/pdf' );
                         $response->deleteFileAfterSend(true);
@@ -300,10 +299,8 @@ class ReportingController extends AbstractController
                         );
 
                         return $response;
-                    default:
                 }
 
-                break;
             case 'monthly-report':
                 //standard G4N Report (an O&M Goldbeck angelehnt)
                 $reportService->buildMonthlyReport($anlage, $report->getContentArray(), $reportCreationDate, 0 ,0, true);
