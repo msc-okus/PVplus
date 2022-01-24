@@ -340,13 +340,10 @@ class AnlageModules
         ($b3 and $c3) ? $c = $a3 * $b3 ** $c3 : $c = $a3;
 
         if ($this->getOperatorPowerD() === null) { // Operator D ist nicht eingeben => wir nutzen den alten Algorithmus
-            if ($irr < (4 * $c)) $c = $c * 2 / 3;
-            if ($irr < (3 * $c)) $c = $c * 3;
-            if ($irr < (2 * $c)) $c = 0;
             $power = ($irr > 0) ? ($a * $irr ** 2) + ($b * $irr) + $c : 0;
         } else {
-            @list($a3, $b3, $c3) = explode(":", $this->getOperatorPowerD());
-            ($b3 and $c3) ? $d = $a3 * $b3 ** $c3 : $d = $a3;
+            @list($a4, $b4, $c4) = explode(":", $this->getOperatorPowerD());
+            ($b4 and $c4) ? $d = $a4 * $b4 ** $c4 : $d = $a4;
             $power = ($irr > 0) ? ($a * $irr ** 3) + ($b * $irr ** 2) + ($c * $irr) + $d : 0;
         }
 

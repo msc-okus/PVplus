@@ -1,5 +1,14 @@
 {% extends 'base.html.twig' %}
 
+{% block title %}
+    {{  parent() }}new Plant
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('plant_edit') }}
+{% endblock %}
+
 {% block body %}
     <div class="grid-x">
         <div class="cell">
@@ -7,14 +16,4 @@
         </div>
     </div>
     {{ include('anlagen/_form_new.html.twig') }}
-{% endblock %}
-
-
-{% block title %}
-    {{  parent() }}edit Owner
-{% endblock %}
-
-
-{% block javascripts %}
-    {{ parent() }}
 {% endblock %}
