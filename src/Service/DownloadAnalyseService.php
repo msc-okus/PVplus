@@ -3,27 +3,17 @@
 namespace App\Service;
 
 use App\Entity\Anlage;
-use App\Entity\AnlageAvailability;
 use App\Entity\AnlagenPR;
 use App\Helper\G4NTrait;
 use App\Repository\AnlageAvailabilityRepository;
 use App\Repository\PRRepository;
-
-use App\Entity\AnlagenPvSystMonth;
-use App\Entity\AnlagenReports;
-
 use App\Repository\Case5Repository;
 use App\Repository\PvSystMonthRepository;
 use App\Repository\ReportsRepository;
 use App\Repository\AnlagenRepository;
-
 use Doctrine\ORM\EntityManagerInterface;
 use Twig\Environment;
-use App\Reports\Monthly\DownloadReportMonthly;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-
-
-use Doctrine\ORM\Query\ResultSetMappingBuilder;
 
 
 class DownloadAnalyseService
@@ -40,6 +30,7 @@ class DownloadAnalyseService
     private Case5Repository $case5Repo;
     private FunctionsService $functions;
     private NormalizerInterface $serializer;
+    private AnlageAvailabilityRepository $availabilityRepo;
 
 
     public function __construct(
@@ -59,7 +50,6 @@ class DownloadAnalyseService
         $this->availabilityRepo = $availabilityRepo;
         $this->prRepository = $prRepository;
         $this->twig = $twig;
-        $this->reportsRepository = $downloadsRepository;
         $this->functions = $functions;
         $this->em = $em;
         $this->messageService = $messageService;
@@ -69,18 +59,15 @@ class DownloadAnalyseService
     }
 
 
-
     /**
      * @param Anlage $anlage
-     * @param $a
-     * @param $b
-     * @param $intervall
+     * @param int $year
+     * @param int $month
+     * @param int $timerange
      * @return array
      */
-    public function getAllSingleSystemData(Anlage $anlage, $year = 0, $month = 0, $timerange = 0)
+    public function getAllSingleSystemData(Anlage $anlage, int $year = 0, int $month = 0, int $timerange = 0)
     {
-
-
         #timerange = monthly or dayly table
         if($timerange == 1){
             if ($year != 0 && $month != 0) {
@@ -99,7 +86,6 @@ class DownloadAnalyseService
             $download = $this->prRepository->findOneBy(['anlage' => $anlage, 'stamp' => date_create("$year-$month-$lastDayMonth")]);;
         }
         if($timerange == 2){
-            $download = [];
             $download = $this->prRepository->findPRInMonth($anlage, "$month", "$year");
         }
         return $download;
@@ -281,12 +267,4 @@ class DownloadAnalyseService
         return $output;
     }
 
-
-    /**
-     * @param Anlage $anlage
-     * @return integer
-     */
-    public function getAnlagenId($anlage){
-        return $anlage->getAnlagenId();
-    }
 }

@@ -123,10 +123,14 @@ class ExpectedService
                     $modules = $group->getModules();
                     $expPowerDc = $expCurrentDc = 0;
                     foreach ($modules as $modul) {
-                        //
+                        /*
                         $irr        = $this->calcIrradiationDiscountByModule($modul->getModuleType(), $irrBase);
                         $irrUpper   = $this->calcIrradiationDiscountByModule($modul->getModuleType(), $irrUpperBase);
                         $irrLower   = $this->calcIrradiationDiscountByModule($modul->getModuleType(), $irrLowerBase);
+                        */
+                        $irr        = $irrBase;
+                        $irrUpper   = $irrUpperBase;
+                        $irrLower   = $irrLowerBase;
                         if ($anlage->getIsOstWestAnlage()) {
                             // Ist 'Ost/West' Anlage, dann nutze $irrUpper (Strahlung Osten) und $irrLower (Strahlung Westen) und multipliziere mit der Anzahl Strings Ost / West
                             $expPowerDcHlp      = $modul->getModuleType()->getFactorPower($irrUpper) * $modul->getNumStringsPerUnitEast() * $modul->getNumModulesPerString() / 1000 / 4; // Ost
@@ -138,17 +142,19 @@ class ExpectedService
                             $expPowerDcHlp      = $modul->getModuleType()->getFactorPower($irr) * $modul->getNumStringsPerUnit() * $modul->getNumModulesPerString() / 1000 / 4;
                             $expCurrentDcHlp    = $modul->getModuleType()->getFactorCurrent($irr) * $modul->getNumStringsPerUnit(); // nicht durch 4 teilen, sind keine Ah, sondern A
                         }
-
+                        /*
                         // Temperatur Korrektur
                         if ($anlage->getHasPannelTemp()) {
                             $expPowerDcHlp      = $expPowerDcHlp * $modul->getModuleType()->getTempCorrPower($pannelTemp);
                             $expCurrentDcHlp    = $expCurrentDcHlp * $modul->getModuleType()->getTempCorrCurrent($pannelTemp);
                         }
+                        */
 
+                        /*
                         // degradation abziehen (degradation * Betriebsjahre).
                         $expPowerDcHlp      = $expPowerDcHlp - ($expPowerDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
                         $expCurrentDcHlp    = $expCurrentDcHlp - ($expCurrentDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
-
+                        */
                         $expPowerDc     += $expPowerDcHlp;
                         $expCurrentDc   += $expCurrentDcHlp;
                     }
@@ -161,6 +167,7 @@ class ExpectedService
                         $shadow_loss = $anlageMonth->getShadowLoss();
                     }
 
+                    /*
                     // Anpassung der Verschattung an die jeweiligen Strahlungsbedingungen
                     // d.h. je weniger Strahlung desso geringer ist die Auswirkung der Verschattung
                     // Werte für $val bis $val 6 sind mit OS und TL abgesprochen
@@ -186,6 +193,7 @@ class ExpectedService
                         $expPowerDc = $expPowerDc - ($expPowerDc / 100 * $loss);
                         $expCurrentDc = $expCurrentDc - ($expCurrentDc / 100 * $loss);
                     }
+                    */
 
                     // AC Expected Berechnung
                     // Umrechnung DC nach AC
