@@ -3,6 +3,7 @@
 namespace App\Form\Case6;
 
 use App\Entity\AnlageCase6;
+use App\Form\Type\DateString;
 use Doctrine\DBAL\Types\TextType;
 use koolreport\excel\Text;
 use Symfony\Component\Form\AbstractType;
@@ -16,8 +17,12 @@ class Case6FormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('stampFrom')
-            ->add('stampTo')
+            ->add('stampFrom',DateString::class,[
+        'widget' => 'single_text',
+    ])
+            ->add('stampTo', DateString::class,[
+                'widget' => 'single_text',
+            ])
             ->add('inverter')
             ->add('reason', \Symfony\Component\Form\Extension\Core\Type\TextType::class,[
                 'empty_data' => ' ',

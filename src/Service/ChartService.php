@@ -464,7 +464,7 @@ class ChartService
                     $resultArray['headline'] = 'Something was wrong ' . $form['selectedChart'];
             }
         }
-
+        dump($resultArray);
         return $resultArray;
     }
 
