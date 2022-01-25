@@ -83,8 +83,6 @@ class ReportEpcService
                 $monthTable                             = $this->epcNew->monthTable($anlage, $date);
                 $reportArray['monthTable']              = $monthTable;
                 $reportArray['forcastTable']            = $this->epcNew->forcastTable($anlage, $monthTable, $date);
-                $reportArray['chartYieldPercenDiff']    = $this->epcNew->chartYieldPercenDiff($anlage, $monthTable, $date);
-                $reportArray['chartYieldCumulativ']     = $this->epcNew->chartYieldCumulative($anlage, $monthTable, $date);
 
                 $output = $this->functions->printArrayAsTable($reportArray['forcastTable']);
                 $output .= $this->functions->print2DArrayAsTable($reportArray['monthTable']);
