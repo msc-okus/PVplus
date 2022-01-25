@@ -13,9 +13,6 @@
             "src/Entity/.gitignore"
         ]
     },
-    "apix/log": {
-        "version": "1.2.1"
-    },
     "bacon/bacon-qr-code": {
         "version": "2.0.3"
     },
@@ -27,9 +24,6 @@
     },
     "box/spout": {
         "version": "v3.1.0"
-    },
-    "chrome-php/chrome": {
-        "version": "v0.10.0"
     },
     "chromeheadlessio/php-client": {
         "version": "1.0.0"
@@ -127,9 +121,6 @@
     },
     "endroid/qr-code": {
         "version": "3.9.6"
-    },
-    "evenement/evenement": {
-        "version": "v3.0.1"
     },
     "ezyang/htmlpurifier": {
         "version": "v4.13.0"
@@ -797,6 +788,9 @@
             "templates/base.html.twig"
         ]
     },
+    "symfony/ux-chartjs": {
+        "version": "v2.0.1"
+    },
     "symfony/validator": {
         "version": "4.3",
         "recipe": {
@@ -920,8 +914,5 @@
     },
     "willdurand/negotiation": {
         "version": "3.0.0"
-    },
-    "wrench/wrench": {
-        "version": "v2.0.11"
     }
 }

@@ -214,7 +214,7 @@ class ReportingController extends AbstractController
     /**
      * @Route("/reporting/pdf/{id}", name="app_reporting_pdf")
      */
-    public function showReportAsPdf($id, ReportEpcService $reportEpcService, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, PdfService $pdf)
+    public function showReportAsPdf($id, ReportEpcService $reportEpcService, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, PdfService $pdf, ReportsEpcNewService $epcNewService)
     {
         /** @var AnlagenReports|null $report */
         $session=$this->container->get('session');
@@ -286,11 +286,12 @@ class ReportingController extends AbstractController
                             'monthsTable'       => $reportArray['monthTable'],
                             'forcast'           => $reportArray['forcastTable'],
                             'legend'            => $anlage->getLegendEpcReports(),
-                            'chart1'            => $reportArray['chartYieldPercenDiff'],
-                            'chart2'            => $reportArray['chartYieldCumulativ'],
+                            'chart1'            => $epcNewService->chartYieldPercenDiff($anlage, $reportArray['monthTable']),//$reportArray['chartYieldPercenDiff'],
+                            'chart2'            => $epcNewService->chartYieldCumulative($anlage, $reportArray['monthTable']),
                         ]);
 
-                        $response = new BinaryFileResponse($pdf->createPdfTemp($anlage, $result));
+
+                        $response = new BinaryFileResponse($pdf->createPdfTemp($anlage, $result, 'string'));
                         $response->headers->set ( 'Content-Type', 'application/pdf' );
                         $response->deleteFileAfterSend(true);
                         $response->setContentDisposition(

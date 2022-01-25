@@ -457,29 +457,27 @@ class ReportsEpcNewService
             $yAxis[] = round($monthTable[$n]['AC_eGridDivExpected'],2);
         }
         $chart = new ECharts();
+
         $chart->xAxis[] = [
             'type'      => 'category',
             'data'      => $xAxis,
-
             'axisLabel' =>  [
-                'show'      => true,
-                'margin'    => '10',
                 'rotate'    => 30,
             ],
         ];
         $chart->yAxis[] = [
             'type'      => 'value',
-            'min'       => 0,
             'splitLine' => [
                 'lineStyle' => [
                     'type'      => 'dashed',
                 ],
             ],
             'axisLabel' =>  [
-                #'formatter'     => '{value} %',
+                'formatter'     => '{value} %',
                 'align'         => 'right',
             ],
         ];
+
         $chart->series[] = [
             'type'      => 'bar',
             'data'      => $yAxis,
@@ -498,13 +496,14 @@ class ReportsEpcNewService
             'grid'      => [
                 'top'       => 50,
                 'left'      => 120,
-                'height'    => '80%',
                 'width'     => '85%'
             ],
         ];
         $chart->setOption($options);
 
-        return $chart->render('chartYieldPercentDiff', ['style' => 'height: 250px; margin-bottom: 40px;']);
+        $string = $chart->render('chartYieldPercentDiff', ['style' => 'height: 250px; margin-bottom: 40px;', 'renderer'=> 'svg']);
+        #dd($string);
+        return $chart->render('chartYieldPercentDiff', ['style' => 'height: 250px; margin-bottom: 40px;', 'renderer'=> 'svg']);
     }
 
     public function chartYieldCumulative(Anlage $anlage, array $monthTable, ?DateTime  $date = null): string
