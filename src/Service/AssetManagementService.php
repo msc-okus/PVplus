@@ -217,11 +217,13 @@ class AssetManagementService
         }
 
         //Begrenzung der Spaltenanzahl einer Tabelle
-        $tableColsLimit = 10;
+        //$tableColsLimit = 10;
 
         //Beginn Operations year
         $anlId = $anlage->getAnlId();
+        //unused
         $powerEvuYearToDate = 0;
+        //This is also unused
         $expectedPvSystYearToDate = 0;
 
         for ($i = 1; $i < 13; $i++) {
@@ -240,14 +242,11 @@ class AssetManagementService
             //move this into the repository
             $sql = "SELECT ertrag_design FROM anlagen_pv_syst_month WHERE anlage_id = $anlId and month = $i";
             $resultErtrag_design = $this->connAnlage->query($sql);
-            dump($sql, $resultErtrag_design);
             if ($resultErtrag_design) {
                 if ($resultErtrag_design->num_rows == 1) {
-                    dd("entro");
                     $Ertrag_design = $resultErtrag_design->fetch_assoc();
                 }
             }
-            dd("no entro");
             if ($i > $report['reportMonth']) {
                 $data1_grid_meter['powerEvu'] = 0;
                 $data1_grid_meter['powerAct'] = 0;//Inv out
@@ -1088,8 +1087,10 @@ class AssetManagementService
 
         //Year to date
         //Parameter fuer die Berechnung YtD
+        //UNUSED, REMOVE?
         $timestamp = $anlage->getPacDate()->getTimestamp();
         $dayPacDate = $anlage->getPacDate()->format('d');
+
         $monthPacDate = $anlage->getPacDate()->format('m');
         $yearPacDate = $anlage->getPacDate()->format('Y');
 
@@ -2656,7 +2657,7 @@ class AssetManagementService
             'table_overview_dayly' => $table_overview_dayly,
             'plantAvailabilityCurrentYear' => $outPaCY,
             'daysInReportMonth' => $daysInReportMonth,
-            'tableColsLimit' => $tableColsLimit,
+            'tableColsLimit' => 10,
             'acGroups' => $acGroupsCleaned,
             'availability_Year_To_Date' => $availability_Year_To_Date,
             'failures_Year_To_Date' => $failures_Year_To_Date,
