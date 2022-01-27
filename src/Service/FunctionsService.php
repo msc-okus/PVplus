@@ -21,6 +21,7 @@ use App\Repository\GroupMonthsRepository;
 use App\Repository\GroupsRepository;
 use App\Repository\PVSystDatenRepository;
 use \DateTime;
+use function Symfony\Component\String\u;
 
 class FunctionsService
 {
@@ -954,8 +955,10 @@ class FunctionsService
 
         return $_html;
     }
-    public function readInverters(String $invS,anlage $anlage):array
+
+    public function readInverters(String $invS, Anlage $anlage):array
     {
+        $returnArray = [];
         $maxInv = count($this->getNameArray($anlage));
         $invS = u($invS)->replace(" ", "");
         $tempArray = u($invS)->split(',');
@@ -969,26 +972,23 @@ class FunctionsService
                     $to = (int)((string)$nums[0][1]);
                     $i = $from;
                     while ($i <= $to) {
-
-                            $returnArray[] = u($i);
-
+                        $returnArray[] = (string)u($i);
                         $i++;
                     }
                     unset($nums);
-                } else $returnArray[] = $item;
+                } else $returnArray[] = (string)$item;
             }
 
         }
-        else{
-
+        else {
             $i = 1;
-            while($i<=$maxInv){
-                $returnArray[]=$i;
+            while ($i <= $maxInv){
+                $returnArray[] = (string)$i;
                 $i++;
             }
         }
-        if ($returnArray === null) $returnArray = [];
-            return $returnArray;
+
+        return $returnArray;
     }
 
 }

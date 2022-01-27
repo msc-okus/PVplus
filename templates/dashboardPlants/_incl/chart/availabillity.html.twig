@@ -89,7 +89,7 @@
                     <td>{{ case5.createdAt|date('y-m-d h:i') }}, {{ case5.createdBy }}</td>
                     {% if is_granted('ROLE_OWNER_FULL') %}
                         <td class="text-right">
-                            <button data-url="{{ path('app_dashboard_plant_case5_edit', { id: case5.id }) }}" type="button" class="hollow button tiny action-icon shadow js-edit-case5"><span class="fa fa-pencil"></span></button> &nbsp;
+                            <button data-url="{{ path('app_dashboard_plant_case5_edit', { id: case5.id }) }}" type="button" class="hollow button tiny action-icon shadow js-edit-case5"><span class="fa fa-edit"></span></button> &nbsp;
                             {% if is_granted('ROLE_DEV') %}<button data-url="{{ path('app_dashboard_plant_case5_delete', { id: case5.id }) }}" type="button" class="hollow button tiny action-icon shadow js-delete-case5"><span class="fa fa-trash red"></span></button>{% endif %}
                         </td>
                     {% endif %}

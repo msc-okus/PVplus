@@ -23,7 +23,8 @@ class DefaultJMController extends AbstractController
      * @Route("/default/test", name="default_j_m")
      */
     public function test(FunctionsService $functionsService, AnlagenRepository $repo){
-        dd($functionsService->readInverters(" 2, 14 , 25-28, 300", $repo->findIdLike(94)[0]));
+        $stringArray = $functionsService->readInverters(" 2, 14 , 25-28, 300", $repo->findIdLike(94)[0]);
+        dd($stringArray);
         return $this->redirectToRoute("/default/test");
     }
 }
