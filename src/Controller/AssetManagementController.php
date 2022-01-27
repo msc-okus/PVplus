@@ -29,8 +29,6 @@ class AssetManagementController extends BaseController
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
 
         $output = $assetManagement->assetReport($anlage, $month, $year, $pages);
-        //$baseurl = $request->getSchemeAndHttpHost();
-        //$plantId = $output['plantId'];
         $result = $this->render('report/assetreport.html.twig', [
             'anlage'            => $anlage,
             'year'              => $output['year'],
@@ -97,6 +95,7 @@ class AssetManagementController extends BaseController
             'cumulated_losses_compared_chart' => $output['cumulated_losses_compared_chart'],
         ]);
         if ($export == 1) {
+            //WE SHOULD REPLACE THIS FOR A COMMIT TO THE DB WITH THE NEW ENTITY(DEFINED IN MY NOTES)
             // specify the route to the binary.
             $pdf = new ChromePdf('/usr/bin/chromium');
 

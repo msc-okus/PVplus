@@ -33,6 +33,8 @@ class AssetManagementService
     private FunctionsService $functions;
     private NormalizerInterface $serializer;
     private DownloadAnalyseService $DownloadAnalyseService;
+    private $conn;
+    private $connAnlage;
 
     public function __construct(
         AnlagenRepository      $anlagenRepository,
@@ -60,6 +62,8 @@ class AssetManagementService
         $this->case5Repo = $case5Repo;
         $this->serializer = $serializer;
         $this->DownloadAnalyseService = $analyseService;
+        $this->conn = self::getPdoConnection();
+        $this->connAnlage = self::connectToDatabaseAnlage();
     }
 
     public function assetReport($anlage, $month = 0, $year = 0, $pages = 0): array
@@ -83,6 +87,7 @@ class AssetManagementService
         $report['from'] = $from;
         $report['to'] = $to;
         $report['reportYear'] = $reportYear;
+        //A LOT OF UNUSED, REMOVE?
         #$report['anlage'] = $anlage;
         #$report['prs'] = $this->PRRepository->findPRInMonth($anlage, $reportMonth, $reportYear);
         #$report['lastPR'] = $this->PRRepository->findOneBy(['anlage' => $anlage, 'stamp' => date_create("$year-$month-$lastDayMonth")]);
@@ -157,13 +162,10 @@ class AssetManagementService
      */
     public function buildAssetReport(Anlage $anlage, array $report, int $docType = 0, int $pages = 0, $exit = false,): array
     {
-
-        $conn = self::getPdoConnection();
-        $connAnlage = self::connectToDatabaseAnlage();
         $useGridMeterDayData = $anlage->getUseGridMeterDayData();
         $showAvailability = $anlage->getShowAvailability();
         $showAvailabilitySecond = $anlage->getShowAvailabilitySecond();
-        $usePac = $anlage->getUsePac();
+        $usePac = $anlage->getUsePac();//unused marked to remove
         $plantSize = $anlage->getPower();
         $plantName = $anlage->getAnlName();
         $anlGeoLat = $anlage->getAnlGeoLat();
@@ -174,7 +176,7 @@ class AssetManagementService
         $monthName = date("F", mktime(0, 0, 0, $report['reportMonth'], 10));
         $currentYear = date("Y");
         $currentMonth = date("m");
-        $currentDay = date("d");
+        $currentDay = date("d");//unused, marked to remove
 
         if ($report['reportMonth'] < 10) {
             $report['reportMonth'] = str_replace(0, '', $report['reportMonth']);
@@ -185,7 +187,7 @@ class AssetManagementService
         $monthArray = [
             'Jan', 'Feb', 'Mar', 'April', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dez'
         ];
-
+        //READ LINE 291
         for ($i = 0; $i < count($monthArray); $i++) {
             $monthExtendetArray[$i]['month'] = $monthArray[$i];
             $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $i + 1, $report['reportYear']);
@@ -203,6 +205,9 @@ class AssetManagementService
         $start_date = strtotime($report['from']);
         $end_date = strtotime($report['to']);
         $dateDiff = $end_date - $start_date;
+
+
+        //RENGE IS UNUSED, ARRAY AXIS IS ALSO UNUSED, REMOVE?
 
         $range = (int)round($dateDiff / (60 * 60 * 24), 0);
 
@@ -232,14 +237,17 @@ class AssetManagementService
             $data1_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
 
             //Das hier ist noetig da alle 12 Monate benötigt werden
+            //move this into the repository
             $sql = "SELECT ertrag_design FROM anlagen_pv_syst_month WHERE anlage_id = $anlId and month = $i";
-            $resultErtrag_design = $connAnlage->query($sql);
+            $resultErtrag_design = $this->connAnlage->query($sql);
+            dump($sql, $resultErtrag_design);
             if ($resultErtrag_design) {
                 if ($resultErtrag_design->num_rows == 1) {
+                    dd("entro");
                     $Ertrag_design = $resultErtrag_design->fetch_assoc();
                 }
             }
-
+            dd("no entro");
             if ($i > $report['reportMonth']) {
                 $data1_grid_meter['powerEvu'] = 0;
                 $data1_grid_meter['powerAct'] = 0;//Inv out
@@ -285,6 +293,7 @@ class AssetManagementService
         ];
 
         //fuer die Tabelle Capacity Factor
+        //I THINK THIS CAN BE REMOVED, ADDING CF TO THE DECLARATION OF MONTHEXTENDETARRAY. BOTH ARE ONLY USED FOR THIS PURPOSE
         for ($i = 0; $i < count($monthExtendetArray); $i++) {
             $dataCfArray[$i]['month'] = $monthExtendetArray[$i]['month'];
             $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $i + 1, $report['reportYear']);
@@ -964,7 +973,7 @@ class AssetManagementService
         $powerEvuQ1 = $data2_grid_meter['powerEvu'];
         if ((($currentYear == $report['reportYear'] && $currentMonth > 3) || $currentYear > $report['reportYear']) && $powerEvuQ1 > 0) {
             $sql = "SELECT sum(ertrag_design) as q1 FROM anlagen_pv_syst_month WHERE anlage_id = " . $anlId . " AND month <= 3";
-            $resultErtrag_design = $connAnlage->query($sql);
+            $resultErtrag_design = $this->connAnlage->query($sql);
             if ($resultErtrag_design) {
                 if ($resultErtrag_design->num_rows == 1) {
                     $rowQ1Ertrag_design = $resultErtrag_design->fetch_assoc();
@@ -994,7 +1003,7 @@ class AssetManagementService
         $powerEvuQ2 = $data2_grid_meter['powerEvu'];
         if ((($currentYear == $report['reportYear'] && $currentMonth > 6) || $currentYear > $report['reportYear']) && $powerEvuQ2 > 0) {
             $sql = "SELECT sum(ertrag_design) as q2 FROM anlagen_pv_syst_month WHERE anlage_id = " . $anlId . " AND month >= 4 AND month <= 6";
-            $resultErtrag_design = $connAnlage->query($sql);
+            $resultErtrag_design = $this->connAnlage->query($sql);
             if ($resultErtrag_design) {
                 if ($resultErtrag_design->num_rows == 1) {
                     $rowQ2Ertrag_design = $resultErtrag_design->fetch_assoc();
@@ -1023,7 +1032,7 @@ class AssetManagementService
         $powerEvuQ3 = $data2_grid_meter['powerEvu'];
         if ((($currentYear == $report['reportYear'] && $currentMonth > 9) || $currentYear > $report['reportYear']) && $powerEvuQ3 > 0) {
             $sql = "SELECT sum(ertrag_design) as q3 FROM anlagen_pv_syst_month WHERE anlage_id = " . $anlId . " AND month >= 7 AND month <= 9";
-            $resultErtrag_design = $connAnlage->query($sql);
+            $resultErtrag_design = $this->connAnlage->query($sql);
             if ($resultErtrag_design) {
                 if ($resultErtrag_design->num_rows == 1) {
                     $rowQ3Ertrag_design = $resultErtrag_design->fetch_assoc();
@@ -1053,7 +1062,7 @@ class AssetManagementService
         $powerEvuQ4 = $data2_grid_meter['powerEvu'];
         if ($currentYear > $report['reportYear'] && $powerEvuQ4 > 0) {
             $sql = "SELECT sum(ertrag_design) as q4 FROM anlagen_pv_syst_month WHERE anlage_id = " . $anlId . " AND month >= 10 AND month <= 12";
-            $resultErtrag_design = $connAnlage->query($sql);
+            $resultErtrag_design = $this->connAnlage->query($sql);
             if ($resultErtrag_design) {
                 if ($resultErtrag_design->num_rows == 1) {
                     $rowQ4Ertrag_design = $resultErtrag_design->fetch_assoc();
@@ -1096,7 +1105,7 @@ class AssetManagementService
                 $sqlMonthselection = ' and month >= ' . $monthPacDate;
             }
             $sql = "SELECT sum(ertrag_design) as ytd FROM anlagen_pv_syst_month WHERE anlage_id = " . $anlId . $sqlMonthselection . " and month <= " . $report['reportMonth'];
-            $resultErtrag_design = $connAnlage->query($sql);
+            $resultErtrag_design = $this->connAnlage->query($sql);
             if ($resultErtrag_design) {
                 if ($resultErtrag_design->num_rows == 1) {
                     $rowYtoDErtrag_design = $resultErtrag_design->fetch_assoc();
@@ -1107,7 +1116,7 @@ class AssetManagementService
             //Part 2 Year to Date
             $sql = "SELECT ertrag_design FROM anlagen_pv_syst_month WHERE anlage_id = " . $anlId . " AND month = " . $report['reportMonth'];
 
-            $resultErtrag_design = $connAnlage->query($sql);
+            $resultErtrag_design = $this->connAnlage->query($sql);
             if ($resultErtrag_design) {
                 if ($resultErtrag_design->num_rows == 1) {
                     $ytdErtrag_design = $resultErtrag_design->fetch_assoc();
@@ -1422,7 +1431,7 @@ class AssetManagementService
             $daysInThisMonth = cal_days_in_month(CAL_GREGORIAN, $j, $report['reportYear']);
             $sql = "SELECT DATE_FORMAT(stamp, '%Y-%m') AS form_date, unit, COUNT(db_id) as anz, sum(pa_0) as summe, sum(pa_0)/COUNT(db_id)*100 as pa FROM " . $anlage->getDbNameIst() . " where stamp BETWEEN '" . $report['reportYear'] . "-" . $j . "-1 00:00' and '" . $report['reportYear'] . "-" . $j . "-" . $daysInThisMonth . " 23:59'and pa_0 >= 0  group by unit, DATE_FORMAT(stamp, '%Y-%m')";
 
-            $result = $conn->prepare($sql);
+            $result = $this->conn->prepare($sql);
             $result->execute();
             $i = 0;
 
@@ -1740,7 +1749,7 @@ class AssetManagementService
 
         $sql = "SELECT DATE_FORMAT(stamp, '%Y-%m-%d') AS form_date, unit, COUNT(db_id) as anz, sum(pa_0) as summe, sum(pa_0)/COUNT(db_id)*100 as pa FROM ".$anlage->getDbNameIst()." where stamp BETWEEN '".$report['reportYear']."-".$report['reportMonth']."-1 00:00' and '".$report['reportYear']."-".$report['reportMonth']."-".$daysInReportMonth." 23:59' and pa_0 >= 0 group by unit, DATE_FORMAT(stamp, '%Y-%m-%d')";
 
-        $result = $conn->prepare($sql);
+        $result = $this->conn->prepare($sql);
         $result->execute();
 
         $i = 0;
@@ -1771,7 +1780,7 @@ class AssetManagementService
             WHERE a.stamp BETWEEN '".$report['reportYear']."-".$report['reportMonth']."-1 00:00' and '".$report['reportYear']."-".$report['reportMonth']."-".$daysInReportMonth." 23:59' and b.group_ac > 0 GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
         }
 
-        $result = $conn->prepare($sql);
+        $result = $this->conn->prepare($sql);
         $result->execute();
         foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
             $dcIst[] = [
@@ -1785,7 +1794,7 @@ class AssetManagementService
             FROM (db_dummysoll a left JOIN ".$anlage->getDbNameDcSoll()." b ON a.stamp = b.stamp) 
             WHERE a.stamp BETWEEN '".$report['reportYear']."-".$report['reportMonth']."-1 00:00' and '".$report['reportYear']."-".$report['reportMonth']."-".$daysInReportMonth." 23:59' and b.group_ac > 0 GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
 
-        $result = $conn->prepare($sql);
+        $result = $this->conn->prepare($sql);
         $result->execute();
         $i = 0;
         $j = 0;
@@ -1813,7 +1822,7 @@ class AssetManagementService
 
         //Beginn Economics Income per month
         $sql = "SELECT * FROM economic_var_names WHERE anlage_id = $anlId";
-        $resultEconomicsNamed = $connAnlage->query($sql);
+        $resultEconomicsNamed = $this->connAnlage->query($sql);
         if ($resultEconomicsNamed) {
             if ($resultEconomicsNamed->num_rows == 1) {
                 $conomicsNamed = $resultEconomicsNamed->fetch_assoc();
@@ -1827,7 +1836,7 @@ class AssetManagementService
         }
 
         $sql = "SELECT * FROM economic_var_values WHERE anlage_id = $anlId and year =". $report['reportYear'];
-        $resultEconomicsNamed = $connAnlage->query($sql);
+        $resultEconomicsNamed = $this->connAnlage->query($sql);
         $economicsValues = $resultEconomicsNamed->fetch_all();
         $totalsFix = [];
         for ($i = 0; $i < 12; $i++) {
@@ -2594,9 +2603,6 @@ class AssetManagementService
         unset($option);
 
         //end Chart Losses compared cummulated
-
-        $conn = null;
-
         $output = [
             'plantId' => $plantId,
             'owner' => $owner,
@@ -2671,6 +2677,5 @@ class AssetManagementService
             'cumulated_losses_compared_chart' => $cumulated_losses_compared_chart,
         ];
         return $output;
-
     }
 }
