@@ -95,7 +95,6 @@ class ACPowerChartsService
                     $eZEvu = $rowEvu["eZEvu"] / ($anlage->getAnzInverterFromGroupsAC());
                     $evuSum += $eZEvu;
 
-
                     $acIst = self::checkUnitAndConvert($acIst, $anlage->getAnlDbUnit());
                     ($acIst > 0) ? $actout = round($acIst, 2) : $actout = 0; // neagtive Werte auschließen
 

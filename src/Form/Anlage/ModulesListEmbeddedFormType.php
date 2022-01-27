@@ -5,6 +5,7 @@ namespace App\Form\Anlage;
 
 
 use App\Entity\AnlageModules;
+use App\Form\Type\SwitchType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -64,6 +65,12 @@ class ModulesListEmbeddedFormType extends AbstractType
             ->add('operatorPowerC',TextType::class, [
                 'label'         => 'C',
                 'empty_data'    => '',
+            ])
+            ->add('operatorPowerD',TextType::class, [
+                'label'         => 'D',
+            ])
+            ->add('disableIrrDiscount', SwitchType::class, [
+                'label'         => 'Disable Irradiation Discount'
             ])
             ->add('irrDiscount1',TextType::class, [
                 'label'         => 'Irr Discount 1-50',

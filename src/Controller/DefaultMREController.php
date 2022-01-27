@@ -266,11 +266,8 @@ class DefaultMREController extends BaseController
     {
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
-        $from = $anlage->getEpcReportStart();
-        $to   = $anlage->getEpcReportEnd();
 
-        $date = date_create("2022-01-01");
-        #$date = null;
+        $date = date_create("2021-12-01");
 
         $monthTable = $epcNew->monthTable($anlage, $date);
 

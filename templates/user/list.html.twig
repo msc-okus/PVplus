@@ -31,7 +31,7 @@
                 {% if is_granted('ROLE_G4N') %}
                     <td>{{ user.grantedList }}</td>
                 {% endif %}
-                <td><a href="{{ path('app_admin_user_edit', {id: user.userId}) }}"><span class="fa fa-pencil"></span></a></td>
+                <td><a href="{{ path('app_admin_user_edit', {id: user.userId}) }}" class="hollow button tiny action-icon shadow"><span class="fa fa-edit"></span></a></td>
             </tr>
         {% endfor %}
         </tbody>

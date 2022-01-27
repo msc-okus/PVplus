@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Anlage;
+use App\Entity\AnlagenPR;
 use App\Form\DownloadAnalyse\DownloadAnalyseFormExportType;
 use App\Form\DownloadData\DownloadDataFormType;
 use App\Form\DownloadAnalyse\DownloadAnalyseFormType;
@@ -106,7 +107,7 @@ class DownloadController extends AbstractController
             $downloadAnalyseModel = $form->getData();
             /** @var Anlage $anlage */
             $anlage = $downloadAnalyseModel->anlage;
-            $plantId = $analyseService->getAnlagenId($anlage);
+            $plantId = $anlage->getAnlId();
             $plantName = $anlage->getAnlName();
         }
         if($plantIdexp > 0){
@@ -141,7 +142,7 @@ class DownloadController extends AbstractController
             if($formview != 'download'){
                 $doctype = 'default';
                 $anlage = $downloadAnalyseModel->anlage;
-                $plantId = $analyseService->getAnlagenId($anlage);
+                $plantId = $anlage->getAnlId();
                 $year = $downloadAnalyseModel->years;
                 $month = $downloadAnalyseModel->months;
                 $day = $downloadAnalyseModel->days;
@@ -180,6 +181,7 @@ class DownloadController extends AbstractController
                         $month_transfer = $i;
                     }
 
+                    /** @var AnlagenPR $output */
                     $output = $analyseService->getAllSingleSystemData($anlage, $year, "$month_transfer", 1);
 
                     $dcData = $analyseService->getDcSingleSystemData($anlage, $start, $end, '%m');

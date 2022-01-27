@@ -13,9 +13,6 @@
             "src/Entity/.gitignore"
         ]
     },
-    "apix/log": {
-        "version": "1.2.1"
-    },
     "bacon/bacon-qr-code": {
         "version": "2.0.3"
     },
@@ -27,9 +24,6 @@
     },
     "box/spout": {
         "version": "v3.1.0"
-    },
-    "chrome-php/chrome": {
-        "version": "v0.10.0"
     },
     "chromeheadlessio/php-client": {
         "version": "1.0.0"
@@ -127,9 +121,6 @@
     },
     "endroid/qr-code": {
         "version": "3.9.6"
-    },
-    "evenement/evenement": {
-        "version": "v3.0.1"
     },
     "ezyang/htmlpurifier": {
         "version": "v4.13.0"
@@ -353,12 +344,6 @@
     "monolog/monolog": {
         "version": "2.1.0"
     },
-    "mpdf/mpdf": {
-        "version": "v8.0.7"
-    },
-    "myclabs/deep-copy": {
-        "version": "1.10.1"
-    },
     "myclabs/php-enum": {
         "version": "1.8.0"
     },
@@ -499,9 +484,6 @@
         "files": [
             "config/packages/sensio_framework_extra.yaml"
         ]
-    },
-    "setasign/fpdi": {
-        "version": "v2.3.3"
     },
     "stof/doctrine-extensions-bundle": {
         "version": "1.2",
@@ -806,6 +788,9 @@
             "templates/base.html.twig"
         ]
     },
+    "symfony/ux-chartjs": {
+        "version": "v2.0.1"
+    },
     "symfony/validator": {
         "version": "4.3",
         "recipe": {
@@ -929,8 +914,5 @@
     },
     "willdurand/negotiation": {
         "version": "3.0.0"
-    },
-    "wrench/wrench": {
-        "version": "v2.0.11"
     }
 }

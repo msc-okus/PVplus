@@ -23,7 +23,11 @@ class TicketRepository extends ServiceEntityRepository
 
 
     /**
-     * @param string|null $term
+     * @param string|null $searchstatus
+     * @param string|null $editor
+     * @param string|null $anlage
+     * @param string|null $Id
+     * @param string|null $Prio
      * @return QueryBuilder
      */
     public function getWithSearchQueryBuilder(?string $searchstatus, ?string $editor, ?string $anlage, ?string $Id,?string $Prio ): QueryBuilder
@@ -32,15 +36,10 @@ class TicketRepository extends ServiceEntityRepository
             ->innerJoin('ticket.anlage', 'a')
             ->addSelect('a')
         ;
-
         if ($searchstatus != '' & $searchstatus!='00') $qb->andWhere("ticket.status = $searchstatus");
-
         if ($editor != '') $qb->andWhere("ticket.editor = '$editor'");
-
         if ($anlage !='') $qb->andWhere("a.anlName LIKE '$anlage'");
-
         if($Id != '') $qb->andWhere("ticket.id = '$Id'");
-
         if($Prio != '' & $Prio != '00')$qb->andWhere("ticket.priority = '$Prio'");
 /*
         if ($term) {

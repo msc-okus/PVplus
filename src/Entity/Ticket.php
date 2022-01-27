@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\TicketRepository;
+use DateTime;
+use DateTimeInterface;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Gedmo\Blameable\Traits\BlameableEntity;
@@ -19,75 +21,128 @@ class Ticket
      * @ORM\GeneratedValue(strategy="IDENTITY")
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="tickets")
      * @ORM\JoinColumn(nullable=false)
      */
-    private $anlage;
+    private Anlage $anlage;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private ?bool $autoTicket = false; // automatisches Ticket ausgelöst durch Fehlererkennung im Import oder Fehlermeldung Algoritmuas
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $status;
+    private int $status;
+
+    /**
+     * @ORM\Column(type="string")
+     */
+    private string $errorType; // SFOR, EFOR, OMC
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $editor;
+    private string $editor;
 
     /**
      * @ORM\Column(type="date")
      */
-    private $begin;
+    private ?DateTimeInterface $begin;
 
     /**
      * @ORM\Column(type="date", nullable=true)
      */
-    private $end;
-
-
+    private ?DateTimeInterface $end;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $PR = false;
+    private bool $PR0 = false;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $PA = false;
+    private bool $PR1 = false;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $yield = false;
+    private bool $PR2 = false;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private bool $PA0C5 = false;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private bool $PA1C5 = false;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private bool $PA2C5 = false;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private bool $PA0C6 = false;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private bool $PA1C6 = false;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private bool $PA2C6 = false;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private bool $yield0 = false;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private bool $yield1 = false;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private bool $yield2 = false;
 
     /**
      * @ORM\Column(type="text", nullable=true)
      */
-    private $freeText;
+    private string $freeText;
 
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $description;
+    private string $description;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $systemStatus;
+    private int $systemStatus;
 
     /**
      * @ORM\Column(type="integer")
      */
-    private $priority;
+    private int $priority;
 
     /**
      * @ORM\Column(type="text", nullable=true)
      */
-    private $answer;
+    private ?string $answer;
 
     public function getId(): ?int
     {
@@ -106,6 +161,21 @@ class Ticket
         return $this;
     }
 
+    public function getAutoTicket(): ?bool
+    {
+        return $this->autoTicket;
+    }
+
+    public function isAutoTicket(): ?bool
+    {
+        return $this->autoTicket;
+    }
+
+    public function setAutoTicket(?bool $autoTicket): void
+    {
+        $this->autoTicket = $autoTicket;
+    }
+
     public function getStatus(): ?int
     {
         return $this->status;
@@ -116,6 +186,16 @@ class Ticket
         $this->status = $Status;
 
         return $this;
+    }
+
+    public function getErrorType(): string
+    {
+        return $this->errorType;
+    }
+
+    public function setErrorType(string $errorType): void
+    {
+        $this->errorType = $errorType;
     }
 
     public function getEditor(): ?string
@@ -130,62 +210,172 @@ class Ticket
         return $this;
     }
 
-    public function getBegin(): ?\DateTimeInterface
+    public function getBegin(): ?DateTimeInterface
     {
         return $this->begin;
     }
 
-    public function setBegin(?\DateTimeInterface $Begin): self
+    public function setBegin(?DateTimeInterface $Begin): self
     {
         $this->begin = $Begin;
 
         return $this;
     }
 
-    public function getEnd(): ?\DateTimeInterface
+    public function getEnd(): ?DateTimeInterface
     {
         return $this->end;
     }
 
-    public function setEnd(?\DateTimeInterface $End): self
+    public function setEnd(?DateTimeInterface $End): self
     {
         $this->end = $End;
 
         return $this;
     }
 
-    public function getPR(): ?bool
+    public function getPR0(): ?bool
     {
-        return $this->PR;
+        return $this->PR0;
     }
 
-    public function setPR(bool $PR): self
+    public function setPR0(bool $PR0): self
     {
-        $this->PR = $PR;
+        $this->PR0 = $PR0;
 
         return $this;
     }
 
-    public function getPA(): ?bool
+    public function getPR1(): ?bool
     {
-        return $this->PA;
+        return $this->PR1;
     }
 
-    public function setPA(bool $PA): self
+    public function setPR1(bool $PR1): self
     {
-        $this->PA = $PA;
+        $this->PR1 = $PR1;
 
         return $this;
     }
 
-    public function getYield(): ?bool
+    public function getPR2(): ?bool
     {
-        return $this->yield;
+        return $this->PR2;
     }
 
-    public function setYield(bool $Yield): self
+    public function setPR2(bool $PR2): self
     {
-        $this->yield = $Yield;
+        $this->PR2 = $PR2;
+
+        return $this;
+    }
+
+    // Case 5 für PA
+    public function getPA0C5(): ?bool
+    {
+        return $this->PA0C5;
+    }
+
+    public function setPA0C5(bool $PA0C5): self
+    {
+        $this->PA0C5 = $PA0C5;
+
+        return $this;
+    }
+
+    public function getPA1C5(): ?bool
+    {
+        return $this->PA1C5;
+    }
+
+    public function setPA1C5(bool $PA1C5): self
+    {
+        $this->PA1C5 = $PA1C5;
+
+        return $this;
+    }
+
+    public function getPA2C5(): ?bool
+    {
+        return $this->PA2C5;
+    }
+
+    public function setPA2C5(bool $PA2C5): self
+    {
+        $this->PA2C5 = $PA2C5;
+
+        return $this;
+    }
+
+    // Case 6 für PA
+    public function getPA0C6(): ?bool
+    {
+        return $this->PA0C6;
+    }
+
+    public function setPA0C6(bool $PA0C6): self
+    {
+        $this->PA0C6 = $PA0C6;
+
+        return $this;
+    }
+
+    public function getPA1C6(): ?bool
+    {
+        return $this->PA1C6;
+    }
+
+    public function setPA1C6(bool $PA1C6): self
+    {
+        $this->PA1C6 = $PA1C6;
+
+        return $this;
+    }
+
+    public function getPA2C6(): ?bool
+    {
+        return $this->PA2C6;
+    }
+
+    public function setPA2C6(bool $PA2C6): self
+    {
+        $this->PA2C6 = $PA2C6;
+
+        return $this;
+    }
+
+    public function getYield0(): ?bool
+    {
+        return $this->yield0;
+    }
+
+    public function setYield0(bool $Yield0): self
+    {
+        $this->yield0 = $Yield0;
+
+        return $this;
+    }
+
+    public function getYield1(): ?bool
+    {
+        return $this->yield1;
+    }
+
+    public function setYield1(bool $Yield1): self
+    {
+        $this->yield1 = $Yield1;
+
+        return $this;
+    }
+
+    public function getYield2(): ?bool
+    {
+        return $this->yield2;
+    }
+
+    public function setYield2(bool $Yield2): self
+    {
+        $this->yield2 = $Yield2;
 
         return $this;
     }

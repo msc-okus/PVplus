@@ -77,7 +77,7 @@ if($params['tableType'] == 'daybase'){
     <?php
 }
 
-
+/*
 $chart = new ECharts();
 $chart->tooltip->show = true;
 $chart->visualMap->min = 0;
@@ -287,6 +287,7 @@ if ($params['doctype'] == 'pdf') {
     //$("#xxx").attr("src",img.src);
 
 </script>
-
+*/
+?>
 </body>
 </html>

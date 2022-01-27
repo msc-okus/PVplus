@@ -14,11 +14,14 @@ use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
 use App\Repository\UserRepository;
 use App\Service\AssetManagementService;
+use App\Service\PdfService;
 use App\Service\ReportEpcService;
+use App\Service\ReportsEpcNewService;
 use App\Service\ReportService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
-use koolreport\KoolReport;
+use DateTime;
+use Nuzkito\ChromePdf\ChromePdf;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -38,28 +41,30 @@ class ReportingController extends AbstractController
 
     /**
      * @Route("/reporting/create", name="app_reporting_create")
+     * @deprecated
      */
-    public function create(Request $request, AnlagenRepository $anlagenRepo, ReportService $report, ReportEpcService $epcReport): RedirectResponse
+    public function create(Request $request, AnlagenRepository $anlagenRepo, ReportService $report, ReportEpcService $epcReport, ReportsEpcNewService $epcNew, PdfService $pdf): RedirectResponse
     {
         $session=$this->container->get('session');
 
-        $searchstatus=$session->get('search');
-        $searchtype=$session->get('type');
-        $anlageq=$session->get('anlage');
-        $searchmonth=$session->get('month');
-        $route = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
-        $route = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
-        $reportType = $request->query->get('report-typ');
-        $reportMonth = $request->query->get('month');
-        $reportYear = $request->query->get('year');
-        $anlageId = $request->query->get('anlage-id');
-        $aktAnlagen = $anlagenRepo->findIdLike([$anlageId]);
+        $searchstatus   = $session->get('search');
+        $searchtype     = $session->get('type');
+        $anlageq        = $session->get('anlage');
+        $searchmonth    = $session->get('month');
+        $route          = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
+        $route          = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
+        $reportType     = $request->query->get('report-typ');
+        $reportMonth    = $request->query->get('month');
+        $reportYear     = $request->query->get('year');
+        $reportDate     = new \DateTime("$reportYear-$reportMonth-01");
+        $anlageId       = $request->query->get('anlage-id');
+        $aktAnlagen     = $anlagenRepo->findIdLike([$anlageId]);
         switch ($reportType){
             case 'monthly':
                 $output = $report->monthlyReport($aktAnlagen, $reportMonth, $reportYear, 0, 0, true, false, false);
                 break;
             case 'epc':
-                $output = $epcReport->createEpcReport($aktAnlagen[0]);
+                $output = $epcReport->createEpcReport($aktAnlagen[0], $reportDate);
                 break;
             case 'am':
                 return $this->redirectToRoute('report_asset_management', ['id' => $anlageId, 'month' => $reportMonth, 'year' => $reportYear, 'export' => 1, 'pages' => 0]);
@@ -97,6 +102,7 @@ class ReportingController extends AbstractController
             $reportType     = $request->query->get('report-typ');
             $reportMonth    = $request->query->get('month');
             $reportYear     = $request->query->get('year');
+            $reportDate     = new DateTime("$reportYear-$reportMonth-01");
             $anlageId       = $request->query->get('anlage-id');
             $aktAnlagen     = $anlagenRepo->findIdLike([$anlageId]);
             switch ($reportType){
@@ -104,7 +110,7 @@ class ReportingController extends AbstractController
                     $output = $report->monthlyReport($aktAnlagen, $reportMonth, $reportYear, 0, 0, true, false, false);
                     break;
                 case 'epc':
-                    $output = $epcReport->createEpcReport($aktAnlagen[0]);
+                    $output = $epcReport->createEpcReport($aktAnlagen[0], $reportDate);
                     break;
                 case 'am':
                     return $this->redirectToRoute('report_asset_management', ['id' => $anlageId, 'month' => $reportMonth, 'year' => $reportYear, 'export' => 1, 'pages' => 0]);
@@ -208,7 +214,7 @@ class ReportingController extends AbstractController
     /**
      * @Route("/reporting/pdf/{id}", name="app_reporting_pdf")
      */
-    public function showReportAsPdf($id, ReportEpcService $reportEpcService, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer)
+    public function showReportAsPdf($id, ReportEpcService $reportEpcService, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, PdfService $pdf, ReportsEpcNewService $epcNewService)
     {
         /** @var AnlagenReports|null $report */
         $session=$this->container->get('session');
@@ -222,6 +228,7 @@ class ReportingController extends AbstractController
 
         $report = $reportsRepository->find($id);
         $month = $report->getMonth();
+        $year = $report->getYear();
         $reportCreationDate = $report->getCreatedAt()->format('Y-m-d h:i:s');
         $anlage = $report->getAnlage();
         $currentDate = date('Y-m-d H-i');
@@ -253,40 +260,48 @@ class ReportingController extends AbstractController
                             'forecast_real' => $reportArray['prForecast'],
                             'formel'        => $reportArray['formel'],
                         ]);
+                        $secretToken = '2bf7e9e8c86aa136b2e0e7a34d5c9bc2f4a5f83291a5c79f5a8c63a3c1227da9';
+                        $settings = [
+                            // 'useLocalTempFolder' => true,
+                            'pageWaiting' => 'networkidle2', //load, domcontentloaded, networkidle0, networkidle2
+                        ];
+                        $report->run();
+                        $pdfOptions = [
+                            'format'                => 'A4',
+                            'landscape'             => true,
+                            'noRepeatTableFooter'   => false,
+                            'printBackground'       => true,
+                            'displayHeaderFooter'   => true,
+                        ];
+                        $report->cloudExport()
+                            ->chromeHeadlessio($secretToken)
+                            ->settings($settings)
+                            ->pdf($pdfOptions)
+                            ->toBrowser($pdfFilename);
+                        exit; // Ohne exit führt es unter manchen Systemen (Browser) zu fehlerhaften Downloads
                         break;
                     case 'yieldGuarantee':
-                        $report = new EPCMonthlyYieldGuaranteeReport([
-                            'headlines'     => $headline,
-                            'main'          => $reportArray[0],
-                            'forecast24'    => $reportArray[1],
-                            'header'        => $reportArray[2],
-                            'forecast_real' => $reportArray[3],
-                            'legend'        => $serializer->normalize($anlage->getLegendEpcReports()->toArray(), null, ['groups' => 'legend']),
-
+                        $result = $this->renderView('report/epcReport.html.twig', [
+                            'anlage'            => $anlage,
+                            'monthsTable'       => $reportArray['monthTable'],
+                            'forcast'           => $reportArray['forcastTable'],
+                            'legend'            => $anlage->getLegendEpcReports(),
+                            'chart1'            => $epcNewService->chartYieldPercenDiff($anlage, $reportArray['monthTable']),//$reportArray['chartYieldPercenDiff'],
+                            'chart2'            => $epcNewService->chartYieldCumulative($anlage, $reportArray['monthTable']),
                         ]);
-                        break;
-                    default:
+
+
+                        $response = new BinaryFileResponse($pdf->createPdfTemp($anlage, $result, 'string'));
+                        $response->headers->set ( 'Content-Type', 'application/pdf' );
+                        $response->deleteFileAfterSend(true);
+                        $response->setContentDisposition(
+                            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+                            $anlage->getAnlName().'_EPC-Report_'.$month.'_'.$year.'.pdf'
+                        );
+
+                        return $response;
                 }
-                $secretToken = '2bf7e9e8c86aa136b2e0e7a34d5c9bc2f4a5f83291a5c79f5a8c63a3c1227da9';
-                $settings = [
-                    // 'useLocalTempFolder' => true,
-                    'pageWaiting' => 'networkidle2', //load, domcontentloaded, networkidle0, networkidle2
-                ];
-                $report->run();
-                $pdfOptions = [
-                    'format'                => 'A4',
-                    'landscape'             => true,
-                    'noRepeatTableFooter'   => false,
-                    'printBackground'       => true,
-                    'displayHeaderFooter'   => true,
-                ];
-                $report->cloudExport()
-                    ->chromeHeadlessio($secretToken)
-                    ->settings($settings)
-                    ->pdf($pdfOptions)
-                    ->toBrowser($pdfFilename);
-                exit; // Ohne exit führt es unter manchen Systemen (Browser) zu fehlerhaften Downloads
-                break;
+
             case 'monthly-report':
                 //standard G4N Report (an O&M Goldbeck angelehnt)
                 $reportService->buildMonthlyReport($anlage, $report->getContentArray(), $reportCreationDate, 0 ,0, true);
@@ -514,18 +529,18 @@ class ReportingController extends AbstractController
 
     /**
      * @IsGranted("ROLE_DEV")
-     * @Route ("app_reporting/pdf/delete", name="app_reporting_delete")
+     * @Route ("app_reporting/pdf/delete/{id}", name="app_reporting_delete")
      */
     public function deleteReport($id, ReportsRepository $reportsRepository, Security $security, EntityManagerInterface $em): RedirectResponse
     {
-        $session=$this->container->get('session');
+        $session        = $this->container->get('session');
 
-        $searchstatus=$session->get('search');
-        $searchtype=$session->get('type');
-        $anlageq=$session->get('anlage');
-        $searchmonth=$session->get('month');
-        $route = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
-        $route = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
+        $searchstatus   = $session->get('search');
+        $searchtype     = $session->get('type');
+        $anlageq        = $session->get('anlage');
+        $searchmonth    = $session->get('month');
+        $route          = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
+        $route          = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
 
         if ($this->isGranted('ROLE_DEV'))
         {
@@ -540,7 +555,8 @@ class ReportingController extends AbstractController
         return $this->redirect($route);
     }
 
-    function substr_Index( $str, $needle, $nth ){
+    private function substr_Index( $str, $needle, $nth ): bool|int
+    {
         $str2 = '';
         $posTotal = 0;
         for($i=0; $i < $nth; $i++){

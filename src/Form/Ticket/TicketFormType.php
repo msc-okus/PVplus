@@ -39,16 +39,6 @@ class TicketFormType extends AbstractType
                         'data-autocomplete-url' => '/admin/anlagen/find'
                     ]
                 ])
-                ->add('status', ChoiceType::class, [
-                    'label' => 'Select the status',
-                    'choices' => [
-                        'Open' => 10,
-                        'Work in Progress' => 20,
-                        'Closed' => 30
-                    ],
-                    'required' => true,
-                    'placeholder' => 'please Choose ...'
-                ])
                 ->add('begin', DateTimeType::class, [
                     'label' => 'Begin',
                     'label_html' => true,
@@ -57,8 +47,7 @@ class TicketFormType extends AbstractType
                     'widget' => 'single_text',
                     'data' => new \DateTime("now")
                 ]);
-        }
-        else {
+        } else {
             $builder
                 ->add('anlage', AnlageTextType::class, [
                     'label' => 'Plant name ',
@@ -67,16 +56,6 @@ class TicketFormType extends AbstractType
                         'class' => 'js-autocomplete-anlagen input-group-field',
                         'data-autocomplete-url' => '/admin/anlagen/find'
                     ]
-                ])
-                ->add('status', ChoiceType::class, [
-                    'label' => 'Select the status',
-                    'choices' => [
-                        'Open' => 10,
-                        'Work in Progress' => 20,
-                        'Closed' => 30
-                    ],
-                    'required' => true,
-                    'placeholder' => 'please Choose ...'
                 ])
                 ->add('begin', DateTimeType::class, [
                     'label' => 'Begin',
@@ -88,6 +67,16 @@ class TicketFormType extends AbstractType
         }
         $builder
 
+            ->add('status', ChoiceType::class, [
+                'label' => 'Select the status',
+                'choices' => [
+                    'Open' => 10,
+                    'Work in Progress' => 20,
+                    'Closed' => 30
+                ],
+                'required' => true,
+                'placeholder' => 'please Choose ...'
+            ])
             ->add('end', DateTimeType::class, [
                 'label' => 'End',
                 'label_html' => true,
@@ -126,16 +115,16 @@ class TicketFormType extends AbstractType
             ->add('answer', CKEditorType::class, [
                 'config' => array('toolbar' => 'my_toolbar'),
             ])
-            ->add('PR', SwitchType::class, [
+            ->add('PR0', SwitchType::class, [
                 'label'     => 'PR',
                 'required'  => false
             ])
-            ->add('PA', SwitchType::class,[
+            ->add('PA0C5', SwitchType::class,[
                 'label'     => 'PA',
                 'required'  => false
             ])
 
-            ->add('Yield', SwitchType::class,[
+            ->add('Yield0', SwitchType::class,[
                 'label'     => 'Yield',
                 'required'  => false
             ])

@@ -17,72 +17,77 @@ class AnlageModules
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private $type;
+    private string $type;
 
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private $power;
+    private string $power;
 
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private $tempCoefCurrent;
+    private string $tempCoefCurrent;
 
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private $tempCoefPower;
+    private string $tempCoefPower;
 
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private $operatorPowerA;
+    private string $operatorPowerA;
 
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private $operatorPowerB;
+    private string $operatorPowerB;
 
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private $operatorPowerC;
+    private string $operatorPowerC;
+
+    /**
+     * @ORM\Column(type="string", length=20, nullable=true)
+     */
+    private ?string $operatorPowerD;
 
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private $operatorCurrentA;
+    private string $operatorCurrentA;
 
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private $operatorCurrentB;
+    private string $operatorCurrentB;
 
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private $operatorCurrentC;
+    private string $operatorCurrentC;
 
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private $operatorCurrentD;
+    private string $operatorCurrentD;
 
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private $operatorCurrentE;
+    private string $operatorCurrentE;
 
     /**
      * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="modules")
      */
-    private $anlage;
+    private Anlage $anlage;
 
     /**
      * @ORM\OneToMany(targetEntity=AnlageGroupModules::class, mappedBy="moduleType")
@@ -92,7 +97,12 @@ class AnlageModules
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private $degradation;
+    private string $degradation;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private bool $disableIrrDiscount = false;
 
     /**
      * @ORM\Column(type="string", length=20)
@@ -221,6 +231,18 @@ class AnlageModules
         return $this->operatorPowerC;
     }
 
+    public function setOperatorPowerD(string $operatorPowerD): self
+    {
+        $this->operatorPowerD =  str_replace(',', '.', $operatorPowerD);
+
+        return $this;
+    }
+
+    public function getOperatorPowerD(): ?string
+    {
+        return $this->operatorPowerD;
+    }
+
     public function setOperatorPowerC(string $operatorPowerC): self
     {
         $this->operatorPowerC =  str_replace(',', '.', $operatorPowerC);
@@ -288,7 +310,7 @@ class AnlageModules
         return $this;
     }
 
-    public function getFactorCurrent($irr)
+    public function getFactorCurrent($irr): float
     {
         @list($a1, $b1, $c1) = explode(":", $this->getOperatorCurrentA());
         ($b1 and $c1) ? $a = $a1 * $b1 ** $c1 : $a = $a1;
@@ -308,22 +330,24 @@ class AnlageModules
         return ($irr > 0) ? ($a * $irr ** 4) + ($b * $irr ** 3) + ($c * $irr ** 2) + ($d * $irr) + $e : 0;
     }
 
-    public function getFactorPower($irr)
+    public function getFactorPower($irr): float
     {
         @list($a1, $b1, $c1) = explode(":", $this->getOperatorPowerA());
         ($b1 and $c1) ? $a = $a1 * $b1 ** $c1 : $a = $a1;
-
         @list($a2, $b2, $c2) = explode(":", $this->getOperatorPowerB());
         ($b2 and $c2) ? $b = $a2 * $b2 ** $c2 : $b = $a2;
-
         @list($a3, $b3, $c3) = explode(":", $this->getOperatorPowerC());
         ($b3 and $c3) ? $c = $a3 * $b3 ** $c3 : $c = $a3;
 
-        if ($irr < (4 * $c)) $c = $c * 2 / 3;
-        if ($irr < (3 * $c)) $c = $c * 3;
-        if ($irr < (2 * $c)) $c = 0;
+        if ($this->getOperatorPowerD() === null) { // Operator D ist nicht eingeben => wir nutzen den alten Algorithmus
+            $power = ($irr > 0) ? ($a * $irr ** 2) + ($b * $irr) + $c : 0;
+        } else {
+            @list($a4, $b4, $c4) = explode(":", $this->getOperatorPowerD());
+            ($b4 and $c4) ? $d = $a4 * $b4 ** $c4 : $d = $a4;
+            $power = ($irr > 0) ? ($a * $irr ** 3) + ($b * $irr ** 2) + ($c * $irr) + $d : 0;
+        }
 
-        return ($irr > 0) ? ($a * $irr ** 2) + ($b * $irr) + $c : 0; //
+        return $power;
     }
 
     public function getTempCorrPower(float $pannelTemp): float
@@ -349,7 +373,7 @@ class AnlageModules
     }
 
     /**
-     * @return Collection|AnlageGroupModules[]
+     * @return Collection
      */
     public function getAnlageGroupModules(): Collection
     {
@@ -386,6 +410,18 @@ class AnlageModules
     public function setDegradation(string $degradation): self
     {
         $this->degradation =  str_replace(',', '.', $degradation);
+
+        return $this;
+    }
+
+    public function getDisableIrrDiscount(): bool
+    {
+        return $this->disableIrrDiscount;
+    }
+
+    public function setDisableIrrDiscount(bool $disableIrrDiscount): self
+    {
+        $this->disableIrrDiscount = $disableIrrDiscount;
 
         return $this;
     }
@@ -438,9 +474,9 @@ class AnlageModules
         return $this;
     }
 
-    public function getIrrDiscount5(): string
+    public function getIrrDiscount5(): float
     {
-        return $this->irrDiscount5;
+        return (float)$this->irrDiscount5;
     }
 
     public function setIrrDiscount5(string $irrDiscount5): void
@@ -448,9 +484,9 @@ class AnlageModules
         $this->irrDiscount5 = $irrDiscount5;
     }
 
-    public function getIrrDiscount6(): string
+    public function getIrrDiscount6(): float
     {
-        return $this->irrDiscount6;
+        return (float)$this->irrDiscount6;
     }
 
     public function setIrrDiscount6(string $irrDiscount6): void
@@ -458,9 +494,9 @@ class AnlageModules
         $this->irrDiscount6 = $irrDiscount6;
     }
 
-    public function getIrrDiscount7(): string
+    public function getIrrDiscount7(): float
     {
-        return $this->irrDiscount7;
+        return (float)$this->irrDiscount7;
     }
 
     public function setIrrDiscount7(string $irrDiscount7): void
@@ -468,9 +504,9 @@ class AnlageModules
         $this->irrDiscount7 = $irrDiscount7;
     }
 
-    public function getIrrDiscount8(): string
+    public function getIrrDiscount8(): float
     {
-        return $this->irrDiscount8;
+        return (float)$this->irrDiscount8;
     }
 
     public function setIrrDiscount8(string $irrDiscount8): void

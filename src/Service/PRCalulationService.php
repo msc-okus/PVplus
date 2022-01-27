@@ -560,7 +560,7 @@ class PRCalulationService
         if ($anzTage === 0) $anzTage = 1; //verhindert diffision by zero
         $availability = $this->availabilityService->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate));
 
-        //Strahlung berechnen – (upper = Ost / lower = West)
+        //Strahlungen berechnen – (upper = Ost / lower = West)
         if ($anlage->getIsOstWestAnlage()) {
             $irr = ($weather['upperIrr'] * $anlage->getPowerEast() + $weather['lowerIrr'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
         } else {

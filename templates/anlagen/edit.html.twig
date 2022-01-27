@@ -1,14 +1,5 @@
 {% extends 'base.html.twig' %}
 
-{% block body %}
-    <div class="grid-x">
-        <div class="cell">
-            <h1>Edit Plant {{ anlage.anlName }} / {{ anlage.eigner.firma }}</h1>
-        </div>
-    </div>
-    {{ include('anlagen/_form.html.twig') }}
-{% endblock %}
-
 {% block title %}
     {{  parent() }}edit Plant
 {% endblock %}
@@ -16,4 +7,13 @@
 {% block javascripts %}
     {{ parent() }}
     {{ encore_entry_script_tags('plant_edit') }}
+{% endblock %}
+
+{% block body %}
+    <div class="grid-x">
+        <div class="cell">
+            <h1>Edit Plant {{ anlage.anlName }} / {{ anlage.eigner.firma }}</h1>
+        </div>
+    </div>
+    {{ include('anlagen/_form.html.twig') }}
 {% endblock %}

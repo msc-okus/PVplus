@@ -5,6 +5,7 @@
 */help.*
 help.*
 php.ini
+tempfiles/*
 
 
 ###> symfony/framework-bundle ###

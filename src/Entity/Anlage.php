@@ -774,6 +774,10 @@ class Anlage
      */
     private $anlageFiles;
 
+    /**
+     * @ORM\OneToOne(targetEntity=AnlageSettings::class, mappedBy="anlage", cascade={"persist", "remove"})
+     */
+    private AnlageSettings $settings;
 
 
     public function __construct()
@@ -3145,6 +3149,28 @@ class Anlage
                 $economicVarValue->setAnlage(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getSettings(): ?AnlageSettings
+    {
+        return $this->settings;
+    }
+
+    public function setSettings(?AnlageSettings $settings): self
+    {
+        // unset the owning side of the relation if necessary
+        if ($settings === null && $this->settings !== null) {
+            $this->settings->setAnlage(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($settings !== null && $settings->getAnlage() !== $this) {
+            $settings->setAnlage($this);
+        }
+
+        $this->settings = $settings;
 
         return $this;
     }
