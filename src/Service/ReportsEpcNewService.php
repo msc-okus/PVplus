@@ -139,7 +139,7 @@ class ReportsEpcNewService
             $daysInMonth = (int)date('t', strtotime("$year-$month-01"));
             $from_local = date_create(date('Y-m-d 00:00', strtotime("$year-$month-01")));
             $to_local = date_create(date('Y-m-d 23:59', strtotime("$year-$month-$daysInMonth")));
-            $hasMonthData = $from_local <= $date; // Wenn das Datum in $to_local kleiner ist als das Datum in $date, es also für alle Tage des Monats Daten vorliegen, dann ist $hasMonthData === true
+            $hasMonthData = $from_local <= $date; // Wenn das Datum in $from_local kleiner ist als das Datum in $date, es also für alle Tage des Monats Daten vorliegen, dann ist $hasMonthData === true
             $isCurrentMonth = $to_local->format('Y') == $currentYear && $to_local->format('m') == $currentMonth;
             if ($currentMonth == 1) $isCurrentMonth = $to_local->format('Y') == $currentYear - 1 && $to_local->format('m') == '12';
 
@@ -346,7 +346,7 @@ class ReportsEpcNewService
             $daysInMonth = (int)date('t', strtotime("$year-$month-01"));
             $from_local = date_create(date('Y-m-d 00:00', strtotime("$year-$month-01")));
             $to_local = date_create(date('Y-m-d 23:59', strtotime("$year-$month-$daysInMonth")));
-            $hasMonthData = $from_local <= $date; // Wenn das Datum in $to_local kleiner ist als das Datum in $date, es also für alle Tage des Monats Daten vorliegen, dann ist $hasMonthData === true
+            $hasMonthData = $from_local <= $date; // Wenn das Datum in $from_local kleiner ist als das Datum in $date, es also für alle Tage des Monats Daten vorliegen, dann ist $hasMonthData === true
 
             $tableArray[$n]['P_part']                                 = $tableArray[$n]['L_irr'] / $tableArray[$zeileSumme1]['L_irr'] * 100; // Spalte P //
             $tableArray[$n]['U_prReal_withRisk']                      = ($hasMonthData) ? $tableArray[$n]['Q_prReal_prProg'] : $tableArray[$n]['Q_prReal_prProg'] + $riskForcastPROffset; // Spalte U // muss in Runde 2 Berechnet werden

@@ -4,7 +4,7 @@
     {% set sumRow1 = monthsTable|length - 2 %}
     {% set sumRow2 = monthsTable|length-1 %}
     {% set sumRow2 = monthsTable|length %}
-    {% set guaranteedExpected = (1 - (anlage.transformerTee + anlage.guaranteeTee) / 100 ) * anlage.contractualPower %}
+    {% set guaranteedExpected = (1 - (anlage.transformerTee + anlage.guaranteeTee) / 100 ) * forcast.guaranteed_energy_forecast %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Basic Values</h3>
     <table class="basetable">
         <thead>
@@ -27,8 +27,8 @@
                 <td>{{ anlage.facDate|date('d.m.Y') }}</td>
                 <!--<td>{{ anlage.designPR|number_format(2, ',', '.') }}</td>
                 <td>{{ anlage.contractualPR|number_format(2, ',', '.') }}</td>-->
-                <td>{{ anlage.contractualPower|number_format(2, ',', '.') }}</td>
-                <td>{{ guaranteedExpected|number_format(2, ',', '.') }}</td>
+                <td>{{ forcast.expected_energy_forecast|number_format(2, ',', '.') }}</td>
+                <td>{{ forcast.guaranteed_energy_forecast|number_format(2, ',', '.') }}</td>
                 <td>{{ anlage.transformerTee|number_format(2, ',', '.') }}</td>
                 <td>{{ anlage.guaranteeTee|number_format(2, ',', '.') }}</td>
                 <td>{% if anlage.kwPeakPLDCalculation > 0 %}{{ anlage.kwPeakPLDCalculation|number_format(2, ',', '.') }}{% else %}{{ anlage.power|number_format(2, ',', '.') }}{% endif%}</td>
@@ -75,7 +75,7 @@
                         <td>Availability according to Annex 5.2 including downtime correction</td>
                     </tr>
                     <tr class="strong">
-                        <td>PLD [€]</td>
+                        <td>PLD [&euro;]</td>
                         <td class="text-right">{{ forcast.pld_forecast|number_format(2, ',', '.') }}</td>
                         <td>{% if forcast.pld_forecast > 0 %}PLD payment{% else %}No PLD payment{% endif %}</td>
                     </tr>
@@ -131,7 +131,7 @@
                         <td>Availability according to Annex 5.2 including downtime correction</td>
                     </tr>
                     <tr class="strong">
-                        <td>PLD [€]</td>
+                        <td>PLD [&euro;]</td>
                         <td class="text-right">{{ forcast.pld_real|number_format(2, ',', '.') }}</td>
                         <td>{% if forcast.pld_real > 0 %}PLD payment{% else %}No PLD payment{% endif %}</td>
                     </tr>
