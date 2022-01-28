@@ -2,9 +2,11 @@
 
 namespace App\Controller;
 
+use App\Entity\AnlagenReports;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\AssetManagementService;
+use Doctrine\ORM\EntityManagerInterface;
 use Nuzkito\ChromePdf\ChromePdf;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -24,11 +26,39 @@ class AssetManagementController extends BaseController
     /**
      * @Route("/asset/report/{id}/{month}/{year}/{export}/{pages}", name="report_asset_management", defaults={"export" = 0, "pages" = 0})
      */
-    public function assetReport($id, $month, $year, $export, $pages, AssetManagementService $assetManagement, AnlagenRepository $anlagenRepository, Request $request)
+    public function assetReport($id, $month, $year, $export, $pages, AssetManagementService $assetManagement, AnlagenRepository $anlagenRepository, Request $request, EntityManagerInterface $em)
     {
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
 
         $output = $assetManagement->assetReport($anlage, $month, $year, $pages);
+
+        //submitting the report
+        $report = new AnlagenReports();
+
+        $report->setAnlage($anlage);
+
+        $report->setEigner($anlage->getEigner());
+
+        $report->setMonth($month);
+
+        $report->setYear($year);
+
+        $dates = date('d.m.y', strtotime("01.".$month.".".$year));
+        $report->setStartDate(date_create_from_format('d.m.y', $dates));
+
+        $dates = date('d.m.y', strtotime("30.".$month.".".$year));
+        $report->setEndDate(date_create_from_format('d.m.y', $dates));
+
+        $report->setReportType("am-report");
+
+        $report->setContentArray($output);
+
+        $report->setRawReport("");
+
+        $em->persist($report);
+
+        $em->flush();
+
         $result = $this->render('report/assetreport.html.twig', [
             'anlage'            => $anlage,
             'year'              => $output['year'],
