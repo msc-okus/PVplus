@@ -142,9 +142,10 @@ class OwnerFormType extends AbstractType
                             'image/jpeg',
                             'image/png',
                             'image/gif',
-                            'image/jpg'
+                            'image/jpg',
+                            'image/svg'
                         ],
-                        'mimeTypesMessage' => 'Please upload a valid image type(jpeg, png, gif)',
+                        'mimeTypesMessage' => 'Please upload a valid image type(jpeg, png, gif, jpg, svg)',
                     ])
                 ]
             ])

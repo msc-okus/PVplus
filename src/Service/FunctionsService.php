@@ -20,7 +20,8 @@ use App\Repository\GroupModulesRepository;
 use App\Repository\GroupMonthsRepository;
 use App\Repository\GroupsRepository;
 use App\Repository\PVSystDatenRepository;
-USE \DateTime;
+use \DateTime;
+use function Symfony\Component\String\u;
 
 class FunctionsService
 {
@@ -64,6 +65,7 @@ class FunctionsService
      * @param $pacDateStart
      * @param $pacDateEnd
      * @return array
+     * @deprecated
      */
     public function getSumPowerAcAct(Anlage $anlage, $from, $to, $pacDateStart, $pacDateEnd) :array
     {
@@ -759,15 +761,9 @@ class FunctionsService
         $conn = self::getPdoConnection();
 
         $old = $evu;
-        if($old > 4860000){
-
-        }
         if ($anlage->getUseGridMeterDayData() === false) {
             //$monthlyDatas = $this->monthlyDataRepo->findBy(['anlage' => $anlage], ['year' => 'asc', 'month' => 'asc']);
             $monthlyDatas = $this->monthlyDataRepo->findByDateRange($anlage, date_create($from), date_create($to));
-            if($old > 4860000){
-                dump($monthlyDatas);
-            }
             foreach ($monthlyDatas as $monthlyData) {
                 $tempFrom = new DateTime($monthlyData->getYear()."-".$monthlyData->getMonth()."-01 00:00");
                 $tempDaysInMonth = $tempFrom->format('t');
@@ -787,9 +783,7 @@ class FunctionsService
                 unset($res);
             }
         }
-        if($old > 4860000){
 
-        }
         return $evu;
     }
     public function getSumAcPowerByGroup(Anlage $anlage, $from, $to, $acGroup) :array
@@ -961,5 +955,41 @@ class FunctionsService
 
         return $_html;
     }
+
+    public function readInverters(String $invS, Anlage $anlage):array
+    {
+        $returnArray = [];
+        $maxInv = count($this->getNameArray($anlage));
+        $invS = u($invS)->replace(" ", "");
+        $tempArray = u($invS)->split(',');
+
+
+        if ($invS != "*") {
+            foreach ($tempArray as $item) {
+                if (u($item)->containsAny('-')) {
+                    $nums[] = u($item)->split('-');
+                    $from = (int)((string)$nums[0][0]);
+                    $to = (int)((string)$nums[0][1]);
+                    $i = $from;
+                    while ($i <= $to) {
+                        $returnArray[] = (string)u($i);
+                        $i++;
+                    }
+                    unset($nums);
+                } else $returnArray[] = (string)$item;
+            }
+
+        }
+        else {
+            $i = 1;
+            while ($i <= $maxInv){
+                $returnArray[] = (string)$i;
+                $i++;
+            }
+        }
+
+        return $returnArray;
+    }
+
 }
 

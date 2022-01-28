@@ -32,20 +32,21 @@ class DCPowerChartService
         $this->functions = $functions;
         $this->irradiationChart = $irradiationChart;
     }
+
     /**
      * DC Diagramme
      * Erzeugt Daten für das normale Soll/Ist DC Diagramm.
      * @param Anlage $anlage
      * @param $from
      * @param $to
-     * @return array
+     * @param bool $hour
+     * @return array|null [DC1]
      * [DC1]
      */
-    public function getDC1(Anlage $anlage, $from, $to,  bool $hour = false):?array
+    public function getDC1(Anlage $anlage, $from, $to,  bool $hour = false): ?array
     {
         if(true){
-            if ($hour) $form = '%y%m%d%H';
-            else $form = '%y%m%d%H%i';
+            ($hour) ? $form = '%y%m%d%H' : $form = '%y%m%d%H%i';
             $conn = self::getPdoConnection();
             $dataArray = [];
             $sqlDcSoll = "SELECT a.stamp as stamp, sum(b.soll_pdcwr) as soll
@@ -53,20 +54,18 @@ class DCPowerChartService
                       WHERE a.stamp BETWEEN '$from' AND '$to' 
                       GROUP by date_format(a.stamp, '$form')";
 
-
-                if ($anlage->getUseNewDcSchema()) {
-                    $sql_b = "SELECT sum(wr_pdc) as dcist 
-                              FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDCIst() . " b ON a.stamp = b.stamp) 
-                              WHERE a.stamp BETWEEN '$from' AND '$to' 
-                              GROUP by date_format(a.stamp, '$form')";
-                }
-                else {
-
-                    $sql_b = "SELECT sum(wr_pdc) as dcist 
-                              FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
-                              WHERE a.stamp BETWEEN '$from' AND '$to' 
-                              GROUP by date_format(a.stamp, '$form')";
-                }
+            if ($anlage->getUseNewDcSchema()) {
+                $sql_b = "SELECT sum(wr_pdc) as dcist 
+                          FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDCIst() . " b ON a.stamp = b.stamp) 
+                          WHERE a.stamp BETWEEN '$from' AND '$to' 
+                          GROUP by date_format(a.stamp, '$form')";
+            }
+            else {
+                $sql_b = "SELECT sum(wr_pdc) as dcist 
+                          FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
+                          WHERE a.stamp BETWEEN '$from' AND '$to' 
+                          GROUP by date_format(a.stamp, '$form')";
+            }
 
             $resultActual = $conn->query($sql_b);
             $resultExpected = $conn->query($sqlDcSoll);
@@ -82,13 +81,10 @@ class DCPowerChartService
             if ($resultExpected->rowCount() > 0) {
                 $counter = 0;
                 while (($roa = $resultExpected->fetch(PDO::FETCH_ASSOC)) && ($rob = $resultActual->fetch(PDO::FETCH_ASSOC))) {
-                    $dcist = 0;
                     $stamp = $roa["stamp"];
-                    $soll = round($roa["soll"], 2);
+                    ((float)$roa["soll"] > 0) ? $soll = round($roa["soll"], 2) : $soll = 0;
                     $expdiff = round($soll - $soll * 10 / 100, 2); //-10% good
-
                     $dcist = self::checkUnitAndConvert($rob["dcist"], $anlage->getAnlDbUnit());
-
 
                 ($dcist > 0) ? $dcist = round($dcist, 2) : $dcist = 0; // neagtive Werte auschließen
                 $actSum += $dcist;

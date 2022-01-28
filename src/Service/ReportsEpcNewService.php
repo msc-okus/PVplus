@@ -104,6 +104,8 @@ class ReportsEpcNewService
             $reportMonth = $currentMonth - 1;
             $reportYear = $currentYear;
         }
+        $reportMonth = $currentMonth;
+        $reportYear = $currentYear;
         $daysInReportMonth = (int)date('t', strtotime("$reportYear-$reportMonth-01"));
         $facStartMonth = (int)$anlage->getFacDateStart()->format('m');
         $facStartDay = $anlage->getFacDateStart()->format('d');
@@ -137,8 +139,8 @@ class ReportsEpcNewService
             $daysInMonth = (int)date('t', strtotime("$year-$month-01"));
             $from_local = date_create(date('Y-m-d 00:00', strtotime("$year-$month-01")));
             $to_local = date_create(date('Y-m-d 23:59', strtotime("$year-$month-$daysInMonth")));
-            $hasMonthData = $to_local < $date; // Wenn das Datum in $to_local kleiner ist als das Datum in $date, es also für alle Tage des Monats Daten vorliegen, dann ist $hasMonthData === true
-            $isCurrentMonth = $to_local->format('Y') == $currentYear && $to_local->format('m') == $currentMonth-1;
+            $hasMonthData = $from_local <= $date; // Wenn das Datum in $from_local kleiner ist als das Datum in $date, es also für alle Tage des Monats Daten vorliegen, dann ist $hasMonthData === true
+            $isCurrentMonth = $to_local->format('Y') == $currentYear && $to_local->format('m') == $currentMonth;
             if ($currentMonth == 1) $isCurrentMonth = $to_local->format('Y') == $currentYear - 1 && $to_local->format('m') == '12';
 
             $monthlyRecalculatedData = $this->monthlyDataRepo->findOneBy(['anlage' => $anlage, 'year' => $year, 'month' => $month]);
@@ -344,7 +346,7 @@ class ReportsEpcNewService
             $daysInMonth = (int)date('t', strtotime("$year-$month-01"));
             $from_local = date_create(date('Y-m-d 00:00', strtotime("$year-$month-01")));
             $to_local = date_create(date('Y-m-d 23:59', strtotime("$year-$month-$daysInMonth")));
-            $hasMonthData = $to_local < $date; // Wenn das Datum in $to_local kleiner ist als das Datum in $date, es also für alle Tage des Monats Daten vorliegen, dann ist $hasMonthData === true
+            $hasMonthData = $from_local <= $date; // Wenn das Datum in $from_local kleiner ist als das Datum in $date, es also für alle Tage des Monats Daten vorliegen, dann ist $hasMonthData === true
 
             $tableArray[$n]['P_part']                                 = $tableArray[$n]['L_irr'] / $tableArray[$zeileSumme1]['L_irr'] * 100; // Spalte P //
             $tableArray[$n]['U_prReal_withRisk']                      = ($hasMonthData) ? $tableArray[$n]['Q_prReal_prProg'] : $tableArray[$n]['Q_prReal_prProg'] + $riskForcastPROffset; // Spalte U // muss in Runde 2 Berechnet werden
@@ -429,8 +431,9 @@ class ReportsEpcNewService
         $result['pld_forecast']                 = $pldForcast;
         $result['percent_diff_calc_forecast']   = ($monthTable[$zeileSumme1]['V_eGrid_withRisk'] - $monthTable[$zeileSumme1]['W_yield_guaranteed_exp']) * 100 / $monthTable[$zeileSumme1]['W_yield_guaranteed_exp'];
         $result['ratio_forecast']               = $monthTable[$zeileSumme1]['V_eGrid_withRisk'] * 100 / $monthTable[$zeileSumme1]['W_yield_guaranteed_exp'];
-
-        $result['real']                         = "Real " . $anlage->getEpcReportStart()->format('M y') . " - " . $date->sub(new \DateInterval('P1M'))->format('M y');
+        ##$to = clone $date;
+        ##$result['real']                         = "Real " . $anlage->getEpcReportStart()->format('M y') . " - " . $to->sub(new \DateInterval('P1M'))->format('M y');
+        $result['real']                         = "Real " . $anlage->getEpcReportStart()->format('M y') . " - " . $date->format('M y');
         $result['expected_energy_real']         = $monthTable[$zeileSumme2]['E_yieldDesign'];
         $result['guaranteed_energy_real']       = $monthTable[$zeileSumme2]['W_yield_guaranteed_exp'];
         $result['measured_energy_real']         = $monthTable[$zeileSumme2]['V_eGrid_withRisk'];
@@ -454,6 +457,7 @@ class ReportsEpcNewService
             $yAxis[] = round($monthTable[$n]['AC_eGridDivExpected'],2);
         }
         $chart = new ECharts();
+
         $chart->xAxis[] = [
             'type'      => 'category',
             'data'      => $xAxis,
@@ -473,6 +477,7 @@ class ReportsEpcNewService
                 'align'         => 'right',
             ],
         ];
+
         $chart->series[] = [
             'type'      => 'bar',
             'data'      => $yAxis,
@@ -483,10 +488,10 @@ class ReportsEpcNewService
                 'formatter' => '{c} %',
                 'rotate'    => 90,
             ],
-
         ];
 
         $options = [
+            'animation' => false,
             'color'     => ['#3366CC'],
             'grid'      => [
                 'top'       => 50,
@@ -496,7 +501,9 @@ class ReportsEpcNewService
         ];
         $chart->setOption($options);
 
-        return $chart->render('chartYieldPercentDiff', ['style' => 'height: 250px; margin-bottom: 40px;']);
+        $string = $chart->render('chartYieldPercentDiff', ['style' => 'height: 250px; margin-bottom: 40px;', 'renderer'=> 'svg']);
+        #dd($string);
+        return $chart->render('chartYieldPercentDiff', ['style' => 'height: 250px; margin-bottom: 40px;', 'renderer'=> 'svg']);
     }
 
     public function chartYieldCumulative(Anlage $anlage, array $monthTable, ?DateTime  $date = null): string
@@ -535,11 +542,10 @@ class ReportsEpcNewService
             'type'      => 'bar',
             'data'      => $yAxis,
             'visualMap' => false,
-
-
         ];
 
         $options = [
+            'animation' => false,
             'color'     => ['#3366CC'],
             'grid'      => [
                 'top'       => 50,

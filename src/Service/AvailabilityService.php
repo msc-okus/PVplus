@@ -25,14 +25,18 @@ class AvailabilityService
     private Case6Repository $case6Repository;
     private TimesConfig $timesConfig;
     private TimesConfigRepository $timesConfigRepo;
+    private FunctionsService $functions;
 
-    public function __construct(EntityManagerInterface $em, AnlageAvailabilityRepository $availabilityRepository, Case5Repository $case5Repository, Case6Repository  $case6Repository, TimesConfigRepository $timesConfigRepo)
+    public function __construct(EntityManagerInterface $em, AnlageAvailabilityRepository $availabilityRepository,
+                                Case5Repository $case5Repository, Case6Repository  $case6Repository,
+                                TimesConfigRepository $timesConfigRepo, FunctionsService $functions)
     {
         $this->em = $em;
         $this->availabilityRepository = $availabilityRepository;
         $this->case5Repository = $case5Repository;
         $this->case6Repository = $case6Repository;
         $this->timesConfigRepo = $timesConfigRepo;
+        $this->functions = $functions;
     }
 
     /**
@@ -189,7 +193,8 @@ class AvailabilityService
                 $c5From = strtotime($case['stampFrom']);
                 $c5To   = strtotime($case['stampTo']);
                 for ($c5Stamp = $c5From; $c5Stamp < $c5To; $c5Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
-                    foreach (explode(',', $case['inverter'], 999) as $inverter) {
+                    //foreach (explode(',', $case['inverter'], 999) as $inverter) {
+                    foreach ($this->functions->readInverters($case['inverter'], $anlage) as $inverter) {
                         $inverter = trim($inverter, ' ');
                         $case5Array[$inverter][date('Y-m-d H:i:00', $c5Stamp)] = true;
                     }

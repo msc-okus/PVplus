@@ -42,8 +42,8 @@ class DefaultMREController extends BaseController
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => '97']);
 
-        $from = date_create('2021-11-01');
-        $to   = date_create('2021-11-30');
+        $from = date_create('2022-01-01');
+        $to   = date_create('2022-01-31');
         $output = $bavelseExport->gewichtetTagesstrahlung($anlage, $from, $to);
 
         return $this->render('cron/showResult.html.twig', [
@@ -266,11 +266,8 @@ class DefaultMREController extends BaseController
     {
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
-        $from = $anlage->getEpcReportStart();
-        $to   = $anlage->getEpcReportEnd();
 
-        $date = date_create("2022-01-01");
-        #$date = null;
+        $date = date_create("2021-12-01");
 
         $monthTable = $epcNew->monthTable($anlage, $date);
 

@@ -30,28 +30,24 @@
         let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
         let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
 
-        // Create series
-        // Create series
-        //Expected
+        // Expected series
         let seriesE = chart.series.push(new am4charts.LineSeries());
         seriesE.name = "Expected DC"
         seriesE.dataFields.dateX = "date";
         seriesE.dataFields.valueY = "expected";
-        //seriesE.dataFields.openValueY = "expgood";
         seriesE.tooltipText = "Expected DC [kWh]: {valueY} [/]";
         seriesE.stroke = am4core.color("#fdd400");
-        //seriesE.fill = am4core.color("#fdd400");
         seriesE.strokeWidth = 1;
-        //seriesE.fillOpacity = 0.3;
-        //seriesE.defaultState.transitionDuration = 300;
         seriesE.tensionX = 0.8;
 
         let units = JSON.parse('{{ content.inverterArray | raw  }}');
+
+        // Create series
         function addSeries(seriesId) {
 
             // Create series Actual
             let series = new am4charts.LineSeries();
-            let newSeriesId = seriesId + {{ content.offsetLegende }};
+            let newSeriesId = seriesId;
             series.dataFields.dateX = "date";
             series.dataFields.valueY = units[newSeriesId];
             series.name = units[newSeriesId];

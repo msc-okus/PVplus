@@ -17,5 +17,6 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script src="{{ asset('jsNew/user.js') }}" type="text/javascript"></script>
+
+    {{ encore_entry_script_tags('user_edit') }}
 {% endblock %}
