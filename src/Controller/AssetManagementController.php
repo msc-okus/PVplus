@@ -69,7 +69,9 @@ class AssetManagementController extends BaseController
         $form = $this->createForm(AssetManagementeReportFormType::class);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            $data = $form->getData();
 
+            //if(($data['ProductionPos'] != $data['AvailabilityPos']) && ($data['AvailabilityPos'] != $data['EconomicsPos']) && ($data['ProductionPos'] != $data['EconomicsPos']))
             $result = $this->render('report/assetreport.html.twig', [
                 'anlage' => $anlage,
                 'year' => $output['year'],
@@ -136,6 +138,7 @@ class AssetManagementController extends BaseController
                 'cumulated_losses_compared_chart' => $output['cumulated_losses_compared_chart'],
             ]);
 
+
             if ($export == 1) {
 
                 //WE SHOULD REPLACE THIS FOR A COMMIT TO THE DB WITH THE NEW ENTITY(DEFINED IN MY NOTES)
@@ -176,7 +179,7 @@ class AssetManagementController extends BaseController
 
         return $this->render('report/_form.html.twig',[
                 'assetForm' => $form->createView()
-    ]);
+        ]);
     }
 
     function substr_Index($str, $needle, $nth ): bool|int
