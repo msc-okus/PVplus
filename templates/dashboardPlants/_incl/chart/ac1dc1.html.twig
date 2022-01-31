@@ -20,7 +20,6 @@
             "minimumFractionDigits": 0
         };
 
-
         // Legend
         chart.legend = new am4charts.Legend();
         chart.legend.useDefaultMarker = false;
@@ -37,13 +36,6 @@
         valueAxisIrr.renderer.grid.template.disabled = true;
         valueAxisIrr.extraMax = 0.1;
 
-        //let valueAxis3 = chart.yAxes.push(new am4charts.ValueAxis());
-        //valueAxis3.title.text = "Panel temperature";
-        //valueAxis3.renderer.opposite = true;
-        //valueAxis3.renderer.ticks.template.disabled = true;
-        //valueAxis3.renderer.grid.template.disabled = true;
-        //valueAxis3.extraMax = 0.1;
-
 
         // Create series
         //Expected
@@ -54,13 +46,14 @@
             series1.dataFields.valueY = "expected";
             {% if not aktAnlage.showEvuDiag or form.selectedChart == 'dc_single' %}
                 series1.dataFields.openValueY = "expgood";
-                series1.fill = am4core.color("#fdd400");
+
                 series1.hidden = false;
                 series1.fillOpacity = 0.3;
             {% else %}
                 series1.hidden = true;
             {% endif %}
             series1.tooltipText = "Expected [kWh]: {valueY} [/]";
+            series1.fill = am4core.color("#fdd400");
             series1.stroke = am4core.color("#fdd400");
             series1.strokeWidth = 1;
             series1.tensionX = 0.8;
@@ -75,8 +68,8 @@
                 series11.dataFields.valueY = "expexted_evu";
                 series11.dataFields.openValueY = "expexted_evu_good";
                 series11.fillOpacity = 0.3;
-                series11.fill = am4core.color("#fdd400");
                 series11.tooltipText = "Expected Grid [kWh]: {valueY} [/]";
+                series11.fill = am4core.color("#fdd400");
                 series11.stroke = am4core.color("#fdb500");
                 series11.strokeWidth = 1;
                 series11.tensionX = 0.8;
@@ -89,6 +82,7 @@
             series12.dataFields.dateX = "date";
             series12.dataFields.valueY = "expexted_no_limit";
             series12.tooltipText = "Expected (no limit) [kWh]: {valueY} [/]";
+            series12.fill = am4core.color("#fd5900");
             series12.stroke = am4core.color("#fd5900");
             series12.strokeWidth = 1;
             //series12.defaultState.transitionDuration = 300;
@@ -102,6 +96,7 @@
             series3.dataFields.dateX = "date";
             series3.dataFields.valueY = "eZEvu";
             series3.tooltipText = "Grid [kWh]: {valueY} [/]";
+            series3.fill = am4core.color("#03ac23");
             series3.stroke = am4core.color("#03ac23");
             series3.strokeWidth = 1;
             //series3.defaultState.transitionDuration = 300;
@@ -123,9 +118,9 @@
             {% else %}
                 series2.tooltipText = "Inverter Out [kWh]: {valueY} [/]";
             {% endif %}
+                series2.fill = am4core.color("#002ac3");
                 series2.stroke = am4core.color("#002ac3");
                 series2.strokeWidth = 1;
-                //series2.defaultState.transitionDuration = 300;
                 series2.tensionX = 0.8;
             {% if aktAnlage.showEvuDiag and form.selectedChart == 'ac_single' %}
                 series2.hidden = true;
@@ -138,11 +133,24 @@
             series4.dataFields.dateX = "date";
             series4.dataFields.valueY = "cosPhi";
             series4.tooltipText = "CosPhi: {valueY} [/]";
+            series4.fill = am4core.color("#950101");
             series4.stroke = am4core.color("#950101");
             series4.strokeWidth = 1;
-            //series4.defaultState.transitionDuration = 300;
             series4.tensionX = 0.8;
             series4.hidden = true;
+        {% endif %}
+
+        {% if aktAnlage.useCustPRAlgorithm == 'Lelystad' and is_granted('ROLE_G4N') %} {# theoretische Leitung (theoPower) mit TempKorrektur nach NREL #}
+            let theoPower = chart.series.push(new am4charts.LineSeries());
+            theoPower.name = "theoPower nach NREL {{ (content.theoPowerSum)|number_format(0, ',', '.') }} kWh";
+            theoPower.dataFields.dateX = "date";
+            theoPower.dataFields.valueY = "theoPower";
+            theoPower.tooltipText = "theoPower: {valueY} [/]";
+            theoPower.fill = am4core.color("#808080");
+            theoPower.stroke = am4core.color("#808080");
+            theoPower.strokeWidth = 1;
+            theoPower.tensionX = 0.8;
+            theoPower.hidden = true;
         {% endif %}
 
         let seriesIrr = chart.series.push(new am4charts.LineSeries());
@@ -150,25 +158,13 @@
         seriesIrr.dataFields.dateX = "date";
         seriesIrr.dataFields.valueY = "irradiation";
         seriesIrr.tooltipText = "Irradiation W/m²: {valueY} [/]";
-        seriesIrr.stroke = am4core.color("#950101");
+        seriesIrr.fill = am4core.color("#95018e");
+        seriesIrr.stroke = am4core.color("#95018e");
         seriesIrr.strokeWidth = 1;
         //series5Irr.defaultState.transitionDuration = 50;
         seriesIrr.tensionX = 0.8;
         seriesIrr.hidden = true;
         seriesIrr.yAxis = valueAxisIrr;
-
-        //let series6 = chart.series.push(new am4charts.LineSeries());
-        //series6.name = "panelTemp"
-        //series6.dataFields.dateX = "date";
-        //series6.dataFields.valueY = "panelTemp";
-        //series6.tooltipText = "Panel temperature: {valueY} [/]";
-        //series6.stroke = am4core.color("rgba(118,51,69,0.68)");
-        //series6.strokeWidth = 1;
-        //series6.defaultState.transitionDuration = 300;
-        //series6.tensionX = 0.8;
-        //series6.hidden = true;
-        //series6.gr
-        //series6.yAxis = valueAxis3;
 
         chart.cursor = new am4charts.XYCursor();
         chart.cursor.xAxis = dateAxis;

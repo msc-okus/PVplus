@@ -352,7 +352,6 @@ class ReportEpcService
                 $month++;
             }
         }
-
         // Forecast (ganzes Jahr, Bsp Sep20 bis Sep21)
         $report[0][] = [
             'month'                 => 'Forecast<br>' . $forecastDateText,
@@ -475,7 +474,6 @@ class ReportEpcService
             'pld'                   => $anlage->getPldPR(),
         ];
 
-        #dd("STOP");
         return $report;
     }
 

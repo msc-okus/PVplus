@@ -128,6 +128,7 @@ class ChartService
                         $resultArray['expSum'] = $dataArray['expSum'];
                         $resultArray['evuSum'] = $dataArray['evuSum'];
                         $resultArray['expEvuSum'] = $dataArray['expEvuSum'];
+                        $resultArray['theoPowerSum'] = $dataArray['theoPowerSum'];
                         $resultArray['expNoLimitSum'] = $dataArray['expNoLimitSum'];
                         $resultArray['cosPhiSum'] = $dataArray['cosPhiSum'];
                         $resultArray['headline'] = 'AC production [kWh] – actual and expected';
@@ -524,24 +525,16 @@ class ChartService
         $conn = self::getPdoConnection();
         $dataArray = [];
         $counter = 0;
-        if($hour)$sql2 = "SELECT a.stamp, sum(b.at_avg) as at_avg, sum(b.pt_avg) as pt_avg FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
-        else  $sql2 = "SELECT a.stamp, b.at_avg as at_avg, b.pt_avg as pt_avg FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
+        if ($hour) $sql2 = "SELECT a.stamp, sum(b.at_avg) as at_avg, sum(b.pt_avg) as pt_avg FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
+        else $sql2 = "SELECT a.stamp, b.at_avg as at_avg, b.pt_avg as pt_avg FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
         $res = $conn->query($sql2);
         while ($ro = $res->fetch(PDO::FETCH_ASSOC)) {
             $atavg = $ro["at_avg"];
-
-            if (!$atavg) {
-                $atavg = 0;
-            }
+            if (!$atavg) $atavg = 0;
             $ptavg = $ro["pt_avg"];
-            if (!$ptavg) {
-                $ptavg = 0;
-            }
-            $atavg = str_replace(',', '.', $atavg);
-
-            if($hour) $atavg = $atavg / 4;
-            $ptavg = str_replace(',', '.', $ptavg);
-            if($hour) $ptavg= $ptavg/ 4;
+            if (!$ptavg) $ptavg = 0;
+            if ($hour) $atavg = $atavg / 4;
+            if ($hour) $ptavg= $ptavg/ 4;
 
             $stamp = $ro["stamp"];  #utc_date($stamp,$anintzzws);
             if ($ptavg != "#") {
@@ -579,8 +572,10 @@ class ChartService
             $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
             if($anlage->getShowEvuDiag()) {
                 $dataArray['chart'][$counter]['pr_act'] = $pr->getPrEvu();
+                $dataArray['chart'][$counter]['pr_default'] = $pr->getPrDefaultEvu();
             } else {
                 $dataArray['chart'][$counter]['pr_act'] = $pr->getPrAct();
+                $dataArray['chart'][$counter]['pr_default'] = $pr->getPrDefaultAct();
             }
             $av = $this->availabilityRepository->sumAvailabilityPerDay($anlage->getAnlId(), $stamp);
             $dataArray['chart'][$counter]['av'] = round($av, 2);

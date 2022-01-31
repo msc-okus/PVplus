@@ -53,7 +53,7 @@ class ACPowerChartsService
                     WHERE a.stamp >= '$from' AND a.stamp < '$to' 
                     GROUP by date_format(a.stamp, '$form')";
 
-            $sql_actual = "SELECT a.stamp as stamp, sum(wr_pac) as acIst, wr_cos_phi_korrektur as cosPhi
+            $sql_actual = "SELECT a.stamp as stamp, sum(wr_pac) as acIst, wr_cos_phi_korrektur as cosPhi, sum(theo_power) as theoPower
                     FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameIst() . " WHERE wr_pac >= 0) b ON a.stamp = b.stamp)
                     WHERE a.stamp >= '$from' AND a.stamp < '$to' 
                     GROUP by date_format(a.stamp, '$form')";
@@ -71,6 +71,7 @@ class ACPowerChartsService
             $expSum = $expEvuSum = $expNoLimitSum = 0;
             $evuSum = 0;
             $cosPhiSum = 0;
+            $theoPowerSum = 0;
             $dataArray = [];
 
             if ($res_exp->rowCount() > 0) {
@@ -91,6 +92,7 @@ class ACPowerChartsService
                     $expDiffEvu = round($expectedEvu - $expectedEvu * 10 / 100, 2);         // Minus 10 % Toleranz Grid (EVU).
                     $cosPhi = abs((float)$rowActual["cosPhi"]);
                     $acIst = $rowActual["acIst"];
+                    $theoPower = $rowActual["theoPower"];
                     $cosPhiSum += $cosPhi * $acIst;
                     $eZEvu = $rowEvu["eZEvu"] / ($anlage->getAnzInverterFromGroupsAC());
                     $evuSum += $eZEvu;
@@ -102,6 +104,7 @@ class ACPowerChartsService
                     $expSum += $expectedInvOut;
                     $expEvuSum += $expectedEvu;
                     $expNoLimitSum += $expectedNoLimit;
+                    $theoPowerSum += $theoPower;
                     $stamp = self::timeShift($anlage, $rowExp["stamp"]);
 
                     $dataArray['chart'][$counter]['date'] = $stamp;
@@ -118,6 +121,7 @@ class ACPowerChartsService
                         if ($anlage->getShowInverterOutDiag()) $dataArray['chart'][$counter]['InvOut'] = $actout;
                         if ($anlage->getShowEvuDiag()) $dataArray['chart'][$counter]['eZEvu'] = $eZEvu;
                         if ($anlage->getShowCosPhiPowerDiag()) $dataArray['chart'][$counter]['cosPhi'] = $cosPhi * $actout;
+                        $dataArray['chart'][$counter]['theoPower'] = $theoPower;
                         if ($anlage->getShowCosPhiDiag()) $dataArray['cosPhi'] = $cosPhi;
                     }
 
@@ -134,6 +138,7 @@ class ACPowerChartsService
                 $dataArray['actSum'] = round($actSum, 2);
                 $dataArray['expSum'] = round($expSum, 2);
                 $dataArray['expEvuSum'] = round($expEvuSum, 2);
+                $dataArray['theoPowerSum'] = round($theoPowerSum, 2);
                 $dataArray['expNoLimitSum'] = round($expNoLimitSum, 2);
                 $dataArray['evuSum'] = round($evuSum, 2);
                 $dataArray['cosPhiSum'] = round($cosPhiSum, 2);

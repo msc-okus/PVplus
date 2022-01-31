@@ -323,6 +323,7 @@ class PRCalulationService
                         $yearPrExp          = ($powerExpYear        / $powerTheoYear) * 100;
                         $yearPrEGridExt     = ($powerEGridExtYear   / $powerTheoYear) * 100;
                     }
+                    #if ($powerTheoMonth>0) dump( $powerEGridExtYear. " - " .$powerTheoMonth ." - ". round($powerEGridExtYear/$powerTheoMonth*100, 2) ." - ". $day);
                     break;
                 default:
                     // wenn es keinen spezielen Algoritmus gibt
@@ -566,11 +567,7 @@ class PRCalulationService
         } else {
             $irr = $weather['upperIrr'] / 4 / 1000; // Umrechnug zu kWh
         }
-        if ($power['powerTheo'] == 0) {
-            $powerTheo = $anlage->getPower() * $irr;
-        } else {
-            $powerTheo = $power['powerTheo'];
-        }
+        $power['powerTheo'] == 0 ? $powerTheo = $anlage->getPower() * $irr : $powerTheo = $power['powerTheo'];
         $result['powerTheo'] = $powerTheo;
         $tempCorrection = 0;
 
