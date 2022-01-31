@@ -51,7 +51,7 @@ class ReportEpcService
         $this->epcNew = $epcNew;
     }
 
-    public function createEpcReport(Anlage $anlage, DateTime $date, $createPdf = false): string
+    public function createEpcReport(Anlage $anlage, DateTime $date): string
     {
         $currentDate = date('Y-m-d H-i');
         $pdfFilename = 'EPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
@@ -111,13 +111,15 @@ class ReportEpcService
             switch ($anlage->getEpcReportType()) {
                 case 'prGuarantee':
                     $reportEntity
-                        ->setMonth(self::getCetTime('object')->sub(new \DateInterval('P1M'))->format('m'))
-                        ->setYear(self::getCetTime('object')->format('Y'));
+                        //->setMonth(self::getCetTime('object')->sub(new \DateInterval('P1M'))->format('m'))
+                        //->setYear(self::getCetTime('object')->format('Y'));
+                        ->setMonth($date->format('n'))
+                        ->setYear($date->format('Y'));
                     break;
 
                 case 'yieldGuarantee':
                     $reportEntity
-                        ->setMonth($date->format('m'))
+                        ->setMonth($date->format('n'))
                         ->setYear($date->format('Y'));
                     break;
             }
@@ -126,6 +128,7 @@ class ReportEpcService
             $this->em->flush();
 
 
+            /* @deprecated
             // erzeuge PDF mit CloudExport von KoolReport
             if ($createPdf && $anlage->getEpcReportType() == 'prGuarantee') {
                 $secretToken = '2bf7e9e8c86aa136b2e0e7a34d5c9bc2f4a5f83291a5c79f5a8c63a3c1227da9';
@@ -147,6 +150,7 @@ class ReportEpcService
                     ->pdf($pdfOptions)
                     ->toBrowser($pdfFilename);
             }
+            */
         }
         else {
             $output = "<h1>Fehler: Es Ist kein Report ausgewählt.</h1>";
