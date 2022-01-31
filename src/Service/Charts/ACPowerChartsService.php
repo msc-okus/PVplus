@@ -76,13 +76,11 @@ class ACPowerChartsService
 
             if ($res_exp->rowCount() > 0) {
                 $counter = 0;
-
-                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
+                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == "Groningen") {
                     $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
                 } else {
                     $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
                 }
-
                 while (($rowExp = $res_exp->fetch(PDO::FETCH_ASSOC)) && ($rowActual = $res_actual->fetch(PDO::FETCH_ASSOC)) && ($rowEvu = $res_evu->fetch(PDO::FETCH_ASSOC))) {
 
                     ($rowExp["soll"] > 0) ? $expectedInvOut = round($rowExp["soll"], 2) : $expectedInvOut = 0; // neagtive Werte auschließen
@@ -149,7 +147,7 @@ class ACPowerChartsService
             } else {
                 $conn = null;
 
-                return false;
+                return [];
             }
 
 

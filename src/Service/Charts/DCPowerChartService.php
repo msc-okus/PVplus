@@ -72,7 +72,7 @@ class DCPowerChartService
             $actSum = 0;
             $expSum = 0;
             // add Irradiation
-            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
+            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == "Groningen") {
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
             } else {
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
@@ -174,7 +174,7 @@ class DCPowerChartService
 
             if ($resultExp->rowCount() > 0) {
                 // add Irradiation
-                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
+                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == "Groningen") {
                     $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
                 } else {
                     $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
@@ -277,10 +277,8 @@ class DCPowerChartService
             $dataArray['inverterArray'] = $nameArray;
 
             // add Irradiation
-
             if ($result->rowCount() > 0) {
-
-                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false){
+                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == "Groningen") {
                     $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
                 } else {
                     $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
@@ -289,7 +287,6 @@ class DCPowerChartService
                 $dataArray['maxSeries'] = 1;
                 $counter = 0;
                 switch ($anlage->getConfigType()) {
-
                     case 3: // Groningen
                         $dataArray['offsetLegend'] = $group - 1;
                         break;
