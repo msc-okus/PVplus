@@ -76,6 +76,7 @@ class ACPowerChartsService
 
             if ($res_exp->rowCount() > 0) {
                 $counter = 0;
+                //we must move this code to the constructor function and use a property
                 if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == "Groningen") {
                     $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
                 } else {

@@ -252,9 +252,11 @@ class DCCurrentChartService
                                 $sql = "SELECT wr_idc as istCurrent FROM " . $anlage->getDbNameAcIst() . " WHERE stamp = '$stampAdjust' AND unit = '$inverter' GROUP BY date_format(stamp, '$form')";
                             }
                         }
+
                         $resultIst = $conn->query($sql);
                         if ($resultIst->rowCount() > 0) {
                             $rowIst = $resultIst->fetch(PDO::FETCH_ASSOC);
+
                             $currentIst = round($rowIst['istCurrent'], 2);
                             if ($hour) $currentIst = $currentIst / 4;
                             if (!($currentIst == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {

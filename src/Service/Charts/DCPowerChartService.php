@@ -272,6 +272,7 @@ class DCPowerChartService
                             WHERE group_dc = '$group' AND a.stamp BETWEEN '$from' AND '$to' 
                             GROUP BY date_format(a.stamp, '$form'), unit;";
                 }
+                dump($sqlActual, $sqlExpected);
             $resultActual = $conn->query($sqlActual);
             $result = $conn->query($sqlExpected);
             $dataArray['inverterArray'] = $nameArray;
@@ -330,6 +331,7 @@ class DCPowerChartService
 
             }
             $conn = null;
+            dump($dataArray);
             return $dataArray;
 
     }
