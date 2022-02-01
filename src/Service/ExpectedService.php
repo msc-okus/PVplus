@@ -123,11 +123,11 @@ class ExpectedService
                     $modules = $group->getModules();
                     $expPowerDc = $expCurrentDc = 0;
                     foreach ($modules as $modul) {
-                        /*
+
                         $irr        = $this->calcIrradiationDiscountByModule($modul->getModuleType(), $irrBase);
                         $irrUpper   = $this->calcIrradiationDiscountByModule($modul->getModuleType(), $irrUpperBase);
                         $irrLower   = $this->calcIrradiationDiscountByModule($modul->getModuleType(), $irrLowerBase);
-                        */
+
                         $irr        = $irrBase;
                         $irrUpper   = $irrUpperBase;
                         $irrLower   = $irrLowerBase;
@@ -149,11 +149,10 @@ class ExpectedService
                             $expCurrentDcHlp    = $expCurrentDcHlp * $modul->getModuleType()->getTempCorrCurrent($pannelTemp);
                         }
 
-                        /*
                         // degradation abziehen (degradation * Betriebsjahre).
-                        $expPowerDcHlp      = $expPowerDcHlp - ($expPowerDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
+                        $expPowerDcHlp      = $expPowerDcHlp   - ($expPowerDcHlp   / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
                         $expCurrentDcHlp    = $expCurrentDcHlp - ($expCurrentDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
-                        */
+
                         $expPowerDc     += $expPowerDcHlp;
                         $expCurrentDc   += $expCurrentDcHlp;
                     }
@@ -166,7 +165,7 @@ class ExpectedService
                         $shadow_loss = $anlageMonth->getShadowLoss();
                     }
 
-                    /*
+                    /* @deprecated
                     // Anpassung der Verschattung an die jeweiligen Strahlungsbedingungen
                     // d.h. je weniger Strahlung desso geringer ist die Auswirkung der Verschattung
                     // Werte für $val bis $val 6 sind mit OS und TL abgesprochen
@@ -182,6 +181,7 @@ class ExpectedService
                     elseif ($irrBase > $val3 && $irrBase <= $val4) {$shadow_loss = $shadow_loss * 0.57;}
                     elseif ($irrBase > $val4 && $irrBase <= $val5) {$shadow_loss = $shadow_loss * 0.71;}
                     elseif ($irrBase > $val5 && $irrBase <= $val6) {$shadow_loss = $shadow_loss * 0.8;}
+                     */
 
                     // Verluste auf der DC Seite brechnen
                     // Schattenverluste + Kabel Verluste + Sicherheitsverlust
@@ -192,7 +192,6 @@ class ExpectedService
                         $expPowerDc = $expPowerDc - ($expPowerDc / 100 * $loss);
                         $expCurrentDc = $expCurrentDc - ($expCurrentDc / 100 * $loss);
                     }
-                    */
 
                     // AC Expected Berechnung
                     // Umrechnung DC nach AC
