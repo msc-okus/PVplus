@@ -20,7 +20,7 @@ class AssetManagementeReportFormType extends AbstractType
             ])
             ->add('ProdCap',SwitchType::class,[
                 'label'    => 'Production & Capacity Factor',
-                'required' => false
+                'required' => false,
             ])
             ->add('CumulatForecastPVSYS',SwitchType::class,[
                 'label'     => 'Cumulative Forecast - PVSYST',
@@ -58,11 +58,23 @@ class AssetManagementeReportFormType extends AbstractType
                 'required' => false
             ])
             ->add('AvYearlyOverview',SwitchType::class,[
-                'label'     => 'Availability-Yearly Ovrview',
+                'label'     => 'Availability-Yearly Overview',
                 'required'  => false
             ])
             ->add('AvMonthlyOverview',SwitchType::class,[
-                'label'     => '',
+                'label'     => 'Availability-Monthly Overview',
+                'required'  => false
+            ])
+            ->add('AvInv',SwitchType::class,[
+                'label'     => 'Availability Inverter',
+                'required'  => false
+            ])
+            ->add('StringCurr',SwitchType::class,[
+                'label'     => 'String Current',
+                'required'  => false
+            ])
+            ->add('InvPow',SwitchType::class,[
+                'label'     => 'Inverter Power-DC Heatmap',
                 'required'  => false
             ])
             /*
@@ -79,6 +91,8 @@ class AssetManagementeReportFormType extends AbstractType
             ->add('Economics',SwitchType::class, [
                 'required' => false
             ])
+
+
             /*
             ->add('EconomicsPos', ChoiceType::class,[
                 'expanded' => false,
