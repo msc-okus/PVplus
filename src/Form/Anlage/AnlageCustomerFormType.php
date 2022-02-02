@@ -4,6 +4,7 @@ namespace App\Form\Anlage;
 
 use App\Entity\Anlage;
 
+use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -50,13 +51,13 @@ class AnlageCustomerFormType extends AbstractType
                 'empty_data'    => '',
                 'required'      => false,
             ])
-            ->add('epcReportNote', TextareaType::class, [
+            ->add('epcReportNote', CKEditorType::class, [
+                'config'        => ['toolbar' => 'my_toolbar'],
                 'label'         => 'Notizen zur Anlage für EPC Report',
                 'attr'          => ['rows' => '9'],
                 'empty_data'    => '',
                 'required'      => false,
             ])
-
 
             ################################################
             ####              Relations                 ####

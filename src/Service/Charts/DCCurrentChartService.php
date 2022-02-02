@@ -67,17 +67,18 @@ class DCCurrentChartService
 
         $result = $conn->query($sqlExp);
 
-            $sql = "SELECT sum(wr_idc) as istCurrent FROM ";
-            ($anlage->getUseNewDcSchema()) ? $sql .= $anlage->getDbNameDCIst() . " WHERE stamp >= '$from' AND stamp <= '$to' " : $sql .= $anlage->getDbNameACIst() . " WHERE stamp >= '$from' AND stamp <= '$to' ";
-            switch ($anlage->getConfigType()) {
-                case 1:
-                    $sql .= "AND group_ac = '$group' ";
-                    break;
-                default:
-                    $sql .= "AND wr_group = '$group' ";
-            }
-            ($anlage->getUseNewDcSchema()) ? $sql .= "group by date_format(stamp, '$form'), wr_group" : $sql .= "group by date_format(stamp, '$form'), group_dc";
-                $resultAct = $conn->query($sql);
+        $sql = "SELECT sum(wr_idc) as istCurrent FROM ";
+        ($anlage->getUseNewDcSchema()) ? $sql .= $anlage->getDbNameDCIst() . " WHERE stamp >= '$from' AND stamp <= '$to' " : $sql .= $anlage->getDbNameACIst() . " WHERE stamp >= '$from' AND stamp <= '$to' ";
+        switch ($anlage->getConfigType()) {
+            case 1:
+                $sql .= "AND group_ac = '$group' ";
+                break;
+            default:
+                $sql .= "AND wr_group = '$group' ";
+        }
+        ($anlage->getUseNewDcSchema()) ? $sql .= "group by date_format(stamp, '$form'), wr_group" : $sql .= "group by date_format(stamp, '$form'), group_dc";
+        $resultAct = $conn->query($sql);
+
 
         $inverterNr = $resultAct->rowCount() / $result->rowCount();
         if ($result->rowCount() > 0) {
