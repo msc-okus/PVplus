@@ -94,13 +94,7 @@ class FunctionsService
         $powerEvu = $powerEvuYear = $powerEvuPac = $powerEvuMonth = $powerAct = 0;
         $powerActYear = $powerActPac = $powerActMonth = 0;
         $theoPowerMonth = $theoPowerPac = $theoPowerYear = 0;
-        /*
-        if (strtotime($from < strtotime($anlage->getEpcReportStart()->format('Y-m-d')))) {
-            $jahresanfang = $anlage->getEpcReportStart()->format('Y-m-d');
-        } else {
-            $jahresanfang = date('Y-01-01 00:00', strtotime($from)); // für das ganze Jahr - Zeitraum
-        }
-        */
+
         $jahresanfang = date('Y-01-01 00:00', strtotime($from)); // für das ganze Jahr - Zeitraum
         ############# für das ganze Jahr #############
         if (true) {
@@ -122,7 +116,7 @@ class FunctionsService
             }
             unset($res);
 
-            $sql_year = "SELECT sum(theo_power) as theo_power FROM $dbTable where stamp between '$jahresanfang' and '$to'";
+            $sql_year = "SELECT sum(theo_power) as theo_power FROM $dbTable where stamp between '$jahresanfang' and '$to' and wr_pac > 0";
             $res = $conn->query($sql_year);
             if ($res->rowCount() == 1) {
                 $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -740,7 +734,7 @@ class FunctionsService
         unset($res);
 
         // Actual (Inverter Out) Leistung ermitteln
-        $sql = "SELECT sum(wr_pac) as sum_power_ac, sum(theo_power) as theo_power FROM ".$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to'";
+        $sql = "SELECT sum(wr_pac) as sum_power_ac, sum(theo_power) as theo_power FROM ".$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to' AND wr_pac > 0";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);

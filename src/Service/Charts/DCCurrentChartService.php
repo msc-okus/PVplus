@@ -62,26 +62,52 @@ class DCCurrentChartService
         $dataArray['inverterArray'] = $nameArray;
         // SOLL Strom für diesen Zeitraum und diese Gruppe
         $sqlExp = "SELECT a.stamp as stamp, sum(b.dc_exp_current) as expected
-                FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_current, group_ac FROM " . $anlage->getDbNameDcSoll() . " WHERE group_ac = '$group') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
+                FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_current, group_ac FROM " . $anlage->getDbNameDcSoll() . " WHERE group_ac = '$group') b ON a.stamp = b.stamp)
+                 WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
 
         $result = $conn->query($sqlExp);
+
+            $sql = "SELECT sum(wr_idc) as istCurrent FROM ";
+            ($anlage->getUseNewDcSchema()) ? $sql .= $anlage->getDbNameDCIst() . " WHERE stamp >= '$from' AND stamp <= '$to' " : $sql .= $anlage->getDbNameACIst() . " WHERE stamp >= '$from' AND stamp <= '$to' ";
+            switch ($anlage->getConfigType()) {
+                case 1:
+                    $sql .= "AND group_ac = '$group' ";
+                    break;
+                default:
+                    $sql .= "AND wr_group = '$group' ";
+            }
+            ($anlage->getUseNewDcSchema()) ? $sql .= "group by date_format(stamp, '$form'), wr_group" : $sql .= "group by date_format(stamp, '$form'), group_dc";
+                $resultAct = $conn->query($sql);
+
+        $inverterNr = $resultAct->rowCount() / $result->rowCount();
         if ($result->rowCount() > 0) {
-            $dataArray['maxSeries'] = 0;
+            $dataArray['maxSeries'] = $inverterNr;
             $counter = 0;
             while ($rowSoll = $result->fetch(PDO::FETCH_ASSOC)) {
+                $inverterCount = 1;
                 $stamp = $rowSoll['stamp'];
                 $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
-                //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
                 $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stampAdjust);
                 if (!(($rowSoll['expected'] == 0) && (self::isDateToday($stampAdjust) && self::getCetTime() - strtotime($stampAdjust) < 7200))) {
                     if (!$hour) $dataArray['chart'][$counter]['expected'] = $rowSoll['expected'] / ($acGroups[$group]['GMAX'] - $acGroups[$group]['GMIN']);
                     else $dataArray['chart'][$counter]['expected'] = ($rowSoll['expected'] / ($acGroups[$group]['GMAX'] - $acGroups[$group]['GMIN'])) / 4;
                 }
+                while($inverterCount <= $inverterNr){
+                    $rowAct = $resultAct->fetch(PDO::FETCH_ASSOC);
+                    if($hour) $currentAct = round($rowAct['istCurrent'], 2)/4;
+                    else $currentAct = round($rowAct['istCurrent'], 2);
+
+                    if (!($currentAct == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
+                        $dataArray['chart'][$counter][$nameArray[$inverterCount]] = $currentAct;
+                    }
+
+                    $inverterCount++;
+                }
                 $counter++;
+                $dataArray['offsetLegend'] = $acGroups[$group]['GMIN'] - 1;
             }
         }
         $conn = null;
-
         return $dataArray;
     }
 
@@ -168,85 +194,7 @@ class DCCurrentChartService
      *  // dc_current_inverter
      */
     public function getCurr3(Anlage $anlage, $from, $to, int $group = 1,  bool $hour = false): array
-    {
-        if(false) {
-            if ($hour) $form = '%y%m%d%H';
-            else $form = '%y%m%d%H%i';
-            $conn = self::getPdoConnection();
-            $dcGroups = $anlage->getGroupsDc();
-            $dataArray = [];
-            $dataArray['maxSeries'] = 0;
-            switch ($anlage->getConfigType()) {
-
-                case 3: // Groningen
-                    $nameArray = $this->functions->getNameArray($anlage, 'scb');
-                    break;
-                default:
-                    $nameArray = $this->functions->getNameArray($anlage, 'dc');
-            }
-            $dataArray['inverterArray'] = $nameArray;
-
-            $sql_strom = "SELECT a.stamp as stamp, b.soll_imppwr as sollCurrent 
-                      FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE wr_num = '$group') b ON a.stamp = b.stamp) 
-                      WHERE a.stamp BETWEEN '$from' AND '$to' GROUP BY date_format(a.stamp, '$form')";
-
-            if ($anlage->getUseNewDcSchema()) {
-
-                $sql = "SELECT sum(wr_idc) as istCurrent
-                    FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDCIst() . " WHERE wr_group ='$group') b ON a.stamp = b.stamp) 
-                    WHERE a.stamp BETWEEN '$from' AND '$to' 
-                    GROUP BY date_format(a.stamp, '$form'), wr_num";
-            } else {
-
-                $sql = "SELECT sum(wr_idc) as istCurrent 
-                        FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameAcIst() . " WHERE group_dc ='$group') b ON a.stamp = b.stamp) 
-                         WHERE a.stamp BETWEEN '$from' AND '$to' 
-                         GROUP BY date_format(a.stamp, '$form'), unit";
-            }
-
-
-            $resultIst = $conn->query($sql);
-            $result = $conn->query($sql_strom);
-            if ($result->rowCount() > 0) {
-                $counter = 0;
-                $dataArray['offsetLegend'] = $dcGroups[$group]['GMIN'] - 1;
-                while ($rowExp = $result->fetch(PDO::FETCH_ASSOC)) {
-                    $stamp = $rowExp['stamp'];
-                    //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-                    $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
-                    $currentExp = round($rowExp['sollCurrent'], 2);
-                    if ($currentExp === null) $currentExp = 0;
-                    if (!($currentExp == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
-                        $dataArray['chart'][$counter]["soll"] = $currentExp;
-                    }
-                    $mppCounter = 0;
-
-                    for ($inverter = $dcGroups[$group]['GMIN']; $inverter <= $dcGroups[$group]['GMAX']; $inverter++) {
-                        $mppCounter++;
-
-                        $rowIst = $resultIst->fetch(PDO::FETCH_ASSOC);
-                        $currentIst = round($rowIst['istCurrent'], 2);
-                        if ($hour) $currentIst = $currentIst / 4;
-                        if (!($currentIst == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
-                            //$dataArray['chart'][$counter]["val$mppCounter"] = $currentIst;
-                            switch ($anlage->getConfigType()) {
-
-                                case 3: // Groningen
-                                    $dataArray['chart'][$counter][$nameArray[$inverter]] = $currentIst;
-                                    break;
-                                default:
-                                    $dataArray['chart'][$counter][$nameArray[$inverter]] = $currentIst;
-                            }
-                        }
-                        $dataArray['label'][$inverter] = $nameArray[$inverter];
-                    }
-                    if ($mppCounter > $dataArray['maxSeries']) $dataArray['maxSeries'] = $mppCounter;
-                    $counter++;
-                }
-            }
-        }
-        else {
-            ($hour) ? $form = '%y%m%d%H' : $form = '%y%m%d%H%i';
+    {            ($hour) ? $form = '%y%m%d%H' : $form = '%y%m%d%H%i';
             $conn = self::getPdoConnection();
             $dcGroups = $anlage->getGroupsDc();
             $dataArray = [];
@@ -267,6 +215,11 @@ class DCCurrentChartService
                       WHERE a.stamp BETWEEN '$from' AND '$to' GROUP BY date_format(a.stamp, '$form')";
             $result = $conn->query($sql_strom);
             if ($result->rowCount() > 0) {
+                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == "Groningen") {
+                    $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
+                } else {
+                    $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
+                }
                 $counter = 0;
                 $dataArray['offsetLegend'] = $dcGroups[$group]['GMIN'] - 1;
                 while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
@@ -276,7 +229,8 @@ class DCCurrentChartService
                     //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
 
                     $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
-                    $currentExp = round($row['sollCurrent'], 2);
+
+                    $row['sollCurrent'] > 0 ? $currentExp = round($row['sollCurrent'], 2) : $currentExp = 0;
                     if ($currentExp === null) $currentExp = 0;
                     if (!($currentExp == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                         $dataArray['chart'][$counter]["soll"] = $currentExp;
@@ -318,12 +272,19 @@ class DCCurrentChartService
                         $dataArray['label'][$inverter] = $nameArray[$inverter];
                     }
                     if ($mppCounter > $dataArray['maxSeries']) $dataArray['maxSeries'] = $mppCounter;
+
+                    if (isset($dataArrayIrradiation['chart'][$counter]['val1'])) {
+                        if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
+                            $dataArray['chart'][$counter]["irradiation"] = $dataArrayIrradiation['chart'][$counter]['val1'];
+                        } else {
+                            $dataArray['chart'][$counter]["irradiation"] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;
+                        }
+                    }
                     $counter++;
                 }
             }
-        }
-        $conn = null;
 
+        $conn = null;
         return $dataArray;
     }
 

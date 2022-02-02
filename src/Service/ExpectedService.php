@@ -142,13 +142,12 @@ class ExpectedService
                             $expPowerDcHlp      = $modul->getModuleType()->getFactorPower($irr) * $modul->getNumStringsPerUnit() * $modul->getNumModulesPerString() / 1000 / 4;
                             $expCurrentDcHlp    = $modul->getModuleType()->getFactorCurrent($irr) * $modul->getNumStringsPerUnit(); // nicht durch 4 teilen, sind keine Ah, sondern A
                         }
-                        /*
+
                         // Temperatur Korrektur
-                        if ($anlage->getHasPannelTemp()) {
-                            $expPowerDcHlp      = $expPowerDcHlp * $modul->getModuleType()->getTempCorrPower($pannelTemp);
+                        if ($anlage->getHasPannelTemp() && $pannelTemp >= 25) {
+                            $expPowerDcHlp      = $expPowerDcHlp   * $modul->getModuleType()->getTempCorrPower($pannelTemp);
                             $expCurrentDcHlp    = $expCurrentDcHlp * $modul->getModuleType()->getTempCorrCurrent($pannelTemp);
                         }
-                        */
 
                         /*
                         // degradation abziehen (degradation * Betriebsjahre).

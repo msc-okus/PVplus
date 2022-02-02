@@ -56,7 +56,9 @@ class ReportingController extends AbstractController
         $reportType     = $request->query->get('report-typ');
         $reportMonth    = $request->query->get('month');
         $reportYear     = $request->query->get('year');
-        $reportDate     = new \DateTime("$reportYear-$reportMonth-01");
+        $daysOfMonth    = date('t',strtotime("$reportYear-$reportMonth-01"));
+        dd($daysOfMonth);
+        $reportDate     = new \DateTime("$reportYear-$reportMonth-$daysOfMonth");
         $anlageId       = $request->query->get('anlage-id');
         $aktAnlagen     = $anlagenRepo->findIdLike([$anlageId]);
         switch ($reportType){
@@ -102,7 +104,8 @@ class ReportingController extends AbstractController
             $reportType     = $request->query->get('report-typ');
             $reportMonth    = $request->query->get('month');
             $reportYear     = $request->query->get('year');
-            $reportDate     = new DateTime("$reportYear-$reportMonth-01");
+            $daysOfMonth    = date('t',strtotime("$reportYear-$reportMonth-01"));
+            $reportDate     = new \DateTime("$reportYear-$reportMonth-$daysOfMonth");
             $anlageId       = $request->query->get('anlage-id');
             $aktAnlagen     = $anlagenRepo->findIdLike([$anlageId]);
             switch ($reportType){
@@ -406,124 +409,6 @@ class ReportingController extends AbstractController
         }
 
         return $this->redirect($route);
-    }
-
-
-    /**
-     * @Route("/test/epc/report/{id}/{pdf}", defaults={"pdf"=false})
-     */
-    public function epcReport($id, $pdf, AnlagenRepository $anlagenRepository, ReportEpcService $reportEpc, EntityManagerInterface $em): Response
-    {
-        $output = '';
-        /** @var Anlage $anlage */
-        $anlagen = $anlagenRepository->findIdLike([$id]);
-        $anlage = $anlagen[0];
-        $currentDate = date('Y-m-d H-i');
-        ############## $currentDate = '2021-05-31 12:00';
-        $pdfFilename = 'EPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
-        $error = false;
-        switch ($anlage->getEpcReportType()) {
-            case 'prGuarantee' :
-                $reportArray = $reportEpc->reportPRGuarantee($anlage);
-                $report = new EPCMonthlyPRGuaranteeReport([
-                    'headlines' => [
-                        [
-                            'projektNr'     => $anlage->getProjektNr(),
-                            'anlage'        => $anlage->getAnlName(),
-                            'eigner'        => $anlage->getEigner()->getFirma(),
-                            'date'          => $currentDate,
-                            'kwpeak'        => $anlage->getKwPeak(),
-                        ],
-                    ],
-                    'main'          => $reportArray[0],
-                    'forecast'      => $reportArray[1],
-                    'pld'           => $reportArray[2],
-                    'header'        => $reportArray[3],
-                    'legend'        => $reportArray[4],
-                    'forecast_real' => $reportArray[5],
-                ]);
-                break;
-            case 'yieldGuarantee':
-                $reportArray = $reportEpc->reportYieldGuarantee($anlage);
-
-                $report = new EPCMonthlyYieldGuaranteeReport([
-                    'headlines' => [
-                        [
-                            'projektNr'     => $anlage->getProjektNr(),
-                            'anlage'        => $anlage->getAnlName(),
-                            'eigner'        => $anlage->getEigner()->getFirma(),
-                            'date'          => $currentDate,
-                            'kwpeak'        => $anlage->getKwPeak(),
-                        ],
-                    ],
-                    'main'          => $reportArray[0],
-                    'forecast24'    => $reportArray[1],
-                    'header'        => $reportArray[2],
-                    'forecast_real' => $reportArray[3],
-                    'legend'        => $reportArray[4],
-                ]);
-                break;
-            default:
-                $error = true;
-                $reportArray = [];
-                $report = null;
-        }
-
-        if (!$error) {
-            $output = $report->run()->render(true);
-
-            // Speichere Report als 'epc-reprt' in die Report Entity
-            if (true) {
-                $reportEntity = new AnlagenReports();
-                $startDate = $anlage->getFacDateStart();
-                $endDate = $anlage->getFacDate();
-                $reportEntity
-                    ->setCreatedAt(new \DateTime())
-                    ->setAnlage($anlage)
-                    ->setEigner($anlage->getEigner())
-                    ->setReportType('epc-report')
-                    ->setStartDate(self::getCetTime('object'))
-                    ->setMonth(self::getCetTime('object')->format('m')-1)
-                    ->setYear(self::getCetTime('object')->format('Y'))
-                    ->setEndDate($endDate)
-                    ->setRawReport($output)
-                    ->setContentArray($reportArray);
-                $em->persist($reportEntity);
-                $em->flush();
-            }
-
-            // erzeuge PDF mit CloudExport von KoolReport
-            if ($pdf) {
-                $secretToken = '2bf7e9e8c86aa136b2e0e7a34d5c9bc2f4a5f83291a5c79f5a8c63a3c1227da9';
-                $settings = [
-                    // 'useLocalTempFolder' => true,
-                    'pageWaiting' => 'networkidle2', //load, domcontentloaded, networkidle0, networkidle2
-                ];
-                $report->run();
-                $pdfOptions = [
-                    'format'                => 'A4',
-                    'landscape'             => true,
-                    'noRepeatTableFooter'   => false,
-                    'printBackground'       => true,
-                    'displayHeaderFooter'   => true,
-                ];
-                $report->cloudExport()
-                    ->chromeHeadlessio($secretToken)
-                    ->settings($settings)
-                    ->pdf($pdfOptions)
-                    ->toBrowser($pdfFilename);
-            }
-        } else {
-            $output = "<h1>Fehler: Es Ist kein Report ausgewählt.</h1>";
-        }
-
-
-        return $this->render('cron/showResult.html.twig', [
-            'headline'      => 'EPC Report',
-            'availabilitys' => '',
-            'output'        => $output,
-        ]);
-
     }
 
 

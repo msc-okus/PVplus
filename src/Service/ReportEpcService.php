@@ -51,14 +51,14 @@ class ReportEpcService
         $this->epcNew = $epcNew;
     }
 
-    public function createEpcReport(Anlage $anlage, DateTime $date, $createPdf = false): string
+    public function createEpcReport(Anlage $anlage, DateTime $date): string
     {
         $currentDate = date('Y-m-d H-i');
         $pdfFilename = 'EPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
         $error = false;
         switch ($anlage->getEpcReportType()) {
             case 'prGuarantee' :
-                $reportArray = $this->reportPRGuarantee($anlage);
+                $reportArray = $this->reportPRGuarantee($anlage, $date);
                 $report = new EPCMonthlyPRGuaranteeReport([
                     'headlines' => [
                         [
@@ -111,13 +111,15 @@ class ReportEpcService
             switch ($anlage->getEpcReportType()) {
                 case 'prGuarantee':
                     $reportEntity
-                        ->setMonth(self::getCetTime('object')->sub(new \DateInterval('P1M'))->format('m'))
-                        ->setYear(self::getCetTime('object')->format('Y'));
+                        //->setMonth(self::getCetTime('object')->sub(new \DateInterval('P1M'))->format('m'))
+                        //->setYear(self::getCetTime('object')->format('Y'));
+                        ->setMonth($date->format('n'))
+                        ->setYear($date->format('Y'));
                     break;
 
                 case 'yieldGuarantee':
                     $reportEntity
-                        ->setMonth($date->format('m'))
+                        ->setMonth($date->format('n'))
                         ->setYear($date->format('Y'));
                     break;
             }
@@ -126,6 +128,7 @@ class ReportEpcService
             $this->em->flush();
 
 
+            /* @deprecated
             // erzeuge PDF mit CloudExport von KoolReport
             if ($createPdf && $anlage->getEpcReportType() == 'prGuarantee') {
                 $secretToken = '2bf7e9e8c86aa136b2e0e7a34d5c9bc2f4a5f83291a5c79f5a8c63a3c1227da9';
@@ -147,6 +150,7 @@ class ReportEpcService
                     ->pdf($pdfOptions)
                     ->toBrowser($pdfFilename);
             }
+            */
         }
         else {
             $output = "<h1>Fehler: Es Ist kein Report ausgewählt.</h1>";
@@ -155,12 +159,12 @@ class ReportEpcService
         return $output;
     }
 
-    public function reportPRGuarantee(Anlage $anlage): array
+    public function reportPRGuarantee(Anlage $anlage, DateTime $date): array
     {
         $anzahlMonate   = ((int)$anlage->getEpcReportEnd()->format('Y') - (int)$anlage->getEpcReportStart()->format('Y')) * 12 + ((int)$anlage->getEpcReportEnd()->format('m') - (int)$anlage->getEpcReportStart()->format('m')) + 1;
         $startYear      = $anlage->getEpcReportStart()->format('Y');
-        $currentMonth   = (int)date('m');
-        $currentYear    = (int)date('Y');
+        $currentMonth   = (int)$date->format('m');
+        $currentYear    = (int)$date->format('Y');
         if ($currentMonth == 1) { // Ausnahme um den Jahreswechsel abzubilden
             $currentMonth   = 13;
             $currentYear    -= 1;
@@ -211,13 +215,11 @@ class ReportEpcService
                         $ertragPvSyst = $anlage->getOneMonthPvSyst($month)->getErtragDesign() / $daysInMonth * $days;
                         $prDesignPvSyst = $anlage->getOneMonthPvSyst($month)->getPrDesign();
                         $forecastDateText   .= date('My', strtotime("$year-$month-1"));
-                        // $realDateText       .= $realDateTextEnd; // Verschobne in Zeile 305
                         break;
                     default:
                         $days = $daysInMonth;
                         $prDesignPvSyst = $anlage->getOneMonthPvSyst($month)->getPrDesign();
                         $ertragPvSyst = $anlage->getOneMonthPvSyst($month)->getErtragDesign();
-
                 }
                 $prGuarantie = $prDesignPvSyst - ($anlage->getDesignPR() - $anlage->getContractualPR());
                 $spezErtragDesign = $ertragPvSyst / $anlage->getKwPeakPvSyst();
@@ -228,7 +230,7 @@ class ReportEpcService
                 $monthlyData = $this->monthlyDataRepo->findOneBy(['anlage' => $anlage, 'year' => $year, 'month' => $month]);
 
                 $currentMonthClass = '';
-                if ($pr) {
+                if ($pr && $pr->getstamp() <= $date) {
                     $prReal = $this->format($pr->getPrEvuMonth());
                     $prStandard = $this->format($pr->getPrDefaultMonthEvu());
                     switch ($n) {
@@ -263,7 +265,7 @@ class ReportEpcService
 
                     $prRealprProg = $prReal;
                     $realDateTextEnd = date('My', strtotime("$year-$month-1"));
-                    if (($month == $currentMonth - 1 && $year == $currentYear) && $run === 2){
+                    if (($month == $currentMonth && $year == $currentYear) && $run === 2){
                         // für das Einfärben der Zeile des aktuellen Monats
                         $currentMonthClass = "current-month";
                         $prArrayFormel = $this->PRCalulation->calcPR($anlage, $anlage->getEpcReportStart(), date_create($to));
@@ -325,7 +327,6 @@ class ReportEpcService
                         $sumPrRealPrProgReal += $prRealprProg * $anteil;
                     }
 
-
                     $report[0][] = [
                         'month'             => date('m / y', strtotime("$year-$month-1")),
                         'days'              => $days,
@@ -352,7 +353,6 @@ class ReportEpcService
                 $month++;
             }
         }
-
         // Forecast (ganzes Jahr, Bsp Sep20 bis Sep21)
         $report[0][] = [
             'month'                 => 'Forecast<br>' . $forecastDateText,
@@ -475,7 +475,6 @@ class ReportEpcService
             'pld'                   => $anlage->getPldPR(),
         ];
 
-        #dd("STOP");
         return $report;
     }
 

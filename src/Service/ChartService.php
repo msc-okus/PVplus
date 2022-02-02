@@ -75,6 +75,7 @@ class ChartService
     /**
      * @param $form
      * @param Anlage|null $anlage
+     * @param bool|null $hour
      * @return array
      */
     public function getGraphsAndControl($form, ?Anlage $anlage,?bool $hour): array
@@ -128,6 +129,7 @@ class ChartService
                         $resultArray['expSum'] = $dataArray['expSum'];
                         $resultArray['evuSum'] = $dataArray['evuSum'];
                         $resultArray['expEvuSum'] = $dataArray['expEvuSum'];
+                        $resultArray['theoPowerSum'] = $dataArray['theoPowerSum'];
                         $resultArray['expNoLimitSum'] = $dataArray['expNoLimitSum'];
                         $resultArray['cosPhiSum'] = $dataArray['cosPhiSum'];
                         $resultArray['headline'] = 'AC production [kWh] – actual and expected';
@@ -332,6 +334,7 @@ class ChartService
                     break;
                 case ("dc_current_inverter"):
                     $dataArray = $this->currentChart->getCurr3($anlage, $from, $to, $form['selectedGroup'], $hour);
+
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -464,7 +467,7 @@ class ChartService
                     $resultArray['headline'] = 'Something was wrong ' . $form['selectedChart'];
             }
         }
-        dump($resultArray);
+
         return $resultArray;
     }
 
@@ -511,9 +514,10 @@ class ChartService
 
     /**
      * Erzeugt Daten für Temperatur Diagramm
-     * @param $anlage
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param bool $hour
      * @return array
      *  //
      */
@@ -524,32 +528,30 @@ class ChartService
         $conn = self::getPdoConnection();
         $dataArray = [];
         $counter = 0;
-        if($hour)$sql2 = "SELECT a.stamp, sum(b.at_avg) as at_avg, sum(b.pt_avg) as pt_avg FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
-        else  $sql2 = "SELECT a.stamp, b.at_avg as at_avg, b.pt_avg as pt_avg FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
+        /*
+        if ($hour) $sql2 = "SELECT a.stamp, sum(b.at_avg) as at_avg, sum(b.pt_avg) as pt_avg FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
+        else $sql2 = "SELECT a.stamp, b.at_avg as at_avg, b.pt_avg as pt_avg FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
+        */
+        if ($hour) $sql2 = "SELECT a.stamp, avg(b.temp_ambient) as tempAmbient, avg(b.temp_pannel) as tempPannel, avg(b.wind_speed) as windSpeed FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
+        else $sql2 = "SELECT a.stamp, sum(b.temp_ambient) as tempAmbient, sum(b.temp_pannel) as tempPannel, sum(b.wind_speed) as windSpeed FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
+
         $res = $conn->query($sql2);
         while ($ro = $res->fetch(PDO::FETCH_ASSOC)) {
-            $atavg = $ro["at_avg"];
-
-            if (!$atavg) {
-                $atavg = 0;
-            }
-            $ptavg = $ro["pt_avg"];
-            if (!$ptavg) {
-                $ptavg = 0;
-            }
-            $atavg = str_replace(',', '.', $atavg);
-
-            if($hour) $atavg = $atavg / 4;
-            $ptavg = str_replace(',', '.', $ptavg);
-            if($hour) $ptavg= $ptavg/ 4;
+            $tempAmbient = $ro["tempAmbient"];
+            if (!$tempAmbient) $tempAmbient = 0;
+            $tempPannel = $ro["tempPannel"];
+            if (!$tempPannel) $tempPannel = 0;
+            $windSpeed = $ro["windSpeed"];
+            if (!$windSpeed) $windSpeed = 0;
 
             $stamp = $ro["stamp"];  #utc_date($stamp,$anintzzws);
-            if ($ptavg != "#") {
+            if ($tempPannel != "#") {
                 //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
                 $dataArray['chart'][$counter]["date"] = self::timeShift($anlage, $stamp);
-                if (!($atavg + $ptavg == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
-                    $dataArray['chart'][$counter]["val1"] = $atavg; // upper pannel
-                    $dataArray['chart'][$counter]["val2"] = $ptavg; // lower pannel
+                if (!($tempAmbient + $tempPannel == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
+                    $dataArray['chart'][$counter]["val1"] = $tempAmbient; // upper pannel
+                    $dataArray['chart'][$counter]["val2"] = $tempPannel; // lower pannel
+                    $dataArray['chart'][$counter]["windSpeed"] = $windSpeed; // Wind Speed
                 }
             }
             $counter++;
@@ -579,8 +581,10 @@ class ChartService
             $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
             if($anlage->getShowEvuDiag()) {
                 $dataArray['chart'][$counter]['pr_act'] = $pr->getPrEvu();
+                $dataArray['chart'][$counter]['pr_default'] = $pr->getPrDefaultEvu();
             } else {
                 $dataArray['chart'][$counter]['pr_act'] = $pr->getPrAct();
+                $dataArray['chart'][$counter]['pr_default'] = $pr->getPrDefaultAct();
             }
             $av = $this->availabilityRepository->sumAvailabilityPerDay($anlage->getAnlId(), $stamp);
             $dataArray['chart'][$counter]['av'] = round($av, 2);
