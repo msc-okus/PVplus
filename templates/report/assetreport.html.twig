@@ -17,33 +17,46 @@
                 {% endif %}
 
                 {% if(data.CumulatForecastG4N) == true %}
-                {% include 'report/_asset_mangement_partials/_cumulative_forecast_with_G4N.html.twig'%}
+                    {% include 'report/_asset_mangement_partials/_cumulative_forecast_with_G4N.html.twig'%}
                 {% endif %}
 
-                {% include 'report/_asset_mangement_partials/_cumulative_losses_yearly.html.twig'%}
+                {%  if (data.CumulatLosses == true) %}
+                    {% include 'report/_asset_mangement_partials/_cumulative_losses_yearly.html.twig'%}
+                {% endif %}
 
-                {% include 'report/_asset_mangement_partials/_cumulative_losses_monthly.html.twig'%}
+                {% if (data.MonthlyProd == true) %}
+                    {% include 'report/_asset_mangement_partials/_cumulative_losses_monthly.html.twig'%}
+                {% endif %}
 
-                {% include 'report/_asset_mangement_partials/_monthley_production.html.twig'%}
-
-                {% include 'report/_asset_mangement_partials/_production_monthly_expected_vs_actuals.html.twig'%}
+                {% if (data.DailyProd == true) %}
+                    {% include 'report/_asset_mangement_partials/_monthley_production.html.twig'%}
+                    {% include 'report/_asset_mangement_partials/_production_monthly_expected_vs_actuals.html.twig'%}
+                {% endif %}
 
             {% endif %}
 
             {% if(data.Availability) == true %}
 
-                {% include 'report/_asset_mangement_partials/_availibility_yearly_overview.html.twig'%}
+                {% if (data.AvYearlyOverview == true) %}
+                    {% include 'report/_asset_mangement_partials/_availibility_yearly_overview.html.twig'%}
+                {% endif %}
 
-                {% include 'report/_asset_mangement_partials/_availability_monthly_overview.html.twig'%}
+                {% if (data.AvMonthlyOverview == true) %}
+                    {% include 'report/_asset_mangement_partials/_availability_monthly_overview.html.twig'%}
+                {% endif %}
 
-                {% include 'report/_asset_mangement_partials/_aufloesung_availibility_fuerr_den_act_monat.html.twig'%}
+                {% if (data.AvInv == true) %}
+                    {% include 'report/_asset_mangement_partials/_aufloesung_availibility_fuerr_den_act_monat.html.twig'%}
+                    {% include 'report/_asset_mangement_partials/_availability_inverter_daily.html.twig'%}
+                {% endif %}
 
-                {% include 'report/_asset_mangement_partials/_availability_inverter_daily.html.twig'%}
+                {% if (data.StringCurr == true) %}
+                    {% include 'report/_asset_mangement_partials/_string_currents_daily_difference_g4n_actuals.html.twig'%}
+                {% endif %}
 
-                {% include 'report/_asset_mangement_partials/_string_currents_daily_difference_g4n_actuals.html.twig'%}
-
-                {% include 'report/_asset_mangement_partials/_inverters_power_daily_difference_g4n_actuals.html.twig'%}
-
+                {% if (data.InvPow == true) %}
+                    {% include 'report/_asset_mangement_partials/_inverters_power_daily_difference_g4n_actuals.html.twig'%}
+                {% endif %}
             {% endif %}
 
             {% if(data.Economics) == true %}

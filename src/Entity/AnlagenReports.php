@@ -93,6 +93,12 @@ class AnlagenReports
      */
     private int $reportStatus = 10;
 
+    /**
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $comments;
+
+
     public function getId(): ?int
     {
         return $this->id;
@@ -215,4 +221,18 @@ class AnlagenReports
 
         return $this;
     }
+
+    public function getComments(): ?string
+    {
+        return $this->comments;
+    }
+
+    public function setComments(?string $comments): self
+    {
+        $this->comments = $comments;
+
+        return $this;
+    }
+
+
 }

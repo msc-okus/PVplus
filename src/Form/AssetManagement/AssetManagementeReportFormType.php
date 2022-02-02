@@ -3,6 +3,7 @@
 namespace App\Form\AssetManagement;
 
 use App\Form\Type\SwitchType;
+use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -42,6 +43,8 @@ class AssetManagementeReportFormType extends AbstractType
                 'label'     => 'Daily Production',
                 'required'  => false
             ])
+
+
 
             /*
             ->add('ProductionPos', ChoiceType::class,[
