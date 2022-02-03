@@ -59,7 +59,7 @@ class MonthlyDataRepository extends ServiceEntityRepository
 
         $result = $this->createQueryBuilder('a')
             ->andWhere('a.anlage = :anlage')
-            ->andWhere('((a.year + a.month / 10) >= :start AND (a.year + a.month / 10) <= :end)')
+            ->andWhere('((a.year + a.month / 100) >= :start AND (a.year + a.month / 100) <= :end)')
             ->setParameter('start', $start)
             ->setParameter('end', $end)
             ->setParameter('anlage', $anlage)
@@ -68,7 +68,6 @@ class MonthlyDataRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult()
             ;
-
         return $result;
     }
 

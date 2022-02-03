@@ -149,6 +149,7 @@ class DCCurrentChartService
 
             $result = $conn->query($sqlExp);
 
+
             $sql = "SELECT sum(wr_idc) as istCurrent FROM ";
             ($anlage->getUseNewDcSchema()) ? $sql .= $anlage->getDbNameDCIst() . " WHERE stamp >= '$from' AND stamp <= '$to' " : $sql .= $anlage->getDbNameACIst() . " WHERE stamp >= '$from' AND stamp <= '$to' ";
             switch ($anlage->getConfigType()) {
@@ -180,6 +181,7 @@ class DCCurrentChartService
                         $rowAct = $resultAct->fetch(PDO::FETCH_ASSOC);
                         if ($hour) $currentAct = round($rowAct['istCurrent'], 2) / 4;
                         else $currentAct = round($rowAct['istCurrent'], 2);
+
 
                         if (!($currentAct == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                             $dataArray['chart'][$counter][$nameArray[$inverterCount]] = $currentAct;
