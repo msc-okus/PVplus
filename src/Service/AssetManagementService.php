@@ -87,18 +87,6 @@ class AssetManagementService
         $report['from'] = $from;
         $report['to'] = $to;
         $report['reportYear'] = $reportYear;
-        //A LOT OF UNUSED, REMOVE?
-        #$report['anlage'] = $anlage;
-        #$report['prs'] = $this->PRRepository->findPRInMonth($anlage, $reportMonth, $reportYear);
-        #$report['lastPR'] = $this->PRRepository->findOneBy(['anlage' => $anlage, 'stamp' => date_create("$year-$month-$lastDayMonth")]);
-        #$report['case5s'] = $this->case5Repo->findAllAnlageDay($anlage, $from);
-        #$report['pvSyst'] = $this->getPvSystMonthData($anlage, $month, $year);
-        $useGridMeterDayData = $anlage->getUseGridMeterDayData();
-        $showAvailability = $anlage->getAnlId();
-        $showAvailabilitySecond = $anlage->getShowAvailabilitySecond();
-        $usePac = $anlage->getUsePac();
-
-        $countCase5 = 0;
 
         $output = $this->buildAssetReport($anlage, $report, $pages);
 

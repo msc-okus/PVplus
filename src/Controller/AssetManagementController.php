@@ -42,6 +42,7 @@ class AssetManagementController extends BaseController
             //submitting the report
 
         }
+        //dd($output,count($output["plantAvailabilityMonth"]));
         $form = $this->createForm(AssetManagementeReportFormType::class);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -50,6 +51,7 @@ class AssetManagementController extends BaseController
             //dd($data);
             //if(($data['ProductionPos'] != $data['AvailabilityPos']) && ($data['AvailabilityPos'] != $data['EconomicsPos']) && ($data['ProductionPos'] != $data['EconomicsPos']))
             $result = $this->render('report/assetreport.html.twig', [
+                'invNr' => count($output["operations_currents_dayly_table"]),
                 'comments' =>$report->getComments(),
                 'data' => $data,
                 'anlage' => $anlage,

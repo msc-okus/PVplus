@@ -166,9 +166,11 @@
             </td>
         </tr>
     </table>
+    {#
     <div class="explanation" >
         <b>Explanation:</b>
         <br>The PV plant shows a system availability of {{ (availabilityall/counterall)|number_format(2, ',', '.') }}% for the period from 01/01/{{ year}} to {{ reportmonth }}/{{ daysInReportMonth }}/{{ year}} (reporting period).<br>
         The main reason for the relatively low availability is the fact that inverters 1.1 (transformer station 1) have not been working since April. They should be checked for defects.
     </div>
+    #}
 {% endblock page %}

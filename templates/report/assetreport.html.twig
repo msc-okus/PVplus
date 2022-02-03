@@ -51,13 +51,16 @@
                 {% endif %}
 
                 {% if (data.StringCurr == true) %}
+                    {%  for i in 0..(((invNr/40)|round(1, 'ceil'))-1) %}
                     {% include 'report/_asset_mangement_partials/_string_currents_daily_difference_g4n_actuals.html.twig'%}
+                    {% endfor %}
                 {% endif %}
 
                 {% if (data.InvPow == true) %}
                     {% include 'report/_asset_mangement_partials/_inverters_power_daily_difference_g4n_actuals.html.twig'%}
                 {% endif %}
             {% endif %}
+
 
             {% if(data.Economics) == true %}
 
@@ -73,6 +76,12 @@
 
                 {% include 'report/_asset_mangement_partials/_economics_cumulated_losses_compared.html.twig'%}
 
+            {% endif %}
+
+            {% if (comments != null)  %}
+                {% if (comments != "") %}
+                    {% include 'report/_asset_mangement_partials/_comments.html.twig' %}
+                {% endif %}
             {% endif %}
 
         {% endblock %}

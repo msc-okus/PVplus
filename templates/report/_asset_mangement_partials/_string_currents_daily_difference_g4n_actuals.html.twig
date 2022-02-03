@@ -1,5 +1,7 @@
 {% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
 
+
+
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">String currents</h3>
     <span class="subheadline">Overview – Daily difference between g4n expected vs. actuals [%]</span>
@@ -16,8 +18,10 @@
                 {% set unitcounter2 = 0 %}
                 {% set counterall = 0 %}
                 {% set availabilityall = 0 %}
+
                 <table class="asset_report_table_operations_data" style="margin-bottom: 5px!important;">
                     {% for data in operations_currents_dayly_table %}
+                    {#
                         <td style = 'border: none !important; padding:0 !important;vertical-align: bottom !important;'>
                             <table class = "streamdayly" style="margin:0 !important;">
                                 <thead>
@@ -58,6 +62,7 @@
                         {% set unitcounter2 = unitcounter2+1 %}
                         {% set itemcounter = itemcounter+1 %}
                         {% set unitcounter = unitcounter+1 %}
+                        #}
                     {% endfor %}
                     {% set itemcounter = 1 %}
                     </td>
@@ -86,10 +91,13 @@
             </td>
         </tr>
     </table>
+    {#
     <div class="explanation">
         <b>Explanation:</b><br>
         The string currents are compared to expected values as developed by green4net.
         <br><br>
         - Losses originate on the DC side (string box data): Some inverters show string current underperformance of more than 15% continuously. String boxes should be checked for functionality and connection
     </div>
+    #}
 {%  endblock page %}
+

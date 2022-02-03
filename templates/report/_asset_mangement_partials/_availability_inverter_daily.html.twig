@@ -18,6 +18,7 @@
                 {% set availabilityall = 0 %}
                 <table class="asset_report_table_operations_data" style="margin-bottom: 5px!important;">
                     {% for data in plantAvailabilityMonth %}
+
                         <td style = 'border: none !important; padding:0 !important;vertical-align: bottom !important;'>
                             <table class = "streamdayly" style="margin:0 !important;">
                                 <thead>
@@ -85,9 +86,11 @@
             </td>
         </tr>
     </table>
+    {#
     <div class="explanation">
         <b>Explanation:</b>
         <br>The PV plant shows a system availability of {{ (availabilityall / counterall)|number_format(3, ',', '.') }}% for the period from 01/01/{{ year}} to {{ reportmonth }}/{{ daysInReportMonth }}/{{ year}} (reporting period).<br>
         The main reason for the relatively low availability is the fact that inverters 1.1 (transformer station 1) have not been working since April. They should be checked for defects.
     </div>
+    #}
 {% endblock page %}
