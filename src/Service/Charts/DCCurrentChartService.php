@@ -48,12 +48,8 @@ class DCCurrentChartService
         $conn = self::getPdoConnection();
         $acGroups = $anlage->getGroupsAc();
         $dataArray = [];
-        $inverterNr = 0;
         switch ($anlage->getConfigType()) {
             case 1:
-                $groupQuery = "group_ac = '$group' ";
-                $nameArray = $this->functions->getNameArray($anlage, 'ac');
-                break;
             case 3:
                 # z.B. Gronningen
                 $groupQuery = "group_ac = '$group' ";
