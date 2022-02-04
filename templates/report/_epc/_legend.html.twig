@@ -24,4 +24,8 @@
         {% endfor %}
         </tbody>
     </table>
+    {% if anlage.epcReportNote %}
+        <h3>Remarks</h3>
+        {{ anlage.epcReportNote|raw }}
+    {% endif %}
 {% endblock %}
