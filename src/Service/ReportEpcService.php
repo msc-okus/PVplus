@@ -453,8 +453,8 @@ class ReportEpcService
 
         // Daten für die Darstellung der Formel
         $report['formel'][]= [
-            'eGridReal'             => $this->format($formelEnergy),
-            'prReal'                => $this->format($formelPR),
+            'eGridReal'             => $this->format($sumEGridRealReal),//$formelEnergy
+            'prReal'                => $this->format($sumEGridRealReal / $formelPowerTheo * 100),//$formelPR
             'availability'          => $this->format($formelAvailability),
             'theoPower'             => $this->format($formelPowerTheo),
             'irradiation'           => $this->format($formelIrr),
