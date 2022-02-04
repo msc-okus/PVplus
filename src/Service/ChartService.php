@@ -243,6 +243,7 @@ class ChartService
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['actSum'] = $dataArray['actSum'];
                         $resultArray['expSum'] = $dataArray['expSum'];
+                        $resultArray['theoPowerSum'] = 0;
                         $resultArray['headline'] = 'DC Production [kWh] – Actual and Expected';
                     }
                     break;
