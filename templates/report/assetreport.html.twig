@@ -47,7 +47,9 @@
 
                 {% if (data.AvInv == true) %}
                     {% include 'report/_asset_mangement_partials/_aufloesung_availibility_fuerr_den_act_monat.html.twig'%}
-                    {% include 'report/_asset_mangement_partials/_availability_inverter_daily.html.twig'%}
+                    {%  for page in 0..(((invNr/40)|round(0, 'ceil'))-1) %}
+                        {% include 'report/_asset_mangement_partials/_availability_inverter_daily.html.twig'%}
+                    {% endfor %}
                 {% endif %}
 
                 {% if (data.StringCurr == true) %}
@@ -57,8 +59,11 @@
                 {% endif %}
 
                 {% if (data.InvPow == true) %}
-                    {% include 'report/_asset_mangement_partials/_inverters_power_daily_difference_g4n_actuals.html.twig'%}
-                {% endif %}
+                    {%  for page in 0..(((invNr/40)|round(0, 'ceil'))-1) %}
+                        {% include 'report/_asset_mangement_partials/_inverters_power_daily_difference_g4n_actuals.html.twig'%}1
+                    {% endfor %}
+
+        {% endif %}
             {% endif %}
 
 

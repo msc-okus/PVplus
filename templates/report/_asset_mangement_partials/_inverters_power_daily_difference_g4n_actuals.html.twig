@@ -7,30 +7,34 @@
     <table id="basetable">
         <tr>
             <td style="vertical-align: top;">
-                {% set daysInReportMonth = daysInReportMonth %}
-                {% set tableColsLimit_twig = tableColsLimit %}
-                {% set tbody = "" %}
                 {% set itemcounter = 1 %}
-                {% set itemcounter2 = 0 %}
-                {% set unitcounter = 0 %}
-                {% set unitcounter2 = 0 %}
-                {% set counterall = 0 %}
-                {% set availabilityall = 0 %}
+                {% if (page == (((invNr / 40)|round(0, 'ceil'))-1)) %}
+
+                    {% if  (invNr % 40) != 0 %}
+                        {% set maxInv = (invNr % 40) %}
+                    {% else %}
+                        {% set maxInv =  40 %}
+                    {% endif %}
+
+                {% else  %}
+                    {% set maxInv =  40 %}
+                {% endif %}
                 <table class="asset_report_table_operations_data" style="margin-bottom: 5px!important;">
-                    {% for data in operations_currents_dayly_table %}
+                    {% for inv in 0..maxInv-1 %}
+                        {%  set data = operations_currents_dayly_table[(page*40)+inv] %}
                         <td style = 'border: none !important; padding:0 !important;vertical-align: bottom !important;'>
                             <table class = "streamdayly" style="margin:0 !important;">
                                 <thead>
                                 {% if (itemcounter == 1 ) %}
-                                    <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;" rowspan="3" style="border-left: solid 1px !important;">Day</th><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">{{ acGroups[unitcounter2] }}</th></tr>
+                                    <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;" rowspan="3" style="border-left: solid 1px !important;">Day</th><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">{{ acGroups[(page*40)+inv] }}</th></tr>
                                     <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">[%]</th></tr>
                                 {% endif %}
                                 {% if (itemcounter > 1) %}
                                     {% if loop.last %}
-                                        <tr><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; text-align: center;">{{ acGroups[unitcounter2] }}</th></tr>
+                                        <tr><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; text-align: center;">{{ acGroups[(page*40)+inv] }}</th></tr>
                                         <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important;  text-align: center;">[%]</th></tr>
                                     {% else %}
-                                        <tr><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">{{ acGroups[unitcounter2] }}</th></tr>
+                                        <tr><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">{{ acGroups[(page*40)+inv] }}</th></tr>
                                         <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">[%]</th></tr>
                                     {% endif %}
 
@@ -55,9 +59,7 @@
                                 {% endfor %}
                             </table>
                         </td>
-                        {% set unitcounter2 = unitcounter2+1 %}
                         {% set itemcounter = itemcounter+1 %}
-                        {% set unitcounter = unitcounter+1 %}
                     {% endfor %}
                     {% set itemcounter = 1 %}
                     </td>

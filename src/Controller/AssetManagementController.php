@@ -48,7 +48,7 @@ class AssetManagementController extends BaseController
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             $output["data"] = $data;
-            //dd($data);
+
             //if(($data['ProductionPos'] != $data['AvailabilityPos']) && ($data['AvailabilityPos'] != $data['EconomicsPos']) && ($data['ProductionPos'] != $data['EconomicsPos']))
             $result = $this->render('report/assetreport.html.twig', [
                 'invNr' => count($output["operations_currents_dayly_table"]),

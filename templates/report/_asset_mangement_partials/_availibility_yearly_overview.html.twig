@@ -16,7 +16,9 @@
                 {% set counterall = 0 %}
                 {% set availabilityall = 0 %}
                 <table class="asset_report_table_operations_data" style="margin-bottom: 5px!important; width: 100%!important;">
+
                     {% for data in plantAvailabilityCurrentYear %}
+
                         {% set countinverters = data[0]|length %}
                         {% if (itemcounter == 1 ) %}
                             <tr>

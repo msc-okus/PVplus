@@ -1418,8 +1418,7 @@ class AssetManagementService
         //Fuer die PA des aktuellen Jahres
         for ($j = 1; $j <= $report['reportMonth']; $j++) {
             $daysInThisMonth = cal_days_in_month(CAL_GREGORIAN, $j, $report['reportYear']);
-            $sql = "SELECT DATE_FORMAT(stamp, '%Y-%m') AS form_date, unit, COUNT(db_id) as anz, sum(pa_0) as summe, sum(pa_0)/COUNT(db_id)*100 as pa FROM " . $anlage->getDbNameIst() . " where stamp BETWEEN '" . $report['reportYear'] . "-" . $j . "-1 00:00' and '" . $report['reportYear'] . "-" . $j . "-" . $daysInThisMonth . " 23:59'and pa_0 >= 0  group by unit, DATE_FORMAT(stamp, '%Y-%m')";
-
+            $sql = "SELECT DATE_FORMAT(stamp, '%Y-%m') AS form_date, unit, avg(pa_0)*100 as pa FROM " . $anlage->getDbNameIst() . " where stamp BETWEEN '" . $report['reportYear'] . "-" . $j . "-1 00:00' and '" . $report['reportYear'] . "-" . $j . "-" . $daysInThisMonth . " 23:59'and pa_0 >= 0  group by unit, DATE_FORMAT(stamp, '%Y-%m')";
             $result = $this->conn->prepare($sql);
             $result->execute();
             $i = 0;
@@ -1431,21 +1430,12 @@ class AssetManagementService
                     'pa' => round($value['pa'],3),
                     'unit' => $value['unit']
                 ];
+
                 $i++;
-                #echo date("m", strtotime($value['form_date'])) . '<br>';
-                if ($i == 40) {
-
-                    $i = 0;
-                    $outTemp[] = $pa;
-
-                    unset($pa);
-                    break;
-                }
-
             }
+            $outPaCY[][] = $pa;
+            unset($pa);
 
-            $outPaCY[] = $outTemp;
-            unset($outTemp);
 
         }
 
