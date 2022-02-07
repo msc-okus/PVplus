@@ -31,25 +31,27 @@ class AssetManagementController extends BaseController
      */
     public function assetReport($id, $month, $year, $export, $pages, AssetManagementService $assetManagement, AnlagenRepository $anlagenRepository, Request $request, EntityManagerInterface $em, ReportsRepository $reportRepo)
     {
+        $load = false;
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
         $report = new AnlagenReports();
         if($reportRepo->findOneByAMY($anlage,$month,$year)[0]) {
+
             $report = $reportRepo->findOneByAMY($anlage, $month, $year)[0];
             $output = $report->getContentArray();
+            $load = true;
         }
         else {
+
             $output = $assetManagement->assetReport($anlage, $month, $year, $pages);
             //submitting the report
 
         }
-        //dd($output,count($output["plantAvailabilityMonth"]));
+
         $form = $this->createForm(AssetManagementeReportFormType::class);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
             $output["data"] = $data;
-
-            //if(($data['ProductionPos'] != $data['AvailabilityPos']) && ($data['AvailabilityPos'] != $data['EconomicsPos']) && ($data['ProductionPos'] != $data['EconomicsPos']))
             $result = $this->render('report/assetreport.html.twig', [
                 'invNr' => count($output["operations_currents_dayly_table"]),
                 'comments' =>$report->getComments(),
@@ -121,31 +123,33 @@ class AssetManagementController extends BaseController
 
 
             if ($export == 1) {
-                $report = new AnlagenReports();
+                if(!$load) {
+                    $report = new AnlagenReports();
 
-                $report->setAnlage($anlage);
+                    $report->setAnlage($anlage);
 
-                $report->setEigner($anlage->getEigner());
+                    $report->setEigner($anlage->getEigner());
 
-                $report->setMonth($month);
+                    $report->setMonth($month);
 
-                $report->setYear($year);
+                    $report->setYear($year);
 
-                $dates = date('d.m.y', strtotime("01." . $month . "." . $year));
-                $report->setStartDate(date_create_from_format('d.m.y', $dates));
+                    $dates = date('d.m.y', strtotime("01." . $month . "." . $year));
+                    $report->setStartDate(date_create_from_format('d.m.y', $dates));
 
-                $dates = date('d.m.y', strtotime("30." . $month . "." . $year));
-                $report->setEndDate(date_create_from_format('d.m.y', $dates));
+                    $dates = date('d.m.y', strtotime("30." . $month . "." . $year));
+                    $report->setEndDate(date_create_from_format('d.m.y', $dates));
 
-                $report->setReportType("am-report");
+                    $report->setReportType("am-report");
 
-                $report->setContentArray($output);
+                    $report->setContentArray($output);
 
-                $report->setRawReport("");
+                    $report->setRawReport("");
 
-                $em->persist($report);
+                    $em->persist($report);
 
-                $em->flush();
+                    $em->flush();
+                }
 
 
                 //WE SHOULD REPLACE THIS FOR A COMMIT TO THE DB WITH THE NEW ENTITY(DEFINED IN MY NOTES)
@@ -185,7 +189,7 @@ class AssetManagementController extends BaseController
         }
 
         return $this->render('report/_form.html.twig',[
-                'assetForm' => $form->createView()
+                'assetForm' => $form->createView(),
         ]);
     }
 

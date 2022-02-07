@@ -96,47 +96,57 @@ class AssetManagementService
 
     private function getPvSystMonthData(Anlage $anlage, $month, $year): array
     {
-        $pvSystMonth = $this->pvSystMonthRepo->findOneBy(['anlage' => $anlage, 'month' => (int)$month]);
-        if ($pvSystMonth) {
-            $prPvSystMonth = $pvSystMonth->getPrDesign();
-            $powerPvSyst = $pvSystMonth->getErtragDesign();
-        } else {
-            $prPvSystMonth = 0;
-            $powerPvSyst = 0;
-        }
-        /** @var AnlagenPvSystMonth[] $pvSystYear */
-        $pvSystYear = $this->pvSystMonthRepo->findAllYear($anlage, (int)$month);
-        $powerPac = 0;
-        $powerYear = 0;
-
-        foreach ($pvSystYear as $pvSystYearValue) {
-            $powerYear += $pvSystYearValue->getErtragDesign();
-        }
-        /** @var AnlagenPvSystMonth[] $pvSystPac */
-        $pvSystPac = $this->pvSystMonthRepo->findAllPac($anlage, (int)$month);
-        $anzRecordspvSystPac = count($pvSystPac);
-        foreach ($pvSystPac as $pvSystPacValue) {
-            // wenn Anzahl Monate kleiner 12 dann muss der erste Moanat nur anteilig berechnet werden
-            // wenn 12 oder mehr dann kann der ganze Moant addiert werden
-            // und das nur beim ersten PAC Monat
-            if ((int)$anlage->getPacDate()->format('m') == $pvSystPacValue->getMonth() && $anzRecordspvSystPac < 12) {
-                $dayPac = (int)$anlage->getPacDate()->format('d');
-                $daysInMonthPac = (int)$anlage->getPacDate()->format('t');
-                $days = $daysInMonthPac - $dayPac + 1;
-                $powerPac += $pvSystPacValue->getErtragDesign() / $daysInMonthPac * $days;
+        if($anlage->hasPVSYST()) {
+            $pvSystMonth = $this->pvSystMonthRepo->findOneBy(['anlage' => $anlage, 'month' => (int)$month]);
+            if ($pvSystMonth) {
+                $prPvSystMonth = $pvSystMonth->getPrDesign();
+                $powerPvSyst = $pvSystMonth->getErtragDesign();
             } else {
-                $powerPac += $pvSystPacValue->getErtragDesign();
+                $prPvSystMonth = 0;
+                $powerPvSyst = 0;
             }
-        }
+            /** @var AnlagenPvSystMonth[] $pvSystYear */
+            $pvSystYear = $this->pvSystMonthRepo->findAllYear($anlage, (int)$month);
+            $powerPac = 0;
+            $powerYear = 0;
 
-        return [
-            'prMonth' => $prPvSystMonth,
-            'prPac' => $anlage->getDesignPR(),
-            'prYear' => $anlage->getDesignPR(),
-            'powerMonth' => $powerPvSyst,
-            'powerPac' => $powerPac,
-            'powerYear' => $powerYear
+            foreach ($pvSystYear as $pvSystYearValue) {
+                $powerYear += $pvSystYearValue->getErtragDesign();
+            }
+            /** @var AnlagenPvSystMonth[] $pvSystPac */
+            $pvSystPac = $this->pvSystMonthRepo->findAllPac($anlage, (int)$month);
+            $anzRecordspvSystPac = count($pvSystPac);
+            foreach ($pvSystPac as $pvSystPacValue) {
+                // wenn Anzahl Monate kleiner 12 dann muss der erste Moanat nur anteilig berechnet werden
+                // wenn 12 oder mehr dann kann der ganze Moant addiert werden
+                // und das nur beim ersten PAC Monat
+                if ((int)$anlage->getPacDate()->format('m') == $pvSystPacValue->getMonth() && $anzRecordspvSystPac < 12) {
+                    $dayPac = (int)$anlage->getPacDate()->format('d');
+                    $daysInMonthPac = (int)$anlage->getPacDate()->format('t');
+                    $days = $daysInMonthPac - $dayPac + 1;
+                    $powerPac += $pvSystPacValue->getErtragDesign() / $daysInMonthPac * $days;
+                } else {
+                    $powerPac += $pvSystPacValue->getErtragDesign();
+                }
+            }
+            return [
+                'prMonth' => $prPvSystMonth,
+                'prPac' => $anlage->getDesignPR(),
+                'prYear' => $anlage->getDesignPR(),
+                'powerMonth' => $powerPvSyst,
+                'powerPac' => $powerPac,
+                'powerYear' => $powerYear
+            ];
+        }
+        else return [
+            'prMonth' => 0,
+            'prPac' => 0,
+            'prYear' => 0,
+            'powerMonth' => 0,
+            'powerPac' => 0,
+            'powerYear' => 0
         ];
+
     }
 
     /**
@@ -241,14 +251,23 @@ class AssetManagementService
                 $data1_grid_meter['powerExp'] = 0;
                 $data1_grid_meter['powerExpEvu'] = 0;
             }
+            if ($anlage->getShowEvuDiag()) {
+                (float)$powerEvu[] = $data1_grid_meter['powerEvu'];// read comment in line
+                (float)$powerAct[] = $data1_grid_meter['powerAct'];//Inv out
+                (float)$powerExp[] = $data1_grid_meter['powerExp'];
+                (float)$powerExpEvu[] = $data1_grid_meter['powerExpEvu'];
+            }
+            else{
+                (float)$powerEvu[] = $data1_grid_meter['powerAct'];// read comment in line
+                (float)$powerAct[] = $data1_grid_meter['powerAct'];//Inv out
+                (float)$powerExp[] = $data1_grid_meter['powerExp'];
+                (float)$powerExpEvu[] = $data1_grid_meter['powerExp'];
+            }
 
-            (float)$powerEvu[] = $data1_grid_meter['powerEvu'];
-            (float)$powerAct[] = $data1_grid_meter['powerAct'];//Inv out
-            (float)$powerExp[] = $data1_grid_meter['powerExp'];
-            (float)$powerExpEvu[] = $data1_grid_meter['powerExpEvu'];
 
             $powerEvuYearToDate = round($powerEvuYearToDate + $data1_grid_meter['powerEvu'], 2);
-            $pvSyst = $this->pvSystMonthRepo->findOneMonth($anlage, $i);
+            if ($anlage->hasPVSYST())$pvSyst = $this->pvSystMonthRepo->findOneMonth($anlage, $i);
+            else $pvSyst = 0;
 
             if ($pvSyst) $expectedPvSystDb = $pvSyst->getErtragDesign();
 
@@ -945,20 +964,24 @@ class AssetManagementService
 
 
         //Tabelle rechts oben
-        $operations_monthly_right_pvsyst_tr1 = [
-            $monthName . ' ' . $report['reportYear'],
-            $powerEvu[$report['reportMonth'] - 1],
-            $expectedPvSyst[$report['reportMonth'] - 1],
-            abs($powerEvu[$report['reportMonth'] - 1] - $expectedPvSyst[$report['reportMonth'] - 1]),
-            round((1 - $expectedPvSyst[$report['reportMonth'] - 1] / $powerEvu[$report['reportMonth'] - 1]) * 100, 2)
-        ];
+
+            $operations_monthly_right_pvsyst_tr1 = [
+                $monthName . ' ' . $report['reportYear'],
+                $powerEvu[$report['reportMonth'] - 1],
+                $expectedPvSyst[$report['reportMonth'] - 1],
+                abs($powerEvu[$report['reportMonth'] - 1] - $expectedPvSyst[$report['reportMonth'] - 1]),
+                round((1 - $expectedPvSyst[$report['reportMonth'] - 1] / $powerEvu[$report['reportMonth'] - 1]) * 100, 2)
+            ];
+
 
         //Parameter fuer die Berechnung Q1
         $start = $report['reportYear'] . '-01-01 00:00';
         $end = $report['reportYear'] . '-03-31 23:59';
         $data2_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
-        $powerEvuQ1 = $data2_grid_meter['powerEvu'];
-        if ((($currentYear == $report['reportYear'] && $currentMonth > 3) || $currentYear > $report['reportYear']) && $powerEvuQ1 > 0) {
+        if($anlage->getShowEvuDiag())  $powerEvuQ1 = $data2_grid_meter['powerEvu'];
+        else $powerEvuQ1 = $data2_grid_meter['powerAct'];
+
+        if (((($currentYear == $report['reportYear'] && $currentMonth > 3) || $currentYear > $report['reportYear']) && $powerEvuQ1 > 0) && $anlage->hasPVSYST()) {
             $sql = "SELECT sum(ertrag_design) as q1 FROM anlagen_pv_syst_month WHERE anlage_id = " . $anlId . " AND month <= 3";
             $resultErtrag_design = $this->connAnlage->query($sql);
             if ($resultErtrag_design) {
@@ -976,7 +999,7 @@ class AssetManagementService
             ];
         } else {
             $operations_monthly_right_pvsyst_tr2 = [
-                '0',
+                $powerEvuQ1,
                 '0',
                 '0',
                 '0'
@@ -987,8 +1010,9 @@ class AssetManagementService
         $start = $report['reportYear'] . '-04-01 00:00';
         $end = $report['reportYear'] . '-06-30 23:59';
         $data2_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
-        $powerEvuQ2 = $data2_grid_meter['powerEvu'];
-        if ((($currentYear == $report['reportYear'] && $currentMonth > 6) || $currentYear > $report['reportYear']) && $powerEvuQ2 > 0) {
+        if($anlage->getShowEvuDiag())  $powerEvuQ2 = $data2_grid_meter['powerEvu'];
+        else $powerEvuQ2 = $data2_grid_meter['powerAct'];
+        if (((($currentYear == $report['reportYear'] && $currentMonth > 6) || $currentYear > $report['reportYear']) && $powerEvuQ2 > 0) && $anlage->hasPVSYST()) {
             $sql = "SELECT sum(ertrag_design) as q2 FROM anlagen_pv_syst_month WHERE anlage_id = " . $anlId . " AND month >= 4 AND month <= 6";
             $resultErtrag_design = $this->connAnlage->query($sql);
             if ($resultErtrag_design) {
@@ -1006,7 +1030,7 @@ class AssetManagementService
             ];
         } else {
             $operations_monthly_right_pvsyst_tr3 = [
-                '0',
+                $powerEvuQ2,
                 '0',
                 '0',
                 '0'
@@ -1016,8 +1040,9 @@ class AssetManagementService
         $start = $report['reportYear'] . '-07-01 00:00';
         $end = $report['reportYear'] . '-09-30 23:59';
         $data2_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
-        $powerEvuQ3 = $data2_grid_meter['powerEvu'];
-        if ((($currentYear == $report['reportYear'] && $currentMonth > 9) || $currentYear > $report['reportYear']) && $powerEvuQ3 > 0) {
+        if($anlage->getShowEvuDiag())  $powerEvuQ3 = $data2_grid_meter['powerEvu'];
+        else $powerEvuQ3 = $data2_grid_meter['powerAct'];
+        if (((($currentYear == $report['reportYear'] && $currentMonth > 9) || $currentYear > $report['reportYear']) && $powerEvuQ3 > 0) && $anlage->hasPVSYST()) {
             $sql = "SELECT sum(ertrag_design) as q3 FROM anlagen_pv_syst_month WHERE anlage_id = " . $anlId . " AND month >= 7 AND month <= 9";
             $resultErtrag_design = $this->connAnlage->query($sql);
             if ($resultErtrag_design) {
@@ -1035,7 +1060,7 @@ class AssetManagementService
             ];
         } else {
             $operations_monthly_right_pvsyst_tr4 = [
-                '0',
+                $powerEvuQ3,
                 '0',
                 '0',
                 '0'
@@ -1046,8 +1071,9 @@ class AssetManagementService
         $start = $report['reportYear'] . '-10-01 00:00';
         $end = $report['reportYear'] . '-12-31 23:59';
         $data2_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
-        $powerEvuQ4 = $data2_grid_meter['powerEvu'];
-        if ($currentYear > $report['reportYear'] && $powerEvuQ4 > 0) {
+        if($anlage->getShowEvuDiag())  $powerEvuQ4 = $data2_grid_meter['powerEvu'];
+        else $powerEvuQ4 = $data2_grid_meter['powerAct'];
+        if (($currentYear > $report['reportYear'] && $powerEvuQ4 > 0) && $anlage->hasPVSYST()) {
             $sql = "SELECT sum(ertrag_design) as q4 FROM anlagen_pv_syst_month WHERE anlage_id = " . $anlId . " AND month >= 10 AND month <= 12";
             $resultErtrag_design = $this->connAnlage->query($sql);
             if ($resultErtrag_design) {
@@ -1065,7 +1091,7 @@ class AssetManagementService
             ];
         } else {
             $operations_monthly_right_pvsyst_tr5 = [
-                '0',
+                $powerEvuQ4,
                 '0',
                 '0',
                 '0'
@@ -1087,7 +1113,7 @@ class AssetManagementService
         $data2_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
         $powerEvuYtoD = $data2_grid_meter['powerEvu'];
 
-        if ($powerEvuYtoD > 0 && !($yearPacDate == $report['reportYear'] && $monthPacDate > $report['reportMonth'])) {
+        if (($powerEvuYtoD > 0 && !($yearPacDate == $report['reportYear'] && $monthPacDate > $report['reportMonth'])) && $anlage->hasPVSYST()) {
             //Part 1 Year to Date
             $sqlMonthselection = '';
             if ($yearPacDate == $report['reportYear']) {
@@ -1123,7 +1149,7 @@ class AssetManagementService
             ];
         } else {
             $operations_monthly_right_pvsyst_tr6 = [
-                '0',
+                $powerEvuQ1+$powerEvuQ2+$powerEvuQ3+$powerEvuQ4,
                 '0',
                 '0',
                 '0'
@@ -1141,6 +1167,7 @@ class AssetManagementService
         //Ende Tabelle rechts oben
 
         //Tabelle rechts mitte
+
         $operations_monthly_right_g4n_tr1 = [
             $monthName . ' ' . $report['reportYear'],
             $powerEvu[$report['reportMonth'] - 1],
@@ -1416,28 +1443,28 @@ class AssetManagementService
         //End Operations dayly
 
         //Fuer die PA des aktuellen Jahres
-        for ($j = 1; $j <= $report['reportMonth']; $j++) {
-            $daysInThisMonth = cal_days_in_month(CAL_GREGORIAN, $j, $report['reportYear']);
-            $sql = "SELECT DATE_FORMAT(stamp, '%Y-%m') AS form_date, unit, avg(pa_0)*100 as pa FROM " . $anlage->getDbNameIst() . " where stamp BETWEEN '" . $report['reportYear'] . "-" . $j . "-1 00:00' and '" . $report['reportYear'] . "-" . $j . "-" . $daysInThisMonth . " 23:59'and pa_0 >= 0  group by unit, DATE_FORMAT(stamp, '%Y-%m')";
+
+            $daysInThisMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
+            $sql = "SELECT DATE_FORMAT(stamp, '%Y-%m') AS form_date, unit, avg(pa_0)*100 as pa FROM " . $anlage->getDbNameIst() . " where stamp BETWEEN '" . $report['reportYear'] . "-1-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInThisMonth . " 23:59'and pa_0 >= 0  group by unit, DATE_FORMAT(stamp, '%Y-%m')";
             $result = $this->conn->prepare($sql);
             $result->execute();
             $i = 0;
 
             foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
-                #$summ[$i] = $value['pa'];
                 $pa[] = [
                     'form_date' =>  date("m", strtotime($value['form_date'])),
                     'pa' => round($value['pa'],3),
                     'unit' => $value['unit']
                 ];
-
                 $i++;
+                if($i>=$report['reportMonth']){
+                    $outPaCY[] = $pa;
+                    unset($pa);
+                    $i=0;
+                }
+
             }
-            $outPaCY[][] = $pa;
-            unset($pa);
 
-
-        }
 
         //Availability: Year to date
         # $chart->tooltip->show = true;
@@ -1727,7 +1754,6 @@ class AssetManagementService
         //fuer PA Report Month
 
         $sql = "SELECT DATE_FORMAT(stamp, '%Y-%m-%d') AS form_date, unit, COUNT(db_id) as anz, sum(pa_0) as summe, sum(pa_0)/COUNT(db_id)*100 as pa FROM ".$anlage->getDbNameIst()." where stamp BETWEEN '".$report['reportYear']."-".$report['reportMonth']."-1 00:00' and '".$report['reportYear']."-".$report['reportMonth']."-".$daysInReportMonth." 23:59' and pa_0 >= 0 group by unit, DATE_FORMAT(stamp, '%Y-%m-%d')";
-
         $result = $this->conn->prepare($sql);
         $result->execute();
 
@@ -1808,9 +1834,11 @@ class AssetManagementService
             }
         }
         $conomicsNames = [];
-        for ($i = 0; $i < count($conomicsNamed); $i++) {
-            if ($conomicsNamed["var_".$i] != ""){
-                $conomicsNames["var_".$i] = $conomicsNamed["var_".$i];
+        if($conomicsNamed) {
+            for ($i = 0; $i < count($conomicsNamed); $i++) {
+                if ($conomicsNamed["var_" . $i] != "") {
+                    $conomicsNames["var_" . $i] = $conomicsNamed["var_" . $i];
+                }
             }
         }
 

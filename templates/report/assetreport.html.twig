@@ -38,7 +38,9 @@
             {% if(data.Availability) == true %}
 
                 {% if (data.AvYearlyOverview == true) %}
-                    {% include 'report/_asset_mangement_partials/_availibility_yearly_overview.html.twig'%}
+                    {%  for page in 0..(((invNr/20)|round(0, 'ceil'))-1) %}
+                        {% include 'report/_asset_mangement_partials/_availibility_yearly_overview.html.twig'%}
+                    {% endfor %}
                 {% endif %}
 
                 {% if (data.AvMonthlyOverview == true) %}
