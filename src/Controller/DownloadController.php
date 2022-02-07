@@ -93,7 +93,7 @@ class DownloadController extends AbstractController
     }
 
     /**
-     * @Route("/download/analyse/{formview}/{plantIdexp}", name="app_analyse_download", defaults={"formview"="-", "plantIdexp"="0"})
+     * @Route("/download/analyse/{formview}/{plantIdexp}", name="app_analyse_download", defaults={"formview"="-", "plantIdexp"=0})
      */
     public function downloadAnalyse($formview, $plantIdexp, Request $request, DownloadAnalyseService $analyseService){
 
