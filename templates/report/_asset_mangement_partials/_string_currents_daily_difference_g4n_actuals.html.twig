@@ -21,7 +21,8 @@
                 {% else  %}
                     {% set maxInv =  40 %}
                 {% endif %}
-
+                <table class="asset_report_table_operations_data" style="margin-bottom: 5px!important;">
+                    {%  dump(maxInv) %}
                 <table class="asset_report_table_operations_data" style="margin-bottom: 5px!important;">
                     {% for inv in 0..maxInv-1 %}
                         {%  set data = operations_currents_dayly_table[(page*40)+inv] %}

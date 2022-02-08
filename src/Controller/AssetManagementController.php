@@ -35,16 +35,12 @@ class AssetManagementController extends BaseController
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
         $report = new AnlagenReports();
         if($reportRepo->findOneByAMY($anlage,$month,$year)[0]) {
-
             $report = $reportRepo->findOneByAMY($anlage, $month, $year)[0];
             $output = $report->getContentArray();
             $load = true;
         }
         else {
-
             $output = $assetManagement->assetReport($anlage, $month, $year, $pages);
-            //submitting the report
-
         }
 
         $form = $this->createForm(AssetManagementeReportFormType::class);
@@ -53,7 +49,7 @@ class AssetManagementController extends BaseController
             $data = $form->getData();
             $output["data"] = $data;
             $result = $this->render('report/assetreport.html.twig', [
-                'invNr' => count($output["operations_currents_dayly_table"]),
+                'invNr' => count($output["plantAvailabilityMonth"]),
                 'comments' =>$report->getComments(),
                 'data' => $data,
                 'anlage' => $anlage,

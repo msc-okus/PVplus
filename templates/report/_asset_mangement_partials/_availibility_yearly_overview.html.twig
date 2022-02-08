@@ -25,9 +25,7 @@
                 <table class="asset_report_table_operations_data" style="margin-bottom: 5px!important; width: 100%!important;">
                     <tr>
                     {% for inv in 0..maxInv-1 %}
-                        {% dump((page*20)+inv) %}
-                        {% dump(page) %}
-                        {% dump(inv) %}
+
                         {%  set data = plantAvailabilityCurrentYear[(page*20)+inv] %}
                         <td style = 'border: none !important; padding:0 !important;vertical-align: bottom !important;'>
                             <table class = "" style="margin:0 !important; width: 100%!important;">
