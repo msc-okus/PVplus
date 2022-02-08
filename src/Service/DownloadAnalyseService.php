@@ -66,7 +66,7 @@ class DownloadAnalyseService
      * @param int $timerange
      * @return array
      */
-    public function getAllSingleSystemData(Anlage $anlage, int $year = 0, int $month = 0, int $timerange = 0)
+    public function getAllSingleSystemData(Anlage $anlage, int $year = 0, int $month = 0, int $timerange = 0): array
     {
         #timerange = monthly or dayly table
         if($timerange == 1){

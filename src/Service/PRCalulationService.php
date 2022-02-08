@@ -323,7 +323,7 @@ class PRCalulationService
                         $yearPrExp          = ($powerExpYear        / $powerTheoYear) * 100;
                         $yearPrEGridExt     = ($powerEGridExtYear   / $powerTheoYear) * 100;
                     }
-                    #if ($powerTheoMonth>0) dump( $powerEGridExtYear. " - " .$powerTheoMonth ." - ". round($powerEGridExtYear/$powerTheoMonth*100, 2) ." - ". $day);
+                    #dd( "Year: " . $powerEGridExtYear. " / $powerTheoYear | Month: " . $powerEGridExtMonth ." / $powerTheoMonth");
                     break;
                 default:
                     // wenn es keinen spezielen Algoritmus gibt
@@ -510,7 +510,36 @@ class PRCalulationService
         return $output;
     }
 
-    public function calcPR(Anlage $anlage, DateTime $startDate, DateTime $endDate = null, $type = 'day'):array
+    /**
+     * Returns Array with all Information for given Date (Daterange)<br>
+     *  $result['powerEvu']<br>
+     *  $result['powerAct']<br>
+     *  $result['powerExp']<br>
+     *  $result['powerEGridExt']<br>
+     *  $result['powerTheo']<br>
+     *  $result['prDefaultEvu']<br>
+     *  $result['prDefaultAct']<br>
+     *  $result['prDefaultExp']<br>
+     *  $result['prDefaultEGridExt']<br>
+     *  $result['prEvu']<br>
+     *  $result['prAct']<br>
+     *  $result['prExp']<br>
+     *  $result['prEGridExt']<br>
+     *  $result['algorithmus']<br>
+     *  $result['powerTheoTempCorr']<br>
+     *  $result['tempCorrection']<br>
+     *  $result['irradiation']<br>
+     *  $result['availability']<br>
+     *
+     * @param Anlage $anlage
+     * @param DateTime $startDate
+     * @param DateTime|null $endDate
+     * @param string $type
+     * @return array
+     *
+     * @throws \Exception
+     */
+    public function calcPR(Anlage $anlage, DateTime $startDate, DateTime $endDate = null, string $type = 'day'): array
     {
         $type = strtolower($type); // sicherstellen das type immer in Kleinbuchstaben
         $result = [];
@@ -553,7 +582,7 @@ class PRCalulationService
         $power      = $this->functions->getSumAcPower($anlage, $localStartDate, $localEndDate);
         $result['powerEvu']         = $power['powerEvu'];
         $result['powerAct']         = $power['powerAct'];
-        $result['powerExp']         = ($power['powerExpEvu'] > 0 ) ? $power['powerExpEvu'] : $power['powerExp'];
+        $result['powerExp']         = $power['powerExpEvu'] > 0 ? $power['powerExpEvu'] : $power['powerExp'];
         $result['powerEGridExt']    = $power['powerEGridExt'];
 
         // Verfügbarkeit ermitteln
@@ -571,7 +600,15 @@ class PRCalulationService
         $result['powerTheo'] = $powerTheo;
         $tempCorrection = 0;
 
-        // PR berechnung je nach eingestelltem Allgoritmus
+        // PR Calculation
+        // Standard PR
+        if ($powerTheo > 0) { // Verhindere Divison by zero
+            $result['prDefaultEvu']      = ($power['powerEvu']      / $powerTheo) * 100;
+            $result['prDefaultAct']      = ($power['powerAct']      / $powerTheo) * 100;
+            $result['prDefaultExp']      = ($power['powerExp']      / $powerTheo) * 100;
+            $result['prDefaultEGridExt'] = ($power['powerEGridExt'] / $powerTheo) * 100;
+        }
+        // depending on used allgoritmus
         switch ($anlage->getUseCustPRAlgorithm()) {
             case 'Groningen':
                 // PowerTheoretical für das Jahr und PAC berechnen unter Berücksichtigung umgerechneten Globalstrahlung
@@ -596,8 +633,8 @@ class PRCalulationService
                 }
                 break;
             case 'Lelystad':
-                $powerTheo = $power['powerTheo'];
-                $result['powerTheo'] = $powerTheo;
+                #$powerTheo = $power['powerTheo'];
+                #$result['powerTheo'] = $powerTheo;
                 if ($powerTheo > 0) { // Verhinder Divison by zero
                     $result['prEvu']      = ($power['powerEvu']      / $powerTheo) * 100;
                     $result['prAct']      = ($power['powerAct']      / $powerTheo) * 100;
@@ -613,12 +650,6 @@ class PRCalulationService
                     $result['prExp']      = ($power['powerExp']      / $powerTheo) * 100;
                     $result['prEGridExt'] = ($power['powerEGridExt'] / $powerTheo) * 100;
                 }
-        }
-        if ($powerTheo > 0) { // Verhindere Divison by zero
-            $result['prDefaultEvu']      = ($power['powerEvu']      / $powerTheo) * 100;
-            $result['prDefaultAct']      = ($power['powerAct']      / $powerTheo) * 100;
-            $result['prDefaultExp']      = ($power['powerExp']      / $powerTheo) * 100;
-            $result['prDefaultEGridExt'] = ($power['powerEGridExt'] / $powerTheo) * 100;
         }
 
         $result['algorithmus']       = $anlage->getUseCustPRAlgorithm();

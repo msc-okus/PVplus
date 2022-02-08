@@ -354,6 +354,7 @@ class ReportEpcService
                 $month++;
             }
         }
+
         // Forecast (ganzes Jahr, Bsp Sep20 bis Sep21)
         $report[0][] = [
             'month'                 => 'Forecast<br>' . $forecastDateText,

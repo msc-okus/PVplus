@@ -1,46 +1,49 @@
 import $ from 'jquery';
 
 $(document).ready(function () {
-    var valYears = $("#download_analyse_form_years").val();
-    var valMonths = $("#download_analyse_form_months").val();
+    const $month = $("#download_analyse_form_months");
+    const $year  = $("#download_analyse_form_years")
+    const $days  = $("#download_analyse_form_days");
+    var valYears = $year.val();
+    var valMonths = $month.val();
 
-    $("#download_analyse_form_months").prop( "disabled", true );
-    $("#download_analyse_form_days").prop( "disabled", true );
+    $month.prop( "disabled", true );
+    $days.prop( "disabled", true );
 
     if (valYears == "") {
-        $("#download_analyse_form_months").prop( "disabled", true );
-        $("#download_analyse_form_months").val($("#target option:first").val());
-        $("#download_analyse_form_days").prop( "disabled", true );
-        $("#download_analyse_form_days").val($("#target option:first").val());
+        $month.prop( "disabled", true );
+        $month.val($("#target option:first").val());
+        $days.prop( "disabled", true );
+        $days.val($("#target option:first").val());
     }
     if (valYears != "") {
-        $("#download_analyse_form_months").prop( "disabled", false );
+        $month.prop( "disabled", false );
     }
     if (valYears != "" &&  valMonths != "") {
-        $("#download_analyse_form_days").prop( "disabled", false );
+        $days.prop( "disabled", false );
     }
 
-    $("#download_analyse_form_years").change(function () {
+    $year.change(function () {
         var val = $(this).val();
         if (val == "") {
-            $("#download_analyse_form_months").prop( "disabled", true );
-            $("#download_analyse_form_months").val($("#target option:first").val());
-            $("#download_analyse_form_days").prop( "disabled", true );
-            $("#download_analyse_form_days").val($("#target option:first").val());
+            $month.prop( "disabled", true );
+            $month.val($("#target option:first").val());
+            $days.prop( "disabled", true );
+            $days.val($("#target option:first").val());
         }
         if (val != "") {
-            $("#download_analyse_form_months").prop( "disabled", false );
+            $month.prop( "disabled", false );
         }
     });
 
-    $("#download_analyse_form_months").change(function () {
+    $month.change(function () {
         var val = $(this).val();
         if (val == "") {
-            $("#download_analyse_form_days").prop( "disabled", true );
-            $("#download_analyse_form_days").val($("#target option:first").val());
+            $days.prop( "disabled", true );
+            $days.val($("#target option:first").val());
         }
         if (val != "") {
-            $("#download_analyse_form_days").prop( "disabled", false );
+            $days.prop( "disabled", false );
         }
     });
 });
