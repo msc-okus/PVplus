@@ -33,7 +33,7 @@ class ReportsRepository extends ServiceEntityRepository
      * @param string|null $term
      * @return QueryBuilder
      */
-    public function getWithSearchQueryBuilder(?string $term, ?string $searchstatus, ?string $searchtype, ?string $searchmonth): QueryBuilder
+    public function getWithSearchQueryBuilder(?string $term, ?string $searchstatus, ?string $searchtype, ?string $searchmonth, ?string $searchyear): QueryBuilder
     {
         $qb = $this->createQueryBuilder('report')
             ->innerJoin('report.anlage', 'a')
@@ -67,6 +67,10 @@ class ReportsRepository extends ServiceEntityRepository
 
         if ($searchmonth !='') {
             $qb->andWhere("report.month = $searchmonth");
+        }
+
+        if ($searchyear !='') {
+            $qb->andWhere("report.year = $searchyear");
         }
 
         if ($term != '') {

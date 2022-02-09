@@ -59,6 +59,16 @@
                     <option value="12" {% if month == '12' %} selected {% endif %}>  12    </option>
                 </select>
             </div>
+            <div class="cell medium-2">
+                <select name="searchyear">
+                    <option value=""   {% if year == '' %}   selected {% endif %}>  Month </option>
+                    <option value="2020"  {% if year == '2020' %}  selected {% endif %}>  2020    </option>
+                    <option value="2021"  {% if year == '2021' %}  selected {% endif %}>  2021    </option>
+                    <option value="2022"  {% if year == '2022' %}  selected {% endif %}>  2022    </option>
+                    <option value="2023"  {% if year == '2023' %}  selected {% endif %}>  2023    </option>
+                    <option value="2024"  {% if year == '2024' %}  selected {% endif %}>  2024    </option>
+                </select>
+            </div>
             <div class="input-group-button" style="height:35px !important; width:35px !important; padding:0; margin-top:-15px;">
                 <button name="search" type="submit" class="button" value="yes"><span class="fa fa-search"></span></button>
             </div>

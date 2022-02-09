@@ -88,10 +88,11 @@ class ReportingController extends AbstractController
     {
         $session = $this->container->get('session');
         $anlage = $searchstatus = $searchtype = $searchmonth = null;
+        $searchyear = date('Y');
         if($request->query->get('searchstatus') != null & $request->query->get('searchstatus')  != "") $searchstatus    = $request->query->get('searchstatus');
         if($request->query->get('searchtype')   != null & $request->query->get('searchtype')    != "") $searchtype      = $request->query->get('searchtype');
         if($request->query->get('searchmonth')  != null & $request->query->get('searchmonth')   != "") $searchmonth     = $request->query->get('searchmonth');
-        #if($request->query->get('qr')           != null & $request->query->get('qr')            != "") $q               = $request->query->get('qr');
+        if($request->query->get('searchyear')   != null & $request->query->get('searchyear')    != "") $searchyear      = $request->query->get('searchyear');
         if($request->query->get('anlage')       != null & $request->query->get('anlage')        != "") $anlage          = $request->query->get('anlage');
 
 
@@ -100,6 +101,7 @@ class ReportingController extends AbstractController
             $searchtype     = $session->get('type');
             $searchmonth    = $session->get('month');
             $anlage         = $session->get('anlage');
+            $searchyear     = $session->get('search_year');
             $new            = $request->query->get('new-report');
             $reportType     = $request->query->get('report-typ');
             $reportMonth    = $request->query->get('month');
@@ -133,7 +135,7 @@ class ReportingController extends AbstractController
             return $this->redirect($route);
         }
 
-        $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($anlage,$searchstatus,$searchtype,$searchmonth);
+        $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($anlage,$searchstatus,$searchtype,$searchmonth,$searchyear);
 
         $pagination = $paginator->paginate(
             $queryBuilder,
@@ -150,6 +152,7 @@ class ReportingController extends AbstractController
             'pagination' => $pagination,
             'anlagen'    => $anlagen,
             'stati'      => self::reportStati(),
+            'year'       => $searchyear,
             'month'      => $searchmonth,
             'type'       => $searchtype,
             'status'     => $searchstatus,
@@ -179,6 +182,7 @@ class ReportingController extends AbstractController
         $searchtype=$session->get('type');
         $anlageq=$session->get('anlage');
         $searchmonth=$session->get('month');
+        $searchyear     = $session->get('search_year');
         $route = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
         $route = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
 
@@ -226,8 +230,9 @@ class ReportingController extends AbstractController
         $searchtype     = $session->get('type');
         $anlageq        = $session->get('anlage');
         $searchmonth    = $session->get('month');
+        $searchyear     = $session->get('search_year');
         $route          = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
-        $route          = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
+        $route          = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&searchyear=".$searchyear."&search=yes";
 
         $report = $reportsRepository->find($id);
         $month = $report->getMonth();
@@ -344,8 +349,9 @@ class ReportingController extends AbstractController
         $searchtype=$session->get('type');
         $anlageq=$session->get('anlage');
         $searchmonth=$session->get('month');
+        $searchyear     = $session->get('search_year');
         $route = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
-        $route = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
+        $route = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&searchyear=".$searchyear."&search=yes";
 
         /** @var AnlagenReports|null $report */
         $report = $reportsRepository->find($id);
@@ -424,8 +430,9 @@ class ReportingController extends AbstractController
         $searchtype     = $session->get('type');
         $anlageq        = $session->get('anlage');
         $searchmonth    = $session->get('month');
+        $searchyear     = $session->get('search_year');
         $route          = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
-        $route          = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
+        $route          = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&searchyear=".$searchyear."&search=yes";
 
         if ($this->isGranted('ROLE_DEV'))
         {
