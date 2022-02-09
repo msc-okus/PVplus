@@ -7,6 +7,8 @@ use App\Entity\Anlage;
 use App\Entity\AnlagenPvSystMonth;
 use App\Helper\G4NTrait;
 use App\Repository\Case5Repository;
+use App\Repository\EconomicVarNamesRepository;
+use App\Repository\EconomicVarValuesRepository;
 use App\Repository\PvSystMonthRepository;
 use App\Repository\ReportsRepository;
 use App\Repository\AnlagenRepository;
@@ -22,14 +24,10 @@ class AssetManagementService
 {
     use G4NTrait;
 
-    private AnlagenRepository $anlagenRepository;
-    private PRRepository $PRRepository;
-    private Environment $twig;
-    private ReportsRepository $reportsRepository;
     private EntityManagerInterface $em;
-    private MessageService $messageService;
     private PvSystMonthRepository $pvSystMonthRepo;
-    private Case5Repository $case5Repo;
+    private EconomicVarValuesRepository $ecoVarValueRepo;
+    private EconomicVarNamesRepository $ecoVarNameRepo;
     private FunctionsService $functions;
     private NormalizerInterface $serializer;
     private DownloadAnalyseService $DownloadAnalyseService;
@@ -37,33 +35,25 @@ class AssetManagementService
     private $connAnlage;
 
     public function __construct(
-        AnlagenRepository      $anlagenRepository,
-        PRRepository           $PRRepository,
-        ReportsRepository      $reportsRepository,
         EntityManagerInterface $em,
-        Environment            $twig,
-        MessageService         $messageService,
         PvSystMonthRepository  $pvSystMonthRepo,
-        Case5Repository        $case5Repo,
         FunctionsService       $functions,
         NormalizerInterface    $serializer,
-        DownloadAnalyseService $analyseService
+        DownloadAnalyseService $analyseService,
+        EconomicVarValuesRepository $ecoVarValueRep,
+        EconomicVarNamesRepository $ecoVarNameRep
     )
     {
-
-        $this->anlagenRepository = $anlagenRepository;
-        $this->PRRepository = $PRRepository;
-        $this->twig = $twig;
-        $this->reportsRepository = $reportsRepository;
         $this->functions = $functions;
         $this->em = $em;
-        $this->messageService = $messageService;
         $this->pvSystMonthRepo = $pvSystMonthRepo;
-        $this->case5Repo = $case5Repo;
+        $this->ecoVarValuesRepo = $ecoVarValueRep;
+        $this->ecoVarNameRepo = $ecoVarNameRep;
         $this->serializer = $serializer;
-        $this->DownloadAnalyseService = $analyseService;
         $this->conn = self::getPdoConnection();
         $this->connAnlage = self::connectToDatabaseAnlage();
+        $this->DownloadAnalyseService = $analyseService;
+
     }
 
     public function assetReport($anlage, $month = 0, $year = 0, $pages = 0): array
@@ -1076,9 +1066,6 @@ class AssetManagementService
         if (($powerEvuYtoD > 0 && !($yearPacDate == $report['reportYear'] && $monthPacDate > $report['reportMonth'])) && $anlage->hasPVSYST()) {
             //Part 1 Year to Date
             if ($yearPacDate == $report['reportYear']) {
-                $sqlMonthselection = ' and month >= ' . $monthPacDate;
-            }
-            if ($yearPacDate == $report['reportYear']) {
                 $month = $monthPacDate;
             }
             else $month = "1";
@@ -1089,15 +1076,6 @@ class AssetManagementService
                     $expectedPvSystYtoDFirst = $rowYtoDErtrag_design['ytd'];
                 }
             }
-
-            //Part 2 Year to Date
-            /*
-            $resultErtrag_design =  $this->pvSystMonthRepo->findOneMonth($anlage, $i)->getErtragDesign();
-            if ($resultErtrag_design) {
-                    $ytdErtrag_design = $resultErtrag_design;
-                    $expectedPvSystYtoDSecond = ($ytdErtrag_design['ertrag_design'] / cal_days_in_month(CAL_GREGORIAN, ($report['reportMonth']), $currentYear)) * $daysInReportMonth;
-                }
-            */
 
             $expectedPvSystYtoD = $expectedPvSystYtoDFirst;
 
@@ -1371,8 +1349,6 @@ class AssetManagementService
         //The Table
         $start = $report['reportYear'].'-'.$report['reportMonth'].'-01 00:00';
         $end = $report['reportYear'].'-'.$report['reportMonth'].'-'.$daysInReportMonth.' 23:59';
-        $tableType = "default";
-        $landscape = false;
 
         $output = $this->DownloadAnalyseService->getAllSingleSystemData($anlage, $report['reportYear'], $report['reportMonth'], 2);
         $dcData = $this->DownloadAnalyseService->getDcSingleSystemData($anlage, $start, $end, '%d.%m.%Y');
@@ -1756,18 +1732,17 @@ class AssetManagementService
                 'act_current_dc' => $value['act_current_dc']
             ];
         }
-        dump($dcIst);
+
 
         $sql = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.dc_exp_power) AS exp_power_dc, sum(b.dc_exp_current) AS exp_current_dc, b.group_ac as invgroup
             FROM (db_dummysoll a left JOIN ".$anlage->getDbNameDcSoll()." b ON a.stamp = b.stamp) 
             WHERE a.stamp BETWEEN '".$report['reportYear']."-".$report['reportMonth']."-1 00:00' and '".$report['reportYear']."-".$report['reportMonth']."-".$daysInReportMonth." 23:59' and b.group_ac > 0 GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
-        dump($sql);
+
         $result = $this->conn->prepare($sql);
         $result->execute();
         $j = 0;
         if($result->rowCount() > 0) {
             foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
-                dump("entro");
                 $dcExpDcIst[] = [
                     'group' => $value['invgroup'],
                     'form_date' => date("d", strtotime($value['form_date'])),
@@ -1788,7 +1763,6 @@ class AssetManagementService
         }
         else {
             for ($j = 0; $j < count($dcIst); $j++){
-                dump("entro");
                 $dcExpDcIst[] = [
                     'group' => $dcIst[$j]['group'],
                     'form_date' => date("d", strtotime($dcIst[$j]['form_date'])),
@@ -1808,32 +1782,18 @@ class AssetManagementService
         }
 
         if($dcExpDcIst) $outTableCurrentsPower[] = $dcExpDcIst;
-        dd($outTableCurrentsPower,"hola");
 
+        $resultEconomicsNames = $this->ecoVarNameRepo->findOneByAnlage($anlage);
 
-        //End Operations string
-
-        //Beginn Economics Income per month
-        $sql = "SELECT * FROM economic_var_names WHERE anlage_id = $anlId";
-        $resultEconomicsNamed = $this->connAnlage->query($sql);
-        if ($resultEconomicsNamed) {
-            if ($resultEconomicsNamed->num_rows == 1) {
-                $conomicsNamed = $resultEconomicsNamed->fetch_assoc();
+        if ($resultEconomicsNames) {
+                $economicNames = $resultEconomicsNames->getNamesArray();
             }
-        }
-        $conomicsNames = [];
-        if($conomicsNamed) {
-            for ($i = 0; $i < count($conomicsNamed); $i++) {
-                if ($conomicsNamed["var_" . $i] != "") {
-                    $conomicsNames["var_" . $i] = $conomicsNamed["var_" . $i];
-                }
-            }
-        }
+
 
         $sql = "SELECT * FROM economic_var_values WHERE anlage_id = $anlId and year =". $report['reportYear'];
         $resultEconomicsNamed = $this->connAnlage->query($sql);
         $economicsValues = $resultEconomicsNamed->fetch_all();
-        $totalsFix = [];
+
         for ($i = 0; $i < 12; $i++) {
             (float)$oum[] = $economicsValues[$i][4];
             $oumTotal = $oumTotal+$economicsValues[$i][4];
@@ -1963,10 +1923,6 @@ class AssetManagementService
             'PVSYST_plan_proceeds_P50' => $result3,
             'g4n_plan_proceeds_EXP_P50' => $result4,
         ];
-
-        #geginn Chart economics Cumulated Forecast
-        # $chart->tooltip->show = true;
-        # $chart->tooltip->trigger = 'item';
 
         $chart->xAxis = array(
             'type' => 'category',
