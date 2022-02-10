@@ -639,6 +639,7 @@ class AssetManagementService
             'diefference_prod_to_expected_g4n' => $diefference_prod_to_expected_g4n,
             'diefference_prod_to_egrid' => $diefference_prod_to_egrid,
         ];
+        dump($losses_t2);
 
         //beginn chart
         # $chart->tooltip->show = true;
@@ -722,7 +723,7 @@ class AssetManagementService
         $kumsum1[0] = $diefference_prod_to_pvsyst[0];
         $kumsum2[0] = $diefference_prod_to_expected_g4n[0];
         $kumsum3[0] = $diefference_prod_to_egrid[0];
-        for ($i = 0; $i < $report['reportMonth']; $i++) {
+        for ($i = 0; $i < count($diefference_prod_to_pvsyst); $i++) {
             $kumsum1[$i] = $diefference_prod_to_pvsyst[$i] + $kumsum1[$i - 1];
             $kumsum2[$i] = $diefference_prod_to_expected_g4n[$i] + $kumsum2[$i - 1];
             $kumsum3[$i] = $diefference_prod_to_egrid[$i] + $kumsum3[$i - 1];
@@ -845,41 +846,72 @@ class AssetManagementService
             'nameLocation' => 'middle',
             'nameGap' => 80
         );
-        $chart->series =
-            [
+        if($anlage->hasPVSYST()) {
+            $chart->series =
                 [
-                    'name' => 'Yield (Grid meter)',
-                    'type' => 'bar',
-                    'data' => [
-                        $powerEvu[$report['reportMonth'] - 1]
+                    [
+                        'name' => 'Yield (Grid meter)',
+                        'type' => 'bar',
+                        'data' => [
+                            $powerEvu[$report['reportMonth'] - 1]
+                        ],
+                        'visualMap' => 'false'
                     ],
-                    'visualMap' => 'false'
-                ],
+                    [
+                        'name' => 'Expected PV SYST',
+                        'type' => 'bar',
+                        'data' => [
+                            $expectedPvSyst[$report['reportMonth'] - 1]
+                        ],
+                        'visualMap' => 'false'
+                    ],
+                    [
+                        'name' => 'Expected g4n',
+                        'type' => 'bar',
+                        'data' => [
+                            $powerExp[$report['reportMonth'] - 1]
+                        ],
+                        'visualMap' => 'false'
+                    ],
+                    [
+                        'name' => 'Inverter out',
+                        'type' => 'bar',
+                        'data' => [
+                            $powerAct[$report['reportMonth'] - 1]
+                        ],
+                        'visualMap' => 'false'
+                    ]
+                ];
+        }
+        else{
+            $chart->series =
                 [
-                    'name' => 'Expected PV SYST',
-                    'type' => 'bar',
-                    'data' => [
-                        $expectedPvSyst[$report['reportMonth'] - 1]
+                    [
+                        'name' => 'Yield (Grid meter)',
+                        'type' => 'bar',
+                        'data' => [
+                            $powerEvu[$report['reportMonth'] - 1]
+                        ],
+                        'visualMap' => 'false'
                     ],
-                    'visualMap' => 'false'
-                ],
-                [
-                    'name' => 'Expected g4n',
-                    'type' => 'bar',
-                    'data' => [
-                        $powerExp[$report['reportMonth'] - 1]
+                    [
+                        'name' => 'Expected g4n',
+                        'type' => 'bar',
+                        'data' => [
+                            $powerExp[$report['reportMonth'] - 1]
+                        ],
+                        'visualMap' => 'false'
                     ],
-                    'visualMap' => 'false'
-                ],
-                [
-                    'name' => 'Inverter out',
-                    'type' => 'bar',
-                    'data' => [
-                        $powerAct[$report['reportMonth'] - 1]
-                    ],
-                    'visualMap' => 'false'
-                ]
-            ];
+                    [
+                        'name' => 'Inverter out',
+                        'type' => 'bar',
+                        'data' => [
+                            $powerAct[$report['reportMonth'] - 1]
+                        ],
+                        'visualMap' => 'false'
+                    ]
+                ];
+        }
 
         $option = array(
             'color' => ['#698ed0', '#f1975a', '#c5e0b4', '#ffc000'],

@@ -4,6 +4,7 @@
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Monthly Production</h3>
     <table id="basetable">
         <tr>
+            {% if (operations_monthly_right_pvsyst_tr1 == null) %}
             <td style="text-align: left">
                 <table class="asset_report_table_operations_data">
                     <thead>
@@ -20,7 +21,7 @@
                         <th class="table-center">Difference</th>
                     </tr>
                     <tr>
-                        <th class="table-center">(Grid meter)</th>
+                        <th class="table-center">Grid meter</th>
                         <th class="table-center">PVSYST</th>
                         <th class="table-center">Yield-EXP</th>
                         <th class="table-center">Yield-EXP</th>
@@ -123,6 +124,7 @@
                     </tbody>
                 </table>
             </td>
+            {% endif %}
             <td style="text-align: left">
                 <table class="asset_report_table_operations_data">
                     <thead>
@@ -139,7 +141,7 @@
                         <th class="table-center">Difference</th>
                     </tr>
                     <tr>
-                        <th class="table-center">(Grid meter)</th>
+                        <th class="table-center">Grid meter</th>
                         <th class="table-center">g4n</th>
                         <th class="table-center">Yield-EXP</th>
                         <th class="table-center">Yield-EXP</th>
@@ -261,7 +263,7 @@
                         <th class="table-center">Difference</th>
                     </tr>
                     <tr>
-                        <th class="table-center">(Grid meter)</th>
+                        <th class="table-center">Grid meter</th>
                         <th class="table-center">out</th>
                         <th class="table-center">Yield-INV out</th>
                         <th class="table-center">Yield-INV out</th>
@@ -374,7 +376,7 @@
                     <tr>
                         <td rowspan="2">Explanation</td>
                         <td>0-2%</td>
-                        <td>2,2-8%</td>
+                        <td>2,1-8%</td>
                         <td>8,1-15%</td>
                         <td>15,1-20%</td>
                         <td>20%-</td>

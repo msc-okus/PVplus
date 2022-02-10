@@ -41,6 +41,7 @@ class AssetManagementController extends BaseController
         }
         else {
             $output = $assetManagement->assetReport($anlage, $month, $year, $pages);
+
         }
 
         $form = $this->createForm(AssetManagementeReportFormType::class);

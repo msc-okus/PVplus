@@ -19,13 +19,13 @@
                     </thead>
                     <tbody>
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Production ACT / PVSYST - P50</td>
+                        <td class="tr_first_column" style="text-align: right">Prod.* ACT / PVSYST - P50</td>
                         {% for data in forecast_PVSYST_table.forcast_PVSYSTP50 %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Production ACT /  PVSYST - P90</td>
+                        <td class="tr_first_column" style="text-align: right">Prod.* ACT /  PVSYST - P90</td>
                         {% for data in forecast_PVSYST_table.forcast_PVSYSTP90 %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
@@ -36,21 +36,32 @@
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
+
                     <tr>
                         <td class="tr_first_column" style="text-align: right">Plan PVSYST - P90</td>
                         {% for data in forecast_PVSYST_table.forcast_plan_PVSYSTP90 %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
+
+
                     </tbody>
+                    <tr>
+                        <td class="td_texthint_2" style="vertical-align: top">* Production</td>
+                    </tr>
                 </table>
+
             </td>
 
         </tr>
+
+
         <tr>
             <td style="text-align: left">
                 {{ forecast_PVSYST|raw }}
             </td>
         </tr>
+
     </table>
+
 {% endblock page %}
