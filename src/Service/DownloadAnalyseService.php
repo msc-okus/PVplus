@@ -15,7 +15,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Twig\Environment;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-
 class DownloadAnalyseService
 {
     use G4NTrait;
@@ -64,30 +63,34 @@ class DownloadAnalyseService
      * @param int $year
      * @param int $month
      * @param int $timerange
-     * @return array
+     * @return array|AnlagenPR
      */
-    public function getAllSingleSystemData(Anlage $anlage, int $year = 0, int $month = 0, int $timerange = 0): array
+    public function getAllSingleSystemData(Anlage $anlage, int $year = 0, int $month = 0, int $timerange = 0): array|AnlagenPR
     {
+        $download = [];
         #timerange = monthly or dayly table
-        if($timerange == 1){
-            if ($year != 0 && $month != 0) {
-                $yesterday = strtotime("$year-$month-01");
-            } else {
-                $currentTime = G4NTrait::getCetTime();
-                $yesterday = $currentTime - 86400 * 4;
-            }
+        switch ($timerange) {
+            case 1:
+                if ($year != 0 && $month != 0) {
+                    $yesterday = strtotime("$year-$month-01");
+                } else {
+                    $currentTime = G4NTrait::getCetTime();
+                    $yesterday = $currentTime - 86400 * 4;
+                }
 
-            $downloadMonth = date('m', $yesterday);
-            $downloadYear = date('Y', $yesterday);
-            $lastDayMonth = date('t', $yesterday);
-            $from = "$downloadYear-$downloadMonth-01 00:00";
-            $to = "$downloadYear-$downloadMonth-$lastDayMonth 23:59";
-            $download = [];
-            $download = $this->prRepository->findOneBy(['anlage' => $anlage, 'stamp' => date_create("$year-$month-$lastDayMonth")]);;
+                $downloadMonth = date('m', $yesterday);
+                $downloadYear = date('Y', $yesterday);
+                $lastDayMonth = date('t', $yesterday);
+                $from = "$downloadYear-$downloadMonth-01 00:00";
+                $to = "$downloadYear-$downloadMonth-$lastDayMonth 23:59";
+                $download = [];
+                $download = $this->prRepository->findOneBy(['anlage' => $anlage, 'stamp' => date_create("$year-$month-$lastDayMonth")]);;
+                break;
+            case 2:
+                $download = $this->prRepository->findPRInMonth($anlage, "$month", "$year");
+                break;
         }
-        if($timerange == 2){
-            $download = $this->prRepository->findPRInMonth($anlage, "$month", "$year");
-        }
+
         return $download;
     }
 
@@ -98,7 +101,8 @@ class DownloadAnalyseService
      * @param $intervall
      * @return array
      */
-    public function getDcSingleSystemData($anlage, $from, $to, $intervall) {
+    public function getDcSingleSystemData($anlage, $from, $to, $intervall): array
+    {
         $conn = self::connectToDatabase();
         $dbnameist = $anlage->getDbNameIst();
         $arrayout1a = [];
@@ -137,7 +141,8 @@ class DownloadAnalyseService
      * @param $intervall
      * @return array
      */
-    public function getEcpectedDcSingleSystemData($anlage, $from, $to, $intervall) {
+    public function getEcpectedDcSingleSystemData($anlage, $from, $to, $intervall): array
+    {
         $conn = self::connectToDatabase();
         $dbnamesoll = $anlage->getDbNameDcSoll();
 
@@ -171,7 +176,7 @@ class DownloadAnalyseService
      * @param $headlineDate
      * @return array
      */
-    public function getAllSingleSystemDataForDay($anlage, $from, $to, $intervall, $headlineDate)
+    public function getAllSingleSystemDataForDay($anlage, $from, $to, $intervall, $headlineDate): array
     {
         $conn = self::connectToDatabase();
         $dbnameist = $anlage->getDbNameIst();
