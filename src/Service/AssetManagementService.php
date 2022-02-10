@@ -47,7 +47,7 @@ class AssetManagementService
         $this->functions = $functions;
         $this->em = $em;
         $this->pvSystMonthRepo = $pvSystMonthRepo;
-        $this->ecoVarValuesRepo = $ecoVarValueRep;
+        $this->ecoVarValueRepo = $ecoVarValueRep;
         $this->ecoVarNameRepo = $ecoVarNameRep;
         $this->serializer = $serializer;
         $this->conn = self::getPdoConnection();
@@ -58,7 +58,6 @@ class AssetManagementService
 
     public function assetReport($anlage, $month = 0, $year = 0, $pages = 0): array
     {
-        $anlId = $anlage->getAnlId();
         if ($month != 0 && $year != 0) {
             $yesterday = strtotime("$year-$month-01");
         } else {
@@ -180,21 +179,10 @@ class AssetManagementService
             $monthExtendetArray[$i]['hours'] = $daysInMonth * 24;
         }
 
-        //die AC Geuppen ermitteln
         $acGroups = $anlage->getAcGroups()->toArray();
         for ($i = 0; $i < count($acGroups); $i++) {
             $acGroupsCleaned[] = substr($acGroups[$i]->getacGroupName(),strpos($acGroups[$i]->getacGroupName(),'INV'));
         }
-
-        //zum Erzeugen einer Monatsbezogenen Tagesachse
-        $start_date = strtotime($report['from']);
-        $end_date = strtotime($report['to']);
-
-
-        //Begrenzung der Spaltenanzahl einer Tabelle
-
-
-        //Beginn Operations year
 
         for ($i = 1; $i < 13; $i++) {
             if ($i < 10) {
@@ -1401,10 +1389,6 @@ class AssetManagementService
 
             }
 
-
-        //Availability: Year to date
-        # $chart->tooltip->show = true;
-        # $chart->tooltip->trigger = 'item';
         $chart->series =
             [
                 [
@@ -1614,8 +1598,6 @@ class AssetManagementService
         unset($option);
 
         //Actual
-        # $chart->tooltip->show = true;
-        # $chart->tooltip->trigger = 'item';
         $chart->series =
             [
                 [
@@ -1789,32 +1771,33 @@ class AssetManagementService
                 $economicNames = $resultEconomicsNames->getNamesArray();
             }
 
+        /* This can be removed if we add a way to know whether a variable is fix or not, then we will be able to get it from anlage entity
+        and make all the calculations in the twig template
+          */
 
-        $sql = "SELECT * FROM economic_var_values WHERE anlage_id = $anlId and year =". $report['reportYear'];
-        $resultEconomicsNamed = $this->connAnlage->query($sql);
-        $economicsValues = $resultEconomicsNamed->fetch_all();
+        $ecoVarValues = $this->ecoVarValueRepo->findByAnlage($anlage);
 
-        for ($i = 0; $i < 12; $i++) {
-            (float)$oum[] = $economicsValues[$i][4];
-            $oumTotal = $oumTotal+$economicsValues[$i][4];
-            (float)$electricity[] = $economicsValues[$i][5];
-            $electricityTotal = $electricityTotal+$economicsValues[$i][5];
-            (float)$technicalDispatch[] = $economicsValues[$i][6];
-            $technicalDispatchTotal = $technicalDispatchTotal+$economicsValues[$i][6];
-            (float)$transTeleCom[] = $economicsValues[$i][7];
-            $transTeleComTotal = $transTeleComTotal+$economicsValues[$i][7];
-            (float)$security[] = $economicsValues[$i][8];
-            $securityTotal = $securityTotal+$economicsValues[$i][8];
-            (float)$networkServiceFee[] = $economicsValues[$i][9];
-            $networkServiceFeeToatal = $networkServiceFeeToatal+$economicsValues[$i][9];
-            (float)$legalServices[] = $economicsValues[$i][10];
-            $legalServicesTotal = $legalServicesTotal+$economicsValues[$i][10];
-            (float)$accountancyAndAdministrationCosts[] = $economicsValues[$i][11];
-            $accountancyAndAdministrationCostsTotal = $accountancyAndAdministrationCostsTotal+$economicsValues[$i][11];
-            (float)$Iinsurance[] = $economicsValues[$i][12];
-            $IinsuranceTotal = $IinsuranceTotal+$economicsValues[$i][12];
-            (float)$other[] = $economicsValues[$i][13];
-            $otherTotal = $otherTotal+$economicsValues[$i][13];
+        for($i = 0; $i < count($ecoVarValues)-1; $i++){
+            (float)$oum[] = $ecoVarValues[$i]->getVar1();
+            $oumTotal = $oumTotal + $oum[$i];
+            (float)$electricity[] = $ecoVarValues[$i]->getVar2();
+            $electricityTotal = $electricityTotal + $electricity[$i];
+            (float)$technicalDispatch[] = $ecoVarValues[$i]->getVar3();
+            $technicalDispatchTotal = $technicalDispatchTotal + $technicalDispatch[$i];
+            (float)$transTeleCom[] = $ecoVarValues[$i]->getVar4();
+            $transTeleComTotal = $transTeleComTotal + $transTeleCom[$i];
+            (float)$security[] = $ecoVarValues[$i]->getVar5();
+            $securityTotal = $securityTotal + $security[$i];
+            (float)$networkServiceFee[] = $ecoVarValues[$i]->getVar6();
+            $networkServiceFeeToatal = $networkServiceFeeToatal + $networkServiceFee[$i];
+            (float)$legalServices[] = $ecoVarValues[$i]->getVar7();
+            $legalServicesTotal = $legalServicesTotal + $legalServices[$i];
+            (float)$accountancyAndAdministrationCosts[] = $ecoVarValues[$i]->getVar8();
+            $accountancyAndAdministrationCostsTotal = $accountancyAndAdministrationCostsTotal + $accountancyAndAdministrationCosts[$i];
+            (float)$Iinsurance[] = $ecoVarValues[$i]->getVar9();
+            $IinsuranceTotal = $IinsuranceTotal + $Iinsurance[$i];
+            (float)$other[] = $ecoVarValues[$i]->getVar10();
+            $otherTotal = $otherTotal + $other[$i];
             $fixesTotal[$i] = $oum[$i]+
                 $electricity[$i]+
                 $technicalDispatch[$i]+
@@ -1826,26 +1809,25 @@ class AssetManagementService
                 $accountancyAndAdministrationCosts[$i]+
                 $Iinsurance[$i]+
                 $other[$i];
-            (float)$variable1[] = $economicsValues[$i][14];
-            $variable1Total = $variable1Total+$economicsValues[$i][14];
-            (float)$variable2[] = $economicsValues[$i][15];
-            $variable2Total = $variable2Total+$economicsValues[$i][15];
-            (float)$variable3[] = $economicsValues[$i][16];
-            $variable3Total = $variable3Total+$economicsValues[$i][16];
-            (float)$variable4[] = $economicsValues[$i][17];
-            $variable4Total = $variable4Total+$economicsValues[$i][17];
-            (float)$variable5[] = $economicsValues[$i][18];
-            $variable5Total = $variable5Total+$economicsValues[$i][18];
+            (float)$variable1[] = $ecoVarValues[$i]->getVar11();
+            $variable1Total = $variable1Total + $variable1[$i];
+            (float)$variable2[] = $ecoVarValues[$i]->getVar12();
+            $variable2Total = $variable2Total + $variable2[$i];
+            (float)$variable3[] = $ecoVarValues[$i]->getVar13();
+            $variable3Total = $variable3Total + $variable3[$i];
+            (float)$variable4[] = $ecoVarValues[$i]->getVar14();
+            $variable4Total = $variable4Total + $variable4[$i];
+            (float)$variable5[] = $ecoVarValues[$i]->getVar15();
+            $variable5Total = $variable5Total + $variable5[$i];
             $variablesTotal[$i] = $variable1[$i]+
                 $variable2[$i]+
                 $variable3[$i]+
                 $variable4[$i]+
                 $variable5[$i];
-            (float)$kwhPrice[] = $economicsValues[$i][19];
+            (float)$kwhPrice[] = $ecoVarValues[$i]->getKwHPrice();
             $monthTotal[] = $fixesTotal[$i]+$variablesTotal[$i];
         }
 
-        #fuer die Tabelle
         $economicsMandy = [
             'oum' => $oum,
             'electricity' => $electricity,
@@ -1992,9 +1974,6 @@ class AssetManagementService
                     'width' => '80%',
                 ),
         );
-
-
-
         $chart->setOption($option);
 
         $economicsCumulatedForecastChart = $chart->render('economicsCumulatedForecastChart', ['style' => 'height: 380px; width:26cm;']);
@@ -2004,10 +1983,6 @@ class AssetManagementService
         $chart->series = [];
         unset($option);
         #end Chart economics Cumulated Forecast
-
-        //beginn chart losses monthly
-        # $chart->tooltip->show = true;
-        # $chart->tooltip->trigger = 'item';
 
         $chart->xAxis = array(
             'type' => 'category',
@@ -2164,12 +2139,6 @@ class AssetManagementService
         $chart->series = [];
         unset($option);
 
-        //End Economics Income per month
-
-        //Beginn Economics Costs per month and year
-
-        # $chart->tooltip->show = true;
-        # $chart->tooltip->trigger = 'item';
         $chart->series =
             [
                 [
@@ -2287,14 +2256,8 @@ class AssetManagementService
         $chart->yAxis = [];
         $chart->series = [];
         unset($option);
-        //End Economics Costs per month and year
 
-        //beginn Operating Statement
-        //beginn chart
         $chart = new ECharts();
-        # $chart->tooltip->show = true;
-
-        # $chart->tooltip->trigger = 'item';
 
         $chart->xAxis = array(
             'type' => 'category',
@@ -2388,8 +2351,6 @@ class AssetManagementService
         //beginn Chart Losses compared
         $chart = new ECharts();
         # $chart->tooltip->show = true;
-
-        # $chart->tooltip->trigger = 'item';
 
         $chart->xAxis = array(
             'type' => 'category',
@@ -2627,7 +2588,6 @@ class AssetManagementService
             'lossesComparedTableCumulated' => $lossesComparedTableCumulated,
             'cumulated_losses_compared_chart' => $cumulated_losses_compared_chart,
         ];
-
         return $output;
     }
 }
