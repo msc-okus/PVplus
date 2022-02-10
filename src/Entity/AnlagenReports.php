@@ -48,6 +48,14 @@ class AnlagenReports
     private string $reportType;
 
     /**
+     * Indicats wich version of Report.
+     * Depending on this information we have to decide wich function to use for PDF and Excel files.
+     *
+     * @ORM\Column(type="integer")
+     */
+    private int $reportTypeVersion = 0;
+
+    /**
      * @ORM\Column(type="date")
      */
     private $startDate;
@@ -107,6 +115,17 @@ class AnlagenReports
     {
         $this->reportType = $reportType;
 
+        return $this;
+    }
+
+    public function getReportTypeVersion(): int
+    {
+        return $this->reportTypeVersion;
+    }
+
+    public function setReportTypeVersion(int $reportTypeVersion): self
+    {
+        $this->reportTypeVersion = $reportTypeVersion;
         return $this;
     }
 
