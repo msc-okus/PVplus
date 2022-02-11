@@ -42,10 +42,11 @@
                         {% include 'report/_asset_mangement_partials/_availibility_yearly_overview.html.twig'%}
                     {% endfor %}
                 {% endif %}
-
+{#
                 {% if (data.AvMonthlyOverview == true) %}
                     {% include 'report/_asset_mangement_partials/_availability_monthly_overview.html.twig'%}
                 {% endif %}
+#}
 
                 {% if (data.AvInv == true) %}
                     {% include 'report/_asset_mangement_partials/_aufloesung_availibility_fuerr_den_act_monat.html.twig'%}

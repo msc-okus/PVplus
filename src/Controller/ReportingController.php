@@ -6,6 +6,7 @@ use ApiPlatform\Core\Api\UrlGeneratorInterface;
 use App\Entity\Anlage;
 use App\Entity\AnlagenReports;
 use App\Entity\User;
+use App\Form\AssetManagement\AssetManagementeReportFormType;
 use App\Form\Reports\ReportsFormType;
 use App\Helper\G4NTrait;
 use App\Reports\Goldbeck\EPCMonthlyPRGuaranteeReport;
@@ -38,6 +39,153 @@ class ReportingController extends AbstractController
 {
     use G4NTrait;
 
+    /**
+     * @Route("/asset/report/{id}/{month}/{year}/{export}/{pages}", name="report_asset_management", defaults={"export" = 0, "pages" = 0})
+     */
+    public function assetReport($id, $month, $year,  $pages, AssetManagementService $assetManagement, AnlagenRepository $anlagenRepository,  EntityManagerInterface $em, ReportsRepository $reportRepo)
+    {
+        $session=$this->container->get('session');
+
+        $searchstatus   = $session->get('search');
+        $searchtype     = $session->get('type');
+        $anlageq        = $session->get('anlage');
+        $searchmonth    = $session->get('month');
+        $route          = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
+        $route          = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
+
+        $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
+
+        // we try to find and delete a previous report from this month/year
+        $report = $reportRepo->findOneByAMY($anlage, $month, $year)[0];
+
+        if ($report) {
+            $em->remove($report);
+            $em->flush();
+        }
+
+        $report = new AnlagenReports();
+            //then we generate our own report and try to persist it
+
+        $output = $assetManagement->assetReport($anlage, $month, $year, $pages);
+
+
+        $data = [
+                'Production' => true,
+                'ProdCap' =>true,
+                'CumulatForecastPVSYS' => true,
+                'CumulatForecastG4N' => true,
+                'CumulatLosses' => true,
+                'MonthlyProd' => true,
+                'DailyProd' => true,
+                'Availability' => true,
+                'AvYearlyOverview' => true,
+                'AvMonthlyOverview' => true,
+                'AvInv' => true,
+                'StringCurr' => true,
+                'InvPow' => true,
+                'Economics' => true];
+
+
+        $output["data"] = $data;
+                $result = $this->render('report/assetreport.html.twig', [
+                'invNr' => count($output["plantAvailabilityMonth"]),
+                'comments' =>$report->getComments(),
+                'data' => $data,
+                'anlage' => $anlage,
+                'year' => $output['year'],
+                'month' => $output['month'],
+                'reportmonth' => $output['reportmonth'],
+                'montharray' => $output['monthArray'],
+                'degradation' => $output['degradation'],
+                'forecast_PVSYST_table' => $output['forecast_PVSYST_table'],
+                'forecast_PVSYST' => $output['forecast_PVSYST'],
+                'forecast_G4N_table' => $output['forecast_G4N_table'],
+                'forecast_G4N' => $output['forecast_G4N'],
+                'dataMonthArray' => $output['dataMonthArray'],
+                'dataMonthArrayFullYear' => $output['dataMonthArrayFullYear'],
+                'dataCfArray' => $output['dataCfArray'],
+                'operations_right' => $output['operations_right'],
+                'table_overview_monthly' => $output['table_overview_monthly'],
+                'losses_t1' => $output['losses_t1'],
+                'losses_t2' => $output['losses_t2'],
+                'losses_year' => $output['losses_year'],
+                'losses_monthly' => $output['losses_monthly'],
+                'production_monthly_chart' => $output['production_monthly_chart'],
+                'operations_monthly_right_pvsyst_tr1' => $output['operations_monthly_right_pvsyst_tr1'],
+                'operations_monthly_right_pvsyst_tr2' => $output['operations_monthly_right_pvsyst_tr2'],
+                'operations_monthly_right_pvsyst_tr3' => $output['operations_monthly_right_pvsyst_tr3'],
+                'operations_monthly_right_pvsyst_tr4' => $output['operations_monthly_right_pvsyst_tr4'],
+                'operations_monthly_right_pvsyst_tr5' => $output['operations_monthly_right_pvsyst_tr5'],
+                'operations_monthly_right_pvsyst_tr6' => $output['operations_monthly_right_pvsyst_tr6'],
+                'operations_monthly_right_pvsyst_tr7' => $output['operations_monthly_right_pvsyst_tr7'],
+                'operations_monthly_right_g4n_tr1' => $output['operations_monthly_right_g4n_tr1'],
+                'operations_monthly_right_g4n_tr2' => $output['operations_monthly_right_g4n_tr2'],
+                'operations_monthly_right_g4n_tr3' => $output['operations_monthly_right_g4n_tr3'],
+                'operations_monthly_right_g4n_tr4' => $output['operations_monthly_right_g4n_tr4'],
+                'operations_monthly_right_g4n_tr5' => $output['operations_monthly_right_g4n_tr5'],
+                'operations_monthly_right_g4n_tr6' => $output['operations_monthly_right_g4n_tr6'],
+                'operations_monthly_right_g4n_tr7' => $output['operations_monthly_right_g4n_tr7'],
+                'operations_monthly_right_iout_tr1' => $output['operations_monthly_right_iout_tr1'],
+                'operations_monthly_right_iout_tr2' => $output['operations_monthly_right_iout_tr2'],
+                'operations_monthly_right_iout_tr3' => $output['operations_monthly_right_iout_tr3'],
+                'operations_monthly_right_iout_tr4' => $output['operations_monthly_right_iout_tr4'],
+                'operations_monthly_right_iout_tr5' => $output['operations_monthly_right_iout_tr5'],
+                'operations_monthly_right_iout_tr6' => $output['operations_monthly_right_iout_tr6'],
+                'operations_monthly_right_iout_tr7' => $output['operations_monthly_right_iout_tr7'],
+                'table_overview_dayly' => $output['table_overview_dayly'],
+                'plantAvailabilityCurrentYear' => $output['plantAvailabilityCurrentYear'],
+                'daysInReportMonth' => $output['daysInReportMonth'],
+                'tableColsLimit' => $output['tableColsLimit'],
+                'acGroups' => $output['acGroups'],
+                'availability_Year_To_Date' => $output['availability_Year_To_Date'],
+                'failures_Year_To_Date' => $output['failures_Year_To_Date'],
+                'plant_availability' => $output['plant_availability'],
+                'actual' => $output['actual'],
+                'plantAvailabilityMonth' => $output['plantAvailabilityMonth'],
+                'operations_currents_dayly_table' => $output['operations_currents_dayly_table'],
+                'income_per_month' => $output['income_per_month'],
+                'income_per_month_chart' => $output['income_per_month_chart'],
+                'economicsMandy' => $output['economicsMandy'],
+                'total_Costs_Per_Date' => $output['total_Costs_Per_Date'],
+                'operating_statement_chart' => $output['operating_statement_chart'],
+                'economicsCumulatedForecast' => $output['economicsCumulatedForecast'],
+                'economicsCumulatedForecastChart' => $output['economicsCumulatedForecastChart'],
+                'lossesComparedTable' => $output['lossesComparedTable'],
+                'losses_compared_chart' => $output['losses_compared_chart'],
+                'lossesComparedTableCumulated' => $output['lossesComparedTableCumulated'],
+                'cumulated_losses_compared_chart' => $output['cumulated_losses_compared_chart'],
+            ]);
+
+            $report = new AnlagenReports();
+
+            $report->setAnlage($anlage);
+
+            $report->setEigner($anlage->getEigner());
+
+            $report->setMonth($month);
+
+            $report->setYear($year);
+
+            $dates = date('d.m.y', strtotime("01." . $month . "." . $year));
+            $report->setStartDate(date_create_from_format('d.m.y', $dates));
+
+            $dates = date('d.m.y', strtotime("30." . $month . "." . $year));
+            $report->setEndDate(date_create_from_format('d.m.y', $dates));
+
+            $report->setReportType("am-report");
+
+            $report->setContentArray($output);
+
+            $report->setRawReport("");
+
+            $em->persist($report);
+
+
+            $em->flush();
+
+        return $this->redirect($route);
+
+    }
 
     /**
      * @Route("/reporting/create", name="app_reporting_create")
@@ -217,11 +365,11 @@ class ReportingController extends AbstractController
     /**
      * @Route("/reporting/pdf/{id}", name="app_reporting_pdf")
      */
-    public function showReportAsPdf($id, ReportEpcService $reportEpcService, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, PdfService $pdf, ReportsEpcNewService $epcNewService)
+    public function showReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer,  ReportsEpcNewService $epcNewService)
     {
         /** @var AnlagenReports|null $report */
         $session=$this->container->get('session');
-
+        $pdf = new PdfService("");
         $searchstatus   = $session->get('search');
         $searchtype     = $session->get('type');
         $anlageq        = $session->get('anlage');
@@ -311,22 +459,125 @@ class ReportingController extends AbstractController
                 // exit für Monthly Reports werden in buildMonthlyReports ausgeführt, wenn 'exit' parameter = true
                 break;
             case 'am-report':
-                #$reportService->buildAmReport($anlage, $report->getContentArray(), $reportCreationDate, 0 ,0, true);
-                $month = $report->getMonth();
-                $year = $report->getYear();
-                $anlageName = $report->getAnlage();
-                $pos = $this->substr_Index($this->getParameter('kernel.project_dir'), '/', 5);
-                $pathpart = substr($this->getParameter('kernel.project_dir'), $pos);
 
-                $file_with_path = '/usr/home/pvpluy/public_html'.$pathpart.'/public/' . $anlageName.'_AssetReport_'.$month.'_'.$year.'.pdf';
-                $response = new BinaryFileResponse ( $file_with_path );
-                $response->headers->set ( 'Content-Type', 'text/plain' );
-                $response->setContentDisposition(
-                    ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-                    $anlageName.'_AssetReport_'.$month.'_'.$year.'.pdf'
-                );
-                return $response;
-                break;
+                if($reportsRepository->find($id)) {
+                    $report = $reportsRepository->find($id);
+                    $output = $report->getContentArray();
+                    $load = true;
+
+
+                    $form = $this->createForm(AssetManagementeReportFormType::class);
+                    $form->handleRequest($request);
+                    if ($form->isSubmitted() && $form->isValid()) {
+                        $data = $form->getData();
+                        $output["data"] = $data;
+                        $result = $this->render('report/assetreport.html.twig', [
+                            'invNr' => count($output["plantAvailabilityMonth"]),
+                            'comments' => $report->getComments(),
+                            'data' => $data,
+                            'anlage' => $anlage,
+                            'year' => $output['year'],
+                            'month' => $output['month'],
+                            'reportmonth' => $output['reportmonth'],
+                            'montharray' => $output['monthArray'],
+                            'degradation' => $output['degradation'],
+                            'forecast_PVSYST_table' => $output['forecast_PVSYST_table'],
+                            'forecast_PVSYST' => $output['forecast_PVSYST'],
+                            'forecast_G4N_table' => $output['forecast_G4N_table'],
+                            'forecast_G4N' => $output['forecast_G4N'],
+                            'dataMonthArray' => $output['dataMonthArray'],
+                            'dataMonthArrayFullYear' => $output['dataMonthArrayFullYear'],
+                            'dataCfArray' => $output['dataCfArray'],
+                            'operations_right' => $output['operations_right'],
+                            'table_overview_monthly' => $output['table_overview_monthly'],
+                            'losses_t1' => $output['losses_t1'],
+                            'losses_t2' => $output['losses_t2'],
+                            'losses_year' => $output['losses_year'],
+                            'losses_monthly' => $output['losses_monthly'],
+                            'production_monthly_chart' => $output['production_monthly_chart'],
+                            'operations_monthly_right_pvsyst_tr1' => $output['operations_monthly_right_pvsyst_tr1'],
+                            'operations_monthly_right_pvsyst_tr2' => $output['operations_monthly_right_pvsyst_tr2'],
+                            'operations_monthly_right_pvsyst_tr3' => $output['operations_monthly_right_pvsyst_tr3'],
+                            'operations_monthly_right_pvsyst_tr4' => $output['operations_monthly_right_pvsyst_tr4'],
+                            'operations_monthly_right_pvsyst_tr5' => $output['operations_monthly_right_pvsyst_tr5'],
+                            'operations_monthly_right_pvsyst_tr6' => $output['operations_monthly_right_pvsyst_tr6'],
+                            'operations_monthly_right_pvsyst_tr7' => $output['operations_monthly_right_pvsyst_tr7'],
+                            'operations_monthly_right_g4n_tr1' => $output['operations_monthly_right_g4n_tr1'],
+                            'operations_monthly_right_g4n_tr2' => $output['operations_monthly_right_g4n_tr2'],
+                            'operations_monthly_right_g4n_tr3' => $output['operations_monthly_right_g4n_tr3'],
+                            'operations_monthly_right_g4n_tr4' => $output['operations_monthly_right_g4n_tr4'],
+                            'operations_monthly_right_g4n_tr5' => $output['operations_monthly_right_g4n_tr5'],
+                            'operations_monthly_right_g4n_tr6' => $output['operations_monthly_right_g4n_tr6'],
+                            'operations_monthly_right_g4n_tr7' => $output['operations_monthly_right_g4n_tr7'],
+                            'operations_monthly_right_iout_tr1' => $output['operations_monthly_right_iout_tr1'],
+                            'operations_monthly_right_iout_tr2' => $output['operations_monthly_right_iout_tr2'],
+                            'operations_monthly_right_iout_tr3' => $output['operations_monthly_right_iout_tr3'],
+                            'operations_monthly_right_iout_tr4' => $output['operations_monthly_right_iout_tr4'],
+                            'operations_monthly_right_iout_tr5' => $output['operations_monthly_right_iout_tr5'],
+                            'operations_monthly_right_iout_tr6' => $output['operations_monthly_right_iout_tr6'],
+                            'operations_monthly_right_iout_tr7' => $output['operations_monthly_right_iout_tr7'],
+                            'table_overview_dayly' => $output['table_overview_dayly'],
+                            'plantAvailabilityCurrentYear' => $output['plantAvailabilityCurrentYear'],
+                            'daysInReportMonth' => $output['daysInReportMonth'],
+                            'tableColsLimit' => $output['tableColsLimit'],
+                            'acGroups' => $output['acGroups'],
+                            'availability_Year_To_Date' => $output['availability_Year_To_Date'],
+                            'failures_Year_To_Date' => $output['failures_Year_To_Date'],
+                            'plant_availability' => $output['plant_availability'],
+                            'actual' => $output['actual'],
+                            'plantAvailabilityMonth' => $output['plantAvailabilityMonth'],
+                            'operations_currents_dayly_table' => $output['operations_currents_dayly_table'],
+                            'income_per_month' => $output['income_per_month'],
+                            'income_per_month_chart' => $output['income_per_month_chart'],
+                            'economicsMandy' => $output['economicsMandy'],
+                            'total_Costs_Per_Date' => $output['total_Costs_Per_Date'],
+                            'operating_statement_chart' => $output['operating_statement_chart'],
+                            'economicsCumulatedForecast' => $output['economicsCumulatedForecast'],
+                            'economicsCumulatedForecastChart' => $output['economicsCumulatedForecastChart'],
+                            'lossesComparedTable' => $output['lossesComparedTable'],
+                            'losses_compared_chart' => $output['losses_compared_chart'],
+                            'lossesComparedTableCumulated' => $output['lossesComparedTableCumulated'],
+                            'cumulated_losses_compared_chart' => $output['cumulated_losses_compared_chart'],
+                        ]);
+                        $pdf = new ChromePdf('/usr/bin/chromium');
+
+                        $pos = $this->substr_Index($this->getParameter('kernel.project_dir'), '/', 5);
+                        $pathpart = substr($this->getParameter('kernel.project_dir'), $pos);
+                        $anlageName = $anlage->getAnlName();
+
+                        if ($month < 10) {
+                            $month = '0' . $month;
+                        }
+
+                        $pdf->output('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlageName . '_AssetReport_' . $month . '_' . $year . '.pdf');
+                        $reportfile = fopen('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlageName . '_AssetReport_' . $month . '_' . $year . '.html', "w") or die("Unable to open file!");
+                        //cleanup html
+                        $pos = strpos($result, '<html>');
+                        fwrite($reportfile, substr($result, $pos));
+                        fclose($reportfile);
+
+                        #$pdf->generateFromHtml(substr($result, $pos));
+                        $pdf->generateFromFile('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlageName . '_AssetReport_' . $month . '_' . $year . '.html');
+                        $filename = $anlageName . '_AssetReport_' . $month . '_' . $year . '.pdf';
+                        $pdf->output($filename);
+
+                        // Header content type
+                        header("Content-type: application/pdf");
+                        header("Content-Length: " . filesize($filename));
+                        header("Content-type: application/pdf");
+
+                        // Send the file to the browser.
+                        readfile($filename);
+
+                    }
+
+                    return $this->render('report/_form.html.twig', [
+                        'assetForm' => $form->createView(),
+                    ]);
+
+
+                    break;
+                }
         }
 
         return $this->redirect($route);

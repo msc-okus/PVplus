@@ -26,9 +26,7 @@ class AssetManagementController extends BaseController
         $this->urlGenerator = $urlGenerator;
     }
 
-    /**
-     * @Route("/asset/report/{id}/{month}/{year}/{export}/{pages}", name="report_asset_management", defaults={"export" = 0, "pages" = 0})
-     */
+    /*
     public function assetReport($id, $month, $year, $export, $pages, AssetManagementService $assetManagement, AnlagenRepository $anlagenRepository, Request $request, EntityManagerInterface $em, ReportsRepository $reportRepo)
     {
         $load = false;
@@ -207,4 +205,5 @@ class AssetManagementController extends BaseController
         }
         return $posTotal-1;
     }
+    */
 }
