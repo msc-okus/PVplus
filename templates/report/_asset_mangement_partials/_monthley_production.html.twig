@@ -4,7 +4,7 @@
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Monthly Production</h3>
     <table id="basetable">
         <tr>
-            {% if (operations_monthly_right_pvsyst_tr1 == null) %}
+            {% if (anlage.hasPVSYST == true) %}
             <td style="text-align: left">
                 <table class="asset_report_table_operations_data">
                     <thead>

@@ -26,12 +26,14 @@
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
+                    {% if (anlage.hasPVSYST == true) %}
                     <tr>
                         <td class="tr_first_column" style="text-align: right;">Expected PV SYST [kWh]</td>
                         {% for data in table_overview_monthly.expectedPvSyst %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
+                    {% endif %}
                     <tr>
                         <td class="tr_first_column" style="text-align: right;">Expected g4n [kWh]</td>
                         {% for data in table_overview_monthly.powerExpEvu %}

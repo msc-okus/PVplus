@@ -122,7 +122,9 @@
                         {% endif %}
                         {% if is_granted('ROLE_G4N') %}
                             <a href="{{ path('app_reporting_edit', { id: report.id}) }}"  class="hollow button tiny action-icon shadow"><span class="fa fa-edit"></span></a>
-                            <a href="{{ path('app_reporting_html', { id: report.id}) }}"    title="load html code" class="hollow button tiny action-icon shadow"><span class="fas fa-code"></span></a>
+                            {% if report.reportType == "am-report"%}
+                                <a href="{{ path('app_reporting_html', { id: report.id}) }}"    title="load html code" class="hollow button tiny action-icon shadow"><span class="fas fa-code"></span></a>
+                            {% endif %}
                         {% endif %}
                         {% if is_granted('ROLE_DEV') %}<a href="{{ path('app_reporting_delete', { id: report.id}) }}" onclick="return window.confirm('Löschen?');" class="hollow alert button tiny action-icon shadow"><span class="fa fa-trash-alt"></span></a>{% endif %}
                     </td>

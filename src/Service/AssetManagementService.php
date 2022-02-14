@@ -262,7 +262,7 @@ class AssetManagementService
         }
 
         // chart building, skip to line 950
-        //beginn chart
+        //begin chart
         $chart = new ECharts();
         $chart->tooltip->show = true;
         $chart->tooltip->trigger = 'item';
@@ -286,35 +286,63 @@ class AssetManagementService
             'nameGap' => 80,
             'offset' => -20,
         );
-        $chart->series =
-            [
+        if ($anlage->hasPVSYST() === true) {
+            $chart->series =
                 [
-                    'name' => 'Yield (Grid meter)',
-                    'type' => 'bar',
-                    'data' => $powerEvu,
-                    'visualMap' => 'false'
-                ],
+                    [
+                        'name' => 'Yield (Grid meter)',
+                        'type' => 'bar',
+                        'data' => $powerEvu,
+                        'visualMap' => 'false'
+                    ],
+                    [
+                        'name' => 'Expected PVSYST',
+                        'type' => 'bar',
+                        'data' => $expectedPvSyst,
+                        'visualMap' => 'false'
+                    ],
+                    [
+                        'name' => 'Expected g4n',
+                        'type' => 'bar',
+                        'data' => $powerExp,
+                        'visualMap' => 'false'
+                    ],
+                    [
+                        'name' => 'Inverter out',
+                        'type' => 'bar',
+                        'data' => $powerAct,
+                        'visualMap' => 'false'
+                    ]
+                ];
+        }
+
+        else{
+
+            $chart->series =
                 [
-                    'name' => 'Expected PV SYST',
-                    'type' => 'bar',
-                    'data' => $expectedPvSyst,
-                    'visualMap' => 'false'
-                ],
-                [
-                    'name' => 'Expected g4n',
-                    'type' => 'bar',
-                    'data' => $powerExp,
-                    'visualMap' => 'false'
-                ],
-                [
-                    'name' => 'Inverter out',
-                    'type' => 'bar',
-                    'data' => $powerAct,
-                    'visualMap' => 'false'
-                ]
-            ];
+                    [
+                        'name' => 'Yield (Grid meter)',
+                        'type' => 'bar',
+                        'data' => $powerEvu,
+                        'visualMap' => 'false'
+                    ],
+                    [
+                        'name' => 'Expected g4n',
+                        'type' => 'bar',
+                        'data' => $powerExp,
+                        'visualMap' => 'false'
+                    ],
+                    [
+                        'name' => 'Inverter out',
+                        'type' => 'bar',
+                        'data' => $powerAct,
+                        'visualMap' => 'false'
+                    ]
+                ];
+        }
 
         $option = array(
+            'animation' => false,
             'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000'],
             'title' => [
                 'text' => 'Year ' . $report['reportYear'],
@@ -447,6 +475,7 @@ class AssetManagementService
             ];
 
         $option = array(
+            'animation' => false,
             'color' => ['#c55a11', '#0070c0', '#70ad47', '#ff0000'],
             'title' => [
                 'text' => 'Cumulative forecast plan PVSYST',
@@ -577,6 +606,7 @@ class AssetManagementService
             ];
 
         $option = array(
+            'animation' => false,
             'color' => ['#c55a11', '#0070c0', '#70ad47', '#ff0000'],
             'title' => [
                 'text' => 'Cumulative forecast plan g4n',
@@ -685,6 +715,7 @@ class AssetManagementService
             ];
 
         $option = array(
+            'animation' => false,
             'color' => ['#0070c0', '#c55a11', '#a5a5a5'],
             'title' => [
                 'text' => 'Monthly losses at plan values(PVSYS-g4n-INV))',
@@ -765,29 +796,49 @@ class AssetManagementService
             'nameLocation' => 'middle',
             'nameGap' => 80
         );
-        $chart->series =
-            [
+        if ($anlage->hasPVSYST()) {
+            $chart->series =
                 [
-                    'name' => 'Difference Egrid to PVSYST',
-                    'type' => 'line',
-                    'data' => $difference_Egrid_to_PVSYST,
-                    'visualMap' => 'false'
-                ],
+                    [
+                        'name' => 'Difference Egrid to PVSYST',
+                        'type' => 'line',
+                        'data' => $difference_Egrid_to_PVSYST,
+                        'visualMap' => 'false'
+                    ],
+                    [
+                        'name' => 'Difference Egrid to expected g4n',
+                        'type' => 'line',
+                        'data' => $difference_Egrid_to_Expected_G4n,
+                        'visualMap' => 'false'
+                    ],
+                    [
+                        'name' => 'Difference inverter to Egrid',
+                        'type' => 'line',
+                        'data' => $difference_Inverter_to_Egrid,
+                        'visualMap' => 'false',
+                    ]
+                ];
+        }
+        else{
+            $chart->series =
                 [
-                    'name' => 'Difference Egrid to expected g4n',
-                    'type' => 'line',
-                    'data' => $difference_Egrid_to_Expected_G4n,
-                    'visualMap' => 'false'
-                ],
-                [
-                    'name' => 'Difference inverter to Egrid',
-                    'type' => 'line',
-                    'data' => $difference_Inverter_to_Egrid,
-                    'visualMap' => 'false',
-                ]
-            ];
+                    [
+                        'name' => 'Difference Egrid to expected g4n',
+                        'type' => 'line',
+                        'data' => $difference_Egrid_to_Expected_G4n,
+                        'visualMap' => 'false'
+                    ],
+                    [
+                        'name' => 'Difference inverter to Egrid',
+                        'type' => 'line',
+                        'data' => $difference_Inverter_to_Egrid,
+                        'visualMap' => 'false',
+                    ]
+                ];
+        }
 
         $option = array(
+            'animation' => false,
             'color' => ['#0070c0', '#c55a11', '#a5a5a5'],
             'title' => [
                 'text' => 'Comulative losses',
@@ -914,6 +965,7 @@ class AssetManagementService
         }
 
         $option = array(
+            'animation' => false,
             'color' => ['#698ed0', '#f1975a', '#c5e0b4', '#ffc000'],
             'title' => [
                 'text' => $monthName . ' ' . $report['reportYear'],
@@ -1456,6 +1508,7 @@ class AssetManagementService
             ];
 
         $option = array(
+            'animation' => false,
             'color' => ['#9dc3e6', '#f3a672', '#ff0000', '#c5e0b4'],
             'title' => [
                 'text' => 'Availability: Year to date',
@@ -1524,6 +1577,7 @@ class AssetManagementService
             ];
 
         $option = array(
+            'animation' => false,
             'color' => ['#9dc3e6', '#ffa4a4', '#ffc000'],
             'title' => [
                 'text' => 'Failure - Year to date',
@@ -1600,6 +1654,7 @@ class AssetManagementService
             ];
 
         $option = array(
+            'animation' => false,
             'color' => ['#c5e0b4', '#ed7d31', '#941651', '#ffc000', '#548235', '#2e75b6'],
             'title' => [
                 'text' => 'Plant availability: '.$monthName.' '.$report['reportYear'],
@@ -1673,6 +1728,7 @@ class AssetManagementService
             ];
 
         $option = array(
+            'animation' => false,
             'color' => ['#ed7d31', '#941651', '#ffc000', '#548235', '#2e75b6'],
             'title' => [
                 'text' => 'Actual',
@@ -1984,6 +2040,7 @@ class AssetManagementService
             ];
 
         $option = array(
+            'animation' => false,
             'color' => ['#4472c4', '#ed7d31', '#a5a5a5', '#ffc000'],
             'title' => [
                 'text' => 'Cumulated Forecast',
@@ -2056,6 +2113,7 @@ class AssetManagementService
             ];
 
         $option = array(
+            'animation' => false,
             'color' => ['#0070c0', '#c55a11', '#a5a5a5'],
             'title' => [
                 'text' => 'Monthly losses at plan values(PVSYS-g4n-INV))',
@@ -2138,6 +2196,7 @@ class AssetManagementService
             ];
 
         $option = array(
+            'animation' => false,
             'color' => ['#9dc3e6', '#f4b183', '#92d050'],
             'title' => [
                 'text' => 'Income per month ' . $report['reportYear'],
@@ -2254,6 +2313,7 @@ class AssetManagementService
             ];
 
         $option = array(
+            'animation' => false,
             'color' => [
                 '#5e85cc', '#f4ad7d', '#c6c6c6',
                 '#ffd966', '#8fbae2', '#9dc97f',
@@ -2332,6 +2392,7 @@ class AssetManagementService
             ];
 
         $option = array(
+            'animation' => false,
             'color' => ['#9dc3e6', '#f4b183', '#92d050'],
             'title' => [
                 'text' => 'Operating statement - '.$report['reportYear'].' [EUR]' ,
@@ -2418,6 +2479,7 @@ class AssetManagementService
             ];
 
         $option = array(
+            'animation' => false,
             'color' => ['#9dc3e6', '#92d050'],
             'title' => [
                 'text' => 'Losses Compared' ,
@@ -2513,6 +2575,7 @@ class AssetManagementService
             ];
 
         $option = array(
+            'animation' => false,
             'color' => ['#9dc3e6', '#92d050'],
             'title' => [
                 'text' => 'Commulative Losses Operating statement [EUR] ' ,

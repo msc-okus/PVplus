@@ -12,8 +12,10 @@
                     {% include 'report/_asset_mangement_partials/_productionandcapacityfactor.html.twig'%}
                 {% endif %}
 
-                {% if (data.CumulatForecastPVSYS) == true %}
-                    {% include 'report/_asset_mangement_partials/_cumulative_forecast_with_PVSYST.html.twig'%}
+                {% if (anlage.hasPVSYST) %}
+                    {% if (data.CumulatForecastPVSYS) == true %}
+                        {% include 'report/_asset_mangement_partials/_cumulative_forecast_with_PVSYST.html.twig'%}
+                    {% endif %}
                 {% endif %}
 
                 {% if(data.CumulatForecastG4N) == true %}

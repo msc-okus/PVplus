@@ -190,4 +190,10 @@ table td .explanation{
   padding: 5px;
   font-size: 12px;
 }
+.pr-formula{
+  vertical-align: top;
+}
+.pr-formula img{
+  width: 300px;
+}
 
