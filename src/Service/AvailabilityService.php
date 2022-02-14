@@ -91,7 +91,7 @@ class AvailabilityService
 
                 // Berechnung der protzentualen Verfügbarkeit Part 1 und Part 2
                 if ($availability['control'] - $availability['case4'] != 0) {
-                    $invAPart1 = (($availability['case1'] + $availability['case2'] + $availability['case5']) / ($availability['control'])) * 100;
+                    $invAPart1 = $this->calcInvAPart1($availability);
                     ($anlage->getPower() > 0 && $inverterPowerDc[$inverter] > 0) ? $invAPart2 = $inverterPowerDc[$inverter] / $anlage->getPower() : $invAPart2 = 1;
                 } else {
                     $invAPart1 = 0;
@@ -148,16 +148,19 @@ class AvailabilityService
     }
 
     /**
+     * CASE 0 = Datenlücke wenn nicht von CASE 5 abgefangen <b>(per devinition ist der Inverter bei Datenlücke verfügbar, kann durch CASE 6 koriegiert werden.)</b><br>
+     * CASE 1 = wenn Gmod > 0 && Gmod < 50<br>
+     * CASE 2 = wenn Gmod >= 50 && PowerAc inverter > 0<br>
+     * CASE 3 = wenn Gmod >= 50 && PowerAc inverter <= 0<br>
+     * CASE 4 = wenn Gmod >= 50 && PowerAc inverter > 0 && cosPhi = 0<br>
+     * CASE 5 = Manuel, durch Operator herausgenommen (z.B.: wegen Wartung)<br>
+     * CASE 6 = Manuel, durch Operator koriegierte Datenlücke (Datenlücke ist Ausfall des Inverters) <br>
+     * CONTROL = wenn Gmod > 0<br>
      * @param Anlage $anlage
      * @param $timestampModulo
      * @param TimesConfig $timesConfig
      * @return array
-     * CASE 1 = wenn Gmod > 0 && Gmod < 50
-     * CASE 2 = wenn Gmod >= 50 && PowerAc inverter > 0
-     * CASE 3 = wenn Gmod >= 50 && PowerAc inverter <= 0
-     * CASE 4 = wenn Gmod >= 50 && PowerAc inverter > 0 && cosPhi = 0
-     * CASE 5 = Manuel, durch Operator herausgenommen (z.B.: wegen Wartung)
-     * CONTROL = wenn Gmod > 0
+     *
      */
     public function checkAvailabilityInverter(Anlage $anlage, $timestampModulo, TimesConfig $timesConfig):array
     {
@@ -192,7 +195,7 @@ class AvailabilityService
             foreach ($this->case5Repository->findAllCase5($anlage, $from, $to) as $case) {
                 $c5From = strtotime($case['stampFrom']);
                 $c5To   = strtotime($case['stampTo']);
-                for ($c5Stamp = $c5From; $c5Stamp < $c5To; $c5Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
+                for ($c5Stamp = $c5From; $c5Stamp <= $c5To; $c5Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
                     //foreach (explode(',', $case['inverter'], 999) as $inverter) {
                     foreach ($this->functions->readInverters($case['inverter'], $anlage) as $inverter) {
                         $inverter = trim($inverter, ' ');
@@ -316,12 +319,12 @@ class AvailabilityService
     }
 
     /**
-     * Berchnet die Verfügbarkeit anhand der 'cases' nach der Formel
-     * ti / ti,(theo - tFM)
-     * wobei:
-     * ti = case1 + case2
-     * ti,theo = control
-     * tFM = case5
+     * Berchnet die Verfügbarkeit anhand der 'cases' nach der Formel<br>
+     * ti / ti,(theo - tFM)<br>
+     * wobei:<br>
+     * ti = case1 + case2<br>
+     * ti,theo = control<br>
+     * tFM = case5<br>
      *
      * @param Anlage $anlage
      * @param DateTime $from
@@ -349,7 +352,7 @@ class AvailabilityService
             $inverter = $row['inverter'];
             // Berechnung der protzentualen Verfügbarkeit Part 1 und Part 2
             if ($row['control'] - $row['case4'] != 0) {
-                $invAPart1 = (($row['case1'] + $row['case2']) / ($row['control'] - $row['case5'])) * 100;
+                $invAPart1 = $this->calcInvAPart1($row);
                 ($anlage->getPower() > 0 && $inverterPowerDc[$inverter] > 0) ? $invAPart2 = $inverterPowerDc[$inverter] / $anlage->getPower() : $invAPart2 = 1;
                 $invAPart3 = $invAPart1 * $invAPart2;
             } else {
@@ -386,6 +389,11 @@ class AvailabilityService
         $conn = null;
 
         return $istData;
+    }
+
+    private function calcInvAPart1(array $row): float
+    {
+        return (($row['case1'] + $row['case2'] + $row['case5']) / $row['control']) * 100;
     }
 
 
