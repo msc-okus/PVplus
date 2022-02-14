@@ -40,36 +40,14 @@ class ReportingController extends AbstractController
     use G4NTrait;
 
     /**
-     * @Route("/asset/report/{id}/{month}/{year}/{export}/{pages}", name="report_asset_management", defaults={"export" = 0, "pages" = 0})
+     * @Route("/reporting/html/{id}", name="app_reporting_html")
      */
-    public function assetReport($id, $month, $year,  $pages, AssetManagementService $assetManagement, AnlagenRepository $anlagenRepository,  EntityManagerInterface $em, ReportsRepository $reportRepo)
-    {
-        $session=$this->container->get('session');
-
-        $searchstatus   = $session->get('search');
-        $searchtype     = $session->get('type');
-        $anlageq        = $session->get('anlage');
-        $searchmonth    = $session->get('month');
-        $route          = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
-        $route          = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
-
-        $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
-
-        // we try to find and delete a previous report from this month/year
-        $report = $reportRepo->findOneByAMY($anlage, $month, $year)[0];
-
-        if ($report) {
-            $em->remove($report);
-            $em->flush();
-        }
-
-        $report = new AnlagenReports();
-            //then we generate our own report and try to persist it
-
-        $output = $assetManagement->assetReport($anlage, $month, $year, $pages);
-
-
-        $data = [
+    public function loadHtmlCode($id, ReportsRepository $reportsRepository){
+        if($reportsRepository->find($id)) {
+            $report = $reportsRepository->find($id);
+            $output = $report->getContentArray();
+            $anlage = $report->getAnlage();
+            $data = [
                 'Production' => true,
                 'ProdCap' =>true,
                 'CumulatForecastPVSYS' => true,
@@ -85,11 +63,9 @@ class ReportingController extends AbstractController
                 'InvPow' => true,
                 'Economics' => true];
 
-
-        $output["data"] = $data;
-                $result = $this->render('report/assetreport.html.twig', [
+            $result = $this->render('report/assetreport.html.twig', [
                 'invNr' => count($output["plantAvailabilityMonth"]),
-                'comments' =>$report->getComments(),
+                'comments' => $report->getComments(),
                 'data' => $data,
                 'anlage' => $anlage,
                 'year' => $output['year'],
@@ -155,36 +131,116 @@ class ReportingController extends AbstractController
                 'lossesComparedTableCumulated' => $output['lossesComparedTableCumulated'],
                 'cumulated_losses_compared_chart' => $output['cumulated_losses_compared_chart'],
             ]);
+            $pdf = new ChromePdf('/usr/bin/chromium');
 
-            $report = new AnlagenReports();
+            $pos = $this->substr_Index($this->getParameter('kernel.project_dir'), '/', 5);
+            $pathpart = substr($this->getParameter('kernel.project_dir'), $pos);
+            $anlageName = $anlage->getAnlName();
+            $month = $report->getMonth();
+            $year = $report->getYear();
+            if ($month < 10) {
+                $month = '0' . $month;
+            }
 
-            $report->setAnlage($anlage);
+            $pdf->output('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlageName . '_AssetReport_' . $month . '_' . $year . '.pdf');
+            $reportfile = fopen('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlageName . '_AssetReport_' . $month . '_' . $year . '.html', "w") or die("Unable to open file!");
+            //cleanup html
+            $pos = strpos($result, '<html>');
+            fwrite($reportfile, substr($result, $pos));
+            fclose($reportfile);
 
-            $report->setEigner($anlage->getEigner());
+            #$pdf->generateFromHtml(substr($result, $pos));
+            $pdf->generateFromFile('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlageName . '_AssetReport_' . $month . '_' . $year . '.html');
+            $filename = $anlageName . '_AssetReport_' . $month . '_' . $year . '.pdf';
+            $pdf->output($filename);
 
-            $report->setMonth($month);
+            // Header content type
+            header("Content-type: application/pdf");
+            header("Content-Length: " . filesize($filename));
+            header("Content-type: application/pdf");
 
-            $report->setYear($year);
+            // Send the file to the browser.
+        }
+        return $this->render('reporting/seehtml.html.twig',[
+           'pdfd' => $result
+        ]);
+    }
 
-            $dates = date('d.m.y', strtotime("01." . $month . "." . $year));
-            $report->setStartDate(date_create_from_format('d.m.y', $dates));
+    /**
+     * @Route("/asset/report/{id}/{month}/{year}/{export}/{pages}", name="report_asset_management", defaults={"export" = 0, "pages" = 0})
+     */
+    public function assetReport($id, $month, $year,  $pages, AssetManagementService $assetManagement, AnlagenRepository $anlagenRepository,  EntityManagerInterface $em, ReportsRepository $reportRepo)
+    {
+        $session=$this->container->get('session');
 
-            $dates = date('d.m.y', strtotime("30." . $month . "." . $year));
-            $report->setEndDate(date_create_from_format('d.m.y', $dates));
+        $searchstatus   = $session->get('search');
+        $searchtype     = $session->get('type');
+        $anlageq        = $session->get('anlage');
+        $searchmonth    = $session->get('month');
+        $route          = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
+        $route          = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
 
-            $report->setReportType("am-report");
+        $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
 
-            $report->setContentArray($output);
+        // we try to find and delete a previous report from this month/year
+        $report = $reportRepo->findOneByAMY($anlage, $month, $year)[0];
 
-            $report->setRawReport("");
-
-            $em->persist($report);
-
-
+        if ($report) {
+            $em->remove($report);
             $em->flush();
+        }
+
+        $report = new AnlagenReports();
+            //then we generate our own report and try to persist it
+
+        $output = $assetManagement->assetReport($anlage, $month, $year, $pages);
+
+
+        $data = [
+                'Production' => true,
+                'ProdCap' =>true,
+                'CumulatForecastPVSYS' => true,
+                'CumulatForecastG4N' => true,
+                'CumulatLosses' => true,
+                'MonthlyProd' => true,
+                'DailyProd' => true,
+                'Availability' => true,
+                'AvYearlyOverview' => true,
+                'AvMonthlyOverview' => true,
+                'AvInv' => true,
+                'StringCurr' => true,
+                'InvPow' => true,
+                'Economics' => true];
+
+        $output["data"] = $data;
+
+        $report = new AnlagenReports();
+
+        $report->setAnlage($anlage);
+
+        $report->setEigner($anlage->getEigner());
+
+        $report->setMonth($month);
+
+        $report->setYear($year);
+
+        $dates = date('d.m.y', strtotime("01." . $month . "." . $year));
+        $report->setStartDate(date_create_from_format('d.m.y', $dates));
+
+        $dates = date('d.m.y', strtotime("30." . $month . "." . $year));
+        $report->setEndDate(date_create_from_format('d.m.y', $dates));
+
+        $report->setReportType("am-report");
+
+        $report->setContentArray($output);
+
+        $report->setRawReport("");
+
+        $em->persist($report);
+
+        $em->flush();
 
         return $this->redirect($route);
-
     }
 
     /**
@@ -205,7 +261,6 @@ class ReportingController extends AbstractController
         $reportMonth    = $request->query->get('month');
         $reportYear     = $request->query->get('year');
         $daysOfMonth    = date('t',strtotime("$reportYear-$reportMonth-01"));
-        dd($daysOfMonth);
         $reportDate     = new \DateTime("$reportYear-$reportMonth-$daysOfMonth");
         $anlageId       = $request->query->get('anlage-id');
         $aktAnlagen     = $anlagenRepo->findIdLike([$anlageId]);
@@ -361,7 +416,6 @@ class ReportingController extends AbstractController
             'anlage'        => $anlage,
         ]);
     }
-
     /**
      * @Route("/reporting/pdf/{id}", name="app_reporting_pdf")
      */

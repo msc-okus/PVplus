@@ -163,7 +163,7 @@ class CsvUploadController extends AbstractController
          * @Route("/csv/upload/load", name="csv_upload_load")
          */
 
-    public function load(Request $request, EntityManagerInterface $em, UploaderHelper $uploaderHelper, AnlagenRepository $anlRepo):Response
+    public function load(Request $request, EntityManagerInterface $em, UploaderHelper $uploaderHelper, AnlagenRepository $anlRepo, $uploadsPath):Response
     {
         $form = $this->createForm(FileUploadFormType::class);
         $anlage = null;
@@ -179,7 +179,7 @@ class CsvUploadController extends AbstractController
                 //Here we upload the file and read it
                 $newFile = $uploaderHelper->uploadImage($uploadedFile, "1","csv");
                 $finder = new Finder();
-                $finder->in("/usr/www/users/pvpluy/dev.jm/PVplus-4.0/public/uploads/csv/1/")->name($newFile['newFilename']);
+                $finder->in($uploadsPath."/csv/1/")->name($newFile['newFilename']);
 
                 foreach ($finder as $file) {//there will be only one file but we have to iterate like this
 
