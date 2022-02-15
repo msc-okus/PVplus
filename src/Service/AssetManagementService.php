@@ -383,8 +383,7 @@ class AssetManagementService
         //fuer die Tabelle
 
         #Forecast / degradation
-        $degradation = 4.98;
-
+        $degradation = $anlage->getDegradationForecast()!== 0.0 ? $anlage->getDegradationForecast() : 4.98;
         //Cumulative Forecast
         $kumsum[0] = $powerEvu[0];
         for ($i = 0; $i < 12; $i++) {
