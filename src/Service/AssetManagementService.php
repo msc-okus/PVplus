@@ -743,7 +743,7 @@ class AssetManagementService
         
         $chart->setOption($option);
 
-        //$losses_monthly = $chart->render('losses_monthly', ['style' => 'height: 450px; width:23cm;']);
+
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
@@ -2090,28 +2090,46 @@ class AssetManagementService
             'nameLocation' => 'middle',
             'nameGap' => 70
         );
-        $chart->series =
-            [
+        if ($anlage->hasPVSYST()) {
+            $chart->series =
                 [
-                    'name' => 'Difference Egrid to PVSYST',
-                    'type' => 'line',
-                    'data' => $diefference_prod_to_pvsyst,
-                    'visualMap' => 'false'
-                ],
+                    [
+                        'name' => 'Difference Egrid to PVSYST',
+                        'type' => 'line',
+                        'data' => $diefference_prod_to_pvsyst,
+                        'visualMap' => 'false'
+                    ],
+                    [
+                        'name' => 'Difference Egrid to expected g4n',
+                        'type' => 'line',
+                        'data' => $diefference_prod_to_expected_g4n,
+                        'visualMap' => 'false'
+                    ],
+                    [
+                        'name' => 'Difference inverter to Egrid',
+                        'type' => 'line',
+                        'data' => $diefference_prod_to_egrid,
+                        'visualMap' => 'false',
+                    ]
+                ];
+        }
+        else {
+            $chart->series =
                 [
-                    'name' => 'Difference Egrid to expected g4n',
-                    'type' => 'line',
-                    'data' => $diefference_prod_to_expected_g4n,
-                    'visualMap' => 'false'
-                ],
-                [
-                    'name' => 'Difference inverter to Egrid',
-                    'type' => 'line',
-                    'data' => $diefference_prod_to_egrid,
-                    'visualMap' => 'false',
-                ]
-            ];
-
+                    [
+                        'name' => 'Difference Egrid to expected g4n',
+                        'type' => 'line',
+                        'data' => $diefference_prod_to_expected_g4n,
+                        'visualMap' => 'false'
+                    ],
+                    [
+                        'name' => 'Difference inverter to Egrid',
+                        'type' => 'line',
+                        'data' => $diefference_prod_to_egrid,
+                        'visualMap' => 'false',
+                    ]
+                ];
+        }
         $option = array(
             'animation' => false,
             'color' => ['#0070c0', '#c55a11', '#a5a5a5'],
