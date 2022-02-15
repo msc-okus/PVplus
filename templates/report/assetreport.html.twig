@@ -4,45 +4,96 @@
     <div class="container">
         {%- block content %}
 
+            {# WE COULD USE PARAMETERS HERE TO DECIDE WICH PARTS TO INCLUDE BUT WE WILL NEED A MORE COMPLEX FORM DEDICATED FOR THE AM REPORT#}
             {% include 'report/_asset_mangement_partials/_header.html.twig'%}
+            {% if (data.Production == true) %}
 
-            {% include 'report/_asset_mangement_partials/_productionandcapacityfactor.html.twig'%}
+                {% if (data.ProdCap) == true %}
+                    {% include 'report/_asset_mangement_partials/_productionandcapacityfactor.html.twig'%}
+                {% endif %}
 
-            {% include 'report/_asset_mangement_partials/_cumulative_forecast_with_PVSYST.html.twig'%}
+                {% if (anlage.hasPVSYST) %}
+                    {% if (data.CumulatForecastPVSYS) == true %}
+                        {% include 'report/_asset_mangement_partials/_cumulative_forecast_with_PVSYST.html.twig'%}
+                    {% endif %}
+                {% endif %}
 
-            {% include 'report/_asset_mangement_partials/_cumulative_forecast_with_G4N.html.twig'%}
+                {% if(data.CumulatForecastG4N) == true %}
+                    {% include 'report/_asset_mangement_partials/_cumulative_forecast_with_G4N.html.twig'%}
+                {% endif %}
 
-            {% include 'report/_asset_mangement_partials/_cumulative_losses_yearly.html.twig'%}
+                {%  if (data.CumulatLosses == true) %}
+                    {% include 'report/_asset_mangement_partials/_cumulative_losses_yearly.html.twig'%}
+                {% endif %}
 
-            {% include 'report/_asset_mangement_partials/_cumulative_losses_monthly.html.twig'%}
+                {% if (data.MonthlyProd == true) %}
+                    {% include 'report/_asset_mangement_partials/_cumulative_losses_monthly.html.twig'%}
+                {% endif %}
 
-            {% include 'report/_asset_mangement_partials/_monthley_production.html.twig'%}
+                {% if (data.DailyProd == true) %}
+                    {% include 'report/_asset_mangement_partials/_monthley_production.html.twig'%}
+                    {% include 'report/_asset_mangement_partials/_production_monthly_expected_vs_actuals.html.twig'%}
+                {% endif %}
 
-            {% include 'report/_asset_mangement_partials/_production_monthly_expected_vs_actuals.html.twig'%}
+            {% endif %}
 
-            {% include 'report/_asset_mangement_partials/_availibility_yearly_overview.html.twig'%}
+            {% if(data.Availability) == true %}
 
-            {% include 'report/_asset_mangement_partials/_availability_monthly_overview.html.twig'%}
+                {% if (data.AvYearlyOverview == true) %}
+                    {%  for page in 0..(((invNr/20)|round(0, 'ceil'))-1) %}
+                        {% include 'report/_asset_mangement_partials/_availibility_yearly_overview.html.twig'%}
+                    {% endfor %}
+                {% endif %}
+{#
+                {% if (data.AvMonthlyOverview == true) %}
+                    {% include 'report/_asset_mangement_partials/_availability_monthly_overview.html.twig'%}
+                {% endif %}
+#}
 
-            {% include 'report/_asset_mangement_partials/_aufloesung_availibility_fuerr_den_act_monat.html.twig'%}
+                {% if (data.AvInv == true) %}
+                    {% include 'report/_asset_mangement_partials/_aufloesung_availibility_fuerr_den_act_monat.html.twig'%}
+                    {%  for page in 0..(((invNr/40)|round(0, 'ceil'))-1) %}
+                        {% include 'report/_asset_mangement_partials/_availability_inverter_daily.html.twig'%}
+                    {% endfor %}
+                {% endif %}
 
-            {% include 'report/_asset_mangement_partials/_availability_inverter_daily.html.twig'%}
+                {% if (data.StringCurr == true) %}
+                    {%  for page in 0..(((invNr/40)|round(0, 'ceil'))-1) %}
+                    {% include 'report/_asset_mangement_partials/_string_currents_daily_difference_g4n_actuals.html.twig'%}
+                    {% endfor %}
+                {% endif %}
 
-            {% include 'report/_asset_mangement_partials/_string_currents_daily_difference_g4n_actuals.html.twig'%}
+                {% if (data.InvPow == true) %}
+                    {%  for page in 0..(((invNr/40)|round(0, 'ceil'))-1) %}
+                        {% include 'report/_asset_mangement_partials/_inverters_power_daily_difference_g4n_actuals.html.twig'%}1
+                    {% endfor %}
 
-            {% include 'report/_asset_mangement_partials/_inverters_power_daily_difference_g4n_actuals.html.twig'%}
+        {% endif %}
+            {% endif %}
 
-            {% include 'report/_asset_mangement_partials/_economics_income_p_month.html.twig'%}
 
-            {% include 'report/_asset_mangement_partials/_economics_costs_per_mandy.html.twig'%}
+            {% if(data.Economics) == true %}
 
-            {% include 'report/_asset_mangement_partials/_economics_operating_statement.html.twig'%}
+                {% include 'report/_asset_mangement_partials/_economics_income_p_month.html.twig'%}
 
-            {% include 'report/_asset_mangement_partials/_economics_commulative_forecast.html.twig'%}
+                {% include 'report/_asset_mangement_partials/_economics_costs_per_mandy.html.twig'%}
 
-            {% include 'report/_asset_mangement_partials/_economics_losses_compared.html.twig'%}
+                {% include 'report/_asset_mangement_partials/_economics_operating_statement.html.twig'%}
 
-            {% include 'report/_asset_mangement_partials/_economics_cumulated_losses_compared.html.twig'%}
+                {% include 'report/_asset_mangement_partials/_economics_commulative_forecast.html.twig'%}
+
+                {% include 'report/_asset_mangement_partials/_economics_losses_compared.html.twig'%}
+
+                {% include 'report/_asset_mangement_partials/_economics_cumulated_losses_compared.html.twig'%}
+
+            {% endif %}
+
+            {% if (comments != null)  %}
+                {% if (comments != "") %}
+                    {% include 'report/_asset_mangement_partials/_comments.html.twig' %}
+                {% endif %}
+            {% endif %}
+
         {% endblock %}
     </div>
 {% endblock %}

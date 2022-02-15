@@ -3,7 +3,8 @@
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Economics</h3>
     <span class="subheadline">Commulative forecast</span>
-    <table id="basetable">
+    {% dump(anlage.getEconomicVarNames) %}
+    <table >
         <tr>
             <td colspan="2" style="text-align: left">
                 <table class="asset_report_table_operations_data" style="width: 100%!important;">

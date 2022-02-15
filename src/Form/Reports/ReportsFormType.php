@@ -4,6 +4,7 @@ namespace App\Form\Reports;
 
 use App\Entity\AnlagenReports;
 use App\Helper\G4NTrait;
+use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -27,6 +28,10 @@ class ReportsFormType extends AbstractType
                 'choices'       => ['final' => '0', 'proof reading' => '5', 'archive (only g4n)' => '9', 'draft (only g4n)' => '10', 'wrong (only g4n)' => '11'],
                 'empty_data'    => '0',
             ])
+            ->add('comments', CKEditorType::class,[
+                'config' => array('toolbar' => 'my_toolbar'),
+            ])
+
 
             ->add('save', SubmitType::class, [
                 'label' => 'Save',

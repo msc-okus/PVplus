@@ -3,7 +3,7 @@
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Production & Capacity factor</h3>
     <span class="subheadline">Yearly expected vs. actuals</span>
-    <table id="basetable">
+    <table >
         <tr>
             <td colspan="2" style="text-align: left">
                 <table class="asset_report_table_operations_data" style="width: 100%!important;">
@@ -26,12 +26,14 @@
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
+                    {% if (anlage.hasPVSYST == true) %}
                     <tr>
                         <td class="tr_first_column" style="text-align: right;">Expected PV SYST [kWh]</td>
                         {% for data in table_overview_monthly.expectedPvSyst %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
+                    {% endif %}
                     <tr>
                         <td class="tr_first_column" style="text-align: right;">Expected g4n [kWh]</td>
                         {% for data in table_overview_monthly.powerExpEvu %}

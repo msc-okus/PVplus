@@ -156,7 +156,6 @@ class ReportService
         $countCase5 = 0;
         $output = '';
 
-        if (true) {
             ($docType == 1) ? $total = 'Total' : $total = '<b>Total</b>';
             $case5Values = [];
             #beginn case5
@@ -263,7 +262,7 @@ class ReportService
             #end create array for heat and temperatur table
             #wenn gar nichts geleifert wird, dann die gesamte Tabelle ausblenden
             (count($heatAndTempValues) > 0) ? $showHeatAndTemperaturTable = true : $showHeatAndTemperaturTable = false;
-        }
+
 
         $energypPoduction[0] = [
             'PD'            => date('F', $yesterday),
@@ -377,8 +376,8 @@ class ReportService
                 ],
             ],
         ]);
-
-        if (true) {
+        $output = $reportout->run()->render('ReportMonthly', true);
+        if ($exit) {
             switch ($docType) {
                 case 1: // Excel Export
                     $currentDate = date('Y-m-d H-i');
