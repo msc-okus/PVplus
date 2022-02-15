@@ -12,7 +12,6 @@ class PdfService
 {
     private string $tempPathBaseUrl;
 
-
     public function __construct(string $tempPathBaseUrl)
     {
         $this->tempPathBaseUrl = $tempPathBaseUrl;
@@ -23,7 +22,7 @@ class PdfService
      *
      * @param Anlage $anlage
      * @param string $html contains html or filename or url
-     * @param string $source choose from wich source (given html, file or url)
+     * @param string|null $source choose from wich source (given html, file or url)
      * @return string
      */
     public function createPdfTemp(Anlage $anlage, string $html, ?string $source = null): string

@@ -46,7 +46,6 @@
             series1.dataFields.valueY = "expected";
             {% if not aktAnlage.showEvuDiag or form.selectedChart == 'dc_single' %}
                 series1.dataFields.openValueY = "expgood";
-
                 series1.hidden = false;
                 series1.fillOpacity = 0.3;
             {% else %}
@@ -88,19 +87,46 @@
             //series12.defaultState.transitionDuration = 300;
             series12.tensionX = 0.8;
             series12.hidden = true;
-        {% endif %}
 
-        {% if aktAnlage.showEvuDiag and form.selectedChart == 'ac_single' %}
-            let series3 = chart.series.push(new am4charts.LineSeries());
-            series3.name = "Grid {{ (content.evuSum)|number_format(0, ',', '.') }} kWh"
-            series3.dataFields.dateX = "date";
-            series3.dataFields.valueY = "eZEvu";
-            series3.tooltipText = "Grid [kWh]: {valueY} [/]";
-            series3.fill = am4core.color("#03ac23");
-            series3.stroke = am4core.color("#03ac23");
-            series3.strokeWidth = 1;
-            //series3.defaultState.transitionDuration = 300;
-            series3.tensionX = 0.8;
+            {% if aktAnlage.showEvuDiag %}
+                let series3 = chart.series.push(new am4charts.LineSeries());
+                series3.name = "Grid {{ (content.evuSum)|number_format(0, ',', '.') }} kWh"
+                series3.dataFields.dateX = "date";
+                series3.dataFields.valueY = "eZEvu";
+                series3.tooltipText = "Grid [kWh]: {valueY} [/]";
+                series3.fill = am4core.color("#03ac23");
+                series3.stroke = am4core.color("#03ac23");
+                series3.strokeWidth = 1;
+                //series3.defaultState.transitionDuration = 300;
+                series3.tensionX = 0.8;
+            {% endif %}
+
+            {% if aktAnlage.showCosPhiPowerDiag %}
+                let series4 = chart.series.push(new am4charts.LineSeries());
+                series4.name = "CosPhi"
+                series4.dataFields.dateX = "date";
+                series4.dataFields.valueY = "cosPhi";
+                series4.tooltipText = "CosPhi: {valueY} [/]";
+                series4.fill = am4core.color("#950101");
+                series4.stroke = am4core.color("#950101");
+                series4.strokeWidth = 1;
+                series4.tensionX = 0.8;
+                series4.hidden = true;
+            {% endif %}
+
+            {% if aktAnlage.useCustPRAlgorithm == 'Lelystad' and is_granted('ROLE_G4N') %} {# theoretische Leitung (theoPower) mit TempKorrektur nach NREL #}
+                let theoPower = chart.series.push(new am4charts.LineSeries());
+                theoPower.name = "theoPower nach NREL {{ (content.theoPowerSum)|number_format(0, ',', '.') }} kWh";
+                theoPower.dataFields.dateX = "date";
+                theoPower.dataFields.valueY = "theoPower";
+                theoPower.tooltipText = "theoPower: {valueY} [/]";
+                theoPower.fill = am4core.color("#808080");
+                theoPower.stroke = am4core.color("#808080");
+                theoPower.strokeWidth = 1;
+                theoPower.tensionX = 0.8;
+                theoPower.hidden = true;
+            {% endif %}
+
         {% endif %}
 
         {% if aktAnlage.showInverterOutDiag or form.selectedChart == 'dc_single' %}
@@ -125,32 +151,6 @@
             {% if aktAnlage.showEvuDiag and form.selectedChart == 'ac_single' %}
                 series2.hidden = true;
             {% endif %}
-        {% endif %}
-
-        {% if aktAnlage.showCosPhiPowerDiag and form.selectedChart == 'ac_single'%}
-            let series4 = chart.series.push(new am4charts.LineSeries());
-            series4.name = "CosPhi"
-            series4.dataFields.dateX = "date";
-            series4.dataFields.valueY = "cosPhi";
-            series4.tooltipText = "CosPhi: {valueY} [/]";
-            series4.fill = am4core.color("#950101");
-            series4.stroke = am4core.color("#950101");
-            series4.strokeWidth = 1;
-            series4.tensionX = 0.8;
-            series4.hidden = true;
-        {% endif %}
-
-        {% if aktAnlage.useCustPRAlgorithm == 'Lelystad' and is_granted('ROLE_G4N') %} {# theoretische Leitung (theoPower) mit TempKorrektur nach NREL #}
-            let theoPower = chart.series.push(new am4charts.LineSeries());
-            theoPower.name = "theoPower nach NREL {{ (content.theoPowerSum)|number_format(0, ',', '.') }} kWh";
-            theoPower.dataFields.dateX = "date";
-            theoPower.dataFields.valueY = "theoPower";
-            theoPower.tooltipText = "theoPower: {valueY} [/]";
-            theoPower.fill = am4core.color("#808080");
-            theoPower.stroke = am4core.color("#808080");
-            theoPower.strokeWidth = 1;
-            theoPower.tensionX = 0.8;
-            theoPower.hidden = true;
         {% endif %}
 
         let seriesIrr = chart.series.push(new am4charts.LineSeries());

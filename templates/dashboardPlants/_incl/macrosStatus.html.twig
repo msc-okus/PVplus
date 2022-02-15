@@ -136,7 +136,7 @@
             {% for Grid in Grids %}
                 <tr>
                     <td>{{ Grid.date|date("y-m-d") }}</td>
-                    <td>{{ Grid.electricityGrid|number_format(1, '.', ',') }}</td>
+                    <td>{{ Grid.electricityGrid|number_format(1, ',', '.') }}</td>
                 </tr>
             {% endfor %}
             </tbody>

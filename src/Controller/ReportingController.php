@@ -3,26 +3,22 @@
 namespace App\Controller;
 
 use ApiPlatform\Core\Api\UrlGeneratorInterface;
-use App\Entity\Anlage;
 use App\Entity\AnlagenReports;
+
 use App\Entity\User;
 use App\Form\AssetManagement\AssetManagementeReportFormType;
 use App\Form\Reports\ReportsFormType;
 use App\Helper\G4NTrait;
 use App\Reports\Goldbeck\EPCMonthlyPRGuaranteeReport;
-use App\Reports\Goldbeck\EPCMonthlyYieldGuaranteeReport;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
-use App\Repository\UserRepository;
-use App\Service\AssetManagementService;
 use App\Service\PdfService;
 use App\Service\ReportEpcService;
 use App\Service\ReportsEpcNewService;
 use App\Service\ReportService;
+use App\Service\ReportsMonthlyService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
-use DateTime;
-use Nuzkito\ChromePdf\ChromePdf;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -38,6 +34,7 @@ use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 class ReportingController extends AbstractController
 {
     use G4NTrait;
+
 
     /**
      * @Route("/reporting/html/{id}", name="app_reporting_html")
@@ -302,9 +299,9 @@ class ReportingController extends AbstractController
 
     /**
      * @Route("/reporting/create", name="app_reporting_create")
-     * @deprecated
+     * @deprecated or use as ajax endpoint ???
      */
-    public function create(Request $request, AnlagenRepository $anlagenRepo, ReportService $report, ReportEpcService $epcReport, ReportsEpcNewService $epcNew, PdfService $pdf): RedirectResponse
+    public function createReport(Request $request, AnlagenRepository $anlagenRepo, ReportService $report, ReportsMonthlyService $reportsMonthly, ReportEpcService $epcReport, ReportsEpcNewService $epcNew, PdfService $pdf): RedirectResponse
     {
         $session=$this->container->get('session');
 
@@ -344,21 +341,24 @@ class ReportingController extends AbstractController
     /**
      * @Route("/reporting", name="app_reporting_list")
      */
-    public function list(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo, ReportService $report, ReportEpcService $epcReport): Response
+    public function list(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo, ReportService $report, ReportEpcService $reportEpc, ReportsMonthlyService $reportsMonthly): Response
     {
+
         $session = $this->container->get('session');
         $anlage = $searchstatus = $searchtype = $searchmonth = null;
-        if($request->query->get('searchstatus') != null & $request->query->get('searchstatus')  != "") $searchstatus    = $request->query->get('searchstatus');
-        if($request->query->get('searchtype')   != null & $request->query->get('searchtype')    != "") $searchtype      = $request->query->get('searchtype');
-        if($request->query->get('searchmonth')  != null & $request->query->get('searchmonth')   != "") $searchmonth     = $request->query->get('searchmonth');
-        #if($request->query->get('qr')           != null & $request->query->get('qr')            != "") $q               = $request->query->get('qr');
-        if($request->query->get('anlage')       != null & $request->query->get('anlage')        != "") $anlage          = $request->query->get('anlage');
+        $searchyear = date('Y');
+        if ($request->query->get('searchstatus') != null && $request->query->get('searchstatus')  != "") $searchstatus    = $request->query->get('searchstatus');
+        if ($request->query->get('searchtype')   != null && $request->query->get('searchtype')    != "") $searchtype      = $request->query->get('searchtype');
+        if ($request->query->get('searchmonth')  != null && $request->query->get('searchmonth')   != "") $searchmonth     = $request->query->get('searchmonth');
+        if ($request->query->get('searchyear')   != null && $request->query->get('searchyear')    != "") $searchyear      = $request->query->get('searchyear'); else $searchyear = null;
+        if ($request->query->get('anlage')       != null && $request->query->get('anlage')        != "") $anlage          = $request->query->get('anlage');
 
 
-        if($request->query->get('new-report') === 'yes' ) {
+        if ($request->query->get('new-report') === 'yes' ) {
             $searchstatus   = $session->get('search');
             $searchtype     = $session->get('type');
             $searchmonth    = $session->get('month');
+            $searchyear     = $session->get('search_year');
             $anlage         = $session->get('anlage');
             $new            = $request->query->get('new-report');
             $reportType     = $request->query->get('report-typ');
@@ -368,12 +368,14 @@ class ReportingController extends AbstractController
             $reportDate     = new \DateTime("$reportYear-$reportMonth-$daysOfMonth");
             $anlageId       = $request->query->get('anlage-id');
             $aktAnlagen     = $anlagenRepo->findIdLike([$anlageId]);
+            // create Reports
             switch ($reportType){
                 case 'monthly':
-                    $output = $report->monthlyReport($aktAnlagen, $reportMonth, $reportYear, 0, 0, true, false, false);
+                    #$output = $report->monthlyReport($aktAnlagen, $reportMonth, $reportYear, 0, 0, true, false, false);
+                    $output = $reportsMonthly->createMonthlyReport($aktAnlagen[0], $reportMonth, $reportYear);
                     break;
                 case 'epc':
-                    $output = $epcReport->createEpcReport($aktAnlagen[0], $reportDate);
+                    $output = $reportEpc->createEpcReport($aktAnlagen[0], $reportDate);
                     break;
                 case 'am':
                     return $this->redirectToRoute('report_asset_management', ['id' => $anlageId, 'month' => $reportMonth, 'year' => $reportYear, 'export' => 1, 'pages' => 0]);
@@ -388,12 +390,12 @@ class ReportingController extends AbstractController
             $request->query->set('anlage-id', $anlageId);
 
             $route = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
-            $route = $route."?anlage=".$anlage."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
+            $route = $route."?anlage=".$anlage."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&searchyear=".$searchyear."&search=yes";
 
             return $this->redirect($route);
         }
 
-        $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($anlage,$searchstatus,$searchtype,$searchmonth);
+        $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($anlage,$searchstatus,$searchtype,$searchmonth,$searchyear);
 
         $pagination = $paginator->paginate(
             $queryBuilder,
@@ -404,12 +406,14 @@ class ReportingController extends AbstractController
         $session->set('type', $searchtype);
         $session->set('anlage', $anlage);
         $session->set('month', $searchmonth);
+        $session->set('search_year', $searchyear);
         $anlagen = $anlagenRepo->findAll();
 
         return $this->render('reporting/list.html.twig', [
             'pagination' => $pagination,
             'anlagen'    => $anlagen,
             'stati'      => self::reportStati(),
+            'searchyear' => $searchyear,
             'month'      => $searchmonth,
             'type'       => $searchtype,
             'status'     => $searchstatus,
@@ -439,6 +443,7 @@ class ReportingController extends AbstractController
         $searchtype=$session->get('type');
         $anlageq=$session->get('anlage');
         $searchmonth=$session->get('month');
+        $searchyear     = $session->get('search_year');
         $route = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
         $route = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
 
@@ -476,6 +481,7 @@ class ReportingController extends AbstractController
     /**
      * @Route("/reporting/pdf/{id}", name="app_reporting_pdf")
      */
+
     public function showReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer,  ReportsEpcNewService $epcNewService)
     {
         /** @var AnlagenReports|null $report */
@@ -485,8 +491,9 @@ class ReportingController extends AbstractController
         $searchtype     = $session->get('type');
         $anlageq        = $session->get('anlage');
         $searchmonth    = $session->get('month');
+        $searchyear     = $session->get('search_year');
         $route          = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
-        $route          = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
+        $route          = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&searchyear=".$searchyear."&search=yes";
 
         $report = $reportsRepository->find($id);
         $month = $report->getMonth();
@@ -494,24 +501,24 @@ class ReportingController extends AbstractController
         $reportCreationDate = $report->getCreatedAt()->format('Y-m-d h:i:s');
         $anlage = $report->getAnlage();
         $currentDate = date('Y-m-d H-i');
-        $pdfFilename = 'Report ' . $currentDate . '.pdf';
-        $headline = [
-            [
-                'projektNr'     => $anlage->getProjektNr(),
-                'anlage'        => $anlage->getAnlName(),
-                'eigner'        => $anlage->getEigner()->getFirma(),
-                'date'          => $currentDate,
-                'kwpeak'        => $anlage->getKwPeak(),
-                'reportCreationDate' => $reportCreationDate,
-                'epcNote'       => $anlage->getEpcReportNote(),
-            ],
-        ];
+
         $reportArray = $report->getContentArray();
         switch ($report->getReportType()) {
             case 'epc-report':
                 $pdfFilename = 'EPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
                 switch ($anlage->getEpcReportType()) {
                     case 'prGuarantee' :
+                        $headline = [
+                            [
+                                'projektNr'     => $anlage->getProjektNr(),
+                                'anlage'        => $anlage->getAnlName(),
+                                'eigner'        => $anlage->getEigner()->getFirma(),
+                                'date'          => $currentDate,
+                                'kwpeak'        => $anlage->getKwPeak(),
+                                'reportCreationDate' => $reportCreationDate,
+                                'epcNote'       => $anlage->getEpcReportNote(),
+                            ],
+                        ];
                         $report = new EPCMonthlyPRGuaranteeReport([
                             'headlines'     => $headline,
                             'main'          => $reportArray[0],
@@ -563,8 +570,9 @@ class ReportingController extends AbstractController
 
                         return $response;
                 }
-
+                break;
             case 'monthly-report':
+
                 //standard G4N Report (an O&M Goldbeck angelehnt)
                 $output = $reportService->buildMonthlyReport($anlage, $report->getContentArray(), $reportCreationDate, 0 ,0, true);
                 //dd($output);
@@ -700,7 +708,7 @@ class ReportingController extends AbstractController
     /**
      * @Route("/reporting/excel/{id}", name="app_reporting_excel")
      */
-    public function showReportAsExcel($id, ReportEpcService $reportEpcService, ReportService $reportService, ReportsRepository $reportsRepository)
+    public function showReportAsExcel($id, ReportEpcService $reportEpcService, ReportService $reportService, ReportsRepository $reportsRepository, ReportsMonthlyService $reportsMonthly)
     {
         $session=$this->container->get('session');
 
@@ -708,8 +716,9 @@ class ReportingController extends AbstractController
         $searchtype=$session->get('type');
         $anlageq=$session->get('anlage');
         $searchmonth=$session->get('month');
+        $searchyear     = $session->get('search_year');
         $route = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
-        $route = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
+        $route = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&searchyear=".$searchyear."&search=yes";
 
         /** @var AnlagenReports|null $report */
         $report = $reportsRepository->find($id);
@@ -750,13 +759,7 @@ class ReportingController extends AbstractController
                         $template = 'EPCMonthlyPRGuaranteeReportExcel';
                         break;
                     case 'yieldGuarantee':
-                        $report = new EPCMonthlyYieldGuaranteeReport([
-                            'headlines' => $headline,
-                            'main'      => $reportArray[0],
-                            'forecast'  => $reportArray[1],
-                            'header'    => $reportArray[2],
-                        ]);
-                        $template = 'EPCMonthlyYieldGuaranteeReportExcel';
+
                         break;
                     default:
                 }
@@ -766,9 +769,16 @@ class ReportingController extends AbstractController
                 break;
             case 'monthly-report':
                 //Standard G4N Report (Goldbeck = O&M Report)
-                $reportService->buildMonthlyReport($anlage, $report->getContentArray(), $reportCreationDate, 1);
-                $reportService->buildMonthlyReport($anlage, $report->getContentArray(), $reportCreationDate, 2,0);
-                $reportService->buildMonthlyReport($anlage, $report->getContentArray(), $reportCreationDate, 2,1);
+                switch ($report->getReportTypeVersion()){
+                    case 1: // Version 1 -> Calulation on demand, store to serialized array and buil pdf and exl from this Data
+                        $reportsMonthly->exportReportToExcel($anlage, $report);
+                        break;
+                    default: // old Version
+                        $reportService->buildMonthlyReport($anlage, $report->getContentArray(), $reportCreationDate, 1);
+                        $reportService->buildMonthlyReport($anlage, $report->getContentArray(), $reportCreationDate, 2,0);
+                        $reportService->buildMonthlyReport($anlage, $report->getContentArray(), $reportCreationDate, 2,1);
+
+                }
                 break;
         }
 
@@ -788,8 +798,9 @@ class ReportingController extends AbstractController
         $searchtype     = $session->get('type');
         $anlageq        = $session->get('anlage');
         $searchmonth    = $session->get('month');
+        $searchyear     = $session->get('search_year');
         $route          = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
-        $route          = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
+        $route          = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&searchyear=".$searchyear."&search=yes";
 
         if ($this->isGranted('ROLE_DEV'))
         {

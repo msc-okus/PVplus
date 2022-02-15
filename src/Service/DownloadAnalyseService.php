@@ -14,7 +14,7 @@ use App\Repository\AnlagenRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Twig\Environment;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-
+use PDO;
 
 class DownloadAnalyseService
 {
@@ -64,30 +64,34 @@ class DownloadAnalyseService
      * @param int $year
      * @param int $month
      * @param int $timerange
-     * @return array
+     * @return array|AnlagenPR|null
      */
-    public function getAllSingleSystemData(Anlage $anlage, int $year = 0, int $month = 0, int $timerange = 0)
+    public function getAllSingleSystemData(Anlage $anlage, int $year = 0, int $month = 0, int $timerange = 0): array|AnlagenPR|null
     {
+        $download = [];
         #timerange = monthly or dayly table
-        if($timerange == 1){
-            if ($year != 0 && $month != 0) {
-                $yesterday = strtotime("$year-$month-01");
-            } else {
-                $currentTime = G4NTrait::getCetTime();
-                $yesterday = $currentTime - 86400 * 4;
-            }
+        switch ($timerange) {
+            case 1:
+                if ($year != 0 && $month != 0) {
+                    $yesterday = strtotime("$year-$month-01");
+                } else {
+                    $currentTime = G4NTrait::getCetTime();
+                    $yesterday = $currentTime - 86400 * 4;
+                }
 
-            $downloadMonth = date('m', $yesterday);
-            $downloadYear = date('Y', $yesterday);
-            $lastDayMonth = date('t', $yesterday);
-            $from = "$downloadYear-$downloadMonth-01 00:00";
-            $to = "$downloadYear-$downloadMonth-$lastDayMonth 23:59";
-            $download = [];
-            $download = $this->prRepository->findOneBy(['anlage' => $anlage, 'stamp' => date_create("$year-$month-$lastDayMonth")]);;
+                $downloadMonth = date('m', $yesterday);
+                $downloadYear = date('Y', $yesterday);
+                $lastDayMonth = date('t', $yesterday);
+                $from = "$downloadYear-$downloadMonth-01 00:00";
+                $to = "$downloadYear-$downloadMonth-$lastDayMonth 23:59";
+                $download = [];
+                $download = $this->prRepository->findOneBy(['anlage' => $anlage, 'stamp' => date_create("$year-$month-$lastDayMonth")]);;
+                break;
+            case 2:
+                $download = $this->prRepository->findPRInMonth($anlage, "$month", "$year");
+                break;
         }
-        if($timerange == 2){
-            $download = $this->prRepository->findPRInMonth($anlage, "$month", "$year");
-        }
+
         return $download;
     }
 
@@ -98,18 +102,19 @@ class DownloadAnalyseService
      * @param $intervall
      * @return array
      */
-    public function getDcSingleSystemData($anlage, $from, $to, $intervall) {
-        $conn = self::connectToDatabase();
+    public function getDcSingleSystemData($anlage, $from, $to, $intervall): array
+    {
+        $conn = self::getPdoConnection();
         $dbnameist = $anlage->getDbNameIst();
-        $arrayout1a = [];
+        $arrayout1a = $output = [];
         // Ist Daten laden
         $sql2sc = "SELECT DATE_FORMAT( a.stamp, '$intervall' ) AS form_date, sum(b.wr_pdc) as act_power_dc 
                     FROM (db_dummysoll a left JOIN $dbnameist b ON a.stamp = b.stamp) 
                     WHERE a.stamp BETWEEN '$from' and '$to' GROUP by form_date ORDER BY form_date";
         $res03 = $conn->query($sql2sc);
         $dds = 0;
-        if ($res03->num_rows > 0) {
-            while ($row = $res03->fetch_assoc()) {
+        if ($res03->rowCount() > 0) {
+            while ($row = $res03->fetch(PDO::FETCH_ASSOC)) {
                 $arrayout1a[$dds]['DATE'] = $row["form_date"];
                 $arrayout1a[$dds]['ACTDC'] = round($row["act_power_dc"], 2);
                 $dds++;
@@ -120,11 +125,10 @@ class DownloadAnalyseService
             $actdc = $wert['ACTDC'];
             ($anlage->getAnlDbUnit() == "w") ? $actdc = round($actdc / 1000 / 4, 2) : $actdc = round($actdc, 2);
 
-            $output[] =
-                [
-                    'datum' => $datum,
-                    'actdc' => $actdc,
-                ];
+            $output[] = [
+                'datum' => $datum,
+                'actdc' => $actdc,
+            ];
         }
 
         return $output;
@@ -137,25 +141,24 @@ class DownloadAnalyseService
      * @param $intervall
      * @return array
      */
-    public function getEcpectedDcSingleSystemData($anlage, $from, $to, $intervall) {
-        $conn = self::connectToDatabase();
+    public function getEcpectedDcSingleSystemData(Anlage $anlage, $from, $to, $intervall): array
+    {
+        $conn = self::getPdoConnection();
         $dbnamesoll = $anlage->getDbNameDcSoll();
-
+        $output = [];
         // Expected DC
         $sql = "SELECT DATE_FORMAT( a.stamp, '$intervall' ) AS form_date, sum(b.dc_exp_power) as exp_power_dc, sum(b.ac_exp_power) as exp_power_ac 
             FROM (db_dummysoll a left JOIN $dbnamesoll b ON a.stamp = b.stamp) 
             WHERE a.stamp BETWEEN '$from' and '$to' GROUP by form_date ORDER BY form_date";
         $resExpDc = $conn->query($sql);
 
-        if ($resExpDc->num_rows > 0) {
-            while ($rowExp = $resExpDc->fetch_assoc()) {
+        if ($resExpDc->rowCount() > 0) {
+            while ($rowExp = $resExpDc->fetch(PDO::FETCH_ASSOC)) {
                 $date_time = $rowExp['form_date'];
-                #$expPower[$date_time]['expPowerDc'] = round($rowExp["exp_power_dc"], 2);
-                $output[] =
-                    [
-                        'datum' => $date_time,
-                        'expdc' => round($rowExp["exp_power_dc"], 2),
-                    ];
+                $output[] = [
+                    'datum' => $date_time,
+                    'expdc' => round($rowExp["exp_power_dc"], 2),
+                ];
             }
         }
 
@@ -171,13 +174,13 @@ class DownloadAnalyseService
      * @param $headlineDate
      * @return array
      */
-    public function getAllSingleSystemDataForDay($anlage, $from, $to, $intervall, $headlineDate)
+    public function getAllSingleSystemDataForDay(Anlage $anlage, $from, $to, $intervall, $headlineDate): array
     {
-        $conn = self::connectToDatabase();
-        $dbnameist = $anlage->getDbNameIst();
-        $dbnamesoll = $anlage->getDbNameAcSoll();
-        $dbnamedcsoll = $anlage->getDbNameDcSoll();
-        $dbnamews = $anlage->getDbNameWeather();
+        $conn = self::getPdoConnection();
+        $dbnameist      = $anlage->getDbNameIst();
+        $dbnamesoll     = $anlage->getDbNameAcSoll();
+        $dbnamedcsoll   = $anlage->getDbNameDcSoll();
+        $dbnamews       = $anlage->getDbNameWeather();
 
 
         // Actual AC & DC
@@ -186,8 +189,8 @@ class DownloadAnalyseService
             WHERE a.stamp BETWEEN '$from' and '$to'AND b.wr_pac > 0 GROUP by form_date ORDER BY form_date";
         $actAcDcPower = [];
         $resAct = $conn->query("$sql");
-        if ($resAct->num_rows > 0) {
-            while ($rowAct = $resAct->fetch_assoc()) {
+        if ($resAct->rowCount() > 0) {
+            while ($rowAct = $resAct->fetch(PDO::FETCH_ASSOC)) {
                 $date_time = $rowAct['form_date'];
                 // Power GRID muss durch Anzahl der Gruppen geteilt werden, weil der Wert für die gesamte Anlage in jeder Gruppe gespeichert ist. Er darf aber nur einmal gezählt werden.
                 $actAcDcPower[$date_time]['actPowerGrid'] = round($rowAct["power_grid"]  / $anlage->getAcGroups()->count(), 2);
@@ -199,7 +202,6 @@ class DownloadAnalyseService
         // wenn Tagesdaten, dann Verfügbarkeit laden
         $prArray = [];
         if ($intervall == '%d.%m.%Y'){
-            /** @var AnlagenPR [] $prs */
             /** @var AnlagenPR [] $prs */
             $prs = $this->prRepository->findPrAnlageDate($anlage, $from, $to);
             foreach ($prs as $pr) {
@@ -217,8 +219,8 @@ class DownloadAnalyseService
             WHERE a.stamp BETWEEN '$from' and '$to' GROUP by form_date ORDER BY form_date";
         $resExpDc = $conn->query($sql);
         $expPower = [];
-        if ($resExpDc->num_rows > 0) {
-            while ($rowExp = $resExpDc->fetch_assoc()) {
+        if ($resExpDc->rowCount() > 0) {
+            while ($rowExp = $resExpDc->fetch(PDO::FETCH_ASSOC)) {
                 $date_time = $rowExp['form_date'];
                 $expPower[$date_time]['expPowerAc'] = round($rowExp["exp_power_ac"], 2);
                 $expPower[$date_time]['expPowerDc'] = round($rowExp["exp_power_dc"], 2);
@@ -229,8 +231,8 @@ class DownloadAnalyseService
                     FROM (db_dummysoll a left JOIN $dbnamews b ON a.stamp = b.stamp) 
                     WHERE a.stamp BETWEEN '$from' AND '$to' GROUP BY form_date ORDER BY a.stamp";
         $res01 = $conn->query($sql2ss);
-        if ($res01->num_rows > 0) {
-            while ($ro01 = $res01->fetch_assoc()) {
+        if ($res01->rowCount() > 0) {
+            while ($ro01 = $res01->fetch(PDO::FETCH_ASSOC)) {
                 $ptavgi     = round($ro01["avgpt"]);       // Pannel Temperature
                 $irr_upper  = round($ro01["irr_upper_pannel"]);     // Einstrahlung upper Pannel
                 $irr_lower  = round($ro01["irr_lower_pannel"]);
@@ -262,7 +264,7 @@ class DownloadAnalyseService
             }
         }
 
-        $conn->close();
+        $conn = null;
 
         return $output;
     }

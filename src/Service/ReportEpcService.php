@@ -166,8 +166,8 @@ class ReportEpcService
         $currentMonth   = (int)$date->format('m');
         $currentYear    = (int)$date->format('Y');
         if ($currentMonth == 1) { // Ausnahme um den Jahreswechsel abzubilden
-            $currentMonth   = 13;
-            $currentYear    -= 1;
+            #$currentMonth   = 13;
+            #$currentYear    -= 1;
         }
 
         $sumPrRealPrProg = $sumDays = $sumErtragDesign = $sumEGridReal = $sumAnteil = $sumPrReal = $sumSpecPowerGuar = $sumSpecPowerRealProg = $counter = $sumPrDesign = $sumSpezErtragDesign = 0;
@@ -184,7 +184,7 @@ class ReportEpcService
             $year = $startYear;
             $facStartDay = $anlage->getEpcReportStart()->format('d');
             $facEndDay = $anlage->getEpcReportEnd()->format('d');
-            $month = $anlage->getEpcReportStart()->format('m') * 1;
+            $month = (int)$anlage->getEpcReportStart()->format('m');
             $daysInStartMonth = (int)$anlage->getEpcReportStart()->format('j');
             $daysInEndMonth = (int)$anlage->getEpcReportEnd()->format('j');
 
@@ -202,6 +202,7 @@ class ReportEpcService
                     case 1:
                         $from = date('Y-m-d', strtotime("$year-$month-$facStartDay 00:00"));
                         $prArray = $this->PRCalulation->calcPR($anlage, date_create($from), date_create($to));
+
                         $days = $daysInMonth - $daysInStartMonth + 1;
                         $ertragPvSyst = $anlage->getOneMonthPvSyst($month)->getErtragDesign() / $daysInMonth * $days;
                         $prDesignPvSyst = $anlage->getOneMonthPvSyst($month)->getPrDesign();
@@ -353,6 +354,7 @@ class ReportEpcService
                 $month++;
             }
         }
+
         // Forecast (ganzes Jahr, Bsp Sep20 bis Sep21)
         $report[0][] = [
             'month'                 => 'Forecast<br>' . $forecastDateText,
@@ -452,8 +454,8 @@ class ReportEpcService
 
         // Daten für die Darstellung der Formel
         $report['formel'][]= [
-            'eGridReal'             => $this->format($formelEnergy),
-            'prReal'                => $this->format($formelPR),
+            'eGridReal'             => $this->format($sumEGridRealReal),//$formelEnergy
+            'prReal'                => $this->format($sumEGridRealReal / $formelPowerTheo * 100),//$formelPR
             'availability'          => $this->format($formelAvailability),
             'theoPower'             => $this->format($formelPowerTheo),
             'irradiation'           => $this->format($formelIrr),

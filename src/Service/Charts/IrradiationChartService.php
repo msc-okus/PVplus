@@ -34,12 +34,12 @@ class IrradiationChartService
      * @return array
      *  // irradiation
      */
-    public function getIrradiation(Anlage $anlage, $from, $to,?string $mode = 'all',  ?bool $hour = false): array
+    public function getIrradiation(Anlage $anlage, $from, $to,?string $mode = 'all', ?bool $hour = false): array
     {
         $conn = self::getPdoConnection();
-        ($hour) ? $form = '%y%m%d%H' : $form = '%y%m%d%H%i';
+        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $dataArray = [];
-        if($hour)$sql2 = "SELECT a.stamp, sum(b.gi_avg)  as gi, sum(b.gmod_avg) as gmod FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
+        if ($hour) $sql2 = "SELECT a.stamp, sum(b.gi_avg)  as gi, sum(b.gmod_avg) as gmod FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
         else $sql2 = "SELECT a.stamp, b.gi_avg as gi , b.gmod_avg as gmod FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
 
         $res = $conn->query($sql2);
@@ -91,14 +91,14 @@ class IrradiationChartService
      * @param $from
      * @param $to
      * @param bool $hour
-     * @return array|false
+     * @return array
      *  // irradiation_plant
      */
     public function getIrradiationPlant(Anlage $anlage, $from, $to, bool $hour): array
     {
 
         $conn = self::getPdoConnection();
-        ($hour) ? $form = '%y%m%d%H' : $form = '%y%m%d%H%i';
+        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
         // Strom für diesen Zeitraum und diesen Inverter
@@ -143,7 +143,7 @@ class IrradiationChartService
                         foreach ($irrAnlageArray as $irrAnlageItem => $irrAnlageValue) {
                             if (!($irrAnlageValue == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                                 if (!isset($irrAnlageValue)) $irrAnlageValue = 0;
-                                $dataArray['chart'][$counter]["val$irrCounter"] = round(($irrAnlageValue < 0) ? 0 : $irrAnlageValue, 0);
+                                $dataArray['chart'][$counter]["val$irrCounter"] = round(($irrAnlageValue < 0) ? 0 : $irrAnlageValue, 2);
                                 if (!isset($dataArray["nameX"][$irrCounter])) $dataArray["nameX"][$irrCounter] = $irrAnlageItem;
                             }
                             if ($irrCounter > $dataArray['maxSeries']) $dataArray['maxSeries'] = $irrCounter;

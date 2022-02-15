@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Service;
 
 use App\Entity\AnlageModules;
@@ -106,11 +105,21 @@ class ExpectedService
             ($group->getWeatherStation()) ? $currentWeatherStation = $group->getWeatherStation() : $currentWeatherStation = $anlage->getWeatherStation();
             for ($unit = $group->getUnitFirst(); $unit <= $group->getUnitLast(); $unit++) {
                 foreach($weatherArray[$currentWeatherStation->getDatabaseIdent()] as $weather) {
-
                     $stamp          = $weather["stamp"];
-                    $pannelTemp     = (float)$weather["panel_temp"];   // Pannel Temperatur
-                    $irrUpperBase   = (float)$weather["irr_upper"];    // Strahlung an obern Sensor
-                    $irrLowerBase   = (float)$weather["irr_lower"];    // Strahlung an unterem Sensor
+
+                    // use plant based shadow loss (normaly - 0)
+                    $shadow_loss    = $group->getShadowLoss();
+                    if ($groupMonth) {
+                        // use individule shadow loss per group (Entity: GroupMonth)
+                        if ($groupMonth->getShadowLoss()) $shadow_loss = $groupMonth->getShadowLoss();
+                    } elseif ($anlageMonth) {
+                        // use general monthly shadow loss (Entity: AnlageMonth)
+                        $shadow_loss = $anlageMonth->getShadowLoss();
+                    }
+
+                    $pannelTemp     = (float)$weather["panel_temp"] - ((float)$weather["panel_temp"] / 100 * $shadow_loss);   // Pannel Temperatur
+                    $irrUpperBase   = (float)$weather["irr_upper"]  - ((float)$weather["irr_upper"] / 100 * $shadow_loss);    // Strahlung an obern Sensor
+                    $irrLowerBase   = (float)$weather["irr_lower"]  - ((float)$weather["irr_lower"] / 100 * $shadow_loss);    // Strahlung an unterem Sensor
 
                     // Strahlung berechnen, für Analgen die KEINE 'Ost/West' Ausrichtung haben
                     if ($anlage->getUseLowerIrrForExpected()) {
@@ -123,14 +132,11 @@ class ExpectedService
                     $modules = $group->getModules();
                     $expPowerDc = $expCurrentDc = 0;
                     foreach ($modules as $modul) {
-                        /*
+                        // Irradiation discount depending on irradiation (Settings stored in entity: AnlageGroupModules)
                         $irr        = $this->calcIrradiationDiscountByModule($modul->getModuleType(), $irrBase);
                         $irrUpper   = $this->calcIrradiationDiscountByModule($modul->getModuleType(), $irrUpperBase);
                         $irrLower   = $this->calcIrradiationDiscountByModule($modul->getModuleType(), $irrLowerBase);
-                        */
-                        $irr        = $irrBase;
-                        $irrUpper   = $irrUpperBase;
-                        $irrLower   = $irrLowerBase;
+
                         if ($anlage->getIsOstWestAnlage()) {
                             // Ist 'Ost/West' Anlage, dann nutze $irrUpper (Strahlung Osten) und $irrLower (Strahlung Westen) und multipliziere mit der Anzahl Strings Ost / West
                             $expPowerDcHlp      = $modul->getModuleType()->getFactorPower($irrUpper) * $modul->getNumStringsPerUnitEast() * $modul->getNumModulesPerString() / 1000 / 4; // Ost
@@ -149,24 +155,15 @@ class ExpectedService
                             $expCurrentDcHlp    = $expCurrentDcHlp * $modul->getModuleType()->getTempCorrCurrent($pannelTemp);
                         }
 
-                        /*
                         // degradation abziehen (degradation * Betriebsjahre).
-                        $expPowerDcHlp      = $expPowerDcHlp - ($expPowerDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
+                        $expPowerDcHlp      = $expPowerDcHlp   - ($expPowerDcHlp   / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
                         $expCurrentDcHlp    = $expCurrentDcHlp - ($expCurrentDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
-                        */
+
                         $expPowerDc     += $expPowerDcHlp;
                         $expCurrentDc   += $expCurrentDcHlp;
                     }
-                    //
-                    $shadow_loss    = $group->getShadowLoss();
-                    if ($groupMonth) {
-                        if ($groupMonth->getShadowLoss()) $shadow_loss = $groupMonth->getShadowLoss();
-                    } elseif ($anlageMonth) {
-                        // nutze Anlagenweite Monatsverschattung (Entity: AnlageMonth)
-                        $shadow_loss = $anlageMonth->getShadowLoss();
-                    }
 
-                    /*
+                    /* @deprecated
                     // Anpassung der Verschattung an die jeweiligen Strahlungsbedingungen
                     // d.h. je weniger Strahlung desso geringer ist die Auswirkung der Verschattung
                     // Werte für $val bis $val 6 sind mit OS und TL abgesprochen
@@ -182,17 +179,17 @@ class ExpectedService
                     elseif ($irrBase > $val3 && $irrBase <= $val4) {$shadow_loss = $shadow_loss * 0.57;}
                     elseif ($irrBase > $val4 && $irrBase <= $val5) {$shadow_loss = $shadow_loss * 0.71;}
                     elseif ($irrBase > $val5 && $irrBase <= $val6) {$shadow_loss = $shadow_loss * 0.8;}
+                     */
 
                     // Verluste auf der DC Seite brechnen
-                    // Schattenverluste + Kabel Verluste + Sicherheitsverlust
-                    $loss           = $shadow_loss + $group->getCabelLoss() + $group->getSecureLoss();
+                    // Kabel Verluste + Sicherheitsverlust
+                    $loss = $group->getCabelLoss() + $group->getSecureLoss();
 
                     // Verhindert 'diff by zero'
                     if ($loss <> 0) {
                         $expPowerDc = $expPowerDc - ($expPowerDc / 100 * $loss);
                         $expCurrentDc = $expCurrentDc - ($expCurrentDc / 100 * $loss);
                     }
-                    */
 
                     // AC Expected Berechnung
                     // Umrechnung DC nach AC

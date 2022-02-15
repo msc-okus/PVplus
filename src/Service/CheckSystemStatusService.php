@@ -554,7 +554,7 @@ class CheckSystemStatusService
                     $rowSoll = $resultAcSoll->fetch_assoc();
                     $istPower = $rowIst['avg_power_ac_ist'];
                     $sollPower = $rowSoll['avg_power_ac_soll'];
-                    $lostInverter = 100 - round($istPower / $sollPower * 100); // Verlust in %
+                    $lostInverter = $sollPower > 0 ? 100 - round($istPower / $sollPower * 100) : 0; // Verlust in %
                     if ($istPower > 0) {
                         $inverterArray['invStatus'] = 'normal';
                         if ($lostInverter <= $GLOBALS['abweichung']['inverter']['string']['warning']) {

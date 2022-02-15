@@ -243,6 +243,7 @@ class ChartService
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['actSum'] = $dataArray['actSum'];
                         $resultArray['expSum'] = $dataArray['expSum'];
+                        $resultArray['theoPowerSum'] = 0;
                         $resultArray['headline'] = 'DC Production [kWh] – Actual and Expected';
                     }
                     break;
@@ -523,8 +524,7 @@ class ChartService
      */
     public function getAirAndPanelTemp(Anlage $anlage, $from, $to, bool $hour): array
     {
-        if($hour) $form = '%y%m%d%H';
-        else $form = '%y%m%d%H%i';
+        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $conn = self::getPdoConnection();
         $dataArray = [];
         $counter = 0;
@@ -538,22 +538,22 @@ class ChartService
         $res = $conn->query($sql2);
         while ($ro = $res->fetch(PDO::FETCH_ASSOC)) {
             $tempAmbient = $ro["tempAmbient"];
-            if (!$tempAmbient) $tempAmbient = 0;
+            #if (!$tempAmbient) $tempAmbient = 0;
             $tempPannel = $ro["tempPannel"];
-            if (!$tempPannel) $tempPannel = 0;
+            #if (!$tempPannel) $tempPannel = 0;
             $windSpeed = $ro["windSpeed"];
-            if (!$windSpeed) $windSpeed = 0;
+            #if (!$windSpeed) $windSpeed = 0;
 
             $stamp = $ro["stamp"];  #utc_date($stamp,$anintzzws);
-            if ($tempPannel != "#") {
-                //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-                $dataArray['chart'][$counter]["date"] = self::timeShift($anlage, $stamp);
-                if (!($tempAmbient + $tempPannel == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
-                    $dataArray['chart'][$counter]["val1"] = $tempAmbient; // upper pannel
-                    $dataArray['chart'][$counter]["val2"] = $tempPannel; // lower pannel
-                    $dataArray['chart'][$counter]["windSpeed"] = $windSpeed; // Wind Speed
-                }
+
+            //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
+            $dataArray['chart'][$counter]["date"] = self::timeShift($anlage, $stamp);
+            if (!($tempAmbient + $tempPannel == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
+                $dataArray['chart'][$counter]["val1"] = $tempAmbient; // upper pannel
+                $dataArray['chart'][$counter]["val2"] = $tempPannel; // lower pannel
+                $dataArray['chart'][$counter]["windSpeed"] = $windSpeed; // Wind Speed
             }
+
             $counter++;
         }
         $conn = null;
