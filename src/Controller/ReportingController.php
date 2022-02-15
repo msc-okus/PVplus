@@ -133,7 +133,7 @@ class ReportingController extends AbstractController
                     break;
                 */
                 case 'monthly-report':
-                    $result = $reportService->buildMonthlyReport($anlage, $report->getContentArray(), $reportCreationDate, 0 ,0, false);
+                    $result = $reportService->buildMonthlyReport($anlage, $report->getContentArray(), $reportCreationDate, 0, 0, false);
                     break;
 
                 case 'am-report':
@@ -141,90 +141,87 @@ class ReportingController extends AbstractController
                     $anlage = $report->getAnlage();
                     $form = $this->createForm(AssetManagementeReportFormType::class);
                     $form->handleRequest($request);
-                    if ($form->isSubmitted() && $form->isValid()) {
-                        $data = $form->getData();
-                        $output["data"] = $data;
-
-                        $result = $this->render('report/assetreport.html.twig', ['invNr' => count($output["plantAvailabilityMonth"]),
-                            'comments' => $report->getComments(),
-                            'data' => $data,
-                            'anlage' => $anlage,
-                            'year' => $output['year'],
-                            'month' => $output['month'],
-                            'reportmonth' => $output['reportmonth'],
-                            'montharray' => $output['monthArray'],
-                            'degradation' => $output['degradation'],
-                            'forecast_PVSYST_table' => $output['forecast_PVSYST_table'],
-                            'forecast_PVSYST' => $output['forecast_PVSYST'],
-                            'forecast_G4N_table' => $output['forecast_G4N_table'],
-                            'forecast_G4N' => $output['forecast_G4N'],
-                            'dataMonthArray' => $output['dataMonthArray'],
-                            'dataMonthArrayFullYear' => $output['dataMonthArrayFullYear'],
-                            'dataCfArray' => $output['dataCfArray'],
-                            'operations_right' => $output['operations_right'],
-                            'table_overview_monthly' => $output['table_overview_monthly'],
-                            'losses_t1' => $output['losses_t1'],
-                            'losses_t2' => $output['losses_t2'],
-                            'losses_year' => $output['losses_year'],
-                            'losses_monthly' => $output['losses_monthly'],
-                            'production_monthly_chart' => $output['production_monthly_chart'],
-                            'operations_monthly_right_pvsyst_tr1' => $output['operations_monthly_right_pvsyst_tr1'],
-                            'operations_monthly_right_pvsyst_tr2' => $output['operations_monthly_right_pvsyst_tr2'],
-                            'operations_monthly_right_pvsyst_tr3' => $output['operations_monthly_right_pvsyst_tr3'],
-                            'operations_monthly_right_pvsyst_tr4' => $output['operations_monthly_right_pvsyst_tr4'],
-                            'operations_monthly_right_pvsyst_tr5' => $output['operations_monthly_right_pvsyst_tr5'],
-                            'operations_monthly_right_pvsyst_tr6' => $output['operations_monthly_right_pvsyst_tr6'],
-                            'operations_monthly_right_pvsyst_tr7' => $output['operations_monthly_right_pvsyst_tr7'],
-                            'operations_monthly_right_g4n_tr1' => $output['operations_monthly_right_g4n_tr1'],
-                            'operations_monthly_right_g4n_tr2' => $output['operations_monthly_right_g4n_tr2'],
-                            'operations_monthly_right_g4n_tr3' => $output['operations_monthly_right_g4n_tr3'],
-                            'operations_monthly_right_g4n_tr4' => $output['operations_monthly_right_g4n_tr4'],
-                            'operations_monthly_right_g4n_tr5' => $output['operations_monthly_right_g4n_tr5'],
-                            'operations_monthly_right_g4n_tr6' => $output['operations_monthly_right_g4n_tr6'],
-                            'operations_monthly_right_g4n_tr7' => $output['operations_monthly_right_g4n_tr7'],
-                            'operations_monthly_right_iout_tr1' => $output['operations_monthly_right_iout_tr1'],
-                            'operations_monthly_right_iout_tr2' => $output['operations_monthly_right_iout_tr2'],
-                            'operations_monthly_right_iout_tr3' => $output['operations_monthly_right_iout_tr3'],
-                            'operations_monthly_right_iout_tr4' => $output['operations_monthly_right_iout_tr4'],
-                            'operations_monthly_right_iout_tr5' => $output['operations_monthly_right_iout_tr5'],
-                            'operations_monthly_right_iout_tr6' => $output['operations_monthly_right_iout_tr6'],
-                            'operations_monthly_right_iout_tr7' => $output['operations_monthly_right_iout_tr7'],
-                            'table_overview_dayly' => $output['table_overview_dayly'],
-                            'plantAvailabilityCurrentYear' => $output['plantAvailabilityCurrentYear'],
-                            'daysInReportMonth' => $output['daysInReportMonth'],
-                            'tableColsLimit' => $output['tableColsLimit'],
-                            'acGroups' => $output['acGroups'],
-                            'availability_Year_To_Date' => $output['availability_Year_To_Date'],
-                            'failures_Year_To_Date' => $output['failures_Year_To_Date'],
-                            'plant_availability' => $output['plant_availability'],
-                            'actual' => $output['actual'],
-                            'plantAvailabilityMonth' => $output['plantAvailabilityMonth'],
-                            'operations_currents_dayly_table' => $output['operations_currents_dayly_table'],
-                            'income_per_month' => $output['income_per_month'],
-                            'income_per_month_chart' => $output['income_per_month_chart'],
-                            'economicsMandy' => $output['economicsMandy'],
-                            'total_Costs_Per_Date' => $output['total_Costs_Per_Date'],
-                            'operating_statement_chart' => $output['operating_statement_chart'],
-                            'economicsCumulatedForecast' => $output['economicsCumulatedForecast'],
-                            'economicsCumulatedForecastChart' => $output['economicsCumulatedForecastChart'],
-                            'lossesComparedTable' => $output['lossesComparedTable'],
-                            'losses_compared_chart' => $output['losses_compared_chart'],
-                            'lossesComparedTableCumulated' => $output['lossesComparedTableCumulated'],
-                            'cumulated_losses_compared_chart' => $output['cumulated_losses_compared_chart'],]);
-
-                    }
+                    $data = $form->getData();
+                    $output["data"] = $data;
+                    if ($form->isSubmitted()&& $form->isValid()){
+                    $result = $this->render('report/assetreport.html.twig', ['invNr' => count($output["plantAvailabilityMonth"]),
+                        'comments' => $report->getComments(),
+                        'data' => $data,
+                        'anlage' => $anlage,
+                        'year' => $output['year'],
+                        'month' => $output['month'],
+                        'reportmonth' => $output['reportmonth'],
+                        'montharray' => $output['monthArray'],
+                        'degradation' => $output['degradation'],
+                        'forecast_PVSYST_table' => $output['forecast_PVSYST_table'],
+                        'forecast_PVSYST' => $output['forecast_PVSYST'],
+                        'forecast_G4N_table' => $output['forecast_G4N_table'],
+                        'forecast_G4N' => $output['forecast_G4N'],
+                        'dataMonthArray' => $output['dataMonthArray'],
+                        'dataMonthArrayFullYear' => $output['dataMonthArrayFullYear'],
+                        'dataCfArray' => $output['dataCfArray'],
+                        'operations_right' => $output['operations_right'],
+                        'table_overview_monthly' => $output['table_overview_monthly'],
+                        'losses_t1' => $output['losses_t1'],
+                        'losses_t2' => $output['losses_t2'],
+                        'losses_year' => $output['losses_year'],
+                        'losses_monthly' => $output['losses_monthly'],
+                        'production_monthly_chart' => $output['production_monthly_chart'],
+                        'operations_monthly_right_pvsyst_tr1' => $output['operations_monthly_right_pvsyst_tr1'],
+                        'operations_monthly_right_pvsyst_tr2' => $output['operations_monthly_right_pvsyst_tr2'],
+                        'operations_monthly_right_pvsyst_tr3' => $output['operations_monthly_right_pvsyst_tr3'],
+                        'operations_monthly_right_pvsyst_tr4' => $output['operations_monthly_right_pvsyst_tr4'],
+                        'operations_monthly_right_pvsyst_tr5' => $output['operations_monthly_right_pvsyst_tr5'],
+                        'operations_monthly_right_pvsyst_tr6' => $output['operations_monthly_right_pvsyst_tr6'],
+                        'operations_monthly_right_pvsyst_tr7' => $output['operations_monthly_right_pvsyst_tr7'],
+                        'operations_monthly_right_g4n_tr1' => $output['operations_monthly_right_g4n_tr1'],
+                        'operations_monthly_right_g4n_tr2' => $output['operations_monthly_right_g4n_tr2'],
+                        'operations_monthly_right_g4n_tr3' => $output['operations_monthly_right_g4n_tr3'],
+                        'operations_monthly_right_g4n_tr4' => $output['operations_monthly_right_g4n_tr4'],
+                        'operations_monthly_right_g4n_tr5' => $output['operations_monthly_right_g4n_tr5'],
+                        'operations_monthly_right_g4n_tr6' => $output['operations_monthly_right_g4n_tr6'],
+                        'operations_monthly_right_g4n_tr7' => $output['operations_monthly_right_g4n_tr7'],
+                        'operations_monthly_right_iout_tr1' => $output['operations_monthly_right_iout_tr1'],
+                        'operations_monthly_right_iout_tr2' => $output['operations_monthly_right_iout_tr2'],
+                        'operations_monthly_right_iout_tr3' => $output['operations_monthly_right_iout_tr3'],
+                        'operations_monthly_right_iout_tr4' => $output['operations_monthly_right_iout_tr4'],
+                        'operations_monthly_right_iout_tr5' => $output['operations_monthly_right_iout_tr5'],
+                        'operations_monthly_right_iout_tr6' => $output['operations_monthly_right_iout_tr6'],
+                        'operations_monthly_right_iout_tr7' => $output['operations_monthly_right_iout_tr7'],
+                        'table_overview_dayly' => $output['table_overview_dayly'],
+                        'plantAvailabilityCurrentYear' => $output['plantAvailabilityCurrentYear'],
+                        'daysInReportMonth' => $output['daysInReportMonth'],
+                        'tableColsLimit' => $output['tableColsLimit'],
+                        'acGroups' => $output['acGroups'],
+                        'availability_Year_To_Date' => $output['availability_Year_To_Date'],
+                        'failures_Year_To_Date' => $output['failures_Year_To_Date'],
+                        'plant_availability' => $output['plant_availability'],
+                        'actual' => $output['actual'],
+                        'plantAvailabilityMonth' => $output['plantAvailabilityMonth'],
+                        'operations_currents_dayly_table' => $output['operations_currents_dayly_table'],
+                        'income_per_month' => $output['income_per_month'],
+                        'income_per_month_chart' => $output['income_per_month_chart'],
+                        'economicsMandy' => $output['economicsMandy'],
+                        'total_Costs_Per_Date' => $output['total_Costs_Per_Date'],
+                        'operating_statement_chart' => $output['operating_statement_chart'],
+                        'economicsCumulatedForecast' => $output['economicsCumulatedForecast'],
+                        'economicsCumulatedForecastChart' => $output['economicsCumulatedForecastChart'],
+                        'lossesComparedTable' => $output['lossesComparedTable'],
+                        'losses_compared_chart' => $output['losses_compared_chart'],
+                        'lossesComparedTableCumulated' => $output['lossesComparedTableCumulated'],
+                        'cumulated_losses_compared_chart' => $output['cumulated_losses_compared_chart'],]);
+                        return $this->render('reporting/seehtml.html.twig', ['pdfd' => $result]);
+                        }
                     return $this->render('report/_form.html.twig', [
                         'assetForm' => $form->createView(),
                     ]);
+                    break;
 
-
+                    }
         }
-            return $this->render('reporting/seehtml.html.twig', ['pdfd' => $result]);
-
-
-        }
-
     }
+
+
 
     /**
      * @Route("/asset/report/{id}/{month}/{year}/{export}/{pages}", name="report_asset_management", defaults={"export" = 0, "pages" = 0})
@@ -587,7 +584,7 @@ class ReportingController extends AbstractController
                     if ($form->isSubmitted() && $form->isValid()) {
                         $data = $form->getData();
                         $output["data"] = $data;
-                        $result = $this->render('report/assetreport.html.twig', [
+                        $result = $this->renderView('report/assetreport.html.twig', [
                             'invNr' => count($output["plantAvailabilityMonth"]),
                             'comments' => $report->getComments(),
                             'data' => $data,
