@@ -3,7 +3,7 @@
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Monthly Production</h3>
     <span class="subheadline">Monthly expected vs. actuals</span>
-    <table id="basetable">
+    <table>
         <tr>
             <td colspan="2" style="text-align: left">
                 <table class="asset_report_table_operations_data" style="width: 100%!important;">
@@ -16,12 +16,14 @@
                     </tr>
                     </thead>
                     <tbody>
+                    {% if (anlage.hasPVSYST) %}
                     <tr>
                         <td class="tr_first_column" style="text-align: right">Diff. Egrid to PVSYST*</td>
                         {% for data in losses_t2.diefference_prod_to_pvsyst %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
+                    {% endif %}
                     <tr>
                         <td class="tr_first_column" style="text-align: right">Diff. Egrid to expected g4n</td>
                         {% for data in losses_t2.diefference_prod_to_expected_g4n %}
@@ -35,11 +37,14 @@
                         {% endfor %}
                     </tr>
                     </tbody>
-                </table>
-                <table>
+                    {%  if (anlage.hasPVSYST) %}
                     <tr>
                         <td class="td_texthint_2" style="vertical-align: top">* Plan value PVSYST P50</td>
                     </tr>
+                    {% endif %}
+                </table>
+                <table>
+
                     <tr>
                         <td style="text-align: left">{{ losses_monthly|raw }}</td>
                     </tr>

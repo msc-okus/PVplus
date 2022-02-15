@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use DateTime;
+use koolreport\excel\AreaChart;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -358,5 +359,25 @@ class EconomicVarNames
         }
 
         return $this;
+    }
+    public function getNamesArray():array
+    {
+        if($this->var_1 != "") $name['var_1'] = $this->var_1;
+        if($this->var_2 != "") $name['var_2'] = $this->var_2;
+        if($this->var_3 != "") $name['var_3'] = $this->var_3;
+        if($this->var_4 != "") $name['var_4'] = $this->var_4;
+        if($this->var_5 != "") $name['var_5'] = $this->var_5;
+        if($this->var_6 != "") $name['var_6'] = $this->var_6;
+        if($this->var_7 != "") $name['var_7'] = $this->var_7;
+        if($this->var_8 != "") $name['var_8'] = $this->var_8;
+        if($this->var_9 != "") $name['var_9'] = $this->var_9;
+        if($this->var_10 != "") $name['var_10'] = $this->var_10;
+        if($this->var_11 != "") $name['var_11'] = $this->var_11;
+        if($this->var_12 != "") $name['var_12'] = $this->var_12;
+        if($this->var_13 != "") $name['var_13'] = $this->var_13;
+        if($this->var_14 != "") $name['var_14'] = $this->var_14;
+        if($this->var_15 != "") $name['var_15'] = $this->var_15;
+
+        return $name;
     }
 }

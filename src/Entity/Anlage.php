@@ -365,6 +365,7 @@ class Anlage
      */
     private bool $showMenuDownload = false;
 
+    //use this to check if EVU is used
     /**
      * @ORM\Column(type="boolean")
      */
@@ -1619,7 +1620,7 @@ class Anlage
 
         return $this;
     }
-
+        //use this to check if EVU is used
     public function getShowEvuDiag(): ?bool
     {
         return $this->showEvuDiag;
@@ -3239,5 +3240,8 @@ class Anlage
         }
 
         return $this;
+    }
+    public function hasPVSYST():bool{
+        return intval($this->kwPeakPvSyst) > 0;
     }
 }
