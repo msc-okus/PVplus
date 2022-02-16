@@ -4,8 +4,6 @@ namespace App\Controller;
 
 use ApiPlatform\Core\Api\UrlGeneratorInterface;
 use App\Entity\AnlagenReports;
-
-use App\Entity\User;
 use App\Form\AssetManagement\AssetManagementeReportFormType;
 use App\Form\Reports\ReportsFormType;
 use App\Helper\G4NTrait;
@@ -31,6 +29,7 @@ use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Nuzkito\ChromePdf\ChromePdf;
 
 class ReportingController extends AbstractController
 {
