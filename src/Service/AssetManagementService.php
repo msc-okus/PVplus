@@ -531,7 +531,7 @@ class AssetManagementService
             }
             $tbody_forcast_G4NP50[] = $kumsum[$i];
             if ($i + 1 < $report['reportMonth']) {
-                $tbody_forcast_G4NP90[] = $kumsum[$i];
+                $tbody_forcast_G4NP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
             } else {
                 $tbody_forcast_G4NP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
             }
