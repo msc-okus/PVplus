@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Repository\AnlagenRepository;
 use App\Service\FunctionsService;
+use App\Service\WeatherServiceNew;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -26,5 +27,11 @@ class DefaultJMController extends AbstractController
         $stringArray = $functionsService->readInverters(" 2, 14 , 25-28, 300", $repo->findIdLike(94)[0]);
         dd($stringArray);
         return $this->redirectToRoute("/default/test");
+    }
+    /**
+     * @Route("/default/test/sunset")
+     */
+    public function getsunset(WeatherServiceNew $weather){
+        dd($weather->getSunrise(41.8364, 15.5445));
     }
 }

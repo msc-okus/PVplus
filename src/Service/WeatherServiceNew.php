@@ -47,7 +47,7 @@ class WeatherServiceNew
         $spalte = [];
         $csvInhalt = file("$urlfile", FILE_SKIP_EMPTY_LINES);
 
-        if (! $this->array_empty($csvInhalt)) {
+        if (!$this->array_empty($csvInhalt)) {
             // TODO: erstezen durch 'str_getcsv'
             foreach ($csvInhalt as $inhalt) { // Die Zeilen der CSV Datei lesen und in Array schreiben
                 $spalte[] = explode($trenner, $inhalt);
@@ -75,8 +75,7 @@ class WeatherServiceNew
                     $wind = @$out[17];
                     if ($gi_avg < 0) $gi_avg = 0;
                     if ($gmod_avg < 0) $gmod_avg = 0;
-                }
-                elseif ($weatherStation->getType() === "UPnew") {
+                } elseif ($weatherStation->getType() === "UPnew") {
                     $zeit = $out[1];
                     $date = $out[2];
                     $sqlstamp = '20' . substr($date, 6, 2) . '-' . substr($date, 3, 2) . '-' . substr($date, 0, 2) . " $zeit";
@@ -85,8 +84,7 @@ class WeatherServiceNew
                     $gi_avg = $out[13];
                     $gmod_avg = $out[10];
                     $wind = 0;
-                }
-                elseif ($weatherStation->getType() === "UPv1120") {
+                } elseif ($weatherStation->getType() === "UPv1120") {
                     $zeit = $out[1];
                     $date = $out[2];
                     $sqlstamp = '20' . substr($date, 6, 2) . '-' . substr($date, 3, 2) . '-' . substr($date, 0, 2) . " $zeit";
@@ -122,13 +120,13 @@ class WeatherServiceNew
             foreach ($sql_array as $row) {
                 $anlIntNr = $row['anl_intnr'];
                 $stamp = $row['stamp'];
-                $tempAmbientAvg     = str_replace(',', '.', $row['at_avg']);
-                $tempPannleAvg      = str_replace(',', '.', $row['pt_avg']);
-                $gLower             = str_replace(',', '.', $row['gi_avg']);
+                $tempAmbientAvg = str_replace(',', '.', $row['at_avg']);
+                $tempPannleAvg = str_replace(',', '.', $row['pt_avg']);
+                $gLower = str_replace(',', '.', $row['gi_avg']);
                 if ($gLower < 0) $gLower = 0;
-                $gUpper             = str_replace(',', '.', $row['gmod_avg']);
+                $gUpper = str_replace(',', '.', $row['gmod_avg']);
                 if ($gUpper < 0) $gUpper = 0;
-                $windSpeed          = str_replace(',', '.', $row['wind_speed']);
+                $windSpeed = str_replace(',', '.', $row['wind_speed']);
                 $sql_insert = "INSERT INTO " . $weatherStation->getDbNameWeather() . " 
                         SET anl_intnr = '$anlIntNr', stamp = '$stamp', 
                             at_avg = '$tempAmbientAvg', pt_avg = '$tempPannleAvg', gi_avg = '$gLower', gmod_avg = '$gUpper', wind_speed = '$windSpeed',
@@ -137,7 +135,7 @@ class WeatherServiceNew
                             at_avg = '$tempAmbientAvg', pt_avg = '$tempPannleAvg', gi_avg = '$gLower', gmod_avg = '$gUpper', wind_speed = '$windSpeed',
                             g_upper = '$gUpper', g_lower = '$gLower', temp_pannel = '$tempPannleAvg', temp_ambient = '$tempAmbientAvg'";
 
-               $conn->exec($sql_insert);
+                $conn->exec($sql_insert);
             }
             $sql_array = [];
 
@@ -154,8 +152,24 @@ class WeatherServiceNew
     private function array_empty($arr)
     {
         foreach ($arr as $val) {
-            if ($val != '') { return false; }
+            if ($val != '') {
+                return false;
+            }
         }
         return true;
+    }
+
+    public function getSunrise($lat, $lng)
+    {
+
+        $urli = "https://api.sunrise-sunset.org/json?lat=" . $lat . "&lng=" . $lng . "&date=today";
+        $contents = file_get_contents($urli);
+        $result = (array)json_decode($contents);
+        $clima =  (array) $result['results'];
+        $sunrise = date('H:i', strtotime($clima['sunrise']));
+        $sunset = date('H:i', strtotime($clima['sunset']));
+        $returnArray[] = $clima['sunrise'];
+        $returnArray[] = $clima['sunset'];
+        return $returnArray;
     }
 }
