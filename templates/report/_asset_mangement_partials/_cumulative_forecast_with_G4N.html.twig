@@ -3,27 +3,27 @@
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Cumulative Forecast with g4n</h3>
     <span class="subheadline" style="color: {{ anlage.eigner.fontColor3 }};">Yearly expected vs. actuals(!!!nicht fertig und muss noch überarbeitet werden)</span>
-    <table >
+    <table style="width: 100%">
         <tr>
             <td colspan="2" style="text-align: left">
                 <table class="asset_report_table_operations_data" style="width: 95%!important;">
                     <thead>
                     <tr>
-                        <th style="text-align: right">Cumulative Forecast - {{ year }}</th>
+                        <th style="text-align: right; ">Cumulative Forecast - {{ year }}</th>
                         {% for data in dataMonthArrayFullYear %}
-                            <th style="text-align: center">{{ data }}</th>
+                            <th style="text-align: center;width: 6.5%">{{ data }}</th>
                         {% endfor %}
                     </tr>
                     </thead>
                     <tbody>
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Production ACT / g4n - P50</td>
+                        <td class="tr_first_column" style="text-align: right">Prod* ACT / g4n - P50</td>
                         {% for data in forecast_G4N_table.forcast_G4NP50 %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Production ACT /  g4n - P90</td>
+                        <td class="tr_first_column" style="text-align: right">Prod* ACT /  g4n - P90</td>
                         {% for data in forecast_G4N_table.forcast_G4NP90 %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
@@ -41,6 +41,9 @@
                         {% endfor %}
                     </tr>
                     </tbody>
+                    <tr>
+                        <td class="td_texthint_2" style="vertical-align: top">* Production</td>
+                    </tr>
                 </table>
 
             </td>

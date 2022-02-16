@@ -14,11 +14,16 @@
                         </td>
                     </tr>
                     <tr>
-                        <th rowspan="3" class="table-center">Month</th>
-                        <th class="table-center">Yield</th>
-                        <th class="table-center">Exp.</th>
-                        <th class="table-center">Difference</th>
-                        <th class="table-center">Difference</th>
+                        <th rowspan="3" class="table-center"
+                            style="width:82px">Month</th>
+                        <th class="table-center"
+                            style="width:82px">Yield</th>
+                        <th class="table-center"
+                            style="width:82px">Exp.</th>
+                        <th class="table-center"
+                            style="width:82px">Difference</th>
+                        <th class="table-center"
+                            style="width:82px">Difference</th>
                     </tr>
                     <tr>
                         <th class="table-center">Grid meter</th>
@@ -50,7 +55,7 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_first_column">Q I(Jan - Mar)</td>
+                        <td class="tr_first_column">Q I (Jan - Mar)</td>
                         {% for data in operations_monthly_right_pvsyst_tr2 %}
                             {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
                             {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
@@ -62,7 +67,7 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_first_column">Q II(Apr - Jun)</td>
+                        <td class="tr_first_column">Q II (Apr - Jun)</td>
                         {% for data in operations_monthly_right_pvsyst_tr3 %}
                             {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
                             {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
@@ -74,7 +79,7 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_first_column">Q III(Jul - Sep)</td>
+                        <td class="tr_first_column">Q III (Jul - Sep)</td>
                         {% for data in operations_monthly_right_pvsyst_tr4 %}
                             {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
                             {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
@@ -86,7 +91,7 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_first_column">Q IV(Okt - Dez)</td>
+                        <td class="tr_first_column">Q IV (Okt - Dez)</td>
                         {% for data in operations_monthly_right_pvsyst_tr5 %}
                             {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
                             {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
@@ -126,19 +131,23 @@
             </td>
             {% endif %}
             <td style="text-align: left">
-                <table class="asset_report_table_operations_data">
+                <table class="asset_report_table_operations_data" style="float:right">
                     <thead>
                     <tr>
                         <td colspan="5">
-                            <span class="subheadline" style="text-align: left !important;">EXP g4n vs. Actuals(Grid meter)</span>
+                            <span class="subheadline" style="text-align: left !important;">EXP g4n vs. Actuals (Grid meter)</span>
                         </td>
                     </tr>
                     <tr>
                         <th rowspan="3" class="table-center">Month</th>
-                        <th class="table-center">Yield</th>
-                        <th class="table-center">Exp.</th>
-                        <th class="table-center">Difference</th>
-                        <th class="table-center">Difference</th>
+                        <th class="table-center"
+                            style="width:82px">Yield</th>
+                        <th class="table-center"
+                            style="width:82px">Exp.</th>
+                        <th class="table-center"
+                            style="width:82px">Difference</th>
+                        <th class="table-center"
+                            style="width:82px">Difference</th>
                     </tr>
                     <tr>
                         <th class="table-center">Grid meter</th>
@@ -170,7 +179,7 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_first_column">Q I(Jan - Mar)</td>
+                        <td class="tr_first_column">Q I (Jan - Mar)</td>
                         {% for data in operations_monthly_right_g4n_tr2 %}
                             {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
                             {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
@@ -182,7 +191,7 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_first_column">Q II(Apr - Jun)</td>
+                        <td class="tr_first_column">Q II (Apr - Jun)</td>
                         {% for data in operations_monthly_right_g4n_tr3 %}
                             {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
                             {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
@@ -194,7 +203,7 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_first_column">Q III(Jul - Sep)</td>
+                        <td class="tr_first_column">Q III (Jul - Sep)</td>
                         {% for data in operations_monthly_right_g4n_tr4 %}
                             {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
                             {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
@@ -206,7 +215,7 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_first_column">Q IV(Okt - Dez)</td>
+                        <td class="tr_first_column">Q IV (Okt - Dez)</td>
                         {% for data in operations_monthly_right_g4n_tr5 %}
                             {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
                             {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
@@ -257,10 +266,14 @@
                     </tr>
                     <tr>
                         <th rowspan="3" class="table-center">Month</th>
-                        <th class="table-center">Yield</th>
-                        <th class="table-center">Inverter</th>
-                        <th class="table-center">Difference</th>
-                        <th class="table-center">Difference</th>
+                        <th class="table-center"
+                            style="width:82px">Yield</th>
+                        <th class="table-center"
+                            style="width:82px">Inverter</th>
+                        <th class="table-center"
+                            style="width:82px">Difference</th>
+                        <th class="table-center"
+                            style="width:82px">Difference</th>
                     </tr>
                     <tr>
                         <th class="table-center">Grid meter</th>
@@ -292,7 +305,7 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_first_column">Q I(Jan - Mar)</td>
+                        <td class="tr_first_column">Q I (Jan - Mar)</td>
                         {% for data in operations_monthly_right_iout_tr2 %}
                             {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
                             {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
@@ -304,7 +317,7 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_first_column">Q II(Apr - Jun)</td>
+                        <td class="tr_first_column">Q II (Apr - Jun)</td>
                         {% for data in operations_monthly_right_iout_tr3 %}
                             {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
                             {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
@@ -316,7 +329,7 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_first_column">Q III(Jul - Sep)</td>
+                        <td class="tr_first_column">Q III (Jul - Sep)</td>
                         {% for data in operations_monthly_right_iout_tr4 %}
                             {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
                             {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
@@ -328,7 +341,7 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_first_column">Q IV(Okt - Dez)</td>
+                        <td class="tr_first_column">Q IV (Okt - Dez)</td>
                         {% for data in operations_monthly_right_iout_tr5 %}
                             {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
                             {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
