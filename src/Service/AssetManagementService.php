@@ -216,12 +216,14 @@ class AssetManagementService
                 (float)$powerAct[] = $data1_grid_meter['powerAct'];//Inv out
                 (float)$powerExp[] = $data1_grid_meter['powerExp'];
                 (float)$powerExpEvu[] = $data1_grid_meter['powerExpEvu'];
+                (float)$powerExternal[] = $data1_grid_meter['powerEGridExt'];
             }
             else{
                 (float)$powerEvu[] = $data1_grid_meter['powerAct'];// read comment in line
                 (float)$powerAct[] = $data1_grid_meter['powerAct'];//Inv out
                 (float)$powerExp[] = $data1_grid_meter['powerExp'];
                 (float)$powerExpEvu[] = $data1_grid_meter['powerExp'];
+                (float)$powerExternal[] = $data1_grid_meter['powerEGridExt'];
             }
 
 
@@ -248,7 +250,8 @@ class AssetManagementService
             'powerAct' => $powerAct,
             'powerExp' => $powerExp,
             'expectedPvSyst' => $expectedPvSyst,
-            'powerExpEvu' => $powerExpEvu
+            'powerExpEvu' => $powerExpEvu,
+            'powerExt' =>$powerExternal
         ];
 
         //fuer die Tabelle Capacity Factor
@@ -651,16 +654,46 @@ class AssetManagementService
             if ($i + 1 > $report['reportMonth']) {
                 $diefference_prod_to_pvsyst[] = 0;
             } else {
-                $diefference_prod_to_pvsyst[] = $tbody_a_production['powerEvu'][$i] - $tbody_a_production['expectedPvSyst'][$i];
+                if ($anlage->getShowEvuDiag()) {
+                    if($anlage->getUseGridMeterDayData()) {
+                        $diefference_prod_to_pvsyst[] = $tbody_a_production['powerExt'][$i] - $tbody_a_production['expectedPvSyst'][$i];
+                    }
+                    else{
+                        $diefference_prod_to_pvsyst[] = $tbody_a_production['powerEvu'][$i] - $tbody_a_production['expectedPvSyst'][$i];
+                    }
+                }
+                else{
+                    $diefference_prod_to_pvsyst[] = $tbody_a_production['powerAct'][$i] - $tbody_a_production['expectedPvSyst'][$i];
+                }
             }
         }
 
         for ($i = 0; $i < count($tbody_a_production['powerEvu']); $i++) {
-            $diefference_prod_to_expected_g4n[] = $tbody_a_production['powerEvu'][$i] - $tbody_a_production['powerExpEvu'][$i];
+            if ($anlage->getShowEvuDiag()) {
+                if ($anlage->getUseGridMeterDayData()) {
+                    $diefference_prod_to_expected_g4n[] = $tbody_a_production['powerExt'][$i] - $tbody_a_production['powerExpEvu'][$i];
+                }
+                else{
+                    $diefference_prod_to_expected_g4n[] = $tbody_a_production['powerEvu'][$i] - $tbody_a_production['powerExpEvu'][$i];
+                }
+            }
+            else{
+                $diefference_prod_to_expected_g4n[]= $tbody_a_production['powerAct'][$i] - $tbody_a_production['powerExpEvu'][$i];
+            }
         }
 
         for ($i = 0; $i < count($tbody_a_production['powerEvu']); $i++) {
-            $diefference_prod_to_egrid[] = $tbody_a_production['powerEvu'][$i] - $tbody_a_production['powerAct'][$i];
+            if ($anlage->getShowEvuDiag()) {
+                if ($anlage->getUseGridMeterDayData()) {
+                    $diefference_prod_to_egrid[] = $tbody_a_production['powerExt'][$i] - $tbody_a_production['powerExpEvu'][$i];
+                }
+                else{
+                    $diefference_prod_to_egrid[] = $tbody_a_production['powerEvu'][$i] - $tbody_a_production['powerExpEvu'][$i];
+                }
+            }
+            else {
+                $diefference_prod_to_egrid[] = $tbody_a_production['powerAct'][$i] - $tbody_a_production['powerExpEvu'][$i];
+            }
         }
 
         $losses_t2 = [

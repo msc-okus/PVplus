@@ -30,12 +30,14 @@
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
+                    {% if (anlage.showEvuDiag) %}
                     <tr>
                         <td class="tr_first_column" style="text-align: right">Diff. inverter to Egrid</td>
                         {% for data in losses_t2.diefference_prod_to_egrid %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
+                    {% endif %}
                     </tbody>
                     {%  if (anlage.hasPVSYST) %}
                     <tr>

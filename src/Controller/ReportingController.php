@@ -12,6 +12,7 @@ use App\Helper\G4NTrait;
 use App\Reports\Goldbeck\EPCMonthlyPRGuaranteeReport;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
+use App\Service\AssetManagementService;
 use App\Service\PdfService;
 use App\Service\ReportEpcService;
 use App\Service\ReportsEpcNewService;
