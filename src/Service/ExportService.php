@@ -39,7 +39,7 @@ class ExportService
             $help   .= "<th><small>Irr [kWh/qm]</small></th><th></th><th><small>gewichtete TheoPower mit TempCorr [kWh]</small></th>";
         }
         $output .= "<td>Mittelwert Luft Temp.</td><td>Verfügbarkeit</td><td>gewichtete Strahlung</td><td>gewichtete TheoPower mit TempCorr</td></tr>";
-        $help   .= "<td>°C</td><td>[%]</td><td>[kWh/qm]</td><td>[kWh]</td><td></td></tr>";
+        $help   .= "<td>°C</td><td>[%]</td><td>[kWh/qm]</td><td>[kWh]</td><td>eGrid</td></tr>";
         $output .= $help . "</thead><tbody>";
 
         /** @var AnlageAcGroups $groupAC */
@@ -79,6 +79,7 @@ class ExportService
             $output .= "<td>".round($gewichteteStrahlung / 1000 / 4,2)."</td>";
             #$output .= "<td>".round($gewichteteTheoPower2,2)."</td>";
             $output .= "<td>".round($gewichteteTheoPower,2)."</td></tr>";
+            $output .= "<td></td>";
         }
         $output .= "</tbody></table></div>";
         return $output;

@@ -95,35 +95,34 @@ class FunctionsService
         $powerActYear = $powerActPac = $powerActMonth = 0;
         $theoPowerMonth = $theoPowerPac = $theoPowerYear = 0;
 
-        $jahresanfang = date('Y-01-01 00:00', strtotime($from)); // für das ganze Jahr - Zeitraum
         ############# für das ganze Jahr #############
-        if (true) {
-            // LIMIT 1 muss sein, da der evu Wert in jedem Datensatz gespeichert ist (Wert entspricht summe aller Gruppen), er darf aber nur einaml pro Zeiteinheit abgefragt werden.
-            $sql_year = "SELECT sum(e_z_evu) as power_evu_year FROM $dbTable where stamp between '$jahresanfang' and '$to' AND e_z_evu > 0 group by unit LIMIT 1";
-            $res = $conn->query($sql_year);
-            if ($res->rowCount() == 1) {
-                $row = $res->fetch(PDO::FETCH_ASSOC);
-                $powerEvuYear = round($row['power_evu_year'], 4);
-            }
-            unset($res);
-            $powerEvuYear = $this->checkAndIncludeMonthlyCorrectionEVU($anlage, $powerEvuYear, $jahresanfang, $to);
-
-            $sql_year = "SELECT sum(wr_pac) as power_act_year FROM $dbTable where stamp between '$jahresanfang' and '$to' and wr_pac > 0";
-            $res = $conn->query($sql_year);
-            if ($res->rowCount() == 1) {
-                $row = $res->fetch(PDO::FETCH_ASSOC);
-                $powerActYear = round($row['power_act_year'], 4);
-            }
-            unset($res);
-
-            $sql_year = "SELECT sum(theo_power) as theo_power FROM $dbTable where stamp between '$jahresanfang' and '$to' and wr_pac > 0";
-            $res = $conn->query($sql_year);
-            if ($res->rowCount() == 1) {
-                $row = $res->fetch(PDO::FETCH_ASSOC);
-                $theoPowerYear = round($row['theo_power'], 4);
-            }
-            unset($res);
+        $jahresanfang = date('Y-01-01 00:00', strtotime($from)); // für das ganze Jahr - Zeitraum
+        // LIMIT 1 muss sein, da der evu Wert in jedem Datensatz gespeichert ist (Wert entspricht summe aller Gruppen), er darf aber nur einaml pro Zeiteinheit abgefragt werden.
+        $sql_year = "SELECT sum(e_z_evu) as power_evu_year FROM $dbTable where stamp between '$jahresanfang' and '$to' AND e_z_evu > 0 group by unit LIMIT 1";
+        $res = $conn->query($sql_year);
+        if ($res->rowCount() == 1) {
+            $row = $res->fetch(PDO::FETCH_ASSOC);
+            $powerEvuYear = round($row['power_evu_year'], 4);
         }
+        unset($res);
+        $powerEvuYear = $this->checkAndIncludeMonthlyCorrectionEVU($anlage, $powerEvuYear, $jahresanfang, $to);
+
+        $sql_year = "SELECT sum(wr_pac) as power_act_year FROM $dbTable where stamp between '$jahresanfang' and '$to' and wr_pac > 0";
+        $res = $conn->query($sql_year);
+        if ($res->rowCount() == 1) {
+            $row = $res->fetch(PDO::FETCH_ASSOC);
+            $powerActYear = round($row['power_act_year'], 4);
+        }
+        unset($res);
+
+        $sql_year = "SELECT sum(theo_power) as theo_power FROM $dbTable where stamp between '$jahresanfang' and '$to'";
+        $res = $conn->query($sql_year);
+        if ($res->rowCount() == 1) {
+            $row = $res->fetch(PDO::FETCH_ASSOC);
+            $theoPowerYear = round($row['theo_power'], 4);
+        }
+        unset($res);
+
 
         ################## PAC ################
         if($anlage->getUsePac()) {
@@ -156,13 +155,6 @@ class FunctionsService
         }
 
         ################## Month ################
-        /*
-        if (strtotime($from < strtotime($anlage->getEpcReportStart()->format('Y-m-d')))) {
-            $startMonth = $anlage->getEpcReportStart()->format('Y-m-d');
-        } else {
-            $startMonth = date('Y-m-01 00:00', strtotime($from));
-        }
-        */
         $startMonth = date('Y-m-01 00:00', strtotime($from));
         $sql = "SELECT sum(e_z_evu) as power_evu FROM $dbTable WHERE stamp BETWEEN '$startMonth' AND '$to' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
         $res = $conn->query($sql);
@@ -706,7 +698,7 @@ class FunctionsService
         $powerEvu       = 0;
         $powerExp       = 0;
         $powerExpEvu    = 0;
-
+        $powerTheo      = 0;
         ############# für den angeforderten Zeitraum #############
 
         // Wenn externe Tagesdaten genutzt werden, sollen lade diese aus der DB und ÜBERSCHREIBE die Daten aus den 15Minuten Werten
@@ -733,6 +725,15 @@ class FunctionsService
         }
         unset($res);
 
+        // Theoretic Power (TempCorr)
+        $sql = "SELECT sum(theo_power) as theo_power FROM ".$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to' AND theo_power > 0";
+        $res = $conn->query($sql);
+        if ($res->rowCount() == 1) {
+            $row = $res->fetch(PDO::FETCH_ASSOC);
+            $powerTheo = round($row['theo_power'],4);
+        }
+        unset($res);
+
         // Actual (Inverter Out) Leistung ermitteln
         $sql = "SELECT sum(wr_pac) as sum_power_ac, sum(theo_power) as theo_power FROM ".$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to' AND wr_pac > 0";
         $res = $conn->query($sql);
@@ -743,7 +744,7 @@ class FunctionsService
             $result['powerExp']      = $powerExp;
             $result['powerExpEvu']   = $powerExpEvu;
             $result['powerEGridExt'] = $powerEGridExt;
-            $result['powerTheo']     = round($row['theo_power'],4);
+            $result['powerTheo']     = $powerTheo;
         }
         unset($res);
 

@@ -1,4 +1,7 @@
 fos_ck_editor:
+  base_path: "build/ckeditor"
+  js_path: "build/ckeditor/ckeditor.js"
+
   configs:
     G4NConfig:
       toolbar: "my_toolbar"
@@ -6,7 +9,6 @@ fos_ck_editor:
     configs:
       my_toolbar: [ "@clipboard", "@styles", "@basic_styles","@paragraph", "@document"]
     items:
-
       document: [ "Source" ]
       clipboard: [ "Undo", "Redo", "-"]
       basic_styles: [

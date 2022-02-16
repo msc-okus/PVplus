@@ -141,7 +141,7 @@ class ReportsEpcNewService
             $to_local = date_create(date('Y-m-d 23:59', strtotime("$year-$month-$daysInMonth")));
             $hasMonthData = $from_local <= $date; // Wenn das Datum in $from_local kleiner ist als das Datum in $date, es also für alle Tage des Monats Daten vorliegen, dann ist $hasMonthData === true
             $isCurrentMonth = $to_local->format('Y') == $currentYear && $to_local->format('m') == $currentMonth;
-            if ($currentMonth == 1) $isCurrentMonth = $to_local->format('Y') == $currentYear - 1 && $to_local->format('m') == '12';
+            #if ($currentMonth == 1) $isCurrentMonth = $to_local->format('Y') == $currentYear - 1 && $to_local->format('m') == '12';
 
             $monthlyRecalculatedData = $this->monthlyDataRepo->findOneBy(['anlage' => $anlage, 'year' => $year, 'month' => $month]);
 
@@ -361,7 +361,7 @@ class ReportsEpcNewService
             $tableArray[$zeileSumme1]['U_prReal_withRisk']            += ($tableArray[$n]['U_prReal_withRisk'] * $tableArray[$n]['P_part']) / 100; // Spalte U // muss in Runde 2 Berechnet werden
             $tableArray[$zeileSumme1]['V_eGrid_withRisk']             += $tableArray[$n]['V_eGrid_withRisk']; // Spalte V //
             $tableArray[$zeileSumme1]['X_eGridMinuseGridGuar']        += $tableArray[$n]['X_eGridMinuseGridGuar']; // Spalte X
-            $tableArray[$zeileSumme1]['Y_prRealMinusPrGuraReduction'] = $tableArray[$zeileSumme1]['U_prReal_withRisk'] - $tableArray[$zeileSumme1]['H_prGuarantie']; // Spalte Y
+            $tableArray[$zeileSumme1]['Y_prRealMinusPrGuraReduction'] = round($tableArray[$zeileSumme1]['U_prReal_withRisk'],3) - round($tableArray[$zeileSumme1]['H_prGuarantie'],3); // Spalte Y
             $tableArray[$zeileSumme1]['Z_yieldEGridForecast']         += $tableArray[$n]['Z_yieldEGridForecast']; // Spalte Z // muss in Runde 2 Berechnet werden
             $tableArray[$zeileSumme1]['AC_eGridDivExpected']          = ($tableArray[$zeileSumme1]['V_eGrid_withRisk'] - $tableArray[$zeileSumme1]['W_yield_guaranteed_exp']) /$tableArray[$zeileSumme1]['W_yield_guaranteed_exp'] * 100; // Spalte AC // muss in Runde 2 Berechnet werden
 
@@ -370,7 +370,7 @@ class ReportsEpcNewService
             #$tableArray[$zeileSumme2]['Q_prReal_prProg']              = $this->PRCalulation->calcPrByValues($anlage, $tableArray[$zeileSumme2]['L_irr'], $tableArray[$zeileSumme2]['N_specificYield'], $tableArray[$zeileSumme2]['M_eGridYield'], $tableArray[$zeileSumme2]['S_theorYieldMT'], $tableArray[$zeileSumme2]['O_availability']); // Spalte Q // PR Real bzw PR prognostiziert, wenn noch kein PR Real vorhanden
             $tableArray[$zeileSumme2]['V_eGrid_withRisk']             += ($hasMonthData) ? $tableArray[$n]['V_eGrid_withRisk'] : 0; // Spalte V //
             $tableArray[$zeileSumme2]['X_eGridMinuseGridGuar']        += ($hasMonthData) ? $tableArray[$n]['X_eGridMinuseGridGuar'] : 0; // Spalte X
-            $tableArray[$zeileSumme2]['Y_prRealMinusPrGuraReduction'] = $tableArray[$zeileSumme2]['U_prReal_withRisk'] - $tableArray[$zeileSumme2]['H_prGuarantie']; // Spalte Y
+            $tableArray[$zeileSumme2]['Y_prRealMinusPrGuraReduction'] = round($tableArray[$zeileSumme2]['U_prReal_withRisk'],3) - round($tableArray[$zeileSumme2]['H_prGuarantie'],3); // Spalte Y
             $tableArray[$zeileSumme2]['Z_yieldEGridForecast']         += ($hasMonthData) ? $tableArray[$n]['Z_yieldEGridForecast'] : 0; // Spalte Z // muss in Runde 2 Berechnet werden
             $tableArray[$zeileSumme2]['AC_eGridDivExpected']          = ($tableArray[$zeileSumme2]['W_yield_guaranteed_exp'] > 0) ? ($tableArray[$zeileSumme2]['V_eGrid_withRisk'] - $tableArray[$zeileSumme2]['W_yield_guaranteed_exp']) / $tableArray[$zeileSumme2]['W_yield_guaranteed_exp'] * 100 : 0; // Spalte AC // muss in Runde 2 Berechnet werden
 
@@ -378,7 +378,7 @@ class ReportsEpcNewService
             #$tableArray[$zeileSumme3]['Q_prReal_prProg']              = $this->PRCalulation->calcPrByValues($anlage, $tableArray[$zeileSumme3]['L_irr'], $tableArray[$zeileSumme3]['N_specificYield'], $tableArray[$zeileSumme3]['M_eGridYield'], $tableArray[$zeileSumme3]['S_theorYieldMT'], $tableArray[$zeileSumme2]['O_availability']); // Spalte Q // PR Real bzw PR prognostiziert, wenn noch kein PR Real vorhanden
             $tableArray[$zeileSumme3]['V_eGrid_withRisk']             += ($hasMonthData) ? 0 : $tableArray[$n]['V_eGrid_withRisk']; // Spalte V //
             $tableArray[$zeileSumme3]['X_eGridMinuseGridGuar']        += ($hasMonthData) ? 0 : $tableArray[$n]['X_eGridMinuseGridGuar']; // Spalte X
-            $tableArray[$zeileSumme3]['Y_prRealMinusPrGuraReduction'] = $tableArray[$zeileSumme3]['U_prReal_withRisk'] - $tableArray[$zeileSumme3]['H_prGuarantie']; // Spalte Y
+            $tableArray[$zeileSumme3]['Y_prRealMinusPrGuraReduction'] = round($tableArray[$zeileSumme3]['U_prReal_withRisk'],3) - round($tableArray[$zeileSumme3]['H_prGuarantie'],3); // Spalte Y
             $tableArray[$zeileSumme3]['Z_yieldEGridForecast']         += ($hasMonthData) ? 0 : $tableArray[$n]['Z_yieldEGridForecast']; // Spalte Z // muss in Runde 2 Berechnet werden
             $tableArray[$zeileSumme3]['AC_eGridDivExpected']          = ($tableArray[$zeileSumme3]['W_yield_guaranteed_exp'] > 0) ? ($tableArray[$zeileSumme3]['V_eGrid_withRisk'] - $tableArray[$zeileSumme3]['W_yield_guaranteed_exp']) / $tableArray[$zeileSumme3]['W_yield_guaranteed_exp'] * 100 : 0; // Spalte AC // muss in Runde 2 Berechnet werden
 

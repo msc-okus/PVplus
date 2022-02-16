@@ -4,6 +4,10 @@
     {{ parent() }}Tools
 {% endblock %}
 
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
+
 {% block body %}
     <div class="grid-x">
         <div class="cell">
@@ -39,8 +43,4 @@
             </div>
         </div>
     {{ form_end(toolsForm) }}
-{% endblock %}
-
-{% block javascripts %}
-    {{ parent() }}
 {% endblock %}

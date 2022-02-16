@@ -1,12 +1,11 @@
 /.idea
 */.DS_Store/
 */.DS_Store
-.DS_Store/
+.DS_Store
 */help.*
 help.*
 php.ini
 tempfiles/*
-
 
 ###> symfony/framework-bundle ###
 /.env.local

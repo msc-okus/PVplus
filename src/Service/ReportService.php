@@ -33,6 +33,7 @@ class ReportService
     private Case5Repository $case5Repo;
     private FunctionsService $functions;
     private NormalizerInterface $serializer;
+    private PRCalulationService $PRCalulation;
 
     public function __construct(
         AnlagenRepository $anlagenRepository,
@@ -42,7 +43,8 @@ class ReportService
         PvSystMonthRepository $pvSystMonthRepo,
         Case5Repository $case5Repo,
         FunctionsService $functions,
-        NormalizerInterface $serializer)
+        NormalizerInterface $serializer,
+        PRCalulationService $PRCalulation)
     {
 
         $this->anlagenRepository = $anlagenRepository;
@@ -53,9 +55,22 @@ class ReportService
         $this->pvSystMonthRepo = $pvSystMonthRepo;
         $this->case5Repo = $case5Repo;
         $this->serializer = $serializer;
+        $this->PRCalulation = $PRCalulation;
     }
 
-    public function monthlyReport($anlagen, $month = 0, $year = 0, $docType = 0, $chartTypeToExport = 0, $storeDocument = true, $exit = true, $export = true): string
+    /**
+     * @param $anlagen
+     * @param int $month
+     * @param int $year
+     * @param int $docType
+     * @param int $chartTypeToExport
+     * @param bool $storeDocument
+     * @param bool $exit
+     * @param bool $export
+     * @return string
+     * @throws ExceptionInterface
+     */
+    public function monthlyReport($anlagen, int $month = 0, int $year = 0, int $docType = 0, int $chartTypeToExport = 0, bool $storeDocument = true, bool $exit = true, bool $export = true): string
     {
         if ($month != 0 && $year != 0) {
             $yesterday = strtotime("$year-$month-01");
@@ -98,6 +113,7 @@ class ReportService
                     ->setAnlage($anlage)
                     ->setEigner($anlage->getEigner())
                     ->setReportType('monthly-report')
+                    ->setReportTypeVersion(0)
                     ->setStartDate($startDate)
                     ->setEndDate($endDate)
                     ->setMonth($startDate->format('m'))
@@ -116,8 +132,10 @@ class ReportService
     /**
      * @param Anlage $anlage
      * @param array $report
+     * @param $reportCreationDate
      * @param int $docType (0 = PDF, 1 = Excel, 2 = PNG (Grafiken))
      * @param int $chartTypeToExport (0 = , 1 = )
+     * @param bool $exit
      * @return string
      * @throws ExceptionInterface
      */
@@ -428,7 +446,8 @@ class ReportService
         return $output;
     }
 
-    private function getPvSystMonthData(Anlage $anlage, $month, $year): array
+
+    public function getPvSystMonthData(Anlage $anlage, $month, $year): array
     {
         $pvSystMonth = $this->pvSystMonthRepo->findOneBy(['anlage' => $anlage, 'month' => (int)$month]);
         if ($pvSystMonth) {
@@ -465,12 +484,12 @@ class ReportService
         }
 
         $resultArray = [
-            'prMonth' => $prPvSystMonth,
-            'prPac' => $anlage->getDesignPR(),
-            'prYear' => $anlage->getDesignPR(),
-            'powerMonth' => $powerPvSyst,
-            'powerPac' => $powerPac,
-            'powerYear' => $powerYear
+            'prMonth'       => (float)$prPvSystMonth,
+            'prPac'         => $anlage->getDesignPR(),
+            'prYear'        => $anlage->getDesignPR(),
+            'powerMonth'    => (float)$powerPvSyst,
+            'powerPac'      => (float)$powerPac,
+            'powerYear'     => (float)$powerYear
         ];
 
         return $resultArray;

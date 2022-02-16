@@ -4,17 +4,12 @@ namespace App\Controller;
 
 use ApiPlatform\Core\Api\UrlGeneratorInterface;
 use App\Entity\AnlageCase6;
-use App\Entity\AnlageFile;
 use App\Entity\Case6Array;
 use App\Entity\Case6Draft;
-
 use App\Form\Case6\Case6ArrayFormType;
 use App\Form\FileUpload\FileUploadFormType;
-use App\Form\Model\Case6fix;
-use App\Form\Owner\OwnerFormType;
 use App\Repository\AnlagenRepository;
 use App\Repository\Case6DraftRepository;
-use App\Service\FunctionsService;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -23,18 +18,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+use function Symfony\Component\String\u;
+
 class CsvUploadController extends AbstractController
 {
-    /**
-     * @Route("/csv/upload", name="csv_upload")
-     */
-    public function index(): Response
-    {
-        return $this->render('csv_upload/index.html.twig', [
-            'controller_name' => 'CsvUploadController',
-        ]);
-    }
-
     /**
      *@Route("/csv/upload/delete/{id}", name="csv_upload_delete")
      */
@@ -54,7 +41,8 @@ class CsvUploadController extends AbstractController
     /**
      * @Route("/csv/upload/list/{anlId}", name="csv_upload_list")
      */
-    public function list($anlId,Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo){
+    public function list($anlId,Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo): Response
+    {
         $anlage = $anlRepo->findIdLike($anlId);
         $array = $draftRepo->findAllByAnlage($anlage[0]);
 
@@ -136,7 +124,8 @@ class CsvUploadController extends AbstractController
         /**
         * @Route("/csv/upload/save/{anlId}", name="csv_upload_save")
         */
-    public function save($anlId,Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo, EntityManagerInterface $em){
+    public function save($anlId,Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo, EntityManagerInterface $em): \Symfony\Component\HttpFoundation\RedirectResponse
+    {
         $anlage = $anlRepo->findIdLike($anlId)[0];
         $array = $draftRepo->findAllByAnlage($anlage);
 
@@ -163,7 +152,8 @@ class CsvUploadController extends AbstractController
          * @Route("/csv/upload/load", name="csv_upload_load")
          */
 
-    public function load(Request $request, EntityManagerInterface $em, UploaderHelper $uploaderHelper, AnlagenRepository $anlRepo, $uploadsPath):Response
+
+    public function load(Request $request, EntityManagerInterface $em, UploaderHelper $uploaderHelper, AnlagenRepository $anlRepo, $uploadsPath): Response
     {
         $form = $this->createForm(FileUploadFormType::class);
         $anlage = null;
@@ -185,11 +175,11 @@ class CsvUploadController extends AbstractController
 
                     $contents = $file->getContents();
 
-                    foreach (\symfony\component\string\u($contents)->split("\r\n") as $row) {
+                    foreach (u($contents)->split("\r\n") as $row) {
                         $row = (string)$row;
                         $fields[] = [];
                         if (!strpos($row, "id;anlage;from;to;inv;reason") && strcmp($row, ";;;;;\r") != 0) {
-                            $fields = \symfony\component\string\u($row)->split(";");
+                            $fields = u($row)->split(";");
                             $Plant = (string)$fields[1];
                             $anlage = $anlRepo->findIdLike($Plant)[0];
                             $from = (string)$fields[2];

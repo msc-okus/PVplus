@@ -76,6 +76,7 @@ class ACPowerChartsService
 
             if ($res_exp->rowCount() > 0) {
                 $counter = 0;
+                //we must move this code to the constructor function and use a property
                 if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == "Groningen") {
                     $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
                 } else {
@@ -277,30 +278,28 @@ class ACPowerChartsService
     {
             if ($hour) $form = '%y%m%d%H';
             else $form = '%y%m%d%H%i';
-            $groupq = "";
             $conn = self::getPdoConnection();
             $dataArray = [];
             $dataArray['maxSeries'] = 0;
             switch ($anlage->getConfigType()) {
                 case 1 :
-                    $groupq .= "group_dc";
+                    $groupQuery = "group_dc = '$group'";
                     $groups = $anlage->getGroupsDc();
                     $nameArray = $this->functions->getNameArray($anlage, 'dc');
                     break;
                 default:
-                    $groupq .= "group_ac";
+                    $groupQuery = "group_ac = '$group'";
                     $groups = $anlage->getGroupsAc();
                     $nameArray = $this->functions->getNameArray($anlage, 'ac');
             }
 
-            $groupq .= " = '$group'";
             $sqlExpected = "SELECT a.stamp, sum(b.ac_exp_power) as soll
-                        FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE " . $groupq . " ) b ON a.stamp = b.stamp)  
+                        FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE " . $groupQuery . " ) b ON a.stamp = b.stamp)  
                         WHERE a.stamp BETWEEN '$from' AND '$to' 
                         GROUP by date_format(a.stamp, '$form')";
 
             $sql = "SELECT  sum(wr_pac) as actPower, avg(wr_temp) as temp, wr_cos_phi_korrektur 
-                        FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameIst() . " WHERE " . $groupq . " ) b ON a.stamp = b.stamp) 
+                        FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameIst() . " WHERE " . $groupQuery . " ) b ON a.stamp = b.stamp) 
                          WHERE a.stamp BETWEEN '$from' AND '$to' 
                         GROUP BY date_format(a.stamp, '$form')";
 
@@ -343,11 +342,9 @@ class ACPowerChartsService
                     ($actPower > 0) ? $actPower = round(self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()), 2) : $actPower = 0; // neagtive Werte auschließen
 
                     switch ($anlage->getConfigType()) {
-
                         case 3: // Groningen
                         case 4:
                             $dataArray['chart'][$counter][$nameArray[$group]] = $actPower;
-
                             break;
                         default:
                             $dataArray['chart'][$counter][$nameArray[$group]] = $actPower;
