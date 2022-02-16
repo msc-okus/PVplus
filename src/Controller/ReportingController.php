@@ -30,6 +30,7 @@ use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+use Nuzkito\ChromePdf\ChromePdf;
 
 class ReportingController extends AbstractController
 {
@@ -72,63 +73,8 @@ class ReportingController extends AbstractController
             ];
 
             $reportArray = $report->getContentArray();
-            //$result = null;
-
             switch($report->getReportType()) {
-                /*
-                case 'prGuarantee' :
-                    $report = new EPCMonthlyPRGuaranteeReport([
-                        'headlines'     => $headline,
-                        'main'          => $reportArray[0],
-                        'forecast'      => $reportArray[1],
-                        'pld'           => $reportArray[2],
-                        'header'        => $reportArray[3],
-                        'legend'        => $serializer->normalize($anlage->getLegendEpcReports()->toArray(), null, ['groups' => 'legend']),
-                        'forecast_real' => $reportArray['prForecast'],
-                        'formel'        => $reportArray['formel'],
-                    ]);
-                    $secretToken = '2bf7e9e8c86aa136b2e0e7a34d5c9bc2f4a5f83291a5c79f5a8c63a3c1227da9';
-                    $settings = [
-                        // 'useLocalTempFolder' => true,
-                        'pageWaiting' => 'networkidle2', //load, domcontentloaded, networkidle0, networkidle2
-                    ];
-                    $report->run();
-                    $pdfOptions = [
-                        'format'                => 'A4',
-                        'landscape'             => true,
-                        'noRepeatTableFooter'   => false,
-                        'printBackground'       => true,
-                        'displayHeaderFooter'   => true,
-                    ];
-                    $report->cloudExport()
-                        ->chromeHeadlessio($secretToken)
-                        ->settings($settings)
-                        ->pdf($pdfOptions)
-                        ->toBrowser($pdfFilename);
-                    exit; // Ohne exit führt es unter manchen Systemen (Browser) zu fehlerhaften Downloads
-                    break;
-                case 'epc-report':
-                    dd($reportArray['monthTable']);
-                    $result = $this->renderView('report/epcReport.html.twig', [
-                        'anlage'            => $anlage,
-                        'monthsTable'       => $reportArray['monthTable'],
-                        'forcast'           => $reportArray['forcastTable'],
-                        'legend'            => $anlage->getLegendEpcReports(),
-                        'chart1'            => $epcNewService->chartYieldPercenDiff($anlage, $reportArray['monthTable']),//$reportArray['chartYieldPercenDiff'],
-                        'chart2'            => $epcNewService->chartYieldCumulative($anlage, $reportArray['monthTable']),
-                    ]);
-                    dd($result);
 
-                    $response = new BinaryFileResponse($pdf->createPdfTemp($anlage, $result, 'string'));
-                    $response->headers->set ( 'Content-Type', 'application/pdf' );
-                    $response->deleteFileAfterSend(true);
-                    $response->setContentDisposition(
-                        ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-                        $anlage->getAnlName().'_EPC-Report_'.$month.'_'.$year.'.pdf'
-                    );
-
-                    break;
-                */
                 case 'monthly-report':
                     $result = $reportService->buildMonthlyReport($anlage, $report->getContentArray(), $reportCreationDate, 0, 0, false);
                     break;
