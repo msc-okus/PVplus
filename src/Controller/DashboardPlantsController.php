@@ -11,6 +11,7 @@ use App\Repository\AnlagenRepository;
 use App\Service\AvailabilityService;
 use App\Service\ChartService;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -21,7 +22,7 @@ class DashboardPlantsController extends BaseController
 
     /**
      * @Route("/dashboard/plants/{eignerId}/{anlageId}", name="app_dashboard_plant")
-     * @throws \Exception
+     * @throws Exception
      */
     public function index($eignerId, $anlageId, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService, EntityManagerInterface $entityManager, AvailabilityService $availabilityService): Response
     {
@@ -128,7 +129,7 @@ class DashboardPlantsController extends BaseController
      * @param $reason
      * @param EntityManagerInterface $em
      * @param AvailabilityService $availabilityService
-     * @throws \Exception
+     * @throws Exception
      */
     private function updateCase5Availability(Anlage $anlage, $case5id, $date, $from, $to, $inverter, $reason, EntityManagerInterface $em, AvailabilityService $availabilityService)
     {

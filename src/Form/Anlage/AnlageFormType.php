@@ -204,7 +204,7 @@ class AnlageFormType extends AbstractType
             ####       Plant Data / Configuration       ####
             ################################################
             ->add('kwPeak', TextType::class, [
-                'label'         => 'Anlagenleistung [kWp]',
+                'label'         => 'Anlagenleistung [kWp] (für PA Berechnung)',
                 'help'          => '[power]',
                 'label_html'    => true,
                 'required'      => false,
@@ -218,6 +218,13 @@ class AnlageFormType extends AbstractType
                 'empty_data'    => '',
             ])
 
+            ->add('kwPeakPLDCalculation', TextType::class, [
+                'label'         => 'Anlagenleistung für PLD Berechnung [kWp]',
+                'help'          => '[kwPeakPLDCalculation]',
+                'label_html'    => true,
+                'required'      => false,
+                'empty_data'    => '',
+            ])
 
             ->add('useCustPRAlgorithm', ChoiceType::class, [
                 'label'         => 'Wähle und aktiviere Kundenspezifische PR Berechnung',
@@ -416,7 +423,7 @@ class AnlageFormType extends AbstractType
                 'empty_data'    => '0',
             ])
             ->add('pldYield', TextType::class, [
-                'label'         => 'PLD Ertrag [faktor]',
+                'label'         => 'PLD Ertrag <br>[faktor]',
                 'help'          => '[pldYield]',
                 'label_html'    => true,
                 'required'      => false,
@@ -430,6 +437,12 @@ class AnlageFormType extends AbstractType
                 'empty_data'    => 'expected',
                 'expanded'      => false,
                 'multiple'      => false,
+            ])
+            ->add('usePnomForPld', SwitchType::class,[
+                'label'         => 'use Pnom for PLD <br>calculation',
+                'help'          => '[usePnomForPld]',
+                'label_html'    => true,
+                'required'      => false
             ])
             ->add('transformerTee', TextType::class, [
                 'label'         => 'Abschalg Trafoverlust [%]',

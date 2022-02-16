@@ -16,3 +16,5 @@ framework:
     php_errors:
         log: true
         throw: false
+
+    default_locale: de

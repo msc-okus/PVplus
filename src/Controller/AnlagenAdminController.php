@@ -17,7 +17,9 @@ use App\Repository\EconomicVarValuesRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
 
@@ -27,7 +29,7 @@ class AnlagenAdminController extends BaseController
     /**
      * @Route("/admin/anlagen/new", name="app_admin_anlagen_new")
      */
-    public function new(EntityManagerInterface $em, Request $request)
+    public function new(EntityManagerInterface $em, Request $request): RedirectResponse|Response
     {
         $form = $this->createForm(AnlageNewFormType::class);
         $form->handleRequest($request);
@@ -40,34 +42,22 @@ class AnlagenAdminController extends BaseController
             $em->persist($anlage);
             $em->flush();
             self::createDatabasesForPlant($anlage);
-
             $this->addFlash('success', 'New Plant created');
-
             return $this->redirectToRoute('app_admin_anlagen_list');
-
         }
-
         if ($form->isSubmitted() && $form->get('close')->isClicked()) {
             $this->addFlash('warning', 'Canceled. No data was saved.');
-
             return $this->redirectToRoute('app_admin_anlagen_list');
         }
-
-
                 return $this->render('anlagen/new.html.twig', [
                     'anlageForm'   => $form->createView(),
                 ]);
-        /*
-        return $this->render('anlagen/new.html.twig', [
-            'anlageForm'   => $form->createView(),
-        ]);
-        */
     }
 
     /**
      * @Route("/admin/anlagen/list", name="app_admin_anlagen_list")
      */
-    public function list(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository)
+    public function list(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository): Response
     {
         $q = $request->query->get('qp');
         if ($request->query->get('search') == 'yes' && $q == '') $request->getSession()->set('qp', '');
@@ -95,7 +85,7 @@ class AnlagenAdminController extends BaseController
     /**
      * @Route("/admin/anlagen/edit/{id}", name="app_admin_anlagen_edit")
      */
-    public function edit($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository)
+    public function edit($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository): RedirectResponse|Response
     {
         $anlage = $anlagenRepository->find($id);
         $form = $this->createForm(AnlageFormType::class, $anlage, [
@@ -135,9 +125,10 @@ class AnlagenAdminController extends BaseController
      * @param EntityManagerInterface $em
      * @param Request $request
      * @param AnlagenRepository $anlagenRepository
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|\Symfony\Component\HttpFoundation\Response
+     * @param EconomicVarNamesRepository $ecoNamesRepo
+     * @return RedirectResponse|Response
      */
-    public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo)
+    public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo): RedirectResponse|Response
     {
         $anlage = $anlagenRepository->find($id);
         $economicVarNames1 =new EconomicVarNames();
@@ -191,7 +182,7 @@ class AnlagenAdminController extends BaseController
     /**
      * @Route("/admin/anlagen/editdcgroups/{id}", name="app_admin_anlagen_edit_dcgroups")
      */
-    public function editDcGroups($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository)
+    public function editDcGroups($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository): RedirectResponse|Response
     {
         $anlage = $anlagenRepository->find($id);
         $form = $this->createForm(AnlageDcGroupsFormType::class, $anlage, [
@@ -225,7 +216,7 @@ class AnlagenAdminController extends BaseController
     /**
      * @Route("/admin/anlagen/editacgroups/{id}", name="app_admin_anlagen_edit_acgroups")
      */
-    public function editAcGroups($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository)
+    public function editAcGroups($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository): RedirectResponse|Response
     {
         $anlage = $anlagenRepository->find($id);
         $form = $this->createForm(AnlageAcGroupsFormType::class, $anlage, [
@@ -260,7 +251,7 @@ class AnlagenAdminController extends BaseController
      * @IsGranted("ROLE_DEV")
      * @Route("/admin/anlagen/delete/{id}", name="app_admin_anlage_delete")
      */
-    public function delete($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository,  Security $security)
+    public function delete($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository,  Security $security): RedirectResponse
     {
         if ($this->isGranted('ROLE_DEV'))
         {
@@ -277,10 +268,10 @@ class AnlagenAdminController extends BaseController
      * Erzeugt alle Datenbanken für die Anlage
      * Braucht aber Zugriff auf die Datenbank der Anlagen (nicht per Doctrin)
      * @param Anlage $anlage
+     * @return bool
      */
-    private function createDatabasesForPlant(Anlage $anlage)
+    private function createDatabasesForPlant(Anlage $anlage): bool
     {
-        /* @var Anlage $anlage */
         if ($anlage) {
             $databaseAcIst = "CREATE TABLE IF NOT EXISTS " . $anlage->getDbNameIst() . " (
                   `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
@@ -291,28 +282,28 @@ class AnlagenAdminController extends BaseController
                   `group_ac` int(11) NOT NULL,
                   `unit` int(11) NOT NULL,
                   `wr_num` int(11) NOT NULL,
-                  `wr_idc` varchar(20) NOT NULL,
-                  `wr_pac` varchar(20) NOT NULL,
-                  `p_ac_blind` varchar(20) NOT NULL,
-                  `i_ac` varchar(20) NOT NULL,
-                  `i_ac_p1` varchar(20) NOT NULL,
-                  `i_ac_p2` varchar(20) NOT NULL,
-                  `i_ac_p3` varchar(20) NOT NULL,
-                  `u_ac` varchar(20) NOT NULL,
-                  `u_ac_p1` varchar(20) NOT NULL,
-                  `u_ac_p2` varchar(20) NOT NULL,
-                  `u_ac_p3` varchar(20) NOT NULL,
-                  `p_ac_apparent` varchar(20) NOT NULL,
-                  `frequency` varchar(20) NOT NULL,
-                  `wr_udc` varchar(20) NOT NULL,
-                  `wr_pdc` varchar(20) NOT NULL,
-                  `wr_temp` varchar(20) NOT NULL,
-                  `temp_corr` varchar(20) NOT NULL,
-                  `theo_power` varchar(20) NOT NULL,
+                  `wr_idc` varchar(20) DEFAULT NULL,
+                  `wr_pac` varchar(20) DEFAULT NULL,
+                  `p_ac_blind` varchar(20) DEFAULT NULL,
+                  `i_ac` varchar(20) DEFAULT NULL,
+                  `i_ac_p1` varchar(20) DEFAULT NULL,
+                  `i_ac_p2` varchar(20) DEFAULT NULL,
+                  `i_ac_p3` varchar(20) DEFAULT NULL,
+                  `u_ac` varchar(20) DEFAULT NULL,
+                  `u_ac_p1` varchar(20) DEFAULT NULL,
+                  `u_ac_p2` varchar(20) DEFAULT NULL,
+                  `u_ac_p3` varchar(20) DEFAULT NULL,
+                  `p_ac_apparent` varchar(20) DEFAULT NULL,
+                  `frequency` varchar(20) DEFAULT NULL,
+                  `wr_udc` varchar(20) DEFAULT NULL,
+                  `wr_pdc` varchar(20) DEFAULT NULL,
+                  `wr_temp` varchar(20) DEFAULT NULL,
+                  `wr_cos_phi_korrektur` varchar(20) DEFAULT NULL,
+                  `e_z_evu` varchar(20) DEFAULT NULL,
+                  `temp_corr` varchar(20) DEFAULT NULL,
+                  `theo_power` varchar(20) DEFAULT NULL,
                   `wr_mpp_current` json NOT NULL,
                   `wr_mpp_voltage` json NOT NULL,
-                  `wr_cos_phi_korrektur` varchar(20) NOT NULL,
-                  `e_z_evu` varchar(20) NOT NULL,
                   `irr_anlage` json NOT NULL,
                   `temp_anlage` json NOT NULL,
                   `temp_inverter` json NOT NULL,
@@ -383,12 +374,12 @@ class AnlagenAdminController extends BaseController
                 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;";
 
 
-            $conn = self::connectToDatabase();
-            $conn->query($databaseAcIst);
-            $conn->query($databaseDcIst);
-            $conn->query($databaseAcSoll);
-            $conn->query($databaseDcSoll);
-            $conn->close();
+            $conn = self::getPdoConnection();
+            $conn->exec($databaseAcIst);
+            $conn->exec($databaseDcIst);
+            $conn->exec($databaseAcSoll);
+            $conn->exec($databaseDcSoll);
+            $conn = null;
 
             return true;
         } else {

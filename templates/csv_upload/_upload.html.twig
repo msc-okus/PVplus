@@ -1,0 +1,19 @@
+{% block body %}
+    <div class="grid-x">
+        <div class="cell">
+            <h1>Import CSV File Case 6</h1>
+        </div>
+    </div>
+    {{ form_start(uploadForm, {'attr': {'novalidate': 'no'}}) }}
+        <div class="grid-x">
+            <div class="cell">
+                <div class="grid-x grid-padding-x">
+                    <div class="cell medium-2">        Anlagen (coming soon)            </div>
+                    <div class="cell medium-2">        {{ form_row(uploadForm.File) }}  </div>
+                    {{ form_widget(uploadForm.import) }}
+                </div>
+            </div>
+        </div>
+        <div style="display: none">{{ form_rest(uploadForm) }}</div>
+    {{ form_end(uploadForm) }}
+{% endblock %}

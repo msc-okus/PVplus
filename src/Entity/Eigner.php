@@ -257,27 +257,28 @@ class Eigner
      * @ORM\OneToMany(targetEntity=AnlagenReports::class, mappedBy="eigner")
      */
     private $anlagenReports;
+    /**
+     * @ORM\Column(type="string", length=10, nullable=true)
+     */
+    private string $fontColor = '#9aacc3';
+
+    /**
+     * @ORM\Column(type="string", length=10, nullable=true)
+     */
+    private string $fontColor2 = '#2e639a';
+
+    /**
+     * @ORM\Column(type="string", length=10, nullable=true)
+     */
+    private string $fontColor3 = '#36639c';
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $fontColor = '#9aacc3';
+    private $Logo;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $fontColor2 = '#2e639a';
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $fontColor3 = '#36639c';
-
-    //private $security;
-
-    public function __construct() //Security $security
+    public function __construct()
     {
-        //$this->security = $security;
         $this->user = new ArrayCollection();
         $this->anlage = new ArrayCollection();
         $this->anlagenReports = new ArrayCollection();
@@ -764,6 +765,11 @@ class Eigner
         return $this;
     }
 
+    public function getCustomerLogo(): string
+    {
+        return $this->Logo;
+    }
+
     public function getFontColor(): ?string
     {
         return $this->fontColor;
@@ -800,5 +806,16 @@ class Eigner
         return $this;
     }
 
+    public function getLogo(): ?string
+    {
+        return $this->Logo;
+    }
+
+    public function setLogo(?string $Logo): self
+    {
+        $this->Logo = $Logo;
+
+        return $this;
+    }
 
 }

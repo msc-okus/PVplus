@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Anlage;
+use App\Entity\AnlagenPR;
 use App\Form\DownloadAnalyse\DownloadAnalyseFormExportType;
 use App\Form\DownloadData\DownloadDataFormType;
 use App\Form\DownloadAnalyse\DownloadAnalyseFormType;
@@ -92,26 +93,25 @@ class DownloadController extends AbstractController
     }
 
     /**
-     * @Route("/download/analyse/{formview}/{plantIdexp}", name="app_analyse_download", defaults={"formview"="-", "anlagenidexp"="0"})
+     * @Route("/download/analyse/{formview}/{plantIdexp}", name="app_analyse_download", defaults={"formview"="-", "plantIdexp"=0})
      */
-    public function downloadAnalyse($formview, $plantIdexp = null, Request $request, DownloadAnalyseService $analyseService){
+    public function downloadAnalyse($formview, $plantIdexp, Request $request, DownloadAnalyseService $analyseService){
 
         //das Formular für die Datumsselektion
         $form = $this->createForm(DownloadAnalyseFormType::class);
         $form->handleRequest($request);
         $plantId = 91;
 
-        if($form->isSubmitted() && $form->get('calc')->isClicked()) {
+        if ($form->isSubmitted() && $form->get('calc')->isClicked()) { // 'calc' == generate Analyse
             /* @var DownloadAnalyseModel $downloadAnalyseModel */
             $downloadAnalyseModel = $form->getData();
-            /** @var Anlage $anlage */
+            /* @var Anlage $anlage */
             $anlage = $downloadAnalyseModel->anlage;
-            $plantId = $analyseService->getAnlagenId($anlage);
+            $plantId = $anlage->getAnlId();
             $plantName = $anlage->getAnlName();
         }
-        if($plantIdexp > 0){
+        if ($plantIdexp > 0){
             $plantId = $plantIdexp;
-
         }
 
         #das hidden Formular für den Download
@@ -122,26 +122,21 @@ class DownloadController extends AbstractController
         $anlage = 0;
         $outputchart = [];
         $outputtable = [];
-        $my_var = function(){
-            ?>
-            Date Time<br>(per hour)
-            <?php
-        };
 
-        // Wenn Calc gelickt wird mache dies:
+        // Wenn Calc (generate Analyse) gelickt wird mache dies:
         if(($form->isSubmitted() && $form->get('calc')->isClicked()) || ($formPdfDownload->isSubmitted() && $formPdfDownload->get('export')->isClicked())) {
 
             /* @var DownloadAnalyseModel $downloadAnalyseModel */
-            if($formview != 'download') {
+            if ($formview != 'download') {
                 $downloadAnalyseModel = $form->getData();
-            }else{
+            } else {
                 $downloadAnalyseModel = $formPdfDownload->getData();
             }
 
-            if($formview != 'download'){
+            if ($formview != 'download') {
                 $doctype = 'default';
                 $anlage = $downloadAnalyseModel->anlage;
-                $plantId = $analyseService->getAnlagenId($anlage);
+                $plantId = $anlage->getAnlId();
                 $year = $downloadAnalyseModel->years;
                 $month = $downloadAnalyseModel->months;
                 $day = $downloadAnalyseModel->days;
@@ -152,7 +147,7 @@ class DownloadController extends AbstractController
                 $showAvailability = $anlage->getShowAvailability();
                 $showAvailabilitySecond = $anlage->getShowAvailabilitySecond();
                 $formatBody = "92px 0px 0px 0px;";
-            }else{
+            } else {
                 $anlage = $downloadAnalyseModel['anlageexport'];
                 $year = $downloadAnalyseModel['year'];
                 $month = $downloadAnalyseModel['month'];
@@ -173,53 +168,51 @@ class DownloadController extends AbstractController
                 $tableType = "default";
                 $landscape = false;
 
-                for ($i = 1; $i < 13; $i++) {
-                    if($i < 10){
+                for ($i = 1; $i <= 12; $i++) { // $i == Monat
+                    if ($i < 10){
                         $month_transfer = "0$i";
-                    }else{
+                    } else {
                         $month_transfer = $i;
                     }
 
-                    $output = $analyseService->getAllSingleSystemData($anlage, $year, "$month_transfer", 1);
-
+                    /** @var AnlagenPR $output */
+                    $output = $analyseService->getAllSingleSystemData($anlage, $year, $i, 1);
                     $dcData = $analyseService->getDcSingleSystemData($anlage, $start, $end, '%m');
                     $dcDataExpected = $analyseService->getEcpectedDcSingleSystemData($anlage, $start, $end, '%m');
 
-                    if($output){
-
-                        $outputtable[] =
-                            [
-                                "time" => $output->getstamp()->format('M'),
-                                "irradiation" => (float)$output->getIrrMonth(),
-                                "powerEGridExtMonth" => (float)$output->getpowerEGridExt(),
-                                "PowerEvuMonth" => (float)$output->getPowerEvuMonth(),
-                                "powerActMonth" => (float)$output->getpowerActMonth(),
-                                "powerDctMonth" => (float)$dcData[$i]['actdc'],
-                                "powerExpMonth" => (float)$output->getpowerExpMonth(),
-                                "powerExpDctMonth" => (float)$dcDataExpected[$i]['expdc'],
-                                "prEGridExtMonth" => (float)$output->getprEGridExtMonth(),
-                                "prEvuMonth" => (float)$output->getprEvuMonth(),
-                                "prActMonth" => (float)$output->getprActMonth(),
-                                "prExpMonth" => (float)$output->getprExpMonth(),
-                                "plantAvailability" => (float)$output->getplantAvailability(),
-                                "plantAvailabilitySecond" => (float)$output->getplantAvailabilitySecond(),
-                                "panneltemp" => (float)$output->getpanneltemp(),
-                            ];
+                    if ($output) {
+                        $outputtable[] = [
+                            "time" => $output->getstamp()->format('M'),
+                            "irradiation" => (float)$output->getIrrMonth(),
+                            "powerEGridExtMonth" => (float)$output->getpowerEGridExt(),
+                            "PowerEvuMonth" => (float)$output->getPowerEvuMonth(),
+                            "powerActMonth" => (float)$output->getpowerActMonth(),
+                            "powerDctMonth" => (float)$dcData[$i]['actdc'],
+                            "powerExpMonth" => (float)$output->getpowerExpMonth(),
+                            "powerExpDctMonth" => (float)$dcDataExpected[$i]['expdc'],
+                            "prEGridExtMonth" => (float)$output->getprEGridExtMonth(),
+                            "prEvuMonth" => (float)$output->getprEvuMonth(),
+                            "prActMonth" => (float)$output->getprActMonth(),
+                            "prExpMonth" => (float)$output->getprExpMonth(),
+                            "plantAvailability" => (float)$output->getplantAvailability(),
+                            "plantAvailabilitySecond" => (float)$output->getplantAvailabilitySecond(),
+                            "panneltemp" => (float)$output->getpanneltemp(),
+                        ];
                     }
                 }
-
                 $outputchart = [];
 
                 $headLine = 'Yearly Report';
             }
-            //Wenn Jahr und Monat ausgewaehlt wurden
+
+            // Wenn Jahr und Monat ausgewählt wurden
             if ($month >= 1 && $day == ''){
                 $start = $year.'-'.$month.'-01 00:00';
                 $end = $year.'-'.$month.'-31 23:59';
                 $tableType = "default";
                 $landscape = false;
 
-                $output = $analyseService->getAllSingleSystemData($anlage, $year, "$month", 2);
+                $output = $analyseService->getAllSingleSystemData($anlage, $year, $month, 2);
                 $dcData = $analyseService->getDcSingleSystemData($anlage, $start, $end, '%d.%m.%Y');
                 $dcDataExpected = $analyseService->getEcpectedDcSingleSystemData($anlage, $start, $end, '%d.%m.%Y');
 

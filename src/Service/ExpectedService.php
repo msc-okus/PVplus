@@ -1,9 +1,10 @@
 <?php
 
-
 namespace App\Service;
 
+use App\Entity\AnlageModules;
 use App\Repository\AnlageMonthRepository;
+use JetBrains\PhpStorm\Pure;
 use PDO;
 use App\Entity\Anlage;
 use App\Entity\AnlageGroupModules;
@@ -104,24 +105,38 @@ class ExpectedService
             ($group->getWeatherStation()) ? $currentWeatherStation = $group->getWeatherStation() : $currentWeatherStation = $anlage->getWeatherStation();
             for ($unit = $group->getUnitFirst(); $unit <= $group->getUnitLast(); $unit++) {
                 foreach($weatherArray[$currentWeatherStation->getDatabaseIdent()] as $weather) {
+                    $stamp          = $weather["stamp"];
 
-                    $stamp      = $weather["stamp"];
-                    $pannelTemp = (float)$weather["panel_temp"];   // Pannel Temperatur
-                    $irrUpper   = (float)$weather["irr_upper"];    // Strahlung an obern Sensor
-                    $irrLower   = (float)$weather["irr_lower"];    // Strahlung an unterem Sensor
+                    // use plant based shadow loss (normaly - 0)
+                    $shadow_loss    = $group->getShadowLoss();
+                    if ($groupMonth) {
+                        // use individule shadow loss per group (Entity: GroupMonth)
+                        if ($groupMonth->getShadowLoss()) $shadow_loss = $groupMonth->getShadowLoss();
+                    } elseif ($anlageMonth) {
+                        // use general monthly shadow loss (Entity: AnlageMonth)
+                        $shadow_loss = $anlageMonth->getShadowLoss();
+                    }
+
+                    $pannelTemp     = (float)$weather["panel_temp"] - ((float)$weather["panel_temp"] / 100 * $shadow_loss);   // Pannel Temperatur
+                    $irrUpperBase   = (float)$weather["irr_upper"]  - ((float)$weather["irr_upper"] / 100 * $shadow_loss);    // Strahlung an obern Sensor
+                    $irrLowerBase   = (float)$weather["irr_lower"]  - ((float)$weather["irr_lower"] / 100 * $shadow_loss);    // Strahlung an unterem Sensor
 
                     // Strahlung berechnen, für Analgen die KEINE 'Ost/West' Ausrichtung haben
                     if ($anlage->getUseLowerIrrForExpected()) {
-                        $irr = $irrLower;
+                        $irrBase = $irrLowerBase;
                     } else {
-                        $irr = $this->functions->calcIrr($irrUpper, $irrLower, $stamp, $anlage, $group, $currentWeatherStation, $groupMonth);
+                        $irrBase = $this->functions->calcIrr($irrUpperBase, $irrLowerBase, $stamp, $anlage, $group, $currentWeatherStation, $groupMonth);
                     }
 
                     /** @var AnlageGroupModules[] $modules */
                     $modules = $group->getModules();
                     $expPowerDc = $expCurrentDc = 0;
                     foreach ($modules as $modul) {
-                        //
+                        // Irradiation discount depending on irradiation (Settings stored in entity: AnlageGroupModules)
+                        $irr        = $this->calcIrradiationDiscountByModule($modul->getModuleType(), $irrBase);
+                        $irrUpper   = $this->calcIrradiationDiscountByModule($modul->getModuleType(), $irrUpperBase);
+                        $irrLower   = $this->calcIrradiationDiscountByModule($modul->getModuleType(), $irrLowerBase);
+
                         if ($anlage->getIsOstWestAnlage()) {
                             // Ist 'Ost/West' Anlage, dann nutze $irrUpper (Strahlung Osten) und $irrLower (Strahlung Westen) und multipliziere mit der Anzahl Strings Ost / West
                             $expPowerDcHlp      = $modul->getModuleType()->getFactorPower($irrUpper) * $modul->getNumStringsPerUnitEast() * $modul->getNumModulesPerString() / 1000 / 4; // Ost
@@ -135,27 +150,20 @@ class ExpectedService
                         }
 
                         // Temperatur Korrektur
-                        if ($anlage->getHasPannelTemp()) {
-                            $expPowerDcHlp      = $expPowerDcHlp * $modul->getModuleType()->getTempCorrPower($pannelTemp);
+                        if ($anlage->getHasPannelTemp() && $pannelTemp >= 25) {
+                            $expPowerDcHlp      = $expPowerDcHlp   * $modul->getModuleType()->getTempCorrPower($pannelTemp);
                             $expCurrentDcHlp    = $expCurrentDcHlp * $modul->getModuleType()->getTempCorrCurrent($pannelTemp);
                         }
 
                         // degradation abziehen (degradation * Betriebsjahre).
-                        $expPowerDcHlp      = $expPowerDcHlp - ($expPowerDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
+                        $expPowerDcHlp      = $expPowerDcHlp   - ($expPowerDcHlp   / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
                         $expCurrentDcHlp    = $expCurrentDcHlp - ($expCurrentDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
 
                         $expPowerDc     += $expPowerDcHlp;
                         $expCurrentDc   += $expCurrentDcHlp;
                     }
-                    //
-                    $shadow_loss    = $group->getShadowLoss();
-                    if ($groupMonth) {
-                        if ($groupMonth->getShadowLoss()) $shadow_loss = $groupMonth->getShadowLoss();
-                    } elseif ($anlageMonth) {
-                        // nutze Anlagenweite Monatsverschattung (Entity: AnlageMonth)
-                        $shadow_loss = $anlageMonth->getShadowLoss();
-                    }
 
+                    /* @deprecated
                     // Anpassung der Verschattung an die jeweiligen Strahlungsbedingungen
                     // d.h. je weniger Strahlung desso geringer ist die Auswirkung der Verschattung
                     // Werte für $val bis $val 6 sind mit OS und TL abgesprochen
@@ -165,16 +173,17 @@ class ExpectedService
                     $val4 = 600;
                     $val5 = 800;
                     $val6 = 1000;
-                    if ($irr <= $val1) {$shadow_loss = $shadow_loss * 0.05;}
-                    elseif ($irr > $val1 && $irr <= $val2) {$shadow_loss = $shadow_loss * 0.21;}
-                    elseif ($irr > $val2 && $irr <= $val3) {$shadow_loss = $shadow_loss * 0.35;}
-                    elseif ($irr > $val3 && $irr <= $val4) {$shadow_loss = $shadow_loss * 0.57;}
-                    elseif ($irr > $val4 && $irr <= $val5) {$shadow_loss = $shadow_loss * 0.71;}
-                    elseif ($irr > $val5 && $irr <= $val6) {$shadow_loss = $shadow_loss * 0.8;}
+                    if ($irrBase <= $val1) {$shadow_loss = $shadow_loss * 0.05;}
+                    elseif ($irrBase > $val1 && $irrBase <= $val2) {$shadow_loss = $shadow_loss * 0.21;}
+                    elseif ($irrBase > $val2 && $irrBase <= $val3) {$shadow_loss = $shadow_loss * 0.35;}
+                    elseif ($irrBase > $val3 && $irrBase <= $val4) {$shadow_loss = $shadow_loss * 0.57;}
+                    elseif ($irrBase > $val4 && $irrBase <= $val5) {$shadow_loss = $shadow_loss * 0.71;}
+                    elseif ($irrBase > $val5 && $irrBase <= $val6) {$shadow_loss = $shadow_loss * 0.8;}
+                     */
 
                     // Verluste auf der DC Seite brechnen
-                    // Schattenverluste + Kabel Verluste + Sicherheitsverlust
-                    $loss           = $shadow_loss + $group->getCabelLoss() + $group->getSecureLoss();
+                    // Kabel Verluste + Sicherheitsverlust
+                    $loss = $group->getCabelLoss() + $group->getSecureLoss();
 
                     // Verhindert 'diff by zero'
                     if ($loss <> 0) {
@@ -212,5 +221,31 @@ class ExpectedService
         }
 
         return $resultArray;
+    }
+
+    private function calcIrradiationDiscountByModule(AnlageModules $modul, float $irradiation): float
+    {
+        $factor = 1;
+        if ($modul->getDisableIrrDiscount() !== true) {
+            if ($irradiation > 0 && $irradiation <= 50) {
+                $factor = 1 - ($modul->getIrrDiscount1() / 100);
+            } elseif ($irradiation > 50 && $irradiation <= 100) {
+                $factor = 1 - ($modul->getIrrDiscount2() / 100);
+            } elseif ($irradiation > 100 && $irradiation <= 150) {
+                $factor = 1 - ($modul->getIrrDiscount3() / 100);
+            } elseif ($irradiation > 150 && $irradiation <= 200) {
+                $factor = 1 - ($modul->getIrrDiscount4() / 100);
+            } elseif ($irradiation > 200 && $irradiation <= 250) {
+                $factor = 1 - ($modul->getIrrDiscount5() / 100);
+            } elseif ($irradiation > 250 && $irradiation <= 300) {
+                $factor = 1 - ($modul->getIrrDiscount6() / 100);
+            } elseif ($irradiation > 300 && $irradiation <= 350) {
+                $factor = 1 - ($modul->getIrrDiscount7() / 100);
+            } elseif ($irradiation > 350 && $irradiation <= 400) {
+                $factor = 1 - ($modul->getIrrDiscount8() / 100);
+            }
+        }
+
+        return $irradiation * $factor;
     }
 }

@@ -1,55 +1,55 @@
-{% include 'report/_asset_mangement_partials/_headline.html.twig'%}
-    <div class="content_asset_report">
-        <h3 style="color: {{ font_color_second }};">Cumulative Forecast with g4n</h3>
-        <span class="subheadline" style="color: {{ font_color_third }};">Yearly expected vs. actuals(!!!nicht fertig und muss noch überarbeitet werden)</span>
-        <table id="basetable">
-            <tr>
-                <td colspan="2" style="text-align: left">
-                    <table class="asset_report_table_operations_data" style="width: 95%!important;">
-                        <thead>
-                        <tr>
-                            <th style="text-align: right">Cumulative Forecast - {{ year }}</th>
-                            {% for data in dataMonthArrayFullYear %}
-                                <th style="text-align: center">{{ data }}</th>
-                            {% endfor %}
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td class="tr_first_column" style="text-align: right">Production ACT / g4n - P50</td>
-                            {% for data in forecast_G4N_table.forcast_G4NP50 %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td class="tr_first_column" style="text-align: right">Production ACT /  g4n - P90</td>
-                            {% for data in forecast_G4N_table.forcast_G4NP90 %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td class="tr_first_column" style="text-align: right">Plan g4n Forecast - P50</td>
-                            {% for data in forecast_G4N_table.forcast_plan_G4NP50 %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                            {% endfor %}
-                        </tr>
-                        <tr>
-                            <td class="tr_first_column" style="text-align: right">Plan g4n Forecast - P90</td>
-                            {% for data in forecast_G4N_table.forcast_plan_G4NP90 %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                            {% endfor %}
-                        </tr>
-                        </tbody>
-                    </table>
+{% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
 
-                </td>
+{% block page %}
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Cumulative Forecast with g4n</h3>
+    <span class="subheadline" style="color: {{ anlage.eigner.fontColor3 }};">Yearly expected vs. actuals(!!!nicht fertig und muss noch überarbeitet werden)</span>
+    <table >
+        <tr>
+            <td colspan="2" style="text-align: left">
+                <table class="asset_report_table_operations_data" style="width: 95%!important;">
+                    <thead>
+                    <tr>
+                        <th style="text-align: right">Cumulative Forecast - {{ year }}</th>
+                        {% for data in dataMonthArrayFullYear %}
+                            <th style="text-align: center">{{ data }}</th>
+                        {% endfor %}
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="tr_first_column" style="text-align: right">Production ACT / g4n - P50</td>
+                        {% for data in forecast_G4N_table.forcast_G4NP50 %}
+                            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tr_first_column" style="text-align: right">Production ACT /  g4n - P90</td>
+                        {% for data in forecast_G4N_table.forcast_G4NP90 %}
+                            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tr_first_column" style="text-align: right">Plan g4n Forecast - P50</td>
+                        {% for data in forecast_G4N_table.forcast_plan_G4NP50 %}
+                            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tr_first_column" style="text-align: right">Plan g4n Forecast - P90</td>
+                        {% for data in forecast_G4N_table.forcast_plan_G4NP90 %}
+                            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                        {% endfor %}
+                    </tr>
+                    </tbody>
+                </table>
 
-            </tr>
-            <tr>
-                <td style="text-align: left!important;">
-                    {{ forecast_G4N|raw }}
-                </td>
-            </tr>
-        </table>
-    </div>
-{% include 'report/_asset_mangement_partials/_footer.html.twig'%}
+            </td>
+
+        </tr>
+        <tr>
+            <td style="text-align: left!important;">
+                {{ forecast_G4N|raw }}
+            </td>
+        </tr>
+    </table>
+{% endblock page %}

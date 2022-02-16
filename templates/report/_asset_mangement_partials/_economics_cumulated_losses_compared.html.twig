@@ -1,9 +1,10 @@
-{% include 'report/_asset_mangement_partials/_headline.html.twig'%}
-<div class="content_asset_report">
-    <h3 style="color: {{ font_color_second }};">Economics</h3>
+{% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
+
+{% block page %}
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Economics</h3>
     <span class="subheadline">Cumulated Losses compared</span>
 
-    <table id="basetable">
+    <table >
         <tr>
             <td colspan="2" style="text-align: left">
                 <table class="asset_report_table_operations_data" style="width: 100%!important;">
@@ -102,5 +103,4 @@
             </td>
         </tr>
     </table>
-</div>
-{% include 'report/_asset_mangement_partials/_footer.html.twig'%}
+{% endblock page %}

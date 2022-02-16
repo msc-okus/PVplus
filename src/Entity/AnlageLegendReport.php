@@ -29,6 +29,7 @@ class AnlageLegendReport
     private string $type;
 
     /**
+     * @Groups ({"legend"})
      * @ORM\Column(type="string", length=20)
      */
     private string $row;

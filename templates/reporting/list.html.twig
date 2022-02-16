@@ -1,11 +1,16 @@
 {% extends 'base.html.twig' %}
-{% block javascripts %}
+
+{% import 'macros/macros.reports.html.twig' as macrolibrary %} {# I will bring the searchbar here for convenience #}
+
+{% block stylesheets %}
     {{ parent() }}
-    <script src="https://cdn.jsdelivr.net/autocomplete.js/0/autocomplete.jquery.min.js"></script>
-    <script src="{{ asset('jsNew/algolia-autocomplete.js') }}"></script>
+    {{ encore_entry_link_tags('reports_list') }}
 {% endblock %}
 
-{% import 'macros/macros.reports.html.twig' as macrolibrary %} {# I will bring the searchbar here for convenience#}
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('reports_list') }}
+{% endblock %}
 
 {% block title %}
     {{ parent() }}List Reports
@@ -13,14 +18,11 @@
 
 {% block body %}
     <h1>List Reports</h1>
-    {#
-    {{ macrolibrary.searchbox(app.request.query.get('qr'), 'qr') }}
-    #}
     {# begining of the searchbar #}
     <form>
         <div class="grid-x grid-margin-x align-middle">
             <div class="cell medium-2" style="margin-top:-17px!important;">
-                <input type="text" name="anlage" class="input-group-field" data-autocomplete-url="/admin/anlagen/find" value="{{ anlage }}" placeholder="Search plants">
+                <input type="text" name="anlage" class="input-group-field js-autocomplete-plant"  value="{{ anlage }}" placeholder="Search plants">
             </div>
             <div class="cell medium-2">
                 <select name="searchstatus">
@@ -55,6 +57,16 @@
                     <option value="10" {% if month == '10' %} selected {% endif %}>  10    </option>
                     <option value="11" {% if month == '11' %} selected {% endif %}>  11    </option>
                     <option value="12" {% if month == '12' %} selected {% endif %}>  12    </option>
+                </select>
+            </div>
+            <div class="cell medium-2">
+                <select name="searchyear">
+                    <option value=""      {% if searchyear == '' %}      selected {% endif %}>  Year    </option>
+                    <option value="2020"  {% if searchyear == '2020' %}  selected {% endif %}>  2020    </option>
+                    <option value="2021"  {% if searchyear == '2021' %}  selected {% endif %}>  2021    </option>
+                    <option value="2022"  {% if searchyear == '2022' %}  selected {% endif %}>  2022    </option>
+                    <option value="2023"  {% if searchyear == '2023' %}  selected {% endif %}>  2023    </option>
+                    <option value="2024"  {% if searchyear == '2024' %}  selected {% endif %}>  2024    </option>
                 </select>
             </div>
             <div class="input-group-button" style="height:35px !important; width:35px !important; padding:0; margin-top:-15px;">
@@ -109,15 +121,22 @@
                     <td class="text-right">
                         {# <a href="{{ path('app_reporting_edit', { id: report.id}) }}"><span class="fa fa-pencil"></span></a>&nbsp;{# {{ path('app_reporting_edit', { id: report.id}) }} #}
                         {% if is_granted('ROLE_G4N') or report.reportStatus <= 1 %}
-                            {% if report.reportType != 'am-report' %}
-                                <a href="{{ path('app_reporting_excel', { id: report.id}) }}" target="_blank" title="load Excel file" class="hollow button tiny action-icon shadow"><span class="fa fa-file-excel"></span></a>
-                            {% endif %}
+                            <a href="{{ path('app_reporting_excel', { id: report.id}) }}" target="_blank" title="load Excel file" class="hollow button tiny action-icon shadow
+                                {% if report.reportType == 'am-report' or (report.reportType == 'epc-report' and report.anlage.epcReportType == 'yieldGuarantee') %}
+                                    disabled
+                                {% endif %}
+                            "><span class="fa fa-file-excel"></span></a>
                             {% if report.reportType != 'am-report' or is_granted('ROLE_AM') %} {# Zeige Download Butten wenn es keine AM Bericht ist, oder wenn die Berichtigung für AM Bericht ausreicht #}
                                 <a href="{{ path('app_reporting_pdf', { id: report.id}) }}"   target="_blank" title="load PDF file" class="hollow button tiny action-icon shadow"><span class="fa fa-file-pdf"></span></a>
                             {% endif %}
                         {% endif %}
-                        {% if is_granted('ROLE_G4N') %}<a href="{{ path('app_reporting_edit', { id: report.id}) }}"  class="hollow button tiny action-icon shadow"><span class="fa fa-pencil"></span></a>{% endif %}
-                        {% if is_granted('ROLE_DEV') %}<a href="{{ path('app_reporting_delete', { id: report.id}) }}" onclick="return window.confirm('Löschen?');" class="hollow alert button tiny action-icon shadow"><span class="fa fa-trash"></span></a>{% endif %}
+                        {% if is_granted('ROLE_G4N') %}
+                            <a href="{{ path('app_reporting_edit', { id: report.id}) }}"  class="hollow button tiny action-icon shadow"><span class="fa fa-edit"></span></a>
+
+                            <a href="{{ path('app_reporting_html', { id: report.id}) }}"    title="load html code" class="hollow button tiny action-icon shadow"><span class="fas fa-code"></span></a>
+
+                        {% endif %}
+                        {% if is_granted('ROLE_DEV') %}<a href="{{ path('app_reporting_delete', { id: report.id}) }}" onclick="return window.confirm('Löschen?');" class="hollow alert button tiny action-icon shadow"><span class="fa fa-trash-alt"></span></a>{% endif %}
                     </td>
                 </tr>
             {% endif %}
@@ -126,7 +145,7 @@
     </table>
     {{ knp_pagination_render(pagination) }}
     <hr>
-    {% if is_granted('ROLE_DEV') %}
+    {% if is_granted('ROLE_ADMIN') %}
         <form>
             <div class="grid-x grid-margin-x align-middle">
                 <div class="cell medium-2">
@@ -179,8 +198,4 @@
             </div>
         </form>
     {% endif %}
-{% endblock %}
-{% block stylesheets %}
-    {{ parent() }}
-    <link rel="stylesheet" href="{{ asset('css/algolia-autocomplete.css') }}">
 {% endblock %}

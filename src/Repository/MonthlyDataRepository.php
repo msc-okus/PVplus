@@ -37,6 +37,40 @@ class MonthlyDataRepository extends ServiceEntityRepository
             ;
     }
 
+    /**
+     * Query all record between to dates.
+     * Entytie stores no real DateTime only month and year.
+     * Creates from month and year a number (Year + (Month / 10)), this allows to search very easy.
+     *
+     * @param Anlage $anlage
+     * @param \DateTime $from
+     * @param \DateTime $to
+     * @return int|mixed|string
+     */
+    public function findByDateRange(Anlage $anlage, \DateTime $from, \DateTime $to)
+    {
+        $startYear    = (int)$from->format('Y');
+        $startMonth   = (int)$from->format('m');
+        $endYear      = (int)$to->format('Y');
+        $endMonth     = (int)$to->format('m');
+
+        $start = $startYear + ($startMonth / 10);
+        $end   = $endYear   + ($endMonth / 10);
+
+        $result = $this->createQueryBuilder('a')
+            ->andWhere('a.anlage = :anlage')
+            ->andWhere('((a.year + a.month / 100) >= :start AND (a.year + a.month / 100) <= :end)')
+            ->setParameter('start', $start)
+            ->setParameter('end', $end)
+            ->setParameter('anlage', $anlage)
+            ->orderBy('a.year')
+            ->orderBy('a.month')
+            ->getQuery()
+            ->getResult()
+            ;
+        return $result;
+    }
+
     public function findSumByPac(Anlage $anlage, \DateTime $pacDate, \DateTime $to)
     {
         $pacYear    = $pacDate->format('Y');

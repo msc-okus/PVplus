@@ -39,16 +39,6 @@ class TicketFormType extends AbstractType
                         'data-autocomplete-url' => '/admin/anlagen/find'
                     ]
                 ])
-                ->add('status', ChoiceType::class, [
-                    'label' => 'Select the status',
-                    'choices' => [
-                        'Open' => 10,
-                        'Work in Progress' => 20,
-                        'Closed' => 30
-                    ],
-                    'required' => true,
-                    'placeholder' => 'please Choose ...'
-                ])
                 ->add('begin', DateTimeType::class, [
                     'label' => 'Begin',
                     'label_html' => true,
@@ -57,26 +47,15 @@ class TicketFormType extends AbstractType
                     'widget' => 'single_text',
                     'data' => new \DateTime("now")
                 ]);
-        }
-        else {
+        } else {
             $builder
                 ->add('anlage', AnlageTextType::class, [
                     'label' => 'Plant name ',
                     'attr' => [
-                                'readonly' => true,
-                                'class' => 'js-autocomplete-anlagen input-group-field',
-                                'data-autocomplete-url' => '/admin/anlagen/find'
-                                ]
-                ])
-                ->add('status', ChoiceType::class, [
-                    'label' => 'Select the status',
-                    'choices' => [
-                        'Open' => 10,
-                        'Work in Progress' => 20,
-                        'Closed' => 30
-                    ],
-                    'required' => true,
-                    'placeholder' => 'please Choose ...'
+                        'readonly' => true,
+                        'class' => 'js-autocomplete-anlagen input-group-field',
+                        'data-autocomplete-url' => '/admin/anlagen/find'
+                    ]
                 ])
                 ->add('begin', DateTimeType::class, [
                     'label' => 'Begin',
@@ -88,6 +67,16 @@ class TicketFormType extends AbstractType
         }
         $builder
 
+            ->add('status', ChoiceType::class, [
+                'label' => 'Select the status',
+                'choices' => [
+                    'Open' => 10,
+                    'Work in Progress' => 20,
+                    'Closed' => 30
+                ],
+                'required' => true,
+                'placeholder' => 'please Choose ...'
+            ])
             ->add('end', DateTimeType::class, [
                 'label' => 'End',
                 'label_html' => true,
@@ -126,30 +115,30 @@ class TicketFormType extends AbstractType
             ->add('answer', CKEditorType::class, [
                 'config' => array('toolbar' => 'my_toolbar'),
             ])
-            ->add('PR', SwitchType::class, [
-                'label' => 'PR',
-                'required' =>false
+            ->add('PR0', SwitchType::class, [
+                'label'     => 'PR',
+                'required'  => false
             ])
-            ->add('PA', SwitchType::class,[
-                'label' => 'PA',
-                'required' =>false
+            ->add('PA0C5', SwitchType::class,[
+                'label'     => 'PA',
+                'required'  => false
             ])
 
-            ->add('Yield', SwitchType::class,[
-                'label' => 'Yield',
-                'required' =>false
+            ->add('Yield0', SwitchType::class,[
+                'label'     => 'Yield',
+                'required'  => false
             ])
             ->add('save', SubmitType::class, [
-                'label' => 'Save',
-                'attr' => ['class' => 'primary save'],
+                'label'     => 'Save',
+                'attr'      => ['class' => 'primary save'],
             ])
             ->add('saveclose', SubmitType::class, [
-                'label' => 'Save and Close',
-                'attr' => ['class' => 'primary saveclose'],
+                'label'     => 'Save and Close',
+                'attr'      => ['class' => 'primary saveclose'],
             ])
             ->add('close', SubmitType::class, [
-                'label' => 'Close without save',
-                'attr' => ['class' => 'secondary close', 'formnovalidate' => 'formnovalidate'],
+                'label'     => 'Close without save',
+                'attr'      => ['class' => 'secondary close', 'formnovalidate' => 'formnovalidate'],
             ]);
 
     }

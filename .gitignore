@@ -1,10 +1,11 @@
 /.idea
 */.DS_Store/
-.DS_Store/
+*/.DS_Store
+.DS_Store
 */help.*
 help.*
 php.ini
-
+tempfiles/*
 
 ###> symfony/framework-bundle ###
 /.env.local
@@ -22,3 +23,10 @@ php.ini
 /public/*.pdf
 /public/*.html
 /public/echarts
+/public/uploads/*
+###> symfony/webpack-encore-bundle ###
+/node_modules/
+/public/build/
+npm-debug.log
+yarn-error.log
+###< symfony/webpack-encore-bundle ###

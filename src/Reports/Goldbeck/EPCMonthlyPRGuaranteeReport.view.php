@@ -137,61 +137,63 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
     </div>
     <div class="cell small-6">
         <?php
-        $array = $this->dataStore('formel')->toArray()[0];
-        switch ($array['algorithmus']) {
-            case 'Groningen':
-                break;
-                //jasdkas
-            case 'Veendam':
-                break;
-                // sdf
-            case 'Lelystad':
-                $html = "<table style='text-align: center'>
-                    <tr>
-                        <td>".number_format($array['eGridReal'], 2, ',', '.')." kWh</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td>----------------------------</td>
-                        <td>x</td>
-                        <td>100</td>
-                        <td>=</td>
-                        <td>".number_format($array['prReal'], 2, ',', '.')."%</td>
-                    </tr>
-                    <tr>
-                        <td>".number_format($array['theoPower'], 2, ',', '.')." kWh</td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                </table>";
-                break;
-            default:
-                $html = "<table>
-                    <tr>
-                        <td>".number_format($array['eGridReal'], 2, ',', '.')." kWh</td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td>------------------------</td>
-                        <td>=</td>
-                        <td>".number_format($array['prReal'], 2, ',', '.')."%</td>
-                    </tr>
-                    <tr>
-                        <td>".number_format($array['theoPower'], 2, ',', '.')." kWh</td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                </table>";
+            $array = $this->dataStore('formel')->toArray()[0];
+            switch ($array['algorithmus']) {
+                case 'Groningen':
+                    $html = '';
+                    break;
+                    //jasdkas
+                case 'Veendam':
+                    $html = "";
+                    break;
+                    // sdf
+                case 'Lelystad':
+                    $html = "<table style='text-align: center'>
+                        <tr>
+                            <td>".number_format($array['eGridReal'], 2, ',', '.')." kWh</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>----------------------------</td>
+                            <td>x</td>
+                            <td>100</td>
+                            <td>=</td>
+                            <td>".number_format($array['prReal'], 2, ',', '.')."%</td>
+                        </tr>
+                        <tr>
+                            <td>".number_format($array['theoPower'], 2, ',', '.')." kWh</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </table>";
+                    break;
+                default:
+                    $html = "<table>
+                        <tr>
+                            <td>".number_format($array['eGridReal'], 2, ',', '.')." kWh</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>------------------------</td>
+                            <td>=</td>
+                            <td>".number_format($array['prReal'], 2, ',', '.')."%</td>
+                        </tr>
+                        <tr>
+                            <td>".number_format($array['theoPower'], 2, ',', '.')." kWh</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </table>";
 
-        }
+            }
+            echo $html;
         ?>
-        <?php echo $html;?>
     </div>
 </div>
 <div class="grid-x grid-margin-x">
@@ -223,7 +225,7 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
         ?>
     </div>
     <div class="cell small-8">
-        <h3>Difference PR<sub><small>prog</small></sub> - PR<sub><small>Guar</small></sub> <small>(<? echo $this->dataStore('forecast')->toArray()[0]['forecastDateText']?>)</small></h3>
+        <h3>Difference PR<sub><small>prog</small></sub> - PR<sub><small>Guar</small></sub> <small>(<?php echo $this->dataStore('forecast')->toArray()[0]['forecastDateText']?>)</small></h3>
         <?php
         ComboChart::create([
             'dataSource'    => $this->dataStore('graph'),
@@ -330,7 +332,7 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
                 'availability'   => [
                     'type'          => 'number',
                     'label'         => 'Availability<br>[%]',
-                    'formatValue'   => function($value) {return number_format($value, 2, ',', '.');},
+                    'formatValue'   => function($value) {return number_format((float)$value, 2, ',', '.');},
                 ],
                 'dummy' => [
                     'type'          => 'string',
@@ -355,7 +357,7 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
                 'anteil'=> [
                     'type'          => 'number',
                     'label'         => 'Ratio<br><br>[%]',
-                    'formatValue'   => function($value) {return number_format($value, 2, ',', '.');},
+                    'formatValue'   => function($value) {return number_format((float)$value, 2, ',', '.');},
                 ],
                 'specPowerGuar' => [
                     'type'          => 'number',

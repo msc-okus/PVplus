@@ -30,48 +30,7 @@ class DefaultController extends BaseController
         $this->urlGenerator = $urlGenerator;
     }
 
-    /**
-     * @param $doctype ( 0 = PDF, 1 = Excel, 2 = PNG (Grafiken) )
-     * @param $charttypetoexport (0 = , 1 = )
-     * @param $storeDocument (true / false)
-     * @Route("/test/report/{id}/{month}/{year}/{doctype}/{charttypetoexport}/{storeDocument}", defaults={"storeDocument"=false})
-     * @deprecated
-     */
-    public function testReport($id, $month, $year, $doctype, $charttypetoexport, $storeDocument, ReportService $report, AnlagenRepository $anlagenRepository)
-    {
-        /** @var Anlage [] $anlagen */
-        $anlagen = $anlagenRepository->findIdLike([$id]);
-        $output = $report->monthlyReport($anlagen, $month, $year, $doctype, $charttypetoexport, $storeDocument);
 
-        return $this->render('cron/showResult.html.twig', [
-            'headline' => 'Monthly Report',
-            'availabilitys' => '',
-            'output' => $output,
-        ]);
-    }
-
-
-    /**
-     * @Route("/test/pvsyst")
-     */
-    public function pvsyst(PVSystDatenRepository $PVSystDatenRepository, PVSystService $PVSystService, EntityManagerInterface $em)
-    {
-        $pvSystDaten = $PVSystDatenRepository->findAll();
-        $output = "";
-
-        foreach ($pvSystDaten as $data) {
-            $output .= $PVSystService->normalizeDate($data->getStamp()) . '<br>';
-            $data->setStamp($PVSystService->normalizeDate($data->getStamp()));
-            $em->persist($data);
-        }
-        $em->flush();
-
-        return $this->render('cron/showResult.html.twig', [
-            'headline' => 'PV-Syst Tests',
-            'availabilitys' => '',
-            'output' => $output,
-        ]);
-    }
 
     /**
      * @Route("/test/systemstatus")

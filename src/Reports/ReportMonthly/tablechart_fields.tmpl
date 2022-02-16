@@ -43,7 +43,7 @@ function getEPFields($lineBreake, $doubleLineBreake, $auml, $useGridMeterDayData
         ];
     }
     $tableFields['G4NExpected'] = [
-        'label'         => 'G4N Expected'.$lineBreake.'[kWh]'.$lineBreake.'(Inv Out)',
+        'label'         => 'G4N Expected'.$lineBreake.'[kWh]'.$lineBreake,
         'type'          => 'number',
         "cssStyle"      => $cssStyleStd,
         'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},

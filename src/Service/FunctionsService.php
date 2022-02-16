@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\Entity\AnlageForcast;
+
 use App\Entity\AnlageForcastDay;
 use App\Repository\AcGroupsRepository;
 use App\Repository\ForcastDayRepository;
@@ -20,7 +20,8 @@ use App\Repository\GroupModulesRepository;
 use App\Repository\GroupMonthsRepository;
 use App\Repository\GroupsRepository;
 use App\Repository\PVSystDatenRepository;
-use phpDocumentor\Reflection\Types\Float_;
+use \DateTime;
+use function Symfony\Component\String\u;
 
 class FunctionsService
 {
@@ -64,6 +65,7 @@ class FunctionsService
      * @param $pacDateStart
      * @param $pacDateEnd
      * @return array
+     * @deprecated
      */
     public function getSumPowerAcAct(Anlage $anlage, $from, $to, $pacDateStart, $pacDateEnd) :array
     {
@@ -92,41 +94,35 @@ class FunctionsService
         $powerEvu = $powerEvuYear = $powerEvuPac = $powerEvuMonth = $powerAct = 0;
         $powerActYear = $powerActPac = $powerActMonth = 0;
         $theoPowerMonth = $theoPowerPac = $theoPowerYear = 0;
-        /*
-        if (strtotime($from < strtotime($anlage->getEpcReportStart()->format('Y-m-d')))) {
-            $jahresanfang = $anlage->getEpcReportStart()->format('Y-m-d');
-        } else {
-            $jahresanfang = date('Y-01-01 00:00', strtotime($from)); // für das ganze Jahr - Zeitraum
-        }
-        */
-        $jahresanfang = date('Y-01-01 00:00', strtotime($from)); // für das ganze Jahr - Zeitraum
+
         ############# für das ganze Jahr #############
-        if (true) {
-            // LIMIT 1 muss sein, da der evu Wert in jedem Datensatz gespeichert ist (Wert entspricht summe aller Gruppen), er darf aber nur einaml pro Zeiteinheit abgefragt werden.
-            $sql_year = "SELECT sum(e_z_evu) as power_evu_year FROM $dbTable where stamp between '$jahresanfang' and '$to' AND e_z_evu > 0 group by unit LIMIT 1";
-            $res = $conn->query($sql_year);
-            if ($res->rowCount() == 1) {
-                $row = $res->fetch(PDO::FETCH_ASSOC);
-                $powerEvuYear = round($row['power_evu_year'], 4);
-
-            }
-            unset($res);
-
-            $sql_year = "SELECT sum(wr_pac) as power_act_year FROM $dbTable where stamp between '$jahresanfang' and '$to' and wr_pac > 0";
-            $res = $conn->query($sql_year);
-            if ($res->rowCount() == 1) {
-                $row = $res->fetch(PDO::FETCH_ASSOC);
-                $powerActYear = round($row['power_act_year'], 4);
-            }
-            unset($res);
-            $sql_year = "SELECT sum(theo_power) as theo_power FROM $dbTable where stamp between '$jahresanfang' and '$to'";
-            $res = $conn->query($sql_year);
-            if ($res->rowCount() == 1) {
-                $row = $res->fetch(PDO::FETCH_ASSOC);
-                $theoPowerYear = round($row['theo_power'], 4);
-            }
-            unset($res);
+        $jahresanfang = date('Y-01-01 00:00', strtotime($from)); // für das ganze Jahr - Zeitraum
+        // LIMIT 1 muss sein, da der evu Wert in jedem Datensatz gespeichert ist (Wert entspricht summe aller Gruppen), er darf aber nur einaml pro Zeiteinheit abgefragt werden.
+        $sql_year = "SELECT sum(e_z_evu) as power_evu_year FROM $dbTable where stamp between '$jahresanfang' and '$to' AND e_z_evu > 0 group by unit LIMIT 1";
+        $res = $conn->query($sql_year);
+        if ($res->rowCount() == 1) {
+            $row = $res->fetch(PDO::FETCH_ASSOC);
+            $powerEvuYear = round($row['power_evu_year'], 4);
         }
+        unset($res);
+        $powerEvuYear = $this->checkAndIncludeMonthlyCorrectionEVU($anlage, $powerEvuYear, $jahresanfang, $to);
+
+        $sql_year = "SELECT sum(wr_pac) as power_act_year FROM $dbTable where stamp between '$jahresanfang' and '$to' and wr_pac > 0";
+        $res = $conn->query($sql_year);
+        if ($res->rowCount() == 1) {
+            $row = $res->fetch(PDO::FETCH_ASSOC);
+            $powerActYear = round($row['power_act_year'], 4);
+        }
+        unset($res);
+
+        $sql_year = "SELECT sum(theo_power) as theo_power FROM $dbTable where stamp between '$jahresanfang' and '$to'";
+        $res = $conn->query($sql_year);
+        if ($res->rowCount() == 1) {
+            $row = $res->fetch(PDO::FETCH_ASSOC);
+            $theoPowerYear = round($row['theo_power'], 4);
+        }
+        unset($res);
+
 
         ################## PAC ################
         if($anlage->getUsePac()) {
@@ -139,6 +135,7 @@ class FunctionsService
                 $powerEvuPac = round($row['power_evu'], 4);
             }
             unset($res);
+            $powerEvuPac = $this->checkAndIncludeMonthlyCorrectionEVU($anlage, $powerEvuPac, $pacDateStart, $to);
 
             $sql_pac = "SELECT sum(wr_pac) as power_act_pac FROM $dbTable where stamp between '$pacDateStart' and '$to' AND wr_pac > 0";
             $res = $conn->query($sql_pac);
@@ -158,13 +155,6 @@ class FunctionsService
         }
 
         ################## Month ################
-        /*
-        if (strtotime($from < strtotime($anlage->getEpcReportStart()->format('Y-m-d')))) {
-            $startMonth = $anlage->getEpcReportStart()->format('Y-m-d');
-        } else {
-            $startMonth = date('Y-m-01 00:00', strtotime($from));
-        }
-        */
         $startMonth = date('Y-m-01 00:00', strtotime($from));
         $sql = "SELECT sum(e_z_evu) as power_evu FROM $dbTable WHERE stamp BETWEEN '$startMonth' AND '$to' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
         $res = $conn->query($sql);
@@ -173,6 +163,7 @@ class FunctionsService
             $powerEvuMonth = round($row['power_evu'], 4);
         }
         unset($res);
+        $powerEvuMonth = $this->checkAndIncludeMonthlyCorrectionEVU($anlage, $powerEvuMonth, $startMonth, $to);
 
         $sql = "SELECT sum(wr_pac) as power_act FROM $dbTable WHERE stamp BETWEEN '$startMonth' AND '$to' AND wr_pac > 0";
         $res = $conn->query($sql);
@@ -250,35 +241,39 @@ class FunctionsService
         $conn = self::getPdoConnection();
         $dbTable = $anlage->getDbNameDcSoll();
         $sumPowerExp = $sumPowerExpMonth = $sumPowerExpPac = $sumPowerExpYear = 0;
+        $sumPowerExpEVU = $sumPowerExpEVUMonth = $sumPowerExpEVUPac = $sumPowerExpEVUYear = 0;
 
         // Day
-        $sql = "SELECT sum(ac_exp_power) as sum_power_ac FROM $dbTable WHERE stamp BETWEEN '$from' AND '$to'";
+        $sql = "SELECT sum(ac_exp_power) as sum_power_ac, sum(ac_exp_power_evu) as sum_power_ac_evu FROM $dbTable WHERE stamp BETWEEN '$from' AND '$to'";
         $res = $conn->query($sql);
         if ($res) {
             while ($ro = $res->fetch(PDO::FETCH_ASSOC)) {
                 $sumPowerExp = $ro['sum_power_ac'];
+                $sumPowerExpEVU = $ro['sum_power_ac_evu'];
             }
         }
         unset($res);
 
         // Month
         $startMonth = date('Y-m-01 00:00', strtotime($to));
-        $sql = "SELECT sum(ac_exp_power) as sum_power_ac FROM $dbTable WHERE stamp BETWEEN '$startMonth' AND '$to'";
+        $sql = "SELECT sum(ac_exp_power) as sum_power_ac, sum(ac_exp_power_evu) as sum_power_ac_evu FROM $dbTable WHERE stamp BETWEEN '$startMonth' AND '$to'";
         $res = $conn->query($sql);
         if ($res) {
             while ($ro = $res->fetch(PDO::FETCH_ASSOC)) {
                 $sumPowerExpMonth = $ro['sum_power_ac'];
+                $sumPowerExpEVUMonth = $ro['sum_power_ac_evu'];
             }
         }
         unset($res);
 
         // Pac
         if($anlage->getUsePac()) {
-            $sql = "SELECT sum(ac_exp_power) as sum_power_ac FROM $dbTable WHERE stamp BETWEEN '$pacDate' AND '$to'";
+            $sql = "SELECT sum(ac_exp_power) as sum_power_ac, sum(ac_exp_power_evu) as sum_power_ac_evu FROM $dbTable WHERE stamp BETWEEN '$pacDate' AND '$to'";
             $res = $conn->query($sql);
             if ($res) {
                 while ($ro = $res->fetch(PDO::FETCH_ASSOC)) {
                     $sumPowerExpPac = $ro['sum_power_ac'];
+                    $sumPowerExpEVUPac = $ro['sum_power_ac_evu'];
                 }
             }
             unset($res);
@@ -286,11 +281,12 @@ class FunctionsService
 
         // Year
         $startYear = date('Y-01-01 00:00', strtotime($to));
-        $sql = "SELECT sum(ac_exp_power) as sum_power_ac FROM $dbTable WHERE stamp BETWEEN '$startYear' AND '$to'";
+        $sql = "SELECT sum(ac_exp_power) as sum_power_ac, sum(ac_exp_power_evu) as sum_power_ac_evu FROM $dbTable WHERE stamp BETWEEN '$startYear' AND '$to'";
         $res = $conn->query($sql);
         if ($res) {
             while ($ro = $res->fetch(PDO::FETCH_ASSOC)) {
                 $sumPowerExpYear = $ro['sum_power_ac'];
+                $sumPowerExpEVUYear = $ro['sum_power_ac_evu'];
             }
         }
         unset($res);
@@ -299,6 +295,11 @@ class FunctionsService
         $powerExpArray['sumPowerExpMonth']  = round($sumPowerExpMonth, 4);
         $powerExpArray['sumPowerExpPac']    = round($sumPowerExpPac, 4);
         $powerExpArray['sumPowerExpYear']   = round($sumPowerExpYear, 4);
+
+        $powerExpArray['sumPowerEvuExp']       = round($sumPowerExpEVU, 4);
+        $powerExpArray['sumPowerEvuExpMonth']  = round($sumPowerExpEVUMonth, 4);
+        $powerExpArray['sumPowerEvuExpPac']    = round($sumPowerExpEVUPac, 4);
+        $powerExpArray['sumPowerEvuExpYear']   = round($sumPowerExpEVUYear, 4);
 
         $conn = null;
 
@@ -310,6 +311,7 @@ class FunctionsService
      *
      * @param Anlage $anlage
      * @param int $month
+     * @param int|null $betriebsJahre
      * @return float
      */
     public function getForcastByMonth(Anlage $anlage, int $month, ?int $betriebsJahre = null ): float
@@ -326,6 +328,7 @@ class FunctionsService
 
         return $sum;
     }
+
     /**
      * @param Anlage $anlage
      * @param $startdate
@@ -402,7 +405,7 @@ class FunctionsService
      * @param string $select ('all', 'date, 'month', 'year', 'pac')
      * @return array
      */
-    public function getSumPowerEGridExt(Anlage $anlage, $from, $to, $pacDateStart, $pacDateEnd, string $select = 'all') :array
+    public function getSumPowerEGridExt(Anlage $anlage, $from, $to, $pacDateStart, $pacDateEnd, string $select = 'all'): array
     {
         $startYear  = date('Y-01-01 00:00', strtotime($from));
         $startMonth = date('Y-m-01 00:00', strtotime($from));
@@ -421,13 +424,14 @@ class FunctionsService
     }
 
     /**
-     * @param $dbTable
-     * @param $irchange
+     * @param WeatherStation $weatherStation
      * @param $from
      * @param $to
+     * @param $pacDateStart
+     * @param $pacDateEnd
      * @return array
      */
-    public function getWeather(WeatherStation $weatherStation, $from, $to, $pacDateStart, $pacDateEnd) :array
+    public function getWeather(WeatherStation $weatherStation, $from, $to, $pacDateStart, $pacDateEnd): array
     {
         $conn = self::getPdoConnection();
         $jahresanfang = date('Y-01-01 00:00', strtotime($from)); // für das ganze Jahr - Zeitraum
@@ -527,45 +531,26 @@ class FunctionsService
         return $weather;
     }
 
-    /**
-     * @param $irrArray
-     * @return array
-     */
-    public function buildSumFromIrrArray($irrArray, $umrechnung = 1) :array
-    {
-        $irrSumArray = [];
-        if (is_array($irrArray)) {
-            foreach ($irrArray as $stamp => $irr) {
-                if($irr !== null) {
-                    foreach ($irr as $key => $value) {
-                        @$irrSumArray[$key] += ($value > 0) ? round($value / $umrechnung, 3) : 0;
-                    }
-                }
-            }
-        }
-
-        return $irrSumArray;
-    }
 
     /**
      * @param $array
      * @param int $umrechnung = Faktor zum Umrechenen auf Wh (4) oder kWh (4000) etc
      * @return array
      */
-    public function buildSumFromArray($array, int $umrechnung = 1) :array
+    public function buildSumFromArray($array, int $umrechnung = 1): array
     {
         $sumArray = [];
         if (is_array($array)) {
             foreach ($array as $stamp => $irr) {
                 if(is_array($irr) || is_object($irr)) {
                     foreach ($irr as $key => $value) {
-                        if (is_float($value) || is_integer($value)) {
+
                             if (isset($sumArray[$key])) {
-                                $sumArray[$key] += round($value / $umrechnung, 3);
+                                $sumArray[$key] += round((float)$value / $umrechnung, 3);
                             } else {
-                                $sumArray[$key] = round($value / $umrechnung, 3);
+                                $sumArray[$key] = round((float)$value / $umrechnung, 3);
                             }
-                        }
+
                     }
                 }
             }
@@ -579,9 +564,8 @@ class FunctionsService
      * @param int $umrechnung
      * @return array
      */
-    public function buildAvgFromArray($array, int $umrechnung = 1) :array
+    public function buildAvgFromArray($array, int $umrechnung = 1): array
     {
-
         $sumArray = [];
         $counter = 0;
 
@@ -609,16 +593,16 @@ class FunctionsService
     }
 
     /**
-     * @param $irrUpper
-     * @param $irrLower
+     * @param float $irrUpper
+     * @param float $irrLower
      * @param $date
      * @param Anlage $anlage
      * @param AnlageGroups $group
      * @param WeatherStation $weatherStation
      * @param AnlageGroupMonths|null $groupMonth
-     * @return float|int
+     * @return float
      */
-    public function calcIrr(float $irrUpper, float $irrLower, $date, Anlage $anlage, AnlageGroups $group, WeatherStation $weatherStation, ?AnlageGroupMonths $groupMonth)
+    public function calcIrr(float $irrUpper, float $irrLower, $date, Anlage $anlage, AnlageGroups $group, WeatherStation $weatherStation, ?AnlageGroupMonths $groupMonth): float
     {
         $gewichtetStrahlung = 0;
         $month              = date("m", strtotime($date));
@@ -627,6 +611,7 @@ class FunctionsService
         if ($irrLower < 0) $irrLower = 0;
         // Sensoren sind vertauscht, Werte tauschen
         if ($weatherStation->getChangeSensor()) {
+            $irrHelp = $irrLower;
             $irrHelp = $irrLower;
             $irrLower = $irrUpper;
             $irrUpper =$irrHelp;
@@ -658,24 +643,10 @@ class FunctionsService
         return $gewichtetStrahlung;
     }
 
-    public function tempCorrection(Anlage $anlage, $tempCellTypeAvg, $windSpeed, $airTemp, $gPOA) : float
-    {
-        $gamma              = $anlage->getTempCorrGamma();
-        $a                  = $anlage->getTempCorrA();
-        $b                  = $anlage->getTempCorrB();
-        $deltaTcnd          = $anlage->getTempCorrDeltaTCnd();
-
-        $tempModulBack  = $gPOA * pow(M_E, $a + $b * $windSpeed) + $airTemp;
-        $tempCell       = $tempModulBack + ($gPOA / 1000) * $deltaTcnd;
-
-        ($tempCellTypeAvg > 0) ? $tempCorrection = 1 - ($tempCellTypeAvg - $tempCell) * $gamma / 1000 : $tempCorrection = 1;
-        return $tempCorrection;
-    }
-
-    public function getSumeGridMeter(Anlage $anlage, $from, $to, bool $day = false) :float
+    public function getSumeGridMeter(Anlage $anlage, $from, $to, bool $day = false): float
     {
         if ($anlage->getUseGridMeterDayData()) {
-            // Berechnung der externen Zählewrwerte unter berücksichtigung der Manuel eingetragenen Monatswerte.
+            // Berechnung der externen Zählerwerte unter Berücksichtigung der Manuel eingetragenen Monatswerte.
             // Darüber kann eine Koorektur der Zählerwerte erfolgen.
             // Wenn für einen Monat Manuel Zählerwerte eingegeben wurden, wird der Wert der Tageszählwer wieder subtrahiert und der Manuel eingebene Wert addiert.
             /*
@@ -683,14 +654,13 @@ class FunctionsService
                 $from = $anlage->getEpcReportStart()->format('y-m-d');
             }*/
             $powerEGridExt = $this->gridMeterDayRepo->sumByDateRange($anlage, $from, $to);
-
             if (!$powerEGridExt) $powerEGridExt = 0;
-            // wen Tageswere angefordert, dann nicht mit Monatswerten verrechnen, wenn keine Tageswrete vorhanden sind, wird 0 zurückgegeben.
-            if (! $day) {
+            // wenn Tageswerte angefordert, dann nicht mit Monatswerten verrechnen, wenn keine Tageswerte vorhanden sind, wird 0 zurückgegeben.
+            if ($day === false) {
                 $year = (int)date("Y", strtotime($from));
                 $month = (int)date("m", strtotime($from));
-
-                for ($n = 1; $n <= self::g4nDateDiffMonth($from, $to); $n++) {
+                $monthes = self::g4nDateDiffMonth($from, $to);
+                for ($n = 1; $n <= $monthes; $n++) {
                     $monthlyData = $this->monthlyDataRepo->findOneBy(['anlage' => $anlage, 'year' => $year, 'month' => $month]);
                     if ($monthlyData != null && $monthlyData->getExternMeterDataMonth() > 0) {
                         $currentDate = strtotime($year . '-' . $month . '-01');
@@ -714,18 +684,24 @@ class FunctionsService
         return $powerEGridExt;
     }
 
-
-    public function getSumAcPower(Anlage $anlage, $from, $to) :array
+    /**
+     * @param Anlage $anlage
+     * @param $from
+     * @param $to
+     * @return array
+     * @throws \Exception
+     */
+    public function getSumAcPower(Anlage $anlage, $from, $to): array
     {
-        $conn = self::getPdoConnection();
-        $result     = [];
-        $powerEvu = 0;
-        $powerExp = 0;
-
-
+        $conn           = self::getPdoConnection();
+        $result         = [];
+        $powerEvu       = 0;
+        $powerExp       = 0;
+        $powerExpEvu    = 0;
+        $powerTheo      = 0;
         ############# für den angeforderten Zeitraum #############
 
-        // Wenn externe Tagesdaten genutzt werden sollen lade diese aus der DB und ÜBERSCHREIBE die Daten aus den 15Minuten Werten
+        // Wenn externe Tagesdaten genutzt werden, sollen lade diese aus der DB und ÜBERSCHREIBE die Daten aus den 15Minuten Werten
         $powerEGridExt = $this->getSumeGridMeter($anlage, $from, $to);
 
         // EVU Leistung ermitteln –
@@ -737,6 +713,7 @@ class FunctionsService
             $powerEvu = round($row['power_evu'], 4);
         }
         unset($res);
+        $powerEvu = $this->checkAndIncludeMonthlyCorrectionEVU($anlage, $powerEvu, $from, $to);
 
         // Expected Leistung ermitteln
         $sql = "SELECT sum(ac_exp_power) as sum_power_ac, sum(ac_exp_power_evu) as sum_power_ac_evu FROM ".$anlage->getDbNameDcSoll()." WHERE stamp >= '$from' AND stamp <= '$to'";
@@ -748,8 +725,17 @@ class FunctionsService
         }
         unset($res);
 
+        // Theoretic Power (TempCorr)
+        $sql = "SELECT sum(theo_power) as theo_power FROM ".$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to' AND theo_power > 0";
+        $res = $conn->query($sql);
+        if ($res->rowCount() == 1) {
+            $row = $res->fetch(PDO::FETCH_ASSOC);
+            $powerTheo = round($row['theo_power'],4);
+        }
+        unset($res);
+
         // Actual (Inverter Out) Leistung ermitteln
-        $sql = "SELECT sum(wr_pac) as sum_power_ac, sum(theo_power) as theo_power FROM ".$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to'";
+        $sql = "SELECT sum(wr_pac) as sum_power_ac, sum(theo_power) as theo_power FROM ".$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to' AND wr_pac > 0";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -758,23 +744,53 @@ class FunctionsService
             $result['powerExp']      = $powerExp;
             $result['powerExpEvu']   = $powerExpEvu;
             $result['powerEGridExt'] = $powerEGridExt;
-            $result['powerTheo']     = round($row['theo_power'],4);
+            $result['powerTheo']     = $powerTheo;
         }
         unset($res);
 
         return $result;
     }
 
+    public function checkAndIncludeMonthlyCorrectionEVU($anlage, float $evu, $from, $to): float
+    {
+        $conn = self::getPdoConnection();
+
+        $old = $evu;
+        if ($anlage->getUseGridMeterDayData() === false) {
+            //$monthlyDatas = $this->monthlyDataRepo->findBy(['anlage' => $anlage], ['year' => 'asc', 'month' => 'asc']);
+            $monthlyDatas = $this->monthlyDataRepo->findByDateRange($anlage, date_create($from), date_create($to));
+            foreach ($monthlyDatas as $monthlyData) {
+                $tempFrom = new DateTime($monthlyData->getYear()."-".$monthlyData->getMonth()."-01 00:00");
+                $tempDaysInMonth = $tempFrom->format('t');
+                $tempTo = new DateTime($monthlyData->getYear()."-".$monthlyData->getMonth()."-".$tempDaysInMonth." 23:59");
+
+                // NOT SURE if this works. Soll vor Überschneidungen mit Datum die nicht am Anfang bzw am Ende des Monats liegen schützen.
+                #if (strtotime($from) > $tempFrom->getTimestamp() && $monthlyData->getMonth() == (int)$tempFrom->format("m")) $tempFrom = new DateTime($from);
+                #if (strtotime($to) > $tempTo->getTimestamp() && $monthlyData->getMonth() == (int)$tempTo->format("m")) $tempTo = new DateTime($to);
+
+                $sql = "SELECT sum(e_z_evu) as power_evu FROM ".$anlage->getDbNameAcIst()." WHERE stamp BETWEEN '".$tempFrom->format('Y-m-d H:i')."' AND '".$tempTo->format('Y-m-d H:i')."' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
+                $res = $conn->query($sql);
+                if ($res->rowCount() == 1) {
+                    $row = $res->fetch(PDO::FETCH_ASSOC);
+                    $evu -= round($row['power_evu'], 4);
+                    $evu += $monthlyData->getExternMeterDataMonth();
+                }
+                unset($res);
+            }
+        }
+
+        return $evu;
+    }
     public function getSumAcPowerByGroup(Anlage $anlage, $from, $to, $acGroup) :array
     {
         $conn = self::getPdoConnection();
         $result     = [];
         $powerEvu = 0;
-        $powerExp = 0;
+        $powerExp = $powerExpEvu = 0;
 
         ############# für den angeforderten Zeitraum #############
 
-        // Wenn externe Tagesdaten genutzt werden sollen lade diese aus der DB und ÜBERSCHREIBE die Daten aus den 15Minuten Werten
+        // Wenn externe Tagesdaten genutzt werden sollen, lade diese aus der DB und ÜBERSCHREIBE die Daten aus den 15Minuten Werten
         if ($anlage->getUseGridMeterDayData()) {
             $year = date("Y", strtotime($from));
             $month = date("m", strtotime($from));
@@ -799,11 +815,12 @@ class FunctionsService
         unset($res);
 
         // Expected Leistung ermitteln
-        $sql = "SELECT sum(ac_exp_power) as sum_power_ac FROM ".$anlage->getDbNameDcSoll()." WHERE stamp >= '$from' AND stamp <= '$to' AND group_ac = $acGroup";
+        $sql = "SELECT sum(ac_exp_power) as sum_power_ac, sum(ac_exp_power_evu) as sum_power_ac_evu FROM ".$anlage->getDbNameDcSoll()." WHERE stamp >= '$from' AND stamp <= '$to' AND group_ac = $acGroup";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
             $powerExp = round($row['sum_power_ac'],4);
+            $powerExpEvu = round($row['sum_power_ac_evu'], 4);
         }
         unset($res);
 
@@ -815,6 +832,7 @@ class FunctionsService
             $result['powerEvu']      = $powerEvu;
             $result['powerAct']      = round($row["sum_power_ac"],4);
             $result['powerExp']      = $powerExp;
+            $result['powerExpEvu']   = $powerExpEvu;
             $result['powerEGridExt'] = $powerEGridExt;
             $result['powerTheo']     = round($row['theo_power'],4);
         }
@@ -872,25 +890,29 @@ class FunctionsService
 
     /**
      * @param array $content
+     * @param int $decimal
      * @return string
      */
-    public function printArrayAsTable(array $content): string
+    public function print2DArrayAsTable(array $content, int $decimal = 2): string
     {
-        $_html = "<style>table, th, td {border: 1px solid black; }</style>";
-        $_html .=  "<div class='table-scroll'><table>";
+        $_html = "<style>
+                    table, th, td {border: 1px solid black; }
+                    thead {background-color: #b4c6e7;}  
+                  </style>";
+        $_html .=  "<div class='table-scroll'><table style='font-size: 80%'>";
         $_counter = 0;
         for ($key = 1; $key <= count($content); $key++) {
             if ($_counter == 0) {
-                $_html .= "<tr><th>Key</th>";
+                $_html .= "<thead><tr><th>Key</th>";
                 foreach ($content[$key] as $subkey => $subvalue) {
                     $_html .= '<th>' . substr($subkey, 0, 30) . '</th>';
                 }
-                $_html .= "</tr>";
+                $_html .= "</tr></thead>";
             }
-            $_html .= "<tr><td>$key</td>";
+            $_html .= "<tbody><tr><td>$key</td>";
             foreach ($content[$key] as  $cell) {
                 if (is_numeric($cell)) {
-                    $_html .= "<td>" . number_format($cell, 3,',', '.') . "</td>";
+                    $_html .= "<td style='text-align: right;'>" . number_format($cell, $decimal,',', '.') . "</td>";
                 } else {
                     $_html .= "<td>$cell</td>";
                 }
@@ -898,9 +920,71 @@ class FunctionsService
             $_html .= "</tr>";
             $_counter++;
         }
+        $_html .= "</tbody></table></div><hr>";
+
+        return $_html;
+    }
+
+    /**
+     * @param array $content
+     * @param int $decimal
+     * @return string
+     */
+    public function printArrayAsTable(array $content, int $decimal = 2): string
+    {
+        $_html = "<style>
+                    table, th, td {border: 1px solid black; }
+                    thead {background-color: #b4c6e7;}  
+                  </style>";
+        $_html .=  "<div class='table-scroll'><table style='font-size: 80%'>";
+        foreach ($content as $key => $cell) {
+            $_html .= "<tr><td>$key</td>";
+            if (is_numeric($cell)) {
+                $_html .= "<td style='text-align: right;'>" . number_format($cell, $decimal,',', '.') . "</td>";
+            } else {
+                $_html .= "<td>$cell</td>";
+            }
+        }
+        $_html .= "</tr>";
         $_html .= "</table></div><hr>";
 
         return $_html;
     }
+
+    public function readInverters(String $invS, Anlage $anlage):array
+    {
+        $returnArray = [];
+        $maxInv = count($this->getNameArray($anlage));
+        $invS = u($invS)->replace(" ", "");
+        $tempArray = u($invS)->split(',');
+
+
+        if ($invS != "*") {
+            foreach ($tempArray as $item) {
+                if (u($item)->containsAny('-')) {
+                    $nums[] = u($item)->split('-');
+                    $from = (int)((string)$nums[0][0]);
+                    $to = (int)((string)$nums[0][1]);
+                    $i = $from;
+                    while ($i <= $to) {
+                        $returnArray[] = (string)u($i);
+                        $i++;
+                    }
+                    unset($nums);
+                } else $returnArray[] = (string)$item;
+            }
+
+        }
+        else {
+            $i = 1;
+            while ($i <= $maxInv){
+                $returnArray[] = (string)$i;
+                $i++;
+            }
+        }
+
+        return $returnArray;
+    }
+
 }
 

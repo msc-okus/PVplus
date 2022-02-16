@@ -5,6 +5,7 @@ namespace App\Form\Anlage;
 
 
 use App\Entity\AnlageModules;
+use App\Form\Type\SwitchType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -64,6 +65,44 @@ class ModulesListEmbeddedFormType extends AbstractType
             ->add('operatorPowerC',TextType::class, [
                 'label'         => 'C',
                 'empty_data'    => '',
+            ])
+            ->add('operatorPowerD',TextType::class, [
+                'label'         => 'D',
+            ])
+            ->add('disableIrrDiscount', SwitchType::class, [
+                'label'         => 'Disable Irradiation Discount'
+            ])
+            ->add('irrDiscount1',TextType::class, [
+                'label'         => 'Irr Discount 1-50',
+                'empty_data'    => '0',
+            ])
+            ->add('irrDiscount2',TextType::class, [
+                'label'         => 'Irr Discount 51-100',
+                'empty_data'    => '0',
+            ])
+            ->add('irrDiscount3',TextType::class, [
+                'label'         => 'Irr Discount 101-150',
+                'empty_data'    => '0',
+            ])
+            ->add('irrDiscount4',TextType::class, [
+                'label'         => 'Irr Discount 151-200',
+                'empty_data'    => '0',
+            ])
+            ->add('irrDiscount5',TextType::class, [
+                'label'         => 'Irr Discount 201-250',
+                'empty_data'    => '0',
+            ])
+            ->add('irrDiscount6',TextType::class, [
+                'label'         => 'Irr Discount 251-300',
+                'empty_data'    => '0',
+            ])
+            ->add('irrDiscount7',TextType::class, [
+                'label'         => 'Irr Discount 301-350',
+                'empty_data'    => '0',
+            ])
+            ->add('irrDiscount8',TextType::class, [
+                'label'         => 'Irr Discount 351-400',
+                'empty_data'    => '0',
             ])
         ;
     }

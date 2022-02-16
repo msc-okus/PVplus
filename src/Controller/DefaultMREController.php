@@ -42,8 +42,8 @@ class DefaultMREController extends BaseController
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => '97']);
 
-        $from = date_create('2021-10-01');
-        $to   = date_create('2021-10-31');
+        $from = date_create('2022-01-01');
+        $to   = date_create('2022-01-31');
         $output = $bavelseExport->gewichtetTagesstrahlung($anlage, $from, $to);
 
         return $this->render('cron/showResult.html.twig', [
@@ -86,7 +86,7 @@ class DefaultMREController extends BaseController
         $daysOfMonth = date('t', strtotime($year.'-'.$month.'-1'));
 
 
-        $output .= self::printArrayAsTable($export->getFacPRData($anlage, $from, $to));
+        $output .= self::printArrayAsTable($export->getFacPRData($anlage));
         $output .= "<hr>";
         //$output .= self::printArrayAsTable($export->getFacPAData($anlage, $from, $to));
         $output .= "<hr>";
@@ -98,7 +98,6 @@ class DefaultMREController extends BaseController
             'output'        => $output,
         ]);
     }
-
 
     /**
      * @Route ("/test/olli")
@@ -261,25 +260,38 @@ class DefaultMREController extends BaseController
     }
 
     /**
-     * @Route ("/test/epc")
+     * @Route ("/test/epc/{id}/{raw}", defaults={"id"=93, "raw"=false})
      */
-    public function testNewEpc(AnlagenRepository $anlagenRepository, FunctionsService $functions, ReportsEpcNewService $epcNew): Response
+    public function testNewEpc($id, $raw, AnlagenRepository $anlagenRepository, FunctionsService $functions, ReportsEpcNewService $epcNew): Response
     {
-        $output = "";
-
         /** @var Anlage $anlage */
-        $anlage = $anlagenRepository->findOneBy(['anlId' => 84]);
-        $from = $anlage->getEpcReportStart();
-        $to   = $anlage->getEpcReportEnd();
+        $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
 
-        $result = $epcNew->monthTable($anlage);
+        $date = date_create("2021-12-01");
 
-        $output = $functions->printArrayAsTable($result);
+        $monthTable = $epcNew->monthTable($anlage, $date);
 
-        return $this->render('cron/showResult.html.twig', [
-            'headline'      => 'Test New EPC Form',
-            'availabilitys' => '',
-            'output'        => $output,
+        $forcastTable = $epcNew->forcastTable($anlage, $monthTable, $date);
+        $chartYieldPercenDiff = $epcNew->chartYieldPercenDiff($anlage, $monthTable, $date);
+        $chartYieldCumulativ = $epcNew->chartYieldCumulative($anlage, $monthTable, $date);
+
+        $output = $functions->printArrayAsTable($forcastTable);
+        $output .= $functions->print2DArrayAsTable($monthTable);
+
+        if ($raw) {
+            return $this->render('cron/showResult.html.twig', [
+                'headline'      => 'Tabelle New EPC',
+                'availabilitys' => '',
+                'output'        => $output,
+            ]);
+        }
+        return $this->render('report/epcReport.html.twig', [
+            'anlage'            => $anlage,
+            'monthsTable'       => $monthTable,
+            'forcast'           => $forcastTable,
+            'legend'            => $anlage->getLegendEpcReports(),
+            'chart1'            => $chartYieldPercenDiff,
+            'chart2'            => $chartYieldCumulativ,
         ]);
     }
 }

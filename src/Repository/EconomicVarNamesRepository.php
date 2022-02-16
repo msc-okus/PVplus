@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Anlage;
 use App\Entity\EconomicVarNames;
 use App\Helper\G4NTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -60,4 +61,11 @@ class EconomicVarNamesRepository extends ServiceEntityRepository
         ;
     }
     */
+    public function findOneByAnlage(Anlage $anlage){
+        return $this->createQueryBuilder('e')
+            ->andWhere('e.anlage = :anlage')
+            ->setParameter('anlage', $anlage)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 }

@@ -45,6 +45,15 @@ class AnlagenRepository extends ServiceEntityRepository
             ;
     }
 
+    public static function case6ByDateCriteria($date): Criteria
+    {
+        return Criteria::create()
+            ->andWhere(Criteria::expr()->gte('stampFrom', date_create($date)->format('Y-m-d 00:00')))
+            ->andWhere(Criteria::expr()->lte('stampFrom', date_create($date)->format('Y-m-d 23:59')))
+            ->orderBy(['inverter' => 'ASC'])
+            ;
+    }
+
     public static function lastAnlagenStatusCriteria(): Criteria
     {
         return Criteria::create()
@@ -225,15 +234,17 @@ class AnlagenRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('c')
             ->innerJoin('c.eigner', 'a')
-            ->addSelect('a');
+            ->leftJoin('c.economicVarNames', 'eco')
+            ->addSelect('a')
+            ->addSelect('eco');
 
         if ($term) {
             $qb ->andWhere('c.anlName LIKE :term OR c.anlPlz LIKE :term OR c.anlOrt LIKE :term OR a.firma LIKE :term' )
                 ->setParameter('term', '%' . $term . '%');
         }
-
         return $qb  ->orderBy('a.firma', 'ASC')
                     ->addOrderBy('c.anlName', 'ASC');
+
     }
 
     /**
@@ -268,6 +279,8 @@ class AnlagenRepository extends ServiceEntityRepository
 
     /**
      * @param string|null $term
+     * @param array $eigners
+     * @param array $grantedPlantList
      * @return QueryBuilder
      */
     public function getWithSearchQueryBuilderOwner(?string $term, array $eigners = [], array $grantedPlantList = []): QueryBuilder

@@ -7,14 +7,8 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Validator\Constraints as Assert;
 use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\NumericFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
 
@@ -371,6 +365,7 @@ class Anlage
      */
     private bool $showMenuDownload = false;
 
+    //use this to check if EVU is used
     /**
      * @ORM\Column(type="boolean")
      */
@@ -447,6 +442,11 @@ class Anlage
     private Collection $anlageCase5s;
 
     /**
+     * @ORM\OneToMany(targetEntity=AnlageCase6::class, mappedBy="anlage", cascade={"persist", "remove"})
+     */
+    private Collection $anlageCase6s;
+
+    /**
      * @ORM\OneToMany(targetEntity=AnlagePVSystDaten::class, mappedBy="anlage", cascade={"persist", "remove"})
      */
     private Collection $anlagePVSystDatens;
@@ -480,6 +480,11 @@ class Anlage
      * @ORM\OneToMany(targetEntity=AnlageForcast::class, mappedBy="anlage", cascade={"persist", "remove"})
      */
     private Collection $anlageForecasts;
+
+    /**
+     * @ORM\OneToMany(targetEntity=AnlageForcastDay::class, mappedBy="anlage", cascade={"persist", "remove"})
+     */
+    private Collection $anlageForecastDays;
 
     /**
      * @ORM\OneToMany(targetEntity=AnlageGroups::class, mappedBy="anlage", cascade={"persist", "remove"})
@@ -551,6 +556,11 @@ class Anlage
      * @ORM\Column(type="string", length=20, nullable=true)
      */
     private ?string $kwPeakPvSyst;
+
+    /**
+     * @ORM\Column(type="string", length=20, nullable=true)
+     */
+    private ?string $kwPeakPLDCalculation;
 
     /**
      * @ORM\Column(type="string", length=20, nullable=true)
@@ -671,6 +681,11 @@ class Anlage
     private string $pldNPValue = '';
 
     /**
+     * @ORM\Column(type="boolean")
+     */
+    private bool $usePnomForPld = false;
+
+    /**
      * @ORM\Column(type="string", length=20)
      */
     private string $pldDivisor = '';
@@ -755,8 +770,15 @@ class Anlage
      */
     private ?string $lossesForecast = '0';
 
+    /**
+     * @ORM\OneToMany(targetEntity=AnlageFile::class, mappedBy="plant", orphanRemoval=true)
+     */
+    private $anlageFiles;
 
-
+    /**
+     * @ORM\OneToOne(targetEntity=AnlageSettings::class, mappedBy="anlage", cascade={"persist", "remove"})
+     */
+    private AnlageSettings $settings;
 
 
     public function __construct()
@@ -768,8 +790,10 @@ class Anlage
         $this->pr = new ArrayCollection();
         $this->eventMails = new ArrayCollection();
         $this->anlageCase5s = new ArrayCollection();
+        $this->anlageCase6s = new ArrayCollection();
         $this->anlagePVSystDatens = new ArrayCollection();
         $this->anlageForecasts = new ArrayCollection();
+        $this->anlageForecastDays = new ArrayCollection();
         $this->groups = new ArrayCollection();
         $this->modules = new ArrayCollection();
         $this->timesConfigs = new ArrayCollection();
@@ -783,6 +807,7 @@ class Anlage
         $this->logs = new ArrayCollection();
         $this->tickets = new ArrayCollection();
         $this->economicVarValues = new ArrayCollection();
+        $this->anlageFiles = new ArrayCollection();
     }
 
     public function getAnlId(): ?string
@@ -910,9 +935,9 @@ class Anlage
         return $this;
     }
 
-    public function getKwPeak(): ?string
+    public function getKwPeak(): ?float
     {
-        return $this->power;
+        return (float)$this->power;
     }
 
     public function setKwPeak(string $power): self
@@ -922,9 +947,9 @@ class Anlage
         return $this;
     }
 
-    public function getPowerEast(): ?string
+    public function getPowerEast(): ?float
     {
-        return $this->powerEast;
+        return (float)$this->powerEast;
     }
 
     public function setPowerEast(string $powerEast): self
@@ -934,9 +959,9 @@ class Anlage
         return $this;
     }
 
-    public function getPowerWest(): ?string
+    public function getPowerWest(): ?float
     {
-        return $this->powerWest;
+        return (float)$this->powerWest;
     }
 
     public function setPowerWest(string $powerWest): self
@@ -1595,7 +1620,7 @@ class Anlage
 
         return $this;
     }
-
+        //use this to check if EVU is used
     public function getShowEvuDiag(): ?bool
     {
         return $this->showEvuDiag;
@@ -1881,9 +1906,9 @@ class Anlage
         return $this;
     }
 
-    public function getContractualPR(): ?string
+    public function getContractualPR(): ?float
     {
-        return $this->contractualPR;
+        return (float)$this->contractualPR;
     }
 
     public function setContractualPR(string $contractualPR): self
@@ -1893,12 +1918,12 @@ class Anlage
         return $this;
     }
 
-    public function getContractualPower(): ?string
+    public function getContractualPower(): ?float
     {
-        return $this->contractualPower;
+        return (float)$this->contractualPower;
     }
 
-    public function getGuaranteedExpectedEnergy($expectedEnergy):float
+    public function getGuaranteedExpectedEnergy($expectedEnergy): float
     {
         return $expectedEnergy * (1 - ($this->getTransformerTee() / 100)) * (1 - ($this->getGuaranteeTee() / 100));
     }
@@ -1957,6 +1982,49 @@ class Anlage
 
         return $this;
     }
+
+    /**
+     * @return Collection|AnlageCase6[]
+     */
+    public function getAnlageCase6s(): Collection
+    {
+        return $this->anlageCase6s;
+    }
+
+    /**
+     * @return Collection|AnlageCase6[]
+     */
+    public function getAnlageCase6sDate($date): Collection
+    {
+        $criteria = AnlagenRepository::case6ByDateCriteria($date);
+
+        return $this->anlageCase5s->matching($criteria);
+
+    }
+
+    public function addAnlageCase6(AnlageCase6 $anlageCase6): self
+    {
+        if (!$this->anlageCase6s->contains($anlageCase6)) {
+            $this->anlageCase6s[] = $anlageCase6;
+            $anlageCase6->setAnlage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAnlageCase6(AnlageCase6 $anlageCase6): self
+    {
+        if ($this->anlageCase6s->contains($anlageCase6)) {
+            $this->anlageCase6s->removeElement($anlageCase6);
+            // set the owning side to null (unless already changed)
+            if ($anlageCase6->getAnlage() === $this) {
+                $anlageCase6->setAnlage(null);
+            }
+        }
+
+        return $this;
+    }
+
 
     /**
      * @return Collection|AnlagePVSystDaten[]
@@ -2077,6 +2145,37 @@ class Anlage
 
         return $this;
     }
+
+    /**
+     * @return Collection|AnlageForcastDay[]
+     */
+    public function getAnlageForecastDays(): Collection
+    {
+        return $this->anlageForecastDays;
+    }
+
+    public function addAnlageForecastDay(AnlageForcastDay $anlageForecastDay): self
+    {
+        if (!$this->anlageForecastDays->contains($anlageForecastDay)) {
+            $this->anlageForecastDays[] = $anlageForecastDay;
+            $anlageForecastDay->setAnlage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAnlageForecastDay(AnlageForcastDay $anlageForecastDay): self
+    {
+        if ($this->anlageForecastDays->removeElement($anlageForecastDay)) {
+            // set the owning side to null (unless already changed)
+            if ($anlageForecastDay->getAnlage() === $this) {
+                $anlageForecastDay->setAnlage(null);
+            }
+        }
+
+        return $this;
+    }
+
 
     /**
      * @return Collection|AnlageGroups[]
@@ -2339,9 +2438,9 @@ class Anlage
         return $this;
     }
 
-    public function getKwPeakPvSyst(): ?string
+    public function getKwPeakPvSyst(): ?float
     {
-        return $this->kwPeakPvSyst;
+        return (float)$this->kwPeakPvSyst;
     }
 
     public function setKwPeakPvSyst(?string $kwPeakPvSyst): self
@@ -2351,9 +2450,19 @@ class Anlage
         return $this;
     }
 
-    public function getDesignPR(): ?string
+    public function getKwPeakPLDCalculation(): ?float
     {
-        return $this->designPR;
+        return (float)$this->kwPeakPLDCalculation;
+    }
+
+    public function setKwPeakPLDCalculation(?string $kwPeakPLDCalculation): void
+    {
+        $this->kwPeakPLDCalculation = $kwPeakPLDCalculation;
+    }
+
+    public function getDesignPR(): ?float
+    {
+        return (float)$this->designPR;
     }
 
     public function setDesignPR(?string $designPR): self
@@ -2440,9 +2549,9 @@ class Anlage
         return $result[0];
     }
 
-    public function getLid(): string
+    public function getLid(): float
     {
-        return $this->lid;
+        return (float)$this->lid;
     }
 
     public function setLid(string $lid): self
@@ -2452,9 +2561,9 @@ class Anlage
         return $this;
     }
 
-    public function getAnnualDegradation(): ?string
+    public function getAnnualDegradation(): ?float
     {
-        return $this->annualDegradation;
+        return (float)$this->annualDegradation;
     }
 
     public function setAnnualDegradation(?string $annualDegradation): self
@@ -2464,9 +2573,9 @@ class Anlage
         return $this;
     }
 
-    public function getPldPR(): ?string
+    public function getPldPR(): ?float
     {
-        return $this->pldPR;
+        return (float)$this->pldPR;
     }
 
     public function setPldPR(?string $pldPR): self
@@ -2548,6 +2657,21 @@ class Anlage
         $this->guaranteeTee = $guaranteeTee;
 
         return $this;
+    }
+
+    public function getUsePnomForPld(): bool
+    {
+        return $this->usePnomForPld;
+    }
+
+    public function isUsePnomForPld(): bool
+    {
+        return $this->usePnomForPld;
+    }
+
+    public function setUsePnomForPld(bool $usePnomForPld): void
+    {
+        $this->usePnomForPld = $usePnomForPld;
     }
 
     public function getPldYield(): ?string
@@ -3030,6 +3154,28 @@ class Anlage
         return $this;
     }
 
+    public function getSettings(): ?AnlageSettings
+    {
+        return $this->settings;
+    }
+
+    public function setSettings(?AnlageSettings $settings): self
+    {
+        // unset the owning side of the relation if necessary
+        if ($settings === null && $this->settings !== null) {
+            $this->settings->setAnlage(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($settings !== null && $settings->getAnlage() !== $this) {
+            $settings->setAnlage($this);
+        }
+
+        $this->settings = $settings;
+
+        return $this;
+    }
+
     public function getUseDayForecast(): ?bool
     {
         return $this->useDayForecast;
@@ -3066,5 +3212,36 @@ class Anlage
         return $this;
     }
 
+    /**
+     * @return Collection|AnlageFile[]
+     */
+    public function getAnlageFiles(): Collection
+    {
+        return $this->anlageFiles;
+    }
 
+    public function addAnlageFile(AnlageFile $anlageFile): self
+    {
+        if (!$this->anlageFiles->contains($anlageFile)) {
+            $this->anlageFiles[] = $anlageFile;
+            $anlageFile->setPlant($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAnlageFile(AnlageFile $anlageFile): self
+    {
+        if ($this->anlageFiles->removeElement($anlageFile)) {
+            // set the owning side to null (unless already changed)
+            if ($anlageFile->getPlant() === $this) {
+                $anlageFile->setPlant(null);
+            }
+        }
+
+        return $this;
+    }
+    public function hasPVSYST():bool{
+        return intval($this->kwPeakPvSyst) > 0;
+    }
 }

@@ -33,9 +33,11 @@ if($params['doctype'] != 'excel'){
     <link href='https://dev.g4npvplus.net/scss/report-epc.css' rel="stylesheet" type="text/css">
 </head>
 <body style="margin:<?php echo $formatBody; ?>">
+<!--
 <script src="https://dev.g4npvplus.net/echarts/echarts.min.js" type="text/javascript"></script>
 <script src="https://dev.g4npvplus.net/echarts/theme/royal.js" type="text/javascript"></script>
 <script src="https://dev.g4npvplus.net/echarts/theme/sakura.js" type="text/javascript"></script>
+-->
 <?php
 include_once __DIR__ . '/table_fields_downloads.tmpl';
 if($params['tableType'] == 'default'){
@@ -77,7 +79,7 @@ if($params['tableType'] == 'daybase'){
     <?php
 }
 
-
+/*
 $chart = new ECharts();
 $chart->tooltip->show = true;
 $chart->visualMap->min = 0;
@@ -287,6 +289,7 @@ if ($params['doctype'] == 'pdf') {
     //$("#xxx").attr("src",img.src);
 
 </script>
-
+*/
+?>
 </body>
 </html>

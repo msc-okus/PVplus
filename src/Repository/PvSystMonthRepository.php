@@ -5,6 +5,8 @@ namespace App\Repository;
 use App\Entity\Anlage;
 use App\Entity\AnlagenPvSystMonth;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -60,6 +62,10 @@ class PvSystMonthRepository extends ServiceEntityRepository
             ;
     }
 
+    /**
+     * @throws NonUniqueResultException
+     * @throws NoResultException
+     */
     public function findOneMonth(Anlage $anlage, $month)
     {
         return $this->createQueryBuilder('a')
@@ -70,8 +76,61 @@ class PvSystMonthRepository extends ServiceEntityRepository
             ->orderBy('a.month', 'ASC')
 
             ->getQuery()
-            ->getSingleResult()
-            ;
+            ->getSingleResult();
+    }
+    public function findOneByQuarter($anlage, $quarter){
+        if($quarter == 1) return $this->createQueryBuilder('a')
+            ->andWhere('a.month >=1')
+            ->andWhere('a.month <= 3')
+            ->andWhere('a.anlage = :anlage')
+            ->setParameter('anlage', $anlage)
+            ->addSelect('SUM(a.ertragDesign) as ertrag_design ')
+
+            ->getQuery()
+            ->getSingleResult();
+        else if($quarter == 2) return $this->createQueryBuilder('a')
+            ->andWhere('a.month >=4')
+            ->andWhere('a.month <= 6')
+            ->andWhere('a.anlage = :anlage')
+            ->setParameter('anlage', $anlage)
+            ->addSelect('SUM(a.ertragDesign) as ertrag_design ')
+
+            ->getQuery()
+            ->getSingleResult();
+        else if ($quarter == 3) return $this->createQueryBuilder('a')
+            ->andWhere('a.month >=7')
+            ->andWhere('a.month <= 9')
+            ->andWhere('a.anlage = :anlage')
+            ->setParameter('anlage', $anlage)
+            ->addSelect('SUM(a.ertragDesign) as ertrag_design ')
+
+            ->getQuery()
+            ->getSingleResult();
+        else if ($quarter == 4) return $this->createQueryBuilder('a')
+            ->andWhere('a.month >=10')
+            ->andWhere('a.month <= 12')
+            ->andWhere('a.anlage = :anlage')
+            ->setParameter('anlage', $anlage)
+            ->addSelect('SUM(a.ertragDesign) as ertrag_design ')
+
+            ->getQuery()
+            ->getSingleResult();
+        else return null;
+
+    }
+    public function findOneByInterval(Anlage $anlage, $from, $to){
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.month >= :from')
+            ->andWhere('a.month <=  :to')
+            ->andWhere('a.anlage = :anlage')
+            ->setParameter('anlage', $anlage)
+            ->setParameter('from', $from)
+            ->setParameter('to', $to)
+            ->addSelect('SUM(a.ertragDesign) as ertrag_design ')
+
+            ->getQuery()
+            ->getSingleResult();
+
     }
 
 }

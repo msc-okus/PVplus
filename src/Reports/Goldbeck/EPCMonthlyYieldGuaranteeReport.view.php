@@ -26,7 +26,7 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
                     ],
                     'PRDesign'              => [
                         'label'         => 'PR Design<br>[%]',
-                        'formatValue'   => function($value) {return number_format($value, 2, ',', '.');},
+                        'formatValue'   => function($value) {return number_format((float)$value, 2, ',', '.');},
                     ],
                     'PRgarantiert'          => [
                         'label'         => 'PR Guaranteed<br>[%]',
@@ -247,7 +247,7 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
                     ],
                     'anteil'=> [
                         'label'         => 'Ratio<br><br>[%]',
-                        'formatValue'   => function($value) {return number_format($value, 2, ',', '.');},
+                        'formatValue'   => function($value) {return number_format((float)$value, 2, ',', '.');},
                     ],
                     'expectedErtrag' => [
                         'label'         => 'Expected Yield<br>[kWh]',

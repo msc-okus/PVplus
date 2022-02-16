@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Anlage;
 use App\Entity\EconomicVarValues;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -27,6 +28,15 @@ class EconomicVarValuesRepository extends ServiceEntityRepository
             ->addSelect('e');
         return $qb->getQuery()
             ->getResult();
+    }
+    public function findByAnlage(Anlage $anlage)
+    {
+        return $this->createQueryBuilder('e')
+            ->andWhere('e.anlage = :anlage')
+            ->setParameter('anlage', $anlage)
+            ->getQuery()
+            ->getResult()
+            ;
     }
     // /**
     //  * @return EconomicVarValues[] Returns an array of EconomicVarValues objects

@@ -33,6 +33,7 @@ class ReportService
     private Case5Repository $case5Repo;
     private FunctionsService $functions;
     private NormalizerInterface $serializer;
+    private PRCalulationService $PRCalulation;
 
     public function __construct(
         AnlagenRepository $anlagenRepository,
@@ -42,7 +43,8 @@ class ReportService
         PvSystMonthRepository $pvSystMonthRepo,
         Case5Repository $case5Repo,
         FunctionsService $functions,
-        NormalizerInterface $serializer)
+        NormalizerInterface $serializer,
+        PRCalulationService $PRCalulation)
     {
 
         $this->anlagenRepository = $anlagenRepository;
@@ -53,9 +55,22 @@ class ReportService
         $this->pvSystMonthRepo = $pvSystMonthRepo;
         $this->case5Repo = $case5Repo;
         $this->serializer = $serializer;
+        $this->PRCalulation = $PRCalulation;
     }
 
-    public function monthlyReport($anlagen, $month = 0, $year = 0, $docType = 0, $chartTypeToExport = 0, $storeDocument = true, $exit = true, $export = true): string
+    /**
+     * @param $anlagen
+     * @param int $month
+     * @param int $year
+     * @param int $docType
+     * @param int $chartTypeToExport
+     * @param bool $storeDocument
+     * @param bool $exit
+     * @param bool $export
+     * @return string
+     * @throws ExceptionInterface
+     */
+    public function monthlyReport($anlagen, int $month = 0, int $year = 0, int $docType = 0, int $chartTypeToExport = 0, bool $storeDocument = true, bool $exit = true, bool $export = true): string
     {
         if ($month != 0 && $year != 0) {
             $yesterday = strtotime("$year-$month-01");
@@ -98,6 +113,7 @@ class ReportService
                     ->setAnlage($anlage)
                     ->setEigner($anlage->getEigner())
                     ->setReportType('monthly-report')
+                    ->setReportTypeVersion(0)
                     ->setStartDate($startDate)
                     ->setEndDate($endDate)
                     ->setMonth($startDate->format('m'))
@@ -116,8 +132,10 @@ class ReportService
     /**
      * @param Anlage $anlage
      * @param array $report
+     * @param $reportCreationDate
      * @param int $docType (0 = PDF, 1 = Excel, 2 = PNG (Grafiken))
      * @param int $chartTypeToExport (0 = , 1 = )
+     * @param bool $exit
      * @return string
      * @throws ExceptionInterface
      */
@@ -138,21 +156,18 @@ class ReportService
         $countCase5 = 0;
         $output = '';
 
-        if (true) {
             ($docType == 1) ? $total = 'Total' : $total = '<b>Total</b>';
-
+            $case5Values = [];
             #beginn case5
-            #die Daten  nur im korrekten Monat ausgeben
+            #die Daten nur im korrekten Monat ausgeben
             for ($i = 0; $i < count($case5); $i++) {
                 if(date('m', strtotime($case5[$i]['stampFrom'])) == $month || date('m', strtotime($case5[$i]['stampTo'])) == $month) {
-                    $case5Values[] =
-                        [
-                            "stampFrom" => $case5[$i]['stampFrom'],
-                            "stampTo" => $case5[$i]['stampTo'],
-                            "inverter" => $case5[$i]['inverter'],
-                            "reason" => $case5[$i]['reason'],
-                        ];
-                    $countCase5 = count($case5);
+                    $case5Values[] = [
+                        "stampFrom"     => $case5[$i]['stampFrom'],
+                        "stampTo"       => $case5[$i]['stampTo'],
+                        "inverter"      => $case5[$i]['inverter'],
+                        "reason"        => $case5[$i]['reason'],
+                    ];
                 }
             }
             #end case5
@@ -161,49 +176,47 @@ class ReportService
             $dayValuesFinal = [];
             #die Daten dem Array hinzufuegen
             for ($i = 0; $i < count($report['prs']); $i++) {
-                $dayValues['datum']         = $report['prs'][$i]->getstamp()->format('m-d');
-                if($anlage->getUseGridMeterDayData()) $dayValues['powerEGridExt'] = (float)$report['prs'][$i]->getpowerEGridExt();
-                $dayValues['PowerEvuMonth'] = ($anlage->getShowEvuDiag()) ? (float)$report['prs'][$i]->getPowerEvu() : (float)$report['prs'][$i]->getPowerAct();
+                $dayValues['datum']             = $report['prs'][$i]->getstamp()->format('m-d');
+                $dayValues['PowerEvuMonth']     = ($anlage->getShowEvuDiag()) ? (float)$report['prs'][$i]->getPowerEvu() : (float)$report['prs'][$i]->getPowerAct();
                 if ($anlage->getUseGridMeterDayData()) {
-                    $dayValues['spezYield'] = (float)$report['prs'][$i]->getpowerEGridExt() / $anlage->getKwPeak();
+                    $dayValues['powerEGridExt'] = (float)$report['prs'][$i]->getpowerEGridExt();
+                    $dayValues['spezYield']     = (float)$report['prs'][$i]->getpowerEGridExt() / $anlage->getKwPeak();
+                    $dayValues['prEvuEpc']      = (float)$report['prs'][$i]->getPrEGridExt();
+                    $dayValues['prEvuDefault']  = (float)$report['prs'][$i]->getPrDefaultEGridExt();
                 } else {
-                    $dayValues['spezYield'] = ($anlage->getShowEvuDiag()) ? (float)$report['prs'][$i]->getPowerEvu() / $anlage->getKwPeak() : (float)$report['prs'][$i]->getPowerAct() / $anlage->getKwPeak();
+                    $dayValues['powerEGridExt'] = 0;
+                    $dayValues['spezYield']     = ($anlage->getShowEvuDiag()) ? (float)$report['prs'][$i]->getPowerEvu() / $anlage->getKwPeak() : (float)$report['prs'][$i]->getPowerAct() / $anlage->getKwPeak();
+                    $dayValues['prEvuEpc']      = ($anlage->getShowEvuDiag()) ? (float)$report['prs'][$i]->getPrEvu() : (float)$report['prs'][$i]->getPrAct();
+                    $dayValues['prEvuDefault']  = ($anlage->getShowEvuDiag()) ? (float)$report['prs'][$i]->getPrDefaultEvu() : (float)$report['prs'][$i]->getPrDefaultAct();
                 }
-                $dayValues['irradiation']   = (float)$report['prs'][$i]->getirradiation();
-                if($anlage->getUseGridMeterDayData()) {
-                    $dayValues['prEvuEpc'] = (float)$report['prs'][$i]->getPrEGridExt();
-                    $dayValues['prEvuDefault'] = (float)$report['prs'][$i]->getPrDefaultEGridExt();
-                } else {
-                    $dayValues['prEvuEpc'] = ($anlage->getShowEvuDiag()) ? (float)$report['prs'][$i]->getPrEvu() : (float)$report['prs'][$i]->getPrAct();
-                    $dayValues['prEvuDefault'] = ($anlage->getShowEvuDiag()) ? (float)$report['prs'][$i]->getPrDefaultEvu() : (float)$report['prs'][$i]->getPrDefaultAct();
-                }
-                if ($showAvailability === true) $dayValues['plantAvailability'] = (float)$report['prs'][$i]->getplantAvailability();
-                if ($showAvailabilitySecond === true) $dayValues['plantAvailabilitySecond'] = (float)$report['prs'][$i]->getplantAvailabilitySecond();
+                $dayValues['irradiation']       = (float)$report['prs'][$i]->getirradiation();
+                if ($showAvailability === true)         $dayValues['plantAvailability'] = (float)$report['prs'][$i]->getplantAvailability();
+                if ($showAvailabilitySecond === true)   $dayValues['plantAvailabilitySecond'] = (float)$report['prs'][$i]->getplantAvailabilitySecond();
                 $dayValues['powerTheo']         = (float)$report['prs'][$i]->getpowerTheo();
-                $dayValues['powerExp']      = (float)$report['prs'][$i]->getpowerExp();
-                $dayValues['case5perDay']   = $report['prs'][$i]->getcase5perDay();
+                $dayValues['powerExp']          = (float)$report['prs'][$i]->getpowerExp();
+                $dayValues['case5perDay']       = $report['prs'][$i]->getcase5perDay();
 
                 $dayValuesFinal[] = $dayValues;
             }
 
             #die Totalzeile
             $dayValues['datum'] = $total;
-            if($anlage->getUseGridMeterDayData() == true) $dayValues['powerEGridExt'] = (float)$report['lastPR']->getpowerEGridExtMonth();
-            $dayValues['PowerEvuMonth'] = ($anlage->getShowEvuDiag()) ? (float)$report['lastPR']->getPowerEvuMonth() : (float)$report['lastPR']->getPowerActMonth();
-            $dayValues['spezYield']     = (float)$report['lastPR']->getspezYield();
-            $dayValues['irradiation']   = (float)$report['lastPR']->getIrrMonth();
-            if($anlage->getUseGridMeterDayData()) {
-                $dayValues['prEvuEpc'] = (float)$report['lastPR']->getPrEGridExtMonth();
-                $dayValues['prEvuDefault'] = (float)$report['lastPR']->getPrDefaultMonthEGridExt();
+            if ($anlage->getUseGridMeterDayData() == true) $dayValues['powerEGridExt'] = (float)$report['lastPR']->getpowerEGridExtMonth();
+            $dayValues['PowerEvuMonth']     = ($anlage->getShowEvuDiag()) ? (float)$report['lastPR']->getPowerEvuMonth() : (float)$report['lastPR']->getPowerActMonth();
+            $dayValues['spezYield']         = (float)$report['lastPR']->getspezYield();
+            $dayValues['irradiation']       = (float)$report['lastPR']->getIrrMonth();
+            if ($anlage->getUseGridMeterDayData()) {
+                $dayValues['prEvuEpc']      = (float)$report['lastPR']->getPrEGridExtMonth();
+                $dayValues['prEvuDefault']  = (float)$report['lastPR']->getPrDefaultMonthEGridExt();
             } else {
-                $dayValues['prEvuEpc']     = ($anlage->getShowEvuDiag()) ? (float)$report['lastPR']->getPrEvuMonth() :(float)$report['lastPR']->getPrActMonth();
-                $dayValues['prEvuDefault']     = ($anlage->getShowEvuDiag()) ? (float)$report['lastPR']->getPrDefaultMonthEvu() :(float)$report['lastPR']->getPrDefaultMonthAct();
+                $dayValues['prEvuEpc']      = ($anlage->getShowEvuDiag()) ? (float)$report['lastPR']->getPrEvuMonth() :(float)$report['lastPR']->getPrActMonth();
+                $dayValues['prEvuDefault']  = ($anlage->getShowEvuDiag()) ? (float)$report['lastPR']->getPrDefaultMonthEvu() :(float)$report['lastPR']->getPrDefaultMonthAct();
             }
-            if($showAvailability === true) $dayValues['plantAvailability'] = (float)$report['lastPR']->getPlantAvailabilityPerMonth();
-            if($showAvailabilitySecond === true) $dayValues['plantAvailabilitySecond'] = (float)$report['lastPR']->getPlantAvailabilityPerMonthSecond();
-            $dayValues['powerTheo']     = (float)$report['lastPR']->getPowerTheoMonth();
-            $dayValues['powerExp']      = (float)$report['lastPR']->getPowerExpMonth();
-            $dayValues['case5perDay']   = count($case5Values);
+            if ($showAvailability === true) $dayValues['plantAvailability'] = (float)$report['lastPR']->getPlantAvailabilityPerMonth();
+            if ($showAvailabilitySecond === true) $dayValues['plantAvailabilitySecond'] = (float)$report['lastPR']->getPlantAvailabilityPerMonthSecond();
+            $dayValues['powerTheo']         = (float)$report['lastPR']->getPowerTheoMonth();
+            $dayValues['powerExp']          = (float)$report['lastPR']->getPowerExpMonth();
+            $dayValues['case5perDay']       = count($case5Values);
             $dayValuesFinal[] = $dayValues;
 
             #end create Array for Day Values Table
@@ -233,23 +246,23 @@ class ReportService
                     $heatValues[$key] = (float)$value;
                 }
 
-                $j = 0; $sum = 0; $tempValues = [];
+                $j = 1; $sum = 0; $tempValues = [];
                 foreach ($report['prs'][$i]->getTemperaturJson() as $key => $value) {
-                    $tempValues[$key] = $value;
+                    $tempValues[$key] = (float)$value;
                     $j++;
-                    $sum += $value;
+                    $sum += (float)$value;
                 }
 
-                $tempav = ["Avg_temp" => (float)$sum / $j,];
+                $tempav = ["Avg_temp" => $sum / $j,];
                 $tempValues = array_merge($tempValues, $tempav);
 
-                #pruefen ob es Temperaturwerte gibt
+                #pruefen, ob es Temperaturwerte gibt
                 (count($tempValues) > 0) ? $heatAndTempValues[] = array_merge($heatValues, $tempValues) : $heatAndTempValues[] = $heatValues;
             }
-            #end create Array forHeat and Temperatur Tabble
+            #end create array for heat and temperatur table
             #wenn gar nichts geleifert wird, dann die gesamte Tabelle ausblenden
-           (count($heatAndTempValues) > 0) ? $showHeatAndTemperaturTable = true : $showHeatAndTemperaturTable = false;
-        }
+            (count($heatAndTempValues) > 0) ? $showHeatAndTemperaturTable = true : $showHeatAndTemperaturTable = false;
+
 
         $energypPoduction[0] = [
             'PD'            => date('F', $yesterday),
@@ -279,11 +292,11 @@ class ReportService
         ];
         $energypPoduction[3] = [
             'PD' => 'FAC Forecast',
-            'GMNB' => '',
-            'GMNA' => '',
-            'IOUT' => '',
-            'kwPeakPvSyst' => '',
-            'G4NExpected' => '',
+            'GMNB' => 0,
+            'GMNA' => 0,
+            'IOUT' => 0,
+            'kwPeakPvSyst' => 0,
+            'G4NExpected' => 0,
         ];
 
         $performanceRatioAndAvailability[0] = [
@@ -342,7 +355,7 @@ class ReportService
             'irradiationandtempvalues' => $heatAndTempValues,
             'daychartvalues' => $dayChartValues,
             'legend' => $legend,
-            #ownparams sind nötig um sie im Excelexport verwenden zu koennen(der Zugriff auf die Standartparams ist bei Excelexport nicht moeglich)
+            #ownparams sind nötig um sie im Excelexport verwenden zu koennen (der Zugriff auf die Standartparams ist bei Excelexport nicht moeglich)
             'ownparams' => [
                 [
                     'doctype' => $docType,
@@ -363,8 +376,8 @@ class ReportService
                 ],
             ],
         ]);
-
-        if (true) {
+        $output = $reportout->run()->render('ReportMonthly', true);
+        if ($exit) {
             switch ($docType) {
                 case 1: // Excel Export
                     $currentDate = date('Y-m-d H-i');
@@ -433,7 +446,8 @@ class ReportService
         return $output;
     }
 
-    private function getPvSystMonthData(Anlage $anlage, $month, $year): array
+
+    public function getPvSystMonthData(Anlage $anlage, $month, $year): array
     {
         $pvSystMonth = $this->pvSystMonthRepo->findOneBy(['anlage' => $anlage, 'month' => (int)$month]);
         if ($pvSystMonth) {
@@ -470,12 +484,12 @@ class ReportService
         }
 
         $resultArray = [
-            'prMonth' => $prPvSystMonth,
-            'prPac' => $anlage->getDesignPR(),
-            'prYear' => $anlage->getDesignPR(),
-            'powerMonth' => $powerPvSyst,
-            'powerPac' => $powerPac,
-            'powerYear' => $powerYear
+            'prMonth'       => (float)$prPvSystMonth,
+            'prPac'         => $anlage->getDesignPR(),
+            'prYear'        => $anlage->getDesignPR(),
+            'powerMonth'    => (float)$powerPvSyst,
+            'powerPac'      => (float)$powerPac,
+            'powerYear'     => (float)$powerYear
         ];
 
         return $resultArray;

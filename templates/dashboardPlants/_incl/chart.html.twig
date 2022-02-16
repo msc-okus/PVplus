@@ -1,7 +1,8 @@
 {% from "dashboardPlants/_incl/macrosStatus.html.twig" import statusTable as statusTable %}
 {% from "dashboardPlants/_incl/macrosStatus.html.twig" import pvSystTable as pvSystTable %}
+{% from "dashboardPlants/_incl/macrosStatus.html.twig" import gridTable as gridTable %}
 
-{% if form.selectedChart != 'status_log' and form.selectedChart != 'availability' and form.selectedChart != 'pvsyst' %}
+{% if form.selectedChart != 'status_log' and form.selectedChart != 'availability' and form.selectedChart != 'pvsyst' and form.selectedChart != 'grid'%}
     <div id="amchart-holder"></div>
 {% endif %}
 
@@ -574,6 +575,15 @@
             let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
             let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
 
+            {% if (is_granted('ROLE_G4N')) %}
+                let valueAxisIrr = chart.yAxes.push(new am4charts.ValueAxis());
+                valueAxisIrr.title.text = "Irradiation [[W/m²]]";
+                valueAxisIrr.renderer.opposite = true;
+                valueAxisIrr.renderer.ticks.template.disabled = true;
+                valueAxisIrr.renderer.grid.template.disabled = true;
+                valueAxisIrr.extraMax = 0.1;
+            {% endif %}
+
             let series0 = chart.series.push(new am4charts.LineSeries());
             series0.name = "{{ content.series1.name }}";
             series0.dataFields.dateX = "date";
@@ -585,6 +595,22 @@
             series0.sequencedInterpolation = false;
             series0.defaultState.transitionDuration = 300;
             series0.tensionX = 0.8;
+
+            {% if (is_granted('ROLE_G4N')) %}
+                let seriesIrr = chart.series.push(new am4charts.LineSeries());
+                seriesIrr.name = "Irradiation W/m²"
+                seriesIrr.dataFields.dateX = "date";
+                seriesIrr.dataFields.valueY = "irradiation";
+                seriesIrr.tooltipText = "Irradiation W/m²: {valueY} [/]";
+                seriesIrr.stroke = am4core.color("#950101");
+                seriesIrr.strokeWidth = 1;
+                //series5Irr.defaultState.transitionDuration = 50;
+                seriesIrr.tensionX = 0.8;
+                seriesIrr.hidden = true;
+                seriesIrr.yAxis = valueAxisIrr;
+            {% endif %}
+
+
 
             // Create series
             let units = JSON.parse('{{ content.inverterArray | raw  }}');
@@ -1008,8 +1034,101 @@
 
         }); // end am4core.ready()
     </script>
+{% elseif  form.selectedChart == 'temp' %}
+    <!-- Liniendiagramm Temperature and Wind -->
+    <script>
+        am4core.ready(function() {
+            // Create chart instance
+            {% if form.optionDate < 14 %}
+            am4core.useTheme(am4themes_animated);
+            {% endif %}
 
-{% elseif form.selectedChart == 'irradiation' or form.selectedChart == 'temp' %}
+            let chart = am4core.create("amchart-holder", am4charts.XYChart);
+            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+            let title = chart.titles.create();
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.fontSize = 18;
+            title.marginBottom = 30;
+            chart.data = {{ content.data|raw }};
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+            chart.numberFormatter.intlLocales = "de-DE";
+            chart.numberFormatter.numberFormat = {
+                "style": "decimal",
+                "minimumFractionDigits": 0
+            };
+
+            // Legend
+            chart.legend = new am4charts.Legend();
+            chart.legend.useDefaultMarker = false;
+
+            // Create axes
+            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+            // Create series
+            let series1 = chart.series.push(new am4charts.LineSeries());
+            series1.name = "{{ content.series1.name }}";
+            series1.ttname = "{{ content.series1.tooltipText }}";
+            series1.dataFields.dateX = "date";
+            series1.dataFields.valueY = "val1";
+            series1.tooltipText = "{ttname}: {valueY} [/]";
+            series1.stroke = am4core.color("#fdd400");
+            series1.fill = "#fdd400";
+            series1.strokeWidth = 1;
+            series1.sequencedInterpolation = true;
+            series1.defaultState.transitionDuration = 300;
+            series1.tensionX = 0.8;
+
+            {% if aktAnlage.showOnlyUpperIrr == false %}
+            let series2 = chart.series.push(new am4charts.LineSeries());
+                series2.name = "{{ content.series2.name }}";
+                series2.ttname = "{{ content.series2.tooltipText }}";
+                series2.dataFields.dateX = "date";
+                series2.dataFields.valueY = "val2";
+                series2.tooltipText = "{ttname}: {valueY} [/]";
+                series2.stroke = am4core.color("#016195");
+                series2.fill = "#016195";
+                series2.strokeWidth = 1;
+                series2.sequencedInterpolation = true;
+                series2.defaultState.transitionDuration = 300;
+                series2.tensionX = 0.8;
+            {% endif %}
+
+
+
+            let windSpeed = chart.series.push(new am4charts.LineSeries());
+            windSpeed.name = "Wind Speed m/s";
+            windSpeed.ttname = "Wind Speed m/s";
+            windSpeed.dataFields.dateX = "date";
+            windSpeed.dataFields.valueY = "windSpeed";
+            windSpeed.tooltipText = "{ttname}: {valueY} [/]";
+            windSpeed.stroke = am4core.color("#019524");
+            windSpeed.fill = "#019524";
+            windSpeed.strokeWidth = 1;
+            windSpeed.sequencedInterpolation = true;
+            windSpeed.defaultState.transitionDuration = 300;
+            windSpeed.tensionX = 0.8;
+
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.xAxis = dateAxis;
+            chart.exporting.menu = new am4core.ExportMenu();
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.scrollbarX.marginBottom = "20"
+            chart.scrollbarY = new am4core.Scrollbar();
+            chart.scrollbarY.marginLeft = "20";
+            chart.exporting.menu.items[0].label = "Download";
+            chart.exporting.formatOptions.getKey("json").disabled = true;
+            chart.exporting.formatOptions.getKey("html").disabled = true;
+            chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+            chart.exporting.formatOptions.getKey("print").disabled = true;
+            chart.exporting.formatOptions.getKey("pdf").disabled = true;
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+
+
+        }); // end am4core.ready()
+    </script>
+{% elseif form.selectedChart == 'irradiation' %}
     <!-- Liniendiagramm Irradiation and Temperature -->
     <script>
         am4core.ready(function() {
@@ -1244,6 +1363,8 @@
     {% include 'dashboardPlants/_incl/chart/availabillity.html.twig' %}
 {% elseif form.selectedChart == 'pvsyst' %}
     {{ pvSystTable(content.pvSysts) }}
+{% elseif form.selectedChart == 'grid' %}
+    {{ gridTable(content.grid) }}
 {% elseif form.selectedChart == 'forecast' %}
     {% include 'dashboardPlants/_incl/chart/forecast.html.twig' %}
 {% endif %}

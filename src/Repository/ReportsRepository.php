@@ -33,7 +33,23 @@ class ReportsRepository extends ServiceEntityRepository
      * @param string|null $term
      * @return QueryBuilder
      */
-    public function getWithSearchQueryBuilder(?string $term, ?string $searchstatus, ?string $searchtype, ?string $searchmonth): QueryBuilder
+    public function findOneByAMY(Anlage $Anl, String $month,String $year){
+        return $this->createQueryBuilder('a')
+            ->andWhere("a.anlage = :anl")
+            ->andWhere("a.reportType = 'am-report'")
+            ->andWhere("a.month LIKE :month")
+            ->andWhere("a.year = :year")
+            ->setParameter('anl', $Anl )
+            ->setParameter('month',  '%'.$month )
+            ->setParameter('year', $year )
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+   
+
+    public function getWithSearchQueryBuilder(?string $term, ?string $searchstatus, ?string $searchtype, ?string $searchmonth, ?string $searchyear): QueryBuilder
+
     {
         $qb = $this->createQueryBuilder('report')
             ->innerJoin('report.anlage', 'a')
@@ -67,6 +83,10 @@ class ReportsRepository extends ServiceEntityRepository
 
         if ($searchmonth !='') {
             $qb->andWhere("report.month = $searchmonth");
+        }
+
+        if ($searchyear !='') {
+            $qb->andWhere("report.year = $searchyear");
         }
 
         if ($term != '') {

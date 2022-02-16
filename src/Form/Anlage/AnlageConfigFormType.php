@@ -6,6 +6,7 @@ use App\Entity\Anlage;
 use App\Entity\Eigner;
 use App\Entity\WeatherStation;
 use App\Form\EventMail\EventMailListEmbeddedFormType;
+use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -19,7 +20,7 @@ use Symfony\Component\Security\Core\Security;
 
 class AnlageConfigFormType extends AbstractType
 {
-    private $security;
+    private Security $security;
 
     public function __construct(Security $security) {
         $this->security = $security;
@@ -85,8 +86,8 @@ class AnlageConfigFormType extends AbstractType
                 'required'      => false,
             ])
 
-            ->add('epcReportNote', TextareaType::class, [
-                'label'         => 'Notizen zur Anlage für EPC Report',
+            ->add('epcReportNote', CKEditorType::class, [
+                'config'        => ['toolbar' => 'my_toolbar'],
                 'attr'          => ['rows' => '9'],
                 'empty_data'    => '',
                 'required'      => false,

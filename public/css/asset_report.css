@@ -1,21 +1,25 @@
+@page {
+  size: A4 landscape;
+  margin: 0;
+}
+
 @media print{
-  @page {
-    size: landscape;
-    margin: 0;
+  html, body {
+    width: 297mm;
+    height: 210mm;
   }
 }
 
 body{
   padding-left: 1.3cm;
   padding-right: 1.3cm;
-  padding-top: 1.1cm;
 }
-
+/*
 page[size="A4"][layout="landscape"] {
   width: 29.7cm;
   height: 20cm;
 }
-
+*/
 .content_asset_report{
   height:18cm!important;
   width: 27.0cm!important;
@@ -150,7 +154,7 @@ table .tr_first_column_nonbold {
 }
 
 .g4n_logo{
-  height:60px !important;
+  height:30px !important;
 }
 
 .td_texthint{
@@ -185,5 +189,11 @@ table td .explanation{
   border: solid 2px #15508e;
   padding: 5px;
   font-size: 12px;
+}
+.pr-formula{
+  vertical-align: top;
+}
+.pr-formula img{
+  width: 300px;
 }
 
