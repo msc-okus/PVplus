@@ -386,6 +386,7 @@ class AssetManagementService
         //fuer die Tabelle
 
         #Forecast / degradation
+        unset($kumsum);
         $degradation = $anlage->getLossesForecast()!== 0.0 ? $anlage->getLossesForecast() : 5.0;
         //Cumulative Forecast
         $kumsum[0] = $powerEvu[0];
@@ -400,6 +401,7 @@ class AssetManagementService
                 $tbody_forcast_PVSYSTP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
 
         }
+        unset($kumsum);
         #Forecast / PVSYST - P90
         $kumsum[0] = $expectedPvSyst[0];
         for ($i = 0; $i < 12; $i++) {
@@ -519,7 +521,35 @@ class AssetManagementService
         for ($i = 1; $i < 13; $i++) {
             $forecast[$i] = $this->functions->getForcastByMonth($anlage,$i);
         }
+        $kumsum[0] = $powerEvu[0];
+        for ($i = 0; $i < 12; $i++) {
+            if ($i + 1 > $report['reportMonth']) {
+                $kumsum[$i] = $powerExpEvu[$i] + $kumsum[$i - 1];
+            } else {
+                $kumsum[$i] = $powerEvu[$i] + $kumsum[$i - 1];
+            }
+            $tbody_forcast_G4NP50[] = $kumsum[$i];
 
+            $tbody_forcast_G4NP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
+
+        }
+        #Forecast / G4N
+
+        $kumsum[0] = $powerExpEvu[0];
+        for ($i = 0; $i < 12; $i++) {
+            $kumsum[$i] = $powerExpEvu[$i] + $kumsum[$i - 1];
+            $tbody_forcast_plan_G4NP50[] = $kumsum[$i];
+            $tbody_forcast_plan_G4NP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
+        }
+
+        $forecast_G4N_table = [
+            'forcast_G4NP50' => $tbody_forcast_G4NP50,
+            'forcast_G4NP90' => $tbody_forcast_G4NP90,
+            'forcast_plan_G4NP50' => $tbody_forcast_plan_G4NP50,
+            'forcast_plan_G4NP90' => $tbody_forcast_plan_G4NP90,
+        ];
+        // I will try using the expected values instead of these forecast values
+        /*
         $kumsum[0] = $powerEvu[0];
         for ($i = 0; $i < 12; $i++) {
             if ($i + 1 > $report['reportMonth']) {
@@ -533,6 +563,7 @@ class AssetManagementService
 
         }
         #Forecast / G4N
+
         $kumsum[0] = $forecast[1];
         for ($i = 0; $i < 12; $i++) {
             $kumsum[$i] = $forecast[$i+1] + $kumsum[$i - 1];
@@ -546,7 +577,7 @@ class AssetManagementService
             'forcast_plan_G4NP50' => $tbody_forcast_plan_G4NP50,
             'forcast_plan_G4NP90' => $tbody_forcast_plan_G4NP90,
         ];
-
+*/
         //beginn chart
         # $chart->tooltip->show = true;
         # $chart->tooltip->trigger = 'item';
@@ -2655,6 +2686,7 @@ class AssetManagementService
         $chart->series = [];
         unset($option);
 
+        dd($tbody_a_production, $forecast_G4N_table, $forecast_PVSYST_table);
         //end Chart Losses compared cummulated
         $output = [
             'plantId' => $plantId,
