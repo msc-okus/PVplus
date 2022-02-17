@@ -217,6 +217,7 @@ trait G4NTrait
      **/
     public function timeShift(Anlage $anlage, $stamp, $reverse = false)
     {
+
         $country = strtoupper($anlage->getCountry());
 
         $offset = Timezones::getRawOffset(self::getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), $country));

@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\FunctionsService;
 use App\Service\WeatherServiceNew;
@@ -11,6 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class DefaultJMController extends AbstractController
 {
+    use G4NTrait;
     /**
      * @Route("/default/j/m", name="default_j_m")
      */
@@ -32,6 +34,24 @@ class DefaultJMController extends AbstractController
      * @Route("/default/test/sunset")
      */
     public function getsunset(WeatherServiceNew $weather){
-        dd($weather->getSunrise(41.8364, 15.5445));
+
+        dd(date('H:i'));
+        if(date('H:i', strtotime(time())));
+    }
+    /**
+     * @Route("/default/test/check")
+     */
+    public function checkSystem(WeatherServiceNew $weather, AnlagenRepository $AnlRepo){
+        $Anlagen = $AnlRepo->findAll();
+
+        foreach($Anlagen as $Anlage){
+            $sungap = $weather->getSunrise($Anlage);
+            if((date('H:i') > $sungap['sunrise'])&&(date('H:i') < $sungap['sunset'])){
+                dd("true");
+            }
+        }
+    }
+    public function getLastQuarter($stamp){
+
     }
 }
