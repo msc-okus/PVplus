@@ -386,7 +386,7 @@ class AssetManagementService
         //fuer die Tabelle
 
         #Forecast / degradation
-        $degradation = $anlage->getDegradationForecast()!== 0.0 ? $anlage->getDegradationForecast() : 5.0;
+        $degradation = $anlage->getLossesForecast()!== 0.0 ? $anlage->getLossesForecast() : 5.0;
         //Cumulative Forecast
         $kumsum[0] = $powerEvu[0];
         for ($i = 0; $i < 12; $i++) {
@@ -396,11 +396,9 @@ class AssetManagementService
                 $kumsum[$i] = $powerEvu[$i] + $kumsum[$i - 1];
             }
             $tbody_forcast_PVSYSTP50[] = $kumsum[$i];
-            if ($i + 1 < $report['reportMonth']) {
-                $tbody_forcast_PVSYSTP90[] = $kumsum[$i];
-            } else {
+
                 $tbody_forcast_PVSYSTP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
-            }
+
         }
         #Forecast / PVSYST - P90
         $kumsum[0] = $expectedPvSyst[0];
@@ -530,11 +528,9 @@ class AssetManagementService
                 $kumsum[$i] = $powerEvu[$i] + $kumsum[$i - 1];
             }
             $tbody_forcast_G4NP50[] = $kumsum[$i];
-            if ($i + 1 < $report['reportMonth']) {
-                $tbody_forcast_G4NP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
-            } else {
-                $tbody_forcast_G4NP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
-            }
+
+            $tbody_forcast_G4NP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
+
         }
         #Forecast / G4N
         $kumsum[0] = $forecast[1];
