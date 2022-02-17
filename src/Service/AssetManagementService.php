@@ -2686,7 +2686,7 @@ class AssetManagementService
         $chart->series = [];
         unset($option);
 
-        dd($tbody_a_production, $forecast_G4N_table, $forecast_PVSYST_table);
+
         //end Chart Losses compared cummulated
         $output = [
             'plantId' => $plantId,
