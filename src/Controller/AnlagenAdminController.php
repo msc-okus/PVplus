@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Anlage;
+use App\Entity\AnlageFile;
 use App\Entity\EconomicVarNames;
 use App\Form\Anlage\AnlageAcGroupsFormType;
 use App\Form\Anlage\AnlageConfigFormType;
@@ -11,9 +12,11 @@ use App\Form\Anlage\AnlageFormType;
 use App\Form\Anlage\AnlageCustomerFormType;
 use App\Form\Anlage\AnlageNewFormType;
 use App\Helper\G4NTrait;
+use App\Repository\AnlageFileRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\EconomicVarNamesRepository;
 use App\Repository\EconomicVarValuesRepository;
+use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
@@ -128,9 +131,15 @@ class AnlagenAdminController extends BaseController
      * @param EconomicVarNamesRepository $ecoNamesRepo
      * @return RedirectResponse|Response
      */
-    public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo): RedirectResponse|Response
+    public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $RepositoryUpload): RedirectResponse|Response
     {
+        $upload = new AnlageFile();
         $anlage = $anlagenRepository->find($id);
+        $imageuploaded = $RepositoryUpload->findOneBy(['path' => $anlage->getPicture()]);
+        if($imageuploaded != null) {
+            $isupload = 'yes';
+        }
+        else $isupload = 'no';
         $economicVarNames1 =new EconomicVarNames();
         if($ecoNamesRepo->findByAnlage($id)[0] != null) {
             $economicVarNames1 = $ecoNamesRepo->findByAnlage($id)[0];// will be used to load and display the already defined names
@@ -143,6 +152,24 @@ class AnlagenAdminController extends BaseController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked() ) ) {
+            $uploadedFile = $form['picture']->getData();
+            if ($uploadedFile) {
+                $isupload = "yes";
+                $newFile = $uploaderHelper->uploadImage($uploadedFile, $id, "owner");
+                $newFilename = $newFile['newFilename'];
+                $mimeType = $newFile['mimeType'];
+                $uploadsPath ='uploads/'.UploaderHelper::EIGNER_LOGO.'/'.$id.'/'.$newFilename;
+                $upload->setFilename($newFilename)
+                    ->setMimeType($mimeType)
+                    ->setPath($uploadsPath)
+                    ->setPlant(null)
+                    ->setStamp(date('Y-m-d H:i:s'));
+
+                $em->persist($upload);
+                $em->flush();
+
+                $anlage->setPicture($uploadsPath);
+            }
             if($economicVarNames1==null) {
                 $economicVarNames = new EconomicVarNames();
                 $economicVarNames->setparams($anlage, $form->get('var_1')->getData(), $form->get('var_2')->getData(), $form->get('var_3')->getData(), $form->get('var_4')->getData(), $form->get('var_5')->getData(), $form->get('var_6')->getData()
@@ -159,8 +186,27 @@ class AnlagenAdminController extends BaseController
             $anlage->setEconomicVarNames($economicVarNames);
             $successMessage = 'Plant data saved!';
             $em->persist($anlage);
-
             $em->flush();
+            $imageuploaded = $RepositoryUpload->findOneBy(['path' => $anlage->getPicture()]);
+            if($form->get('save')->isClicked()){
+                if ($imageuploaded != null) {
+                    return $this->render('anlagen/editconfig.html.twig', [
+                        'anlageForm' => $form->createView(),
+                        'anlage' => $anlage,
+                        'econames' => $economicVarNames1,
+                        'isupload' => $isupload,
+                        'imageuploadet' => $imageuploaded->getPath()
+                    ]);
+                }
+                else {
+                    return $this->render('anlagen/editconfig.html.twig', [
+                        'anlageForm' => $form->createView(),
+                        'anlage' => $anlage,
+                        'econames' => $economicVarNames1,
+                        'isupload' => $isupload
+                    ]);
+                }
+            }
             if ($form->get('saveclose')->isClicked()) {
                 $this->addFlash('success', $successMessage);
                 return $this->redirectToRoute('app_admin_anlagen_list');
@@ -172,11 +218,23 @@ class AnlagenAdminController extends BaseController
 
             return $this->redirectToRoute('app_admin_anlagen_list');
         }
-        return $this->render('anlagen/editconfig.html.twig', [
-            'anlageForm'    => $form->createView(),
-            'anlage'        => $anlage,
-            'econames'      => $economicVarNames1,
-        ]);
+        if ($imageuploaded != null) {
+            return $this->render('anlagen/editconfig.html.twig', [
+                'anlageForm' => $form->createView(),
+                'anlage' => $anlage,
+                'econames' => $economicVarNames1,
+                'isupload' => $isupload,
+                'imageuploadet' => $imageuploaded->getPath()
+            ]);
+        }
+        else {
+            return $this->render('anlagen/editconfig.html.twig', [
+                'anlageForm' => $form->createView(),
+                'anlage' => $anlage,
+                'econames' => $economicVarNames1,
+                'isupload' => $isupload
+            ]);
+        }
     }
 
     /**

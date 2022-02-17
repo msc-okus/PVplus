@@ -783,7 +783,7 @@ class Anlage
     /**
      * @ORM\Column(type="string", length=150, nullable=true)
      */
-    private $picture;
+    private $picture = "";
 
 
     public function __construct()
