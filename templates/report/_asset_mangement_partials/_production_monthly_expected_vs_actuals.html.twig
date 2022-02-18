@@ -1,7 +1,7 @@
 {% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
 
 {% block page %}
-    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Daily Production – {{ month }} {{ year }}</h3>
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Daily Production - {{ month }} {{ year }}</h3>
 
         <table >
             <tr>
@@ -10,20 +10,20 @@
                     <table class="asset_report_table_operations_data">
                         <thead>
                         <tr>
-                            <th rowspan="3" class="table-center">Date</th>
+                            <th rowspan="3" class="table-center" style="width:50px">Date</th>
                             <th class="table-center">IRR</th>
                             {% if (anlage.useGridMeterDayData == true) %}
                                 <th class="table-center">Grid meter</th>
+                                <th class="table-center">Grid meter</th>
                             {% endif %}
-                            <th class="table-center">Grid meter</th>
                             <th class="table-center">AC Inv.</th>
                             <th class="table-center">DC Inv.</th>
                             <th class="table-center">AC Exp.</th>
                             <th class="table-center">DC Exp.</th>
                             {% if (anlage.useGridMeterDayData == true) %}
                                 <th class="table-center">Grid meter</th>
+                                <th class="table-center">PR Grid meter</th>
                             {% endif %}
-                            <th class="table-center">PR Grid meter</th>
                             <th class="table-center">PR AC</th>
                             <th class="table-center">PR Exp.</th>
                             {% if (anlage.showAvailability == true) %}
@@ -33,21 +33,23 @@
                                 <th class="table-center">PA 2</th>
                             {% endif %}
                             <th class="table-center">Ø Temp</th>
+                            <th class="table-center"> Theo* Power</th>
                         </tr>
                         <tr>
                             <th></th>
                             {% if (anlage.useGridMeterDayData == true) %}
                                 <th>extern</th>
+
+                                <th></th>
                             {% endif %}
-                            <th></th>
                             <th class="table-center">yield</th>
                             <th class="table-center">power</th>
                             <th class="table-center">Inv. yield</th>
                             <th class="table-center">Inv. power</th>
                             {% if (anlage.useGridMeterDayData == true) %}
                                 <th class="table-center">extern</th>
+                                <th></th>
                             {% endif %}
-                            <th></th>
                             <th class="table-center">Inv.</th>
                             <th class="table-center">Inv.</th>
                             {% if (anlage.showAvailability == true) %}
@@ -57,21 +59,22 @@
                                 <th></th>
                             {% endif %}
                             <th class="table-center">Panel</th>
+                            <th></th>
                         </tr>
                         <tr>
                             <th class="table-center">[kWh/m2]</th>
                             {% if (anlage.useGridMeterDayData == true) %}
                                 <th class="table-center">[kWh]</th>
+                                <th class="table-center">[kWh]</th>
                             {% endif %}
-                            <th class="table-center">[kWh]</th>
                             <th class="table-center">kWh</th>
                             <th class="table-center">[kWh]</th>
                             <th class="table-center">[kWh]</th>
                             <th class="table-center">[kWh]</th>
                             {% if (anlage.useGridMeterDayData == true) %}
                                 <th class="table-center">[kwh]</th>
+                                <th class="table-center">[%]</th>
                             {% endif %}
-                            <th class="table-center">[%]</th>
                             <th class="table-center">[%]</th>
                             <th class="table-center">[%]</th>
                             {% if (anlage.showAvailability == true) %}
@@ -81,6 +84,7 @@
                                 <th class="table-center">[%]</th>
                             {% endif %}
                             <th class="table-center">[°C]</th>
+                            <th class="table-center">[kWh]</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -90,16 +94,16 @@
                                 <td class="tr_next_columns">{{ data.irradiation|number_format(2, ',', '.') }}</td>
                                 {% if (anlage.useGridMeterDayData == true)%}
                                     <td class="tr_next_columns">{{ data.powerEGridExtMonth|number_format(0, ',', '.') }}</td>
+                                    <td class="tr_next_columns">{{ data.PowerEvuMonth|number_format(0, ',', '.') }}</td>
                                 {% endif %}
-                                <td class="tr_next_columns">{{ data.PowerEvuMonth|number_format(0, ',', '.') }}</td>
                                 <td class="tr_next_columns">{{ data.powerActMonth|number_format(0, ',', '.') }}</td>
                                 <td class="tr_next_columns">{{ data.powerDctMonth|number_format(0, ',', '.') }}</td>
                                 <td class="tr_next_columns">{{ data.powerExpMonth|number_format(0, ',', '.') }}</td>
                                 <td class="tr_next_columns">{{ data.powerExpDctMonth|number_format(0, ',', '.') }}</td>
                                 {% if (anlage.useGridMeterDayData == true)%}
                                     <td class="tr_next_columns">{{ data.prEGridExtMonth|number_format(3, ',', '.') }}</td>
+                                    <td class="tr_next_columns">{{ data.prEvuMonth|number_format(2, ',', '.') }}</td>
                                 {% endif %}
-                                <td class="tr_next_columns">{{ data.prEvuMonth|number_format(2, ',', '.') }}</td>
                                 <td class="tr_next_columns">{{ data.prActMonth|number_format(2, ',', '.') }}</td>
                                 <td class="tr_next_columns">{{ data.prExpMonth|number_format(2, ',', '.') }}</td>
                                 {% if (anlage.showAvailability == true) %}
@@ -109,6 +113,7 @@
                                     <td class="tr_next_columns">{{ data.plantAvailabilitySecond|number_format(2, ',', '.') }}</td>
                                 {% endif %}
                                 <td class="tr_next_columns">{{ data.panneltemp|number_format(2, ',', '.') }}</td>
+                                <td class="tr_next_columns"> {{ (data.irradiation * anlage.kwPeak )|number_format(2, ',', '.') }}</td>
                             </tr>
                         {% endfor %}
                         </tbody>
