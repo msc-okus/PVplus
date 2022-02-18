@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
+use App\Service\Charts\IrradiationChartService;
 use App\Service\FunctionsService;
 use App\Service\WeatherServiceNew;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -44,14 +45,38 @@ class DefaultJMController extends AbstractController
     public function checkSystem(WeatherServiceNew $weather, AnlagenRepository $AnlRepo){
         $Anlagen = $AnlRepo->findAll();
 
-        foreach($Anlagen as $Anlage){
-            $sungap = $weather->getSunrise($Anlage);
-            if((date('H:i') > $sungap['sunrise'])&&(date('H:i') < $sungap['sunset'])){
-                dd("true");
+        $time = $this->getLastQuarter(date('Y-m-d H:i') ); //we set the last quarter and we will use it for the queries and to check if the sun is up
+        foreach($Anlagen as $anlage){
+            $sungap = $weather->getSunrise($anlage);
+            // to avoid doing this we should have an entity to store the values but that would be huge in the db I think
+            //we will also have problems if we try to run this every 15 mins, sometimes the information is not present if little time has elapsed from the moment they were supposed to be created.
+
+            $conn = self::getPdoConnection();
+            if(( $time > $sungap['sunrise']) && ($time < $sungap['sunset'])){
+
+                $sql2 = "SELECT a.stamp, b.gi_avg as gi , b.gmod_avg as gmod FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp = '$time' ";
+                $res = $conn->query($sql2);
+                dd($res->fetch(PDO::FETCH_ASSOC));
+                /* replace this for the raw query for irr
+                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == "Groningen") {
+
+                    $dataArrayIrradiation = $irradiationChart->getIrradiation($anlage, $time,  'upper');
+                } else {
+                    $dataArrayIrradiation = $irradiationChart->getIrradiation($anlage, $time, date('Y-m-d H:i', strtotime($time)) + 900);
+                }
+                dd($dataArrayIrradiation);
+                */
             }
         }
     }
     public function getLastQuarter($stamp){
+        $mins = date('i', strtotime($stamp));
+        $rest = date('Y-m-d H', strtotime($stamp));
+        if ($mins >= "00" && $mins < "15") $quarter = "00";
+        else if ($mins >= "15" && $mins < "30") $quarter = "15";
+        else if ($mins >= "30" && $mins < "45") $quarter = "30";
+        else $quarter = "45";
+        return ($rest.":".$quarter);
 
     }
 }

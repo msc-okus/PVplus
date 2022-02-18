@@ -174,10 +174,10 @@ class WeatherServiceNew
         $clima =  (array) $result['results'];
 
         $offset = $offset - 3600;
-        $rise_time = strtotime(date('H:i', strtotime($clima['sunrise'])+(3600))) + $offset;
-        $set_time = strtotime(date('H:i', strtotime($clima['sunset'])+(3600))) + $offset;
-        $sunrise = date('H:i', $rise_time);
-        $sunset = date('H:i', $set_time);
+        $rise_time = strtotime(date('Y-m-d H:i', strtotime($clima['sunrise'])+3600)) + $offset;
+        $set_time = strtotime(date('Y-m-d H:i', strtotime($clima['sunset'])+(3600))) + $offset;
+        $sunrise = date('Y-m-d H:i', $rise_time);
+        $sunset = date('Y-m-d H:i', $set_time);
 
 
         $returnArray['sunrise'] = $sunrise;
