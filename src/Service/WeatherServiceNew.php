@@ -161,27 +161,30 @@ class WeatherServiceNew
         return true;
     }
 
-    public function getSunrise(Anlage $anlage)
+    public function getSunrise( $Anlagen)
     {
-        $lat = $anlage->getAnlGeoLat();
-        $lng = $anlage->getAnlGeoLon();
 
-        $offset = Timezones::getRawOffset(self::getNearestTimezone($lat, $lng, strtoupper($anlage->getCountry())));
+        foreach($Anlagen as $anlage) {
+            $lat = $anlage->getAnlGeoLat();
+            $lng = $anlage->getAnlGeoLon();
 
-        $urli = "https://api.sunrise-sunset.org/json?lat=" . $lat . "&lng=" . $lng . "&date=today";
-        $contents = file_get_contents($urli);
-        $result = (array)json_decode($contents);
-        $clima =  (array) $result['results'];
+            $offset = Timezones::getRawOffset(self::getNearestTimezone($lat, $lng, strtoupper($anlage->getCountry())));
 
-        $offset = $offset - 3600;
-        $rise_time = strtotime(date('Y-m-d H:i', strtotime($clima['sunrise'])+3600)) + $offset;
-        $set_time = strtotime(date('Y-m-d H:i', strtotime($clima['sunset'])+(3600))) + $offset;
-        $sunrise = date('Y-m-d H:i', $rise_time);
-        $sunset = date('Y-m-d H:i', $set_time);
+            $urli = "https://api.sunrise-sunset.org/json?lat=" . $lat . "&lng=" . $lng . "&date=today";
+            $contents = file_get_contents($urli);
+            $result = (array)json_decode($contents);
+            $clima = (array)$result['results'];
+
+            $offset = $offset - 3600;
+            $rise_time = strtotime(date('Y-m-d H:i', strtotime($clima['sunrise']) + 3600)) + $offset;
+            $set_time = strtotime(date('Y-m-d H:i', strtotime($clima['sunset']) + 3600)) + $offset;
+            $sunrise = date('Y-m-d H:i', $rise_time);
+            $sunset = date('Y-m-d H:i', $set_time);
 
 
-        $returnArray['sunrise'] = $sunrise;
-        $returnArray['sunset'] = $sunset;
+            $returnArray[$anlage->getAnlName()]['sunrise'] = $sunrise;
+            $returnArray[$anlage->getAnlName()]['sunset'] = $sunset;
+        }
         return $returnArray;
     }
     public function getNearestTimezone($cur_lat, $cur_long, $country_code = ''): string

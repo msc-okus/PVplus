@@ -10,6 +10,7 @@ use App\Service\WeatherServiceNew;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use PDO;
 
 class DefaultJMController extends AbstractController
 {
@@ -28,7 +29,7 @@ class DefaultJMController extends AbstractController
      */
     public function test(FunctionsService $functionsService, AnlagenRepository $repo){
         $stringArray = $functionsService->readInverters(" 2, 14 , 25-28, 300", $repo->findIdLike(94)[0]);
-        dd($stringArray);
+
         return $this->redirectToRoute("/default/test");
     }
     /**
@@ -44,30 +45,37 @@ class DefaultJMController extends AbstractController
      */
     public function checkSystem(WeatherServiceNew $weather, AnlagenRepository $AnlRepo){
         $Anlagen = $AnlRepo->findAll();
-
-        $time = $this->getLastQuarter(date('Y-m-d H:i') ); //we set the last quarter and we will use it for the queries and to check if the sun is up
+        $time = $this->getLastQuarter(date('Y-m-d H:i') );
+        $time = $this->timeAjustment($time, -2);
+        $sungap = $weather->getSunrise($Anlagen);
         foreach($Anlagen as $anlage){
-            $sungap = $weather->getSunrise($anlage);
-            // to avoid doing this we should have an entity to store the values but that would be huge in the db I think
-            //we will also have problems if we try to run this every 15 mins, sometimes the information is not present if little time has elapsed from the moment they were supposed to be created.
 
             $conn = self::getPdoConnection();
-            if(( $time > $sungap['sunrise']) && ($time < $sungap['sunset'])){
+            if (($anlage->getAnlMute() == "No") && (($time > $sungap[$anlage->getanlName()]['sunrise']) && ($time < $sungap[$anlage->getAnlName()]['sunset']))) {
 
-                $sql2 = "SELECT a.stamp, b.gi_avg as gi , b.gmod_avg as gmod FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp = '$time' ";
-                $res = $conn->query($sql2);
-                dd($res->fetch(PDO::FETCH_ASSOC));
-                /* replace this for the raw query for irr
-                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == "Groningen") {
+                    $sqlw = "SELECT b.gi_avg as gi , b.gmod_avg as gmod FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp = '$time' ";
+                    $resw = $conn->query($sqlw);
+                    $wdata = $resw->fetch(PDO::FETCH_ASSOC);
+                    if($wdata['gi'] != null && $wdata['gmod'] != null) {
+                        if ($wdata['gi'] == 0 && $wdata['gmod'] == 0) $status_report[$anlage->getAnlName()]['Irradiation'] = "Irradiation is 0";
+                        else $status_report[$anlage->getAnlName()]['Irradiation'] = "All good";
+                    }
+                    else  $status_report[$anlage->getAnlName()]['Irradiation'] = "No data";
 
-                    $dataArrayIrradiation = $irradiationChart->getIrradiation($anlage, $time,  'upper');
-                } else {
-                    $dataArrayIrradiation = $irradiationChart->getIrradiation($anlage, $time, date('Y-m-d H:i', strtotime($time)) + 900);
-                }
-                dd($dataArrayIrradiation);
-                */
+                    $sqlp = "SELECT wr_pac as ist 
+                          FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
+                          WHERE a.stamp = '$time' ";
+                    $resp = $conn->query($sqlp);
+                    $pdata = $resp->fetch(PDO::FETCH_ASSOC);
+
+                    if($pdata['ist'] != null){
+                        if($pdata['ist'] == 0) $status_report[$anlage->getAnlName()]['Ist'] = "Power is 0";
+                        else $status_report[$anlage->getAnlName()]['Ist'] = "All good";
+                    }
+                    else $status_report[$anlage->getAnlName()]['Ist'] = "No Data";
             }
         }
+        dd($status_report);
     }
     public function getLastQuarter($stamp){
         $mins = date('i', strtotime($stamp));
@@ -78,5 +86,14 @@ class DefaultJMController extends AbstractController
         else $quarter = "45";
         return ($rest.":".$quarter);
 
+    }
+    public static function timeAjustment($timestamp, float $val = 0, $reverse = false)
+    {
+        $format     = 'Y-m-d H:i:s';
+
+        if (gettype($timestamp) != 'integer') $timestamp = strtotime($timestamp);
+        ($reverse) ? $timestamp -= ($val * 3600) : $timestamp += ($val * 3600);
+
+        return date($format, $timestamp);
     }
 }
