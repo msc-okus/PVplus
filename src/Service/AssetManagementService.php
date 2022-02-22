@@ -2686,7 +2686,6 @@ class AssetManagementService
         $chart->series = [];
         unset($option);
 
-
         //end Chart Losses compared cummulated
         $output = [
             'plantId' => $plantId,

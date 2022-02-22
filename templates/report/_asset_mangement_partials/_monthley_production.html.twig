@@ -3,7 +3,7 @@
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Monthly Production</h3>
 
-    <table >
+    <table style="width: 100% !important">
         <tr>
             {% if (anlage.hasPVSYST == true) %}
             <td style="text-align: left">
@@ -11,7 +11,7 @@
                     <thead>
                     <tr>
                         <td colspan="5">
-                            <span class="subheadline" style="text-align: left !important;">EXP g4n vs. Actuals (Grid meter)</span>
+                            <span class="subheadline" style="text-align: left !important;">EXP PVSYST vs. Actuals </span>
                         </td>
                     </tr>
                     <tr>
@@ -360,7 +360,7 @@
                     <thead>
                     <tr>
                         <td colspan="5">
-                            <span class="subheadline" style="text-align: left !important;">EXP g4n vs. Actuals (Grid meter)</span>
+                            <span class="subheadline" style="text-align: left !important;">Grid meter vs Inverter Out</span>
                         </td>
                     </tr>
                     <tr>
@@ -370,7 +370,7 @@
                                 style="width:82px">Yield</th>
                         {% endif %}
                         <th class="table-center"
-                            style="width:82px">Exp.</th>
+                            style="width:82px">Inverter</th>
                         <th class="table-center"
                             style="width:82px">Difference</th>
                         <th class="table-center"
@@ -380,8 +380,8 @@
                         {% if (anlage.useGridMeterDayData) %}
                             <th class="table-center">Grid meter</th>
                         {% endif %}
-                        <th class="table-center">g4n</th>
-                        <th class="table-center">Yield-EXP</th>
+                        <th class="table-center">Out</th>
+                        <th class="table-center">Grid-Inverter</th>
                         <th class="table-center">Yield-EXP</th>
                     </tr>
                     <tr>
