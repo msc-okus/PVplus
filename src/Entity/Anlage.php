@@ -780,6 +780,11 @@ class Anlage
      */
     private AnlageSettings $settings;
 
+    /**
+     * @ORM\Column(type="string", length=150, nullable=true)
+     */
+    private $picture = "";
+
 
     public function __construct()
     {
@@ -3243,5 +3248,17 @@ class Anlage
     }
     public function hasPVSYST():bool{
         return intval($this->kwPeakPvSyst) > 0;
+    }
+
+    public function getPicture(): ?string
+    {
+        return $this->picture;
+    }
+
+    public function setPicture(?string $picture): self
+    {
+        $this->picture = $picture;
+
+        return $this;
     }
 }

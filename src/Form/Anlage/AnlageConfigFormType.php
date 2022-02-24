@@ -11,12 +11,14 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Validator\Constraints\Image;
 
 class AnlageConfigFormType extends AbstractType
 {
@@ -97,6 +99,23 @@ class AnlageConfigFormType extends AbstractType
                 'label'         => 'Sende Warn E-Mails',
                 'choices'       => ['No' => '0', 'Yes' => '1'],
                 'empty_data'    => '0',
+            ])
+            ->add('picture', FileType::class, [
+                'label' => 'Picture',
+                'mapped' => false,
+                'constraints' => [
+                    new image([
+                        'maxSize' => '5M',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png',
+                            'image/gif',
+                            'image/jpg',
+                            'image/svg'
+                        ],
+                        'mimeTypesMessage' => 'Please upload a valid image type(jpeg, png, gif, jpg, svg)',
+                    ])
+                ]
             ])
         ;
 

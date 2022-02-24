@@ -3,7 +3,7 @@
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Monthly Production</h3>
     <span class="subheadline">Monthly expected vs. actuals</span>
-    <table>
+    <table style="width:100%!important">
         <tr>
             <td colspan="2" style="text-align: left">
                 <table class="asset_report_table_operations_data" style="width: 100%!important;">
@@ -11,7 +11,7 @@
                     <tr>
                         <th style="text-align: right">Monthly Losses - {{ year }}</th>
                         {% for data in dataMonthArray %}
-                            <th style="text-align: center"><div style="width: 100%; height: 50%;">{{ data }}</div></th>
+                            <th style="text-align: center;width: 6.5%"><div style="width: 100%; height: 50%;">{{ data }}</div></th>
                         {% endfor %}
                     </tr>
                     </thead>
@@ -30,12 +30,14 @@
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
+                    {% if (anlage.showEvuDiag) %}
                     <tr>
                         <td class="tr_first_column" style="text-align: right">Diff. inverter to Egrid</td>
                         {% for data in losses_t2.diefference_prod_to_egrid %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
+                    {% endif %}
                     </tbody>
                     {%  if (anlage.hasPVSYST) %}
                     <tr>
@@ -43,7 +45,7 @@
                     </tr>
                     {% endif %}
                 </table>
-                <table>
+                <table style="width:100%!important">
 
                     <tr>
                         <td style="text-align: left">{{ losses_monthly|raw }}</td>
