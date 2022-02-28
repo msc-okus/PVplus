@@ -364,13 +364,13 @@ trait G4NTrait
      * Ermittelt aus dem übergebenen ARray den Mittelwert, wobei 0 Werte nicht in die Berechnung einfließen
      *
      * @param array $werte
-     * @return float
+     * @return float|null
      */
     public function mittelwert(array $werte): ?float
     {
         $divisor = $divident = 0;
         foreach ($werte as $wert) {
-            if ((float)$wert > 0) {
+            if ((float)$wert != 0) {
                 $divisor++;
                 $divident += (float)$wert;
             }
