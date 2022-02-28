@@ -20,6 +20,11 @@ class AnlageModules
     private int $id;
 
     /**
+     * @ORM\Column(type="boolean")
+     */
+    private bool $newExpected = false;
+
+    /**
      * @ORM\Column(type="string", length=20)
      */
     private string $type;
@@ -42,6 +47,26 @@ class AnlageModules
     /**
      * @ORM\Column(type="string", length=20)
      */
+    private string $tempCoefVoltage;
+
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private string $maxImpp;
+
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private string $maxUmpp;
+
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private string $maxPmpp;
+
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
     private string $operatorPowerA;
 
     /**
@@ -58,6 +83,21 @@ class AnlageModules
      * @ORM\Column(type="string", length=20, nullable=true)
      */
     private ?string $operatorPowerD;
+
+    /**
+     * @ORM\Column(type="string", length=20, nullable=true)
+     */
+    private ?string $operatorPowerE;
+
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private string $operatorPowerHighA;
+
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private string $operatorPowerHighB;
 
     /**
      * @ORM\Column(type="string", length=20)
@@ -83,6 +123,11 @@ class AnlageModules
      * @ORM\Column(type="string", length=20)
      */
     private string $operatorCurrentE;
+
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private string $operatorCurrentHighA;
 
     /**
      * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="modules")
@@ -154,6 +199,24 @@ class AnlageModules
         return $this->id;
     }
 
+    public function getNewExpected(): bool
+    {
+        return $this->newExpected;
+    }
+
+    public function isNewExpected(): bool
+    {
+        return $this->newExpected;
+    }
+
+    public function setNewExpected(bool $newExpected): self
+    {
+        $this->newExpected = $newExpected;
+
+        return $this;
+    }
+
+
     public function getType(): ?string
     {
         return $this->type;
@@ -198,6 +261,54 @@ class AnlageModules
     public function setTempCoefPower(string $tempCoefPower): self
     {
         $this->tempCoefPower =  str_replace(',', '.', $tempCoefPower);
+
+        return $this;
+    }
+
+    public function getTempCoefVoltage(): float
+    {
+        return (float)$this->tempCoefVoltage;
+    }
+
+    public function setTempCoefVoltage(string $tempCoefVoltage): self
+    {
+        $this->tempCoefVoltage = str_replace(',', '.', $tempCoefVoltage);
+
+        return $this;
+    }
+
+    public function getMaxImpp(): float
+    {
+        return (float)$this->maxImpp;
+    }
+
+    public function setMaxImpp(string $maxImpp): self
+    {
+        $this->maxImpp = str_replace(',', '.', $maxImpp);
+
+        return $this;
+    }
+
+    public function getMaxUmpp(): float
+    {
+        return (float)$this->maxUmpp;
+    }
+
+    public function setMaxUmpp(string $maxUmpp): self
+    {
+        $this->maxUmpp = str_replace(',', '.', $maxUmpp);
+
+        return $this;
+    }
+
+    public function getMaxPmpp(): float
+    {
+        return (float)$this->maxPmpp;
+    }
+
+    public function setMaxPmpp(string $maxPmpp): self
+    {
+        $this->maxPmpp = str_replace(',', '.', $maxPmpp);
 
         return $this;
     }
@@ -249,6 +360,44 @@ class AnlageModules
 
         return $this;
     }
+
+    public function getOperatorPowerE(): ?string
+    {
+        return $this->operatorPowerE;
+    }
+
+    public function setOperatorPowerE(string $operatorPowerE): self
+    {
+        $this->operatorPowerE =  str_replace(',', '.', $operatorPowerE);
+
+        return $this;
+    }
+
+    public function getOperatorPowerHighA(): ?string
+    {
+        return $this->operatorPowerHighA;
+    }
+
+    public function setOperatorPowerHighA(string $operatorPowerHighA): self
+    {
+        $this->operatorPowerHighA =  str_replace(',', '.', $operatorPowerHighA);
+
+        return $this;
+    }
+
+    public function getOperatorPowerHighB(): ?string
+    {
+        return $this->operatorPowerHighB;
+    }
+
+    public function setOperatorPowerHighB(string $operatorPowerHighB): self
+    {
+        $this->operatorPowerHighB =  str_replace(',', '.', $operatorPowerHighB);
+
+        return $this;
+    }
+
+    ######## Cuurent
 
     public function getOperatorCurrentA(): ?string
     {
@@ -310,44 +459,94 @@ class AnlageModules
         return $this;
     }
 
-    public function getFactorCurrent($irr): float
+    public function getOperatorCurrentHighA(): ?string
     {
-        @list($a1, $b1, $c1) = explode(":", $this->getOperatorCurrentA());
-        ($b1 and $c1) ? $a = $a1 * $b1 ** $c1 : $a = $a1;
-
-        @list($a2, $b2, $c2) = explode(":", $this->getOperatorCurrentB());
-        ($b2 and $c2) ? $b = $a2 * $b2 ** $c2 : $b = $a2;
-
-        @list($a3, $b3, $c3) = explode(":", $this->getOperatorCurrentC());
-        ($b3 and $c3) ? $c = $a3 * $b3 ** $c3 : $c = $a3;
-
-        @list($a4, $b4, $c4) = explode(":", $this->getOperatorCurrentD());
-        ($b4 and $c4) ? $d = $a4 * $b4 ** $c4 : $d = $a4;
-
-        @list($a5, $b5, $c5) = explode(":", $this->getOperatorCurrentE());
-        ($b5 and $c5) ? $e = $a5 * $b5 ** $c5 : $e = $a5;
-
-        return ($irr > 0) ? ($a * $irr ** 4) + ($b * $irr ** 3) + ($c * $irr ** 2) + ($d * $irr) + $e : 0;
+        return $this->operatorCurrentHighA;
     }
 
-    public function getFactorPower($irr): float
+    public function setOperatorCurrentHighA(string $operatorCurrentHighA): self
     {
-        @list($a1, $b1, $c1) = explode(":", $this->getOperatorPowerA());
-        ($b1 and $c1) ? $a = $a1 * $b1 ** $c1 : $a = $a1;
-        @list($a2, $b2, $c2) = explode(":", $this->getOperatorPowerB());
-        ($b2 and $c2) ? $b = $a2 * $b2 ** $c2 : $b = $a2;
-        @list($a3, $b3, $c3) = explode(":", $this->getOperatorPowerC());
-        ($b3 and $c3) ? $c = $a3 * $b3 ** $c3 : $c = $a3;
+        $this->operatorCurrentHighA =  str_replace(',', '.', $operatorCurrentHighA);
 
-        if ($this->getOperatorPowerD() === null) { // Operator D ist nicht eingeben => wir nutzen den alten Algorithmus
-            $power = ($irr > 0) ? ($a * $irr ** 2) + ($b * $irr) + $c : 0;
+        return $this;
+    }
+
+    #### Calulated Values
+
+    /**
+     * This Factor has to multiply by the numbers of modules, to calculate the expected current.<br>
+     * The Parameter $irr (Irradiation) must be of type float.
+     *
+     * @param float $irr
+     * @return float
+     */
+    public function getFactorCurrent(float $irr): float
+    {
+        if ($this->newExpected === true) {
+            if ($irr > 200) {
+                $expected = $this->getOperatorCurrentHighA() * $irr;
+            } else {
+                $expected = $this->getOperatorCurrentA() * $irr ** 4 + $this->getOperatorCurrentB() * $irr ** 3 + $this->getOperatorCurrentC() * $irr ** 2 + $this->getOperatorCurrentD() * $irr + $this->getOperatorCurrentE() ;
+            }
+            $expected = $expected > $this->maxImpp ? $this->maxImpp : $expected;
         } else {
-            @list($a4, $b4, $c4) = explode(":", $this->getOperatorPowerD());
+            @list($a1, $b1, $c1) = explode(":", $this->getOperatorCurrentA());
+            ($b1 and $c1) ? $a = $a1 * $b1 ** $c1 : $a = $a1;
+
+            @list($a2, $b2, $c2) = explode(":", $this->getOperatorCurrentB());
+            ($b2 and $c2) ? $b = $a2 * $b2 ** $c2 : $b = $a2;
+
+            @list($a3, $b3, $c3) = explode(":", $this->getOperatorCurrentC());
+            ($b3 and $c3) ? $c = $a3 * $b3 ** $c3 : $c = $a3;
+
+            @list($a4, $b4, $c4) = explode(":", $this->getOperatorCurrentD());
             ($b4 and $c4) ? $d = $a4 * $b4 ** $c4 : $d = $a4;
-            $power = ($irr > 0) ? ($a * $irr ** 3) + ($b * $irr ** 2) + ($c * $irr) + $d : 0;
+
+            @list($a5, $b5, $c5) = explode(":", $this->getOperatorCurrentE());
+            ($b5 and $c5) ? $e = $a5 * $b5 ** $c5 : $e = $a5;
+
+            $expected = $irr > 0 ? ($a * $irr ** 4) + ($b * $irr ** 3) + ($c * $irr ** 2) + ($d * $irr) + $e : 0;
         }
 
-        return $power;
+        return $irr > 0 ? $expected : 0;
+    }
+
+    /**
+     * This Factor has to multiply by the numbers of modules, to calculate the expected power.<br>
+     * The Parameter $irr (Irradiation) must be of type float.
+     *
+     * @param float $irr
+     * @return float
+     */
+    public function getFactorPower(float $irr): float
+    {
+        if ($this->newExpected === true) {
+            // New Algoritmen
+            if ($irr > 200) {
+                $expected = $this->getOperatorPowerHighA() * $irr + $this->getOperatorPowerHighB();
+            } else {
+                $expected = $this->getOperatorPowerA() * $irr ** 4 + $this->getOperatorPowerB() * $irr ** 3 + $this->getOperatorPowerC() * $irr ** 2 + $this->getOperatorPowerD() * $irr + $this->getOperatorPowerE() ;
+            }
+            $expected = $expected > $this->maxPmpp ? $this->maxPmpp : $expected;
+        } else {
+            // old Methode
+            @list($a1, $b1, $c1) = explode(":", $this->getOperatorPowerA());
+            ($b1 and $c1) ? $a = $a1 * $b1 ** $c1 : $a = $a1;
+            @list($a2, $b2, $c2) = explode(":", $this->getOperatorPowerB());
+            ($b2 and $c2) ? $b = $a2 * $b2 ** $c2 : $b = $a2;
+            @list($a3, $b3, $c3) = explode(":", $this->getOperatorPowerC());
+            ($b3 and $c3) ? $c = $a3 * $b3 ** $c3 : $c = $a3;
+
+            if ($this->getOperatorPowerD() === null) { // Operator D ist nicht eingeben => wir nutzen den alten Algorithmus
+                $expected = ($irr > 0) ? ($a * $irr ** 2) + ($b * $irr) + $c : 0;
+            } else {
+                @list($a4, $b4, $c4) = explode(":", $this->getOperatorPowerD());
+                ($b4 and $c4) ? $d = $a4 * $b4 ** $c4 : $d = $a4;
+                $expected = ($irr > 0) ? ($a * $irr ** 3) + ($b * $irr ** 2) + ($c * $irr) + $d : 0;
+            }
+        }
+
+        return $irr > 0 ? $expected : 0;
     }
 
     public function getTempCorrPower(float $pannelTemp): float
@@ -481,7 +680,7 @@ class AnlageModules
 
     public function setIrrDiscount5(string $irrDiscount5): void
     {
-        $this->irrDiscount5 = $irrDiscount5;
+        $this->irrDiscount5 = str_replace(',', '.', $irrDiscount5);
     }
 
     public function getIrrDiscount6(): float
@@ -491,7 +690,7 @@ class AnlageModules
 
     public function setIrrDiscount6(string $irrDiscount6): void
     {
-        $this->irrDiscount6 = $irrDiscount6;
+        $this->irrDiscount6 = str_replace(',', '.', $irrDiscount6);
     }
 
     public function getIrrDiscount7(): float
@@ -501,7 +700,7 @@ class AnlageModules
 
     public function setIrrDiscount7(string $irrDiscount7): void
     {
-        $this->irrDiscount7 = $irrDiscount7;
+        $this->irrDiscount7 = str_replace(',', '.', $irrDiscount7);
     }
 
     public function getIrrDiscount8(): float
@@ -511,7 +710,7 @@ class AnlageModules
 
     public function setIrrDiscount8(string $irrDiscount8): void
     {
-        $this->irrDiscount8 = $irrDiscount8;
+        $this->irrDiscount8 = str_replace(',', '.', $irrDiscount8);
     }
 
 }

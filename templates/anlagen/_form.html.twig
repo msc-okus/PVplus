@@ -7,11 +7,17 @@
 
         <div class="accordion-content" data-tab-content>
             <div class="grid-x grid-padding-x">
+                <div class="cell medium-2">{{ form_row(module.newExpected) }}</div>
                 <div class="cell medium-2">{{ form_row(module.type) }}</div>
                 <div class="cell medium-2">{{ form_row(module.power) }}</div>
                 <div class="cell medium-2">{{ form_row(module.tempCoefCurrent) }}</div>
                 <div class="cell medium-2">{{ form_row(module.tempCoefPower) }}</div>
                 <div class="cell medium-2">{{ form_row(module.degradation) }}</div>
+            </div>
+            <div class="grid-x grid-padding-x">
+                <div class="cell medium-2">{{ form_row(module.maxImpp) }}</div>
+                <div class="cell medium-2">{{ form_row(module.maxUmpp) }}</div>
+                <div class="cell medium-2">{{ form_row(module.maxPmpp) }}</div>
             </div>
             <div class="grid-x grid-padding-x">
                 <div class="cell medium-6">
@@ -24,6 +30,9 @@
                             <div class="cell medium-2">{{ form_row(module.operatorCurrentD) }}</div>
                             <div class="cell medium-2">{{ form_row(module.operatorCurrentE) }}</div>
                         </div>
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-2">{{ form_row(module.operatorCurrentHighA) }}</div>
+                        </div>
                     </fieldset>
                 </div>
 
@@ -31,14 +40,19 @@
                     <fieldset class="fieldset">
                         <legend>Operators Power</legend>
                         <div class="grid-x grid-padding-x">
-                            <div class="cell medium-3">{{ form_row(module.operatorPowerA) }}</div>
-                            <div class="cell medium-3">{{ form_row(module.operatorPowerB) }}</div>
-                            <div class="cell medium-3">{{ form_row(module.operatorPowerC) }}</div>
-                            <div class="cell medium-3">{{ form_row(module.operatorPowerD) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorPowerA) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorPowerB) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorPowerC) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorPowerD) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorPowerE) }}</div>
+                        </div>
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-2">{{ form_row(module.operatorPowerHighA) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorPowerHighB) }}</div>
                         </div>
                     </fieldset>
                 </div>
-
+                {#
                 <div class="cell medium-12">
                     <fieldset class="fieldset">
                         <legend>Irradiation Discount</legend>
@@ -55,6 +69,7 @@
                         </div>
                     </fieldset>
                 </div>
+                #}
             </div>
         </div>
     </li>
@@ -327,11 +342,17 @@
 
                                         <div class="accordion-content" data-tab-content>
                                             <div class="grid-x grid-padding-x">
+                                                <div class="cell medium-2">{{ form_row(module.newExpected) }}</div>
                                                 <div class="cell medium-2">{{ form_row(module.type) }}</div>
                                                 <div class="cell medium-2">{{ form_row(module.power) }}</div>
                                                 <div class="cell medium-2">{{ form_row(module.tempCoefCurrent) }}</div>
                                                 <div class="cell medium-2">{{ form_row(module.tempCoefPower) }}</div>
                                                 <div class="cell medium-2">{{ form_row(module.degradation) }}</div>
+                                            </div>
+                                            <div class="grid-x grid-padding-x">
+                                                <div class="cell medium-2">{{ form_row(module.maxImpp) }}</div>
+                                                <div class="cell medium-2">{{ form_row(module.maxUmpp) }}</div>
+                                                <div class="cell medium-2">{{ form_row(module.maxPmpp) }}</div>
                                             </div>
                                             <div class="grid-x grid-padding-x">
                                                 <div class="cell medium-6">
@@ -344,6 +365,9 @@
                                                             <div class="cell medium-2">{{ form_row(module.operatorCurrentD) }}</div>
                                                             <div class="cell medium-2">{{ form_row(module.operatorCurrentE) }}</div>
                                                         </div>
+                                                        <div class="grid-x grid-padding-x">
+                                                            <div class="cell medium-2">{{ form_row(module.operatorCurrentHighA) }}</div>
+                                                        </div>
                                                     </fieldset>
                                                 </div>
 
@@ -351,19 +375,24 @@
                                                     <fieldset class="fieldset">
                                                         <legend>Operators Power</legend>
                                                         <div class="grid-x grid-padding-x">
-                                                            <div class="cell medium-3">{{ form_row(module.operatorPowerA) }}</div>
-                                                            <div class="cell medium-3">{{ form_row(module.operatorPowerB) }}</div>
-                                                            <div class="cell medium-3">{{ form_row(module.operatorPowerC) }}</div>
-                                                            <div class="cell medium-3">{{ form_row(module.operatorPowerD) }}</div>
+                                                            <div class="cell medium-2">{{ form_row(module.operatorPowerA) }}</div>
+                                                            <div class="cell medium-2">{{ form_row(module.operatorPowerB) }}</div>
+                                                            <div class="cell medium-2">{{ form_row(module.operatorPowerC) }}</div>
+                                                            <div class="cell medium-2">{{ form_row(module.operatorPowerD) }}</div>
+                                                            <div class="cell medium-2">{{ form_row(module.operatorPowerE) }}</div>
+                                                        </div>
+                                                        <div class="grid-x grid-padding-x">
+                                                            <div class="cell medium-2">{{ form_row(module.operatorPowerHighA) }}</div>
+                                                            <div class="cell medium-2">{{ form_row(module.operatorPowerHighB) }}</div>
                                                         </div>
                                                     </fieldset>
                                                 </div>
-
+                                                {#
                                                 <div class="cell medium-12">
                                                     <fieldset class="fieldset">
                                                         <legend>Irradiation Discount</legend>
                                                         <div class="grid-x grid-padding-x">
-                                                            <div class="cell medium-2">{{ form_row(module.disableIrrDiscount) }}</div>
+                                                            <div class="cell medium-3">{{ form_row(module.disableIrrDiscount) }}</div>
                                                             <div class="cell medium-1">{{ form_row(module.irrDiscount1) }}</div>
                                                             <div class="cell medium-1">{{ form_row(module.irrDiscount2) }}</div>
                                                             <div class="cell medium-1">{{ form_row(module.irrDiscount3) }}</div>
@@ -375,6 +404,7 @@
                                                         </div>
                                                     </fieldset>
                                                 </div>
+                                                #}
                                             </div>
                                         </div>
                                     </li>
