@@ -139,7 +139,7 @@ class ReportService
      * @return string
      * @throws ExceptionInterface
      */
-    public function buildMonthlyReport(Anlage $anlage, array $report, $reportCreationDate, int $docType = 0, int $chartTypeToExport = 0, $exit = true): string
+    public function buildMonthlyReport(Anlage $anlage, array $report, $reportCreationDate, int $docType = 0, int $chartTypeToExport = 0, bool $exit = true): string
     {
         #beginn create Array for Day Values Table
 
@@ -385,8 +385,7 @@ class ReportService
                     $output = $reportout->run()->render(true);
                     $reportout->run();
                     $reportout->exportToXLSX('ReportMonthly')->toBrowser($excelFilename);
-                    if ($exit) exit; // Ohne exit führt es unter manchen Systemen (Browser) zu fehlerhaften Downloads
-                    break;
+                    exit; // Ohne exit führt es unter manchen Systemen (Browser) zu fehlerhaften Downloads
 
                 case 2: // Bilder der Charts Exportieren
                     $output = $reportout->run()->render(true);
@@ -415,8 +414,7 @@ class ReportService
                             "fullPage" => true
                         ))
                         ->toBrowser($pngFilename);
-                    if ($exit) exit; // Ohne exit führt es unter manchen Systemen (Browser) zu fehlerhaften Downloads
-                    break;
+                    exit; // Ohne exit führt es unter manchen Systemen (Browser) zu fehlerhaften Downloads
 
                 default:
                     $output = $reportout->run()->render('ReportMonthly', true);
@@ -439,7 +437,7 @@ class ReportService
                         ->settings($settings)
                         ->pdf($pdfOptions)
                         ->toBrowser($pdfFilename);
-                    if ($exit === true) exit; // Ohne exit führt es unter manchen Systemen (Browser) zu fehlerhaften Downloads
+                    exit; // Ohne exit führt es unter manchen Systemen (Browser) zu fehlerhaften Downloads
             }
         }
 
