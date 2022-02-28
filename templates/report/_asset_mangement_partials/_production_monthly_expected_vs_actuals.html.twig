@@ -11,6 +11,9 @@
     {% set DCexpsum = 0 %}
     {% set TheoSum = 0 %}
     {% set daycount = 0 %}
+    {% set tempsum = 0 %}
+    {% set PAsum = 0 %}
+    {% set PAsum2 = 0 %}
 
 
 
@@ -124,8 +127,9 @@
                                 <td class="tr_next_columns">{{ data.powerDctMonth|number_format(0, ',', '.') }}</td>
                                 {% set DCInvsum = DCInvsum + data.powerDctMonth %}
                                 <td class="tr_next_columns">{{ data.powerExpMonth|number_format(0, ',', '.') }}</td>
-                                {% set ACexpsum =  data.powerExpMonth%}
+                                {% set ACexpsum = ACexpsum + data.powerExpMonth%}
                                 <td class="tr_next_columns">{{ data.powerExpDctMonth|number_format(0, ',', '.') }}</td>
+                                {% set DCexpsum = DCexpsum + data.powerExpDctMonth %}
                                 {% if (anlage.getShowEvuDiag) %}
                                     <td class="tr_next_columns">{{ data.prEvuMonth|number_format(2, ',', '.') }}</td>
 
@@ -134,31 +138,58 @@
                                 <td class="tr_next_columns">{{ data.prExpMonth|number_format(2, ',', '.') }}</td>
                                 {% if (anlage.showAvailability == true) %}
                                     <td class="tr_next_columns">{{ data.plantAvailability|number_format(2, ',', '.') }}</td>
+                                    {% set PAsum = PAsum + data.plantAvailability %}
                                 {% endif %}
                                 {% if (anlage.showAvailabilitySecond == true) %}
                                     <td class="tr_next_columns">{{ data.plantAvailabilitySecond|number_format(2, ',', '.') }}</td>
+                                    {% set PAsum2 = PAsum2 + data.plantAvailabilitySecond %}
                                 {% endif %}
                                 <td class="tr_next_columns">{{ data.panneltemp|number_format(2, ',', '.') }}</td>
+                                {% set tempsum = tempsum + data.panneltemp %}
                                 <td class="tr_next_columns"> {{ (data.irradiation * anlage.kwPeak )|number_format(2, ',', '.') }}</td>
-                                {% set TheoSum = TheoSum + data.irradiation * anlage.kwPeak %}
+
                             </tr>
                             {% set daycount = daycount + 1 %}
                         {% endfor %}
+                        {% set TheoSum = irrsum * anlage.kwPeak %}
                         <tr>
                             <td class="tr_next_columns"> Overall</td>
-                            <td class="tr_next_columns">{{ irrsum }}</td>
+                            <td class="tr_next_columns">{{ irrsum | number_format(2, ',', '.') }}</td>
                             {% if (anlage.useGridMeterDayData == true)%}
                                 <td class="tr_next_columns">{{ extgrid |number_format(2, ',', '.')}}</td>
                             {% endif %}
                             {% if (anlage.getShowEvuDiag) %}
-                                <td class="tr_next_columns">{{ gridsum |number_format(2, ',', '.')}}</td>
+                                <td class="tr_next_columns">{{ gridsum |number_format(0, ',', '.')}}</td>
                             {% endif %}
+                            <td class="tr_next_columns"> {{ ACInvsum |number_format(0, ',', '.') }}</td>
+                            <td class="tr_next_columns"> {{ DCInvsum |number_format(0, ',', '.') }}</td>
+                            <td class="tr_next_columns"> {{ ACexpsum |number_format(0, ',', '.') }} </td>
+                            <td class="tr_next_columns"> {{ DCexpsum |number_format(0, ',', '.') }} </td>
+                            {% if (anlage.getShowEvuDiag == true)%}
+                            <td class="tr_next_columns"> {{ ((gridsum/TheoSum)*100)|number_format(2, ',', '.') }}</td>
+                            {% endif %}
+                            <td class="tr_next_columns">{{  ((ACInvsum/TheoSum)*100) |number_format(2, ',', '.')}}</td>
+                            <td class="tr_next_columns"> {{  ((ACexpsum/TheoSum)*100) |number_format(2, ',', '.')}}</td>
+                            {% if (anlage.showAvailability == true) %}
+                            <td class="tr_next_columns"> {{ (PAsum/daycount)|number_format(2, ',', '.') }}</td>
+                            {% endif %}
+                            {% if (anlage.showAvailabilitySecond == true) %}
+                                <td class="tr_next_columns"> {{ (PAsum2/daycount)|number_format(2, ',', '.') }}</td>
+                            {% endif %}
+                            <td class="tr_next_columns"> {{ (tempsum/daycount)|number_format(2, ',', '.')}} </td>
+                            <td class="tr_next_columns"> {{ TheoSum |number_format(2, ',', '.')}}</td>
+
                         </tr>
                         </tbody>
                     </table>
 
                 </td>
-                <td class="pr-formula" ><img src="{{ absolute_url(asset('images/Formulas/prFormelStandard.png')) }}"></td>
+                <td class="pr-formula" >
+                        <img src="{{ absolute_url(asset('images/Formulas/prFormelStandard.png')) }}">
+
+                        <img src="{{ absolute_url(asset('images/Formulas/Theo_Power_formula.png')) }}">
+                </td>
+
             </tr>
         </table>
 
