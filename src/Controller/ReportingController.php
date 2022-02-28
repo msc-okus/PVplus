@@ -10,6 +10,7 @@ use App\Form\AssetManagement\AssetManagementeReportFormType;
 use App\Form\Reports\ReportsFormType;
 use App\Helper\G4NTrait;
 use App\Reports\Goldbeck\EPCMonthlyPRGuaranteeReport;
+use App\Reports\ReportMonthly\ReportMonthly;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
 use App\Service\AssetManagementService;
@@ -318,7 +319,7 @@ class ReportingController extends AbstractController
      * @Route("/reporting/pdf/{id}", name="app_reporting_pdf")
      */
 
-    public function showReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer,  ReportsEpcNewService $epcNewService)
+    public function showReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer,  ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly)
     {
         /** @var AnlagenReports|null $report */
         $session=$this->container->get('session');
@@ -409,7 +410,13 @@ class ReportingController extends AbstractController
                 break;
             case 'monthly-report':
                 //standard G4N Report (an O&M Goldbeck angelehnt)
-                $output = $reportService->buildMonthlyReport($anlage, $report->getContentArray(), $reportCreationDate, 0 ,0, true);
+                switch ($report->getReportTypeVersion()) {
+                    case 1: // Version 1 -> Calulation on demand, store to serialized array and buil pdf and xls from this Data
+                        $reportsMonthly->exportReportToPDF($anlage, $report);
+                        break;
+                    default: // old Version
+                        $output = $reportService->buildMonthlyReport($anlage, $report->getContentArray(), $reportCreationDate, 0, 0, true);
+                }
                 break;
             case 'am-report':
                 if ($reportsRepository->find($id)) {
@@ -599,7 +606,7 @@ class ReportingController extends AbstractController
             case 'monthly-report':
                 //Standard G4N Report (Goldbeck = O&M Report)
                 switch ($report->getReportTypeVersion()){
-                    case 1: // Version 1 -> Calulation on demand, store to serialized array and buil pdf and exl from this Data
+                    case 1: // Version 1 -> Calulation on demand, store to serialized array and buil pdf and xls from this Data
                         $reportsMonthly->exportReportToExcel($anlage, $report);
                         break;
                     default: // old Version
@@ -617,7 +624,7 @@ class ReportingController extends AbstractController
     /**
      * @Route("/reporting/html/{id}", name="app_reporting_html")
      */
-    public function showReportAsHtml($id, ReportsRepository $reportsRepository, Request $request, ReportService $reportService,  NormalizerInterface $serializer,  ReportsEpcNewService $epcNewService): Response
+    public function showReportAsHtml($id, ReportsRepository $reportsRepository, Request $request, ReportService $reportService,  NormalizerInterface $serializer,  ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly): Response
     {
 
         $result = "<h2>Somthing is wrong !!! (perhaps no Report ?)</h2>";
@@ -625,7 +632,6 @@ class ReportingController extends AbstractController
         if ($report) {
             /** @var AnlagenReports|null $report */
             $session=$this->container->get('session');
-            $pdf = new PdfService("");
             $searchstatus   = $session->get('search');
             $searchtype     = $session->get('type');
             $anlageq        = $session->get('anlage');
@@ -655,7 +661,14 @@ class ReportingController extends AbstractController
             switch ($report->getReportType()) {
 
                 case 'monthly-report':
-                    $result = $reportService->buildMonthlyReport($anlage, $report->getContentArray(), $reportCreationDate, 0, 0, false);
+                    switch ($report->getReportTypeVersion()) {
+                        case 1: // Version 1 -> Calulation on demand, store to serialized array and buil pdf and xls from this Data
+                            $reportout = new ReportMonthly($reportArray);
+                            $result = $reportout->run()->render('ReportMonthly', true);
+                            break;
+                        default: // old Version
+                            $result = $reportService->buildMonthlyReport($anlage, $reportArray, $reportCreationDate, 0, 0, false);
+                    }
                     break;
 
                 case 'am-report':
@@ -741,7 +754,6 @@ class ReportingController extends AbstractController
                     ]);
 
                 case 'epc-report':
-
                     switch ($anlage->getEpcReportType()) {
                         case 'prGuarantee' :
                             $result = "<h2>PR Guarantee - not ready</h2>";
