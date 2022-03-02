@@ -121,8 +121,8 @@ class ExpectedService
                     // d.h. je weniger Strahlung desso geringer ist die Auswirkung der Verschattung
                     // Werte für die Eingruppierung sind mit OS und TL abgesprochen
                     $tempIrr = $this->functions->mittelwert([(float)$weather["irr_upper"], (float)$weather["irr_lower"]]);
-                    if     ($tempIrr <= 100) {$shadow_loss = $shadow_loss * 0.05;}
-                    elseif ($tempIrr <= 200) {$shadow_loss = $shadow_loss * 0.21;}
+                    if     ($tempIrr <= 100) {$shadow_loss = $shadow_loss * 0.0;} // 0.05
+                    elseif ($tempIrr <= 200) {$shadow_loss = $shadow_loss * 0.0;} // 0.21
                     elseif ($tempIrr <= 400) {$shadow_loss = $shadow_loss * 0.35;}
                     elseif ($tempIrr <= 600) {$shadow_loss = $shadow_loss * 0.57;}
                     elseif ($tempIrr <= 800) {$shadow_loss = $shadow_loss * 0.71;}
