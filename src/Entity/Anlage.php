@@ -781,14 +781,14 @@ class Anlage
     private AnlageSettings $settings;
 
     /**
-     * @ORM\OneToMany(targetEntity=Status::class, mappedBy="Anlage", orphanRemoval=true)
-     */
-    private $statuses;
-
-    /**
      * @ORM\Column(type="string", length=150, nullable=true)
      */
     private $picture = "";
+
+    /**
+     * @ORM\OneToMany(targetEntity=Status::class, mappedBy="Anlage", orphanRemoval=true)
+     */
+    private $statuses;
 
 
     public function __construct()
@@ -3256,14 +3256,6 @@ class Anlage
         return intval($this->kwPeakPvSyst) > 0;
     }
 
-    /**
-     * @return Collection|Status[]
-     */
-    public function getStatuses(): Collection
-    {
-        return $this->statuses;
-    }
-
     public function getPicture(): ?string
     {
         return $this->picture;
@@ -3274,5 +3266,13 @@ class Anlage
         $this->picture = $picture;
 
         return $this;
+    }
+
+    /**
+     * @return Collection|Status[]
+     */
+    public function getStatuses(): Collection
+    {
+        return $this->statuses;
     }
 }
