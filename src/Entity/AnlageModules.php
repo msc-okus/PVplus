@@ -527,13 +527,7 @@ class AnlageModules
             } else {
                 $expected = $this->getOperatorPowerA() * $irr ** 4 + $this->getOperatorPowerB() * $irr ** 3 + $this->getOperatorPowerC() * $irr ** 2 + $this->getOperatorPowerD() * $irr + $this->getOperatorPowerE() ;
             }
-
-            $dumpString = "Max PowerMPP: $this->maxPmpp – Old: $expected - ";
-
             $expected = $expected > $this->maxPmpp ? $this->maxPmpp : $expected;
-            if ($irr > 950) {
-                dump($dumpString . "New: $expected");
-            }
         } else {
             // old Methode
             @list($a1, $b1, $c1) = explode(":", $this->getOperatorPowerA());
