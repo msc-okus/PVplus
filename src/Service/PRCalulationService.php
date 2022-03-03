@@ -323,7 +323,7 @@ class PRCalulationService
                         $yearPrExp          = ($powerExpYear        / $powerTheoYear) * 100;
                         $yearPrEGridExt     = ($powerEGridExtYear   / $powerTheoYear) * 100;
                     }
-                    #dd( "Year: " . $powerEGridExtYear. " / $powerTheoYear | Month: " . $powerEGridExtMonth ." / $powerTheoMonth");
+                    #dd( "Year: " . $powerEGridExtYear. " / $powerTheoYear | Month: " . $powerEGridExtMonth ." / $powerTheoMonth | PR Month: $monthPrEGridExt");
                     break;
                 default:
                     // wenn es keinen spezielen Algoritmus gibt
@@ -382,7 +382,7 @@ class PRCalulationService
                 $pr->setAnlId($anlage->getAnlId())
                     ->setAnlage($anlage)
                     ->setstamp(new DateTime($from))
-                    ->setstampIst(new DateTime($from));
+                ;
             }
             // Daten gefunden, aktualisieren der Daten
             $pr ->setPowerAct($powerAct)
