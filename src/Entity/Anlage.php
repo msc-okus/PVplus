@@ -785,6 +785,11 @@ class Anlage
      */
     private $picture = "";
 
+    /**
+     * @ORM\OneToMany(targetEntity=Status::class, mappedBy="Anlage", orphanRemoval=true)
+     */
+    private $statuses;
+
 
     public function __construct()
     {
@@ -813,6 +818,7 @@ class Anlage
         $this->tickets = new ArrayCollection();
         $this->economicVarValues = new ArrayCollection();
         $this->anlageFiles = new ArrayCollection();
+        $this->statuses = new ArrayCollection();
     }
 
     public function getAnlId(): ?string
@@ -3260,5 +3266,13 @@ class Anlage
         $this->picture = $picture;
 
         return $this;
+    }
+
+    /**
+     * @return Collection|Status[]
+     */
+    public function getStatuses(): Collection
+    {
+        return $this->statuses;
     }
 }
