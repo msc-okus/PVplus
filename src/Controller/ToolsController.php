@@ -75,7 +75,6 @@ class ToolsController extends BaseController
                         break;
                 }
             }
-
         }
 
         // Wenn Close gelickt wird mache dies:

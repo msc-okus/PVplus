@@ -12,20 +12,25 @@
                         <th style="text-align: right;">Production {{ year }}</th>
                         {% set counter = 1 %}
                         {% for data in dataMonthArray %}
-                                <th style="text-align: center;">{{ data }}</th>
+                                <th style="text-align: center;width:6.5%">{{ data }}</th>
                             {% set counter = counter+1 %}
                         {% endfor %}
                     </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                        <td class="tr_first_column" style="text-align: right;">Yield (Grid meter) [kWh]</td>
-                        {% set powerEvuTotal = 0 %}
-                        {% for data in table_overview_monthly.powerEvu %}
-                            {% set powerEvuTotal = powerEvuTotal+data %}
-                            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                        {% endfor %}
-                    </tr>
+                    {% set powerEvuTotal = 0 %}
+                    {% if (anlage.getShowEvuDiag() ) %}
+                        {% if (anlage.useGridMeterDayData) %}
+                            <tr>
+                                <td class="tr_first_column" style="text-align: right;">Yield (Grid meter) [kWh]</td>
+
+                                {% for data in table_overview_monthly.powerEvu %}
+                                    {% set powerEvuTotal = powerEvuTotal+data %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endif %}
+                    {% endif %}
                     {% if (anlage.hasPVSYST == true) %}
                     <tr>
                         <td class="tr_first_column" style="text-align: right;">Expected PV SYST [kWh]</td>

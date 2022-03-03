@@ -1,29 +1,47 @@
 {% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
 
 {% block page %}
-    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Daily Production – {{ month }} {{ year }}</h3>
 
-        <table >
+    {% set irrsum = 0 %}
+    {% set extgrid = 0 %}
+    {% set gridsum = 0 %}
+    {% set ACInvsum = 0 %}
+    {% set DCInvsum = 0 %}
+    {% set ACexpsum = 0 %}
+    {% set DCexpsum = 0 %}
+    {% set TheoSum = 0 %}
+    {% set daycount = 0 %}
+    {% set tempsum = 0 %}
+    {% set PAsum = 0 %}
+    {% set PAsum2 = 0 %}
+
+
+
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Daily Production - {{ month }} {{ year }}</h3>
+
+        <table style="width: 100% !important">
             <tr>
                 <td style="vertical-align: top;">
 
                     <table class="asset_report_table_operations_data">
                         <thead>
                         <tr>
-                            <th rowspan="3" class="table-center">Date</th>
+                            <th rowspan="3" class="table-center" >Date</th>
                             <th class="table-center">IRR</th>
                             {% if (anlage.useGridMeterDayData == true) %}
                                 <th class="table-center">Grid meter</th>
+
                             {% endif %}
-                            <th class="table-center">Grid meter</th>
+                            {% if (anlage.getShowEvuDiag) %}
+                                <th class="table-center">Grid meter</th>
+                            {% endif %}
                             <th class="table-center">AC Inv.</th>
                             <th class="table-center">DC Inv.</th>
                             <th class="table-center">AC Exp.</th>
                             <th class="table-center">DC Exp.</th>
-                            {% if (anlage.useGridMeterDayData == true) %}
-                                <th class="table-center">Grid meter</th>
+                            {% if (anlage.getShowEvuDiag) %}
+                                <th class="table-center">PR Grid meter</th>
                             {% endif %}
-                            <th class="table-center">PR Grid meter</th>
                             <th class="table-center">PR AC</th>
                             <th class="table-center">PR Exp.</th>
                             {% if (anlage.showAvailability == true) %}
@@ -33,21 +51,23 @@
                                 <th class="table-center">PA 2</th>
                             {% endif %}
                             <th class="table-center">Ø Temp</th>
+                            <th class="table-center"> Theo* Power</th>
                         </tr>
                         <tr>
                             <th></th>
                             {% if (anlage.useGridMeterDayData == true) %}
                                 <th>extern</th>
                             {% endif %}
-                            <th></th>
+                            {% if (anlage.getShowEvuDiag) %}
+                                <th></th>
+                            {% endif %}
                             <th class="table-center">yield</th>
                             <th class="table-center">power</th>
                             <th class="table-center">Inv. yield</th>
                             <th class="table-center">Inv. power</th>
-                            {% if (anlage.useGridMeterDayData == true) %}
-                                <th class="table-center">extern</th>
+                            {% if (anlage.getShowEvuDiag) %}
+                                <th></th>
                             {% endif %}
-                            <th></th>
                             <th class="table-center">Inv.</th>
                             <th class="table-center">Inv.</th>
                             {% if (anlage.showAvailability == true) %}
@@ -57,21 +77,24 @@
                                 <th></th>
                             {% endif %}
                             <th class="table-center">Panel</th>
+                            <th></th>
                         </tr>
                         <tr>
                             <th class="table-center">[kWh/m2]</th>
                             {% if (anlage.useGridMeterDayData == true) %}
                                 <th class="table-center">[kWh]</th>
                             {% endif %}
-                            <th class="table-center">[kWh]</th>
+                            {% if (anlage.getShowEvuDiag) %}
+                                <th class="table-center">[kWh]</th>
+                            {% endif %}
                             <th class="table-center">kWh</th>
                             <th class="table-center">[kWh]</th>
                             <th class="table-center">[kWh]</th>
                             <th class="table-center">[kWh]</th>
-                            {% if (anlage.useGridMeterDayData == true) %}
-                                <th class="table-center">[kwh]</th>
+
+                            {% if (anlage.getShowEvuDiag) %}
+                                <th class="table-center">[%]</th>
                             {% endif %}
-                            <th class="table-center">[%]</th>
                             <th class="table-center">[%]</th>
                             <th class="table-center">[%]</th>
                             {% if (anlage.showAvailability == true) %}
@@ -81,41 +104,92 @@
                                 <th class="table-center">[%]</th>
                             {% endif %}
                             <th class="table-center">[°C]</th>
+                            <th class="table-center">[kWh]</th>
                         </tr>
                         </thead>
                         <tbody>
+
                         {% for data in table_overview_dayly %}
                             <tr>
-                                <td class="tr_next_columns">{{ data.date }}</td>
+                                <td class="tr_next_columns">{{ data.date |  format_datetime(pattern="dd")}}</td>
                                 <td class="tr_next_columns">{{ data.irradiation|number_format(2, ',', '.') }}</td>
+                                {% set irrsum = irrsum + data.irradiation %}
                                 {% if (anlage.useGridMeterDayData == true)%}
                                     <td class="tr_next_columns">{{ data.powerEGridExtMonth|number_format(0, ',', '.') }}</td>
+                                    {% set extgrid = extgrid + data.powerEGridExtMonth %}
                                 {% endif %}
-                                <td class="tr_next_columns">{{ data.PowerEvuMonth|number_format(0, ',', '.') }}</td>
+                                {% if (anlage.getShowEvuDiag) %}
+                                    <td class="tr_next_columns">{{ data.PowerEvuMonth|number_format(0, ',', '.') }}</td>
+                                    {% set gridsum = gridsum + data.PowerEvuMonth %}
+                                {% endif %}
                                 <td class="tr_next_columns">{{ data.powerActMonth|number_format(0, ',', '.') }}</td>
+                                {% set ACInvsum = ACInvsum + data.powerActMonth %}
                                 <td class="tr_next_columns">{{ data.powerDctMonth|number_format(0, ',', '.') }}</td>
+                                {% set DCInvsum = DCInvsum + data.powerDctMonth %}
                                 <td class="tr_next_columns">{{ data.powerExpMonth|number_format(0, ',', '.') }}</td>
+                                {% set ACexpsum = ACexpsum + data.powerExpMonth%}
                                 <td class="tr_next_columns">{{ data.powerExpDctMonth|number_format(0, ',', '.') }}</td>
-                                {% if (anlage.useGridMeterDayData == true)%}
-                                    <td class="tr_next_columns">{{ data.prEGridExtMonth|number_format(3, ',', '.') }}</td>
+                                {% set DCexpsum = DCexpsum + data.powerExpDctMonth %}
+                                {% if (anlage.getShowEvuDiag) %}
+                                    <td class="tr_next_columns">{{ data.prEvuMonth|number_format(2, ',', '.') }}</td>
+
                                 {% endif %}
-                                <td class="tr_next_columns">{{ data.prEvuMonth|number_format(2, ',', '.') }}</td>
                                 <td class="tr_next_columns">{{ data.prActMonth|number_format(2, ',', '.') }}</td>
                                 <td class="tr_next_columns">{{ data.prExpMonth|number_format(2, ',', '.') }}</td>
                                 {% if (anlage.showAvailability == true) %}
                                     <td class="tr_next_columns">{{ data.plantAvailability|number_format(2, ',', '.') }}</td>
+                                    {% set PAsum = PAsum + data.plantAvailability %}
                                 {% endif %}
                                 {% if (anlage.showAvailabilitySecond == true) %}
                                     <td class="tr_next_columns">{{ data.plantAvailabilitySecond|number_format(2, ',', '.') }}</td>
+                                    {% set PAsum2 = PAsum2 + data.plantAvailabilitySecond %}
                                 {% endif %}
                                 <td class="tr_next_columns">{{ data.panneltemp|number_format(2, ',', '.') }}</td>
+                                {% set tempsum = tempsum + data.panneltemp %}
+                                <td class="tr_next_columns"> {{ (data.irradiation * anlage.kwPeak )|number_format(2, ',', '.') }}</td>
+
                             </tr>
+                            {% set daycount = daycount + 1 %}
                         {% endfor %}
+                        {% set TheoSum = irrsum * anlage.kwPeak %}
+                        <tr>
+                            <td class="tr_next_columns"> Overall</td>
+                            <td class="tr_next_columns">{{ irrsum | number_format(2, ',', '.') }}</td>
+                            {% if (anlage.useGridMeterDayData == true)%}
+                                <td class="tr_next_columns">{{ extgrid |number_format(2, ',', '.')}}</td>
+                            {% endif %}
+                            {% if (anlage.getShowEvuDiag) %}
+                                <td class="tr_next_columns">{{ gridsum |number_format(0, ',', '.')}}</td>
+                            {% endif %}
+                            <td class="tr_next_columns"> {{ ACInvsum |number_format(0, ',', '.') }}</td>
+                            <td class="tr_next_columns"> {{ DCInvsum |number_format(0, ',', '.') }}</td>
+                            <td class="tr_next_columns"> {{ ACexpsum |number_format(0, ',', '.') }} </td>
+                            <td class="tr_next_columns"> {{ DCexpsum |number_format(0, ',', '.') }} </td>
+                            {% if (anlage.getShowEvuDiag == true)%}
+                            <td class="tr_next_columns"> {{ ((gridsum/TheoSum)*100)|number_format(2, ',', '.') }}</td>
+                            {% endif %}
+                            <td class="tr_next_columns">{{  ((ACInvsum/TheoSum)*100) |number_format(2, ',', '.')}}</td>
+                            <td class="tr_next_columns"> {{  ((ACexpsum/TheoSum)*100) |number_format(2, ',', '.')}}</td>
+                            {% if (anlage.showAvailability == true) %}
+                            <td class="tr_next_columns"> {{ (PAsum/daycount)|number_format(2, ',', '.') }}</td>
+                            {% endif %}
+                            {% if (anlage.showAvailabilitySecond == true) %}
+                                <td class="tr_next_columns"> {{ (PAsum2/daycount)|number_format(2, ',', '.') }}</td>
+                            {% endif %}
+                            <td class="tr_next_columns"> {{ (tempsum/daycount)|number_format(2, ',', '.')}} </td>
+                            <td class="tr_next_columns"> {{ TheoSum |number_format(2, ',', '.')}}</td>
+
+                        </tr>
                         </tbody>
                     </table>
 
                 </td>
-                <td class="pr-formula"><img src="{{ absolute_url(asset('images/Formulas/prFormelStandard.png')) }}"></td>
+                <td class="pr-formula" >
+                        <img src="{{ absolute_url(asset('images/Formulas/prFormelStandard.png')) }}">
+
+                        <img src="{{ absolute_url(asset('images/Formulas/Theo_Power_formula.png')) }}">
+                </td>
+
             </tr>
         </table>
 

@@ -192,6 +192,14 @@
                                 {{ form_row(anlageForm.anlOrt) }}
                                 {{ form_row(anlageForm.country) }}
                             </div>
+                            <div class="cell medium-6">
+                                {{ form_row(anlageForm.picture) }}
+
+                            {%  if isupload == 'yes' %}
+                                Last Uploaded:<br>
+                                <img class="article-img" src="{{ asset(imageuploadet)|imagine_filter('squared_thumbnail_small') }}"><br>
+                            {% endif %}
+                            </div>
                         </div>
                         <hr>
                         <div class="grid-x grid-margin-x grid-padding-x">

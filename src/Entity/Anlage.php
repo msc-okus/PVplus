@@ -785,6 +785,11 @@ class Anlage
      */
     private $statuses;
 
+    /**
+     * @ORM\Column(type="string", length=150, nullable=true)
+     */
+    private $picture = "";
+
 
     public function __construct()
     {
@@ -3257,5 +3262,17 @@ class Anlage
     public function getStatuses(): Collection
     {
         return $this->statuses;
+    }
+
+    public function getPicture(): ?string
+    {
+        return $this->picture;
+    }
+
+    public function setPicture(?string $picture): self
+    {
+        $this->picture = $picture;
+
+        return $this;
     }
 }
