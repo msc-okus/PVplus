@@ -252,7 +252,7 @@ class ReportingController extends AbstractController
         $searchmonth=$session->get('month');
         $searchyear     = $session->get('search_year');
         $route = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
-        $route = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
+        $route = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&searchyear=".$searchyear."&search=yes";
 
         $report = $reportsRepository->find($id);
         $anlage = $report->getAnlage();
@@ -772,6 +772,7 @@ class ReportingController extends AbstractController
 
             }
         }
+
         return $this->render('reporting/showHtml.html.twig', [
             'html' => $result,
         ]);

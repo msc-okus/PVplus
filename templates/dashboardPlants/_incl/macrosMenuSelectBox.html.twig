@@ -63,8 +63,7 @@
     {% elseif aktAnlage.configType == 2 %}
 
     {% elseif aktAnlage.configType == 3 %}
-
-    {% elseif aktAnlage.configType == 4 %}
+        <option value="dc_act_overview" {% if form.selectedChart == 'dc_act_overview' %}selected{% endif %}>DC - Actual & Expected, Inverter&nbsp;[kWh]{% if is_granted('ROLE_DEV') %}[DC 2]{% endif %}</option>    {% elseif aktAnlage.configType == 4 %}
 
     {% endif %}
 {% endmacro %}

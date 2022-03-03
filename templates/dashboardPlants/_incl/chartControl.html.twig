@@ -29,7 +29,7 @@
                 <optgroup label="DC Power">
                     {{ dcActPlant(form, aktAnlage) }}       {# DC1 #}
                     {{ dcActOverview(form, aktAnlage) }}    {# DC2 #}
-                    {{ dcActGroup(form, aktAnlage) }}       {# DC3 #}
+                    {{ dcActGroup(form, aktAnlage) }}       {# DC3 (SCB and SCB groups) #}
                     {{ dcGroupPowerDiff(form, aktAnlage) }} {# DC4 Bar Chart #}
                 </optgroup>
 
@@ -78,7 +78,7 @@
         <div class="cell medium-2 large-4 xlarge-1">
             <div class="switch tiny align-center-middle">
                 <label class="" style="line-height: 1;"><small>Interval min.</small></label>
-                <input class="switch-input js-submit-onchange" id="hour" type="checkbox" name="hour" {%if form.hour == true  %} checked {% endif %}>
+                <input class="switch-input js-submit-onchange" id="hour" type="checkbox" name="hour" {% if form.hour == true  %} checked {% endif %}>
                 <label class="switch-paddle" for="hour">
                     <span class="show-for-sr"></span>
                     <span class="switch-active" aria-hidden="true">60</span>
