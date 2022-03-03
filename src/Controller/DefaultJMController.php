@@ -2,11 +2,13 @@
 
 namespace App\Controller;
 
+use App\Entity\Status;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\Charts\IrradiationChartService;
 use App\Service\FunctionsService;
 use App\Service\WeatherServiceNew;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -43,7 +45,7 @@ class DefaultJMController extends AbstractController
     /**
      * @Route("/default/test/check")
      */
-    public function checkSystem(WeatherServiceNew $weather, AnlagenRepository $AnlRepo){
+    public function checkSystem(WeatherServiceNew $weather, AnlagenRepository $AnlRepo, EntityManagerInterface $em){
         $Anlagen = $AnlRepo->findAll();
         $time = $this->getLastQuarter(date('Y-m-d H:i') );
         $time = $this->timeAjustment($time, -2);
@@ -52,7 +54,7 @@ class DefaultJMController extends AbstractController
 
             $conn = self::getPdoConnection();
             if (($anlage->getAnlMute() == "No") && (($time > $sungap[$anlage->getanlName()]['sunrise']) && ($time < $sungap[$anlage->getAnlName()]['sunset']))) {
-
+                    $status = new Status();
                     $sqlw = "SELECT b.gi_avg as gi , b.gmod_avg as gmod FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp = '$time' ";
                     $resw = $conn->query($sqlw);
                     $wdata = $resw->fetch(PDO::FETCH_ASSOC);
@@ -73,6 +75,11 @@ class DefaultJMController extends AbstractController
                         else $status_report[$anlage->getAnlName()]['Ist'] = "All good";
                     }
                     else $status_report[$anlage->getAnlName()]['Ist'] = "No Data";
+                    $status->setAnlage($anlage);
+                    $status->setStamp($time);
+                    $status->setStatus($status_report[$anlage->getAnlName()]);
+                    $em->persist($status);
+                    $em->flush();
             }
         }
         dd($status_report);
