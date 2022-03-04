@@ -1,5 +1,5 @@
 <?php
-function getHeaderFooter($params,$plant_power)
+function getHeaderFooter(array $params, $plant_power): string
 {
     switch ($params['footerType']) {
         case 'monthlyReport':
@@ -9,7 +9,7 @@ function getHeaderFooter($params,$plant_power)
                     <div style="float: left; padding-right: 10px; margin-top: 7px;"><img src="https://dev.g4npvplus.net/custImg/Goldbeck/GBS-logo.png" width="90px" ></div>
                     <div style="font-size: 11px !important; font-weight: bold; float: left; text-align: left; padding-top: 10px;">
                     '.$params["projektid"]. ' ' . $params["plant_name"].'<small>('.$plant_power.' kWp)</small><br>
-                    '.$params["year"] . $params["month"].' Monthly Report
+                    '.$params["month"] . ' ' . $params["year"].' Monthly Report
                     </div>
                     <div style="float: right;"><img src="https://dev.g4npvplus.net/images/green4net.jpg" width="70px" ></div>
                 </div>

@@ -138,6 +138,8 @@ class ReportService
      * @param bool $exit
      * @return string
      * @throws ExceptionInterface
+     *
+     * @deprecated
      */
     public function buildMonthlyReport(Anlage $anlage, array $report, $reportCreationDate, int $docType = 0, int $chartTypeToExport = 0, bool $exit = true): string
     {

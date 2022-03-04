@@ -203,7 +203,7 @@ include_once __DIR__ . '/tablechart_fields.tmpl';
 
 if ($params['doctype'] != 1) {
     include_once __DIR__ . '/../views/view_pdf_header_footer.tmpl';
-    echo getHeaderFooter($params,$headline["plant_power"]);
+    echo getHeaderFooter($params, $headline["plant_power"]);
 }
 ?>
 

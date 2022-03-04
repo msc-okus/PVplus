@@ -398,7 +398,7 @@ class ReportsEpcNewService
         $zeileSumme2 = count($monthTable) - 1;
         $zeileSumme3 = count($monthTable) - 0;
 
-        $pNom = ($anlage->isUsePnomForPld()) ? (((float)$anlage->getKwPeakPLDCalculation() > 0) ? $anlage->getKwPeakPLDCalculation() : $anlage->getKwPeak()) : 1;
+        $pNom = $anlage->isUsePnomForPld() ? ((float)$anlage->getKwPeakPLDCalculation() > 0 ? $anlage->getKwPeakPLDCalculation() : $anlage->getKwPeak()) : 1;
 
         $b8 = round($monthTable[$zeileSumme1]['E_yieldDesign'],3);
         $b9 = round($monthTable[$zeileSumme1]['W_yield_guaranteed_exp'],3);
