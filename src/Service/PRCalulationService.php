@@ -530,8 +530,8 @@ class PRCalulationService
      *  $result['tempCorrection']<br>
      *  $result['irradiation']<br>
      *  $result['availability']<br>
-     *  $result['availability2']<br> (not Ready)
-     *  $result['anzCase5']<br> (proof)
+     *  $result['availability2'] (not Ready)<br>
+     *  $result['anzCase5'] (proof)<br>
      *
      * @param Anlage $anlage
      * @param DateTime $startDate
