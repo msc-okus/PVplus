@@ -335,7 +335,7 @@ class ReportingController extends AbstractController
         $report = $reportsRepository->find($id);
         $month = $report->getMonth();
         $year = $report->getYear();
-        $reportCreationDate = $report->getCreatedAt()->format('Y-m-d h:i:s');
+        $reportCreationDate = $report->getCreatedAt()->format('Y-m-d H:i:s');
         $anlage = $report->getAnlage();
         $currentDate = date('Y-m-d H-i');
 
@@ -410,6 +410,7 @@ class ReportingController extends AbstractController
                 break;
             case 'monthly-report':
                 //standard G4N Report (an O&M Goldbeck angelehnt)
+                #dd($report->getContentArray());
                 switch ($report->getReportTypeVersion()) {
                     case 1: // Version 1 -> Calulation on demand, store to serialized array and buil pdf and xls from this Data
                         $reportsMonthly->exportReportToPDF($anlage, $report);
