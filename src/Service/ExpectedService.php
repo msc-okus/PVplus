@@ -42,8 +42,10 @@ class ExpectedService
         $this->anlageMonthRepo = $anlageMonthRepo;
     }
 
-    public function storeExpectedToDatabase(Anlage $anlage, $from, $to):string
+    public function storeExpectedToDatabase(Anlage|Int $anlage, $from, $to): string
     {
+        if (is_int($anlage)) $anlage = $this->anlagenRepo->findOneBy(['anlId' => $anlage]);
+
         $output = '';
         if ($anlage->getGroups()) {
             $conn = self::getPdoConnection();
@@ -79,11 +81,12 @@ class ExpectedService
 
         $conn = self::getPdoConnection();
         // Lade Wetter (Wetterstation der Anlage) Daten für die angegebene Zeit und Speicher diese in ein Array
-        $weatherStations = $weatherStations = $this->groupsRepo->findAllWeatherstations($anlage, $anlage->getWeatherStation());
+        $weatherStations = $this->groupsRepo->findAllWeatherstations($anlage, $anlage->getWeatherStation());
         $sqlWetterDaten = "SELECT stamp AS stamp, g_lower AS irr_lower, g_upper AS irr_upper, pt_avg AS panel_temp FROM " . $anlage->getDbNameWeather() . " WHERE (`stamp` BETWEEN '$from' AND '$to') AND (g_lower > 0 OR g_upper > 0)";
         $resWeather = $conn->prepare($sqlWetterDaten);
         $resWeather->execute();
         $weatherArray[$anlage->getWeatherStation()->getDatabaseIdent()] = $resWeather->fetchAll(PDO::FETCH_ASSOC);
+
         $resWeather = null;
         foreach ($weatherStations as $weatherStation) {
             $sqlWetterDaten = "SELECT stamp AS stamp, g_lower AS irr_lower, g_upper AS irr_upper, pt_avg AS panel_temp FROM " . $weatherStation->getWeatherStation()->getDbNameWeather() . " WHERE (`stamp` BETWEEN '$from' AND '$to') AND (g_lower > 0 OR g_upper > 0)";
@@ -94,7 +97,8 @@ class ExpectedService
         }
         $conn = null;
 
-        foreach($anlage->getGroups() as $groupKey => $group) {
+        foreach($anlage->getGroups() as $group) {
+            #dump($group);
             // Monatswerte für diese Gruppe laden
             /** @var AnlageGroupMonths $groupMonth */
             $groupMonth = $this->groupMonthsRepo->findOneBy(['anlageGroup' => $group->getId(), 'month' => $month]);

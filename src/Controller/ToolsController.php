@@ -5,11 +5,13 @@ namespace App\Controller;
 use App\Form\Model\ToolsModel;
 use App\Form\Tools\ToolsFormType;
 use App\Helper\G4NTrait;
+use App\Message\Command\CalcExpected;
 use App\Repository\AnlagenRepository;
 use App\Service\AvailabilityService;
 use App\Service\ExpectedService;
 use App\Service\PRCalulationService;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ToolsController extends BaseController
@@ -22,7 +24,7 @@ class ToolsController extends BaseController
                           PRCalulationService $PRCalulation,
                           AvailabilityService $availability,
                           ExpectedService $expectedService,
-                          AnlagenRepository $anlagenRepo )
+                          MessageBusInterface $messageBus )
     {
         $form = $this->createForm(ToolsFormType::class);
         $form->handleRequest($request);
@@ -53,28 +55,44 @@ class ToolsController extends BaseController
             }
             // Start recalculation
 
-            for ($date = $start; $date < $end; $date += 86400) {
-                $from = date("Y-m-d 00:00", $date);
-                $to = date("Y-m-d 23:59", $date);
-                $fromShort  = date("Y-m-d 02:00", $date);
-                $toShort    = date("Y-m-d 22:00", $date);
-                $monat = date("m", $date);
-                switch ($toolsModel->function) {
-                    case ('weather'):
-                        //$output .= $weatherService->loadWeatherDataUP($toolsModel->anlage, $date);
-                        break;
-                    case ('expected'):
-                        $output .= $expectedService->storeExpectedToDatabase($toolsModel->anlage, $fromShort, $toShort);
-                        break;
-                    case ('pr'):
-                        $output .= $PRCalulation->calcPRAll($toolsModel->anlage, $from);
-                        break;
-                    case('availability'):
-                        $output .= $availability->checkAvailability($toolsModel->anlage, $date, false);
-                        if ($toolsModel->anlage->getShowAvailabilitySecond()) $output .= $availability->checkAvailability($toolsModel->anlage, $date, true);
-                        break;
-                }
+            switch ($toolsModel->function) {
+                case ('expected'):
+                    $message = new CalcExpected($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate);
+                    $messageBus->dispatch($message);
+
+                    //$output .= $expectedService->storeExpectedToDatabase($toolsModel->anlage, $fromShort, $toShort);
+                    $output .= "Command was send to messenger! Will be processed in the background.<br>";
+                    break;
+
+                default:
+                    for ($date = $start; $date < $end; $date += 86400) {
+                        $from = date("Y-m-d 00:00", $date);
+                        $to = date("Y-m-d 23:59", $date);
+                        $fromShort  = date("Y-m-d 02:00", $date);
+                        $toShort    = date("Y-m-d 22:00", $date);
+                        $monat = date("m", $date);
+                        switch ($toolsModel->function) {
+                            case ('weather'):
+                                //$output .= $weatherService->loadWeatherDataUP($toolsModel->anlage, $date);
+                                break;
+                            case ('expected'):
+                                $message = new CalcExpected($toolsModel->anlage, $fromShort, $toShort);
+                                $messageBus->dispatch($message);
+
+                                //$output .= $expectedService->storeExpectedToDatabase($toolsModel->anlage, $fromShort, $toShort);
+                                $output .= "Command was send to messenger! Will be processed in the background.<br>";
+                                break;
+                            case ('pr'):
+                                $output .= $PRCalulation->calcPRAll($toolsModel->anlage, $from);
+                                break;
+                            case('availability'):
+                                $output .= $availability->checkAvailability($toolsModel->anlage, $date, false);
+                                if ($toolsModel->anlage->getShowAvailabilitySecond()) $output .= $availability->checkAvailability($toolsModel->anlage, $date, true);
+                                break;
+                        }
+                    }
             }
+
         }
 
         // Wenn Close gelickt wird mache dies:
