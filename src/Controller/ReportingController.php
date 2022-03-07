@@ -319,11 +319,11 @@ class ReportingController extends AbstractController
      * @Route("/reporting/pdf/{id}", name="app_reporting_pdf")
      */
 
-    public function showReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer,  ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly)
+    public function showReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer,  ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly, $tempPathBaseUrl)
     {
         /** @var AnlagenReports|null $report */
         $session=$this->container->get('session');
-        $pdf = new PdfService("");
+        $pdf = new PdfService($tempPathBaseUrl);
         $searchstatus   = $session->get('search');
         $searchtype     = $session->get('type');
         $anlageq        = $session->get('anlage');

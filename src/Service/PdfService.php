@@ -4,16 +4,14 @@ namespace App\Service;
 
 use App\Entity\Anlage;
 use chromeheadlessio\Service;
-use Com\Tecnick\Barcode\Type\Square\PdfFourOneSeven\Sequence;
 use Nuzkito\ChromePdf\ChromePdf;
 
 
 class PdfService
 {
-
     private string $tempPathBaseUrl;
 
-    public function __construct( String $tempPathBaseUrl)
+    public function __construct(string $tempPathBaseUrl)
     {
         $this->tempPathBaseUrl = $tempPathBaseUrl;
     }
@@ -26,7 +24,7 @@ class PdfService
      * @param string|null $source choose from wich source (given html, file or url)
      * @return string
      */
-    public function createPdfTemp(Anlage $anlage, string $html, ?string $source = null): string
+    public function createPdfTemp(Anlage $anlage, string $html, ?string $source = null, $tempPathBase = ""): string
     {
         if ($source === null) {
             //Create ChromeHeadless service with your token key specified
@@ -46,6 +44,7 @@ class PdfService
         } else {
             $pdf = new ChromePdf('/usr/bin/chromium');
             $fullfilename = $this->tempPathBaseUrl.'/'.$anlage->getAnlName().'_tempPDF';
+            #$fullfilename = $tempPathBase.'/'.$anlage->getAnlName().'_tempPDF';
             $filename = $anlage->getAnlName().'_tempPDF.pdf';
             $pdf->output($fullfilename.'.pdf');
             switch ($source) {
