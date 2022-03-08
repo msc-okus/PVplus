@@ -153,31 +153,31 @@
                         {% endfor %}
                         {% set TheoSum = irrsum * anlage.kwPeak %}
                         <tr>
-                            <td class="tr_next_columns"> Overall</td>
-                            <td class="tr_next_columns">{{ irrsum | number_format(2, ',', '.') }}</td>
+                            <td class="tr_next_columns"> <b>Overall</b></td>
+                            <td class="tr_next_columns"><b>{{ irrsum | number_format(2, ',', '.') }}</b></td>
                             {% if (anlage.useGridMeterDayData == true)%}
-                                <td class="tr_next_columns">{{ extgrid |number_format(2, ',', '.')}}</td>
+                                <td class="tr_next_columns"><b>{{ extgrid |number_format(2, ',', '.')}}</b></td>
                             {% endif %}
                             {% if (anlage.getShowEvuDiag) %}
-                                <td class="tr_next_columns">{{ gridsum |number_format(0, ',', '.')}}</td>
+                                <td class="tr_next_columns"><b>{{ gridsum |number_format(0, ',', '.')}}</b></td>
                             {% endif %}
-                            <td class="tr_next_columns"> {{ ACInvsum |number_format(0, ',', '.') }}</td>
-                            <td class="tr_next_columns"> {{ DCInvsum |number_format(0, ',', '.') }}</td>
-                            <td class="tr_next_columns"> {{ ACexpsum |number_format(0, ',', '.') }} </td>
-                            <td class="tr_next_columns"> {{ DCexpsum |number_format(0, ',', '.') }} </td>
+                            <td class="tr_next_columns"> <b>{{ ACInvsum |number_format(0, ',', '.') }}</b></td>
+                            <td class="tr_next_columns"> <b>{{ DCInvsum |number_format(0, ',', '.') }}</b></td>
+                            <td class="tr_next_columns"> <b>{{ ACexpsum |number_format(0, ',', '.') }}</b> </td>
+                            <td class="tr_next_columns"> <b>{{ DCexpsum |number_format(0, ',', '.') }}</b> </td>
                             {% if (anlage.getShowEvuDiag == true)%}
-                            <td class="tr_next_columns"> {{ ((gridsum/TheoSum)*100)|number_format(2, ',', '.') }}</td>
+                                <td class="tr_next_columns"> <b>{{ ((gridsum/TheoSum)*100)|number_format(2, ',', '.') }}</b></td>
                             {% endif %}
-                            <td class="tr_next_columns">{{  ((ACInvsum/TheoSum)*100) |number_format(2, ',', '.')}}</td>
-                            <td class="tr_next_columns"> {{  ((ACexpsum/TheoSum)*100) |number_format(2, ',', '.')}}</td>
+                            <td class="tr_next_columns"><b>{{  ((ACInvsum/TheoSum)*100) |number_format(2, ',', '.')}}</b></td>
+                            <td class="tr_next_columns"> <b>{{  ((ACexpsum/TheoSum)*100) |number_format(2, ',', '.')}}</b></td>
                             {% if (anlage.showAvailability == true) %}
-                            <td class="tr_next_columns"> {{ (PAsum/daycount)|number_format(2, ',', '.') }}</td>
+                                <td class="tr_next_columns"> <b>{{ (PAsum/daycount)|number_format(2, ',', '.') }}</b></td>
                             {% endif %}
                             {% if (anlage.showAvailabilitySecond == true) %}
-                                <td class="tr_next_columns"> {{ (PAsum2/daycount)|number_format(2, ',', '.') }}</td>
+                                <td class="tr_next_columns"> <b>{{ (PAsum2/daycount)|number_format(2, ',', '.') }}</b></td>
                             {% endif %}
-                            <td class="tr_next_columns"> {{ (tempsum/daycount)|number_format(2, ',', '.')}} </td>
-                            <td class="tr_next_columns"> {{ TheoSum |number_format(2, ',', '.')}}</td>
+                            <td class="tr_next_columns"> <b>{{ (tempsum/daycount)|number_format(2, ',', '.')}}</b> </td>
+                            <td class="tr_next_columns"> <b>{{ TheoSum |number_format(2, ',', '.')}}</b></td>
 
                         </tr>
                         </tbody>
