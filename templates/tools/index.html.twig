@@ -35,10 +35,39 @@
                 {{ form_widget(toolsForm.calc) }}
             </div>
         </div>
-        <div class="grid-x">
-            <div class="cell">
+        <div class="grid-x grid-margin-x">
+            <div class="cell medium-4">
                 <div class="callout" style="min-height: 50vh;">
                     {{ output|raw }}
+                </div>
+            </div>
+            <div class="cell medium-8">
+                <div class="callout primary" style="min-height: 50vh;">
+                    <table class="message-log">
+                        <thead>
+                        <tr>
+                            <th>Plant</th>
+                            <th>State</th>
+                            <th>start</th>
+                            <th>end</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for log in logs %}
+                            <tr>
+                                <td>{{ log.function }} / {{ log.plant }}</td>
+                                <td>{{ log.state }}</td>
+                                <td>{{ log.startedAt|date('y-m-d H:i') }}</td>
+                                <td>{# {% is(log.finishedAt) %}{{ log.finishedAt|date('y-m-d H:i') }}{% endif %} #}</td>
+                                <td colspan="4">{{ log.job }}</td>
+                            </tr>
+                            {# <tr>
+                                <td colspan="4">{{ log.job }}</td>
+                            </tr> #}
+                        {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

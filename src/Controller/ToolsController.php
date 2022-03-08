@@ -7,10 +7,12 @@ use App\Form\Tools\ToolsFormType;
 use App\Helper\G4NTrait;
 use App\Message\Command\CalcExpected;
 use App\Repository\AnlagenRepository;
+use App\Repository\LogMessagesRepository;
 use App\Service\AvailabilityService;
 use App\Service\ExpectedService;
 use App\Service\PRCalulationService;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -24,7 +26,8 @@ class ToolsController extends BaseController
                           PRCalulationService $PRCalulation,
                           AvailabilityService $availability,
                           ExpectedService $expectedService,
-                          MessageBusInterface $messageBus )
+                          MessageBusInterface $messageBus,
+                          LogMessagesRepository $logMessagesRepo): Response
     {
         $form = $this->createForm(ToolsFormType::class);
         $form->handleRequest($request);
@@ -72,9 +75,7 @@ class ToolsController extends BaseController
                         $toShort    = date("Y-m-d 22:00", $date);
                         $monat = date("m", $date);
                         switch ($toolsModel->function) {
-                            case ('weather'):
-                                //$output .= $weatherService->loadWeatherDataUP($toolsModel->anlage, $date);
-                                break;
+                                /*
                             case ('expected'):
                                 $message = new CalcExpected($toolsModel->anlage, $fromShort, $toShort);
                                 $messageBus->dispatch($message);
@@ -82,6 +83,7 @@ class ToolsController extends BaseController
                                 //$output .= $expectedService->storeExpectedToDatabase($toolsModel->anlage, $fromShort, $toShort);
                                 $output .= "Command was send to messenger! Will be processed in the background.<br>";
                                 break;
+                                */
                             case ('pr'):
                                 $output .= $PRCalulation->calcPRAll($toolsModel->anlage, $from);
                                 break;
@@ -95,14 +97,17 @@ class ToolsController extends BaseController
 
         }
 
-        // Wenn Close gelickt wird mache dies:
+        // Wenn Close geklickt wird mache dies:
         if($form->isSubmitted() && $form->isValid() && $form->get('close')->isClicked()) {
             return $this->redirectToRoute('app_dashboard');
         }
 
+        $logMessages = $logMessagesRepo->findAll();
+
         return $this->render('tools/index.html.twig', [
             'toolsForm' => $form->createView(),
             'output'    => $output,
+            'logs'       => $logMessages,
         ]);
     }
 }
