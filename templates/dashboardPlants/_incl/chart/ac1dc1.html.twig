@@ -2,7 +2,7 @@
     am4core.ready(function() {
         // Create chart instance
         {% if form.optionDate < 14 %}
-        am4core.useTheme(am4themes_animated);
+            am4core.useTheme(am4themes_animated);
         {% endif %}
         let chart = am4core.create("amchart-holder", am4charts.XYChart);
         chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
