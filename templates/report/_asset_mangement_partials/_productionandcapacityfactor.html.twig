@@ -19,6 +19,7 @@
                     </thead>
                     <tbody>
                     {% set powerEvuTotal = 0 %}
+                    {% set inverterOutTotal = 0 %}
                     {% if (anlage.getShowEvuDiag() ) %}
                         {% if (anlage.useGridMeterDayData) %}
                             <tr>
@@ -29,13 +30,32 @@
                                     <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                                 {% endfor %}
                             </tr>
+                        {% else %}
+                            <tr>
+                                <td class="tr_first_column" style="text-align: right;">Yield (Grid meter) [kWh]</td>
+
+                                {% for data in table_overview_monthly.powerExt %}
+                                    {% set powerEvuTotal = powerEvuTotal+data %}
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% endfor %}
+                            </tr>
                         {% endif %}
+                    {% else if (anlage.useGridMeterDayData) %}
+                        <tr>
+                            <td class="tr_first_column" style="text-align: right;">Yield (Grid meter) [kWh]</td>
+
+                            {% for data in table_overview_monthly.powerEvu %}
+                                {% set powerEvuTotal = powerEvuTotal+data %}
+                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                            {% endfor %}
+                        </tr>
                     {% endif %}
 
                     <tr>
                         <td class="tr_first_column" style="text-align: right;"> Inverter out [kWh]</td>
                         {% for data in table_overview_monthly.powerAct %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                            {% set inverterOutTotal = inverterOutTotal + data %}
                         {% endfor %}
                     </tr>
 
@@ -94,7 +114,11 @@
                         <td class="tr_first_column" style="text-align: center;">TOTAL</td>
                         <td class="tr_first_column" style="text-align: right;">{{ sumdays }}</td>
                         <td class="tr_first_column" style="text-align: right;">{{ sumhours }}</td>
-                        <td class="tr_first_column" style="text-align: right;">{{ (((powerEvuTotal/1000)/((anlage.kwPeak/1000)*sumhours))*100)|round(3, 'ceil')|number_format(2, ',', '.') }}</td>
+                        {% if (anlage.getShowEvuDiag()) %}
+                            <td class="tr_first_column" style="text-align: right;">{{ (((powerEvuTotal/1000)/((anlage.kwPeak/1000)*sumhours))*100)|round(3, 'ceil')|number_format(2, ',', '.') }}</td>
+                            {% else %}
+                                <td class="tr_first_column" style="text-align: right;">{{ (((inverterOutTotal/1000)/((anlage.kwPeak/1000)*sumhours))*100)|round(3, 'ceil')|number_format(2, ',', '.') }}</td>
+                        {% endif %}
                     </tr>
                     </tbody>
                 </table>
