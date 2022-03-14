@@ -3,6 +3,7 @@
         <tr style="border-bottom: solid 2px {{ anlage.eigner.fontColor2 }};">
             <td style=" width: 254mm; text-align: left;" class=""><h1>{{ anlage.projektNr }} {{ anlage.anlName }}</h1></td>
             <td><img alt="Cutomer Logo" class="customer_logo" src="{{ absolute_url(asset(anlage.eigner.getCustomerLogo)) }}"></td>
+            {{ absolute_url(asset(anlage.eigner.getCustomerLogo)) }}
         </tr>
     </table>
     <div class="content_asset_report">
