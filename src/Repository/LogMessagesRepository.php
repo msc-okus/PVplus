@@ -45,6 +45,23 @@ class LogMessagesRepository extends ServiceEntityRepository
         }
     }
 
+    public function findUseful()
+    {
+        $start = date('Y-m-d H:i');
+        $end = date('Y-m-d H:i', strtotime($start) - 3600 * 6);
+
+        return $this->createQueryBuilder('log')
+            ->andWhere('log.state != :state OR log.startedAt BETWEEN :end AND :start')
+            ->setParameter('state', 'done')
+            ->setParameter('start', $start)
+            ->setParameter('end', $end)
+            ->orderBy('log.startedAt', 'DESC')
+            #->setMaxResults(10)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
     // /**
     //  * @return LogMessages[] Returns an array of LogMessages objects
     //  */

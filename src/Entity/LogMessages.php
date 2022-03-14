@@ -40,7 +40,7 @@ class LogMessages
     /**
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
-    private \DateTimeImmutable $finishedAt;
+    private ?\DateTimeImmutable $finishedAt;
 
     /**
      * @ORM\Column(type="string", length=20)

@@ -27,9 +27,11 @@ class CalcExpectedHandler implements MessageHandlerInterface
         $anlage = $this->anlagenRepo->findOneBy(['anlId' => $anlageId]);
         $fromShort = $calcExpected->getStartDate()->format('Y-m-d 00:00');
         $toShort = $calcExpected->getEndDate()->format('Y-m-d 23:59');
+        $logId = $calcExpected->getlogId();
 
-        $job = "Calculate Expected from $fromShort until $toShort";
-        $logId = $this->logMessages->writeNewEntry($anlage, 'Expected', $job);
+        #$job = "Calculate Expected from $fromShort until $toShort";
+        #$logId = $this->logMessages->writeNewEntry($anlage, 'Expected', $job);
+        $this->logMessages->updateEntry($logId, 'working');
 
         $this->expectedService->storeExpectedToDatabase($anlageId, $fromShort, $toShort);
 

@@ -6,10 +6,9 @@ use App\Form\Model\ToolsModel;
 use App\Form\Tools\ToolsFormType;
 use App\Helper\G4NTrait;
 use App\Message\Command\CalcExpected;
-use App\Repository\AnlagenRepository;
-use App\Repository\LogMessagesRepository;
 use App\Service\AvailabilityService;
 use App\Service\ExpectedService;
+use App\Service\LogMessagesService;
 use App\Service\PRCalulationService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,15 +25,14 @@ class ToolsController extends BaseController
                           PRCalulationService $PRCalulation,
                           AvailabilityService $availability,
                           ExpectedService $expectedService,
-                          MessageBusInterface $messageBus,
-                          LogMessagesRepository $logMessagesRepo): Response
+                          MessageBusInterface $messageBus, LogMessagesService $logMessages): Response
     {
         $form = $this->createForm(ToolsFormType::class);
         $form->handleRequest($request);
         $output = '';
 
         // Wenn Calc gelickt wird mache dies:
-        if($form->isSubmitted() && $form->isValid() && $form->get('calc')->isClicked()) {
+        if ($form->isSubmitted() && $form->isValid() && $form->get('calc')->isClicked() && $request->getMethod() == 'POST') {
 
             /* @var ToolsModel $toolsModel */
             $toolsModel = $form->getData();
@@ -43,9 +41,6 @@ class ToolsController extends BaseController
 
             // Print Headline
             switch ($toolsModel->function) {
-                case ('weather'):
-                    $output = "<h3>Weather:</h3>";
-                    break;
                 case ('expected'):
                     $output .= "<h3>Expected:</h3>";
                     break;
@@ -60,10 +55,12 @@ class ToolsController extends BaseController
 
             switch ($toolsModel->function) {
                 case ('expected'):
-                    $message = new CalcExpected($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate);
+                    $job = "Calculate Expected from ".$toolsModel->startDate->format('Y-m-d')." until ". $toolsModel->endDate->format('Y-m-d');
+                    $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'Expected', $job);
+                    $message = new CalcExpected($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
+
                     $messageBus->dispatch($message);
 
-                    //$output .= $expectedService->storeExpectedToDatabase($toolsModel->anlage, $fromShort, $toShort);
                     $output .= "Command was send to messenger! Will be processed in the background.<br>";
                     break;
 
@@ -102,12 +99,9 @@ class ToolsController extends BaseController
             return $this->redirectToRoute('app_dashboard');
         }
 
-        $logMessages = $logMessagesRepo->findAll();
-
         return $this->render('tools/index.html.twig', [
             'toolsForm' => $form->createView(),
             'output'    => $output,
-            'logs'       => $logMessages,
         ]);
     }
 }

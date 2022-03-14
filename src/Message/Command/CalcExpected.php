@@ -10,12 +10,14 @@ class CalcExpected
     private Int $anlageId;
     private \DateTime $startDate;
     private \DateTime $endDate;
+    private int $logId;
 
-    public function __construct(Int $anlageId, \DateTime $startDate, \DateTime $endDate){
+    public function __construct(Int $anlageId, \DateTime $startDate, \DateTime $endDate, int $logId){
 
         $this->anlageId = $anlageId;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
+        $this->logId = $logId;
     }
 
     /**
@@ -42,7 +44,13 @@ class CalcExpected
         return $this->endDate;
     }
 
-
+    /**
+     * @return Int
+     */
+    public function getlogId(): Int
+    {
+        return $this->logId;
+    }
 
 }
 

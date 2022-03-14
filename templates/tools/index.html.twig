@@ -35,39 +35,15 @@
                 {{ form_widget(toolsForm.calc) }}
             </div>
         </div>
-        <div class="grid-x grid-margin-x">
-            <div class="cell medium-4">
-                <div class="callout" style="min-height: 50vh;">
+        <div class="grid-x grid-margin-x" style="min-height: 50vh;">
+            <div class="cell medium-12">
+                <div class="callout" >
                     {{ output|raw }}
                 </div>
-            </div>
-            <div class="cell medium-8">
-                <div class="callout primary" style="min-height: 50vh;">
-                    <table class="message-log">
-                        <thead>
-                        <tr>
-                            <th>Plant</th>
-                            <th>State</th>
-                            <th>start</th>
-                            <th>end</th>
-                            <th></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for log in logs %}
-                            <tr>
-                                <td>{{ log.function }} / {{ log.plant }}</td>
-                                <td>{{ log.state }}</td>
-                                <td>{{ log.startedAt|date('y-m-d H:i') }}</td>
-                                <td>{# {% is(log.finishedAt) %}{{ log.finishedAt|date('y-m-d H:i') }}{% endif %} #}</td>
-                                <td colspan="4">{{ log.job }}</td>
-                            </tr>
-                            {# <tr>
-                                <td colspan="4">{{ log.job }}</td>
-                            </tr> #}
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                <div class="" style="min-height: 50vh; max-height: 50vh; overflow: scroll;"
+                     data-controller="tools-message"
+                     data-tools-message-url-value="{{ path('app_log_messages_list') }}"
+                     data-tools-message-refresh-interval-value="10000" >
                 </div>
             </div>
         </div>

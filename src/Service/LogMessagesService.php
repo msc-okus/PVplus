@@ -27,7 +27,7 @@ class LogMessagesService
             ->setFunction($function)
             ->setJob($job)
             ->setStartedAt(new \DateTimeImmutable())
-            ->setState('working')
+            ->setState('waiting')
         ;
         $this->em->persist($log);
         $this->em->flush();
@@ -39,7 +39,7 @@ class LogMessagesService
     {
         $log = $this->logMessagesRepo->findOneBy(['id' => $id]);
         $log->setState($state);
-        if ($state == 'done') $log->setFinishedAt(new \DateTimeImmutable());
+        if ($state === 'done') $log->setFinishedAt(new \DateTimeImmutable());
         $this->em->flush();
 
     }
