@@ -19,6 +19,17 @@ class StatusRepository extends ServiceEntityRepository
         parent::__construct($registry, Status::class);
     }
 
+
+    public function findOneByanlageDate($anlage, $date){
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.anlage = :anl')
+            ->andWhere('s.date = :date')
+            ->setParameter('val', $anlage)
+            ->setParameter('date', $date)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
     // /**
     //  * @return Status[] Returns an array of Status objects
     //  */
