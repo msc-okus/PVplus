@@ -25,7 +25,7 @@ class PdfService
      * @param string|null $source choose from wich source (given html, file or url)
      * @return string
      */
-    public function createPdfTemp(Anlage $anlage, string $html, ?string $source = null): string
+    public function createPdfTemp(Anlage $anlage, string $html, ?string $source = null, $tempPathBase = ""): string
     {
         if ($source === null) {
             //Create ChromeHeadless service with your token key specified
@@ -46,6 +46,7 @@ class PdfService
             $pdf = new ChromePdf('/usr/bin/chromium');
 
             $fullfilename = $this->tempPathBaseUrl.'/'.$anlage->getAnlName().'_tempPDF';
+            #$fullfilename = $tempPathBase.'/'.$anlage->getAnlName().'_tempPDF';
             $filename = $anlage->getAnlName().'_tempPDF.pdf';
 
             $pdf->output($fullfilename.'.pdf');

@@ -35,10 +35,15 @@
                 {{ form_widget(toolsForm.calc) }}
             </div>
         </div>
-        <div class="grid-x">
-            <div class="cell">
-                <div class="callout" style="min-height: 50vh;">
+        <div class="grid-x grid-margin-x" style="min-height: 50vh;">
+            <div class="cell medium-12">
+                <div class="callout" >
                     {{ output|raw }}
+                </div>
+                <div class="" style="min-height: 50vh; max-height: 50vh; overflow: scroll;"
+                     data-controller="tools-message"
+                     data-tools-message-url-value="{{ path('app_log_messages_list') }}"
+                     data-tools-message-refresh-interval-value="5000" >
                 </div>
             </div>
         </div>

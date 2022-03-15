@@ -45,8 +45,7 @@ class ACPowerChartsService
     public function getAC1(Anlage $anlage, $from, $to, bool $hour = false): array
     {
             $conn = self::getPdoConnection();
-            if ($hour) $form = '%y%m%d%H';
-            else $form = '%y%m%d%H%i';
+            $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
 
             $sql_exp = "SELECT a.stamp as stamp, sum(b.ac_exp_power) as soll, sum(b.ac_exp_power_evu) as soll_evu, sum(b.ac_exp_power_no_limit) as soll_nolimit
                     FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDcSoll() . " b ON a.stamp = b.stamp)

@@ -249,6 +249,7 @@
             </a>
             {# STATUS der Anlage anlage.isInTimeRange or #}
             {% if status is defined and pr is defined %}
+                {#
                 {% if is_granted('ROLE_G4N') or isInTimeRange %}
                     <div class="grid-x text-center">
                         <div class="cell">
@@ -311,6 +312,7 @@
                         </div>
                     </div>
                 {% endif %}
+                #}
             {% endif %}
         </div>
     {% else %}

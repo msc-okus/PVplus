@@ -1,0 +1,21 @@
+[program:messenger-consume-dev]
+command=php80 /usr/home/pvpluy/public_html/dev.pvp/bin/console messenger:consume async --time-limit=3600
+user=pvpluy
+numprocs=1
+autostart=true
+autorestart=true
+process_name=%(program_name)s_%(process_num)02d
+[program:messenger-consume-prod]
+command=php80 /usr/home/pvpluy/public_html/prod.pvp/bin/console messenger:consume async --time-limit=3600
+user=pvpluy
+numprocs=1
+autostart=true
+autorestart=true
+process_name=%(program_name)s_%(process_num)02d
+[program:messenger-consume-mr]
+command=php80 /usr/home/pvpluy/public_html/dev.mr/dev.pvp/bin/console messenger:consume async --time-limit=3600
+user=pvpluy
+numprocs=1
+autostart=true
+autorestart=true
+process_name=%(program_name)s_%(process_num)02d

@@ -1,0 +1,24 @@
+<table class="message-log">
+    <thead>
+    <tr>
+        <th>Plant</th>
+        <th>Job</th>
+        <th>State</th>
+        <th>start</th>
+        <th>end</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for log in logs %}
+        <tr class="{{ log.state }}">
+            <td>{{ log.plant }}</td>
+            <td>{{ log.function }}</td>
+            <td>{{ log.state }}</td>
+            <td>{{ log.startedAt|date('y-m-d H:i:s') }}</td>
+            <td>{% if (log.finishedAt is  not null) %}{{ log.finishedAt|date('y-m-d H:i:s') }}{% endif %}</td>
+            <td colspan="4">{{ log.job }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>

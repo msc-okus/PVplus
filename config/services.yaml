@@ -10,11 +10,12 @@ services:
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
         bind:
             $uploadsPath: '%kernel.project_dir%/public/uploads'
-            $uploadedFile: 'yxcyxcycx'
-            $filesystem: '@oneup_flysystem.public_uploads_filesystem_filesystem'
             $tempPathBaseUrl: '%kernel.project_dir%/tempfiles'
+            $filesystem: '@oneup_flysystem.public_uploads_filesystem_filesystem'
+
 
     # custom aliases for autowiring
     Nexy\Slack\Client: '@nexy_slack.client'
@@ -30,7 +31,6 @@ services:
             $isDebug: '%kernel.debug%'
             $markdown: 'dssdfsdf'
 
-
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
     App\Controller\:
@@ -38,9 +38,16 @@ services:
         tags: ['controller.service_arguments']
 
 
+    # MessageHandlers
+    App\MessageHandler\Command\:
+        resource: '../src/MessageHandler/Command'
+        autoconfigure: false
+        tags: [ { name: messenger.message_handler, bus: command.bus } ]
+
+    App\MessageHandler\Event\:
+        resource: '../src/MessageHandler/Event'
+        autoconfigure: false
+        tags: [ { name: messenger.message_handler, bus: event.bus } ]
+
+
     Symfony\Component\Asset\Context\RequestStackContext: '@assets.context'
-    #App\Legacy\LegacyRouteLoader:
-    #    tags: ['routing.loader']
-
-
-
