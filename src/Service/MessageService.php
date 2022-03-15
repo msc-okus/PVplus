@@ -29,7 +29,7 @@ class MessageService
 
     public function sendMessage(Anlage $anlage, $eventType, $alertType, $subject, $message, $attachedFiles = false, $g4nAlert = true, $g4nAdmin = false, $upAlert = false)
     {
-        $alertEmailG4n = new Address('alert@g4npvplus.de', 'PV+ Alert Email');
+        $alertEmailG4n = new Address('jm@green4net.com', 'PV+ Alert Email');
         $adminEmailG4n = new Address('admin@g4npvplus.de', 'PV+ Admin Email');
         $alertEmailKast = new Address('t.recke@upgmbh.com', 'Tobias Recke');
         $to = '';
@@ -43,6 +43,7 @@ class MessageService
             if ($alertType >= 3 || $eventType != 'alert') {
                 /** @var AnlageEventMail $recipents */
                 $recipents = $this->anlageEventMail->findBy(['anlage' => $anlage->getAnlId(), 'event' => $eventType], ['sendType' => 'ASC']);
+
                 foreach ($recipents as $recipent) {
                     switch ($recipent->getSendType()) {
                         case 'to':
@@ -96,7 +97,9 @@ class MessageService
             }
 
             $this->mailer->send($email);
+
             $this->logMessage($anlage, $subject, $message, $eventType, $alertType, $to);
+
             sleep(2);
         }
     }

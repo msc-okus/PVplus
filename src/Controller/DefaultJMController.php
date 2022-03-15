@@ -10,6 +10,7 @@ use App\Repository\StatusRepository;
 use App\Service\AlertSystemService;
 use App\Service\Charts\IrradiationChartService;
 use App\Service\FunctionsService;
+use App\Service\MessageService;
 use App\Service\WeatherServiceNew;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -40,7 +41,7 @@ class DefaultJMController extends AbstractController
     /**
      * @Route("/default/test/check", name="default_check")
      */
-    public function check(AlertSystemService $service, WeatherServiceNew $weather, AnlagenRepository $AnlRepo, EntityManagerInterface $em){
-        $service->checkSystem($weather, $AnlRepo, $em);
+    public function check(AlertSystemService $service, WeatherServiceNew $weather, AnlagenRepository $AnlRepo, EntityManagerInterface $em, MessageService $mailservice){
+        $service->checkSystem($weather, $AnlRepo, $em, $mailservice);
     }
 }
