@@ -2,7 +2,7 @@
 
 namespace App\Message\Command;
 
-class CalcExpected
+class CalcPR
 {
 
     private Int $anlageId;

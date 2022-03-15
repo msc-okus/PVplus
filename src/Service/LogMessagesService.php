@@ -39,7 +39,7 @@ class LogMessagesService
     {
         $log = $this->logMessagesRepo->findOneBy(['id' => $id]);
         $log->setState($state);
-        if ($state === 'done') $log->setFinishedAt(new \DateTimeImmutable());
+        if ($state == 'done') $log->setFinishedAt(new \DateTimeImmutable());
         $this->em->flush();
 
     }

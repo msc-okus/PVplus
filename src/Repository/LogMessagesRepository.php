@@ -47,16 +47,11 @@ class LogMessagesRepository extends ServiceEntityRepository
 
     public function findUseful()
     {
-        $start = date('Y-m-d H:i');
-        $end = date('Y-m-d H:i', strtotime($start) - 3600 * 6);
-
         return $this->createQueryBuilder('log')
-            ->andWhere('log.state != :state OR log.startedAt BETWEEN :end AND :start')
+            ->andWhere('log.state != :state OR log.startedAt >= :end')
             ->setParameter('state', 'done')
-            ->setParameter('start', $start)
-            ->setParameter('end', $end)
+            ->setParameter('end', date('Y-m-d H:i:s', time() - 3600 * 6))
             ->orderBy('log.startedAt', 'DESC')
-            #->setMaxResults(10)
             ->getQuery()
             ->getResult()
             ;

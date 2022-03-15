@@ -18,7 +18,7 @@ framework:
       async:
         dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
         retry_strategy:
-          delay: 500
+          delay: 2000
 
       async_priority_high:
         dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
@@ -33,5 +33,6 @@ framework:
 
     routing:
       # Route your messages to the transports
-      #'App\Message\Command\AddPonkaToImage': async_priority_high
       'App\Message\Command\CalcExpected': async
+      'App\Message\Command\CalcPR': async
+      'App\Message\Command\CalcPlantAvailability': async

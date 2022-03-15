@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\TimesConfig;
+use App\Repository\AnlagenRepository;
 use App\Repository\Case6Repository;
 use App\Repository\TimesConfigRepository;
 use DateTime;
@@ -26,10 +27,11 @@ class AvailabilityService
     private TimesConfig $timesConfig;
     private TimesConfigRepository $timesConfigRepo;
     private FunctionsService $functions;
+    private AnlagenRepository $anlagenRepository;
 
     public function __construct(EntityManagerInterface $em, AnlageAvailabilityRepository $availabilityRepository,
                                 Case5Repository $case5Repository, Case6Repository  $case6Repository,
-                                TimesConfigRepository $timesConfigRepo, FunctionsService $functions)
+                                TimesConfigRepository $timesConfigRepo, FunctionsService $functions, AnlagenRepository $anlagenRepository)
     {
         $this->em = $em;
         $this->availabilityRepository = $availabilityRepository;
@@ -37,6 +39,7 @@ class AvailabilityService
         $this->case6Repository = $case6Repository;
         $this->timesConfigRepo = $timesConfigRepo;
         $this->functions = $functions;
+        $this->anlagenRepository = $anlagenRepository;
     }
 
     /**
@@ -331,8 +334,10 @@ class AvailabilityService
      * @param DateTime $to
      * @return float
      */
-    public function calcAvailability(Anlage $anlage, DateTime $from, DateTime $to): float
+    public function calcAvailability(Anlage|int $anlage, DateTime $from, DateTime $to): float
     {
+        if (is_int($anlage)) $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);
+
         $sumPart1 = $sumPart2 = $pa = 0;
         if ($anlage->getUseNewDcSchema()) {
             foreach ($anlage->getAcGroups() as $acGroup) {

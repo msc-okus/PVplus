@@ -15,8 +15,8 @@
             <td>{{ log.plant }}</td>
             <td>{{ log.function }}</td>
             <td>{{ log.state }}</td>
-            <td>{{ log.startedAt|date('y-m-d H:i') }}</td>
-            <td>{% if (log.finishedAt is  not null) %}{{ log.finishedAt|date('y-m-d H:i') }}{% endif %}</td>
+            <td>{{ log.startedAt|date('y-m-d H:i:s') }}</td>
+            <td>{% if (log.finishedAt is  not null) %}{{ log.finishedAt|date('y-m-d H:i:s') }}{% endif %}</td>
             <td colspan="4">{{ log.job }}</td>
         </tr>
     {% endfor %}

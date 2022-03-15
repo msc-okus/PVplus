@@ -57,8 +57,10 @@ class PRCalulationService
         $this->availabilityService = $availabilityService;
     }
 
-    public function calcPRAll(Anlage $anlage, $day):string
+    public function calcPRAll(Anlage|int $anlage, $day):string
     {
+        if (is_int($anlage)) $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);
+
         $timeStamp = strtotime($day);
         // Nur ausführen wenn das zu berechnende Datum vor dem aktuellen Datum liegt (min. Gestern :-))
         if (date('Y-m-d', $timeStamp) < date('Y-m-d',self::getCetTime())) {
@@ -67,7 +69,7 @@ class PRCalulationService
             $day = date("Y-m-d", $timeStamp);
             $year = date("Y", $timeStamp);
             $month = date("m", $timeStamp);
-            $anzTageUntilToday = date('z', $timeStamp) + 1;
+            $anzTageUntilToday = (int)(date('z', $timeStamp)) + 1;
 
             // PAC Date berechnen
             if ($anlage->getUsePac()) {
