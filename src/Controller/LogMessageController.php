@@ -8,8 +8,8 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class LogMessageController extends BaseController
 {
-
     use G4NTrait;
+
     /**
      * @Route("/log/messages/list", name="app_log_messages_list")
      */

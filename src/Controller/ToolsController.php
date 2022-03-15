@@ -5,11 +5,16 @@ namespace App\Controller;
 use App\Form\Model\ToolsModel;
 use App\Form\Tools\ToolsFormType;
 use App\Helper\G4NTrait;
-use App\Repository\AnlagenRepository;
+use App\Message\Command\CalcExpected;
+use App\Message\Command\CalcPlantAvailability;
+use App\Message\Command\CalcPR;
 use App\Service\AvailabilityService;
 use App\Service\ExpectedService;
+use App\Service\LogMessagesService;
 use App\Service\PRCalulationService;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ToolsController extends BaseController
@@ -22,14 +27,14 @@ class ToolsController extends BaseController
                           PRCalulationService $PRCalulation,
                           AvailabilityService $availability,
                           ExpectedService $expectedService,
-                          AnlagenRepository $anlagenRepo )
+                          MessageBusInterface $messageBus, LogMessagesService $logMessages): Response
     {
         $form = $this->createForm(ToolsFormType::class);
         $form->handleRequest($request);
         $output = '';
 
         // Wenn Calc gelickt wird mache dies:
-        if($form->isSubmitted() && $form->isValid() && $form->get('calc')->isClicked()) {
+        if ($form->isSubmitted() && $form->isValid() && $form->get('calc')->isClicked() && $request->getMethod() == 'POST') {
 
             /* @var ToolsModel $toolsModel */
             $toolsModel = $form->getData();
@@ -38,9 +43,6 @@ class ToolsController extends BaseController
 
             // Print Headline
             switch ($toolsModel->function) {
-                case ('weather'):
-                    $output = "<h3>Weather:</h3>";
-                    break;
                 case ('expected'):
                     $output .= "<h3>Expected:</h3>";
                     break;
@@ -53,32 +55,61 @@ class ToolsController extends BaseController
             }
             // Start recalculation
 
-            for ($date = $start; $date < $end; $date += 86400) {
-                $from = date("Y-m-d 00:00", $date);
-                $to = date("Y-m-d 23:59", $date);
-                $fromShort  = date("Y-m-d 02:00", $date);
-                $toShort    = date("Y-m-d 22:00", $date);
-                $monat = date("m", $date);
-                switch ($toolsModel->function) {
-                    case ('weather'):
-                        //$output .= $weatherService->loadWeatherDataUP($toolsModel->anlage, $date);
-                        break;
-                    case ('expected'):
-                        $output .= $expectedService->storeExpectedToDatabase($toolsModel->anlage, $fromShort, $toShort);
-                        break;
-                    case ('pr'):
-                        $output .= $PRCalulation->calcPRAll($toolsModel->anlage, $from);
-                        break;
-                    case('availability'):
-                        $output .= $availability->checkAvailability($toolsModel->anlage, $date, false);
-                        if ($toolsModel->anlage->getShowAvailabilitySecond()) $output .= $availability->checkAvailability($toolsModel->anlage, $date, true);
-                        break;
-                }
-            }
+            switch ($toolsModel->function) {
+                case 'expected':
+                    $job = "Update 'G4N Expected' from ".$toolsModel->startDate->format('Y-m-d')." until ". $toolsModel->endDate->format('Y-m-d');
+                    $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'Expected', $job);
+                    $message = new CalcExpected($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
+                    $messageBus->dispatch($message);
+                    break;
+                case 'pr':
+                    $job = "Update PR Table – from ".$toolsModel->startDate->format('Y-m-d')." until ". $toolsModel->endDate->format('Y-m-d');
+                    $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'PR', $job);
+                    $message = new CalcPR($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
+                    $messageBus->dispatch($message);
 
+                    break;
+                case 'availability':
+                    $job = "Update Plant Availability Table – from ".$toolsModel->startDate->format('Y-m-d')." until ". $toolsModel->endDate->format('Y-m-d');
+                    $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'PA', $job);
+                    $message = new CalcPlantAvailability($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
+                    $messageBus->dispatch($message);
+                    break;
+                default:
+                    /*
+                   for ($date = $start; $date < $end; $date += 86400) {
+                       $from = date("Y-m-d 00:00", $date);
+                       $to = date("Y-m-d 23:59", $date);
+                       $fromShort  = date("Y-m-d 02:00", $date);
+                       $toShort    = date("Y-m-d 22:00", $date);
+                       $monat = date("m", $date);
+                       switch ($toolsModel->function) {
+
+                           case ('expected'):
+                               $message = new CalcExpected($toolsModel->anlage, $fromShort, $toShort);
+                               $messageBus->dispatch($message);
+
+                               //$output .= $expectedService->storeExpectedToDatabase($toolsModel->anlage, $fromShort, $toShort);
+                               $output .= "Command was send to messenger! Will be processed in the background.<br>";
+                               break;
+
+                           case ('pr'):
+                               $output .= $PRCalulation->calcPRAll($toolsModel->anlage, $from);
+                               break;
+
+                           case('availability'):
+                               $output .= $availability->checkAvailability($toolsModel->anlage, $date, false);
+                               if ($toolsModel->anlage->getShowAvailabilitySecond()) $output .= $availability->checkAvailability($toolsModel->anlage, $date, true);
+                               break;
+
+                        }
+                    }
+                    */
+            }
+            $output .= "Command was send to messenger! Will be processed in the background.<br>";
         }
 
-        // Wenn Close gelickt wird mache dies:
+        // Wenn Close geklickt wird mache dies:
         if($form->isSubmitted() && $form->isValid() && $form->get('close')->isClicked()) {
             return $this->redirectToRoute('app_dashboard');
         }

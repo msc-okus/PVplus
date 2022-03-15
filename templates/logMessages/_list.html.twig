@@ -17,7 +17,7 @@
             <td>{{ log.state }}</td>
             <td>{{ log.startedAt|date('y-m-d H:i:s') }}</td>
             <td>{% if (log.finishedAt is  not null) %}{{ log.finishedAt|date('y-m-d H:i:s') }}{% endif %}</td>
-            <td colspan="4">{{ log.job }}</td>
+            <td>{{ log.job }}</td>
         </tr>
     {% endfor %}
     </tbody>
