@@ -526,14 +526,15 @@ class AnlagenPR
         return $this;
     }
 
-    public function getstamp(): ?DateTime
+    public function getStamp(): ?DateTime
     {
         return $this->stamp;
     }
 
-    public function setstamp(DateTime $stamp): self
+    public function setStamp(DateTime $stamp): self
     {
         $this->stamp = $stamp;
+        $this->stampIst = $stamp;
 
         return $this;
     }
