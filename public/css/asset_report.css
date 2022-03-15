@@ -62,7 +62,7 @@ small {
 
 table {
   border-collapse: collapse;
-  width: auto !important;
+  /*width: auto !important;*/
   margin-bottom: 1.5rem;
 }
 table * {

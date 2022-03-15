@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+
 use App\Entity\Status;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
@@ -45,7 +46,9 @@ class DefaultJMController extends AbstractController
     /**
      * @Route("/default/test/check")
      */
+
     public function checkSystem(WeatherServiceNew $weather, AnlagenRepository $AnlRepo, EntityManagerInterface $em){
+
         $Anlagen = $AnlRepo->findAll();
         $time = $this->getLastQuarter(date('Y-m-d H:i') );
         $time = $this->timeAjustment($time, -2);
@@ -54,6 +57,7 @@ class DefaultJMController extends AbstractController
 
             $conn = self::getPdoConnection();
             if (($anlage->getAnlMute() == "No") && (($time > $sungap[$anlage->getanlName()]['sunrise']) && ($time < $sungap[$anlage->getAnlName()]['sunset']))) {
+
                     $status = new Status();
                     $sqlw = "SELECT b.gi_avg as gi , b.gmod_avg as gmod, b.temp_ambient as temp, b.wind_speed as wspeed FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp = '$time' ";
                     //change to g_lower g_upper
@@ -64,6 +68,7 @@ class DefaultJMController extends AbstractController
                         else $status_report[$anlage->getAnlName()]['Irradiation'] = "All good";
                     }
                     else  $status_report[$anlage->getAnlName()]['Irradiation'] = "No data";
+
 
                 if($wdata['temp'] != null ) {
 
@@ -121,6 +126,7 @@ class DefaultJMController extends AbstractController
                 $status->setStatus($status_report[$anlage->getAnlName()]);
                 $em->persist($status);
                 $em->flush();
+
             }
         }
         dd($status_report);
