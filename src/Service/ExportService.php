@@ -6,8 +6,10 @@ namespace App\Service;
 
 use App\Entity\Anlage;
 use App\Entity\AnlageAcGroups;
+use App\Entity\AnlageGridMeterDay;
 use App\Helper\G4NTrait;
 use App\Repository\AnlageAvailabilityRepository;
+use App\Repository\GridMeterDayRepository;
 use App\Repository\PRRepository;
 use DateTime;
 use PDO;
@@ -19,12 +21,14 @@ class ExportService
     private FunctionsService $functions;
     private PRRepository $PRRepository;
     private AnlageAvailabilityRepository $availabilityRepo;
+    private GridMeterDayRepository $gridMeterDayRepo;
 
-    public function __construct(FunctionsService $functions, PRRepository $PRRepository, AnlageAvailabilityRepository $availabilityRepo)
+    public function __construct(FunctionsService $functions, PRRepository $PRRepository, AnlageAvailabilityRepository $availabilityRepo, GridMeterDayRepository $gridMeterDayRepo)
     {
         $this->functions = $functions;
         $this->PRRepository = $PRRepository;
         $this->availabilityRepo = $availabilityRepo;
+        $this->gridMeterDayRepo = $gridMeterDayRepo;
     }
 
     public function gewichtetTagesstrahlung(Anlage $anlage, DateTime $from, DateTime $to):string
@@ -78,8 +82,11 @@ class ExportService
             $output .= "<td>".round($availability,2)."</td>";
             $output .= "<td>".round($gewichteteStrahlung / 1000 / 4,2)."</td>";
             #$output .= "<td>".round($gewichteteTheoPower2,2)."</td>";
-            $output .= "<td>".round($gewichteteTheoPower,2)."</td></tr>";
-            $output .= "<td></td>";
+            $output .= "<td>".round($gewichteteTheoPower,2)."</td>";
+            $gridMeterDay = $this->gridMeterDayRepo->findOneBy(['anlage' => $anlage, 'stamp' => date('Y-m-d', $stamp)]);
+dump($gridMeterDay->getGridMeterValue());
+            $output .= "<td>".round($gridMeterDay->getGridMeterValue(),2)."</td>";
+            $output .= "</tr>";
         }
         $output .= "</tbody></table></div>";
         return $output;

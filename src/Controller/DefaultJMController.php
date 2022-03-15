@@ -2,11 +2,14 @@
 
 namespace App\Controller;
 
+
+use App\Entity\Status;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\Charts\IrradiationChartService;
 use App\Service\FunctionsService;
 use App\Service\WeatherServiceNew;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -43,7 +46,9 @@ class DefaultJMController extends AbstractController
     /**
      * @Route("/default/test/check")
      */
-    public function checkSystem(WeatherServiceNew $weather, AnlagenRepository $AnlRepo){
+
+    public function checkSystem(WeatherServiceNew $weather, AnlagenRepository $AnlRepo, EntityManagerInterface $em){
+
         $Anlagen = $AnlRepo->findAll();
         $time = $this->getLastQuarter(date('Y-m-d H:i') );
         $time = $this->timeAjustment($time, -2);
@@ -53,7 +58,9 @@ class DefaultJMController extends AbstractController
             $conn = self::getPdoConnection();
             if (($anlage->getAnlMute() == "No") && (($time > $sungap[$anlage->getanlName()]['sunrise']) && ($time < $sungap[$anlage->getAnlName()]['sunset']))) {
 
-                    $sqlw = "SELECT b.gi_avg as gi , b.gmod_avg as gmod FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp = '$time' ";
+                    $status = new Status();
+                    $sqlw = "SELECT b.gi_avg as gi , b.gmod_avg as gmod, b.temp_ambient as temp, b.wind_speed as wspeed FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp = '$time' ";
+                    //change to g_lower g_upper
                     $resw = $conn->query($sqlw);
                     $wdata = $resw->fetch(PDO::FETCH_ASSOC);
                     if($wdata['gi'] != null && $wdata['gmod'] != null) {
@@ -62,17 +69,64 @@ class DefaultJMController extends AbstractController
                     }
                     else  $status_report[$anlage->getAnlName()]['Irradiation'] = "No data";
 
-                    $sqlp = "SELECT wr_pac as ist 
+
+                if($wdata['temp'] != null ) {
+
+                     $status_report[$anlage->getAnlName()]['temperature'] = "All good";
+                }
+                else  $status_report[$anlage->getAnlName()]['temperature'] = "No data";
+
+                if($wdata['wspeed'] != null) {
+                    if ($wdata['wspeed'] == 0 ) $status_report[$anlage->getAnlName()]['wspeed'] = "Wind Speed is 0";
+                    else $status_report[$anlage->getAnlName()]['wspeed'] = "All good";
+                }
+                else  $status_report[$anlage->getAnlName()]['wspeed'] = "No data";
+
+                    $sqlp = "SELECT wr_pac as ist
                           FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
                           WHERE a.stamp = '$time' ";
+                    $counter = 1;
                     $resp = $conn->query($sqlp);
-                    $pdata = $resp->fetch(PDO::FETCH_ASSOC);
-
-                    if($pdata['ist'] != null){
-                        if($pdata['ist'] == 0) $status_report[$anlage->getAnlName()]['Ist'] = "Power is 0";
-                        else $status_report[$anlage->getAnlName()]['Ist'] = "All good";
+                    while($pdata = $resp->fetch(PDO::FETCH_ASSOC)){
+                        if($pdata['ist'] != null){
+                            if($pdata['ist'] == 0) $status_report[$anlage->getAnlName()]['Ist'][$counter] = "Power is 0";
+                            else $status_report[$anlage->getAnlName()]['Ist'][$counter] = "All good";
+                        }
+                        else $status_report[$anlage->getAnlName()]['Ist'][$counter] = "No Data";
+                        $counter++;
                     }
-                    else $status_report[$anlage->getAnlName()]['Ist'] = "No Data";
+
+
+                    $status->setAnlage($anlage);
+                    $status->setStamp($time);
+                    $status->setStatus($status_report[$anlage->getAnlName()]);
+                    $em->persist($status);
+                    $em->flush();
+            }
+            else if(!$anlage->getAnlMute()){
+
+                $status = new Status();
+                $sqlw = "SELECT  b.temp_ambient as temp, b.wind_speed as wspeed FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp = '$time' ";
+
+                $resw = $conn->query($sqlw);
+                $wdata = $resw->fetch(PDO::FETCH_ASSOC);
+                if($wdata['temp'] != null ) {
+
+                    $status_report[$anlage->getAnlName()]['temperature'] = "All good";
+                }
+                else  $status_report[$anlage->getAnlName()]['temperature'] = "No data";
+
+                if($wdata['wspeed'] != null) {
+                    if ($wdata['wspeed'] == 0 ) $status_report[$anlage->getAnlName()]['wspeed'] = "Wind Speed is 0";
+                    else $status_report[$anlage->getAnlName()]['wspeed'] = "All good";
+                }
+                else  $status_report[$anlage->getAnlName()]['wspeed'] = "No data";
+                $status->setAnlage($anlage);
+                $status->setStamp($time);
+                $status->setStatus($status_report[$anlage->getAnlName()]);
+                $em->persist($status);
+                $em->flush();
+
             }
         }
         dd($status_report);

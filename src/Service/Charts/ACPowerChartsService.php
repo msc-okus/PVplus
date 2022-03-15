@@ -609,10 +609,11 @@ class ACPowerChartsService
      * @param $from
      * @param $to
      * @param int $group
-     * @return array
+     * @param bool $hour
+     * @return array|null AC - Actual, Groups
      * AC - Actual, Groups
      */
-    public function getActFrequncyGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false):?array
+    public function getActFrequncyGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): ?array
     {
         if($hour) $form = '%y%m%d%H';
         else $form = '%y%m%d%H%i';
@@ -660,13 +661,10 @@ class ACPowerChartsService
         $dataArray['offsetLegend'] = $acGroups[$group]['GMIN'] - 1;
         $dataArray['label'] = $acGroups[$group]['GroupName'];
         if ($result->rowCount() > 0) {
-
             while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                 $counterInv++;
-                if ($counterInv > $maxInverter) $maxInverter = $counterInv;
-                if($hour)$frequency = round($row["frequency"],1)/4;
-                else $frequency=round($row["frequency"],1);
                 $stamp = $row["stamp"];
+                $frequency = round($hour ? (float)$row["frequency"] / 4 : (float)$row["frequency"], 1);
                 if (!($frequency == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                     $dataArray['chart'][$counter] = [
                         //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
@@ -674,7 +672,6 @@ class ACPowerChartsService
                         "frequency" => $frequency,
                     ];
                 }
-
                 $counter++;
             }
         }
@@ -688,6 +685,7 @@ class ACPowerChartsService
      * @param $from
      * @param $to
      * @param int $group
+     * @param bool $hour
      * @return array
      * AC - Actual, Groups
      */
