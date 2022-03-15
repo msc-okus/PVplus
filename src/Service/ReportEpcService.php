@@ -165,6 +165,10 @@ class ReportEpcService
         $startYear      = $anlage->getEpcReportStart()->format('Y');
         $currentMonth   = (int)$date->format('m');
         $currentYear    = (int)$date->format('Y');
+        if ($currentMonth == 1) { // Ausnahme um den Jahreswechsel abzubilden
+            #$currentMonth   = 13;
+            #$currentYear    -= 1;
+        }
 
         $sumPrRealPrProg = $sumDays = $sumErtragDesign = $sumEGridReal = $sumAnteil = $sumPrReal = $sumSpecPowerGuar = $sumSpecPowerRealProg = $counter = $sumPrDesign = $sumSpezErtragDesign = 0;
         $sumIrrMonth = $sumDaysReal = $sumErtragDesignReal = $sumEGridRealReal = $sumPrRealReal = $sumEGridRealDesignReal = $sumEGridRealDesign = $sumPrRealPrProgReal = 0;
@@ -256,10 +260,10 @@ class ReportEpcService
                                 $prStandard = $this->format($pr->getPrDefaultMonthEGridExt());
                             }
                             if ($monthlyData != null && $monthlyData->getExternMeterDataMonth() > 0) {
-                                $eGridReal = $monthlyData->getExternMeterDataMonth();
+                                $eGridReal = $monthlyData->getExternMeterDataMonth();// / $daysInMonth * $days;
                             }
                     }
-                   
+
                     $prRealprProg = $prReal;
                     $realDateTextEnd = date('My', strtotime("$year-$month-1"));
                     if (($month == $currentMonth && $year == $currentYear) && $run === 2){

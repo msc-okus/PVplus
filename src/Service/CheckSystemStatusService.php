@@ -48,8 +48,9 @@ class CheckSystemStatusService
         $sqlTimeStamp               = date('Y-m-d H:i:s',$timestampModulo);
         $from                       = date("Y-m-d 00:00:00", $currentTimeStamp);
         $to                         = date("Y-m-d H:i:00", $timestampModulo - 1800);
-        //$fromYesterday              = date("Y-m-d 00:00:00", $currentTimeStamp - 24 * 3600);
-        //$toYestreday                = date("Y-m-d 23:59:00", $timestampModulo - 24 * 3600);
+        //$to                         = date("Y-m-d 23:59:00", $timestampModulo);
+        $fromYesterday              = date("Y-m-d 00:00:00", $currentTimeStamp - 24 * 3600);
+        $toYestreday                = date("Y-m-d 23:59:00", $timestampModulo - 24 * 3600);
         $timestampModuloYesterday   = $timestampModulo - (24 * 3600);
 
         /*******************************/
@@ -132,8 +133,7 @@ class CheckSystemStatusService
                     $powerActArray = $this->functions->getSumPowerAcAct($anlage, $forecastDate->format('Y-m-d 00:00:00'), $forecastDate->format('Y-m-d 23:00:00'), $pacDate, $forecastDate->format('Y-m-d 23:00:00'));
 
                     $forecastYear = $powerActArray['powerEvuYear'] - $this->forecastRepo->calcForecastByDate($anlage, $forecastDate);
-                    if ($forecastYear === null) {$forecastYear = 0;}
-
+                    if ($forecastYear === null) $forecastYear = 0;
                     $forecastDivMinusYear = 0;
                     $forecastDivPlusYear = 0;
 
@@ -324,7 +324,7 @@ class CheckSystemStatusService
                         if ($lastWeatherStatus == 'alert' && ($counter >= 8 || $firstRun)){
                             // Send Alert Email an Kast
                             $subject = "green4net - Keine Daten von Wetterstation $anlageDbWeather";
-                            $message = "<h3 class='block'>There is no data from the Weather Station $anlageDbWeather, since $acExpStamp</h3>";
+                            $message = "<h3 class='block'>Keine Daten von der Wetterstation $anlageDbWeather, seit $acExpStamp</h3>";
                             $this->messageService->sendMessage($anlage, 'alert', 2, $subject, $message, false, false, true, true);
                         }
                     }
@@ -342,7 +342,7 @@ class CheckSystemStatusService
                             if (strtotime($acActStamp) <= $currentTimeStamp - 2 * 3600) {
                                 // Send Alert Email an G4N
                                 $subject = "Keine Daten von der Anlage: $anlagenName";
-                                $message = "<h3 class='block'>There is no data from the plant $anlagenName ($anlagenId), since $acActStamp</h3>";
+                                $message = "<h3 class='block'>Keine Daten von der Anlage $anlagenName ($anlagenId), seit $acActStamp</h3>";
                                 $this->messageService->sendMessage($anlage, 'alert', 2, $subject, $message, false, false, true);
                             }
                         }
@@ -352,7 +352,7 @@ class CheckSystemStatusService
                             if ($acDiffStatus == 'alert') {
                                 // Send Alert Email an G4N und Kunden
                                 $subject = "$anlagenName AC Abweichungen";
-                                $message = "<p class='block'>'Deviations on the AC side are too high. Please check them.'</p>";
+                                $message = "<p class='block'>'Abweichungen auf der AC Seite hoch. Bitte prüfen.'</p>";
                                 $this->messageService->sendMessage($anlage, 'alert', 3, $subject, $message);
                             }
                         }
@@ -523,13 +523,13 @@ class CheckSystemStatusService
                                 $inverterArray['anzInverterWarning']++;
                                 $inverterArray['error'][$inverter] = 3;
                                 $inverterArray['score'] += 1;
-                                $inverterArray['errorMessage'] .= "Group ".$group['GroupName']." Inverter No $inverter : warning (lost: $lostInverter%) ($grpAvgPowerAc - $inverterAvgPowerAc) (".date('Y-m-d H:i', $currentTimeStamp).")<br>";
+                                $inverterArray['errorMessage'] .= "Groupe ".$group['GroupName']." Inverter No $inverter : warning (lost: $lostInverter%) ($grpAvgPowerAc - $inverterAvgPowerAc) (".date('Y-m-d H:i', $currentTimeStamp).")<br>";
                             } else {
                                 // alert
                                 $inverterArray['anzInverterAlert']++;
                                 $inverterArray['error'][$inverter] = 9;
                                 $inverterArray['score'] += 9;
-                                $inverterArray['errorMessage'] .= "Group ".$group['GroupName']." Inverter No $inverter : alert (lost: $lostInverter%) ($grpAvgPowerAc - $inverterAvgPowerAc) (".date('Y-m-d H:i', $currentTimeStamp).")<br>";
+                                $inverterArray['errorMessage'] .= "Groupe ".$group['GroupName']." Inverter No $inverter : alert (lost: $lostInverter%) ($grpAvgPowerAc - $inverterAvgPowerAc) (".date('Y-m-d H:i', $currentTimeStamp).")<br>";
                             }
                         }
                     }
@@ -627,7 +627,7 @@ class CheckSystemStatusService
                     $stringVoltage      = json_decode($rowAnlage['wr_mpp_voltage'], true);
                     $anzStringsVoltage  = count($stringVoltage);
                     $sumStringVoltage   = array_sum($stringVoltage);
-                    ($anzStringsVoltage > 0) ? $avgStringVoltage = $sumStringVoltage / $anzStringsVoltage: $avgStringVoltage = 0;//UNUSED
+                    ($anzStringsVoltage > 0) ? $avgStringVoltage = $sumStringVoltage / $anzStringsVoltage: $avgStringVoltage = 0;
                 }
 
 
@@ -640,7 +640,7 @@ class CheckSystemStatusService
                 $arrayWarningTimePerStringDiffCurrent = [];
 
                 $arrayErrorTimePerStringLostVoltage = [];
-                $arrayWarningTimePerStringVoltage = [];//UNUSED
+                $arrayWarningTimePerStringVoltage = [];
                 $arrayErrorTimePerStringDiffVoltage = [];
                 $arrayWarningTimePerStringDiffVoltage = [];
 
@@ -653,7 +653,7 @@ class CheckSystemStatusService
                             $anzCurrentAlert++; // Hilfszähler muss für Alert min 2 Sein
                             $arrayErrorTimePerStringLostCurrent["$inverter-$stringKey"] = $stamp;
                         }
-                        /* why is this commented?
+                        /*
                          else  {
                             if ($stringValue < ($GLOBALS['abweichung']['string']['string']['error'] / 100 * $avgStringCurrent)) {
                                 $stringArray['errorMessage'] .= "Alert at group " . $dcGroups[$group]['GroupName'] . ", inverter $inverter, string $stringKey: difference alert current. ($stamp)<br>";

@@ -31,9 +31,6 @@
     "clue/stream-filter": {
         "version": "v1.5.0"
     },
-    "composer/package-versions-deprecated": {
-        "version": "1.11.99.3"
-    },
     "daandesmedt/phpheadlesschrome": {
         "version": "v1.1.0"
     },
@@ -302,6 +299,12 @@
     "laminas/laminas-code": {
         "version": "3.5.1"
     },
+    "laminas/laminas-eventmanager": {
+        "version": "3.3.0"
+    },
+    "laminas/laminas-zendframework-bridge": {
+        "version": "1.1.1"
+    },
     "league/flysystem": {
         "version": "1.1.4"
     },
@@ -371,6 +374,12 @@
     "nuzkito/chrome-html-to-pdf": {
         "version": "2.0.0"
     },
+    "ocramius/package-versions": {
+        "version": "1.11.0"
+    },
+    "ocramius/proxy-manager": {
+        "version": "2.2.3"
+    },
     "oneup/flysystem-bundle": {
         "version": "3.0",
         "recipe": {
@@ -379,6 +388,9 @@
             "version": "3.0",
             "ref": "e6c6440b279273a468e1f570b0fc1d4ff54ad69e"
         }
+    },
+    "php": {
+        "version": "7.2"
     },
     "php-http/client-common": {
         "version": "1.11.0"
@@ -485,9 +497,6 @@
             "config/packages/stof_doctrine_extensions.yaml"
         ]
     },
-    "symfony/amqp-messenger": {
-        "version": "v5.4.5"
-    },
     "symfony/asset": {
         "version": "v5.1.2"
     },
@@ -527,6 +536,9 @@
             "config/packages/dev/debug.yaml"
         ]
     },
+    "symfony/debug-pack": {
+        "version": "v1.0.8"
+    },
     "symfony/dependency-injection": {
         "version": "v5.1.2"
     },
@@ -535,9 +547,6 @@
     },
     "symfony/doctrine-bridge": {
         "version": "v5.1.2"
-    },
-    "symfony/doctrine-messenger": {
-        "version": "v5.4.3"
     },
     "symfony/dotenv": {
         "version": "v5.1.2"
@@ -594,6 +603,9 @@
             "src/Kernel.php"
         ]
     },
+    "symfony/http-client-contracts": {
+        "version": "v2.2.0"
+    },
     "symfony/http-foundation": {
         "version": "v5.1.2"
     },
@@ -623,18 +635,6 @@
             "version": "1.0",
             "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
         }
-    },
-    "symfony/messenger": {
-        "version": "5.4",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "master",
-            "version": "4.3",
-            "ref": "25e3c964d3aee480b3acc3114ffb7940c89edfed"
-        },
-        "files": [
-            "config/packages/messenger.yaml"
-        ]
     },
     "symfony/mime": {
         "version": "v5.1.2"
@@ -699,9 +699,6 @@
     "symfony/proxy-manager-bridge": {
         "version": "v5.3.4"
     },
-    "symfony/redis-messenger": {
-        "version": "v5.4.5"
-    },
     "symfony/routing": {
         "version": "5.1",
         "recipe": {
@@ -745,6 +742,9 @@
     },
     "symfony/serializer": {
         "version": "v5.2.4"
+    },
+    "symfony/serializer-pack": {
+        "version": "v1.0.4"
     },
     "symfony/service-contracts": {
         "version": "v2.1.2"
@@ -905,6 +905,9 @@
     },
     "voku/portable-ascii": {
         "version": "1.5.6"
+    },
+    "webimpress/safe-writer": {
+        "version": "2.1.0"
     },
     "webmozart/assert": {
         "version": "1.10.0"

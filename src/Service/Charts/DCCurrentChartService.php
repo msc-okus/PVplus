@@ -41,7 +41,6 @@ class DCCurrentChartService
      * @param int $group
      * @param bool $hour
      * @return array
-     * [Curr 1]
      */
     public function getCurr1(Anlage $anlage, $from, $to, int $group = 1,  bool $hour = false): array
     {
@@ -51,12 +50,10 @@ class DCCurrentChartService
         $dataArray = [];
         switch ($anlage->getConfigType()) {
             case 1:
+            case 3:
+                # z.B. Gronningen
                 $groupQuery = "group_ac = '$group' ";
                 $nameArray = $this->functions->getNameArray($anlage, 'ac');
-                break;
-            case 3:
-                $groupQuery = "group_ac = '$group' ";
-                $nameArray = $this->functions->getNameArray($anlage, 'dc');
                 break;
             default:
                 $groupQuery = "group_dc = '$group' ";
@@ -65,7 +62,7 @@ class DCCurrentChartService
         $dataArray['inverterArray'] = $nameArray;
         // SOLL Strom für diesen Zeitraum und diese Gruppe
         $sqlExp = "SELECT a.stamp as stamp, sum(b.dc_exp_current) as expected
-                   FROM (db_dummysoll a LEFT JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE $groupQuery) b ON a.stamp = b.stamp)
+                   FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_current, group_ac FROM " . $anlage->getDbNameDcSoll() . " WHERE $groupQuery) b ON a.stamp = b.stamp)
                    WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
         $result = $conn->query($sqlExp);
         $expectedResult = $result->fetchAll(PDO::FETCH_ASSOC);
@@ -78,7 +75,6 @@ class DCCurrentChartService
                 $stamp = $rowSoll['stamp'];
                 $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
                 $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stampAdjust);
-                $dataArray['offsetLegend'] = $acGroups[$group]['GMIN'] - 1;
 
                 if (!(($rowSoll['expected'] == 0) && (self::isDateToday($stampAdjust) && self::getCetTime() - strtotime($stampAdjust) < 7200))) {
                     switch ($anlage->getConfigType()) {
@@ -110,15 +106,16 @@ class DCCurrentChartService
                     $currentAct = $hour ? $rowAct['istCurrent'] / 4 : $rowAct['istCurrent'];
                     $currentAct = round($currentAct, 2);
                     if (!($currentAct == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
-                        $dataArray['chart'][$counter][$nameArray[$inverterCount+$dataArray['offsetLegend']]] = $currentAct;
+                        $dataArray['chart'][$counter][$nameArray[$inverterCount]] = $currentAct;
                     }
+
                     $inverterCount++;
                 }
                 $counter++;
+                $dataArray['offsetLegend'] = $acGroups[$group]['GMIN'] - 1;
             }
         }
         $conn = null;
-
         return $dataArray;
     }
 
@@ -130,7 +127,7 @@ class DCCurrentChartService
      * @param int $set
      * @param bool $hour
      * @return array
-     * [Curr 2] dc_current_group
+     * dc_current_group
      */
     public function getCurr2(Anlage $anlage, $from, $to, int $set = 1,  bool $hour = false): array
     {
@@ -200,7 +197,7 @@ class DCCurrentChartService
      * @param int $group
      * @param bool $hour
      * @return array
-     * [Curr 3]  dc_current_inverter
+     *  // dc_current_inverter
      */
     public function getCurr3(Anlage $anlage, $from, $to, int $group = 1,  bool $hour = false): array
     {
@@ -240,31 +237,39 @@ class DCCurrentChartService
 
                 $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
 
-                $currentExp = $row['sollCurrent'] > 0 ? round($row['sollCurrent'], 2) : 0;
+                $row['sollCurrent'] > 0 ? $currentExp = round($row['sollCurrent'], 2) : $currentExp = 0;
                 if ($currentExp === null) $currentExp = 0;
                 if (!($currentExp == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                     $dataArray['chart'][$counter]["soll"] = $currentExp;
                 }
-
                 $mppCounter = 0;
+
                 for ($inverter = $dcGroups[$group]['GMIN']; $inverter <= $dcGroups[$group]['GMAX']; $inverter++) {
                     $mppCounter++;
-                    $whereQueryPart1 = $hour ? "stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'" : "stamp = '$stampAdjust'";
-                    if ($anlage->getUseNewDcSchema()) {
-                        $sql = "SELECT sum(wr_idc) as istCurrent FROM " . $anlage->getDbNameDCIst() . " WHERE $whereQueryPart1 AND wr_num = '$inverter' GROUP BY date_format(stamp, '$form')";
+                    if ($hour) {
+                        if ($anlage->getUseNewDcSchema()) {
+                            $sql = "SELECT sum(wr_idc) as istCurrent FROM " . $anlage->getDbNameDCIst() . " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' AND wr_num = '$inverter' GROUP BY date_format(stamp, '$form')";
+                        } else {
+                            $sql = "SELECT sum(wr_idc) as istCurrent FROM " . $anlage->getDbNameAcIst() . " WHERE stamp >= '$stampAdjust' AND stamp < '$stampAdjust2' AND unit = '$inverter' GROUP BY date_format(stamp, '$form')";
+                        }
                     } else {
-                        $sql = "SELECT sum(wr_idc) as istCurrent FROM " . $anlage->getDbNameAcIst() . " WHERE $whereQueryPart1 AND unit = '$inverter' GROUP BY date_format(stamp, '$form')";
+                        if ($anlage->getUseNewDcSchema()) {
+                            $sql = "SELECT wr_idc as istCurrent FROM " . $anlage->getDbNameDCIst() . " WHERE stamp = '$stampAdjust' AND wr_num = '$inverter' GROUP BY date_format(stamp, '$form')";
+                        } else {
+                            $sql = "SELECT wr_idc as istCurrent FROM " . $anlage->getDbNameAcIst() . " WHERE stamp = '$stampAdjust' AND unit = '$inverter' GROUP BY date_format(stamp, '$form')";
+                        }
                     }
-
 
                     $resultIst = $conn->query($sql);
                     if ($resultIst->rowCount() > 0) {
                         $rowIst = $resultIst->fetch(PDO::FETCH_ASSOC);
-                        $currentIst = round((float)$rowIst['istCurrent'], 2);
+
+                        $currentIst = round($rowIst['istCurrent'], 2);
                         if ($hour) $currentIst = $currentIst / 4;
                         if (!($currentIst == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                             //$dataArray['chart'][$counter]["val$mppCounter"] = $currentIst;
                             switch ($anlage->getConfigType()) {
+
                                 case 3: // Groningen
                                     $dataArray['chart'][$counter][$nameArray[$inverter]] = $currentIst;
                                     break;

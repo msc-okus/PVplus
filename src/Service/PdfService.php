@@ -4,16 +4,15 @@ namespace App\Service;
 
 use App\Entity\Anlage;
 use chromeheadlessio\Service;
-use Com\Tecnick\Barcode\Type\Square\PdfFourOneSeven\Sequence;
 use Nuzkito\ChromePdf\ChromePdf;
+
 
 
 class PdfService
 {
-
     private string $tempPathBaseUrl;
 
-    public function __construct( String $tempPathBaseUrl)
+    public function __construct(string $tempPathBaseUrl)
     {
         $this->tempPathBaseUrl = $tempPathBaseUrl;
     }
@@ -45,8 +44,10 @@ class PdfService
             return '';
         } else {
             $pdf = new ChromePdf('/usr/bin/chromium');
+
             $fullfilename = $this->tempPathBaseUrl.'/'.$anlage->getAnlName().'_tempPDF';
             $filename = $anlage->getAnlName().'_tempPDF.pdf';
+
             $pdf->output($fullfilename.'.pdf');
             switch ($source) {
                 case 'string':

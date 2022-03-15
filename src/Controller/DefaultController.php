@@ -45,5 +45,4 @@ class DefaultController extends BaseController
             'output' => $output,
         ]);
     }
-
 }

@@ -785,11 +785,6 @@ class Anlage
      */
     private $picture = "";
 
-    /**
-     * @ORM\OneToMany(targetEntity=Status::class, mappedBy="Anlage", orphanRemoval=true)
-     */
-    private $statuses;
-
 
     public function __construct()
     {
@@ -818,7 +813,6 @@ class Anlage
         $this->tickets = new ArrayCollection();
         $this->economicVarValues = new ArrayCollection();
         $this->anlageFiles = new ArrayCollection();
-        $this->statuses = new ArrayCollection();
     }
 
     public function getAnlId(): ?string
@@ -934,12 +928,11 @@ class Anlage
         return $this;
     }
 
-    /** @deprecated  */
     public function getPower(): ?string
     {
         return $this->power;
     }
-    /** @deprecated  */
+
     public function setPower(string $power): self
     {
         $this->power =  str_replace(',', '.', $power);
@@ -947,23 +940,11 @@ class Anlage
         return $this;
     }
 
-    public function getPnom(): ?float
-    {
-        return (float)$this->power;
-    }
-
-    public function setPnom(string $power): self
-    {
-        $this->power =  str_replace(',', '.', $power);
-
-        return $this;
-    }
-    /** @deprecated  */
     public function getKwPeak(): ?float
     {
         return (float)$this->power;
     }
-    /** @deprecated  */
+
     public function setKwPeak(string $power): self
     {
         $this->power =  str_replace(',', '.', $power);
@@ -3279,13 +3260,5 @@ class Anlage
         $this->picture = $picture;
 
         return $this;
-    }
-
-    /**
-     * @return Collection|Status[]
-     */
-    public function getStatuses(): Collection
-    {
-        return $this->statuses;
     }
 }

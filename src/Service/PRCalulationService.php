@@ -323,7 +323,7 @@ class PRCalulationService
                         $yearPrExp          = ($powerExpYear        / $powerTheoYear) * 100;
                         $yearPrEGridExt     = ($powerEGridExtYear   / $powerTheoYear) * 100;
                     }
-                    #dd( "Year: " . $powerEGridExtYear. " / $powerTheoYear | Month: " . $powerEGridExtMonth ." / $powerTheoMonth | PR Month: $monthPrEGridExt");
+                    #dd( "Year: " . $powerEGridExtYear. " / $powerTheoYear | Month: " . $powerEGridExtMonth ." / $powerTheoMonth");
                     break;
                 default:
                     // wenn es keinen spezielen Algoritmus gibt
@@ -382,7 +382,7 @@ class PRCalulationService
                 $pr->setAnlId($anlage->getAnlId())
                     ->setAnlage($anlage)
                     ->setstamp(new DateTime($from))
-                ;
+                    ->setstampIst(new DateTime($from));
             }
             // Daten gefunden, aktualisieren der Daten
             $pr ->setPowerAct($powerAct)
@@ -530,8 +530,8 @@ class PRCalulationService
      *  $result['tempCorrection']<br>
      *  $result['irradiation']<br>
      *  $result['availability']<br>
-     *  $result['availability2'] (not Ready)<br>
-     *  $result['anzCase5'] (proof)<br>
+     *  $result['availability2']<br> (not Ready)
+     *  $result['anzCase5']<br> (not Ready)
      *
      * @param Anlage $anlage
      * @param DateTime $startDate
@@ -591,7 +591,7 @@ class PRCalulationService
         $anzTage = date_diff(date_create($localStartDate), date_create($localEndDate))->days + 1;
         if ($anzTage === 0) $anzTage = 1; //verhindert diffision by zero
         $availability  = $this->availabilityService->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate));
-        $availability2 = 0; //$this->PRRepository->sumAvailabilitySecondPerPac($anlage->getAnlId(), $localStartDate, $localEndDate);
+        $availability2 = $this->PRRepository->sumAvailabilitySecondPerPac($anlage->getAnlId(), $localStartDate, $localEndDate);
 
         //Strahlungen berechnen – (upper = Ost / lower = West)
         if ($anlage->getIsOstWestAnlage()) {
@@ -599,55 +599,59 @@ class PRCalulationService
         } else {
             $irr = $weather['upperIrr'] / 4 / 1000; // Umrechnug zu kWh
         }
-        $power['powerTheo'] == 0 ? $powerTheo = $anlage->getPnom() * $irr : $powerTheo = $power['powerTheo'];
+        $power['powerTheo'] == 0 ? $powerTheo = $anlage->getPower() * $irr : $powerTheo = $power['powerTheo'];
         $result['powerTheo'] = (float)$powerTheo;
         $tempCorrection = 0;
 
         // PR Calculation
-        // Standard PR, wird NICHT mit Temp-Koriegierten Theoretischen berechnet sondern mit Pnom * Irradiation
-        $tempTheoPower = $anlage->getPnom() * $irr;
-        if ($tempTheoPower > 0) { // Verhindere Divison by zero
-            $result['prDefaultEvu']      = ($result['powerEvu']      / $tempTheoPower) * 100;
-            $result['prDefaultAct']      = ($result['powerAct']      / $tempTheoPower) * 100;
-            $result['prDefaultExp']      = ($result['powerExp']      / $tempTheoPower) * 100;
-            $result['prDefaultEGridExt'] = ($result['powerEGridExt'] / $tempTheoPower) * 100;
+        // Standard PR
+        if ($powerTheo > 0) { // Verhindere Divison by zero
+            $result['prDefaultEvu']      = ($power['powerEvu']      / $powerTheo) * 100;
+            $result['prDefaultAct']      = ($power['powerAct']      / $powerTheo) * 100;
+            $result['prDefaultExp']      = ($power['powerExp']      / $powerTheo) * 100;
+            $result['prDefaultEGridExt'] = ($power['powerEGridExt'] / $powerTheo) * 100;
         }
         // depending on used allgoritmus
         switch ($anlage->getUseCustPRAlgorithm()) {
             case 'Groningen':
+                // PowerTheoretical für das Jahr und PAC berechnen unter Berücksichtigung umgerechneten Globalstrahlung
+                // Umrechnung global auf Modulstrahlung erfolgt schon beim Import
+                // (Bsp. Groningen: IrrUpper = umgerechnete Globalstrahlung, IrrLower = gemesene Modulstrahlung, IrrHori = gemessene horizontal Strahlung)
+
                 if ($powerTheo > 0 && $availability > 0) { // Verhinder Divison by zero
-                    $result['prEvu']      = ($power['powerEvu']       / ($powerTheo / 1000 * $availability)) * (10 / 0.9945);
-                    $result['prAct']      = ($power['powerAct']       / ($powerTheo / 1000 * $availability)) * (10 / 0.9945);
-                    $result['prExp']      = ($result['powerExp']      / ($powerTheo / 1000 * $availability)) * (10 / 0.9945);
-                    $result['prEGridExt'] = ($power['powerEGridExt']  / ($powerTheo / 1000 * $availability)) * (10 / 0.9945);
+                    $result['prEvu']      = ($power['powerEvu']      / ($powerTheo / 1000 * $availability)) * (10 / 0.9945);
+                    $result['prAct']      = ($power['powerAct']      / ($powerTheo / 1000 * $availability)) * (10 / 0.9945);
+                    $result['prExp']      = ($power['powerExp']      / ($powerTheo / 1000 * $availability)) * (10 / 0.9945);
+                    $result['prEGridExt'] = ($power['powerEGridExt'] / ($powerTheo / 1000 * $availability)) * (10 / 0.9945);
                 }
                 break;
             case 'Veendam':
                 if ($availability > 0) { // Verhinder Divison by zero
                     if ($powerTheo > 0) {
-                        $result['prEvu']      = ($power['powerEvu']       / ($powerTheo / 100 * $availability)) * 100;
-                        $result['prAct']      = ($power['powerAct']       / ($powerTheo / 100 * $availability)) * 100;
-                        $result['prExp']      = ($result['powerExp']      / ($powerTheo / 100 * $availability)) * 100;
-                        $result['prEGridExt'] = ($power['powerEGridExt']  / ($powerTheo / 100 * $availability)) * 100;
+                        $result['prEvu']      = ($power['powerEvu']      / ($powerTheo / 100 * $availability)) * 100;
+                        $result['prAct']      = ($power['powerAct']      / ($powerTheo / 100 * $availability)) * 100;
+                        $result['prExp']      = ($power['powerExp']      / ($powerTheo / 100 * $availability)) * 100;
+                        $result['prEGridExt'] = ($power['powerEGridExt'] / ($powerTheo / 100 * $availability)) * 100;
                     }
                 }
                 break;
             case 'Lelystad':
-                // mit Temperatur korriegierten theoretischen Enerie ($powerTheo)
+                #$powerTheo = $power['powerTheo'];
+                #$result['powerTheo'] = $powerTheo;
                 if ($powerTheo > 0) { // Verhinder Divison by zero
                     $result['prEvu']      = ($power['powerEvu']      / $powerTheo) * 100;
                     $result['prAct']      = ($power['powerAct']      / $powerTheo) * 100;
-                    $result['prExp']      = ($result['powerExp']      / $powerTheo) * 100;
+                    $result['prExp']      = ($power['powerExp']      / $powerTheo) * 100;
                     $result['prEGridExt'] = ($power['powerEGridExt'] / $powerTheo) * 100;
                 }
                 break;
             default:
                 // wenn es keinen spezielen Algorithmus gibt
                 if ($powerTheo > 0) { // Verhindere Divison by zero
-                    $result['prEvu']      = ($power['powerEvu']       / $powerTheo) * 100;
-                    $result['prAct']      = ($power['powerAct']       / $powerTheo) * 100;
-                    $result['prExp']      = ($result['powerExp']      / $powerTheo) * 100;
-                    $result['prEGridExt'] = ($power['powerEGridExt']  / $powerTheo) * 100;
+                    $result['prEvu']      = ($power['powerEvu']      / $powerTheo) * 100;
+                    $result['prAct']      = ($power['powerAct']      / $powerTheo) * 100;
+                    $result['prExp']      = ($power['powerExp']      / $powerTheo) * 100;
+                    $result['prEGridExt'] = ($power['powerEGridExt'] / $powerTheo) * 100;
                 }
         }
 
@@ -659,7 +663,7 @@ class PRCalulationService
         $result['irradiation']       = (float)$irr;
         $result['availability']      = $availability;
         $result['availability2']     = $availability2; // NOT Ready
-        $result['anzCase5']          = $anzCase5PerDay;
+        $result['anzCase5']          = $anzCase5PerDay; // NOT Ready
 
         return $result;
     }
