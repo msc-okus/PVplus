@@ -928,11 +928,13 @@ class Anlage
         return $this;
     }
 
+    /** @deprecated  */
     public function getPower(): ?string
     {
         return $this->power;
     }
 
+    /** @deprecated  */
     public function setPower(string $power): self
     {
         $this->power =  str_replace(',', '.', $power);
@@ -940,11 +942,25 @@ class Anlage
         return $this;
     }
 
+    public function getPnom(): ?float
+    {
+        return (float)$this->power;
+    }
+
+    public function setPnom(string $power): self
+    {
+        $this->power =  str_replace(',', '.', $power);
+
+        return $this;
+    }
+
+    /** @deprecated  */
     public function getKwPeak(): ?float
     {
         return (float)$this->power;
     }
 
+    /** @deprecated  */
     public function setKwPeak(string $power): self
     {
         $this->power =  str_replace(',', '.', $power);
