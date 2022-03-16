@@ -194,7 +194,6 @@ class ForecastChartService
                 WHERE year(stamp) = '$currentYear' GROUP BY date_format(stamp, '$form')
                 ORDER BY stamp;";
         }
-        #dd($sql);
         $result = $conn->prepare($sql);
         $result->execute();
 
@@ -220,7 +219,7 @@ class ForecastChartService
 
             $dataArray['chart'][$counter]['date'] = $stamp->format('Y-m-d');
 
-            #dd($actPerDay);
+
             if (isset($actPerDay[$forecast->getDay()])) {
                 $expectedDay += $actPerDay[$forecast->getDay()];
                 $divMinus += $actPerDay[$forecast->getDay()];

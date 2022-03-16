@@ -502,7 +502,7 @@ class ReportsEpcNewService
         $chart->setOption($options);
 
         $string = $chart->render('chartYieldPercentDiff', ['style' => 'height: 250px; margin-bottom: 40px;', 'renderer'=> 'svg']);
-        #dd($string);
+
         return $chart->render('chartYieldPercentDiff', ['style' => 'height: 250px; margin-bottom: 40px;', 'renderer'=> 'svg']);
     }
 

@@ -325,7 +325,7 @@ class PRCalulationService
                         $yearPrExp          = ($powerExpYear        / $powerTheoYear) * 100;
                         $yearPrEGridExt     = ($powerEGridExtYear   / $powerTheoYear) * 100;
                     }
-                    #dd( "Year: " . $powerEGridExtYear. " / $powerTheoYear | Month: " . $powerEGridExtMonth ." / $powerTheoMonth | PR Month: $monthPrEGridExt");
+
                     break;
                 default:
                     // wenn es keinen spezielen Algoritmus gibt

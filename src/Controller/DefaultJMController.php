@@ -35,9 +35,8 @@ class DefaultJMController extends AbstractController
     /**
      * @Route("/default/test/sunset")
      */
-    public function getsunset(WeatherServiceNew $weather){
-
-        dd(date('H:i'));
+    public function getSunset(WeatherServiceNew $weather)
+    {
         if(date('H:i', strtotime(time())));
     }
     /**
@@ -75,7 +74,6 @@ class DefaultJMController extends AbstractController
                     else $status_report[$anlage->getAnlName()]['Ist'] = "No Data";
             }
         }
-        dd($status_report);
     }
     public function getLastQuarter($stamp){
         $mins = date('i', strtotime($stamp));

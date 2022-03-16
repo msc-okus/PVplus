@@ -410,7 +410,6 @@ class ReportingController extends AbstractController
                 break;
             case 'monthly-report':
                 //standard G4N Report (an O&M Goldbeck angelehnt)
-                #dd($report->getContentArray());
                 switch ($report->getReportTypeVersion()) {
                     case 1: // Version 1 -> Calulation on demand, store to serialized array and buil pdf and xls from this Data
                         $reportsMonthly->exportReportToPDF($anlage, $report);

@@ -98,7 +98,6 @@ class ExpectedService
         $conn = null;
 
         foreach($anlage->getGroups() as $group) {
-            #dump($group);
             // Monatswerte für diese Gruppe laden
             /** @var AnlageGroupMonths $groupMonth */
             $groupMonth = $this->groupMonthsRepo->findOneBy(['anlageGroup' => $group->getId(), 'month' => $month]);

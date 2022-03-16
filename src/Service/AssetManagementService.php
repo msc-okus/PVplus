@@ -768,7 +768,6 @@ class AssetManagementService
             'diefference_prod_to_expected_g4n' => $diefference_prod_to_expected_g4n,
             'diefference_prod_to_egrid' => $diefference_prod_to_egrid,
         ];
-        dump($losses_t2);
 
         //beginn chart
         # $chart->tooltip->show = true;
@@ -999,7 +998,6 @@ class AssetManagementService
             'scale' => true,
             'min' => 0,
         );
-        //dd($chart);
         if ($anlage->hasPVSYST()) {
             $chart->series =
                 [
@@ -1573,7 +1571,6 @@ class AssetManagementService
                         "plantAvailabilitySecond" => (float)$output[$i]->getplantAvailabilitySecond(),
                         "panneltemp" => (float)$output[$i]->getpanneltemp(),
                     ];
-                dd($table_overview_dayly_old,$table_overview_dayly);
                 */
             }
         }
