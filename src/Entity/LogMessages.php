@@ -47,6 +47,11 @@ class LogMessages
      */
     private string $state;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private int $progress = 0;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -123,4 +128,18 @@ class LogMessages
 
         return $this;
     }
+
+    public function getProgress(): int
+    {
+        return $this->progress;
+    }
+
+    public function setProgress(int $progress): self
+    {
+        $this->progress = $progress;
+
+        return $this;
+    }
+
+
 }

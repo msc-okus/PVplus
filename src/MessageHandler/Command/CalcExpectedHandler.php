@@ -25,7 +25,16 @@ class CalcExpectedHandler implements MessageHandlerInterface
         $logId = $calcExpected->getlogId();
 
         $this->logMessages->updateEntry($logId, 'working');
-        $this->expectedService->storeExpectedToDatabase($anlageId, $fromShort, $toShort);
+        $timeCounter = 0;
+        $timeRange = $calcExpected->getEndDate()->getTimestamp() - $calcExpected->getStartDate()->getTimestamp();
+        for ($stamp = $calcExpected->getStartDate()->getTimestamp(); $stamp <= $calcExpected->getEndDate()->getTimestamp(); $stamp = $stamp + (24 * 3600)) {
+            $this->logMessages->updateEntry($logId, 'working', ($timeCounter / $timeRange) * 100);
+            $timeCounter += 24 * 3600;
+            $from = date('Y-m-d 00:00',$stamp);
+            $to = date('Y-m-d 23:59',$stamp);
+
+            $this->expectedService->storeExpectedToDatabase($anlageId, $from, $to);
+        }
         $this->logMessages->updateEntry($logId, 'done');
     }
 

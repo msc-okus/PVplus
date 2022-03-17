@@ -14,7 +14,7 @@
         <tr class="{{ log.state }}">
             <td>{{ log.plant }}</td>
             <td>{{ log.function }}</td>
-            <td>{{ log.state }}</td>
+            <td>{{ log.state }} ({{ log.progress }}%)</td>
             <td>{{ log.startedAt|date('y-m-d H:i:s') }}</td>
             <td>{% if (log.finishedAt is  not null) %}{{ log.finishedAt|date('y-m-d H:i:s') }}{% endif %}</td>
             <td>{{ log.job }}</td>

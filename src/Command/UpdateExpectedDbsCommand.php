@@ -78,8 +78,8 @@ class UpdateExpectedDbsCommand extends Command
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp = $stamp + (24 * 3600)) {
             $counter++;
         }
-        global $conn;
-        $conn = self::connectToDatabase();
+        #global $conn;
+        #$conn = self::connectToDatabase();
         foreach ($anlagen as $anlage) {
             $io->progressStart($counter);
             for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp = $stamp + (24 * 3600)) {
@@ -92,7 +92,7 @@ class UpdateExpectedDbsCommand extends Command
         }
         $io->progressFinish();
         $io->success('Berechnung der Soll Werte abgeschlossen!');
-        $conn->close();
+        #$conn->close();
 
         return Command::SUCCESS;
     }
