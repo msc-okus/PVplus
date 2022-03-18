@@ -790,6 +790,11 @@ class Anlage
      */
     private $statuses;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $hasWindSpeed = true;
+
 
     public function __construct()
     {
@@ -3274,5 +3279,17 @@ class Anlage
     public function getStatuses(): Collection
     {
         return $this->statuses;
+    }
+
+    public function getHasWindSpeed(): ?bool
+    {
+        return $this->hasWindSpeed;
+    }
+
+    public function setHasWindSpeed(bool $hasWindSpeed): self
+    {
+        $this->hasWindSpeed = $hasWindSpeed;
+
+        return $this;
     }
 }
