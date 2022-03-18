@@ -238,6 +238,7 @@ class AlertSystemService
             $status_report['temperature'] = "All good";
         }
         else  $status_report['temperature'] = "No data";
+        dd($anlage->getHasWindSpeed());
         if ($anlage->getHasWindSpeed()) {
             if ($wdata['wspeed'] != null) {
                 if ($wdata['wspeed'] == 0) {
