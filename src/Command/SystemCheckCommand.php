@@ -43,10 +43,10 @@ class SystemCheckCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
+        //$io = new SymfonyStyle($input, $output);
 
         $this->alertService->checkSystem();
-        $io->success('You have a new command! Now make it your own! Pass --help to see your options.');
+        //$io->success('You have a new command! Now make it your own! Pass --help to see your options.');
 
         return Command::SUCCESS;
     }
