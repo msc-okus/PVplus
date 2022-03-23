@@ -12,11 +12,11 @@
                     {% include 'report/_asset_mangement_partials/_productionandcapacityfactor.html.twig'%}
                 {% endif %}
 
-                {% if (anlage.hasPVSYST) %}
-                    {% if (data.CumulatForecastPVSYS) == true %}
-                        {% include 'report/_asset_mangement_partials/_cumulative_forecast_with_PVSYST.html.twig'%}
-                    {% endif %}
+
+                {% if (data.CumulatForecastPVSYS) == true %}
+                    {% include 'report/_asset_mangement_partials/_cumulative_forecast_with_PVSYST.html.twig'%}
                 {% endif %}
+
 
                 {% if(data.CumulatForecastG4N) == true %}
                     {% include 'report/_asset_mangement_partials/_cumulative_forecast_with_G4N.html.twig'%}
@@ -28,10 +28,10 @@
 
                 {% if (data.MonthlyProd == true) %}
                     {% include 'report/_asset_mangement_partials/_cumulative_losses_monthly.html.twig'%}
+                    {% include 'report/_asset_mangement_partials/_monthley_production.html.twig'%}
                 {% endif %}
 
                 {% if (data.DailyProd == true) %}
-                    {% include 'report/_asset_mangement_partials/_monthley_production.html.twig'%}
                     {% include 'report/_asset_mangement_partials/_production_monthly_expected_vs_actuals.html.twig'%}
                 {% endif %}
 

@@ -7,6 +7,7 @@ use App\Entity\Anlage;
 use App\Entity\WeatherStation;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
+use Symfony\Component\Intl\Timezones;
 
 
 class WeatherServiceNew
@@ -157,5 +158,67 @@ class WeatherServiceNew
             if ($val != '') { return false; }
         }
         return true;
+    }
+    public function getSunrise( $Anlagen)
+    {
+
+        foreach($Anlagen as $anlage) {
+            $lat = $anlage->getAnlGeoLat();
+            $lng = $anlage->getAnlGeoLon();
+
+            $offset = Timezones::getRawOffset(self::getNearestTimezone($lat, $lng, strtoupper($anlage->getCountry())));
+
+            $urli = "https://api.sunrise-sunset.org/json?lat=" . $lat . "&lng=" . $lng . "&date=today";
+            $contents = file_get_contents($urli);
+            $result = (array)json_decode($contents);
+            $clima = (array)$result['results'];
+
+            $offset = $offset - 3600;
+            $rise_time = strtotime(date('Y-m-d H:i', strtotime($clima['sunrise']) + 3600)) + $offset;
+            $set_time = strtotime(date('Y-m-d H:i', strtotime($clima['sunset']) + 3600)) + $offset;
+            $sunrise = date('Y-m-d H:i', $rise_time);
+            $sunset = date('Y-m-d H:i', $set_time);
+
+
+            $returnArray[$anlage->getAnlName()]['sunrise'] = $sunrise;
+            $returnArray[$anlage->getAnlName()]['sunset'] = $sunset;
+        }
+        return $returnArray;
+    }
+    public function getNearestTimezone($cur_lat, $cur_long, $country_code = ''): string
+    {
+        $timezone_ids = ($country_code) ? DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $country_code)
+            : DateTimeZone::listIdentifiers();
+
+        if($timezone_ids && is_array($timezone_ids) && isset($timezone_ids[0])) {
+
+            $time_zone = '';
+            $tz_distance = 0;
+
+            //only one identifier?
+            if (count($timezone_ids) == 1) {
+                $time_zone = $timezone_ids[0];
+            } else {
+                foreach($timezone_ids as $timezone_id) {
+                    $timezone = new DateTimeZone($timezone_id);
+                    $location = $timezone->getLocation();
+                    $tz_lat   = $location['latitude'];
+                    $tz_long  = $location['longitude'];
+
+                    $theta    = $cur_long - $tz_long;
+                    $distance = (sin(deg2rad($cur_lat)) * sin(deg2rad($tz_lat)))
+                        + (cos(deg2rad($cur_lat)) * cos(deg2rad($tz_lat)) * cos(deg2rad($theta)));
+                    $distance = acos($distance);
+                    $distance = abs(rad2deg($distance));
+
+                    if (!$time_zone || $tz_distance > $distance) {
+                        $time_zone   = $timezone_id;
+                        $tz_distance = $distance;
+                    }
+                }
+            }
+            return  $time_zone;
+        }
+        return 'unknown';
     }
 }

@@ -18,15 +18,15 @@
                     <tbody>
                     {% if (anlage.hasPVSYST) %}
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Diff. Egrid to PVSYST*</td>
+                        <td class="tr_first_column" style="text-align: right">Diff. Grid to PVSYST*</td>
                         {% for data in losses_t1.difference_Egrid_to_PVSYST %}
                             <td class="tr_next_columns" >{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
                     {% endif %}
-                    {% if (anlage.showEvuDiag) %}
+                    {% if (anlage.hasGrid) %}
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Diff. Egrid to expected g4n</td>
+                        <td class="tr_first_column" style="text-align: right">Diff. Grid to expected g4n</td>
                         {% for data in losses_t1.difference_Egrid_to_Expected_G4n %}
                             <td class="tr_next_columns" >{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
@@ -41,7 +41,7 @@
                     {% endif %}
                     {% if (anlage.showEvuDiag) %}
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Diff. inverter to Egrid</td>
+                        <td class="tr_first_column" style="text-align: right">Diff. inverter to Grid</td>
                         {% for data in losses_t1.difference_Inverter_to_Egrid %}
                             <td class="tr_next_columns" >{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}

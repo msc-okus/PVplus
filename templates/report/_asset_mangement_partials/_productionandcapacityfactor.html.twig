@@ -55,8 +55,7 @@
                     </thead>
                     <tbody>
                     {% set powerEvuTotal = 0 %}
-                    {% if (anlage.getShowEvuDiag() ) %}
-                        {% if (anlage.useGridMeterDayData) %}
+                    {% if (anlage.hasGrid ) %}
                             {% for data in table_overview_monthly.powerEvu %}
                                 {% set powerEvuTotal = powerEvuTotal+data %}
                             {% endfor %}
@@ -66,7 +65,6 @@
                             {% endif %}
                             {{ Macros.expectedG4N(table_overview_monthly, anlage) }}
                             {{ Macros.inverterOut(table_overview_monthly, anlage, powerEvuTotal) }}
-                        {% endif %}
                     {% else %}
                         {% for data in table_overview_monthly.powerAct %}
                             {% set powerEvuTotal = powerEvuTotal+data %}
@@ -76,7 +74,6 @@
                             {{ Macros.expectedPvSyst(table_overview_monthly, anlage) }}
                         {% endif %}
                         {{ Macros.expectedG4N(table_overview_monthly, anlage) }}
-
                     {% endif %}
 
                     </tbody>

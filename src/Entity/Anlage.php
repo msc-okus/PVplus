@@ -768,7 +768,7 @@ class Anlage
     /**
      * @ORM\Column(type="string", length=20, nullable=true)
      */
-    private ?string $lossesForecast = '0';
+    private ?string $lossesForecast = '5';
 
     /**
      * @ORM\OneToMany(targetEntity=AnlageFile::class, mappedBy="plant", orphanRemoval=true)
@@ -3307,5 +3307,8 @@ class Anlage
         $this->hasWindSpeed = $hasWindSpeed;
 
         return $this;
+    }
+    public function hasGrid(): bool{
+        return ($this->showEvuDiag ||$this->useGridMeterDayData);
     }
 }

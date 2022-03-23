@@ -1,7 +1,7 @@
 {% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
 
 {% block page %}
-    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Monthly Production</h3>
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Monthly Production - Losses</h3>
     <span class="subheadline">Monthly expected vs. actuals</span>
     <table style="width:100%!important">
         <tr>
@@ -18,15 +18,15 @@
                     <tbody>
                     {% if (anlage.hasPVSYST) %}
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Diff. Egrid to PVSYST*</td>
+                        <td class="tr_first_column" style="text-align: right">Diff. Grid to PVSYST*</td>
                         {% for data in losses_t2.diefference_prod_to_pvsyst %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
                     {% endif %}
-                    {% if (anlage.showEvuDiag) %}
+                    {% if (anlage.hasGrid) %}
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Diff. Egrid to expected g4n</td>
+                        <td class="tr_first_column" style="text-align: right">Diff. Grid to expected g4n</td>
                         {% for data in losses_t2.diefference_prod_to_expected_g4n %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
@@ -39,7 +39,7 @@
                             {% endfor %}
                         </tr>
                     {% endif %}
-                    {% if (anlage.showEvuDiag) %}
+                    {% if (anlage.hasGrid) %}
                     <tr>
                         <td class="tr_first_column" style="text-align: right">Diff. inverter to Egrid</td>
                         {% for data in losses_t2.diefference_prod_to_egrid %}

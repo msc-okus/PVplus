@@ -38,7 +38,7 @@ class AlertSystemService
         $Anlagen = $this->AnlRepo->findAll();
         $time = $this->getLastQuarter(date('Y-m-d H:i') );
         $time = $this->timeAjustment($time, -2);
-
+        $status_report = false;
         $sungap = $this->weather->getSunrise($Anlagen);//when using the cronjob we need to store this info
 
         foreach($Anlagen as $anlage){
@@ -62,63 +62,62 @@ class AlertSystemService
     }
 
 
-    private static function IstData($anlage, $time, MessageService $mailservice){
+    private static function IstData($anlage, $time){
         //variables
-        $message = "";
-        $format     = 'Y-m-d H:i:s';
         $counter = 1;
         $conn = self::getPdoConnection();
         $sqlp = "SELECT wr_pac as ist, b.unit as inv
                           FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
                           WHERE a.stamp = '$time' ";
-        dump($sqlp);
+
         $resp = $conn->query($sqlp);
+
         if ($resp->rowCount() > 0) {
             while ($pdata = $resp->fetch(PDO::FETCH_ASSOC)) {
                 if ($pdata['ist'] != null) {
-                    if ($pdata['ist'] == 0) {
-                        $status_report['Ist'][$counter]['actual'] = "Power is 0 ";
-                        $message = $message . "Power 0 in Inverter " . $counter . " at " . $time . "<br>";//replace for an id from the inverter
-                    }
+                    if ($pdata['ist'] == 0) $status_report['Ist'][$counter]['actual'] = "DC error, no power (Power AC <= 0) ";// replace everywhere
+
                     else $status_report['Ist'][$counter]['actual'] = "All good";
-                } else {
-                    $message = $message . " No data in Inverter " . $counter . " at " . $time . "<br>";
+                }
+                else {
                     $status_report['Ist'][$counter]['actual'] = "No Data";
+
                     $time_q1 = date('Y-m-d H:i', strtotime($time) - 1800);
-                    dump($time_q1);
                     $inv = $pdata['inv'];
+
                     $sqlp2 = "SELECT wr_pac as ist
                           FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
                           WHERE a.stamp = '$time_q1' AND b.unit = '$inv' ";
+
                     $resp2 = $conn->query($sqlp2);
-                    dump($resp2->fetch(PDO::FETCH_ASSOC), $sqlp2, $inv);
+
                     if($resp2->rowCount() > 0){
                         $pdata2 = $resp2->fetch(PDO::FETCH_ASSOC);
                         if ($pdata2['ist'] != null) {
-                            if ($pdata2['ist'] == 0) {
-                                $status_report['Ist'][$counter]['last_half'] = "Power is 0";
-                                $message = $message . " -Power is 0 since " . date($format, $time_q1) . "<br>";
-                            } else $status_report['Ist'][$counter]['last_half'] = "All good";
-                        } else {
+                            if ($pdata2['ist'] == 0) $status_report['Ist'][$counter]['last_half'] = "DC error, no power (Power AC <= 0)";
+
+                            else $status_report['Ist'][$counter]['last_half'] = "All good";
+                        }
+                        else {
                             $status_report['Ist'][$counter]['last_half'] = "No Data";
-                            $message = $message . " -No data since " .  $time_q1 . "<br>";
+
                             $time_q1 = date('Y-m-d H:i', strtotime($time) - 3600);
                             $inv = $pdata['inv'];
+
                             $sqlp3 = "SELECT wr_pac as ist
                               FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
                               WHERE a.stamp = '$time_q1' AND b.unit = '$inv' ";
+
                             $resp3 = $conn->query($sqlp3);
-                            dump($resp3->rowCount() > 0);
+
                             if ($resp3->rowCount() > 0) {
                                 $pdata3 = $resp3->fetch(PDO::FETCH_ASSOC);
                                 if ($pdata3['ist'] != null) {
-                                    if ($pdata3['ist'] == 0) {
-                                        $status_report['Ist'][$counter]['last_hour'] = "Power is 0";
-                                        $message = $message . " -Power is 0 since " .  $time_q1 . "<br>";
-                                    } else $status_report['Ist'][$counter]['last_hour'] = "All good";
+                                    if ($pdata3['ist'] == 0) $status_report['Ist'][$counter]['last_hour'] = "DC error, no power (Power AC <= 0)";
+
+                                    else $status_report['Ist'][$counter]['last_hour'] = "All good";
                                 } else {
                                     $status_report['Ist'][$counter]['last_hour'] = "No Data";
-                                    $message = $message . " -No data since " . date($format, $time_q1) . "<br>";
                                 }
                             }
                         }
@@ -127,30 +126,30 @@ class AlertSystemService
                 $counter++;
             }
         }
+        /*
         if ($message != ""){
             sleep(2);
             $subject = "There was an error in " . $anlage->getAnlName();
             $mailservice->sendMessage($anlage, 'alert', 3, $subject, $message, false, true, true, true);
         }
+        */
         return $status_report;
     }
-    private static function WData(Anlage $anlage, $time, MessageService $mailservice)
+    private static function WData(Anlage $anlage, $time)
     {
-        $format     = 'Y-m-d H:i:s';
+
         $conn = self::getPdoConnection();
-        $sqlw = "SELECT b.gi_avg as gi , b.gmod_avg as gmod, b.temp_ambient as temp, b.wind_speed as wspeed 
+        $sqlw = "SELECT b.g_lower as gi , b.g_upper as gmod, b.temp_ambient as temp, b.wind_speed as wspeed 
                     FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) 
                     WHERE a.stamp = '$time' ";
-        //change to g_lower g_upper
+
         $resw = $conn->query($sqlw);
 
-        $message = "";
         if($resw->rowCount() > 0) {
             $wdata = $resw->fetch(PDO::FETCH_ASSOC);
             if ($wdata['gi'] != null && $wdata['gmod'] != null) {
                 if ($wdata['gi'] == 0 && $wdata['gmod'] == 0) {
-                    $status_report['Irradiation'] = "Irradiation is 0";
-                    $message = $message . " Irradiation is 0 <br>";
+                    $status_report['Irradiation']['actual'] = "Irradiation is 0";
                     $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 1800));
                     $sqlw1 = "SELECT b.gi_avg as gi , b.gmod_avg as gmod 
                             FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) 
@@ -161,28 +160,24 @@ class AlertSystemService
 
                         if ($wdata1['gi'] != null && $wdata1['gmod'] != null) {
                             if ($wdata1['gi'] == 0 && $wdata1['gmod'] == 0) {
-                                $message = $message . " -Irradiation is 0 since " . date($format, $time_q1) . " <br>";
-                                $status_report['Irradiation_last30'] = "Irradiation is 0";
-                            } else $status_report['Irradiation_last30'] = "All good";
+                                $status_report['Irradiation']['last_half'] = "Irradiation is 0";
+                            } else $status_report['Irradiation']['last_half'] = "All good";
                         } else {
-                            $message = $message . " -There was no data since " . date($format, $time_q1) . "<br>";
-                            $status_report['Irradiation_last30'] = "No data";
+                            $status_report['Irradiation']['last_half'] = "No data";
                             $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 3600));
-                            $sqlw2 = "SELECT b.gi_avg as gi , b.gmod_avg as gmod 
+                            $sqlw2 = "SELECT b.g_lower as gi , b.g_upper as gmod 
                                 FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) 
                                 WHERE a.stamp = '$time_q1' ";
-                            //change to g_lower g_upper
+
                             $resw2 = $conn->query($sqlw2);
                             if($resw2->rowCount() > 0) {
                                 $wdata2 = $resw2->fetch(PDO::FETCH_ASSOC);
                                 if ($wdata2['gi'] != null && $wdata2['gmod'] != null) {
                                     if ($wdata2['gi'] == 0 && $wdata2['gmod'] == 0) {
-                                        $status_report['Irradiation_lasthour'] = "Irradiation is 0";
-                                        $message = $message . " -Irradiation is 0 since " . date($format, $time_q1) . "<br>";
-                                    } else $status_report['Irradiation_lasthour'] = "All good";
+                                        $status_report['Irradiation']['last_hour'] = "Irradiation is 0";
+                                    } else $status_report['Irradiation']['last_hour'] = "All good";
                                 } else {
-                                    $message = $message . " -There is no data since " . date($format, $time_q1) . "<br>";
-                                    $status_report['Irradiation_lasthour'] = "No data";
+                                    $status_report['Irradiation']['last_hour'] = "No data";
                                 }
                             }
                         }
@@ -190,66 +185,52 @@ class AlertSystemService
                 }
             } else {
                 $status_report['Irradiation'] = "No data";
-                $message = $message . "No Irradiation data <br>";
                 $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 1800));
-                $sqlw3 = "SELECT b.gi_avg as gi , b.gmod_avg as gmod 
+                $sqlw3 = "SELECT b.g_lower as gi , b.g_upper as gmod 
                         FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) 
                         WHERE a.stamp = '$time_q1' ";
-                //change to g_lower g_upper
+
                 $resw3 = $conn->query($sqlw3);
                 if ($resw3->rowCount() > 0) {
                     $wdata3 = $resw3->fetch(PDO::FETCH_ASSOC);
                     if ($wdata3['gi'] != null && $wdata3['gmod'] != null) {
-                        if ($wdata3['gi'] == 0 && $wdata3['gmod'] == 0) {
-                            $status_report['Irradiation_last30'] = "Irradiation is 0";
-                            $message = $message . " -Irradiation is 0 since" . date($format, $time_q1) . "<br>";
-                        } else $status_report['Irradiation_last30'] = "All good";
-                    } else {
-                        $message = $message . " -There is no data since " . date($format, $time_q1) . " <br>";
-                        $status_report['Irradiation_last30'] = "No data";
+                        if ($wdata3['gi'] == 0 && $wdata3['gmod'] == 0) $status_report['Irradiation']['last_half'] = "Irradiation is 0";
+
+                        else $status_report['Irradiation']['last_half'] = "All good";
+                    } else {;
+                        $status_report['Irradiation']['last_half'] = "No data";
                         $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 3600));
-                        $sqlw4 = "SELECT b.gi_avg as gi , b.gmod_avg as gmod 
+
+                        $sqlw4 = "SELECT b.g_lower as gi , b.g_upper as gmod 
                             FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) 
                             WHERE a.stamp = '$time_q1' ";
-                        //change to g_lower g_upper
+
                         $resw4 = $conn->query($sqlw4);
                         if ($resw4->rowCount() > 0) {
                             $wdata4 = $resw4->fetch(PDO::FETCH_ASSOC);
                             if ($wdata4['gi'] != null && $wdata4['gmod'] != null) {
-                                if ($wdata4['gi'] == 0 && $wdata4['gmod'] == 0) {
-                                    $message = $message . " -Irradiation is 0 since " . date($format, $time_q1) . " <br>";
-                                    $status_report['Irradiation_lasthour'] = "Irradiation is 0 since " . $time_q1 . "<br>";
-                                } else $status_report['Irradiation_lasthour'] = "All good <br>";
-                            } else {
-                                $message = $message . " -There is no data since" . date($format, $time_q1) . " <br>";
-                                $status_report['Irradiation_lasthour'] = "No data";
-                            }
+                                if ($wdata4['gi'] == 0 && $wdata4['gmod'] == 0) $status_report['Irradiation']['last_hour'] = "Irradiation is 0 " ;
+
+                                else $status_report['Irradiation']['last_hour'] = "All good";
+                            } else $status_report['Irradiation']['last_hour'] = "No data";
+
                         }
                     }
                 }
             }
-            if ($wdata['temp'] != null) {
+            if ($wdata['temp'] != null) $status_report['temperature'] = "All good";
 
-                $status_report['temperature'] = "All good";
-            } else  $status_report['temperature'] = "No data";
+            else  $status_report['temperature'] = "No data";
+
             if ($anlage->getHasWindSpeed()) {
                 if ($wdata['wspeed'] != null) {
-                    if ($wdata['wspeed'] == 0) {
-                        $status_report['wspeed'] = "Wind Speed is 0";
-                        $message = $message . " Wind Speed is 0 at " . $time . " <br>";
-                    } else $status_report['wspeed'] = "All good";
-                } else {
-                    $status_report['wspeed'] = "No data";
-                    $message = $message . "There is no wind speed data at " . $time . " <br>";
+                    if ($wdata['wspeed'] == 0) $status_report['wspeed'] = "Wind Speed is 0";
+
+                    else $status_report['wspeed'] = "All good";
                 }
+                else $status_report['wspeed'] = "No data";
             }
         }
-        if ($message != ""){
-            $subject = "There was an error in the weather station from " . $anlage->getAnlName();
-            sleep(2);
-            $mailservice->sendMessage($anlage, 'alert', 3, $subject, $message, false, true, true, true);
-        }
-
         return $status_report;
     }
 
@@ -275,5 +256,8 @@ class AlertSystemService
         ($reverse) ? $timestamp -= ($val * 3600) : $timestamp += ($val * 3600);
 
         return date($format, $timestamp);
+    }
+    private static function messagingFunction(array $status_report){
+
     }
 }
