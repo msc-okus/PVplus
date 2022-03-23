@@ -45,8 +45,10 @@ class AvailabilityService
     /**
      * @throws Exception
      */
-    public function checkAvailability(Anlage $anlage, $date, $second = false): string
+    public function checkAvailability(Anlage|int $anlage, $date, $second = false): string
     {
+        if (is_int($anlage)) $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);
+
         // Suche pasende Zeitkonfiguration für diese Anlage und dieses Datum
         /** @var TimesConfig $timesConfig */
         if ($second){
@@ -95,7 +97,7 @@ class AvailabilityService
                 // Berechnung der protzentualen Verfügbarkeit Part 1 und Part 2
                 if ($availability['control'] - $availability['case4'] != 0) {
                     $invAPart1 = $this->calcInvAPart1($availability);
-                    ($anlage->getPower() > 0 && $inverterPowerDc[$inverter] > 0) ? $invAPart2 = $inverterPowerDc[$inverter] / $anlage->getPower() : $invAPart2 = 1;
+                    ($anlage->getPnom() > 0 && $inverterPowerDc[$inverter] > 0) ? $invAPart2 = $inverterPowerDc[$inverter] / $anlage->getPnom() : $invAPart2 = 1;
                 } else {
                     $invAPart1 = 0;
                     $invAPart2 = 0;
@@ -145,7 +147,6 @@ class AvailabilityService
             }
             $this->em->flush();
         }
-        //$conn->close();
 
         return $output;
     }
@@ -163,7 +164,6 @@ class AvailabilityService
      * @param $timestampModulo
      * @param TimesConfig $timesConfig
      * @return array
-     *
      */
     public function checkAvailabilityInverter(Anlage $anlage, $timestampModulo, TimesConfig $timesConfig):array
     {
@@ -247,6 +247,7 @@ class AvailabilityService
                     if (!isset($availability[$inverter]['case6'])) $availability[$inverter]['case6'] = 0;
                     if (!isset($availability[$inverter]['control'])) $availability[$inverter]['control'] = 0;
 
+
                     (isset($istData[$stamp][$inverter]['power_ac'])) ? $powerAc = (float)$istData[$stamp][$inverter]['power_ac'] : $powerAc = null;
                     (isset($istData[$stamp][$inverter]['cos_phi'])) ? $cosPhi = $istData[$stamp][$inverter]['cos_phi'] : $cosPhi = null;
 
@@ -258,7 +259,7 @@ class AvailabilityService
                         (($strahlung > $threshold1PA) && isset($case6Array[$inverter][$stamp])) ? $case6 = true : $case6 = false;
 
                         // Case 0 (Datenlücken Inverter Daten | keine Datenlücken für Strahlung)
-                        if ($powerAc === null && $case5 === false && $strahlung > $threshold1PA) { // Nur Hochzählen, wenn Datenlücke nicht durch Case 5 abgefangen
+                        if ($powerAc == null && $case5 === false && $strahlung > $threshold1PA) { // Nur Hochzählen, wenn Datenlücke nicht durch Case 5 abgefangen
                             $case0 = true;
                             $availability[$inverter]['case0']++;
                         }
@@ -273,7 +274,7 @@ class AvailabilityService
                             $case3Helper[$inverter] = 0;
                         }
                         // Case 2 (second part of ti - means case1 + case2 = ti)
-                        if ($strahlung > $threshold2PA && ($powerAc > 0 || $powerAc === null) && $case5 === false && $case6 === false) {
+                        if ($strahlung > $threshold2PA && ($powerAc > 0 || $powerAc == null) && $case5 === false && $case6 === false) {
                             $case2 = true;
                             $availability[$inverter]['case2']++;
 
@@ -329,7 +330,7 @@ class AvailabilityService
      * ti,theo = control<br>
      * tFM = case5<br>
      *
-     * @param Anlage $anlage
+     * @param Anlage|int $anlage
      * @param DateTime $from
      * @param DateTime $to
      * @return float
@@ -358,7 +359,7 @@ class AvailabilityService
             // Berechnung der protzentualen Verfügbarkeit Part 1 und Part 2
             if ($row['control'] - $row['case4'] != 0) {
                 $invAPart1 = $this->calcInvAPart1($row);
-                ($anlage->getPower() > 0 && $inverterPowerDc[$inverter] > 0) ? $invAPart2 = $inverterPowerDc[$inverter] / $anlage->getPower() : $invAPart2 = 1;
+                ($anlage->getPnom() > 0 && $inverterPowerDc[$inverter] > 0) ? $invAPart2 = $inverterPowerDc[$inverter] / $anlage->getPnom() : $invAPart2 = 1;
                 $invAPart3 = $invAPart1 * $invAPart2;
             } else {
                 $invAPart1 = 0;
