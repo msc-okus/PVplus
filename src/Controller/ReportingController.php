@@ -63,26 +63,26 @@ class ReportingController extends AbstractController
         }
 
         $report = new AnlagenReports();
-            //then we generate our own report and try to persist it
+        //then we generate our own report and try to persist it
 
         $output = $assetManagement->assetReport($anlage, $month, $year, $pages);
 
 
         $data = [
-                'Production' => true,
-                'ProdCap' =>true,
-                'CumulatForecastPVSYS' => true,
-                'CumulatForecastG4N' => true,
-                'CumulatLosses' => true,
-                'MonthlyProd' => true,
-                'DailyProd' => true,
-                'Availability' => true,
-                'AvYearlyOverview' => true,
-                'AvMonthlyOverview' => true,
-                'AvInv' => true,
-                'StringCurr' => true,
-                'InvPow' => true,
-                'Economics' => true];
+            'Production' => true,
+            'ProdCap' =>true,
+            'CumulatForecastPVSYS' => true,
+            'CumulatForecastG4N' => true,
+            'CumulatLosses' => true,
+            'MonthlyProd' => true,
+            'DailyProd' => true,
+            'Availability' => true,
+            'AvYearlyOverview' => true,
+            'AvMonthlyOverview' => true,
+            'AvInv' => true,
+            'StringCurr' => true,
+            'InvPow' => true,
+            'Economics' => true];
 
         $output["data"] = $data;
 
@@ -319,11 +319,11 @@ class ReportingController extends AbstractController
      * @Route("/reporting/pdf/{id}", name="app_reporting_pdf")
      */
 
-    public function showReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer,  ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly)
+    public function showReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer,  ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly, $tempPathBaseUrl)
     {
         /** @var AnlagenReports|null $report */
         $session=$this->container->get('session');
-        $pdf = new PdfService("");
+        $pdf = new PdfService($tempPathBaseUrl);
         $searchstatus   = $session->get('search');
         $searchtype     = $session->get('type');
         $anlageq        = $session->get('anlage');
@@ -335,7 +335,7 @@ class ReportingController extends AbstractController
         $report = $reportsRepository->find($id);
         $month = $report->getMonth();
         $year = $report->getYear();
-        $reportCreationDate = $report->getCreatedAt()->format('Y-m-d h:i:s');
+        $reportCreationDate = $report->getCreatedAt()->format('Y-m-d H:i:s');
         $anlage = $report->getAnlage();
         $currentDate = date('Y-m-d H-i');
 

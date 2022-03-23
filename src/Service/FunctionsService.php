@@ -316,8 +316,7 @@ class FunctionsService
      */
     public function getForcastByMonth(Anlage $anlage, int $month, ?int $betriebsJahre = null ): float
     {
-        $sum = 0.0;
-        // Berechne Betriebsjahre, wenn nicht angegeben
+        $sum = (float)0;
         if ($betriebsJahre === null || $betriebsJahre < 0) $betriebsJahre  = (int)date('Y') - (int)$anlage->getAnlBetrieb()->format('Y'); #betriebsjahre
         /** @var AnlageForcastDay $forcast */
         $forcasts = $this->forcastDayRepo->findForcastDayByMonth($anlage, $month);
@@ -752,7 +751,7 @@ class FunctionsService
         return $result;
     }
 
-    private function checkAndIncludeMonthlyCorrectionEVU($anlage, float $evu, $from, $to): float
+    public function checkAndIncludeMonthlyCorrectionEVU($anlage, float $evu, $from, $to): float
     {
         $conn = self::getPdoConnection();
 
@@ -782,7 +781,6 @@ class FunctionsService
 
         return $evu;
     }
-
     public function getSumAcPowerByGroup(Anlage $anlage, $from, $to, $acGroup) :array
     {
         $conn = self::getPdoConnection();

@@ -4,9 +4,11 @@ namespace App\Service\Charts;
 
 use App\Entity\Anlage;
 use App\Helper\G4NTrait;
+use App\Repository\ForcastDayRepository;
 use App\Repository\ForcastRepository;
 use App\Repository\InvertersRepository;
 use App\Service\FunctionsService;
+use DateTime;
 use PDO;
 
 class ForecastChartService
@@ -16,19 +18,22 @@ class ForecastChartService
     private ForcastRepository $forcastRepo;
     private InvertersRepository $invertersRepo;
     private FunctionsService $functions;
+    private ForcastDayRepository $forcastDayRepo;
 
     public function __construct(
-        ForcastRepository $forcastRepo,
-        InvertersRepository $invertersRepo,
-        FunctionsService $functions)
+        ForcastRepository    $forcastRepo,
+        ForcastDayRepository $forcastDayRepo,
+        InvertersRepository  $invertersRepo,
+        FunctionsService     $functions)
     {
 
         $this->forcastRepo = $forcastRepo;
         $this->invertersRepo = $invertersRepo;
         $this->functions = $functions;
+        $this->forcastDayRepo = $forcastDayRepo;
     }
 
-    public function getForecastFac(Anlage $anlage, $to):array
+    public function getForecastFac(Anlage $anlage, $to): array
     {
         $actPerWeek = [];
         $dataArray = [];
@@ -63,13 +68,13 @@ class ForecastChartService
         }
         $conn = null;
 
-        $forecastValue  = 0;
-        $expectedWeek   = 0;
-        $divMinus       = 0;
-        $divPlus        = 0;
+        $forecastValue = 0;
+        $expectedWeek = 0;
+        $divMinus = 0;
+        $divPlus = 0;
         $week = $facWeek;
         $year = $facDateForecastMinusOneYear->format('Y');
-        for ($counter = 1; $counter <=52; $counter++) {
+        for ($counter = 1; $counter <= 52; $counter++) {
             if ($week >= 52) {
                 $week = 1;
                 $year++;
@@ -80,22 +85,22 @@ class ForecastChartService
             $stamp = strtotime($year . 'W' . str_pad($forcastArray[$week]->getWeek(), 2, '0', STR_PAD_LEFT));
 
             if (isset($actPerWeek[$forcastArray[$week]->getDay()])) {
-                $expectedWeek   += $actPerWeek[$forcastArray[$week]->getDay()];
-                $divMinus       += $actPerWeek[$forcastArray[$week]->getDay()];
-                $divPlus        += $actPerWeek[$forcastArray[$week]->getDay()];
+                $expectedWeek += $actPerWeek[$forcastArray[$week]->getDay()];
+                $divMinus += $actPerWeek[$forcastArray[$week]->getDay()];
+                $divPlus += $actPerWeek[$forcastArray[$week]->getDay()];
             } else {
-                $expectedWeek   += $forcastArray[$week]->getPowerWeek();
-                $divMinus       += $forcastArray[$week]->getDivMinWeek();
-                $divPlus        += $forcastArray[$week]->getDivMaxWeek();
+                $expectedWeek += $forcastArray[$week]->getPowerWeek();
+                $divMinus += $forcastArray[$week]->getDivMinWeek();
+                $divPlus += $forcastArray[$week]->getDivMaxWeek();
             }
-            $forecastValue      += $forcastArray[$week]->getPowerWeek();
+            $forecastValue += $forcastArray[$week]->getPowerWeek();
 
             $dataArray['chart'][] = [
-                'date'      => date('Y-m-d', $stamp),
-                'forecast'  => round($forecastValue),
-                'expected'  => round($expectedWeek),
-                'divMinus'  => round($divMinus),
-                'divPlus'   => round($divPlus),
+                'date' => date('Y-m-d', $stamp),
+                'forecast' => round($forecastValue),
+                'expected' => round($expectedWeek),
+                'divMinus' => round($divMinus),
+                'divPlus' => round($divPlus),
             ];
 
         }
@@ -103,7 +108,7 @@ class ForecastChartService
         return $dataArray;
     }
 
-    public function getForecastClassic(Anlage $anlage, $to):array
+    public function getForecastClassic(Anlage $anlage, $to): array
     {
         $actPerWeek = [];
         $dataArray = [];
@@ -123,7 +128,7 @@ class ForecastChartService
         }
         $result = $conn->prepare($sql);
         $result->execute();
-        foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value){
+        foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
             if ($anlage->getShowEvuDiag()) {
                 if ($value['startDayWeek'] < date('z', strtotime($to))) $actPerWeek[$value['startDayWeek']] = $value['sumEvu'];
             } else {
@@ -135,33 +140,104 @@ class ForecastChartService
         /** @var [] AnlageForecast $forecasts */
         $forecasts = $this->forcastRepo->findBy(['anlage' => $anlage]);
         $counter = 0;
-        $forecastValue  = 0;
-        $expectedWeek   = 0;
-        $divMinus       = 0;
-        $divPlus        = 0;
+        $forecastValue = 0;
+        $expectedWeek = 0;
+        $divMinus = 0;
+        $divPlus = 0;
         foreach ($forecasts as $forecast) {
             $year = date('Y', strtotime($to));
-            $stamp = strtotime($year.'W'.str_pad($forecast->getWeek(), 2, '0', STR_PAD_LEFT));
+            $stamp = strtotime($year . 'W' . str_pad($forecast->getWeek(), 2, '0', STR_PAD_LEFT));
 
-            $dataArray['chart'][$counter]['date']       = date('Y-m-d', $stamp);
+            $dataArray['chart'][$counter]['date'] = date('Y-m-d', $stamp);
 
             if (isset($actPerWeek[$forecast->getDay()])) {
-                $expectedWeek   += $actPerWeek[$forecast->getDay()];
-                $divMinus       += $actPerWeek[$forecast->getDay()];
-                $divPlus        += $actPerWeek[$forecast->getDay()];
+                $expectedWeek += $actPerWeek[$forecast->getDay()];
+                $divMinus += $actPerWeek[$forecast->getDay()];
+                $divPlus += $actPerWeek[$forecast->getDay()];
             } else {
-                $expectedWeek   += $forecast->getPowerWeek();
-                $divMinus       += $forecast->getDivMinWeek();
-                $divPlus        += $forecast->getDivMaxWeek();
+                $expectedWeek += $forecast->getPowerWeek();
+                $divMinus += $forecast->getDivMinWeek();
+                $divPlus += $forecast->getDivMaxWeek();
             }
             $forecastValue += $forecast->getPowerWeek();
-            $dataArray['chart'][$counter]['forecast']   = round($forecastValue);
-            $dataArray['chart'][$counter]['expected']   = round($expectedWeek);
-            $dataArray['chart'][$counter]['divMinus']   = round($divMinus);
-            $dataArray['chart'][$counter]['divPlus']    = round($divPlus);
+            $dataArray['chart'][$counter]['forecast'] = round($forecastValue);
+            $dataArray['chart'][$counter]['expected'] = round($expectedWeek);
+            $dataArray['chart'][$counter]['divMinus'] = round($divMinus);
+            $dataArray['chart'][$counter]['divPlus'] = round($divPlus);
             $counter++;
         }
 
         return $dataArray;
     }
+
+    ############
+    ## By Day ##
+    ############
+
+    public function getForecastDayClassic(Anlage $anlage, $to): array
+    {
+        $actPerDay = [];
+        $dataArray = [];
+
+        $form = '%y%m%d';
+
+        $conn = self::getPdoConnection();
+        $currentYear = date('Y', strtotime($to));
+        if ($anlage->getShowEvuDiag()) {
+            $sql = "SELECT date_format(stamp, '%j') AS startDay, sum(e_z_evu) AS sumEvu, sum(wr_pac) as sumInvOut  
+                FROM " . $anlage->getDbNameAcIst() . " 
+                WHERE year(stamp) = '$currentYear' AND unit = 1 GROUP BY date_format(stamp, '$form') 
+                ORDER BY stamp;";
+        } else {
+            $sql = "SELECT date_format(stamp, '%j') AS startDay, sum(e_z_evu) AS sumEvu, sum(wr_pac) as sumInvOut  
+                FROM " . $anlage->getDbNameAcIst() . " 
+                WHERE year(stamp) = '$currentYear' GROUP BY date_format(stamp, '$form')
+                ORDER BY stamp;";
+        }
+        $result = $conn->prepare($sql);
+        $result->execute();
+
+        foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
+            if ($anlage->getShowEvuDiag()) {
+                if ($value['startDay'] < date('z', strtotime($to))) $actPerDay[(int)$value['startDay']] = $value['sumEvu'];
+            } else {
+                if ($value['startDay'] < date('z', strtotime($to))) $actPerDay[(int)$value['startDay']] = $value['sumInvOut'];
+            }
+        }
+        $conn = null;
+
+        /** @var [] AnlageForecastDay $forecasts */
+        $forecasts = $this->forcastDayRepo->findBy(['anlage' => $anlage]);
+        $counter = 0;
+        $forecastValue = 0;
+        $expectedDay = 0;
+        $divMinus = 0;
+        $divPlus = 0;
+        foreach ($forecasts as $forecast) {
+            $year = date('Y', strtotime($to));
+            $stamp = DateTime::createFromFormat('Y z', $year . ' ' . $forecast->getDay());
+
+            $dataArray['chart'][$counter]['date'] = $stamp->format('Y-m-d');
+
+
+            if (isset($actPerDay[$forecast->getDay()])) {
+                $expectedDay += $actPerDay[$forecast->getDay()];
+                $divMinus += $actPerDay[$forecast->getDay()];
+                $divPlus += $actPerDay[$forecast->getDay()];
+            } else {
+                $expectedDay += $forecast->getPowerDay();
+                $divMinus += $forecast->getDivMinDay();
+                $divPlus += $forecast->getDivMaxDay();
+            }
+            $forecastValue += $forecast->getPowerDay();
+            $dataArray['chart'][$counter]['forecast'] = round($forecastValue);
+            $dataArray['chart'][$counter]['expected'] = round($expectedDay);
+            $dataArray['chart'][$counter]['divMinus'] = round($divMinus);
+            $dataArray['chart'][$counter]['divPlus'] = round($divPlus);
+            $counter++;
+        }
+
+        return $dataArray;
+    }
+
 }

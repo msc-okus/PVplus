@@ -21,6 +21,6 @@ class DateToStringTransformer implements DataTransformerInterface
 
     public function reverseTransform($value)
     {
-        return $value->format('d.m.y H:i');
+        return$value->format('d.m.y H:i');
     }
 }

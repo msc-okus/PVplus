@@ -97,7 +97,7 @@
 
 {# configType == 3 #}
 {% macro configType3(form, aktAnlage) %}
-    {% if form.selectedChart starts with 'ac_act' or form.selectedChart == 'dc_act_overview' or form.selectedChart == 'dc_current_overview' or form.selectedChart == 'reactive_power'%}
+    {% if form.selectedChart starts with 'ac_act' or form.selectedChart starts with 'dc_act' or form.selectedChart == 'dc_current_overview' or form.selectedChart == 'reactive_power'%}
         {% for group in aktAnlage.acGroups %}
             <option value="{{ loop.index }}" {% if form.selectedGroup == loop.index %}selected{% endif %}>{{ group.acGroupName }}</option>
         {% endfor %}

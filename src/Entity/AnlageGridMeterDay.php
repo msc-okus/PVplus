@@ -62,9 +62,9 @@ class AnlageGridMeterDay
         return $this;
     }
 
-    public function getGridMeterValue(): ?float
+    public function getGridMeterValue(): ?string
     {
-        return (float)$this->gridMeterValue;
+        return $this->gridMeterValue;
     }
 
     public function setGridMeterValue(string $gridMeterValue): self

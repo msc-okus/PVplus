@@ -33,6 +33,7 @@ class AssetManagementService
     private DownloadAnalyseService $DownloadAnalyseService;
     private $conn;
     private $connAnlage;
+    private PRCalulationService $PRCalulation;
 
     public function __construct(
         EntityManagerInterface $em,
@@ -41,6 +42,7 @@ class AssetManagementService
         NormalizerInterface    $serializer,
         DownloadAnalyseService $analyseService,
         EconomicVarValuesRepository $ecoVarValueRep,
+        PRCalulationService $PRCalulation,
         EconomicVarNamesRepository $ecoVarNameRep
     )
     {
@@ -53,6 +55,7 @@ class AssetManagementService
         $this->conn = self::getPdoConnection();
         $this->connAnlage = self::connectToDatabaseAnlage();
         $this->DownloadAnalyseService = $analyseService;
+        $this->PRCalulation = $PRCalulation;
 
     }
 
@@ -765,7 +768,6 @@ class AssetManagementService
             'diefference_prod_to_expected_g4n' => $diefference_prod_to_expected_g4n,
             'diefference_prod_to_egrid' => $diefference_prod_to_egrid,
         ];
-        dump($losses_t2);
 
         //beginn chart
         # $chart->tooltip->show = true;
@@ -984,13 +986,17 @@ class AssetManagementService
             'splitArea' => array(
                 'show' => true,
             ),
-            'data' => array()
+            'data' => array(),
+            'scale' => true,
+            'min' => 0,
         );
         $chart->yAxis = array(
             'type' => 'value',
             'name' => 'KWH',
             'nameLocation' => 'middle',
-            'nameGap' => 80
+            'nameGap' => 80,
+            'scale' => true,
+            'min' => 0,
         );
         if ($anlage->hasPVSYST()) {
             $chart->series =
@@ -1057,8 +1063,8 @@ class AssetManagementService
                     ]
                 ];
         }
-
         $option = array(
+            'yaxis' =>['scale' => false, 'min' => 0  ],
             'animation' => false,
             'color' => ['#698ed0', '#f1975a', '#c5e0b4', '#ffc000'],
             'title' => [
@@ -1303,7 +1309,7 @@ class AssetManagementService
             $operations_monthly_right_g4n_tr3 = [
                 $powerEvuQ2,
                 $temp_q2,
-                $powerEvuQ1 - $temp_q2,
+                $powerEvuQ2 - $temp_q2,
                 (($powerEvuQ2 - $temp_q2) * 100) / $powerEvuQ2,
             ];
         } else {
@@ -1339,7 +1345,7 @@ class AssetManagementService
             $operations_monthly_right_g4n_tr5 = [
                 $powerEvuQ4,
                 $temp_q4,
-                $powerEvuQ1 - $temp_q4,
+                $powerEvuQ4 - $temp_q4,
                 (($powerEvuQ4 - $temp_q4) * 100) / $powerEvuQ4,
             ];
         } else {
@@ -1422,7 +1428,7 @@ class AssetManagementService
             $operations_monthly_right_iout_tr3 = [
                 $powerEvuQ2,
                 $temp_q2,
-                $powerEvuQ1 - $temp_q2,
+                $powerEvuQ2 - $temp_q2,
                 (($powerEvuQ2 - $temp_q2) * 100) / $powerEvuQ2,
             ];
         } else {
@@ -1458,7 +1464,7 @@ class AssetManagementService
             $operations_monthly_right_iout_tr5 = [
                 $powerEvuQ4,
                 $temp_q4,
-                $powerEvuQ1 - $temp_q4,
+                $powerEvuQ4 - $temp_q4,
                 (($powerEvuQ4 - $temp_q4) * 100) / $powerEvuQ4,
             ];
         } else {
@@ -1519,9 +1525,35 @@ class AssetManagementService
         $dcData = $this->DownloadAnalyseService->getDcSingleSystemData($anlage, $start, $end, '%d.%m.%Y');
         $dcDataExpected = $this->DownloadAnalyseService->getEcpectedDcSingleSystemData($anlage, $start, $end, '%d.%m.%Y');
 
+
         if ($output) {
             for ($i = 0; $i < count($output); $i++) {
+                $year = $report['reportYear'];
+                $month = $report['reportMonth'];
+                $days = $i+1;
+                $day = new \DateTime("$year-$month-$days");
+                $output2 = $this->PRCalulation->calcPR($anlage, $day);
+
                 $table_overview_dayly[] =
+                    [
+                        "date" => $day->format('M-d'),
+                        "irradiation" => (float)$output2['irradiation'],
+                        "powerEGridExtMonth" => (float)$output2['powerEGridExt'],
+                        "PowerEvuMonth" => (float)$output2['powerEvu'],
+                        "powerActMonth" => (float)$output2['powerAct'],
+                        "powerDctMonth" => (float)$dcData[$i]['actdc'],
+                        "powerExpMonth" => (float)$output2['powerExp'],
+                        "powerExpDctMonth" => (float)$dcDataExpected[$i]['expdc'],
+                        "prEGridExtMonth" => (float)$output2['prEGridExt'],
+                        "prEvuMonth" => (float)$output2['prEvu'],
+                        "prActMonth" => (float)$output2['prAct'],
+                        "prExpMonth" => (float)$output2['prExp'],
+                        "plantAvailability" => (float)$output2['availability'],
+                        "plantAvailabilitySecond" => (float)$output2['availability2'],
+                        "panneltemp" => (float)$output[$i]->getpanneltemp(),
+                    ];
+                /*
+                $table_overview_dayly_old[] =
                     [
                         "date" => $output[$i]->getstamp()->format('M-d'),
                         "irradiation" => (float)$output[$i]->getirradiation(),
@@ -1539,8 +1571,10 @@ class AssetManagementService
                         "plantAvailabilitySecond" => (float)$output[$i]->getplantAvailabilitySecond(),
                         "panneltemp" => (float)$output[$i]->getpanneltemp(),
                     ];
+                */
             }
         }
+
         //End Operations dayly
 
         //Fuer die PA des aktuellen Jahres

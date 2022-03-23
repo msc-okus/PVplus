@@ -122,7 +122,6 @@ class UploaderHelper
         $newFilename = Urlizer::urlize(pathinfo($originalFilename, PATHINFO_FILENAME)).'-'.uniqid().'.'.$file->guessExtension();
 
         $stream = fopen($file->getPathname(), 'r');
-        dump($file->getPathname(),$directory);
         $result = $this->filesystem->writeStream(
             $directory.'/'.$newFilename,
             $stream,

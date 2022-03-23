@@ -313,9 +313,9 @@ class AnlageModules
         return $this;
     }
 
-    public function getOperatorPowerA(): ?string
+    public function getOperatorPowerA(): ?float
     {
-        return $this->operatorPowerA;
+        return (float)$this->operatorPowerA;
     }
 
     public function setOperatorPowerA(string $operatorPowerA): self
@@ -325,9 +325,9 @@ class AnlageModules
         return $this;
     }
 
-    public function getOperatorPowerB(): ?string
+    public function getOperatorPowerB(): ?float
     {
-        return $this->operatorPowerB;
+        return (float)$this->operatorPowerB;
     }
 
     public function setOperatorPowerB(string $operatorPowerB): self
@@ -337,9 +337,9 @@ class AnlageModules
         return $this;
     }
 
-    public function getOperatorPowerC(): ?string
+    public function getOperatorPowerC(): ?float
     {
-        return $this->operatorPowerC;
+        return (float)$this->operatorPowerC;
     }
 
     public function setOperatorPowerD(string $operatorPowerD): self
@@ -349,9 +349,9 @@ class AnlageModules
         return $this;
     }
 
-    public function getOperatorPowerD(): ?string
+    public function getOperatorPowerD(): ?float
     {
-        return $this->operatorPowerD;
+        return (float)$this->operatorPowerD;
     }
 
     public function setOperatorPowerC(string $operatorPowerC): self
@@ -361,9 +361,9 @@ class AnlageModules
         return $this;
     }
 
-    public function getOperatorPowerE(): ?string
+    public function getOperatorPowerE(): ?float
     {
-        return $this->operatorPowerE;
+        return (float)$this->operatorPowerE;
     }
 
     public function setOperatorPowerE(string $operatorPowerE): self
@@ -373,9 +373,9 @@ class AnlageModules
         return $this;
     }
 
-    public function getOperatorPowerHighA(): ?string
+    public function getOperatorPowerHighA(): ?float
     {
-        return $this->operatorPowerHighA;
+        return (float)$this->operatorPowerHighA;
     }
 
     public function setOperatorPowerHighA(string $operatorPowerHighA): self
@@ -385,9 +385,9 @@ class AnlageModules
         return $this;
     }
 
-    public function getOperatorPowerHighB(): ?string
+    public function getOperatorPowerHighB(): ?float
     {
-        return $this->operatorPowerHighB;
+        return (float)$this->operatorPowerHighB;
     }
 
     public function setOperatorPowerHighB(string $operatorPowerHighB): self
@@ -399,9 +399,9 @@ class AnlageModules
 
     ######## Cuurent
 
-    public function getOperatorCurrentA(): ?string
+    public function getOperatorCurrentA(): ?float
     {
-        return $this->operatorCurrentA;
+        return (float)$this->operatorCurrentA;
     }
 
     public function setOperatorCurrentA(string $operatorCurrentA): self
@@ -411,9 +411,9 @@ class AnlageModules
         return $this;
     }
 
-    public function getOperatorCurrentB(): ?string
+    public function getOperatorCurrentB(): ?float
     {
-        return $this->operatorCurrentB;
+        return (float)$this->operatorCurrentB;
     }
 
     public function setOperatorCurrentB(string $operatorCurrentB): self
@@ -423,9 +423,9 @@ class AnlageModules
         return $this;
     }
 
-    public function getOperatorCurrentC(): ?string
+    public function getOperatorCurrentC(): ?float
     {
-        return $this->operatorCurrentC;
+        return (float)$this->operatorCurrentC;
     }
 
     public function setOperatorCurrentC(string $operatorCurrentC): self
@@ -435,9 +435,9 @@ class AnlageModules
         return $this;
     }
 
-    public function getOperatorCurrentD(): ?string
+    public function getOperatorCurrentD(): ?float
     {
-        return $this->operatorCurrentD;
+        return (float)$this->operatorCurrentD;
     }
 
     public function setOperatorCurrentD(string $operatorCurrentD): self
@@ -447,9 +447,9 @@ class AnlageModules
         return $this;
     }
 
-    public function getOperatorCurrentE(): ?string
+    public function getOperatorCurrentE(): ?float
     {
-        return $this->operatorCurrentE;
+        return (float)$this->operatorCurrentE;
     }
 
     public function setOperatorCurrentE(string $operatorCurrentE): self
@@ -459,9 +459,9 @@ class AnlageModules
         return $this;
     }
 
-    public function getOperatorCurrentHighA(): ?string
+    public function getOperatorCurrentHighA(): ?float
     {
-        return $this->operatorCurrentHighA;
+        return (float)$this->operatorCurrentHighA;
     }
 
     public function setOperatorCurrentHighA(string $operatorCurrentHighA): self

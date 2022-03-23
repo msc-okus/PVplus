@@ -185,7 +185,7 @@ class AnlageGroups
 
     public function getIrrUpper(): ?float
     {
-        return (float)$this->irrUpper;
+        return (float)str_replace(',', '.', $this->irrUpper);
     }
 
     public function setIrrUpper(string $irrUpper): self
@@ -197,7 +197,7 @@ class AnlageGroups
 
     public function getIrrLower(): ?float
     {
-        return (float)$this->irrLower;
+        return (float)str_replace(',', '.', $this->irrLower);
     }
 
     public function setIrrLower(string $irrLower): self
@@ -209,7 +209,7 @@ class AnlageGroups
 
     public function getShadowLoss(): ?float
     {
-        return (float)$this->shadowLoss;
+        return (float)str_replace(',', '.', $this->shadowLoss);
     }
 
     public function setShadowLoss(string $shadowLoss): self
@@ -221,7 +221,7 @@ class AnlageGroups
 
     public function getCabelLoss(): ?float
     {
-        return (float)$this->cabelLoss;
+        return (float)str_replace(',', '.', $this->cabelLoss);
     }
 
     public function setCabelLoss(string $cabelLoss): self
@@ -233,7 +233,7 @@ class AnlageGroups
 
     public function getSecureLoss(): ?float
     {
-        return (float)$this->secureLoss;
+        return (float)str_replace(',', '.', $this->secureLoss);
     }
 
     public function setSecureLoss(string $secureLoss): self

@@ -20,7 +20,6 @@
 
 {% elseif form.selectedChart == 'ac_grp_power_diff' %}
     <!-- Balkendiagramme Group Power Diff -->
-    {# AC4 #}
     <script>
         am4core.ready(function() {
             // Create chart instance
@@ -98,10 +97,11 @@
             chart.exporting.formatOptions.getKey("print").disabled = true;
             chart.exporting.formatOptions.getKey("pdf").disabled = true;
             chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            ;
             
             chart.events.on("ready", function(ev) {
-                yAxes1.min = 0; //yAxes1.minZoomed;
-                yAxes1.max = yAxes1.maxZoomed;
+                //yAxes1.min = 0; //yAxes1.minZoomed;
+                //yAxes1.max = yAxes1.maxZoomed;
             });
 
         }); // end am4core.ready()

@@ -179,7 +179,7 @@ class ReportsEpcNewService
             $tableArray[$n]['E_yieldDesign']                          = ($hasMonthData) ? (($monthlyRecalculatedData !== null) ? $monthlyRecalculatedData->getPvSystErtrag() : 0)   : $pvSystData[$month - 1]['ertragDesign'] * $factor; // Spalte E // kommt aus der Tabelle PvSyst Werte Design
             $tableArray[$n]['F_specificYieldDesign']                  = $tableArray[$n]['E_yieldDesign'] / $anlage->getKwPeakPvSyst();  // Spalte F // berechnet aus IrrDesign un der Anlagenleistung (kwPeak)
             $tableArray[$n]['G_prDesign']                             = ($tableArray[$n]['D_irrDesign'] > 0) ? $tableArray[$n]['F_specificYieldDesign'] / $tableArray[$n]['D_irrDesign'] * 100 : 0; // Spalte G // kommt aus der Tabelle PvSyst Werte Design
-            $tableArray[$n]['H_prGuarantie']                          = $tableArray[$n]['G_prDesign'] * (1 - $anlage->getTransformerTee() / 100) * (1 - $anlage->getGuaranteeTee() / 100); // Spalte H
+            $tableArray[$n]['H_prGuarantie']                          = $tableArray[$n]['G_prDesign'] - $anlage->getTransformerTee() - $anlage->getGuaranteeTee(); // Spalte H
             $tableArray[$n]['I_theorYieldDesign']                     = ($hasMonthData) ? (($monthlyRecalculatedData !== null) ? $monthlyRecalculatedData->getPvSystIrr() * $anlage->getKwPeakPvSyst() : 0) : $pvSystData[$month - 1]['irrDesign'] * $anlage->getKwPeakPvSyst() * $factor; // Spalte I
             $tableArray[$n]['J_theorYieldMTDesign']                   = ''; // Spalte J
             $tableArray[$n]['K_irrFTDesign']                          = ""; // Spalte K
@@ -230,7 +230,7 @@ class ReportsEpcNewService
             $tableArray[$zeileSumme1]['E_yieldDesign']                += $tableArray[$n]['E_yieldDesign']; // Spalte E // kommt aus der Tabelle PvSyst Werte Design
             $tableArray[$zeileSumme1]['F_specificYieldDesign']        += $tableArray[$n]['F_specificYieldDesign'];  // Spalte F // berechnet aus IrrDesign un der Anlagenleistung (kwPeak)
             $tableArray[$zeileSumme1]['G_prDesign']                   =  $tableArray[$zeileSumme1]['F_specificYieldDesign'] / $tableArray[$zeileSumme1]['D_irrDesign'] * 100; // Spalte G // kommt aus der Tabelle PvSyst Werte Design
-            $tableArray[$zeileSumme1]['H_prGuarantie']                =  $tableArray[$zeileSumme1]['G_prDesign'] * (1 - $anlage->getTransformerTee() / 100) * (1 - $anlage->getGuaranteeTee() / 100); // Spalte H
+            $tableArray[$zeileSumme1]['H_prGuarantie']                =  $tableArray[$zeileSumme1]['G_prDesign'] - $anlage->getTransformerTee() - $anlage->getGuaranteeTee(); // Spalte H
             $tableArray[$zeileSumme1]['I_theorYieldDesign']           += $tableArray[$n]['I_theorYieldDesign']; // Spalte I
             $tableArray[$zeileSumme1]['J_theorYieldMTDesign']         = ''; // Spalte J
             $tableArray[$zeileSumme1]['K_irrFTDesign']                = ''; // Spalte K
@@ -263,7 +263,7 @@ class ReportsEpcNewService
             $tableArray[$zeileSumme2]['E_yieldDesign']                += ($hasMonthData) ? $tableArray[$n]['E_yieldDesign'] : 0; // Spalte E // kommt aus der Tabelle PvSyst Werte Design
             $tableArray[$zeileSumme2]['F_specificYieldDesign']        += ($hasMonthData) ? $tableArray[$n]['F_specificYieldDesign'] : 0;  // Spalte F // berechnet aus IrrDesign un der Anlagenleistung (kwPeak)
             $tableArray[$zeileSumme2]['G_prDesign']                   =  $tableArray[$zeileSumme2]['F_specificYieldDesign'] / $tableArray[$zeileSumme2]['D_irrDesign'] * 100; // Spalte G // kommt aus der Tabelle PvSyst Werte Design
-            $tableArray[$zeileSumme2]['H_prGuarantie']                =  $tableArray[$zeileSumme2]['G_prDesign'] * (1 - $anlage->getTransformerTee() / 100) * (1 - $anlage->getGuaranteeTee() / 100); // Spalte H
+            $tableArray[$zeileSumme2]['H_prGuarantie']                =  $tableArray[$zeileSumme2]['G_prDesign'] - $anlage->getTransformerTee() - $anlage->getGuaranteeTee(); // Spalte H
             $tableArray[$zeileSumme2]['I_theorYieldDesign']           += ($hasMonthData) ? $tableArray[$n]['I_theorYieldDesign'] : 0; // Spalte I
             $tableArray[$zeileSumme2]['J_theorYieldMTDesign']         += $prArray['powerTheoTempCorr']; // Spalte J
             $tableArray[$zeileSumme2]['K_irrFTDesign']                = ''; // Spalte K
@@ -296,7 +296,7 @@ class ReportsEpcNewService
             $tableArray[$zeileSumme3]['E_yieldDesign']                += ($hasMonthData) ? 0 : $tableArray[$n]['E_yieldDesign']; // Spalte E // kommt aus der Tabelle PvSyst Werte Design
             $tableArray[$zeileSumme3]['F_specificYieldDesign']        += ($hasMonthData) ? 0 : $tableArray[$n]['F_specificYieldDesign'];  // Spalte F // berechnet aus IrrDesign un der Anlagenleistung (kwPeak)
             $tableArray[$zeileSumme3]['G_prDesign']                   =  ($hasMonthData) ? 0 : $tableArray[$zeileSumme3]['F_specificYieldDesign'] / $tableArray[$zeileSumme3]['D_irrDesign'] * 100; // Spalte G // kommt aus der Tabelle PvSyst Werte Design
-            $tableArray[$zeileSumme3]['H_prGuarantie']                =  $tableArray[$zeileSumme3]['G_prDesign'] * (1 - $anlage->getTransformerTee() / 100) * (1 - $anlage->getGuaranteeTee() / 100); // Spalte H
+            $tableArray[$zeileSumme3]['H_prGuarantie']                =  $tableArray[$zeileSumme3]['G_prDesign'] - $anlage->getTransformerTee() - $anlage->getGuaranteeTee(); // Spalte H
             $tableArray[$zeileSumme3]['I_theorYieldDesign']           += ($hasMonthData) ? 0 : $tableArray[$n]['I_theorYieldDesign']; // Spalte I
             $tableArray[$zeileSumme3]['J_theorYieldMTDesign']         = ''; // Spalte J
             $tableArray[$zeileSumme3]['K_irrFTDesign']                = ''; // Spalte K
@@ -502,7 +502,7 @@ class ReportsEpcNewService
         $chart->setOption($options);
 
         $string = $chart->render('chartYieldPercentDiff', ['style' => 'height: 250px; margin-bottom: 40px;', 'renderer'=> 'svg']);
-        #dd($string);
+
         return $chart->render('chartYieldPercentDiff', ['style' => 'height: 250px; margin-bottom: 40px;', 'renderer'=> 'svg']);
     }
 

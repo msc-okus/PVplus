@@ -452,10 +452,14 @@ class ChartService
                     $resultArray['headline'] = 'Show Grid';
                     $resultArray['grid'] = $this->getGrid($anlage, $from, $to);
                 case ("forecast"):
-                    if ($anlage->getUsePac()) {
-                        $dataArray = $this->forecastChart->getForecastFac($anlage, $to);
+                    if ($anlage->getUseDayForecast()) {
+                        $dataArray = $this->forecastChart->getForecastDayClassic($anlage, $to);
                     } else {
-                        $dataArray = $this->forecastChart->getForecastClassic($anlage, $to);
+                        if ($anlage->getUsePac()) {
+                            $dataArray = $this->forecastChart->getForecastFac($anlage, $to);
+                        } else {
+                            $dataArray = $this->forecastChart->getForecastClassic($anlage, $to);
+                        }
                     }
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
