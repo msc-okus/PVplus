@@ -900,19 +900,19 @@ class AssetManagementService
                 $chart->series =
                     [
                         [
-                            'name' => 'Difference Egrid to PVSYST',
+                            'name' => 'Difference Grid to PVSYST',
                             'type' => 'line',
                             'data' => $difference_Egrid_to_PVSYST,
                             'visualMap' => 'false'
                         ],
                         [
-                            'name' => 'Difference Egrid to expected g4n',
+                            'name' => 'Difference Grid to expected g4n',
                             'type' => 'line',
                             'data' => $difference_Egrid_to_Expected_G4n,
                             'visualMap' => 'false'
                         ],
                         [
-                            'name' => 'Difference inverter to Egrid',
+                            'name' => 'Difference inverter to Grid',
                             'type' => 'line',
                             'data' => $difference_Inverter_to_Egrid,
                             'visualMap' => 'false',
@@ -941,13 +941,13 @@ class AssetManagementService
                 $chart->series =
                     [
                         [
-                            'name' => 'Difference Egrid to expected g4n',
+                            'name' => 'Difference Grid to expected g4n',
                             'type' => 'line',
                             'data' => $difference_Egrid_to_Expected_G4n,
                             'visualMap' => 'false'
                         ],
                         [
-                            'name' => 'Difference inverter to Egrid',
+                            'name' => 'Difference inverter to Grid',
                             'type' => 'line',
                             'data' => $difference_Inverter_to_Egrid,
                             'visualMap' => 'false',

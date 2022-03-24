@@ -22,7 +22,8 @@
         {{ form_row(assetForm.InvPow) }}
     </div>
     <div style="margin-left: 10px">{{ form_row(assetForm.Economics) }} </div>
-
+    <div> {{ form_row(assetForm.submit) }}</div>
+    <div style="visibility: hidden">{{ form_rest(assetForm) }}</div>
 
 
 {{ form_end(assetForm) }}
