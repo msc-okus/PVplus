@@ -62,7 +62,7 @@ class AlertSystemService
     }
 
 
-    private static function IstData($anlage, $time){
+    private static function IstData($anlage, $time, MessageService $mailservice){
         //variables
         $counter = 1;
         $conn = self::getPdoConnection();
@@ -94,8 +94,10 @@ class AlertSystemService
                     if($resp2->rowCount() > 0){
                         $pdata2 = $resp2->fetch(PDO::FETCH_ASSOC);
                         if ($pdata2['ist'] != null) {
-                            if ($pdata2['ist'] == 0) $status_report['Ist'][$counter]['last_half'] = "DC error, no power (Power AC <= 0)";
+                            if ($pdata2['ist'] == 0) {
+                                $status_report['Ist'][$counter]['last_half'] = "Power is 0";
 
+                            }
                             else $status_report['Ist'][$counter]['last_half'] = "All good";
                         }
                         else {
@@ -113,8 +115,9 @@ class AlertSystemService
                             if ($resp3->rowCount() > 0) {
                                 $pdata3 = $resp3->fetch(PDO::FETCH_ASSOC);
                                 if ($pdata3['ist'] != null) {
-                                    if ($pdata3['ist'] == 0) $status_report['Ist'][$counter]['last_hour'] = "DC error, no power (Power AC <= 0)";
-
+                                    if ($pdata3['ist'] == 0) {
+                                        $status_report['Ist'][$counter]['last_hour'] = "Power is 0";
+                                    }
                                     else $status_report['Ist'][$counter]['last_hour'] = "All good";
                                 } else {
                                     $status_report['Ist'][$counter]['last_hour'] = "No Data";
@@ -135,7 +138,7 @@ class AlertSystemService
         */
         return $status_report;
     }
-    private static function WData(Anlage $anlage, $time)
+    private static function WData(Anlage $anlage, $time, MessageService $mailservice)
     {
 
         $conn = self::getPdoConnection();
@@ -194,9 +197,9 @@ class AlertSystemService
                 if ($resw3->rowCount() > 0) {
                     $wdata3 = $resw3->fetch(PDO::FETCH_ASSOC);
                     if ($wdata3['gi'] != null && $wdata3['gmod'] != null) {
-                        if ($wdata3['gi'] == 0 && $wdata3['gmod'] == 0) $status_report['Irradiation']['last_half'] = "Irradiation is 0";
-
-                        else $status_report['Irradiation']['last_half'] = "All good";
+                        if ($wdata3['gi'] == 0 && $wdata3['gmod'] == 0) {
+                            $status_report['Irradiation']['last_half'] = "Irradiation is 0";
+                        } else $status_report['Irradiation']['last_half'] = "All good";
                     } else {;
                         $status_report['Irradiation']['last_half'] = "No data";
                         $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 3600));
@@ -209,11 +212,12 @@ class AlertSystemService
                         if ($resw4->rowCount() > 0) {
                             $wdata4 = $resw4->fetch(PDO::FETCH_ASSOC);
                             if ($wdata4['gi'] != null && $wdata4['gmod'] != null) {
-                                if ($wdata4['gi'] == 0 && $wdata4['gmod'] == 0) $status_report['Irradiation']['last_hour'] = "Irradiation is 0 " ;
-
-                                else $status_report['Irradiation']['last_hour'] = "All good";
-                            } else $status_report['Irradiation']['last_hour'] = "No data";
-
+                                if ($wdata4['gi'] == 0 && $wdata4['gmod'] == 0) {
+                                    $status_report['Irradiation']['last_hour'] = "Irradiation is 0 " ;
+                                } else $status_report['Irradiation']['last_hour'] = "All good";
+                            } else {
+                                $status_report['Irradiation']['last_hour'] = "No data";
+                            }
                         }
                     }
                 }

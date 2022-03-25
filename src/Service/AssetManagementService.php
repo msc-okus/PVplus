@@ -1329,10 +1329,8 @@ class AssetManagementService
             } else $month = "1";
             $resultErtrag_design = $this->pvSystMonthRepo->findOneByInterval($anlage, $month, $report['reportMonth']);
             if ($resultErtrag_design) {
-                if ($resultErtrag_design->num_rows == 1) {
-                    $rowYtoDErtrag_design = $resultErtrag_design->fetch_assoc();
-                    $expectedPvSystYtoDFirst = $rowYtoDErtrag_design['ytd'];
-                }
+                    $expectedPvSystYtoDFirst = $resultErtrag_design['ertrag_design'];
+
             }
 
             $expectedPvSystYtoD = $expectedPvSystYtoDFirst;
