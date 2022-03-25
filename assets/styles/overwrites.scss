@@ -131,6 +131,8 @@
 
     body {padding-top: 92px;}
 
+    tbody th, tbody td, thead th, thead td, tfoot th, tfoot td {font-size: rem-calc(14);}
+
     header {
         position: fixed;
         z-index: 1000;
@@ -281,12 +283,55 @@
                 padding-right: 0;
             }
         }
-        .box {
+        .box{
             background-color: $g4n-white;
 
         }
+        td {
+            [type=text], [type=password], [type=date], [type=datetime], [type=datetime-local], [type=month], [type=week], [type=email], [type=number], [type=search], [type=tel], [type=time], [type=url], [type=color], textarea {
+                height: 1.8rem;
+                margin: 0;
+                padding: 0.2rem;
+                border-radius: 0;
+            }
+            select {
+                height: 1.8rem;
+                margin: 0;
+            }
+        }
+        ul.tabs {
+            background: none;
+            border: none;
+            border-bottom: 1px solid #b7b7b7;
+            .tabs-title {
+                border-top-left-radius: 4px;
+                border-top-right-radius: 4px;
+                margin-right: 2px;
+                background: $g4n-white;
+                border: 1px solid #b7b7b7;
+                color: $g4n-white;
+                margin-bottom: -1px;
+                transition: all 0.5s ease;
+                a {
+                    transition: all 0.5s ease;
+                    font-weight: bold;
+                }
+            }
+            .is-active {
+                border-bottom: none;
+                transition: all 0.5s ease;
+                a {
+                    transition: all 0.5s ease;
+                    background: $g4n-blue;
+                    color: $g4n-white;
+                }
+            }
+        }
+        dt {
+            margin-top: 1rem;
+        }
 
-        #owner {
+        #owner{
             .box {
                 min-height: 320px;
 
@@ -311,7 +356,7 @@
             }
         }
 
-        #plants {
+        #plants{
             .box {
                 padding: 0.75rem 0.75rem 0.25rem;
             }
@@ -396,7 +441,7 @@
             }
         }
 
-        #chart {
+        #chart{
             margin-top: 1rem;
 
             .selectedChart {
@@ -485,50 +530,21 @@
 
         }
 
-        td {
-            [type=text], [type=password], [type=date], [type=datetime], [type=datetime-local], [type=month], [type=week], [type=email], [type=number], [type=search], [type=tel], [type=time], [type=url], [type=color], textarea {
-                height: 1.8rem;
-                margin: 0;
-                padding: 0.2rem;
-                border-radius: 0;
-            }
-            select {
-                height: 1.8rem;
-                margin: 0;
-            }
-        }
-        ul.tabs {
-            background: none;
-            border: none;
-            border-bottom: 1px solid #b7b7b7;
-            .tabs-title {
-                border-top-left-radius: 4px;
-                border-top-right-radius: 4px;
-                margin-right: 2px;
-                background: $g4n-white;
-                border: 1px solid #b7b7b7;
-                color: $g4n-white;
-                margin-bottom: -1px;
-                transition: all 0.5s ease;
-                a {
-                    transition: all 0.5s ease;
-                    font-weight: bold;
+        #ticket-edit{
+            table{
+                label{
+                    display: inline-block;
+                    vertical-align: text-bottom;
+                    width: 50px;
+                    overflow: hidden;
                 }
-            }
-            .is-active {
-                border-bottom: none;
-                transition: all 0.5s ease;
-                a {
-                    transition: all 0.5s ease;
-                    background: $g4n-blue;
-                    color: $g4n-white;
+                .switch{
+                    display: inline-block;
+                    margin-bottom: 0;
                 }
             }
         }
 
-        dt {
-            margin-top: 1rem;
-        }
     }
 
     .message-log{
@@ -542,10 +558,6 @@
         box-shadow: 0 0 10px 0 rgba(100,100,100,0.75);
         padding-top: 1rem;
         height: 60px;
-    }
-
-    .message-log{
-
     }
 
     .round-corner {border-radius: 4px;}
