@@ -17,31 +17,38 @@ class AssetManagementeReportFormType extends AbstractType
     {
         $builder
             ->add('Production',SwitchType::class,[
-                'required'  => false
+                'required'  => false,
+                'data' => true
             ])
             ->add('ProdCap',SwitchType::class,[
                 'label'    => 'Production & Capacity Factor',
                 'required' => false,
+                'data' => true
             ])
             ->add('CumulatForecastPVSYS',SwitchType::class,[
                 'label'     => 'Cumulative Forecast - PVSYST',
-                'required'  => false
+                'required'  => false,
+                'data' => true
             ])
             ->add('CumulatForecastG4N',SwitchType::class,[
                 'label'     => 'Cumulative Forecast - G4N',
-                'required'  => false
+                'required'  => false,
+                'data' => true
             ])
             ->add('CumulatLosses',SwitchType::class,[
                 'label'     => 'Cumulative Losses',
-                'required'  => false
+                'required'  => false,
+                'data' => true
             ])
             ->add('MonthlyProd',SwitchType::class,[
                 'label'     => 'Monthly Production',
-                'required'  => false
+                'required'  => false,
+                'data' => true
             ])
             ->add('DailyProd',SwitchType::class,[
                 'label'     => 'Daily Production',
-                'required'  => false
+                'required'  => false,
+                'data' => true
             ])
 
 
@@ -58,27 +65,33 @@ class AssetManagementeReportFormType extends AbstractType
             ])
             */
             ->add('Availability',SwitchType::class,[
-                'required' => false
+                'required' => false,
+                'data' => true
             ])
             ->add('AvYearlyOverview',SwitchType::class,[
                 'label'     => 'Availability-Yearly Overview',
-                'required'  => false
+                'required'  => false,
+                'data' => true
             ])
             ->add('AvMonthlyOverview',SwitchType::class,[
                 'label'     => 'Availability-Monthly Overview',
-                'required'  => false
+                'required'  => false,
+                'data' => true
             ])
             ->add('AvInv',SwitchType::class,[
                 'label'     => 'Availability Inverter',
-                'required'  => false
+                'required'  => false,
+                'data' => true
             ])
             ->add('StringCurr',SwitchType::class,[
                 'label'     => 'String Current',
-                'required'  => false
+                'required'  => false,
+                'data' => true
             ])
             ->add('InvPow',SwitchType::class,[
                 'label'     => 'Inverter Power-DC Heatmap',
-                'required'  => false
+                'required'  => false,
+                'data' => true
             ])
             /*
             ->add('AvailabilityPos', ChoiceType::class,[

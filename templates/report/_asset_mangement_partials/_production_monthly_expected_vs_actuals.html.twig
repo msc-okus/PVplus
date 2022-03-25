@@ -146,7 +146,7 @@
                                 {% endif %}
                                 <td class="tr_next_columns">{{ data.panneltemp|number_format(2, ',', '.') }}</td>
                                 {% set tempsum = tempsum + data.panneltemp %}
-                                <td class="tr_next_columns"> {{ (data.irradiation * anlage.kwPeak )|number_format(2, ',', '.') }}</td>
+                                <td class="tr_next_columns"> {{ (data.irradiation * anlage.kwPeak )|number_format(0, ',', '.') }}</td>
 
                             </tr>
                             {% set daycount = daycount + 1 %}
@@ -177,7 +177,7 @@
                                 <td class="tr_next_columns"> <b>{{ (PAsum2/daycount)|number_format(2, ',', '.') }}</b></td>
                             {% endif %}
                             <td class="tr_next_columns"> <b>{{ (tempsum/daycount)|number_format(2, ',', '.')}}</b> </td>
-                            <td class="tr_next_columns"> <b>{{ TheoSum |number_format(2, ',', '.')}}</b></td>
+                            <td class="tr_next_columns"> <b>{{ TheoSum |number_format(0, ',', '.')}}</b></td>
 
                         </tr>
                         </tbody>

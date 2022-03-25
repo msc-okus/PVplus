@@ -105,7 +105,7 @@ class AnlageConfigFormType extends AbstractType
                 'mapped' => false,
                 'constraints' => [
                     new image([
-                        'maxSize' => '5M',
+                        'maxSize' => '10M',
                         'mimeTypes' => [
                             'image/jpeg',
                             'image/png',

@@ -768,7 +768,7 @@ class Anlage
     /**
      * @ORM\Column(type="string", length=20, nullable=true)
      */
-    private ?string $lossesForecast = '0';
+    private ?string $lossesForecast = '5';
 
     /**
      * @ORM\OneToMany(targetEntity=AnlageFile::class, mappedBy="plant", orphanRemoval=true)
@@ -784,6 +784,16 @@ class Anlage
      * @ORM\Column(type="string", length=150, nullable=true)
      */
     private $picture = "";
+
+    /**
+     * @ORM\OneToMany(targetEntity=Status::class, mappedBy="Anlage", orphanRemoval=true)
+     */
+    private $statuses;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $hasWindSpeed = true;
 
 
     public function __construct()
@@ -813,6 +823,7 @@ class Anlage
         $this->tickets = new ArrayCollection();
         $this->economicVarValues = new ArrayCollection();
         $this->anlageFiles = new ArrayCollection();
+        $this->statuses = new ArrayCollection();
     }
 
     public function getAnlId(): ?string
@@ -3276,5 +3287,28 @@ class Anlage
         $this->picture = $picture;
 
         return $this;
+    }
+
+    /**
+     * @return Collection|Status[]
+     */
+    public function getStatuses(): Collection
+    {
+        return $this->statuses;
+    }
+
+    public function getHasWindSpeed(): ?bool
+    {
+        return $this->hasWindSpeed;
+    }
+
+    public function setHasWindSpeed(bool $hasWindSpeed): self
+    {
+        $this->hasWindSpeed = $hasWindSpeed;
+
+        return $this;
+    }
+    public function hasGrid(): bool{
+        return ($this->showEvuDiag ||$this->useGridMeterDayData);
     }
 }

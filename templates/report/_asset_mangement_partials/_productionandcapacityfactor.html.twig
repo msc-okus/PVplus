@@ -1,5 +1,41 @@
 {% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
 
+{% import _self as Macros %}
+{% macro grid(table_overview_monthly, anlage) %}
+    <tr>
+        <td class="tr_first_column" style="text-align: right;">Yield (Grid meter) [kWh]</td>
+
+        {% for data in table_overview_monthly.powerEvu %}
+            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+        {% endfor %}
+    </tr>
+{% endmacro %}
+{% macro expectedPvSyst(table_overview_monthly, anlage) %}
+    <tr>
+        <td class="tr_first_column" style="text-align: right;">Expected PV SYST [kWh]</td>
+        {% for data in table_overview_monthly.expectedPvSyst %}
+            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+        {% endfor %}
+    </tr>
+{% endmacro %}
+{% macro expectedG4N(table_overview_monthly, anlage) %}
+    <tr>
+        <td class="tr_first_column" style="text-align: right;">Expected g4n [kWh]</td>
+        {% for data in table_overview_monthly.powerExpEvu %}
+            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+        {% endfor %}
+    </tr>
+{% endmacro %}
+{% macro inverterOut(table_overview_monthly, anlage) %}
+    <tr>
+        <td class="tr_first_column" style="text-align: right;">Inverter out [kWh]</td>
+        {% for data in table_overview_monthly.powerAct %}
+            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+
+        {% endfor %}
+    </tr>
+{% endmacro %}
+
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Production & Capacity factor</h3>
     <span class="subheadline">Yearly expected vs. actuals</span>
@@ -19,60 +55,25 @@
                     </thead>
                     <tbody>
                     {% set powerEvuTotal = 0 %}
-                    {% set inverterOutTotal = 0 %}
-                    {% if (anlage.getShowEvuDiag() ) %}
-                        {% if (anlage.useGridMeterDayData) %}
-                            <tr>
-                                <td class="tr_first_column" style="text-align: right;">Yield (Grid meter) [kWh]</td>
-
-                                {% for data in table_overview_monthly.powerEvu %}
-                                    {% set powerEvuTotal = powerEvuTotal+data %}
-                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                                {% endfor %}
-                            </tr>
-                        {% else %}
-                            <tr>
-                                <td class="tr_first_column" style="text-align: right;">Yield (Grid meter) [kWh]</td>
-
-                                {% for data in table_overview_monthly.powerExt %}
-                                    {% set powerEvuTotal = powerEvuTotal+data %}
-                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                                {% endfor %}
-                            </tr>
-                        {% endif %}
-                    {% elseif (anlage.useGridMeterDayData) %}
-                        <tr>
-                            <td class="tr_first_column" style="text-align: right;">Yield (Grid meter) [kWh]</td>
-
+                    {% if (anlage.hasGrid ) %}
                             {% for data in table_overview_monthly.powerEvu %}
                                 {% set powerEvuTotal = powerEvuTotal+data %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                             {% endfor %}
-                        </tr>
-                    {% endif %}
-
-                    <tr>
-                        <td class="tr_first_column" style="text-align: right;"> Inverter out [kWh]</td>
+                            {{ Macros.grid(table_overview_monthly, anlage)}}
+                            {% if (anlage.hasPVSYST == true) %}
+                                {{ Macros.expectedPvSyst(table_overview_monthly, anlage) }}
+                            {% endif %}
+                            {{ Macros.expectedG4N(table_overview_monthly, anlage) }}
+                            {{ Macros.inverterOut(table_overview_monthly, anlage, powerEvuTotal) }}
+                    {% else %}
                         {% for data in table_overview_monthly.powerAct %}
-                            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                            {% set inverterOutTotal = inverterOutTotal + data %}
+                            {% set powerEvuTotal = powerEvuTotal+data %}
                         {% endfor %}
-                    </tr>
-
-                    <tr>
-                        <td class="tr_first_column" style="text-align: right;">Expected g4n [kWh]</td>
-                        {% for data in table_overview_monthly.powerExpEvu %}
-                            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                        {% endfor %}
-                    </tr>
-
-                    {% if (anlage.hasPVSYST == true) %}
-                        <tr>
-                            <td class="tr_first_column" style="text-align: right;">Expected PV SYST [kWh]</td>
-                            {% for data in table_overview_monthly.expectedPvSyst %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                            {% endfor %}
-                        </tr>
+                        {{ Macros.inverterOut(table_overview_monthly, anlage) }}
+                        {% if (anlage.hasPVSYST == true) %}
+                            {{ Macros.expectedPvSyst(table_overview_monthly, anlage) }}
+                        {% endif %}
+                        {{ Macros.expectedG4N(table_overview_monthly, anlage) }}
                     {% endif %}
 
                     </tbody>
@@ -114,11 +115,7 @@
                         <td class="tr_first_column" style="text-align: center;">TOTAL</td>
                         <td class="tr_first_column" style="text-align: right;">{{ sumdays }}</td>
                         <td class="tr_first_column" style="text-align: right;">{{ sumhours }}</td>
-                        {% if (anlage.getShowEvuDiag()) %}
-                            <td class="tr_first_column" style="text-align: right;">{{ (((powerEvuTotal/1000)/((anlage.kwPeak/1000)*sumhours))*100)|round(3, 'ceil')|number_format(2, ',', '.') }}</td>
-                            {% else %}
-                                <td class="tr_first_column" style="text-align: right;">{{ (((inverterOutTotal/1000)/((anlage.kwPeak/1000)*sumhours))*100)|round(3, 'ceil')|number_format(2, ',', '.') }}</td>
-                        {% endif %}
+                        <td class="tr_first_column" style="text-align: right;">{{ (((powerEvuTotal/1000)/((anlage.kwPeak/1000)*sumhours))*100)|round(3, 'ceil')|number_format(2, ',', '.') }}</td>
                     </tr>
                     </tbody>
                 </table>

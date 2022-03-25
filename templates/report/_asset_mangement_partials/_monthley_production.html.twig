@@ -6,180 +6,183 @@
     <table style="width: 100% !important">
         <tr>
             {% if (anlage.hasPVSYST == true) %}
-            <td style="text-align: left">
-                <table class="asset_report_table_operations_data">
-                    <thead>
-                    <tr>
-                        <td colspan="5">
-                            <span class="subheadline" style="text-align: left !important;">EXP PVSYST vs. Actuals </span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th rowspan="3" class="table-center">Month</th>
-                        {% if (anlage.useGridMeterDayData) %}
+                <td style="text-align: left; width:100%">
+                    <table class="asset_report_table_operations_data">
+                        <thead>
+                        <tr>
+                            <td colspan="5">
+                                <span class="subheadline" style="text-align: left !important;">EXP PVSYST vs. Actuals </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th rowspan="3" class="table-center">Month</th>
+                            {% if (anlage.hasGrid) %}
+                                <th class="table-center"
+                                    style="width:82px">Yield</th>
+                            {% endif %}
                             <th class="table-center"
-                                style="width:82px">Yield</th>
-                        {% endif %}
-                        <th class="table-center"
-                            style="width:82px">Exp.</th>
-                        <th class="table-center"
-                            style="width:82px">Difference</th>
-                        <th class="table-center"
-                            style="width:82px">Difference</th>
-                    </tr>
-                    <tr>
-                        {% if (anlage.useGridMeterDayData) %}
-                            <th class="table-center">Grid meter</th>
-                        {% endif %}
-                        <th class="table-center">g4n</th>
-                        <th class="table-center">Yield-EXP</th>
-                        <th class="table-center">Yield-EXP</th>
-                    </tr>
-                    <tr>
-                        {% if (anlage.useGridMeterDayData) %}
+                                style="width:82px">Exp.</th>
+                            <th class="table-center"
+                                style="width:82px">Difference</th>
+                            <th class="table-center"
+                                style="width:82px">Difference</th>
+                        </tr>
+                        <tr>
+                            {% if (anlage.hasGrid) %}
+                                <th class="table-center">Grid meter</th>
+                            {% endif %}
+                            <th class="table-center">PVSyst</th>
+                            <th class="table-center">Yield-EXP</th>
+                            <th class="table-center">Yield-EXP</th>
+                        </tr>
+                        <tr>
+                            {% if (anlage.hasGrid) %}
+                                <th class="table-center">[kWh]</th>
+                            {% endif %}
                             <th class="table-center">[kWh]</th>
-                        {% endif %}
-                        <th class="table-center">[kWh]</th>
-                        <th class="table-center">[kWh]</th>
-                        <th class="table-center">[%]</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        {% for data in operations_monthly_right_pvsyst_tr1 %}
-                            {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
-                            {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
-                            {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
-                            {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
-                            {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
-                            {% if loop.first %}
-                                <td class="tr_first_column" {% if (loop.index == 5) %}style="background-color:{{ color }};" {% endif %}>{{ data }}</td>
-                            {% else %}
-                                {% if (anlage.useGridMeterDayData == true) %}
-                                    <td class="tr_next_columns" {% if (loop.index == 5) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                            <th class="table-center">[kWh]</th>
+                            <th class="table-center">[%]</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            {% for data in operations_monthly_right_pvsyst_tr1 %}
+                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                                {% if loop.first %}
+                                    <td class="tr_first_column" {% if (loop.index == 5) %}style="background-color:{{ color }};" {% endif %}>{{ data }}</td>
                                 {% else %}
-                                    {% if (loop.index > 2) %}
+                                    {% if (anlage.hasGrid == true) %}
                                         <td class="tr_next_columns" {% if (loop.index == 5) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                    {% else %}
+                                        {% if (loop.index > 2) %}
+                                            <td class="tr_next_columns" {% if (loop.index == 5) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                        {% endif %}
                                     {% endif %}
                                 {% endif %}
-                            {% endif %}
-                        {% endfor %}
+                            {% endfor %}
 
-                    </tr>
-                    <tr>
-                        <td class="tr_first_column">Q I (Jan - Mar)</td>
-                        {% for data in operations_monthly_right_pvsyst_tr2 %}
-                            {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
-                            {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
-                            {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
-                            {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
-                            {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (anlage.useGridMeterDayData == true) %}
-                                <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
-                            {% else %}
-                                {% if (loop.index > 1) %}
+                        </tr>
+                        <tr>
+                            <td class="tr_first_column">Q I (Jan - Mar)</td>
+                            {% for data in operations_monthly_right_pvsyst_tr2 %}
+                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (anlage.hasGrid == true) %}
                                     <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                {% else %}
+                                    {% if (loop.index > 1) %}
+                                        <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                    {% endif %}
                                 {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td class="tr_first_column">Q II (Apr - Jun)</td>
-                        {% for data in operations_monthly_right_pvsyst_tr3 %}
-                            {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
-                            {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
-                            {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
-                            {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
-                            {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (anlage.useGridMeterDayData == true) %}
-                                <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
-                            {% else %}
-                                {% if (loop.index > 1) %}
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_first_column">Q II (Apr - Jun)</td>
+                            {% for data in operations_monthly_right_pvsyst_tr3 %}
+                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (anlage.hasGrid == true) %}
                                     <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                {% else %}
+                                    {% if (loop.index > 1) %}
+                                        <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                    {% endif %}
                                 {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td class="tr_first_column">Q III (Jul - Sep)</td>
-                        {% for data in operations_monthly_right_pvsyst_tr4 %}
-                            {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
-                            {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
-                            {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
-                            {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
-                            {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (anlage.useGridMeterDayData == true) %}
-                                <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
-                            {% else %}
-                                {% if (loop.index > 1) %}
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_first_column">Q III (Jul - Sep)</td>
+                            {% for data in operations_monthly_right_pvsyst_tr4 %}
+                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (anlage.hasGrid == true) %}
                                     <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                {% else %}
+                                    {% if (loop.index > 1) %}
+                                        <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                    {% endif %}
                                 {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td class="tr_first_column">Q IV (Okt - Dez)</td>
-                        {% for data in operations_monthly_right_pvsyst_tr5 %}
-                            {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
-                            {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
-                            {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
-                            {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
-                            {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (anlage.useGridMeterDayData == true) %}
-                                <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
-                            {% else %}
-                                {% if (loop.index > 1) %}
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_first_column">Q IV (Okt - Dez)</td>
+                            {% for data in operations_monthly_right_pvsyst_tr5 %}
+                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (anlage.hasGrid == true) %}
                                     <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                {% else %}
+                                    {% if (loop.index > 1) %}
+                                        <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                    {% endif %}
                                 {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td class="tr_first_column">Year to date</td>
-                        {% for data in operations_monthly_right_pvsyst_tr6 %}
-                            {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
-                            {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
-                            {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
-                            {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
-                            {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (anlage.useGridMeterDayData == true) %}
-                                <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
-                            {% else %}
-                                {% if (loop.index > 1) %}
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_first_column">Year to date</td>
+                            {% for data in operations_monthly_right_pvsyst_tr6 %}
+                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (anlage.hasGrid == true) %}
                                     <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                {% else %}
+                                    {% if (loop.index > 1) %}
+                                        <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                    {% endif %}
                                 {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td class="tr_first_column">Total runtime</td>
-                        {% for data in operations_monthly_right_pvsyst_tr7 %}
-                            {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
-                            {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
-                            {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
-                            {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
-                            {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (anlage.useGridMeterDayData == true) %}
-                                <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
-                            {% else %}
-                                {% if (loop.index > 1) %}
+                            {% endfor %}
+                        </tr>
+                        {#
+                        <tr>
+                            <td class="tr_first_column">Total runtime</td>
+                            {% for data in operations_monthly_right_pvsyst_tr7 %}
+                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (anlage.hasGrid == true) %}
                                     <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                {% else %}
+                                    {% if (loop.index > 1) %}
+                                        <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                    {% endif %}
                                 {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    </tbody>
-                </table>
-            </td>
+                            {% endfor %}
+                        </tr>
+                        #}
+                        </tbody>
+                    </table>
+                </td>
             {% endif %}
-            <td style="text-align: left">
+
+            <td style="text-align: left; width:50%">
                 <table class="asset_report_table_operations_data" style="float:left">
                     <thead>
                     <tr>
@@ -189,7 +192,7 @@
                     </tr>
                     <tr>
                         <th rowspan="3" class="table-center">Month</th>
-                        {% if (anlage.useGridMeterDayData) %}
+                        {% if (anlage.hasGrid) %}
                         <th class="table-center"
                             style="width:82px">Yield</th>
                             {% else %}
@@ -204,7 +207,7 @@
                             style="width:82px">Difference</th>
                     </tr>
                     <tr>
-                        {% if (anlage.useGridMeterDayData) %}
+                        {% if (anlage.hasGrid) %}
                         <th class="table-center">Grid meter</th>
                             {% else %}
                                 <th class="table-center">Out</th>
@@ -311,6 +314,7 @@
                                 <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
+                    {#
                     <tr>
                         <td class="tr_first_column">Total runtime</td>
                         {% for data in operations_monthly_right_g4n_tr7 %}
@@ -326,6 +330,7 @@
 
                         {% endfor %}
                     </tr>
+                    #}
                     </tbody>
                 </table>
             </td>
@@ -333,180 +338,182 @@
 
         <tr>
 
-            {% if (anlage.useGridMeterDayData) %}
-            <td style="text-align: left">
-                <table class="asset_report_table_operations_data" >
-                    <thead>
-                    <tr>
-                        <td colspan="5">
-                            <span class="subheadline" style="text-align: left !important;">Grid meter vs Inverter Out</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th rowspan="3" class="table-center">Month</th>
-                        {% if (anlage.useGridMeterDayData) %}
+            {% if (anlage.hasGrid) %}
+                <td style="text-align: left; width:50%">
+                    <table class="asset_report_table_operations_data" >
+                        <thead>
+                        <tr>
+                            <td colspan="5">
+                                <span class="subheadline" style="text-align: left !important;">Grid meter vs Inverter Out</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th rowspan="3" class="table-center">Month</th>
+                            {% if (anlage.hasGrid) %}
+                                <th class="table-center"
+                                    style="width:82px">Yield</th>
+                            {% endif %}
                             <th class="table-center"
-                                style="width:82px">Yield</th>
-                        {% endif %}
-                        <th class="table-center"
-                            style="width:82px">Inverter</th>
-                        <th class="table-center"
-                            style="width:82px">Difference</th>
-                        <th class="table-center"
-                            style="width:82px">Difference</th>
-                    </tr>
-                    <tr>
-                        {% if (anlage.useGridMeterDayData) %}
-                            <th class="table-center">Grid meter</th>
-                        {% endif %}
-                        <th class="table-center">Out</th>
-                        <th class="table-center">Grid-Inverter</th>
-                        <th class="table-center">Yield-EXP</th>
-                    </tr>
-                    <tr>
-                        {% if (anlage.useGridMeterDayData) %}
+                                style="width:82px">Inverter</th>
+                            <th class="table-center"
+                                style="width:82px">Difference</th>
+                            <th class="table-center"
+                                style="width:82px">Difference</th>
+                        </tr>
+                        <tr>
+                            {% if (anlage.hasGrid) %}
+                                <th class="table-center">Grid meter</th>
+                            {% endif %}
+                            <th class="table-center">Out</th>
+                            <th class="table-center">Grid-Inverter</th>
+                            <th class="table-center">Yield-EXP</th>
+                        </tr>
+                        <tr>
+                            {% if (anlage.hasGrid) %}
+                                <th class="table-center">[kWh]</th>
+                            {% endif %}
                             <th class="table-center">[kWh]</th>
-                        {% endif %}
-                        <th class="table-center">[kWh]</th>
-                        <th class="table-center">[kWh]</th>
-                        <th class="table-center">[%]</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        {% for data in operations_monthly_right_iout_tr1 %}
-                            {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
-                            {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
-                            {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
-                            {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
-                            {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
-                            {% if loop.first %}
-                                <td class="tr_first_column" {% if (loop.index == 5) %}style="background-color:{{ color }};" {% endif %}>{{ data }}</td>
-                            {% else %}
-                                {% if (anlage.useGridMeterDayData == true) %}
-                                    <td class="tr_next_columns" {% if (loop.index == 5) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                            <th class="table-center">[kWh]</th>
+                            <th class="table-center">[%]</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            {% for data in operations_monthly_right_iout_tr1 %}
+                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                                {% if loop.first %}
+                                    <td class="tr_first_column" {% if (loop.index == 5) %}style="background-color:{{ color }};" {% endif %}>{{ data }}</td>
                                 {% else %}
-                                    {% if (loop.index > 2) %}
+                                    {% if (anlage.hasGrid == true) %}
                                         <td class="tr_next_columns" {% if (loop.index == 5) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                    {% else %}
+                                        {% if (loop.index > 2) %}
+                                            <td class="tr_next_columns" {% if (loop.index == 5) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                        {% endif %}
                                     {% endif %}
                                 {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td class="tr_first_column">Q I (Jan - Mar)</td>
-                        {% for data in operations_monthly_right_iout_tr2 %}
-                            {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
-                            {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
-                            {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
-                            {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
-                            {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (anlage.useGridMeterDayData == true) %}
-                                <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
-                            {% else %}
-                                {% if (loop.index > 1) %}
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_first_column">Q I (Jan - Mar)</td>
+                            {% for data in operations_monthly_right_iout_tr2 %}
+                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (anlage.hasGrid == true) %}
                                     <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                {% else %}
+                                    {% if (loop.index > 1) %}
+                                        <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                    {% endif %}
                                 {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td class="tr_first_column">Q II (Apr - Jun)</td>
-                        {% for data in operations_monthly_right_iout_tr3 %}
-                            {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
-                            {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
-                            {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
-                            {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
-                            {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (anlage.useGridMeterDayData == true) %}
-                                <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
-                            {% else %}
-                                {% if (loop.index > 1) %}
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_first_column">Q II (Apr - Jun)</td>
+                            {% for data in operations_monthly_right_iout_tr3 %}
+                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (anlage.hasGrid == true) %}
                                     <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                {% else %}
+                                    {% if (loop.index > 1) %}
+                                        <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                    {% endif %}
                                 {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td class="tr_first_column">Q III (Jul - Sep)</td>
-                        {% for data in operations_monthly_right_iout_tr4 %}
-                            {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
-                            {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
-                            {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
-                            {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
-                            {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (anlage.useGridMeterDayData == true) %}
-                                <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
-                            {% else %}
-                                {% if (loop.index > 1) %}
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_first_column">Q III (Jul - Sep)</td>
+                            {% for data in operations_monthly_right_iout_tr4 %}
+                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (anlage.hasGrid == true) %}
                                     <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                {% else %}
+                                    {% if (loop.index > 1) %}
+                                        <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                    {% endif %}
                                 {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td class="tr_first_column">Q IV (Okt - Dez)</td>
-                        {% for data in operations_monthly_right_iout_tr5 %}
-                            {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
-                            {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
-                            {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
-                            {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
-                            {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (anlage.useGridMeterDayData == true) %}
-                                <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
-                            {% else %}
-                                {% if (loop.index > 1) %}
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_first_column">Q IV (Okt - Dez)</td>
+                            {% for data in operations_monthly_right_iout_tr5 %}
+                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (anlage.hasGrid == true) %}
                                     <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                {% else %}
+                                    {% if (loop.index > 1) %}
+                                        <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                    {% endif %}
                                 {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td class="tr_first_column">Year to date</td>
-                        {% for data in operations_monthly_right_iout_tr6 %}
-                            {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
-                            {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
-                            {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
-                            {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
-                            {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (anlage.useGridMeterDayData == true) %}
-                                <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
-                            {% else %}
-                                {% if (loop.index > 1) %}
+                            {% endfor %}
+                        </tr>
+                        <tr>
+                            <td class="tr_first_column">Year to date</td>
+                            {% for data in operations_monthly_right_iout_tr6 %}
+                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (anlage.hasGrid == true) %}
                                     <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                {% else %}
+                                    {% if (loop.index > 1) %}
+                                        <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                    {% endif %}
                                 {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    <tr>
-                        <td class="tr_first_column">Total runtime</td>
-                        {% for data in operations_monthly_right_iout_tr7 %}
-                            {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
-                            {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
-                            {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
-                            {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
-                            {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (anlage.useGridMeterDayData == true) %}
-                                <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
-                            {% else %}
-                                {% if (loop.index > 1) %}
+                            {% endfor %}
+                        </tr>
+                        {#
+                        <tr>
+                            <td class="tr_first_column">Total runtime</td>
+                            {% for data in operations_monthly_right_iout_tr7 %}
+                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (anlage.hasGrid == true) %}
                                     <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                {% else %}
+                                    {% if (loop.index > 1) %}
+                                        <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                    {% endif %}
                                 {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                    </tbody>
-                </table>
-            </td>
+                            {% endfor %}
+                        </tr>
+                        #}
+                        </tbody>
+                    </table>
+                </td>
             {% endif %}
-            <td style="float: right">
+            <td style="float: right ; width:50%">
                 {{ production_monthly_chart|raw }}
             </td>
         </tr>
@@ -516,12 +523,13 @@
                 <table class="legend_colors">
                     <tr>
                         <td rowspan="2">Explanation</td>
-                        <td>0-2%</td>
-                        <td>2,1-8%</td>
-                        <td>8,1-15%</td>
-                        <td>15,1-20%</td>
-                        <td>20%-</td>
+                        <td style="background-color: #00b050;">0-2%</td>
+                        <td style="background-color: #cee4c0;">2,1-8%</td>
+                        <td style="background-color: #ffff00;">8,1-15%</td>
+                        <td style="background-color: #ffc000;">15,1-20%</td>
+                        <td style="background-color: #cc0000;">>20%</td>
                     </tr>
+                    {#
                     <tr>
                         <td style="background-color: #00b050;">&nbsp;</td>
                         <td style="background-color: #cee4c0;">&nbsp;</td>
@@ -529,6 +537,7 @@
                         <td style="background-color: #ffc000;">&nbsp;</td>
                         <td style="background-color: #cc0000;">&nbsp;</td>
                     </tr>
+                    #}
                 </table>
             </td>
         </tr>
