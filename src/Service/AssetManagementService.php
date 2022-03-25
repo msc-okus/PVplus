@@ -1464,6 +1464,7 @@ class AssetManagementService
         }
 
         //Parameter fuer total Runtime
+        // El total runtime son los datos de toda la planta desde que abrio
         if (!($yearPacDate == $report['reportYear'] && $monthPacDate > $currentMonth)) {
             $operations_monthly_right_g4n_tr7 = [
                 0.00,
