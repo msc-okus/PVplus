@@ -3,7 +3,7 @@
 {% import _self as Macros %}
 {% macro grid(table_overview_monthly, anlage) %}
     <tr>
-        <td class="tr_first_column" style="text-align: right;">Yield (Grid meter) [kWh]</td>
+        <td class="tr_first_column" style="text-align: right;">Yield (Grid meter)</td>
 
         {% for data in table_overview_monthly.powerEvu %}
             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
@@ -12,7 +12,7 @@
 {% endmacro %}
 {% macro expectedPvSyst(table_overview_monthly, anlage) %}
     <tr>
-        <td class="tr_first_column" style="text-align: right;">Expected PV SYST [kWh]</td>
+        <td class="tr_first_column" style="text-align: right;">Expected PV SYST</td>
         {% for data in table_overview_monthly.expectedPvSyst %}
             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
         {% endfor %}
@@ -20,7 +20,7 @@
 {% endmacro %}
 {% macro expectedG4N(table_overview_monthly, anlage) %}
     <tr>
-        <td class="tr_first_column" style="text-align: right;">Expected g4n [kWh]</td>
+        <td class="tr_first_column" style="text-align: right;">Expected g4n</td>
         {% for data in table_overview_monthly.powerExpEvu %}
             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
         {% endfor %}
@@ -28,10 +28,9 @@
 {% endmacro %}
 {% macro inverterOut(table_overview_monthly, anlage) %}
     <tr>
-        <td class="tr_first_column" style="text-align: right;">Inverter out [kWh]</td>
+        <td class="tr_first_column" style="text-align: right;">Inverter out</td>
         {% for data in table_overview_monthly.powerAct %}
             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-
         {% endfor %}
     </tr>
 {% endmacro %}
@@ -45,13 +44,21 @@
                 <table class="asset_report_table_operations_data" style="width: 100%!important;">
                     <thead>
                     <tr>
-                        <th style="text-align: right;">Production {{ year }}</th>
+                        <th rowspan="3" class="table-center">Production</th>
                         {% set counter = 1 %}
                         {% for data in dataMonthArray %}
-                                <th style="text-align: center;width:6.5%">{{ data }}</th>
+                            <th style="text-align: center;width:6.5%">{{ data }}</th>
                             {% set counter = counter+1 %}
                         {% endfor %}
                     </tr>
+
+                    <tr>
+
+                        {% for data in dataMonthArray %}
+                            <th style="text-align: center;width:6.5%">[kWh]</th>
+                        {% endfor %}
+                    </tr>
+
                     </thead>
                     <tbody>
                     {% set powerEvuTotal = 0 %}
@@ -78,10 +85,19 @@
 
                     </tbody>
                 </table>
+                <span style="text-align:left">
+                    AC losses to grid meter considered<br>
+                    {% if (anlage.DataSourceAM != null) %}
+                        <b>Source:</b><br>
+                        {{ anlage.DataSourceAM | raw }}
+                    {% endif %}
+                </span>
             </td>
         </tr>
         <tr>
             <td style="vertical-align: top;">
+
+
                 <table>
                     <tr>
                         <td style="text-align: left">

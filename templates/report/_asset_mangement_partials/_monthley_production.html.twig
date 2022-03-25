@@ -3,10 +3,10 @@
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Monthly Production</h3>
 
-    <table style="width: 100% !important">
+    <table style="width: 100% !important ;margin:0;">
         <tr>
             {% if (anlage.hasPVSYST == true) %}
-                <td style="text-align: left; width:100%">
+                <td style="text-align: left; width:50%">
                     <table class="asset_report_table_operations_data">
                         <thead>
                         <tr>
@@ -157,26 +157,28 @@
                                 {% endif %}
                             {% endfor %}
                         </tr>
-                        {#
-                        <tr>
-                            <td class="tr_first_column">Total runtime</td>
-                            {% for data in operations_monthly_right_pvsyst_tr7 %}
-                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
-                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
-                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
-                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
-                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
-                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
-                                {% if (anlage.hasGrid == true) %}
-                                    <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
-                                {% else %}
-                                    {% if (loop.index > 1) %}
+                        {% if (anlage.RetrieveAllData) %}
+
+                            <tr>
+                                <td class="tr_first_column">Total runtime</td>
+                                {% for data in operations_monthly_right_pvsyst_tr7 %}
+                                    {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                    {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                    {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                    {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                    {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                    {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                                    {% if (anlage.hasGrid == true) %}
                                         <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                    {% else %}
+                                        {% if (loop.index > 1) %}
+                                            <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                        {% endif %}
                                     {% endif %}
-                                {% endif %}
-                            {% endfor %}
-                        </tr>
-                        #}
+                                {% endfor %}
+                            </tr>
+
+                        {% endif %}
                         </tbody>
                     </table>
                 </td>
@@ -191,7 +193,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <th rowspan="3" class="table-center">Month</th>
+                        <th rowspan="3" style="width: 90px!important" class="table-center">Month</th>
                         {% if (anlage.hasGrid) %}
                         <th class="table-center"
                             style="width:82px">Yield</th>
@@ -314,23 +316,25 @@
                                 <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
-                    {#
-                    <tr>
-                        <td class="tr_first_column">Total runtime</td>
-                        {% for data in operations_monthly_right_g4n_tr7 %}
-                            {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
-                            {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
-                            {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
-                            {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
-                            {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
-                            {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                    {% if (anlage.RetrieveAllData) %}
+
+                        <tr>
+                            <td class="tr_first_column">Total runtime</td>
+                            {% for data in operations_monthly_right_g4n_tr7 %}
+                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
 
 
-                                <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                    <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
 
-                        {% endfor %}
-                    </tr>
-                    #}
+                            {% endfor %}
+                        </tr>
+
+                    {% endif %}
                     </tbody>
                 </table>
             </td>
@@ -338,8 +342,9 @@
 
         <tr>
 
-            {% if (anlage.hasGrid) %}
+
                 <td style="text-align: left; width:50%">
+                    {% if (anlage.hasGrid) %}
                     <table class="asset_report_table_operations_data" >
                         <thead>
                         <tr>
@@ -489,31 +494,34 @@
                                 {% endif %}
                             {% endfor %}
                         </tr>
-                        {#
-                        <tr>
-                            <td class="tr_first_column">Total runtime</td>
-                            {% for data in operations_monthly_right_iout_tr7 %}
-                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
-                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
-                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
-                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
-                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
-                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
-                                {% if (anlage.hasGrid == true) %}
-                                    <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
-                                {% else %}
-                                    {% if (loop.index > 1) %}
+                        {% if (anlage.RetrieveAllData) %}
+
+                            <tr>
+                                <td class="tr_first_column">Total runtime</td>
+                                {% for data in operations_monthly_right_iout_tr7 %}
+                                    {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                    {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                    {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                    {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                    {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                    {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                                    {% if (anlage.hasGrid == true) %}
                                         <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                    {% else %}
+                                        {% if (loop.index > 1) %}
+                                            <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" {% endif %}>{{ data|number_format(2, ',', '.') }}</td>
+                                        {% endif %}
                                     {% endif %}
-                                {% endif %}
-                            {% endfor %}
-                        </tr>
-                        #}
+                                {% endfor %}
+                            </tr>
+
+                        {% endif %}
                         </tbody>
                     </table>
+                    {% endif %}
                 </td>
-            {% endif %}
-            <td style="float: right ; width:50%">
+
+            <td style="text-align: left; width:50%">
                 {{ production_monthly_chart|raw }}
             </td>
         </tr>
@@ -523,21 +531,12 @@
                 <table class="legend_colors">
                     <tr>
                         <td rowspan="2">Explanation</td>
-                        <td style="background-color: #00b050;">0-2%</td>
-                        <td style="background-color: #cee4c0;">2,1-8%</td>
-                        <td style="background-color: #ffff00;">8,1-15%</td>
-                        <td style="background-color: #ffc000;">15,1-20%</td>
-                        <td style="background-color: #cc0000;">>20%</td>
+                        <td style="background-color: #00b050;"> > -2%</td>
+                        <td style="background-color: #cee4c0;">-2,1 to -8%</td>
+                        <td style="background-color: #ffff00;">-8,1 to -15%</td>
+                        <td style="background-color: #ffc000;">-15,1 to -20%</td>
+                        <td style="background-color: #cc0000;">< -20%</td>
                     </tr>
-                    {#
-                    <tr>
-                        <td style="background-color: #00b050;">&nbsp;</td>
-                        <td style="background-color: #cee4c0;">&nbsp;</td>
-                        <td style="background-color: #ffff00;">&nbsp;</td>
-                        <td style="background-color: #ffc000;">&nbsp;</td>
-                        <td style="background-color: #cc0000;">&nbsp;</td>
-                    </tr>
-                    #}
                 </table>
             </td>
         </tr>

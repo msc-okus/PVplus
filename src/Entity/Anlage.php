@@ -795,6 +795,16 @@ class Anlage
      */
     private $hasWindSpeed = true;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private ?string $DataSourceAM;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $RetrieveAllData = false;
+
 
     public function __construct()
     {
@@ -3310,5 +3320,29 @@ class Anlage
     }
     public function hasGrid(): bool{
         return ($this->showEvuDiag ||$this->useGridMeterDayData);
+    }
+
+    public function getDataSourceAM(): ?string
+    {
+        return $this->DataSourceAM;
+    }
+
+    public function setDataSourceAM(?string $DataSourceAM): self
+    {
+        $this->DataSourceAM = $DataSourceAM;
+
+        return $this;
+    }
+
+    public function getRetrieveAllData(): ?bool
+    {
+        return $this->RetrieveAllData;
+    }
+
+    public function setRetrieveAllData(bool $RetrieveAllData): self
+    {
+        $this->RetrieveAllData = $RetrieveAllData;
+
+        return $this;
     }
 }

@@ -11,6 +11,7 @@ use App\Form\Groups\GroupsListEmbeddedFormType;
 use App\Form\GroupsAc\AcGroupsListEmbeddedFormType;
 use App\Form\Type\SwitchType;
 use App\Helper\G4NTrait;
+use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
@@ -496,6 +497,14 @@ class AnlageFormType extends AbstractType
                 'label_html'    => true,
                 'required'      => false,
                 'empty_data'    => '0',
+            ])
+            ->add('DataSourceAM', CKEditorType::class, [
+                'data' => 'Yield (Grid Meter): <br>Inverter out:',
+                'config' => array('toolbar' => 'my_toolbar'),
+            ])
+            ->add('RetrieveAllData', SwitchType::class, [
+                'label'         => 'Use all Data',
+
             ])
             ################################################
             ####               Reports                  ####

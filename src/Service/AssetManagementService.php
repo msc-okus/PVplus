@@ -1179,10 +1179,11 @@ class AssetManagementService
 
 
         $chart->setOption($option);
-        $production_monthly_chart = $chart->render('production_monthly_chart', ['style' => 'height: 300px; width:12cm;']);
+        $production_monthly_chart = $chart->render('production_monthly_chart', ['style' => 'height: 310px; width:100%;']);
 
         $chart->tooltip = [];
         $chart->xAxis = [];
+
         $chart->yAxis = [];
         $chart->series = [];
         unset($option);
