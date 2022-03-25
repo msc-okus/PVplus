@@ -31,8 +31,7 @@ class CalcPRHandler implements MessageHandlerInterface
         for ($stamp = $calc->getStartDate()->getTimestamp(); $stamp <= $calc->getEndDate()->getTimestamp(); $stamp = $stamp + (24 * 3600)) {
             $this->logMessages->updateEntry($logId, 'working', ($timeCounter / $timeRange) * 100);
             $timeCounter += 24 * 3600;
-            $fromShort = date('Y-m-d 00:00', $stamp);
-            $this->PRCalulation->calcPRAll($anlageId, $fromShort);
+            $this->PRCalulation->calcPRAll($anlageId, date('Y-m-d 00:00', $stamp));
         }
         $this->logMessages->updateEntry($logId, 'done');
     }
