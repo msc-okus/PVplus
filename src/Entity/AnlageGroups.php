@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Helper\G4NTrait;
 use App\Repository\GroupsRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -12,6 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class AnlageGroups
 {
+    use G4NTrait;
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -137,7 +139,7 @@ class AnlageGroups
 
     public function getDcGroupName(): ?string
     {
-        return $this->dcGroupName;
+        return self::removeControlChar($this->dcGroupName);
     }
 
     public function setDcGroupName(string $dcGroupName): self

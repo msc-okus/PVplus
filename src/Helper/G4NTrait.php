@@ -63,6 +63,16 @@ trait G4NTrait
         return $reportStati;
     }
 
+    /**
+     *  Removes control char from given string
+     */
+    public function removeControlChar(string $string): string
+    {
+        $trimChar = "\n\r\t\v\0"; // Zu entfernde Zeichen für 'trim'
+        return trim($string, $trimChar);
+    }
+
+
     public static function getCetTime($format = 'timestamp'){
         $date = new \DateTime('now', new \DateTimeZone('UTC'));
         if($date->format('I') == 1) {
@@ -93,7 +103,7 @@ trait G4NTrait
      *
      * return Zeitstempel im SQL Format
      */
-    public static function timeAjustment($timestamp, float $val = 0, $reverse = false)
+    public static function timeAjustment($timestamp, float $val = 0, $reverse = false): string
     {
         $format     = 'Y-m-d H:i:s';
         // Sollte die Zeit als String übergeben worden sein, dann wandele in TimeStamp um
