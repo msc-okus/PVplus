@@ -155,7 +155,7 @@ class AssetManagementService
         $useGridMeterDayData = $anlage->getUseGridMeterDayData();
         $showAvailability = $anlage->getShowAvailability();
         $showAvailabilitySecond = $anlage->getShowAvailabilitySecond();
-        $plantSize = $anlage->getPower();
+        $plantSize = $anlage->getPnom();
         $plantName = $anlage->getAnlName();
         $anlGeoLat = $anlage->getAnlGeoLat();
         $anlGeoLon = $anlage->getAnlGeoLon();

@@ -46,26 +46,36 @@ class AlertSystemService
         $time = $this->getLastQuarter(date('Y-m-d H:i') );
         $time = $this->timeAjustment($time, -2);
         $status_report = false;
-        $sungap = $this->weather->getSunrise($Anlagen);//when using the cronjob we need to store this info
+        $sungap = $this->weather->getSunrise($Anlagen);
 
         foreach($Anlagen as $anlage){
             if (($anlage->getCalcPR() == true) && (($time > $sungap[$anlage->getanlName()]['sunrise']) && ($time < $sungap[$anlage->getAnlName()]['sunset']))) {
-                $nameArray = $this->functions->getNameArray($anlage , 'ac');
-                dd($nameArray);
                 $status = new Status();
-                $status_report[$anlage->getAnlName()]['wdata'] = $this->WData($anlage, $time);
-                $status_report[$anlage->getAnlName()]['istdata'] = $this->IstData($anlage, $time, $this->mailservice);
+
+                $nameArray = $this->functions->getInverterArray($anlage);
+                $counter = 1;
+                foreach($nameArray as $inverterName) {
+
+                    $status_report[$anlage->getAnlName()]['istdata'][$inverterName] = $this->IstData($anlage, $time, $counter);
+                    $counter++;
+                }
                 $status->setAnlage($anlage);
                 $status->setStamp($time);
                 $status->setStatus($status_report[$anlage->getAnlName()]);
+                $status->setIsWeather(false);
+
                 $this->em->persist($status);
                 $this->em->flush();
-
             }
-
         }
         dd($status_report);
-
+    }
+    private function checkWeather(){
+        $Anlagen = $this->AnlRepo->findAll();
+        $time = $this->getLastQuarter(date('Y-m-d H:i') );
+        $time = $this->timeAjustment($time, -2);
+        $status_report = false;
+        $sungap = $this->weather->getSunrise($Anlagen);
     }
 
 
@@ -228,8 +238,8 @@ class AlertSystemService
                 FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
                 WHERE a.stamp = '$stamp' AND b.unit = '$inverter' ";
 
-
         $resp = $conn->query($sql);
+
         if ($resp->rowCount() > 0) {
             $pdata = $resp->fetch(PDO::FETCH_ASSOC);
             if ($pdata['ist'] == 0) return  "Power is 0";
