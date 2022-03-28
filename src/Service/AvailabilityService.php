@@ -248,8 +248,8 @@ class AvailabilityService
                     if (!isset($availability[$inverter]['control'])) $availability[$inverter]['control'] = 0;
 
 
-                    (isset($istData[$stamp][$inverter]['power_ac'])) ? $powerAc = (float)$istData[$stamp][$inverter]['power_ac'] : $powerAc = null;
-                    (isset($istData[$stamp][$inverter]['cos_phi'])) ? $cosPhi = $istData[$stamp][$inverter]['cos_phi'] : $cosPhi = null;
+                    isset($istData[$stamp][$inverter]['power_ac']) ? $powerAc = (float)$istData[$stamp][$inverter]['power_ac'] : $powerAc = null;
+                    isset($istData[$stamp][$inverter]['cos_phi'])  ? $cosPhi  = $istData[$stamp][$inverter]['cos_phi']         : $cosPhi  = null;
 
                     // Wenn Strahlung keine Datenlücke hat dann:
                     if ($strahlung !== null) {
@@ -259,7 +259,7 @@ class AvailabilityService
                         (($strahlung > $threshold1PA) && isset($case6Array[$inverter][$stamp])) ? $case6 = true : $case6 = false;
 
                         // Case 0 (Datenlücken Inverter Daten | keine Datenlücken für Strahlung)
-                        if ($powerAc == null && $case5 === false && $strahlung > $threshold1PA) { // Nur Hochzählen, wenn Datenlücke nicht durch Case 5 abgefangen
+                        if ($powerAc === null && $case5 === false && $strahlung > $threshold1PA) { // Nur Hochzählen, wenn Datenlücke nicht durch Case 5 abgefangen
                             $case0 = true;
                             $availability[$inverter]['case0']++;
                         }
@@ -274,7 +274,7 @@ class AvailabilityService
                             $case3Helper[$inverter] = 0;
                         }
                         // Case 2 (second part of ti - means case1 + case2 = ti)
-                        if ($strahlung > $threshold2PA && ($powerAc > 0 || $powerAc == null) && $case5 === false && $case6 === false) {
+                        if ($strahlung > $threshold2PA && ($powerAc > 0 || $powerAc === null) && $case5 === false && $case6 === false) {
                             $case2 = true;
                             $availability[$inverter]['case2']++;
 
