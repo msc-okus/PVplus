@@ -19,7 +19,7 @@ class WeatherServiceNew
 
     }
 
-    public function loadWeatherDataUP(WeatherStation $weatherStation, $date = 0)
+    public function loadWeatherDataUP(WeatherStation $weatherStation, $date = 0): string
     {
         $output = '';
         $conn = self::getPdoConnection();  // DB Connection herstellen
@@ -99,6 +99,8 @@ class WeatherServiceNew
                     if ($gi_avg < 0) $gi_avg = 0;
                     if ($gmod_avg < 0) $gmod_avg = 0;
                 }
+                // correct stamp if DLS
+                if (date('I', strtotime($sqlstamp)) == 1) $sqlstamp = date('Y-m-d H:i', strtotime($sqlstamp) + 3600);
 
                 // wenn ein Strahlungswert 0 ist und der andere kleienr als 50 dann setzte beide auf 0
                 // soll positive Strahlungswerte mitten in der nacht verhindern
