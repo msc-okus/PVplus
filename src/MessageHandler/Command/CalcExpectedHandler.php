@@ -20,8 +20,6 @@ class CalcExpectedHandler implements MessageHandlerInterface
     public function __invoke(CalcExpected $calcExpected)
     {
         $anlageId = $calcExpected->getAnlageId();
-        $fromShort = $calcExpected->getStartDate()->format('Y-m-d 00:00');
-        $toShort = $calcExpected->getEndDate()->format('Y-m-d 23:59');
         $logId = $calcExpected->getlogId();
 
         $this->logMessages->updateEntry($logId, 'working');

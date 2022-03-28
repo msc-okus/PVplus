@@ -842,6 +842,40 @@ class FunctionsService
     }
 
     /**
+     * Function to retrieve a array with inverter no and inverter name<br>
+     * Key of array = inverter
+     * value of array = inverter name
+     *
+     * @param Anlage $anlage
+     * @return array
+     */
+    public function getInverterArray(Anlage $anlage): array
+    {
+        $nameArray = [];
+
+        switch ($anlage->getConfigType()) {
+            case 1:
+                // In diesem Fall gibt es keine SCBs; AC Gruppen = Trafo oder ähnliches; DC Gruppen = Inverter
+                foreach ($this->groupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
+                    $nameArray[$inverter->getDcGroup()] = $inverter->getDcGroupName();
+                }
+                break;
+            case 2: //Lelystad
+                // In diesem Fall gibt es keine SCBs; AC Gruppen = DC Gruppen = Inverter
+            case 3: // Groningen
+                // AC Gruppen = Inverter; DC Gruppen = SCB Gruppen
+            case 4: // Guben
+            // AC Gruppen = Inverter; DC Gruppen = SCBs
+                foreach ($this->acGroupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
+                    $nameArray[$inverter->getAcGroup()] = $inverter->getAcGroupName();
+                }
+                break;
+        }
+
+        return $nameArray;
+    }
+
+    /**
      * Funktion um in Abhänigkeit von 'configType'  die entsprechenden Namen für die bezeichnung der SCB, Gruppen und Inverter zu generieren
      *
      * @param Anlage $anlage
@@ -853,31 +887,30 @@ class FunctionsService
         $nameArray['ac'] = [];
         $nameArray['dc'] = [];
         $nameArray['scb'] = [];
-        $trimChar = "\n\r\t\v\0"; // Zu entfernde Zeichen für 'trim'
         switch ($anlage->getConfigType()) {
             case 1:
                 // In diesem Fall gibt es keine SCBs
                 foreach ($this->groupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
-                    $nameArray['ac'][$inverter->getDcGroup()] = trim($inverter->getDcGroupName(), $trimChar); // trim zum Entfernen event vorhandender Steuerzeichen
-                    $nameArray['dc'][$inverter->getDcGroup()] = trim($inverter->getDcGroupName(), $trimChar); // trim zum Entfernen event vorhandender Steuerzeichen
+                    $nameArray['ac'][$inverter->getDcGroup()] = $inverter->getDcGroupName();
+                    $nameArray['dc'][$inverter->getDcGroup()] = $inverter->getDcGroupName();
                 }
                 break;
             case 2:
                 // In diesem Fall gibt es keine SCBs
                 foreach ($this->acGroupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
-                    $nameArray['ac'][$inverter->getAcGroup()] = trim($inverter->getAcGroupName(), $trimChar); // trim zum Entfernen event vorhandender Steuerzeichen
-                    $nameArray['dc'][$inverter->getAcGroup()] = trim($inverter->getAcGroupName(), $trimChar); // trim zum Entfernen event vorhandender Steuerzeichen
+                    $nameArray['ac'][$inverter->getAcGroup()] = $inverter->getAcGroupName();
+                    $nameArray['dc'][$inverter->getAcGroup()] = $inverter->getAcGroupName();
                 }
                 break;
             case 3: // Groningen
                 foreach ($this->acGroupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
-                    $nameArray['ac'][$inverter->getAcGroup()] = trim($inverter->getAcGroupName(), $trimChar); // trim zum Entfernen event vorhandender Steuerzeichen
+                    $nameArray['ac'][$inverter->getAcGroup()] = $inverter->getAcGroupName();
                 }
                 foreach ($this->groupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
-                    $nameArray['dc'][$inverter->getDcGroup()] = trim($inverter->getDcGroupName(), $trimChar); // trim zum Entfernen event vorhandender Steuerzeichen
+                    $nameArray['dc'][$inverter->getDcGroup()] = $inverter->getDcGroupName();
                 }
                 foreach ($this->inverterRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
-                    $nameArray['scb'][$inverter->getInvNr()] = trim($inverter->getInverterName(), $trimChar); // trim zum Entfernen event vorhandender Steuerzeichen
+                    $nameArray['scb'][$inverter->getInvNr()] = $inverter->getInverterName();
                 }
                 break;
             case 4: // Guben

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Helper\G4NTrait;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -13,6 +14,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class AnlageAcGroups
 {
+    use G4NTrait;
+
     /**
      * @var int
      *
@@ -122,7 +125,7 @@ class AnlageAcGroups
 
     public function getAcGroupName(): ?string
     {
-        return $this->acGroupName;
+        return self::removeControlChar($this->acGroupName);
     }
 
     public function setAcGroupName(string $acGroupName): self

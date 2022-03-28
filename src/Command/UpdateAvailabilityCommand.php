@@ -87,7 +87,7 @@ class UpdateAvailabilityCommand extends Command
         $io->progressStart(count($anlagen)*$counter);
         foreach ($anlagen as $anlage) {
             for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp = $stamp + (24 * 3600)) {
-                $from = date('Y-m-d 04:00',$stamp);
+                $from = date('Y-m-d 00:00',$stamp);
                 if ($anlage->getAnlInputDaily() == 'Yes') {
                     $from = ($from - (24 * 3600)); //gestern, da Anlage heute keine Daten bekommt
                 }

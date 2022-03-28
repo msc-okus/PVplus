@@ -2,13 +2,15 @@
 
 namespace App\Form\Model;
 
+use App\Entity\Anlage;
+
 class ToolsModel
 {
-    public $anlage;
+    public Anlage $anlage;
 
-    public $startDate;
+    public \DateTime $startDate;
 
-    public $endDate;
+    public \DateTime $endDate;
 
-    public $function;
+    public string $function;
 }

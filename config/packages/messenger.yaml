@@ -20,7 +20,7 @@ framework:
                 retry_strategy:
                     delay: 2000
 
-            async_priority_high:
+            dev:
                 dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
 
 
