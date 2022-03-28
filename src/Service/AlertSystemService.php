@@ -6,12 +6,12 @@ use App\Entity\Anlage;
 use App\Entity\Status;
 use App\Repository\AnlagenRepository;
 use App\Repository\StatusRepository;
+use App\Service\FunctionsService;
 use App\Service\WeatherServiceNew;
 use Doctrine\ORM\EntityManagerInterface;
 use PDO;
 use App\Helper\G4NTrait;
 use App\Service\Charts\IrradiationChartService;
-use App\Service\FunctionsService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -25,13 +25,20 @@ class AlertSystemService
     private AnlagenRepository $AnlRepo;
     private EntityManagerInterface $em;
     private MessageService $mailservice;
+    public functionsService $functions;
 
-    public function __construct(AnlagenRepository $anlagenRepository, WeatherServiceNew $weather, AnlagenRepository $AnlRepo, EntityManagerInterface $em, MessageService $mailservice){
+    public function __construct(AnlagenRepository $anlagenRepository,
+                                WeatherServiceNew $weather,
+                                AnlagenRepository $AnlRepo,
+                                EntityManagerInterface $em,
+                                MessageService $mailservice,
+                                FunctionsService $functions){
         $this->anlagenRepository = $anlagenRepository;
         $this->weather = $weather;
         $this->AnlRepo = $AnlRepo;
         $this->em = $em;
         $this->mailservice = $mailservice;
+        $this->functions = $functions;
     }
 
     public function checkSystem(){
@@ -43,11 +50,11 @@ class AlertSystemService
 
         foreach($Anlagen as $anlage){
             if (($anlage->getCalcPR() == true) && (($time > $sungap[$anlage->getanlName()]['sunrise']) && ($time < $sungap[$anlage->getAnlName()]['sunset']))) {
+                $nameArray = $this->functions->getNameArray($anlage , 'ac');
+                dd($nameArray);
                 $status = new Status();
-
-                $status_report[$anlage->getAnlName()]['wdata'] = $this->WData($anlage, $time, $this->mailservice);
+                $status_report[$anlage->getAnlName()]['wdata'] = $this->WData($anlage, $time);
                 $status_report[$anlage->getAnlName()]['istdata'] = $this->IstData($anlage, $time, $this->mailservice);
-
                 $status->setAnlage($anlage);
                 $status->setStamp($time);
                 $status->setStatus($status_report[$anlage->getAnlName()]);
@@ -62,83 +69,33 @@ class AlertSystemService
     }
 
 
-    private static function IstData($anlage, $time, MessageService $mailservice){
-        //variables
-        $counter = 1;
-        $conn = self::getPdoConnection();
-        $sqlp = "SELECT wr_pac as ist, b.unit as inv
-                          FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
-                          WHERE a.stamp = '$time' ";
-
-        $resp = $conn->query($sqlp);
-
-        if ($resp->rowCount() > 0) {
-            while ($pdata = $resp->fetch(PDO::FETCH_ASSOC)) {
-                if ($pdata['ist'] != null) {
-                    if ($pdata['ist'] == 0) $status_report['Ist'][$counter]['actual'] = "DC error, no power (Power AC <= 0) ";// replace everywhere
-
-                    else $status_report['Ist'][$counter]['actual'] = "All good";
-                }
-                else {
-                    $status_report['Ist'][$counter]['actual'] = "No Data";
-
-                    $time_q1 = date('Y-m-d H:i', strtotime($time) - 1800);
-                    $inv = $pdata['inv'];
-
-                    $sqlp2 = "SELECT wr_pac as ist
-                          FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
-                          WHERE a.stamp = '$time_q1' AND b.unit = '$inv' ";
-
-                    $resp2 = $conn->query($sqlp2);
-
-                    if($resp2->rowCount() > 0){
-                        $pdata2 = $resp2->fetch(PDO::FETCH_ASSOC);
-                        if ($pdata2['ist'] != null) {
-                            if ($pdata2['ist'] == 0) {
-                                $status_report['Ist'][$counter]['last_half'] = "Power is 0";
-
-                            }
-                            else $status_report['Ist'][$counter]['last_half'] = "All good";
-                        }
-                        else {
-                            $status_report['Ist'][$counter]['last_half'] = "No Data";
-
-                            $time_q1 = date('Y-m-d H:i', strtotime($time) - 3600);
-                            $inv = $pdata['inv'];
-
-                            $sqlp3 = "SELECT wr_pac as ist
-                              FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
-                              WHERE a.stamp = '$time_q1' AND b.unit = '$inv' ";
-
-                            $resp3 = $conn->query($sqlp3);
-
-                            if ($resp3->rowCount() > 0) {
-                                $pdata3 = $resp3->fetch(PDO::FETCH_ASSOC);
-                                if ($pdata3['ist'] != null) {
-                                    if ($pdata3['ist'] == 0) {
-                                        $status_report['Ist'][$counter]['last_hour'] = "Power is 0";
-                                    }
-                                    else $status_report['Ist'][$counter]['last_hour'] = "All good";
-                                } else {
-                                    $status_report['Ist'][$counter]['last_hour'] = "No Data";
-                                }
-                            }
-                        }
+    private function IstData($anlage, $time, $inverter){
+        $result = self::checkQuarter($time, $inverter, $anlage);
+        $status_report['actual'] = $result;
+        if ($result == "No data"){
+            $time = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
+            $result = self::checkQuarter($time, $inverter, $anlage);
+            $status_report['15'] = $result;
+            if ($result == "No data"){
+                $time = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
+                $result = self::checkQuarter($time, $inverter, $anlage);
+                $status_report['30'] = $result;
+                if($result == "No data"){
+                    $time = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
+                    $result = self::checkQuarter($time, $inverter, $anlage);
+                    $status_report['45'] = $result;
+                    if($result == "No data"){
+                        $time = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
+                        $result = self::checkQuarter($time, $inverter, $anlage);
+                        $status_report['60'] = $result;
                     }
                 }
-                $counter++;
             }
         }
-        /*
-        if ($message != ""){
-            sleep(2);
-            $subject = "There was an error in " . $anlage->getAnlName();
-            $mailservice->sendMessage($anlage, 'alert', 3, $subject, $message, false, true, true, true);
-        }
-        */
+
         return $status_report;
     }
-    private static function WData(Anlage $anlage, $time, MessageService $mailservice)
+    private static function WData(Anlage $anlage, $time)
     {
 
         $conn = self::getPdoConnection();
@@ -263,5 +220,22 @@ class AlertSystemService
     }
     private static function messagingFunction(array $status_report){
 
+    }
+    private function checkQuarter(string $stamp, ?string $inverter, Anlage $anlage){
+        $conn = self::getPdoConnection();
+
+        $sql = "SELECT wr_pac as ist
+                FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
+                WHERE a.stamp = '$stamp' AND b.unit = '$inverter' ";
+
+
+        $resp = $conn->query($sql);
+        if ($resp->rowCount() > 0) {
+            $pdata = $resp->fetch(PDO::FETCH_ASSOC);
+            if ($pdata['ist'] == 0) return  "Power is 0";
+            else if ($pdata['ist'] == null) return "No Data";
+            else return "All is ok";
+        }
+        else return "No data";
     }
 }

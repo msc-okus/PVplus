@@ -8,6 +8,7 @@ use App\Entity\WeatherStation;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use Symfony\Component\Intl\Timezones;
+use DateTimeZone;
 
 
 class WeatherServiceNew
