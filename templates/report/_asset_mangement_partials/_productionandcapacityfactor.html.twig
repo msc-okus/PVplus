@@ -41,7 +41,7 @@
     <table >
         <tr>
             <td colspan="2" style="text-align: left">
-                <table class="asset_report_table_operations_data" style="width: 100%!important;">
+                <table class="asset_report_table_operations_data" >
                     <thead>
                     <tr>
                         <th rowspan="3" class="table-center">Production</th>
@@ -135,8 +135,16 @@
                     </tbody>
                 </table>
             </td>
-            <td style="text-align: right!important; float: right;">
+            <td style="text-align: right!important;">
                 {{ operations_right|raw }}
+            </td>
+        </tr>
+        <tr>
+            <td style="width:25% !important" colspan="2">
+                <div class="explanation" style="text-align: left">
+                    <b >Explanation:</b>
+                    <br>The net capacity factor is the unitless ratio of an actual electrical energy output over a given period of time to the maximum possible electrical energy output over that period.<br>
+                </div>
             </td>
         </tr>
     </table>

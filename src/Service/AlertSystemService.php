@@ -69,15 +69,21 @@ class AlertSystemService
             }
         }
         dd($status_report);
+        return $status_report;
     }
-    private function checkWeather(){
+
+    public function checkWeatherStation(){
         $Anlagen = $this->AnlRepo->findAll();
         $time = $this->getLastQuarter(date('Y-m-d H:i') );
         $time = $this->timeAjustment($time, -2);
         $status_report = false;
         $sungap = $this->weather->getSunrise($Anlagen);
-    }
 
+        foreach($Anlagen as $anlage) {
+            if (($anlage->getCalcPR() == true) && (($time > $sungap[$anlage->getanlName()]['sunrise']) && ($time < $sungap[$anlage->getAnlName()]['sunset']))) {
+            }
+        }
+    }
 
     private function IstData($anlage, $time, $inverter){
         $result = self::checkQuarter($time, $inverter, $anlage);

@@ -151,7 +151,6 @@ class AssetManagementService
      */
     public function buildAssetReport(Anlage $anlage, array $report): array
     {
-        $anlId = $anlage->getAnlId();
         $useGridMeterDayData = $anlage->getUseGridMeterDayData();
         $showAvailability = $anlage->getShowAvailability();
         $showAvailabilitySecond = $anlage->getShowAvailabilitySecond();
@@ -235,6 +234,7 @@ class AssetManagementService
             $dataMonthArray[] = $monthArray[$i - 1];
             $expectedPvSyst[] = $Ertrag_design;
 
+
             unset($pvSyst);
 
             if ($report['reportMonth'] == $i && $report['reportYear'] == $currentYear) {
@@ -255,6 +255,7 @@ class AssetManagementService
             'powerExpEvu' => $powerExpEvu,
             'powerExt' => $powerExternal
         ];
+
 
         //fuer die Tabelle Capacity Factor
 
@@ -432,13 +433,17 @@ class AssetManagementService
         //fuer die Tabelle
 
         #Forecast / degradation
+        for ($i = 0; $i < 12; $i++) {
+            $forecast[$i] = $this->functions->getForcastByMonth($anlage, $i);
+        }
         unset($kumsum);
         $degradation = $anlage->getLossesForecast();
         //Cumulative Forecast
         $kumsum[0] = $powerEvu[0];
         for ($i = 0; $i < 12; $i++) {
             if ($i + 1 > $report['reportMonth']) {
-                $kumsum[$i] = $expectedPvSyst[$i] + $kumsum[$i - 1];
+                if($expectedPvSyst[$i]) $kumsum[$i] = $expectedPvSyst[$i] + $kumsum[$i - 1];
+                else $kumsum[$i] = $forecast[$i] + $kumsum[$i - 1];
             } else {
                 $kumsum[$i] = $powerEvu[$i] + $kumsum[$i - 1];
             }
@@ -451,11 +456,11 @@ class AssetManagementService
         #Forecast / PVSYST - P90
         $kumsum[0] = $expectedPvSyst[0];
         for ($i = 0; $i < 12; $i++) {
-            $kumsum[$i] = $expectedPvSyst[$i] + $kumsum[$i - 1];
+            if(!$expectedPvSyst[$i]) $kumsum[$i] = $forecast[$i] + $kumsum[$i - 1];
+            else $kumsum[$i] = $expectedPvSyst[$i] + $kumsum[$i - 1];
             $tbody_forcast_plan_PVSYSTP50[] = $kumsum[$i];
 
             $tbody_forcast_plan_PVSYSTP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
-
         }
 
 
@@ -564,13 +569,12 @@ class AssetManagementService
         //Beginn Cumulative Forecast with G4N
         //fuer die Tabelle
 
-        for ($i = 1; $i < 13; $i++) {
-            $forecast[$i] = $this->functions->getForcastByMonth($anlage, $i);
-        }
+
         $kumsum[0] = $powerEvu[0];
         for ($i = 0; $i < 12; $i++) {
             if ($i + 1 > $report['reportMonth']) {
-                $kumsum[$i] = $powerExpEvu[$i] + $kumsum[$i - 1];
+                if ($powerExpEvu[$i])$kumsum[$i] = $powerExpEvu[$i] + $kumsum[$i - 1];
+                else $kumsum[$i] = $forecast[$i] + $kumsum[$i - 1];
             } else {
                 $kumsum[$i] = $powerEvu[$i] + $kumsum[$i - 1];
             }
@@ -583,7 +587,8 @@ class AssetManagementService
 
         $kumsum[0] = $powerExpEvu[0];
         for ($i = 0; $i < 12; $i++) {
-            $kumsum[$i] = $powerExpEvu[$i] + $kumsum[$i - 1];
+            if ($powerExpEvu[$i])$kumsum[$i] = $powerExpEvu[$i] + $kumsum[$i - 1];
+            else $kumsum[$i] = $forecast[$i] + $kumsum[$i - 1];
             $tbody_forcast_plan_G4NP50[] = $kumsum[$i];
             $tbody_forcast_plan_G4NP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
         }
@@ -594,36 +599,7 @@ class AssetManagementService
             'forcast_plan_G4NP50' => $tbody_forcast_plan_G4NP50,
             'forcast_plan_G4NP90' => $tbody_forcast_plan_G4NP90,
         ];
-        // I will try using the expected values instead of these forecast values
-        /*
-        $kumsum[0] = $powerEvu[0];
-        for ($i = 0; $i < 12; $i++) {
-            if ($i + 1 > $report['reportMonth']) {
-                $kumsum[$i] = $forecast[$i] + $kumsum[$i - 1];
-            } else {
-                $kumsum[$i] = $powerEvu[$i] + $kumsum[$i - 1];
-            }
-            $tbody_forcast_G4NP50[] = $kumsum[$i];
 
-            $tbody_forcast_G4NP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
-
-        }
-        #Forecast / G4N
-
-        $kumsum[0] = $forecast[1];
-        for ($i = 0; $i < 12; $i++) {
-            $kumsum[$i] = $forecast[$i+1] + $kumsum[$i - 1];
-            $tbody_forcast_plan_G4NP50[] = $kumsum[$i];
-            $tbody_forcast_plan_G4NP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
-        }
-
-        $forecast_G4N_table = [
-            'forcast_G4NP50' => $tbody_forcast_G4NP50,
-            'forcast_G4NP90' => $tbody_forcast_G4NP90,
-            'forcast_plan_G4NP50' => $tbody_forcast_plan_G4NP50,
-            'forcast_plan_G4NP90' => $tbody_forcast_plan_G4NP90,
-        ];
-*/
         //beginn chart
         # $chart->tooltip->show = true;
         # $chart->tooltip->trigger = 'item';
@@ -1207,7 +1183,7 @@ class AssetManagementService
         if ($anlage->getShowEvuDiag()) $powerEvuQ1 = $data2_grid_meter['powerEvu'];
         else $powerEvuQ1 = $data2_grid_meter['powerAct'];
 
-        if (((($currentYear == $report['reportYear'] && $currentMonth > 3) || $currentYear > $report['reportYear']) && $powerEvuQ1 > 0) && $anlage->hasPVSYST()) {
+        if (((($currentYear == $report['reportYear'] ) || $currentYear > $report['reportYear']) && $powerEvuQ1 > 0) && $anlage->hasPVSYST()) {
             $resultErtrag_design = $this->pvSystMonthRepo->findOneByQuarter($anlage, 1)['ertrag_design'];
             if ($resultErtrag_design) {
                 $expectedPvSystQ1 = $resultErtrag_design;
@@ -1236,7 +1212,7 @@ class AssetManagementService
         if ($anlage->getShowEvuDiag()) $powerEvuQ2 = $data2_grid_meter['powerEvu'];
         else $powerEvuQ2 = $data2_grid_meter['powerAct'];
 
-        if (((($currentYear == $report['reportYear'] && $currentMonth > 6) || $currentYear > $report['reportYear']) && $powerEvuQ2 > 0) && $anlage->hasPVSYST()) {
+        if (((($currentYear == $report['reportYear'] && $currentMonth > 3) || $currentYear > $report['reportYear']) && $powerEvuQ2 > 0) && $anlage->hasPVSYST()) {
             $resultErtrag_design = $this->pvSystMonthRepo->findOneByQuarter($anlage, 2)['ertrag_design'];
             if ($resultErtrag_design) {
                 $expectedPvSystQ2 = $resultErtrag_design;
@@ -1262,7 +1238,7 @@ class AssetManagementService
         $data2_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
         if ($anlage->getShowEvuDiag()) $powerEvuQ3 = $data2_grid_meter['powerEvu'];
         else $powerEvuQ3 = $data2_grid_meter['powerAct'];
-        if (((($currentYear == $report['reportYear'] && $currentMonth > 9) || $currentYear > $report['reportYear']) && $powerEvuQ3 > 0) && $anlage->hasPVSYST()) {
+        if (((($currentYear == $report['reportYear'] && $currentMonth > 6) || $currentYear > $report['reportYear']) && $powerEvuQ3 > 0) && $anlage->hasPVSYST()) {
             $resultErtrag_design = $this->pvSystMonthRepo->findOneByQuarter($anlage, 3)['ertrag_design'];
             if ($resultErtrag_design) {
                 $expectedPvSystQ3 = $resultErtrag_design;
