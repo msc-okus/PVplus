@@ -43,7 +43,11 @@ class AvailabilityService
     }
 
     /**
-     * @throws Exception
+     *
+     * @param Anlage|int $anlage
+     * @param $date
+     * @param bool $second
+     * @return string
      */
     public function checkAvailability(Anlage|int $anlage, $date, $second = false): string
     {
@@ -152,7 +156,7 @@ class AvailabilityService
     }
 
     /**
-     * CASE 0 = Datenlücke wenn nicht von CASE 5 abgefangen <b>(per devinition ist der Inverter bei Datenlücke verfügbar, kann durch CASE 6 koriegiert werden.)</b><br>
+     * CASE 0 = Datenlücke wenn nicht von CASE 5 abgefangen <b>(per devinition ist der Inverter bei Datenlücke verfügbar, kann durch CASE 6 korrigiert werden.)</b><br>
      * CASE 1 = wenn Gmod > 0 && Gmod < 50<br>
      * CASE 2 = wenn Gmod >= 50 && PowerAc inverter > 0<br>
      * CASE 3 = wenn Gmod >= 50 && PowerAc inverter <= 0<br>
@@ -181,7 +185,6 @@ class AvailabilityService
         // hole IST Werte
         $istData = $this->getIstData($anlage, $from, $to);
         // hole Strahlung (für Verfügbarkeit)
-        //TODO: Erweitern auf die entsprechenden Gruppen Wetter Stationen; also nicht nur aus der Anlagen Wettersation sondern auch auf die Gruppen Stationen verweisen wenn angegeben
         $sql_einstrahlung = "SELECT a.stamp, b.g_lower, b.g_upper, b.wind_speed FROM (db_dummysoll a left JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' AND '$to'";
         $resultEinstrahlung = $conn->query($sql_einstrahlung);
 
@@ -221,7 +224,6 @@ class AvailabilityService
 
             while ($einstrahlung = $resultEinstrahlung->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = $einstrahlung['stamp'];
-                //TODO: Erweiterung auf Gruppen ebene (Bavelse Berg) und Gewichtung nach Anlagengröße - Nutzung der Funktion 'calcIrr()'
                 if ($anlage->getIsOstWestAnlage()) {
                     $strahlung = self::mittelwert([$einstrahlung['g_upper'], $einstrahlung['g_lower']]);
                 } else {
