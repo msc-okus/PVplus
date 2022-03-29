@@ -10,6 +10,7 @@ use App\Reports\Goldbeck\EPCMonthlyYieldGuaranteeReport;
 use App\Repository\AnlageAvailabilityRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\Case5Repository;
+use App\Service\AvailabilityService;
 use App\Service\ExportService;
 use App\Service\FunctionsService;
 use App\Service\ReportEpcService;
@@ -31,6 +32,22 @@ class DefaultMREController extends BaseController
     public function __construct(UrlGeneratorInterface $urlGenerator)
     {
         $this->urlGenerator = $urlGenerator;
+    }
+
+    /**
+     * @Route ("/mr/pa/{id}")
+     */
+    public function pa($id, AvailabilityService $availability, AnlagenRepository $anlagenRepository): Response
+    {
+        $anlage = $anlagenRepository->find($id);
+        $date = "2021-03-14";
+        $output = $availability->checkAvailability($anlage, strtotime($date), false);
+
+        return $this->render('cron/showResult.html.twig', [
+            'headline'      => "PA $date",
+            'availabilitys' => '',
+            'output'        => $output,
+        ]);
     }
 
     /**

@@ -120,11 +120,47 @@ class TicketFormType extends AbstractType
                 'required'  => false
             ])
             ->add('PA0C5', SwitchType::class,[
-                'label'     => 'PA',
+                'label'     => 'PA5',
+                'required'  => false
+            ])
+            ->add('PA0C6', SwitchType::class,[
+                'label'     => 'PA6',
+                'required'  => false
+            ])
+            ->add('Yield0', SwitchType::class,[
+                'label'     => 'Yield',
+                'required'  => false
+            ])
+            ->add('PR1', SwitchType::class, [
+                'label'     => 'PR',
+                'required'  => false
+            ])
+            ->add('PA1C5', SwitchType::class,[
+                'label'     => 'PA5',
+                'required'  => false
+            ])
+            ->add('PA1C6', SwitchType::class,[
+                'label'     => 'PA6',
+                'required'  => false
+            ])
+            ->add('Yield1', SwitchType::class,[
+                'label'     => 'Yield',
                 'required'  => false
             ])
 
-            ->add('Yield0', SwitchType::class,[
+            ->add('PR2', SwitchType::class, [
+                'label'     => 'PR',
+                'required'  => false
+            ])
+            ->add('PA2C5', SwitchType::class,[
+                'label'     => 'PA5',
+                'required'  => false
+            ])
+            ->add('PA2C6', SwitchType::class,[
+                'label'     => 'PA6',
+                'required'  => false
+            ])
+            ->add('Yield2', SwitchType::class,[
                 'label'     => 'Yield',
                 'required'  => false
             ])

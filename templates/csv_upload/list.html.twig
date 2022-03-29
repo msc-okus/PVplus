@@ -13,46 +13,32 @@
             <table id="case 6">
                 <thead>
                 <tr>
-                    <th></th>
                     <th>Id</th>
-                    <th></th>
                     <th>inverter</th>
-                    <th></th>
                     <th>Beginning</th>
-                    <th></th>
                     <th>Ending</th>
-                    <th></th>
                     <th>Reason</th>
-                    <th></th>
                     <th>Errors</th>
-                    <th></th>
                     <th>Stamp</th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for case in case6 %}
                     <tr>
-                        <td></td>
                         <td>{{ case.id }}</td>
-                        <td></td>
                         <td>{{ case.inverter }}</td>
-                        <td></td>
                         <td>{{ case.stampFrom }}</td>
-                        <td></td>
                         <td>{{ case.stampTo }}</td>
-                        <td></td>
                         <td>{{ case.reason }}</td>
-                        <td></td>
                         <td>{{ case.error }}</td>
-                        <td></td>
                         <td>{{ case.createdAt|date }}</td>
-                        <td><a class="hollow alert button tiny action-icon shadow" href="{{ path('csv_upload_delete', { id: case.id}) }}" ><span class="fa fa-trash"></span></a></td>
+                        <td><a class="hollow alert button tiny action-icon shadow" href="{{ path('csv_upload_delete', { id: case.id}) }}" ><span class="fa fa-trash-alt"></span></a></td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
-            <a class="hollow alert button  action-icon shadow" href="{{ path('csv_upload_save', {anlId: anlId}) }}" ><span>Save</span></a>
-            <a class="hollow alert button  action-icon shadow" href="{{ path('csv_upload_saveandfix', {anlId: anlId}) }}" ><span>Resolve Errors</span></a>
+            <a class="hollow alert button action-icon shadow" href="{{ path('csv_upload_save', {anlId: anlId}) }}" ><span>Save</span></a>
+            <a class="hollow alert button action-icon shadow" href="{{ path('csv_upload_saveandfix', {anlId: anlId}) }}" ><span>Resolve Errors</span></a>
         </div>
     </div>
 {% endblock %}
