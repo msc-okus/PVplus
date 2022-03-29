@@ -3,26 +3,33 @@
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Monthly Production - Losses</h3>
     <span class="subheadline">Monthly expected vs. actuals</span>
-    <table style="width:100%!important">
+    <table >
         <tr>
             <td colspan="2" style="text-align: left">
-                <table class="asset_report_table_operations_data" style="width: 100%!important;">
+                <table class="asset_report_table_operations_data" >
                     <thead>
                     <tr>
-                        <th style="text-align: right">Monthly Losses - {{ year }}</th>
+                        <th style="text-align: right" rowspan="2">Monthly Losses - {{ year }}</th>
                         {% for data in dataMonthArray %}
                             <th style="text-align: center;width: 6.5%"><div style="width: 100%; height: 50%;">{{ data }}</div></th>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        {% for data in dataMonthArray %}
+                            <th style="text-align: center"><div style="width: 100%; height: 50%;">kWh</div></th>
                         {% endfor %}
                     </tr>
                     </thead>
                     <tbody>
                     {% if (anlage.hasPVSYST) %}
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Diff. Grid to PVSYST*</td>
+                        <td  class="tr_first_column" style="text-align: right">Diff. Grid to PVSYST*</td>
                         {% for data in losses_t2.diefference_prod_to_pvsyst %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
+
+
                     {% endif %}
                     {% if (anlage.hasGrid) %}
                     <tr>

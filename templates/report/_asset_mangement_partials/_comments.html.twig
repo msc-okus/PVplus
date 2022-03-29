@@ -2,9 +2,9 @@
 
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Comments & Explanations</h3>
-    <div class="explanation" >
+    <div >
         <b>Explanation:</b>
-        <br>{{ comments }}<br>
+        <br>{{ comments|raw }}<br>
     </div>
 
 {% endblock page %}

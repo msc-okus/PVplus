@@ -2,122 +2,86 @@
 
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Inverters Power - DC Heatmap</h3>
-    <span class="subheadline">Overview: daily difference between g4n expected vs. actuals [%]</span>
-
+    <span class="subheadline">Overview: daily difference between g4n expected vs. actuals </span>
     <table >
         <tr>
             <td style="vertical-align: top;">
-                {% set itemcounter = 1 %}
-                {% if (page == (((invNr / 40)|round(0, 'ceil'))-1)) %}
+                        {% set itemcounter = 1 %}
+                        {% if (page == (((invNr / 40)|round(0, 'ceil'))-1)) %}
 
-                    {% if  (invNr % 40) != 0 %}
-                        {% set maxInv = (invNr % 40) %}
-                    {% else %}
-                        {% set maxInv =  40 %}
-                    {% endif %}
+                            {% if  (invNr % 40) != 0 %}
+                                {% set maxInv = (invNr % 40) %}
+                            {% else %}
+                                {% set maxInv =  40 %}
+                            {% endif %}
 
-                {% else  %}
-                    {% set maxInv =  40 %}
-                {% endif %}
+                        {% else  %}
+                            {% set maxInv =  40 %}
+                        {% endif %}
+                        <table class="asset_report_table_operations_data" style="margin-bottom: 5px!important;width:100%!important">
+                            {% for inv in 0..maxInv-1 %}
+                                {%  set data = operations_currents_dayly_table[(page*40)+inv] %}
+                                <td style = 'border: none !important; padding:0 !important;vertical-align: bottom !important;'>
+                                    <table class = "streamdayly" style="margin:0 !important;width:100%!important">
+                                        <thead>
+                                        {% if (itemcounter == 1 ) %}
+                                            <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;" rowspan="3" style="border-left: solid 1px !important;">Day</th><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">{{ acGroups[(page*40)+inv] }}</th></tr>
+                                            <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">[%]</th></tr>
+                                        {% endif %}
+                                        {% if (itemcounter > 1) %}
+                                            {% if loop.last %}
+                                                <tr><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; text-align: center;">{{ acGroups[(page*40)+inv] }}</th></tr>
+                                                <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important;  text-align: center;">[%]</th></tr>
+                                            {% else %}
+                                                <tr><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">{{ acGroups[(page*40)+inv] }}</th></tr>
+                                                <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">[%]</th></tr>
+                                            {% endif %}
 
-                    {% for inv in 0..maxInv-1 %}
-                        {%  set data = operations_currents_dayly_table[(page*40)+inv] %}
-                        <td style = 'border: none !important; padding:0 !important;vertical-align: bottom !important;'>
-                            <table class = "streamdayly" style="margin:0 !important;">
-                                <thead>
-                                {% if (itemcounter == 1 ) %}
-                                    <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;" rowspan="3" style="border-left: solid 1px !important;">Day</th><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">{{ acGroups[(page*40)+inv] }}</th></tr>
-                                    <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">[%]</th></tr>
-                                {% endif %}
-                                {% if (itemcounter > 1) %}
-                                    {% if loop.last %}
-                                        <tr><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; text-align: center;">{{ acGroups[(page*40)+inv] }}</th></tr>
-                                        <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important;  text-align: center;">[%]</th></tr>
-                                    {% else %}
-                                        <tr><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">{{ acGroups[(page*40)+inv] }}</th></tr>
-                                        <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">[%]</th></tr>
-                                    {% endif %}
+                                        {% endif %}
+                                        </thead>
+                                        {% set color = "#ffffff" %}
+                                        {% for datatr in data %}
+                                            {% set value = (((datatr.act_power_dc - datatr.exp_power_dc)*100)/datatr.exp_power_dc)|number_format(0, ',', '.') %}
+                                            {% if (value <= -2) %}{% set color = "#00b050" %}{% endif %}
+                                            {% if (value < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                            {% if (value < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                            {% if (value < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                            {% if (value <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                            {% if (value >= 0) %}{% set color = "#00b050" %}{% endif %}
 
-                                {% endif %}
-                                </thead>
-                                {% set color = "#ffffff" %}
-                                {% for datatr in data %}
-                                    {% set value = (((datatr.act_power_dc - datatr.exp_power_dc)*100)/datatr.exp_power_dc)|number_format(0, ',', '.') %}
-                                    {% if (value <= -2) %}{% set color = "#00b050" %}{% endif %}
-                                    {% if (value < -2) %}{% set color = "#cee4c0" %}{% endif %}
-                                    {% if (value < -8) %}{% set color = "#ffff00" %}{% endif %}
-                                    {% if (value < -15) %}{% set color = "#ffc000" %}{% endif %}
-                                    {% if (value <= -20) %}{% set color = "#cc0000" %}{% endif %}
-                                    {% if (value >= 0) %}{% set color = "#00b050" %}{% endif %}
-
-                                    {% if (itemcounter == 1 ) %}
-                                        <tr><td class="tr_first_column" style="font-size: 7.3px!important;">{{ datatr.form_date }}</td><td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ value|number_format(0, ',', '.') }}</td></tr>
-                                    {% endif %}
-                                    {% if (itemcounter > 1) %}
-                                        <tr><td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ value|number_format(0, ',', '.') }}</td></tr>
-                                    {% endif %}
-                                {% endfor %}
-                            </table>
-                        </td>
-                        {% set itemcounter = itemcounter+1 %}
-                    {% endfor %}
-                    {% set itemcounter = 1 %}
+                                            {% if (itemcounter == 1 ) %}
+                                                <tr><td class="tr_first_column" style="font-size: 7.3px!important;">{{ datatr.form_date }}</td><td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ value|number_format(0, ',', '.') }}</td></tr>
+                                            {% endif %}
+                                            {% if (itemcounter > 1) %}
+                                                <tr><td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ value|number_format(0, ',', '.') }}</td></tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </table>
+                                </td>
+                                {% set itemcounter = itemcounter+1 %}
+                            {% endfor %}
+                            {% set itemcounter = 1 %}
                     </td>
                 </table>
             </td>
         </tr>
         <tr>
-            {#
-            <td style="text-align: right!important; float: right;">
-                <table class="legend_colors" style="margin-bottom: 0!important;">
-                    <tr>
-                        <td rowspan="2" style="font-size: 7.3px!important; text-align: center;">Explanation</td>
-                        <td style="font-size: 7.3px!important;">0-2%</td>
-                        <td style="font-size: 7.3px!important;">2,1-8%</td>
-                        <td style="font-size: 7.3px!important;">8,1-15%</td>
-                        <td style="font-size: 7.3px!important;">15,1-20%</td>
-                        <td style="font-size: 7.3px!important;">20%-</td>
-                    </tr>
-                    <tr>
-                        <td style="background-color: #00b050;font-size: 7.3px!important;">&nbsp;</td>
-                        <td style="background-color: #cee4c0;font-size: 7.3px!important;">&nbsp;</td>
-                        <td style="background-color: #ffff00;font-size: 7.3px!important;">&nbsp;</td>
-                        <td style="background-color: #ffc000;font-size: 7.3px!important;">&nbsp;</td>
-                        <td style="background-color: #cc0000;font-size: 7.3px!important;">&nbsp;</td>
-                    </tr>
-                </table>
-            </td>
-            #}
             <td colspan="2">
                 <table class="legend_colors">
                     <tr>
                         <td rowspan="2">Explanation</td>
-                        <td style="background-color: #00b050;">0-2%</td>
-                        <td style="background-color: #cee4c0;">2,1-8%</td>
-                        <td style="background-color: #ffff00;">8,1-15%</td>
-                        <td style="background-color: #ffc000;">15,1-20%</td>
-                        <td style="background-color: #cc0000;">>20%</td>
+                        <td style="background-color: #00b050;"> > -2%</td>
+                        <td style="background-color: #cee4c0;">-2,1 to -8%</td>
+                        <td style="background-color: #ffff00;">-8,1 to -15%</td>
+                        <td style="background-color: #ffc000;">-15,1 to -20%</td>
+                        <td style="background-color: #cc0000;">< -20%</td>
                     </tr>
-                    {#
-                    <tr>
-                        <td style="background-color: #00b050;">&nbsp;</td>
-                        <td style="background-color: #cee4c0;">&nbsp;</td>
-                        <td style="background-color: #ffff00;">&nbsp;</td>
-                        <td style="background-color: #ffc000;">&nbsp;</td>
-                        <td style="background-color: #cc0000;">&nbsp;</td>
-                    </tr>
-                    #}
                 </table>
             </td>
         </tr>
     </table>
-    {#
-    <div class="explanation" style=" margin-top: -8px;">
-        <b>Explanation:</b>
-        <br>
-        The Figure shows inverter daily outputs compared to daily target values calculated by the g4n system. These target values are based on an algorithm developed by g4n.
-        <br><br>
-        - DC performance shows the same pattern as shown above for string currents.
-    </div>
-    #}
+
+
+
+
 {% endblock page %}

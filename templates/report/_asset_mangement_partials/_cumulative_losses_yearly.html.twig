@@ -3,15 +3,20 @@
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Cumulative losses</h3>
     <span class="subheadline">Yearly expected vs. actuals</span>
-    <table style="width: 100%!important">
+    <table >
         <tr>
             <td colspan="2" style="text-align: left">
-                <table class="asset_report_table_operations_data" style="width: 100%!important">
+                <table class="asset_report_table_operations_data" >
                     <thead>
                     <tr>
-                        <th style="text-align: right; width: 150px">Losses - {{ year }}</th>
+                        <th rowspan="2"style="text-align: right">Losses - {{ year }}</th>
                         {% for data in dataMonthArray %}
                             <th style="text-align: center; width:6.5%"><div style="width: 100%; height: 50%;">{{ data }}</div></th>
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        {% for data in dataMonthArray %}
+                            <th style="text-align: center"><div style="width: 100%; height: 50%;">[kWh]</div></th>
                         {% endfor %}
                     </tr>
                     </thead>

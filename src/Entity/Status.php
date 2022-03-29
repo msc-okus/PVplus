@@ -36,6 +36,11 @@ class Status
      */
     private $Status;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $isWeather;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -73,6 +78,18 @@ class Status
     public function setStatus(array $Status): self
     {
         $this->Status = serialize($Status);
+
+        return $this;
+    }
+
+    public function getIsWeather(): ?bool
+    {
+        return $this->isWeather;
+    }
+
+    public function setIsWeather(bool $isWeather): self
+    {
+        $this->isWeather = $isWeather;
 
         return $this;
     }

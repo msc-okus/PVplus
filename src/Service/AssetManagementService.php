@@ -89,7 +89,6 @@ class AssetManagementService
 
     private function getPvSystMonthData(Anlage $anlage, $month, $year): array
     {
-        $anlId = $anlage->getAnlId();
         if($anlage->hasPVSYST()) {
             $pvSystMonth = $this->pvSystMonthRepo->findOneBy(['anlage' => $anlage, 'month' => (int)$month]);
             if ($pvSystMonth) {
@@ -151,11 +150,10 @@ class AssetManagementService
      */
     public function buildAssetReport(Anlage $anlage, array $report): array
     {
-        $anlId = $anlage->getAnlId();
         $useGridMeterDayData = $anlage->getUseGridMeterDayData();
         $showAvailability = $anlage->getShowAvailability();
         $showAvailabilitySecond = $anlage->getShowAvailabilitySecond();
-        $plantSize = $anlage->getPower();
+        $plantSize = $anlage->getPnom();
         $plantName = $anlage->getAnlName();
         $anlGeoLat = $anlage->getAnlGeoLat();
         $anlGeoLon = $anlage->getAnlGeoLon();
@@ -187,7 +185,7 @@ class AssetManagementService
             $acGroupsCleaned[] = substr($acGroups[$i]->getacGroupName(), strpos($acGroups[$i]->getacGroupName(), 'INV'));
         }
 
-        for ($i = 1; $i < 13; $i++) {
+        for ($i = 1; $i <= 12; $i++) {
             if ($i < 10) {
                 $month_transfer = "0$i";
             } else {
@@ -213,6 +211,9 @@ class AssetManagementService
                 $data1_grid_meter['powerAct'] = 0;//Inv out
                 $data1_grid_meter['powerExp'] = 0;
                 $data1_grid_meter['powerExpEvu'] = 0;
+                $data1_grid_meter['powerEGridExt'] = 0;
+                $Ertrag_design = 0;
+
             }
             if ($anlage->getShowEvuDiag()) {
                 (float)$powerEvu[] = $data1_grid_meter['powerEvu'];// read comment in line
@@ -229,20 +230,21 @@ class AssetManagementService
             }
 
 
-            if ($anlage->hasPVSYST()) $pvSyst = $this->pvSystMonthRepo->findOneMonth($anlage, $i);
-            else $pvSyst = 0;
-
+#            if ($anlage->hasPVSYST()) $pvSyst = $this->pvSystMonthRepo->findOneMonth($anlage, $i);
+#            else $pvSyst = 0;
+            dump($Ertrag_design);
             $dataMonthArray[] = $monthArray[$i - 1];
             $expectedPvSyst[] = $Ertrag_design;
 
-            unset($pvSyst);
+
+#            unset($pvSyst);
 
             if ($report['reportMonth'] == $i && $report['reportYear'] == $currentYear) {
-                $i = 13;
+                $i = 12;
             }
         }
 
-        for ($i = 1; $i < 13; $i++) {
+        for ($i = 1; $i <= 12; $i++) {
             $dataMonthArrayFullYear[] = $monthArray[$i - 1];
         }
 
@@ -255,6 +257,8 @@ class AssetManagementService
             'powerExpEvu' => $powerExpEvu,
             'powerExt' => $powerExternal
         ];
+        dump($tbody_a_production);
+;
 
         //fuer die Tabelle Capacity Factor
 
@@ -432,13 +436,17 @@ class AssetManagementService
         //fuer die Tabelle
 
         #Forecast / degradation
+        for ($i = 0; $i < 12; $i++) {
+            $forecast[$i] = $this->functions->getForcastByMonth($anlage, $i);
+        }
         unset($kumsum);
         $degradation = $anlage->getLossesForecast();
         //Cumulative Forecast
         $kumsum[0] = $powerEvu[0];
         for ($i = 0; $i < 12; $i++) {
             if ($i + 1 > $report['reportMonth']) {
-                $kumsum[$i] = $expectedPvSyst[$i] + $kumsum[$i - 1];
+                if($expectedPvSyst[$i]) $kumsum[$i] = $expectedPvSyst[$i] + $kumsum[$i - 1];
+                else $kumsum[$i] = $forecast[$i] + $kumsum[$i - 1];
             } else {
                 $kumsum[$i] = $powerEvu[$i] + $kumsum[$i - 1];
             }
@@ -451,11 +459,11 @@ class AssetManagementService
         #Forecast / PVSYST - P90
         $kumsum[0] = $expectedPvSyst[0];
         for ($i = 0; $i < 12; $i++) {
-            $kumsum[$i] = $expectedPvSyst[$i] + $kumsum[$i - 1];
+            if(!$expectedPvSyst[$i]) $kumsum[$i] = $forecast[$i] + $kumsum[$i - 1];
+            else $kumsum[$i] = $expectedPvSyst[$i] + $kumsum[$i - 1];
             $tbody_forcast_plan_PVSYSTP50[] = $kumsum[$i];
 
             $tbody_forcast_plan_PVSYSTP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
-
         }
 
 
@@ -564,13 +572,12 @@ class AssetManagementService
         //Beginn Cumulative Forecast with G4N
         //fuer die Tabelle
 
-        for ($i = 1; $i < 13; $i++) {
-            $forecast[$i] = $this->functions->getForcastByMonth($anlage, $i);
-        }
+
         $kumsum[0] = $powerEvu[0];
         for ($i = 0; $i < 12; $i++) {
             if ($i + 1 > $report['reportMonth']) {
-                $kumsum[$i] = $powerExpEvu[$i] + $kumsum[$i - 1];
+                if ($powerExpEvu[$i])$kumsum[$i] = $powerExpEvu[$i] + $kumsum[$i - 1];
+                else $kumsum[$i] = $forecast[$i] + $kumsum[$i - 1];
             } else {
                 $kumsum[$i] = $powerEvu[$i] + $kumsum[$i - 1];
             }
@@ -583,7 +590,8 @@ class AssetManagementService
 
         $kumsum[0] = $powerExpEvu[0];
         for ($i = 0; $i < 12; $i++) {
-            $kumsum[$i] = $powerExpEvu[$i] + $kumsum[$i - 1];
+            if ($powerExpEvu[$i])$kumsum[$i] = $powerExpEvu[$i] + $kumsum[$i - 1];
+            else $kumsum[$i] = $forecast[$i] + $kumsum[$i - 1];
             $tbody_forcast_plan_G4NP50[] = $kumsum[$i];
             $tbody_forcast_plan_G4NP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
         }
@@ -594,36 +602,6 @@ class AssetManagementService
             'forcast_plan_G4NP50' => $tbody_forcast_plan_G4NP50,
             'forcast_plan_G4NP90' => $tbody_forcast_plan_G4NP90,
         ];
-        // I will try using the expected values instead of these forecast values
-        /*
-        $kumsum[0] = $powerEvu[0];
-        for ($i = 0; $i < 12; $i++) {
-            if ($i + 1 > $report['reportMonth']) {
-                $kumsum[$i] = $forecast[$i] + $kumsum[$i - 1];
-            } else {
-                $kumsum[$i] = $powerEvu[$i] + $kumsum[$i - 1];
-            }
-            $tbody_forcast_G4NP50[] = $kumsum[$i];
-
-            $tbody_forcast_G4NP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
-
-        }
-        #Forecast / G4N
-
-        $kumsum[0] = $forecast[1];
-        for ($i = 0; $i < 12; $i++) {
-            $kumsum[$i] = $forecast[$i+1] + $kumsum[$i - 1];
-            $tbody_forcast_plan_G4NP50[] = $kumsum[$i];
-            $tbody_forcast_plan_G4NP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
-        }
-
-        $forecast_G4N_table = [
-            'forcast_G4NP50' => $tbody_forcast_G4NP50,
-            'forcast_G4NP90' => $tbody_forcast_G4NP90,
-            'forcast_plan_G4NP50' => $tbody_forcast_plan_G4NP50,
-            'forcast_plan_G4NP90' => $tbody_forcast_plan_G4NP90,
-        ];
-*/
         //beginn chart
         # $chart->tooltip->show = true;
         # $chart->tooltip->trigger = 'item';
@@ -850,13 +828,18 @@ class AssetManagementService
         unset($option);
 
         //fuer die Tabelle 1
-        $kumsum1[0] = $diefference_prod_to_pvsyst[0];
-        $kumsum2[0] = $diefference_prod_to_expected_g4n[0];
-        $kumsum3[0] = $diefference_prod_to_egrid[0];
+
         for ($i = 0; $i < count($diefference_prod_to_pvsyst); $i++) {
-            $kumsum1[$i] = $diefference_prod_to_pvsyst[$i] + $kumsum1[$i - 1];
-            $kumsum2[$i] = $diefference_prod_to_expected_g4n[$i] + $kumsum2[$i - 1];
-            $kumsum3[$i] = $diefference_prod_to_egrid[$i] + $kumsum3[$i - 1];
+            if($i == 0){
+                $kumsum1[0] = $diefference_prod_to_pvsyst[0];
+                $kumsum2[0] = $diefference_prod_to_expected_g4n[0];
+                $kumsum3[0] = $diefference_prod_to_egrid[0];
+            }
+            else {
+                $kumsum1[$i] = $diefference_prod_to_pvsyst[$i] + $kumsum1[$i - 1];
+                $kumsum2[$i] = $diefference_prod_to_expected_g4n[$i] + $kumsum2[$i - 1];
+                $kumsum3[$i] = $diefference_prod_to_egrid[$i] + $kumsum3[$i - 1];
+            }
             if ($i + 1 > $report['reportMonth']) {
                 $difference_Egrid_to_PVSYST[$i] = 0;
                 $difference_Egrid_to_Expected_G4n[$i] = 0;
@@ -1179,10 +1162,11 @@ class AssetManagementService
 
 
         $chart->setOption($option);
-        $production_monthly_chart = $chart->render('production_monthly_chart', ['style' => 'height: 300px; width:12cm;']);
+        $production_monthly_chart = $chart->render('production_monthly_chart', ['style' => 'height: 310px; width:100%;']);
 
         $chart->tooltip = [];
         $chart->xAxis = [];
+
         $chart->yAxis = [];
         $chart->series = [];
         unset($option);
@@ -1201,16 +1185,21 @@ class AssetManagementService
 
         //Parameter fuer die Berechnung Q1
         $start = $report['reportYear'] . '-01-01 00:00';
-        $end = $report['reportYear'] . '-03-31 23:59';
+
+        $end = $report['reportMonth']>="3" ? $report['reportYear'] . '-03-31 23:59' : $report['to'];
         $data2_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
         if ($anlage->getShowEvuDiag()) $powerEvuQ1 = $data2_grid_meter['powerEvu'];
         else $powerEvuQ1 = $data2_grid_meter['powerAct'];
+        if ((($currentYear == $report['reportYear']  || $currentYear > $report['reportYear']) && $powerEvuQ1 > 0) && $anlage->hasPVSYST()) {
+            $expectedPvSystQ1 = 0;
 
-        if (((($currentYear == $report['reportYear'] && $currentMonth > 3) || $currentYear > $report['reportYear']) && $powerEvuQ1 > 0) && $anlage->hasPVSYST()) {
-            $resultErtrag_design = $this->pvSystMonthRepo->findOneByQuarter($anlage, 1)['ertrag_design'];
-            if ($resultErtrag_design) {
-                $expectedPvSystQ1 = $resultErtrag_design;
+            if ($report['reportMonth']>="3") $expectedPvSystQ1 = $tbody_a_production['expectedPvSyst'][0]+ $tbody_a_production['expectedPvSyst'][1] + $tbody_a_production['expectedPvSyst'][2];
+            else {
+                for($i = 0; $i <= intval($report['reportMonth']);$i++){
+                    $expectedPvSystQ1 += $tbody_a_production['expectedPvSyst'][$i];
+                }
             }
+
 
             $operations_monthly_right_pvsyst_tr2 = [
                 $powerEvuQ1,
@@ -1229,16 +1218,19 @@ class AssetManagementService
 
         //Parameter fuer die Berechnung Q2
         $start = $report['reportYear'] . '-04-01 00:00';
-        $end = $report['reportYear'] . '-06-30 23:59';
+        $end = $report['reportMonth']>="6" ? $report['reportYear'] . '-06-30 23:59' : $report['to'];
 
         $data2_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
         if ($anlage->getShowEvuDiag()) $powerEvuQ2 = $data2_grid_meter['powerEvu'];
         else $powerEvuQ2 = $data2_grid_meter['powerAct'];
 
-        if (((($currentYear == $report['reportYear'] && $currentMonth > 6) || $currentYear > $report['reportYear']) && $powerEvuQ2 > 0) && $anlage->hasPVSYST()) {
-            $resultErtrag_design = $this->pvSystMonthRepo->findOneByQuarter($anlage, 2)['ertrag_design'];
-            if ($resultErtrag_design) {
-                $expectedPvSystQ2 = $resultErtrag_design;
+        if (((($currentYear == $report['reportYear'] && $currentMonth > 3) || $currentYear > $report['reportYear']) && $powerEvuQ2 > 0) && $anlage->hasPVSYST()) {
+
+            if ($report['reportMonth']>="6") $expectedPvSystQ2 = $tbody_a_production['expectedPvSyst'][4]+ $tbody_a_production['expectedPvSyst'][5] + $tbody_a_production['expectedPvSyst'][6];
+            else {
+                for($i = 4; $i<= intval($report['reportMonth']); $i++){
+                    $expectedPvSystQ2 += $tbody_a_production['expectedPvSyst'][$i];
+                }
             }
 
             $operations_monthly_right_pvsyst_tr3 = [
@@ -1257,14 +1249,19 @@ class AssetManagementService
         }
         //Parameter fuer die Berechnung Q3
         $start = $report['reportYear'] . '-07-01 00:00';
-        $end = $report['reportYear'] . '-09-30 23:59';
+        $end = $report['reportMonth']>="9" ? $report['reportYear'] . '-09-31 23:59' : $report['to'];
+
         $data2_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
         if ($anlage->getShowEvuDiag()) $powerEvuQ3 = $data2_grid_meter['powerEvu'];
         else $powerEvuQ3 = $data2_grid_meter['powerAct'];
-        if (((($currentYear == $report['reportYear'] && $currentMonth > 9) || $currentYear > $report['reportYear']) && $powerEvuQ3 > 0) && $anlage->hasPVSYST()) {
-            $resultErtrag_design = $this->pvSystMonthRepo->findOneByQuarter($anlage, 3)['ertrag_design'];
-            if ($resultErtrag_design) {
-                $expectedPvSystQ3 = $resultErtrag_design;
+        if (((($currentYear == $report['reportYear'] && $currentMonth > 6) || $currentYear > $report['reportYear']) && $powerEvuQ3 > 0) && $anlage->hasPVSYST()) {
+
+            if ($report['reportMonth']>="9") $expectedPvSystQ3 = $tbody_a_production['expectedPvSyst'][6]+ $tbody_a_production['expectedPvSyst'][7] + $tbody_a_production['expectedPvSyst'][8];
+            else {
+                for($i = 6;$i <=intval($report['reportMonth']); $i++){
+                    $expectedPvSystQ3 += $tbody_a_production['expectedPvSyst'][$i];
+                    dump( $i, intval($report['reportMonth']));
+                }
             }
 
             $operations_monthly_right_pvsyst_tr4 = [
@@ -1284,16 +1281,20 @@ class AssetManagementService
 
         //Parameter fuer die Berechnung Q4
         $start = $report['reportYear'] . '-10-01 00:00';
-        $end = $report['reportYear'] . '-12-31 23:59';
+        $end = $report['reportMonth']=="12" ? $report['reportYear'] . '-12-31 23:59' : $report['to'];
+
         $data2_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
         if ($anlage->getShowEvuDiag()) $powerEvuQ4 = $data2_grid_meter['powerEvu'];
         else $powerEvuQ4 = $data2_grid_meter['powerAct'];
         if (($currentYear > $report['reportYear'] && $powerEvuQ4 > 0) && $anlage->hasPVSYST()) {
 
-            $resultErtrag_design = $this->pvSystMonthRepo->findOneByQuarter($anlage, 1)['ertrag_design'];
-            if ($resultErtrag_design) {
-                $expectedPvSystQ4 = $resultErtrag_design;
-            }
+
+                for($i=9 ; $i <= intval($report['reportMonth']) ; $i++){
+                    $expectedPvSystQ4 += $tbody_a_production['expectedPvSyst'][$i];
+
+                }
+
+
 
             $operations_monthly_right_pvsyst_tr5 = [
                 $powerEvuQ4,
@@ -1327,19 +1328,18 @@ class AssetManagementService
             if ($yearPacDate == $report['reportYear']) {
                 $month = $monthPacDate;
             } else $month = "1";
+
             $resultErtrag_design = $this->pvSystMonthRepo->findOneByInterval($anlage, $month, $report['reportMonth']);
             if ($resultErtrag_design) {
                     $expectedPvSystYtoDFirst = $resultErtrag_design['ertrag_design'];
 
             }
 
-            $expectedPvSystYtoD = $expectedPvSystYtoDFirst;
-
             $operations_monthly_right_pvsyst_tr6 = [
                 $powerEvuQ1 + $powerEvuQ2 + $powerEvuQ3 + $powerEvuQ4,
-                $expectedPvSystYtoD,
-                $powerEvuYtoD - $expectedPvSystYtoD,
-                (1 - $expectedPvSystYtoD / $powerEvuYtoD) * 100
+                $expectedPvSystYtoDFirst,
+                $powerEvuYtoD - $expectedPvSystYtoDFirst,
+                (1 - $expectedPvSystYtoDFirst / $powerEvuYtoD) * 100
             ];
         } else {
             $operations_monthly_right_pvsyst_tr6 = [
@@ -1371,7 +1371,7 @@ class AssetManagementService
         ];
 
         //Parameter fuer die Berechnung Q1
-        if ((($currentYear == $report['reportYear'] && $currentMonth > 3) || $currentYear > $report['reportYear'])) {
+        if ($currentYear == $report['reportYear']  || $currentYear > $report['reportYear'] && $powerEvuQ1 > 0) {
             $temp_q1 = $tbody_a_production['powerExpEvu'][0] + $tbody_a_production['powerExpEvu'][1] + $tbody_a_production['powerExpEvu'][2];
             $operations_monthly_right_g4n_tr2 = [
                 $powerEvuQ1,
@@ -1389,7 +1389,7 @@ class AssetManagementService
         }
 
         //Parameter fuer die Berechnung Q2
-        if ((($currentYear == $report['reportYear'] && $currentMonth > 6) || $currentYear > $report['reportYear'])) {
+        if (($currentYear == $report['reportYear'] && $currentMonth > 3) || $currentYear > $report['reportYear'] && $powerEvuQ2 > 0) {
             $temp_q2 = $tbody_a_production['powerExpEvu'][3] + $tbody_a_production['powerExpEvu'][4] + $tbody_a_production['powerExpEvu'][5];
             $operations_monthly_right_g4n_tr3 = [
                 $powerEvuQ2,
@@ -1407,7 +1407,7 @@ class AssetManagementService
         }
 
         //Parameter fuer die Berechnung Q3
-        if ((($currentYear == $report['reportYear'] && $currentMonth > 9) || $currentYear > $report['reportYear'])) {
+        if (($currentYear == $report['reportYear'] && $currentMonth > 6) || $currentYear > $report['reportYear'] && $powerEvuQ3 > 0) {
             $temp_q3 = $tbody_a_production['powerExpEvu'][6] + $tbody_a_production['powerExpEvu'][7] + $tbody_a_production['powerExpEvu'][8];
             $operations_monthly_right_g4n_tr4 = [
                 $powerEvuQ3,
@@ -1425,7 +1425,7 @@ class AssetManagementService
         }
 
         //Parameter fuer die Berechnung Q4
-        if ($currentYear > $report['reportYear']) {
+        if ($currentYear > $report['reportYear'] && $powerEvuQ4 > 0) {
             $temp_q4 = $tbody_a_production['powerExpEvu'][9] + $tbody_a_production['powerExpEvu'][10] + $tbody_a_production['powerExpEvu'][11];
             $operations_monthly_right_g4n_tr5 = [
                 $powerEvuQ4,
@@ -1464,6 +1464,7 @@ class AssetManagementService
         }
 
         //Parameter fuer total Runtime
+        // El total runtime son los datos de toda la planta desde que abrio
         if (!($yearPacDate == $report['reportYear'] && $monthPacDate > $currentMonth)) {
             $operations_monthly_right_g4n_tr7 = [
                 0.00,
@@ -1490,7 +1491,7 @@ class AssetManagementService
         ];
 
         //Parameter fuer die Berechnung Q1
-        if ((($currentYear == $report['reportYear'] && $currentMonth > 3) || $currentYear > $report['reportYear'])) {
+        if (($currentYear == $report['reportYear'] && $currentMonth > 3) || $currentYear > $report['reportYear'] && $powerEvuQ1 > 0) {
             $temp_q1 = $tbody_a_production['powerAct'][0] + $tbody_a_production['powerAct'][1] + $tbody_a_production['powerAct'][2];
             $operations_monthly_right_iout_tr2 = [
                 $powerEvuQ1,
@@ -1508,7 +1509,7 @@ class AssetManagementService
         }
 
         //Parameter fuer die Berechnung Q2
-        if ((($currentYear == $report['reportYear'] && $currentMonth > 6) || $currentYear > $report['reportYear'])) {
+        if (($currentYear == $report['reportYear'] && $currentMonth > 6) || $currentYear > $report['reportYear'] && $powerEvuQ2 > 0) {
             $temp_q2 = $tbody_a_production['powerAct'][3] + $tbody_a_production['powerAct'][4] + $tbody_a_production['powerAct'][5];
             $operations_monthly_right_iout_tr3 = [
                 $powerEvuQ2,
@@ -1526,7 +1527,7 @@ class AssetManagementService
         }
 
         //Parameter fuer die Berechnung Q3
-        if ((($currentYear == $report['reportYear'] && $currentMonth > 9) || $currentYear > $report['reportYear'])) {
+        if (($currentYear == $report['reportYear'] && $currentMonth > 9) || $currentYear > $report['reportYear'] && $powerEvuQ3 > 0) {
             $temp_q3 = $tbody_a_production['powerAct'][6] + $tbody_a_production['powerAct'][7] + $tbody_a_production['powerAct'][8];
             $operations_monthly_right_iout_tr4 = [
                 $powerEvuQ3,
@@ -1544,7 +1545,7 @@ class AssetManagementService
         }
 
         //Parameter fuer die Berechnung Q4
-        if ($currentYear > $report['reportYear']) {
+        if ($currentYear > $report['reportYear'] && $powerEvuQ4 > 0) {
             $temp_q4 = $tbody_a_production['powerAct'][9] + $tbody_a_production['powerAct'][10] + $tbody_a_production['powerAct'][11];
             $operations_monthly_right_iout_tr5 = [
                 $powerEvuQ4,
@@ -1562,7 +1563,7 @@ class AssetManagementService
         }
 
         //Parameter fuer Year to Date
-        if (!($yearPacDate == $report['reportYear'] && $monthPacDate > $currentMonth)) {
+        if (!($yearPacDate == $report['reportYear'] && $monthPacDate > $currentMonth) ) {
             $x = $powerEvuQ1 + $powerEvuQ2 + $powerEvuQ3 + $powerEvuQ4;
             $y = ($powerEvuQ1 + $powerEvuQ2 + $powerEvuQ3 + $powerEvuQ4) - ($temp_q1 + $temp_q2 + $temp_q3 + $temp_q4);
             $difference = ($y * 100) / $x;

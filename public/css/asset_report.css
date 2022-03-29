@@ -22,7 +22,7 @@ page[size="A4"][layout="landscape"] {
 */
 .content_asset_report{
   height:18cm!important;
-  width: 27.0cm!important;
+  width: 29cm!important;
 }
 
 h1{
@@ -173,7 +173,7 @@ table .tr_first_column_nonbold {
 }
 
 .legend_colors td{
-  width: 50px;
+  width: 80px;
   border: solid 1px;
 }
 

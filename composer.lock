@@ -1015,16 +1015,16 @@
         },
         {
             "name": "doctrine/dbal",
-            "version": "3.3.3",
+            "version": "3.3.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/dbal.git",
-                "reference": "82331b861727c15b1f457ef05a8729e508e7ead5"
+                "reference": "83f779beaea1893c0bece093ab2104c6d15a7f26"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/dbal/zipball/82331b861727c15b1f457ef05a8729e508e7ead5",
-                "reference": "82331b861727c15b1f457ef05a8729e508e7ead5",
+                "url": "https://api.github.com/repos/doctrine/dbal/zipball/83f779beaea1893c0bece093ab2104c6d15a7f26",
+                "reference": "83f779beaea1893c0bece093ab2104c6d15a7f26",
                 "shasum": ""
             },
             "require": {
@@ -1106,7 +1106,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/dbal/issues",
-                "source": "https://github.com/doctrine/dbal/tree/3.3.3"
+                "source": "https://github.com/doctrine/dbal/tree/3.3.4"
             },
             "funding": [
                 {
@@ -1122,7 +1122,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-03-09T15:39:50+00:00"
+            "time": "2022-03-20T18:37:29+00:00"
         },
         {
             "name": "doctrine/deprecations",
@@ -2460,16 +2460,16 @@
         },
         {
             "name": "gedmo/doctrine-extensions",
-            "version": "v3.5.0",
+            "version": "v3.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine-extensions/DoctrineExtensions.git",
-                "reference": "dd1a1438a10e92910e5c510f631a568c19e6c00e"
+                "reference": "20e682c5c376faa4c88421453707741e1dd1f131"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine-extensions/DoctrineExtensions/zipball/dd1a1438a10e92910e5c510f631a568c19e6c00e",
-                "reference": "dd1a1438a10e92910e5c510f631a568c19e6c00e",
+                "url": "https://api.github.com/repos/doctrine-extensions/DoctrineExtensions/zipball/20e682c5c376faa4c88421453707741e1dd1f131",
+                "reference": "20e682c5c376faa4c88421453707741e1dd1f131",
                 "shasum": ""
             },
             "require": {
@@ -2479,7 +2479,7 @@
                 "doctrine/collections": "^1.0",
                 "doctrine/common": "^2.13 || ^3.0",
                 "doctrine/event-manager": "^1.0",
-                "doctrine/persistence": "^1.3.3 || ^2.0",
+                "doctrine/persistence": "^2.2",
                 "php": "^7.2 || ^8.0",
                 "psr/cache": "^1 || ^2 || ^3",
                 "symfony/cache": "^4.4 || ^5.3 || ^6.0"
@@ -2497,7 +2497,7 @@
                 "doctrine/doctrine-bundle": "^2.3",
                 "doctrine/mongodb-odm": "^2.2",
                 "doctrine/orm": "^2.10.2",
-                "friendsofphp/php-cs-fixer": "^3.0",
+                "friendsofphp/php-cs-fixer": "~3.4.0",
                 "nesbot/carbon": "^2.55",
                 "phpstan/phpstan": "^1.1",
                 "phpstan/phpstan-doctrine": "^1.0",
@@ -2515,7 +2515,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "3.6-dev"
+                    "dev-main": "3.7-dev"
                 }
             },
             "autoload": {
@@ -2561,10 +2561,10 @@
             "support": {
                 "email": "gediminas.morkevicius@gmail.com",
                 "issues": "https://github.com/doctrine-extensions/DoctrineExtensions/issues",
-                "source": "https://github.com/doctrine-extensions/DoctrineExtensions/tree/v3.5.0",
+                "source": "https://github.com/doctrine-extensions/DoctrineExtensions/tree/v3.6.0",
                 "wiki": "https://github.com/Atlantic18/DoctrineExtensions/tree/main/doc"
             },
-            "time": "2022-01-10T21:29:33+00:00"
+            "time": "2022-03-19T10:22:38+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -2723,16 +2723,16 @@
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "1.8.3",
+            "version": "1.8.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "1afdd860a2566ed3c2b0b4a3de6e23434a79ec85"
+                "reference": "337e3ad8e5716c15f9657bd214d16cc5e69df268"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/1afdd860a2566ed3c2b0b4a3de6e23434a79ec85",
-                "reference": "1afdd860a2566ed3c2b0b4a3de6e23434a79ec85",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/337e3ad8e5716c15f9657bd214d16cc5e69df268",
+                "reference": "337e3ad8e5716c15f9657bd214d16cc5e69df268",
                 "shasum": ""
             },
             "require": {
@@ -2813,7 +2813,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/psr7/issues",
-                "source": "https://github.com/guzzle/psr7/tree/1.8.3"
+                "source": "https://github.com/guzzle/psr7/tree/1.8.5"
             },
             "funding": [
                 {
@@ -2829,7 +2829,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-10-05T13:56:00+00:00"
+            "time": "2022-03-20T21:51:18+00:00"
         },
         {
             "name": "hisune/echarts-php",
@@ -3865,17 +3865,17 @@
         },
         {
             "name": "koolreport/amazing",
-            "version": "1.5.0",
+            "version": "1.7.0",
             "source": {
                 "type": "git",
                 "url": "git@github.com:koolreport/amazing.git",
-                "reference": "6dea8deb8ae5e7217bc7d40f868b2003cc01a005"
+                "reference": "2e48c3f863776eb59dc23d93143c62a4cc3195ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://repo.koolreport.com//dist/koolreport/amazing/koolreport-amazing-6dea8deb8ae5e7217bc7d40f868b2003cc01a005-zip-24c9f3.zip",
-                "reference": "6dea8deb8ae5e7217bc7d40f868b2003cc01a005",
-                "shasum": "d721a99d48d2f592d8c5798e6c9f0abc25cf39dd"
+                "url": "https://repo.koolreport.com//dist/koolreport/amazing/koolreport-amazing-2e48c3f863776eb59dc23d93143c62a4cc3195ea-zip-0b13da.zip",
+                "reference": "2e48c3f863776eb59dc23d93143c62a4cc3195ea",
+                "shasum": "36b942b5c52738c41d61b848a7930e4c69f5e5ba"
             },
             "type": "library",
             "license": [
@@ -3890,21 +3890,21 @@
                 "php reprting tools",
                 "report theme"
             ],
-            "time": "2020-11-10T10:22:26+00:00"
+            "time": "2021-07-07T07:56:19+00:00"
         },
         {
             "name": "koolreport/barcode",
-            "version": "2.0.0",
+            "version": "2.1.0",
             "source": {
                 "type": "git",
                 "url": "git@github.com:koolreport/barcode.git",
-                "reference": "115698f8ceb3ff6274cd9a4a370681d81a87208b"
+                "reference": "1d2fda2d69120a7c7675e2f9e8f91d40ec977bff"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://repo.koolreport.com//dist/koolreport/barcode/koolreport-barcode-115698f8ceb3ff6274cd9a4a370681d81a87208b-zip-2a76b5.zip",
-                "reference": "115698f8ceb3ff6274cd9a4a370681d81a87208b",
-                "shasum": "83bd1bc02a1089cba6ec9625c97737c4fe987fa6"
+                "url": "https://repo.koolreport.com//dist/koolreport/barcode/koolreport-barcode-1d2fda2d69120a7c7675e2f9e8f91d40ec977bff-zip-ceadd3.zip",
+                "reference": "1d2fda2d69120a7c7675e2f9e8f91d40ec977bff",
+                "shasum": "ab7ac58d8610a3de0a351947552444bb6fa858e8"
             },
             "require": {
                 "endroid/qr-code": "^3",
@@ -3924,7 +3924,7 @@
                 "php reprting tools",
                 "qrcode generator"
             ],
-            "time": "2020-11-10T03:57:47+00:00"
+            "time": "2021-03-26T10:17:49+00:00"
         },
         {
             "name": "koolreport/blade",
@@ -4073,17 +4073,17 @@
         },
         {
             "name": "koolreport/chartjs",
-            "version": "2.5.0",
+            "version": "2.5.1",
             "source": {
                 "type": "git",
                 "url": "git@github.com:koolreport/chartjs.git",
-                "reference": "7171862d86ec57a7f3824df68e7701bd1a2913eb"
+                "reference": "61387facb41b30a194cdb8977b1fde887637856d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://repo.koolreport.com//dist/koolreport/chartjs/koolreport-chartjs-7171862d86ec57a7f3824df68e7701bd1a2913eb-zip-0a888b.zip",
-                "reference": "7171862d86ec57a7f3824df68e7701bd1a2913eb",
-                "shasum": "9a2f9f410cdf6644c66463029fffe04c1de2b7d2"
+                "url": "https://repo.koolreport.com//dist/koolreport/chartjs/koolreport-chartjs-61387facb41b30a194cdb8977b1fde887637856d-zip-64e294.zip",
+                "reference": "61387facb41b30a194cdb8977b1fde887637856d",
+                "shasum": "31a1c52ad74e7a269530aa4d22801bc64aa9fba4"
             },
             "type": "library",
             "license": [
@@ -4097,21 +4097,21 @@
                 "PHP",
                 "Reporting Tools"
             ],
-            "time": "2020-01-21T07:37:27+00:00"
+            "time": "2021-07-05T08:54:58+00:00"
         },
         {
             "name": "koolreport/charttable",
-            "version": "1.0.0",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "git@github.com:koolreport/charttable.git",
-                "reference": "a61970b204ae1af8015aad0cf1226037a8bc1c96"
+                "reference": "cb2661cf7bb70bc061141f86786ef43740eedf03"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://repo.koolreport.com//dist/koolreport/charttable/koolreport-charttable-a61970b204ae1af8015aad0cf1226037a8bc1c96-zip-431242.zip",
-                "reference": "a61970b204ae1af8015aad0cf1226037a8bc1c96",
-                "shasum": "0343372930145f994ab469372af4377202322447"
+                "url": "https://repo.koolreport.com//dist/koolreport/charttable/koolreport-charttable-cb2661cf7bb70bc061141f86786ef43740eedf03-zip-587fe3.zip",
+                "reference": "cb2661cf7bb70bc061141f86786ef43740eedf03",
+                "shasum": "5d8da0541f361db6f3535d024e6fc09b0b00b675"
             },
             "type": "library",
             "license": [
@@ -4132,7 +4132,7 @@
                 "chart",
                 "table"
             ],
-            "time": "2020-11-11T06:48:23+00:00"
+            "time": "2021-06-18T04:58:37+00:00"
         },
         {
             "name": "koolreport/cleandata",
@@ -4170,20 +4170,20 @@
         },
         {
             "name": "koolreport/cloudexport",
-            "version": "3.0.0",
+            "version": "3.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/koolreport/cloudexport.git",
-                "reference": "b3b20d9dce286e4723432be5dd2c90c674e8e583"
+                "reference": "8dba33a801d2e3fbbdc2fb0f17e2f2c54d8e5576"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/koolreport/cloudexport/zipball/b3b20d9dce286e4723432be5dd2c90c674e8e583",
-                "reference": "b3b20d9dce286e4723432be5dd2c90c674e8e583",
+                "url": "https://api.github.com/repos/koolreport/cloudexport/zipball/8dba33a801d2e3fbbdc2fb0f17e2f2c54d8e5576",
+                "reference": "8dba33a801d2e3fbbdc2fb0f17e2f2c54d8e5576",
                 "shasum": ""
             },
             "require": {
-                "chromeheadlessio/php-client": "^1.0"
+                "chromeheadlessio/php-client": "^1.1.0"
             },
             "type": "library",
             "notification-url": "https://packagist.org/downloads/",
@@ -4202,9 +4202,9 @@
             ],
             "support": {
                 "issues": "https://github.com/koolreport/cloudexport/issues",
-                "source": "https://github.com/koolreport/cloudexport/tree/v3.0.0"
+                "source": "https://github.com/koolreport/cloudexport/tree/v3.0.1"
             },
-            "time": "2021-07-07T06:23:16+00:00"
+            "time": "2021-07-07T03:48:06+00:00"
         },
         {
             "name": "koolreport/codeigniter",
@@ -4245,16 +4245,16 @@
         },
         {
             "name": "koolreport/core",
-            "version": "5.0.0",
+            "version": "5.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/koolreport/core.git",
-                "reference": "b6a00721d746425f317ae1773daf3ca02ef1a008"
+                "reference": "fc112ec63456af385eff563608aefacea7df85eb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/koolreport/core/zipball/b6a00721d746425f317ae1773daf3ca02ef1a008",
-                "reference": "b6a00721d746425f317ae1773daf3ca02ef1a008",
+                "url": "https://api.github.com/repos/koolreport/core/zipball/fc112ec63456af385eff563608aefacea7df85eb",
+                "reference": "fc112ec63456af385eff563608aefacea7df85eb",
                 "shasum": ""
             },
             "require": {
@@ -4287,9 +4287,9 @@
             ],
             "support": {
                 "issues": "https://github.com/koolreport/core/issues",
-                "source": "https://github.com/koolreport/core/tree/v5.0.0"
+                "source": "https://github.com/koolreport/core/tree/v5.1.0"
             },
-            "time": "2020-11-11T10:29:22+00:00"
+            "time": "2021-07-07T08:42:39+00:00"
         },
         {
             "name": "koolreport/cube",
@@ -4329,17 +4329,17 @@
         },
         {
             "name": "koolreport/d3",
-            "version": "1.5.0",
+            "version": "1.6.0",
             "source": {
                 "type": "git",
                 "url": "git@github.com:koolreport/d3.git",
-                "reference": "bf8c0c5e5d3f7934832aadefd077d791d9610184"
+                "reference": "f1c2560b9acaa383658eeeda27ce264447892436"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://repo.koolreport.com//dist/koolreport/d3/koolreport-d3-bf8c0c5e5d3f7934832aadefd077d791d9610184-zip-c68cc1.zip",
-                "reference": "bf8c0c5e5d3f7934832aadefd077d791d9610184",
-                "shasum": "fe2e8ecc7bfbc545b433d0dd0d4484f8da93334b"
+                "url": "https://repo.koolreport.com//dist/koolreport/d3/koolreport-d3-f1c2560b9acaa383658eeeda27ce264447892436-zip-d9fb8c.zip",
+                "reference": "f1c2560b9acaa383658eeeda27ce264447892436",
+                "shasum": "8029643af3ed4dc7089c906c45b1141a8ff9246b"
             },
             "type": "library",
             "license": [
@@ -4357,21 +4357,21 @@
                 "php reprting tools",
                 "pie chart"
             ],
-            "time": "2020-01-21T07:30:06+00:00"
+            "time": "2021-07-07T08:23:16+00:00"
         },
         {
             "name": "koolreport/datagrid",
-            "version": "5.0.0",
+            "version": "6.0.0",
             "source": {
                 "type": "git",
                 "url": "git@github.com:koolreport/datagrid.git",
-                "reference": "399e1dfcb77fb7c0f0705cce93630cba4e9840bc"
+                "reference": "1cfed836cc46856a80306d4c91ed0dd85c439fc0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://repo.koolreport.com//dist/koolreport/datagrid/koolreport-datagrid-399e1dfcb77fb7c0f0705cce93630cba4e9840bc-zip-f2c0a1.zip",
-                "reference": "399e1dfcb77fb7c0f0705cce93630cba4e9840bc",
-                "shasum": "28ebac92f4b70c5aeac5d5df330730b8b7fe03fb"
+                "url": "https://repo.koolreport.com//dist/koolreport/datagrid/koolreport-datagrid-1cfed836cc46856a80306d4c91ed0dd85c439fc0-zip-535665.zip",
+                "reference": "1cfed836cc46856a80306d4c91ed0dd85c439fc0",
+                "shasum": "d8380f0a18c7db902bc8463e17c4f76bf0575dea"
             },
             "type": "library",
             "license": [
@@ -4386,21 +4386,21 @@
                 "PHP",
                 "Reporting Tools"
             ],
-            "time": "2020-11-09T11:07:49+00:00"
+            "time": "2021-07-05T10:20:59+00:00"
         },
         {
             "name": "koolreport/drilldown",
-            "version": "3.1.0",
+            "version": "3.5.0",
             "source": {
                 "type": "git",
                 "url": "git@github.com:koolreport/drilldown.git",
-                "reference": "4376bdcea4d48bf0a2e7db2768e775451b219140"
+                "reference": "79fb86560f54bc4c6d465e82d00c537dc6f721d5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://repo.koolreport.com//dist/koolreport/drilldown/koolreport-drilldown-4376bdcea4d48bf0a2e7db2768e775451b219140-zip-7af679.zip",
-                "reference": "4376bdcea4d48bf0a2e7db2768e775451b219140",
-                "shasum": "d5f9d28a4eaa67b6f70e066ea7fefb5ca72b537a"
+                "url": "https://repo.koolreport.com//dist/koolreport/drilldown/koolreport-drilldown-79fb86560f54bc4c6d465e82d00c537dc6f721d5-zip-5422a3.zip",
+                "reference": "79fb86560f54bc4c6d465e82d00c537dc6f721d5",
+                "shasum": "6c9d4cee115f39f65cf99f183f8a70b7b5f106c6"
             },
             "type": "library",
             "license": [
@@ -4415,25 +4415,26 @@
                 "PHP",
                 "Reporting Tools"
             ],
-            "time": "2020-02-04T07:59:47+00:00"
+            "time": "2021-07-07T07:52:50+00:00"
         },
         {
             "name": "koolreport/excel",
-            "version": "8.0.0",
+            "version": "8.5.1",
             "source": {
                 "type": "git",
                 "url": "git@github.com:koolreport/excel.git",
-                "reference": "a08db54dfb55894a8be83f0867396287a5cee473"
+                "reference": "a78ac5eacca0d80e3eadd4fc96dd4462c2ccc907"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://repo.koolreport.com//dist/koolreport/excel/koolreport-excel-a08db54dfb55894a8be83f0867396287a5cee473-zip-bbcd5a.zip",
-                "reference": "a08db54dfb55894a8be83f0867396287a5cee473",
-                "shasum": "74e41f9545d7895d1b39e9071946b42d04a07582"
+                "url": "https://repo.koolreport.com//dist/koolreport/excel/koolreport-excel-a78ac5eacca0d80e3eadd4fc96dd4462c2ccc907-zip-4a0dae.zip",
+                "reference": "a78ac5eacca0d80e3eadd4fc96dd4462c2ccc907",
+                "shasum": "3710c52463111330c17a2d7e6000ef8a025c8630"
             },
             "require": {
                 "box/spout": "^3.0",
-                "phpoffice/phpspreadsheet": "^1.10"
+                "php": ">=7.1.0",
+                "phpoffice/phpspreadsheet": "1.*"
             },
             "type": "library",
             "license": [
@@ -4451,7 +4452,7 @@
                 "Reporting Tools",
                 "XLS"
             ],
-            "time": "2020-10-06T10:28:07+00:00"
+            "time": "2021-09-10T04:13:20+00:00"
         },
         {
             "name": "koolreport/export",
@@ -4629,17 +4630,17 @@
         },
         {
             "name": "koolreport/pivot",
-            "version": "7.0.0",
+            "version": "8.0.0",
             "source": {
                 "type": "git",
                 "url": "git@github.com:koolreport/pivot.git",
-                "reference": "4e63dde05e105fdf57850dea6b5bbf17f91ecce3"
+                "reference": "bf1c385e494a36fdd7fabacd1768fdc7b5f99f9d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://repo.koolreport.com//dist/koolreport/pivot/koolreport-pivot-4e63dde05e105fdf57850dea6b5bbf17f91ecce3-zip-c12857.zip",
-                "reference": "4e63dde05e105fdf57850dea6b5bbf17f91ecce3",
-                "shasum": "ea036cd2f2cf4b5e2933cb9c34c02969eae7c3a3"
+                "url": "https://repo.koolreport.com//dist/koolreport/pivot/koolreport-pivot-bf1c385e494a36fdd7fabacd1768fdc7b5f99f9d-zip-20c20c.zip",
+                "reference": "bf1c385e494a36fdd7fabacd1768fdc7b5f99f9d",
+                "shasum": "27f810a3b551684d94505dbd39715de69b3f0e3c"
             },
             "type": "library",
             "license": [
@@ -4660,49 +4661,49 @@
                 "Pivot table",
                 "Reporting Tools"
             ],
-            "time": "2020-11-10T09:08:21+00:00"
+            "time": "2021-07-05T10:21:22+00:00"
         },
         {
             "name": "koolreport/pro",
-            "version": "5.0.0",
+            "version": "5.7.1",
             "source": {
                 "type": "git",
                 "url": "git@github.com:koolreport/pro.git",
-                "reference": "fdec245fccd9024b645de97d329cd38c4a5cc321"
+                "reference": "d96c28628d1d286a5befa85d03a1e6f165f0d484"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://repo.koolreport.com//dist/koolreport/pro/koolreport-pro-fdec245fccd9024b645de97d329cd38c4a5cc321-zip-7fa710.zip",
-                "reference": "fdec245fccd9024b645de97d329cd38c4a5cc321",
-                "shasum": "c26ddbdd2c325ae585d29764df866b362f7fea5e"
+                "url": "https://repo.koolreport.com//dist/koolreport/pro/koolreport-pro-d96c28628d1d286a5befa85d03a1e6f165f0d484-zip-2932e1.zip",
+                "reference": "d96c28628d1d286a5befa85d03a1e6f165f0d484",
+                "shasum": "45e125580cacd22449787174e908c3bb7a0852a7"
             },
             "require": {
-                "koolreport/amazing": "1.5.0",
-                "koolreport/barcode": "2.0.0",
+                "koolreport/amazing": "1.7.0",
+                "koolreport/barcode": "2.1.0",
                 "koolreport/bootstrap3": "1.1.0",
                 "koolreport/bootstrap4": "1.5.0",
                 "koolreport/cache": "1.2.0",
-                "koolreport/chartjs": "2.5.0",
-                "koolreport/charttable": "1.0.0",
+                "koolreport/chartjs": "2.5.1",
+                "koolreport/charttable": "1.1.0",
                 "koolreport/cleandata": "1.6.0",
-                "koolreport/cloudexport": "3.0.0",
+                "koolreport/cloudexport": "3.0.1",
                 "koolreport/codeigniter": "1.8.0",
-                "koolreport/core": "5.0.0",
+                "koolreport/core": "5.1.0",
                 "koolreport/cube": "3.2.0",
-                "koolreport/d3": "1.5.0",
-                "koolreport/datagrid": "5.0.0",
-                "koolreport/drilldown": "3.1.0",
-                "koolreport/excel": "8.0.0",
+                "koolreport/d3": "1.6.0",
+                "koolreport/datagrid": "6.0.0",
+                "koolreport/drilldown": "3.5.0",
+                "koolreport/excel": "8.5.1",
                 "koolreport/export": "5.0.0",
                 "koolreport/inputs": "5.6.0",
                 "koolreport/instant": "3.7.0",
                 "koolreport/laravel": "2.0.0",
                 "koolreport/morris_chart": "2.2.0",
-                "koolreport/pivot": "7.0.0",
-                "koolreport/querybuilder": "2.5.3",
+                "koolreport/pivot": "8.0.0",
+                "koolreport/querybuilder": "3.0.0",
                 "koolreport/sparklines": "1.5.0",
-                "koolreport/statistics": "1.1.0",
-                "koolreport/visualquery": "1.0.0",
+                "koolreport/statistics": "1.2.0",
+                "koolreport/visualquery": "2.0.0",
                 "koolreport/yii2": "1.0.0",
                 "php": ">=5.4"
             },
@@ -4725,20 +4726,20 @@
                 "php reporting framework",
                 "php reporting tools"
             ],
-            "time": "2020-11-11T11:05:05+00:00"
+            "time": "2021-09-10T04:15:35+00:00"
         },
         {
             "name": "koolreport/querybuilder",
-            "version": "2.5.3",
+            "version": "3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/koolreport/querybuilder.git",
-                "reference": "4d0aca11f6106c9663de391a702ddd663a3adbbe"
+                "reference": "f6e2bb1ba52ae7a9f4f7088238daeae302e03ed3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/koolreport/querybuilder/zipball/4d0aca11f6106c9663de391a702ddd663a3adbbe",
-                "reference": "4d0aca11f6106c9663de391a702ddd663a3adbbe",
+                "url": "https://api.github.com/repos/koolreport/querybuilder/zipball/f6e2bb1ba52ae7a9f4f7088238daeae302e03ed3",
+                "reference": "f6e2bb1ba52ae7a9f4f7088238daeae302e03ed3",
                 "shasum": ""
             },
             "type": "library",
@@ -4760,9 +4761,9 @@
             ],
             "support": {
                 "issues": "https://github.com/koolreport/querybuilder/issues",
-                "source": "https://github.com/koolreport/querybuilder/tree/v2.5.3"
+                "source": "https://github.com/koolreport/querybuilder/tree/v3.0.0"
             },
-            "time": "2020-11-10T11:19:24+00:00"
+            "time": "2021-07-07T08:21:08+00:00"
         },
         {
             "name": "koolreport/sparklines",
@@ -4797,16 +4798,16 @@
         },
         {
             "name": "koolreport/statistics",
-            "version": "1.1.0",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/koolreport/statistics.git",
-                "reference": "93cbd17317a35a919ddf052e939ce21462cfdfd9"
+                "reference": "ff1b3789d53c8502cb1e05d960164809afc53e83"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/koolreport/statistics/zipball/93cbd17317a35a919ddf052e939ce21462cfdfd9",
-                "reference": "93cbd17317a35a919ddf052e939ce21462cfdfd9",
+                "url": "https://api.github.com/repos/koolreport/statistics/zipball/ff1b3789d53c8502cb1e05d960164809afc53e83",
+                "reference": "ff1b3789d53c8502cb1e05d960164809afc53e83",
                 "shasum": ""
             },
             "type": "library",
@@ -4837,21 +4838,21 @@
                 "issues": "https://github.com/koolreport/statistics/issues",
                 "source": "https://github.com/koolreport/statistics/tree/master"
             },
-            "time": "2019-06-03T08:43:21+00:00"
+            "time": "2019-07-01T08:16:03+00:00"
         },
         {
             "name": "koolreport/visualquery",
-            "version": "1.0.0",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "git@github.com:koolreport/visualquery.git",
-                "reference": "977dcd01bfdca123e99bebc4326b81b5518f01bf"
+                "reference": "75a35108f3484ac9b79f12f36c646a0bbd9f4bdf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://repo.koolreport.com//dist/koolreport/visualquery/koolreport-visualquery-977dcd01bfdca123e99bebc4326b81b5518f01bf-zip-1cebab.zip",
-                "reference": "977dcd01bfdca123e99bebc4326b81b5518f01bf",
-                "shasum": "1cb23924ccf1f6f5826340d753978e1a669cd120"
+                "url": "https://repo.koolreport.com//dist/koolreport/visualquery/koolreport-visualquery-75a35108f3484ac9b79f12f36c646a0bbd9f4bdf-zip-ad004e.zip",
+                "reference": "75a35108f3484ac9b79f12f36c646a0bbd9f4bdf",
+                "shasum": "7950b7d8ecd8f8b08437b40bdb2dfdefc3b11a2c"
             },
             "type": "library",
             "license": [
@@ -4872,7 +4873,7 @@
                 "query builder",
                 "visual query"
             ],
-            "time": "2020-11-11T09:04:02+00:00"
+            "time": "2021-06-18T04:59:44+00:00"
         },
         {
             "name": "koolreport/yii2",
@@ -5365,24 +5366,26 @@
         },
         {
             "name": "lorenzo/pinky",
-            "version": "1.0.5",
+            "version": "1.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lorenzo/pinky.git",
-                "reference": "2bc1a9d5696d6496df5d5682962929165a823e57"
+                "reference": "61de35ec6a17badea8b0922e65a979472c886d01"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lorenzo/pinky/zipball/2bc1a9d5696d6496df5d5682962929165a823e57",
-                "reference": "2bc1a9d5696d6496df5d5682962929165a823e57",
+                "url": "https://api.github.com/repos/lorenzo/pinky/zipball/61de35ec6a17badea8b0922e65a979472c886d01",
+                "reference": "61de35ec6a17badea8b0922e65a979472c886d01",
                 "shasum": ""
             },
             "require": {
+                "ext-dom": "*",
+                "ext-libxml": "*",
                 "ext-xsl": "*",
                 "php": ">=5.6.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "^5.7"
+                "phpunit/phpunit": "^5.7.27 || ^6.5.14 || ^7.5.20 || ^8.5.21 || ^9.5.10"
             },
             "type": "library",
             "autoload": {
@@ -5410,9 +5413,9 @@
             ],
             "support": {
                 "issues": "https://github.com/lorenzo/pinky/issues",
-                "source": "https://github.com/lorenzo/pinky/tree/1.0.5"
+                "source": "https://github.com/lorenzo/pinky/tree/1.0.6"
             },
-            "time": "2019-09-16T21:23:31+00:00"
+            "time": "2022-03-17T12:11:56+00:00"
         },
         {
             "name": "maennchen/zipstream-php",
@@ -6563,16 +6566,16 @@
         },
         {
             "name": "php-http/httplug-bundle",
-            "version": "1.25.0",
+            "version": "1.26.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-http/HttplugBundle.git",
-                "reference": "2b5dd81817dc22f6c2c3ff26f4359c877b81ad78"
+                "reference": "0e5533d21f9362e26d46fd75729abf333f36af5d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-http/HttplugBundle/zipball/2b5dd81817dc22f6c2c3ff26f4359c877b81ad78",
-                "reference": "2b5dd81817dc22f6c2c3ff26f4359c877b81ad78",
+                "url": "https://api.github.com/repos/php-http/HttplugBundle/zipball/0e5533d21f9362e26d46fd75729abf333f36af5d",
+                "reference": "0e5533d21f9362e26d46fd75729abf333f36af5d",
                 "shasum": ""
             },
             "require": {
@@ -6662,9 +6665,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-http/HttplugBundle/issues",
-                "source": "https://github.com/php-http/HttplugBundle/tree/1.25.0"
+                "source": "https://github.com/php-http/HttplugBundle/tree/1.26.0"
             },
-            "time": "2021-11-26T07:11:24+00:00"
+            "time": "2022-03-17T11:17:18+00:00"
         },
         {
             "name": "php-http/logger-plugin",
@@ -14741,16 +14744,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v3.3.8",
+            "version": "v3.3.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "972d8604a92b7054828b539f2febb0211dd5945c"
+                "reference": "6ff9b0e440fa66f97f207e181c41340ddfa5683d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/972d8604a92b7054828b539f2febb0211dd5945c",
-                "reference": "972d8604a92b7054828b539f2febb0211dd5945c",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/6ff9b0e440fa66f97f207e181c41340ddfa5683d",
+                "reference": "6ff9b0e440fa66f97f207e181c41340ddfa5683d",
                 "shasum": ""
             },
             "require": {
@@ -14801,7 +14804,7 @@
             ],
             "support": {
                 "issues": "https://github.com/twigphp/Twig/issues",
-                "source": "https://github.com/twigphp/Twig/tree/v3.3.8"
+                "source": "https://github.com/twigphp/Twig/tree/v3.3.9"
             },
             "funding": [
                 {
@@ -14813,7 +14816,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-02-04T06:59:48+00:00"
+            "time": "2022-03-25T09:37:52+00:00"
         },
         {
             "name": "voku/portable-ascii",
@@ -15103,5 +15106,5 @@
         "ext-pdo": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.0.0"
+    "plugin-api-version": "2.1.0"
 }

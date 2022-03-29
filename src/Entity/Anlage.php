@@ -795,6 +795,21 @@ class Anlage
      */
     private $hasWindSpeed = true;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private ?string $DataSourceAM;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $RetrieveAllData = false;
+
+    /**
+     * @ORM\OneToMany(targetEntity=DayLightData::class, mappedBy="anlage")
+     */
+    private $dayLightData;
+
 
     public function __construct()
     {
@@ -824,6 +839,7 @@ class Anlage
         $this->economicVarValues = new ArrayCollection();
         $this->anlageFiles = new ArrayCollection();
         $this->statuses = new ArrayCollection();
+        $this->dayLightData = new ArrayCollection();
     }
 
     public function getAnlId(): ?string
@@ -3310,5 +3326,59 @@ class Anlage
     }
     public function hasGrid(): bool{
         return ($this->showEvuDiag ||$this->useGridMeterDayData);
+    }
+
+    public function getDataSourceAM(): ?string
+    {
+        return $this->DataSourceAM;
+    }
+
+    public function setDataSourceAM(?string $DataSourceAM): self
+    {
+        $this->DataSourceAM = $DataSourceAM;
+
+        return $this;
+    }
+
+    public function getRetrieveAllData(): ?bool
+    {
+        return $this->RetrieveAllData;
+    }
+
+    public function setRetrieveAllData(bool $RetrieveAllData): self
+    {
+        $this->RetrieveAllData = $RetrieveAllData;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, DayLightData>
+     */
+    public function getDayLightData(): Collection
+    {
+        return $this->dayLightData;
+    }
+
+    public function addDayLightData(DayLightData $dayLightData): self
+    {
+        if (!$this->dayLightData->contains($dayLightData)) {
+            $this->dayLightData[] = $dayLightData;
+            $dayLightData->setAnlage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDayLightData(DayLightData $dayLightData): self
+    {
+        if ($this->dayLightData->removeElement($dayLightData)) {
+            // set the owning side to null (unless already changed)
+            if ($dayLightData->getAnlage() === $this) {
+                $dayLightData->setAnlage(null);
+            }
+        }
+
+        return $this;
     }
 }

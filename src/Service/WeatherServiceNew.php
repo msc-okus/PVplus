@@ -4,19 +4,25 @@ namespace App\Service;
 
 
 use App\Entity\Anlage;
+use App\Entity\DayLightData;
 use App\Entity\WeatherStation;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
+use App\Repository\DayLightDataRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Intl\Timezones;
+use DateTimeZone;
 
 
 class WeatherServiceNew
 {
     use G4NTrait;
-
-    public function __construct()
+    private DayLightDataRepository $dayrepo;
+    private EntityManagerInterface $em;
+    public function __construct(DayLightDataRepository $dayrepo, EntityManagerInterface $em)
     {
-
+        $this->dayrepo = $dayrepo;
+        $this->em = $em;
     }
 
     public function loadWeatherDataUP(WeatherStation $weatherStation, $date = 0): string
@@ -163,24 +169,38 @@ class WeatherServiceNew
     }
     public function getSunrise( $Anlagen)
     {
-
+        $current_date = date("Y-m-d");
         foreach($Anlagen as $anlage) {
-            $lat = $anlage->getAnlGeoLat();
-            $lng = $anlage->getAnlGeoLon();
 
-            $offset = Timezones::getRawOffset(self::getNearestTimezone($lat, $lng, strtoupper($anlage->getCountry())));
+            $daylight=$this->dayrepo->findOneByDate($current_date, $anlage);
+            if($daylight){
+                $sunrise = $daylight->getSunrise();
+                $sunset = $daylight->getSunset();
+            }
+            else {
+                $daylight = new DayLightData();
+                $lat = $anlage->getAnlGeoLat();
+                $lng = $anlage->getAnlGeoLon();
 
-            $urli = "https://api.sunrise-sunset.org/json?lat=" . $lat . "&lng=" . $lng . "&date=today";
-            $contents = file_get_contents($urli);
-            $result = (array)json_decode($contents);
-            $clima = (array)$result['results'];
+                $offset = Timezones::getRawOffset(self::getNearestTimezone($lat, $lng, strtoupper($anlage->getCountry())));
 
-            $offset = $offset - 3600;
-            $rise_time = strtotime(date('Y-m-d H:i', strtotime($clima['sunrise']) + 3600)) + $offset;
-            $set_time = strtotime(date('Y-m-d H:i', strtotime($clima['sunset']) + 3600)) + $offset;
-            $sunrise = date('Y-m-d H:i', $rise_time);
-            $sunset = date('Y-m-d H:i', $set_time);
+                $urli = "https://api.sunrise-sunset.org/json?lat=" . $lat . "&lng=" . $lng . "&date=today";
+                $contents = file_get_contents($urli);
+                $result = (array)json_decode($contents);
+                $clima = (array)$result['results'];
 
+                $offset = $offset - 3600;
+                $rise_time = strtotime(date('Y-m-d H:i', strtotime($clima['sunrise']) + 3600)) + $offset;
+                $set_time = strtotime(date('Y-m-d H:i', strtotime($clima['sunset']) + 3600)) + $offset;
+                $sunrise = date('Y-m-d H:i', $rise_time);
+                $sunset = date('Y-m-d H:i', $set_time);
+                $daylight->setSunrise($sunrise);
+                $daylight->setSunset($sunset);
+                $daylight->setAnlage($anlage);
+                $daylight->setDate($current_date);
+                $this->em->persist($daylight);
+                $this->em->flush();
+            }
 
             $returnArray[$anlage->getAnlName()]['sunrise'] = $sunrise;
             $returnArray[$anlage->getAnlName()]['sunset'] = $sunset;
