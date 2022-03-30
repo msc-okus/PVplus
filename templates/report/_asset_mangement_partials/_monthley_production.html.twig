@@ -7,7 +7,7 @@
         <tr>
             {% if (anlage.hasPVSYST == true) %}
                 <td style="text-align: left; width:50%">
-                    <table class="asset_report_table_operations_data">
+                    <table class="asset_report_table_operations_data autowidth">
                         <thead>
                         <tr>
                             <td colspan="5">
@@ -185,7 +185,7 @@
             {% endif %}
 
             <td style="text-align: left; width:50%">
-                <table class="asset_report_table_operations_data" style="float:left">
+                <table class="asset_report_table_operations_data autowidth" style="float:left">
                     <thead>
                     <tr>
                         <td colspan="5">
@@ -345,7 +345,7 @@
 
                 <td style="text-align: left; width:50%">
                     {% if (anlage.hasGrid) %}
-                    <table class="asset_report_table_operations_data" >
+                    <table class="asset_report_table_operations_data autowidth" >
                         <thead>
                         <tr>
                             <td colspan="5">
@@ -528,7 +528,7 @@
 
         <tr>
             <td colspan="2">
-                <table class="legend_colors">
+                <table class="legend_colors autowidth">
                     <tr>
                         <td rowspan="2">Explanation</td>
                         <td style="background-color: #00b050;"> > -2%</td>

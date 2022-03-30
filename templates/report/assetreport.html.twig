@@ -6,18 +6,16 @@
 
             {# WE COULD USE PARAMETERS HERE TO DECIDE WICH PARTS TO INCLUDE BUT WE WILL NEED A MORE COMPLEX FORM DEDICATED FOR THE AM REPORT#}
             {% include 'report/_asset_mangement_partials/_header.html.twig'%}
+
             {% if (data.Production == true) %}
 
                 {% if (data.ProdCap) == true %}
                     {% include 'report/_asset_mangement_partials/_productionandcapacityfactor.html.twig'%}
                 {% endif %}
 
-                {% if (anlage.hasPVSYST) %}
-                    {% if (data.CumulatForecastPVSYS) == true %}
-                        {% include 'report/_asset_mangement_partials/_cumulative_forecast_with_PVSYST.html.twig'%}
-                    {% endif %}
+                {% if (data.CumulatForecastPVSYS) == true %}
+                    {% include 'report/_asset_mangement_partials/_cumulative_forecast_with_PVSYST.html.twig'%}
                 {% endif %}
-
 
                 {% if(data.CumulatForecastG4N) == true %}
                     {% include 'report/_asset_mangement_partials/_cumulative_forecast_with_G4N.html.twig'%}
@@ -29,13 +27,13 @@
                 {% endif %}
 
                 {% if (data.MonthlyProd == true) %}
-
                     {% include 'report/_asset_mangement_partials/_monthley_production.html.twig'%}
                 {% endif %}
 
                 {% if (data.DailyProd == true) %}
                     {% include 'report/_asset_mangement_partials/_production_monthly_expected_vs_actuals.html.twig'%}
                 {% endif %}
+
                 {% if (data.StringCurr == true) %}
                     {%  for page in 0..(((invNr/40)|round(0, 'ceil'))-1) %}
                         {% include 'report/_asset_mangement_partials/_string_currents_daily_difference_g4n_actuals.html.twig'%}
@@ -47,8 +45,9 @@
                         {% include 'report/_asset_mangement_partials/_inverters_power_daily_difference_g4n_actuals.html.twig'%}
                     {% endfor %}
 
-            {% endif %}
+                {% endif %}
 
+            {% endif %}
             {% if(data.Availability) == true %}
 
                 {% if (data.AvYearlyOverview == true) %}
@@ -56,11 +55,11 @@
                         {% include 'report/_asset_mangement_partials/_availibility_yearly_overview.html.twig'%}
                     {% endfor %}
                 {% endif %}
-{#
+                {#
                 {% if (data.AvMonthlyOverview == true) %}
                     {% include 'report/_asset_mangement_partials/_availability_monthly_overview.html.twig'%}
                 {% endif %}
-#}
+                #}
 
                 {% if (data.AvInv == true) %}
                     {% include 'report/_asset_mangement_partials/_aufloesung_availibility_fuerr_den_act_monat.html.twig'%}
@@ -69,7 +68,6 @@
                     {% endfor %}
                 {% endif %}
 
-        {% endif %}
             {% endif %}
 
 

@@ -701,44 +701,53 @@ class AssetManagementService
         //fuer die Tabelle 2
         #losses
 
-        for ($i = 0; $i < count($tbody_a_production['powerEvu']); $i++) {
-            if ($i + 1 > $report['reportMonth']) {
-                $diefference_prod_to_pvsyst[] = 0;
-            } else {
+        for ($i = 0; $i < 12; $i++) {
+            if ($i < count($tbody_a_production['powerEvu'])) {
+                if ($i + 1 > $report['reportMonth']) {
+                    $diefference_prod_to_pvsyst[] = 0;
+                } else {
+                    if ($anlage->getShowEvuDiag()) {
+                        if ($anlage->getUseGridMeterDayData()) {
+                            $diefference_prod_to_pvsyst[] = $tbody_a_production['powerExt'][$i] - $tbody_a_production['expectedPvSyst'][$i];
+                        } else {
+                            $diefference_prod_to_pvsyst[] = $tbody_a_production['powerEvu'][$i] - $tbody_a_production['expectedPvSyst'][$i];
+                        }
+                    } else {
+                        $diefference_prod_to_pvsyst[] = $tbody_a_production['powerAct'][$i] - $tbody_a_production['expectedPvSyst'][$i];
+                    }
+                }
+            }
+            else $diefference_prod_to_pvsyst[] = 0;
+        }
+
+        for ($i = 0; $i < 12; $i++) {
+            if ($i < count($tbody_a_production['powerEvu'])) {
                 if ($anlage->getShowEvuDiag()) {
                     if ($anlage->getUseGridMeterDayData()) {
-                        $diefference_prod_to_pvsyst[] = $tbody_a_production['powerExt'][$i] - $tbody_a_production['expectedPvSyst'][$i];
+                        $diefference_prod_to_expected_g4n[] = $tbody_a_production['powerExt'][$i] - $tbody_a_production['powerExpEvu'][$i];
                     } else {
-                        $diefference_prod_to_pvsyst[] = $tbody_a_production['powerEvu'][$i] - $tbody_a_production['expectedPvSyst'][$i];
+                        $diefference_prod_to_expected_g4n[] = $tbody_a_production['powerEvu'][$i] - $tbody_a_production['powerExpEvu'][$i];
                     }
                 } else {
-                    $diefference_prod_to_pvsyst[] = $tbody_a_production['powerAct'][$i] - $tbody_a_production['expectedPvSyst'][$i];
+                    $diefference_prod_to_expected_g4n[] = $tbody_a_production['powerAct'][$i] - $tbody_a_production['powerExpEvu'][$i];
                 }
             }
+            else $diefference_prod_to_expected_g4n[] = 0;
         }
 
-        for ($i = 0; $i < count($tbody_a_production['powerEvu']); $i++) {
-            if ($anlage->getShowEvuDiag()) {
-                if ($anlage->getUseGridMeterDayData()) {
-                    $diefference_prod_to_expected_g4n[] = $tbody_a_production['powerExt'][$i] - $tbody_a_production['powerExpEvu'][$i];
+        for ($i = 0; $i < 12; $i++) {
+            if ($i < count($tbody_a_production['powerEvu'])) {
+                if ($anlage->getShowEvuDiag()) {
+                    if ($anlage->getUseGridMeterDayData()) {
+                        $diefference_prod_to_egrid[] = $tbody_a_production['powerExt'][$i] - $tbody_a_production['powerAct'][$i];
+                    } else {
+                        $diefference_prod_to_egrid[] = $tbody_a_production['powerEvu'][$i] - $tbody_a_production['powerAct'][$i];
+                    }
                 } else {
-                    $diefference_prod_to_expected_g4n[] = $tbody_a_production['powerEvu'][$i] - $tbody_a_production['powerExpEvu'][$i];
+                    $diefference_prod_to_egrid[] = $tbody_a_production['powerAct'][$i] - $tbody_a_production['powerAct'][$i];
                 }
-            } else {
-                $diefference_prod_to_expected_g4n[] = $tbody_a_production['powerAct'][$i] - $tbody_a_production['powerExpEvu'][$i];
             }
-        }
-
-        for ($i = 0; $i < count($tbody_a_production['powerEvu']); $i++) {
-            if ($anlage->getShowEvuDiag()) {
-                if ($anlage->getUseGridMeterDayData()) {
-                    $diefference_prod_to_egrid[] = $tbody_a_production['powerExt'][$i] - $tbody_a_production['powerAct'][$i];
-                } else {
-                    $diefference_prod_to_egrid[] = $tbody_a_production['powerEvu'][$i] - $tbody_a_production['powerAct'][$i];
-                }
-            } else {
-                $diefference_prod_to_egrid[] = $tbody_a_production['powerAct'][$i] - $tbody_a_production['powerAct'][$i];
-            }
+            else $diefference_prod_to_egrid[] = 0;
         }
         //dd($tbody_a_production, $diefference_prod_to_expected_g4n,  $diefference_prod_to_egrid);
 
