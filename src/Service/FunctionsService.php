@@ -307,7 +307,7 @@ class FunctionsService
     }
 
     /**
-     * Berechnet den Forcast für die angebene Anlage und den angebenen Monat, auf Basis der Daten aus der Entity AnlagenForecastDay
+     * Calculate forcast for given plant and given month. Base aare the data from entity 'AnlagenForecastDay'
      *
      * @param Anlage $anlage
      * @param int $month
