@@ -325,7 +325,7 @@ class AvailabilityService
     }
 
     /**
-     * Berchnet die Verfügbarkeit anhand der 'cases' nach der Formel<br>
+     * Calculate the Availability (PA) for the given plant and the given time range. Base on the folowing formular:<br>
      * ti / ti,(theo - tFM)<br>
      * wobei:<br>
      * ti = case1 + case2<br>
@@ -337,25 +337,38 @@ class AvailabilityService
      * @param DateTime $to
      * @return float
      */
-    public function calcAvailability(Anlage|int $anlage, DateTime $from, DateTime $to): float
+    public function calcAvailability(Anlage|int $anlage, DateTime $from, DateTime $to, ?int $inverter = null): float
     {
         if (is_int($anlage)) $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);
 
         $sumPart1 = $sumPart2 = $pa = 0;
-        if ($anlage->getUseNewDcSchema()) {
-            foreach ($anlage->getAcGroups() as $acGroup) {
-                $inverterPowerDc[$acGroup->getAcGroup()] = $acGroup->getDcPowerInverter();
+        $inverterPowerDc = [];
+        // ToDo: muss auf anlagen Typ angepasst werden
+        if ($inverter === null) {
+            if ($anlage->getUseNewDcSchema()) {
+                foreach ($anlage->getAcGroups() as $acGroup) {
+                    $inverterPowerDc[$acGroup->getAcGroup()] = $acGroup->getDcPowerInverter();
+                }
+            } else {
+                foreach ($anlage->getAcGroups() as $acGroup) {
+                    ($acGroup->getDcPowerInverter() > 0) ? $powerPerInverter = $acGroup->getDcPowerInverter() / ($acGroup->getUnitLast() - $acGroup->getUnitFirst() + 1) : $powerPerInverter = 0;
+                    for ($inv = $acGroup->getUnitFirst(); $inv <= $acGroup->getUnitLast(); $inv++) {
+                        $inverterPowerDc[$inv] = $powerPerInverter;
+                    }
+                }
             }
         } else {
-            foreach ($anlage->getAcGroups() as $acGroup) {
-                ($acGroup->getDcPowerInverter() > 0) ? $powerPerInverter = $acGroup->getDcPowerInverter() / ($acGroup->getUnitLast() - $acGroup->getUnitFirst() + 1) : $powerPerInverter = 0;
-                for ($inverter = $acGroup->getUnitFirst(); $inverter <= $acGroup->getUnitLast(); $inverter++) {
-                    $inverterPowerDc[$inverter] = $powerPerInverter;
-                }
+            $inverter--;
+            $acGroups = $anlage->getAcGroups();
+            if ($anlage->getUseNewDcSchema()) {
+                $inverterPowerDc[$acGroups[$inverter]->getAcGroup()] = $acGroups[$inverter]->getDcPowerInverter();
+            } else {
+                ($acGroups[$inverter]->getDcPowerInverter() > 0) ? $powerPerInverter = $acGroups[$inverter]->getDcPowerInverter() / ($acGroups[$inverter]->getUnitLast() - $acGroups[$inverter]->getUnitFirst() + 1) : $powerPerInverter = 0;
+                $inverterPowerDc[$inverter] = $powerPerInverter;
             }
         }
 
-        $availabilitys = $this->availabilityRepository->sumAllCasesByDate($anlage, $from, $to);
+        $availabilitys = $this->availabilityRepository->sumAllCasesByDate($anlage, $from, $to, $inverter);
         foreach ($availabilitys as $row) {
             $inverter = $row['inverter'];
             // Berechnung der protzentualen Verfügbarkeit Part 1 und Part 2
@@ -372,6 +385,7 @@ class AvailabilityService
             $sumPart2   += $invAPart2;
             $pa         += $invAPart3;
         }
+
         return $pa;
     }
 

@@ -11,13 +11,11 @@
                 {% set unitcounter = 0 %}
                 {% set unitcounter2 = 0 %}
                 {% if (page == (((invNr / 20)|round(0, 'ceil'))-1)) %}
-
-                    {% if  (invNr % 20) != 0 %}
+                    {% if (invNr % 20) != 0 %}
                         {% set maxInv = (invNr % 20) %}
                     {% else %}
                         {% set maxInv =  20 %}
                     {% endif %}
-
                 {% else  %}
                     {% set maxInv =  20 %}
                 {% endif %}
@@ -55,13 +53,12 @@
                                     {% if (datatr.pa < 92) %}   {% set color = "#ffff00" %}{% endif %}
                                     {% if (datatr.pa < 85) %}   {% set color = "#ffc000" %}{% endif %}
                                     {% if (datatr.pa <= 80) %}  {% set color = "#cc0000" %}{% endif %}
-                                    {% if (datatr.pa == 100) %} {% set color = "#00b050" %}{% endif %}
 
                                     {% if (itemcounter == 1 ) %}
-                                        <tr><td class="tr_first_column" style="font-size: 7.3px!important;">{{ datatr.form_date }}</td><td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ datatr.pa|number_format(0, ',', '.') }}</td></tr>
+                                        <tr><td class="tr_first_column" style="font-size: 7.3px!important;">{{ datatr.form_date }}</td><td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ datatr.pa|number_format(2, ',', '.') }}</td></tr>
                                     {% endif %}
                                     {% if (itemcounter > 1) %}
-                                        <tr><td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ datatr.pa|number_format(0, ',', '.') }}</td></tr>
+                                        <tr><td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ datatr.pa|number_format(2, ',', '.') }}</td></tr>
                                     {% endif %}
                                 {% endfor %}
                             </table>
@@ -70,7 +67,6 @@
                         {% set itemcounter = itemcounter+1 %}
                     {% endfor %}
                     {% set itemcounter = 1 %}
-
                     </tr>
                 </table>
                         {#
@@ -135,23 +131,21 @@
             </td>
         </tr>
             #}
-
+            </td>
+        </tr>
         <tr>
-
-                    <td colspan="2">
-                        <table class="legend_colors autowidth">
-                            <tr>
-                                <td rowspan="2">Explanation</td>
-                                <td style="background-color: #00b050;"> > -2%</td>
-                                <td style="background-color: #cee4c0;">-2,1 to -8%</td>
-                                <td style="background-color: #ffff00;">-8,1 to -15%</td>
-                                <td style="background-color: #ffc000;">-15,1 to -20%</td>
-                                <td style="background-color: #cc0000;">< -20%</td>
-                            </tr>
-                        </table>
-                    </td>
-
-
+            <td colspan="2">
+                <table class="legend_colors">
+                    <tr>
+                        <td rowspan="2">Explanation</td>
+                        <td style="background-color: #00b050;">98% to 100%</td>
+                        <td style="background-color: #cee4c0;">92% to 98%</td>
+                        <td style="background-color: #ffff00;">85% to 92%</td>
+                        <td style="background-color: #ffc000;">80% to 85%</td>
+                        <td style="background-color: #cc0000;">< 80%</td>
+                    </tr>
+                </table>
+            </td>
         </tr>
     </table>
 
