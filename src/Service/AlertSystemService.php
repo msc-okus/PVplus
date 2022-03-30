@@ -95,7 +95,7 @@ class AlertSystemService
                 self::messagingFunction($message, $anlage);
             }
         }
-        dd($status_report);
+       // dd($status_report);
         return $status_report;
     }
 
@@ -310,7 +310,7 @@ class AlertSystemService
 
     }
     //We use this to query for a concrete quarter in an inverter
-    private function RetrieveQuarterIst(string $stamp, ?string $inverter, Anlage $anlage){
+    private static function RetrieveQuarterIst(string $stamp, ?string $inverter, Anlage $anlage){
         $conn = self::getPdoConnection();
 
         $sql = "SELECT wr_pac as ist
@@ -328,7 +328,7 @@ class AlertSystemService
         else return "No data";
     }
     //We use this to query for a concrete quarter in the weatherstation
-    private function RetrieveQuarterWeather(string $stamp, Anlage $anlage){
+    private static function RetrieveQuarterWeather(string $stamp, Anlage $anlage){
         $conn = self::getPdoConnection();
 
         $sql = "SELECT b.g_lower as gi , b.g_upper as gmod 
@@ -346,35 +346,261 @@ class AlertSystemService
         else return "No data";
 
     }
-    //We use this to make an error message of the status array from the weather station
-    private function AnalyzeWeather($status_report, $time){
+
+    /**
+     * We use this to make an error message of the status array from the weather station
+     */
+    private function AnalyzeWeather($status_report, $time): string
+    {
         $message = "";
-
-
-
         if ($status_report['Irradiation']['Actual'] == "No data"){
             $message = $message . "There was no Irradiation Data at " . $time . "<br>";
             if($status_report['Irradiation']['15'] == "No data"){
                 $timeq1 = date('Y-m-d H:i', strtotime($time) - 900);
                 $message = $message . "There was no Irradiation Data at " . $timeq1 . "<br>";
+                if($status_report['Irradiation']['30'] == "No data"){
+                    $timeq2 = date('Y-m-d H:i', strtotime($timeq1) - 900);
+                    $message = $message . "There was no Irradiation Data at " . $timeq2 . "<br>";
+                    if($status_report['Irradiation']['45'] == "No data"){
+                        $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
+                        $message = $message . "There was no Irradiation Data at " . $timeq3 . "<br>";
+                        if($status_report['Irradiation']['60'] == "No data"){
+                            $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                            $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
+                        }
+                        else if ($status_report['Irradiation']['60'] == "Irradiation is 0"){
+                            $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                            $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
+                        }
+                    }
+                    else if ($status_report['Irradiation']['45'] == "Irradiation is 0"){
+                        $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
+                        $message = $message . "Irradiation was 0 at " . $timeq3 . "<br>";
+                        if($status_report['Irradiation']['60'] == "No data"){
+                            $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                            $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
+                        }
+                        else if ($status_report['Irradiation']['60'] == "Irradiation is 0"){
+                            $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                            $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
+                        }
+                    }
+                }
+                else if ($status_report['Irradiation']['30'] == "Irradiation is 0"){
+                    $timeq2 = date('Y-m-d H:i', strtotime($timeq1) - 900);
+                    $message = $message . "Irradiation was 0 at " . $timeq2 . "<br>";
+                    if($status_report['Irradiation']['45'] == "No data"){
+                        $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
+                        $message = $message . "There was no Irradiation Data at " . $timeq3 . "<br>";
+                        if($status_report['Irradiation']['60'] == "No data"){
+                            $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                            $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
+                        }
+                        else if ($status_report['Irradiation']['60'] == "Irradiation is 0"){
+                            $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                            $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
+                        }
+                    }
+                    else if ($status_report['Irradiation']['45'] == "Irradiation is 0"){
+                        $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
+                        $message = $message . "Irradiation was 0 at " . $timeq3 . "<br>";
+                        if($status_report['Irradiation']['60'] == "No data"){
+                            $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                            $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
+                        }
+                        else if ($status_report['Irradiation']['60'] == "Irradiation is 0"){
+                            $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                            $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
+                        }
+                    }
+                }
             }
-            else if ($status_report['Irradiation']['15'] == "Irradiation is 0"){
+            else if ($status_report['Irradiation']['15'] == "Irradiation is 0")
+            {
                 $timeq1 = date('Y-m-d H:i', strtotime($time) - 900);
-                $message = $message . "Irradiatin was 0 at " . $timeq1 . "<br>";
+            $message = $message . "Irradiation was 0 at " . $timeq1 . "<br>";
+            if($status_report['Irradiation']['30'] == "No data"){
+                $timeq2 = date('Y-m-d H:i', strtotime($timeq1) - 900);
+                $message = $message . "There was no Irradiation Data at " . $timeq2 . "<br>";
+                if($status_report['Irradiation']['45'] == "No data"){
+                    $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
+                    $message = $message . "There was no Irradiation Data at " . $timeq3 . "<br>";
+                    if($status_report['Irradiation']['60'] == "No data"){
+                        $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                        $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
+                    }
+                    else if ($status_report['Irradiation']['60'] == "Irradiation is 0"){
+                        $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                        $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
+                    }
+                }
+                else if ($status_report['Irradiation']['45'] == "Irradiation is 0"){
+                    $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
+                    $message = $message . "Irradiation was 0 at " . $timeq3 . "<br>";
+                    if($status_report['Irradiation']['60'] == "No data"){
+                        $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                        $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
+                    }
+                    else if ($status_report['Irradiation']['60'] == "Irradiation is 0"){
+                        $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                        $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
+                    }
+                }
             }
+            else if ($status_report['Irradiation']['30'] == "Irradiation is 0"){
+                $timeq2 = date('Y-m-d H:i', strtotime($timeq1) - 900);
+                $message = $message . "Irradiation was 0 at " . $timeq2 . "<br>";
+                if($status_report['Irradiation']['45'] == "No data"){
+                    $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
+                    $message = $message . "There was no Irradiation Data at " . $timeq3 . "<br>";
+                    if($status_report['Irradiation']['60'] == "No data"){
+                        $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                        $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
+                    }
+                    else if ($status_report['Irradiation']['60'] == "Irradiation is 0"){
+                        $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                        $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
+                    }
+                }
+                else if ($status_report['Irradiation']['45'] == "Irradiation is 0"){
+                    $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
+                    $message = $message . "Irradiation was 0 at " . $timeq3 . "<br>";
+                    if($status_report['Irradiation']['60'] == "No data"){
+                        $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                        $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
+                    }
+                    else if ($status_report['Irradiation']['60'] == "Irradiation is 0"){
+                        $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                        $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
+                    }
+                }
+            }
+        }
         }
         else if ($status_report['Irradiation']['Actual'] == "Irradiation is 0"){
-            $message = $message . "There was no Irradiation Data at " . $time . "<br>";
+            $message = $message . "Irradiation was 0 at " . $time . "<br>";
             if($status_report['Irradiation']['15'] == "No data"){
                 $timeq1 = date('Y-m-d H:i', strtotime($time) - 900);
-                $message = $message . "Irradiatin was 0 at " . $timeq1 . "<br>";
+                $message = $message . "There was no Irradiation Data at " . $timeq1 . "<br>";
+                if($status_report['Irradiation']['30'] == "No data"){
+                    $timeq2 = date('Y-m-d H:i', strtotime($timeq1) - 900);
+                    $message = $message . "There was no Irradiation Data at " . $timeq2 . "<br>";
+                    if($status_report['Irradiation']['45'] == "No data"){
+                        $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
+                        $message = $message . "There was no Irradiation Data at " . $timeq3 . "<br>";
+                        if($status_report['Irradiation']['60'] == "No data"){
+                            $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                            $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
+                        }
+                        else if ($status_report['Irradiation']['60'] == "Irradiation is 0"){
+                            $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                            $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
+                        }
+                    }
+                    else if ($status_report['Irradiation']['45'] == "Irradiation is 0"){
+                        $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
+                        $message = $message . "Irradiation was 0 at " . $timeq3 . "<br>";
+                        if($status_report['Irradiation']['60'] == "No data"){
+                            $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                            $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
+                        }
+                        else if ($status_report['Irradiation']['60'] == "Irradiation is 0"){
+                            $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                            $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
+                        }
+                    }
+                }
+                else if ($status_report['Irradiation']['30'] == "Irradiation is 0"){
+                    $timeq2 = date('Y-m-d H:i', strtotime($timeq1) - 900);
+                    $message = $message . "Irradiation was 0 at " . $timeq2 . "<br>";
+                    if($status_report['Irradiation']['45'] == "No data"){
+                        $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
+                        $message = $message . "There was no Irradiation Data at " . $timeq3 . "<br>";
+                        if($status_report['Irradiation']['60'] == "No data"){
+                            $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                            $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
+                        }
+                        else if ($status_report['Irradiation']['60'] == "Irradiation is 0"){
+                            $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                            $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
+                        }
+                    }
+                    else if ($status_report['Irradiation']['45'] == "Irradiation is 0"){
+                        $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
+                        $message = $message . "Irradiation was 0 at " . $timeq3 . "<br>";
+                        if($status_report['Irradiation']['60'] == "No data"){
+                            $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                            $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
+                        }
+                        else if ($status_report['Irradiation']['60'] == "Irradiation is 0"){
+                            $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                            $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
+                        }
+                    }
+                }
             }
-            else if ($status_report['Irradiation']['15'] == "Irradiation is 0"){
+            else if ($status_report['Irradiation']['15'] == "Irradiation is 0")
+            {
                 $timeq1 = date('Y-m-d H:i', strtotime($time) - 900);
-                $message = $message . "Irradiatin was 0 at " . $timeq1 . "<br>";
+                $message = $message . "Irradiation was 0 at " . $timeq1 . "<br>";
+                if($status_report['Irradiation']['30'] == "No data"){
+                    $timeq2 = date('Y-m-d H:i', strtotime($timeq1) - 900);
+                    $message = $message . "There was no Irradiation Data at " . $timeq2 . "<br>";
+                    if($status_report['Irradiation']['45'] == "No data"){
+                        $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
+                        $message = $message . "There was no Irradiation Data at " . $timeq3 . "<br>";
+                        if($status_report['Irradiation']['60'] == "No data"){
+                            $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                            $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
+                        }
+                        else if ($status_report['Irradiation']['60'] == "Irradiation is 0"){
+                            $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                            $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
+                        }
+                    }
+                    else if ($status_report['Irradiation']['45'] == "Irradiation is 0"){
+                        $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
+                        $message = $message . "Irradiation was 0 at " . $timeq3 . "<br>";
+                        if($status_report['Irradiation']['60'] == "No data"){
+                            $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                            $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
+                        }
+                        else if ($status_report['Irradiation']['60'] == "Irradiation is 0"){
+                            $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                            $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
+                        }
+                    }
+                }
+                else if ($status_report['Irradiation']['30'] == "Irradiation is 0"){
+                    $timeq2 = date('Y-m-d H:i', strtotime($timeq1) - 900);
+                    $message = $message . "Irradiation was 0 at " . $timeq2 . "<br>";
+                    if($status_report['Irradiation']['45'] == "No data"){
+                        $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
+                        $message = $message . "There was no Irradiation Data at " . $timeq3 . "<br>";
+                        if($status_report['Irradiation']['60'] == "No data"){
+                            $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                            $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
+                        }
+                        else if ($status_report['Irradiation']['60'] == "Irradiation is 0"){
+                            $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                            $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
+                        }
+                    }
+                    else if ($status_report['Irradiation']['45'] == "Irradiation is 0"){
+                        $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
+                        $message = $message . "Irradiation was 0 at " . $timeq3 . "<br>";
+                        if($status_report['Irradiation']['60'] == "No data"){
+                            $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                            $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
+                        }
+                        else if ($status_report['Irradiation']['60'] == "Irradiation is 0"){
+                            $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
+                            $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
+                        }
+                    }
+                }
             }
         }
-
         return $message;
     }
     //We use this to make an error message of the status array from the inverter
