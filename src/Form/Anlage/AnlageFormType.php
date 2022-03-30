@@ -204,9 +204,9 @@ class AnlageFormType extends AbstractType
             ################################################
             ####       Plant Data / Configuration       ####
             ################################################
-            ->add('kwPeak', TextType::class, [
+            ->add('pnom', TextType::class, [
                 'label'         => 'Anlagenleistung [kWp] (für PA Berechnung)',
-                'help'          => '[power]',
+                'help'          => '[pNom]',
                 'label_html'    => true,
                 'required'      => false,
                 'empty_data'    => '',
