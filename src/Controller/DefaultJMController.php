@@ -41,7 +41,8 @@ class DefaultJMController extends AbstractController
     /**
      * @Route("/default/test/check", name="default_check")
      */
-    public function check(AlertSystemService $service, WeatherServiceNew $weather, AnlagenRepository $AnlRepo, EntityManagerInterface $em, MessageService $mailservice){
-        $service->checkSystem($weather, $AnlRepo, $em, $mailservice);
+    public function check(AlertSystemService $service){
+        $service->checkWeatherStation();
+
     }
 }
