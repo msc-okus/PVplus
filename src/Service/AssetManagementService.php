@@ -1692,8 +1692,6 @@ class AssetManagementService
             }
         }
 
-        #dd($outPaCY);
-
         $chart->series =
             [
                 [
