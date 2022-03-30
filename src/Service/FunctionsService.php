@@ -323,8 +323,8 @@ class FunctionsService
         foreach ($forcasts as $forcast) {
             $sum += $anlage->getContractualPower() * $forcast->getFactorDay();
         }
-        $sum -= $sum / (100 * $anlage->getDegradationForecast() * $betriebsJahre);
-        $sum -= $sum / (100 * $anlage->getLossesForecast());
+        if ($anlage->getDegradationForecast() > 0 && $betriebsJahre > 0) $sum -= $sum / (100 * $anlage->getDegradationForecast() * $betriebsJahre);
+        if ($anlage->getLossesForecast() > 0) $sum -= $sum / (100 * $anlage->getLossesForecast());
 
         return $sum;
     }
