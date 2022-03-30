@@ -6,6 +6,7 @@ use App\Entity\Anlage;
 use App\Entity\AnlageAvailability;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use \Doctrine\ORM\QueryBuilder;
 use DateTime;
 
 /**
@@ -72,20 +73,37 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
         return $q;
     }
 
-    public function sumAllCasesByDate(Anlage $anlage, DateTime $from, DateTime $to)
+    public function sumAllCasesByDate(Anlage $anlage, DateTime $from, DateTime $to, ?int $inverter = null)
     {
-        $result = $this->createQueryBuilder('a')
-            ->andWhere('a.anlage = :anlage')
-            ->andWhere('a.stamp BETWEEN :from AND :to')
-            ->groupBy('a.inverter')
-            ->orderBy('a.inverter*1')
-            ->setParameter('anlage', $anlage)
-            ->setParameter('from', $from->format('Y-m-d H:i'))
-            ->setParameter('to', $to->format('Y-m-d H:i'))
-            ->select('a.inverter, sum(a.case_0)as case0, sum(a.case_1) as case1, sum(a.case_2) as case2, sum(a.case_3) as case3, sum(a.case_4) as case4, sum(a.case_5) as case5, sum(a.case_6) as case6, sum(a.control) as control')
-            ->getQuery()
-            ->getResult()
-        ;
+        if ($inverter === null) {
+            $result = $this->createQueryBuilder('a')
+                ->andWhere('a.anlage = :anlage')
+                ->andWhere('a.stamp BETWEEN :from AND :to')
+                ->setParameter('anlage', $anlage)
+                ->setParameter('from', $from->format('Y-m-d H:i'))
+                ->setParameter('to', $to->format('Y-m-d H:i'))
+                ->groupBy('a.inverter')
+                ->orderBy('a.inverter*1')
+                ->select('a.inverter, sum(a.case_0)as case0, sum(a.case_1) as case1, sum(a.case_2) as case2, sum(a.case_3) as case3, sum(a.case_4) as case4, sum(a.case_5) as case5, sum(a.case_6) as case6, sum(a.control) as control')
+                ->getQuery()
+                ->getResult()
+            ;
+        } else {
+            $result = $this->createQueryBuilder('a')
+                ->andWhere('a.anlage = :anlage')
+                ->andWhere('a.stamp BETWEEN :from AND :to AND a.inverter = :inverter')
+                ->setParameter('anlage', $anlage)
+                ->setParameter('from', $from->format('Y-m-d H:i'))
+                ->setParameter('to', $to->format('Y-m-d H:i'))
+                ->setParameter('inverter', $inverter+1)
+                ->groupBy('a.inverter')
+                ->orderBy('a.inverter*1')
+                ->select('a.inverter, sum(a.case_0)as case0, sum(a.case_1) as case1, sum(a.case_2) as case2, sum(a.case_3) as case3, sum(a.case_4) as case4, sum(a.case_5) as case5, sum(a.case_6) as case6, sum(a.control) as control')
+                ->getQuery()
+                ->getResult()
+            ;
+        }
+
         return $result;
     }
 }

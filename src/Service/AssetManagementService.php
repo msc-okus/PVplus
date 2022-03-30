@@ -24,6 +24,8 @@ class AssetManagementService
 {
     use G4NTrait;
 
+    private PDO $conn;
+    private \mysqli $connAnlage;
     private EntityManagerInterface $em;
     private PvSystMonthRepository $pvSystMonthRepo;
     private EconomicVarValuesRepository $ecoVarValueRepo;
@@ -31,9 +33,8 @@ class AssetManagementService
     private FunctionsService $functions;
     private NormalizerInterface $serializer;
     private DownloadAnalyseService $DownloadAnalyseService;
-    private $conn;
-    private $connAnlage;
     private PRCalulationService $PRCalulation;
+    private AvailabilityService $availability;
 
     public function __construct(
         EntityManagerInterface $em,
@@ -43,7 +44,8 @@ class AssetManagementService
         DownloadAnalyseService $analyseService,
         EconomicVarValuesRepository $ecoVarValueRep,
         PRCalulationService $PRCalulation,
-        EconomicVarNamesRepository $ecoVarNameRep
+        EconomicVarNamesRepository $ecoVarNameRep,
+        AvailabilityService $availability
     )
     {
         $this->functions = $functions;
@@ -57,6 +59,7 @@ class AssetManagementService
         $this->DownloadAnalyseService = $analyseService;
         $this->PRCalulation = $PRCalulation;
 
+        $this->availability = $availability;
     }
 
     public function assetReport($anlage, $month = 0, $year = 0, $pages = 0): array
@@ -232,10 +235,8 @@ class AssetManagementService
 
 #            if ($anlage->hasPVSYST()) $pvSyst = $this->pvSystMonthRepo->findOneMonth($anlage, $i);
 #            else $pvSyst = 0;
-            dump($Ertrag_design);
             $dataMonthArray[] = $monthArray[$i - 1];
             $expectedPvSyst[] = $Ertrag_design;
-
 
 #            unset($pvSyst);
 
@@ -257,7 +258,6 @@ class AssetManagementService
             'powerExpEvu' => $powerExpEvu,
             'powerExt' => $powerExternal
         ];
-        dump($tbody_a_production);
 ;
 
         //fuer die Tabelle Capacity Factor
@@ -1260,7 +1260,6 @@ class AssetManagementService
             else {
                 for($i = 6;$i <=intval($report['reportMonth']); $i++){
                     $expectedPvSystQ3 += $tbody_a_production['expectedPvSyst'][$i];
-                    dump( $i, intval($report['reportMonth']));
                 }
             }
 
@@ -1638,53 +1637,53 @@ class AssetManagementService
                         "plantAvailabilitySecond" => (float)$output2['availability2'],
                         "panneltemp" => (float)$output[$i]->getpanneltemp(),
                     ];
-                /*
-                $table_overview_dayly_old[] =
-                    [
-                        "date" => $output[$i]->getstamp()->format('M-d'),
-                        "irradiation" => (float)$output[$i]->getirradiation(),
-                        "powerEGridExtMonth" => (float)$output[$i]->getpowerEGridExt(),
-                        "PowerEvuMonth" => (float)$output[$i]->getPowerEvu(),
-                        "powerActMonth" => (float)$output[$i]->getpowerAct(),
-                        "powerDctMonth" => (float)$dcData[$i]['actdc'],
-                        "powerExpMonth" => (float)$output[$i]->getpowerExp(),
-                        "powerExpDctMonth" => (float)$dcDataExpected[$i]['expdc'],
-                        "prEGridExtMonth" => (float)$output[$i]->getprEGridExtMonth(),
-                        "prEvuMonth" => (float)$output[$i]->getprEvuMonth(),
-                        "prActMonth" => (float)$output[$i]->getprActMonth(),
-                        "prExpMonth" => (float)$output[$i]->getprExpMonth(),
-                        "plantAvailability" => (float)$output[$i]->getplantAvailability(),
-                        "plantAvailabilitySecond" => (float)$output[$i]->getplantAvailabilitySecond(),
-                        "panneltemp" => (float)$output[$i]->getpanneltemp(),
-                    ];
-                */
             }
         }
 
         //End Operations dayly
 
         //Fuer die PA des aktuellen Jahres
-
         $daysInThisMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
-        $sql = "SELECT DATE_FORMAT(stamp, '%Y-%m') AS form_date, unit, avg(pa_0)*100 as pa FROM " . $anlage->getDbNameIst() . " where stamp BETWEEN '" . $report['reportYear'] . "-1-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInThisMonth . " 23:59'and pa_0 >= 0  group by unit, DATE_FORMAT(stamp, '%Y-%m')";
-        $result = $this->conn->prepare($sql);
-        $result->execute();
-        $i = 0;
+        if (false) {
+            $sql = "SELECT DATE_FORMAT(stamp, '%Y-%m') AS form_date, unit, avg(pa_0)*100 as pa FROM " . $anlage->getDbNameIst() . " where stamp BETWEEN '" . $report['reportYear'] . "-1-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInThisMonth . " 23:59'and pa_0 >= 0  group by unit, DATE_FORMAT(stamp, '%Y-%m')";
+            $result = $this->conn->prepare($sql);
+            $result->execute();
+            $i = 0;
 
-        foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
-            $pa[] = [
-                'form_date' => date("m", strtotime($value['form_date'])),
-                'pa' => round($value['pa'], 3),
-                'unit' => $value['unit']
-            ];
-            $i++;
-            if ($i >= $report['reportMonth']) {
+            foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
+                $pa[] = [
+                    'form_date' => date("m", strtotime($value['form_date'])),
+                    'pa' => round($value['pa'], 3),
+                    'unit' => $value['unit']
+                ];
+                $i++;
+                if ($i >= $report['reportMonth']) {
+                    $outPaCY[] = $pa;
+                    unset($pa);
+                    $i = 0;
+                }
+            }
+        } else {
+            // neue Version
+            $inverters = $this->functions->getInverterArray($anlage);
+            $pa = [];
+            foreach ($inverters as $inverter => $invertername) {
+                for ($tempMonth = 1; $tempMonth <= $report['reportMonth']; $tempMonth++) {
+                    $daysInThisMonth = cal_days_in_month(CAL_GREGORIAN, $tempMonth, $report['reportYear']);
+                    $startDate = new \DateTime($report['reportYear'] . "-$tempMonth-01 00:00");
+                    $endDate = new \DateTime($report['reportYear'] . "-$tempMonth-$daysInThisMonth 00:00");
+                    $pa[] = [
+                        'form_date' => $tempMonth,
+                        'pa'        => $this->availability->calcAvailability($anlage, $startDate, $endDate, $inverter),
+                        'unit'      => $inverter
+                    ];
+                }
                 $outPaCY[] = $pa;
                 unset($pa);
-                $i = 0;
             }
-
         }
+
+        #dd($outPaCY);
 
         $chart->series =
             [
