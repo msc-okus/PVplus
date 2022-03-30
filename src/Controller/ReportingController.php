@@ -56,50 +56,56 @@ class ReportingController extends AbstractController
 
         // we try to find and delete a previous report from this month/year
         $report = $reportRepo->findOneByAMY($anlage, $month, $year)[0];
+        $comment = "1. The net capacity factor is the unitless ratio of an actual electrical energy output over a given period of time to the maximum possible electrical energy output over that period. <br>
 
+        Der Nettokapazitätsfaktor ist das einheitslose Verhältnis einer tatsächlichen elektrischen Energieabgabe über einen bestimmten Zeitraum zu der maximal möglichen elektrischen Energieabgabe über diesen Zeitraum. <br>";//here we set the preset comment
         if ($report) {
+            $comment = $report->getComments();
             $em->remove($report);
             $em->flush();
+
         }
 
-        $report = new AnlagenReports();
-        //then we generate our own report and try to persist it
 
-        $output = $assetManagement->assetReport($anlage, $month, $year, $pages);
+            $report = new AnlagenReports();
+            //then we generate our own report and try to persist it
+
+            $output = $assetManagement->assetReport($anlage, $month, $year, $pages);
 
 
-        $data = [
-            'Production' => true,
-            'ProdCap' =>true,
-            'CumulatForecastPVSYS' => true,
-            'CumulatForecastG4N' => true,
-            'CumulatLosses' => true,
-            'MonthlyProd' => true,
-            'DailyProd' => true,
-            'Availability' => true,
-            'AvYearlyOverview' => true,
-            'AvMonthlyOverview' => true,
-            'AvInv' => true,
-            'StringCurr' => true,
-            'InvPow' => true,
-            'Economics' => true];
+            $data = [
+                'Production' => true,
+                'ProdCap' => true,
+                'CumulatForecastPVSYS' => true,
+                'CumulatForecastG4N' => true,
+                'CumulatLosses' => true,
+                'MonthlyProd' => true,
+                'DailyProd' => true,
+                'Availability' => true,
+                'AvYearlyOverview' => true,
+                'AvMonthlyOverview' => true,
+                'AvInv' => true,
+                'StringCurr' => true,
+                'InvPow' => true,
+                'Economics' => true];
 
-        $output["data"] = $data;
+            $output["data"] = $data;
 
-        $report = new AnlagenReports();
+            $report = new AnlagenReports();
 
-        $report->setAnlage($anlage)
-            ->setEigner($anlage->getEigner())
-            ->setMonth($month)
-            ->setYear($year)
-            ->setStartDate(date_create_from_format('d.m.y', date('d.m.y', strtotime("01." . $month . "." . $year))))
-            ->setEndDate(date_create_from_format('d.m.y', date('d.m.y', strtotime("30." . $month . "." . $year))))
-            ->setReportType("am-report")
-            ->setContentArray($output)
-            ->setRawReport("");
+            $report->setAnlage($anlage)
+                ->setEigner($anlage->getEigner())
+                ->setMonth($month)
+                ->setYear($year)
+                ->setStartDate(date_create_from_format('d.m.y', date('d.m.y', strtotime("01." . $month . "." . $year))))
+                ->setEndDate(date_create_from_format('d.m.y', date('d.m.y', strtotime("30." . $month . "." . $year))))
+                ->setReportType("am-report")
+                ->setContentArray($output)
+                ->setRawReport("")
+                ->setComments($comment);
 
-        $em->persist($report);
-        $em->flush();
+            $em->persist($report);
+            $em->flush();
 
         return $this->redirect($route);
     }
@@ -422,8 +428,6 @@ class ReportingController extends AbstractController
                 if ($reportsRepository->find($id)) {
                     $report = $reportsRepository->find($id);
                     $output = $report->getContentArray();
-                    $load = true;
-
                     $form = $this->createForm(AssetManagementeReportFormType::class);
                     $form->handleRequest($request);
                     if ($form->isSubmitted() && $form->isValid()) {

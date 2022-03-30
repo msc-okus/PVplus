@@ -41,10 +41,10 @@
     <table >
         <tr>
             <td colspan="2" style="text-align: left">
-                <table class="asset_report_table_operations_data" >
+                <table class="asset_report_table_operations_data" style="width:auto" >
                     <thead>
                     <tr>
-                        <th rowspan="3" class="table-center">Production</th>
+                        <th rowspan="2" class="table-center" style="width:150px!important">Production</th>
                         {% set counter = 1 %}
                         {% for data in dataMonthArray %}
                             <th style="text-align: center;width:6.5%">{{ data }}</th>
@@ -100,7 +100,7 @@
                 <table>
                     <tr>
                         <td style="text-align: left">
-                            <span class="subheadline" style="margin-bottom: 5px !important; margin-top: 15px !important">Capacity Factor</span><br>
+                            <span class="subheadline" style="margin-bottom: 5px !important; margin-top: 15px !important">Capacity Factor *1</span><br>
                             <img width="130" src="{{ absolute_url(asset('goldbeck/reports/asset_management/cf.png')) }}"></td>
                     </tr>
                 </table>
@@ -139,13 +139,6 @@
                 {{ operations_right|raw }}
             </td>
         </tr>
-        <tr>
-            <td style="width:25% !important" colspan="2">
-                <div class="explanation" style="text-align: left">
-                    <b >Explanation:</b>
-                    <br>The net capacity factor is the unitless ratio of an actual electrical energy output over a given period of time to the maximum possible electrical energy output over that period.<br>
-                </div>
-            </td>
-        </tr>
+
     </table>
 {%  endblock page %}

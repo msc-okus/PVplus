@@ -6,10 +6,10 @@
     <table >
         <tr>
             <td colspan="2" style="text-align: left">
-                <table class="asset_report_table_operations_data" >
+                <table class="asset_report_table_operations_data autowidth" >
                     <thead>
                     <tr>
-                        <th style="text-align: right" rowspan="2">Monthly Losses - {{ year }}</th>
+                        <th style="text-align: right;width:230px" rowspan="2">Monthly Losses - {{ year }}</th>
                         {% for data in dataMonthArray %}
                             <th style="text-align: center;width: 6.5%"><div style="width: 100%; height: 50%;">{{ data }}</div></th>
                         {% endfor %}

@@ -62,8 +62,11 @@ small {
 
 table {
   border-collapse: collapse;
-  /*width: auto !important;*/
+  width: 100% ;
   margin-bottom: 1.5rem;
+}
+table .autowidth{
+  width: auto;
 }
 table * {
   font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
