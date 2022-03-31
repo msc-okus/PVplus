@@ -40,8 +40,10 @@ class Status
      * @ORM\Column(type="boolean")
      */
     private $isWeather;
-
-    //private string $
+    /**
+     * @ORM\Column(type="string")
+     */
+    private string $ticket;
 
     public function getId(): ?int
     {
@@ -94,5 +96,11 @@ class Status
         $this->isWeather = $isWeather;
 
         return $this;
+    }
+    public function setTicket(string $ticket){
+        $this->ticket = $ticket;
+    }
+    public function getTicket():string{
+        return $this->ticket;
     }
 }

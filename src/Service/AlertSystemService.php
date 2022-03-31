@@ -14,7 +14,7 @@ class AlertSystemService
 {
     use G4NTrait;
     private AnlagenRepository $anlagenRepository;
-    private \App\Service\WeatherServiceNew $weather;
+    private WeatherServiceNew $weather;
     private AnlagenRepository $AnlRepo;
     private EntityManagerInterface $em;
     private MessageService $mailservice;
@@ -87,10 +87,10 @@ class AlertSystemService
                 $status->setStamp($time);
                 $status->setStatus($status_report[$anlage->getAnlName()]);
                 $status->setIsWeather(true);
-
+                $status->setTicket("123124");
                 $this->em->persist($status);
                 $this->em->flush();
-
+                dd($status);
                 $message = self::AnalyzeWeather($status_report[$anlage->getAnlName()], $time);
                 self::messagingFunction($message, $anlage);
             }
