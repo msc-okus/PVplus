@@ -22,9 +22,9 @@ class StatusRepository extends ServiceEntityRepository
 
     public function findOneByanlageDate($anlage, $date){
         return $this->createQueryBuilder('s')
-            ->andWhere('s.anlage = :anl')
-            ->andWhere('s.date = :date')
-            ->setParameter('val', $anlage)
+            ->andWhere('s.Anlage = :anl')
+            ->andWhere('s.stamp = :date')
+            ->setParameter('anl', $anlage)
             ->setParameter('date', $date)
             ->getQuery()
             ->getResult()

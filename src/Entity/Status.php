@@ -40,15 +40,12 @@ class Status
      * @ORM\Column(type="boolean")
      */
     private $isWeather;
-    /**
-     * @ORM\Column(type="string")
-     */
-    private string $ticket;
 
     /**
-     * @ORM\OneToOne(targetEntity=Ticket::class, cascade={"persist", "remove"})
+     * @ORM\OneToOne(targetEntity=Ticket::class)
+     * @ORM\JoinColumn(nullable=true)
      */
-    private $Tickete;
+    private $Ticket;
 
     public function getId(): ?int
     {
@@ -102,22 +99,10 @@ class Status
 
         return $this;
     }
-    public function setTicket(string $ticket){
-        $this->ticket = $ticket;
+    public function setTicket(Ticket $ticket){
+        $this->Ticket = $ticket;
     }
-    public function getTicket():string{
+    public function getTicket():?Ticket{
         return $this->ticket;
-    }
-
-    public function getTickete(): ?Ticket
-    {
-        return $this->Tickete;
-    }
-
-    public function setTickete(?Ticket $Tickete): self
-    {
-        $this->Tickete = $Tickete;
-
-        return $this;
     }
 }
