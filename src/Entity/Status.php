@@ -41,6 +41,8 @@ class Status
      */
     private $isWeather;
 
+    //private string $
+
     public function getId(): ?int
     {
         return $this->id;
