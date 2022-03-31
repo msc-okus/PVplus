@@ -239,10 +239,6 @@ class AssetManagementService
             $expectedPvSyst[] = $Ertrag_design;
 
 #            unset($pvSyst);
-
-            if ($report['reportMonth'] == $i && $report['reportYear'] == $currentYear) {
-                $i = 12;
-            }
         }
 
         for ($i = 1; $i <= 12; $i++) {
@@ -258,7 +254,6 @@ class AssetManagementService
             'powerExpEvu' => $powerExpEvu,
             'powerExt' => $powerExternal
         ];
-;
 
         //fuer die Tabelle Capacity Factor
 
@@ -963,7 +958,7 @@ class AssetManagementService
             'animation' => false,
             'color' => ['#0070c0', '#c55a11', '#a5a5a5'],
             'title' => [
-                'text' => 'Comulative losses',
+                'text' => 'Cumulative losses',
                 'left' => 'center',
             ],
             'tooltip' =>

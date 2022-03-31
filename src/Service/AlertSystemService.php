@@ -296,7 +296,9 @@ class AlertSystemService
     }
 
     //----------------Extra Functions--------------------
-    //We use this to retrieve the last quarter of a time given pe: 3:42 will return 3:30
+    /**
+    *We use this to retrieve the last quarter of a time given pe: 3:42 will return 3:30
+    */
     private function getLastQuarter($stamp){
         //we splikt the minutes from the rest of the stamp
         $mins = date('i', strtotime($stamp));
@@ -327,7 +329,9 @@ class AlertSystemService
         }
         else return "No data";
     }
-    //We use this to query for a concrete quarter in the weatherstation
+    /**
+    *We use this to query for a concrete quarter in the weatherstation
+    */
     private static function RetrieveQuarterWeather(string $stamp, Anlage $anlage){
         $conn = self::getPdoConnection();
 
@@ -574,16 +578,19 @@ class AlertSystemService
         }
         return $message;
     }
-    //We use this to make an error message of the status array from the inverter
-    private function AnalyzeIst($status_report, $anlage){
+    /**
+    *We use this to make an error message of the status array from the inverter
+    */
+    private function AnalyzeIst($status_report, $time){
         $message = "";
         if (count($status_report['Irradiation']) > 3) {
 
         }
         return $message;
     }
-
-    //We use this to send the messages
+    /**
+     *We use this to send the messages
+    */
     private function messagingFunction($message, $anlage){
         if ($message != "") {
             sleep(2);

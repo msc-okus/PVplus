@@ -56,9 +56,7 @@ class ReportingController extends AbstractController
 
         // we try to find and delete a previous report from this month/year
         $report = $reportRepo->findOneByAMY($anlage, $month, $year)[0];
-        $comment = "1. The net capacity factor is the unitless ratio of an actual electrical energy output over a given period of time to the maximum possible electrical energy output over that period. <br>
-
-        Der Nettokapazitätsfaktor ist das einheitslose Verhältnis einer tatsächlichen elektrischen Energieabgabe über einen bestimmten Zeitraum zu der maximal möglichen elektrischen Energieabgabe über diesen Zeitraum. <br>";//here we set the preset comment
+        $comment ="";
         if ($report) {
             $comment = $report->getComments();
             $em->remove($report);
