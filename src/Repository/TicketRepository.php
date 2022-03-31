@@ -77,7 +77,7 @@ class TicketRepository extends ServiceEntityRepository
             ->andWhere('t.id = :id')
             ->setParameter('id', $id)
             ->getQuery()
-            ->getResult()
+            ->getOneOrNullResult()
         ;
     }
 

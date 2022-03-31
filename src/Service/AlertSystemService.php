@@ -359,24 +359,27 @@ class AlertSystemService
      */
     private function AnalyzeWeather($status_report, $time, $anlage): string
     {
-
         $status = new Status();
         $timeq1 = date('Y-m-d H:i:s', strtotime($time) - 900);
         $status_q1 = $this->statusRepo->findOneByanlageDate($anlage, $timeq1)[0];
         $ticket = null;
         if($status_q1 != null) {
             dump($status_q1);
-            $ticket = $status_q1->getTicket();
-
-            dump($ticket);
+            $ticketprox = $status_q1->getTickete();
+            dump($ticketprox);
+            if($ticketprox != null) {
+                $id = $ticketprox->getId();
+                $ticket = $this->ticketRepo->findOneById($id);
+                dd($ticket);
+                }
         }
         if ($ticket != null){
-            $status->setTicket($ticket);
+            $status->setTickete($ticket);
             dump("old ticket found");
         }
         else if(count($status_report['Irradiation']) > 3){
             $ticket = new Ticket();
-            $timetempbeg = date('Y-m-d H:i', strtotime($time) - 1800);
+            $timetempbeg = date('Y-m-d ', strtotime($time) - 1800);
             $ticket->setAnlage($anlage);
             $ticket->setStatus(10);
             $ticket->setErrorType("SFOR");
@@ -384,14 +387,14 @@ class AlertSystemService
             $ticket->setDescription("Error with the Data of the Weatherstation, check on your alert mail for more information");
             $ticket->setSystemStatus(10);
             $ticket->setPriority(10);
-            $begin = date_create_from_format('Y-m-d H:i', $timetempbeg);
+            $begin = date_create_from_format('Y-m-d ', $timetempbeg);
             $begin->getTimestamp();
-            $timetempend = date('Y-m-d H:i', strtotime($time));
-            $end = date_create_from_format('Y-m-d H:i', $timetempend);
+            $timetempend = date('Y-m-d ', strtotime($time));
+            $end = date_create_from_format('Y-m-d ', $timetempend);
             $end->getTimestamp();
             $ticket->setEnd(($end));
             $ticket->setBegin(($begin));
-            $status->setTicket($ticket);
+            $status->setTickete($ticket);
 
            // dd($ticket->getId());
         }
@@ -399,8 +402,8 @@ class AlertSystemService
 
             if ($status_report['Irradiation']['Actual'] == "No data") {
                 if ($ticket != null){
-                    $timetempend = date('Y-m-d H:i', strtotime($time));
-                    $end = date_create_from_format('Y-m-d H:i', $timetempend);
+                    $timetempend = date('Y-m-d', strtotime($time));
+                    $end = date_create_from_format('Y-m-d', $timetempend);
                     $end->getTimestamp();
                     $ticket->setEnd(($end));
                 }
@@ -516,8 +519,8 @@ class AlertSystemService
             }
             else if ($status_report['Irradiation']['Actual'] == "Irradiation is 0") {
                 if ($ticket != null) {
-                    $timetempend = date('Y-m-d H:i', strtotime($time));
-                    $end = date_create_from_format('Y-m-d H:i', $timetempend);
+                    $timetempend = date('Y-m-d', strtotime($time));
+                    $end = date_create_from_format('Y-m-d', $timetempend);
                     $end->getTimestamp();
                     $ticket->setEnd(($end));
                 }
