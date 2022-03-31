@@ -40,10 +40,12 @@ class Status
      * @ORM\Column(type="boolean")
      */
     private $isWeather;
+
     /**
-     * @ORM\Column(type="string")
+     * @ORM\OneToOne(targetEntity=Ticket::class)
+     * @ORM\JoinColumn(nullable=true)
      */
-    private string $ticket;
+    private $Ticket;
 
     public function getId(): ?int
     {
@@ -97,10 +99,10 @@ class Status
 
         return $this;
     }
-    public function setTicket(string $ticket){
-        $this->ticket = $ticket;
+    public function setTicket(Ticket $ticket){
+        $this->Ticket = $ticket;
     }
-    public function getTicket():string{
+    public function getTicket():?Ticket{
         return $this->ticket;
     }
 }
