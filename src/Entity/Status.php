@@ -47,6 +47,11 @@ class Status
      */
     private $Ticket;
 
+    /**
+     * @ORM\OneToOne(targetEntity=Ticket::class, cascade={"persist", "remove"})
+     */
+    private $Tickete;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -104,5 +109,17 @@ class Status
     }
     public function getTicket():?Ticket{
         return $this->ticket;
+    }
+
+    public function getTickete(): ?Ticket
+    {
+        return $this->Tickete;
+    }
+
+    public function setTickete(?Ticket $Tickete): self
+    {
+        $this->Tickete = $Tickete;
+
+        return $this;
     }
 }
