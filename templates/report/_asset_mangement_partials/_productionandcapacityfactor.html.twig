@@ -2,36 +2,48 @@
 
 {% import _self as Macros %}
 {% macro grid(table_overview_monthly, anlage) %}
+    {% set gridsum = 0 %}
     <tr>
         <td class="tr_first_column" style="text-align: right;">Yield (Grid meter)</td>
-
         {% for data in table_overview_monthly.powerEvu %}
             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+            {% set gridsum = gridsum + data %}
         {% endfor %}
+        <td class="tr_next_columns">{{ gridsum|number_format(0, ',', '.') }}</td>
     </tr>
 {% endmacro %}
 {% macro expectedPvSyst(table_overview_monthly, anlage) %}
+    {% set pvsystsum = 0 %}
     <tr>
         <td class="tr_first_column" style="text-align: right;">Expected PV SYST</td>
         {% for data in table_overview_monthly.expectedPvSyst %}
             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+            {% set pvsystsum = pvsystsum + data %}
         {% endfor %}
+
+        <td class="tr_next_columns">{{ pvsystsum|number_format(0, ',', '.') }}</td>
     </tr>
 {% endmacro %}
 {% macro expectedG4N(table_overview_monthly, anlage) %}
+    {% set g4nsum = 0 %}
     <tr>
         <td class="tr_first_column" style="text-align: right;">Expected g4n</td>
         {% for data in table_overview_monthly.powerExpEvu %}
             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+            {% set g4nsum = g4nsum + data %}
         {% endfor %}
+        <td class="tr_next_columns">{{ g4nsum|number_format(0, ',', '.') }}</td>
     </tr>
 {% endmacro %}
 {% macro inverterOut(table_overview_monthly, anlage) %}
+    {%  set invsum = 0 %}
     <tr>
         <td class="tr_first_column" style="text-align: right;">Inverter out</td>
         {% for data in table_overview_monthly.powerAct %}
             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+            {%  set invsum = invsum + data %}
         {% endfor %}
+        <td class="tr_next_columns">{{ invsum|number_format(0, ',', '.') }}</td>
     </tr>
 {% endmacro %}
 
@@ -41,7 +53,7 @@
     <table >
         <tr>
             <td colspan="2" style="text-align: left">
-                <table class="asset_report_table_operations_data" style="width:auto" >
+                <table class="asset_report_table_operations_data"  >
                     <thead>
                     <tr>
                         <th rowspan="2" class="table-center" style="width:150px!important">Production</th>
@@ -50,12 +62,14 @@
                             <th style="text-align: center;width:6.5%">{{ data }}</th>
                             {% set counter = counter+1 %}
                         {% endfor %}
+                        <th style="text-align: center;width:6.5%">Total</th>
                     </tr>
 
                     <tr>
                         {% for data in dataMonthArray %}
                             <th style="text-align: center;width:6.5%">[kWh]</th>
                         {% endfor %}
+                        <th style="text-align: center;width:6.5%">[kWh]</th>
                     </tr>
 
                     </thead>
@@ -84,6 +98,7 @@
 
                     </tbody>
                 </table>
+                {#
                 <span style="text-align:left">
                     AC losses to grid meter considered<br>
                     {% if (anlage.DataSourceAM != null) %}
@@ -91,17 +106,18 @@
                         {{ anlage.DataSourceAM | raw }}
                     {% endif %}
                 </span>
+                #}
             </td>
         </tr>
         <tr>
             <td style="vertical-align: top;">
 
 
-                <table>
+                <table style="margin-bottom: .25rem">
                     <tr>
                         <td style="text-align: left">
-                            <span class="subheadline" style="margin-bottom: 5px !important; margin-top: 15px !important">Capacity Factor *1</span><br>
-                            <img width="130" src="{{ absolute_url(asset('goldbeck/reports/asset_management/cf.png')) }}"></td>
+                            <span class="subheadline" style="margin-bottom: 5px !important; margin-top: 15px !important">Capacity Factor <sup>1</sup></span><br>
+
                     </tr>
                 </table>
                 <table class="asset_report_table_operations_data" style="width: 300px!important;">

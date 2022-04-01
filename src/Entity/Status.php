@@ -41,6 +41,17 @@ class Status
      */
     private $isWeather;
 
+    /**
+     * @ORM\OneToOne(targetEntity=Ticket::class)
+     * @ORM\JoinColumn(nullable=true)
+     */
+    private $Ticket;
+
+    /**
+     * @ORM\OneToOne(targetEntity=Ticket::class, cascade={"persist", "remove"})
+     */
+    private $Tickete;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -90,6 +101,24 @@ class Status
     public function setIsWeather(bool $isWeather): self
     {
         $this->isWeather = $isWeather;
+
+        return $this;
+    }
+    public function setTicket(Ticket $ticket){
+        $this->Ticket = $ticket;
+    }
+    public function getTicket():?Ticket{
+        return $this->ticket;
+    }
+
+    public function getTickete(): ?Ticket
+    {
+        return $this->Tickete;
+    }
+
+    public function setTickete(?Ticket $Tickete): self
+    {
+        $this->Tickete = $Tickete;
 
         return $this;
     }

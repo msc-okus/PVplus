@@ -87,11 +87,10 @@
 
             {% endif %}
 
-            {% if (comments != null)  %}
-                {% if (comments != "") %}
-                    {% include 'report/_asset_mangement_partials/_comments.html.twig' %}
-                {% endif %}
-            {% endif %}
+
+            {% include 'report/_asset_mangement_partials/_comments.html.twig' %}
+
+
 
         {% endblock %}
     </div>
