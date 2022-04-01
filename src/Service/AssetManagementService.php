@@ -196,7 +196,9 @@ class AssetManagementService
             }
 
             $start = $report['reportYear'] . '-' . $month_transfer . '-01 00:00';
-            $end = $report['reportYear'] . '-' . $month_transfer . '-' . $daysInReportMonth . ' 23:59';
+
+            $endDayOfMonth = cal_days_in_month(CAL_GREGORIAN, $month_transfer, $report['reportYear']);
+            $end = $report['reportYear'] . '-' . $month_transfer . '-' . $endDayOfMonth . ' 23:59';
 
             $data1_grid_meter = $this->functions->getSumAcPower($anlage, $start, $end);
 
@@ -264,7 +266,6 @@ class AssetManagementService
             $dataCfArray[$i]['hours'] = $daysInMonth * 24;
             $dataCfArray[$i]['cf'] = ($tbody_a_production['powerEvu'][$i] / 1000) / (($plantSize / 1000) * ($daysInMonth * 24)) * 100;
         }
-
         // chart building, skip to line 950
         //begin chart
         $chart = new ECharts();
@@ -1182,7 +1183,7 @@ class AssetManagementService
             $monthName . ' ' . $report['reportYear'],
             $powerEvu[$report['reportMonth'] - 1],
             $expectedPvSyst[$report['reportMonth'] - 1],
-            abs($powerEvu[$report['reportMonth'] - 1] - $expectedPvSyst[$report['reportMonth'] - 1]),
+            $powerEvu[$report['reportMonth'] - 1] - $expectedPvSyst[$report['reportMonth'] - 1],
             round((1 - $expectedPvSyst[$report['reportMonth'] - 1] / $powerEvu[$report['reportMonth'] - 1]) * 100, 2)
         ];
 
@@ -1230,9 +1231,9 @@ class AssetManagementService
 
         if (((($currentYear == $report['reportYear'] && $currentMonth > 3) || $currentYear > $report['reportYear']) && $powerEvuQ2 > 0) && $anlage->hasPVSYST()) {
 
-            if ($report['reportMonth']>="6") $expectedPvSystQ2 = $tbody_a_production['expectedPvSyst'][4]+ $tbody_a_production['expectedPvSyst'][5] + $tbody_a_production['expectedPvSyst'][6];
+            if ($report['reportMonth']>="6") $expectedPvSystQ2 = $tbody_a_production['expectedPvSyst'][3]+ $tbody_a_production['expectedPvSyst'][4] + $tbody_a_production['expectedPvSyst'][5];
             else {
-                for($i = 4; $i<= intval($report['reportMonth']); $i++){
+                for($i = 3; $i<= intval($report['reportMonth']); $i++){
                     $expectedPvSystQ2 += $tbody_a_production['expectedPvSyst'][$i];
                 }
             }
@@ -1240,7 +1241,7 @@ class AssetManagementService
             $operations_monthly_right_pvsyst_tr3 = [
                 $powerEvuQ2,
                 $expectedPvSystQ2,
-                abs($powerEvuQ2 - $expectedPvSystQ2),
+                ($powerEvuQ2 - $expectedPvSystQ2),
                 round((1 - $expectedPvSystQ2 / $powerEvuQ2) * 100, 2)
             ];
         } else {
@@ -1270,7 +1271,7 @@ class AssetManagementService
             $operations_monthly_right_pvsyst_tr4 = [
                 $powerEvuQ3,
                 $expectedPvSystQ3,
-                abs($powerEvuQ3 - $expectedPvSystQ3),
+                ($powerEvuQ3 - $expectedPvSystQ3),
                 round((1 - $expectedPvSystQ3 / $powerEvuQ3) * 100, 2)
             ];
         } else {
@@ -1302,7 +1303,7 @@ class AssetManagementService
             $operations_monthly_right_pvsyst_tr5 = [
                 $powerEvuQ4,
                 $expectedPvSystQ4,
-                abs($powerEvuQ4 - $expectedPvSystQ4),
+                ($powerEvuQ4 - $expectedPvSystQ4),
                 round((1 - $expectedPvSystQ4 / $powerEvuQ4) * 100, 2)
             ];
         } else {
