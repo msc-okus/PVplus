@@ -164,6 +164,7 @@ class DCPowerChartService
                                     WHERE a.stamp BETWEEN '$from' AND '$to' 
                                     GROUP BY date_format(a.stamp, '$form'), group_dc ";
                 }
+
             $resultExp = $conn->query($sqlExp);
             $resultActual = $conn->query($sql);
 
@@ -250,7 +251,7 @@ class DCPowerChartService
         $sqlExpected = "SELECT a.stamp, sum(b.soll_pdcwr) as soll 
             FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE group_dc = '$group') b ON a.stamp = b.stamp) 
             WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by date_format(a.stamp, '$form')";
-
+        dd($sqlExpected);
         $dataArray['inverterArray'] = $nameArray;
         $result = $conn->query($sqlExpected);
         $maxInverter = 0;
