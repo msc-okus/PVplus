@@ -56,7 +56,7 @@
                         <tr>
                             <th></th>
                             {% if (anlage.useGridMeterDayData == true) %}
-                                <th>extern</th>
+                                <th class="table-center">extern</th>
                             {% endif %}
                             {% if (anlage.getShowEvuDiag) %}
                                 <th></th>
@@ -112,7 +112,7 @@
                         {% for data in table_overview_dayly %}
                             <tr>
                                 <td class="tr_next_columns">{{ data.date |  format_datetime(pattern="dd")}}</td>
-                                <td class="tr_next_columns">{{ data.irradiation|number_format(2, ',', '.') }}</td>
+                                <td class="tr_next_columns">{{ data.irradiation|number_format(0, ',', '.') }}</td>
                                 {% set irrsum = irrsum + data.irradiation %}
                                 {% if (anlage.useGridMeterDayData == true)%}
                                     <td class="tr_next_columns">{{ data.powerEGridExtMonth|number_format(0, ',', '.') }}</td>
@@ -154,9 +154,9 @@
                         {% set TheoSum = irrsum * anlage.kwPeak %}
                         <tr>
                             <td class="tr_next_columns"> <b>Overall</b></td>
-                            <td class="tr_next_columns"><b>{{ irrsum | number_format(2, ',', '.') }}</b></td>
+                            <td class="tr_next_columns"><b>{{ irrsum | number_format(0, ',', '.') }}</b></td>
                             {% if (anlage.useGridMeterDayData == true)%}
-                                <td class="tr_next_columns"><b>{{ extgrid |number_format(2, ',', '.')}}</b></td>
+                                <td class="tr_next_columns"><b>{{ extgrid |number_format(0, ',', '.')}}</b></td>
                             {% endif %}
                             {% if (anlage.getShowEvuDiag) %}
                                 <td class="tr_next_columns"><b>{{ gridsum |number_format(0, ',', '.')}}</b></td>
