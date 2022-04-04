@@ -1021,121 +1021,117 @@ class AssetManagementService
         );
         if ($anlage->hasPVSYST()) {
             if ($anlage->hasGrid()) {
-                $chart->series =
+                $chart->series = [
                     [
-                        [
-                            'name' => 'Yield (Grid meter)',
-                            'type' => 'bar',
-                            'data' => [
-                                $powerEvu[$report['reportMonth'] - 1]
-                            ],
-                            'visualMap' => 'false'
+                        'name' => 'Yield (Grid meter)',
+                        'type' => 'bar',
+                        'data' => [
+                            $powerEvu[$report['reportMonth'] - 1]
                         ],
-                        [
-                            'name' => 'Expected PV SYST',
-                            'type' => 'bar',
-                            'data' => [
-                                $expectedPvSyst[$report['reportMonth'] - 1]
-                            ],
-                            'visualMap' => 'false'
+                        'visualMap' => 'false'
+                    ],
+                    [
+                        'name' => 'Expected PV SYST',
+                        'type' => 'bar',
+                        'data' => [
+                            $expectedPvSyst[$report['reportMonth'] - 1]
                         ],
-                        [
-                            'name' => 'Expected g4n',
-                            'type' => 'bar',
-                            'data' => [
-                                $powerExp[$report['reportMonth'] - 1]
-                            ],
-                            'visualMap' => 'false'
+                        'visualMap' => 'false'
+                    ],
+                    [
+                        'name' => 'Expected g4n',
+                        'type' => 'bar',
+                        'data' => [
+                            $powerExp[$report['reportMonth'] - 1]
                         ],
-                        [
-                            'name' => 'Inverter out',
-                            'type' => 'bar',
-                            'data' => [
-                                $powerAct[$report['reportMonth'] - 1]
-                            ],
-                            'visualMap' => 'false'
-                        ]
-                    ];
+                        'visualMap' => 'false'
+                    ],
+                    [
+                        'name' => 'Inverter out',
+                        'type' => 'bar',
+                        'data' => [
+                            $powerAct[$report['reportMonth'] - 1]
+                        ],
+                        'visualMap' => 'false'
+                    ]
+                ];
             }
             else {
-                $chart->series =
+                $chart->series = [
                     [
-                        [
-                            'name' => 'Expected PV SYST',
-                            'type' => 'bar',
-                            'data' => [
-                                $expectedPvSyst[$report['reportMonth'] - 1]
-                            ],
-                            'visualMap' => 'false'
+                        'name' => 'Expected PV SYST',
+                        'type' => 'bar',
+                        'data' => [
+                            $expectedPvSyst[$report['reportMonth'] - 1]
                         ],
-                        [
-                            'name' => 'Expected g4n',
-                            'type' => 'bar',
-                            'data' => [
-                                $powerExp[$report['reportMonth'] - 1]
-                            ],
-                            'visualMap' => 'false'
+                        'visualMap' => 'false'
+                    ],
+                    [
+                        'name' => 'Expected g4n',
+                        'type' => 'bar',
+                        'data' => [
+                            $powerExp[$report['reportMonth'] - 1]
                         ],
-                        [
-                            'name' => 'Inverter out',
-                            'type' => 'bar',
-                            'data' => [
-                                $powerAct[$report['reportMonth'] - 1]
-                            ],
-                            'visualMap' => 'false'
-                        ]
-                    ];
+                        'visualMap' => 'false'
+                    ],
+                    [
+                        'name' => 'Inverter out',
+                        'type' => 'bar',
+                        'data' => [
+                            $powerAct[$report['reportMonth'] - 1]
+                        ],
+                        'visualMap' => 'false'
+                    ]
+                ];
             }
         } else {
             if ($anlage->hasGrid()) {
-                $chart->series =
+                $chart->series = [
                     [
-                        [
-                            'name' => 'Yield (Grid meter)',
-                            'type' => 'bar',
-                            'data' => [
-                                $powerEvu[$report['reportMonth'] - 1]
-                            ],
-                            'visualMap' => 'false'
+                        'name' => 'Yield (Grid meter)',
+                        'type' => 'bar',
+                        'data' => [
+                            $powerEvu[$report['reportMonth'] - 1]
                         ],
-                        [
-                            'name' => 'Expected g4n',
-                            'type' => 'bar',
-                            'data' => [
-                                $powerExp[$report['reportMonth'] - 1]
-                            ],
-                            'visualMap' => 'false'
+                        'visualMap' => 'false'
+                    ],
+                    [
+                        'name' => 'Expected g4n',
+                        'type' => 'bar',
+                        'data' => [
+                            $powerExp[$report['reportMonth'] - 1]
                         ],
-                        [
-                            'name' => 'Inverter out',
-                            'type' => 'bar',
-                            'data' => [
-                                $powerAct[$report['reportMonth'] - 1]
-                            ],
-                            'visualMap' => 'false'
-                        ]
-                    ];
+                        'visualMap' => 'false'
+                    ],
+                    [
+                        'name' => 'Inverter out',
+                        'type' => 'bar',
+                        'data' => [
+                            $powerAct[$report['reportMonth'] - 1]
+                        ],
+                        'visualMap' => 'false'
+                    ]
+                ];
             }
             else{
-                $chart->series =
+                $chart->series = [
                     [
-                        [
-                            'name' => 'Expected g4n',
-                            'type' => 'bar',
-                            'data' => [
-                                $powerExp[$report['reportMonth'] - 1]
-                            ],
-                            'visualMap' => 'false'
+                        'name' => 'Expected g4n',
+                        'type' => 'bar',
+                        'data' => [
+                            $powerExp[$report['reportMonth'] - 1]
                         ],
-                        [
-                            'name' => 'Inverter out',
-                            'type' => 'bar',
-                            'data' => [
-                                $powerAct[$report['reportMonth'] - 1]
-                            ],
-                            'visualMap' => 'false'
-                        ]
-                    ];
+                        'visualMap' => 'false'
+                    ],
+                    [
+                        'name' => 'Inverter out',
+                        'type' => 'bar',
+                        'data' => [
+                            $powerAct[$report['reportMonth'] - 1]
+                        ],
+                        'visualMap' => 'false'
+                    ]
+                ];
             }
         }
         $option = array(
@@ -1146,23 +1142,20 @@ class AssetManagementService
                 'text' => $monthName . ' ' . $report['reportYear'],
                 'left' => 'center',
             ],
-            'tooltip' =>
-                [
+            'tooltip' => [
                     'show' => true,
                 ],
-            'legend' =>
-                [
+            'legend' => [
                     'show' => true,
                     'left' => 'center',
                     'top' => 20
                 ],
-            'grid' =>
-                array(
+            'grid' => [
                     'height' => '100%',
                     'top' => 80,
                     'left' => 90,
                     'width' => '80%',
-                ),
+                ],
         );
 
 
@@ -1204,7 +1197,6 @@ class AssetManagementService
                     $expectedPvSystQ1 += $tbody_a_production['expectedPvSyst'][$i];
                 }
             }
-
 
             $operations_monthly_right_pvsyst_tr2 = [
                 $powerEvuQ1,
@@ -1375,7 +1367,7 @@ class AssetManagementService
         ];
 
         //Parameter fuer die Berechnung Q1
-        if ($currentYear == $report['reportYear']  || $currentYear > $report['reportYear'] && $powerEvuQ1 > 0) {
+        if (($currentYear == $report['reportYear'] || $currentYear > $report['reportYear']) && $powerEvuQ1 > 0) {
             $temp_q1 = $tbody_a_production['powerExpEvu'][0] + $tbody_a_production['powerExpEvu'][1] + $tbody_a_production['powerExpEvu'][2];
             $operations_monthly_right_g4n_tr2 = [
                 $powerEvuQ1,
@@ -1393,7 +1385,7 @@ class AssetManagementService
         }
 
         //Parameter fuer die Berechnung Q2
-        if (($currentYear == $report['reportYear'] && $currentMonth > 3) || $currentYear > $report['reportYear'] && $powerEvuQ2 > 0) {
+        if ((($currentYear == $report['reportYear'] && $currentMonth > 3) || $currentYear > $report['reportYear']) && $powerEvuQ2 > 0) {
             $temp_q2 = $tbody_a_production['powerExpEvu'][3] + $tbody_a_production['powerExpEvu'][4] + $tbody_a_production['powerExpEvu'][5];
             $operations_monthly_right_g4n_tr3 = [
                 $powerEvuQ2,
@@ -1411,7 +1403,7 @@ class AssetManagementService
         }
 
         //Parameter fuer die Berechnung Q3
-        if (($currentYear == $report['reportYear'] && $currentMonth > 6) || $currentYear > $report['reportYear'] && $powerEvuQ3 > 0) {
+        if ((($currentYear == $report['reportYear'] && $currentMonth > 6) || $currentYear > $report['reportYear']) && $powerEvuQ3 > 0) {
             $temp_q3 = $tbody_a_production['powerExpEvu'][6] + $tbody_a_production['powerExpEvu'][7] + $tbody_a_production['powerExpEvu'][8];
             $operations_monthly_right_g4n_tr4 = [
                 $powerEvuQ3,
@@ -2000,7 +1992,6 @@ class AssetManagementService
     if ($anlage->getAnlType() == "string"){
 
         foreach($anlage->getAcGroups()->getValues() as $ac_group){
-            dump($ac_group->getAcGroup());
             if ($anlage->getUseNewDcSchema()) {
                 $sql = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.wr_pdc) AS act_power_dc, sum(b.wr_idc) AS act_current_dc, b.wr_num as invgroup
             FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDcIst() . " b ON a.stamp = b.stamp) 
@@ -2036,7 +2027,6 @@ class AssetManagementService
             $j = 0;
             if ($result->rowCount() > 0) {
                 foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
-                    dump("uno", $value);
                     $dcExpDcIst[] = [
                         'group' => $value['invgroup'],
                         'form_date' => date("d", strtotime($value['form_date'])),
@@ -2056,7 +2046,6 @@ class AssetManagementService
                 }
             } else {
                 for ($j = 0; $j < count($dcIst); $j++) {
-                    dump("dos");
                     $dcExpDcIst[] = [
                         'group' => $dcIst[$j]['group'],
                         'form_date' => date("d", strtotime($dcIst[$j]['form_date'])),
@@ -2075,9 +2064,7 @@ class AssetManagementService
                 }
             }
             if ($dcExpDcIst) $outTableCurrentsPower[] = $dcExpDcIst;
-            dump($outTableCurrentsPower);
         }
-        dd("ok");
     }
     else {
         //Beginn Operations string_dayly1
@@ -2110,13 +2097,12 @@ class AssetManagementService
             FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDcSoll() . " b ON a.stamp = b.stamp) 
             WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_ac > 0 
             GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
-        dd($sql);
+
         $result = $this->conn->prepare($sql);
         $result->execute();
         $j = 0;
         if ($result->rowCount() > 0) {
             foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
-                dump("uno", $value);
                 $dcExpDcIst[] = [
                     'group' => $value['invgroup'],
                     'form_date' => date("d", strtotime($value['form_date'])),
@@ -2136,7 +2122,6 @@ class AssetManagementService
             }
         } else {
             for ($j = 0; $j < count($dcIst); $j++) {
-                dump("dos");
                 $dcExpDcIst[] = [
                     'group' => $dcIst[$j]['group'],
                     'form_date' => date("d", strtotime($dcIst[$j]['form_date'])),
@@ -2170,7 +2155,7 @@ class AssetManagementService
 
         for ($i = 0; $i < count($ecoVarValues) - 1; $i++) {
             (float)$oum[] = $ecoVarValues[$i]->getVar1();
-            $oumTotal = $oumTotal + $oum[$i];
+            $oumTotal =+ $oum[$i];
             (float)$electricity[] = $ecoVarValues[$i]->getVar2();
             $electricityTotal = $electricityTotal + $electricity[$i];
             (float)$technicalDispatch[] = $ecoVarValues[$i]->getVar3();
@@ -2178,17 +2163,17 @@ class AssetManagementService
             (float)$transTeleCom[] = $ecoVarValues[$i]->getVar4();
             $transTeleComTotal = $transTeleComTotal + $transTeleCom[$i];
             (float)$security[] = $ecoVarValues[$i]->getVar5();
-            $securityTotal = $securityTotal + $security[$i];
+            $securityTotal =+ $security[$i];
             (float)$networkServiceFee[] = $ecoVarValues[$i]->getVar6();
             $networkServiceFeeToatal = $networkServiceFeeToatal + $networkServiceFee[$i];
             (float)$legalServices[] = $ecoVarValues[$i]->getVar7();
-            $legalServicesTotal = $legalServicesTotal + $legalServices[$i];
+            $legalServicesTotal =+ $legalServices[$i];
             (float)$accountancyAndAdministrationCosts[] = $ecoVarValues[$i]->getVar8();
             $accountancyAndAdministrationCostsTotal = $accountancyAndAdministrationCostsTotal + $accountancyAndAdministrationCosts[$i];
             (float)$Iinsurance[] = $ecoVarValues[$i]->getVar9();
-            $IinsuranceTotal = $IinsuranceTotal + $Iinsurance[$i];
+            $IinsuranceTotal =+ $Iinsurance[$i];
             (float)$other[] = $ecoVarValues[$i]->getVar10();
-            $otherTotal = $otherTotal + $other[$i];
+            $otherTotal =+ $other[$i];
             $fixesTotal[$i] = $oum[$i] +
                 $electricity[$i] +
                 $technicalDispatch[$i] +
@@ -2201,15 +2186,15 @@ class AssetManagementService
                 $Iinsurance[$i] +
                 $other[$i];
             (float)$variable1[] = $ecoVarValues[$i]->getVar11();
-            $variable1Total = $variable1Total + $variable1[$i];
+            $variable1Total =+ $variable1[$i];
             (float)$variable2[] = $ecoVarValues[$i]->getVar12();
-            $variable2Total = $variable2Total + $variable2[$i];
+            $variable2Total =+ $variable2[$i];
             (float)$variable3[] = $ecoVarValues[$i]->getVar13();
-            $variable3Total = $variable3Total + $variable3[$i];
+            $variable3Total =+ $variable3[$i];
             (float)$variable4[] = $ecoVarValues[$i]->getVar14();
-            $variable4Total = $variable4Total + $variable4[$i];
+            $variable4Total =+ $variable4[$i];
             (float)$variable5[] = $ecoVarValues[$i]->getVar15();
-            $variable5Total = $variable5Total + $variable5[$i];
+            $variable5Total =+ $variable5[$i];
             $variablesTotal[$i] = $variable1[$i] +
                 $variable2[$i] +
                 $variable3[$i] +

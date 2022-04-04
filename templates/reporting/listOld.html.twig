@@ -1,0 +1,131 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    {{ encore_entry_link_tags('reports_list') }}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('reports_list') }}
+{% endblock %}
+
+{% block title %}
+    {{ parent() }}List Reports
+{% endblock %}
+
+{% block body %}
+    <h1>List Reports</h1>
+    {# begining of the searchbar #}
+    <form>
+        <div class="grid-x grid-margin-x align-middle">
+            <div class="cell medium-2" style="margin-top:-17px!important;">
+                <input type="text" name="anlage" class="input-group-field js-autocomplete-plant" value="{{ anlage }}" placeholder="Search plants">
+            </div>
+            <div class="cell medium-2">
+                <select name="searchstatus">
+                    <option value=""   {% if status == ''   %}   selected {% endif %} > status             </option>
+                    <option value="0"  {% if status == '0'  %}   selected {% endif %} > final              </option>
+                    <option value="5"  {% if status == '5'  %}   selected {% endif %} > proof reading      </option>
+                    <option value="9"  {% if status == '9'  %}   selected {% endif %} > archive (g4n only) </option>
+                    <option value="10" {% if status == '10' %}   selected {% endif %} > draft (g4n only)   </option>
+                    <option value="11" {% if status == '11' %}   selected {% endif %} > wrong (g4n only)   </option>
+                </select>
+            </div>
+            <div class="cell medium-2">
+                <select name="searchtype">
+                    <option value=""               {% if type == '' %}               selected {% endif %} > Type    </option>
+                    <option value="monthly-report" {% if type == 'monthly-report' %} selected {% endif %} > monthly </option>
+                    <option value="epc-report"     {% if type == 'epc-report' %}     selected {% endif %} > epc     </option>
+                    <option value="am-report"      {% if type == 'am-report' %}      selected {% endif %} > am      </option>
+                </select>
+            </div>
+            <div class="cell medium-2">
+                <select name="searchmonth">
+                    <option value=""   {% if month == '' %}   selected {% endif %}>  Month </option>
+                    <option value="1"  {% if month == '1' %}  selected {% endif %}>  01    </option>
+                    <option value="2"  {% if month == '2' %}  selected {% endif %}>  02    </option>
+                    <option value="3"  {% if month == '3' %}  selected {% endif %}>  03    </option>
+                    <option value="4"  {% if month == '4' %}  selected {% endif %}>  04    </option>
+                    <option value="5"  {% if month == '5' %}  selected {% endif %}>  05    </option>
+                    <option value="6"  {% if month == '6' %}  selected {% endif %}>  06    </option>
+                    <option value="7"  {% if month == '7' %}  selected {% endif %}>  07    </option>
+                    <option value="8"  {% if month == '8' %}  selected {% endif %}>  08    </option>
+                    <option value="9"  {% if month == '9' %}  selected {% endif %}>  09    </option>
+                    <option value="10" {% if month == '10' %} selected {% endif %}>  10    </option>
+                    <option value="11" {% if month == '11' %} selected {% endif %}>  11    </option>
+                    <option value="12" {% if month == '12' %} selected {% endif %}>  12    </option>
+                </select>
+            </div>
+            <div class="cell medium-2">
+                <select name="searchyear">
+                    <option value=""      {% if searchyear == '' %}      selected {% endif %}>  Year    </option>
+                    <option value="2020"  {% if searchyear == '2020' %}  selected {% endif %}>  2020    </option>
+                    <option value="2021"  {% if searchyear == '2021' %}  selected {% endif %}>  2021    </option>
+                    <option value="2022"  {% if searchyear == '2022' %}  selected {% endif %}>  2022    </option>
+                    <option value="2023"  {% if searchyear == '2023' %}  selected {% endif %}>  2023    </option>
+                    <option value="2024"  {% if searchyear == '2024' %}  selected {% endif %}>  2024    </option>
+                </select>
+            </div>
+            <div class="input-group-button" style="height:35px !important; width:35px !important; padding:0; margin-top:-15px;">
+                <button name="search" type="submit" class="button" value="yes"><span class="fa fa-search"></span></button>
+            </div>
+        </div>
+    </form>
+    {# end of the searchbar #}
+    {% include 'reporting/_inc/_listReports.html.twig' %}
+    <hr>
+    {% if is_granted('ROLE_ADMIN') %}
+        <form>
+            <div class="grid-x grid-margin-x align-middle">
+                <div class="cell medium-2">
+                    <select name="anlage-id" required>
+                        <option value="" disabled selected hidden>Please choose a Plant</option>
+                        {% for anlage in anlagen %}
+                            <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlId }} - {{ anlage.anlName }}</option>
+                        {% endfor %}
+
+                    </select>
+                </div>
+                <div class="cell medium-2">
+                    <select name="report-typ" required>
+                        <option value="" disabled selected hidden>Please choose a Report Type</option>
+                        <option value="monthly"{% if app.request.query.get('report-typ') == 'monthly' %} selected {% endif %}>Monthly Report (O&M)</option>
+                        <option value="epc"{% if app.request.query.get('report-typ') == 'epc' %} selected {% endif %}>EPC Report</option>
+                        <option value="am"{% if app.request.query.get('report-typ') == 'am' %} selected {% endif %}>Asset Management Report</option>
+                    </select>
+                </div>
+                <div class="cell medium-2">
+                    <select name="month" required>
+                        <option value="" disabled selected hidden>Please choose a Month</option>
+                        <option value="1" {% if app.request.query.get('month') == 1 %} selected {% endif %}>01</option>
+                        <option value="2" {% if app.request.query.get('month') == 2 %} selected {% endif %}>02</option>
+                        <option value="3" {% if app.request.query.get('month') == 3 %} selected {% endif %}>03</option>
+                        <option value="4" {% if app.request.query.get('month') == 4 %} selected {% endif %}>04</option>
+                        <option value="5" {% if app.request.query.get('month') == 5 %} selected {% endif %}>05</option>
+                        <option value="6" {% if app.request.query.get('month') == 6 %} selected {% endif %}>06</option>
+                        <option value="7" {% if app.request.query.get('month') == 7 %} selected {% endif %}>07</option>
+                        <option value="8" {% if app.request.query.get('month') == 8 %} selected {% endif %}>08</option>
+                        <option value="9" {% if app.request.query.get('month') == 9 %} selected {% endif %}>09</option>
+                        <option value="10" {% if app.request.query.get('month') == 10 %} selected {% endif %}>10</option>
+                        <option value="11" {% if app.request.query.get('month') == 11 %} selected {% endif %}>11</option>
+                        <option value="12" {% if app.request.query.get('month') == 12 %} selected {% endif %}>12</option>
+                    </select>
+                </div>
+                <div class="cell medium-2">
+                    <select name="year" required>
+                        <option value="" disabled selected hidden>Please choose a Year</option>
+                        <option value="2020"{% if app.request.query.get('year') == 2020 %} selected {% endif %}>2020</option>
+                        <option value="2021"{% if app.request.query.get('year') == 2021 %} selected {% endif %}>2021</option>
+                        <option value="2022"{% if app.request.query.get('year') == 2022 %} selected {% endif %}>2022</option>
+                        <option value="2023"{% if app.request.query.get('year') == 2023 %} selected {% endif %}>2023</option>
+                        <option value="2024"{% if app.request.query.get('year') == 2024 %} selected {% endif %}>2024</option>
+                    </select>
+                </div>
+                <div class="cell medium-2">
+                    <button name="new-report" type="submit" class="button" value="yes">Create New Report</button>
+                </div>
+            </div>
+        </form>
+    {% endif %}
+{% endblock %}

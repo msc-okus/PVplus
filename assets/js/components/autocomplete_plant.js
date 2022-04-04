@@ -3,7 +3,7 @@ import 'autocomplete.js/dist/autocomplete.jquery';
 
 $(document).ready(function() {
     $('.js-autocomplete-plant').each(function() {
-        let autocompleteUrl = '/reporting/anlagen/find';
+        let autocompleteUrl = '/anlagen/find';
         $(this).autocomplete({hint: false}, [
             {
                 source: function(query, cb) {

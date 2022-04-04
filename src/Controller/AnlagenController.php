@@ -11,6 +11,7 @@ use App\Repository\AnlagenRepository;
 use App\Repository\EconomicVarNamesRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -100,5 +101,16 @@ class AnlagenController extends BaseController
             'anlage'        => $anlage,
             'econames'      => $economicVarNames1,
         ]);
+    }
+
+    /**
+     * @Route("/anlagen/find", name="app_admin_reports_find", methods="GET")
+     */
+    public function find(AnlagenRepository $anlagenRepository, Request $request): JsonResponse
+    {
+        $anlage = $anlagenRepository->findByAllMatching($request->query->get('query'));
+        return $this->json([
+            'anlagen' => $anlage
+        ], 200, [], ['groups' => ['main']]);
     }
 }

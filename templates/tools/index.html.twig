@@ -40,10 +40,11 @@
                 <div class="callout" >
                     {{ output|raw }}
                 </div>
-                <div class="" style="min-height: 50vh; max-height: 50vh; overflow: scroll;"
-                     data-controller="tools-message"
-                     data-tools-message-url-value="{{ path('app_log_messages_list') }}"
-                     data-tools-message-refresh-interval-value="5000" >
+                <div class="" style="min-height: 50vh; max-height: 50vh; overflow: scroll;" {{ stimulus_controller('tools-message', {
+                        url: path('app_log_messages_list'),
+                        refresh_intervale: 5000,
+                    }) }}
+                >
                 </div>
             </div>
         </div>
