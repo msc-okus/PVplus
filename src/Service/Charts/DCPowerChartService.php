@@ -261,6 +261,7 @@ class DCPowerChartService
         $sqlExpected = "SELECT a.stamp, sum(b.soll_pdcwr) as soll 
             FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE $groupQuery) b ON a.stamp = b.stamp) 
             WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by date_format(a.stamp, '$form')";
+
         $dataArray['inverterArray'] = $nameArray;
         $result = $conn->query($sqlExpected);
         $maxInverter = 0;
