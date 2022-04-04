@@ -192,7 +192,7 @@ class DCPowerChartService
                     $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
                     $counterInv = 1;
                     $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
-                    $dataArray['chart'][$counter]['expected'] = $rowExp['expected'] / ($groups[$group]['GMAX'] - $groups[$group]['GMIN']);
+                    $dataArray['chart'][$counter]['expected'] = $groups[$group]['GMAX'] - $groups[$group]['GMIN'] == 0 ? $rowExp['expected'] : $rowExp['expected'] / ($groups[$group]['GMAX'] - $groups[$group]['GMIN']);
 
                     while($counterInv <= $maxInverter) {
                         $rowActual = $resultActual->fetch(PDO::FETCH_ASSOC);
@@ -248,7 +248,6 @@ class DCPowerChartService
         $nameArray = $this->functions->getNameArray($anlage , 'dc');
         $groups = $anlage->getGroupsDc();
         switch ($anlage->getConfigType()) {
-            case 1:
             case 3:
                 # z.B. Gronningen
                 $groupQuery = "group_ac = '$group' ";
