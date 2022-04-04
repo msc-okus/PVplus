@@ -1021,117 +1021,121 @@ class AssetManagementService
         );
         if ($anlage->hasPVSYST()) {
             if ($anlage->hasGrid()) {
-                $chart->series = [
+                $chart->series =
                     [
-                        'name' => 'Yield (Grid meter)',
-                        'type' => 'bar',
-                        'data' => [
-                            $powerEvu[$report['reportMonth'] - 1]
+                        [
+                            'name' => 'Yield (Grid meter)',
+                            'type' => 'bar',
+                            'data' => [
+                                $powerEvu[$report['reportMonth'] - 1]
+                            ],
+                            'visualMap' => 'false'
                         ],
-                        'visualMap' => 'false'
-                    ],
-                    [
-                        'name' => 'Expected PV SYST',
-                        'type' => 'bar',
-                        'data' => [
-                            $expectedPvSyst[$report['reportMonth'] - 1]
+                        [
+                            'name' => 'Expected PV SYST',
+                            'type' => 'bar',
+                            'data' => [
+                                $expectedPvSyst[$report['reportMonth'] - 1]
+                            ],
+                            'visualMap' => 'false'
                         ],
-                        'visualMap' => 'false'
-                    ],
-                    [
-                        'name' => 'Expected g4n',
-                        'type' => 'bar',
-                        'data' => [
-                            $powerExp[$report['reportMonth'] - 1]
+                        [
+                            'name' => 'Expected g4n',
+                            'type' => 'bar',
+                            'data' => [
+                                $powerExp[$report['reportMonth'] - 1]
+                            ],
+                            'visualMap' => 'false'
                         ],
-                        'visualMap' => 'false'
-                    ],
-                    [
-                        'name' => 'Inverter out',
-                        'type' => 'bar',
-                        'data' => [
-                            $powerAct[$report['reportMonth'] - 1]
-                        ],
-                        'visualMap' => 'false'
-                    ]
-                ];
+                        [
+                            'name' => 'Inverter out',
+                            'type' => 'bar',
+                            'data' => [
+                                $powerAct[$report['reportMonth'] - 1]
+                            ],
+                            'visualMap' => 'false'
+                        ]
+                    ];
             }
             else {
-                $chart->series = [
+                $chart->series =
                     [
-                        'name' => 'Expected PV SYST',
-                        'type' => 'bar',
-                        'data' => [
-                            $expectedPvSyst[$report['reportMonth'] - 1]
+                        [
+                            'name' => 'Expected PV SYST',
+                            'type' => 'bar',
+                            'data' => [
+                                $expectedPvSyst[$report['reportMonth'] - 1]
+                            ],
+                            'visualMap' => 'false'
                         ],
-                        'visualMap' => 'false'
-                    ],
-                    [
-                        'name' => 'Expected g4n',
-                        'type' => 'bar',
-                        'data' => [
-                            $powerExp[$report['reportMonth'] - 1]
+                        [
+                            'name' => 'Expected g4n',
+                            'type' => 'bar',
+                            'data' => [
+                                $powerExp[$report['reportMonth'] - 1]
+                            ],
+                            'visualMap' => 'false'
                         ],
-                        'visualMap' => 'false'
-                    ],
-                    [
-                        'name' => 'Inverter out',
-                        'type' => 'bar',
-                        'data' => [
-                            $powerAct[$report['reportMonth'] - 1]
-                        ],
-                        'visualMap' => 'false'
-                    ]
-                ];
+                        [
+                            'name' => 'Inverter out',
+                            'type' => 'bar',
+                            'data' => [
+                                $powerAct[$report['reportMonth'] - 1]
+                            ],
+                            'visualMap' => 'false'
+                        ]
+                    ];
             }
         } else {
             if ($anlage->hasGrid()) {
-                $chart->series = [
+                $chart->series =
                     [
-                        'name' => 'Yield (Grid meter)',
-                        'type' => 'bar',
-                        'data' => [
-                            $powerEvu[$report['reportMonth'] - 1]
+                        [
+                            'name' => 'Yield (Grid meter)',
+                            'type' => 'bar',
+                            'data' => [
+                                $powerEvu[$report['reportMonth'] - 1]
+                            ],
+                            'visualMap' => 'false'
                         ],
-                        'visualMap' => 'false'
-                    ],
-                    [
-                        'name' => 'Expected g4n',
-                        'type' => 'bar',
-                        'data' => [
-                            $powerExp[$report['reportMonth'] - 1]
+                        [
+                            'name' => 'Expected g4n',
+                            'type' => 'bar',
+                            'data' => [
+                                $powerExp[$report['reportMonth'] - 1]
+                            ],
+                            'visualMap' => 'false'
                         ],
-                        'visualMap' => 'false'
-                    ],
-                    [
-                        'name' => 'Inverter out',
-                        'type' => 'bar',
-                        'data' => [
-                            $powerAct[$report['reportMonth'] - 1]
-                        ],
-                        'visualMap' => 'false'
-                    ]
-                ];
+                        [
+                            'name' => 'Inverter out',
+                            'type' => 'bar',
+                            'data' => [
+                                $powerAct[$report['reportMonth'] - 1]
+                            ],
+                            'visualMap' => 'false'
+                        ]
+                    ];
             }
             else{
-                $chart->series = [
+                $chart->series =
                     [
-                        'name' => 'Expected g4n',
-                        'type' => 'bar',
-                        'data' => [
-                            $powerExp[$report['reportMonth'] - 1]
+                        [
+                            'name' => 'Expected g4n',
+                            'type' => 'bar',
+                            'data' => [
+                                $powerExp[$report['reportMonth'] - 1]
+                            ],
+                            'visualMap' => 'false'
                         ],
-                        'visualMap' => 'false'
-                    ],
-                    [
-                        'name' => 'Inverter out',
-                        'type' => 'bar',
-                        'data' => [
-                            $powerAct[$report['reportMonth'] - 1]
-                        ],
-                        'visualMap' => 'false'
-                    ]
-                ];
+                        [
+                            'name' => 'Inverter out',
+                            'type' => 'bar',
+                            'data' => [
+                                $powerAct[$report['reportMonth'] - 1]
+                            ],
+                            'visualMap' => 'false'
+                        ]
+                    ];
             }
         }
         $option = array(
@@ -1142,20 +1146,23 @@ class AssetManagementService
                 'text' => $monthName . ' ' . $report['reportYear'],
                 'left' => 'center',
             ],
-            'tooltip' => [
+            'tooltip' =>
+                [
                     'show' => true,
                 ],
-            'legend' => [
+            'legend' =>
+                [
                     'show' => true,
                     'left' => 'center',
                     'top' => 20
                 ],
-            'grid' => [
+            'grid' =>
+                array(
                     'height' => '100%',
                     'top' => 80,
                     'left' => 90,
                     'width' => '80%',
-                ],
+                ),
         );
 
 
@@ -1197,6 +1204,7 @@ class AssetManagementService
                     $expectedPvSystQ1 += $tbody_a_production['expectedPvSyst'][$i];
                 }
             }
+
 
             $operations_monthly_right_pvsyst_tr2 = [
                 $powerEvuQ1,
@@ -1367,7 +1375,7 @@ class AssetManagementService
         ];
 
         //Parameter fuer die Berechnung Q1
-        if (($currentYear == $report['reportYear'] || $currentYear > $report['reportYear']) && $powerEvuQ1 > 0) {
+        if (($currentYear == $report['reportYear']  || $currentYear > $report['reportYear']) && $powerEvuQ1 > 0) {
             $temp_q1 = $tbody_a_production['powerExpEvu'][0] + $tbody_a_production['powerExpEvu'][1] + $tbody_a_production['powerExpEvu'][2];
             $operations_monthly_right_g4n_tr2 = [
                 $powerEvuQ1,
@@ -1385,7 +1393,7 @@ class AssetManagementService
         }
 
         //Parameter fuer die Berechnung Q2
-        if ((($currentYear == $report['reportYear'] && $currentMonth > 3) || $currentYear > $report['reportYear']) && $powerEvuQ2 > 0) {
+        if ((($currentYear == $report['reportYear'] && $currentMonth > 3) || $currentYear > $report['reportYear'] )&& $powerEvuQ2 > 0) {
             $temp_q2 = $tbody_a_production['powerExpEvu'][3] + $tbody_a_production['powerExpEvu'][4] + $tbody_a_production['powerExpEvu'][5];
             $operations_monthly_right_g4n_tr3 = [
                 $powerEvuQ2,
@@ -1505,7 +1513,7 @@ class AssetManagementService
         }
 
         //Parameter fuer die Berechnung Q2
-        if (($currentYear == $report['reportYear'] && $currentMonth > 6) || $currentYear > $report['reportYear'] && $powerEvuQ2 > 0) {
+        if ((($currentYear == $report['reportYear'] && $currentMonth > 6) || $currentYear > $report['reportYear']) && $powerEvuQ2 > 0) {
             $temp_q2 = $tbody_a_production['powerAct'][3] + $tbody_a_production['powerAct'][4] + $tbody_a_production['powerAct'][5];
             $operations_monthly_right_iout_tr3 = [
                 $powerEvuQ2,
@@ -1523,7 +1531,7 @@ class AssetManagementService
         }
 
         //Parameter fuer die Berechnung Q3
-        if (($currentYear == $report['reportYear'] && $currentMonth > 9) || $currentYear > $report['reportYear'] && $powerEvuQ3 > 0) {
+        if ((($currentYear == $report['reportYear'] && $currentMonth > 9) || $currentYear > $report['reportYear']) && $powerEvuQ3 > 0) {
             $temp_q3 = $tbody_a_production['powerAct'][6] + $tbody_a_production['powerAct'][7] + $tbody_a_production['powerAct'][8];
             $operations_monthly_right_iout_tr4 = [
                 $powerEvuQ3,
@@ -1641,13 +1649,15 @@ class AssetManagementService
 
         //Fuer die PA des aktuellen Jahres
         $daysInThisMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
-        if (false) {
+
+        if (!($anlage->getConfigType() == 1)) {
             $sql = "SELECT DATE_FORMAT(stamp, '%Y-%m') AS form_date, unit, avg(pa_0)*100 as pa FROM " . $anlage->getDbNameIst() . " where stamp BETWEEN '" . $report['reportYear'] . "-1-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInThisMonth . " 23:59'and pa_0 >= 0  group by unit, DATE_FORMAT(stamp, '%Y-%m')";
             $result = $this->conn->prepare($sql);
             $result->execute();
             $i = 0;
-
+            dump("entro");
             foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
+            dump($value);
                 $pa[] = [
                     'form_date' => date("m", strtotime($value['form_date'])),
                     'pa' => round($value['pa'], 3),
@@ -1989,115 +1999,70 @@ class AssetManagementService
         }
         //End PA
 
-    if ($anlage->getAnlType() == "string"){
 
-        foreach($anlage->getAcGroups()->getValues() as $ac_group){
-            if ($anlage->getUseNewDcSchema()) {
-                $sql = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.wr_pdc) AS act_power_dc, sum(b.wr_idc) AS act_current_dc, b.wr_num as invgroup
-            FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDcIst() . " b ON a.stamp = b.stamp) 
-            WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_ac > 0
-             GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
-            } else {
-                $sql = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.wr_pdc) AS act_power_dc, sum(b.wr_idc) AS act_current_dc, b.inv as invgroup
-            FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
-            WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_ac > 0 
-            GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
-            }
-
-            $result = $this->conn->prepare($sql);
-            $result->execute();
-            foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
-
-                $dcIst[] = [
-                    'form_date' => $value['form_date'],
-                    'group' => $value['invgroup'],
-                    'act_power_dc' => $value['act_power_dc'],
-                    'act_current_dc' => $value['act_current_dc']
-                ];
-            }
-
-
-            $sql = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.dc_exp_power) AS exp_power_dc, sum(b.dc_exp_current) AS exp_current_dc, b.group_ac as invgroup
-            FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDcSoll() . " b ON a.stamp = b.stamp) 
-            WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_ac > 0 
-            GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
-
-            $result = $this->conn->prepare($sql);
-            $result->execute();
-            $j = 0;
-            if ($result->rowCount() > 0) {
-                foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
-                    $dcExpDcIst[] = [
-                        'group' => $value['invgroup'],
-                        'form_date' => date("d", strtotime($value['form_date'])),
-                        'exp_power_dc' => $value['exp_power_dc'],
-                        'exp_current_dc' => $value['exp_current_dc'],
-                        'act_power_dc' => $dcIst[$j]['act_power_dc'],
-                        'act_current_dc' => $dcIst[$j]['act_current_dc'],
-                        'diff_current_dc' => ($dcIst[$j]['act_current_dc'] != 0) ? (1 - $value['exp_current_dc'] / $dcIst[$j]['act_current_dc']) * 100 : 0,
-                        'diff_power_dc' => ($dcIst[$j]['act_power_dc'] != 0) ? (1 - $value['exp_power_dc'] / $dcIst[$j]['act_power_dc']) * 100 : 0,
-                    ];
-
-                    $j++;
-                    if (date("d", strtotime($value['form_date'])) >= $daysInReportMonth) {
-                        $outTableCurrentsPower[] = $dcExpDcIst;
-                        unset($dcExpDcIst);
-                    }
-                }
-            } else {
-                for ($j = 0; $j < count($dcIst); $j++) {
-                    $dcExpDcIst[] = [
-                        'group' => $dcIst[$j]['group'],
-                        'form_date' => date("d", strtotime($dcIst[$j]['form_date'])),
-                        'exp_power_dc' => 0,
-                        'exp_current_dc' => 0,
-                        'act_power_dc' => $dcIst[$j]['act_power_dc'],
-                        'act_current_dc' => $dcIst[$j]['act_current_dc'],
-                        'diff_current_dc' => $dcIst[$j]['act_current_dc'],
-                        'diff_power_dc' => $dcIst[$j]['act_power_dc'],
-                    ];
-
-                    if (date("d", strtotime($dcIst[$j]['form_date'])) >= $daysInReportMonth) {
-                        $outTableCurrentsPower[] = $dcExpDcIst;
-                        unset($dcExpDcIst);
-                    }
-                }
-            }
-            if ($dcExpDcIst) $outTableCurrentsPower[] = $dcExpDcIst;
-        }
-    }
-    else {
         //Beginn Operations string_dayly1
-        if ($anlage->getUseNewDcSchema()) {
-            $sql = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.wr_pdc) AS act_power_dc, sum(b.wr_idc) AS act_current_dc, b.wr_num as invgroup
-            FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDcIst() . " b ON a.stamp = b.stamp) 
-            WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_ac > 0
-             GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
-        } else {
-            $sql = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.wr_pdc) AS act_power_dc, sum(b.wr_idc) AS act_current_dc, b.inv as invgroup
-            FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
-            WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_ac > 0 
-            GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
+        if ($anlage->getConfigType() == 1){
+            $sql = "SELECT DATE_FORMAT( a.stamp,'%d.%m.%Y') AS form_date, sum(b.wr_pdc) AS act_power_dc, b.group_dc as invgroup
+                        FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
+                        WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_dc > 0
+                        GROUP BY form_date,b.group_dc ORDER BY b.group_dc,form_date";
+            if ($anlage->getUseNewDcSchema()) {
+                $sqlc = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.wr_idc) AS act_current_dc
+                    FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDcIst() . " b ON a.stamp = b.stamp) 
+                    WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_ac > 0 
+                    GROUP BY form_date,b.group_dc ORDER BY b.group_dc,form_date";
+            } else {
+                $sqlc = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.wr_idc) AS act_current_dc
+                    FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
+                    WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_ac > 0 
+                    GROUP BY form_date,b.group_dc ORDER BY b.group_dc,form_date";
+            }
         }
-
+        else {
+                $sql = "SELECT DATE_FORMAT( a.stamp,'%d.%m.%Y') AS form_date, sum(b.wr_pdc) AS act_power_dc, b.group_ac as invgroup
+                        FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
+                        WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_ac > 0
+                        GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
+                if ($anlage->getUseNewDcSchema()) {
+                            $sqlc = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.wr_idc) AS act_current_dc
+                    FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDcIst() . " b ON a.stamp = b.stamp) 
+                    WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_ac > 0 
+                    GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
+                } else {
+                            $sqlc = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.wr_idc) AS act_current_dc
+                    FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
+                    WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_ac > 0 
+                    GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
+                }
+        }
         $result = $this->conn->prepare($sql);
         $result->execute();
-        foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
 
+        $resultc = $this->conn->prepare($sqlc);
+        $resultc->execute();
+        foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
+            $currentrow = $resultc->fetch(PDO::FETCH_ASSOC);
             $dcIst[] = [
                 'form_date' => $value['form_date'],
                 'group' => $value['invgroup'],
                 'act_power_dc' => $value['act_power_dc'],
-                'act_current_dc' => $value['act_current_dc']
+                'act_current_dc' => $currentrow['act_current_dc']
             ];
         }
 
-
-        $sql = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.dc_exp_power) AS exp_power_dc, sum(b.dc_exp_current) AS exp_current_dc, b.group_ac as invgroup
+        if ($anlage->getConfigType() == 1){
+            $sql = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.ac_exp_power) AS exp_power_dc, sum(b.dc_exp_current) AS exp_current_dc,  b.group_dc as invgroup
+            FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDcSoll() . " b ON a.stamp = b.stamp) 
+            WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_dc > 0 
+            GROUP BY form_date,b.group_dc ORDER BY b.group_dc,form_date";
+        }
+        else {
+            $sql = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.ac_exp_power) AS exp_power_dc, sum(b.dc_exp_current) AS exp_current_dc,  b.group_ac as invgroup
             FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDcSoll() . " b ON a.stamp = b.stamp) 
             WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_ac > 0 
             GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
-
+        }
+        //dd($sql);
         $result = $this->conn->prepare($sql);
         $result->execute();
         $j = 0;
@@ -2140,7 +2105,7 @@ class AssetManagementService
             }
         }
         if ($dcExpDcIst) $outTableCurrentsPower[] = $dcExpDcIst;
-    }
+    //dd($outTableCurrentsPower);
         $resultEconomicsNames = $this->ecoVarNameRepo->findOneByAnlage($anlage);
 
         if ($resultEconomicsNames) {
@@ -2155,7 +2120,7 @@ class AssetManagementService
 
         for ($i = 0; $i < count($ecoVarValues) - 1; $i++) {
             (float)$oum[] = $ecoVarValues[$i]->getVar1();
-            $oumTotal =+ $oum[$i];
+            $oumTotal = $oumTotal + $oum[$i];
             (float)$electricity[] = $ecoVarValues[$i]->getVar2();
             $electricityTotal = $electricityTotal + $electricity[$i];
             (float)$technicalDispatch[] = $ecoVarValues[$i]->getVar3();
@@ -2163,17 +2128,17 @@ class AssetManagementService
             (float)$transTeleCom[] = $ecoVarValues[$i]->getVar4();
             $transTeleComTotal = $transTeleComTotal + $transTeleCom[$i];
             (float)$security[] = $ecoVarValues[$i]->getVar5();
-            $securityTotal =+ $security[$i];
+            $securityTotal = $securityTotal + $security[$i];
             (float)$networkServiceFee[] = $ecoVarValues[$i]->getVar6();
             $networkServiceFeeToatal = $networkServiceFeeToatal + $networkServiceFee[$i];
             (float)$legalServices[] = $ecoVarValues[$i]->getVar7();
-            $legalServicesTotal =+ $legalServices[$i];
+            $legalServicesTotal = $legalServicesTotal + $legalServices[$i];
             (float)$accountancyAndAdministrationCosts[] = $ecoVarValues[$i]->getVar8();
             $accountancyAndAdministrationCostsTotal = $accountancyAndAdministrationCostsTotal + $accountancyAndAdministrationCosts[$i];
             (float)$Iinsurance[] = $ecoVarValues[$i]->getVar9();
-            $IinsuranceTotal =+ $Iinsurance[$i];
+            $IinsuranceTotal = $IinsuranceTotal + $Iinsurance[$i];
             (float)$other[] = $ecoVarValues[$i]->getVar10();
-            $otherTotal =+ $other[$i];
+            $otherTotal = $otherTotal + $other[$i];
             $fixesTotal[$i] = $oum[$i] +
                 $electricity[$i] +
                 $technicalDispatch[$i] +
@@ -2186,15 +2151,15 @@ class AssetManagementService
                 $Iinsurance[$i] +
                 $other[$i];
             (float)$variable1[] = $ecoVarValues[$i]->getVar11();
-            $variable1Total =+ $variable1[$i];
+            $variable1Total = $variable1Total + $variable1[$i];
             (float)$variable2[] = $ecoVarValues[$i]->getVar12();
-            $variable2Total =+ $variable2[$i];
+            $variable2Total = $variable2Total + $variable2[$i];
             (float)$variable3[] = $ecoVarValues[$i]->getVar13();
-            $variable3Total =+ $variable3[$i];
+            $variable3Total = $variable3Total + $variable3[$i];
             (float)$variable4[] = $ecoVarValues[$i]->getVar14();
-            $variable4Total =+ $variable4[$i];
+            $variable4Total = $variable4Total + $variable4[$i];
             (float)$variable5[] = $ecoVarValues[$i]->getVar15();
-            $variable5Total =+ $variable5[$i];
+            $variable5Total = $variable5Total + $variable5[$i];
             $variablesTotal[$i] = $variable1[$i] +
                 $variable2[$i] +
                 $variable3[$i] +
@@ -2941,7 +2906,9 @@ class AssetManagementService
 
 
         $chart->setOption($option);
-
+        if ($anlage->getConfigType() == 1) {
+            $acGroupsCleaned = $this->functions->getNameArray($anlage, 'dc', false);
+        }
         $cumulated_losses_compared_chart = $chart->render('cumulatedlossesCompared', ['style' => 'height: 350px; width:950px;']);
         $chart->tooltip = [];
         $chart->xAxis = [];

@@ -1,7 +1,7 @@
 {% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
 
 {% block page %}
-    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Inverters Power - DC Heatmap</h3>
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Inverters Power - Heatmap</h3>
     <span class="subheadline">Overview: daily difference between g4n expected vs. actuals - {{ month }} {{ year }}</span>
     <table >
         <tr>
@@ -25,8 +25,10 @@
                                     <table class = "streamdayly" style="margin:0 !important;width:100%!important">
                                         <thead>
                                         {% if (itemcounter == 1 ) %}
-                                            <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;" rowspan="3" style="border-left: solid 1px !important;">Day</th><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">{{ acGroups[(page*40)+inv] }}</th></tr>
-                                            <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">[%]</th></tr>
+
+                                                    <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;" rowspan="3" style="border-left: solid 1px !important;">Day</th><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">{{ acGroups[(page*40)+inv] }}</th></tr>
+
+                                                    <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">[%]</th></tr>
                                         {% endif %}
                                         {% if (itemcounter > 1) %}
                                             {% if loop.last %}
@@ -41,16 +43,16 @@
                                         </thead>
                                         {% set color = "#ffffff" %}
                                         {% for datatr in data %}
-                                            {% set value = (((datatr.act_power_dc - datatr.exp_power_dc)*100)/datatr.exp_power_dc)|number_format(0, ',', '.') %}
-                                            {% if (value <= -2) %}{% set color = "#00b050" %}{% endif %}
+                                            {% set value = (((datatr.exp_power_dc - datatr.act_power_dc)*100)/datatr.exp_power_dc) * (-1) %}
+                                            {% if (value >= -2) %}{% set color = "#00b050" %}{% endif %}
                                             {% if (value < -2) %}{% set color = "#cee4c0" %}{% endif %}
                                             {% if (value < -8) %}{% set color = "#ffff00" %}{% endif %}
                                             {% if (value < -15) %}{% set color = "#ffc000" %}{% endif %}
                                             {% if (value <= -20) %}{% set color = "#cc0000" %}{% endif %}
-                                            {% if (value >= 0) %}{% set color = "#00b050" %}{% endif %}
 
                                             {% if (itemcounter == 1 ) %}
-                                                <tr><td class="tr_first_column" style="font-size: 7.3px!important;">{{ datatr.form_date }}</td><td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ value|number_format(0, ',', '.') }}</td></tr>
+                                                <tr><td class="tr_first_column" style="font-size: 7.3px!important;">{{ datatr.form_date }}</td>
+                                                <td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ value|number_format(0, ',', '.') }}</td></tr>
                                             {% endif %}
                                             {% if (itemcounter > 1) %}
                                                 <tr><td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ value|number_format(0, ',', '.') }}</td></tr>
