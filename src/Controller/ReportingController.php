@@ -117,7 +117,7 @@ class ReportingController extends AbstractController
     }
 
     /**
-     * @Route("/reporting", name="app_reporting_list")
+     * @Route("/reporting_new", name="app_reporting_list_new")
      */
     public function listNew(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo, ReportService $report, ReportEpcService $reportEpc, ReportsMonthlyService $reportsMonthly): Response
     {
@@ -146,7 +146,7 @@ class ReportingController extends AbstractController
     }
 
     /**
-     * @Route("/reportingold", name="app_reporting_list_old")
+     * @Route("/reporting", name="app_reporting_list")
      */
     public function list(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo, ReportService $report, ReportEpcService $reportEpc, ReportsMonthlyService $reportsMonthly): Response
     {
