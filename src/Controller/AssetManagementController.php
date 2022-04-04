@@ -22,7 +22,6 @@ class AssetManagementController extends BaseController
      */
     public function assetReport($id, $month, $year, $export, $pages, AssetManagementService $assetManagement, AnlagenRepository $anlagenRepository, Request $request)
     {
-        dd("Jetzt wurde der AssetManagement Controller aufgerufen");
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
 
         $output = $assetManagement->assetReport($anlage, $month, $year, $pages);

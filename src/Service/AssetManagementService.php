@@ -745,7 +745,6 @@ class AssetManagementService
             }
             else $diefference_prod_to_egrid[] = 0;
         }
-        //dd($tbody_a_production, $diefference_prod_to_expected_g4n,  $diefference_prod_to_egrid);
 
         $losses_t2 = [
             'diefference_prod_to_pvsyst' => $diefference_prod_to_pvsyst,
