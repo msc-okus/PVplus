@@ -360,7 +360,6 @@ class AvailabilityService
         } else {
             $inverter--;
             $acGroups = $anlage->getAcGroups();
-            //dd($acGroups[$inverter], $anlage);
             if ($anlage->getUseNewDcSchema()) {
                 $inverterPowerDc[$acGroups[$inverter]->getAcGroup()] = $acGroups[$inverter]->getDcPowerInverter();
             } else {

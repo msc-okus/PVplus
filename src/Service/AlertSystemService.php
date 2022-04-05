@@ -76,7 +76,7 @@ class AlertSystemService
             }
             $status_report[$anlage->getAnlName()] = $inverter_status;
         }
-        dd($status_report);
+
         return $status_report;
     }
 
@@ -98,7 +98,7 @@ class AlertSystemService
                 self::messagingFunction($message, $anlage);
             }
         }
-        dd($status_report);
+
         return $status_report;
     }
 
@@ -367,11 +367,10 @@ class AlertSystemService
             dump($status_q1);
             $ticketprox = $status_q1->getTickete();
             dump($ticketprox);
-            if($ticketprox != null) {
+            if ($ticketprox != null) {
                 $id = $ticketprox->getId();
                 $ticket = $this->ticketRepo->findOneById($id);
-                dd($ticket);
-                }
+            }
         }
         if ($ticket != null){
             $status->setTickete($ticket);
@@ -396,7 +395,6 @@ class AlertSystemService
             $ticket->setBegin(($begin));
             $status->setTickete($ticket);
 
-           // dd($ticket->getId());
         }
         $message = "";
 

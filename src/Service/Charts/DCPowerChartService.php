@@ -192,7 +192,7 @@ class DCPowerChartService
                     $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
                     $counterInv = 1;
                     $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
-                    $dataArray['chart'][$counter]['expected'] = $rowExp['expected'] / ($groups[$group]['GMAX'] - $groups[$group]['GMIN']);
+                    $dataArray['chart'][$counter]['expected'] = $groups[$group]['GMAX'] - $groups[$group]['GMIN'] == 0 ? $rowExp['expected'] : $rowExp['expected'] / ($groups[$group]['GMAX'] - $groups[$group]['GMIN']);
 
                     while($counterInv <= $maxInverter) {
                         $rowActual = $resultActual->fetch(PDO::FETCH_ASSOC);
@@ -242,17 +242,25 @@ class DCPowerChartService
      */
     public function getDC3(Anlage $anlage, $from, $to, int $group = 1,  bool $hour = false):array
     {
-
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $conn = self::getPdoConnection();
         $dataArray = [];
         $nameArray = $this->functions->getNameArray($anlage , 'dc');
         $groups = $anlage->getGroupsDc();
+        switch ($anlage->getConfigType()) {
+            case 3:
+                # z.B. Gronningen
+                $groupQuery = "group_ac = '$group' ";
+                $nameArray = $this->functions->getNameArray($anlage, 'ac');
+                break;
+            default:
+                $groupQuery = "group_dc = '$group' ";
+                $nameArray = $this->functions->getNameArray($anlage, 'dc');
+        }
         $sqlExpected = "SELECT a.stamp, sum(b.soll_pdcwr) as soll 
-            FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE group_dc = '$group') b ON a.stamp = b.stamp) 
-            WHERE a.stamp BETWEEN '$from' AND '$to'
-            GROUP by date_format(a.stamp, '$form')";
-        //dd($sqlExpected);
+            FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE $groupQuery) b ON a.stamp = b.stamp) 
+            WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by date_format(a.stamp, '$form')";
+
         $dataArray['inverterArray'] = $nameArray;
         $result = $conn->query($sqlExpected);
         $maxInverter = 0;
@@ -277,7 +285,14 @@ class DCPowerChartService
                 $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
                 $anzInvPerGroup = $groups[$group]['GMAX'] - $groups[$group]['GMIN'] + 1;
-                ($anzInvPerGroup > 0) ? $expected = $rowExp['soll'] / $anzInvPerGroup : $expected = $rowExp['soll'];
+                switch ($anlage->getConfigType()) {
+                    case 3:
+                        $expected = $rowExp['soll'] ;
+                        break;
+                    default:
+                        ($anzInvPerGroup > 0) ? $expected = $rowExp['soll'] / $anzInvPerGroup : $expected = $rowExp['soll'];
+                }
+
                 if ($expected < 0) $expected = 0;
                 // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
                 $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
@@ -286,9 +301,9 @@ class DCPowerChartService
                 }
                 $whereQueryPart1 = $hour ? "stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'" : "stamp = '$stampAdjust'";
                 if ($anlage->getUseNewDcSchema()) {
-                    $sql = "SELECT sum(wr_pdc) as actPower, wr_temp as temp FROM " . $anlage->getDbNameDCIst() . " WHERE $whereQueryPart1 AND wr_group = '$group' GROUP BY wr_num;";
+                    $sql = "SELECT sum(wr_pdc) as actPower, wr_temp as temp FROM " . $anlage->getDbNameDCIst() . " WHERE $whereQueryPart1 AND $groupQuery GROUP BY group_ac;";
                 } else {
-                    $sql = "SELECT sum(wr_pdc) as actPower, wr_temp as temp FROM " . $anlage->getDbNameAcIst() . " WHERE $whereQueryPart1 AND group_dc = '$group' GROUP BY unit;";
+                    $sql = "SELECT sum(wr_pdc) as actPower, wr_temp as temp FROM " . $anlage->getDbNameAcIst() . " WHERE $whereQueryPart1 AND $groupQuery GROUP BY unit;";
                 }
 
                 $resultIst = $conn->query($sql);
