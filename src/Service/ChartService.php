@@ -107,7 +107,7 @@ class ChartService
         //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
         if (isset($form['backFromMonth'])) {
             if ($form['backFromMonth'] === true) {
-                $form['from']   = date("Y-m-d 00:00", (strtotime($currentYear.'-'.$currentMonth.'-'.$currentDay) - (86400 * ($form['optionDate'] - 1))));
+                $form['from']   = date("Y-m-d 00:00", strtotime($currentYear.'-'.$currentMonth.'-'.$currentDay) - (86400 * ($form['optionDate'] - 1)));
                 $form['to']     = date("Y-m-d 23:59", strtotime($currentYear.'-'.$currentMonth.'-'.$currentDay));
             }
         }
