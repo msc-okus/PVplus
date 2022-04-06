@@ -98,11 +98,19 @@ class AlertSystemService
                 self::messagingFunction($message, $anlage);
             }
         }
-
+        dd($status_report);
         return $status_report;
     }
 
     // ---------------Checking Functions-----------------
+
+    /**
+     * here we analyze the data of the inverter and generate the status
+     * @param $anlage
+     * @param $time
+     * @param $inverter
+     * @return array
+     */
     private static function IstData($anlage, $time, $inverter){
         $result = self::RetrieveQuarterIst($time, $inverter, $anlage);
         $status_report['actual'] = $result;
@@ -129,6 +137,13 @@ class AlertSystemService
 
         return $status_report;
     }
+
+    /**
+     * here we analyze the data from the weather station and generate the status
+     * @param Anlage $anlage
+     * @param $time
+     * @return array
+     */
     private static function WData(Anlage $anlage, $time)
     {
 
@@ -299,9 +314,12 @@ class AlertSystemService
     }
 
     //----------------Extra Functions--------------------
+
     /**
-    *We use this to retrieve the last quarter of a time given pe: 3:42 will return 3:30
-    */
+     * We use this to retrieve the last quarter of a time given pe: 3:42 will return 3:30
+     * @param $stamp
+     * @return string
+     */
     private function getLastQuarter($stamp){
         //we splikt the minutes from the rest of the stamp
         $mins = date('i', strtotime($stamp));
@@ -314,7 +332,15 @@ class AlertSystemService
         return ($rest.":".$quarter);
 
     }
-    //We use this to query for a concrete quarter in an inverter
+
+
+    /**
+     * We use this to query for a concrete quarter in an inverter
+     * @param string $stamp
+     * @param string|null $inverter
+     * @param Anlage $anlage
+     * @return string
+     */
     private static function RetrieveQuarterIst(string $stamp, ?string $inverter, Anlage $anlage){
         $conn = self::getPdoConnection();
 
@@ -332,9 +358,14 @@ class AlertSystemService
         }
         else return "No data";
     }
+
+
     /**
-    *We use this to query for a concrete quarter in the weatherstation
-    */
+     * We use this to query for a concrete quarter in the weatherstation
+     * @param string $stamp
+     * @param Anlage $anlage
+     * @return string
+     */
     private static function RetrieveQuarterWeather(string $stamp, Anlage $anlage){
         $conn = self::getPdoConnection();
 
@@ -354,19 +385,23 @@ class AlertSystemService
 
     }
 
+
     /**
-     * We use this to make an error message of the status array from the weather station
+     * We use this to make an error message of the status array from the weather station and to generate/update Tickets
+     * @param $status_report
+     * @param $time
+     * @param $anlage
+     * @return string
      */
     private function AnalyzeWeather($status_report, $time, $anlage): string
     {
         $status = new Status();
         $timeq1 = date('Y-m-d H:i:s', strtotime($time) - 900);
+
         $status_q1 = $this->statusRepo->findOneByanlageDate($anlage, $timeq1)[0];
         $ticket = null;
         if($status_q1 != null) {
-            dump($status_q1);
             $ticketprox = $status_q1->getTickete();
-            dump($ticketprox);
             if ($ticketprox != null) {
                 $id = $ticketprox->getId();
                 $ticket = $this->ticketRepo->findOneById($id);
@@ -374,11 +409,9 @@ class AlertSystemService
         }
         if ($ticket != null){
             $status->setTickete($ticket);
-            dump("old ticket found");
         }
-        else if(count($status_report['Irradiation']) > 3){
+        else if($status_report['Irradiation']['Actual'] == "No data" ){
             $ticket = new Ticket();
-            $timetempbeg = date('Y-m-d ', strtotime($time) - 1800);
             $ticket->setAnlage($anlage);
             $ticket->setStatus(10);
             $ticket->setErrorType("SFOR");
@@ -386,22 +419,18 @@ class AlertSystemService
             $ticket->setDescription("Error with the Data of the Weatherstation, check on your alert mail for more information");
             $ticket->setSystemStatus(10);
             $ticket->setPriority(10);
-            $begin = date_create_from_format('Y-m-d ', $timetempbeg);
+            $timetempbeg = date('Y-m-d H:i', strtotime($time));
+            $begin = date_create_from_format('Y-m-d H:i', $timetempbeg);
             $begin->getTimestamp();
-            $timetempend = date('Y-m-d ', strtotime($time));
-            $end = date_create_from_format('Y-m-d ', $timetempend);
-            $end->getTimestamp();
-            $ticket->setEnd(($end));
             $ticket->setBegin(($begin));
             $status->setTickete($ticket);
-
         }
         $message = "";
 
-            if ($status_report['Irradiation']['Actual'] == "No data") {
+        if ($status_report['Irradiation']['Actual'] == "No data") {
                 if ($ticket != null){
-                    $timetempend = date('Y-m-d', strtotime($time));
-                    $end = date_create_from_format('Y-m-d', $timetempend);
+                    $timetempend = date('Y-m-d H:i', strtotime($time));
+                    $end = date_create_from_format('Y-m-d H:i', $timetempend);
                     $end->getTimestamp();
                     $ticket->setEnd(($end));
                 }
@@ -515,9 +544,9 @@ class AlertSystemService
                         }
                 }
             }
-            else if ($status_report['Irradiation']['Actual'] == "Irradiation is 0") {
+        else if ($status_report['Irradiation']['Actual'] == "Irradiation is 0") {
                 if ($ticket != null) {
-                    $timetempend = date('Y-m-d', strtotime($time));
+                    $timetempend = date('Y-m-d H:i', strtotime($time));
                     $end = date_create_from_format('Y-m-d', $timetempend);
                     $end->getTimestamp();
                     $ticket->setEnd(($end));
@@ -632,10 +661,16 @@ class AlertSystemService
                     }
                 }
             }
-            if ($status_report['temperature'] == "No data") $message = $message . "There was no temperature data at " . $time . "<br>";
-            if ($status_report['wspeed'] == "No data") $message = $message . "There was no temperature data at" . $time . "<br>";
-        dump($ticket);
-
+        else if ($ticket != null){
+            $timetempend = date('Y-m-d H:i', strtotime($time));
+            $end = date_create_from_format('Y-m-d H:i', $timetempend);
+            $end->getTimestamp();
+            $ticket->setEnd(($end));
+            $ticket->setStatus(30);
+            $status->setTickete(null);
+        }
+        if ($status_report['temperature'] == "No data") $message = $message . "There was no temperature data at " . $time . "<br>";
+        if ($status_report['wspeed'] == "No data") $message = $message . "There was no temperature data at" . $time . "<br>";
         $status->setAnlage($anlage);
         $status->setStamp($time);
         $status->setStatus($status_report);
@@ -643,13 +678,17 @@ class AlertSystemService
 
         if($ticket != null) $this->em->persist($ticket);
         $this->em->persist($status);
-        dump($status);
+
         $this->em->flush();
         return $message;
     }
+
     /**
-    *We use this to make an error message of the status array from the inverter
-    */
+     * We use this to make an error message of the status array from the inverter and to generate/update Tickets
+     * @param $status_report
+     * @param $time
+     * @return string
+     */
     private function AnalyzeIst($status_report, $time){
         $message = "";
         if (count($status_report['Irradiation']) > 3) {
@@ -657,9 +696,12 @@ class AlertSystemService
         }
         return $message;
     }
+
     /**
-     *We use this to send the messages
-    */
+     * This is the function we use to send the messages we previously generated
+     * @param $message
+     * @param $anlage
+     */
     private function messagingFunction($message, $anlage){
         if ($message != "") {
             sleep(2);
