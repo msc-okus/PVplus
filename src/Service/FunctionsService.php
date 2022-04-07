@@ -882,43 +882,50 @@ class FunctionsService
      * @param string $type
      * @return array
      */
-    public function getNameArray(Anlage $anlage, string $type = 'ac'): array
+    public function getNameArray(Anlage $anlage, string $type = 'ac', bool $startArrayAtOne = true): array
     {
-        $nameArray['ac'] = [];
-        $nameArray['dc'] = [];
-        $nameArray['scb'] = [];
-        switch ($anlage->getConfigType()) {
-            case 1:
-                // In diesem Fall gibt es keine SCBs
-                foreach ($this->groupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
-                    $nameArray['ac'][$inverter->getDcGroup()] = $inverter->getDcGroupName();
-                    $nameArray['dc'][$inverter->getDcGroup()] = $inverter->getDcGroupName();
-                }
-                break;
-            case 2:
-                // In diesem Fall gibt es keine SCBs
-                foreach ($this->acGroupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
-                    $nameArray['ac'][$inverter->getAcGroup()] = $inverter->getAcGroupName();
-                    $nameArray['dc'][$inverter->getAcGroup()] = $inverter->getAcGroupName();
-                }
-                break;
-            case 3: // Groningen
-                foreach ($this->acGroupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
-                    $nameArray['ac'][$inverter->getAcGroup()] = $inverter->getAcGroupName();
-                }
-                foreach ($this->groupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
-                    $nameArray['dc'][$inverter->getDcGroup()] = $inverter->getDcGroupName();
-                }
-                foreach ($this->inverterRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
-                    $nameArray['scb'][$inverter->getInvNr()] = $inverter->getInverterName();
-                }
-                break;
-            case 4: // Guben
-                break;
+            $nameArray['ac'] = [];
+            $nameArray['dc'] = [];
+            $nameArray['scb'] = [];
+            switch ($anlage->getConfigType()) {
+                case 1:
+                    // In diesem Fall gibt es keine SCBs
+                    foreach ($this->groupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
+                        $nameArray['ac'][$inverter->getDcGroup()] = $inverter->getDcGroupName();
+                        $nameArray['dc'][$inverter->getDcGroup()] = $inverter->getDcGroupName();
+                    }
+                    break;
+                case 2:
+                    // In diesem Fall gibt es keine SCBs
+                    foreach ($this->acGroupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
+                        $nameArray['ac'][$inverter->getAcGroup()] = $inverter->getAcGroupName();
+                        $nameArray['dc'][$inverter->getAcGroup()] = $inverter->getAcGroupName();
+                    }
+                    break;
+                case 3: // Groningen
+                    foreach ($this->acGroupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
+                        $nameArray['ac'][$inverter->getAcGroup()] = $inverter->getAcGroupName();
+                    }
+                    foreach ($this->groupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
+                        $nameArray['dc'][$inverter->getDcGroup()] = $inverter->getDcGroupName();
+                    }
+                    foreach ($this->inverterRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
+                        $nameArray['scb'][$inverter->getInvNr()] = $inverter->getInverterName();
+                    }
+                    break;
+                case 4: // Guben
+                    break;
 
-        }
+            }
+            // we do this to make the array star by 0 when required
+            if (!$startArrayAtOne){
+                $nameArray[$type][0] = "1";
+                array_shift($nameArray[$type]);
+            }
 
-        return $nameArray[$type];
+            return $nameArray[$type];
+
+
     }
 
     /**

@@ -6,6 +6,7 @@
 help.*
 php.ini
 tempfiles/*
+symfony.exe
 
 ###> symfony/framework-bundle ###
 /.env.local

@@ -2,19 +2,9 @@
 
 namespace App\Controller;
 
-use App\Entity\Anlage;
-use App\Entity\AnlagenReports;
 use App\Helper\G4NTrait;
-use App\Reports\Goldbeck\EPCMonthlyPRGuaranteeReport;
-use App\Reports\Goldbeck\EPCMonthlyYieldGuaranteeReport;
 use App\Repository\AnlagenRepository;
-use App\Repository\PVSystDatenRepository;
-use App\Service\CheckSystemStatusService;
-use App\Service\PVSystService;
-use App\Service\ReportEpcService;
-use App\Service\ReportService;
 use App\Service\AssetManagementService;
-use Doctrine\ORM\EntityManagerInterface;
 use Nuzkito\ChromePdf\ChromePdf;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
@@ -24,17 +14,11 @@ class AssetManagementController extends BaseController
 {
     use G4NTrait;
 
-    private $urlGenerator;
-
-    public function __construct(UrlGeneratorInterface $urlGenerator)
-    {
-        $this->urlGenerator = $urlGenerator;
-    }
-
     /**
      * @param $doctype ( 0 = PDF, 1 = Excel, 2 = PNG (Grafiken) )
      * @param $charttypetoexport (0 = , 1 = )
      * @Route("/asset/report/{id}/{month}/{year}/{export}/{pages}",name="report_asset_management")
+     * @deprecated
      */
     public function assetReport($id, $month, $year, $export, $pages, AssetManagementService $assetManagement, AnlagenRepository $anlagenRepository, Request $request)
     {
@@ -120,9 +104,9 @@ class AssetManagementController extends BaseController
             'lossesComparedTableCumulated' => $output['lossesComparedTableCumulated'],
             'cumulated_losses_compared_chart' => $output['cumulated_losses_compared_chart'],
         ]);
-        if($export == 0){
+        if ($export == 0){
             return $result;
-        }else{
+        } else {
             // specify the route to the binary.
             $pdf = new ChromePdf('/usr/bin/chromium');
 
@@ -161,7 +145,7 @@ class AssetManagementController extends BaseController
         }
     }
 
-    function substr_Index( $str, $needle, $nth ){
+    private function substr_Index($str, $needle, $nth ){
         $str2 = '';
         $posTotal = 0;
         for($i=0; $i < $nth; $i++){
