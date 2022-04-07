@@ -43,5 +43,6 @@ class DefaultJMController extends AbstractController
      */
     public function check(AlertSystemService $service){
         $service->checkWeatherStation();
+        dd("okay");
     }
 }
