@@ -20,12 +20,14 @@ class StatusRepository extends ServiceEntityRepository
     }
 
 
-    public function findOneByanlageDate($anlage, $date){
+    public function findOneByanlageDate($anlage, $date, $isWeather){
         return $this->createQueryBuilder('s')
             ->andWhere('s.Anlage = :anl')
             ->andWhere('s.stamp = :date')
+            ->andWhere('s.is_weather = :isWeather')
             ->setParameter('anl', $anlage)
             ->setParameter('date', $date)
+            ->setParameter('isWeather', $isWeather)
             ->getQuery()
             ->getResult()
             ;

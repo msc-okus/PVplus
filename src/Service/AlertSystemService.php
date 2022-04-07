@@ -65,6 +65,7 @@ class AlertSystemService
                 }
             }
             $status_report[$anlage->getAnlName()] = $inverter_status;
+            $message = self::AnalyzeIst($status_report, $time, $anlage, $nameArray);
             dump($status_report[$anlage->getAnlName()]);
         }
         dd($status_report);
@@ -212,7 +213,7 @@ class AlertSystemService
     {
         $status = new Status();
         $timeq1 = date('Y-m-d H:i:s', strtotime($time) - 900);
-        $status_q1 = $this->statusRepo->findOneByanlageDate($anlage, $timeq1);
+        $status_q1 = $this->statusRepo->findOneByanlageDate($anlage, $timeq1, true);
         $ticket = null;
         if($status_q1 != null) {
             $ticketprox = $status_q1[0]->getTickete();
@@ -249,7 +250,7 @@ class AlertSystemService
                     $messaging =(date_diff($end, $ticket->getBegin(), true)->m == 30);
                     if ($messaging) {
                         $timeq2 = date('Y-m-d H:i:s', strtotime($time) - 1800);
-                        $status_q2 = $this->statusRepo->findOneByanlageDate($anlage, $timeq2)[0];
+                        $status_q2 = $this->statusRepo->findOneByanlageDate($anlage, $timeq2, true)[0];
                         $temp = $status_q2->getStatus()['temperature'];
                         $wind = $status_q2->getStatus()['wspeed'];
                         $dateString = $ticket->getBegin()->format('Y-m-d H:i:s');
@@ -264,10 +265,9 @@ class AlertSystemService
                     $end->getTimestamp();
                     $ticket->setEnd(($end));
                     $messaging = (date_diff($end, $ticket->getBegin(), true)->m == 30);
-                    dump($anlage->getAnlName(), $messaging);
                     if ($messaging) {
                         $timeq2 = date('Y-m-d H:i:s', strtotime($time) - 1800);
-                        $status_q2 = $this->statusRepo->findOneByanlageDate($anlage, $timeq2)[0];
+                        $status_q2 = $this->statusRepo->findOneByanlageDate($anlage, $timeq2, true)[0];
                         $temp = $status_q2->getStatus()['temperature'];
                         $wind = $status_q2->getStatus()['wspeed'];
                         $dateString = $ticket->getBegin()->format('Y-m-d H:i:s');
@@ -302,8 +302,55 @@ class AlertSystemService
      * @param $time
      * @return string
      */
-    private function AnalyzeIst($status_report, $time){
+    private function AnalyzeIst($status_report, $time, $anlage, $nameArray){
         $message = "";
+        $counter = 0;
+        foreach($status_report as $inverter){
+            if ($inverter == "No Data" || $inverter == "Power is 0"){
+                $error = true;
+                $message = $message . " <br>";
+            }
+            $counter ++;
+        }
+        if($message == "") {
+            $status = new Status();
+            $timeq1 = date('Y-m-d H:i:s', strtotime($time) - 900);
+            $status_q1 = $this->statusRepo->findOneByanlageDate($anlage, $timeq1, true);
+            $ticket = null;
+            if ($status_q1 != null) {
+                $ticketprox = $status_q1[0]->getTickete();
+                if ($ticketprox != null) {
+                    $id = $ticketprox->getId();
+                    $ticket = $this->ticketRepo->findOneById($id);
+                }
+            }
+            if ($ticket != null) {
+                $timetempend = date('Y-m-d H:i:s', strtotime($time));
+                $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
+                $end->getTimestamp();
+                $ticket->setEnd(($end));
+                $status->setTickete($ticket);
+
+            } else {
+                $ticket = new Ticket();
+                $ticket->setAnlage($anlage);
+                $ticket->setStatus(10);
+                $ticket->setErrorType("SFOR");
+                $ticket->setEditor("Alert system");
+                $ticket->setDescription("Error with the Data of the Inverter");
+                $ticket->setSystemStatus(10);
+                $ticket->setPriority(10);
+                $timetempbeg = date('Y-m-d H:i:s', strtotime($time));
+                $begin = date_create_from_format('Y-m-d H:i:s', $timetempbeg);
+                $begin->getTimestamp();
+                $ticket->setBegin(($begin));
+                $timetempend = date('Y-m-d H:i:s', strtotime($time));
+                $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
+                $end->getTimestamp();
+                $ticket->setEnd(($end));
+                $status->setTickete($ticket);
+            }
+        }
         return $message;
     }
 
