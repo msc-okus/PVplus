@@ -63,24 +63,16 @@ class AlertSystemService
                     $inverter_status[$inverterName]['istdata'] = $this->IstData($anlage, $time, $counter);
                     $counter++;
                 }
-                /*
-                 * change to make it work per inverter
-                $status->setAnlage($anlage);
-                $status->setStamp($time);
-                $status->setStatus($status_report[$anlage->getAnlName()]);
-                $status->setIsWeather(false);
-
-                $this->em->persist($status);
-                $this->em->flush();
-                */
             }
             $status_report[$anlage->getAnlName()] = $inverter_status;
+            dump($status_report[$anlage->getAnlName()]);
         }
-
+        dd($status_report);
         return $status_report;
     }
 
     public function checkWeatherStation(){
+        $Anlagen = $this->AnlRepo->findAll();
         $Anlagen = $this->AnlRepo->findAll();
         $time = $this->getLastQuarter(date('Y-m-d H:i:s') );
         $time = G4NTrait::timeAjustment($time, -2);
@@ -113,8 +105,8 @@ class AlertSystemService
      * @return array
      */
     private static function IstData($anlage, $time, $inverter){
-        $result = self::RetrieveQuarterIst($time, $inverter, $anlage);
-        $status_report['Actual'] = $result;
+
+        $status_report = self::RetrieveQuarterIst($time, $inverter, $anlage);
         return $status_report;
     }
 
@@ -138,12 +130,12 @@ class AlertSystemService
             $wdata = $resw->fetch(PDO::FETCH_ASSOC);
             if ($wdata['gi'] != null && $wdata['gmod'] != null) {
                 if ($wdata['gi'] <= 0 && $wdata['gmod'] <= 0) {
-                    $status_report['Irradiation']['Actual'] = "Irradiation is 0";
+                    $status_report['Irradiation'] = "Irradiation is 0";
                 }
-                else $status_report['Irradiation']['Actual'] = "All good";
+                else $status_report['Irradiation'] = "All good";
             }
             else{
-                $status_report['Irradiation']['Actual'] = "No data";
+                $status_report['Irradiation'] = "No data";
             }
 
             if ($wdata['temp'] != null) $status_report['temperature'] = "All good";
@@ -158,6 +150,7 @@ class AlertSystemService
                 }
                 else $status_report['wspeed'] = "No data";
             }
+            else $status_report['wspeed'] = "there is no wind measurer in the plant";
         }
         return $status_report;
     }
@@ -208,33 +201,6 @@ class AlertSystemService
         else return "No data";
     }
 
-
-    /**
-     * We use this to query for a concrete quarter in the weatherstation
-     * @param string $stamp
-     * @param Anlage $anlage
-     * @return string
-     */
-    private static function RetrieveQuarterWeather(string $stamp, Anlage $anlage){
-        $conn = self::getPdoConnection();
-
-        $sql = "SELECT b.g_lower as gi , b.g_upper as gmod 
-                            FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) 
-                            WHERE a.stamp = '$stamp' ";
-
-        $resp = $conn->query($sql);
-
-        if ($resp->rowCount() > 0){
-            $wdata = $resp->fetch(PDO::FETCH_ASSOC);
-            if ($wdata['gi'] + $wdata['gmod'] < 0) return "Irradiation is 0";
-            else if ($wdata['gi'] == null && $wdata['gmod'] == null) return "No data";
-            else return "All is okay";
-        }
-        else return "No data";
-
-    }
-
-
     /**
      * We use this to make an error message of the status array from the weather station and to generate/update Tickets
      * @param $status_report
@@ -247,21 +213,18 @@ class AlertSystemService
         $status = new Status();
         $timeq1 = date('Y-m-d H:i:s', strtotime($time) - 900);
         $status_q1 = $this->statusRepo->findOneByanlageDate($anlage, $timeq1);
-        dump($status_q1);
         $ticket = null;
         if($status_q1 != null) {
             $ticketprox = $status_q1[0]->getTickete();
-
             if ($ticketprox != null) {
                 $id = $ticketprox->getId();
                 $ticket = $this->ticketRepo->findOneById($id);
-                dump($ticket);
             }
         }
         if ($ticket != null){
             $status->setTickete($ticket);
         }
-        else if($status_report['Irradiation']['Actual'] == "No data" || $status_report['Irradiation']['Actual'] == "Irradiation is 0"){
+        else if($status_report['Irradiation'] == "No data" || $status_report['Irradiation'] == "Irradiation is 0"){
             $ticket = new Ticket();
             $ticket->setAnlage($anlage);
             $ticket->setStatus(10);
@@ -278,13 +241,12 @@ class AlertSystemService
         }
         $message = "";
 
-        if ($status_report['Irradiation']['Actual'] == "No data") {
+        if ($status_report['Irradiation'] == "No data") {
                     $timetempend = date('Y-m-d H:i:s', strtotime($time));
                     $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
                     $end->getTimestamp();
                     $ticket->setEnd(($end));
-                    $messaging =(date_diff($end, $ticket->getBegin(), true)->m >= 30) || (date_diff($end, $ticket->getBegin(), true)->h >= 1);
-                    dump($anlage->getAnlName(), $messaging);
+                    $messaging =(date_diff($end, $ticket->getBegin(), true)->m == 30);
                     if ($messaging) {
                         $timeq2 = date('Y-m-d H:i:s', strtotime($time) - 1800);
                         $status_q2 = $this->statusRepo->findOneByanlageDate($anlage, $timeq2)[0];
@@ -296,12 +258,12 @@ class AlertSystemService
                         if ($wind == "No data") $message = $message . "There was no wind data at " . $dateString . "<br>";
                     }
         }
-        else if ($status_report['Irradiation']['Actual'] == "Irradiation is 0") {
+        else if ($status_report['Irradiation'] == "Irradiation is 0") {
                     $timetempend = date('Y-m-d H:i:s', strtotime($time));
                     $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
                     $end->getTimestamp();
                     $ticket->setEnd(($end));
-                    $messaging = (date_diff($end, $ticket->getBegin(), true)->m >= 30) || (date_diff($end, $ticket->getBegin(), true)->h >= 1);
+                    $messaging = (date_diff($end, $ticket->getBegin(), true)->m == 30);
                     dump($anlage->getAnlName(), $messaging);
                     if ($messaging) {
                         $timeq2 = date('Y-m-d H:i:s', strtotime($time) - 1800);
@@ -330,7 +292,6 @@ class AlertSystemService
 
         if($ticket != null) $this->em->persist($ticket);
         $this->em->persist($status);
-        dump($status);
         $this->em->flush();
         return $message;
     }
@@ -343,9 +304,6 @@ class AlertSystemService
      */
     private function AnalyzeIst($status_report, $time){
         $message = "";
-        if (count($status_report['Irradiation']) > 3) {
-
-        }
         return $message;
     }
 
