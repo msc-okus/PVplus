@@ -54,8 +54,7 @@ class AlertSystemService
 
         foreach($Anlagen as $anlage){
             if (($anlage->getCalcPR() == true) && (($time > $sungap[$anlage->getanlName()]['sunrise']) && ($time < $sungap[$anlage->getAnlName()]['sunset']))) {
-                $status = new Status();
-
+                $inverter_status = null;
                 $nameArray = $this->functions->getInverterArray($anlage);
                 $counter = 1;
                 foreach($nameArray as $inverterName) {
@@ -65,15 +64,12 @@ class AlertSystemService
                 }
             }
             $status_report[$anlage->getAnlName()] = $inverter_status;
-            $message = self::AnalyzeIst($status_report, $time, $anlage, $nameArray);
-            dump($status_report[$anlage->getAnlName()]);
+            $message = self::AnalyzeIst($inverter_status, $time, $anlage, $nameArray);
         }
-        dd($status_report);
         return $status_report;
     }
 
     public function checkWeatherStation(){
-        $Anlagen = $this->AnlRepo->findAll();
         $Anlagen = $this->AnlRepo->findAll();
         $time = $this->getLastQuarter(date('Y-m-d H:i:s') );
         $time = G4NTrait::timeAjustment($time, -2);
@@ -88,14 +84,190 @@ class AlertSystemService
 
 
                 $message = self::AnalyzeWeather($status_report[$anlage->getAnlName()], $time, $anlage);
-                //dump($message);
                 self::messagingFunction($message, $anlage);
             }
         }
-        //dd($status_report);
         return $status_report;
     }
+    //----------------Analyzing functions----------------
+    /**
+     * We use this to make an error message of the status array from the weather station and to generate/update Tickets
+     * @param $status_report
+     * @param $time
+     * @param $anlage
+     * @return string
+     */
+    private function AnalyzeWeather($status_report, $time, $anlage): string
+    {
+        $status = new Status();
+        $timeq1 = date('Y-m-d H:i:s', strtotime($time) - 900);
+        $status_q1 = $this->statusRepo->findOneByanlageDate($anlage, $timeq1, true);
+        $ticket = null;
+        if($status_q1 != null) {
+            $ticketprox = $status_q1[0]->getTickete();
+            if ($ticketprox != null) {
+                $id = $ticketprox->getId();
+                $ticket = $this->ticketRepo->findOneById($id);
+            }
+        }
+        if ($ticket != null){
+            $status->setTickete($ticket);
+        }
+        else if($status_report['Irradiation'] == "No data" || $status_report['Irradiation'] == "Irradiation is 0"){
+            $ticket = new Ticket();
+            $ticket->setAnlage($anlage);
+            $ticket->setStatus(10);
+            $ticket->setErrorType("SFOR");
+            $ticket->setEditor("Alert system");
+            $ticket->setDescription("Error with the Data of the Weather station");
+            $ticket->setSystemStatus(10);
+            $ticket->setPriority(10);
+            $timetempbeg = date('Y-m-d H:i:s', strtotime($time));
+            $begin = date_create_from_format('Y-m-d H:i:s', $timetempbeg);
+            $begin->getTimestamp();
+            $ticket->setBegin(($begin));
+            $status->setTickete($ticket);
+        }
+        $message = "";
 
+        if ($status_report['Irradiation'] == "No data") {
+            $timetempend = date('Y-m-d H:i:s', strtotime($time));
+            $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
+            $end->getTimestamp();
+            $ticket->setEnd(($end));
+            $messaging =(date_diff($end, $ticket->getBegin(), true)->m == 30);
+            if ($messaging) {
+                $timeq2 = date('Y-m-d H:i:s', strtotime($time) - 1800);
+                $status_q2 = $this->statusRepo->findOneByanlageDate($anlage, $timeq2, true)[0];
+                $temp = $status_q2->getStatus()['temperature'];
+                $wind = $status_q2->getStatus()['wspeed'];
+                $dateString = $ticket->getBegin()->format('Y-m-d H:i:s');
+                $message = $message . "There is no Irradiation Data since " . $dateString . "<br>";
+                if ($temp == "No data") $message = $message . "There was no temperature data at " . $dateString . "<br>";
+                if ($wind == "No data") $message = $message . "There was no wind data at " . $dateString . "<br>";
+            }
+        }
+        else if ($status_report['Irradiation'] == "Irradiation is 0") {
+            $timetempend = date('Y-m-d H:i:s', strtotime($time));
+            $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
+            $end->getTimestamp();
+            $ticket->setEnd(($end));
+            $messaging = (date_diff($end, $ticket->getBegin(), true)->m == 30);
+            if ($messaging) {
+                $timeq2 = date('Y-m-d H:i:s', strtotime($time) - 1800);
+                $status_q2 = $this->statusRepo->findOneByanlageDate($anlage, $timeq2, true)[0];
+                $temp = $status_q2->getStatus()['temperature'];
+                $wind = $status_q2->getStatus()['wspeed'];
+                $dateString = $ticket->getBegin()->format('Y-m-d H:i:s');
+                $message = $message . "Irradiation is 0 since " . $dateString . "<br>";
+                if ($temp == "No data") $message = $message . "There was no temperature data at " . $dateString . "<br>";
+                if ($wind == "No data") $message = $message . "There was no wind data at " . $dateString . "<br>";
+            }
+        }
+        else if ($ticket != null){
+            //closing the ticket
+            $timetempend = date('Y-m-d H:i:s', strtotime($time)-900);
+            $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
+            $end->getTimestamp();
+            $ticket->setEnd(($end));
+            $ticket->setStatus(30);
+            $status->setTickete(null);
+        }
+        $status->setAnlage($anlage);
+        $status->setStamp($time);
+        $status->setStatus($status_report);
+        $status->setIsWeather(true);
+
+        if($ticket != null) $this->em->persist($ticket);
+        $this->em->persist($status);
+        $this->em->flush();
+        return $message;
+    }
+
+    /**
+     * We use this to make an error message of the status array from the inverter and to generate/update Tickets
+     * @param $status_report
+     * @param $time
+     * @param $anlage
+     * @param $nameArray
+     * @return string
+     */
+    private function AnalyzeIst($status_report, $time, $anlage, $nameArray){
+        $message = "";
+        $counter = 1;
+        foreach($status_report as $inverter){
+            if ($inverter['istdata'] != "All is ok"){
+                $message = $message . "Error in inverter ".$nameArray[$counter]."<br>";
+            }
+            $counter ++;
+        }
+        if($message != "") {
+            $status = new Status();
+            $timeq1 = date('Y-m-d H:i:s', strtotime($time) - 900);
+            $status_q1 = $this->statusRepo->findOneByanlageDate($anlage, $timeq1, false);
+
+            $ticket = null;
+            if ($status_q1 != null) {
+                $ticketprox = $status_q1[0]->getTickete();
+                if ($ticketprox != null) {
+                    $id = $ticketprox->getId();
+                    $ticket = $this->ticketRepo->findOneById($id);
+
+                }
+            }
+            if ($ticket == null) {
+                $ticket = new Ticket();
+                $ticket->setAnlage($anlage);
+                $ticket->setStatus(10);
+                $ticket->setErrorType("SFOR");
+                $ticket->setEditor("Alert system");
+                $ticket->setDescription("Error with the Data of the Inverter");
+                $ticket->setSystemStatus(10);
+                $ticket->setPriority(10);
+                $timetemp = date('Y-m-d H:i:s', strtotime($time));
+                $begin = date_create_from_format('Y-m-d H:i:s', $timetemp);
+                $begin->getTimestamp();
+                $ticket->setBegin(($begin));
+            }
+            $timetemp = date('Y-m-d H:i:s', strtotime($time));
+            $end = date_create_from_format('Y-m-d H:i:s', $timetemp);
+            $end->getTimestamp();
+            $ticket->setEnd(($end));
+            $status->setAnlage($anlage);
+            $status->setStamp($time);
+            $status->setStatus($status_report);
+            $status->setIsWeather(false);
+            $status->setTickete($ticket);
+            $this->em->persist($ticket);
+            $this->em->persist($status);
+            $this->em->flush();
+
+            if (date_diff($end, $ticket->getBegin(), true)->m != 30) {
+                $message = "";
+            }
+
+        }
+        else {
+            $timeq1 = date('Y-m-d H:i:s', strtotime($time) - 900);
+            $status_q1 = $this->statusRepo->findOneByanlageDate($anlage, $timeq1, false);
+
+            $ticket = null;
+            if ($status_q1 != null) {
+                $ticketprox = $status_q1[0]->getTickete();
+                if ($ticketprox != null) {
+                    $id = $ticketprox->getId();
+                    $ticket = $this->ticketRepo->findOneById($id);
+
+                }
+            }
+            if($ticket!=null){
+                $ticket->setStatus(30);
+                $this->em->persist($ticket);
+                $this->em->flush();
+            }
+        }
+        return $message;
+    }
     // ---------------Checking Functions-----------------
 
     /**
@@ -200,158 +372,6 @@ class AlertSystemService
             else return "All is ok";
         }
         else return "No data";
-    }
-
-    /**
-     * We use this to make an error message of the status array from the weather station and to generate/update Tickets
-     * @param $status_report
-     * @param $time
-     * @param $anlage
-     * @return string
-     */
-    private function AnalyzeWeather($status_report, $time, $anlage): string
-    {
-        $status = new Status();
-        $timeq1 = date('Y-m-d H:i:s', strtotime($time) - 900);
-        $status_q1 = $this->statusRepo->findOneByanlageDate($anlage, $timeq1, true);
-        $ticket = null;
-        if($status_q1 != null) {
-            $ticketprox = $status_q1[0]->getTickete();
-            if ($ticketprox != null) {
-                $id = $ticketprox->getId();
-                $ticket = $this->ticketRepo->findOneById($id);
-            }
-        }
-        if ($ticket != null){
-            $status->setTickete($ticket);
-        }
-        else if($status_report['Irradiation'] == "No data" || $status_report['Irradiation'] == "Irradiation is 0"){
-            $ticket = new Ticket();
-            $ticket->setAnlage($anlage);
-            $ticket->setStatus(10);
-            $ticket->setErrorType("SFOR");
-            $ticket->setEditor("Alert system");
-            $ticket->setDescription("Error with the Data of the Weather station");
-            $ticket->setSystemStatus(10);
-            $ticket->setPriority(10);
-            $timetempbeg = date('Y-m-d H:i:s', strtotime($time));
-            $begin = date_create_from_format('Y-m-d H:i:s', $timetempbeg);
-            $begin->getTimestamp();
-            $ticket->setBegin(($begin));
-            $status->setTickete($ticket);
-        }
-        $message = "";
-
-        if ($status_report['Irradiation'] == "No data") {
-                    $timetempend = date('Y-m-d H:i:s', strtotime($time));
-                    $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
-                    $end->getTimestamp();
-                    $ticket->setEnd(($end));
-                    $messaging =(date_diff($end, $ticket->getBegin(), true)->m == 30);
-                    if ($messaging) {
-                        $timeq2 = date('Y-m-d H:i:s', strtotime($time) - 1800);
-                        $status_q2 = $this->statusRepo->findOneByanlageDate($anlage, $timeq2, true)[0];
-                        $temp = $status_q2->getStatus()['temperature'];
-                        $wind = $status_q2->getStatus()['wspeed'];
-                        $dateString = $ticket->getBegin()->format('Y-m-d H:i:s');
-                        $message = $message . "There is no Irradiation Data since " . $dateString . "<br>";
-                        if ($temp == "No data") $message = $message . "There was no temperature data at " . $dateString . "<br>";
-                        if ($wind == "No data") $message = $message . "There was no wind data at " . $dateString . "<br>";
-                    }
-        }
-        else if ($status_report['Irradiation'] == "Irradiation is 0") {
-                    $timetempend = date('Y-m-d H:i:s', strtotime($time));
-                    $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
-                    $end->getTimestamp();
-                    $ticket->setEnd(($end));
-                    $messaging = (date_diff($end, $ticket->getBegin(), true)->m == 30);
-                    if ($messaging) {
-                        $timeq2 = date('Y-m-d H:i:s', strtotime($time) - 1800);
-                        $status_q2 = $this->statusRepo->findOneByanlageDate($anlage, $timeq2, true)[0];
-                        $temp = $status_q2->getStatus()['temperature'];
-                        $wind = $status_q2->getStatus()['wspeed'];
-                        $dateString = $ticket->getBegin()->format('Y-m-d H:i:s');
-                        $message = $message . "Irradiation is 0 since " . $dateString . "<br>";
-                        if ($temp == "No data") $message = $message . "There was no temperature data at " . $dateString . "<br>";
-                        if ($wind == "No data") $message = $message . "There was no wind data at " . $dateString . "<br>";
-                    }
-        }
-        else if ($ticket != null){
-            //closing the ticket
-            $timetempend = date('Y-m-d H:i:s', strtotime($time));
-            $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
-            $end->getTimestamp();
-            $ticket->setEnd(($end));
-            $ticket->setStatus(30);
-            $status->setTickete(null);
-        }
-        $status->setAnlage($anlage);
-        $status->setStamp($time);
-        $status->setStatus($status_report);
-        $status->setIsWeather(true);
-
-        if($ticket != null) $this->em->persist($ticket);
-        $this->em->persist($status);
-        $this->em->flush();
-        return $message;
-    }
-
-    /**
-     * We use this to make an error message of the status array from the inverter and to generate/update Tickets
-     * @param $status_report
-     * @param $time
-     * @return string
-     */
-    private function AnalyzeIst($status_report, $time, $anlage, $nameArray){
-        $message = "";
-        $counter = 0;
-        foreach($status_report as $inverter){
-            if ($inverter == "No Data" || $inverter == "Power is 0"){
-                $error = true;
-                $message = $message . " <br>";
-            }
-            $counter ++;
-        }
-        if($message == "") {
-            $status = new Status();
-            $timeq1 = date('Y-m-d H:i:s', strtotime($time) - 900);
-            $status_q1 = $this->statusRepo->findOneByanlageDate($anlage, $timeq1, true);
-            $ticket = null;
-            if ($status_q1 != null) {
-                $ticketprox = $status_q1[0]->getTickete();
-                if ($ticketprox != null) {
-                    $id = $ticketprox->getId();
-                    $ticket = $this->ticketRepo->findOneById($id);
-                }
-            }
-            if ($ticket != null) {
-                $timetempend = date('Y-m-d H:i:s', strtotime($time));
-                $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
-                $end->getTimestamp();
-                $ticket->setEnd(($end));
-                $status->setTickete($ticket);
-
-            } else {
-                $ticket = new Ticket();
-                $ticket->setAnlage($anlage);
-                $ticket->setStatus(10);
-                $ticket->setErrorType("SFOR");
-                $ticket->setEditor("Alert system");
-                $ticket->setDescription("Error with the Data of the Inverter");
-                $ticket->setSystemStatus(10);
-                $ticket->setPriority(10);
-                $timetempbeg = date('Y-m-d H:i:s', strtotime($time));
-                $begin = date_create_from_format('Y-m-d H:i:s', $timetempbeg);
-                $begin->getTimestamp();
-                $ticket->setBegin(($begin));
-                $timetempend = date('Y-m-d H:i:s', strtotime($time));
-                $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
-                $end->getTimestamp();
-                $ticket->setEnd(($end));
-                $status->setTickete($ticket);
-            }
-        }
-        return $message;
     }
 
     /**

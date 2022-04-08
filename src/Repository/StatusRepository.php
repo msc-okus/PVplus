@@ -24,7 +24,7 @@ class StatusRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('s')
             ->andWhere('s.Anlage = :anl')
             ->andWhere('s.stamp = :date')
-            ->andWhere('s.is_weather = :isWeather')
+            ->andWhere('s.isWeather = :isWeather')
             ->setParameter('anl', $anlage)
             ->setParameter('date', $date)
             ->setParameter('isWeather', $isWeather)
