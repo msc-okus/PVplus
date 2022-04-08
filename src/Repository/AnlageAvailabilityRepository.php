@@ -53,6 +53,10 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
             ->setParameter('anlage', $anlage)
             ->setParameter('from', $from)
             ->setParameter('to', $to)
+            ->select('s.stamp, s.inverter, SUM(s.case_0) as case0, SUM(s.case_1) as case1, SUM(s.case_2) as case2, SUM(s.case_3) as case3, SUM(s.case_4) as case4, SUM(s.case_5) as case5, SUM(s.case_6) as case6, SUM(s.control) as control, SUM(s.invAPart1) as invApart1, SUM(s.invAPart2) as invApart2, SUM(s.invA) as invA, 
+            SUM(s.case_0_second) as case0second, SUM(s.case_1_second) as case1second, SUM(s.case_2_second) as case2second, SUM(s.case_3_second) as case3second, SUM(s.case_4_second) as case4second, SUM(s.case_5_second) as case5second, SUM(s.case_6_second) as case6second, SUM(s.control_second) as control_second, SUM(s.invAPart1_second) as invAPart1Second, SUM(s.invAPart2_second) as invAPart2Second, SUM(s.invASecond) as invASecond')
+
+            ->groupBy("s.inverter")
             ->getQuery()
             ->getResult()
             ;
@@ -60,7 +64,7 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
 
     public function findAvailabilityForCase5($anlageID, $day, $inverter)
     {
-        $q = $this->createQueryBuilder('c5') // c5 = case5
+        return $this->createQueryBuilder('c5') // c5 = case5
             ->andWhere('c5.anlage = :anlage_id')
             ->andWhere('c5.inverter = :inverter')
             ->andWhere('c5.stamp = :day')
@@ -70,7 +74,6 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
             ->getQuery()
             ->getOneOrNullResult()
         ;
-        return $q;
     }
 
     public function sumAllCasesByDate(Anlage $anlage, DateTime $from, DateTime $to, ?int $inverter = null)
