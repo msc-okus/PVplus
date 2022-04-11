@@ -811,14 +811,14 @@ class Anlage
     private $dayLightData;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string")
      */
-    private $FreqTolerance;
+    private $FreqTolerance = 0;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="string")
      */
-    private $FreqBase;
+    private $FreqBase = 50;
 
 
     public function __construct()
