@@ -40,7 +40,7 @@ class DefaultMREController extends BaseController
     public function pa($id, AvailabilityService $availability, AnlagenRepository $anlagenRepository): Response
     {
         $anlage = $anlagenRepository->find($id);
-        $date = "2021-03-14";
+        $date = "2020-12-07";
         $output = $availability->checkAvailability($anlage, strtotime($date), false);
 
         return $this->render('cron/showResult.html.twig', [
