@@ -58,7 +58,7 @@ class AlertSystemService
                 $counter = 1;
                 foreach($nameArray as $inverterName) {
 
-                    $inverter_status[$inverterName]['istdata'] = $this->IstData($anlage, $time, $counter);
+                    $inverter_status[$inverterName] = $this->IstData($anlage, $time, $counter);
                     $counter++;
                 }
                 $status_report[$anlage->getAnlName()] = $inverter_status;
@@ -66,6 +66,7 @@ class AlertSystemService
             }
 
         }
+        dd($status_report);
         return $status_report;
     }
 
@@ -87,6 +88,7 @@ class AlertSystemService
                 self::messagingFunction($message, $anlage);
             }
         }
+
         return $status_report;
     }
     //----------------Analyzing functions----------------
@@ -358,8 +360,8 @@ class AlertSystemService
      */
     private static function RetrieveQuarterIst(string $stamp, ?string $inverter, Anlage $anlage){
         $conn = self::getPdoConnection();
-
-        $sql = "SELECT wr_pac as ist
+        $return['istdata'] = null;
+        $sql = "SELECT wr_pac as ist, frequency as freq, wr_udc as voltage
                 FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
                 WHERE a.stamp = '$stamp' AND b.unit = '$inverter' ";
 
@@ -367,11 +369,22 @@ class AlertSystemService
 
         if ($resp->rowCount() > 0) {
             $pdata = $resp->fetch(PDO::FETCH_ASSOC);
-            if ($pdata['ist'] == 0) return  "Power is 0";
-            else if ($pdata['ist'] == null) return "No Data";
-            else return "All is ok";
+            if ($pdata['ist'] == 0) $return['istdata'] =  "Power is 0";
+            else if ($pdata['ist'] == null) $return['istdata'] = "No Data";
+            else $return['istdata'] = "All is ok";
+            if ($pdata['frequency'] != null){
+                if (($pdata['frequency'] <= $anlage->getFreqBase()+$anlage->getFreqTolerance()) && ($pdata['frequency'] >= $anlage->getFreqBase()-$anlage->getFreqTolerance())) $return = "All is ok";
+                else $return = "Error with the frequency";
+            }
+            else $return['freq'] = "No Data";
+            if ($pdata['voltage'] != null){
+                if ($pdata['voltage'] == 0) $return['voltage'] = "Voltage is 0";
+                else $return['voltage'] = "All is ok";
+            }
+            else $return['voltage'] = "No Data";
         }
-        else return "No data";
+        else $return['istdata'] = "No data";
+        return $return;
     }
 
     /**
