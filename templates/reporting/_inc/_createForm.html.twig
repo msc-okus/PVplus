@@ -4,6 +4,7 @@
                 data-report-target="required"
                 data-action="report#handleInput">
             <option value="" disabled selected hidden>Please choose a Plant</option>
+            <option value=""   {% if status == ''   %}   selected {% endif %} > Select a Plant</option>
             {% for anlage in anlagen %}
                 <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlId }} - {{ anlage.anlName }}</option>
             {% endfor %}
