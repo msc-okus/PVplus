@@ -823,7 +823,7 @@ class Anlage
     /**
      * @ORM\Column(type="boolean")
      */
-    private $hasFrequency;
+    private $hasFrequency = false;
 
 
     public function __construct()

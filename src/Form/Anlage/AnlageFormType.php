@@ -513,6 +513,9 @@ class AnlageFormType extends AbstractType
             ->add('FreqTolerance', TextType::class, [
                 'label' => 'Frequency tolerance of the Plant'
             ])
+            ->add('hasFrequency', SwitchType::class,[
+                'label' => 'Has Frequency'
+            ])
             ################################################
             ####               Reports                  ####
             ################################################
