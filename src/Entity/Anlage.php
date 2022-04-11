@@ -810,6 +810,16 @@ class Anlage
      */
     private $dayLightData;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $FreqTolerance;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $FreqBase;
+
 
     public function __construct()
     {
@@ -3387,6 +3397,30 @@ class Anlage
                 $dayLightData->setAnlage(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getFreqTolerance(): ?int
+    {
+        return $this->FreqTolerance;
+    }
+
+    public function setFreqTolerance(int $FreqTolerance): self
+    {
+        $this->FreqTolerance = $FreqTolerance;
+
+        return $this;
+    }
+
+    public function getFreqBase(): ?int
+    {
+        return $this->FreqBase;
+    }
+
+    public function setFreqBase(int $FreqBase): self
+    {
+        $this->FreqBase = $FreqBase;
 
         return $this;
     }

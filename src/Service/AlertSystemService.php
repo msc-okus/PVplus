@@ -49,13 +49,11 @@ class AlertSystemService
         $time = $this->getLastQuarter(date('Y-m-d H:i:s') );
         $time = G4NTrait::timeAjustment($time, -2);
         $status_report = false;
-        $inverter_status = false;
         $sungap = $this->weather->getSunrise($Anlagen);
 
         foreach($Anlagen as $anlage){
             if (($anlage->getCalcPR() == true) && (($time > $sungap[$anlage->getanlName()]['sunrise']) && ($time < $sungap[$anlage->getAnlName()]['sunset']))) {
-                $status = new Status();
-
+                $inverter_status = null;
                 $nameArray = $this->functions->getInverterArray($anlage);
                 $counter = 1;
                 foreach($nameArray as $inverterName) {
@@ -63,20 +61,11 @@ class AlertSystemService
                     $inverter_status[$inverterName]['istdata'] = $this->IstData($anlage, $time, $counter);
                     $counter++;
                 }
-                /*
-                 * change to make it work per inverter
-                $status->setAnlage($anlage);
-                $status->setStamp($time);
-                $status->setStatus($status_report[$anlage->getAnlName()]);
-                $status->setIsWeather(false);
-
-                $this->em->persist($status);
-                $this->em->flush();
-                */
+                $status_report[$anlage->getAnlName()] = $inverter_status;
+                $message = self::AnalyzeIst($inverter_status, $time, $anlage, $nameArray);
             }
-            $status_report[$anlage->getAnlName()] = $inverter_status;
-        }
 
+        }
         return $status_report;
     }
 
@@ -98,37 +87,208 @@ class AlertSystemService
                 self::messagingFunction($message, $anlage);
             }
         }
-
         return $status_report;
     }
-
-    // ---------------Checking Functions-----------------
-    private static function IstData($anlage, $time, $inverter){
-        $result = self::RetrieveQuarterIst($time, $inverter, $anlage);
-        $status_report['actual'] = $result;
-        if ($result == "No data"){
-            $time = strtotime(date('Y-m-d H:i:s', strtotime($time) - 900));
-            $result = self::RetrieveQuarterIst($time, $inverter, $anlage);
-            $status_report['15'] = $result;
-            if ($result == "No data"){
-                $time = strtotime(date('Y-m-d H:i:s', strtotime($time) - 900));
-                $result = self::RetrieveQuarterIst($time, $inverter, $anlage);
-                $status_report['30'] = $result;
-                if($result == "No data"){
-                    $time = strtotime(date('Y-m-d H:i:s', strtotime($time) - 900));
-                    $result = self::RetrieveQuarterIst($time, $inverter, $anlage);
-                    $status_report['45'] = $result;
-                    if($result == "No data"){
-                        $time = strtotime(date('Y-m-d H:i:s', strtotime($time) - 900));
-                        $result = self::RetrieveQuarterIst($time, $inverter, $anlage);
-                        $status_report['60'] = $result;
-                    }
-                }
+    //----------------Analyzing functions----------------
+    /**
+     * We use this to make an error message of the status array from the weather station and to generate/update Tickets
+     * @param $status_report
+     * @param $time
+     * @param $anlage
+     * @return string
+     */
+    private function AnalyzeWeather($status_report, $time, $anlage): string
+    {
+        $status = new Status();
+        $timeq1 = date('Y-m-d H:i:s', strtotime($time) - 900);
+        $status_q1 = $this->statusRepo->findOneByanlageDate($anlage, $timeq1, true);
+        $ticket = null;
+        if($status_q1 != null) {
+            $ticketprox = $status_q1[0]->getTickete();
+            if ($ticketprox != null) {
+                $id = $ticketprox->getId();
+                $ticket = $this->ticketRepo->findOneById($id);
             }
         }
+        if ($ticket != null){
+            $status->setTickete($ticket);
+        }
+        else if($status_report['Irradiation'] == "No data" || $status_report['Irradiation'] == "Irradiation is 0"){
+            $ticket = new Ticket();
+            $ticket->setAnlage($anlage);
+            $ticket->setStatus(10);
+            $ticket->setErrorType("SFOR");
+            $ticket->setEditor("Alert system");
+            $ticket->setDescription("Error with the Data of the Weather station");
+            $ticket->setSystemStatus(10);
+            $ticket->setPriority(10);
+            $timetempbeg = date('Y-m-d H:i:s', strtotime($time));
+            $begin = date_create_from_format('Y-m-d H:i:s', $timetempbeg);
+            $begin->getTimestamp();
+            $ticket->setBegin(($begin));
+            $status->setTickete($ticket);
+        }
+        $message = "";
 
+        if ($status_report['Irradiation'] == "No data") {
+            $timetempend = date('Y-m-d H:i:s', strtotime($time));
+            $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
+            $end->getTimestamp();
+            $ticket->setEnd(($end));
+            $messaging =(date_diff($end, $ticket->getBegin(), true)->m == 30);
+            if ($messaging) {
+                $timeq2 = date('Y-m-d H:i:s', strtotime($time) - 1800);
+                $status_q2 = $this->statusRepo->findOneByanlageDate($anlage, $timeq2, true)[0];
+                $temp = $status_q2->getStatus()['temperature'];
+                $wind = $status_q2->getStatus()['wspeed'];
+                $dateString = $ticket->getBegin()->format('Y-m-d H:i:s');
+                $message = $message . "There is no Irradiation Data since " . $dateString . "<br>";
+                if ($temp == "No data") $message = $message . "There was no temperature data at " . $dateString . "<br>";
+                if ($wind == "No data") $message = $message . "There was no wind data at " . $dateString . "<br>";
+            }
+        }
+        else if ($status_report['Irradiation'] == "Irradiation is 0") {
+            $timetempend = date('Y-m-d H:i:s', strtotime($time));
+            $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
+            $end->getTimestamp();
+            $ticket->setEnd(($end));
+            $messaging = (date_diff($end, $ticket->getBegin(), true)->m == 30);
+            if ($messaging) {
+                $timeq2 = date('Y-m-d H:i:s', strtotime($time) - 1800);
+                $status_q2 = $this->statusRepo->findOneByanlageDate($anlage, $timeq2, true)[0];
+                $temp = $status_q2->getStatus()['temperature'];
+                $wind = $status_q2->getStatus()['wspeed'];
+                $dateString = $ticket->getBegin()->format('Y-m-d H:i:s');
+                $message = $message . "Irradiation is 0 since " . $dateString . "<br>";
+                if ($temp == "No data") $message = $message . "There was no temperature data at " . $dateString . "<br>";
+                if ($wind == "No data") $message = $message . "There was no wind data at " . $dateString . "<br>";
+            }
+        }
+        else if ($ticket != null){
+            //closing the ticket
+            $timetempend = date('Y-m-d H:i:s', strtotime($time)-900);
+            $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
+            $end->getTimestamp();
+            $ticket->setEnd(($end));
+            $ticket->setStatus(30);
+            $status->setTickete(null);
+        }
+        $status->setAnlage($anlage);
+        $status->setStamp($time);
+        $status->setStatus($status_report);
+        $status->setIsWeather(true);
+
+        if($ticket != null) $this->em->persist($ticket);
+        $this->em->persist($status);
+        $this->em->flush();
+        return $message;
+    }
+
+    /**
+     * We use this to make an error message of the status array from the inverter and to generate/update Tickets
+     * @param $status_report
+     * @param $time
+     * @param $anlage
+     * @param $nameArray
+     * @return string
+     */
+    private function AnalyzeIst($status_report, $time, $anlage, $nameArray){
+        $message = "";
+        $counter = 1;
+        foreach($status_report as $inverter){
+            if ($inverter['istdata'] != "All is ok"){
+                $message = $message . "Error in inverter ".$nameArray[$counter]."<br>";
+            }
+            $counter ++;
+        }
+        if($message != "") {
+            $status = new Status();
+            $timeq1 = date('Y-m-d H:i:s', strtotime($time) - 900);
+            $status_q1 = $this->statusRepo->findOneByanlageDate($anlage, $timeq1, false);
+
+            $ticket = null;
+            if ($status_q1 != null) {
+                $ticketprox = $status_q1[0]->getTickete();
+                if ($ticketprox != null) {
+                    $id = $ticketprox->getId();
+                    $ticket = $this->ticketRepo->findOneById($id);
+
+                }
+            }
+            if ($ticket == null) {
+                $ticket = new Ticket();
+                $ticket->setAnlage($anlage);
+                $ticket->setStatus(10);
+                $ticket->setErrorType("SFOR");
+                $ticket->setEditor("Alert system");
+                $ticket->setDescription("Error with the Data of the Inverter");
+                $ticket->setSystemStatus(10);
+                $ticket->setPriority(10);
+                $timetemp = date('Y-m-d H:i:s', strtotime($time));
+                $begin = date_create_from_format('Y-m-d H:i:s', $timetemp);
+                $begin->getTimestamp();
+                $ticket->setBegin(($begin));
+            }
+            $timetemp = date('Y-m-d H:i:s', strtotime($time));
+            $end = date_create_from_format('Y-m-d H:i:s', $timetemp);
+            $end->getTimestamp();
+            $ticket->setEnd(($end));
+            $status->setAnlage($anlage);
+            $status->setStamp($time);
+            $status->setStatus($status_report);
+            $status->setIsWeather(false);
+            $status->setTickete($ticket);
+            $this->em->persist($ticket);
+            $this->em->persist($status);
+            $this->em->flush();
+
+            if (date_diff($end, $ticket->getBegin(), true)->m != 30) {
+                $message = "";
+            }
+
+        }
+        else {
+            $timeq1 = date('Y-m-d H:i:s', strtotime($time) - 900);
+            $status_q1 = $this->statusRepo->findOneByanlageDate($anlage, $timeq1, false);
+
+            $ticket = null;
+            if ($status_q1 != null) {
+                $ticketprox = $status_q1[0]->getTickete();
+                if ($ticketprox != null) {
+                    $id = $ticketprox->getId();
+                    $ticket = $this->ticketRepo->findOneById($id);
+
+                }
+            }
+            if($ticket!=null){
+                $ticket->setStatus(30);
+                $this->em->persist($ticket);
+                $this->em->flush();
+            }
+        }
+        return $message;
+    }
+    // ---------------Checking Functions-----------------
+
+    /**
+     * here we analyze the data of the inverter and generate the status
+     * @param $anlage
+     * @param $time
+     * @param $inverter
+     * @return array
+     */
+    private static function IstData($anlage, $time, $inverter){
+
+        $status_report = self::RetrieveQuarterIst($time, $inverter, $anlage);
         return $status_report;
     }
+
+    /**
+     * here we analyze the data from the weather station and generate the status
+     * @param Anlage $anlage
+     * @param $time
+     * @return array
+     */
     private static function WData(Anlage $anlage, $time)
     {
 
@@ -143,144 +303,13 @@ class AlertSystemService
             $wdata = $resw->fetch(PDO::FETCH_ASSOC);
             if ($wdata['gi'] != null && $wdata['gmod'] != null) {
                 if ($wdata['gi'] <= 0 && $wdata['gmod'] <= 0) {
-                    $status_report['Irradiation']['actual'] = "Irradiation is 0";
-                    $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-
-                    $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                    $status_report['Irradiation']['15'] = $result;
-                    if($result == "No data" ){
-                        $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-                        $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                        $status_report['Irradiation']['30'] = $result;
-                        if($result == "No data" ){
-                            $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-                            $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                            $status_report['Irradiation']['45'] = $result;
-                            if($result == "No data" ){
-                                $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-                                $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                                $status_report['Irradiation']['60'] = $result;
-                            }
-                            else if ($result == "Irradiation is 0"){
-                                $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-                                $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                                $status_report['Irradiation']['60'] = $result;
-                            }
-                        }
-                        else if ($result == "Irradiation is 0"){
-                            $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-                            $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                            $status_report['Irradiation']['45'] = $result;
-                        }
-                    }
-                    else if ($result == "Irradiation is 0"){
-                        $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-
-                        $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                        $status_report['Irradiation']['30'] = $result;
-                        if($result == "No data" ){
-                            $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-                            $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                            $status_report['Irradiation']['45'] = $result;
-                            if($result == "No data" ){
-                                $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-                                $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                                $status_report['Irradiation']['60'] = $result;
-                            }
-                            else if ($result == "Irradiation is 0"){
-                                $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-                                $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                                $status_report['Irradiation']['60'] = $result;
-                            }
-                        }
-                        else if ($result == "Irradiation is 0"){
-                            $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-                            $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                            $status_report['Irradiation']['45'] = $result;
-                            if($result == "No data" ){
-                                $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-                                $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                                $status_report['Irradiation']['60'] = $result;
-                            }
-                            else if ($result == "Irradiation is 0"){
-                                $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-                                $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                                $status_report['Irradiation']['60'] = $result;
-                            }
-                        }
-                    }
+                    $status_report['Irradiation'] = "Irradiation is 0";
                 }
-                else $status_report['Irradiation']['Actual'] = "All good";
+                else $status_report['Irradiation'] = "All good";
             }
             else{
-                $status_report['Irradiation']['Actual'] = "No data";
-                $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-                $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                $status_report['Irradiation']['15'] = $result;
-                if($result == "No data" ){
-                    $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-                    $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                    $status_report['Irradiation']['30'] = $result;
-                    if($result == "No data" ){
-                        $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-                        $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                        $status_report['Irradiation']['45'] = $result;
-                        if($result == "No data" ){
-                            $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-                            $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                            $status_report['Irradiation']['60'] = $result;
-                        }
-                        else if ($result == "Irradiation is 0"){
-                            $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-                            $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                            $status_report['Irradiation']['60'] = $result;
-                        }
-                    }
-                    else if ($result == "Irradiation is 0"){
-                        $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-                        $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                        $status_report['Irradiation']['45'] = $result;
-                    }
-                }
-                else if ($result == "Irradiation is 0"){
-                    $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-
-                    $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                    $status_report['Irradiation']['30'] = $result;
-                    if($result == "No data" ){
-                        $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-                        $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                        $status_report['Irradiation']['45'] = $result;
-                        if($result == "No data" ){
-                            $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-                            $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                            $status_report['Irradiation']['60'] = $result;
-                        }
-                        else if ($result == "Irradiation is 0"){
-                            $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-                            $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                            $status_report['Irradiation']['60'] = $result;
-                        }
-                    }
-                    else if ($result == "Irradiation is 0"){
-                        $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-                        $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                        $status_report['Irradiation']['45'] = $result;
-                        if($result == "No data" ){
-                            $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-                            $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                            $status_report['Irradiation']['60'] = $result;
-                        }
-                        else if ($result == "Irradiation is 0"){
-                            $time_q1 = strtotime(date('Y-m-d H:i', strtotime($time) - 900));
-                            $result = self::RetrieveQuarterWeather($time_q1, $anlage);
-                            $status_report['Irradiation']['60'] = $result;
-                        }
-                    }
-                }
+                $status_report['Irradiation'] = "No data";
             }
-
-
 
             if ($wdata['temp'] != null) $status_report['temperature'] = "All good";
 
@@ -294,14 +323,18 @@ class AlertSystemService
                 }
                 else $status_report['wspeed'] = "No data";
             }
+            else $status_report['wspeed'] = "there is no wind measurer in the plant";
         }
         return $status_report;
     }
 
     //----------------Extra Functions--------------------
+
     /**
-    *We use this to retrieve the last quarter of a time given pe: 3:42 will return 3:30
-    */
+     * We use this to retrieve the last quarter of a time given pe: 3:42 will return 3:30
+     * @param $stamp
+     * @return string
+     */
     private function getLastQuarter($stamp){
         //we splikt the minutes from the rest of the stamp
         $mins = date('i', strtotime($stamp));
@@ -314,7 +347,15 @@ class AlertSystemService
         return ($rest.":".$quarter);
 
     }
-    //We use this to query for a concrete quarter in an inverter
+
+
+    /**
+     * We use this to query for a concrete quarter in an inverter
+     * @param string $stamp
+     * @param string|null $inverter
+     * @param Anlage $anlage
+     * @return string
+     */
     private static function RetrieveQuarterIst(string $stamp, ?string $inverter, Anlage $anlage){
         $conn = self::getPdoConnection();
 
@@ -332,334 +373,12 @@ class AlertSystemService
         }
         else return "No data";
     }
-    /**
-    *We use this to query for a concrete quarter in the weatherstation
-    */
-    private static function RetrieveQuarterWeather(string $stamp, Anlage $anlage){
-        $conn = self::getPdoConnection();
-
-        $sql = "SELECT b.g_lower as gi , b.g_upper as gmod 
-                            FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) 
-                            WHERE a.stamp = '$stamp' ";
-
-        $resp = $conn->query($sql);
-
-        if ($resp->rowCount() > 0){
-            $wdata = $resp->fetch(PDO::FETCH_ASSOC);
-            if ($wdata['gi'] + $wdata['gmod'] < 0) return "Irradiation is 0";
-            else if ($wdata['gi'] == null && $wdata['gmod'] == null) return "No data";
-            else return "All is okay";
-        }
-        else return "No data";
-
-    }
 
     /**
-     * We use this to make an error message of the status array from the weather station
+     * This is the function we use to send the messages we previously generated
+     * @param $message
+     * @param $anlage
      */
-    private function AnalyzeWeather($status_report, $time, $anlage): string
-    {
-        $status = new Status();
-        $timeq1 = date('Y-m-d H:i:s', strtotime($time) - 900);
-        $status_q1 = $this->statusRepo->findOneByanlageDate($anlage, $timeq1)[0];
-        $ticket = null;
-        if($status_q1 != null) {
-            dump($status_q1);
-            $ticketprox = $status_q1->getTickete();
-            dump($ticketprox);
-            if ($ticketprox != null) {
-                $id = $ticketprox->getId();
-                $ticket = $this->ticketRepo->findOneById($id);
-            }
-        }
-        if ($ticket != null){
-            $status->setTickete($ticket);
-            dump("old ticket found");
-        }
-        else if(count($status_report['Irradiation']) > 3){
-            $ticket = new Ticket();
-            $timetempbeg = date('Y-m-d ', strtotime($time) - 1800);
-            $ticket->setAnlage($anlage);
-            $ticket->setStatus(10);
-            $ticket->setErrorType("SFOR");
-            $ticket->setEditor("Alert system");
-            $ticket->setDescription("Error with the Data of the Weatherstation, check on your alert mail for more information");
-            $ticket->setSystemStatus(10);
-            $ticket->setPriority(10);
-            $begin = date_create_from_format('Y-m-d ', $timetempbeg);
-            $begin->getTimestamp();
-            $timetempend = date('Y-m-d ', strtotime($time));
-            $end = date_create_from_format('Y-m-d ', $timetempend);
-            $end->getTimestamp();
-            $ticket->setEnd(($end));
-            $ticket->setBegin(($begin));
-            $status->setTickete($ticket);
-
-        }
-        $message = "";
-
-            if ($status_report['Irradiation']['Actual'] == "No data") {
-                if ($ticket != null){
-                    $timetempend = date('Y-m-d', strtotime($time));
-                    $end = date_create_from_format('Y-m-d', $timetempend);
-                    $end->getTimestamp();
-                    $ticket->setEnd(($end));
-                }
-                else {
-                    $message = $message . "There was no Irradiation Data at " . $time . "<br>";
-                    if ($status_report['Irradiation']['15'] == "No data") {
-                            $timeq1 = date('Y-m-d H:i', strtotime($time) - 900);
-                            $message = $message . "There was no Irradiation Data at " . $timeq1 . "<br>";
-                            if ($status_report['Irradiation']['30'] == "No data") {
-                                $timeq2 = date('Y-m-d H:i', strtotime($timeq1) - 900);
-                                $message = $message . "There was no Irradiation Data at " . $timeq2 . "<br>";
-                                if ($status_report['Irradiation']['45'] == "No data") {
-                                    $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
-                                    $message = $message . "There was no Irradiation Data at " . $timeq3 . "<br>";
-                                    if ($status_report['Irradiation']['60'] == "No data") {
-                                        $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                        $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
-                                    } else if ($status_report['Irradiation']['60'] == "Irradiation is 0") {
-                                        $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                        $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
-                                    }
-                                } else if ($status_report['Irradiation']['45'] == "Irradiation is 0") {
-                                    $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
-                                    $message = $message . "Irradiation was 0 at " . $timeq3 . "<br>";
-                                    if ($status_report['Irradiation']['60'] == "No data") {
-                                        $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                        $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
-                                    } else if ($status_report['Irradiation']['60'] == "Irradiation is 0") {
-                                        $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                        $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
-                                    }
-                                }
-                            } else if ($status_report['Irradiation']['30'] == "Irradiation is 0") {
-                                $timeq2 = date('Y-m-d H:i', strtotime($timeq1) - 900);
-                                $message = $message . "Irradiation was 0 at " . $timeq2 . "<br>";
-                                if ($status_report['Irradiation']['45'] == "No data") {
-                                    $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
-                                    $message = $message . "There was no Irradiation Data at " . $timeq3 . "<br>";
-                                    if ($status_report['Irradiation']['60'] == "No data") {
-                                        $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                        $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
-                                    } else if ($status_report['Irradiation']['60'] == "Irradiation is 0") {
-                                        $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                        $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
-                                    }
-                                } else if ($status_report['Irradiation']['45'] == "Irradiation is 0") {
-                                    $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
-                                    $message = $message . "Irradiation was 0 at " . $timeq3 . "<br>";
-                                    if ($status_report['Irradiation']['60'] == "No data") {
-                                        $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                        $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
-                                    } else if ($status_report['Irradiation']['60'] == "Irradiation is 0") {
-                                        $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                        $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
-                                    }
-                                }
-                            }
-                        }
-                    else if ($status_report['Irradiation']['15'] == "Irradiation is 0") {
-                            $timeq1 = date('Y-m-d H:i', strtotime($time) - 900);
-                            $message = $message . "Irradiation was 0 at " . $timeq1 . "<br>";
-                            if ($status_report['Irradiation']['30'] == "No data") {
-                                $timeq2 = date('Y-m-d H:i', strtotime($timeq1) - 900);
-                                $message = $message . "There was no Irradiation Data at " . $timeq2 . "<br>";
-                                if ($status_report['Irradiation']['45'] == "No data") {
-                                    $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
-                                    $message = $message . "There was no Irradiation Data at " . $timeq3 . "<br>";
-                                    if ($status_report['Irradiation']['60'] == "No data") {
-                                        $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                        $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
-                                    } else if ($status_report['Irradiation']['60'] == "Irradiation is 0") {
-                                        $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                        $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
-                                    }
-                                } else if ($status_report['Irradiation']['45'] == "Irradiation is 0") {
-                                    $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
-                                    $message = $message . "Irradiation was 0 at " . $timeq3 . "<br>";
-                                    if ($status_report['Irradiation']['60'] == "No data") {
-                                        $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                        $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
-                                    } else if ($status_report['Irradiation']['60'] == "Irradiation is 0") {
-                                        $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                        $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
-                                    }
-                                }
-                            } else if ($status_report['Irradiation']['30'] == "Irradiation is 0") {
-                                $timeq2 = date('Y-m-d H:i', strtotime($timeq1) - 900);
-                                $message = $message . "Irradiation was 0 at " . $timeq2 . "<br>";
-                                if ($status_report['Irradiation']['45'] == "No data") {
-                                    $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
-                                    $message = $message . "There was no Irradiation Data at " . $timeq3 . "<br>";
-                                    if ($status_report['Irradiation']['60'] == "No data") {
-                                        $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                        $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
-                                    } else if ($status_report['Irradiation']['60'] == "Irradiation is 0") {
-                                        $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                        $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
-                                    }
-                                } else if ($status_report['Irradiation']['45'] == "Irradiation is 0") {
-                                    $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
-                                    $message = $message . "Irradiation was 0 at " . $timeq3 . "<br>";
-                                    if ($status_report['Irradiation']['60'] == "No data") {
-                                        $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                        $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
-                                    } else if ($status_report['Irradiation']['60'] == "Irradiation is 0") {
-                                        $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                        $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
-                                    }
-                                }
-                            }
-                        }
-                }
-            }
-            else if ($status_report['Irradiation']['Actual'] == "Irradiation is 0") {
-                if ($ticket != null) {
-                    $timetempend = date('Y-m-d', strtotime($time));
-                    $end = date_create_from_format('Y-m-d', $timetempend);
-                    $end->getTimestamp();
-                    $ticket->setEnd(($end));
-                }
-                else {
-                    $message = $message . "Irradiation was 0 at " . $time . "<br>";
-                    if ($status_report['Irradiation']['15'] == "No data") {
-                        $timeq1 = date('Y-m-d H:i', strtotime($time) - 900);
-                        $message = $message . "There was no Irradiation Data at " . $timeq1 . "<br>";
-                        if ($status_report['Irradiation']['30'] == "No data") {
-                            $timeq2 = date('Y-m-d H:i', strtotime($timeq1) - 900);
-                            $message = $message . "There was no Irradiation Data at " . $timeq2 . "<br>";
-                            if ($status_report['Irradiation']['45'] == "No data") {
-                                $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
-                                $message = $message . "There was no Irradiation Data at " . $timeq3 . "<br>";
-                                if ($status_report['Irradiation']['60'] == "No data") {
-                                    $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                    $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
-                                } else if ($status_report['Irradiation']['60'] == "Irradiation is 0") {
-                                    $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                    $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
-                                }
-                            } else if ($status_report['Irradiation']['45'] == "Irradiation is 0") {
-                                $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
-                                $message = $message . "Irradiation was 0 at " . $timeq3 . "<br>";
-                                if ($status_report['Irradiation']['60'] == "No data") {
-                                    $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                    $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
-                                } else if ($status_report['Irradiation']['60'] == "Irradiation is 0") {
-                                    $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                    $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
-                                }
-                            }
-                        } else if ($status_report['Irradiation']['30'] == "Irradiation is 0") {
-                            $timeq2 = date('Y-m-d H:i', strtotime($timeq1) - 900);
-                            $message = $message . "Irradiation was 0 at " . $timeq2 . "<br>";
-                            if ($status_report['Irradiation']['45'] == "No data") {
-                                $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
-                                $message = $message . "There was no Irradiation Data at " . $timeq3 . "<br>";
-                                if ($status_report['Irradiation']['60'] == "No data") {
-                                    $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                    $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
-                                } else if ($status_report['Irradiation']['60'] == "Irradiation is 0") {
-                                    $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                    $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
-                                }
-                            } else if ($status_report['Irradiation']['45'] == "Irradiation is 0") {
-                                $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
-                                $message = $message . "Irradiation was 0 at " . $timeq3 . "<br>";
-                                if ($status_report['Irradiation']['60'] == "No data") {
-                                    $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                    $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
-                                } else if ($status_report['Irradiation']['60'] == "Irradiation is 0") {
-                                    $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                    $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
-                                }
-                            }
-                        }
-                    }
-                    else if ($status_report['Irradiation']['15'] == "Irradiation is 0") {
-                        $timeq1 = date('Y-m-d H:i', strtotime($time) - 900);
-                        $message = $message . "Irradiation was 0 at " . $timeq1 . "<br>";
-                        if ($status_report['Irradiation']['30'] == "No data") {
-                            $timeq2 = date('Y-m-d H:i', strtotime($timeq1) - 900);
-                            $message = $message . "There was no Irradiation Data at " . $timeq2 . "<br>";
-                            if ($status_report['Irradiation']['45'] == "No data") {
-                                $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
-                                $message = $message . "There was no Irradiation Data at " . $timeq3 . "<br>";
-                                if ($status_report['Irradiation']['60'] == "No data") {
-                                    $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                    $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
-                                } else if ($status_report['Irradiation']['60'] == "Irradiation is 0") {
-                                    $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                    $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
-                                }
-                            } else if ($status_report['Irradiation']['45'] == "Irradiation is 0") {
-                                $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
-                                $message = $message . "Irradiation was 0 at " . $timeq3 . "<br>";
-                                if ($status_report['Irradiation']['60'] == "No data") {
-                                    $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                    $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
-                                } else if ($status_report['Irradiation']['60'] == "Irradiation is 0") {
-                                    $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                    $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
-                                }
-                            }
-                        } else if ($status_report['Irradiation']['30'] == "Irradiation is 0") {
-                            $timeq2 = date('Y-m-d H:i', strtotime($timeq1) - 900);
-                            $message = $message . "Irradiation was 0 at " . $timeq2 . "<br>";
-                            if ($status_report['Irradiation']['45'] == "No data") {
-                                $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
-                                $message = $message . "There was no Irradiation Data at " . $timeq3 . "<br>";
-                                if ($status_report['Irradiation']['60'] == "No data") {
-                                    $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                    $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
-                                } else if ($status_report['Irradiation']['60'] == "Irradiation is 0") {
-                                    $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                    $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
-                                }
-                            } else if ($status_report['Irradiation']['45'] == "Irradiation is 0") {
-                                $timeq3 = date('Y-m-d H:i', strtotime($timeq2) - 900);
-                                $message = $message . "Irradiation was 0 at " . $timeq3 . "<br>";
-                                if ($status_report['Irradiation']['60'] == "No data") {
-                                    $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                    $message = $message . "There was no Irradiation Data at " . $timeq4 . "<br>";
-                                } else if ($status_report['Irradiation']['60'] == "Irradiation is 0") {
-                                    $timeq4 = date('Y-m-d H:i', strtotime($timeq3) - 900);
-                                    $message = $message . "Irradiation was 0 at " . $timeq4 . "<br>";
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            if ($status_report['temperature'] == "No data") $message = $message . "There was no temperature data at " . $time . "<br>";
-            if ($status_report['wspeed'] == "No data") $message = $message . "There was no temperature data at" . $time . "<br>";
-        dump($ticket);
-
-        $status->setAnlage($anlage);
-        $status->setStamp($time);
-        $status->setStatus($status_report);
-        $status->setIsWeather(true);
-
-        if($ticket != null) $this->em->persist($ticket);
-        $this->em->persist($status);
-        dump($status);
-        $this->em->flush();
-        return $message;
-    }
-    /**
-    *We use this to make an error message of the status array from the inverter
-    */
-    private function AnalyzeIst($status_report, $time){
-        $message = "";
-        if (count($status_report['Irradiation']) > 3) {
-
-        }
-        return $message;
-    }
-    /**
-     *We use this to send the messages
-    */
     private function messagingFunction($message, $anlage){
         if ($message != "") {
             sleep(2);
