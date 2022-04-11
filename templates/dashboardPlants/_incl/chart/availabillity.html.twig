@@ -1,6 +1,7 @@
 {% import _self as macros %}
 
 {% macro availabilityTable(availability, second) %}
+    {% set pa = 0 %}
     <div class="status-log" style="margin: 0 25px 0 10px;">
         <table id="statusTable" style="width: 100%;">
             <thead>
@@ -36,8 +37,24 @@
                     <td>{{ stati.control}} / {{ stati.control / 4}}{% if second %}<br><span class="topline">{{ stati.controlSecond }}</span>{% endif %}</td>
                     <td>{{ stati.invApart1|number_format(0, ',', '.') }}{% if second %}<br><span class="topline">{{ stati.invApart1Second|number_format(0, ',', '.') }}</span>{% endif %}</td>
                     <td>{{ stati.invA|number_format(4, ',', '.') }}{% if second %}<br><span class="topline">{{ stati.invASecond|number_format(4, ',', '.') }}</span>{% endif %}</td>
+                    {% set pa = pa + stati.invA %}
                 </tr>
             {% endfor %}
+            <tr>
+                <td> </td>
+                <td></td>
+                {% if second %}<td></td>{% endif %}
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>{{ pa|number_format(4, ',', '.') }}</td>
+            </tr>
             </tbody>
         </table>
     </div>

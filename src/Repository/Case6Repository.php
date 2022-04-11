@@ -39,14 +39,15 @@ class Case6Repository extends ServiceEntityRepository
     {
         $result = $this->createQueryBuilder('c6')
             ->andWhere('c6.anlage = :anlage')
-            ->andWhere('c6.stampFrom BETWEEN :from AND :to')
+            ->andWhere('(c6.stampFrom <= :from AND c6.stampTo >= :from) or c6.stampFrom between :from AND :to')
             ->setParameter('anlage', $anlage)
             ->setParameter('from', $from)
             ->setParameter('to', $to)
             ->getQuery()
-            ->getArrayResult()
+
         ;
-        return $result;
+        #dump($from, $to, $result);
+        return $result->getArrayResult();
     }
 
     public function countCase6DayAnlage(Anlage $anlage, $day):int
