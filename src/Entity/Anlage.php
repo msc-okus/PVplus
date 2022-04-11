@@ -820,6 +820,11 @@ class Anlage
      */
     private $FreqBase = 50;
 
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $hasFrequency;
+
 
     public function __construct()
     {
@@ -3412,6 +3417,18 @@ class Anlage
     public function setFreqBase(int $FreqBase): self
     {
         $this->FreqBase = $FreqBase;
+
+        return $this;
+    }
+
+    public function getHasFrequency(): ?bool
+    {
+        return $this->hasFrequency;
+    }
+
+    public function setHasFrequency(bool $hasFrequency): self
+    {
+        $this->hasFrequency = $hasFrequency;
 
         return $this;
     }
