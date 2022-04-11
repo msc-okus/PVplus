@@ -49,7 +49,6 @@ class AlertSystemService
         $time = $this->getLastQuarter(date('Y-m-d H:i:s') );
         $time = G4NTrait::timeAjustment($time, -2);
         $status_report = false;
-        $inverter_status = false;
         $sungap = $this->weather->getSunrise($Anlagen);
 
         foreach($Anlagen as $anlage){
@@ -62,9 +61,10 @@ class AlertSystemService
                     $inverter_status[$inverterName]['istdata'] = $this->IstData($anlage, $time, $counter);
                     $counter++;
                 }
+                $status_report[$anlage->getAnlName()] = $inverter_status;
+                $message = self::AnalyzeIst($inverter_status, $time, $anlage, $nameArray);
             }
-            $status_report[$anlage->getAnlName()] = $inverter_status;
-            $message = self::AnalyzeIst($inverter_status, $time, $anlage, $nameArray);
+
         }
         return $status_report;
     }
