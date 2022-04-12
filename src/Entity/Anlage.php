@@ -1172,9 +1172,9 @@ class Anlage
         return $this;
     }
 
-    public function getAnlZeitzone(): ?string
+    public function getAnlZeitzone(): ?float
     {
-        return $this->anlZeitzone;
+        return (float)$this->anlZeitzone;
     }
 
     public function setAnlZeitzone(string $anlZeitzone): self

@@ -47,33 +47,16 @@ class ACPowerChartsService
             $conn = self::getPdoConnection();
             $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
 
-            $sql_exp = "SELECT a.stamp as stamp, sum(b.ac_exp_power) as soll, sum(b.ac_exp_power_evu) as soll_evu, sum(b.ac_exp_power_no_limit) as soll_nolimit
+            $sqlExp = "SELECT a.stamp as stamp, sum(b.ac_exp_power) as soll, sum(b.ac_exp_power_evu) as soll_evu, sum(b.ac_exp_power_no_limit) as soll_nolimit
                     FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDcSoll() . " b ON a.stamp = b.stamp)
                     WHERE a.stamp >= '$from' AND a.stamp < '$to' 
                     GROUP by date_format(a.stamp, '$form')";
 
-            $sql_actual = "SELECT a.stamp as stamp, sum(wr_pac) as acIst, wr_cos_phi_korrektur as cosPhi, sum(theo_power) as theoPower
-                    FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameIst() . " WHERE wr_pac >= 0) b ON a.stamp = b.stamp)
-                    WHERE a.stamp >= '$from' AND a.stamp < '$to' 
-                    GROUP by date_format(a.stamp, '$form')";
-
-            $sql_evu = "SELECT a.stamp as stamp, sum(e_z_evu) as eZEvu
-                    FROM (db_dummysoll a left JOIN " .  $anlage->getDbNameIst() . " b ON a.stamp = b.stamp)
-                    WHERE a.stamp >= '$from' AND a.stamp < '$to' 
-                    GROUP by date_format(a.stamp, '$form')";
-
-            $res_exp = $conn->query($sql_exp);
-            $res_actual = $conn->query($sql_actual);
-            $res_evu = $conn->query($sql_evu);
-
-            $actSum = 0;
-            $expSum = $expEvuSum = $expNoLimitSum = 0;
-            $evuSum = 0;
-            $cosPhiSum = 0;
-            $theoPowerSum = 0;
+            $resExp = $conn->query($sqlExp);
+            $actSum = $expSum = $expEvuSum = $expNoLimitSum = $evuSum = $cosPhiSum = $theoPowerSum = 0;
             $dataArray = [];
 
-            if ($res_exp->rowCount() > 0) {
+            if ($resExp->rowCount() > 0) {
                 $counter = 0;
                 //we must move this code to the constructor function and use a property
                 if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == "Groningen") {
@@ -81,13 +64,29 @@ class ACPowerChartsService
                 } else {
                     $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
                 }
-                while (($rowExp = $res_exp->fetch(PDO::FETCH_ASSOC)) && ($rowActual = $res_actual->fetch(PDO::FETCH_ASSOC)) && ($rowEvu = $res_evu->fetch(PDO::FETCH_ASSOC))) {
+                while ($rowExp = $resExp->fetch(PDO::FETCH_ASSOC)) {
+                    $stamp = self::timeShift($anlage, $rowExp["stamp"]);
+                    dump("$stamp - ".$rowExp["stamp"]);
+                    $stampAdjust = self::timeAjustment($stamp, $anlage->getAnlZeitzone());
+                    $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
 
-                    ($rowExp["soll"] > 0) ? $expectedInvOut = round($rowExp["soll"], 2) : $expectedInvOut = 0; // neagtive Werte auschließen
-                    ($rowExp['soll_evu'] == null || $rowExp['soll_evu'] < 0) ? $expectedEvu = 0 : $expectedEvu = round($rowExp['soll_evu'], 2);
-                    ($rowExp['soll_nolimit'] == null || $rowExp['soll_nolimit'] < 0) ? $expectedNoLimit = 0 : $expectedNoLimit = round($rowExp['soll_nolimit'], 2);
+                    $rowExp["soll"] > 0 ? $expectedInvOut = round($rowExp["soll"], 2) : $expectedInvOut = 0; // neagtive Werte auschließen
+                    $rowExp['soll_evu'] == null || $rowExp['soll_evu'] < 0 ? $expectedEvu = 0 : $expectedEvu = round($rowExp['soll_evu'], 2);
+                    $rowExp['soll_nolimit'] == null || $rowExp['soll_nolimit'] < 0 ? $expectedNoLimit = 0 : $expectedNoLimit = round($rowExp['soll_nolimit'], 2);
                     $expDiffInvOut = round($expectedInvOut - $expectedInvOut * 10 / 100, 2);   // Minus 10 % Toleranz Invberter Out.
                     $expDiffEvu = round($expectedEvu - $expectedEvu * 10 / 100, 2);         // Minus 10 % Toleranz Grid (EVU).
+
+                    $whereQueryPart1 = $hour ? "stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'" : "stamp = '$stampAdjust'";
+                    $sqlActual = "SELECT sum(wr_pac) as acIst, wr_cos_phi_korrektur as cosPhi, sum(theo_power) as theoPower FROM " . $anlage->getDbNameIst() . " 
+                        WHERE wr_pac >= 0 AND $whereQueryPart1 GROUP by date_format(stamp, '$form')";
+
+                    $sqlEvu = "SELECT sum(e_z_evu) as eZEvu FROM " .  $anlage->getDbNameIst() . " WHERE $whereQueryPart1 GROUP by date_format(stamp, '$form')";
+
+                    $resActual = $conn->query($sqlActual);
+                    $rowActual = $resActual->fetch(PDO::FETCH_ASSOC);
+                    $resEvu = $conn->query($sqlEvu);
+                    $rowEvu = $resEvu->fetch(PDO::FETCH_ASSOC);
+
                     $cosPhi = abs((float)$rowActual["cosPhi"]);
                     $acIst = $rowActual["acIst"];
                     $theoPower = $rowActual["theoPower"];
@@ -103,7 +102,7 @@ class ACPowerChartsService
                     $expEvuSum += $expectedEvu;
                     $expNoLimitSum += $expectedNoLimit;
                     $theoPowerSum += $theoPower;
-                    $stamp = self::timeShift($anlage, $rowExp["stamp"]);
+
 
                     $dataArray['chart'][$counter]['date'] = $stamp;
                     if (!($expectedInvOut == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
@@ -143,14 +142,11 @@ class ACPowerChartsService
                 $conn = null;
 
                 return $dataArray;
-
             } else {
                 $conn = null;
 
                 return [];
             }
-
-
     }
 
 
