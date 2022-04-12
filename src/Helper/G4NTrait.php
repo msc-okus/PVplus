@@ -261,7 +261,7 @@ trait G4NTrait
             if ($reverse) $offset_time = strtotime($stamp) - $offset;
             $result = date('Y-m-d H:i', $offset_time);
         } else {
-            $result = date('Y-m-d H:i', $stamp);
+            $result = date('Y-m-d H:i', strtotime($stamp));
         }
 
         return $result;
