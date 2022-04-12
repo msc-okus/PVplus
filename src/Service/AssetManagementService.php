@@ -2061,7 +2061,6 @@ class AssetManagementService
             WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_ac > 0 
             GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
         }
-        //dd($sql);
         $result = $this->conn->prepare($sql);
         $result->execute();
         $j = 0;
@@ -2104,7 +2103,6 @@ class AssetManagementService
             }
         }
         if ($dcExpDcIst) $outTableCurrentsPower[] = $dcExpDcIst;
-    //dd($outTableCurrentsPower);
         $resultEconomicsNames = $this->ecoVarNameRepo->findOneByAnlage($anlage);
 
         if ($resultEconomicsNames) {
