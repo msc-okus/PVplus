@@ -59,8 +59,8 @@ class DefaultMREController extends BaseController
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => '97']);
 
-        $from = date_create('2022-01-01');
-        $to   = date_create('2022-01-31');
+        $from = date_create('2022-03-01');
+        $to   = date_create('2022-04-01');
         $output = $bavelseExport->gewichtetTagesstrahlung($anlage, $from, $to);
 
         return $this->render('cron/showResult.html.twig', [
@@ -224,7 +224,7 @@ class DefaultMREController extends BaseController
                 /////////////////////
                 $invAPart1 = (($row['case1'] + $row['case2']) / ($row['control'] - $row['case5'])) * 100;
                 /////////////////////
-                ($anlage->getPower() > 0 && $inverterPowerDc[$inverter] > 0) ? $invAPart2 = $inverterPowerDc[$inverter] / $anlage->getPower() : $invAPart2 = 1;
+                ($anlage->getPnom() > 0 && $inverterPowerDc[$inverter] > 0) ? $invAPart2 = $inverterPowerDc[$inverter] / $anlage->getPnom() : $invAPart2 = 1;
                 $invAPart3 = $invAPart1 * $invAPart2;
             } else {
                 $invAPart1 = 0;
