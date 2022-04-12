@@ -23,9 +23,9 @@ use function Symfony\Component\String\u;
 class CsvUploadController extends AbstractController
 {
     /**
-     *@Route("/csv/upload/delete/{id}", name="csv_upload_delete")
+     * @Route("/csv/upload/delete/{id}", name="csv_upload_delete")
      */
-    public function delete_case($id, EntityManagerInterface $em, Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo):Response
+    public function deleteCase($id, EntityManagerInterface $em, Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo):Response
     {
         $case6draft = $draftRepo->findById($id)[0];
 
@@ -38,6 +38,7 @@ class CsvUploadController extends AbstractController
         return $this->redirect($Route);
 
     }
+
     /**
      * @Route("/csv/upload/list/{anlId}", name="csv_upload_list")
      */
@@ -52,10 +53,11 @@ class CsvUploadController extends AbstractController
             'anlId'     => $anlId
         ]);
     }
+
     /**
      * @Route("/csv/upload/saveandfix/{anlId}", name="csv_upload_saveandfix")
      */
-    public function saveandfix($anlId,Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo, EntityManagerInterface $em,Request $request)
+    public function saveAndFix($anlId,Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo, EntityManagerInterface $em,Request $request): Response
     {
         $anlage = $anlRepo->findIdLike($anlId)[0];
         $array = $draftRepo->findAllByAnlage($anlage);
@@ -121,10 +123,11 @@ class CsvUploadController extends AbstractController
 
         return $this->redirect($Route);
     }
+
     //there is need to hide this, so none can call it from the searchbar
-        /**
-        * @Route("/csv/upload/save/{anlId}", name="csv_upload_save")
-        */
+    /**
+    * @Route("/csv/upload/save/{anlId}", name="csv_upload_save")
+    */
     public function save($anlId,Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo, EntityManagerInterface $em): \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $anlage = $anlRepo->findIdLike($anlId)[0];
