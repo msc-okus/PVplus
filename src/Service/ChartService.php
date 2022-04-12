@@ -486,7 +486,6 @@ class ChartService
         $dataArray = [];
         $dataArray['availability'] = $this->availabilityRepository->findAvailabilityAnlageDate($anlage, $from->format('Y-m-d H:i'), $to->format('Y-m-d H:i'));
 
-        //dd($dataArray['availability']);
         return $dataArray;
     }
 

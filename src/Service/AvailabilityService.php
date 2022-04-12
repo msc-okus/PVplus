@@ -110,7 +110,6 @@ class AvailabilityService
                     }
                 */
             }
-            dump($inverterPowerDc);
             // Speichern der ermittelten Werte
             foreach ($availabilitysHelper as $inverter => $availability) {
 
