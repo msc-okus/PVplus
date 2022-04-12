@@ -43,8 +43,6 @@ class ExportService
         $output .= $help . "</thead><tbody>";
 
         /** @var AnlageAcGroups $groupAC */
-        /** @var DateTime $from */
-        /** @var DateTime $to */
         for ($stamp = $from->format('U'); $stamp <= $to->format('U'); $stamp += 86400) {
             $gewichteteStrahlung = $gewichteteTheoPower = $gewichteteTheoPower2 = 0;
             $output .= "<tr>";
