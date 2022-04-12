@@ -11,6 +11,7 @@ use App\Form\Groups\GroupsListEmbeddedFormType;
 use App\Form\GroupsAc\AcGroupsListEmbeddedFormType;
 use App\Form\Type\SwitchType;
 use App\Helper\G4NTrait;
+use Doctrine\DBAL\Types\IntegerType;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -505,6 +506,15 @@ class AnlageFormType extends AbstractType
             ->add('RetrieveAllData', SwitchType::class, [
                 'label'         => 'Use all Data',
 
+            ])
+            ->add('FreqBase', TextType::class, [
+                'label' => 'Base Frequency of the Plant'
+            ])
+            ->add('FreqTolerance', TextType::class, [
+                'label' => 'Frequency tolerance of the Plant'
+            ])
+            ->add('hasFrequency', SwitchType::class,[
+                'label' => 'Has Frequency'
             ])
             ################################################
             ####               Reports                  ####
