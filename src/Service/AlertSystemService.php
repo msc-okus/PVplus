@@ -364,9 +364,7 @@ class AlertSystemService
         $status_q1 = $this->statusRepo->findOneByanlageDate($anlage, $timeq1)[0];
         $ticket = null;
         if($status_q1 != null) {
-            dump($status_q1);
             $ticketprox = $status_q1->getTickete();
-            dump($ticketprox);
             if ($ticketprox != null) {
                 $id = $ticketprox->getId();
                 $ticket = $this->ticketRepo->findOneById($id);
@@ -374,7 +372,6 @@ class AlertSystemService
         }
         if ($ticket != null){
             $status->setTickete($ticket);
-            dump("old ticket found");
         }
         else if(count($status_report['Irradiation']) > 3){
             $ticket = new Ticket();
@@ -634,7 +631,6 @@ class AlertSystemService
             }
             if ($status_report['temperature'] == "No data") $message = $message . "There was no temperature data at " . $time . "<br>";
             if ($status_report['wspeed'] == "No data") $message = $message . "There was no temperature data at" . $time . "<br>";
-        dump($ticket);
 
         $status->setAnlage($anlage);
         $status->setStamp($time);
@@ -643,7 +639,6 @@ class AlertSystemService
 
         if($ticket != null) $this->em->persist($ticket);
         $this->em->persist($status);
-        dump($status);
         $this->em->flush();
         return $message;
     }

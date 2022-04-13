@@ -294,18 +294,17 @@ class DCPowerChartService
                 $anzInvPerGroup = $groups[$group]['GMAX'] - $groups[$group]['GMIN'] + 1;
 
                 $expected = $rowExp['soll'] ;
-                dump($expected);
                 if ($expected !== null) {
                     $expected = $expected > 0 ? $expected : 0;
-                }
-                switch ($anlage->getConfigType()) {
-                    case 1:
-                    case 2:
-                        $expected = $anzInvPerGroup > 0 ? $expected / $anzInvPerGroup : $expected;
-                        break;
+                    switch ($anlage->getConfigType()) {
+                        case 1:
+                        case 2:
+                            $expected = $anzInvPerGroup > 0 ? $expected / $anzInvPerGroup : $expected;
+                            break;
+                    }
+                    if ($expected < 0) $expected = 0;
                 }
 
-                if ($expected < 0) $expected = 0;
                 // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
                 $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
                 if (!($expected == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {

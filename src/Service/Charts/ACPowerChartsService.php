@@ -366,7 +366,6 @@ class ACPowerChartsService
 
         $conn = null;
 
-            #dd($nameArray);
         return $dataArray;
     }
 
