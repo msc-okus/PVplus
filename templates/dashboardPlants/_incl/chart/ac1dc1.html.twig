@@ -130,7 +130,7 @@
                 theoPower.strokeWidth = 1;
                 theoPower.tensionX = 0.8;
                 theoPower.hidden = true;
-                seriesPower.connect = false;
+                theoPower.connect = false;
             {% endif %}
 
         {% endif %}
@@ -157,6 +157,7 @@
             {% if aktAnlage.showEvuDiag and form.selectedChart == 'ac_single' %}
                 series2.hidden = true;
             {% endif %}
+                series2.connect = false;
         {% endif %}
 
         let seriesIrr = chart.series.push(new am4charts.LineSeries());
@@ -171,6 +172,7 @@
         seriesIrr.tensionX = 0.8;
         seriesIrr.hidden = true;
         seriesIrr.yAxis = valueAxisIrr;
+        seriesIrr.connect = false;
 
         chart.cursor = new am4charts.XYCursor();
         chart.cursor.xAxis = dateAxis;
