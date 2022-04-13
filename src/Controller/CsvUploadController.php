@@ -104,12 +104,6 @@ class CsvUploadController extends AbstractController
                     $index++;
                 }
                 $em->flush();
-                /*
-                return $this->render('csv_upload/fixing.html.twig', [
-                    'caseForm' => $form,
-                    'case6' => $newArrayDraft
-                ]);
-                */
             }
 
             else return $this->render('csv_upload/fixing.html.twig', [
