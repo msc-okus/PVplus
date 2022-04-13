@@ -917,9 +917,9 @@ class FunctionsService
 
 
             }
-            // we do this to make the array star by 0 when required
+            // we do this to make the array start by 0 when required
             if (!$startArrayAtOne){
-                $nameArray[$type][0] = "1";
+                array_unshift($nameArray[$type],"1");
                 array_shift($nameArray[$type]);
             }
 

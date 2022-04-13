@@ -21,7 +21,7 @@
                 {% else  %}
                     {% set maxInv =  40 %}
                 {% endif %}
-
+                {% dump( acGroups) %}
                 <table class="asset_report_table_operations_data" style="margin-bottom: 5px!important; width: 100%!important;">
                     {% for inv in 0..maxInv-1 %}
                         {%  set data = plantAvailabilityMonth[(page*40)+inv] %}
@@ -31,12 +31,11 @@
                                 {% if (itemcounter == 1 ) %}
                                     <tr>
                                         <th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important;border-left: solid 1px !important; text-align: center;" rowspan="3" > Day</th>
-                                        <th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">{{ acGroups[(page*40)+inv] }}</th></tr>
-
+                                        <th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">{{ acGroups[(page*40)+inv] }}</th>
+                                    </tr>
                                     <tr>
                                         <th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">[%]</th>
-
-                                        </tr>
+                                    </tr>
                                 {% endif %}
                                 {% if (itemcounter > 1) %}
                                     {% if loop.last %}
@@ -46,7 +45,6 @@
                                         <tr><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">{{ acGroups[(page*40)+inv] }}</th></tr>
                                         <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">[%]</th></tr>
                                     {% endif %}
-
                                 {% endif %}
                                 </thead>
                                 {% set color = "#ffffff" %}
@@ -61,10 +59,10 @@
                                     {% if (itemcounter == 1 ) %}
                                         <tr>
                                             <td class="tr_first_column" style="font-size: 7.3px!important;">{{ datatr.form_date }}</td>
-                                            <td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ datatr.pa|number_format(0, ',', '.') }}</td></tr>
+                                            <td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ datatr.pa|number_format(1, ',', '.') }}</td></tr>
                                     {% endif %}
                                     {% if (itemcounter > 1) %}
-                                        <tr><td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ datatr.pa|number_format(0, ',', '.') }}</td></tr>
+                                        <tr><td class="tr_next_columns" style="font-size: 7.3px!important;background-color:{{ color }};">{{ datatr.pa|number_format(1, ',', '.') }}</td></tr>
                                     {% endif %}
                                 {% endfor %}
                             </table>
