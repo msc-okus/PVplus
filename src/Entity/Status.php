@@ -44,6 +44,7 @@ class Status
     /**
      * @ORM\OneToOne(targetEntity=Ticket::class)
      * @ORM\JoinColumn(nullable=true)
+     * Deprecated
      */
     private $Ticket;
 

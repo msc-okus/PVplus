@@ -242,7 +242,15 @@
                                 {{ form_row(anlageForm.hasStrings) }}
                                 {{ form_row(anlageForm.hasPannelTemp) }}
                                 {{ form_row(anlageForm.useCosPhi) }}
+                                {{ form_row(anlageForm.hasFrequency) }}
                             </fieldset>
+                            <fieldset class="fieldset">
+                                <legend>Alert System Config</legend>
+
+                                {{ form_row(anlageForm.FreqBase) }}
+                                {{ form_row(anlageForm.FreqTolerance) }}
+                            </fieldset>
+
                         </div>
 
                         {# Spalte 2 #}

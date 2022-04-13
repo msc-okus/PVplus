@@ -82,20 +82,35 @@ class AvailabilityService
             $availabilitysHelper = $this->checkAvailabilityInverter($anlage, $timestampModulo, $timesConfig);
 
             // DC Leistung der Inverter laden (aus AC Gruppen)
-            if ($anlage->getUseNewDcSchema()) {
-                foreach ($anlage->getAcGroups() as $acGroup) {
-                    $inverterPowerDc[$acGroup->getAcGroup()] = $acGroup->getDcPowerInverter();
-                }
-            } else {
-                foreach ($anlage->getAcGroups() as $acGroup) {
-                    ($acGroup->getDcPowerInverter() > 0) ? $powerPerInverter = $acGroup->getDcPowerInverter() / ($acGroup->getUnitLast() - $acGroup->getUnitFirst() + 1) : $powerPerInverter = 0;
-                    for ($inverter = $acGroup->getUnitFirst(); $inverter <= $acGroup->getUnitLast(); $inverter++) {
-                        $inverterPowerDc[$inverter] = $powerPerInverter;
+            //TODO: Anpassung der Berechnung der Inverter Pnom je nach Analgen Typ (Berechnen aus DC Gruppen config??)
+            switch ($anlage->getConfigType()) {
+                case 1:
+                case 2:
+                    foreach ($anlage->getGroups() as $group) {
+                        $inverterPowerDc[$group->getDcGroup()] = $group->getPnomPerGroup();
                     }
-                }
+                    break;
+                case 3:
+                case 4:
+                    foreach ($anlage->getAcGroups() as $acGroup) {
+                        $inverterPowerDc[$acGroup->getAcGroup()] = $acGroup->getDcPowerInverter();
+                    }
+                    break;
+                /*
+                    default:
+                    if ($anlage->getUseNewDcSchema()) {
+
+                    } else {
+                        foreach ($anlage->getAcGroups() as $acGroup) {
+                            ($acGroup->getDcPowerInverter() > 0) ? $powerPerInverter = $acGroup->getDcPowerInverter() / ($acGroup->getUnitLast() - $acGroup->getUnitFirst() + 1) : $powerPerInverter = 0;
+                            for ($inverter = $acGroup->getUnitFirst(); $inverter <= $acGroup->getUnitLast(); $inverter++) {
+                                $inverterPowerDc[$inverter] = $powerPerInverter;
+                            }
+                        }
+                    }
+                */
             }
             // Speichern der ermittelten Werte
-
             foreach ($availabilitysHelper as $inverter => $availability) {
 
                 // Berechnung der protzentualen Verfügbarkeit Part 1 und Part 2
@@ -222,6 +237,8 @@ class AvailabilityService
                 }
             }
 
+            dump($case6Array);
+
             while ($einstrahlung = $resultEinstrahlung->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = $einstrahlung['stamp'];
                 if ($anlage->getIsOstWestAnlage()) {
@@ -335,6 +352,7 @@ class AvailabilityService
      * @param Anlage|int $anlage
      * @param DateTime $from
      * @param DateTime $to
+     * @param int|null $inverter
      * @return float
      */
     public function calcAvailability(Anlage|int $anlage, DateTime $from, DateTime $to, ?int $inverter = null): float

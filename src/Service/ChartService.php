@@ -441,16 +441,18 @@ class ChartService
                     $resultArray['status'] = $this->statusRepository->findStatusAnlageDate($anlage, $from, $to);
                     break;
                 case ("availability"):
+                    $dataArray = self::getPlantAvailability($anlage, new DateTime($from), new DateTime($to));
                     $resultArray['headline'] = 'Show availability';
-                    $resultArray['availability'] = $this->availabilityRepository->findAvailabilityAnlageDate($anlage, $from, $to);
+                    $resultArray['availability'] = $dataArray['availability'];
                     break;
                 case ("pvsyst"):
                     $resultArray['headline'] = 'Show PR & pvSyst';
                     $resultArray['pvSysts'] = $this->getpvSyst($anlage, $from, $to);
                     break;
-                case("grid"):
+                case ("grid"):
                     $resultArray['headline'] = 'Show Grid';
                     $resultArray['grid'] = $this->getGrid($anlage, $from, $to);
+                    break;
                 case ("forecast"):
                     if ($anlage->getUseDayForecast()) {
                         $dataArray = $this->forecastChart->getForecastDayClassic($anlage, $to);
@@ -479,7 +481,13 @@ class ChartService
     ###########################################
 
 
+    private function getPlantAvailability(Anlage $anlage, DateTime $from, DateTime $to): array
+    {
+        $dataArray = [];
+        $dataArray['availability'] = $this->availabilityRepository->findAvailabilityAnlageDate($anlage, $from->format('Y-m-d H:i'), $to->format('Y-m-d H:i'));
 
+        return $dataArray;
+    }
 
     /**
      * erzeugt Daten für Inverter Performance Diagramm (DC vs AC Leistung der Inverter)
@@ -542,12 +550,8 @@ class ChartService
         $res = $conn->query($sql2);
         while ($ro = $res->fetch(PDO::FETCH_ASSOC)) {
             $tempAmbient = $ro["tempAmbient"];
-            #if (!$tempAmbient) $tempAmbient = 0;
             $tempPannel = $ro["tempPannel"];
-            #if (!$tempPannel) $tempPannel = 0;
             $windSpeed = $ro["windSpeed"];
-            #if (!$windSpeed) $windSpeed = 0;
-
             $stamp = $ro["stamp"];  #utc_date($stamp,$anintzzws);
 
             //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms

@@ -810,6 +810,21 @@ class Anlage
      */
     private $dayLightData;
 
+    /**
+     * @ORM\Column(type="string")
+     */
+    private $FreqTolerance = 0;
+
+    /**
+     * @ORM\Column(type="string")
+     */
+    private $FreqBase = 50;
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private $hasFrequency = false;
+
 
     public function __construct()
     {
@@ -1758,6 +1773,15 @@ class Anlage
         return $this;
     }
 
+    /**
+     * Methode of PR calculation. <br>
+     * no | without customer algorithm, use standard calculation
+     * Groningen<br>
+     * Veendamm<br>
+     * Lelystad | with temp corr. <br>
+     *
+     * @return string|null
+     */
     public function getUseCustPRAlgorithm(): ?string
     {
         return $this->useCustPRAlgorithm;
@@ -3378,6 +3402,42 @@ class Anlage
                 $dayLightData->setAnlage(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getFreqTolerance(): ?int
+    {
+        return $this->FreqTolerance;
+    }
+
+    public function setFreqTolerance(int $FreqTolerance): self
+    {
+        $this->FreqTolerance = $FreqTolerance;
+
+        return $this;
+    }
+
+    public function getFreqBase(): ?int
+    {
+        return $this->FreqBase;
+    }
+
+    public function setFreqBase(int $FreqBase): self
+    {
+        $this->FreqBase = $FreqBase;
+
+        return $this;
+    }
+
+    public function getHasFrequency(): ?bool
+    {
+        return $this->hasFrequency;
+    }
+
+    public function setHasFrequency(bool $hasFrequency): self
+    {
+        $this->hasFrequency = $hasFrequency;
 
         return $this;
     }

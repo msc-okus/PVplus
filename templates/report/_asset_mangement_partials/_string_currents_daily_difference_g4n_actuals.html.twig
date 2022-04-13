@@ -44,6 +44,9 @@
                                 {% set color = "#ffffff" %}
                                 {% for datatr in data %}
                                     {% set value = (((datatr.exp_current_dc - datatr.act_current_dc)*100)/datatr.exp_current_dc) * (-1) %}
+                                    {% if (value < -100) %}
+                                    {% set value = -100 %}
+                                    {% endif %}
                                     {% if (value >= -2) %}{% set color = "#00b050" %}{% endif %}
                                     {% if (value < -2) %}{% set color = "#cee4c0" %}{% endif %}
                                     {% if (value < -8) %}{% set color = "#ffff00" %}{% endif %}
