@@ -1654,9 +1654,7 @@ class AssetManagementService
             $result = $this->conn->prepare($sql);
             $result->execute();
             $i = 0;
-            dump("entro");
             foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
-            dump($value);
                 $pa[] = [
                     'form_date' => date("m", strtotime($value['form_date'])),
                     'pa' => round($value['pa'], 3),

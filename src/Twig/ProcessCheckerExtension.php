@@ -22,7 +22,7 @@ class ProcessCheckerExtension extends AbstractExtension
     {
         $command = '';
         exec("ps -A comm,pid", $command, $retval);
-        //dump($command, $retval);
+
         if (1) {
             $return = "'$command' is running ($retval)";
         } else {
