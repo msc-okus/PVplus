@@ -903,6 +903,7 @@ class FunctionsService
                     }
                     break;
                 case 3: // Groningen
+                case 4:
                     foreach ($this->acGroupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
                         $nameArray['ac'][$inverter->getAcGroup()] = $inverter->getAcGroupName();
                     }
@@ -913,8 +914,7 @@ class FunctionsService
                         $nameArray['scb'][$inverter->getInvNr()] = $inverter->getInverterName();
                     }
                     break;
-                case 4: // Guben
-                    break;
+
 
             }
             // we do this to make the array star by 0 when required

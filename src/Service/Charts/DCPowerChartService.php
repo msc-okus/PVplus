@@ -40,65 +40,68 @@ class DCPowerChartService
      * @param $from
      * @param $to
      * @param bool $hour
-     * @return array|null [DC1]
+     * @return array|null
      * [DC1]
      */
     public function getDC1(Anlage $anlage, $from, $to,  bool $hour = false): ?array
     {
-        if(true){
-            ($hour) ? $form = '%y%m%d%H' : $form = '%y%m%d%H%i';
-            $conn = self::getPdoConnection();
-            $dataArray = [];
-            $sqlDcSoll = "SELECT a.stamp as stamp, sum(b.soll_pdcwr) as soll
-                      FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDcSoll() . " b ON a.stamp = b.stamp) 
-                      WHERE a.stamp BETWEEN '$from' AND '$to' 
-                      GROUP by date_format(a.stamp, '$form')";
+        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
+        $conn = self::getPdoConnection();
+        $dataArray = [];
+        $sqlDcSoll = "SELECT a.stamp as stamp, sum(b.soll_pdcwr) as soll
+                  FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDcSoll() . " b ON a.stamp = b.stamp) 
+                  WHERE a.stamp BETWEEN '$from' AND '$to' 
+                  GROUP by date_format(a.stamp, '$form')";
 
-            if ($anlage->getUseNewDcSchema()) {
-                $sql_b = "SELECT sum(wr_pdc) as dcist 
-                          FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDCIst() . " b ON a.stamp = b.stamp) 
-                          WHERE a.stamp BETWEEN '$from' AND '$to' 
-                          GROUP by date_format(a.stamp, '$form')";
-            }
-            else {
-                $sql_b = "SELECT sum(wr_pdc) as dcist 
-                          FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
-                          WHERE a.stamp BETWEEN '$from' AND '$to' 
-                          GROUP by date_format(a.stamp, '$form')";
-            }
+        $resultExpected = $conn->query($sqlDcSoll);
+        $actSum = $expSum = 0;
 
-            $resultActual = $conn->query($sql_b);
-            $resultExpected = $conn->query($sqlDcSoll);
-            $actSum = 0;
-            $expSum = 0;
-            // add Irradiation
-            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == "Groningen") {
-                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
-            } else {
-                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
-            }
+        // add Irradiation
+        if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == "Groningen") {
+            $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
+        } else {
+            $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
+        }
 
-            if ($resultExpected->rowCount() > 0) {
-                $counter = 0;
-                while (($roa = $resultExpected->fetch(PDO::FETCH_ASSOC)) && ($rob = $resultActual->fetch(PDO::FETCH_ASSOC))) {
-                    $stamp = $roa["stamp"];
-                    ((float)$roa["soll"] > 0) ? $soll = round($roa["soll"], 2) : $soll = 0;
-                    $expdiff = round($soll - $soll * 10 / 100, 2); //-10% good
-                    $dcist = self::checkUnitAndConvert($rob["dcist"], $anlage->getAnlDbUnit());
+        if ($resultExpected->rowCount() > 0) {
+            $counter = 0;
+            while ($rowExp = $resultExpected->fetch(PDO::FETCH_ASSOC)) {
+                $stamp = self::timeShift($anlage, $rowExp["stamp"]);
+                $stampAdjust = self::timeAjustment($stamp, $anlage->getAnlZeitzone());
+                $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
+                $soll = round($rowExp["soll"], 2);
+                $soll = $soll > 0 ? $soll : 0;
+                $expdiff = round($soll - $soll * 10 / 100, 2); //-10% good
 
-                ($dcist > 0) ? $dcist = round($dcist, 2) : $dcist = 0; // neagtive Werte auschließen
-                $actSum += $dcist;
+                // start query actual
+                $whereQueryPart1 = $hour ? "stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'" : "stamp = '$stampAdjust'";
+                if ($anlage->getUseNewDcSchema()) {
+                    $sqlActual = "SELECT sum(wr_pdc) AS dcIst FROM " . $anlage->getDbNameDCIst() . " 
+                        WHERE $whereQueryPart1 GROUP BY date_format(stamp, '$form')";
+                } else {
+                    $sqlActual = "SELECT sum(wr_pdc) AS dcIst FROM " . $anlage->getDbNameIst() . " 
+                        WHERE $whereQueryPart1 GROUP BY date_format(stamp, '$form')";
+                }
+                $resActual = $conn->query($sqlActual);
+                if ($resActual->rowCount() == 1) {
+                    $rowActual = $resActual->fetch(PDO::FETCH_ASSOC);
+                    $dcIst = $rowActual["dcIst"];
+                    $dcIst = $dcIst > 0 ? round($dcIst, 2) :  0; // neagtive Werte auschließen
+
+                    $actSum += $dcIst;
+                } else {
+                    $dcIst = null;
+                }
                 $expSum += $soll;
-                //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-                $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
 
+                //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
+                $dataArray['chart'][$counter]['date'] = $stamp;
                 if (!($soll == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                     $dataArray['chart'][$counter]['expected'] = $soll;
                     $dataArray['chart'][$counter]['expgood'] = $expdiff;
                 }
-
-                if (!($dcist == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
-                    $dataArray['chart'][$counter]['InvOut'] = $dcist;
+                if (!(($dcIst === 0 || $dcIst === null)&& self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
+                    $dataArray['chart'][$counter]['InvOut'] = $dcIst;
                 }
                 //Irradiation
                 if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
@@ -107,10 +110,9 @@ class DCPowerChartService
                     $dataArray['chart'][$counter]["irradiation"] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;
                 }
                 $counter++;
-                }
-                $dataArray['actSum'] = round($actSum, 2);
-                $dataArray['expSum'] = round($expSum, 2);
             }
+            $dataArray['actSum'] = round($actSum, 2);
+            $dataArray['expSum'] = round($expSum, 2);
         }
 
         $conn = null;
@@ -249,6 +251,7 @@ class DCPowerChartService
         $groups = $anlage->getGroupsDc();
         switch ($anlage->getConfigType()) {
             case 3:
+            case 4:
                 # z.B. Gronningen
                 $groupQuery = "group_ac = '$group' ";
                 $nameArray = $this->functions->getNameArray($anlage, 'ac');
@@ -275,6 +278,7 @@ class DCPowerChartService
             $counter = 0;
             switch ($anlage->getConfigType()) {
                 case 3: // Groningen
+                case 4:
                     $dataArray['offsetLegend'] = $group - 1;
                     break;
                 default:
@@ -287,6 +291,7 @@ class DCPowerChartService
                 $anzInvPerGroup = $groups[$group]['GMAX'] - $groups[$group]['GMIN'] + 1;
                 switch ($anlage->getConfigType()) {
                     case 3:
+                    case 4:
                         $expected = $rowExp['soll'] ;
                         break;
                     default:
@@ -305,7 +310,7 @@ class DCPowerChartService
                 } else {
                     $sql = "SELECT sum(wr_pdc) as actPower, wr_temp as temp FROM " . $anlage->getDbNameAcIst() . " WHERE $whereQueryPart1 AND $groupQuery GROUP BY unit;";
                 }
-
+                dump($sql);
                 $resultIst = $conn->query($sql);
                 $counterInv = 1;
                 if ($resultIst->rowCount() > 0) {

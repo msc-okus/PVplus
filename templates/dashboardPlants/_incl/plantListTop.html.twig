@@ -318,11 +318,11 @@
     {% else %}
         {# MINI SHOW - Alles in deisem else Zweig ist für die 'Mini Show' (kleine Quadrate für die Plants)#}
         {% if loop.index == 2 %}
-            <div class="cell large-6 xlarge-8">
+            <div class="cell large-6 xlarge-8 scroll-area">
                 <div class="grid-x grid-margin-x grid-margin-x-bottom grid-padding-x grid-padding-y">
         {% endif %}
 
-        <div class='cell large-6 xlarge-4 box shadow text-center'>
+        <div class='cell large-6 xlarge-4 box shadow text-center '>
             <a href='{{ path('app_dashboard_plant', {eignerId: anlage.eignerId, anlageId: anlage.anlagenId}) }}' class="plant">
                 <div class="charts-grids">
                     <div class="grid-x">

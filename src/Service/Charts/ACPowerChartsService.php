@@ -66,7 +66,6 @@ class ACPowerChartsService
                 }
                 while ($rowExp = $resExp->fetch(PDO::FETCH_ASSOC)) {
                     $stamp = self::timeShift($anlage, $rowExp["stamp"]);
-                    dump("$stamp - ".$rowExp["stamp"]);
                     $stampAdjust = self::timeAjustment($stamp, $anlage->getAnlZeitzone());
                     $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
 
@@ -83,27 +82,31 @@ class ACPowerChartsService
                     $sqlEvu = "SELECT sum(e_z_evu) as eZEvu FROM " .  $anlage->getDbNameIst() . " WHERE $whereQueryPart1 GROUP by date_format(stamp, '$form')";
 
                     $resActual = $conn->query($sqlActual);
-                    $rowActual = $resActual->fetch(PDO::FETCH_ASSOC);
                     $resEvu = $conn->query($sqlEvu);
-                    $rowEvu = $resEvu->fetch(PDO::FETCH_ASSOC);
 
-                    $cosPhi = abs((float)$rowActual["cosPhi"]);
-                    $acIst = $rowActual["acIst"];
-                    $theoPower = $rowActual["theoPower"];
-                    $cosPhiSum += $cosPhi * $acIst;
-                    $eZEvu = $rowEvu["eZEvu"] / ($anlage->getAnzInverterFromGroupsAC());
-                    $evuSum += $eZEvu;
-
-                    $acIst = self::checkUnitAndConvert($acIst, $anlage->getAnlDbUnit());
-                    ($acIst > 0) ? $actout = round($acIst, 2) : $actout = 0; // neagtive Werte auschließen
-
-                    $actSum += $actout;
+                    if ($resActual->rowCount() == 1) {
+                        $rowActual = $resActual->fetch(PDO::FETCH_ASSOC);
+                        $cosPhi = abs((float)$rowActual["cosPhi"]);
+                        $acIst = $rowActual["acIst"];
+                        $acIst = self::checkUnitAndConvert($acIst, $anlage->getAnlDbUnit());
+                        $acIst > 0 ? $actout = round($acIst, 2) : $actout = 0; // neagtive Werte auschließen
+                        $theoPower = $rowActual["theoPower"];
+                        $cosPhiSum += $cosPhi * $acIst;
+                        $actSum += $actout;
+                        $theoPowerSum += $theoPower;
+                    } else {
+                        $cosPhi = $actout = $theoPower = null;
+                    }
+                    if ($resEvu->rowCount() == 1) {
+                        $rowEvu = $resEvu->fetch(PDO::FETCH_ASSOC);
+                        $eZEvu = $rowEvu["eZEvu"] / ($anlage->getAnzInverterFromGroupsAC());
+                        $evuSum += $eZEvu;
+                    } else {
+                        $eZEvu = null;
+                    }
                     $expSum += $expectedInvOut;
                     $expEvuSum += $expectedEvu;
                     $expNoLimitSum += $expectedNoLimit;
-                    $theoPowerSum += $theoPower;
-
-
                     $dataArray['chart'][$counter]['date'] = $stamp;
                     if (!($expectedInvOut == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                         $dataArray['chart'][$counter]['expected'] = $expectedInvOut;
@@ -114,7 +117,7 @@ class ACPowerChartsService
                         }
                         $dataArray['chart'][$counter]['expexted_no_limit'] = $expectedNoLimit;
                     }
-                    if (!($actout == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
+                    if (!(($actout === 0 || $actout === null) && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                         if ($anlage->getShowInverterOutDiag()) $dataArray['chart'][$counter]['InvOut'] = $actout;
                         if ($anlage->getShowEvuDiag()) $dataArray['chart'][$counter]['eZEvu'] = $eZEvu;
                         if ($anlage->getShowCosPhiPowerDiag()) $dataArray['chart'][$counter]['cosPhi'] = $cosPhi * $actout;
@@ -271,8 +274,7 @@ class ACPowerChartsService
      */
     public function getAC3(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
-            if ($hour) $form = '%y%m%d%H';
-            else $form = '%y%m%d%H%i';
+            $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
             $conn = self::getPdoConnection();
             $dataArray = [];
             $dataArray['maxSeries'] = 0;
@@ -282,6 +284,7 @@ class ACPowerChartsService
                     $groups = $anlage->getGroupsDc();
                     $nameArray = $this->functions->getNameArray($anlage, 'dc');
                     break;
+
                 default:
                     $groupQuery = "group_ac = '$group'";
                     $groups = $anlage->getGroupsAc();
@@ -293,19 +296,11 @@ class ACPowerChartsService
                         WHERE a.stamp BETWEEN '$from' AND '$to' 
                         GROUP by date_format(a.stamp, '$form')";
 
-            $sql = "SELECT  sum(wr_pac) as actPower, avg(wr_temp) as temp, wr_cos_phi_korrektur 
-                        FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameIst() . " WHERE " . $groupQuery . " ) b ON a.stamp = b.stamp) 
-                         WHERE a.stamp BETWEEN '$from' AND '$to' 
-                        GROUP BY date_format(a.stamp, '$form')";
-
             $dataArray['inverterArray'] = $nameArray;
-
             $resultExpected = $conn->query($sqlExpected);
-            $resultActual = $conn->query($sql);
             $maxInverter = 0;
 
             // add Irradiation
-            // Todo: Gewichtet Strahlung bei Ost West Anlagen.
             if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
             } else {
@@ -323,29 +318,39 @@ class ACPowerChartsService
                         $dataArray['offsetLegend'] = $groups[$group]['GMIN'] - 1;
                 }
                 $dataArray['label'] = $groups[$group]['GroupName'];
-                while (($rowExp = $resultExpected->fetch(PDO::FETCH_ASSOC)) && ($rowIst = $resultActual->fetch(PDO::FETCH_ASSOC))) {
-                    $stamp = $rowExp["stamp"];
-                    $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
+
+                while ($rowExp = $resultExpected->fetch(PDO::FETCH_ASSOC)) {
+                    $stamp = self::timeShift($anlage, $rowExp["stamp"]);
+                    $stampAdjust = self::timeAjustment($stamp, $anlage->getAnlZeitzone());
+                    $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
+
+                    $dataArray['chart'][$counter]['date'] = $stampAdjust;
                     ($rowExp['soll'] == null) ? $expected = 0 : $expected = $rowExp['soll'];
                     $dataArray['maxSeries'] = 1;
+                    $whereQueryPart1 = $hour ? "stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'" : "stamp = '$stampAdjust'";
+                    $sql = "SELECT  sum(wr_pac) as actPower, avg(wr_temp) as temp, wr_cos_phi_korrektur 
+                        FROM " . $anlage->getDbNameIst() . " WHERE $groupQuery and $whereQueryPart1 GROUP BY date_format(stamp, '$form')";
 
-                    if ($rowIst['temp'] == null) $temperature = 0;
-                    else $temperature = $rowIst['temp'];
-                    $dataArray['chart'][$counter]['temperature'] = $temperature;
+                    $resultActual = $conn->query($sql);
+                    if($resultActual->rowCount() == 1) {
+                        $rowAct = $resultActual->fetch(PDO::FETCH_ASSOC);
 
-                    $actPower = $rowIst['actPower'];
-                    ($actPower > 0) ? $actPower = round(self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()), 2) : $actPower = 0; // neagtive Werte auschließen
+                        $dataArray['chart'][$counter]['temperature'] = $rowAct['temp'] == null ?  null : $rowAct['temp'];
+                        $actPower = $rowAct['actPower'];
+                        $actPower = $actPower > 0 ? round(self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()), 2) : 0; // neagtive Werte auschließen
 
-                    switch ($anlage->getConfigType()) {
-                        case 3: // Groningen
-                        case 4:
-                            $dataArray['chart'][$counter][$nameArray[$group]] = $actPower;
-                            break;
-                        default:
-                            $dataArray['chart'][$counter][$nameArray[$group]] = $actPower;
+                        switch ($anlage->getConfigType()) {
+                            case 3: // Groningen
+                            case 4:
+                                $dataArray['chart'][$counter][$nameArray[$group]] = $actPower;
+                                break;
+                            default:
+                                $dataArray['chart'][$counter][$nameArray[$group]] = $actPower;
+                        }
+
+                        if ($anlage->getShowCosPhiDiag()) $dataArray['chart'][$counter]['cosPhi'] = abs((float)$rowAct['wr_cos_phi_korrektur']);
                     }
 
-                    if ($anlage->getShowCosPhiDiag()) $dataArray['chart'][$counter]['cosPhi'] = abs((float)$rowIst['wr_cos_phi_korrektur']);
 
                      $dataArray['chart'][$counter]['expected'] = (float)$expected;
 
@@ -360,6 +365,8 @@ class ACPowerChartsService
             }
 
         $conn = null;
+
+            #dd($nameArray);
         return $dataArray;
     }
 

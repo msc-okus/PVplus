@@ -357,6 +357,10 @@
         }
 
         #plants{
+            .scroll-area {
+                max-height: 550px;
+                overflow-y: scroll;
+            }
             .box {
                 padding: 0.75rem 0.75rem 0.25rem;
             }
@@ -391,6 +395,7 @@
                 }
 
                 &.fb {
+                    max-height: 550px;
                     background-color: $g4n-green !important;
                     * {color: $g4n-white !important;}
 
