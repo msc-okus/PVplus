@@ -70,9 +70,12 @@ class DCPowerChartService
                 $stampAdjust = self::timeAjustment($stamp, $anlage->getAnlZeitzone());
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
                 $soll = round($rowExp["soll"], 2);
-                $soll = $soll > 0 ? $soll : 0;
-                $expdiff = round($soll - $soll * 10 / 100, 2); //-10% good
-
+                if ($soll !== null) {
+                    $soll = $soll > 0 ? $soll : 0;
+                    $expdiff = round($soll - $soll * 10 / 100, 2); //-10% good
+                } else {
+                    $expdiff = null;
+                }
                 // start query actual
                 $whereQueryPart1 = $hour ? "stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'" : "stamp = '$stampAdjust'";
                 if ($anlage->getUseNewDcSchema()) {
@@ -289,13 +292,17 @@ class DCPowerChartService
                 $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
                 $anzInvPerGroup = $groups[$group]['GMAX'] - $groups[$group]['GMIN'] + 1;
+
+                $expected = $rowExp['soll'] ;
+                dump($expected);
+                if ($expected !== null) {
+                    $expected = $expected > 0 ? $expected : 0;
+                }
                 switch ($anlage->getConfigType()) {
-                    case 3:
-                    case 4:
-                        $expected = $rowExp['soll'] ;
+                    case 1:
+                    case 2:
+                        $expected = $anzInvPerGroup > 0 ? $expected / $anzInvPerGroup : $expected;
                         break;
-                    default:
-                        ($anzInvPerGroup > 0) ? $expected = $rowExp['soll'] / $anzInvPerGroup : $expected = $rowExp['soll'];
                 }
 
                 if ($expected < 0) $expected = 0;
@@ -310,7 +317,7 @@ class DCPowerChartService
                 } else {
                     $sql = "SELECT sum(wr_pdc) as actPower, wr_temp as temp FROM " . $anlage->getDbNameAcIst() . " WHERE $whereQueryPart1 AND $groupQuery GROUP BY unit;";
                 }
-                dump($sql);
+
                 $resultIst = $conn->query($sql);
                 $counterInv = 1;
                 if ($resultIst->rowCount() > 0) {
