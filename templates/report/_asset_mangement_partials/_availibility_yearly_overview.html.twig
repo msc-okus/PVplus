@@ -70,68 +70,6 @@
                     {% set itemcounter = 1 %}
                     </tr>
                 </table>
-                        {#
-                        {%  set data = plantAvailabilityMonth[(page*40)+inv] %}
-                        {% set countinverters = data[0]|length %}
-                        {% if (itemcounter == 1 ) %}
-                            <tr>
-                                <td class="tr_first_column" style="padding:0 !important; border-right: 0px!important; width: 70px!important; text-align: center;">
-                                    Month
-                                </td>
-                                {% for datatr in data[0] %}
-                                    {% if(unitcounter2 < countinverters / 2) %}
-                                        {% if unitcounter2 == (countinverters / 2) - 1 %}
-                                            <td style="padding:0 !important; border-right:solid 1px!important;">
-                                                <table class = "streamdayly" style="padding:0 !important; margin:0 !important;">
-                                                    <tr><th style="padding:0 !important;margin:0 !important; height:28px; width:54px; border-right: 0px!important; text-align: center;">{{ acGroups[unitcounter2] }}</th></tr>
-                                                    <tr><th style="padding:0 !important;margin:0 !important; border-right: 0px!important; text-align: center;">[%]</th></tr>
-                                                </table>
-                                            </td>
-                                        {% else %}
-                                            <td style="padding:0 !important; border-right:0px!important;">
-                                                <table class = "streamdayly" style="padding:0 !important; margin:0 !important;">
-                                                    <tr><th style="padding:0 !important;margin:0 !important; height:28px; width:54px; border-right: 0px!important; text-align: center;">{{ acGroups[unitcounter2] }}</th></tr>
-                                                    <tr><th style="padding:0 !important;margin:0 !important; border-right: 0px!important; text-align: center;">[%]</th></tr>
-                                                </table>
-                                            </td>
-                                        {% endif %}
-                                    {% endif %}
-                                    {% set unitcounter2 = unitcounter2+1 %}
-                                {% endfor %}
-                            </tr>
-                        {% endif %}
-                        {% set color = "#ffffff" %}
-
-
-                        <tr>
-                            {% for datatr in data %}
-                                {% if (datatr.pa >= 98) %}{% set color = "#00b050" %}{% endif %}
-                                {% if (datatr.pa < 98) %}{% set color = "#cee4c0" %}{% endif %}
-                                {% if (datatr.pa < 92) %}{% set color = "#ffff00" %}{% endif %}
-                                {% if (datatr.pa < 85) %}{% set color = "#ffc000" %}{% endif %}
-                                {% if (datatr.pa <= 80) %}{% set color = "#cc0000" %}{% endif %}
-                                {% if (datatr.pa == 100) %}{% set color = "#00b050" %}{% endif %}
-                                {% if (unitcounter == 0 ) %}
-                                    <td class="tr_first_column">{{ montharray[itemcounter2] }}</td>
-                                    <td class="tr_next_columns" style="background-color:{{ color }};">{{ datatr.pa|number_format(2, ',', '.') }}</td>
-                                {% endif %}
-                                {% if (unitcounter > 0 and unitcounter < countinverters/2) %}
-                                    <td class="tr_next_columns"style="background-color:{{ color }};">{{ datatr.pa|number_format(2, ',', '.') }}</td>
-                                {% endif %}
-                                {% set unitcounter = unitcounter+1 %}
-                            {% endfor %}
-                            {% set unitcounter = 0 %}
-                        </tr>
-
-                        {% set itemcounter = itemcounter+1 %}
-                        {% set itemcounter2 = itemcounter2+1 %}
-                    {% endfor %}
-                    {% set itemcounter = 1 %}
-                    {% set itemcounter2 = 0 %}
-                </table>
-            </td>
-        </tr>
-            #}
             </td>
         </tr>
         <tr>

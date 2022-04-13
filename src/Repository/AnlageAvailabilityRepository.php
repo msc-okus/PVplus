@@ -89,7 +89,6 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
                 ->orderBy('a.inverter*1')
                 ->select('a.inverter, sum(a.case_0)as case0, sum(a.case_1) as case1, sum(a.case_2) as case2, sum(a.case_3) as case3, sum(a.case_4) as case4, sum(a.case_5) as case5, sum(a.case_6) as case6, sum(a.control) as control')
                 ->getQuery()
-                ->getResult()
             ;
         } else {
             $result = $this->createQueryBuilder('a')
@@ -103,10 +102,9 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
                 ->orderBy('a.inverter*1')
                 ->select('a.inverter, sum(a.case_0)as case0, sum(a.case_1) as case1, sum(a.case_2) as case2, sum(a.case_3) as case3, sum(a.case_4) as case4, sum(a.case_5) as case5, sum(a.case_6) as case6, sum(a.control) as control')
                 ->getQuery()
-                ->getResult()
             ;
         }
 
-        return $result;
+        return $result->getResult();
     }
 }
