@@ -903,6 +903,7 @@ class FunctionsService
                     }
                     break;
                 case 3: // Groningen
+                case 4:
                     foreach ($this->acGroupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
                         $nameArray['ac'][$inverter->getAcGroup()] = $inverter->getAcGroupName();
                     }
@@ -913,13 +914,12 @@ class FunctionsService
                         $nameArray['scb'][$inverter->getInvNr()] = $inverter->getInverterName();
                     }
                     break;
-                case 4: // Guben
-                    break;
+
 
             }
-            // we do this to make the array star by 0 when required
+            // we do this to make the array start by 0 when required
             if (!$startArrayAtOne){
-                $nameArray[$type][0] = "1";
+                array_unshift($nameArray[$type],"1");
                 array_shift($nameArray[$type]);
             }
 

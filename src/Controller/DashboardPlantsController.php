@@ -81,7 +81,7 @@ class DashboardPlantsController extends BaseController
 
             if ($form['selectedChart'] == 'pr_and_av'    && $form['optionDate'] < 7) { $form['optionDate'] = 7; }
             // bei Verfügbarkeit Anzeige kann nur ein Tag angezeigt werden
-            if ($form['selectedChart'] == 'availability' && $form['optionDate'] > 1) { $form['optionDate'] = 1; }
+            #if ($form['selectedChart'] == 'availability' && $form['optionDate'] > 1) { $form['optionDate'] = 1; }
 
             // optionDate == 100000 → Zeige Daten für den ganzen Monat, also vom ersten bis zum letzten Tages des ausgewäten Monats
             if ($form['optionDate'] == 100000){
@@ -103,7 +103,7 @@ class DashboardPlantsController extends BaseController
 
 
         $content = null;
-       $hour = $request->get('hour')=="on";
+        $hour = $request->get('hour') == "on";
         if ($aktAnlage) $content = $chartService->getGraphsAndControl($form, $aktAnlage,$hour);
         $isInTimeRange = self::isInTimeRange();
 

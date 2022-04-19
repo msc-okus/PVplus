@@ -88,18 +88,12 @@ class ReportsMonthlyService
     {
         // create Array for Day Values Table
         $date = new \DateTime("$reportYear-$reportMonth-01 00:00");
-        $anlageId = $anlage->getAnlId();
         $month = $reportMonth;
         $year = $reportYear;
         $daysInMonth = (int)date('t', strtotime("$year-$month-01"));
         #$yesterday = $report['yesterday'];
         $legend = $this->serializer->normalize($anlage->getLegendMonthlyReports()->toArray(), null, ['groups' => 'legend']);
         $case5 = $this->serializer->normalize($anlage->getAnlageCase5s()->toArray(), null, ['groups' => 'case5']);
-        $projektid = $anlage->getProjektNr();
-        $showAvailability = $anlage->getShowAvailability();
-        $showAvailabilitySecond = $anlage->getShowAvailabilitySecond();
-        $usePac = $anlage->getUsePac();
-        $output = '';
 
         $total = 'Total';
         $case5Values = [];
@@ -128,18 +122,18 @@ class ReportsMonthlyService
             $dayValues['PowerEvuMonth']     = $anlage->getShowEvuDiag() ? $prArray['powerEvu'] : $prArray['powerAct'];
             if ($anlage->getUseGridMeterDayData()) {
                 $dayValues['powerEGridExt'] = $prArray['powerEGridExt'];
-                $dayValues['spezYield']     = $dayValues['powerEGridExt'] / $anlage->getKwPeak();
+                $dayValues['spezYield']     = $dayValues['powerEGridExt'] / $anlage->getPnom();
                 $dayValues['prEvuEpc']      = $prArray['prEGridExt'];
                 $dayValues['prEvuDefault']  = $prArray['prDefaultEGridExt'];
             } else {
                 $dayValues['powerEGridExt'] = 0;
-                $dayValues['spezYield']     = $anlage->getShowEvuDiag() ? $prArray['powerEvu'] / $anlage->getKwPeak() : $prArray['powerAct'] / $anlage->getKwPeak();
+                $dayValues['spezYield']     = $anlage->getShowEvuDiag() ? $prArray['powerEvu'] / $anlage->getPnom() : $prArray['powerAct'] / $anlage->getPnom();
                 $dayValues['prEvuEpc']      = $anlage->getShowEvuDiag() ? $prArray['prEvu'] : $prArray['prAct'];
                 $dayValues['prEvuDefault']  = $anlage->getShowEvuDiag() ? $prArray['prDefaultEvu'] : $prArray['prDefaultAct'];
             }
             $dayValues['irradiation']       = $prArray['irradiation'];
-            if ($showAvailability === true)         $dayValues['plantAvailability'] = $prArray['availability'];
-            if ($showAvailabilitySecond === true)   $dayValues['plantAvailabilitySecond'] = -111;
+            if ($anlage->getShowAvailability())         $dayValues['plantAvailability'] = $prArray['availability'];
+            if ($anlage->getShowAvailabilitySecond())   $dayValues['plantAvailabilitySecond'] = -111;
             $dayValues['powerTheo']         = $prArray['powerTheo'];
             $dayValues['powerExp']          = $prArray['powerExp'];
             $dayValues['case5perDay']       = $prArray['case5perDay'];//$report['prs'][$i]->getcase5perDay();
@@ -156,6 +150,7 @@ class ReportsMonthlyService
         }
         unset($prArray);
 
+        // calculate PR and related data for the current month
         $fromDay = new \DateTime("$year-$month-01 00:00");
         $toDay   = new \DateTime("$year-$month-$daysInMonth 23:59");
         $prSumArray = $this->PRCalulation->calcPR($anlage, $fromDay, $toDay);
@@ -166,25 +161,25 @@ class ReportsMonthlyService
         $sumValues['irradiation']       = $prSumArray['irradiation'];
         if ($anlage->getUseGridMeterDayData()) {
             $sumValues['powerEGridExt'] = $prSumArray['powerEGridExt'];
-            $sumValues['spezYield']     = $sumValues['powerEGridExt'] / $anlage->getKwPeak();
-            $sumValues['prEvuEpc']      = $prSumArray['prEGridExt']; // $report['lastPR']->getPrEGridExtMonth();
-            $sumValues['prEvuDefault']  = $prSumArray['prDefaultEGridExt']; // $report['lastPR']->getPrDefaultMonthEGridExt();
+            $sumValues['spezYield']     = $sumValues['powerEGridExt'] / $anlage->getPnom();
+            $sumValues['prEvuEpc']      = $prSumArray['prEGridExt'];
+            $sumValues['prEvuDefault']  = $prSumArray['prDefaultEGridExt'];
         } else {
-            $sumValues['spezYield']     = $prSumArray['PowerEvuMonth'] / $anlage->getKwPeak();
+            $sumValues['spezYield']     = $anlage->getShowEvuDiag() ? $prSumArray['powerEvu'] / $anlage->getPnom() : $prSumArray['powerAct'] / $anlage->getPnom();
             $sumValues['prEvuEpc']      = $anlage->getShowEvuDiag() ? $prSumArray['prEvu'] : $prSumArray['prAct'];
             $sumValues['prEvuDefault']  = $anlage->getShowEvuDiag() ? $prSumArray['prDefaultEvu'] : $prSumArray['prDefaultAct'];
         }
-        if ($showAvailability === true) $sumValues['plantAvailability'] = $prSumArray['availability'];
-        if ($showAvailabilitySecond === true) $sumValues['plantAvailabilitySecond'] = $prSumArray['availability2'];
+        if ($anlage->getShowAvailability()) $sumValues['plantAvailability'] = $prSumArray['availability'];
+        if ($anlage->getShowAvailabilitySecond()) $sumValues['plantAvailabilitySecond'] = $prSumArray['availability2'];
         $sumValues['powerTheo']         = $prSumArray['powerTheo'];
         $sumValues['powerExp']          = $prSumArray['powerExp'];
         $sumValues['case5perDay']       = $prSumArray['case5perDay'];
         $dayValuesFinal[] = $sumValues;
 
-        #beginn create Array for Heat and Temperatur Table
-        #die Daten dem Array hinzufuegen
+        // beginn create array for heat and temperatur table
+        // die Daten dem Array hinzufuegen
         $heatAndTempValues = [];
-        $prs = $this->PRRepository->findPRInMonth($anlage, $reportMonth, $reportYear); // ????
+        $prs = $this->PRRepository->findPRInMonth($anlage, $reportMonth, $reportYear);
         for ($i = 0; $i < count($prs); $i++)
         {
             $heatValues = [];
@@ -222,7 +217,8 @@ class ReportsMonthlyService
         ];
 
         // Since Pac
-        if($usePac == true){
+        if($anlage->getUsePac()){
+            // calculate PR and related data for the since PAC
             $toDay   = new \DateTime("$year-$month-$daysInMonth 23:59");
             $prSumArrayPac = $this->PRCalulation->calcPR($anlage, $anlage->getPacDate(), $toDay);
             $energypPoduction[1] = [
@@ -236,6 +232,7 @@ class ReportsMonthlyService
         }
 
         // Total Year
+        // calculate PR and related data for the current year
         $fromDay = new \DateTime("$year-01-01 00:00");
         $toDay   = new \DateTime("$year-$month-$daysInMonth 23:59");
         $prSumArrayYear = $this->PRCalulation->calcPR($anlage, $fromDay, $toDay);
@@ -266,7 +263,7 @@ class ReportsMonthlyService
             'Availability1' => $prSumArray['availability'], //(float)$report['lastPR']->getplantAvailabilityPerMonth(),
             'Availability2' => $prSumArray['availability2'], //(float)$report['lastPR']->getplantAvailabilityPerMonthSecond(),
         ];
-        if($usePac == true) {
+        if($anlage->getUsePac()) {
             $performanceRatioAndAvailability[1] = [
                 'PD'            => 'PAC (' . $anlage->getPacDate()->format('Y-m-d') . ')',
                 'GMNB'          => $prSumArrayPac['prEGridExt'], //(float)$report['lastPR']->getprEGridExtPac(),
@@ -296,8 +293,8 @@ class ReportsMonthlyService
                     'month' => $reportMonth,
                     'year' => $reportYear,
                     'plant_name' => $anlage->getAnlName(),
-                    'plant_power' => $anlage->getPower(),
-                    'projektid' => $projektid,
+                    'plant_power' => $anlage->getPnom(),
+                    'projektid' => $anlage->getProjektNr(),
                 ],
             ],
             'anlagenid' => $anlage->getAnlId(),
@@ -318,11 +315,11 @@ class ReportsMonthlyService
                     'month' => $reportMonth,
                     'year' => $reportMonth,
                     'plant_name' => $anlage->getAnlName(),
-                    'plant_power' => $anlage->getPower(),
-                    'projektid' => $projektid,
+                    'plant_power' => $anlage->getPnom(),
+                    'projektid' => $anlage->getProjektNr(),
                     'anlagenId' => $anlage->getAnlId(),
-                    'showAvailability' => $showAvailability,
-                    'showAvailabilitySecond' => $showAvailabilitySecond,
+                    'showAvailability' => $anlage->getShowAvailability(),
+                    'showAvailabilitySecond' => $anlage->getShowAvailabilitySecond(),
                     'useGridMeterDayData' => $anlage->getUseGridMeterDayData(),
                     'useEvu' => $anlage->getShowEvuDiag(),
                     'showPvSyst' => $anlage->getShowPvSyst(),
@@ -338,7 +335,7 @@ class ReportsMonthlyService
     #[NoReturn]
     public function exportReportToPDF(Anlage $anlage, AnlagenReports $report)
     {
-        // übnergabe der Werte an KoolReport
+        // übergabe der Werte an KoolReport
 
         $reportout = new ReportMonthly($report->getContentArray());
         $output = $reportout->run()->render('ReportMonthly', true);
@@ -409,20 +406,5 @@ class ReportsMonthlyService
             ->toBrowser($pngFilename);
         exit; // Ohne exit führt es unter manchen Systemen (Browser) zu fehlerhaften Downloads
 
-    }
-    private function lager() {
-        if (false) {
-            switch ($docType) {
-                case 1: // Excel Export
-
-                    break;
-
-                case 2: // Bilder der Charts Exportieren
-
-
-                default:
-
-            }
-        }
     }
 }

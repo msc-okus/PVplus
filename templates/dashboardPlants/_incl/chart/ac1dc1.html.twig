@@ -56,6 +56,7 @@
             series1.stroke = am4core.color("#fdd400");
             series1.strokeWidth = 1;
             series1.tensionX = 0.8;
+            series1.connect = false;
         {% endif %}
 
         {% if form.selectedChart == 'ac_single' %}
@@ -73,6 +74,7 @@
                 series11.strokeWidth = 1;
                 series11.tensionX = 0.8;
                 series11.hidden = false;
+                series11.connect = false;
             {% endif %}
 
             // Expected ohne Limits
@@ -87,6 +89,7 @@
             //series12.defaultState.transitionDuration = 300;
             series12.tensionX = 0.8;
             series12.hidden = true;
+            series12.connect = false;
 
             {% if aktAnlage.showEvuDiag %}
                 let series3 = chart.series.push(new am4charts.LineSeries());
@@ -99,6 +102,7 @@
                 series3.strokeWidth = 1;
                 //series3.defaultState.transitionDuration = 300;
                 series3.tensionX = 0.8;
+                series3.connect = false;
             {% endif %}
 
             {% if aktAnlage.showCosPhiPowerDiag %}
@@ -112,6 +116,7 @@
                 series4.strokeWidth = 1;
                 series4.tensionX = 0.8;
                 series4.hidden = true;
+                series4.connect = false;
             {% endif %}
 
             {% if aktAnlage.useCustPRAlgorithm == 'Lelystad' and is_granted('ROLE_G4N') %} {# theoretische Leitung (theoPower) mit TempKorrektur nach NREL #}
@@ -125,6 +130,7 @@
                 theoPower.strokeWidth = 1;
                 theoPower.tensionX = 0.8;
                 theoPower.hidden = true;
+                theoPower.connect = false;
             {% endif %}
 
         {% endif %}
@@ -151,6 +157,7 @@
             {% if aktAnlage.showEvuDiag and form.selectedChart == 'ac_single' %}
                 series2.hidden = true;
             {% endif %}
+                series2.connect = false;
         {% endif %}
 
         let seriesIrr = chart.series.push(new am4charts.LineSeries());
@@ -165,6 +172,7 @@
         seriesIrr.tensionX = 0.8;
         seriesIrr.hidden = true;
         seriesIrr.yAxis = valueAxisIrr;
+        seriesIrr.connect = false;
 
         chart.cursor = new am4charts.XYCursor();
         chart.cursor.xAxis = dateAxis;

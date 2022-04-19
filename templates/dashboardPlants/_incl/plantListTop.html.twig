@@ -318,71 +318,71 @@
     {% else %}
         {# MINI SHOW - Alles in deisem else Zweig ist für die 'Mini Show' (kleine Quadrate für die Plants)#}
         {% if loop.index == 2 %}
-            <div class="cell large-6 xlarge-8">
+            <div class="cell medium-6 large-8 xlarge-9 scroll-area">
                 <div class="grid-x grid-margin-x grid-margin-x-bottom grid-padding-x grid-padding-y">
         {% endif %}
 
-        <div class='cell large-6 xlarge-4 box shadow text-center'>
-            <a href='{{ path('app_dashboard_plant', {eignerId: anlage.eignerId, anlageId: anlage.anlagenId}) }}' class="plant">
-                <div class="charts-grids">
-                    <div class="grid-x">
-                        <div class='cell small-3'>
-                            {% if openWeather is defined %}
-                                {% if openWeather %}
-                                    <img height='40' width='40' data-tooltip data-placement='top' data-original-title='{{ openWeather.description }}' title='{{ openWeather.description }}' src='{{ asset('images/openWeatherIconsOld/') }}{{ openWeather.iconWeather }}.png' />
-                                    <p>
-                                        {% if anlage.country %}<img height='20' width='20' src='/images/flag/flag-{{ anlage.country }}.png' /> {% endif %}
-                                        <b>{{ openWeather.tempC }}&deg;C</b>
-                                    </p>
-                                {% else %}
-                                    <p>
-                                        {% if anlage.country %}<img height='20' width='20' src='/images/flag/flag-{{ anlage.country }}.png' /> {% endif %}
-                                    </p>
-                                {% endif %}
-                            {% endif %}
-                        </div>
-                        <div class='cell small-6'>
-                            <h5><b>{{ anlage.anlName }}</b></h5>
-                            <h4>{{ (anlage.power)|number_format(1, ',', '.') }} kWp</h4>
-                            {% if is_granted('ROLE_G4N') %}
-                                <h6 class="small">{{ anlage.anlagenId}} / {{ anlage.anlIntnr}} / {{ anlage.anlDbWs }}</h6>
-                            {% endif %}
-                        </div>
-                        <div class='cell small-3'>
-                           {% if status is defined %} {# anlag e.isInTimeRange #}
-                                {% if status.anlagenStatus == 0 %}
-                                    <p class="icon-anlagen-status"><i class="fa fa-check"></i></p>
-                                {% elseif status.anlagenStatus > 0 and status.anlagenStatus <= 10 %}
-                                    <p class="icon-anlagen-status"><i class="fa fa-exclamation-triangle"></i></p>
-                                {% elseif status.anlagenStatus > 10 and status.anlagenStatus <= 20 %}
-                                    <p class="icon-anlagen-status warning"><i class="fa fa-exclamation-triangle"></i></p>
-                                {% elseif status.anlagenStatus > 20 %}
-                                    <p class="icon-anlagen-status alert"><i class="fa fa-exclamation-triangle"></i></p>
-                                {% endif %}
-                               {% if is_granted('ROLE_G4N') %}{{ status.anlagenStatus }}{% endif %}
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="grid-x">
-                        <div class="cell small-6">
-                            <h5><b>Actual today (AC)</b></h5>
-                            {% if status is defined %}
-                                <h5><b>{{ (status.acActAll)|number_format(0, ',', '.') }} [kWh]</b></h5>
-                                <p><i class="fa fa-clock-o"></i> {{ status.lastDataIo|date("H:i") }}</p>
-                            {% endif %}
-                        </div>
+                    <div class='cell medium-6 large-4 xlarge-3 box shadow text-center '>
+                        <a href='{{ path('app_dashboard_plant', {eignerId: anlage.eignerId, anlageId: anlage.anlagenId}) }}' class="plant">
+                            <div class="charts-grids">
+                                <div class="grid-x">
+                                    <div class='cell small-3'>
+                                        {% if openWeather is defined %}
+                                            {% if openWeather %}
+                                                <img height='40' width='40' data-tooltip data-placement='top' data-original-title='{{ openWeather.description }}' title='{{ openWeather.description }}' src='{{ asset('images/openWeatherIconsOld/') }}{{ openWeather.iconWeather }}.png' />
+                                                <p>
+                                                    {% if anlage.country %}<img height='20' width='20' src='/images/flag/flag-{{ anlage.country }}.png' /> {% endif %}
+                                                    <b>{{ openWeather.tempC }}&deg;C</b>
+                                                </p>
+                                            {% else %}
+                                                <p>
+                                                    {% if anlage.country %}<img height='20' width='20' src='/images/flag/flag-{{ anlage.country }}.png' /> {% endif %}
+                                                </p>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                    <div class='cell small-6'>
+                                        <h5><b>{{ anlage.anlName }}</b></h5>
+                                        <h4>{{ (anlage.power)|number_format(1, ',', '.') }} kWp</h4>
+                                        {% if is_granted('ROLE_G4N') %}
+                                            <h6 class="small">{{ anlage.anlagenId}} / {{ anlage.anlIntnr}} / {{ anlage.anlDbWs }}</h6>
+                                        {% endif %}
+                                    </div>
+                                    <div class='cell small-3'>
+                                       {% if status is defined %} {# anlag e.isInTimeRange #}
+                                            {% if status.anlagenStatus == 0 %}
+                                                <p class="icon-anlagen-status"><i class="fa fa-check"></i></p>
+                                            {% elseif status.anlagenStatus > 0 and status.anlagenStatus <= 10 %}
+                                                <p class="icon-anlagen-status"><i class="fa fa-exclamation-triangle"></i></p>
+                                            {% elseif status.anlagenStatus > 10 and status.anlagenStatus <= 20 %}
+                                                <p class="icon-anlagen-status warning"><i class="fa fa-exclamation-triangle"></i></p>
+                                            {% elseif status.anlagenStatus > 20 %}
+                                                <p class="icon-anlagen-status alert"><i class="fa fa-exclamation-triangle"></i></p>
+                                            {% endif %}
+                                           {% if is_granted('ROLE_G4N') %}{{ status.anlagenStatus }}{% endif %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="grid-x">
+                                    <div class="cell small-6">
+                                        <h5><b>Actual today (AC)</b></h5>
+                                        {% if status is defined %}
+                                            <h5><b>{{ (status.acActAll)|number_format(0, ',', '.') }} [kWh]</b></h5>
+                                            <p><i class="fa fa-clock-o"></i> {{ status.lastDataIo|date("H:i") }}</p>
+                                        {% endif %}
+                                    </div>
 
-                        <div class="cell small-6">
-                            <h5><b>Expected today (AC)</b></h5>
-                            {% if status is defined %}
-                                <h5><b>{{ (status.acExpAll)|number_format(0, ',', '.') }} [kWh]</b></h5>
-                                <p><i class="fa fa-clock-o"></i> {{ status.lastWeatherIo|date("H:i") }}</p>
-                            {% endif %}
-                        </div>
+                                    <div class="cell small-6">
+                                        <h5><b>Expected today (AC)</b></h5>
+                                        {% if status is defined %}
+                                            <h5><b>{{ (status.acExpAll)|number_format(0, ',', '.') }} [kWh]</b></h5>
+                                            <p><i class="fa fa-clock-o"></i> {{ status.lastWeatherIo|date("H:i") }}</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
                     </div>
-                </div>
-            </a>
-        </div>
 
         {% if loop.index == loop.length%}
                 </div>

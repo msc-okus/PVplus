@@ -601,9 +601,10 @@ class PRCalulationService
         } else {
             $irr = $weather['upperIrr'] / 4 / 1000; // Umrechnug zu kWh
         }
-        $power['powerTheo'] == 0 ? $powerTheo = $anlage->getPnom() * $irr : $powerTheo = $power['powerTheo'];
+        // if theoretic Power ist corrected by temperature (NREL) (PR Algoritm = Lelystad) then use 'powerTheo' from array $power, if not calc by Pnom and Irr.
+        $powerTheo = $anlage->getUseCustPRAlgorithm() == 'Lelystad' ? $powerTheo = $power['powerTheo'] : $powerTheo = $anlage->getPnom() * $irr;
         $result['powerTheo'] = (float)$powerTheo;
-        $tempCorrection = 0;
+        $tempCorrection = 0; // not used at the Moment
 
         // PR Calculation
         // Standard PR, wird NICHT mit Temp-Koriegierten Theoretischen berechnet sondern mit Pnom * Irradiation

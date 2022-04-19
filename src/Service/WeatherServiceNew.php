@@ -110,8 +110,8 @@ class WeatherServiceNew
 
                 // wenn ein Strahlungswert 0 ist und der andere kleienr als 50 dann setzte beide auf 0
                 // soll positive Strahlungswerte mitten in der nacht verhindern
-                if ($gmod_avg == 0 && $gi_avg <= 30) $gi_avg = 0;
-                if ($gi_avg == 0 && $gmod_avg <= 30) $gmod_avg = 0;
+                #if ($gmod_avg == 0 && $gi_avg <= 30) $gi_avg = 0;
+                #if ($gi_avg == 0 && $gmod_avg <= 30) $gmod_avg = 0;
 
 
                 $output .= $weatherStation->getType() . " -> $zeit $date -- $at_avg | $pt_avg | $gi_avg | $gmod_avg | $wind <br>";
@@ -119,25 +119,26 @@ class WeatherServiceNew
                 $sql_array[] = [
                     "anl_intnr" => $weatherStationIdent,
                     "stamp" => $sqlstamp,
-                    "at_avg" => $at_avg,
-                    "pt_avg" => $pt_avg,
-                    "gi_avg" => $gi_avg,
-                    "gmod_avg" => $gmod_avg,
-                    "wind_speed" => $wind
+                    "at_avg" => str_replace(',', '.', $at_avg),
+                    "pt_avg" => str_replace(',', '.', $pt_avg),
+                    "gi_avg" => str_replace(',', '.', $gi_avg),
+                    "gmod_avg" => str_replace(',', '.', $gmod_avg),
+                    "wind_speed" => str_replace(',', '.', $wind)
                 ];
             }
+
             $spalte = [];
 
             foreach ($sql_array as $row) {
-                $anlIntNr = $row['anl_intnr'];
-                $stamp = $row['stamp'];
-                $tempAmbientAvg     = str_replace(',', '.', $row['at_avg']);
-                $tempPannleAvg      = str_replace(',', '.', $row['pt_avg']);
-                $gLower             = str_replace(',', '.', $row['gi_avg']);
+                $anlIntNr           = $row['anl_intnr'];
+                $stamp              = $row['stamp'];
+                $tempAmbientAvg     = $row['at_avg'];
+                $tempPannleAvg      = $row['pt_avg'];
+                $gLower             = $row['gi_avg'];
                 if ($gLower < 0) $gLower = 0;
-                $gUpper             = str_replace(',', '.', $row['gmod_avg']);
+                $gUpper             = $row['gmod_avg'];
                 if ($gUpper < 0) $gUpper = 0;
-                $windSpeed          = str_replace(',', '.', $row['wind_speed']);
+                $windSpeed          = $row['wind_speed'];
                 $sql_insert = "INSERT INTO " . $weatherStation->getDbNameWeather() . " 
                         SET anl_intnr = '$anlIntNr', stamp = '$stamp', 
                             at_avg = '$tempAmbientAvg', pt_avg = '$tempPannleAvg', gi_avg = '$gLower', gmod_avg = '$gUpper', wind_speed = '$windSpeed',

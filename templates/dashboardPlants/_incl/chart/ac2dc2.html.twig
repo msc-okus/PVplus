@@ -56,6 +56,7 @@
         seriesExp.strokeWidth = 2;
         seriesExp.defaultState.transitionDuration = 300;
         seriesExp.tensionX = 0.8;
+        seriesExp.connect = false;
 
         // Create series
         let units = JSON.parse('{{ content.inverterArray | raw  }}');
@@ -90,6 +91,7 @@
         seriesIrr.tensionX = 0.8;
         seriesIrr.hidden = true;
         seriesIrr.yAxis = valueAxisIrr;
+        seriesIrr.connect = false;
 
         {% if aktAnlage.showCosPhiDiag and form.selectedChart starts with 'ac'%}
             let valueAxisCosPhi = chart.yAxes.push(new am4charts.ValueAxis());
@@ -111,6 +113,7 @@
             seriesCosPhi.tensionX = 0.8;
             seriesCosPhi.hidden = true;
             seriesCosPhi.yAxis = valueAxisCosPhi;
+            seriesCosPhi.connect = false;
         {% endif %}
 
         {% if ((form.selectedChart == 'ac_act_group' or form.selectedChart == 'dc_act_group')) and false %}
@@ -126,6 +129,7 @@
             seriesTemp.tensionX = 0.8;
             seriesTemp.hidden = true;
             seriesTemp.yAxis = valueAxisTemp;
+            seriesTemp.connect = false;
         {% endif %}
 
         chart.cursor = new am4charts.XYCursor();

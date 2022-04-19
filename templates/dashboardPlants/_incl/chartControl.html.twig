@@ -106,7 +106,7 @@
                 <input type="radio" name="optionDate" value="30" {% if form.optionDate == 30 %}checked{% endif %}>last 30 days
             </label>
             -->
-            <label class="button js-submit-onchange {% if form.optionDate == 100000 %}active{% endif %} {% if form.selectedChart == 'availability' %}disabled{% endif %}">
+            <label class="button js-submit-onchange {% if form.optionDate == 100000 %}active{% endif %} {% if form.selectedChart == 'availability' and not is_granted('ROLE_ADMIN') %}disabled{% endif %}">
                 <input type="radio" name="optionDate" value="100000" {% if form.optionDate == 100000 %}checked{% endif %}>month
             </label>
         </div>

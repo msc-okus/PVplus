@@ -61,19 +61,14 @@ class ReportingController extends AbstractController
         // create Reports
         switch ($reportType){
             case 'monthly':
-                #$output = $report->monthlyReport($aktAnlagen, $reportMonth, $reportYear, 0, 0, true, false, false);
                 $output = $reportsMonthly->createMonthlyReport($aktAnlagen[0], $reportMonth, $reportYear);
-                $searchtype = 'monthly-report';
                 break;
             case 'epc':
                 $output = $reportEpc->createEpcReport($aktAnlagen[0], $reportDate);
-                $searchtype = 'epc-report';
                 break;
             case 'am':
                 return $this->redirectToRoute('report_asset_management', ['id' => $anlageId, 'month' => $reportMonth, 'year' => $reportYear, 'export' => 1, 'pages' => 0]);
-                $searchtype = 'am-report';
                 break;
-
         }
         $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($anlage, $searchstatus, $searchtype, $searchmonth, $searchyear);
 

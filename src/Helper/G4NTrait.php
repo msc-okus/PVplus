@@ -17,24 +17,24 @@ trait G4NTrait
     public static function timeArray(): array
     {
         return  [
-            '+5'    => '+5',
-            '+4'    => '+4',
-            '+3.75' => '+3.75',
-            '+3.50' => '+3.50',
-            '+3.25' => '+3.25',
-            '+3'    => '+3',
-            '+2.75' => '+2.75',
-            '+2.50' => '+2.50',
-            '+2.25' => '+2.25',
-            '+2'    => '+2',
-            '+1.75' => '+1.75',
-            '+1.50' => '+1.50',
-            '+1.25' => '+1.25',
-            '+1'    => '+1',
-            '+0.75' => '+0.75',
-            '+0.50' => '+0.50',
-            '+0.25' => '+0.25',
-            '+0'    => '+0',
+            '+5'    => '5',
+            '+4'    => '4',
+            '+3.75' => '3.75',
+            '+3.50' => '3.50',
+            '+3.25' => '3.25',
+            '+3'    => '3',
+            '+2.75' => '2.75',
+            '+2.50' => '2.50',
+            '+2.25' => '2.25',
+            '+2'    => '2',
+            '+1.75' => '1.75',
+            '+1.50' => '1.50',
+            '+1.25' => '1.25',
+            '+1'    => '1',
+            '+0.75' => '0.75',
+            '+0.50' => '0.50',
+            '+0.25' => '0.25',
+            '0'    => '0',
             '-0.25' => '-0.25',
             '-0.50' => '-0.50',
             '-0.75' => '-0.75',
@@ -47,6 +47,9 @@ trait G4NTrait
             '-2.50' => '-2.50',
             '-2.75' => '-2.75',
             '-3'    => '-3',
+            '-3.25' => '-3.25',
+            '-3.50' => '-3.50',
+            '-3.75' => '-3.75',
             '-4'    => '-4',
             '-5'    => '-5',
         ];
@@ -99,7 +102,7 @@ trait G4NTrait
      * Anpassung der Zeit (Korrektur der Zeit aud dem Backend)
      *
      * $timestamp = umzurechnender Zeitstempel als TimeStamp(INT) oder Zeit Sring
-     * $vall = interne Zeitzohne der Anlage (Korrektur der Zeit)
+     * $val = interne Zeitzone der Anlage (Korrektur der Zeit)
      *
      * return Zeitstempel im SQL Format
      */
@@ -108,7 +111,7 @@ trait G4NTrait
         $format     = 'Y-m-d H:i:s';
         // Sollte die Zeit als String übergeben worden sein, dann wandele in TimeStamp um
         if (gettype($timestamp) != 'integer') $timestamp = strtotime($timestamp);
-        ($reverse) ? $timestamp -= ($val * 3600) : $timestamp += ($val * 3600);
+        $reverse ? $timestamp -= ($val * 3600) : $timestamp += ($val * 3600);
 
         return date($format, $timestamp);
     }
@@ -223,14 +226,28 @@ trait G4NTrait
     }
 
     /**
-     * Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
-     **/
-    public function timeShift(Anlage $anlage, $stamp, $reverse = false)
+     * Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms<br>
+     * adjust Plant timestamp with offset from entity plant ($anlage->getAnlZeitzone())
+     *
+     * @param Anlage $anlage
+     * @param $stamp
+     * @param false $reverse
+     * @return string
+     * @throws \Exception
+     */
+    public function timeShift(Anlage $anlage, $stamp, bool $reverse = false): string
     {
         $country = strtoupper($anlage->getCountry());
 
         $offset = Timezones::getRawOffset(self::getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), $country));
-        $offset = $offset - 3600;
+
+        if (date('I',strtotime($stamp)) == 1) {
+            //summertime
+            $offset = $offset - 7200; // not sure why this is nessary
+        } else {
+            //wintertime
+            $offset = $offset - 3600; // not sure why this is nessary
+        }
 
         $of = $offset / 3600;
 
@@ -244,7 +261,7 @@ trait G4NTrait
             if ($reverse) $offset_time = strtotime($stamp) - $offset;
             $result = date('Y-m-d H:i', $offset_time);
         } else {
-            $result = $stamp;
+            $result = date('Y-m-d H:i', strtotime($stamp));
         }
 
         return $result;

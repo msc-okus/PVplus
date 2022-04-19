@@ -1172,9 +1172,9 @@ class Anlage
         return $this;
     }
 
-    public function getAnlZeitzone(): ?string
+    public function getAnlZeitzone(): ?float
     {
-        return $this->anlZeitzone;
+        return (float)$this->anlZeitzone;
     }
 
     public function setAnlZeitzone(string $anlZeitzone): self
@@ -1773,6 +1773,15 @@ class Anlage
         return $this;
     }
 
+    /**
+     * Methode of PR calculation. <br>
+     * no | without customer algorithm, use standard calculation
+     * Groningen<br>
+     * Veendamm<br>
+     * Lelystad | with temp corr. <br>
+     *
+     * @return string|null
+     */
     public function getUseCustPRAlgorithm(): ?string
     {
         return $this->useCustPRAlgorithm;
