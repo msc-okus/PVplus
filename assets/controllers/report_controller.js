@@ -45,9 +45,15 @@ export default class extends Controller {
         event.preventDefault();
         const $createReportform = $(this.reportFormTarget).find('form');
         this.listTarget.innerHTML = await $.ajax({
+            beforeSend: function(){
+                $('.ajax-loader').css("visibility", "visible");
+            },
             url: this.urlCreateValue,
             method: $createReportform.prop('method'),
             data: $createReportform.serialize(),
+            complete: function(){
+                $('.ajax-loader').css("visibility", "hidden");
+            }
         });
     }
 }
