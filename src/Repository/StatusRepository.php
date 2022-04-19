@@ -29,7 +29,24 @@ class StatusRepository extends ServiceEntityRepository
             ->setParameter('date', $date)
             ->setParameter('isWeather', $isWeather)
             ->getQuery()
-            ->getResult()
+            ->getOneOrNullResult()
+            ;
+    }
+    public function findLastOfDay($anlage, $yesterday, $today, $isWeather){
+
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.Anlage = :anl')
+            ->andWhere('s.stamp > :yesterday')
+            ->andWhere('s.stamp < :today')
+            ->andWhere('s.isWeather = :isWeather')
+            ->setParameter('anl', $anlage)
+            ->setParameter('yesterday', $yesterday)
+            ->setParameter('today' , $today)
+            ->setParameter('isWeather', $isWeather)
+            ->orderBy('s.stamp', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult()
             ;
     }
     // /**
