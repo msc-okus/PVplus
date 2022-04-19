@@ -63,10 +63,11 @@ class AlertSystemService
                 }
                 $status_report[$anlage->getAnlName()] = $inverter_status;
                 $message = self::AnalyzeIst($inverter_status, $time, $anlage, $nameArray, $sungap[$anlage->getanlName()]['sunrise']);
+                self::messagingFunction($message, $anlage);
             }
 
         }
-        dd($status_report);
+
         return $status_report;
     }
 
@@ -197,9 +198,11 @@ class AlertSystemService
         $message = "";
         $counter = 1;
         foreach($status_report as $inverter){
-            if ($inverter['istdata'] != "All is ok"){
-                $message = $message . "Error in inverter ".$nameArray[$counter]."<br>";
-            }
+            if ($inverter['istdata'] != "All is ok") $message = $message . "Error with the power in inverter ".$nameArray[$counter]."<br>";
+
+            if ($inverter['freq'] != "All is ok") $message = $message . "Error with the frequency in inverter ".$nameArray[$counter]."<br>";
+
+            if ($inverter['voltage'] != "All is okay") $message = $message . "Error with the voltage in inverter ".$nameArray[$counter]."<br>";
             $counter ++;
         }
         if($message != "") {
@@ -408,7 +411,6 @@ class AlertSystemService
      * @return Status|int|mixed|string|null
      */
     private function getLastStatus($anlage, $date, $sunrise, $isWeather){
-        $status = new Status;
         $time = date('Y-m-d H:i:s', strtotime($date) - 900);
         $yesterday = date('Y-m-d', strtotime($date) - 86400); // this is the date of yesterday
         $today = date('Y-m-d', strtotime($date));
