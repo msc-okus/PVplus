@@ -97,7 +97,6 @@ class DCPowerChartService
                 }
                 $expSum += $soll;
 
-                //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
                 $dataArray['chart'][$counter]['date'] = $stamp;
                 if (!($soll == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                     $dataArray['chart'][$counter]['expected'] = $soll;
