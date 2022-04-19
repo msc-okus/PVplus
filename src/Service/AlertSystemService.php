@@ -62,11 +62,12 @@ class AlertSystemService
                     $counter++;
                 }
                 $status_report[$anlage->getAnlName()] = $inverter_status;
-                $message = self::AnalyzeIst($inverter_status, $time, $anlage, $nameArray);
+                $message = self::AnalyzeIst($inverter_status, $time, $anlage, $nameArray, $sungap[$anlage->getanlName()]['sunrise']);
+                self::messagingFunction($message, $anlage);
             }
 
         }
-        dd($status_report);
+
         return $status_report;
     }
 
@@ -84,7 +85,7 @@ class AlertSystemService
                 $status_report[$anlage->getAnlName()] = $this->WData($anlage, $time);
 
 
-                $message = self::AnalyzeWeather($status_report[$anlage->getAnlName()], $time, $anlage);
+                $message = self::AnalyzeWeather($status_report[$anlage->getAnlName()], $time, $anlage, $sungap[$anlage->getanlName()]['sunrise']);
                 self::messagingFunction($message, $anlage);
             }
         }
@@ -99,14 +100,13 @@ class AlertSystemService
      * @param $anlage
      * @return string
      */
-    private function AnalyzeWeather($status_report, $time, $anlage): string
+    private function AnalyzeWeather($status_report, $time, $anlage, $sunrise): string
     {
         $status = new Status();
-        $timeq1 = date('Y-m-d H:i:s', strtotime($time) - 900);
-        $status_q1 = $this->statusRepo->findOneByanlageDate($anlage, $timeq1, true);
+        $lastStatus = self::getLastStatus($anlage, $time, $sunrise, true);
         $ticket = null;
-        if($status_q1 != null) {
-            $ticketprox = $status_q1[0]->getTickete();
+        if($lastStatus != null) {
+            $ticketprox = $lastStatus->getTickete();
             if ($ticketprox != null) {
                 $id = $ticketprox->getId();
                 $ticket = $this->ticketRepo->findOneById($id);
@@ -194,23 +194,25 @@ class AlertSystemService
      * @param $nameArray
      * @return string
      */
-    private function AnalyzeIst($status_report, $time, $anlage, $nameArray){
+    private function AnalyzeIst($status_report, $time, $anlage, $nameArray, $sunrise){
         $message = "";
         $counter = 1;
         foreach($status_report as $inverter){
-            if ($inverter['istdata'] != "All is ok"){
-                $message = $message . "Error in inverter ".$nameArray[$counter]."<br>";
-            }
+            if ($inverter['istdata'] != "All is ok") $message = $message . "Error with the power in inverter ".$nameArray[$counter]."<br>";
+
+            if ($inverter['freq'] != "All is ok") $message = $message . "Error with the frequency in inverter ".$nameArray[$counter]."<br>";
+
+            if ($inverter['voltage'] != "All is okay") $message = $message . "Error with the voltage in inverter ".$nameArray[$counter]."<br>";
             $counter ++;
         }
         if($message != "") {
             $status = new Status();
-            $timeq1 = date('Y-m-d H:i:s', strtotime($time) - 900);
-            $status_q1 = $this->statusRepo->findOneByanlageDate($anlage, $timeq1, false);
+
+            $lastStatus = self::getLastStatus($anlage, $time, $sunrise, false);
 
             $ticket = null;
-            if ($status_q1 != null) {
-                $ticketprox = $status_q1[0]->getTickete();
+            if ($lastStatus != null) {
+                $ticketprox = $lastStatus[0]->getTickete();
                 if ($ticketprox != null) {
                     $id = $ticketprox->getId();
                     $ticket = $this->ticketRepo->findOneById($id);
@@ -255,7 +257,7 @@ class AlertSystemService
 
             $ticket = null;
             if ($status_q1 != null) {
-                $ticketprox = $status_q1[0]->getTickete();
+                $ticketprox = $status_q1->getTickete();
                 if ($ticketprox != null) {
                     $id = $ticketprox->getId();
                     $ticket = $this->ticketRepo->findOneById($id);
@@ -386,5 +388,26 @@ class AlertSystemService
             $subject = "There was an error in " . $anlage->getAnlName();
             $this->mailservice->sendMessage($anlage, 'alert', 3, $subject, $message, false, true, true, true);
         }
+    }
+
+    /**
+     * this function retrieves the previous status (if any), taking into account that the previous status can be the last from the previous day
+     * @param $anlage
+     * @param $date
+     * @param $sunrise
+     * @param $isWeather
+     * @return Status|int|mixed|string|null
+     */
+    private function getLastStatus($anlage, $date, $sunrise, $isWeather){
+        $time = date('Y-m-d H:i:s', strtotime($date) - 900);
+        $yesterday = date('Y-m-d', strtotime($date) - 86400); // this is the date of yesterday
+        $today = date('Y-m-d', strtotime($date));
+        if($time < $sunrise){
+            $status = $this->statusRepo->findLastOfDay($anlage, $yesterday,$today, $isWeather);
+        }
+        else {
+            $status = $this->statusRepo->findOneByanlageDate($anlage, $time, $isWeather);
+        }
+        return $status;
     }
 }
