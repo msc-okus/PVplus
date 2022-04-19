@@ -1,6 +1,7 @@
 {% import _self as macros %}
 
 {% macro availabilityTable(availability, second) %}
+    {% set pa = 0 %}
     <div class="status-log" style="margin: 0 25px 0 10px;">
         <table id="statusTable" style="width: 100%;">
             <thead>
@@ -26,18 +27,34 @@
                     <td>{{ stati.stamp|date("y-m-d") }} </td>
                     <td>{{ stati.inverter }}</td>
                     {% if second %}<td>PA.1<br><span class="topline">PA.2</span></td>{% endif %}
-                    <td>{{ stati.case0 }}{% if second %}<br><span class="topline">{{ stati.case0second }}</span>{% endif %}</td>
-                    <td>{{ stati.case1 }}{% if second %}<br><span class="topline">{{ stati.case1second }}</span>{% endif %}</td>
-                    <td>{{ stati.case2 }}{% if second %}<br><span class="topline">{{ stati.case2second }}</span>{% endif %}</td>
-                    <td>{{ stati.case3 }}{% if second %}<br><span class="topline">{{ stati.case3second }}</span>{% endif %}</td>
-                    <td>{{ stati.case4 }}{% if second %}<br><span class="topline">{{ stati.case4second }}</span>{% endif %}</td>
-                    <td>{{ stati.case5 }}{% if second %}<br><span class="topline">{{ stati.case5second }}</span>{% endif %}</td>
-                    <td>{{ stati.case6 }}{% if second %}<br><span class="topline">{{ stati.case6second }}</span>{% endif %}</td>
-                    <td>{{ stati.control}}{% if second %}<br><span class="topline">{{ stati.controlSecond }}</span>{% endif %}</td>
+                    <td>{{ stati.case0 }} / {{ stati.case0 / 4 }}{% if second %}<br><span class="topline">{{ stati.case0second }}</span>{% endif %}</td>
+                    <td>{{ stati.case1 }} / {{ stati.case1 / 4 }}{% if second %}<br><span class="topline">{{ stati.case1second }}</span>{% endif %}</td>
+                    <td>{{ stati.case2 }} / {{ stati.case2 / 4 }}{% if second %}<br><span class="topline">{{ stati.case2second }}</span>{% endif %}</td>
+                    <td>{{ stati.case3 }} / {{ stati.case3 / 4 }}{% if second %}<br><span class="topline">{{ stati.case3second }}</span>{% endif %}</td>
+                    <td>{{ stati.case4 }} / {{ stati.case4 / 4 }}{% if second %}<br><span class="topline">{{ stati.case4second }}</span>{% endif %}</td>
+                    <td>{{ stati.case5 }} / {{ stati.case5 / 4 }}{% if second %}<br><span class="topline">{{ stati.case5second }}</span>{% endif %}</td>
+                    <td>{{ stati.case6 }} / {{ stati.case6 / 4 }}{% if second %}<br><span class="topline">{{ stati.case6second }}</span>{% endif %}</td>
+                    <td>{{ stati.control}} / {{ stati.control / 4}}{% if second %}<br><span class="topline">{{ stati.controlSecond }}</span>{% endif %}</td>
                     <td>{{ stati.invApart1|number_format(0, ',', '.') }}{% if second %}<br><span class="topline">{{ stati.invApart1Second|number_format(0, ',', '.') }}</span>{% endif %}</td>
                     <td>{{ stati.invA|number_format(4, ',', '.') }}{% if second %}<br><span class="topline">{{ stati.invASecond|number_format(4, ',', '.') }}</span>{% endif %}</td>
+                    {% set pa = pa + stati.invA %}
                 </tr>
             {% endfor %}
+            <tr>
+                <td> </td>
+                <td></td>
+                {% if second %}<td></td>{% endif %}
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>{{ pa|number_format(4, ',', '.') }}</td>
+            </tr>
             </tbody>
         </table>
     </div>

@@ -229,9 +229,9 @@ class AnlageModules
         return $this;
     }
 
-    public function getPower(): ?string
+    public function getPower(): ?float
     {
-        return $this->power;
+        return (float)$this->power;
     }
 
     public function setPower(string $power): self

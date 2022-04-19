@@ -1648,82 +1648,61 @@ class AssetManagementService
 
         //Fuer die PA des aktuellen Jahres
         $daysInThisMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
-
-        if (!($anlage->getConfigType() == 1)) {
-            $sql = "SELECT DATE_FORMAT(stamp, '%Y-%m') AS form_date, unit, avg(pa_0)*100 as pa FROM " . $anlage->getDbNameIst() . " where stamp BETWEEN '" . $report['reportYear'] . "-1-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInThisMonth . " 23:59'and pa_0 >= 0  group by unit, DATE_FORMAT(stamp, '%Y-%m')";
-            $result = $this->conn->prepare($sql);
-            $result->execute();
-            $i = 0;
-            dump("entro");
-            foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
-            dump($value);
-                $pa[] = [
-                    'form_date' => date("m", strtotime($value['form_date'])),
-                    'pa' => round($value['pa'], 3),
-                    'unit' => $value['unit']
-                ];
-                $i++;
-                if ($i >= $report['reportMonth']) {
-                    $outPaCY[] = $pa;
-                    unset($pa);
-                    $i = 0;
-                }
-            }
+        if ($anlage->getConfigType() == 1) {
+            // Type 1 is the only one where acGrops are NOT the Inveerter
+            $inverters = $anlage->getGroups()->count();
         } else {
-            // neue Version
-            /*
-            $inverters = $this->functions->getInverterArray($anlage);
+            // use acGroups as Inverter
+            $inverters = $anlage->getAcGroups()->count();
+        }
+        for ($inverter = 0; $inverter < $inverters; $inverter++) {
             $pa = [];
-            foreach ($inverters as $inverter => $invertername) {
-                for ($tempMonth = 1; $tempMonth <= $report['reportMonth']; $tempMonth++) {
-                    $daysInThisMonth = cal_days_in_month(CAL_GREGORIAN, $tempMonth, $report['reportYear']);
-                    $startDate = new \DateTime($report['reportYear'] . "-$tempMonth-01 00:00");
-                    $endDate = new \DateTime($report['reportYear'] . "-$tempMonth-$daysInThisMonth 00:00");
-                    $pa[] = [
-                        'form_date' => $tempMonth,
-                        'pa'        => $this->availability->calcAvailability($anlage, $startDate, $endDate, $inverter),
-                        'unit'      => $inverter
-                    ];
-                }
-                $outPaCY[] = $pa;
-                unset($pa);
+            for ($tempMonth = 1; $tempMonth <= $report['reportMonth']; $tempMonth++) {
+                $daysInThisMonth = cal_days_in_month(CAL_GREGORIAN, $tempMonth, $report['reportYear']);
+                $startDate = new \DateTime($report['reportYear'] . "-$tempMonth-01 00:00");
+                $endDate = new \DateTime($report['reportYear'] . "-$tempMonth-$daysInThisMonth 00:00");
+                $pa[] = [
+                    'form_date' => $tempMonth,
+                    'pa'        => $this->availability->calcAvailability($anlage, $startDate, $endDate, $inverter),
+                    'unit'      => $inverter
+                ];
             }
-            */
+            $outPaCY[] = $pa;
+            unset($pa);
         }
 
-        $chart->series =
+        $chart->series = [
             [
-                [
-                    'type' => 'pie',
-                    'data' => [
-                        [
-                            'value' => 92.36,
-                            'name' => 'PA (Plant availability)'
-                        ],
-                        [
-                            'value' => 0,
-                            'name' => 'SOF'
-                        ],
-                        [
-                            'value' => 7.64,
-                            'name' => 'EFOR**'
-                        ],
-                        [
-                            'value' => 0,
-                            'name' => 'OMC***'
-                        ]
+                'type' => 'pie',
+                'data' => [
+                    [
+                        'value' => 92.36,
+                        'name' => 'PA (Plant availability)'
                     ],
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => false
+                    [
+                        'value' => 0,
+                        'name' => 'SOF'
                     ],
-                    'itemStyle' => [
-                        'borderType' => 'solid',
-                        'borderWidth' => 1,
-                        'borderColor' => '#ffffff'
+                    [
+                        'value' => 7.64,
+                        'name' => 'EFOR**'
+                    ],
+                    [
+                        'value' => 0,
+                        'name' => 'OMC***'
                     ]
+                ],
+                'visualMap' => 'false',
+                'label' => [
+                    'show' => false
+                ],
+                'itemStyle' => [
+                    'borderType' => 'solid',
+                    'borderWidth' => 1,
+                    'borderColor' => '#ffffff'
                 ]
-            ];
+            ]
+        ];
 
         $option = array(
             'animation' => false,
@@ -1733,22 +1712,19 @@ class AssetManagementService
                 'left' => 'center',
                 'top' => 0,
             ],
-            'tooltip' =>
-                [
+            'tooltip' => [
                     'show' => true,
                 ],
-            'legend' =>
-                [
+            'legend' => [
                     'show' => true,
                     'orient' => 'vertical',
                     'left' => 'left',
                     'top' => 30,
                     'padding' => 0, 90, 0, 0,
                 ],
-            'grid' =>
-                array(
+            'grid' => [
                     'top' => 150,
-                ),
+                ],
         );
 
 
@@ -1976,28 +1952,28 @@ class AssetManagementService
         unset($option);
 
         //fuer PA Report Month
-
-        $sql = "SELECT DATE_FORMAT(stamp, '%Y-%m-%d') AS form_date, unit, COUNT(db_id) as anz, sum(pa_0) as summe, sum(pa_0)/COUNT(db_id)*100 as pa FROM " . $anlage->getDbNameIst() . " where stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and pa_0 >= 0 group by unit, DATE_FORMAT(stamp, '%Y-%m-%d')";
-        $result = $this->conn->prepare($sql);
-        $result->execute();
-
-        $i = 0;
-        foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
-            $pa[] = [
-                'form_date' => date("d", strtotime($value['form_date'])),
-                'pa' => round($value['pa'], 3),
-                'unit' => $value['unit']
-            ];
-            $i++;
-
-            if ($i > $daysInReportMonth - 1) {
-                $i = 0;
-                $outPa[] = $pa;
-                unset($pa);
+        if ($anlage->getConfigType() == 1) {
+            // Type 1 is the only one where acGrops are NOT the Inveerter
+            $inverters = $anlage->getGroups()->count();
+        } else {
+            // use acGroups as Inverter
+            $inverters = $anlage->getAcGroups()->count();
+        }
+        for ($inverter = 0; $inverter < $inverters; $inverter++) {
+            $pa = [];
+            for ($day = 1; $day <= $daysInReportMonth; $day++) {
+                $tempFrom = new \DateTime($report['reportYear'] . "-" . $report['reportMonth'] ."-$day 00:00");
+                $tempTo   = new \DateTime($report['reportYear'] . "-" . $report['reportMonth'] ."-$day 23:59");
+                $pa[] = [
+                    'form_date' => $day,
+                    'pa' => $this->availability->calcAvailability($anlage, $tempFrom, $tempTo, $inverter),
+                    'unit' => $inverter
+                ];
             }
+            $outPa[] = $pa;
+            unset($pa);
         }
         //End PA
-
 
         //Beginn Operations string_dayly1
         if ($anlage->getConfigType() == 1){
@@ -2055,7 +2031,6 @@ class AssetManagementService
             WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_ac > 0 
             GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
         }
-        //dd($sql);
         $result = $this->conn->prepare($sql);
         $result->execute();
         $j = 0;
@@ -2098,7 +2073,6 @@ class AssetManagementService
             }
         }
         if ($dcExpDcIst) $outTableCurrentsPower[] = $dcExpDcIst;
-    //dd($outTableCurrentsPower);
         $resultEconomicsNames = $this->ecoVarNameRepo->findOneByAnlage($anlage);
 
         if ($resultEconomicsNames) {

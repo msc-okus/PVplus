@@ -3,12 +3,12 @@ import { Controller } from '@hotwired/stimulus';
 export default class extends Controller {
     static values = {
         url: String,
-        refreshInterval: Number }
+        refreshIntervale: Number
+    }
 
     connect() {
         this.load()
-
-        if (this.hasRefreshIntervalValue) {
+        if (this.hasRefreshIntervaleValue) {
             this.startRefreshing()
         }
     }
@@ -26,7 +26,7 @@ export default class extends Controller {
     startRefreshing() {
         this.refreshTimer = setInterval(() => {
            this.load()
-        }, this.refreshIntervalValue)
+        }, this.refreshIntervaleValue)
     }
 
     stopRefreshing() {

@@ -375,4 +375,19 @@ class AnlageGroups
 
         return $this;
     }
+
+    /**
+     * Calculate Pnom for every single Inverter (Group)<br>
+     * makes only sense if anlage->configType == 1 or 2<br>
+     *
+     * @return float
+     */
+    public function getPnomPerGroup(): float
+    {
+        $pNom = 0.0;
+        foreach($this->getModules() as $module) {
+            $pNom += ($module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower()) / 1000;
+        }
+        return $pNom;
+    }
 }
