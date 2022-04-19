@@ -65,9 +65,7 @@ class AlertSystemService
                 $message = self::AnalyzeIst($inverter_status, $time, $anlage, $nameArray, $sungap[$anlage->getanlName()]['sunrise']);
                 self::messagingFunction($message, $anlage);
             }
-
         }
-
         return $status_report;
     }
 
@@ -80,24 +78,21 @@ class AlertSystemService
 
         foreach($Anlagen as $anlage) {
             if (($anlage->getCalcPR() == true) && (($time > $sungap[$anlage->getanlName()]['sunrise']) && ($time < $sungap[$anlage->getAnlName()]['sunset']))) {
-
-
                 $status_report[$anlage->getAnlName()] = $this->WData($anlage, $time);
-
-
                 $message = self::AnalyzeWeather($status_report[$anlage->getAnlName()], $time, $anlage, $sungap[$anlage->getanlName()]['sunrise']);
                 self::messagingFunction($message, $anlage);
             }
         }
-
         return $status_report;
     }
     //----------------Analyzing functions----------------
+
     /**
      * We use this to make an error message of the status array from the weather station and to generate/update Tickets
      * @param $status_report
      * @param $time
      * @param $anlage
+     * @param $sunrise
      * @return string
      */
     private function AnalyzeWeather($status_report, $time, $anlage, $sunrise): string
@@ -198,6 +193,7 @@ class AlertSystemService
         $message = "";
         $counter = 1;
         foreach($status_report as $inverter){
+
             if ($inverter['istdata'] != "All is ok") $message = $message . "Error with the power in inverter ".$nameArray[$counter]."<br>";
 
             if ($inverter['freq'] != "All is ok") $message = $message . "Error with the frequency in inverter ".$nameArray[$counter]."<br>";
@@ -205,6 +201,7 @@ class AlertSystemService
             if ($inverter['voltage'] != "All is okay") $message = $message . "Error with the voltage in inverter ".$nameArray[$counter]."<br>";
             $counter ++;
         }
+
         if($message != "") {
             $status = new Status();
 
@@ -212,7 +209,7 @@ class AlertSystemService
 
             $ticket = null;
             if ($lastStatus != null) {
-                $ticketprox = $lastStatus[0]->getTickete();
+                $ticketprox = $lastStatus->getTickete();
                 if ($ticketprox != null) {
                     $id = $ticketprox->getId();
                     $ticket = $this->ticketRepo->findOneById($id);
@@ -362,7 +359,7 @@ class AlertSystemService
      */
     private static function RetrieveQuarterIst(string $stamp, ?string $inverter, Anlage $anlage){
         $conn = self::getPdoConnection();
-        $return['istdata'] = null;
+
         $sql = "SELECT wr_pac as ist, frequency as freq, wr_udc as voltage
                 FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
                 WHERE a.stamp = '$stamp' AND b.unit = '$inverter' ";
@@ -374,9 +371,9 @@ class AlertSystemService
             if ($pdata['ist'] == 0) $return['istdata'] =  "Power is 0";
             else if ($pdata['ist'] == null) $return['istdata'] = "No Data";
             else $return['istdata'] = "All is ok";
-            if ($pdata['frequency'] != null){
-                if (($pdata['frequency'] <= $anlage->getFreqBase()+$anlage->getFreqTolerance()) && ($pdata['frequency'] >= $anlage->getFreqBase()-$anlage->getFreqTolerance())) $return = "All is ok";
-                else $return = "Error with the frequency";
+            if ($pdata['freq'] != null){
+                if (($pdata['freq'] <= $anlage->getFreqBase()+$anlage->getFreqTolerance()) && ($pdata['freq'] >= $anlage->getFreqBase()-$anlage->getFreqTolerance())) $return['freq'] = "All is ok";
+                else $return['freq'] = "Error with the frequency";
             }
             else $return['freq'] = "No Data";
             if ($pdata['voltage'] != null){
@@ -385,7 +382,11 @@ class AlertSystemService
             }
             else $return['voltage'] = "No Data";
         }
-        else $return['istdata'] = "No data";
+        else{
+            $return['istdata'] = "No data";
+            $return['freq'] = "No Data";
+            $return['voltage'] = "No Data";
+        }
         return $return;
     }
 
