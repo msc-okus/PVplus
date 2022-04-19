@@ -66,7 +66,6 @@ class AlertSystemService
             }
 
         }
-        dd($status_report);
         return $status_report;
     }
 

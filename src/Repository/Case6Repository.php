@@ -44,10 +44,9 @@ class Case6Repository extends ServiceEntityRepository
             ->setParameter('from', $from)
             ->setParameter('to', $to)
             ->getQuery()
-
+            ->getArrayResult()
         ;
-        #dump($from, $to, $result);
-        return $result->getArrayResult();
+        return $result;
     }
 
     public function countCase6DayAnlage(Anlage $anlage, $day):int
