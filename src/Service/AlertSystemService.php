@@ -195,10 +195,12 @@ class AlertSystemService
         foreach($status_report as $inverter){
 
             if ($inverter['istdata'] != "All is ok") $message = $message . "Error with the power in inverter ".$nameArray[$counter]."<br>";
+            if($anlage->getHasFrequency()){
+                if ($inverter['freq'] != "All is ok") $message = $message . "Error with the frequency in inverter " . $nameArray[$counter] . "<br>";
+            }
 
-            if ($inverter['freq'] != "All is ok") $message = $message . "Error with the frequency in inverter ".$nameArray[$counter]."<br>";
+            if ($inverter['voltage'] != "All is okay") $message = $message . "Error with the voltage in inverter " . $nameArray[$counter] . "<br>";
 
-            if ($inverter['voltage'] != "All is okay") $message = $message . "Error with the voltage in inverter ".$nameArray[$counter]."<br>";
             $counter ++;
         }
 

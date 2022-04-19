@@ -144,6 +144,11 @@ class Ticket
      */
     private ?string $answer;
 
+    /**
+     * @ORM\Column(type="string", length=100, nullable=true)
+     */
+    private $inverter;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -436,6 +441,18 @@ class Ticket
     public function setAnswer(?string $Answer): self
     {
         $this->answer = $Answer;
+
+        return $this;
+    }
+
+    public function getInverter(): ?string
+    {
+        return $this->inverter;
+    }
+
+    public function setInverter(?string $inverter): self
+    {
+        $this->inverter = $inverter;
 
         return $this;
     }
