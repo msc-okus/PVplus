@@ -21,6 +21,7 @@ class AnlageModules
 
     /**
      * @ORM\Column(type="boolean")
+     * @deprecated
      */
     private bool $newExpected = false;
 
@@ -144,50 +145,6 @@ class AnlageModules
      */
     private string $degradation;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
-    private bool $disableIrrDiscount = false;
-
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
-    private string $irrDiscount1 = '0';
-
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
-    private string $irrDiscount2 = '0';
-
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
-    private string $irrDiscount3 = '0';
-
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
-    private string $irrDiscount4 = '0';
-
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
-    private string $irrDiscount5 = '0';
-
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
-    private string $irrDiscount6 = '0';
-
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
-    private string $irrDiscount7 = '0';
-
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
-    private string $irrDiscount8 = '0';
 
     public function __construct()
     {
@@ -198,24 +155,6 @@ class AnlageModules
     {
         return $this->id;
     }
-
-    public function getNewExpected(): bool
-    {
-        return $this->newExpected;
-    }
-
-    public function isNewExpected(): bool
-    {
-        return $this->newExpected;
-    }
-
-    public function setNewExpected(bool $newExpected): self
-    {
-        $this->newExpected = $newExpected;
-
-        return $this;
-    }
-
 
     public function getType(): ?string
     {
@@ -482,31 +421,12 @@ class AnlageModules
      */
     public function getFactorCurrent(float $irr): float
     {
-        if ($this->newExpected === true) {
-            if ($irr > 200) {
-                $expected = $this->getOperatorCurrentHighA() * $irr;
-            } else {
-                $expected = $this->getOperatorCurrentA() * $irr ** 4 + $this->getOperatorCurrentB() * $irr ** 3 + $this->getOperatorCurrentC() * $irr ** 2 + $this->getOperatorCurrentD() * $irr + $this->getOperatorCurrentE() ;
-            }
-            $expected = $expected > $this->maxImpp ? $this->maxImpp : $expected;
+        if ($irr > 200) {
+            $expected = $this->getOperatorCurrentHighA() * $irr;
         } else {
-            @list($a1, $b1, $c1) = explode(":", $this->getOperatorCurrentA());
-            ($b1 and $c1) ? $a = $a1 * $b1 ** $c1 : $a = $a1;
-
-            @list($a2, $b2, $c2) = explode(":", $this->getOperatorCurrentB());
-            ($b2 and $c2) ? $b = $a2 * $b2 ** $c2 : $b = $a2;
-
-            @list($a3, $b3, $c3) = explode(":", $this->getOperatorCurrentC());
-            ($b3 and $c3) ? $c = $a3 * $b3 ** $c3 : $c = $a3;
-
-            @list($a4, $b4, $c4) = explode(":", $this->getOperatorCurrentD());
-            ($b4 and $c4) ? $d = $a4 * $b4 ** $c4 : $d = $a4;
-
-            @list($a5, $b5, $c5) = explode(":", $this->getOperatorCurrentE());
-            ($b5 and $c5) ? $e = $a5 * $b5 ** $c5 : $e = $a5;
-
-            $expected = $irr > 0 ? ($a * $irr ** 4) + ($b * $irr ** 3) + ($c * $irr ** 2) + ($d * $irr) + $e : 0;
+            $expected = $this->getOperatorCurrentA() * $irr ** 4 + $this->getOperatorCurrentB() * $irr ** 3 + $this->getOperatorCurrentC() * $irr ** 2 + $this->getOperatorCurrentD() * $irr + $this->getOperatorCurrentE() ;
         }
+        $expected = $expected > $this->maxImpp ? $this->maxImpp : $expected;
 
         return $irr > 0 ? $expected : 0;
     }
@@ -520,31 +440,13 @@ class AnlageModules
      */
     public function getFactorPower(float $irr): float
     {
-        if ($this->newExpected === true) {
-            // New Algoritmen
-            if ($irr > 200) {
-                $expected = $this->getOperatorPowerHighA() * $irr + $this->getOperatorPowerHighB();
-            } else {
-                $expected = $this->getOperatorPowerA() * $irr ** 4 + $this->getOperatorPowerB() * $irr ** 3 + $this->getOperatorPowerC() * $irr ** 2 + $this->getOperatorPowerD() * $irr + $this->getOperatorPowerE() ;
-            }
-            $expected = $expected > $this->maxPmpp ? $this->maxPmpp : $expected;
-        } else {
-            // old Methode
-            @list($a1, $b1, $c1) = explode(":", $this->getOperatorPowerA());
-            ($b1 and $c1) ? $a = $a1 * $b1 ** $c1 : $a = $a1;
-            @list($a2, $b2, $c2) = explode(":", $this->getOperatorPowerB());
-            ($b2 and $c2) ? $b = $a2 * $b2 ** $c2 : $b = $a2;
-            @list($a3, $b3, $c3) = explode(":", $this->getOperatorPowerC());
-            ($b3 and $c3) ? $c = $a3 * $b3 ** $c3 : $c = $a3;
 
-            if ($this->getOperatorPowerD() === null) { // Operator D ist nicht eingeben => wir nutzen den alten Algorithmus
-                $expected = ($irr > 0) ? ($a * $irr ** 2) + ($b * $irr) + $c : 0;
-            } else {
-                @list($a4, $b4, $c4) = explode(":", $this->getOperatorPowerD());
-                ($b4 and $c4) ? $d = $a4 * $b4 ** $c4 : $d = $a4;
-                $expected = ($irr > 0) ? ($a * $irr ** 3) + ($b * $irr ** 2) + ($c * $irr) + $d : 0;
-            }
+        if ($irr > 200) {
+            $expected = $this->getOperatorPowerHighA() * $irr + $this->getOperatorPowerHighB();
+        } else {
+            $expected = $this->getOperatorPowerA() * $irr ** 4 + $this->getOperatorPowerB() * $irr ** 3 + $this->getOperatorPowerC() * $irr ** 2 + $this->getOperatorPowerD() * $irr + $this->getOperatorPowerE() ;
         }
+        $expected = $expected > $this->maxPmpp ? $this->maxPmpp : $expected;
 
         return $irr > 0 ? $expected : 0;
     }
@@ -611,106 +513,6 @@ class AnlageModules
         $this->degradation =  str_replace(',', '.', $degradation);
 
         return $this;
-    }
-
-    public function getDisableIrrDiscount(): bool
-    {
-        return $this->disableIrrDiscount;
-    }
-
-    public function setDisableIrrDiscount(bool $disableIrrDiscount): self
-    {
-        $this->disableIrrDiscount = $disableIrrDiscount;
-
-        return $this;
-    }
-
-    public function getIrrDiscount1(): ?float
-    {
-        return (float)$this->irrDiscount1;
-    }
-
-    public function setIrrDiscount1(string $irrDiscount1): self
-    {
-        $this->irrDiscount1 = str_replace(',', '.', $irrDiscount1);
-
-        return $this;
-    }
-
-    public function getIrrDiscount2(): ?float
-    {
-        return (float)$this->irrDiscount2;
-    }
-
-    public function setIrrDiscount2(string $irrDiscount2): self
-    {
-        $this->irrDiscount2 = str_replace(',', '.', $irrDiscount2);
-
-        return $this;
-    }
-
-    public function getIrrDiscount3(): ?float
-    {
-        return (float)$this->irrDiscount3;
-    }
-
-    public function setIrrDiscount3(string $irrDiscount3): self
-    {
-        $this->irrDiscount3 = str_replace(',', '.', $irrDiscount3);
-
-        return $this;
-    }
-
-    public function getIrrDiscount4(): ?float
-    {
-        return (float)$this->irrDiscount4;
-    }
-
-    public function setIrrDiscount4(string $irrDiscount4): self
-    {
-        $this->irrDiscount4 = str_replace(',', '.', $irrDiscount4);
-
-        return $this;
-    }
-
-    public function getIrrDiscount5(): float
-    {
-        return (float)$this->irrDiscount5;
-    }
-
-    public function setIrrDiscount5(string $irrDiscount5): void
-    {
-        $this->irrDiscount5 = str_replace(',', '.', $irrDiscount5);
-    }
-
-    public function getIrrDiscount6(): float
-    {
-        return (float)$this->irrDiscount6;
-    }
-
-    public function setIrrDiscount6(string $irrDiscount6): void
-    {
-        $this->irrDiscount6 = str_replace(',', '.', $irrDiscount6);
-    }
-
-    public function getIrrDiscount7(): float
-    {
-        return (float)$this->irrDiscount7;
-    }
-
-    public function setIrrDiscount7(string $irrDiscount7): void
-    {
-        $this->irrDiscount7 = str_replace(',', '.', $irrDiscount7);
-    }
-
-    public function getIrrDiscount8(): float
-    {
-        return (float)$this->irrDiscount8;
-    }
-
-    public function setIrrDiscount8(string $irrDiscount8): void
-    {
-        $this->irrDiscount8 = str_replace(',', '.', $irrDiscount8);
     }
 
 }

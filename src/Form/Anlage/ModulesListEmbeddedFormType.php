@@ -16,9 +16,6 @@ class ModulesListEmbeddedFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('newExpected', SwitchType::class, [
-                'label'         => 'New Expected Algorithm'
-            ])
             ->add('type',TextType::class, [
                 'label'     => 'Module Type'
             ])
@@ -106,43 +103,6 @@ class ModulesListEmbeddedFormType extends AbstractType
                 'label'         => 'B (>200W)',
                 'empty_data'    => '',
             ])
-            /*
-            ->add('disableIrrDiscount', SwitchType::class, [
-                'label'         => 'Disable Irradiation Discount'
-            ])
-            ->add('irrDiscount1',TextType::class, [
-                'label'         => 'Irr Discount 1-50',
-                'empty_data'    => '0',
-            ])
-            ->add('irrDiscount2',TextType::class, [
-                'label'         => 'Irr Discount 51-100',
-                'empty_data'    => '0',
-            ])
-            ->add('irrDiscount3',TextType::class, [
-                'label'         => 'Irr Discount 101-150',
-                'empty_data'    => '0',
-            ])
-            ->add('irrDiscount4',TextType::class, [
-                'label'         => 'Irr Discount 151-200',
-                'empty_data'    => '0',
-            ])
-            ->add('irrDiscount5',TextType::class, [
-                'label'         => 'Irr Discount 201-250',
-                'empty_data'    => '0',
-            ])
-            ->add('irrDiscount6',TextType::class, [
-                'label'         => 'Irr Discount 251-300',
-                'empty_data'    => '0',
-            ])
-            ->add('irrDiscount7',TextType::class, [
-                'label'         => 'Irr Discount 301-350',
-                'empty_data'    => '0',
-            ])
-            ->add('irrDiscount8',TextType::class, [
-                'label'         => 'Irr Discount 351-400',
-                'empty_data'    => '0',
-            ])
-            */
         ;
     }
 

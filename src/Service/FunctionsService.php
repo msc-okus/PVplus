@@ -611,10 +611,9 @@ class FunctionsService
         if ($irrLower < 0) $irrLower = 0;
         // Sensoren sind vertauscht, Werte tauschen
         if ($weatherStation->getChangeSensor()) {
-            $irrHelp = $irrLower;
-            $irrHelp = $irrLower;
+            $irrHelp  = $irrLower;
             $irrLower = $irrUpper;
-            $irrUpper =$irrHelp;
+            $irrUpper = $irrHelp;
         }
 
         // Rückfallwert sollte nichts anderes gefunden werden
@@ -625,11 +624,11 @@ class FunctionsService
         if ($group->getIrrLower()) $gwunten = $group->getIrrLower();
 
         // Werte aus Monat, wenn gesetzt
-        if($groupMonth) {
+        if ($groupMonth) {
             if ($groupMonth->getIrrUpper()) $gwoben = $groupMonth->getIrrUpper();
             if ($groupMonth->getIrrLower()) $gwunten = $groupMonth->getIrrLower();
         }
-        if($weatherStation->getHasUpper() && $weatherStation->getHasLower()){
+        if ($weatherStation->getHasUpper() && $weatherStation->getHasLower()){
             // Station hat oberen und unteren Sensor => Strahlung wird MIT Gewichtung zurückgegeben, es können trotzdem noch Verluste über die Verschattung berechnet werden
             $gewichtetStrahlung = $irrUpper * $gwoben + $irrLower * $gwunten;
         } elseif ($weatherStation->getHasUpper() && !$weatherStation->getHasLower()) {
