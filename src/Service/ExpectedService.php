@@ -139,7 +139,7 @@ class ExpectedService
                     elseif ($tempIrr <= 1000) {$shadow_loss = $shadow_loss * 0.8;}
 
 
-                    $pannelTemp     = (float)$weather["panel_temp"];   // Pannel Temperatur
+                    $pannelTemp = (float)$weather["panel_temp"];   // Pannel Temperatur
                     $irrUpper   = (float)$weather["irr_upper"]  - ((float)$weather["irr_upper"] / 100 * $shadow_loss);    // Strahlung an obern Sensor
                     $irrLower   = (float)$weather["irr_lower"]  - ((float)$weather["irr_lower"] / 100 * $shadow_loss);    // Strahlung an unterem Sensor
 
