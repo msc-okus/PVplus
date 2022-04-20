@@ -19,10 +19,12 @@ class WeatherServiceNew
     use G4NTrait;
     private DayLightDataRepository $dayrepo;
     private EntityManagerInterface $em;
-    public function __construct(DayLightDataRepository $dayrepo, EntityManagerInterface $em)
+    private AnlagenRepository $anlRepo;
+    public function __construct(DayLightDataRepository $dayrepo, EntityManagerInterface $em, AnlagenRepository $anlRepo)
     {
         $this->dayrepo = $dayrepo;
         $this->em = $em;
+        $this->anlRepo = $anlRepo;
     }
 
     public function loadWeatherDataUP(WeatherStation $weatherStation, $date = 0): string
@@ -168,7 +170,40 @@ class WeatherServiceNew
         }
         return true;
     }
-    public function getSunrise( $Anlagen)
+    public function calculateSunrise()
+    {
+        $Anlagen = $this->anlRepo->findAll();
+        $current_date = date("Y-m-d");
+        foreach ($Anlagen as $anlage) {
+
+            $daylight = $this->dayrepo->findOneByDate($current_date, $anlage);
+            if (!$daylight) {
+                $daylight = new DayLightData();
+                $lat = $anlage->getAnlGeoLat();
+                $lng = $anlage->getAnlGeoLon();
+
+                $offset = Timezones::getRawOffset(self::getNearestTimezone($lat, $lng, strtoupper($anlage->getCountry())));
+
+                $urli = "https://api.sunrise-sunset.org/json?lat=" . $lat . "&lng=" . $lng . "&date=today";
+                $contents = file_get_contents($urli);
+                $result = (array)json_decode($contents);
+                $clima = (array)$result['results'];
+
+                $offset = $offset - 3600;
+                $rise_time = strtotime(date('Y-m-d H:i', strtotime($clima['sunrise']) + 3600)) + $offset;
+                $set_time = strtotime(date('Y-m-d H:i', strtotime($clima['sunset']) + 3600)) + $offset;
+                $sunrise = date('Y-m-d H:i', $rise_time);
+                $sunset = date('Y-m-d H:i', $set_time);
+                $daylight->setSunrise($sunrise);
+                $daylight->setSunset($sunset);
+                $daylight->setAnlage($anlage);
+                $daylight->setDate($current_date);
+                $this->em->persist($daylight);
+                $this->em->flush();
+            }
+        }
+    }
+    public function getSunrise($Anlagen)
     {
         $current_date = date("Y-m-d");
         foreach($Anlagen as $anlage) {

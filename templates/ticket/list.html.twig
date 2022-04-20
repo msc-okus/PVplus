@@ -102,9 +102,9 @@
                         {% endif %}
                     </td>
                     <td>{{ ticket.editor }}</td>
-                    <td>{{ ticket.begin|date("Y-m-d h:i:s")}}</td>
-                    <td>{{ ticket.end|date("Y-m-d h:i:s") }}</td>
-                    <td>{{ ticket.updatedAt|date("Y-m-d/h:i:s")  }}</td>
+                    <td>{{ ticket.begin|date("Y-m-d H:i:s")}}</td>
+                    <td>{{ ticket.end|date("Y-m-d H:i:s") }}</td>
+                    <td>{{ ticket.updatedAt|date("Y-m-d/H:i:s")  }}</td>
                     <td class="text-right"> <a href=" {{ path('app_ticket_edit', { id: ticket.id }) }} "  class="hollow button tiny action-icon shadow"><span class="fa fa-edit"></span></a></td>
                 </tr>
 

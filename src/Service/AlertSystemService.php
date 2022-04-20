@@ -57,13 +57,13 @@ class AlertSystemService
                 $nameArray = $this->functions->getInverterArray($anlage);
                 $counter = 1;
                 foreach($nameArray as $inverterName) {
-
                     $inverter_status[$inverterName] = $this->IstData($anlage, $time, $counter);
+                    $message = self::AnalyzeIst($inverter_status, $time, $anlage, $nameArray, $sungap[$anlage->getanlName()]['sunrise']);
+                    self::messagingFunction($message, $anlage);
                     $counter++;
                 }
                 $status_report[$anlage->getAnlName()] = $inverter_status;
-                $message = self::AnalyzeIst($inverter_status, $time, $anlage, $nameArray, $sungap[$anlage->getanlName()]['sunrise']);
-                self::messagingFunction($message, $anlage);
+
             }
         }
         return $status_report;
