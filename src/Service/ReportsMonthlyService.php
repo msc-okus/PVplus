@@ -310,21 +310,22 @@ class ReportsMonthlyService
             // ownparams sind nötig um sie im Excelexport verwenden zu koennen (der Zugriff auf die Standartparams ist bei Excelexport nicht moeglich)
             'ownparams' => [
                 [
-                    'doctype' => 0,  //$docType,
-                    'footerType' => 'monthlyReport',
-                    'month' => $reportMonth,
-                    'year' => $reportMonth,
-                    'plant_name' => $anlage->getAnlName(),
-                    'plant_power' => $anlage->getPnom(),
-                    'projektid' => $anlage->getProjektNr(),
-                    'anlagenId' => $anlage->getAnlId(),
-                    'showAvailability' => $anlage->getShowAvailability(),
-                    'showAvailabilitySecond' => $anlage->getShowAvailabilitySecond(),
-                    'useGridMeterDayData' => $anlage->getUseGridMeterDayData(),
-                    'useEvu' => $anlage->getShowEvuDiag(),
-                    'showPvSyst' => $anlage->getShowPvSyst(),
-                    'showHeatAndTemperaturTable' => $showHeatAndTemperaturTable,
-                    'reportCreationDate'         => $date->format("Y-m-d H:m")
+                    'logoPath'                      => $anlage->getEigner()->getLogo(),
+                    'doctype'                       => 0,  //$docType,
+                    'footerType'                    => 'monthlyReport',
+                    'month'                         => $reportMonth,
+                    'year'                          => $reportYear,
+                    'plant_name'                    => $anlage->getAnlName(),
+                    'plant_power'                   => $anlage->getPnom(),
+                    'projektid'                     => $anlage->getProjektNr(),
+                    'anlagenId'                     => $anlage->getAnlId(),
+                    'showAvailability'              => $anlage->getShowAvailability(),
+                    'showAvailabilitySecond'        => $anlage->getShowAvailabilitySecond(),
+                    'useGridMeterDayData'           => $anlage->getUseGridMeterDayData(),
+                    'useEvu'                        => $anlage->getShowEvuDiag(),
+                    'showPvSyst'                    => $anlage->getShowPvSyst(),
+                    'showHeatAndTemperaturTable'    => $showHeatAndTemperaturTable,
+                    'reportCreationDate'            => date("Y-m-d H:i")
                 ],
             ],
         ];
