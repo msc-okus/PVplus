@@ -185,18 +185,19 @@ class WeatherServiceNew
 
                 $offset = Timezones::getRawOffset(self::getNearestTimezone($lat, $lng, strtoupper($anlage->getCountry())));
 
-                $urli = "https://api.sunrise-sunset.org/json?lat=" . $lat . "&lng=" . $lng . "&date=today";
+                $urli = "https://api.sunrise-sunset.org/json?lat=" . $lat . "&lng=" . $lng . "&date=".$current_date;
+
                 $contents = file_get_contents($urli);
                 $result = (array)json_decode($contents);
                 $clima = (array)$result['results'];
 
                 $offset = $offset - 3600;
-                $rise_time = strtotime(date('Y-m-d H:i', strtotime($clima['sunrise']) + 3600)) + $offset;
-                $set_time = strtotime(date('Y-m-d H:i', strtotime($clima['sunset']) + 3600)) + $offset;
-                $sunrise = date('Y-m-d H:i', $rise_time);
-                $sunset = date('Y-m-d H:i', $set_time);
-                $daylight->setSunrise($sunrise);
-                $daylight->setSunset($sunset);
+                $rise_time = strtotime(date('H:i', strtotime($clima['sunrise']) + 3600)) + $offset;
+                $set_time = strtotime(date('H:i', strtotime($clima['sunset']) + 3600)) + $offset;
+                $sunrise = date('H:i', $rise_time);
+                $sunset = date('H:i', $set_time);
+                $daylight->setSunrise($current_date." ".$sunrise);
+                $daylight->setSunset($current_date." ".$sunset);
                 $daylight->setAnlage($anlage);
                 $daylight->setDate($current_date);
                 $this->em->persist($daylight);

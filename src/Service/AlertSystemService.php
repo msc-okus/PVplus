@@ -52,25 +52,32 @@ class AlertSystemService
         $sungap = $this->weather->getSunrise($Anlagen);
 
         foreach($Anlagen as $anlage){
-            if (($anlage->getCalcPR() == true) && (($time > $sungap[$anlage->getanlName()]['sunrise']) && ($time < $sungap[$anlage->getAnlName()]['sunset']))) {
-                $status = new Status;
-                $nameArray = $this->functions->getInverterArray($anlage);
-                $counter = 1;
-                foreach($nameArray as $inverterName) {
-                    $inverter_status = $this->IstData($anlage, $time, $counter);
-                    $message = self::AnalyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap[$anlage->getanlName()]['sunrise']);
-                    self::messagingFunction($message, $anlage);
-                    $counter++;
-                    $system_status[$inverterName] = $inverter_status;
-                    unset($inverter_status);
+            if($anlage->getAnlId()=="106"||$anlage->getAnlId()=="102" || $anlage->getAnlId()=="47" || $anlage->getAnlId()=="107" || $anlage->getAnlId()=="84") {
+
+
+                if (($anlage->getCalcPR() == true) && (($time > $sungap[$anlage->getanlName()]['sunrise']) && ($time < $sungap[$anlage->getAnlName()]['sunset']))) {
+                    $status = new Status;
+                    $nameArray = $this->functions->getInverterArray($anlage);
+                    $counter = 1;
+
+                    foreach ($nameArray as $inverterName) {
+                        $inverter_status = $this->IstData($anlage, $time, $counter);
+                        $message = self::AnalyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap[$anlage->getanlName()]['sunrise']);
+
+                        self::messagingFunction($message, $anlage);
+                        $counter++;
+                        $system_status[$inverterName] = $inverter_status;
+                        unset($inverter_status);
+                    }
+
+                    $status->setAnlage($anlage);
+                    $status->setStamp($time);
+                    $status->setStatus($system_status);
+                    $status->setIsWeather(false);
+                    $this->em->persist($status);
+                    $this->em->flush();
+                    unset($system_status);
                 }
-                $status->setAnlage($anlage);
-                $status->setStamp($time);
-                $status->setStatus($system_status);
-                $status->setIsWeather(false);
-                $this->em->persist($status);
-                $this->em->flush();
-                unset($system_status);
             }
         }
         return "success";
@@ -169,7 +176,6 @@ class AlertSystemService
             }
         }
         else if ($ticket != null){
-            //closing the ticket
             $timetempend = date('Y-m-d H:i:s', strtotime($time)-900);
             $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
             $end->getTimestamp();
@@ -202,8 +208,7 @@ class AlertSystemService
             if($anlage->getHasFrequency()){
                 if ($inverter['freq'] != "All is ok") $message = $message . "Error with the frequency in inverter " . $nameArray . "<br>";
             }
-
-            if ($inverter['voltage'] != "All is okay") $message = $message . "Error with the voltage in inverter " . $nameArray . "<br>";
+            if ($inverter['voltage'] != "All is ok") $message = $message . "Error with the voltage in inverter " . $nameArray . "<br>";
 
         if($message != "") {
             $ticket = self::getLastTicket($anlage, $nameArray, $time, $sunrise);
@@ -213,7 +218,7 @@ class AlertSystemService
                 $ticket->setStatus(10);
                 $ticket->setErrorType("SFOR");
                 $ticket->setEditor("Alert system");
-                $ticket->setDescription("Error with the Data of the Inverter");
+                $ticket->setDescription($message);
                 $ticket->setSystemStatus(10);
                 $ticket->setPriority(10);
                 $ticket->setInverter($nameArray);
@@ -235,7 +240,7 @@ class AlertSystemService
 
         }
         else {
-            $ticket = self::getLastTicket($anlage, $nameArray, $time);
+            $ticket = self::getLastTicket($anlage, $nameArray, $time, $sunrise);
             if($ticket!=null){
                 $ticket->setStatus(30);
                 $this->em->persist($ticket);
