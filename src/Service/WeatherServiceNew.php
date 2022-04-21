@@ -99,10 +99,10 @@ class WeatherServiceNew
                     $zeit = $out[1];
                     $date = $out[2];
                     $sqlstamp = '20' . substr($date, 6, 2) . '-' . substr($date, 3, 2) . '-' . substr($date, 0, 2) . " $zeit";
-                    $at_avg = $out[5];
-                    $pt_avg = $out[19];
-                    $gi_avg = $out[16];
-                    $gmod_avg = $out[13];
+                    $at_avg = $out[10];  // Ambient (Luft) Temperature
+                    $pt_avg = $out[19];  // Pannel Temperature
+                    $gi_avg = $out[7];   // unterer Sensor
+                    $gmod_avg = $out[6]; // oberer Sensor
                     $wind = 0;
                     if ($gi_avg < 0) $gi_avg = 0;
                     if ($gmod_avg < 0) $gmod_avg = 0;

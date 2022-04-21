@@ -237,8 +237,6 @@ class AvailabilityService
                 }
             }
 
-            dump($case6Array);
-
             while ($einstrahlung = $resultEinstrahlung->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = $einstrahlung['stamp'];
                 if ($anlage->getIsOstWestAnlage()) {
@@ -409,7 +407,6 @@ class AvailabilityService
             $sumPart1   += $invAPart1;
             $sumPart2   += $invAPart2;
             $pa         += $invAPart3;
-            #dump("Inverter: $inverterNr | Part1: $invAPart1 | Part2: $invAPart2 | Part3: $invAPart3");
         }
 
         return $inverter === null ? $pa : $sumPart1;

@@ -197,9 +197,9 @@ class WeatherStation
         return $this;
     }
 
-    public function gettimeZoneWeatherStation(): ?string
+    public function gettimeZoneWeatherStation(): ?int
     {
-        return $this->timeZoneWeatherStation;
+        return (int)$this->timeZoneWeatherStation;
     }
 
     public function settimeZoneWeatherStation(string $timeZoneWeatherStation): self

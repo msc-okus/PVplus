@@ -54,7 +54,7 @@ class IrradiationChartService
                 $irr_lower = (float)str_replace(',', '.', $ro["gi"]);
                 if($hour) $irr_lower = $irr_lower/4;
                 if (!$irr_lower) $irr_lower = 0;
-                $stamp = self::timeAjustment(strtotime($ro["stamp"]), (int)$anlage->getAnlZeitzoneIr());
+                $stamp = self::timeAjustment(strtotime($ro["stamp"]), $anlage->getWeatherStation()->gettimeZoneWeatherStation());
                 if ($anlage->getAnlIrChange() == "Yes") {
                     $swap = $irr_lower;
                     $irr_lower = $irr_upper;
