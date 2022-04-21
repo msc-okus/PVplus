@@ -80,5 +80,32 @@ class TicketRepository extends ServiceEntityRepository
             ->getOneOrNullResult()
         ;
     }
+    public function findByAIT($anlage, $inverter, $time){
+        $result = $this->createQueryBuilder('t')
+            ->andWhere('t.end = :end')
+            ->andWhere('t.anlage = :anl')
+            ->andWhere('t.inverter = :inv')
+            ->setParameter('end', $time)
+            ->setParameter('anl', $anlage)
+            ->setParameter('inv',$inverter)
+            ->getQuery();
+        return $result->getResult();
+    }
+
+    public function findLastByAIT($anlage, $inverter, $today, $yesterday){
+        $result = $this->createQueryBuilder('t')
+            ->andWhere('t.end < :today')
+            ->andWhere('t.end > :yesterday')
+            ->andWhere('t.anlage = :anl')
+            ->andWhere('t.inverter = :inv')
+            ->setParameter('today', $today)
+            ->setParameter('yesterday', $yesterday)
+            ->setParameter('anl', $anlage)
+            ->setParameter('inv',$inverter)
+            ->orderBy('s.stamp', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery();
+        return $result->getResult();
+    }
 
 }

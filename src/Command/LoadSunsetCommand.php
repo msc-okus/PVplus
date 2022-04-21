@@ -21,6 +21,7 @@ class LoadSunsetCommand extends Command
     private WeatherServiceNew $weatherService;
 
     public function __construct(WeatherServiceNew $weatherService){
+        parent::__construct();
         $this->weatherService = $weatherService;
     }
 

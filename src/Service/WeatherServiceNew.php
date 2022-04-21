@@ -173,7 +173,8 @@ class WeatherServiceNew
     public function calculateSunrise()
     {
         $Anlagen = $this->anlRepo->findAll();
-        $current_date = date("Y-m-d");
+        $current_date = date("Y-m-d",strtotime(date("Y-m-d H:m"))+86400);
+
         foreach ($Anlagen as $anlage) {
 
             $daylight = $this->dayrepo->findOneByDate($current_date, $anlage);

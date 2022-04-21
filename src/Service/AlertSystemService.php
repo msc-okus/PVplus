@@ -53,20 +53,27 @@ class AlertSystemService
 
         foreach($Anlagen as $anlage){
             if (($anlage->getCalcPR() == true) && (($time > $sungap[$anlage->getanlName()]['sunrise']) && ($time < $sungap[$anlage->getAnlName()]['sunset']))) {
-                $inverter_status = null;
+                $status = new Status;
                 $nameArray = $this->functions->getInverterArray($anlage);
                 $counter = 1;
                 foreach($nameArray as $inverterName) {
-                    $inverter_status[$inverterName] = $this->IstData($anlage, $time, $counter);
-                    $message = self::AnalyzeIst($inverter_status, $time, $anlage, $nameArray, $sungap[$anlage->getanlName()]['sunrise']);
+                    $inverter_status = $this->IstData($anlage, $time, $counter);
+                    $message = self::AnalyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap[$anlage->getanlName()]['sunrise']);
                     self::messagingFunction($message, $anlage);
                     $counter++;
+                    $system_status[$inverterName] = $inverter_status;
+                    unset($inverter_status);
                 }
-                $status_report[$anlage->getAnlName()] = $inverter_status;
-
+                $status->setAnlage($anlage);
+                $status->setStamp($time);
+                $status->setStatus($system_status);
+                $status->setIsWeather(false);
+                $this->em->persist($status);
+                $this->em->flush();
+                unset($system_status);
             }
         }
-        return $status_report;
+        return "success";
     }
 
     public function checkWeatherStation(){
@@ -189,35 +196,17 @@ class AlertSystemService
      * @param $nameArray
      * @return string
      */
-    private function AnalyzeIst($status_report, $time, $anlage, $nameArray, $sunrise){
+    private function AnalyzeIst($inverter, $time, $anlage, $nameArray, $sunrise){
         $message = "";
-        $counter = 1;
-        foreach($status_report as $inverter){
-
-            if ($inverter['istdata'] != "All is ok") $message = $message . "Error with the power in inverter ".$nameArray[$counter]."<br>";
+            if ($inverter['istdata'] != "All is ok") $message = $message . "Error with the power in inverter ".$nameArray."<br>";
             if($anlage->getHasFrequency()){
-                if ($inverter['freq'] != "All is ok") $message = $message . "Error with the frequency in inverter " . $nameArray[$counter] . "<br>";
+                if ($inverter['freq'] != "All is ok") $message = $message . "Error with the frequency in inverter " . $nameArray . "<br>";
             }
 
-            if ($inverter['voltage'] != "All is okay") $message = $message . "Error with the voltage in inverter " . $nameArray[$counter] . "<br>";
-
-            $counter ++;
-        }
+            if ($inverter['voltage'] != "All is okay") $message = $message . "Error with the voltage in inverter " . $nameArray . "<br>";
 
         if($message != "") {
-            $status = new Status();
-
-            $lastStatus = self::getLastStatus($anlage, $time, $sunrise, false);
-
-            $ticket = null;
-            if ($lastStatus != null) {
-                $ticketprox = $lastStatus->getTickete();
-                if ($ticketprox != null) {
-                    $id = $ticketprox->getId();
-                    $ticket = $this->ticketRepo->findOneById($id);
-
-                }
-            }
+            $ticket = self::getLastTicket($anlage, $nameArray, $time, $sunrise);
             if ($ticket == null) {
                 $ticket = new Ticket();
                 $ticket->setAnlage($anlage);
@@ -227,6 +216,7 @@ class AlertSystemService
                 $ticket->setDescription("Error with the Data of the Inverter");
                 $ticket->setSystemStatus(10);
                 $ticket->setPriority(10);
+                $ticket->setInverter($nameArray);
                 $timetemp = date('Y-m-d H:i:s', strtotime($time));
                 $begin = date_create_from_format('Y-m-d H:i:s', $timetemp);
                 $begin->getTimestamp();
@@ -236,14 +226,8 @@ class AlertSystemService
             $end = date_create_from_format('Y-m-d H:i:s', $timetemp);
             $end->getTimestamp();
             $ticket->setEnd(($end));
-            $status->setAnlage($anlage);
-            $status->setStamp($time);
-            $status->setStatus($status_report);
-            $status->setIsWeather(false);
-            $status->setTickete($ticket);
             $this->em->persist($ticket);
-            $this->em->persist($status);
-            $this->em->flush();
+            //$this->em->flush();
 
             if (date_diff($end, $ticket->getBegin(), true)->m != 30) {
                 $message = "";
@@ -251,18 +235,7 @@ class AlertSystemService
 
         }
         else {
-            $timeq1 = date('Y-m-d H:i:s', strtotime($time) - 900);
-            $status_q1 = $this->statusRepo->findOneByanlageDate($anlage, $timeq1, false);
-
-            $ticket = null;
-            if ($status_q1 != null) {
-                $ticketprox = $status_q1->getTickete();
-                if ($ticketprox != null) {
-                    $id = $ticketprox->getId();
-                    $ticket = $this->ticketRepo->findOneById($id);
-
-                }
-            }
+            $ticket = self::getLastTicket($anlage, $nameArray, $time);
             if($ticket!=null){
                 $ticket->setStatus(30);
                 $this->em->persist($ticket);
@@ -363,9 +336,8 @@ class AlertSystemService
         $conn = self::getPdoConnection();
 
         $sql = "SELECT wr_pac as ist, frequency as freq, wr_udc as voltage
-                FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
-                WHERE a.stamp = '$stamp' AND b.unit = '$inverter' ";
-
+                FROM " . $anlage->getDbNameIst() . " 
+                WHERE stamp = '$stamp' AND unit = '$inverter' ";
         $resp = $conn->query($sql);
 
         if ($resp->rowCount() > 0) {
@@ -417,12 +389,23 @@ class AlertSystemService
         $time = date('Y-m-d H:i:s', strtotime($date) - 900);
         $yesterday = date('Y-m-d', strtotime($date) - 86400); // this is the date of yesterday
         $today = date('Y-m-d', strtotime($date));
-        if($time < $sunrise){
+        if($time <= $sunrise){
             $status = $this->statusRepo->findLastOfDay($anlage, $yesterday,$today, $isWeather);
         }
         else {
             $status = $this->statusRepo->findOneByanlageDate($anlage, $time, $isWeather);
         }
         return $status;
+    }
+    public function getLastTicket($anlage, $inverter, $time, $sunrise){
+        $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
+        $today = date('Y-m-d', strtotime($time));
+        $quarter = date('Y-m-d H:i:s', strtotime($time) - 900);
+        if($time <= $sunrise){
+            $ticket = $this->ticketRepo->findLastByAIT($anlage, $inverter, $today, $yesterday);
+        }
+        else $ticket = $this->ticketRepo->findByAIT($anlage, $inverter, $quarter);
+        if ($ticket != null)  return $ticket[0];
+        else return null;
     }
 }
