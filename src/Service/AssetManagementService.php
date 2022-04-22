@@ -864,12 +864,12 @@ class AssetManagementService
         //beginn chart
         # $chart->tooltip->show = true;
         # $chart->tooltip->trigger = 'item';
-
+       // dd($dataMonthArray, $difference_Egrid_to_Expected_G4n);
         $chart->xAxis = array(
             'type' => 'category',
             'axisLabel' => array(
                 'show' => true,
-                'margin' => '0',
+                'margin' => '10',
             ),
             'splitArea' => array(
                 'show' => true,
@@ -880,7 +880,7 @@ class AssetManagementService
             'type' => 'value',
             'name' => 'KWH',
             'nameLocation' => 'middle',
-            'nameGap' => 80
+            'nameGap' => 70
         );
         if ($anlage->hasPVSYST()) {
             if ($anlage->hasGrid()) {
@@ -973,21 +973,22 @@ class AssetManagementService
                 ],
             'grid' =>
                 array(
-                    'height' => '80%',
+                    'height' => '70%',
                     'top' => 50,
-                    'width' => '100%',
-                    'left' => 100
+                    'width' => '90%',
                 ),
         );
 
 
         $chart->setOption($option);
 
-        $losses_year = $chart->render('losses_yearly', ['style' => 'height: 450px; width:23cm;']);
+        $losses_year = $chart->render('losses_yearly', ['style' => 'height: 450px; width: 23cm;']);
+        dump($losses_year);
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
         $chart->series = [];
+
         unset($option);
         //End Cumulative Losses
 
@@ -2413,6 +2414,7 @@ class AssetManagementService
         $chart->setOption($option);
 
         $losses_monthly = $chart->render('losses_monthly', ['style' => 'height: 450px; width:23cm;']);
+        //dd($losses_monthly);
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];

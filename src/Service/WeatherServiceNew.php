@@ -173,36 +173,29 @@ class WeatherServiceNew
     public function calculateSunrise()
     {
         $Anlagen = $this->anlRepo->findAll();
-        $current_date = date("Y-m-d",strtotime(date("Y-m-d H:m"))+900);
-
+        $current_date = date("Y-m-d",time()+900);
         foreach ($Anlagen as $anlage) {
 
             //$daylight = $this->dayrepo->findOneByDate($current_date, $anlage);
             if (true) {
                 $daylight = new DayLightData();
-                $lat = $anlage->getAnlGeoLat();
-                $lng = $anlage->getAnlGeoLon();
-
-                $offset = Timezones::getRawOffset(self::getNearestTimezone($lat, $lng, strtoupper($anlage->getCountry())));
-
-                $urli = "https://api.sunrise-sunset.org/json?lat=" . $lat . "&lng=" . $lng . "&date=".$current_date;
-                $contents = file_get_contents($urli);
-                $result = (array)json_decode($contents);
-
-                $clima = (array)$result['results'];
-
-                $offset = $offset - 3600;
-                $rise_time = strtotime(date('H:i', strtotime($clima['sunrise']) + 3600)) + $offset;
-                $set_time = strtotime(date('H:i', strtotime($clima['sunset']) + 3600)) + $offset;
-
-                $sunrise = date('H:i', $rise_time);
-                $sunset = date('H:i', $set_time);
-                dump($sunrise, $sunset);
+                $lat = (float)$anlage->getAnlGeoLat();
+                $lng = (float)$anlage->getAnlGeoLon();
+                $offset = Timezones::getRawOffset(self::getNearestTimezone($lat, $lng, strtoupper($anlage->getCountry())))/3600;
+                $sunrisedata = date_sun_info(date_create_from_format('Y-m-d H:m', $current_date),  $lat, $lng);
+                dump($anlage->getAnlName());
+                $sunrise = date("H:i",$sunrisedata['astronomical_twilight_begin'] + 3600);
+                $sunset = date("H:i",$sunrisedata['astronomical_twilight_end'] + 3600);
+                dump($sunrise, $sunset, $offset);
+/*
                 $daylight->setSunrise($current_date." ".$sunrise);
                 $daylight->setSunset($current_date." ".$sunset);
                 $daylight->setAnlage($anlage);
                 $daylight->setDate($current_date);
-
+                $this->em->persist($daylight);
+                dump($daylight);
+                //$this->em->flush();
+*/
             }
         }
         dd("fertig");
