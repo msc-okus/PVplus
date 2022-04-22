@@ -5,6 +5,8 @@
     <div >
         <p><sup>1</sup> The net capacity factor is the unitless ratio of an actual electrical energy output over a given period of time to the maximum possible electrical energy output over that period.<br></p>
         <img width="130" src="{{ absolute_url(asset('goldbeck/reports/asset_management/cf.png')) }}"></td>
+        <p><sup>2</sup> <b>Availability: </b></p>
+        <p>Data gaps are evaluated as available; Pac > 0; Irradiation > <b>{{ anlage.getThreshold2PA }}</b> W/m<sup>2</sup>; CosPhi{% if(anlage.getUseCosPhi)%}<b> >= </b>{% else %} <b> ><span>&#8800;</span> </b>{% endif %} 0</p>
         <br>{{ comments|raw }}<br>
     </div>
 
