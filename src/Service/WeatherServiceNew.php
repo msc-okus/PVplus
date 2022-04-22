@@ -173,7 +173,7 @@ class WeatherServiceNew
     public function calculateSunrise()
     {
         $Anlagen = $this->anlRepo->findAll();
-        $current_date = date("Y-m-d",strtotime(date("Y-m-d H:m"))+86400);
+        $current_date = date("Y-m-d",strtotime(date("Y-m-d H:m")));
 
         foreach ($Anlagen as $anlage) {
 
@@ -186,6 +186,7 @@ class WeatherServiceNew
                 $offset = Timezones::getRawOffset(self::getNearestTimezone($lat, $lng, strtoupper($anlage->getCountry())));
 
                 $urli = "https://api.sunrise-sunset.org/json?lat=" . $lat . "&lng=" . $lng . "&date=today";
+               // dd($urli);
                 $contents = file_get_contents($urli);
                 $result = (array)json_decode($contents);
                 $clima = (array)$result['results'];
