@@ -50,13 +50,9 @@ class AlertSystemService
         $time = G4NTrait::timeAjustment($time, -2);
         $status_report = false;
         $sungap = $this->weather->getSunrise($Anlagen);
-        dump($sungap);
         foreach($Anlagen as $anlage){
             if($anlage->getAnlId()=="106"||$anlage->getAnlId()=="102" || $anlage->getAnlId()=="47" || $anlage->getAnlId()=="107" || $anlage->getAnlId()=="84") {
-                //dump("entro1", ($anlage->getCalcPR() == true), (($time > $sungap[$anlage->getanlName()]['sunrise']) && ($time < $sungap[$anlage->getAnlName()]['sunset'])), $time, $sungap[$anlage->getAnlName()]['sunset'], $sungap[$anlage->getanlName()]['sunrise']);
-
                 if (($anlage->getCalcPR() == true) && (($time > $sungap[$anlage->getanlName()]['sunrise']) && ($time < $sungap[$anlage->getAnlName()]['sunset']))) {
-                    //dump("entro2");
                     $status = new Status;
                     $nameArray = $this->functions->getInverterArray($anlage);
                     $counter = 1;
