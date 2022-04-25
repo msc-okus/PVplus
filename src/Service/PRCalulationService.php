@@ -533,7 +533,8 @@ class PRCalulationService
      *  $result['irradiation']<br>
      *  $result['availability']<br>
      *  $result['availability2'] (not Ready)<br>
-     *  $result['anzCase5'] (proof)<br>
+     *  $result['anzCase5'] (prove)<br>
+     *  $result['tCellAvg'] (prove)<br>
      *
      * @param Anlage $anlage
      * @param DateTime $startDate
@@ -663,6 +664,7 @@ class PRCalulationService
         $result['availability']      = $availability;
         $result['availability2']     = $availability2; // NOT Ready
         $result['anzCase5']          = $anzCase5PerDay;
+        $result['tCellAvg']          = (float)$weather['panelTempAvg'];
 
         return $result;
     }
