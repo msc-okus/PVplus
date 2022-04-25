@@ -66,7 +66,7 @@ class ACPowerChartsService
                 }
                 while ($rowExp = $resExp->fetch(PDO::FETCH_ASSOC)) {
                     $stamp = self::timeShift($anlage, $rowExp["stamp"]);
-                    $stampAdjust = self::timeAjustment($stamp, $anlage->getAnlZeitzone());
+                    $stampAdjust = self::timeAjustment($rowExp["stamp"], $anlage->getAnlZeitzone());
                     $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
 
                     $rowExp["soll"] > 0 ? $expectedInvOut = round($rowExp["soll"], 2) : $expectedInvOut = 0; // neagtive Werte auschließen
@@ -208,7 +208,7 @@ class ACPowerChartsService
             foreach ($expectedArray as $rowExp) {
                 $stamp = $rowExp["stamp"];
                 $rowExp['soll'] == null || $rowExp['soll'] < 0 ? $expected = 0 : $expected = $rowExp['soll'];
-                $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
+                $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $rowExp["stamp"]);
                 $counterInv = 1;
                 if ($hour) {
                     $endStamp = date('Y-m-d H:i', strtotime($stamp) + 3600);
@@ -321,7 +321,7 @@ class ACPowerChartsService
 
                 while ($rowExp = $resultExpected->fetch(PDO::FETCH_ASSOC)) {
                     $stamp = self::timeShift($anlage, $rowExp["stamp"]);
-                    $stampAdjust = self::timeAjustment($stamp, $anlage->getAnlZeitzone());
+                    $stampAdjust = self::timeAjustment($rowExp["stamp"], $anlage->getAnlZeitzone());
                     $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
 
                     $dataArray['chart'][$counter]['date'] = $stampAdjust;
