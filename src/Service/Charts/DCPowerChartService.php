@@ -67,7 +67,7 @@ class DCPowerChartService
             $counter = 0;
             while ($rowExp = $resultExpected->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = self::timeShift($anlage, $rowExp["stamp"]);
-                $stampAdjust = self::timeAjustment($stamp, $anlage->getAnlZeitzone());
+                $stampAdjust = self::timeAjustment($rowExp["stamp"], $anlage->getAnlZeitzone());
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
                 $soll = round($rowExp["soll"], 2);
                 if ($soll !== null) {

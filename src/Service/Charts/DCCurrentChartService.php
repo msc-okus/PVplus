@@ -74,7 +74,10 @@ class DCCurrentChartService
             foreach ($expectedResult as $rowSoll) {
                 $stamp = $rowSoll['stamp'];
                 $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
-                $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stampAdjust);
+                $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
+
+                //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
+                $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
 
                 if (!(($rowSoll['expected'] == 0) && (self::isDateToday($stampAdjust) && self::getCetTime() - strtotime($stampAdjust) < 7200))) {
                     switch ($anlage->getConfigType()) {
@@ -90,8 +93,7 @@ class DCCurrentChartService
                 }
 
                 if ($hour) {
-                    $stampAdjustTo = date('Y-m-d H:m:s', strtotime($stampAdjust) + 3600);
-                    $wherePart1 = "stamp >= '$stampAdjust' AND stamp < '$stampAdjustTo'";
+                    $wherePart1 = "stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'";
                 } else {
                     $wherePart1 = "stamp = '$stampAdjust' ";
                 }
@@ -233,8 +235,8 @@ class DCCurrentChartService
                 $stamp = $row['stamp'];
                 $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
-                //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
 
+                //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
                 $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
 
                 $row['sollCurrent'] > 0 ? $currentExp = round($row['sollCurrent'], 2) : $currentExp = 0;
