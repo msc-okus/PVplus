@@ -41,7 +41,7 @@ class DefaultJMController extends AbstractController
     /**
      * @Route("/default/test/check", name="default_check")
      */
-    public function check(WeatherServiceNew $service){
-        $service->calculateSunrise();
-    }
+    public function check(AlertSystemService $service){
+        $service->checkSystem();
+        dd("fertig");    }
 }
