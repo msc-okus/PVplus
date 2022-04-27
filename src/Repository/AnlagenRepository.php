@@ -181,6 +181,16 @@ class AnlagenRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function findAllByEigner($eigner)
+    {
+        return $this->createQueryBuilder('a')
+            ->andWhere("a.anlHidePlant = 'No'")
+            ->andWhere('a.eignerId = :eigner')
+            ->setParameter('eigner', $eigner)
+            ->getQuery()
+            ->getResult();
+    }
+
     /**
      * @return Anlage[]
      */
