@@ -37,6 +37,16 @@ class PvSystMonthListEmbeddedFormType extends AbstractType
                 'empty_data'    => '',
                 'required'      => false,
             ])
+            ->add('tempAmbientDesign',  TextType::class, [
+                'label'         => 'Temp Ambient',
+                'empty_data'    => '',
+                'required'      => false,
+            ])
+            ->add('tempArrayAvgDesign',  TextType::class, [
+                'label'         => 'Temp Array AVG',
+                'empty_data'    => '',
+                'required'      => false,
+            ])
         ;
     }
 

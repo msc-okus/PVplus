@@ -278,14 +278,14 @@ class DefaultMREController extends BaseController
     }
 
     /**
-     * @Route ("/test/epc/{id}/{raw}", defaults={"id"=93, "raw"=false})
+     * @Route ("/test/epc/{id}/{raw}", defaults={"id"=94, "raw"=true})
      */
     public function testNewEpc($id, $raw, AnlagenRepository $anlagenRepository, FunctionsService $functions, ReportEpcPRNewService $epcNew): Response
     {
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
 
-        $date = date_create("2021-12-01");
+        $date = date_create("2022-02-01 00:00");
 
         $monthTable = $epcNew->monthTable($anlage, $date);
 
@@ -302,14 +302,15 @@ class DefaultMREController extends BaseController
                 'availabilitys' => '',
                 'output'        => $output,
             ]);
+        } else {
+            return $this->render('report/epcReport.html.twig', [
+                'anlage' => $anlage,
+                'monthsTable' => $monthTable,
+                #'forcast'           => $forcastTable,
+                'legend' => $anlage->getLegendEpcReports(),
+                # 'chart1'            => $chartYieldPercenDiff,
+                #'chart2'            => $chartYieldCumulativ,
+            ]);
         }
-        return $this->render('report/epcReport.html.twig', [
-            'anlage'            => $anlage,
-            'monthsTable'       => $monthTable,
-            #'forcast'           => $forcastTable,
-            'legend'            => $anlage->getLegendEpcReports(),
-           # 'chart1'            => $chartYieldPercenDiff,
-            #'chart2'            => $chartYieldCumulativ,
-        ]);
     }
 }

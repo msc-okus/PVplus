@@ -360,6 +360,7 @@ class AnlagenAdminController extends BaseController
                   `e_z_evu` varchar(20) DEFAULT NULL,
                   `temp_corr` varchar(20) DEFAULT NULL,
                   `theo_power` varchar(20) DEFAULT NULL,
+                  `temp_cell` VARCHAR(20) DEFAULT NULL,
                   `wr_mpp_current` json NOT NULL,
                   `wr_mpp_voltage` json NOT NULL,
                   `irr_anlage` json NOT NULL,

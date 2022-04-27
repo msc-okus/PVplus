@@ -47,7 +47,7 @@ class AcGroupsListEmbeddedFormType extends AbstractType
                 'required'      => false,
                 'choices'       => ['Yes' => '1', 'No' => '0'],
                 'help'          => '[isEastWestGroup]',
-                'empty_data'    => false,
+                'empty_data'    => '0',
             ])
             ->add('gewichtungAnlagenPR', TextType::class, [
                 'required'      => false,
