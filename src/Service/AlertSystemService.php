@@ -193,7 +193,8 @@ class AlertSystemService
      */
     private function AnalyzeIst($inverter, $time, $anlage, $nameArray, $sunrise){
         $message = "";
-            if ($inverter['istdata'] != "All is ok") $message = $message . "Error with the power in inverter ".$nameArray."<br>";
+            if ($inverter['istdata'] == "No Data") $message .=  "Data gap at inverter(Power)  ".$nameArray."<br>";
+            elseif ($inverter['istdata'] == "Power is 0") $message .=  "No power at inverter " .$nameArray."<br>";
             if($anlage->getHasFrequency()){
                 if ($inverter['freq'] != "All is ok") $message = $message . "Error with the frequency in inverter " . $nameArray . "<br>";
             }
