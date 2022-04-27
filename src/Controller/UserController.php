@@ -25,7 +25,7 @@ class UserController extends BaseController
      * @Route("/admin/user/new", name="app_admin_user_new")
      * @IsGranted("ROLE_G4N")
      */
-    public function new(EntityManagerInterface $em, Request $request, UserPasswordEncoderInterface $passwordEncoder)
+    public function new(EntityManagerInterface $em, Request $request, UserPasswordEncoderInterface $passwordEncoder): Response
     {
         $form = $this->createForm(UserFormType::class);
 
@@ -91,7 +91,7 @@ class UserController extends BaseController
      * @Route("/admin/user/edit/{id}", name="app_admin_user_edit")
      * @IsGranted("ROLE_G4N")
      */
-    public function edit($id, EntityManagerInterface $em, Request $request, UserRepository $userRepository, UserPasswordEncoderInterface $passwordEncoder)
+    public function edit($id, EntityManagerInterface $em, Request $request, UserRepository $userRepository, UserPasswordEncoderInterface $passwordEncoder): Response
     {
         $user = $userRepository->find($id);
         $form = $this->createForm(UserFormType::class, $user);
@@ -127,7 +127,7 @@ class UserController extends BaseController
     /**
      * @Route("/user/find", name="app_admin_user_find", methods="GET")
      */
-    public function find(UserRepository $userRepo, Request $request)
+    public function find(UserRepository $userRepo, Request $request): Response
     {
 
         $user = $userRepo->findByAllMatching($request->query->get('query'));

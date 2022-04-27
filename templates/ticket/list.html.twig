@@ -19,16 +19,15 @@
 
         <div class="grid-x grid-margin-x align-middle">
             <div class="cell medium-2" style="margin-top:-17px!important;">
-                <input type="text" name="anlage" class="js-autocomplete-anlagen input-group-field" data-autocomplete-url="/admin/anlagen/find" value="{{ anlagep }}" placeholder="Insert the Plant">
+                <input type="text" name="anlage" class="input-group-field js-autocomplete-plant" value="{{ anlage }}" placeholder="Search plants">
             </div>
-
             <div  class="cell medium-2"  style="margin-top:-17px!important;">
-                <input type="text" name="user" class="js-autocomplete-user input-group-field" data-autocomplete-url="/admin/user/find" value="{{ userp }}" placeholder="Insert the Editor">
+                <input type="text" name="user" class="input-group-field js-autocomplete-user" value="{{ user }}" placeholder="Search Editor">
             </div>
             <div class="cell medium-2 "  style="margin-top:-17px!important;">
-                <input type="text" name="id" class="input-group-field" value="{{ id }}" placeholder="Insert the Ticket Id">
+                <input type="text" name="id" class="input-group-field" value="{{ id }}" placeholder="Search Ticket Id">
             </div>
-            <div class="cell medium-2">
+            <div class="cell medium-1">
                 <select name="prio" >
                     <option value="00"> Priority </option>
                     <option value="10" {% if prio == '10' %} selected {% endif %}>Low</option>
@@ -37,12 +36,20 @@
                     <option value="40" {% if prio == '40' %} selected {% endif %}>Urgent</option>
                 </select>
             </div>
-            <div class="cell medium-2">
+            <div class="cell medium-1">
                 <select name="searchstatus" >
                     <option value="00"> Status </option>
                     <option value="10" {% if status == '10' %} selected {% endif %}>Open</option>
                     <option value="20" {% if status == '20' %} selected {% endif %}>Work in Progress</option>
                     <option value="30" {% if status == '30' %} selected {% endif %}>Closed</option>
+                </select>
+            </div>
+            <div class="cell medium-1">
+                <select name="searchtype" >
+                    <option value="00"> Alert Type </option>
+                    <option value="10" {% if status == '10' %} selected {% endif %}>Data GAP's</option>
+                    <option value="20" {% if status == '20' %} selected {% endif %}>grid error</option>
+                    <option value="30" {% if status == '30' %} selected {% endif %}>inverter error</option>
                 </select>
             </div>
             <h4> </h4>
@@ -69,6 +76,9 @@
             <th {% if pagination.isSorted('ticket.end') %} class="sorted"{% endif %}>
                 {{ knp_pagination_sortable(pagination, 'End', ['ticket.end']) }}</th>
             <th>Last Update</th>
+            <th>Data GAP</th>
+            <th></th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
@@ -105,6 +115,17 @@
                     <td>{{ ticket.begin|date("Y-m-d H:i:s")}}</td>
                     <td>{{ ticket.end|date("Y-m-d H:i:s") }}</td>
                     <td>{{ ticket.updatedAt|date("Y-m-d/H:i:s")  }}</td>
+                    <td>
+                        <select name="data-gap">
+                            <option>unresolved</option>
+                            <option>confirmed</option>
+                            <option>downtime</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button type="button" class="button small alert action-icon">confirm</button>
+                        <button type="button" class="button small success action-icon">decline</button>
+                    </td>
                     <td class="text-right"> <a href=" {{ path('app_ticket_edit', { id: ticket.id }) }} "  class="hollow button tiny action-icon shadow"><span class="fa fa-edit"></span></a></td>
                 </tr>
 

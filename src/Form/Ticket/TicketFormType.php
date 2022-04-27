@@ -54,8 +54,6 @@ class TicketFormType extends AbstractType
                     'label' => 'Plant name ',
                     'attr' => [
                         'readonly' => true,
-                        'class' => 'js-autocomplete-anlagen input-group-field',
-                        'data-autocomplete-url' => '/admin/anlagen/find'
                     ]
                 ])
                 ->add('begin', DateTimeType::class, [
@@ -89,18 +87,22 @@ class TicketFormType extends AbstractType
             ->add('freeText', CKEditorType::class, [
                 'config' => array('toolbar' => 'my_toolbar'),
             ])
-            ->add('description', TextareaType::class, [
+            /*
+           ->add('description', CKEditorType::class, [
+               'label' => 'Description',
+               'disabled' => true,
+           ])
 
-            ])
-            ->add('systemStatus', ChoiceType::class, [
-                'label' => 'Select the status of the system',
-                'choices' => [
-                    'test' => 10,
-                    'test2' => 20
-                ],
-                'required' => true,
-                'placeholder' => 'Please Choose ...'
-            ])
+           ->add('systemStatus', ChoiceType::class, [
+               'label' => 'Select the status of the system',
+               'choices' => [
+                   'test' => 10,
+                   'test2' => 20
+               ],
+               'required' => true,
+               'placeholder' => 'Please Choose ...'
+           ])
+           */
             ->add('priority', ChoiceType::class, [
                 'label' => 'Select the priority',
                 'choices' => [

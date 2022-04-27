@@ -104,7 +104,7 @@ class AnlagenController extends BaseController
     }
 
     /**
-     * @Route("/anlagen/find", name="app_admin_reports_find", methods="GET")
+     * @Route("/anlagen/find", name="app_plants_find", methods="GET")
      */
     public function find(AnlagenRepository $anlagenRepository, Request $request): JsonResponse
     {

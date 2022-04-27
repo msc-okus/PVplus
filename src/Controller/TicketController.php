@@ -35,7 +35,7 @@ class TicketController extends BaseController
     /**
      * @Route("/ticket/create", name="app_ticket_create")
      */
-    public function create(EntityManagerInterface $em, Request $request)
+    public function create(EntityManagerInterface $em, Request $request): Response
     {
         $session=$this->container->get('session');
         $searchstatus = $session->get('search');
@@ -66,13 +66,13 @@ class TicketController extends BaseController
         }
         return $this->render('ticket/create.html.twig',[
             'ticketForm'=>$form->createView()
-    ]);
+        ]);
     }
 
     /**
      * @Route("/ticket/edit/{id}", name="app_ticket_edit")
      */
-    public function edit($id, TicketRepository $ticketRepo, EntityManagerInterface $em, Request $request)
+    public function edit($id, TicketRepository $ticketRepo, EntityManagerInterface $em, Request $request): Response
     {
         $session=$this->container->get('session');
         $ticket = $ticketRepo->find($id);
@@ -118,7 +118,7 @@ class TicketController extends BaseController
      */
     public function list (TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request): Response
     {
-        $session=$this->container->get('session');
+        $session = $this->container->get('session');
         $tickets = $ticketRepo->findAll();
         //Reading data from request
         if($request->query->get('anlage')!=null & $request->query->get('anlage')!="")$anlage = $request->query->get('anlage');
@@ -127,7 +127,7 @@ class TicketController extends BaseController
         if($request->query->get('id')!=null)$id = $request->query->get('id');
         if($request->query->get('prio')!=null)$prio = $request->query->get('prio');
 
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilder($searchstatus,$editor,$anlage, $id, $prio);
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilder($searchstatus, $editor, $anlage, $id, $prio);
         $pagination = $paginator->paginate(
             $queryBuilder,                                    /* query NOT result */
             $request->query->getInt('page', 1),   /* page number*/
@@ -142,8 +142,8 @@ class TicketController extends BaseController
         return $this->render('ticket/list.html.twig',[
             'pagination' => $pagination,
             'ticket'     => $tickets,
-            'anlagep'    => $anlage,
-            'userp'      => $editor,
+            'anlage'     => $anlage,
+            'user'       => $editor,
             'status'     => $searchstatus,
             'id'         => $id,
             'prio'       => $prio,
