@@ -11,7 +11,7 @@
         {{ form_row(userForm.username) }}
         {{ form_row(userForm.plainPassword) }}
         {{ form_row(userForm.email) }}
-        {{ form_row(userForm.level) }}
+        {#  {{ form_row(userForm.level) }}#}
     </div>
     <div class="cell small-6 medium-4">
         <fieldset class="fieldset">
@@ -19,13 +19,16 @@
             {{ form_widget(userForm.roles) }}
         </fieldset>
     </div>
+    {#
     <div class="cell small-6 medium-3">
         <fieldset class="fieldset">
             <legend>List with Access to Owners</legend>
             {{ form_widget(userForm.eigners) }}
         </fieldset>
-        {{ form_row(userForm.grantedList) }}
+
     </div>
+    #}
+    <div class="cell small-6 medium-3"> {{ form_row(userForm.grantedList) }}</div>
 </div>
 
 <div class="grid-x grid-padding-y action-menu">
@@ -35,6 +38,7 @@
         {{ form_widget(userForm.close) }}
     </div>
 </div>
+<div style="visibility: hidden"> {{ form_rest(userForm) }}</div>
 {{ form_end(userForm) }}
 
 

@@ -29,7 +29,7 @@
                             {{ form_row(ticketForm.priority) }}
                         </div>
                         <div class="cell medium-12 small-12">
-                            {{ form_row(ticketForm.description) }}
+                            {{ form_row(ticketForm.description|raw) }}
                             {{ form_row(ticketForm.freeText) }}
                             {{ form_row(ticketForm.answer) }}
                         </div>

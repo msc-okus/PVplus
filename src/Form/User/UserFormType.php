@@ -4,6 +4,7 @@ namespace App\Form\User;
 
 use App\Entity\Eigner;
 use App\Entity\User;
+use App\Repository\AnlagenRepository;
 use Doctrine\DBAL\Types\BooleanType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -20,12 +21,22 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class UserFormType extends AbstractType
 {
+    private AnlagenRepository $repo;
+    public function __construct( AnlagenRepository $repo){
+        $this->repo = $repo;
+    }
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
 
         /** @var User $user */
         $user = $options['data'] ?? null;
         $isEdit = $user && $user->getUserId();
+        $anlagen = [];
+        if ($user != null){
+            $eigner = $user->getEigners()->getValues()[0];
+            $anlagen = $this->repo->findAllByEigner($eigner);
+            //dd($anlagen);
+        }
 
         $builder
             ->add('username', TextType::class, [
@@ -62,12 +73,19 @@ class UserFormType extends AbstractType
                 'expanded'      => true,
                 'choice_label'  => 'firma',
                 'by_reference'  => false,
-            ])
-            ->add('grantedList', TextType::class, [
+            ])            ->add('grantedList', TextType::class, [
                 'label'         => 'List with IDs of granted facilities',
                 'empty_data'    => '',
             ])
+            /*
 
+
+            ->add('grantedList', ChoiceType::class,[
+                'choices' => $anlagen,
+                'expanded' => true,
+                'multiple' => true
+            ])
+*/
 
             ##############################################
             ####          STEUERELEMENTE              ####

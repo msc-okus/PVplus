@@ -30,7 +30,7 @@ class MessageService
     public function sendMessage(Anlage $anlage, $eventType, $alertType, $subject, $message, $attachedFiles = false, $g4nAlert = true, $g4nAdmin = false, $upAlert = false)
     {
         $alertEmailG4n = new Address('jm@green4net.com', 'PV+ Alert Email');
-        $adminEmailG4n = new Address('admin@g4npvplus.de', 'PV+ Admin Email');
+        $adminEmailG4n = new Address('mr@green4net.com', 'PV+ Admin Email');
         $alertEmailKast = new Address('t.recke@upgmbh.com', 'Tobias Recke');
         $to = '';
 
@@ -77,9 +77,9 @@ class MessageService
 
             if ($upAlert && false) { // temporär abgeschaltet
                 if ($to == '' || $to == 'G4N') {
-                    $email->to($alertEmailKast);
+                    //$email->to($alertEmailKast);
                 } else {
-                    $email->addCc($alertEmailKast);
+                    //$email->addCc($alertEmailKast);
                 }
                 $to .= 'UP Alert';
             }
@@ -93,7 +93,7 @@ class MessageService
                 $to .= 'G4N';
             }
             if ($g4nAdmin) {
-                $email->addBcc($adminEmailG4n);
+                $email->addCc($adminEmailG4n);
             }
 
             $this->mailer->send($email);
