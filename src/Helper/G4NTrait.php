@@ -355,6 +355,7 @@ trait G4NTrait
      */
     public function printArrayAsTable(array $content): string
     {
+        $precision = 4;
         $_html = "<div class='table-scroll'><table style='font-size: 90%'>";
         $_counter = 0;
         $_html .= "<thead>";
@@ -371,7 +372,7 @@ trait G4NTrait
             $_html .= "<tr><td>$key</td>";
             foreach ($contentRow as $cell) {
                 if (is_float($cell)){
-                    $_html .= "<td>" . round($cell,6) . "</td>";
+                    $_html .= "<td>" . round($cell,$precision) . "</td>";
                 } else {
                     $_html .= "<td>$cell</td>";
                 }

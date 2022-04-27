@@ -38,7 +38,7 @@ include_once __DIR__ . '/tablechart_fields.tmpl';
 ?>
 <html>
 <head>
-    <title>Goldbeck monthly Report</title>
+    <title>Monthly Report</title>
     <link href='/scss/report-epc.css' rel="stylesheet" type="text/css">
 </head>
 

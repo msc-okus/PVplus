@@ -49,6 +49,16 @@ class AnlagenPvSystMonth
     private string $irrDesign;
 
     /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private string $tempAmbientDesign;
+
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private string $tempArrayAvgDesign;
+
+    /**
      * @ORM\Column(type="integer")
      */
     private int $month;
@@ -114,6 +124,30 @@ class AnlagenPvSystMonth
     public function setIrrDesign(?string $irrDesign): self
     {
         $this->irrDesign = $irrDesign;
+
+        return $this;
+    }
+
+    public function getTempAmbientDesign(): float
+    {
+        return (float)$this->tempAmbientDesign;
+    }
+
+    public function setTempAmbientDesign(string $tempAmbientDesign): self
+    {
+        $this->tempAmbientDesign = $tempAmbientDesign;
+
+        return $this;
+    }
+
+    public function getTempArrayAvgDesign(): float
+    {
+        return (float)$this->tempArrayAvgDesign;
+    }
+
+    public function setTempArrayAvgDesign(string $tempArrayAvgDesign): self
+    {
+        $this->tempArrayAvgDesign = $tempArrayAvgDesign;
 
         return $this;
     }

@@ -30,7 +30,8 @@
         <td>{{ form_widget(pvsyst.irrDesign) }}</td>
         <td>{{ form_widget(pvsyst.prDesign) }}</td>
         <td>{{ form_widget(pvsyst.ertragDesign) }}</td>
-
+        <td>{{ form_widget(pvsyst.tempAmbientDesign) }}</td>
+        <td>{{ form_widget(pvsyst.tempArrayAvgDesign) }}</td>
         <td></td>
     </tr>
 {% endmacro %}
@@ -358,6 +359,8 @@
                                         <th>Irradiation design [kWh/qm]</th>
                                         <th>PR design [%]</th>
                                         <th>Yield design [kW/h]</th>
+                                        <th>Temp. Ambient Design</th>
+                                        <th>Temp. Array AVG Design</th>
                                         <th></th>
                                     </tr>
                                     </thead>
@@ -368,6 +371,8 @@
                                             <td>{{ form_widget(pvsyst.irrDesign) }}</td>
                                             <td>{{ form_widget(pvsyst.prDesign) }}</td>
                                             <td>{{ form_widget(pvsyst.ertragDesign) }}</td>
+                                            <td>{{ form_widget(pvsyst.tempAmbientDesign) }}</td>
+                                            <td>{{ form_widget(pvsyst.tempArrayAvgDesign) }}</td>
                                             <td>{% if is_granted('ROLE_DEV') %}<a href="#" class="js-remove-pvsyst"><span class="fa fa-minus-circle"></span></a>{% endif %}</td>
                                         </tr>
                                     {% endfor %}

@@ -2585,6 +2585,8 @@ class Anlage
                 'prDesign'  => $month->getPrDesign(),
                 'ertragDesign' => $month->getErtragDesign(),
                 'irrDesign' => $month->getIrrDesign(),
+                'tempAmbDesign' => $month->getTempAmbientDesign(),
+                'tempAmbWeightedDesign' => $month->getTempArrayAvgDesign(),
             ];
         }
 

@@ -13,6 +13,7 @@ use App\Repository\Case5Repository;
 use App\Service\AvailabilityService;
 use App\Service\ExportService;
 use App\Service\FunctionsService;
+use App\Service\ReportEpcPRNewService;
 use App\Service\ReportEpcService;
 use App\Service\ReportsEpcNewService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -277,23 +278,23 @@ class DefaultMREController extends BaseController
     }
 
     /**
-     * @Route ("/test/epc/{id}/{raw}", defaults={"id"=93, "raw"=false})
+     * @Route ("/test/epc/{id}/{raw}", defaults={"id"=94, "raw"=true})
      */
-    public function testNewEpc($id, $raw, AnlagenRepository $anlagenRepository, FunctionsService $functions, ReportsEpcNewService $epcNew): Response
+    public function testNewEpc($id, $raw, AnlagenRepository $anlagenRepository, FunctionsService $functions, ReportEpcPRNewService $epcNew): Response
     {
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
 
-        $date = date_create("2021-12-01");
+        $date = date_create("2022-02-01 00:00");
 
         $monthTable = $epcNew->monthTable($anlage, $date);
 
-        $forcastTable = $epcNew->forcastTable($anlage, $monthTable, $date);
-        $chartYieldPercenDiff = $epcNew->chartYieldPercenDiff($anlage, $monthTable, $date);
-        $chartYieldCumulativ = $epcNew->chartYieldCumulative($anlage, $monthTable, $date);
+        #$forcastTable = $epcNew->forcastTable($anlage, $monthTable, $date);
+        #$chartYieldPercenDiff = $epcNew->chartYieldPercenDiff($anlage, $monthTable, $date);
+        #$chartYieldCumulativ = $epcNew->chartYieldCumulative($anlage, $monthTable, $date);
 
-        $output = $functions->printArrayAsTable($forcastTable);
-        $output .= $functions->print2DArrayAsTable($monthTable);
+        #$output = $functions->printArrayAsTable($forcastTable);
+        $output = $functions->print2DArrayAsTable($monthTable);
 
         if ($raw) {
             return $this->render('cron/showResult.html.twig', [
@@ -301,14 +302,15 @@ class DefaultMREController extends BaseController
                 'availabilitys' => '',
                 'output'        => $output,
             ]);
+        } else {
+            return $this->render('report/epcReport.html.twig', [
+                'anlage' => $anlage,
+                'monthsTable' => $monthTable,
+                #'forcast'           => $forcastTable,
+                'legend' => $anlage->getLegendEpcReports(),
+                # 'chart1'            => $chartYieldPercenDiff,
+                #'chart2'            => $chartYieldCumulativ,
+            ]);
         }
-        return $this->render('report/epcReport.html.twig', [
-            'anlage'            => $anlage,
-            'monthsTable'       => $monthTable,
-            'forcast'           => $forcastTable,
-            'legend'            => $anlage->getLegendEpcReports(),
-            'chart1'            => $chartYieldPercenDiff,
-            'chart2'            => $chartYieldCumulativ,
-        ]);
     }
 }
