@@ -803,27 +803,27 @@ class Anlage
     /**
      * @ORM\Column(type="boolean")
      */
-    private $RetrieveAllData = false;
+    private bool $RetrieveAllData = false;
 
     /**
      * @ORM\OneToMany(targetEntity=DayLightData::class, mappedBy="anlage")
      */
-    private $dayLightData;
+    private Collection $dayLightData;
 
     /**
      * @ORM\Column(type="string")
      */
-    private $FreqTolerance = 0;
+    private float $freqTolerance = 0.0;
 
     /**
      * @ORM\Column(type="string")
      */
-    private $FreqBase = 50;
+    private int $freqBase = 50;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $hasFrequency = false;
+    private bool $hasFrequency = false;
 
 
     public function __construct()
@@ -3410,24 +3410,24 @@ class Anlage
 
     public function getFreqTolerance(): ?int
     {
-        return $this->FreqTolerance;
+        return $this->freqTolerance;
     }
 
-    public function setFreqTolerance(int $FreqTolerance): self
+    public function setFreqTolerance(int $freqTolerance): self
     {
-        $this->FreqTolerance = $FreqTolerance;
+        $this->freqTolerance = $freqTolerance;
 
         return $this;
     }
 
     public function getFreqBase(): ?int
     {
-        return $this->FreqBase;
+        return $this->freqBase;
     }
 
-    public function setFreqBase(int $FreqBase): self
+    public function setFreqBase(int $freqBase): self
     {
-        $this->FreqBase = $FreqBase;
+        $this->freqBase = $freqBase;
 
         return $this;
     }

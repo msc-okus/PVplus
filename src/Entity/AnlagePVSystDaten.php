@@ -26,7 +26,7 @@ class AnlagePVSystDaten
     /**
      * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="anlagePVSystDatens")
      */
-    private $anlage;
+    private Anlage $anlage;
 
     /**
      * @ORM\Column(type="string", length=20)
