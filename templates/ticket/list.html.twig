@@ -76,6 +76,8 @@
             <th {% if pagination.isSorted('ticket.end') %} class="sorted"{% endif %}>
                 {{ knp_pagination_sortable(pagination, 'End', ['ticket.end']) }}</th>
             <th>Last Update</th>
+            <th>Alert Type</th>
+            <th>Inverter</th>
             <th>Data GAP</th>
             <th></th>
             <th></th>
@@ -83,52 +85,52 @@
         </thead>
         <tbody>
         {% for ticket in pagination %}
-
-                <tr>
-                    <td>{{ ticket.id }}</td>
-                    <td>{{ ticket.anlage.anlName }}</td>
-                    {% if is_granted('ROLE_G4N') %}  <td>{{ ticket.anlage.anlId }}</td> {% endif %}
-                    <td>{% if ticket.status == 10 %}
-                        Open
-                        {% endif %}
-                        {% if ticket.status == 20 %}
-                        Work in progress
-                        {% endif %}
-                        {% if ticket.status == 30 %}
-                        Closed
-                        {% endif %}
-                    </td>
-                    <td>{% if ticket.priority == 10 %}
-                            Low
-                        {% endif %}
-                        {% if ticket.priority == 20 %}
-                            Normal
-                        {% endif %}
-                        {% if ticket.priority == 30 %}
-                            High
-                        {% endif %}
-                        {% if ticket.priority == 40 %}
-                            Urgent
-                        {% endif %}
-                    </td>
-                    <td>{{ ticket.editor }}</td>
-                    <td>{{ ticket.begin|date("Y-m-d H:i:s")}}</td>
-                    <td>{{ ticket.end|date("Y-m-d H:i:s") }}</td>
-                    <td>{{ ticket.updatedAt|date("Y-m-d/H:i:s")  }}</td>
-                    <td>
-                        <select name="data-gap">
-                            <option>unresolved</option>
-                            <option>confirmed</option>
-                            <option>downtime</option>
-                        </select>
-                    </td>
-                    <td>
-                        <button type="button" class="button small alert action-icon">confirm</button>
-                        <button type="button" class="button small success action-icon">decline</button>
-                    </td>
-                    <td class="text-right"> <a href=" {{ path('app_ticket_edit', { id: ticket.id }) }} "  class="hollow button tiny action-icon shadow"><span class="fa fa-edit"></span></a></td>
-                </tr>
-
+            <tr>
+                <td>{{ ticket.id }}</td>
+                <td>{{ ticket.anlage.anlName }}</td>
+                {% if is_granted('ROLE_G4N') %}  <td>{{ ticket.anlage.anlId }}</td> {% endif %}
+                <td>{% if ticket.status == 10 %}
+                    Open
+                    {% endif %}
+                    {% if ticket.status == 20 %}
+                    Work in progress
+                    {% endif %}
+                    {% if ticket.status == 30 %}
+                    Closed
+                    {% endif %}
+                </td>
+                <td>{% if ticket.priority == 10 %}
+                        Low
+                    {% endif %}
+                    {% if ticket.priority == 20 %}
+                        Normal
+                    {% endif %}
+                    {% if ticket.priority == 30 %}
+                        High
+                    {% endif %}
+                    {% if ticket.priority == 40 %}
+                        Urgent
+                    {% endif %}
+                </td>
+                <td>{{ ticket.editor }}</td>
+                <td>{{ ticket.begin|date("Y-m-d H:i")}}</td>
+                <td>{{ ticket.end|date("Y-m-d H:i") }}</td>
+                <td>{{ ticket.updatedAt|date("Y-m-d H:i")  }}</td>
+                <td>{{ ticket.errorType }}</td>
+                <td>{{ ticket.inverter }}</td>
+                <td>
+                    <select name="data-gap">
+                        <option>unresolved</option>
+                        <option>confirmed</option>
+                        <option>downtime</option>
+                    </select>
+                </td>
+                <td>
+                    <button type="button" class="button small alert action-icon shadow">confirm</button>
+                    <button type="button" class="button small success action-icon shadow">outage</button>
+                </td>
+                <td class="text-right"> <a href=" {{ path('app_ticket_edit', { id: ticket.id }) }} "  class="hollow button tiny action-icon shadow"><span class="fa fa-edit"></span></a></td>
+            </tr>
         {% endfor %}
         </tbody>
     </table>

@@ -51,6 +51,7 @@ class DCCurrentChartService
         switch ($anlage->getConfigType()) {
             case 1:
             case 3:
+            case 4:
                 # z.B. Gronningen
                 $groupQuery = "group_ac = '$group' ";
                 $nameArray = $this->functions->getNameArray($anlage, 'ac');
@@ -97,10 +98,17 @@ class DCCurrentChartService
                 } else {
                     $wherePart1 = "stamp = '$stampAdjust' ";
                 }
-                if ($anlage->getUseNewDcSchema()) {
-                    $sql = "SELECT sum(wr_idc) as istCurrent FROM " . $anlage->getDbNameDCIst() . " WHERE " . $wherePart1 . " AND $groupQuery group by date_format(stamp, '$form'), wr_num;";
-                } else {
-                    $sql = "SELECT sum(wr_idc) as istCurrent FROM " . $anlage->getDbNameACIst() . " WHERE " . $wherePart1 . " AND $groupQuery group by date_format(stamp, '$form'), group_dc;";
+                switch ($anlage->getConfigType()) {
+                    case 1:
+                    case 2:
+                        $sql = "SELECT sum(wr_idc) as istCurrent FROM " . $anlage->getDbNameACIst() . " WHERE " . $wherePart1 . " AND $groupQuery group by date_format(stamp, '$form'), group_dc;";
+                        break;
+                    case 3:
+                        $sql = "SELECT sum(wr_idc) as istCurrent FROM " . $anlage->getDbNameDCIst() . " WHERE " . $wherePart1 . " AND $groupQuery group by date_format(stamp, '$form'), wr_num;";
+                        break;
+                    case 4:
+                        $sql = "SELECT sum(wr_idc) as istCurrent FROM " . $anlage->getDbNameDCIst() . " WHERE " . $wherePart1 . " AND $groupQuery group by date_format(stamp, '$form');";
+                        break;
                 }
                 $resultAct = $conn->query($sql);
                 $inverterCount = 1;

@@ -270,6 +270,7 @@ class ReportEpcService
                         // für das Einfärben der Zeile des aktuellen Monats
                         $currentMonthClass = "current-month";
                         $prArrayFormel = $this->PRCalulation->calcPR($anlage, $anlage->getEpcReportStart(), date_create($to));
+                        #if ($currentMonth == 4 && $currentYear == 2022) dd($currentMonth, $currentYear, $prArrayFormel);
                         if ($anlage->getUseGridMeterDayData()){
                             $formelEnergy   = $prArrayFormel['powerEGridExt'];
                             $formelPR       = $prArrayFormel['prEGridExt'];

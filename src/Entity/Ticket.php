@@ -147,7 +147,9 @@ class Ticket
     /**
      * @ORM\Column(type="string", length=100, nullable=true)
      */
-    private $inverter;
+    private ?string $inverter;
+
+
 
     public function getId(): ?int
     {
