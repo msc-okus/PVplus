@@ -14,16 +14,15 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class AlertController extends BaseController
 {
-    private $urlGenerator;
+    private UrlGeneratorInterface $urlGenerator;
 
     public function __construct(UrlGeneratorInterface $urlGenerator)
     {
         $this->urlGenerator = $urlGenerator;
     }
-    /**
-     * @Route("/alert/send", name="app_alert_send")
-     */
-    public function sendAlertMessages(AnlagenStatusRepository $anlagenStatusRepository, EignerRepository $ownerRepository, AnlagenRepository $anlagenRepository) {
+    #[Route(path: '/alert/send', name: 'app_alert_send')]
+    public function sendAlertMessages(AnlagenStatusRepository $anlagenStatusRepository, EignerRepository $ownerRepository, AnlagenRepository $anlagenRepository)
+    {
         $owners = $ownerRepository->findAll();
         foreach ($owners as $owner) {
             $anlagen = $anlagenRepository->findBy([
@@ -37,7 +36,7 @@ class AlertController extends BaseController
                 ]);
             }
         }
-
-        return;// new RedirectResponse($this->urlGenerator->generate('app_home'));
+        return;
+        // new RedirectResponse($this->urlGenerator->generate('app_home'));
     }
 }

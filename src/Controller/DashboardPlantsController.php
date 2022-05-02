@@ -21,10 +21,10 @@ class DashboardPlantsController extends BaseController
     use G4NTrait;
 
     /**
-     * @Route("/dashboard/plants/{eignerId}/{anlageId}", name="app_dashboard_plant")
      * @throws Exception
      */
-    public function index($eignerId, $anlageId, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService, EntityManagerInterface $entityManager, AvailabilityService $availabilityService): Response
+    #[Route(path: '/dashboard/plants/{eignerId}/{anlageId}', name: 'app_dashboard_plant')]
+    public function index($eignerId, $anlageId, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService, EntityManagerInterface $entityManager, AvailabilityService $availabilityService) : Response
     {
         $hour = "";
         $form = [];
@@ -55,7 +55,6 @@ class DashboardPlantsController extends BaseController
             $form['optionDate'] = 1;
             $form['hour'] = false;
         }
-
         // Verarbeitung der Case 5 Ereignisse
         if ($request->request->get('mysubmit') === 'yes' || $request->request->get('addCase5') === 'addCase5') {
             if ($request->request->get('addCase5') === 'addCase5'){
@@ -100,13 +99,10 @@ class DashboardPlantsController extends BaseController
             // bei den PA und PR Diagramm werden immer mindestens 7 Tage angezeigt
 
         }
-
-
         $content = null;
         $hour = $request->get('hour') == "on";
         if ($aktAnlage) $content = $chartService->getGraphsAndControl($form, $aktAnlage,$hour);
         $isInTimeRange = self::isInTimeRange();
-
         return $this->render('dashboardPlants/plantsShow.html.twig', [
             'anlagen'       => $anlagen,
             'aktAnlage'     => $aktAnlage,

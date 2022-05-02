@@ -29,10 +29,8 @@ use Symfony\Component\Security\Core\Security;
 class AnlagenAdminController extends BaseController
 {
     use G4NTrait;
-    /**
-     * @Route("/admin/anlagen/new", name="app_admin_anlagen_new")
-     */
-    public function new(EntityManagerInterface $em, Request $request): RedirectResponse|Response
+    #[Route(path: '/admin/anlagen/new', name: 'app_admin_anlagen_new')]
+    public function new(EntityManagerInterface $em, Request $request) : RedirectResponse|Response
     {
         $form = $this->createForm(AnlageNewFormType::class);
         $form->handleRequest($request);
@@ -52,49 +50,40 @@ class AnlagenAdminController extends BaseController
             $this->addFlash('warning', 'Canceled. No data was saved.');
             return $this->redirectToRoute('app_admin_anlagen_list');
         }
-                return $this->render('anlagen/new.html.twig', [
-                    'anlageForm'   => $form->createView(),
-                ]);
+        return $this->render('anlagen/new.html.twig', [
+            'anlageForm'   => $form->createView(),
+        ]);
     }
 
-    /**
-     * @Route("/admin/anlagen/list", name="app_admin_anlagen_list")
-     */
-    public function list(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository): Response
+    #[Route(path: '/admin/anlagen/list', name: 'app_admin_anlagen_list')]
+    public function list(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository) : Response
     {
         $q = $request->query->get('qp');
         if ($request->query->get('search') == 'yes' && $q == '') $request->getSession()->set('qp', '');
         if ($q) $request->getSession()->set('qp', $q);
-
         if ($q == "" && $request->getSession()->get('qp') != "") {
             $q = $request->getSession()->get('qp');
             $request->query->set('qp', $q);
         }
-
         $queryBuilder = $anlagenRepository->getWithSearchQueryBuilder($q);
-
         $pagination = $paginator->paginate(
             $queryBuilder, /* query NOT result */
             $request->query->getInt('page', 1), /*page number*/
             15                                         /*limit per page*/
         );
-
         return $this->render('anlagen/list.html.twig', [
             'pagination' => $pagination,
         ]);
     }
 
 
-    /**
-     * @Route("/admin/anlagen/edit/{id}", name="app_admin_anlagen_edit")
-     */
-    public function edit($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository): RedirectResponse|Response
+    #[Route(path: '/admin/anlagen/edit/{id}', name: 'app_admin_anlagen_edit')]
+    public function edit($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository) : RedirectResponse|Response
     {
         $anlage = $anlagenRepository->find($id);
         $form = $this->createForm(AnlageFormType::class, $anlage, [
             'anlagenId' => $id,
         ]);
-
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked() || $form->get('savecreatedb')->isClicked() ) ) {
 
@@ -109,13 +98,11 @@ class AnlagenAdminController extends BaseController
                 return $this->redirectToRoute('app_admin_anlagen_list');
             }
         }
-
         if ($form->isSubmitted() && $form->get('close')->isClicked()) {
             $this->addFlash('warning', 'Canceled. No data was saved.');
 
             return $this->redirectToRoute('app_admin_anlagen_list');
         }
-
         return $this->render('anlagen/edit.html.twig', [
             'anlageForm'    => $form->createView(),
             'anlage'        => $anlage,
@@ -123,7 +110,6 @@ class AnlagenAdminController extends BaseController
     }
 
     /**
-     * @Route("/admin/anlagen/editconfig/{id}", name="app_admin_anlagen_edit_config")
      * @param $id
      * @param EntityManagerInterface $em
      * @param Request $request
@@ -131,7 +117,8 @@ class AnlagenAdminController extends BaseController
      * @param EconomicVarNamesRepository $ecoNamesRepo
      * @return RedirectResponse|Response
      */
-    public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $RepositoryUpload): RedirectResponse|Response
+    #[Route(path: '/admin/anlagen/editconfig/{id}', name: 'app_admin_anlagen_edit_config')]
+    public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $RepositoryUpload) : RedirectResponse|Response
     {
         $upload = new AnlageFile();
         $anlage = $anlagenRepository->find($id);
@@ -144,12 +131,9 @@ class AnlagenAdminController extends BaseController
         if($ecoNamesRepo->findByAnlage($id)[0] != null) {
             $economicVarNames1 = $ecoNamesRepo->findByAnlage($id)[0];// will be used to load and display the already defined names
         }
-
-
         $form = $this->createForm(AnlageConfigFormType::class, $anlage, [
             'anlagenId' => $id,
         ]);
-
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked() ) ) {
             $uploadedFile = $form['picture']->getData();
@@ -212,7 +196,6 @@ class AnlagenAdminController extends BaseController
                 return $this->redirectToRoute('app_admin_anlagen_list');
             }
         }
-
         if ($form->isSubmitted() && $form->get('close')->isClicked()) {
             $this->addFlash('warning', 'Canceled. No data was saved.');
 
@@ -237,16 +220,13 @@ class AnlagenAdminController extends BaseController
         }
     }
 
-    /**
-     * @Route("/admin/anlagen/editdcgroups/{id}", name="app_admin_anlagen_edit_dcgroups")
-     */
-    public function editDcGroups($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository): RedirectResponse|Response
+    #[Route(path: '/admin/anlagen/editdcgroups/{id}', name: 'app_admin_anlagen_edit_dcgroups')]
+    public function editDcGroups($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository) : RedirectResponse|Response
     {
         $anlage = $anlagenRepository->find($id);
         $form = $this->createForm(AnlageDcGroupsFormType::class, $anlage, [
             'anlagenId' => $id,
         ]);
-
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked() ) ) {
 
@@ -258,29 +238,24 @@ class AnlagenAdminController extends BaseController
                 return $this->redirectToRoute('app_admin_anlagen_list');
             }
         }
-
         if ($form->isSubmitted() && $form->get('close')->isClicked()) {
             $this->addFlash('warning', 'Canceled. No data was saved.');
 
             return $this->redirectToRoute('app_admin_anlagen_list');
         }
-
         return $this->render('anlagen/edit_dcgroups.html.twig', [
             'anlageForm'    => $form->createView(),
             'anlage'        => $anlage,
         ]);
     }
 
-    /**
-     * @Route("/admin/anlagen/editacgroups/{id}", name="app_admin_anlagen_edit_acgroups")
-     */
-    public function editAcGroups($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository): RedirectResponse|Response
+    #[Route(path: '/admin/anlagen/editacgroups/{id}', name: 'app_admin_anlagen_edit_acgroups')]
+    public function editAcGroups($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository) : RedirectResponse|Response
     {
         $anlage = $anlagenRepository->find($id);
         $form = $this->createForm(AnlageAcGroupsFormType::class, $anlage, [
             'anlagenId' => $id,
         ]);
-
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked() ) ) {
 
@@ -292,13 +267,11 @@ class AnlagenAdminController extends BaseController
                 return $this->redirectToRoute('app_admin_anlagen_list');
             }
         }
-
         if ($form->isSubmitted() && $form->get('close')->isClicked()) {
             $this->addFlash('warning', 'Canceled. No data was saved.');
 
             return $this->redirectToRoute('app_admin_anlagen_list');
         }
-
         return $this->render('anlagen/edit_acgroups.html.twig', [
             'anlageForm'    => $form->createView(),
             'anlage'        => $anlage,
@@ -307,9 +280,9 @@ class AnlagenAdminController extends BaseController
 
     /**
      * @IsGranted("ROLE_DEV")
-     * @Route("/admin/anlagen/delete/{id}", name="app_admin_anlage_delete")
      */
-    public function delete($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository,  Security $security): RedirectResponse
+    #[Route(path: '/admin/anlagen/delete/{id}', name: 'app_admin_anlage_delete')]
+    public function delete($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, Security $security) : RedirectResponse
     {
         if ($this->isGranted('ROLE_DEV'))
         {
@@ -318,7 +291,6 @@ class AnlagenAdminController extends BaseController
             $em->remove($anlage);
             $em->flush();
         }
-
         return $this->redirectToRoute('app_anlagen_list');
     }
 

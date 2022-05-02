@@ -20,19 +20,12 @@ use Symfony\Component\Routing\Annotation\Route;
 class ToolsController extends BaseController
 {
     use G4NTrait;
-    /**
-     * @Route("/admin/tools", name="app_admin_tools")
-     */
-    public function tools(Request $request,
-                          PRCalulationService $PRCalulation,
-                          AvailabilityService $availability,
-                          ExpectedService $expectedService,
-                          MessageBusInterface $messageBus, LogMessagesService $logMessages): Response
+    #[Route(path: '/admin/tools', name: 'app_admin_tools')]
+    public function tools(Request $request, PRCalulationService $PRCalulation, AvailabilityService $availability, ExpectedService $expectedService, MessageBusInterface $messageBus, LogMessagesService $logMessages) : Response
     {
         $form = $this->createForm(ToolsFormType::class);
         $form->handleRequest($request);
         $output = '';
-
         // Wenn Calc gelickt wird mache dies:
         if ($form->isSubmitted() && $form->isValid() && $form->get('calc')->isClicked() && $request->getMethod() == 'POST') {
 
@@ -71,12 +64,10 @@ class ToolsController extends BaseController
             }
             $output .= "Command was send to messenger! Will be processed in the background.<br>";
         }
-
         // Wenn Close geklickt wird mache dies:
         if($form->isSubmitted() && $form->isValid() && $form->get('close')->isClicked()) {
             return $this->redirectToRoute('app_dashboard');
         }
-
         return $this->render('tools/index.html.twig', [
             'toolsForm' => $form->createView(),
             'output'    => $output,

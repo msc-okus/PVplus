@@ -32,7 +32,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * )
 
  */
-class User implements UserInterface
+class User implements UserInterface, \Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface
 {
     public const ARRAY_OF_ROLES = [
         'Developer' => 'ROLE_DEV',
@@ -50,24 +50,24 @@ class User implements UserInterface
      * @ORM\Column(name="id", type="bigint", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"user:read"})
      */
+    #[Groups(['user:read'])]
     private int $id;
 
     /**
      * @var string
      *
      * @ORM\Column(name="name", type="string", length=20, nullable=false)
-     * @Groups({"user:read", "user_list"})
      */
+    #[Groups(['user:read', 'user_list'])]
     private string $name;
 
     /**
      * @var string
      *
      * @ORM\Column(name="password", type="string")
-     * @Groups({"user:read"})
      */
+    #[Groups(['user:read'])]
     private string $password;
 
     /**
@@ -79,8 +79,8 @@ class User implements UserInterface
      * @var int
      *
      * @ORM\Column(name="level", type="integer", nullable=false, options={"default"="1"})
-     * @Groups({"user:read"})
      */
+    #[Groups(['user:read'])]
     private int $level = 1;
 
     /**
@@ -113,8 +113,8 @@ class User implements UserInterface
      * @var string
      *
      * @ORM\Column(type="string", length=50)
-     * @Groups({"main:read"})
      */
+    #[Groups(['main:read'])]
     private string $grantedList;
 
     /**

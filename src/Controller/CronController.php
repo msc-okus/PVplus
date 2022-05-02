@@ -23,13 +23,10 @@ class CronController extends BaseController
         $this->messageService = $messageService;
     }
 
-    /**
-     * @Route("/cron/checkSystemStatus", name="app_cron_checksystemstatus")
-     */
-    public function checkSystemStatus(checkSystemStatusService $checkSystemStatus){
-
+    #[Route(path: '/cron/checkSystemStatus', name: 'app_cron_checksystemstatus')]
+    public function checkSystemStatus(checkSystemStatusService $checkSystemStatus)
+    {
         $output = $checkSystemStatus->checkSystemStatus();
-
         return $this->render('cron/showResult.html.twig', [
             'headline'      => 'Status',
             'availabilitys' => '',
@@ -40,16 +37,12 @@ class CronController extends BaseController
 
 
 
-    /**
-    * @Route("/cron/createMonthlyReport", name="app_cron_createmonthlyreport")
-    */
+    #[Route(path: '/cron/createMonthlyReport', name: 'app_cron_createmonthlyreport')]
     public function report(ReportService $report, AnlagenRepository $anlagenRepository)
     {
         /** @var Anlage $anlagen */
         $anlagen = $anlagenRepository->findAll();
-
         $output = $report->monthlyReport($anlagen);
-
         return $this->render('cron/showResult.html.twig', [
             'headline'      => 'Monthly Report',
             'availabilitys' => '',

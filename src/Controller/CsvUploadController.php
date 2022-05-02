@@ -22,13 +22,10 @@ use function Symfony\Component\String\u;
 
 class CsvUploadController extends AbstractController
 {
-    /**
-     * @Route("/csv/upload/delete/{id}", name="csv_upload_delete")
-     */
-    public function deleteCase($id, EntityManagerInterface $em, Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo):Response
+    #[Route(path: '/csv/upload/delete/{id}', name: 'csv_upload_delete')]
+    public function deleteCase($id, EntityManagerInterface $em, Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo) : Response
     {
         $case6draft = $draftRepo->findById($id)[0];
-
         $anlage = $case6draft->getAnlage();
         $Route = $this->generateUrl('csv_upload_list',["anlId" => $anlage->getAnlId()], UrlGeneratorInterface::ABS_PATH);
         if ($case6draft) {
@@ -36,17 +33,13 @@ class CsvUploadController extends AbstractController
             $em->flush();
         }
         return $this->redirect($Route);
-
     }
 
-    /**
-     * @Route("/csv/upload/list/{anlId}", name="csv_upload_list")
-     */
-    public function list($anlId, Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo): Response
+    #[Route(path: '/csv/upload/list/{anlId}', name: 'csv_upload_list')]
+    public function list($anlId, Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo) : Response
     {
         $anlage = $anlRepo->find($anlId);
         $array = $draftRepo->findAllByAnlage($anlage);
-
         return $this->render('csv_upload/list.html.twig', [
             'anlage'    => $anlage,
             'case6'     => $array,
@@ -54,10 +47,8 @@ class CsvUploadController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/csv/upload/saveandfix/{anlId}", name="csv_upload_saveandfix")
-     */
-    public function saveAndFix($anlId,Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo, EntityManagerInterface $em,Request $request): Response
+    #[Route(path: '/csv/upload/saveandfix/{anlId}', name: 'csv_upload_saveandfix')]
+    public function saveAndFix($anlId, Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo, EntityManagerInterface $em, Request $request) : Response
     {
         $anlage = $anlRepo->findIdLike($anlId)[0];
         $array = $draftRepo->findAllByAnlage($anlage);
@@ -114,19 +105,14 @@ class CsvUploadController extends AbstractController
             ]);
         }
         $Route = $this->generateUrl('csv_upload_list',["anlId" => $anlId], UrlGeneratorInterface::ABS_PATH);
-
         return $this->redirect($Route);
     }
 
-    //there is need to hide this, so none can call it from the searchbar
-    /**
-    * @Route("/csv/upload/save/{anlId}", name="csv_upload_save")
-    */
-    public function save($anlId,Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo, EntityManagerInterface $em): \Symfony\Component\HttpFoundation\RedirectResponse
+    #[Route(path: '/csv/upload/save/{anlId}', name: 'csv_upload_save')]
+    public function save($anlId, Case6DraftRepository $draftRepo, AnlagenRepository $anlRepo, EntityManagerInterface $em) : \Symfony\Component\HttpFoundation\RedirectResponse
     {
         $anlage = $anlRepo->findIdLike($anlId)[0];
         $array = $draftRepo->findAllByAnlage($anlage);
-
         foreach($array as $case6d){
             if($case6d->check() == "") {
                 $case6 = new AnlageCase6();
@@ -139,23 +125,17 @@ class CsvUploadController extends AbstractController
                 $em->persist($case6);
             }
         }
-
         $em->flush();
         $Route = $this->generateUrl('csv_upload_list',["anlId" => $anlage->getAnlId()], UrlGeneratorInterface::ABS_PATH);
-
         return $this->redirect($Route);
     }
 
-    /**
-     * @Route("/csv/upload/load", name="csv_upload_load")
-     */
-    public function load(Request $request, EntityManagerInterface $em, UploaderHelper $uploaderHelper, AnlagenRepository $anlRepo, $uploadsPath): Response
+    #[Route(path: '/csv/upload/load', name: 'csv_upload_load')]
+    public function load(Request $request, EntityManagerInterface $em, UploaderHelper $uploaderHelper, AnlagenRepository $anlRepo, $uploadsPath) : Response
     {
         $form = $this->createForm(FileUploadFormType::class);
         $anlage = null;
         $form->handleRequest($request);
-
-
         if ($form->isSubmitted() && $form->isValid() && ($form->get('import')->isClicked()) ) {
 
             $uploadedFile = $form['File']->getData();

@@ -15,6 +15,7 @@ services:
             $uploadsPath: '%kernel.project_dir%/public/uploads'
             $tempPathBaseUrl: '%kernel.project_dir%/tempfiles'
             $filesystem: '@oneup_flysystem.public_uploads_filesystem_filesystem'
+            $kernelProjectDir: '%kernel.project_dir%'
 
 
     # custom aliases for autowiring
@@ -23,7 +24,6 @@ services:
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     App\:
-<<<<<<< ours
         resource: '../src/*'
         exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
 
@@ -31,19 +31,6 @@ services:
         arguments:
             $isDebug: '%kernel.debug%'
             $markdown: 'dssdfsdf'
-
-    # controllers are imported separately to make sure services can be injected
-    # as action arguments even if you don't extend any base controller class
-    App\Controller\:
-        resource: '../src/Controller'
-        tags: ['controller.service_arguments']
-=======
-        resource: '../src/'
-        exclude:
-            - '../src/DependencyInjection/'
-            - '../src/Entity/'
-            - '../src/Kernel.php'
->>>>>>> theirs
 
 
     # MessageHandlers

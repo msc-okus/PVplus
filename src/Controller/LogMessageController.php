@@ -10,13 +10,10 @@ class LogMessageController extends BaseController
 {
     use G4NTrait;
 
-    /**
-     * @Route("/log/messages/list", name="app_log_messages_list")
-     */
-    public function listActualMessages( LogMessagesRepository $logMessagesRepo)
+    #[Route(path: '/log/messages/list', name: 'app_log_messages_list')]
+    public function listActualMessages(LogMessagesRepository $logMessagesRepo)
     {
         $logMessages = $logMessagesRepo->findUseful();
-
         return $this->render('logMessages/_list.html.twig', [
             'logs'       => $logMessages,
         ]);

@@ -21,27 +21,23 @@ use PDO;
 class DefaultJMController extends AbstractController
 {
     use G4NTrait;
-    /**
-     * @Route("/default/j/m", name="default_j_m")
-     */
-    public function index(): Response
+    #[Route(path: '/default/j/m', name: 'default_j_m')]
+    public function index() : Response
     {
         return $this->render('default_jm/index.html.twig', [
             'controller_name' => 'DefaultJMController',
         ]);
     }
-    /**
-     * @Route("/default/test", name="default_j_m")
-     */
-    public function test(FunctionsService $functionsService, AnlagenRepository $repo){
+    #[Route(path: '/default/test', name: 'default_j_m')]
+    public function test(FunctionsService $functionsService, AnlagenRepository $repo)
+    {
         $stringArray = $functionsService->readInverters(" 2, 14 , 25-28, 300", $repo->findIdLike(94)[0]);
-
         return $this->redirectToRoute("/default/test");
     }
-    /**
-     * @Route("/default/test/check", name="default_check")
-     */
-    public function check(AlertSystemService $service){
+    #[Route(path: '/default/test/check', name: 'default_check')]
+    public function check(AlertSystemService $service)
+    {
         $service->checkSystem();
-        dd("fertig");    }
+        dd("fertig");
+    }
 }

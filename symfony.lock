@@ -427,6 +427,9 @@
     "phpoffice/phpspreadsheet": {
         "version": "1.10.1"
     },
+    "phpstan/phpstan": {
+        "version": "1.6.3"
+    },
     "picqer/php-barcode-generator": {
         "version": "v0.2.2"
     },
@@ -459,6 +462,9 @@
     },
     "ralouphie/getallheaders": {
         "version": "3.0.3"
+    },
+    "rector/rector": {
+        "version": "0.12.23"
     },
     "sensio/framework-extra-bundle": {
         "version": "5.2",

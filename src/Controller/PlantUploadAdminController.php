@@ -46,9 +46,7 @@ class PlantUploadAdminController extends BaseController
         $this->uploadsPath = $uploadsPath;
     }
 
-    /**
-     * @Route("/admin/upload/{id}", name="upload_test")
-     */
+    #[Route(path: '/admin/upload/{id}', name: 'upload_test')]
     public function temporaryUploadAction($id, Request $request, UploaderHelper $uploaderHelper, EntityManagerInterface $entityManager)
     {
         #$anlage = new AnlageFileUpload();
@@ -58,11 +56,8 @@ class PlantUploadAdminController extends BaseController
         /** @var UploadedFile $uploadedFile */
         $form = $this->createForm(FileUploadFormType::class);
         $form->handleRequest($request);
-
         $filesInDB = $repositoryUpload->findBy(['plant_id' => $id]);
-
         $anlage = $repositoryAnlage->findIdLike([$id]);
-
         $isupload = '';
         if($form->isSubmitted()){
             $upload = new AnlageFileUpload();
@@ -98,7 +93,6 @@ class PlantUploadAdminController extends BaseController
                 ]);
             }
     }
-
         return $this->render('fileUpload/fileupload.html.twig', [
             'fileUploadForm' => $form->createView(),
             'isupload' => $isupload,

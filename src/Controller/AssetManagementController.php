@@ -13,17 +13,22 @@ use Symfony\Component\HttpFoundation\Request;
 class AssetManagementController extends BaseController
 {
     use G4NTrait;
+    private string $kernelProjectDir;
+
+    public function __construct(String $kernelProjectDir = '')
+    {
+        $this->kernelProjectDir = $kernelProjectDir;
+    }
 
     /**
      * @param $doctype ( 0 = PDF, 1 = Excel, 2 = PNG (Grafiken) )
      * @param $charttypetoexport (0 = , 1 = )
-     * @Route("/asset/report/{id}/{month}/{year}/{export}/{pages}",name="report_asset_management")
      * @deprecated
      */
+    #[Route(path: '/asset/report/{id}/{month}/{year}/{export}/{pages}', name: 'report_asset_management')]
     public function assetReport($id, $month, $year, $export, $pages, AssetManagementService $assetManagement, AnlagenRepository $anlagenRepository, Request $request)
     {
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
-
         $output = $assetManagement->assetReport($anlage, $month, $year, $pages);
         $baseurl = $request->getSchemeAndHttpHost();
         $plantId = $output['plantId'];
@@ -113,8 +118,8 @@ class AssetManagementController extends BaseController
 
             // Route when PDF will be saved.
             ///usr/www/users/pvpluy/dev.gs/PVplus-4.0
-            $pos = $this->substr_Index($this->getParameter('kernel.project_dir'), '/', 5);
-            $pathpart = substr($this->getParameter('kernel.project_dir'), $pos);
+            $pos = $this->substr_Index($this->kernelProjectDir, '/', 5);
+            $pathpart = substr($this->kernelProjectDir, $pos);
             $anlageName = $anlage->getAnlName();
 
 
