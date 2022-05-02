@@ -1,5 +1,4 @@
 security:
-<<<<<<< ours
     encoders:
         legacy_plain:
             algorithm: auto
