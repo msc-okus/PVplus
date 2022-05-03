@@ -128,6 +128,7 @@ class TicketController extends BaseController
         if($request->query->get('prio')!=null)$prio = $request->query->get('prio');
 
         $queryBuilder = $ticketRepo->getWithSearchQueryBuilder($searchstatus,$editor,$anlage, $id, $prio);
+        //dd($queryBuilder);
         $pagination = $paginator->paginate(
             $queryBuilder,                                    /* query NOT result */
             $request->query->getInt('page', 1),   /* page number*/
@@ -147,7 +148,6 @@ class TicketController extends BaseController
             'status'     => $searchstatus,
             'id'         => $id,
             'prio'       => $prio,
-
         ]);
     }
 

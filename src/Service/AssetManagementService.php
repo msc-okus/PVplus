@@ -983,7 +983,7 @@ class AssetManagementService
         $chart->setOption($option);
 
         $losses_year = $chart->render('losses_yearly', ['style' => 'height: 450px; width: 23cm;']);
-        dump($losses_year);
+
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
@@ -1671,6 +1671,7 @@ class AssetManagementService
             $outPaCY[] = $pa;
             unset($pa);
         }
+        //dd($outPaCY);
 
         $chart->series = [
             [
@@ -2073,8 +2074,18 @@ class AssetManagementService
         $j = 0;
         if ($result->rowCount() > 0) {
             foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
-                //dump($dcIst[$j]['form_date'],$value['form_date'] );
-                if ($dcIst[$j]['form_date'] != $value['form_date']) ;
+                if ($dcIst[$j]['form_date'] != $value['form_date']) {
+                    $dcExpDcIst[] = [
+                        'group' => $value['invgroup'],
+                        'form_date' => date("d", strtotime($value['form_date'])),
+                        'exp_power_dc' => $value['exp_power_dc'],
+                        'exp_current_dc' => $value['exp_current_dc'],
+                        'act_power_dc' => 0,
+                        'act_current_dc' => 0,
+                        'diff_current_dc' => -101,
+                        'diff_power_dc' => -101,
+                    ];
+                }
                 else {
                     $dcExpDcIst[] = [
                         'group' => $value['invgroup'],
