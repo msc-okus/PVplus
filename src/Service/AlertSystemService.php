@@ -50,7 +50,7 @@ class AlertSystemService
         $time = G4NTrait::timeAjustment($time, -2);
         $sungap = $this->weather->getSunrise($Anlagen);
         foreach($Anlagen as $anlage){
-            if($anlage->getAnlId()=="106"||$anlage->getAnlId()=="102" || $anlage->getAnlId()=="47" || $anlage->getAnlId()=="107" || $anlage->getAnlId()=="84"|| $anlage->getAnlId()=="94") {
+            if($anlage->getAnlId()=="105"/*Buinerveen*/|| $anlage->getAnlId()=="93"/*Staadskanal*/||$anlage->getAnlId()=="102" || $anlage->getAnlId()=="107" || $anlage->getAnlId()=="84") {
                 if (($anlage->getCalcPR() == true) && (($time >= $sungap[$anlage->getanlName()]['sunrise']) && ($time <= $sungap[$anlage->getAnlName()]['sunset']))) {
                     $status = new Status;
                     $nameArray = $this->functions->getInverterArray($anlage);
@@ -86,7 +86,7 @@ class AlertSystemService
 
         foreach($Anlagen as $anlage) {
             if($anlage->getAnlId()=="106"||$anlage->getAnlId()=="102" || $anlage->getAnlId()=="47" || $anlage->getAnlId()=="107" || $anlage->getAnlId()=="84") {
-                if (($anlage->getCalcPR() == true) && (($time > $sungap[$anlage->getanlName()]['sunrise']) && ($time < $sungap[$anlage->getAnlName()]['sunset']))) {
+                if (($anlage->getAnlType() != "masterslave")&&($anlage->getCalcPR() == true) && (($time > $sungap[$anlage->getanlName()]['sunrise']) && ($time < $sungap[$anlage->getAnlName()]['sunset']))) {
                     $status_report[$anlage->getAnlName()] = $this->WData($anlage, $time);
                     $message = self::AnalyzeWeather($status_report[$anlage->getAnlName()], $time, $anlage, $sungap[$anlage->getanlName()]['sunrise']);
                     self::messagingFunction($message, $anlage);

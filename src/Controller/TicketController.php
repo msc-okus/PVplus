@@ -78,9 +78,11 @@ class TicketController extends BaseController
         $id = $session->get('id');
         $prio = $session->get('prio');
         $form->handleRequest($request);
+      
         //Creating the route with the query
         $Route = $this->generateUrl('app_ticket_list',[], UrlGeneratorInterface::ABS_PATH);
         $Route = $Route."?anlage=".$anlage."&user=".$editor."&id=".$id."&prio=".$prio."&searchstatus=".$searchstatus."&search=yes";
+
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
             $ticket = $form->getData();
             $ticket->setEditor($this->getUser()->getUsername());
@@ -104,6 +106,7 @@ class TicketController extends BaseController
         ]);
     }
 
+
     #[Route(path: '/ticket/list', name: 'app_ticket_list')]
     public function list(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request) : Response
     {
@@ -116,6 +119,7 @@ class TicketController extends BaseController
         if($request->query->get('id')!=null)$id = $request->query->get('id');
         if($request->query->get('prio')!=null)$prio = $request->query->get('prio');
         $queryBuilder = $ticketRepo->getWithSearchQueryBuilder($searchstatus, $editor, $anlage, $id, $prio);
+
         $pagination = $paginator->paginate(
             $queryBuilder,                                    /* query NOT result */
             $request->query->getInt('page', 1),   /* page number*/
@@ -136,6 +140,7 @@ class TicketController extends BaseController
             'prio'       => $prio,
 
         ]);
+
     }
 
 }

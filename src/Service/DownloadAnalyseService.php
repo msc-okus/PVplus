@@ -105,12 +105,20 @@ class DownloadAnalyseService
     public function getDcSingleSystemData($anlage, $from, $to, $intervall): array
     {
         $conn = self::getPdoConnection();
-        $dbnameist = $anlage->getDbNameIst();
+        switch ($anlage->getConfigType()){
+            case 2:
+            case 1: $dbnameist = $anlage->getDbNameIst();
+            break;
+            default:$dbnameist = $anlage->getDbNameDCIst();
+            break;
+        }
+
         $arrayout1a = $output = [];
         // Ist Daten laden
         $sql2sc = "SELECT DATE_FORMAT( a.stamp, '$intervall' ) AS form_date, sum(b.wr_pdc) as act_power_dc 
                     FROM (db_dummysoll a left JOIN $dbnameist b ON a.stamp = b.stamp) 
                     WHERE a.stamp BETWEEN '$from' and '$to' GROUP by form_date ORDER BY form_date";
+
         $res03 = $conn->query($sql2sc);
         $dds = 0;
         if ($res03->rowCount() > 0) {

@@ -983,7 +983,7 @@ class AssetManagementService
         $chart->setOption($option);
 
         $losses_year = $chart->render('losses_yearly', ['style' => 'height: 450px; width: 23cm;']);
-        dump($losses_year);
+
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
@@ -1623,7 +1623,6 @@ class AssetManagementService
                 $days = $i+1;
                 $day = new \DateTime("$year-$month-$days");
                 $output2 = $this->PRCalulation->calcPR($anlage, $day);
-
                 $table_overview_dayly[] =
                     [
                         "date" => $day->format('M-d'),
@@ -1642,6 +1641,7 @@ class AssetManagementService
                         "plantAvailabilitySecond" => (float)$output2['availability2'],
                         "panneltemp" => (float)$output[$i]->getpanneltemp(),
                     ];
+               // dd($table_overview_dayly);
             }
         }
 
@@ -1671,6 +1671,7 @@ class AssetManagementService
             $outPaCY[] = $pa;
             unset($pa);
         }
+        //dd($outPaCY);
 
         $chart->series = [
             [
@@ -1977,6 +1978,41 @@ class AssetManagementService
         //End PA
 
         //Beginn Operations string_dayly1
+        switch ($anlage->getConfigType()) {
+            case 1:
+                $sql = "SELECT DATE_FORMAT( stamp,'%d.%m.%Y') AS form_date, sum(wr_pdc) AS act_power_dc, group_dc as invgroup
+                        FROM " . $anlage->getDbNameIst() . "  
+                        WHERE stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and group_dc > 0
+                        GROUP BY form_date,group_dc ORDER BY group_dc,form_date";
+
+                $sqlc = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.wr_idc) AS act_current_dc
+                    FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
+                    WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_dc > 0 
+                    GROUP BY form_date,b.group_dc ORDER BY b.group_dc,form_date";
+            break;
+            case 2:
+                $sql = "SELECT DATE_FORMAT( a.stamp,'%d.%m.%Y') AS form_date, sum(b.wr_pdc) AS act_power_dc, b.group_ac as invgroup
+                        FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
+                        WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_ac > 0
+                        GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
+                $sqlc = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.wr_idc) AS act_current_dc
+                    FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
+                    WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_ac > 0 
+                    GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
+            break;
+            default:
+                $sql = "SELECT DATE_FORMAT( a.stamp,'%d.%m.%Y') AS form_date, sum(b.wr_pdc) AS act_power_dc, b.group_ac as invgroup
+                        FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDcIst() . " b ON a.stamp = b.stamp) 
+                        WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_ac > 0
+                        GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
+
+                $sqlc = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.wr_idc) AS act_current_dc
+                        FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDcIst() . " b ON a.stamp = b.stamp) 
+                        WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_ac > 0 
+                        GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
+            break;
+        }
+        /*
         if ($anlage->getConfigType() == 1){
             $sql = "SELECT DATE_FORMAT( stamp,'%d.%m.%Y') AS form_date, sum(wr_pdc) AS act_power_dc, group_dc as invgroup
                         FROM " . $anlage->getDbNameIst() . "  
@@ -2006,6 +2042,7 @@ class AssetManagementService
                     GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
                 }
         }
+        */
         $result = $this->conn->prepare($sql);
         $result->execute();
         $resultc = $this->conn->prepare($sqlc);
@@ -2037,21 +2074,36 @@ class AssetManagementService
         $j = 0;
         if ($result->rowCount() > 0) {
             foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
-                $dcExpDcIst[] = [
-                    'group' => $value['invgroup'],
-                    'form_date' => date("d", strtotime($value['form_date'])),
-                    'exp_power_dc' => $value['exp_power_dc'],
-                    'exp_current_dc' => $value['exp_current_dc'],
-                    'act_power_dc' => $dcIst[$j]['act_power_dc'],
-                    'act_current_dc' => $dcIst[$j]['act_current_dc'],
-                    'diff_current_dc' => ($dcIst[$j]['act_current_dc'] != 0) ? (1 - $value['exp_current_dc'] / $dcIst[$j]['act_current_dc']) * 100 : 0,
-                    'diff_power_dc' => ($dcIst[$j]['act_power_dc'] != 0) ? (1 - $value['exp_power_dc'] / $dcIst[$j]['act_power_dc']) * 100 : 0,
-                ];
+                if ($dcIst[$j]['form_date'] != $value['form_date']) {
+                    $dcExpDcIst[] = [
+                        'group' => $value['invgroup'],
+                        'form_date' => date("d", strtotime($value['form_date'])),
+                        'exp_power_dc' => $value['exp_power_dc'],
+                        'exp_current_dc' => $value['exp_current_dc'],
+                        'act_power_dc' => 0,
+                        'act_current_dc' => 0,
+                        'diff_current_dc' => -101,
+                        'diff_power_dc' => -101,
+                    ];
+                }
+                else {
+                    $dcExpDcIst[] = [
+                        'group' => $value['invgroup'],
+                        'form_date' => date("d", strtotime($dcIst[$j]['form_date'])),
+                        'exp_power_dc' => $value['exp_power_dc'],
+                        'exp_current_dc' => $value['exp_current_dc'],
+                        'act_power_dc' => $dcIst[$j]['act_power_dc'],
+                        'act_current_dc' => $dcIst[$j]['act_current_dc'],
+                        'diff_current_dc' => ($dcIst[$j]['act_current_dc'] != 0) ? (1 - $value['exp_current_dc'] / $dcIst[$j]['act_current_dc']) * 100 : 0,
+                        'diff_power_dc' => ($dcIst[$j]['act_power_dc'] != 0) ? (1 - $value['exp_power_dc'] / $dcIst[$j]['act_power_dc']) * 100 : 0,
+                    ];
 
-                $j++;
-                if (date("d", strtotime($value['form_date'])) >= $daysInReportMonth) {
-                    $outTableCurrentsPower[] = $dcExpDcIst;
-                    unset($dcExpDcIst);
+                    if (date("d", strtotime($dcIst[$j]['form_date'])) >= $daysInReportMonth) {
+                        $outTableCurrentsPower[] = $dcExpDcIst;
+                        unset($dcExpDcIst);
+                    }
+
+                    $j++;
                 }
             }
         } else {
@@ -2074,6 +2126,7 @@ class AssetManagementService
             }
         }
         if ($dcExpDcIst) $outTableCurrentsPower[] = $dcExpDcIst;
+       //dd( $outTableCurrentsPower);
         $resultEconomicsNames = $this->ecoVarNameRepo->findOneByAnlage($anlage);
 
         if ($resultEconomicsNames) {

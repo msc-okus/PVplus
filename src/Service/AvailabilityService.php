@@ -391,7 +391,6 @@ class AvailabilityService
             }*/
         }
         $availabilitys = $this->availabilityRepository->sumAllCasesByDate($anlage, $from, $to, $inverter);
-
         foreach ($availabilitys as $row) {
             $inverterNr = $row['inverter'];
             // Berechnung der prozentualen Verfügbarkeit Part 1 und Part 2
