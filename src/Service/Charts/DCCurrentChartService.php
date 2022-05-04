@@ -51,6 +51,7 @@ class DCCurrentChartService
         switch ($anlage->getConfigType()) {
             case 1:
             case 3:
+            case 4:
                 # z.B. Gronningen
                 $groupQuery = "group_ac = '$group' ";
                 $nameArray = $this->functions->getNameArray($anlage, 'ac');
@@ -74,7 +75,10 @@ class DCCurrentChartService
             foreach ($expectedResult as $rowSoll) {
                 $stamp = $rowSoll['stamp'];
                 $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
-                $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stampAdjust);
+                $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
+
+                //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
+                $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
 
                 if (!(($rowSoll['expected'] == 0) && (self::isDateToday($stampAdjust) && self::getCetTime() - strtotime($stampAdjust) < 7200))) {
                     switch ($anlage->getConfigType()) {
@@ -90,15 +94,21 @@ class DCCurrentChartService
                 }
 
                 if ($hour) {
-                    $stampAdjustTo = date('Y-m-d H:m:s', strtotime($stampAdjust) + 3600);
-                    $wherePart1 = "stamp >= '$stampAdjust' AND stamp < '$stampAdjustTo'";
+                    $wherePart1 = "stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'";
                 } else {
                     $wherePart1 = "stamp = '$stampAdjust' ";
                 }
-                if ($anlage->getUseNewDcSchema()) {
-                    $sql = "SELECT sum(wr_idc) as istCurrent FROM " . $anlage->getDbNameDCIst() . " WHERE " . $wherePart1 . " AND $groupQuery group by date_format(stamp, '$form'), wr_num;";
-                } else {
-                    $sql = "SELECT sum(wr_idc) as istCurrent FROM " . $anlage->getDbNameACIst() . " WHERE " . $wherePart1 . " AND $groupQuery group by date_format(stamp, '$form'), group_dc;";
+                switch ($anlage->getConfigType()) {
+                    case 1:
+                    case 2:
+                        $sql = "SELECT sum(wr_idc) as istCurrent FROM " . $anlage->getDbNameACIst() . " WHERE " . $wherePart1 . " AND $groupQuery group by date_format(stamp, '$form'), group_dc;";
+                        break;
+                    case 3:
+                        $sql = "SELECT sum(wr_idc) as istCurrent FROM " . $anlage->getDbNameDCIst() . " WHERE " . $wherePart1 . " AND $groupQuery group by date_format(stamp, '$form'), wr_num;";
+                        break;
+                    case 4:
+                        $sql = "SELECT sum(wr_idc) as istCurrent FROM " . $anlage->getDbNameDCIst() . " WHERE " . $wherePart1 . " AND $groupQuery group by date_format(stamp, '$form');";
+                        break;
                 }
                 $resultAct = $conn->query($sql);
                 $inverterCount = 1;
@@ -233,8 +243,8 @@ class DCCurrentChartService
                 $stamp = $row['stamp'];
                 $stampAdjust = self::timeAjustment($stamp, (float)$anlage->getAnlZeitzone());
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
-                //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
 
+                //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
                 $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
 
                 $row['sollCurrent'] > 0 ? $currentExp = round($row['sollCurrent'], 2) : $currentExp = 0;

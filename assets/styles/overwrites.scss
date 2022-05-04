@@ -240,8 +240,15 @@
 
         }
 
+        .content {
+            border: 1px solid #b7b7b7;
+            background: #fefefe;
+            color: #0a0a0a;
+            transition: all 0.5s ease;
+            padding: 1rem;
+        }
 
-        .action-icon{
+        .action-icon {
             padding: rem-calc(4);
             margin: 0 0.2rem;
 

@@ -32,10 +32,8 @@ $session = new Session();
 
 class TicketController extends BaseController
 {
-    /**
-     * @Route("/ticket/create", name="app_ticket_create")
-     */
-    public function create(EntityManagerInterface $em, Request $request)
+    #[Route(path: '/ticket/create', name: 'app_ticket_create')]
+    public function create(EntityManagerInterface $em, Request $request) : Response
     {
         $session=$this->container->get('session');
         $searchstatus = $session->get('search');
@@ -47,7 +45,6 @@ class TicketController extends BaseController
         $Route = $Route."?anlage=".$anlage."&user=".$editor."&id=".$id."&prio=".$prio."&searchstatus=".$searchstatus."&search=yes";
         $form = $this->createForm(TicketFormType::class);
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
             $ticket = $form->getData();
             $ticket->setEditor($this->getUser()->getUsername());
@@ -58,7 +55,6 @@ class TicketController extends BaseController
                 return $this->redirect($Route);
             }
         }
-
         if ($form->isSubmitted() && $form->get('close')->isClicked()) {
             $this->addFlash('warning', 'Canceled. No data was saved.');
 
@@ -66,14 +62,11 @@ class TicketController extends BaseController
         }
         return $this->render('ticket/create.html.twig',[
             'ticketForm'=>$form->createView()
-    ]);
+        ]);
     }
 
-
-    /**
-     * @Route("/ticket/edit/{id}", name="app_ticket_edit")
-     */
-    public function edit($id, TicketRepository $ticketRepo, EntityManagerInterface $em, Request $request)
+    #[Route(path: '/ticket/edit/{id}', name: 'app_ticket_edit')]
+    public function edit($id, TicketRepository $ticketRepo, EntityManagerInterface $em, Request $request) : Response
     {
         $session=$this->container->get('session');
         $ticket = $ticketRepo->find($id);
@@ -84,11 +77,12 @@ class TicketController extends BaseController
         $anlage = $session->get('anlage');
         $id = $session->get('id');
         $prio = $session->get('prio');
-
         $form->handleRequest($request);
+      
         //Creating the route with the query
         $Route = $this->generateUrl('app_ticket_list',[], UrlGeneratorInterface::ABS_PATH);
         $Route = $Route."?anlage=".$anlage."&user=".$editor."&id=".$id."&prio=".$prio."&searchstatus=".$searchstatus."&search=yes";
+
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
             $ticket = $form->getData();
             $ticket->setEditor($this->getUser()->getUsername());
@@ -101,7 +95,6 @@ class TicketController extends BaseController
                 return $this->redirect($Route);
             }
         }
-
         if ($form->isSubmitted() && $form->get('close')->isClicked()) {
             $this->addFlash('warning', 'Canceled. No data was saved.');
 
@@ -113,13 +106,11 @@ class TicketController extends BaseController
         ]);
     }
 
-    /**
-     * @Route("/ticket/list", name="app_ticket_list")
-     *
-     */
-    public function list (TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request): Response
+
+    #[Route(path: '/ticket/list', name: 'app_ticket_list')]
+    public function list(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request) : Response
     {
-        $session=$this->container->get('session');
+        $session = $this->container->get('session');
         $tickets = $ticketRepo->findAll();
         //Reading data from request
         if($request->query->get('anlage')!=null & $request->query->get('anlage')!="")$anlage = $request->query->get('anlage');
@@ -127,15 +118,13 @@ class TicketController extends BaseController
         if($request->query->get('searchstatus')!=null & $request->query->get('searchstatus')!="")$searchstatus = $request->query->get('searchstatus');
         if($request->query->get('id')!=null)$id = $request->query->get('id');
         if($request->query->get('prio')!=null)$prio = $request->query->get('prio');
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilder($searchstatus, $editor, $anlage, $id, $prio);
 
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilder($searchstatus,$editor,$anlage, $id, $prio);
-        //dd($queryBuilder);
         $pagination = $paginator->paginate(
             $queryBuilder,                                    /* query NOT result */
             $request->query->getInt('page', 1),   /* page number*/
             20                                          /*limit per page*/
         );
-
         $session->set('search', $searchstatus);
         $session->set('editor', $editor);
         $session->set('anlage', $anlage);
@@ -144,12 +133,14 @@ class TicketController extends BaseController
         return $this->render('ticket/list.html.twig',[
             'pagination' => $pagination,
             'ticket'     => $tickets,
-            'anlagep'    => $anlage,
-            'userp'      => $editor,
+            'anlage'     => $anlage,
+            'user'       => $editor,
             'status'     => $searchstatus,
             'id'         => $id,
             'prio'       => $prio,
+
         ]);
+
     }
 
 }

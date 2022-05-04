@@ -533,7 +533,9 @@ class PRCalulationService
      *  $result['irradiation']<br>
      *  $result['availability']<br>
      *  $result['availability2'] (not Ready)<br>
-     *  $result['anzCase5'] (proof)<br>
+     *  $result['anzCase5'] (prove)<br>
+     *  $result['tCellAvgMeasured'] (prove)<br>
+     *  $result['tCellAvgNrel'] (prove)<br>
      *
      * @param Anlage $anlage
      * @param DateTime $startDate
@@ -604,6 +606,7 @@ class PRCalulationService
         // if theoretic Power ist corrected by temperature (NREL) (PR Algoritm = Lelystad) then use 'powerTheo' from array $power, if not calc by Pnom and Irr.
         $powerTheo = $anlage->getUseCustPRAlgorithm() == 'Lelystad' ? $powerTheo = $power['powerTheo'] : $powerTheo = $anlage->getPnom() * $irr;
         $result['powerTheo'] = (float)$powerTheo;
+        $result['tCellAvgNrel'] = (float)$power['tCellAvg'];
         $tempCorrection = 0; // not used at the Moment
 
         // PR Calculation
@@ -663,6 +666,7 @@ class PRCalulationService
         $result['availability']      = $availability;
         $result['availability2']     = $availability2; // NOT Ready
         $result['anzCase5']          = $anzCase5PerDay;
+        $result['tCellAvgMeasured']  = (float)$weather['panelTempAvg'];
 
         return $result;
     }

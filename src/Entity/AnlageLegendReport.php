@@ -29,33 +29,33 @@ class AnlageLegendReport
     private string $type;
 
     /**
-     * @Groups ({"legend"})
      * @ORM\Column(type="string", length=20)
      */
+    #[Groups(['legend'])]
     private string $row;
 
     /**
-     * @Groups ({"legend"})
      * @ORM\Column(type="string", length=50)
      */
+    #[Groups(['legend'])]
     private string $title;
 
     /**
-     * @Groups ({"legend"})
      * @ORM\Column(type="string", length=10)
      */
+    #[Groups(['legend'])]
     private string $unit;
 
     /**
-     * @Groups ({"legend"})
      * @ORM\Column(type="string", length=255)
      */
+    #[Groups(['legend'])]
     private string $description;
 
     /**
-     * @Groups ({"legend"})
      * @ORM\Column(type="string", length=50)
      */
+    #[Groups(['legend'])]
     private string $source;
 
     public function getId(): ?int

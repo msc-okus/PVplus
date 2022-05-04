@@ -32,13 +32,10 @@ class DefaultController extends BaseController
 
 
 
-    /**
-     * @Route("/test/systemstatus")
-     */
+    #[Route(path: '/test/systemstatus')]
     public function checkSystemStatus(CheckSystemStatusService $checkSystemStatus)
     {
         $output = $checkSystemStatus->checkSystemStatus();
-
         return $this->render('cron/showResult.html.twig', [
             'headline' => 'Systemstatus',
             'availabilitys' => '',

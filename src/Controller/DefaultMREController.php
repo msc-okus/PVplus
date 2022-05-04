@@ -13,6 +13,7 @@ use App\Repository\Case5Repository;
 use App\Service\AvailabilityService;
 use App\Service\ExportService;
 use App\Service\FunctionsService;
+use App\Service\ReportEpcPRNewService;
 use App\Service\ReportEpcService;
 use App\Service\ReportsEpcNewService;
 use Doctrine\ORM\EntityManagerInterface;
@@ -34,15 +35,12 @@ class DefaultMREController extends BaseController
         $this->urlGenerator = $urlGenerator;
     }
 
-    /**
-     * @Route ("/mr/pa/{id}")
-     */
-    public function pa($id, AvailabilityService $availability, AnlagenRepository $anlagenRepository): Response
+    #[Route(path: '/mr/pa/{id}')]
+    public function pa($id, AvailabilityService $availability, AnlagenRepository $anlagenRepository) : Response
     {
         $anlage = $anlagenRepository->find($id);
         $date = "2020-12-07";
         $output = $availability->checkAvailability($anlage, strtotime($date), false);
-
         return $this->render('cron/showResult.html.twig', [
             'headline'      => "PA $date",
             'availabilitys' => '',
@@ -50,19 +48,15 @@ class DefaultMREController extends BaseController
         ]);
     }
 
-    /**
-     * @Route("/mr/bavelse/export")
-     */
-    public function bavelseExport(ExportService $bavelseExport, AnlagenRepository $anlagenRepository ): Response
+    #[Route(path: '/mr/bavelse/export')]
+    public function bavelseExport(ExportService $bavelseExport, AnlagenRepository $anlagenRepository) : Response
     {
         $output = '';
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => '97']);
-
         $from = date_create('2022-03-01');
         $to   = date_create('2022-04-01');
         $output = $bavelseExport->gewichtetTagesstrahlung($anlage, $from, $to);
-
         return $this->render('cron/showResult.html.twig', [
             'headline'      => 'Systemstatus',
             'availabilitys' => '',
@@ -70,19 +64,15 @@ class DefaultMREController extends BaseController
         ]);
     }
 
-    /**
-     * @Route("/mr/export/rawdata/{id}")
-     */
-    public function exportRawDataExport($id, ExportService $bavelseExport, AnlagenRepository $anlagenRepository ): Response
+    #[Route(path: '/mr/export/rawdata/{id}')]
+    public function exportRawDataExport($id, ExportService $bavelseExport, AnlagenRepository $anlagenRepository) : Response
     {
         $output = '';
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
-
         $from = date_create('2021-01-01');
         $to   = date_create('2021-10-31');
         $output = $bavelseExport->getRawData($anlage, $from, $to);
-
         return $this->render('cron/showResult.html.twig', [
             'headline'      => $anlage->getAnlName() . ' RawData Export',
             'availabilitys' => '',
@@ -90,25 +80,17 @@ class DefaultMREController extends BaseController
         ]);
     }
 
-    /**
-     * @Route("/mr/export/facRawData/{id}/{year}/{month}")
-     */
-    public function exportFacRawDataExport($id, $month, $year, ExportService $export, AnlagenRepository $anlagenRepository ): Response
+    #[Route(path: '/mr/export/facRawData/{id}/{year}/{month}')]
+    public function exportFacRawDataExport($id, $month, $year, ExportService $export, AnlagenRepository $anlagenRepository) : Response
     {
         $output = '';
-
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
-
         $daysOfMonth = date('t', strtotime($year.'-'.$month.'-1'));
-
-
         $output .= self::printArrayAsTable($export->getFacPRData($anlage));
         $output .= "<hr>";
         //$output .= self::printArrayAsTable($export->getFacPAData($anlage, $from, $to));
         $output .= "<hr>";
-
-
         return $this->render('cron/showResult.html.twig', [
             'headline'      => $anlage->getAnlName() . ' FacData Export',
             'availabilitys' => '',
@@ -116,10 +98,8 @@ class DefaultMREController extends BaseController
         ]);
     }
 
-    /**
-     * @Route ("/test/olli")
-     */
-    public function olliExport(): Response
+    #[Route(path: '/test/olli')]
+    public function olliExport() : Response
     {
         $conn = self::getPdoConnection();
         $sqlExp = "
@@ -131,11 +111,9 @@ class DefaultMREController extends BaseController
             round(sum(ac_exp_power_no_limit),2) as soll_nolimit
         FROM pvp_data.db__pv_dcsoll_AX102 WHERE stamp >= '2021-07-01 00:00' AND stamp <= '2021-07-31 23:59' GROUP by group_ac, stamp order by group_ac*1, stamp;
         ";
-
         $result = [];
         $expected = $conn->prepare($sqlExp);
         $expected->execute();
-
         foreach ($expected->fetchAll(PDO::FETCH_CLASS) as $row) {
             $sqlIst = "SELECT sum(wr_pac) as istsum FROM pvp_data.db__pv_ist_AX102 where wr_pac > 0 and stamp = '$row->stamp' and group_ac = $row->group_ac;";
             $ist = $conn->prepare($sqlIst);
@@ -172,16 +150,12 @@ class DefaultMREController extends BaseController
                 $headlinesBase = array_merge($headlinesBase, $headlinesHelp);
             }
         }
-
         $fp = fopen("daten.csv", 'a');
-
         fputcsv($fp, $headlinesBase, ";");
         foreach ($result as $export) {
             fputcsv($fp, $export,";");
         }
-
         fclose($fp);
-
         return $this->render('cron/showResult.html.twig', [
             'headline'      => 'EPC Report',
             'availabilitys' => '',
@@ -189,16 +163,13 @@ class DefaultMREController extends BaseController
         ]);
     }
 
-    /**
-     * @Route ("/test/pa/{month}/{year}")
-     */
-    public function testPa($month, $year, AnlageAvailabilityRepository $availabilityRepository, Case5Repository $case5Repository, AnlagenRepository $anlagenRepository): Response
+    #[Route(path: '/test/pa/{month}/{year}')]
+    public function testPa($month, $year, AnlageAvailabilityRepository $availabilityRepository, Case5Repository $case5Repository, AnlagenRepository $anlagenRepository) : Response
     {
         $output = '';
         $output2 = "<table>";
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => 84]);
-
         if ($anlage->getUseNewDcSchema()) {
             foreach ($anlage->getAcGroups() as $acGroup) {
                 $inverterPowerDc[$acGroup->getAcGroup()] = $acGroup->getDcPowerInverter();
@@ -247,7 +218,6 @@ class DefaultMREController extends BaseController
         }
         $output2 .= "</table>";
         $summe = "<b>Summe: PA Part 1: $sumPart1 | PA Part 2: $sumPart2 | PA Part 3: $sumPart3</b><br>";
-
         return $this->render('cron/showResult.html.twig', [
             'headline'      => 'Test PA',
             'availabilitys' => '',
@@ -255,20 +225,15 @@ class DefaultMREController extends BaseController
         ]);
     }
 
-    /**
-     * @Route ("/test/forcast")
-     */
-    public function testForcast(AnlagenRepository $anlagenRepository, FunctionsService $functions): Response
+    #[Route(path: '/test/forcast')]
+    public function testForcast(AnlagenRepository $anlagenRepository, FunctionsService $functions) : Response
     {
         $output = '';
         $month = 11;
-
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => 104]);
-
         $output .= "<h1>".$anlage->getAnlName()." - Monat: $month</h1>";
         $output .= $functions->getForcastByMonth($anlage, $month);
-
         return $this->render('cron/showResult.html.twig', [
             'headline'      => 'Test Forcast',
             'availabilitys' => '',
@@ -276,39 +241,33 @@ class DefaultMREController extends BaseController
         ]);
     }
 
-    /**
-     * @Route ("/test/epc/{id}/{raw}", defaults={"id"=93, "raw"=false})
-     */
-    public function testNewEpc($id, $raw, AnlagenRepository $anlagenRepository, FunctionsService $functions, ReportsEpcNewService $epcNew): Response
+    #[Route(path: '/test/epc/{id}/{raw}', defaults: ['id' => 94, 'raw' => true])]
+    public function testNewEpc($id, $raw, AnlagenRepository $anlagenRepository, FunctionsService $functions, ReportEpcPRNewService $epcNew) : Response
     {
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
-
-        $date = date_create("2021-12-01");
-
+        $date = date_create("2022-02-01 00:00");
         $monthTable = $epcNew->monthTable($anlage, $date);
-
-        $forcastTable = $epcNew->forcastTable($anlage, $monthTable, $date);
-        $chartYieldPercenDiff = $epcNew->chartYieldPercenDiff($anlage, $monthTable, $date);
-        $chartYieldCumulativ = $epcNew->chartYieldCumulative($anlage, $monthTable, $date);
-
-        $output = $functions->printArrayAsTable($forcastTable);
-        $output .= $functions->print2DArrayAsTable($monthTable);
-
+        #$forcastTable = $epcNew->forcastTable($anlage, $monthTable, $date);
+        #$chartYieldPercenDiff = $epcNew->chartYieldPercenDiff($anlage, $monthTable, $date);
+        #$chartYieldCumulativ = $epcNew->chartYieldCumulative($anlage, $monthTable, $date);
+        #$output = $functions->printArrayAsTable($forcastTable);
+        $output = $functions->print2DArrayAsTable($monthTable);
         if ($raw) {
             return $this->render('cron/showResult.html.twig', [
                 'headline'      => 'Tabelle New EPC',
                 'availabilitys' => '',
                 'output'        => $output,
             ]);
+        } else {
+            return $this->render('report/epcReport.html.twig', [
+                'anlage' => $anlage,
+                'monthsTable' => $monthTable,
+                #'forcast'           => $forcastTable,
+                'legend' => $anlage->getLegendEpcReports(),
+                # 'chart1'            => $chartYieldPercenDiff,
+                #'chart2'            => $chartYieldCumulativ,
+            ]);
         }
-        return $this->render('report/epcReport.html.twig', [
-            'anlage'            => $anlage,
-            'monthsTable'       => $monthTable,
-            'forcast'           => $forcastTable,
-            'legend'            => $anlage->getLegendEpcReports(),
-            'chart1'            => $chartYieldPercenDiff,
-            'chart2'            => $chartYieldCumulativ,
-        ]);
     }
 }

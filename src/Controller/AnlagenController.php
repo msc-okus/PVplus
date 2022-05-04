@@ -20,39 +20,30 @@ class AnlagenController extends BaseController
 {
     use G4NTrait;
 
-    /**
-     * @Route("/anlagen/list", name="app_anlagen_list")
-     */
-    public function list(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository): Response
+    #[Route(path: '/anlagen/list', name: 'app_anlagen_list')]
+    public function list(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository) : Response
     {
         $grantedPlantList = explode(',', $this->getUser()->getGrantedList());
         $eigners = [];
         /** @var Eigner $eigner */
         foreach ($this->getUser()->getEigners()->toArray() as $eigner) { $eigners[] = $eigner->getId(); }
-
         $q = $request->query->get('q');
         if ($request->query->get('search') == 'yes' && $q == '') $request->getSession()->set('q', '');
         if ($q) $request->getSession()->set('q', $q);
-
         if ($q == "" && $request->getSession()->get('q') != "") {
             $q = $request->getSession()->get('q');
             $request->query->set('q', $q);
         }
-
         $queryBuilder = $anlagenRepository->getWithSearchQueryBuilderOwner($q, $eigners, $grantedPlantList);
-
         $pagination = $paginator->paginate($queryBuilder, $request->query->getInt('page', 1),25);
-
         return $this->render('anlagen/list.html.twig', [
             'pagination' => $pagination,
         ]);
     }
 
 
-    /**
-     * @Route("/anlagen/edit/{id}", name="app_anlagen_edit")
-     */
-    public function editLegend($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository,  EconomicVarNamesRepository $ecoNamesRepo)
+    #[Route(path: '/anlagen/edit/{id}', name: 'app_anlagen_edit')]
+    public function editLegend($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo)
     {
         $anlage = $anlagenRepository->find($id);
         $economicVarNames1 =new EconomicVarNames();
@@ -62,7 +53,6 @@ class AnlagenController extends BaseController
         $form = $this->createForm(AnlageCustomerFormType::class, $anlage, [
             //'anlagenId' => $id,
         ]);
-
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked() ) ) {
 
@@ -89,13 +79,11 @@ class AnlagenController extends BaseController
                 return $this->redirectToRoute('app_anlagen_list');
             }
         }
-
         if ($form->isSubmitted() && $form->get('close')->isClicked()) {
             $this->addFlash('warning', 'Canceled. No data was saved.');
 
             return $this->redirectToRoute('app_anlagen_list');
         }
-
         return $this->render('anlagen/edit_customer.html.twig', [
             'anlageForm'    => $form->createView(),
             'anlage'        => $anlage,
@@ -103,10 +91,8 @@ class AnlagenController extends BaseController
         ]);
     }
 
-    /**
-     * @Route("/anlagen/find", name="app_admin_reports_find", methods="GET")
-     */
-    public function find(AnlagenRepository $anlagenRepository, Request $request): JsonResponse
+    #[Route(path: '/anlagen/find', name: 'app_plants_find', methods: 'GET')]
+    public function find(AnlagenRepository $anlagenRepository, Request $request) : JsonResponse
     {
         $anlage = $anlagenRepository->findByAllMatching($request->query->get('query'));
         return $this->json([

@@ -38,15 +38,12 @@ use Nuzkito\ChromePdf\ChromePdf;
 
 class DownloadController extends AbstractController
 {
-    /**
-     * @Route("/download", name="app_download")
-     */
+    #[Route(path: '/download', name: 'app_download')]
     public function dataDownload(Request $request, DownloadDataService $downloadData)
     {
         $form = $this->createForm(DownloadDataFormType::class);
         $form->handleRequest($request);
         $output = '';
-
         // Wenn Calc gelickt wird mache dies:
         if($form->isSubmitted() && $form->isValid() && $form->get('calc')->isClicked()) {
 
@@ -79,12 +76,10 @@ class DownloadController extends AbstractController
             }
 
         }
-
         // Wenn Close gelickt wird mache dies:
         if($form->isSubmitted() && $form->isValid() && $form->get('close')->isClicked()) {
             return $this->redirectToRoute('app_dashboard');
         }
-
         return $this->render('downloadData/index.html.twig', [
             'downloadForm' => $form->createView(),
             'output'    => $output,
@@ -92,16 +87,13 @@ class DownloadController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/download/analyse/{formview}/{plantIdexp}", name="app_analyse_download", defaults={"formview"="-", "plantIdexp"=0})
-     */
-    public function downloadAnalyse($formview, $plantIdexp, Request $request, DownloadAnalyseService $analyseService){
-
+    #[Route(path: '/download/analyse/{formview}/{plantIdexp}', name: 'app_analyse_download', defaults: ['formview' => '-', 'plantIdexp' => 0])]
+    public function downloadAnalyse($formview, $plantIdexp, Request $request, DownloadAnalyseService $analyseService)
+    {
         //das Formular für die Datumsselektion
         $form = $this->createForm(DownloadAnalyseFormType::class);
         $form->handleRequest($request);
         $plantId = 91;
-
         if ($form->isSubmitted() && $form->get('calc')->isClicked()) { // 'calc' == generate Analyse
             /* @var DownloadAnalyseModel $downloadAnalyseModel */
             $downloadAnalyseModel = $form->getData();
@@ -113,16 +105,13 @@ class DownloadController extends AbstractController
         if ($plantIdexp > 0){
             $plantId = $plantIdexp;
         }
-
         #das hidden Formular für den Download
         $formPdfDownload = $this->createForm(DownloadAnalyseFormExportType::class,null, array("anlagenid" => $plantId));
         $formPdfDownload->handleRequest($request);
-
         $output = '';
         $anlage = 0;
         $outputchart = [];
         $outputtable = [];
-
         // Wenn Calc (generate Analyse) gelickt wird mache dies:
         if(($form->isSubmitted() && $form->get('calc')->isClicked()) || ($formPdfDownload->isSubmitted() && $formPdfDownload->get('export')->isClicked())) {
 
@@ -256,12 +245,10 @@ class DownloadController extends AbstractController
 
 
         }
-
         // Wenn Close gelickt wird mache dies:
         if($form->isSubmitted() && $form->isValid() && $form->get('close')->isClicked()) {
             return $this->redirectToRoute('app_dashboard');
         }
-
         $params[] = [
             'tableType' => $tableType,
             'downloadHeadline' => $headLine,
@@ -274,14 +261,12 @@ class DownloadController extends AbstractController
             'plant_power' => $plantPower,
             'footerType' => 'download',
         ];
-
         $downloadTable =  new DownloadReport(
             [
                 "download" => $outputtable,
                 "params" => $params,
             ]
         );
-
         if($formview == 'download'){
             $currentDate = date('Y-m-d H-i');
             $secretToken = '2bf7e9e8c86aa136b2e0e7a34d5c9bc2f4a5f83291a5c79f5a8c63a3c1227da9';
@@ -320,7 +305,6 @@ class DownloadController extends AbstractController
             }
 
         }
-
         if($form->isSubmitted()){
             $report =  $downloadTable->run()->render(true);
 
@@ -345,9 +329,6 @@ class DownloadController extends AbstractController
         }else{
             $report = '';
         }
-
-
-
         return $this->render('downloadData/download.html.twig', [
             'downloadAnalysesExportForm' => $formPdfDownload->createView(),
             'downloadAnalysesForm' => $form->createView(),

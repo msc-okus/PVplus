@@ -43,8 +43,8 @@ class AnlagenReports
 
     /**
      * @ORM\Column(type="string", length=50)
-     * @Groups({"main:read"})
      */
+    #[Groups(['main:read'])]
     private string $reportType;
 
     /**
@@ -97,8 +97,8 @@ class AnlagenReports
 
     /**
      * @ORM\Column(type="integer")
-     * @Groups({"main:read"})
      */
+    #[Groups(['main:read'])]
     private int $reportStatus = 10;
 
     /**

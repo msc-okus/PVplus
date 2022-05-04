@@ -40,22 +40,22 @@ class Anlage
      * @ORM\Column(name="id", type="bigint", nullable=false)
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @Groups({"main"})
      */
+    #[Groups(['main'])]
     private int $anlId;
 
     /**
      * @var string
      *
      * @ORM\Column(name="eigner_id", type="bigint", nullable=false)
-     * @Groups({"main"})
      */
+    #[Groups(['main'])]
     private string $eignerId;
 
     /**
      * @ORM\Column(name="anl_type", type="string", length=25, nullable=false)
-     * @Groups({"main"})
      */
+    #[Groups(['main'])]
     private string $anlType;
 
     /**
@@ -78,8 +78,8 @@ class Anlage
      * @var string
      *
      * @ORM\Column(name="anl_name", type="string", length=50, nullable=false)
-     * @Groups({"main"})
      */
+    #[Groups(['main'])]
     private string $anlName;
 
     /**
@@ -94,32 +94,32 @@ class Anlage
      * @var string
      *
      * @ORM\Column(name="anl_plz", type="string", length=10, nullable=false)
-     * @Groups({"main"})
      */
+    #[Groups(['main'])]
     private string $anlPlz;
 
     /**
      * @var string
      *
      * @ORM\Column(name="anl_ort", type="string", length=100, nullable=false)
-     * @Groups({"main"})
      */
+    #[Groups(['main'])]
     private string $anlOrt;
 
     /**
      * @var string
      *
      * @ORM\Column(name="anl_intnr", type="string", length=50, nullable=false)
-     * @Groups({"main"})
      */
+    #[Groups(['main'])]
     private string $anlIntnr;
 
     /**
      * @var string
      *
      * @ORM\Column(type="string", length=20)
-     * @Groups({"main"})
      */
+    #[Groups(['main'])]
     private string $power = '0';
 
     /**
@@ -803,27 +803,27 @@ class Anlage
     /**
      * @ORM\Column(type="boolean")
      */
-    private $RetrieveAllData = false;
+    private bool $RetrieveAllData = false;
 
     /**
      * @ORM\OneToMany(targetEntity=DayLightData::class, mappedBy="anlage")
      */
-    private $dayLightData;
+    private Collection $dayLightData;
 
     /**
      * @ORM\Column(type="string")
      */
-    private $FreqTolerance = 0;
+    private float $freqTolerance = 0.0;
 
     /**
      * @ORM\Column(type="string")
      */
-    private $FreqBase = 50;
+    private int $freqBase = 50;
 
     /**
      * @ORM\Column(type="boolean")
      */
-    private $hasFrequency = false;
+    private ?bool $hasFrequency = false;
 
 
     public function __construct()
@@ -2585,6 +2585,8 @@ class Anlage
                 'prDesign'  => $month->getPrDesign(),
                 'ertragDesign' => $month->getErtragDesign(),
                 'irrDesign' => $month->getIrrDesign(),
+                'tempAmbDesign' => $month->getTempAmbientDesign(),
+                'tempAmbWeightedDesign' => $month->getTempArrayAvgDesign(),
             ];
         }
 
@@ -3408,24 +3410,24 @@ class Anlage
 
     public function getFreqTolerance(): ?int
     {
-        return $this->FreqTolerance;
+        return $this->freqTolerance;
     }
 
-    public function setFreqTolerance(int $FreqTolerance): self
+    public function setFreqTolerance(int $freqTolerance): self
     {
-        $this->FreqTolerance = $FreqTolerance;
+        $this->freqTolerance = $freqTolerance;
 
         return $this;
     }
 
     public function getFreqBase(): ?int
     {
-        return $this->FreqBase;
+        return $this->freqBase;
     }
 
-    public function setFreqBase(int $FreqBase): self
+    public function setFreqBase(int $freqBase): self
     {
-        $this->FreqBase = $FreqBase;
+        $this->freqBase = $freqBase;
 
         return $this;
     }

@@ -11,9 +11,7 @@ use Symfony\Component\Security\Core\Security;
 
 class DashboardController extends BaseController
 {
-    /**
-     * @Route("/", name="app_dashboard")
-     */
+    #[Route(path: '/', name: 'app_dashboard')]
     public function index(EignerRepository $eignerRepository)
     {
         /* @var Eigner [] $eigners */
@@ -29,7 +27,6 @@ class DashboardController extends BaseController
                 }
            }
         }
-
         foreach ($eigners as $eigner) {
             $owners[] = $eigner;
         }
@@ -39,10 +36,9 @@ class DashboardController extends BaseController
     }
     /**
      * Dashboard für den Eigner (nur Anlagen eines Eigners / standard Seite für Eigner)
-     * @Route("/dashboard/{eignerId}", name="app_dashboard_eigner")
      */
+    #[Route(path: '/dashboard/{eignerId}', name: 'app_dashboard_eigner')]
     public function eignerDashboard($eignerId, Security $security, UserRepository $userRepository, EignerRepository $eignerRepository)
     {
-
     }
 }
