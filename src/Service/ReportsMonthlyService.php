@@ -154,7 +154,7 @@ class ReportsMonthlyService
         $fromDay = new \DateTime("$year-$month-01 00:00");
         $toDay   = new \DateTime("$year-$month-$daysInMonth 23:59");
         $prSumArray = $this->PRCalulation->calcPR($anlage, $fromDay, $toDay);
-
+        dump($prSumArray);
         // Summe / Total Row
         $sumValues['datum'] = $total;
         $sumValues['PowerEvuMonth']     = $anlage->getShowEvuDiag() ? $prSumArray['powerEvu'] : $prSumArray['powerAct'];
@@ -209,9 +209,9 @@ class ReportsMonthlyService
         // Month
         $energypPoduction[0] = [
             'PD'            => $date->format('F'),
-            'GMNB'          => $prSumArray['powerEGridExt'],
-            'GMNA'          => $prSumArray['powerEvu'],
-            'IOUT'          => $prSumArray['powerAct'],
+            'GMNB'          => $prSumArray['powerEGridExt'],    // Grid Meter EVU (externes Meßßgerät)
+            'GMNA'          => $prSumArray['powerEvu'],         // Grid Meter via VCOM (e_z_evu)
+            'IOUT'          => $prSumArray['powerAct'],         // Inverter Out
             'kwPeakPvSyst'  => $pvSyst['powerMonth'],
             'G4NExpected'   => $prSumArray['powerExp'],
         ];
@@ -223,11 +223,11 @@ class ReportsMonthlyService
             $prSumArrayPac = $this->PRCalulation->calcPR($anlage, $anlage->getPacDate(), $toDay);
             $energypPoduction[1] = [
                 'PD'            => 'PAC (' . $anlage->getPacDate()->format('Y-m-d') . ')',
-                'GMNB'          => $prSumArrayPac['powerEGridExt'], //(float)$report['lastPR']->getpowerEGridExtPac(),
-                'GMNA'          => $prSumArrayPac['powerEvu'], //(float)$report['lastPR']->getpowerEvuPac(),
-                'IOUT'          => $prSumArrayPac['powerAct'], //(float)$report['lastPR']->getpowerActPac(),
+                'GMNB'          => $prSumArrayPac['powerEGridExt'],
+                'GMNA'          => $prSumArrayPac['powerEvu'],
+                'IOUT'          => $prSumArrayPac['powerAct'],
                 'kwPeakPvSyst'  => $pvSyst['powerPac'],
-                'G4NExpected'   => $prSumArrayPac['powerExp'], //(float)$report['lastPR']->getpowerExpPac(),
+                'G4NExpected'   => $prSumArrayPac['powerExp'],
             ];
         }
 
@@ -255,33 +255,33 @@ class ReportsMonthlyService
 
         $performanceRatioAndAvailability[0] = [
             'PD'            => $date->format('F'),
-            'GMNB'          => $prSumArray['prEGridExt'], //(float)$report['lastPR']->getprEGridExtMonth(),
-            'GMNA'          => $prSumArray['prEvu'], //(float)$report['lastPR']->getprEvuMonth(),
-            'IOUT'          => $prSumArray['prAct'], //(float)$report['lastPR']->getprActMonth(),
+            'GMNB'          => $prSumArray['prDefaultEGridExt'],
+            'GMNA'          => $prSumArray['prDefaultEvu'],
+            'IOUT'          => $prSumArray['prDefaultAct'],
             'kwPeakPvSyst'  => $pvSyst['prMonth'],
-            'G4NExpected'   => $prSumArray['prExp'], //(float)$report['lastPR']->getprExpMonth(),
-            'Availability1' => $prSumArray['availability'], //(float)$report['lastPR']->getplantAvailabilityPerMonth(),
-            'Availability2' => $prSumArray['availability2'], //(float)$report['lastPR']->getplantAvailabilityPerMonthSecond(),
+            'G4NExpected'   => $prSumArray['prDefaultExp'],
+            'Availability1' => $prSumArray['availability'],
+            'Availability2' => $prSumArray['availability2'],
         ];
         if($anlage->getUsePac()) {
             $performanceRatioAndAvailability[1] = [
                 'PD'            => 'PAC (' . $anlage->getPacDate()->format('Y-m-d') . ')',
-                'GMNB'          => $prSumArrayPac['prEGridExt'], //(float)$report['lastPR']->getprEGridExtPac(),
-                'GMNA'          => $prSumArrayPac['prEvu'], //(float)$report['lastPR']->getprEvuPac(),
-                'IOUT'          => $prSumArrayPac['prAct'], //(float)$report['lastPR']->getprActPac(),
+                'GMNB'          => $prSumArrayPac['prDefaultEGridExt'], //(float)$report['lastPR']->getprEGridExtPac(),
+                'GMNA'          => $prSumArrayPac['prDefaultEvu'], //(float)$report['lastPR']->getprEvuPac(),
+                'IOUT'          => $prSumArrayPac['prDefaultAct'], //(float)$report['lastPR']->getprActPac(),
                 'kwPeakPvSyst'  => $pvSyst['prPac'],
-                'G4NExpected'   => $prSumArrayPac['prExp'], //(float)$report['lastPR']->getprExpPac(),
+                'G4NExpected'   => $prSumArrayPac['prDefaultExp'], //(float)$report['lastPR']->getprExpPac(),
                 'Availability1' => $prSumArrayPac['availability'], //(float)$report['lastPR']->getplantAvailabilityPerPac(),
                 'Availability2' => $prSumArrayPac['availability2'], //(float)$report['lastPR']->getplantAvailabilityPerPacSecond(),
             ];
         }
         $performanceRatioAndAvailability[2] = [
             'PD'            => 'Total year (' . $reportYear . ')',
-            'GMNB'          => $prSumArrayYear['prEGridExt'], //(float)$report['lastPR']->getprEGridExtYear(),
-            'GMNA'          => $prSumArrayYear['prEvu'], //(float)$report['lastPR']->getprEvuYear(),
-            'IOUT'          => $prSumArrayYear['prAct'], //(float)$report['lastPR']->getprActYear(),
+            'GMNB'          => $prSumArrayYear['prDefaultEGridExt'], //(float)$report['lastPR']->getprEGridExtYear(),
+            'GMNA'          => $prSumArrayYear['prDefaultEvu'], //(float)$report['lastPR']->getprEvuYear(),
+            'IOUT'          => $prSumArrayYear['prDefaultAct'], //(float)$report['lastPR']->getprActYear(),
             'kwPeakPvSyst'  => $pvSyst['prYear'],
-            'G4NExpected'   => $prSumArrayYear['prExp'], //(float)$report['lastPR']->getprExpYear(),
+            'G4NExpected'   => $prSumArrayYear['prDefaultExp'], //(float)$report['lastPR']->getprExpYear(),
             'Availability1' => $prSumArrayYear['availability'], //(float)$report['lastPR']->getplantAvailabilityPerYear(),
             'Availability2' => $prSumArrayYear['availability2'], //(float)$report['lastPR']->getplantAvailabilityPerYearSecond(),
         ];
@@ -329,7 +329,7 @@ class ReportsMonthlyService
                 ],
             ],
         ];
-
+        #dd("Fertig");
         return $report;
     }
 

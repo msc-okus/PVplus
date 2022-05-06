@@ -738,11 +738,11 @@ class FunctionsService
             $row = $res->fetch(PDO::FETCH_ASSOC);
             $result['powerEvu']      = $powerEvu;
             $result['powerAct']      = round($row["sum_power_ac"],4);
-            $result['powerExp']      = $powerExp;
-            $result['powerExpEvu']   = $powerExpEvu;
+            $result['powerExp']      = (float)$powerExp;
+            $result['powerExpEvu']   = (float)$powerExpEvu;
             $result['powerEGridExt'] = $powerEGridExt;
-            $result['powerTheo']     = $powerTheo;
-            $result['tCellAvg']      = $tCellAvg;
+            $result['powerTheo']     = (float)$powerTheo;
+            $result['tCellAvg']      = (float)$tCellAvg;
         }
         unset($res);
 
