@@ -61,7 +61,8 @@ class TicketController extends BaseController
             return $this->redirect($Route);
         }
         return $this->render('ticket/create.html.twig',[
-            'ticketForm'=>$form->createView()
+            'ticketForm'=>$form->createView(),
+            'edited' => false
         ]);
     }
 
@@ -103,6 +104,7 @@ class TicketController extends BaseController
         return $this->render('ticket/edit.html.twig', [
             'ticketForm'    => $form->createView(),
             'ticket'        => $ticket,
+            'edited' => true
         ]);
     }
 
