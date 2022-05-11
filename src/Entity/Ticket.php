@@ -149,6 +149,11 @@ class Ticket
      */
     private ?string $inverter;
 
+    /**
+     * @ORM\Column(type="string", length=100)
+     */
+    private $alertType = "";
+
 
 
     public function getId(): ?int
@@ -455,6 +460,18 @@ class Ticket
     public function setInverter(?string $inverter): self
     {
         $this->inverter = $inverter;
+
+        return $this;
+    }
+
+    public function getAlertType(): ?string
+    {
+        return $this->alertType;
+    }
+
+    public function setAlertType(string $alertType): self
+    {
+        $this->alertType = $alertType;
 
         return $this;
     }

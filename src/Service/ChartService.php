@@ -111,7 +111,7 @@ class ChartService
                 $form['to']     = date("Y-m-d 23:59", strtotime($currentYear.'-'.$currentMonth.'-'.$currentDay));
             }
         }
-
+        if ($form['selectedGroup'] == "-1") $form['selectedGroup'] = -1;
         $from   = self::timeShift($anlage, $form['from'],true);
         $to     = self::timeShift($anlage, $form['to'],true);
         if ($anlage) {
