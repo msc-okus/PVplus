@@ -116,7 +116,7 @@
             seriesCosPhi.connect = false;
         {% endif %}
 
-        {% if ((form.selectedChart == 'ac_act_group' or form.selectedChart == 'dc_act_group')) and false %}
+          {% if ((form.selectedChart == 'ac_act_group' or form.selectedChart == 'dc_act_group')) and false %}
             let seriesTemp = chart.series.push(new am4charts.LineSeries());
             seriesTemp.name = "InverterTemp"
             seriesTemp.dataFields.dateX = "date";
@@ -130,7 +130,7 @@
             seriesTemp.hidden = true;
             seriesTemp.yAxis = valueAxisTemp;
             seriesTemp.connect = false;
-        {% endif %}
+         {% endif %}
 
         chart.cursor = new am4charts.XYCursor();
         chart.cursor.xAxis = dateAxis;

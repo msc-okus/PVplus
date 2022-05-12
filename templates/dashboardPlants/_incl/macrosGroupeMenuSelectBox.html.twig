@@ -58,9 +58,9 @@
         <input type="hidden" name="selectedGroup" value="1">
     {% else %}
         <select class="form-control js-submit-onchange" title="Select a Group" data-toggle="tooltip" name="selectedGroup">
-
-            <option value="-1" >All</option>
-
+            {% if (form.selectedChart == 'dc_act_overview') %}
+                <option value="-1" >All</option>
+            {% endif %}
             {% if     aktAnlage.configType == 1 %}
                 {{ _self.configType1(form, aktAnlage) }}
             {% elseif aktAnlage.configType == 2 %}
