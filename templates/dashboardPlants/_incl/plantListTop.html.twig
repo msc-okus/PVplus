@@ -1,9 +1,40 @@
+{#
+<div class="cell medium-12 large-12 xlarge-12">
+    <button type="button" class="button" id="showGrid" data-toggle="showGrid"><i id="bton" class="fa fa-bars"></i></button>
+</div>
+<script>
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById("showGrid").addEventListener('click',function () {
+            var x = document.getElementById("showGridtoogle");
+            var y = document.getElementById("showLinetoogle");
+            if (x.style.display === "none") {
+                x.style.display = "block";
+                y.style.display = "none";
+                document.getElementById("bton").className = "fa fa-bars";
+            } else {
+                x.style.display = "none";
+                y.style.display = "block";
+                document.getElementById("bton").className = "fa fa-pause";
+            }
+         } );
+    } );
+
+</script>
+<div class="clear clearfix"></div>
+<span  id="showGridtoogle">
+    <p>Grid</p>
+</span>
+<span  id="showLinetoogle" style="display:none">
+       <p>Line</p>
+</span>
+#}
 {% for anlage in anlagen %}
     {% if anlage.lastStatus[0] is defined %}{% set status = anlage.lastStatus[0] %}{% endif %}
     {% if anlage.yesterdayPR[0] is defined %}{% set pr = anlage.yesterdayPR[0] %}{% endif %}
     {% if anlage.lastOpenWeather[0] is defined %}{% set openWeather = anlage.lastOpenWeather[0] %}{% endif %}
     {% if loop.index == 1 or not aktAnlage %}
-        <div class="cell medium-6 large-4 xlarge-3 box kachel shadow {% if aktAnlage %}fb{% endif %}">
+         <div class="cell medium-6 large-4 xlarge-3 box kachel shadow {% if aktAnlage %}fb{% endif %}">
             <a href='{{ path('app_dashboard_plant', {eignerId: anlage.eignerId, anlageId: anlage.anlagenId}) }}' class="plant">
                 <div class="grid-x">
                     <div class="cell small-8">
@@ -387,7 +418,9 @@
         {% if loop.index == loop.length%}
                 </div>
             </div> <!--last Div-->
+
         {% endif %}
         {# ENDE MINI SHOW #}
     {% endif %}
 {% endfor %}
+

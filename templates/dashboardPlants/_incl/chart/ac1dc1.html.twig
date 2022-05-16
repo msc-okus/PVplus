@@ -161,9 +161,11 @@
         {% endif %}
 
         let seriesIrr = chart.series.push(new am4charts.LineSeries());
-        seriesIrr.name = "Irradiation W/m²"
         seriesIrr.dataFields.dateX = "date";
         seriesIrr.dataFields.valueY = "irradiation";
+       // seriesIrr.legendSettings.labelText = "Irradiation W/m²";
+       // seriesIrr.legendSettings.valueText = "{valueY.total}";
+        seriesIrr.name = "Irradiation {{ (content.irrSum)|number_format(0, ',', '.') }} kW/m²";
         seriesIrr.tooltipText = "Irradiation W/m²: {valueY} [/]";
         seriesIrr.fill = am4core.color("#95018e");
         seriesIrr.stroke = am4core.color("#95018e");
