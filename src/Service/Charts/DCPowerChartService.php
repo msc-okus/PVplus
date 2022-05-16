@@ -344,15 +344,26 @@ class DCPowerChartService
     public function getDC3(Anlage $anlage, $from, $to, int $group = 1,  bool $hour = false):array
     {
         if ($group == -1){
-            $groups = $anlage->getGroupsAc();
-            $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
+            if ($hour) $form = '%y%m%d%H';
+            else $form = '%y%m%d%H%i';
+
             $conn = self::getPdoConnection();
+            $groups = $anlage->getGroupsAc();
             $dataArray = [];
-            $nameArray = $this->functions->getNameArray($anlage, 'dc');
-            $sqlExpected = "SELECT a.stamp, avg(b.soll_pdcwr) as soll 
-            FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDcSoll() . " b ON a.stamp = b.stamp) 
-            WHERE a.stamp BETWEEN '$from' AND '$to' 
-            GROUP by date_format(a.stamp, '$form')";
+            $inverterNr = 0;
+            switch ($anlage->getConfigType()) {
+                case 1: // Andjik
+                case 3:
+                case 4:
+                    $nameArray = $this->functions->getNameArray($anlage, 'dc');
+                    break;
+                default:
+                    $nameArray = $this->functions->getNameArray($anlage, 'ac');
+            }
+            $sqlExp = "SELECT a.stamp as stamp, sum(b.dc_exp_power) as expected
+                        FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_power, group_ac FROM " . $anlage->getDbNameDcSoll() . " WHERE group_ac = '$group') b ON a.stamp = b.stamp)
+                        WHERE a.stamp BETWEEN '$from' AND '$to' 
+                        GROUP BY date_format(a.stamp, '$form')";
 
             if ($anlage->getUseNewDcSchema()) {
 
@@ -363,14 +374,13 @@ class DCPowerChartService
 
             } else {
                 $sql = "SELECT sum(wr_pdc) as istCurrent 
-                                    FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameACIst() . " b ON a.stamp = b.stamp)
+                                    FROM (db_dummysoll a LEFT JOIN  " . $anlage->getDbNameACIst() . " b ON a.stamp = b.stamp)
                                     WHERE a.stamp BETWEEN '$from' AND '$to' 
                                     GROUP BY date_format(a.stamp, '$form'), group_dc ";
             }
-
-            $resultExp = $conn->query($sqlExpected);
+            dump($sql);
+            $resultExp = $conn->query($sqlExp);
             $resultActual = $conn->query($sql);
-
 
             $maxInverter = $resultActual->rowCount() / $resultExp->rowCount();
 
@@ -386,7 +396,8 @@ class DCPowerChartService
                 // SOLL Strom für diesen Zeitraum und diese Gruppe
 
                 $dataArray['maxSeries'] = 0;
-                $counter = 1;
+                $legend= $groups[$group]['GMIN'] - 1;
+                $counter = 0;
                 while ($rowExp = $resultExp->fetch(PDO::FETCH_ASSOC)) {
 
                     $stamp = $rowExp["stamp"];
@@ -403,14 +414,12 @@ class DCPowerChartService
                         if($currentIst != null) $currentIst = round($rowActual['istCurrent'], 2);
                         else $currentIst = 0;
 
-                        if (!( self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
-                            switch ($anlage->getConfigType()) {
-                                case 3:
 
-                                    break;
-                                default:
+                        if (!( self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
+
+
                                     $dataArray['chart'][$counter][$nameArray[$counterInv]] = $currentIst;
-                            }
+
                         }
                         $counterInv++;
                     }

@@ -116,6 +116,20 @@
 </div>
 {{ form_end(ticketForm) }}
 {% if (edited == true) %}
+
+    <div >
+        <div >
+            <h1 >Splitting stuff</h1>
+            <div {{ stimulus_controller('modal-form') }}>
+                <button
+                        class="button"
+                        data-action="modal-form#openModal"
+                >split ticket</button>
+            </div>
+
+        </div>
+    </div>
+{#
 <div class="grid-x grid-margin-x grid-padding-x">
     <div class="reveal" id="Modal1" data-reveal>
         <h1>Here there will be a form only to edit the times on wich the ticket will be split</h1>
@@ -150,4 +164,5 @@
         <p><button class="button" data-open="Modal3">Split ticket Edit Second</button></p>
     </div>
 </div>
+#}
 {% endif %}
