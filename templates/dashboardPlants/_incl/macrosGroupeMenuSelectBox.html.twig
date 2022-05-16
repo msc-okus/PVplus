@@ -1,7 +1,7 @@
 {% macro groupMenu(form, aktAnlage) %}
 
     {% if form.selectedChart == 'dc_inv_power_diff' or form.selectedChart == 'inverter_performance' or form.selectedChart == 'dc_current_inverter' or form.selectedChart == 'ac_act_group' or form.selectedChart == 'ac_act_voltage' or form.selectedChart == 'ac_act_current' or form.selectedChart == 'ac_act_frequency' or form.selectedChart == 'dc_act_group' or form.selectedChart == 'dc_current_overview' %}
-        <select class="form-control js-submit-onchange" title="Select a Group" data-toggle="tooltip" name="selectedGroup">
+        <select class="form-control js-submit-onchange" title="Select a Group d1" data-toggle="tooltip" name="selectedGroup">
             {% if form.selectedChart starts with 'acAct' or form.selectedChart == 'dc_current_overview' or form.selectedChart == 'reactive_power'%}
                 {% if aktAnlage.configType != 1 %}
                     {% for group in aktAnlage.groups%}
@@ -73,19 +73,45 @@
 {# Konfiguration Gruppenmenüs #}
 {# configType == 1 #}
 {% macro configType1(form, aktAnlage) %}
-    {% if form.selectedChart == 'ac_act_overview' or form.selectedChart == 'dc_act_overview' or form.selectedChart == 'dc_current_overview' %}
+    {% if form.selectedChart == 'ac_act_overview' %}
         {# AC Gruppen anzeigen #}
-        {% for group in aktAnlage.acGroups %}
-            <option value="{{ loop.index }}" {% if form.selectedGroup == loop.index %}selected{% endif %}>{{ group.acGroupName }}</option>
+        {% set selectorA = 0 %}
+        {% set nn = form.selectedGroup %}
+        {% for groupA in aktAnlage.acGroups %}
+          {% set selectorA = selectorA + 1 %}
+          {% if form.selectedGroup > loop.length %} {% set nn = 1 %} {% endif %}
+             <option value="{{ selectorA }}" {% if nn == selectorA %}selected{% endif %}>{{ groupA.acGroupName }}</option>
+        {% endfor %}
+    {% elseif form.selectedChart == 'dc_act_overview' %}
+        {# AC Gruppen anzeigen #}
+        {% set selectorB = 0 %}
+        {% set nn = form.selectedGroup %}
+        {% for groupB in aktAnlage.acGroups %}
+           {% set selectorB = selectorB + 1 %}
+           {% if form.selectedGroup > loop.length %} {% set nn = 1 %} {% endif %}
+              <option value="{{ selectorB }}" {% if nn == selectorB %}selected{% endif %}>{{ groupB.acGroupName }}</option>
+        {% endfor %}
+    {% elseif form.selectedChart == 'dc_current_overview' %}
+        {# AC Gruppen anzeigen #}
+        {% set selectorC = 0 %}
+        {% set nn = form.selectedGroup %}
+        {% for groupC in aktAnlage.acGroups %}
+            {% set selectorC= selectorC + 1 %}
+            {% if form.selectedGroup > loop.length %} {% set nn = 1 %} {% endif %}
+               <option value="{{ selectorC }}" {% if nn == selectorC %}selected{% endif %}>{{ groupC.acGroupName }}</option>
         {% endfor %}
     {% else %}
         {# DC Gruppen anzeigen #}
-        {% for group in aktAnlage.groups %}
-            <option value="{{ loop.index }}" {% if form.selectedGroup == loop.index %}selected{% endif %}>{{ group.dcGroupName }}</option>
+        {% set selectorX = 0 %}
+        {% set nn = form.selectedGroup %}
+        {% for groupX in aktAnlage.groups %}
+            {% set selectorX = selectorX + 1 %}
+            {% if form.selectedGroup > loop.length %} {% set nn = 1 %} {% endif %}
+               <option value="{{ selectorX }}" {% if nn == selectorX %}selected{% endif %}>{{ groupX.dcGroupName }}</option>
         {% endfor %}
     {% endif %}
 {% endmacro %}
-
+{#{% if form.selectedGroup == loop.index %}selected{% endif %}
 {# configType == 2 #}
 {% macro configType2(form, aktAnlage) %}
     {% if form.selectedChart starts with 'ac_act' or form.selectedChart starts with 'dc_act' or form.selectedChart starts with 'dc_current' or form.selectedChart == 'reactive_power' %}
