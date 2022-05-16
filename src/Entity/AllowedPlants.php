@@ -20,12 +20,12 @@ class AllowedPlants
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="allowedPlants")
      */
-    private $User;
+    private $user;
 
     /**
      * @ORM\Column(type="string", length=100)
      */
-    private $Anlage;
+    private $anlage;
 
     public function getId(): ?int
     {
@@ -46,12 +46,12 @@ class AllowedPlants
 
     public function getAnlage(): ?string
     {
-        return $this->Anlage;
+        return $this->anlage;
     }
 
-    public function setAnlage(string $Anlage): self
+    public function setAnlage(string $anlage): self
     {
-        $this->Anlage = $Anlage;
+        $this->anlage = $anlage;
 
         return $this;
     }

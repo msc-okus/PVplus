@@ -793,7 +793,7 @@ class Anlage
     /**
      * @ORM\Column(type="boolean")
      */
-    private $hasWindSpeed = true;
+    private bool $hasWindSpeed = true;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -811,12 +811,12 @@ class Anlage
     private Collection $dayLightData;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", length=20)
      */
     private float $freqTolerance = 0.0;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", length=20)
      */
     private int $freqBase = 50;
 

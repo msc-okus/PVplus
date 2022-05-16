@@ -52,6 +52,7 @@ class ACPowerChartsService
                     WHERE a.stamp >= '$from' AND a.stamp < '$to' 
                     GROUP by date_format(a.stamp, '$form')";
 
+
             $resExp = $conn->query($sqlExp);
             $actSum = $expSum = $expEvuSum = $expNoLimitSum = $evuSum = $cosPhiSum = $theoPowerSum = 0;
             $dataArray = [];
@@ -128,13 +129,15 @@ class ACPowerChartsService
                     if (isset($dataArrayIrradiation['chart'][$counter]['val1'])) {
                         if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
                             $dataArray['chart'][$counter]["irradiation"] = $dataArrayIrradiation['chart'][$counter]['val1'];
+                            $irrSum += $dataArray['chart'][$counter]["irradiation"];
                         } else {
                             $dataArray['chart'][$counter]["irradiation"] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;
+                            $irrSum += $dataArray['chart'][$counter]["irradiation"];
                         }
                     }
                     $counter++;
                 }
-
+                $dataArray['irrSum'] = round($irrSum, 2);
                 $dataArray['actSum'] = round($actSum, 2);
                 $dataArray['expSum'] = round($expSum, 2);
                 $dataArray['expEvuSum'] = round($expEvuSum, 2);
