@@ -1015,7 +1015,6 @@
         },
         {
             "name": "doctrine/dbal",
-
             "version": "3.3.6",
             "source": {
                 "type": "git",
@@ -1031,11 +1030,11 @@
             "require": {
                 "composer-runtime-api": "^2",
                 "doctrine/cache": "^1.11|^2.0",
-
                 "doctrine/deprecations": "^0.5.3|^1",
                 "doctrine/event-manager": "^1.0",
-                "ext-pdo": "*",
-                "php": "^7.1 || ^8"
+                "php": "^7.3 || ^8.0",
+                "psr/cache": "^1|^2|^3",
+                "psr/log": "^1|^2|^3"
             },
             "require-dev": {
                 "doctrine/coding-standard": "9.0.0",
@@ -1048,7 +1047,6 @@
                 "symfony/cache": "^5.2|^6.0",
                 "symfony/console": "^2.7|^3.0|^4.0|^5.0|^6.0",
                 "vimeo/psalm": "4.23.0"
-
             },
             "suggest": {
                 "symfony/console": "For helpful console commands such as SQL execution and import of files."
@@ -1059,7 +1057,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Doctrine\\DBAL\\": "lib/Doctrine/DBAL"
+                    "Doctrine\\DBAL\\": "src"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -1102,7 +1100,6 @@
                 "queryobject",
                 "sasql",
                 "sql",
-                "sqlanywhere",
                 "sqlite",
                 "sqlserver",
                 "sqlsrv"
@@ -1110,7 +1107,6 @@
             "support": {
                 "issues": "https://github.com/doctrine/dbal/issues",
                 "source": "https://github.com/doctrine/dbal/tree/3.3.6"
-
             },
             "funding": [
                 {
@@ -1719,13 +1715,12 @@
                 "composer-runtime-api": "^2",
                 "doctrine/dbal": "^3.3",
                 "doctrine/deprecations": "^0.5.3 || ^1",
-
                 "doctrine/event-manager": "^1.0",
                 "friendsofphp/proxy-manager-lts": "^1.0",
-                "php": "^7.2 || ^8.0",
+                "php": "^7.4 || ^8.0",
                 "psr/log": "^1.1.3 || ^2 || ^3",
-                "symfony/console": "^3.4 || ^4.4.16 || ^5.0",
-                "symfony/stopwatch": "^3.4 || ^4.0 || ^5.0"
+                "symfony/console": "^4.4.16 || ^5.4 || ^6.0",
+                "symfony/stopwatch": "^4.4 || ^5.4 || ^6.0"
             },
             "conflict": {
                 "doctrine/orm": "<2.12"
@@ -1746,7 +1741,6 @@
                 "symfony/cache": "^4.4 || ^5.4 || ^6.0",
                 "symfony/process": "^4.4 || ^5.4 || ^6.0",
                 "symfony/yaml": "^4.4 || ^5.4 || ^6.0"
-
             },
             "suggest": {
                 "doctrine/sql-formatter": "Allows to generate formatted SQL with the diff command.",
@@ -1794,9 +1788,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/migrations/issues",
-
                 "source": "https://github.com/doctrine/migrations/tree/3.5.1"
-
             },
             "funding": [
                 {
@@ -1813,7 +1805,6 @@
                 }
             ],
             "time": "2022-05-09T20:24:38+00:00"
-
         },
         {
             "name": "doctrine/orm",
@@ -1916,7 +1907,6 @@
         },
         {
             "name": "doctrine/persistence",
-
             "version": "2.5.3",
             "source": {
                 "type": "git",
@@ -1927,7 +1917,6 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/doctrine/persistence/zipball/d7edf274b6d35ad82328e223439cc2bb2f92bd9e",
                 "reference": "d7edf274b6d35ad82328e223439cc2bb2f92bd9e",
-
                 "shasum": ""
             },
             "require": {
@@ -2001,7 +1990,6 @@
             "support": {
                 "issues": "https://github.com/doctrine/persistence/issues",
                 "source": "https://github.com/doctrine/persistence/tree/2.5.3"
-
             },
             "funding": [
                 {
@@ -2018,7 +2006,6 @@
                 }
             ],
             "time": "2022-05-03T09:16:53+00:00"
-
         },
         {
             "name": "doctrine/sql-formatter",
@@ -2916,7 +2903,7 @@
         },
         {
             "name": "illuminate/bus",
-            "version": "v8.83.11",
+            "version": "v8.83.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/bus.git",
@@ -2969,7 +2956,7 @@
         },
         {
             "name": "illuminate/collections",
-            "version": "v8.83.11",
+            "version": "v8.83.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/collections.git",
@@ -3023,7 +3010,7 @@
         },
         {
             "name": "illuminate/container",
-            "version": "v8.83.11",
+            "version": "v8.83.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/container.git",
@@ -3074,7 +3061,7 @@
         },
         {
             "name": "illuminate/contracts",
-            "version": "v8.83.11",
+            "version": "v8.83.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/contracts.git",
@@ -3122,7 +3109,7 @@
         },
         {
             "name": "illuminate/events",
-            "version": "v8.83.11",
+            "version": "v8.83.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/events.git",
@@ -3177,7 +3164,7 @@
         },
         {
             "name": "illuminate/filesystem",
-            "version": "v8.83.11",
+            "version": "v8.83.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/filesystem.git",
@@ -3239,7 +3226,7 @@
         },
         {
             "name": "illuminate/macroable",
-            "version": "v8.83.11",
+            "version": "v8.83.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/macroable.git",
@@ -3285,7 +3272,7 @@
         },
         {
             "name": "illuminate/pipeline",
-            "version": "v8.83.11",
+            "version": "v8.83.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/pipeline.git",
@@ -3333,16 +3320,16 @@
         },
         {
             "name": "illuminate/support",
-            "version": "v8.83.11",
+            "version": "v8.83.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/support.git",
-                "reference": "3f1de19528fc235d666f73d540d13a684da6bf3a"
+                "reference": "89245b6e19017f627a35af3874ad9251b76b02cc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/support/zipball/3f1de19528fc235d666f73d540d13a684da6bf3a",
-                "reference": "3f1de19528fc235d666f73d540d13a684da6bf3a",
+                "url": "https://api.github.com/repos/illuminate/support/zipball/89245b6e19017f627a35af3874ad9251b76b02cc",
+                "reference": "89245b6e19017f627a35af3874ad9251b76b02cc",
                 "shasum": ""
             },
             "require": {
@@ -3397,11 +3384,11 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2022-04-11T14:26:37+00:00"
+            "time": "2022-05-09T16:28:53+00:00"
         },
         {
             "name": "illuminate/view",
-            "version": "v8.83.11",
+            "version": "v8.83.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/view.git",
@@ -5675,16 +5662,16 @@
         },
         {
             "name": "monolog/monolog",
-            "version": "2.5.0",
+            "version": "2.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Seldaek/monolog.git",
-                "reference": "4192345e260f1d51b365536199744b987e160edc"
+                "reference": "247918972acd74356b0a91dfaa5adcaec069b6c0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/4192345e260f1d51b365536199744b987e160edc",
-                "reference": "4192345e260f1d51b365536199744b987e160edc",
+                "url": "https://api.github.com/repos/Seldaek/monolog/zipball/247918972acd74356b0a91dfaa5adcaec069b6c0",
+                "reference": "247918972acd74356b0a91dfaa5adcaec069b6c0",
                 "shasum": ""
             },
             "require": {
@@ -5697,18 +5684,23 @@
             "require-dev": {
                 "aws/aws-sdk-php": "^2.4.9 || ^3.0",
                 "doctrine/couchdb": "~1.0@dev",
-                "elasticsearch/elasticsearch": "^7",
+                "elasticsearch/elasticsearch": "^7 || ^8",
+                "ext-json": "*",
                 "graylog2/gelf-php": "^1.4.2",
+                "guzzlehttp/guzzle": "^7.4",
+                "guzzlehttp/psr7": "^2.2",
                 "mongodb/mongodb": "^1.8",
                 "php-amqplib/php-amqplib": "~2.4 || ^3",
                 "php-console/php-console": "^3.1.3",
-                "phpspec/prophecy": "^1.6.1",
+                "phpspec/prophecy": "^1.15",
                 "phpstan/phpstan": "^0.12.91",
-                "phpunit/phpunit": "^8.5",
+                "phpunit/phpunit": "^8.5.14",
                 "predis/predis": "^1.1",
                 "rollbar/rollbar": "^1.3 || ^2 || ^3",
-                "ruflin/elastica": ">=0.90@dev",
-                "swiftmailer/swiftmailer": "^5.3|^6.0"
+                "ruflin/elastica": "^7",
+                "swiftmailer/swiftmailer": "^5.3|^6.0",
+                "symfony/mailer": "^5.4 || ^6",
+                "symfony/mime": "^5.4 || ^6"
             },
             "suggest": {
                 "aws/aws-sdk-php": "Allow sending log messages to AWS services like DynamoDB",
@@ -5758,7 +5750,7 @@
             ],
             "support": {
                 "issues": "https://github.com/Seldaek/monolog/issues",
-                "source": "https://github.com/Seldaek/monolog/tree/2.5.0"
+                "source": "https://github.com/Seldaek/monolog/tree/2.6.0"
             },
             "funding": [
                 {
@@ -5770,7 +5762,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-04-08T15:43:54+00:00"
+            "time": "2022-05-10T09:36:00+00:00"
         },
         {
             "name": "myclabs/php-enum",
@@ -10502,20 +10494,20 @@
         },
         {
             "name": "symfony/monolog-bundle",
-            "version": "v3.7.1",
+            "version": "v3.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/monolog-bundle.git",
-                "reference": "fde12fc628162787a4e53877abadc30047fd868b"
+                "reference": "a41bbcdc1105603b6d73a7d9a43a3788f8e0fb7d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/monolog-bundle/zipball/fde12fc628162787a4e53877abadc30047fd868b",
-                "reference": "fde12fc628162787a4e53877abadc30047fd868b",
+                "url": "https://api.github.com/repos/symfony/monolog-bundle/zipball/a41bbcdc1105603b6d73a7d9a43a3788f8e0fb7d",
+                "reference": "a41bbcdc1105603b6d73a7d9a43a3788f8e0fb7d",
                 "shasum": ""
             },
             "require": {
-                "monolog/monolog": "~1.22 || ~2.0",
+                "monolog/monolog": "^1.22 || ^2.0 || ^3.0",
                 "php": ">=7.1.3",
                 "symfony/config": "~4.4 || ^5.0 || ^6.0",
                 "symfony/dependency-injection": "^4.4 || ^5.0 || ^6.0",
@@ -10563,7 +10555,7 @@
             ],
             "support": {
                 "issues": "https://github.com/symfony/monolog-bundle/issues",
-                "source": "https://github.com/symfony/monolog-bundle/tree/v3.7.1"
+                "source": "https://github.com/symfony/monolog-bundle/tree/v3.8.0"
             },
             "funding": [
                 {
@@ -10579,7 +10571,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-11-05T10:34:29+00:00"
+            "time": "2022-05-10T14:24:36+00:00"
         },
         {
             "name": "symfony/options-resolver",
@@ -14491,7 +14483,7 @@
         },
         {
             "name": "twig/cssinliner-extra",
-            "version": "v3.3.5",
+            "version": "v3.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/cssinliner-extra.git",
@@ -14545,7 +14537,7 @@
                 "twig"
             ],
             "support": {
-                "source": "https://github.com/twigphp/cssinliner-extra/tree/v3.3.5"
+                "source": "https://github.com/twigphp/cssinliner-extra/tree/v3.4.0"
             },
             "funding": [
                 {
@@ -14561,7 +14553,7 @@
         },
         {
             "name": "twig/extra-bundle",
-            "version": "v3.3.8",
+            "version": "v3.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/twig-extra-bundle.git",
@@ -14624,7 +14616,7 @@
                 "twig"
             ],
             "support": {
-                "source": "https://github.com/twigphp/twig-extra-bundle/tree/v3.3.8"
+                "source": "https://github.com/twigphp/twig-extra-bundle/tree/v3.4.0"
             },
             "funding": [
                 {
@@ -14640,7 +14632,7 @@
         },
         {
             "name": "twig/inky-extra",
-            "version": "v3.3.5",
+            "version": "v3.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/inky-extra.git",
@@ -14695,7 +14687,7 @@
                 "twig"
             ],
             "support": {
-                "source": "https://github.com/twigphp/inky-extra/tree/v3.3.5"
+                "source": "https://github.com/twigphp/inky-extra/tree/v3.4.0"
             },
             "funding": [
                 {
@@ -14711,7 +14703,7 @@
         },
         {
             "name": "twig/intl-extra",
-            "version": "v3.3.5",
+            "version": "v3.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/intl-extra.git",
@@ -14764,7 +14756,7 @@
                 "twig"
             ],
             "support": {
-                "source": "https://github.com/twigphp/intl-extra/tree/v3.3.5"
+                "source": "https://github.com/twigphp/intl-extra/tree/v3.4.0"
             },
             "funding": [
                 {
@@ -14780,16 +14772,16 @@
         },
         {
             "name": "twig/twig",
-            "version": "v3.3.10",
+            "version": "v3.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "8442df056c51b706793adf80a9fd363406dd3674"
+                "reference": "ed19f4bf9d19c4ef920b5d8243910bd32e85b9ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/8442df056c51b706793adf80a9fd363406dd3674",
-                "reference": "8442df056c51b706793adf80a9fd363406dd3674",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/ed19f4bf9d19c4ef920b5d8243910bd32e85b9ba",
+                "reference": "ed19f4bf9d19c4ef920b5d8243910bd32e85b9ba",
                 "shasum": ""
             },
             "require": {
@@ -14804,7 +14796,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.3-dev"
+                    "dev-master": "3.4-dev"
                 }
             },
             "autoload": {
@@ -14840,7 +14832,7 @@
             ],
             "support": {
                 "issues": "https://github.com/twigphp/Twig/issues",
-                "source": "https://github.com/twigphp/Twig/tree/v3.3.10"
+                "source": "https://github.com/twigphp/Twig/tree/v3.4.0"
             },
             "funding": [
                 {
@@ -14852,7 +14844,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-04-06T06:47:41+00:00"
+            "time": "2022-05-15T06:25:28+00:00"
         },
         {
             "name": "voku/portable-ascii",
@@ -15261,5 +15253,5 @@
         "ext-pdo": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.2.0"
+    "plugin-api-version": "2.3.0"
 }

@@ -41,17 +41,6 @@ class Status
      */
     private $isWeather;
 
-    /**
-     * @ORM\OneToOne(targetEntity=Ticket::class)
-     * @ORM\JoinColumn(nullable=true)
-     * Deprecated
-     */
-    private $Ticket;
-
-    /**
-     * @ORM\OneToOne(targetEntity=Ticket::class, cascade={"persist", "remove"})
-     */
-    private $Tickete;
 
     public function getId(): ?int
     {
@@ -105,22 +94,5 @@ class Status
 
         return $this;
     }
-    public function setTicket(Ticket $ticket){
-        $this->Ticket = $ticket;
-    }
-    public function getTicket():?Ticket{
-        return $this->ticket;
-    }
 
-    public function getTickete(): ?Ticket
-    {
-        return $this->Tickete;
-    }
-
-    public function setTickete(?Ticket $Tickete): self
-    {
-        $this->Tickete = $Tickete;
-
-        return $this;
-    }
 }
