@@ -20,6 +20,9 @@
                     <div class="cell small-6 large-2">
                         {{ form_row(ticketForm.priority) }}
                     </div>
+                    <div class="cell small-6 large-2">
+                        {{ form_row(ticketForm.alertType) }}
+                    </div>
                 </div>
             </fieldset>
             <fieldset class="fieldset">
@@ -112,3 +115,64 @@
     </div>
 </div>
 {{ form_end(ticketForm) }}
+{% if (edited == true) %}
+
+    <div >
+        <div>
+            <h1 >Splitting stuff</h1>
+            <div {{ stimulus_controller('modal-form') }}>
+                <button
+                        class="button"
+                        data-action="modal-form#openModal"
+                >split ticket</button>
+
+                <div data-modal-form-target="modal" class="reveal" id="exampleModal1" data-reveal>
+                    <h1>Awesome. I Have It.</h1>
+                    <p class="lead">Your couch. It is mine.</p>
+                    <p>I'm a cool paragraph that lives inside of an even cooler modal. Wins!</p>
+                    <button class="close-button" data-close aria-label="Close modal" type="button">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+{#
+<div class="grid-x grid-margin-x grid-padding-x">
+    <div class="reveal" id="Modal1" data-reveal>
+        <h1>Here there will be a form only to edit the times on wich the ticket will be split</h1>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div class="cell medium-4 small-4">
+        <p><button class="button" data-open="Modal1">Split ticket No Edit</button></p>
+    </div>
+
+    <div class="reveal" id="Modal2" data-reveal>
+        <h1>Here there will be a form to split and edit the first resulting ticket</h1>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div class="cell medium-4 small-4">
+        <p><button class="button" data-open="Modal2">Split ticket Edit First</button></p>
+    </div>
+
+    <div class="reveal" id="Modal3" data-reveal>
+        <h1>Here there will be a form to split and edit the second resulting ticket</h1>
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+
+    <div class="cell medium-4 small-4">
+        <p><button class="button" data-open="Modal3">Split ticket Edit Second</button></p>
+    </div>
+</div>
+#}
+{% endif %}

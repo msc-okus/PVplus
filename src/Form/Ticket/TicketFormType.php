@@ -167,6 +167,12 @@ class TicketFormType extends AbstractType
                 'label'     => 'Yield',
                 'required'  => false
             ])
+        ->add('alertType', TextType::class, [
+            'label' => 'Type of error ',
+            'attr' => [
+                'readonly' => true,
+            ]
+        ])
             ->add('save', SubmitType::class, [
                 'label'     => 'Save',
                 'attr'      => ['class' => 'primary save'],

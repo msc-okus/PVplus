@@ -122,6 +122,7 @@ class AlertSystemService
             $ticket->setDescription("Error with the Data of the Weather station");
             $ticket->setSystemStatus(10);
             $ticket->setPriority(10);
+            $ticket->setAlertType("Weather Station Error");
             $timetempbeg = date('Y-m-d H:i:s', strtotime($time));
             $begin = date_create_from_format('Y-m-d H:i:s', $timetempbeg);
             $begin->getTimestamp();
@@ -193,12 +194,24 @@ class AlertSystemService
      */
     private function AnalyzeIst($inverter, $time, $anlage, $nameArray, $sunrise){
         $message = "";
-            if ($inverter['istdata'] == "No Data") $message .=  "Data gap at inverter(Power)  ".$nameArray."<br>";
-            elseif ($inverter['istdata'] == "Power is 0") $message .=  "No power at inverter " .$nameArray."<br>";
-            if($anlage->getHasFrequency()){
-                if ($inverter['freq'] != "All is ok") $message = $message . "Error with the frequency in inverter " . $nameArray . "<br>";
+            if ($inverter['istdata'] == "No Data"){
+                $message .=  "Data gap at inverter(Power)  ".$nameArray."<br>";
+                $alert = "DATA GAP";
             }
-            if ($inverter['voltage'] != "All is ok") $message = $message . "Error with the voltage in inverter " . $nameArray . "<br>";
+            elseif ($inverter['istdata'] == "Power is 0"){
+                $message .=  "No power at inverter " .$nameArray."<br>";
+                $alert = "Inverter error";
+            }
+            if($anlage->getHasFrequency()){
+                if ($inverter['freq'] != "All is ok") {
+                    $alert = "Inverter error";
+                    $message = $message . "Error with the frequency in inverter " . $nameArray . "<br>";
+                }
+            }
+            if ($inverter['voltage'] != "All is ok"){
+                $message = $message . "Error with the voltage in inverter " . $nameArray . "<br>";
+                $alert = "Inverter error";
+            }
         if($message != "") {
             $ticket = self::getLastTicket($anlage, $nameArray, $time, $sunrise, false);
             if ($ticket == null) {
@@ -211,6 +224,7 @@ class AlertSystemService
                 $ticket->setSystemStatus(10);
                 $ticket->setPriority(10);
                 $ticket->setInverter($nameArray);
+                $ticket->setAlertType($alert);
                 $timetemp = date('Y-m-d H:i:s', strtotime($time));
                 $begin = date_create_from_format('Y-m-d H:i:s', $timetemp);
                 $begin->getTimestamp();

@@ -111,7 +111,7 @@ class ChartService
                 $form['to']     = date("Y-m-d 23:59", strtotime($currentYear.'-'.$currentMonth.'-'.$currentDay));
             }
         }
-
+        if ($form['selectedGroup'] == "-1") $form['selectedGroup'] = -1;
         $from   = self::timeShift($anlage, $form['from'],true);
         $to     = self::timeShift($anlage, $form['to'],true);
         if ($anlage) {
@@ -274,6 +274,7 @@ class ChartService
                         $resultArray['seriesx']['name'] = "Inverter ";
                         $resultArray['seriesx']['tooltipText'] = "Inverter ";
                         $resultArray['inverterArray'] = json_encode($dataArray['inverterArray']);
+
                     }
                     break;
                 case ("dc_grp_power_diff"): // [DC4] DC - Inverter (DC - Inverter Group)
