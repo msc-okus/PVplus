@@ -352,14 +352,14 @@ class DCPowerChartService
             $dataArray = [];
             $inverterNr = 0;
             switch ($anlage->getConfigType()) {
-                case 1: // Andjik
                 case 3:
                 case 4:
-                    $nameArray = $this->functions->getNameArray($anlage, 'dc');
+                    $nameArray = $this->functions->getNameArray($anlage, 'ac');
                     break;
                 default:
-                    $nameArray = $this->functions->getNameArray($anlage, 'ac');
+                    $nameArray = $this->functions->getNameArray($anlage, 'dc');
             }
+
             $sqlExp = "SELECT a.stamp as stamp, sum(b.dc_exp_power) as expected
                         FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_power, group_ac FROM " . $anlage->getDbNameDcSoll() . " WHERE group_ac = '$group') b ON a.stamp = b.stamp)
                         WHERE a.stamp BETWEEN '$from' AND '$to' 
@@ -370,7 +370,7 @@ class DCPowerChartService
                 $sql = "SELECT sum(wr_pdc) as istCurrent 
                                     FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameDCIst() . " b ON a.stamp = b.stamp)
                                     WHERE a.stamp BETWEEN '$from' AND '$to' 
-                                    GROUP BY date_format(a.stamp, '$form'), wr_group ";
+                                    GROUP BY date_format(a.stamp, '$form'), b.group_ac ";
 
             } else {
                 $sql = "SELECT sum(wr_pdc) as istCurrent 
@@ -378,7 +378,6 @@ class DCPowerChartService
                                     WHERE a.stamp BETWEEN '$from' AND '$to' 
                                     GROUP BY date_format(a.stamp, '$form'), group_dc ";
             }
-            dump($sql);
             $resultExp = $conn->query($sqlExp);
             $resultActual = $conn->query($sql);
 
@@ -441,6 +440,7 @@ class DCPowerChartService
             $conn = self::getPdoConnection();
             $dataArray = [];
             $nameArray = $this->functions->getNameArray($anlage, 'dc');
+
             $groups = $anlage->getGroupsDc();
             switch ($anlage->getConfigType()) {
                 case 3:
@@ -456,7 +456,6 @@ class DCPowerChartService
             $sqlExpected = "SELECT a.stamp, sum(b.soll_pdcwr) as soll 
             FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE $groupQuery) b ON a.stamp = b.stamp) 
             WHERE a.stamp BETWEEN '$from' AND '$to' GROUP by date_format(a.stamp, '$form')";
-
             $dataArray['inverterArray'] = $nameArray;
             $result = $conn->query($sqlExpected);
             $maxInverter = 0;

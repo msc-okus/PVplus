@@ -1,8 +1,9 @@
 import { Controller } from '@hotwired/stimulus';
-import {Modal} from 'foundation-sites';
+import {Reveal} from 'foundation-sites';
 
 export default class extends Controller {
+    static targets = ['modal'];
         openModal(event) {
-            console.log(event);
-        }
+            var Modal = new Reveal(this.modalTarget, 'open');
+            }
 }
