@@ -605,7 +605,7 @@ class PRCalulationService
         }
         // if theoretic Power ist corrected by temperature (NREL) (PR Algoritm = Lelystad) then use 'powerTheo' from array $power, if not calc by Pnom and Irr.
         $powerTheo = round($anlage->getUseCustPRAlgorithm() == 'Lelystad' ? $power['powerTheo'] : $anlage->getPnom() * $irr,4);
-        $result['powerTheo'] = (float)$powerTheo;
+        $result['powerTheo'] = $powerTheo;
         $result['tCellAvgNrel'] = (float)$power['tCellAvg'];
         $tempCorrection = 0; // not used at the Moment
 

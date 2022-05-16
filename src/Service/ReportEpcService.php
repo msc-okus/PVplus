@@ -165,14 +165,11 @@ class ReportEpcService
         $startYear      = $anlage->getEpcReportStart()->format('Y');
         $currentMonth   = (int)$date->format('m');
         $currentYear    = (int)$date->format('Y');
-        if ($currentMonth == 1) { // Ausnahme um den Jahreswechsel abzubilden
-            #$currentMonth   = 13;
-            #$currentYear    -= 1;
-        }
+
 
         $sumPrRealPrProg = $sumDays = $sumErtragDesign = $sumEGridReal = $sumAnteil = $sumPrReal = $sumSpecPowerGuar = $sumSpecPowerRealProg = $counter = $sumPrDesign = $sumSpezErtragDesign = 0;
         $sumIrrMonth = $sumDaysReal = $sumErtragDesignReal = $sumEGridRealReal = $sumPrRealReal = $sumEGridRealDesignReal = $sumEGridRealDesign = $sumPrRealPrProgReal = 0;
-        $sumSpecPowerGuarReal = $sumSpecPowerRealProgReal = $monateReal = $counterReal = $prAvailability = 0;
+        $sumSpecPowerGuarReal = $sumSpecPowerRealProgReal = $monateReal = $counterReal = $prAvailability = $formelPowerTheo = 0;
 
         $realDateTextEnd = $forecastDateText = $realDateText = '';
         /*
@@ -294,7 +291,7 @@ class ReportEpcService
                         $sumPrRealReal              += $prReal;
                         $sumEGridRealDesignReal     += $eGridReal-$ertragPvSyst;
                         $sumSpecPowerGuarReal       += $spezErtragDesign * (1 - ((float)$anlage->getDesignPR() - (float)$anlage->getContractualPR()) / 100 );
-                        $sumSpecPowerRealProgReal   += $eGridReal / $anlage->getKwPeak();
+                        $sumSpecPowerRealProgReal   += $eGridReal / $anlage->getPnom();
                         $counterReal++;
                     }
                 } else {
@@ -313,7 +310,7 @@ class ReportEpcService
                     $sumPrDesign            += $prDesignPvSyst;
                     $sumPrReal              += $prReal;
                     $sumSpecPowerGuar       += $spezErtragDesign * (1 - ((float)$anlage->getDesignPR() - (float)$anlage->getContractualPR()) / 100 );
-                    $sumSpecPowerRealProg   += $eGridReal / $anlage->getKwPeak();
+                    $sumSpecPowerRealProg   += $eGridReal / $anlage->getPnom();
                     $sumIrrMonth            += $irrMonth;
                     $sumEGridRealDesign     += $eGridReal-$ertragPvSyst;
                     $counter++;
@@ -339,7 +336,7 @@ class ReportEpcService
                         'prGuar'            => $this->format($prGuarantie),
                         'eGridReal'         => $this->format($eGridReal),
                         'eGridReal-Design'  => $this->format($eGridReal-$ertragPvSyst),
-                        'spezErtrag'        => $this->format($eGridReal / $anlage->getKwPeak(), 2),
+                        'spezErtrag'        => $this->format($eGridReal / $anlage->getPnom(), 2),
                         'prReal'            => $this->format($prReal),
                         'prReal_prDesign'   => $this->format($prReal - $prDesignPvSyst),
                         'availability'      => $this->format($prAvailability),
@@ -348,7 +345,7 @@ class ReportEpcService
                         'prReal_prProg'     => $this->format($prRealprProg),
                         'anteil'            => $this->format($anteil * 100),
                         'specPowerGuar'     => $this->format($spezErtragDesign * (1 - ($anlage->getDesignPR() - $anlage->getContractualPR()) / 100 )),
-                        'specPowerRealProg' => $this->format($eGridReal / $anlage->getKwPeak()),
+                        'specPowerRealProg' => $this->format($eGridReal / $anlage->getPnom()),
                         'currentMonthClass' => $currentMonthClass,
                     ];
                 }
@@ -456,7 +453,7 @@ class ReportEpcService
         // Daten für die Darstellung der Formel
         $report['formel'][]= [
             'eGridReal'             => $this->format($sumEGridRealReal),//$formelEnergy
-            'prReal'                => $this->format($sumEGridRealReal / $formelPowerTheo * 100),//$formelPR
+            'prReal'                => $formelPowerTheo > 0 ? $this->format($sumEGridRealReal / $formelPowerTheo * 100) : 0,//$formelPR
             'availability'          => $this->format($formelAvailability),
             'theoPower'             => $this->format($formelPowerTheo),
             'irradiation'           => $this->format($formelIrr),
