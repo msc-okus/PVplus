@@ -1,5 +1,3 @@
-
-
 {{ form_start(ownerForm, {'attr': {'novalidate': 'no'}}) }}
 <div class="grid-x grid-margin-x grid-padding-x">
     <div class="cell">
@@ -24,10 +22,14 @@
                 {{ form_row(ownerForm.fax) }}
                 {{ form_row(ownerForm.mobil) }}
                 {{ form_row(ownerForm.email) }}
-                {{ form_row(ownerForm.imageFile) }}
-                {%  if isupload == 'yes' %}
-                Last Uploaded:<br>
-                <img class="article-img" src="{{ asset(imageuploadet)|imagine_filter('squared_thumbnail_small') }}"><br>
+                {% if isupload != '' %}
+                    {{ form_row(ownerForm.imageFile) }}
+                    {% if isupload == 'yes' %}
+                        Last Uploaded:<br>
+                        <img class="article-img" src="{{ asset(imageuploadet)|imagine_filter('squared_thumbnail_small') }}" alt=""><br>
+                    {% endif %}
+                {% else %}
+                    {% do ownerForm.imageFile.setRendered() %}
                 {% endif %}
             </div>
             <div class="tabs-panel" id="owner2">
@@ -40,12 +42,12 @@
                 {{ form_row(ownerForm.bv_email) }}
             </div>
             {% if is_granted('ROLE_G4N') %}
-            <div class="tabs-panel" id="owner3">
-                {{ form_row(ownerForm.active) }}
-                {{ form_row(ownerForm.editlock) }}
-                {{ form_row(ownerForm.userlock) }}
-                {{ form_row(ownerForm.language) }}
-            </div>
+                <div class="tabs-panel" id="owner3">
+                    {{ form_row(ownerForm.active) }}
+                    {{ form_row(ownerForm.editlock) }}
+                    {{ form_row(ownerForm.userlock) }}
+                    {{ form_row(ownerForm.language) }}
+                </div>
             {% endif %}
         </div>
 
