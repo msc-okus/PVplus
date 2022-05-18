@@ -41,12 +41,28 @@ class GenerateTicketsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $ergebniss          = '';
         $io                 = new SymfonyStyle($input, $output);
-        $anlageId           = $input->getOption('anlage');
-        $optionFrom         = $input->getOption('from');
+        $anlId           = $input->getOption('anlage');
+        $from         = $input->getOption('from');
         $optionTo           = $input->getOption('to');
-        $this->alertService->generateTicketsInterval($optionFrom, $optionTo, $anlageId);
+        $io->comment("Generate Tickets: from $from to $optionTo");
+
+        if ($from <= $optionTo) {
+            $to = G4NTrait::timeAjustment($optionTo, 24);
+            $from = $from." 00:00:00";
+            $fromStamp = strtotime($from);
+            $toStamp = strtotime($to);
+
+            $counter = ($toStamp-$fromStamp)/800;
+
+            $io->progressStart($counter);
+            while($from <= $to){//sleep
+                $io->progressAdvance();
+                $this->alertService->checkSystem($from, $anlId);
+                $from = G4NTrait::timeAjustment($from, 0.25);
+            }
+            $io->progressFinish();
+        }
         return Command::SUCCESS;
     }
 }

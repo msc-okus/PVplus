@@ -44,9 +44,8 @@ class AlertSystemService
     }
 
     public function generateTicketsInterval(string $from, string $to, ?string $anlId = null){
-        while($from <= $to){
+        while($from <= $to){//sleep
             $from = G4NTrait::timeAjustment($from, 0.25);
-
             $this->checkSystem($from, $anlId);
 
         }
@@ -138,7 +137,7 @@ class AlertSystemService
             $ticket = new Ticket();
             $ticket->setAnlage($anlage);
             $ticket->setStatus(10);
-            $ticket->setErrorType("SFOR");
+            $ticket->setErrorType("10");
             $ticket->setEditor("Alert system");
             $ticket->setDescription("Error with the Data of the Weather station");
             $ticket->setSystemStatus(10);
@@ -208,27 +207,27 @@ class AlertSystemService
     private function AnalyzeIst($inverter, $time, $anlage, $nameArray, $sunrise){
         $message = "";
         $alert ="";
-            if ($inverter['istdata'] == "No Data"){
+            if ($inverter['istdata'] == "No Data"){//data gap
                 $message .=  "Data gap at inverter(Power)  ".$nameArray."<br>";
-                $alert = "DATA GAP";
+                $alert = "10";
             }
-            elseif ($inverter['istdata'] == "Power is 0"){
+            elseif ($inverter['istdata'] == "Power is 0"){//inverter error
                 $message .=  "No power at inverter " .$nameArray."<br>";
-                $alert = "Inverter error (Power)";
+                $alert = "20";
             }
 
                 if ($anlage->getHasFrequency()) {
                     if ($inverter['freq'] != "All is ok") {
                         if($alert == "") {
-                            $alert = "Inverter error (Frequency)";
+                            $alert = "30";
                         }
                         $message = $message . "Error with the frequency in inverter " . $nameArray . "<br>";
                     }
                 }
-                if ($inverter['voltage'] != "All is ok") {
+                if ($inverter['voltage'] != "All is ok") {//grid error
                     $message = $message . "Error with the voltage in inverter " . $nameArray . "<br>";
                     if($alert == "") {
-                        $alert = "Inverter error (Voltage)";
+                        $alert = "30";
                     }
                 }
 
@@ -238,7 +237,7 @@ class AlertSystemService
                 $ticket = new Ticket();
                 $ticket->setAnlage($anlage);
                 $ticket->setStatus(10);
-                $ticket->setErrorType("SFOR");
+                $ticket->setErrorType("10");
                 $ticket->setEditor("Alert system");
                 $ticket->setDescription($message);
                 $ticket->setSystemStatus(10);
