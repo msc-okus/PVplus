@@ -1,0 +1,27 @@
+# translations/messages.en.yaml
+ticket:
+  error:
+    category:
+      name: Error Category
+      10: SOF
+      20: EFOR
+      30: OMC
+
+    type:
+      name: Error Type
+      10: data gap
+      20: inverter error
+      30: grid error
+
+  status:
+    name: Status
+    10: Open
+    20: Work in Progress
+    30: Closed
+
+  priority:
+    name: Priority
+    10: Low
+    20: Normal
+    30: High
+    40: Urgent

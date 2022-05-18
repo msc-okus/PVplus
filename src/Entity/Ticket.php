@@ -39,7 +39,9 @@ class Ticket
      */
     private int $status;
 
-    #[ORM\Column]
+    /**
+     * @ORM\Column(type="string")
+     */
     private string $errorType; // SFOR, EFOR, OMC
 
     /**
@@ -147,8 +149,9 @@ class Ticket
      */
     private ?string $inverter;
 
-
-    #[ORM\Column(length: 100)]
+    /**
+     * @ORM\Column(type="string", length=100)
+     */
     private string $alertType = "";
 
 
