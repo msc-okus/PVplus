@@ -244,6 +244,7 @@ class ChartService
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['actSum'] = $dataArray['actSum'];
                         $resultArray['expSum'] = $dataArray['expSum'];
+                        $resultArray['irrSum'] = $dataArray['irrSum'] / 1000; #Einstrahlung in kW/m²
                         $resultArray['theoPowerSum'] = 0;
                         $resultArray['headline'] = 'DC Production [kWh] – Actual and Expected';
                     }
