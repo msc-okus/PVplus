@@ -108,11 +108,14 @@ class DCPowerChartService
                 //Irradiation
                 if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
                     $dataArray['chart'][$counter]["irradiation"] = $dataArrayIrradiation['chart'][$counter]['val1'];
+                    $irrSum += $dataArray['chart'][$counter]["irradiation"];
                 } else {
                     $dataArray['chart'][$counter]["irradiation"] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;
+                    $irrSum += $dataArray['chart'][$counter]["irradiation"];
                 }
                 $counter++;
             }
+            $dataArray['irrSum'] = round($irrSum, 2);
             $dataArray['actSum'] = round($actSum, 2);
             $dataArray['expSum'] = round($expSum, 2);
         }
