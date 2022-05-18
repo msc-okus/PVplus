@@ -2,6 +2,9 @@
 
 namespace App\Command;
 
+use App\Helper\G4NTrait;
+use App\Service\AlertSystemService;
+use App\Service\WeatherServiceNew;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -10,35 +13,40 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-#[AsCommand(
-    name: 'GenerateTickets',
-    description: 'Add a short description for your command',
-)]
+
 class GenerateTicketsCommand extends Command
 {
+    use G4NTrait;
+
+    protected static $defaultName = 'pvp:GenerateTickets';
+
+    private AlertSystemService $alertService;
+
+
+    public function __construct(AlertSystemService $alertService)
+    {
+        parent::__construct();
+        $this->alertService = $alertService;
+
+    }
     protected function configure(): void
     {
         $this
-            ->addArgument('arg1', InputArgument::OPTIONAL, 'Argument description')
-            ->addOption('option1', null, InputOption::VALUE_NONE, 'Option description')
+            ->setDescription('Generate Tickets')
+            ->addOption('anlage', 'a', InputOption::VALUE_REQUIRED, 'The plant we want to generate the tickets from')
+            ->addOption('from', null, InputOption::VALUE_REQUIRED, 'the date we want the generation to start')
+            ->addOption('to', null, InputOption::VALUE_REQUIRED, 'the date we want the generation to end')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io = new SymfonyStyle($input, $output);
-        $arg1 = $input->getArgument('arg1');
-
-        if ($arg1) {
-            $io->note(sprintf('You passed an argument: %s', $arg1));
-        }
-
-        if ($input->getOption('option1')) {
-            // ...
-        }
-
-        $io->success('You have a new command! Now make it your own! Pass --help to see your options.');
-
+        $ergebniss          = '';
+        $io                 = new SymfonyStyle($input, $output);
+        $anlageId           = $input->getOption('anlage');
+        $optionFrom         = $input->getOption('from');
+        $optionTo           = $input->getOption('to');
+        $this->alertService->generateTicketsInterval($optionFrom, $optionTo, $anlageId);
         return Command::SUCCESS;
     }
 }

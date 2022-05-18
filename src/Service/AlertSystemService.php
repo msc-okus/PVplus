@@ -43,20 +43,49 @@ class AlertSystemService
         $this->ticketRepo = $ticketRepo;
     }
 
-    public function checkSystem(){
+    public function generateTicketsInterval(string $from, string $to, ?string $anlId = null){
+        while($from <= $to){
+            $from = G4NTrait::timeAjustment($from, 0.25);
 
-        $Anlagen = $this->AnlRepo->findAll();
-        $time = $this->getLastQuarter(date('Y-m-d H:i:s') );
+            $this->checkSystem($from, $anlId);
+
+        }
+    }
+    public function checkSystem(?string $time = null, ?string $anlId = null){
+
+        if ($time == null)$time = $this->getLastQuarter(date('Y-m-d H:i:s') );
         $time = G4NTrait::timeAjustment($time, -2);
-        $sungap = $this->weather->getSunrise($Anlagen);
-        foreach($Anlagen as $anlage){
-            if($anlage->getAnlId()=="105"/*Buinerveen*/|| $anlage->getAnlId()=="93"/*Staadskanal*/||$anlage->getAnlId()=="102" || $anlage->getAnlId()=="107" || $anlage->getAnlId()=="84") {
-                if (($anlage->getCalcPR() == true) && (($time >= $sungap[$anlage->getanlName()]['sunrise']) && ($time <= $sungap[$anlage->getAnlName()]['sunset']))) {
-                    $status = new Status;
+        if ($anlId == null) {
+            $Anlagen = $this->AnlRepo->findAll();
+            foreach ($Anlagen as $anlage) {
+                if ($anlage->getAnlId() == "95"/*Buinerveen*/ || $anlage->getAnlId() == "93"/*Staadskanal ||$anlage->getAnlId()=="84"*/) {
+                    $sungap = $this->weather->getSunrise($anlage, $time);
+
+                    if ((($time >= $sungap[$anlage->getanlName()]['sunrise']) && ($time <= $sungap[$anlage->getAnlName()]['sunset']))) {
+                        $nameArray = $this->functions->getInverterArray($anlage);
+                        $counter = 1;
+                        foreach ($nameArray as $inverterName) {
+                            $inverter_status = $this->IstData($anlage, $time, $counter);
+                            $message = self::AnalyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap[$anlage->getanlName()]['sunrise']);
+                            self::messagingFunction($message, $anlage);
+                            $counter++;
+                            $system_status[$inverterName] = $inverter_status;
+                            unset($inverter_status);
+                        }
+                        $this->em->flush();
+                        unset($system_status);
+                    }
+                }
+            }
+        }
+        else{
+            $anlage = $this->AnlRepo->findIdLike($anlId)[0];
+                $sungap = $this->weather->getSunrise($anlage, $time);
+
+                if ((($time >= $sungap[$anlage->getanlName()]['sunrise']) && ($time <= $sungap[$anlage->getAnlName()]['sunset']))) {
                     $nameArray = $this->functions->getInverterArray($anlage);
                     $counter = 1;
                     foreach ($nameArray as $inverterName) {
-                        if ($anlage->getAnlId()=="94") $inverter_status = $this->IstData2($anlage, $time, $counter);
                         $inverter_status = $this->IstData($anlage, $time, $counter);
                         $message = self::AnalyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap[$anlage->getanlName()]['sunrise']);
                         self::messagingFunction($message, $anlage);
@@ -64,15 +93,9 @@ class AlertSystemService
                         $system_status[$inverterName] = $inverter_status;
                         unset($inverter_status);
                     }
-                    $status->setAnlage($anlage);
-                    $status->setStamp($time);
-                    $status->setStatus($system_status);
-                    $status->setIsWeather(false);
-                    $this->em->persist($status);
                     $this->em->flush();
                     unset($system_status);
                 }
-            }
         }
         return "success";
     }
@@ -108,12 +131,10 @@ class AlertSystemService
     private function AnalyzeWeather($status_report, $time, $anlage, $sunrise): string
     {
         $message = "";
-        $status = new Status();
+
         $ticket = self::getLastTicket($anlage, null, $time, $sunrise, true);
-        if ($ticket != null){
-            $status->setTickete($ticket);
-        }
-        else if($status_report['Irradiation'] == "No data" || $status_report['Irradiation'] == "Irradiation is 0"){
+
+        if($ticket != null && $status_report['Irradiation'] == "No data" || $status_report['Irradiation'] == "Irradiation is 0"){
             $ticket = new Ticket();
             $ticket->setAnlage($anlage);
             $ticket->setStatus(10);
@@ -127,7 +148,6 @@ class AlertSystemService
             $begin = date_create_from_format('Y-m-d H:i:s', $timetempbeg);
             $begin->getTimestamp();
             $ticket->setBegin(($begin));
-            $status->setTickete($ticket);
         }
 
 
@@ -171,15 +191,8 @@ class AlertSystemService
             $end->getTimestamp();
             $ticket->setEnd(($end));
             $ticket->setStatus(30);
-            $status->setTickete(null);
         }
-        $status->setAnlage($anlage);
-        $status->setStamp($time);
-        $status->setStatus($status_report);
-        $status->setIsWeather(true);
-
         if($ticket != null) $this->em->persist($ticket);
-        $this->em->persist($status);
         $this->em->flush();
         return $message;
     }
@@ -194,24 +207,31 @@ class AlertSystemService
      */
     private function AnalyzeIst($inverter, $time, $anlage, $nameArray, $sunrise){
         $message = "";
+        $alert ="";
             if ($inverter['istdata'] == "No Data"){
                 $message .=  "Data gap at inverter(Power)  ".$nameArray."<br>";
                 $alert = "DATA GAP";
             }
             elseif ($inverter['istdata'] == "Power is 0"){
                 $message .=  "No power at inverter " .$nameArray."<br>";
-                $alert = "Inverter error";
+                $alert = "Inverter error (Power)";
             }
-            if($anlage->getHasFrequency()){
-                if ($inverter['freq'] != "All is ok") {
-                    $alert = "Inverter error";
-                    $message = $message . "Error with the frequency in inverter " . $nameArray . "<br>";
+
+                if ($anlage->getHasFrequency()) {
+                    if ($inverter['freq'] != "All is ok") {
+                        if($alert == "") {
+                            $alert = "Inverter error (Frequency)";
+                        }
+                        $message = $message . "Error with the frequency in inverter " . $nameArray . "<br>";
+                    }
                 }
-            }
-            if ($inverter['voltage'] != "All is ok"){
-                $message = $message . "Error with the voltage in inverter " . $nameArray . "<br>";
-                $alert = "Inverter error";
-            }
+                if ($inverter['voltage'] != "All is ok") {
+                    $message = $message . "Error with the voltage in inverter " . $nameArray . "<br>";
+                    if($alert == "") {
+                        $alert = "Inverter error (Voltage)";
+                    }
+                }
+
         if($message != "") {
             $ticket = self::getLastTicket($anlage, $nameArray, $time, $sunrise, false);
             if ($ticket == null) {
