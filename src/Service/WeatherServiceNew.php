@@ -197,10 +197,12 @@ class WeatherServiceNew
             }
         }
     }
-    public function getSunrise($Anlagen)
+    public function getSunrise($anlage, ?string $time = null)
     {
-        $current_date = date("Y-m-d");
-        foreach($Anlagen as $anlage) {
+        if ($time == null)$current_date = date("Y-m-d");
+        else $current_date = date("Y-m-d", strtotime($time));
+
+
             $daylight=$this->dayrepo->findOneByDate($current_date, $anlage);
             if($daylight){
                 $sunrise = $daylight->getSunrise();
@@ -224,7 +226,7 @@ class WeatherServiceNew
 
             $returnArray[$anlage->getAnlName()]['sunrise'] = $sunrise;
             $returnArray[$anlage->getAnlName()]['sunset'] = $sunset;
-        }
+
         return $returnArray;
     }
     public function getNearestTimezone($cur_lat, $cur_long, $country_code = ''): string
