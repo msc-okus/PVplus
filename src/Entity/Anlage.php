@@ -3443,4 +3443,40 @@ class Anlage
 
         return $this;
     }
+
+    public function getPnomInverterArray(): array
+    {
+        $dcPNomPerInvereter = [];
+        $pNomControSum = 0;
+
+        switch ($this->getConfigType()) {
+            case 1:
+            case 2:
+                foreach ($this->getGroups() as $inverter) {
+                    $sumPNom = 0;
+                    foreach ($inverter->getModules() as $module) {
+                        $sumPNom += $module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower();
+                    }
+                    $dcPNomPerInvereter[$inverter->getDcGroup()] = $sumPNom;
+                    $pNomControSum += $sumPNom;
+                }
+                break;
+            case 3:
+            case 4:
+                foreach ($this->getAcGroups() as $inverter) {
+                    $dcPNomPerInvereter[$inverter->getAcGroup()] = 0;
+                }
+                foreach ($this->getGroups() as $groups) {
+                    $sumPNom = 0;
+                    foreach ($groups->getModules() as $module) {
+                        $sumPNom += $module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower();
+                    }
+                    $dcPNomPerInvereter[$groups->getAcGroup()] += $sumPNom * ($groups->getUnitLast() - $groups->getUnitFirst() + 1);
+                    $pNomControSum += $sumPNom;
+                }
+                break;
+        }
+
+        return $dcPNomPerInvereter;
+    }
 }

@@ -10,11 +10,15 @@ use App\Form\Ticket\TicketFormType;
 use App\Form\Tools\ToolsFormType;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
+use App\Repository\ReportsRepository;
 use App\Repository\TicketRepository;
 use App\Repository\UserRepository;
 use App\Service\AvailabilityService;
 use App\Service\ExpectedService;
 use App\Service\PRCalulationService;
+use App\Service\ReportEpcService;
+use App\Service\ReportService;
+use App\Service\ReportsMonthlyService;
 use Carbon\Doctrine\DateTimeType;
 use Doctrine\ORM\EntityManagerInterface;
 use http\Url;
@@ -25,6 +29,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Translation\TranslatableMessage;
 
 
 $session = new Session();
@@ -113,15 +118,14 @@ class TicketController extends BaseController
     public function list(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request) : Response
     {
         $session = $this->container->get('session');
-        $tickets = $ticketRepo->findAll();
         //Reading data from request
         if($request->query->get('anlage')!=null & $request->query->get('anlage')!="")$anlage = $request->query->get('anlage');
         if($request->query->get('user')!=null & $request->query->get('user')!="")$editor = $request->query->get('user');
         if($request->query->get('searchstatus')!=null & $request->query->get('searchstatus')!="")$searchstatus = $request->query->get('searchstatus');
         if($request->query->get('id')!=null)$id = $request->query->get('id');
         if($request->query->get('prio')!=null)$prio = $request->query->get('prio');
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilder($searchstatus, $editor, $anlage, $id, $prio);
 
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilder($searchstatus, $editor, $anlage, $id, $prio);
         $pagination = $paginator->paginate(
             $queryBuilder,                                    /* query NOT result */
             $request->query->getInt('page', 1),   /* page number*/
@@ -132,17 +136,39 @@ class TicketController extends BaseController
         $session->set('anlage', $anlage);
         $session->set('id', $id);
         $session->set('prio', $prio);
+
+
         return $this->render('ticket/list.html.twig',[
             'pagination' => $pagination,
-            'ticket'     => $tickets,
             'anlage'     => $anlage,
             'user'       => $editor,
             'status'     => $searchstatus,
             'id'         => $id,
             'prio'       => $prio,
-
         ]);
 
+    }
+
+    #[Route(path: '/ticket/search', name: 'app_ticket_search', methods: ['GET', 'POST'])]
+    public function searchTickets(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request): Response
+    {
+        $anlage     = $request->query->get('anlage');
+        $status     = $request->query->get('status');
+        $editor     = $request->query->get('editor');
+        $id         = $request->query->get('id');
+        $prio       = $request->query->get('prio');
+        $category   = $request->query->get('category');
+        $type       = $request->query->get('type');
+
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type);
+        $pagination = $paginator->paginate(
+            $queryBuilder,
+            $request->query->getInt('page', 1),
+            20
+        );
+        return $this->render('ticket/_inc/_listTickets.html.twig', [
+            'pagination' => $pagination,
+        ]);
     }
 
 }
