@@ -2271,22 +2271,34 @@ class AssetManagementService
                 }
             }
         } else {
-            for ($j = 0; $j < count($dcIst); $j++) {
-                $dcExpDcIst[] = [
-                    'group' => $dcIst[$j]['group'],
-                    'form_date' => date("d", strtotime($dcIst[$j]['form_date'])),
-                    'exp_power_dc' => 0,
-                    'exp_current_dc' => 0,
-                    'act_power_dc' => $dcIst[$j]['act_power_dc'],
-                    'act_current_dc' => $dcIst[$j]['act_current_dc'],
-                    'diff_current_dc' => $dcIst[$j]['act_current_dc'],
-                    'diff_power_dc' => $dcIst[$j]['act_power_dc'],
-                ];
-
-                if (date("d", strtotime($dcIst[$j]['form_date'])) >= $daysInReportMonth) {
-                    $outTableCurrentsPower[] = $dcExpDcIst;
-                    unset($dcExpDcIst);
+            $actualCounter = 0;
+            for ($j = 0; $j < $daysInReportMonth; $j++) {
+                if ($j == $actualCounter) {
+                    $dcExpDcIst[] = [
+                        'group' => $dcIst[$actualCounter]['group'],
+                        'form_date' => date("d", strtotime($dcIst[$actualCounter]['form_date'])),
+                        'exp_power_dc' => 0,
+                        'exp_current_dc' => 0,
+                        'act_power_dc' => $dcIst[$actualCounter]['act_power_dc'],
+                        'act_current_dc' => $dcIst[$actualCounter]['act_current_dc'],
+                        'diff_current_dc' => -101,
+                        'diff_power_dc' => -101,
+                    ];
+                    $actualCounter ++;
                 }
+                else{
+                    $dcExpDcIst[] = [
+                        'group' => $dcIst[$actualCounter]['group'],
+                        'form_date' => $j,
+                        'exp_power_dc' => 0,
+                        'exp_current_dc' => 0,
+                        'act_power_dc' => 0,
+                        'act_current_dc' => 0,
+                        'diff_current_dc' => -101,
+                        'diff_power_dc' => -101,
+                    ];
+                }
+
             }
         }
         if ($dcExpDcIst) $outTableCurrentsPower[] = $dcExpDcIst;

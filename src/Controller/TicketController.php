@@ -101,9 +101,13 @@ class TicketController extends BaseController
 
             return $this->redirect($Route);
         }
+       $begin = $ticket->getBegin()->format("dd/mm/yyyy H:i");
+       $end = $ticket->getEnd()->format("d/m/Y H:i");
+       //dd($begin, $end);
         return $this->render('ticket/edit.html.twig', [
             'ticketForm'    => $form->createView(),
             'ticket'        => $ticket,
+            'begin'         => $begin,
             'edited' => true
         ]);
     }
@@ -132,6 +136,7 @@ class TicketController extends BaseController
         $session->set('anlage', $anlage);
         $session->set('id', $id);
         $session->set('prio', $prio);
+
         return $this->render('ticket/list.html.twig',[
             'pagination' => $pagination,
             'ticket'     => $tickets,
@@ -144,5 +149,11 @@ class TicketController extends BaseController
         ]);
 
     }
+    #[Route(path: '/ticket/Split/{id}', name: 'app_ticket_split')]
+    public function Split(TicketRepository $ticketRepo, Request $request) : Response
+    {
+            $session=$this->container->get('session');
 
+            dd($request->query->get('split-time'));
+    }
 }
