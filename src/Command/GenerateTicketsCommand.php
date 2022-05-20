@@ -46,6 +46,13 @@ class GenerateTicketsCommand extends Command
         $from         = $input->getOption('from');
         $optionTo           = $input->getOption('to');
         $io->comment("Generate Tickets: from $from to $optionTo");
+        $minute = (int)date('i');
+
+        while (($minute >= 28 && $minute < 33) || $minute >= 58 || $minute < 3) {
+            echo ".";
+            sleep(20);
+            $minute = (int)date('i');
+        }
 
         if ($from <= $optionTo) {
             $to = G4NTrait::timeAjustment($optionTo, 24);

@@ -71,6 +71,7 @@
             <th>Priority</th>
             <th {% if pagination.isSorted('ticket.editor') %} class="sorted"{% endif %}>
                 {{ knp_pagination_sortable(pagination, 'Editor', ['ticket.editor']) }}</th>
+            <th> Splitted </th>
             <th {% if pagination.isSorted('ticket.begin') %} class="sorted"{% endif %}>
                 {{ knp_pagination_sortable(pagination, 'Begin', ['ticket.begin']) }}</th>
             <th {% if pagination.isSorted('ticket.end') %} class="sorted"{% endif %}>
@@ -113,6 +114,11 @@
                     {% endif %}
                 </td>
                 <td>{{ ticket.editor }}</td>
+                {% if (ticket.splitted) %}
+                    <td>yes</td>
+                {% else %}
+                    <td> no </td>
+                {% endif %}
                 <td>{{ ticket.begin|date("Y-m-d H:i")}}</td>
                 <td>{{ ticket.end|date("Y-m-d H:i") }}</td>
                 <td>{{ ticket.updatedAt|date("Y-m-d H:i")  }}</td>

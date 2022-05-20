@@ -152,7 +152,12 @@ class Ticket
     /**
      * @ORM\Column(type="string", length=100)
      */
-    private $alertType = "";
+    private string $alertType = "";
+
+    /**
+     * @ORM\Column(type="boolean")
+     */
+    private bool $splitted = false;
 
 
 
@@ -472,6 +477,21 @@ class Ticket
     public function setAlertType(string $alertType): self
     {
         $this->alertType = $alertType;
+
+        return $this;
+    }
+    public function unsetId(){
+        unset($this->id);
+    }
+
+    public function getSplitted(): bool
+    {
+        return $this->splitted;
+    }
+
+    public function setSplitted(bool $splitted): self
+    {
+        $this->splitted = $splitted;
 
         return $this;
     }
