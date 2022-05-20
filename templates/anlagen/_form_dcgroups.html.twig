@@ -25,15 +25,15 @@
             </div>
             <div class="grid-x grid-padding-x">
                 <div class="cell medium-6">
-
                     <p>Modul Settings</p>
                     <table id="modules">
                         <thead>
                         <tr>
-                            <th><small>Type</small></th>
+                            <th style ="width: 30%;"><small>Type</small></th>
                             <th><small>Strings / Unit</small></th>
+                            <th><small>Strings (East)</small></th>
+                            <th><small>Strings (West)</small></th>
                             <th><small>Modules / String</small></th>
-
                             <th></th>
                         </tr>
                         </thead>
@@ -42,16 +42,15 @@
                             <tr class="js-module-item">
                                 <td>{{ form_widget(module.moduleType) }}</td>
                                 <td>{{ form_widget(module.numStringsPerUnit) }}</td>
+                                <td>{{ form_widget(module.numStringsPerUnitEast) }}</td>
+                                <td>{{ form_widget(module.numStringsPerUnitWest) }}</td>
                                 <td>{{ form_widget(module.numModulesPerString) }}</td>
-
                                 <td></td>
                             </tr>
                         {% endfor %}
                         </tbody>
                     </table>
-
                     <button type="button" class="button secondary small disabled"> <span class="fa fa-plus-circle"></span>&nbsp;Add </button>
-
                 </div>
                 <div class="cell medium-6 js-month-wrapper">
                     <p>Settings per Month</p>
@@ -211,7 +210,7 @@
                                                 <table id="use-modules-{{ loop.index }}">
                                                     <thead>
                                                         <tr>
-                                                            <th width="20%"><small>Type</small></th>
+                                                            <th style ="width: 30%;"><small>Type</small></th>
                                                             <th><small>Strings / Unit</small></th>
                                                             <th><small>Strings (East)</small></th>
                                                             <th><small>Strings (West)</small></th>
