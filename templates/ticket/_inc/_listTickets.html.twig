@@ -1,0 +1,63 @@
+<table class="table sortable">
+    <thead>
+    <tr>
+        <th>Ticket ID</th>
+        <th {% if pagination.isSorted('a.anlName') %} class="sorted"{% endif %}>
+            {{ knp_pagination_sortable(pagination, 'Plant', ['a.anlName']) }}
+        </th>
+
+        <th>Status</th>
+        <th>Priority</th>
+        <th {% if pagination.isSorted('ticket.editor') %} class="sorted"{% endif %}>
+            {{ knp_pagination_sortable(pagination, 'Editor', ['ticket.editor']) }}</th>
+        <th {% if pagination.isSorted('ticket.begin') %} class="sorted"{% endif %}>
+            {{ knp_pagination_sortable(pagination, 'Begin', ['ticket.begin']) }}</th>
+        <th {% if pagination.isSorted('ticket.end') %} class="sorted"{% endif %}>
+            {{ knp_pagination_sortable(pagination, 'End', ['ticket.end']) }}</th>
+        {% if (is_granted('ROLE_DEV')) %}
+            <th>Last Update</th>
+        {% endif %}
+        <th>Alert Categorie</th>
+        <th>Alert Type</th>
+        <th>Inverter</th>
+        <th></th>
+        <th></th>
+    </tr>
+    </thead>
+
+    <tbody>
+    {% for ticket in pagination %}
+        <tr>
+            <td>{{ ticket.id }}</td>
+            <td>{{ ticket.anlage.anlName }} {% if is_granted('ROLE_G4N') %} ({{ ticket.anlage.anlId }}) {% endif %}</td>
+            <td>
+                {% set status %}ticket.status.{{ ticket.status }}{% endset %}
+                {{ status|trans }}
+            </td>
+            <td>
+                {% set priority %}ticket.priority.{{ ticket.priority }}{% endset %}
+                {{ priority|trans }}
+            </td>
+            <td>{{ ticket.editor }}</td>
+            <td>{{ ticket.begin|date("Y-m-d H:i")}}</td>
+            <td>{{ ticket.end|date("Y-m-d H:i") }}</td>
+            {% if (is_granted('ROLE_DEV')) %}
+                <td>{{ ticket.updatedAt|date("Y-m-d H:i")  }}</td>
+            {% endif %}
+            <td>
+                {# {% set errtyp %}ticket.error.type{{ ticket.errorType }}{% endset %}
+                    {{ errtyp|trans }} #}
+                {{ ticket.errorType }}</td>
+            <td>
+                {# {% set errcat %}ticket.error.category{{ ticket.alertType }}{% endset %}
+                    {{ errcat|trans }} #}
+                {{ ticket.alertType }}
+            </td>
+            <td>{{ ticket.inverter }}</td>
+            <td></td>
+            <td class="text-right"><a href="{{ path('app_ticket_edit', { id: ticket.id }) }}" class="hollow button tiny action-icon shadow"><span class="fa fa-edit"></span></a></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{{ knp_pagination_render(pagination) }}

@@ -163,6 +163,7 @@ class FunctionsService
             $powerEvuMonth = round($row['power_evu'], 4);
         }
         unset($res);
+
         $powerEvuMonth = $this->checkAndIncludeMonthlyCorrectionEVU($anlage, $powerEvuMonth, $startMonth, $to);
 
         $sql = "SELECT sum(wr_pac) as power_act FROM $dbTable WHERE stamp BETWEEN '$startMonth' AND '$to' AND wr_pac > 0";
@@ -753,7 +754,6 @@ class FunctionsService
     {
         $conn = self::getPdoConnection();
 
-        $old = $evu;
         if ($anlage->getUseGridMeterDayData() === false) {
             //$monthlyDatas = $this->monthlyDataRepo->findBy(['anlage' => $anlage], ['year' => 'asc', 'month' => 'asc']);
             $monthlyDatas = $this->monthlyDataRepo->findByDateRange($anlage, date_create($from), date_create($to));

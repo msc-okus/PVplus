@@ -7,9 +7,11 @@ use App\Repository\AnlagenRepository;
 use App\Service\checkSystemStatusService;
 use App\Service\MessageService;
 use App\Service\ReportService;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
+#[deprecated]
 class CronController extends BaseController
 {
     use G4NTrait;
@@ -24,6 +26,7 @@ class CronController extends BaseController
     }
 
     #[Route(path: '/cron/checkSystemStatus', name: 'app_cron_checksystemstatus')]
+    #[deprecated]
     public function checkSystemStatus(checkSystemStatusService $checkSystemStatus)
     {
         $output = $checkSystemStatus->checkSystemStatus();
@@ -38,6 +41,7 @@ class CronController extends BaseController
 
 
     #[Route(path: '/cron/createMonthlyReport', name: 'app_cron_createmonthlyreport')]
+    #[deprecated]
     public function report(ReportService $report, AnlagenRepository $anlagenRepository)
     {
         /** @var Anlage $anlagen */

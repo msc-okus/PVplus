@@ -207,10 +207,10 @@ class PRCalulationService
             }
 
             // PowerTheoretical für das Jahr und PAC berechnen (Standard Werte)
-            $powerTheo      = $powerTheoDefault        = $anlage->getPower() * $irr;
-            $powerTheoMonth = $powerTheoMonthDefault   = $anlage->getPower() * $irrMonth;
-            $powerTheoPac   = $powerTheoPacDefault     = $anlage->getPower() * $irrPac;
-            $powerTheoYear  = $powerTheoYearDefault    = $anlage->getPower() * $irrYear;
+            $powerTheo      = $powerTheoDefault        = $anlage->getPnom() * $irr;
+            $powerTheoMonth = $powerTheoMonthDefault   = $anlage->getPnom() * $irrMonth;
+            $powerTheoPac   = $powerTheoPacDefault     = $anlage->getPnom() * $irrPac;
+            $powerTheoYear  = $powerTheoYearDefault    = $anlage->getPnom() * $irrYear;
             // Berechne Default PR
             if ($powerTheo > 0) { // Verhindere Divison by zero
                 $prDefaultEvu      = ($powerEvu        / $powerTheo) * 100;

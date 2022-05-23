@@ -54,8 +54,8 @@ class MonthlyDataRepository extends ServiceEntityRepository
         $endYear      = (int)$to->format('Y');
         $endMonth     = (int)$to->format('m');
 
-        $start = $startYear + ($startMonth / 10);
-        $end   = $endYear   + ($endMonth / 10);
+        $start = $startYear + ($startMonth / 100);
+        $end   = $endYear   + ($endMonth / 100);
 
         $result = $this->createQueryBuilder('a')
             ->andWhere('a.anlage = :anlage')
@@ -66,9 +66,8 @@ class MonthlyDataRepository extends ServiceEntityRepository
             ->orderBy('a.year')
             ->orderBy('a.month')
             ->getQuery()
-            ->getResult()
-            ;
-        return $result;
+        ;
+        return $result->getResult();
     }
 
     public function findSumByPac(Anlage $anlage, \DateTime $pacDate, \DateTime $to)

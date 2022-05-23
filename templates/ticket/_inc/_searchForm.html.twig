@@ -1,0 +1,52 @@
+<form>
+    <div class="grid-x grid-margin-x align-middle">
+        <div class="cell medium-2" style="margin-top:-17px!important;">
+            <input type="text" name="anlage" class="input-group-field js-autocomplete-plant" value="{{ anlage }}" placeholder="Search plants">
+        </div>
+        <div  class="cell medium-2"  style="margin-top:-17px!important;">
+            <input type="text" name="editor" class="input-group-field js-autocomplete-user" value="{{ user }}" placeholder="Search Editor">
+        </div>
+        <div class="cell medium-2 "  style="margin-top:-17px!important;">
+            <input type="text" name="id" class="input-group-field" value="{{ id }}" placeholder="Search Ticket Id">
+        </div>
+        <div class="cell medium-1">
+            <select name="prio" >
+                <option value="00"> {% trans %}ticket.priority.name{% endtrans %} </option>
+                <option value="10" {% if prio == '10' %} selected {% endif %}>{% trans %}ticket.priority.10{% endtrans %}</option>
+                <option value="20" {% if prio == '20' %} selected {% endif %}>{% trans %}ticket.priority.20{% endtrans %}</option>
+                <option value="30" {% if prio == '30' %} selected {% endif %}>{% trans %}ticket.priority.30{% endtrans %}</option>
+                <option value="40" {% if prio == '40' %} selected {% endif %}>{% trans %}ticket.priority.40{% endtrans %}</option>
+            </select>
+        </div>
+        <div class="cell medium-1">
+            <select name="status" >
+                <option value="00"> {% trans %}ticket.status.name{% endtrans %} </option>
+                <option value="10" {% if status == '10' %} selected {% endif %}>{% trans %}ticket.status.10{% endtrans %}</option>
+                <option value="20" {% if status == '20' %} selected {% endif %}>{% trans %}ticket.status.20{% endtrans %}</option>
+                <option value="30" {% if status == '30' %} selected {% endif %}>{% trans %}ticket.status.30{% endtrans %}</option>
+            </select>
+        </div>
+        <div class="cell medium-1">
+            <select name="category" >
+                <option value="00">{% trans %}ticket.error.category.name{% endtrans %}</option>
+                <option value="10" {% if status == '10' %} selected {% endif %}>{% trans %}ticket.error.category.10{% endtrans %}</option>
+                <option value="20" {% if status == '20' %} selected {% endif %}>{% trans %}ticket.error.category.20{% endtrans %}</option>
+                <option value="30" {% if status == '30' %} selected {% endif %}>{% trans %}ticket.error.category.30{% endtrans %}</option>
+            </select>
+        </div>
+        <div class="cell medium-1">
+            <select name="type" >
+                <option value="00">{% trans %}ticket.error.type.name{% endtrans %}</option>
+                <option value="10" {% if status == '10' %} selected {% endif %}>{% trans %}ticket.error.type.10{% endtrans %}</option>
+                <option value="20" {% if status == '20' %} selected {% endif %}>{% trans %}ticket.error.type.20{% endtrans %}</option>
+                <option value="30" {% if status == '30' %} selected {% endif %}>{% trans %}ticket.error.type.30{% endtrans %}</option>
+            </select>
+        </div>
+        <h4> </h4>
+        <div class="input-group-button" style="height:35px !important; width:35px !important; padding:0; margin-top:-15px;">
+            <button type="submit" name="search" class="button" value="yes"
+                    data-action="ticket-list#search"
+            ><span class="fa fa-search"></span></button>
+        </div>
+    </div>
+</form>

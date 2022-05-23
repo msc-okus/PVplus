@@ -69,6 +69,7 @@ class EignerController extends BaseController
         }
         return $this->render('owner/new.html.twig', [
             'ownerForm' => $form->createView(),
+            'isupload' => '',
         ]);
     }
 
@@ -141,18 +142,20 @@ class EignerController extends BaseController
 
             return $this->redirectToRoute('app_admin_owner_list');
         }
-        if($imageuploaded != null)
-        return $this->render('owner/edit.html.twig', [
-            'ownerForm' => $form->createView(),
-            'fileUploadForm' => $form->createView(),
-            'isupload' => $isupload,
-            'imageuploadet' => $imageuploaded->getPath()
-        ]);
-        else         return $this->render('owner/edit.html.twig', [
-            'ownerForm' => $form->createView(),
-            'fileUploadForm' => $form->createView(),
-            'isupload' => $isupload,
-        ]);
+        if($imageuploaded != null) {
+            return $this->render('owner/edit.html.twig', [
+                'ownerForm' => $form->createView(),
+                'fileUploadForm' => $form->createView(),
+                'isupload' => $isupload,
+                'imageuploadet' => $imageuploaded->getPath()
+            ]);
+        } else {
+            return $this->render('owner/edit.html.twig', [
+                'ownerForm' => $form->createView(),
+                'fileUploadForm' => $form->createView(),
+                'isupload' => $isupload,
+            ]);
+        }
     }
 }
 

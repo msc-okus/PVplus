@@ -160,7 +160,6 @@ class Ticket
     private bool $splitted = false;
 
 
-
     public function getId(): ?int
     {
         return $this->id;

@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Anlage;
 use App\Entity\Ticket;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -53,22 +54,22 @@ class TicketRepository extends ServiceEntityRepository
 
     }
 
-    // /**
-    //  * @return ticket[] Returns an array of ticket objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function getWithSearchQueryBuilderNew(?string $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type): QueryBuilder
     {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('t.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
+        $qb = $this->createQueryBuilder('ticket')
+            ->innerJoin('ticket.anlage', 'a')
+            ->addSelect('a')
         ;
+        if ($anlage != '')      $qb->andWhere("a.anlName = '$anlage'");
+        if ($editor != '')      $qb->andWhere("ticket.editor = '$editor'");
+        if ((int)$id > 0)       $qb->andWhere("ticket.id = '$id'");
+        if ((int)$prio > 0)     $qb->andWhere("ticket.priority = '$prio'");
+        if ((int)$status > 0)   $qb->andWhere("ticket.status = $status");
+        if ((int)$category > 0) $qb->andWhere("ticket.priority = '$category'");
+        if ((int)$type > 0)     $qb->andWhere("ticket.priority = '$type'");
+
+        return $qb;
     }
-    */
 
 
     public function findOneById($id): ?ticket
