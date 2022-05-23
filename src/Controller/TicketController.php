@@ -119,24 +119,27 @@ class TicketController extends BaseController
     {
         $session = $this->container->get('session');
         //Reading data from request
-        if($request->query->get('anlage')!=null & $request->query->get('anlage')!="")$anlage = $request->query->get('anlage');
-        if($request->query->get('user')!=null & $request->query->get('user')!="")$editor = $request->query->get('user');
-        if($request->query->get('searchstatus')!=null & $request->query->get('searchstatus')!="")$searchstatus = $request->query->get('searchstatus');
-        if($request->query->get('id')!=null)$id = $request->query->get('id');
-        if($request->query->get('prio')!=null)$prio = $request->query->get('prio');
+        //$searchstatus = $editor = $anlage = $id = $prio = $inverter = 0;
+        if($request->query->get('anlage') != null & $request->query->get('anlage') != "")              $anlage = $request->query->get('anlage');
+        if($request->query->get('user') != null & $request->query->get('user') != "")                  $editor = $request->query->get('user');
+        if($request->query->get('status') != null & $request->query->get('searchstatus') != "")        $searchstatus = $request->query->get('searchstatus');
+        if($request->query->get('id') != null)                                                              $id = $request->query->get('id');
+        if($request->query->get('inverter') != null)                                                        $inverter = $request->query->get('id');
+        if($request->query->get('prio') != null)                                                            $prio = $request->query->get('prio');
 
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilder($searchstatus, $editor, $anlage, $id, $prio);
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilder($searchstatus, $editor, $anlage, $id, $prio, $inverter);
         $pagination = $paginator->paginate(
             $queryBuilder,                                    /* query NOT result */
             $request->query->getInt('page', 1),   /* page number*/
             20                                          /*limit per page*/
         );
+        /*
         $session->set('search', $searchstatus);
         $session->set('editor', $editor);
         $session->set('anlage', $anlage);
         $session->set('id', $id);
         $session->set('prio', $prio);
-
+*/
 
         return $this->render('ticket/list.html.twig',[
             'pagination' => $pagination,
@@ -144,6 +147,7 @@ class TicketController extends BaseController
             'user'       => $editor,
             'status'     => $searchstatus,
             'id'         => $id,
+            'inverter'   => $inverter,
             'prio'       => $prio,
         ]);
 
@@ -152,15 +156,17 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/search', name: 'app_ticket_search', methods: ['GET', 'POST'])]
     public function searchTickets(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request): Response
     {
+
         $anlage     = $request->query->get('anlage');
         $status     = $request->query->get('status');
         $editor     = $request->query->get('editor');
         $id         = $request->query->get('id');
+        $inverter   = $request->query->get('inverter');
         $prio       = $request->query->get('prio');
         $category   = $request->query->get('category');
         $type       = $request->query->get('type');
 
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type);
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter);
         $pagination = $paginator->paginate(
             $queryBuilder,
             $request->query->getInt('page', 1),

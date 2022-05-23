@@ -11,13 +11,14 @@
 
 {% block body %}
     <h1>List Tickets</h1>
-    <div  {{ stimulus_controller('ticket-list', {
+    <div {{ stimulus_controller('ticket-list', {
                 urlCreate: path('app_ticket_create'),
                 urlSearch: path('app_ticket_search')
             }) }}
             data-ticket-list-target="ticketForm"
+            class="ticket"
     >
-        <div data-ticket-list-target="searchbar">
+        <div data-ticket-list-target="searchBar">
             {% include 'ticket/_inc/_searchForm.html.twig' %}
         </div>
         <div data-ticket-list-target="list">

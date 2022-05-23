@@ -1,4 +1,4 @@
-<form>
+<form method="get">
     <div class="grid-x grid-margin-x align-middle">
         <div class="cell medium-2" style="margin-top:-17px!important;">
             <input type="text" name="anlage" class="input-group-field js-autocomplete-plant" value="{{ anlage }}" placeholder="Search plants">
@@ -6,8 +6,11 @@
         <div  class="cell medium-2"  style="margin-top:-17px!important;">
             <input type="text" name="editor" class="input-group-field js-autocomplete-user" value="{{ user }}" placeholder="Search Editor">
         </div>
-        <div class="cell medium-2 "  style="margin-top:-17px!important;">
+        <div class="cell medium-2"  style="margin-top:-17px!important;">
             <input type="text" name="id" class="input-group-field" value="{{ id }}" placeholder="Search Ticket Id">
+        </div>
+        <div class="cell medium-1"  style="margin-top:-17px!important;">
+            <input type="text" name="inverter" class="input-group-field" value="{{ inverter }}" placeholder="Search Iverter">
         </div>
         <div class="cell medium-1">
             <select name="prio" >

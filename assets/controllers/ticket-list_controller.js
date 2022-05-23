@@ -2,7 +2,7 @@ import { Controller } from '@hotwired/stimulus';
 import $ from 'jquery';
 
 export default class extends Controller {
-    static targets = ['list', 'ticketForm', 'searchForm', 'createForm'];
+    static targets = ['list', 'searchBar'];
     static values = {
         urlCreate: String,
         urlSearch: String
@@ -13,7 +13,7 @@ export default class extends Controller {
 
     async search(event){
         event.preventDefault();
-        const $searchListform = $(this.ticketFormTarget).find('form');
+        const $searchListform = $(this.searchBarTarget).find('form');
         this.listTarget.innerHTML = await $.ajax({
             url: this.urlSearchValue,
             method: $searchListform.prop('method'),
