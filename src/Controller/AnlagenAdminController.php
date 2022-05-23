@@ -339,6 +339,12 @@ class AnlagenAdminController extends BaseController
                   `temp_anlage` json NOT NULL,
                   `temp_inverter` json NOT NULL,
                   `wind_anlage` json NOT NULL,
+                  `pa_0` int(11) NOT NULL,
+                  `pa_1` int(11) NOT NULL,
+                  `pa_2` int(11) NOT NULL,
+                  `pa_0_reason` varchar(10) NOT NULL DEFAULT '0000000000',
+                  `pa_1_reason` varchar(10) NOT NULL DEFAULT '0000000000',
+                  `pa_2_reason` varchar(10) NOT NULL DEFAULT '0000000000',
                   PRIMARY KEY (`db_id`),
                   UNIQUE KEY `unique_ist_record` (`stamp`,`group_ac`,`unit`) USING BTREE,
                   KEY `stamp` (`stamp`)

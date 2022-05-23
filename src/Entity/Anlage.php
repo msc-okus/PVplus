@@ -3444,10 +3444,14 @@ class Anlage
         return $this;
     }
 
+    /**
+     * Function to calculate the Pnom for every Inverter, returns a Array with the Pnom for all inverters
+     *
+     * @return array
+     */
     public function getPnomInverterArray(): array
     {
         $dcPNomPerInvereter = [];
-        $pNomControSum = 0;
 
         switch ($this->getConfigType()) {
             case 1:
@@ -3458,7 +3462,6 @@ class Anlage
                         $sumPNom += $module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower();
                     }
                     $dcPNomPerInvereter[$inverter->getDcGroup()] = $sumPNom;
-                    $pNomControSum += $sumPNom;
                 }
                 break;
             case 3:
@@ -3472,7 +3475,6 @@ class Anlage
                         $sumPNom += $module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower();
                     }
                     $dcPNomPerInvereter[$groups->getAcGroup()] += $sumPNom * ($groups->getUnitLast() - $groups->getUnitFirst() + 1);
-                    $pNomControSum += $sumPNom;
                 }
                 break;
         }

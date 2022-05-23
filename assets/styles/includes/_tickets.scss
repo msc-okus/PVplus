@@ -1,0 +1,23 @@
+.ticket {
+    .ticket-priority-10 {
+        color: #8949af;
+    }
+    .ticket-priority-20 {
+        color: #be7c0b;
+    }
+    .ticket-priority-30 {
+        color: #c91111;
+    }
+
+    .ticket-status-10 {
+        background-color: #fdb4b4;
+    }
+    .ticket-status-20 {
+        background-color: #fac87e;
+        color: unset;
+    }
+    .ticket-status-30 {
+        background-color: unset;
+        color: unset;
+    }
+}
