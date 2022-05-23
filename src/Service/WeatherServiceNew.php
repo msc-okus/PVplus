@@ -170,34 +170,8 @@ class WeatherServiceNew
         }
         return true;
     }
-    public function calculateSunrise()
-    {
-        $Anlagen = $this->anlRepo->findAll();
-        $current_date = date("Y-m-d",time()+900);
-        foreach ($Anlagen as $anlage) {
-            $daylight = $this->dayrepo->findOneByDate($current_date, $anlage);
-            if (!$daylight) {
-                $daylight = new DayLightData();
-                $lat = (float)$anlage->getAnlGeoLat();
-                $lng = (float)$anlage->getAnlGeoLon();
-                //$offset = Timezones::getRawOffset(self::getNearestTimezone($lat, $lng, strtoupper($anlage->getCountry())))/3600;
 
-                $sunrisedata = date_sun_info(date_create_from_format('Y-m-d H:m', $current_date),  $lat, $lng);
-                $sunrise = date("H:i",$sunrisedata['astronomical_twilight_begin'] + 3600);
-                $sunset = date("H:i",$sunrisedata['astronomical_twilight_end'] + 3600);
-
-                $daylight->setSunrise($current_date." ".$sunrise);
-                $daylight->setSunset($current_date." ".$sunset);
-                $daylight->setAnlage($anlage);
-                $daylight->setDate($current_date);
-
-                $this->em->persist($daylight);
-                $this->em->flush();
-
-            }
-        }
-    }
-    public function getSunrise($anlage, ?string $time = null)
+    public function  getSunrise($anlage, ?string $time = null)
     {
         if ($time == null)$current_date = date("Y-m-d");
         else $current_date = date("Y-m-d", strtotime($time));
@@ -212,7 +186,6 @@ class WeatherServiceNew
                 $daylight = new DayLightData();
                 $lat = (float)$anlage->getAnlGeoLat();
                 $lng = (float)$anlage->getAnlGeoLon();
-                $offset = Timezones::getRawOffset(self::getNearestTimezone($lat, $lng, strtoupper($anlage->getCountry())))/3600;
                 $sunrisedata = date_sun_info(date_create_from_format('Y-m-d H:m', $current_date),  $lat, $lng);
                 $sunrise = date("H:i",$sunrisedata['astronomical_twilight_begin'] + 3600);
                 $sunset = date("H:i",$sunrisedata['astronomical_twilight_end'] + 3600);

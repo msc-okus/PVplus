@@ -57,7 +57,7 @@ class AlertSystemService
         if ($anlId == null) {
             $Anlagen = $this->AnlRepo->findAll();
             foreach ($Anlagen as $anlage) {
-                if ($anlage->getAnlId() == "95"/*Buinerveen*/ || $anlage->getAnlId() == "93"/*Staadskanal ||$anlage->getAnlId()=="84"*/) {
+                if ( $anlage->getAnlId() == "93"/*Stadskanaal*/) {
                     $sungap = $this->weather->getSunrise($anlage, $time);
 
                     if ((($time >= $sungap[$anlage->getanlName()]['sunrise']) && ($time <= $sungap[$anlage->getAnlName()]['sunset']))) {
@@ -207,6 +207,7 @@ class AlertSystemService
     private function AnalyzeIst($inverter, $time, $anlage, $nameArray, $sunrise){
         $message = "";
         $alert ="";
+        dump($inverter);
             if ($inverter['istdata'] == "No Data"){//data gap
                 $message .=  "Data gap at inverter(Power)  ".$nameArray;
                 $alert = "10";
@@ -215,10 +216,10 @@ class AlertSystemService
                 $message .=  "No power at inverter " .$nameArray;
                 $alert = "20";
             }
-
+            if ($alert !== "10") {
                 if ($anlage->getHasFrequency()) {
                     if ($inverter['freq'] != "All is ok") {
-                        if($alert == "") {
+                        if ($alert == "") {
                             $alert = "30";
                         }
                         $message = $message . "Error with the frequency in inverter " . $nameArray;
@@ -226,11 +227,12 @@ class AlertSystemService
                 }
                 if ($inverter['voltage'] != "All is ok") {//grid error
                     $message = $message . "Error with the voltage in inverter " . $nameArray;
-                    if($alert == "") {
+                    if ($alert == "") {
                         $alert = "30";
                     }
                 }
-
+            }
+            dump($message);
         if($message != "") {
             $ticket = self::getLastTicket($anlage, $nameArray, $time, $sunrise, false);
             if ($ticket == null) {
@@ -409,10 +411,13 @@ class AlertSystemService
         $resp = $conn->query($sql);
 
         if ($resp->rowCount() > 0) {
+
             $pdata = $resp->fetch(PDO::FETCH_ASSOC);
-            if ($pdata['ist'] === 0){ $return['istdata'] =  "Power is 0";dump("wtf is happening here");}
+            dump($stamp, $pdata);
+            if ($pdata['ist'] === "0" and $pdata['voltage'] <= 0) $return['istdata'] =  "Power is 0";
             elseif ($pdata['ist'] === null) $return['istdata'] = "No Data";
             else $return['istdata'] = "All is ok";
+
 
             if ($pdata['freq'] !== null){
                 if (($pdata['freq'] <= $anlage->getFreqBase()+$anlage->getFreqTolerance()) && ($pdata['freq'] >= $anlage->getFreqBase()-$anlage->getFreqTolerance())) $return['freq'] = "All is ok";
@@ -420,7 +425,7 @@ class AlertSystemService
             }
             else $return['freq'] = "No Data";
             if ($pdata['voltage'] !== null){
-                if ($pdata['voltage'] === 0) $return['voltage'] = "Voltage is 0";
+                if ($pdata['voltage'] === "0") $return['voltage'] = "Voltage is 0";
                 else $return['voltage'] = "All is ok";
             }
             else $return['voltage'] = "No Data";
@@ -431,7 +436,6 @@ class AlertSystemService
             $return['freq'] = "No Data";
             $return['voltage'] = "No Data";
         }
-
         return $return;
     }
 

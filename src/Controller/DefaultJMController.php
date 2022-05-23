@@ -37,7 +37,7 @@ class DefaultJMController extends AbstractController
     #[Route(path: '/default/test/check', name: 'default_check')]
     public function check(AlertSystemService $service)
     {
-        $service->generateTicketsInterval("2022-05-15", "2022-05-16", "93");
+        $service->generateTicketsInterval("2020-12-20", "2020-12-21", "93");
         dd("fertig");
     }
 }
