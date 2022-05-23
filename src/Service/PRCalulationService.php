@@ -612,7 +612,7 @@ class PRCalulationService
         // PR Calculation
         // Standard PR, wird NICHT mit Temp-Koriegierten Theoretischen berechnet sondern mit Pnom * Irradiation
         $tempTheoPower = $anlage->getPnom() * round($irr, 4);
-        dump($irr);
+
         if ($tempTheoPower > 0) { // Verhindere Divison by zero
             $result['prDefaultEvu']      = ($power['powerEvu']      / $tempTheoPower) * 100;
             $result['prDefaultAct']      = ($power['powerAct']      / $tempTheoPower) * 100;
