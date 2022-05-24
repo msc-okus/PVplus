@@ -17,8 +17,8 @@
         {% if (is_granted('ROLE_DEV')) %}
             <th>Last Update</th>
         {% endif %}
-        <th>Error Categorie</th>
         <th>Error Type</th>
+        <th>Error Categorie{% if is_granted('ROLE_G4N') %} alertType {% endif %}</th>
         <th>Inverter</th>
         <th></th>
         <th></th>
@@ -45,12 +45,12 @@
                 <td>{{ ticket.updatedAt|date("d.m. H:i")  }}</td>
             {% endif %}
             <td>
-                {% set errtyp %}ticket.error.type.{{ ticket.errorType }}{% endset %}
-                 {{ errtyp|trans }}
+                {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}
+                {{ errcat|trans }} | {{ ticket.alertType }}
             </td>
             <td>
-                {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}
-                {{ errcat|trans }}
+                {% set errtyp %}ticket.error.type.{{ ticket.errorType }}{% endset %}
+                {{ errtyp|trans }} | {{ ticket.errorType }}
             </td>
             <td>{{ ticket.inverter }}</td>
             <td></td>

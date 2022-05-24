@@ -42,10 +42,10 @@ class Ticket
     /**
      * @ORM\Column(type="string")
      */
-    private string $errorType; // SFOR, EFOR, OMC
+    private string $errorType; // SFOR, EFOR, OMC  //errorType
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=50)
      */
     private string $editor;
 
@@ -145,14 +145,14 @@ class Ticket
     private ?string $answer;
 
     /**
-     * @ORM\Column(type="string", length=100, nullable=true)
+     * @ORM\Column(type="string", length=50, nullable=true)
      */
     private ?string $inverter;
 
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(type="string", length=20)
      */
-    private string $alertType = "";
+    private string $alertType = ""; //errorCategory
 
     /**
      * @ORM\Column(type="boolean")
