@@ -333,18 +333,13 @@ class AnlagenAdminController extends BaseController
                   `temp_corr` varchar(20) DEFAULT NULL,
                   `theo_power` varchar(20) DEFAULT NULL,
                   `temp_cell` VARCHAR(20) DEFAULT NULL,
+                  `temp_cell_multi_irr` VARCHAR(20) DEFAULT NULL,
                   `wr_mpp_current` json NOT NULL,
                   `wr_mpp_voltage` json NOT NULL,
                   `irr_anlage` json NOT NULL,
                   `temp_anlage` json NOT NULL,
                   `temp_inverter` json NOT NULL,
                   `wind_anlage` json NOT NULL,
-                  `pa_0` int(11) NOT NULL,
-                  `pa_1` int(11) NOT NULL,
-                  `pa_2` int(11) NOT NULL,
-                  `pa_0_reason` varchar(10) NOT NULL DEFAULT '0000000000',
-                  `pa_1_reason` varchar(10) NOT NULL DEFAULT '0000000000',
-                  `pa_2_reason` varchar(10) NOT NULL DEFAULT '0000000000',
                   PRIMARY KEY (`db_id`),
                   UNIQUE KEY `unique_ist_record` (`stamp`,`group_ac`,`unit`) USING BTREE,
                   KEY `stamp` (`stamp`)
@@ -369,6 +364,7 @@ class AnlagenAdminController extends BaseController
                   KEY `wr_group` (`wr_group`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 
+            /*
             $databaseAcSoll = "CREATE TABLE IF NOT EXISTS " . $anlage->getDbNameAcSoll() . " (
                     `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
                     `anl_id` int(11) NOT NULL,
@@ -379,6 +375,7 @@ class AnlagenAdminController extends BaseController
                     PRIMARY KEY (`db_id`), 
                     KEY `stamp` (`stamp`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
+            */
 
             $databaseDcSoll = "CREATE TABLE IF NOT EXISTS " . $anlage->getDbNameDcSoll() . " (
                       `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
@@ -408,7 +405,7 @@ class AnlagenAdminController extends BaseController
             $conn = self::getPdoConnection();
             $conn->exec($databaseAcIst);
             $conn->exec($databaseDcIst);
-            $conn->exec($databaseAcSoll);
+            //$conn->exec($databaseAcSoll);
             $conn->exec($databaseDcSoll);
             $conn = null;
 
