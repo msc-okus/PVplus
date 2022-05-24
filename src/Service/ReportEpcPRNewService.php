@@ -172,8 +172,8 @@ class ReportEpcPRNewService
             $tableArray[$n]['W_eGrid']                                = $hasMonthData ? $eGridReal : $tableArray[$n]['H_eGridDesign'] * $anlage->getPnom() / $anlage->getKwPeakPvSyst();
             $tableArray[$n]['X_specificYield']                        = $tableArray[$n]['W_eGrid'] / $anlage->getPnom();
             $tableArray[$n]['Y_pr']                                   = $tableArray[$n]['X_specificYield'] / $tableArray[$n]['U_refYield'] * 100;
-            $tableArray[$n]['Z_tCellAvgWeighted']                     = $hasMonthData ? $prArray['tCellAvgMultiIrr'] / $tableArray[$n]['T_irr'] : $tableArray[$n]['L_tempAmbWeightedDesign'];
-            $tableArray[$n]['Z_tCellAvgWeighted']                     = $hasMonthData ? $prArray['tCellAvg'] : $tableArray[$n]['L_tempAmbWeightedDesign'];
+
+            $tableArray[$n]['Z_tCellAvgWeighted']                     = $hasMonthData ? ($prArray['tCellAvgMultiIrr'] / ($tableArray[$n]['T_irr'] * 4000)) : $tableArray[$n]['L_tempAmbWeightedDesign']; // Strahlung (in kWh/qm) mit 4000 Multipizieren um W/qm zu bekommen
             $tableArray[$n]['AA_tCompensationFactor']                 = 0;
             $tableArray[$n]['AB_effRefYield']                         = 0;
             $tableArray[$n]['AC_effTheoEnergy']                       = 0;

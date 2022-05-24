@@ -723,14 +723,12 @@ class FunctionsService
         unset($res);
 
         // Theoretic Power (TempCorr)
-        $sql = "SELECT SUM(theo_power) AS theo_power, AVG(temp_cell) AS tCellAvg, AVG(temp_cell_multi_irr) AS tCellAvgMultiIrr FROM ".$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to' AND theo_power > 0";
+        $sql = "SELECT SUM(theo_power) AS theo_power FROM ".$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to' AND theo_power > 0";
         #dd($sql);
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
             $powerTheo = round($row['theo_power'],4);
-            $tCellAvg = round($row['tCellAvg'],4);
-            $tCellAvgMultiIrr = round($row['tCellAvgMultiIrr'],4);
         }
         unset($res);
 
