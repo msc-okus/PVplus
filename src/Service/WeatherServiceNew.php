@@ -170,35 +170,20 @@ class WeatherServiceNew
         }
         return true;
     }
-
+//Given a plant and no date it will return the sunrise info of the given plant for the current day
+//Given a plant and a time it will return the sunrise info of the given plant for the given date
     public function  getSunrise($anlage, ?string $time = null)
     {
         if ($time == null)$current_date = date("Y-m-d");
         else $current_date = date("Y-m-d", strtotime($time));
 
+        $sunrisedata = date_sun_info(date_create_from_format('Y-m-d H:m', $current_date),  (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon());
 
-            $daylight=$this->dayrepo->findOneByDate($current_date, $anlage);
-            if($daylight){
-                $sunrise = $daylight->getSunrise();
-                $sunset = $daylight->getSunset();
-            }
-            else {
-                $daylight = new DayLightData();
-                $lat = (float)$anlage->getAnlGeoLat();
-                $lng = (float)$anlage->getAnlGeoLon();
-                $sunrisedata = date_sun_info(date_create_from_format('Y-m-d H:m', $current_date),  $lat, $lng);
-                $sunrise = date("H:i",$sunrisedata['astronomical_twilight_begin'] + 3600);
-                $sunset = date("H:i",$sunrisedata['astronomical_twilight_end'] + 3600);
-                $daylight->setSunrise($current_date." ".$sunrise);
-                $daylight->setSunset($current_date." ".$sunset);
-                $daylight->setAnlage($anlage);
-                $daylight->setDate($current_date);
-                $this->em->persist($daylight);
-                $this->em->flush();
-            }
+        $sunrise = date("H:i",$sunrisedata['astronomical_twilight_begin'] + 3600);
+        $sunset = date("H:i",$sunrisedata['astronomical_twilight_end'] + 3600);
 
-            $returnArray[$anlage->getAnlName()]['sunrise'] = $sunrise;
-            $returnArray[$anlage->getAnlName()]['sunset'] = $sunset;
+        $returnArray[$anlage->getAnlName()]['sunrise'] = $current_date." ".$sunrise;
+        $returnArray[$anlage->getAnlName()]['sunset'] = $current_date." ".$sunset;
 
         return $returnArray;
     }

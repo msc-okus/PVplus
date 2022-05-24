@@ -5,6 +5,7 @@ namespace App\Command;
 use App\Helper\G4NTrait;
 use App\Service\AlertSystemService;
 use App\Service\WeatherServiceNew;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -17,17 +18,17 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class GenerateTicketsCommand extends Command
 {
     use G4NTrait;
-
+    private EntityManagerInterface $em;
     protected static $defaultName = 'pvp:GenerateTickets';
 
     private AlertSystemService $alertService;
 
 
-    public function __construct(AlertSystemService $alertService)
+    public function __construct(AlertSystemService $alertService, EntityManagerInterface $em)
     {
         parent::__construct();
         $this->alertService = $alertService;
-
+        $this->em= $em;
     }
     protected function configure(): void
     {
@@ -61,15 +62,21 @@ class GenerateTicketsCommand extends Command
             $toStamp = strtotime($to);
 
             $counter = ($toStamp-$fromStamp)/800;
-
+            $quarterCounter = 0;
             $io->progressStart($counter);
             while($from <= $to){//sleep
                 $io->progressAdvance();
                 $this->alertService->checkSystem($from, $anlId);
                 $from = G4NTrait::timeAjustment($from, 0.25);
+                if ($quarterCounter == 17280 ){
+                    $this->em->flush();
+                    $quarterCounter =0;
+                }
+                $quarterCounter ++;
             }
             $io->progressFinish();
         }
+        $this->em->flush();
         return Command::SUCCESS;
     }
 }

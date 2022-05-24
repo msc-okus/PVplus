@@ -44,21 +44,24 @@ class AlertSystemService
     }
 
     public function generateTicketsInterval(string $from, string $to, ?string $anlId = null){
-        while($from <= $to){//sleep
+        while($from <= $to){
             $from = G4NTrait::timeAjustment($from, 0.25);
             $this->checkSystem($from, $anlId);
-
         }
+        $this->em->flush();
     }
+
     public function checkSystem(?string $time = null, ?string $anlId = null){
 
+        //time adjustements
         if ($time == null)$time = $this->getLastQuarter(date('Y-m-d H:i:s') );
         $time = G4NTrait::timeAjustment($time, -2);
-        if ($anlId == null) {
+
+        if ($anlId == null) {//if no anlage id is provided we will look for all of them
             $Anlagen = $this->AnlRepo->findAll();
             foreach ($Anlagen as $anlage) {
-                if ( $anlage->getAnlId() == "93"/*Stadskanaal*/) {
-                    $sungap = $this->weather->getSunrise($anlage, $time);
+                if ( $anlage->getAnlId() == "93"/*Stadskanaal*/) {  // now we limit this to only staadskanal
+                    $sungap = $this->weather->getSunrise($anlage, $time);//we retrieve the sungap
 
                     if ((($time >= $sungap[$anlage->getanlName()]['sunrise']) && ($time <= $sungap[$anlage->getAnlName()]['sunset']))) {
                         $nameArray = $this->functions->getInverterArray($anlage);
@@ -80,7 +83,6 @@ class AlertSystemService
         else{
             $anlage = $this->AnlRepo->findIdLike($anlId)[0];
                 $sungap = $this->weather->getSunrise($anlage, $time);
-
                 if ((($time >= $sungap[$anlage->getanlName()]['sunrise']) && ($time <= $sungap[$anlage->getAnlName()]['sunset']))) {
                     $nameArray = $this->functions->getInverterArray($anlage);
                     $counter = 1;
@@ -92,7 +94,7 @@ class AlertSystemService
                         $system_status[$inverterName] = $inverter_status;
                         unset($inverter_status);
                     }
-                    $this->em->flush();
+                   // $this->em->flush();
                     unset($system_status);
                 }
         }
@@ -148,8 +150,6 @@ class AlertSystemService
             $begin->getTimestamp();
             $ticket->setBegin(($begin));
         }
-
-
         if ($status_report['Irradiation'] == "No data") {
             $timetempend = date('Y-m-d H:i:s', strtotime($time));
             $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
@@ -189,7 +189,6 @@ class AlertSystemService
             $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
             $end->getTimestamp();
             $ticket->setEnd(($end));
-            //$ticket->setStatus(30);
         }
         if($ticket != null) $this->em->persist($ticket);
         $this->em->flush();
@@ -207,15 +206,15 @@ class AlertSystemService
     private function AnalyzeIst($inverter, $time, $anlage, $nameArray, $sunrise){
         $message = "";
         $alert ="";
-        dump($inverter);
-            if ($inverter['istdata'] == "No Data"){//data gap
+            if ($inverter['istdata'] === "No Data"){//data gap
                 $message .=  "Data gap at inverter(Power)  ".$nameArray;
                 $alert = "10";
             }
-            elseif ($inverter['istdata'] == "Power is 0"){//inverter error
+            elseif ($inverter['istdata'] === "Power is 0"){//inverter error
                 $message .=  "No power at inverter " .$nameArray;
                 $alert = "20";
             }
+
             if ($alert !== "10") {
                 if ($anlage->getHasFrequency()) {
                     if ($inverter['freq'] != "All is ok") {
@@ -232,7 +231,6 @@ class AlertSystemService
                     }
                 }
             }
-            dump($message);
         if($message != "") {
             $ticket = self::getLastTicket($anlage, $nameArray, $time, $sunrise, false);
             if ($ticket == null) {
@@ -256,6 +254,8 @@ class AlertSystemService
             $end->getTimestamp();
             $ticket->setEnd(($end));
             $this->em->persist($ticket);
+            //this is to send a message after and only after 30 mins
+
             if (date_diff($end, $ticket->getBegin(), true)->i != 30) {
                 $message = "";
             }
@@ -263,7 +263,7 @@ class AlertSystemService
         else {
             $ticket = self::getLastTicket($anlage, $nameArray, $time, $sunrise, false);
             if($ticket!=null){
-                //$ticket->setStatus(30);
+                //$ticket->setStatus(30); this is for closing
                 $this->em->persist($ticket);
                 $this->em->flush();
             }
@@ -282,8 +282,10 @@ class AlertSystemService
      * @param $inverter
      * @return array
      */
-    private static function IstData($anlage, $time, $inverter){
+    private static function IstData($anlage, $time, $inverter): array
+    {
         $status_report = self::RetrieveQuarterIst($time, $inverter, $anlage);
+
         return $status_report;
     }
     /**
@@ -322,7 +324,7 @@ class AlertSystemService
                 $expq = $respeq->fetch(PDO::FETCH_ASSOC);
                 $acth = $respah->fetch(PDO::FETCH_ASSOC);
                 $actq = $respaq->fetch(PDO::FETCH_ASSOC);
-                dd($exph, $expq, $actq, $acth);
+
             }
         }
         else $status_report = $report;
@@ -382,7 +384,7 @@ class AlertSystemService
      * @return string
      */
     private function getLastQuarter($stamp){
-        //we splikt the minutes from the rest of the stamp
+        //we split the minutes from the rest of the stamp
         $mins = date('i', strtotime($stamp));
         $rest = date('Y-m-d H', strtotime($stamp));
         //we work on the minutes to "round" to the lower quarter
@@ -413,9 +415,9 @@ class AlertSystemService
         if ($resp->rowCount() > 0) {
 
             $pdata = $resp->fetch(PDO::FETCH_ASSOC);
-            dump($stamp, $pdata);
-            if ($pdata['ist'] === "0" and $pdata['voltage'] <= 0) $return['istdata'] =  "Power is 0";
-            elseif ($pdata['ist'] === null) $return['istdata'] = "No Data";
+            dump($pdata );
+            if ($pdata['ist'] <= 0 ){ $return['istdata'] =  "Power is 0";dump("errorpower");}
+            elseif ($pdata['ist'] === null){ $return['istdata'] = "No Data"; dump("errorgap");}
             else $return['istdata'] = "All is ok";
 
 
@@ -425,7 +427,7 @@ class AlertSystemService
             }
             else $return['freq'] = "No Data";
             if ($pdata['voltage'] !== null){
-                if ($pdata['voltage'] === "0") $return['voltage'] = "Voltage is 0";
+                if ($pdata['voltage'] <= 0) $return['voltage'] = "Voltage is 0";
                 else $return['voltage'] = "All is ok";
             }
             else $return['voltage'] = "No Data";
@@ -436,6 +438,7 @@ class AlertSystemService
             $return['freq'] = "No Data";
             $return['voltage'] = "No Data";
         }
+        dump($return);
         return $return;
     }
 
