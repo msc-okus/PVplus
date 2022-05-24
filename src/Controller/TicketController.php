@@ -125,12 +125,13 @@ class TicketController extends BaseController
         //$searchstatus = $editor = $anlage = $id = $prio = $inverter = 0;
         if($request->query->get('anlage') != null & $request->query->get('anlage') != "")              $anlage = $request->query->get('anlage');
         if($request->query->get('user') != null & $request->query->get('user') != "")                  $editor = $request->query->get('user');
-        if($request->query->get('status') != null & $request->query->get('searchstatus') != "")        $searchstatus = $request->query->get('searchstatus');
+        if($request->query->get('status') != null & $request->query->get('searchstatus') != "")        $status = $request->query->get('searchstatus');
         if($request->query->get('id') != null)                                                              $id = $request->query->get('id');
         if($request->query->get('inverter') != null)                                                        $inverter = $request->query->get('id');
         if($request->query->get('prio') != null)                                                            $prio = $request->query->get('prio');
+        $category = $type = '';
 
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilder($searchstatus, $editor, $anlage, $id, $prio, $inverter);
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter);
         $pagination = $paginator->paginate(
             $queryBuilder,                                    /* query NOT result */
             $request->query->getInt('page', 1),   /* page number*/
@@ -148,7 +149,7 @@ class TicketController extends BaseController
             'pagination' => $pagination,
             'anlage'     => $anlage,
             'user'       => $editor,
-            'status'     => $searchstatus,
+            'status'     => $status,
             'id'         => $id,
             'inverter'   => $inverter,
             'prio'       => $prio,

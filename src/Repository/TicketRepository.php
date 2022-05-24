@@ -43,7 +43,7 @@ class TicketRepository extends ServiceEntityRepository
         if ($anlage !='')                   $qb->andWhere("a.anlName LIKE '$anlage'");
         if ($id != '')                      $qb->andWhere("ticket.id = '$id'");
         if ($prio != '' && $prio != '00')   $qb->andWhere("ticket.priority = '$prio'");
-
+        dd('old');
         return $qb;
     }
 
@@ -53,20 +53,19 @@ class TicketRepository extends ServiceEntityRepository
             ->innerJoin('ticket.anlage', 'a')
             ->addSelect('a')
         ;
-        if ($anlage != '')      $qb->andWhere("a.anlName = '$anlage'");
-        if ($editor != '')      $qb->andWhere("ticket.editor = '$editor'");
-        if ((int)$id > 0)       $qb->andWhere("ticket.id = '$id'");
+        if ($anlage != '')      $qb->andWhere("a.anlName = $anlage");
+        if ($editor != '')      $qb->andWhere("ticket.editor = $editor");
+        if ((int)$id > 0)       $qb->andWhere("ticket.id = $id");
 
         if ($inverter != '') {
             $qb ->andWhere('ticket.inverter LIKE :inverter')
                 ->setParameter('inverter', '%' . $inverter .'%');
         }
-        if ((int)$prio > 0)     $qb->andWhere("ticket.priority = '$prio'");
+        if ((int)$prio > 0)     $qb->andWhere("ticket.priority = $prio");
         if ((int)$status > 0)   $qb->andWhere("ticket.status = $status");
-        if ((int)$category > 0) $qb->andWhere("ticket.priority = '$category'");
-        if ((int)$type > 0)     $qb->andWhere("ticket.type = '$type'");
+        if ((int)$type > 0)     $qb->andWhere("ticket.errorType = $type"); // SFOR, EFOR, OMC
+        if ((int)$category > 0) $qb->andWhere("ticket.alertType = $category");
 
-        #dd ($qb);
         return $qb;
     }
 
