@@ -5,7 +5,6 @@ namespace App\Controller;
 use ApiPlatform\Core\Api\UrlGeneratorInterface;
 use App\Entity\AnlagenReports;
 
-use App\Entity\User;
 use App\Form\AssetManagement\AssetManagementeReportFormType;
 use App\Form\Reports\ReportsFormType;
 use App\Helper\G4NTrait;
@@ -23,8 +22,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -42,7 +39,7 @@ class ReportingController extends AbstractController
     {
     }
 
-     #[Route(path: '/reporting/create', name: 'app_reporting_create', methods: ['GET', 'POST'])]
+    #[Route(path: '/reporting/create', name: 'app_reporting_create', methods: ['GET', 'POST'])]
     public function createReport(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo, ReportService $report, ReportEpcService $reportEpc, ReportsMonthlyService $reportsMonthly) : Response
     {
         $searchstatus    = $request->query->get('searchstatus');
@@ -202,9 +199,6 @@ class ReportingController extends AbstractController
         ]);
     }
 
-    /**
-     *
-     */
     #[Route(path: '/reporting/edit/{id}', name: 'app_reporting_edit')]
     public function edit($id, ReportsRepository $reportsRepository, Request $request, Security $security, EntityManagerInterface $em) : Response
     {
@@ -242,10 +236,8 @@ class ReportingController extends AbstractController
         ]);
     }
 
-    /**
-     * @IsGranted("ROLE_DEV")
-     */
     #[Route(path: 'app_reporting/pdf/delete/{id}', name: 'app_reporting_delete')]
+    #[IsGranted(['ROLE_DEV'])]
     public function deleteReport($id, ReportsRepository $reportsRepository, Security $security, EntityManagerInterface $em) : RedirectResponse
     {
         $session        = $this->container->get('session');

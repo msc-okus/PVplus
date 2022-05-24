@@ -30,13 +30,13 @@
         <tr>
             <td>{{ ticket.id }}</td>
             <td>{{ ticket.anlage.anlName }} {% if is_granted('ROLE_G4N') %} ({{ ticket.anlage.anlId }}) {% endif %}</td>
-            <td class="ticket-status-{{ ticket.status }}">
+            <td class="">
                 {% set status %}ticket.status.{{ ticket.status }}{% endset %}
-                {{ status|trans }}
+                <span class="label ticket-status-{{ ticket.status }}">{{ status|trans }}</span>
             </td>
-            <td class="ticket-priority-{{ ticket.priority }}">
+            <td class="">
                 {% set priority %}ticket.priority.{{ ticket.priority }}{% endset %}
-                {{ priority|trans }}
+                <span class="label ticket-priority-{{ ticket.priority }}">{{ priority|trans }}</span>
             </td>
             <td>{{ ticket.editor }}</td>
             <td>{{ ticket.begin|date("Y-m-d H:i")}}</td>
@@ -47,7 +47,7 @@
             <td>
                 {% set errtyp %}ticket.error.type.{{ ticket.errorType }}{% endset %}
                  {{ errtyp|trans }}
-                {{ ticket.errorType }}</td>
+            </td>
             <td>
                 {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}
                 {{ errcat|trans }}

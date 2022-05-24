@@ -536,6 +536,7 @@ class PRCalulationService
      *  $result['anzCase5'] (prove)<br>
      *  $result['tCellAvgMeasured'] (prove)<br>
      *  $result['tCellAvgNrel'] (prove)<br>
+     *  $result['tCellAvgMultiIrr'] (prove)<br>
      *
      * @param Anlage $anlage
      * @param DateTime $startDate
@@ -606,7 +607,8 @@ class PRCalulationService
         // if theoretic Power ist corrected by temperature (NREL) (PR Algoritm = Lelystad) then use 'powerTheo' from array $power, if not calc by Pnom and Irr.
         $powerTheo = round($anlage->getUseCustPRAlgorithm() == 'Lelystad' ? $power['powerTheo'] : $anlage->getPnom() * $irr,4);
         $result['powerTheo'] = $powerTheo;
-        $result['tCellAvgNrel'] = (float)$power['tCellAvg'];
+        $result['tCellAvgNrel'] = $power['tCellAvg'];
+        $result['tCellAvgMultiIrr'] = $power['tCellAvgMultiIrr'];
         $tempCorrection = 0; // not used at the Moment
 
         // PR Calculation

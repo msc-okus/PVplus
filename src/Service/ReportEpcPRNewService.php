@@ -172,7 +172,8 @@ class ReportEpcPRNewService
             $tableArray[$n]['W_eGrid']                                = $hasMonthData ? $eGridReal : $tableArray[$n]['H_eGridDesign'] * $anlage->getPnom() / $anlage->getKwPeakPvSyst();
             $tableArray[$n]['X_specificYield']                        = $tableArray[$n]['W_eGrid'] / $anlage->getPnom();
             $tableArray[$n]['Y_pr']                                   = $tableArray[$n]['X_specificYield'] / $tableArray[$n]['U_refYield'] * 100;
-            $tableArray[$n]['Z_tCellAvgWeighted']                     = $hasMonthData ? $prArray['tCellAvgNrel'] * $factor : $tableArray[$n]['L_tempAmbWeightedDesign'];
+            $tableArray[$n]['Z_tCellAvgWeighted']                     = $hasMonthData ? $prArray['tCellAvgMultiIrr'] / $tableArray[$n]['T_irr'] : $tableArray[$n]['L_tempAmbWeightedDesign'];
+            $tableArray[$n]['Z_tCellAvgWeighted']                     = $hasMonthData ? $prArray['tCellAvg'] : $tableArray[$n]['L_tempAmbWeightedDesign'];
             $tableArray[$n]['AA_tCompensationFactor']                 = 0;
             $tableArray[$n]['AB_effRefYield']                         = 0;
             $tableArray[$n]['AC_effTheoEnergy']                       = 0;
@@ -224,20 +225,20 @@ class ReportEpcPRNewService
                 $tableArray[$zeileSumme1]['Y_pr']                       = $tableArray[$zeileSumme1]['X_specificYield'] / $tableArray[$zeileSumme1]['U_refYield'] * 100;
                 $tableArray[$zeileSumme1]['Z_tCellAvgWeighted']         = 0;
                 $z_tCellAvgWeighted1                                    += $tableArray[$n]['Z_tCellAvgWeighted'] * $tableArray[$n]['U_refYield'] ; ########### in zweiter Runde noch durch summe aus 'U_refYield' teilen
-                $tableArray[$zeileSumme1]['AA_tCompensationFactor']                 = 0;
-                $tableArray[$zeileSumme1]['AB_effRefYield']                         = 0;
-                $tableArray[$zeileSumme1]['AC_effTheoEnergy']                       = 0;
-                $tableArray[$zeileSumme1]['AC1_theoEnergyMeasured']                 += $tableArray[$n]['AC1_theoEnergyMeasured'];
-                $tableArray[$zeileSumme1]['AD_prMonth']                             = 0;
-                $tableArray[$zeileSumme1]['AE_ratio']                               = 0;
-                $tableArray[$zeileSumme1]['AF_ratioFT']                             = 0;
-                $tableArray[$zeileSumme1]['AG_epcPA']                               = 0;
+                $tableArray[$zeileSumme1]['AA_tCompensationFactor']         = 0;
+                $tableArray[$zeileSumme1]['AB_effRefYield']                 = 0;
+                $tableArray[$zeileSumme1]['AC_effTheoEnergy']               = 0;
+                $tableArray[$zeileSumme1]['AC1_theoEnergyMeasured']         += $tableArray[$n]['AC1_theoEnergyMeasured'];
+                $tableArray[$zeileSumme1]['AD_prMonth']                     = 0;
+                $tableArray[$zeileSumme1]['AE_ratio']                       = 0;
+                $tableArray[$zeileSumme1]['AF_ratioFT']                     = 0;
+                $tableArray[$zeileSumme1]['AG_epcPA']                       = 0;
                 //Analysis
-                $tableArray[$zeileSumme1]['AH_prForecast']                          = 0;
-                $tableArray[$zeileSumme1]['AI_eGridForecast']                       = 0;
-                $tableArray[$zeileSumme1]['AJ_specificYieldForecast']               = 0;
-                $tableArray[$zeileSumme1]['AK_absDiffPrRealGuarForecast']           = 0;
-                $tableArray[$zeileSumme1]['AL_relDiffPrRealGuarForecast']           = 0;
+                $tableArray[$zeileSumme1]['AH_prForecast']                  = 0;
+                $tableArray[$zeileSumme1]['AI_eGridForecast']               = 0;
+                $tableArray[$zeileSumme1]['AJ_specificYieldForecast']       = 0;
+                $tableArray[$zeileSumme1]['AK_absDiffPrRealGuarForecast']   = 0;
+                $tableArray[$zeileSumme1]['AL_relDiffPrRealGuarForecast']   = 0;
 
                 $tableArray[$zeileSumme1]['current_month']              = 0;
                 $tableArray[$zeileSumme1]['style']                      = "";
@@ -510,6 +511,7 @@ class ReportEpcPRNewService
             $rollingPeriod = true;
 
             $tableArray[$n]['AE_ratio']                     = $tableArray[$n]['U_refYield'] / $tableArray[$zeileSumme3]['U_refYield'] * 100;
+            #$tableArray[$n]['Z_tCellAvgWeighted']           = $hasMonthData ? $tableArray[$n]['Z_tCellAvgWeighted'] / $tableArray[$zeileSumme3]['T_irr'] : $tableArray[$n]['Z_tCellAvgWeighted'];
 
 
             if ($n <= 13) { // Year 1
@@ -523,7 +525,6 @@ class ReportEpcPRNewService
             if ($n >= 14) { // Year 2
                 $tableArray[$zeileSumme2]['K_tempAmbDesign']                        = $k_tempAmbDesign2 / $tableArray[$zeileSumme2]['D_days_fac'];
                 $tableArray[$zeileSumme2]['L_tempAmbWeightedDesign']                = $l_tempAmbWeightedDesign2 / $tableArray[$zeileSumme2]['E_IrrDesign'];
-                dump("$z_tCellAvgWeighted2 / ".$tableArray[$zeileSumme2]['U_refYield']);
                 $tableArray[$zeileSumme2]['Z_tCellAvgWeighted']                     = $z_tCellAvgWeighted2 / $tableArray[$zeileSumme2]['U_refYield'];
                 $tableArray[$zeileSumme2]['M_tempCompFactDesign']                   = (1 + ($tableArray[$zeileSumme2]['L_tempAmbWeightedDesign'] - $anlage->getTempCorrCellTypeAvg()) * $anlage->getTempCorrGamma() / 100);
                 $tableArray[$zeileSumme2]['AE_ratio']                               += $tableArray[$n]['AE_ratio'];
