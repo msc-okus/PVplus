@@ -695,7 +695,7 @@ class FunctionsService
     {
         $conn           = self::getPdoConnection();
         $result         = [];
-        $powerEvu = $powerExp = $powerExpEvu = $powerTheo = $tCellAvg = 0;
+        $powerEvu = $powerExp = $powerExpEvu = $powerTheo = $tCellAvg = $tCellAvgMultiIrr = 0;
         ############# für den angeforderten Zeitraum #############
 
         // Wenn externe Tagesdaten genutzt werden, sollen lade diese aus der DB und ÜBERSCHREIBE die Daten aus den 15Minuten Werten
@@ -723,12 +723,12 @@ class FunctionsService
         unset($res);
 
         // Theoretic Power (TempCorr)
-        $sql = "SELECT SUM(theo_power) AS theo_power, AVG(temp_cell) AS tCellAvg FROM ".$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to' AND theo_power > 0";
+        $sql = "SELECT SUM(theo_power) AS theo_power FROM ".$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to' AND theo_power > 0";
+        #dd($sql);
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
             $powerTheo = round($row['theo_power'],4);
-            $tCellAvg = round($row['tCellAvg'],4);
         }
         unset($res);
 
@@ -737,13 +737,14 @@ class FunctionsService
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
-            $result['powerEvu']      = $powerEvu;
-            $result['powerAct']      = round($row["sum_power_ac"],4);
-            $result['powerExp']      = (float)$powerExp;
-            $result['powerExpEvu']   = (float)$powerExpEvu;
-            $result['powerEGridExt'] = $powerEGridExt;
-            $result['powerTheo']     = (float)$powerTheo;
-            $result['tCellAvg']      = (float)$tCellAvg;
+            $result['powerEvu']         = $powerEvu;
+            $result['powerAct']         = round($row["sum_power_ac"],4);
+            $result['powerExp']         = $powerExp;
+            $result['powerExpEvu']      = $powerExpEvu;
+            $result['powerEGridExt']    = $powerEGridExt;
+            $result['powerTheo']        = $powerTheo;
+            $result['tCellAvg']         = $tCellAvg;
+            $result['tCellAvgMultiIrr'] = $tCellAvgMultiIrr;
         }
         unset($res);
 

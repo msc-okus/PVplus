@@ -6,8 +6,8 @@
             {{ knp_pagination_sortable(pagination, 'Plant', ['a.anlName']) }}
         </th>
 
-        <th>Status</th>
-        <th>Priority</th>
+        <th class="text-center">Status</th>
+        <th class="text-center">Priority</th>
         <th {% if pagination.isSorted('ticket.editor') %} class="sorted"{% endif %}>
             {{ knp_pagination_sortable(pagination, 'Editor', ['ticket.editor']) }}</th>
         <th {% if pagination.isSorted('ticket.begin') %} class="sorted"{% endif %}>
@@ -17,8 +17,8 @@
         {% if (is_granted('ROLE_DEV')) %}
             <th>Last Update</th>
         {% endif %}
-        <th>Alert Categorie</th>
-        <th>Alert Type</th>
+        <th>Error Categorie</th>
+        <th>Error Type</th>
         <th>Inverter</th>
         <th></th>
         <th></th>
@@ -30,24 +30,24 @@
         <tr>
             <td>{{ ticket.id }}</td>
             <td>{{ ticket.anlage.anlName }} {% if is_granted('ROLE_G4N') %} ({{ ticket.anlage.anlId }}) {% endif %}</td>
-            <td class="ticket-status-{{ ticket.status }}">
+            <td class="text-center">
                 {% set status %}ticket.status.{{ ticket.status }}{% endset %}
-                {{ status|trans }}
+                <span class="label ticket-status-{{ ticket.status }}">{{ status|trans }}</span>
             </td>
-            <td class="ticket-priority-{{ ticket.priority }}">
+            <td class="text-center">
                 {% set priority %}ticket.priority.{{ ticket.priority }}{% endset %}
-                {{ priority|trans }}
+                <span class="label ticket-priority-{{ ticket.priority }}">{{ priority|trans }}</span>
             </td>
             <td>{{ ticket.editor }}</td>
-            <td>{{ ticket.begin|date("Y-m-d H:i")}}</td>
-            <td>{{ ticket.end|date("Y-m-d H:i") }}</td>
+            <td>{{ ticket.begin|date("d.m. H:i")}}</td>
+            <td>{{ ticket.end|date("d.m. H:i") }}</td>
             {% if (is_granted('ROLE_DEV')) %}
-                <td>{{ ticket.updatedAt|date("Y-m-d H:i")  }}</td>
+                <td>{{ ticket.updatedAt|date("d.m. H:i")  }}</td>
             {% endif %}
             <td>
                 {% set errtyp %}ticket.error.type.{{ ticket.errorType }}{% endset %}
                  {{ errtyp|trans }}
-                {{ ticket.errorType }}</td>
+            </td>
             <td>
                 {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}
                 {{ errcat|trans }}
