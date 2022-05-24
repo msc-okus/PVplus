@@ -757,16 +757,16 @@
         },
         {
             "name": "doctrine/cache",
-            "version": "2.1.1",
+            "version": "2.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/cache.git",
-                "reference": "331b4d5dbaeab3827976273e9356b3b453c300ce"
+                "reference": "1ca8f21980e770095a31456042471a57bc4c68fb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/cache/zipball/331b4d5dbaeab3827976273e9356b3b453c300ce",
-                "reference": "331b4d5dbaeab3827976273e9356b3b453c300ce",
+                "url": "https://api.github.com/repos/doctrine/cache/zipball/1ca8f21980e770095a31456042471a57bc4c68fb",
+                "reference": "1ca8f21980e770095a31456042471a57bc4c68fb",
                 "shasum": ""
             },
             "require": {
@@ -776,18 +776,12 @@
                 "doctrine/common": ">2.2,<2.4"
             },
             "require-dev": {
-                "alcaeus/mongo-php-adapter": "^1.1",
                 "cache/integration-tests": "dev-master",
-                "doctrine/coding-standard": "^8.0",
-                "mongodb/mongodb": "^1.1",
-                "phpunit/phpunit": "^7.0 || ^8.0 || ^9.0",
-                "predis/predis": "~1.0",
+                "doctrine/coding-standard": "^9",
+                "phpunit/phpunit": "^7.5 || ^8.5 || ^9.5",
                 "psr/cache": "^1.0 || ^2.0 || ^3.0",
-                "symfony/cache": "^4.4 || ^5.2 || ^6.0@dev",
-                "symfony/var-exporter": "^4.4 || ^5.2 || ^6.0@dev"
-            },
-            "suggest": {
-                "alcaeus/mongo-php-adapter": "Required to use legacy MongoDB driver"
+                "symfony/cache": "^4.4 || ^5.4 || ^6",
+                "symfony/var-exporter": "^4.4 || ^5.4 || ^6"
             },
             "type": "library",
             "autoload": {
@@ -836,7 +830,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/cache/issues",
-                "source": "https://github.com/doctrine/cache/tree/2.1.1"
+                "source": "https://github.com/doctrine/cache/tree/2.2.0"
             },
             "funding": [
                 {
@@ -852,7 +846,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2021-07-17T14:49:29+00:00"
+            "time": "2022-05-20T20:07:39+00:00"
         },
         {
             "name": "doctrine/collections",
@@ -2850,16 +2844,16 @@
         },
         {
             "name": "hisune/echarts-php",
-            "version": "1.1.1",
+            "version": "1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hisune/Echarts-PHP.git",
-                "reference": "3939489d2c97826c03ebbeced481dbd4ec2693fd"
+                "reference": "b14ebe37736c08353b956eca66cde6a5a2a801c5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hisune/Echarts-PHP/zipball/3939489d2c97826c03ebbeced481dbd4ec2693fd",
-                "reference": "3939489d2c97826c03ebbeced481dbd4ec2693fd",
+                "url": "https://api.github.com/repos/hisune/Echarts-PHP/zipball/b14ebe37736c08353b956eca66cde6a5a2a801c5",
+                "reference": "b14ebe37736c08353b956eca66cde6a5a2a801c5",
                 "shasum": ""
             },
             "require": {
@@ -2897,7 +2891,7 @@
                 "issues": "https://github.com/hisune/Echarts-PHP/issues",
                 "source": "https://github.com/hisune/Echarts-PHP"
             },
-            "time": "2022-03-03T09:58:13+00:00"
+            "time": "2022-05-20T02:41:03+00:00"
         },
         {
             "name": "illuminate/bus",
@@ -5436,29 +5430,31 @@
         },
         {
             "name": "maennchen/zipstream-php",
-            "version": "2.1.0",
+            "version": "2.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/maennchen/ZipStream-PHP.git",
-                "reference": "c4c5803cc1f93df3d2448478ef79394a5981cc58"
+                "reference": "211e9ba1530ea5260b45d90c9ea252f56ec52729"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/maennchen/ZipStream-PHP/zipball/c4c5803cc1f93df3d2448478ef79394a5981cc58",
-                "reference": "c4c5803cc1f93df3d2448478ef79394a5981cc58",
+                "url": "https://api.github.com/repos/maennchen/ZipStream-PHP/zipball/211e9ba1530ea5260b45d90c9ea252f56ec52729",
+                "reference": "211e9ba1530ea5260b45d90c9ea252f56ec52729",
                 "shasum": ""
             },
             "require": {
                 "myclabs/php-enum": "^1.5",
-                "php": ">= 7.1",
+                "php": "^7.4 || ^8.0",
                 "psr/http-message": "^1.0",
                 "symfony/polyfill-mbstring": "^1.0"
             },
             "require-dev": {
                 "ext-zip": "*",
-                "guzzlehttp/guzzle": ">= 6.3",
+                "guzzlehttp/guzzle": "^6.5.3 || ^7.2.0",
                 "mikey179/vfsstream": "^1.6",
-                "phpunit/phpunit": ">= 7.5"
+                "php-coveralls/php-coveralls": "^2.4",
+                "phpunit/phpunit": "^8.5.8 || ^9.4.2",
+                "vimeo/psalm": "^4.1"
             },
             "type": "library",
             "autoload": {
@@ -5495,7 +5491,7 @@
             ],
             "support": {
                 "issues": "https://github.com/maennchen/ZipStream-PHP/issues",
-                "source": "https://github.com/maennchen/ZipStream-PHP/tree/master"
+                "source": "https://github.com/maennchen/ZipStream-PHP/tree/2.2.1"
             },
             "funding": [
                 {
@@ -5503,7 +5499,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2020-05-30T13:11:16+00:00"
+            "time": "2022-05-18T15:52:06+00:00"
         },
         {
             "name": "markbaker/complex",
@@ -13884,12 +13880,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tecnickcom/tc-lib-pdf.git",
-                "reference": "c3d2590ba7cefc357c12f9b56cb8c8080d88af69"
+                "reference": "2dbaa3cf7df28dffad1f4b96782c9c93406edea0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tecnickcom/tc-lib-pdf/zipball/c3d2590ba7cefc357c12f9b56cb8c8080d88af69",
-                "reference": "c3d2590ba7cefc357c12f9b56cb8c8080d88af69",
+                "url": "https://api.github.com/repos/tecnickcom/tc-lib-pdf/zipball/2dbaa3cf7df28dffad1f4b96782c9c93406edea0",
+                "reference": "2dbaa3cf7df28dffad1f4b96782c9c93406edea0",
                 "shasum": ""
             },
             "require": {
@@ -13952,7 +13948,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2021-12-31T10:31:03+00:00"
+            "time": "2022-05-24T06:23:17+00:00"
         },
         {
             "name": "tecnickcom/tc-lib-pdf-encrypt",
@@ -15036,16 +15032,16 @@
     "packages-dev": [
         {
             "name": "phpstan/phpstan",
-            "version": "1.6.8",
+            "version": "1.7.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "d76498c5531232cb8386ceb6004f7e013138d3ba"
+                "reference": "509b3d6da631de31494dc21adedb30d73970e5aa"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/d76498c5531232cb8386ceb6004f7e013138d3ba",
-                "reference": "d76498c5531232cb8386ceb6004f7e013138d3ba",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/509b3d6da631de31494dc21adedb30d73970e5aa",
+                "reference": "509b3d6da631de31494dc21adedb30d73970e5aa",
                 "shasum": ""
             },
             "require": {
@@ -15071,7 +15067,7 @@
             "description": "PHPStan - PHP Static Analysis Tool",
             "support": {
                 "issues": "https://github.com/phpstan/phpstan/issues",
-                "source": "https://github.com/phpstan/phpstan/tree/1.6.8"
+                "source": "https://github.com/phpstan/phpstan/tree/1.7.0"
             },
             "funding": [
                 {
@@ -15091,7 +15087,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-05-10T06:54:21+00:00"
+            "time": "2022-05-23T15:11:29+00:00"
         },
         {
             "name": "rector/rector",
