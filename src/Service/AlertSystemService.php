@@ -43,16 +43,17 @@ class AlertSystemService
         $this->ticketRepo = $ticketRepo;
     }
 
-    public function generateTicketsInterval(string $from, string $to, ?string $anlId = null){
-        while($from <= $to){//sleep
+    public function generateTicketsInterval(string $from, string $to, ?string $anlId = null)
+    {
+        while ($from <= $to){ //sleep
             $from = G4NTrait::timeAjustment($from, 0.25);
             $this->checkSystem($from, $anlId);
-
         }
     }
-    public function checkSystem(?string $time = null, ?string $anlId = null){
 
-        if ($time == null)$time = $this->getLastQuarter(date('Y-m-d H:i:s') );
+    public function checkSystem(?string $time = null, ?string $anlId = null): string
+    {
+        if ($time === null) $time = $this->getLastQuarter(date('Y-m-d H:i:s') );
         $time = G4NTrait::timeAjustment($time, -2);
         if ($anlId == null) {
             $Anlagen = $this->AnlRepo->findAll();
@@ -76,8 +77,7 @@ class AlertSystemService
                     }
                 }
             }
-        }
-        else{
+        } else {
             $anlage = $this->AnlRepo->findIdLike($anlId)[0];
                 $sungap = $this->weather->getSunrise($anlage, $time);
 
@@ -96,10 +96,12 @@ class AlertSystemService
                     unset($system_status);
                 }
         }
+
         return "success";
     }
 
-    public function checkWeatherStation(){
+    public function checkWeatherStation(): bool
+    {
         $Anlagen = $this->AnlRepo->findAll();
         $time = $this->getLastQuarter(date('Y-m-d H:i:s') );
         $time = G4NTrait::timeAjustment($time, -2);
@@ -115,6 +117,7 @@ class AlertSystemService
                 }
             }
         }
+
         return $status_report;
     }
     //----------------Analyzing functions----------------
@@ -137,12 +140,12 @@ class AlertSystemService
             $ticket = new Ticket();
             $ticket->setAnlage($anlage);
             $ticket->setStatus(10);
-            $ticket->setErrorType("10");
+            $ticket->setErrorType("");
             $ticket->setEditor("Alert system");
             $ticket->setDescription("Error with the Data of the Weather station");
             $ticket->setSystemStatus(10);
             $ticket->setPriority(10);
-            $ticket->setAlertType("Weather Station Error");
+            $ticket->setAlertType("40"); // 40 = Weather Station Error
             $timetempbeg = date('Y-m-d H:i:s', strtotime($time));
             $begin = date_create_from_format('Y-m-d H:i:s', $timetempbeg);
             $begin->getTimestamp();
@@ -198,52 +201,60 @@ class AlertSystemService
 
     /**
      * We use this to make an error message of the status array from the inverter and to generate/update Tickets
-     * @param $status_report
+     * @param $inverter
      * @param $time
      * @param $anlage
      * @param $nameArray
+     * @param $sunrise
      * @return string
      */
-    private function AnalyzeIst($inverter, $time, $anlage, $nameArray, $sunrise){
+    private function AnalyzeIst($inverter, $time, $anlage, $nameArray, $sunrise): string
+    {
         $message = "";
-        $alert ="";
-            if ($inverter['istdata'] == "No Data"){//data gap
-                $message .=  "Data gap at inverter(Power)  ".$nameArray;
-                $alert = "10";
-            }
-            elseif ($inverter['istdata'] == "Power is 0"){//inverter error
-                $message .=  "No power at inverter " .$nameArray;
-                $alert = "20";
-            }
+        $errorType = "";
+        $errorCategorie = "";
+        if ($inverter['istdata'] == "No Data") {
+            //data gap
+            $message .=  "Data gap at inverter(Power)  ".$nameArray;
+            $errorType = "10";
+            $errorCategorie = "10";
+        } elseif ($inverter['istdata'] == "Power is 0") {
+            //inverter error
+            $message .=  "No power at inverter " .$nameArray;
+            $errorType = "20";
+            $errorCategorie = "10";
+        }
 
-                if ($anlage->getHasFrequency()) {
-                    if ($inverter['freq'] != "All is ok") {
-                        if($alert == "") {
-                            $alert = "30";
-                        }
-                        $message = $message . "Error with the frequency in inverter " . $nameArray;
-                    }
+        if ($anlage->getHasFrequency()) {
+            if ($inverter['freq'] != "All is ok") {
+                if ($errorType == "") {
+                    $errorType = "30";
+                    $errorCategorie = "10";
                 }
-                if ($inverter['voltage'] != "All is ok") {//grid error
-                    $message = $message . "Error with the voltage in inverter " . $nameArray;
-                    if($alert == "") {
-                        $alert = "30";
-                    }
-                }
+                $message = $message . "Error with the frequency in inverter " . $nameArray;
+            }
+        }
+        if ($inverter['voltage'] != "All is ok") {//grid error
+            $message = $message . "Error with the voltage in inverter " . $nameArray;
+            if ($errorType == "") {
+                $errorType = "30";
+                $errorCategorie = "10";
+            }
+        }
 
-        if($message != "") {
-            $ticket = self::getLastTicket($anlage, $nameArray, $time, $sunrise, false);
-            if ($ticket == null) {
+        $ticket = self::getLastTicket($anlage, $nameArray, $time, $sunrise, false);
+        if ($message != "") {
+            if ($ticket === null) {
                 $ticket = new Ticket();
                 $ticket->setAnlage($anlage);
-                $ticket->setStatus(10);
-                $ticket->setErrorType("10");
+                $ticket->setStatus("10"); // Status 10 = open
                 $ticket->setEditor("Alert system");
                 $ticket->setDescription($message);
                 $ticket->setSystemStatus(10);
                 $ticket->setPriority(10);
                 $ticket->setInverter($nameArray);
-                $ticket->setAlertType($alert);
+                $ticket->setAlertType($errorCategorie); //  category = alertType (bsp: datagap, inverter power, etc.)
+                $ticket->setErrorType($errorType); // type = errorType (Bsp:  SFOR, EFOR, OMC)
                 $timetemp = date('Y-m-d H:i:s', strtotime($time));
                 $begin = date_create_from_format('Y-m-d H:i:s', $timetemp);
                 $begin->getTimestamp();
@@ -259,9 +270,8 @@ class AlertSystemService
             }
         }
         else {
-            $ticket = self::getLastTicket($anlage, $nameArray, $time, $sunrise, false);
-            if($ticket!=null){
-                //$ticket->setStatus(30);
+            if ($ticket !== null) {
+                //$ticket->setStatus(30); // Close Ticket
                 $this->em->persist($ticket);
                 $this->em->flush();
             }
@@ -269,6 +279,7 @@ class AlertSystemService
         if ($message != ""){
             $message = $message. " at ".$ticket->getBegin()->format('Y-m-d H:i') ."<br>";
         }
+
         return $message;
     }
     // ---------------Checking Functions-----------------
@@ -333,9 +344,8 @@ class AlertSystemService
      * @param $time
      * @return array
      */
-    private static function WData(Anlage $anlage, $time)
+    private static function WData(Anlage $anlage, $time): array
     {
-
         $conn = self::getPdoConnection();
         $sqlw = "SELECT b.g_lower as gi , b.g_upper as gmod, b.temp_ambient as temp, b.wind_speed as wspeed 
                     FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) 
