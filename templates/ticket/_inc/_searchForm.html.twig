@@ -27,19 +27,20 @@
             <input type="text" name="editor" class="input-group-field js-autocomplete-user" value="{{ user }}" placeholder="Editor">
         </div>
         <div class="cell medium-1">
-            <select name="category" >
-                <option value="00">{% trans %}ticket.error.category.name{% endtrans %}</option>
-                <option value="10" {% if status == '10' %} selected {% endif %}>{% trans %}ticket.error.category.10{% endtrans %}</option>
-                <option value="20" {% if status == '20' %} selected {% endif %}>{% trans %}ticket.error.category.20{% endtrans %}</option>
-                <option value="30" {% if status == '30' %} selected {% endif %}>{% trans %}ticket.error.category.30{% endtrans %}</option>
-            </select>
-        </div>
-        <div class="cell medium-1">
-            <select name="type" >
+            <select name="type" > {# type = errorType (Bsp:  SFOR, EFOR, OMC) #}
                 <option value="00">{% trans %}ticket.error.type.name{% endtrans %}</option>
                 <option value="10" {% if status == '10' %} selected {% endif %}>{% trans %}ticket.error.type.10{% endtrans %}</option>
                 <option value="20" {% if status == '20' %} selected {% endif %}>{% trans %}ticket.error.type.20{% endtrans %}</option>
                 <option value="30" {% if status == '30' %} selected {% endif %}>{% trans %}ticket.error.type.30{% endtrans %}</option>
+            </select>
+        </div>
+
+        <div class="cell medium-1">
+            <select name="category" >{# category = alertType (bsp: datagap, inverter power, etc.) #}
+                <option value="00">{% trans %}ticket.error.category.name{% endtrans %}</option>
+                <option value="10" {% if status == '10' %} selected {% endif %}>{% trans %}ticket.error.category.10{% endtrans %}</option>
+                <option value="20" {% if status == '20' %} selected {% endif %}>{% trans %}ticket.error.category.20{% endtrans %}</option>
+                <option value="30" {% if status == '30' %} selected {% endif %}>{% trans %}ticket.error.category.30{% endtrans %}</option>
             </select>
         </div>
         <div class="cell medium-1"  style="margin-top:-17px!important;">
