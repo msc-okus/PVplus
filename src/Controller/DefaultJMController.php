@@ -28,16 +28,11 @@ class DefaultJMController extends AbstractController
             'controller_name' => 'DefaultJMController',
         ]);
     }
-    #[Route(path: '/default/test', name: 'default_j_m')]
-    public function test(FunctionsService $functionsService, AnlagenRepository $repo)
-    {
-        $stringArray = $functionsService->readInverters(" 2, 14 , 25-28, 300", $repo->findIdLike(94)[0]);
-        return $this->redirectToRoute("/default/test");
-    }
+
     #[Route(path: '/default/test/check', name: 'default_check')]
     public function check(AlertSystemService $service)
     {
-        $service->generateTicketsInterval("2022-05-15", "2022-05-16", "93");
+        $service->generateTicketsInterval("2020-04-01", "2020-05-01", "93");
         dd("fertig");
     }
 }
