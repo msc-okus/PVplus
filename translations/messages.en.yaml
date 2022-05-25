@@ -1,14 +1,14 @@
 # translations/messages.en.yaml
 ticket:
   error:
-    category:
-      name: Error Category
+    type:
+      name: Error Type
       10: SOF
       20: EFOR
       30: OMC
 
-    type:
-      name: Error Type
+    category:
+      name: Error Category
       10: data gap
       20: inverter error
       30: grid error
