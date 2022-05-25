@@ -41,6 +41,9 @@ class AlertSystemService
         $this->functions = $functions;
         $this->statusRepo = $statusRepo;
         $this->ticketRepo = $ticketRepo;
+
+        define('OMC','30');
+
     }
 
 
@@ -216,30 +219,30 @@ class AlertSystemService
         if ($inverter['istdata'] == "No Data") {
             //data gap
             $message .=  "Data gap at inverter(Power)  ".$nameArray;
-            $errorType = "10";
+            $errorType = "";
             $errorCategorie = "10";
         } elseif ($inverter['istdata'] == "Power is 0") {
             //inverter error
             $message .=  "No power at inverter " .$nameArray;
-            $errorType = "20";
-            $errorCategorie = "10";
+            $errorType = '';
+            $errorCategorie = "20";
         }
 
         if ($anlage->getHasFrequency()) {
             if ($inverter['freq'] != "All is ok") {
-                if ($errorType == "") {
-                    $errorType = "30";
-                    $errorCategorie = "10";
+                if ($errorCategorie == "") {
+                    $errorCategorie= "30";
                 }
+                $errorType = OMC;
                 $message = $message . "Error with the frequency in inverter " . $nameArray;
             }
         }
         if ($inverter['voltage'] != "All is ok") {//grid error
             $message = $message . "Error with the voltage in inverter " . $nameArray;
-            if ($errorType == "") {
-                $errorType = "30";
-                $errorCategorie = "10";
+            if ($errorCategorie == "") {
+                $errorCategorie = "30";
             }
+            $errorType = OMC;
         }
 
         $ticket = self::getLastTicket($anlage, $nameArray, $time, $sunrise, false);
@@ -426,9 +429,8 @@ class AlertSystemService
         if ($resp->rowCount() > 0) {
 
             $pdata = $resp->fetch(PDO::FETCH_ASSOC);
-            dump($pdata );
-            if ($pdata['ist'] <= 0 ){ $return['istdata'] =  "Power is 0";dump("errorpower");}
-            elseif ($pdata['ist'] === null){ $return['istdata'] = "No Data"; dump("errorgap");}
+            if ($pdata['ist'] <= 0 ){ $return['istdata'] =  "Power is 0";}
+            elseif ($pdata['ist'] === null){ $return['istdata'] = "No Data";}
             else $return['istdata'] = "All is ok";
 
 
@@ -449,7 +451,7 @@ class AlertSystemService
             $return['freq'] = "No Data";
             $return['voltage'] = "No Data";
         }
-        dump($return);
+
         return $return;
     }
 
