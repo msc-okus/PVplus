@@ -9,6 +9,7 @@ export default class extends Controller {
     }
 
     connect() {
+
     }
 
     async search(event){
@@ -18,7 +19,19 @@ export default class extends Controller {
             url: this.urlSearchValue,
             method: $searchListform.prop('method'),
             data: $searchListform.serialize(),
+
         });
+
+    }
+
+    async page(event) {
+        event.preventDefault();
+        const $queryParams = $(event.currentTarget).data("query-value");
+        this.listTarget.innerHTML = await $.ajax({
+            url: this.urlSearchValue,
+            data: $queryParams,
+        });
+
     }
 
     async create(event) {

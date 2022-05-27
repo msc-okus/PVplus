@@ -3,7 +3,7 @@ ticket:
   error:
     type:
       name: Error Type
-      10: SOF
+      10: SOR
       20: EFOR
       30: OMC
 

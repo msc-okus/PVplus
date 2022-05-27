@@ -42,6 +42,8 @@ class AlertSystemService
         $this->statusRepo = $statusRepo;
         $this->ticketRepo = $ticketRepo;
 
+        define('SOR','10');
+        define('EFOR','20');
         define('OMC','30');
 
     }
@@ -86,21 +88,21 @@ class AlertSystemService
             }
         } else {
             $anlage = $this->AnlRepo->findIdLike($anlId)[0];
-                $sungap = $this->weather->getSunrise($anlage, $time);
-                if ((($time >= $sungap[$anlage->getanlName()]['sunrise']) && ($time <= $sungap[$anlage->getAnlName()]['sunset']))) {
-                    $nameArray = $this->functions->getInverterArray($anlage);
-                    $counter = 1;
-                    foreach ($nameArray as $inverterName) {
-                        $inverter_status = $this->IstData($anlage, $time, $counter);
-                        $message = self::AnalyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap[$anlage->getanlName()]['sunrise']);
-                        self::messagingFunction($message, $anlage);
-                        $counter++;
-                        $system_status[$inverterName] = $inverter_status;
-                        unset($inverter_status);
-                    }
-                   // $this->em->flush();
-                    unset($system_status);
+            $sungap = $this->weather->getSunrise($anlage, $time);
+            if ((($time >= $sungap[$anlage->getanlName()]['sunrise']) && ($time <= $sungap[$anlage->getAnlName()]['sunset']))) {
+                $nameArray = $this->functions->getInverterArray($anlage);
+                $counter = 1;
+                foreach ($nameArray as $inverterName) {
+                    $inverter_status = $this->IstData($anlage, $time, $counter);
+                    $message = self::AnalyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap[$anlage->getanlName()]['sunrise']);
+                    self::messagingFunction($message, $anlage);
+                    $counter++;
+                    $system_status[$inverterName] = $inverter_status;
+                    unset($inverter_status);
                 }
+               // $this->em->flush();
+                unset($system_status);
+            }
         }
 
         return "success";
@@ -218,12 +220,12 @@ class AlertSystemService
         $errorCategorie = "";
         if ($inverter['istdata'] == "No Data") {
             //data gap
-            $message .=  "Data gap at inverter(Power)  ".$nameArray;
+            $message .=  "Data gap at inverter(Power) ".$nameArray . "<br>";
             $errorType = "";
             $errorCategorie = "10";
         } elseif ($inverter['istdata'] == "Power is 0") {
             //inverter error
-            $message .=  "No power at inverter " .$nameArray;
+            $message .=  "No power at inverter " .$nameArray . "<br>";
             $errorType = '';
             $errorCategorie = "20";
         }
@@ -234,11 +236,11 @@ class AlertSystemService
                     $errorCategorie= "30";
                 }
                 $errorType = OMC;
-                $message = $message . "Error with the frequency in inverter " . $nameArray;
+                $message = $message . "Error with the frequency in inverter " . $nameArray . "<br>";
             }
         }
         if ($inverter['voltage'] != "All is ok") {//grid error
-            $message = $message . "Error with the voltage in inverter " . $nameArray;
+            $message = $message . "Error with the voltage in inverter " . $nameArray . "<br>";
             if ($errorCategorie == "") {
                 $errorCategorie = "30";
             }
