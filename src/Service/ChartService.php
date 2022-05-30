@@ -8,6 +8,7 @@ use App\Service\Charts\ACPowerChartsService;
 use App\Service\Charts\DCCurrentChartService;
 use App\Service\Charts\DCPowerChartService;
 use App\Service\Charts\ForecastChartService;
+use App\Service\Charts\HeatmapChartService;
 use App\Service\Charts\IrradiationChartService;
 use App\Service\Charts\VoltageChartService;
 use PDO;
@@ -40,6 +41,7 @@ class ChartService
     private IrradiationChartService $irradiationChart;
     private DCCurrentChartService $currentChart;
     private VoltageChartService $voltageChart;
+    private HeatmapChartService $heatmapChartService;
 
     public function __construct(Security                     $security,
                                 AnlagenStatusRepository      $statusRepository,
@@ -54,7 +56,8 @@ class ChartService
                                 DCCurrentChartService        $currentChart,
                                 VoltageChartService          $voltageChart,
                                 IrradiationChartService      $irradiationChart,
-                                GridMeterDayRepository $gridMeterDayRepository )
+                                GridMeterDayRepository $gridMeterDayRepository,
+                                HeatmapChartService $heatmapChartService)
     {
         $this->security = $security;
         $this->statusRepository = $statusRepository;
@@ -70,6 +73,7 @@ class ChartService
         $this->currentChart = $currentChart;
         $this->voltageChart = $voltageChart;
         $this->gridMeterDayRepository=$gridMeterDayRepository;
+        $this->heatmapChartService = $heatmapChartService;
     }
 
     /**
@@ -472,6 +476,11 @@ class ChartService
                         $resultArray['series1']['name'] = "";
                         $resultArray['series1']['tooltipText'] = "";
                     }
+                    break;
+                case ("heatmap"):
+                    $dataArray = $this->heatmapChartService->getHeatmap($anlage, $from, $to);
+                    $resultArray['data'] = json_encode($dataArray['chart']);
+                    $resultArray['headline'] = 'Show Heatmap';
                     break;
                 default:
                     $resultArray['headline'] = 'Something was wrong ' . $form['selectedChart'];
