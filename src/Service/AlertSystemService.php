@@ -55,19 +55,24 @@ class AlertSystemService
             //sleep
             $from = G4NTrait::timeAjustment($from, 0.25);
             $this->checkSystem($from, $anlId);
+            sleep(0.5);
         }
-        $this->em->flush();
+        //TODO You speed it up, but lost advantage to find old tickets (from last quater, same inverter, same error)
+        #$this->em->flush();
     }
 
     public function checkSystem(?string $time = null, ?string $anlId = null): string
     {
         if ($time === null) $time = $this->getLastQuarter(date('Y-m-d H:i:s') );
+
+        //TODO: why time Adjusment -2
         $time = G4NTrait::timeAjustment($time, -2);
 
+        //TODO Remove double code
         if ($anlId == null) {//if no anlage id is provided we will look for all of them
             $Anlagen = $this->AnlRepo->findAll();
             foreach ($Anlagen as $anlage) {
-                if ( $anlage->getAnlId() == "93"/*Stadskanaal*/) {  // now we limit this to only staadskanal
+                if ($anlage->getAnlId() == "93"/*Stadskanaal*/) {  // now we limit this to only staadskanal
                     $sungap = $this->weather->getSunrise($anlage, $time);//we retrieve the sungap
 
                     if ((($time >= $sungap[$anlage->getanlName()]['sunrise']) && ($time <= $sungap[$anlage->getAnlName()]['sunset']))) {
@@ -171,9 +176,9 @@ class AlertSystemService
                 $temp = $status_q2->getStatus()['temperature'];
                 $wind = $status_q2->getStatus()['wspeed'];
                 $dateString = $ticket->getBegin()->format('Y-m-d H:i:s');
-                $message = $message . "There is no Irradiation Data since " . $dateString . "<br>";
-                if ($temp == "No data") $message = $message . "There was no temperature data at " . $dateString . "<br>";
-                if ($wind == "No data") $message = $message . "There was no wind data at " . $dateString . "<br>";
+                $message .= "There is no Irradiation Data since " . $dateString . "<br>";
+                if ($temp == "No data") $message .= "There was no temperature data at " . $dateString . "<br>";
+                if ($wind == "No data") $message .= "There was no wind data at " . $dateString . "<br>";
             }
         }
         else if ($status_report['Irradiation'] == "Irradiation is 0") {
@@ -188,9 +193,9 @@ class AlertSystemService
                 $temp = $status_q2->getStatus()['temperature'];
                 $wind = $status_q2->getStatus()['wspeed'];
                 $dateString = $ticket->getBegin()->format('Y-m-d H:i:s');
-                $message = $message . "Irradiation is 0 since " . $dateString . "<br>";
-                if ($temp == "No data") $message = $message . "There was no temperature data at " . $dateString . "<br>";
-                if ($wind == "No data") $message = $message . "There was no wind data at " . $dateString . "<br>";
+                $message .= "Irradiation is 0 since " . $dateString . "<br>";
+                if ($temp == "No data") $message .= "There was no temperature data at " . $dateString . "<br>";
+                if ($wind == "No data") $message .= "There was no wind data at " . $dateString . "<br>";
             }
         }
         else if ($ticket != null){
@@ -220,12 +225,12 @@ class AlertSystemService
         $errorCategorie = "";
         if ($inverter['istdata'] == "No Data") {
             //data gap
-            $message .=  "Data gap at inverter(Power)  ".$nameArray;
+            $message .=  "Data gap at inverter(Power)  ".$nameArray . "<br>";
             //$errorType = "";
             $errorCategorie = "10";
         } elseif ($inverter['istdata'] == "Power is 0") {
             //inverter error
-            $message .=  "No power at inverter " .$nameArray;
+            $message .=  "No power at inverter " .$nameArray . "<br>";
            //$errorType = "";
 
             $errorCategorie = "20";
@@ -236,16 +241,16 @@ class AlertSystemService
                     if ($errorCategorie == "") {
                         $errorCategorie = "30";
                     }
-                    $errorType = "OMC";
-                    $message = $message . "Error with the frequency in inverter " . $nameArray;
+                    $errorType = OMC;
+                    $message .= "Error with the frequency in inverter " . $nameArray . "<br>";
                 }
             }
             if ($inverter['voltage'] != "All is ok") {//grid error
-                $message = $message . "Error with the voltage in inverter " . $nameArray;
+                $message .= "Error with the voltage in inverter " . $nameArray . "<br>";
                 if ($errorCategorie == "") {
                     $errorCategorie = "30";
                 }
-                $errorType = "OMC";
+                $errorType = OMC;
 
             }
         }
@@ -261,7 +266,7 @@ class AlertSystemService
                 $ticket->setPriority(10);
                 $ticket->setInverter($nameArray);
                 $ticket->setAlertType($errorCategorie); //  category = alertType (bsp: datagap, inverter power, etc.)
-                $ticket->setErrorType($errorType); // type = errorType (Bsp:  SFOR, EFOR, OMC)
+                $ticket->setErrorType($errorType); // type = errorType (Bsp:  SOR, EFOR, OMC)
                 $timetemp = date('Y-m-d H:i:s', strtotime($time));
                 $begin = date_create_from_format('Y-m-d H:i:s', $timetemp);
                 $begin->getTimestamp();
@@ -272,8 +277,9 @@ class AlertSystemService
             $end->getTimestamp();
             $ticket->setEnd(($end));
             $this->em->persist($ticket);
-            //this is to send a message after and only after 30 mins
+            $this->em->flush();
 
+            //this is to send a message after and only after 30 mins
             if (date_diff($end, $ticket->getBegin(), true)->i != 30) {
                 $message = "";
             }
@@ -522,13 +528,13 @@ class AlertSystemService
         return $status;
     }
 
-
     public function getLastTicket($anlage, $inverter, $time, $sunrise, $isWeather)
     {
         $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
         $today = date('Y-m-d', strtotime($time));
         $quarter = date('Y-m-d H:i:s', strtotime($time) - 900);
         if (!$isWeather) {
+            // Inverter Tickets
             if ($quarter <= $sunrise) {
                 $ticket = $this->ticketRepo->findLastByAITNoWeather($anlage, $inverter, $today, $yesterday);
             } else {
@@ -536,6 +542,7 @@ class AlertSystemService
             }
         }
         else {
+            // Weather Tickets
             if ($quarter <= $sunrise) {
                 $ticket = $this->ticketRepo->findLastByAITWeather($anlage, $today, $yesterday);
             } else {
@@ -543,6 +550,6 @@ class AlertSystemService
             }
         }
 
-        return $ticket !== null ?$ticket[0] : null;
+        return $ticket ? $ticket[0] : null;
     }
 }

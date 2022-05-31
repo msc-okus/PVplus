@@ -81,30 +81,16 @@ class TicketRepository extends ServiceEntityRepository
     }
 
     public function findByAITNoWeather($anlage, $inverter, $time){
-        $weather = "Error with the Data of the Weather station";
+        $description = "Error with the Data of the Weather station ??? really weather";
         $result = $this->createQueryBuilder('t')
             ->andWhere('t.end = :end')
             ->andWhere('t.anlage = :anl')
             ->andWhere('t.inverter = :inv')
-            ->andWhere('t.description != :weather')
+            ->andWhere('t.description != :description')
             ->setParameter('end', $time)
             ->setParameter('anl', $anlage)
             ->setParameter('inv',$inverter)
-            ->setParameter('weather',$weather)
-            ->getQuery();
-        return $result->getResult();
-    }
-
-    public function findByAITWeather($anlage, $time)
-    {
-        $weather = "Error with the Data of the Weather station";
-        $result = $this->createQueryBuilder('t')
-            ->andWhere('t.end = :end')
-            ->andWhere('t.anlage = :anl')
-            ->andWhere('t.description = :weather')
-            ->setParameter('end', $time)
-            ->setParameter('anl', $anlage)
-            ->setParameter('weather',$weather)
+            ->setParameter('description',$description)
             ->getQuery();
 
         return $result->getResult();
@@ -112,18 +98,18 @@ class TicketRepository extends ServiceEntityRepository
 
     public function findLastByAITNoWeather($anlage, $inverter, $today, $yesterday)
     {
-        $weather = "Error with the Data of the Weather station";
+        $description = "Error with the Data of the Weather station ??? really weather";
         $result = $this->createQueryBuilder('t')
             ->andWhere('t.end < :today')
             ->andWhere('t.end > :yesterday')
             ->andWhere('t.anlage = :anl')
             ->andWhere('t.inverter = :inv')
-            ->andWhere('t.description != :weather')
+            ->andWhere('t.description != :description')
             ->setParameter('today', $today)
             ->setParameter('yesterday', $yesterday)
             ->setParameter('anl', $anlage)
             ->setParameter('inv',$inverter)
-            ->setParameter('weather', $weather)
+            ->setParameter('description', $description)
             ->orderBy('t.end', 'DESC')
             ->setMaxResults(1)
             ->getQuery();
@@ -131,18 +117,33 @@ class TicketRepository extends ServiceEntityRepository
         return $result->getResult();
     }
 
+    public function findByAITWeather($anlage, $time)
+    {
+        $description = "Error with the Data of the Weather station";
+        $result = $this->createQueryBuilder('t')
+            ->andWhere('t.end = :end')
+            ->andWhere('t.anlage = :anl')
+            ->andWhere('t.description = :description')
+            ->setParameter('end', $time)
+            ->setParameter('anl', $anlage)
+            ->setParameter('description',$description)
+            ->getQuery();
+
+        return $result->getResult();
+    }
+
     public function findLastByAITWeather($anlage, $today, $yesterday)
     {
-        $weather = "Error with the Data of the Weather station";
+        $description = "Error with the Data of the Weather station";
         $result = $this->createQueryBuilder('t')
             ->andWhere('t.end < :today')
             ->andWhere('t.end > :yesterday')
             ->andWhere('t.anlage = :anl')
-            ->andWhere('t.description = :weather')
+            ->andWhere('t.description = :description')
             ->setParameter('today', $today)
             ->setParameter('yesterday', $yesterday)
             ->setParameter('anl', $anlage)
-            ->setParameter('weather',$weather)
+            ->setParameter('description',$description)
             ->orderBy('t.end', 'DESC')
             ->setMaxResults(1)
             ->getQuery();
