@@ -69,7 +69,7 @@ class AnlagenAdminController extends BaseController
         $pagination = $paginator->paginate(
             $queryBuilder, /* query NOT result */
             $request->query->getInt('page', 1), /*page number*/
-            15                                         /*limit per page*/
+            25                                         /*limit per page*/
         );
         return $this->render('anlagen/list.html.twig', [
             'pagination' => $pagination,

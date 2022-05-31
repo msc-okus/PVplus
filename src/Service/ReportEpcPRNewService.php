@@ -41,12 +41,15 @@ class ReportEpcPRNewService
 
     use G4NTrait;
 
-    public function monthTable(Anlage $anlage, ?DateTime $date = null): array
+    public function monthTable(Anlage $anlage, ?DateTime $date = null): array|object
     {
         if ($date === null) $date = new DateTime();
 
         $tableArray = [];
         $anzahlMonate = ((int)$anlage->getEpcReportEnd()->format('Y') - (int)$anlage->getEpcReportStart()->format('Y')) * 12 + ((int)$anlage->getEpcReportEnd()->format('m') - (int)$anlage->getEpcReportStart()->format('m')) + 2;
+        $rollingPeriodMonthsStart = ((int)$date->format('Y') - (int)$anlage->getEpcReportStart()->format('Y')) * 12 + ((int)$date->format('m') - (int)$anlage->getEpcReportStart()->format('m')) - 11;
+        $rollingPeriodMonthsEnd = ((int)$date->format('Y') - (int)$anlage->getEpcReportStart()->format('Y')) * 12 + ((int)$date->format('m') - (int)$anlage->getEpcReportStart()->format('m')) + 2;
+
         $zeileSumme1 = $anzahlMonate + 1;
         $zeileSumme2 = $anzahlMonate + 2;
         $zeileSumme3 = $anzahlMonate + 3;
@@ -99,7 +102,7 @@ class ReportEpcPRNewService
         $deductionRisk      = 100 * (1 - $prFAC / $prPVSyst);
         $deductionOverall   = 100 - (100 - $deductionTransform) * (100 - $deductionRisk) / 100;
 
-        dump("Deduction Overall: $deductionOverall | ");
+        #dump("Deduction Overall: $deductionOverall | ");
         /////////////////////////////
         /// Runde 1
         /////////////////////////////
@@ -115,7 +118,13 @@ class ReportEpcPRNewService
             $to_local = date_create(date('Y-m-d 23:59', strtotime("$year-$month-$daysInMonth")));
             $hasMonthData = $from_local <= $date; // Wenn das Datum in $from_local kleiner ist als das Datum in $date, es also für alle Tage des Monats Daten vorliegen, dann ist $hasMonthData === true
             $isCurrentMonth = $to_local->format('Y') == $currentYear && $to_local->format('m') == $currentMonth;
-            $rollingPeriod = true;
+            //last 12 month,
+            if ($rollingPeriodMonthsStart > 0) {
+                $rollingPeriod = $rollingPeriodMonthsStart < $n && $rollingPeriodMonthsEnd >= $n;
+            } else {
+                $rollingPeriod = $n <= $rollingPeriodMonthsEnd || $n >= $anzahlMonate + $rollingPeriodMonthsStart;
+            }
+            dump("Rolling period: Start: $rollingPeriodMonthsStart End: $rollingPeriodMonthsEnd  n: $n| ". (int)$rollingPeriod, $rollingPeriod);
 
             $monthlyRecalculatedData = $this->monthlyDataRepo->findOneBy(['anlage' => $anlage, 'year' => $year, 'month' => $month]);
 
@@ -508,11 +517,13 @@ class ReportEpcPRNewService
 
             $from_local = date_create(date('Y-m-d 00:00', strtotime("$year-$month-01")));
             $hasMonthData = $from_local <= $date; // Wenn das Datum in $from_local kleiner ist als das Datum in $date, es also für alle Tage des Monats Daten vorliegen, dann ist $hasMonthData === true
-            $rollingPeriod = true;
+            if ($rollingPeriodMonthsStart > 0) {
+                $rollingPeriod = $rollingPeriodMonthsStart < $n && $rollingPeriodMonthsEnd >= $n;
+            } else {
+                $rollingPeriod = $n <= $rollingPeriodMonthsEnd || $n >= $anzahlMonate + $rollingPeriodMonthsStart;
+            }
 
             $tableArray[$n]['AE_ratio']                     = $tableArray[$n]['U_refYield'] / $tableArray[$zeileSumme3]['U_refYield'] * 100;
-            #$tableArray[$n]['Z_tCellAvgWeighted']           = $hasMonthData ? $tableArray[$n]['Z_tCellAvgWeighted'] / $tableArray[$zeileSumme3]['T_irr'] : $tableArray[$n]['Z_tCellAvgWeighted'];
-
 
             if ($n <= 13) { // Year 1
                 $tableArray[$zeileSumme1]['K_tempAmbDesign']                        = $k_tempAmbDesign1 / $tableArray[$zeileSumme1]['D_days_fac'];
@@ -613,7 +624,11 @@ class ReportEpcPRNewService
 
             $from_local = date_create(date('Y-m-d 00:00', strtotime("$year-$month-01")));
             $hasMonthData = $from_local <= $date; // Wenn das Datum in $from_local kleiner ist als das Datum in $date, es also für alle Tage des Monats Daten vorliegen, dann ist $hasMonthData === true
-            $rollingPeriod = true;
+            if ($rollingPeriodMonthsStart > 0) {
+                $rollingPeriod = $rollingPeriodMonthsStart < $n && $rollingPeriodMonthsEnd >= $n;
+            } else {
+                $rollingPeriod = $n <= $rollingPeriodMonthsEnd || $n >= $anzahlMonate + $rollingPeriodMonthsStart;
+            }
 
             //Analysis
             $tableArray[$n]['AH_prForecast']                                = $hasMonthData ? $tableArray[$n]['AD_prMonth'] : $tableArray[$n]['AD_prMonth'] * $riskForecastUpToDate;
@@ -648,9 +663,9 @@ class ReportEpcPRNewService
                 $tableArray[$zeileSumme2]['AL_relDiffPrRealGuarForecast']   = ($tableArray[$zeileSumme2]['AH_prForecast'] / $tableArray[$zeileSumme2]['Q_prGuarDesign'] - 1) * 100;
             }
 
-            $tableArray[$zeileSumme3]['AA_tCompensationFactor']     = 1 + ($tableArray[$zeileSumme3]['Z_tCellAvgWeighted'] - $tableArray[$zeileSumme3]['L_tempAmbWeightedDesign']) * $anlage->getTempCorrGamma() / 100;
-            $tableArray[$zeileSumme3]['AC_effTheoEnergy']           += $tableArray[$n]['AC_effTheoEnergy'];
-            #$tableArray[$zeileSumme3]['AF_ratioFT']                 += $tableArray[$n]['AF_ratioFT'];
+            $tableArray[$zeileSumme3]['AA_tCompensationFactor']         = 1 + ($tableArray[$zeileSumme3]['Z_tCellAvgWeighted'] - $tableArray[$zeileSumme3]['L_tempAmbWeightedDesign']) * $anlage->getTempCorrGamma() / 100;
+            $tableArray[$zeileSumme3]['AC_effTheoEnergy']               += $tableArray[$n]['AC_effTheoEnergy'];
+            #$tableArray[$zeileSumme3]['AF_ratioFT']                     += $tableArray[$n]['AF_ratioFT'];
             //Analysis
             $tableArray[$zeileSumme3]['AH_prForecast']                  += $tableArray[$zeileSumme3]['AI_eGridForecast'] / $tableArray[$zeileSumme3]['AC_effTheoEnergy'] * 100;
             $tableArray[$zeileSumme3]['AI_eGridForecast']               += $tableArray[$n]['AI_eGridForecast'];
@@ -660,9 +675,9 @@ class ReportEpcPRNewService
             $tableArray[$zeileSumme3]['AL_relDiffPrRealGuarForecast']   = ($tableArray[$zeileSumme3]['AH_prForecast'] / $tableArray[$zeileSumme3]['Q_prGuarDesign'] - 1) * 100;
 
             if ($rollingPeriod) {
-                $tableArray[$zeileSumme4]['AA_tCompensationFactor']     = 1 + ($tableArray[$zeileSumme4]['Z_tCellAvgWeighted'] - $tableArray[$zeileSumme3]['L_tempAmbWeightedDesign']) * $anlage->getTempCorrGamma() / 100;
-                $tableArray[$zeileSumme4]['AC_effTheoEnergy']           += $tableArray[$n]['AC_effTheoEnergy'];
-                #$tableArray[$zeileSumme4]['AF_ratioFT']                 += $tableArray[$n]['AF_ratioFT'];
+                $tableArray[$zeileSumme4]['AA_tCompensationFactor']         = 1 + ($tableArray[$zeileSumme4]['Z_tCellAvgWeighted'] - $tableArray[$zeileSumme3]['L_tempAmbWeightedDesign']) * $anlage->getTempCorrGamma() / 100;
+                $tableArray[$zeileSumme4]['AC_effTheoEnergy']               += $tableArray[$n]['AC_effTheoEnergy'];
+                #$tableArray[$zeileSumme4]['AF_ratioFT']                     += $tableArray[$n]['AF_ratioFT'];
                 //Analysis
                 $tableArray[$zeileSumme4]['AH_prForecast']                  += $tableArray[$zeileSumme4]['AI_eGridForecast'] / $tableArray[$zeileSumme4]['AC_effTheoEnergy'] * 100;
                 $tableArray[$zeileSumme4]['AI_eGridForecast']               += $tableArray[$n]['AI_eGridForecast'];
@@ -673,9 +688,9 @@ class ReportEpcPRNewService
             }
 
             if ($hasMonthData) {
-                $tableArray[$zeileSumme5]['AA_tCompensationFactor']     = 1 + ($tableArray[$zeileSumme5]['Z_tCellAvgWeighted'] - $tableArray[$zeileSumme3]['L_tempAmbWeightedDesign']) * $anlage->getTempCorrGamma() / 100;
-                $tableArray[$zeileSumme5]['AC_effTheoEnergy']           += $tableArray[$n]['AC_effTheoEnergy'];
-                #$tableArray[$zeileSumme5]['AF_ratioFT']                 += $tableArray[$n]['AF_ratioFT'];
+                $tableArray[$zeileSumme5]['AA_tCompensationFactor']         = 1 + ($tableArray[$zeileSumme5]['Z_tCellAvgWeighted'] - $tableArray[$zeileSumme3]['L_tempAmbWeightedDesign']) * $anlage->getTempCorrGamma() / 100;
+                $tableArray[$zeileSumme5]['AC_effTheoEnergy']               += $tableArray[$n]['AC_effTheoEnergy'];
+                #$tableArray[$zeileSumme5]['AF_ratioFT']                     += $tableArray[$n]['AF_ratioFT'];
                 //Analysis
                 $tableArray[$zeileSumme5]['AH_prForecast']                  += $tableArray[$zeileSumme5]['AI_eGridForecast'] / $tableArray[$zeileSumme5]['AC_effTheoEnergy'] * 100;
                 $tableArray[$zeileSumme5]['AI_eGridForecast']               += $tableArray[$n]['AI_eGridForecast'];
@@ -700,6 +715,8 @@ class ReportEpcPRNewService
         }
         ksort($tableArray);
 
-        return $tableArray;
+        $result = (object)['table' => $tableArray, 'riskForecastUpToDate' => $riskForecastUpToDate, 'riskForecastRollingPeriod' => $riskForecastRollingPeriod];
+
+        return $result;
     }
 }

@@ -160,48 +160,38 @@ class DefaultMREController extends BaseController
         ]);
     }
 
-    #[Route(path: '/test/forcast')]
-    public function testForcast(AnlagenRepository $anlagenRepository, FunctionsService $functions) : Response
-    {
-        $output = '';
-        $month = 11;
-        /** @var Anlage $anlage */
-        $anlage = $anlagenRepository->findOneBy(['anlId' => 104]);
-        $output .= "<h1>".$anlage->getAnlName()." - Monat: $month</h1>";
-        $output .= $functions->getForcastByMonth($anlage, $month);
-        return $this->render('cron/showResult.html.twig', [
-            'headline'      => 'Test Forcast',
-            'availabilitys' => '',
-            'output'        => $output,
-        ]);
-    }
 
-    #[Route(path: '/test/epc/{id}/{raw}', defaults: ['id' => 94, 'raw' => true])]
+    #[Route(path: '/test/epc/{id}/{raw}', defaults: ['id' => 94, 'raw' => 1])]
     public function testNewEpc($id, $raw, AnlagenRepository $anlagenRepository, FunctionsService $functions, ReportEpcPRNewService $epcNew) : Response
     {
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
         $date = date_create("2022-02-01 00:00");
-        $monthTable = $epcNew->monthTable($anlage, $date);
+        $result = $epcNew->monthTable($anlage, $date);
         #$forcastTable = $epcNew->forcastTable($anlage, $monthTable, $date);
         #$chartYieldPercenDiff = $epcNew->chartYieldPercenDiff($anlage, $monthTable, $date);
         #$chartYieldCumulativ = $epcNew->chartYieldCumulative($anlage, $monthTable, $date);
-        #$output = $functions->printArrayAsTable($forcastTable);
-        $output = $functions->print2DArrayAsTable($monthTable);
-        if ($raw) {
+
+        if ($raw == '1') {
+            $output = $functions->print2DArrayAsTable($result->table);
+            $output .= "<br>riskForecastUpToDate: ". $result->riskForecastUpToDate . "<br>riskForecastRollingPeriod: " . $result->riskForecastRollingPeriod;
+
             return $this->render('cron/showResult.html.twig', [
                 'headline'      => 'Tabelle New EPC',
                 'availabilitys' => '',
                 'output'        => $output,
             ]);
         } else {
-            return $this->render('report/epcReport.html.twig', [
-                'anlage' => $anlage,
-                'monthsTable' => $monthTable,
+            $output = "<br>riskForecastUpToDate: ". $result->riskForecastUpToDate . "<br>riskForecastRollingPeriod: " . $result->riskForecastRollingPeriod;
+
+            return $this->render('report/epcReportPR.html.twig', [
+                'anlage'            => $anlage,
+                'monthsTable'       => $result->table,
                 #'forcast'           => $forcastTable,
-                'legend' => $anlage->getLegendEpcReports(),
-                # 'chart1'            => $chartYieldPercenDiff,
+                'legend'            => $anlage->getLegendEpcReports(),
+                #'chart1'            => $chartYieldPercenDiff,
                 #'chart2'            => $chartYieldCumulativ,
+                'output'            => $output,
             ]);
         }
     }
