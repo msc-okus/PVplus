@@ -42,6 +42,8 @@ class AlertSystemService
         $this->statusRepo = $statusRepo;
         $this->ticketRepo = $ticketRepo;
 
+        define('SOR','10');
+        define('EFOR','20');
         define('OMC','30');
 
     }
@@ -86,21 +88,21 @@ class AlertSystemService
             }
         } else {
             $anlage = $this->AnlRepo->findIdLike($anlId)[0];
-                $sungap = $this->weather->getSunrise($anlage, $time);
-                if ((($time >= $sungap[$anlage->getanlName()]['sunrise']) && ($time <= $sungap[$anlage->getAnlName()]['sunset']))) {
-                    $nameArray = $this->functions->getInverterArray($anlage);
-                    $counter = 1;
-                    foreach ($nameArray as $inverterName) {
-                        $inverter_status = $this->IstData($anlage, $time, $counter);
-                        $message = self::AnalyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap[$anlage->getanlName()]['sunrise']);
-                        self::messagingFunction($message, $anlage);
-                        $counter++;
-                        $system_status[$inverterName] = $inverter_status;
-                        unset($inverter_status);
-                    }
-                   // $this->em->flush();
-                    unset($system_status);
+            $sungap = $this->weather->getSunrise($anlage, $time);
+            if ((($time >= $sungap[$anlage->getanlName()]['sunrise']) && ($time <= $sungap[$anlage->getAnlName()]['sunset']))) {
+                $nameArray = $this->functions->getInverterArray($anlage);
+                $counter = 1;
+                foreach ($nameArray as $inverterName) {
+                    $inverter_status = $this->IstData($anlage, $time, $counter);
+                    $message = self::AnalyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap[$anlage->getanlName()]['sunrise']);
+                    self::messagingFunction($message, $anlage);
+                    $counter++;
+                    $system_status[$inverterName] = $inverter_status;
+                    unset($inverter_status);
                 }
+               // $this->em->flush();
+                unset($system_status);
+            }
         }
 
         return "success";
@@ -225,6 +227,7 @@ class AlertSystemService
             //inverter error
             $message .=  "No power at inverter " .$nameArray;
            //$errorType = "";
+
             $errorCategorie = "20";
         }
         if ($errorCategorie != "10") {
@@ -243,6 +246,7 @@ class AlertSystemService
                     $errorCategorie = "30";
                 }
                 $errorType = "OMC";
+
             }
         }
         $ticket = self::getLastTicket($anlage, $nameArray, $time, $sunrise, false);

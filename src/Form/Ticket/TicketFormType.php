@@ -67,7 +67,7 @@ class TicketFormType extends AbstractType
         $builder
 
             ->add('status', ChoiceType::class, [
-                'label' => 'Select the status',
+                'label' => 'Status',
                 'choices' => [
                     'Open' => 10,
                     'Work in Progress' => 20,
@@ -87,24 +87,9 @@ class TicketFormType extends AbstractType
             ->add('freeText', CKEditorType::class, [
                 'config' => array('toolbar' => 'my_toolbar'),
             ])
-            /*
-           ->add('description', CKEditorType::class, [
-               'label' => 'Description',
-               'disabled' => true,
-           ])
 
-           ->add('systemStatus', ChoiceType::class, [
-               'label' => 'Select the status of the system',
-               'choices' => [
-                   'test' => 10,
-                   'test2' => 20
-               ],
-               'required' => true,
-               'placeholder' => 'Please Choose ...'
-           ])
-           */
             ->add('priority', ChoiceType::class, [
-                'label' => 'Select the priority',
+                'label' => 'Priority',
                 'choices' => [
                     'Low' => 10,
                     'Normal' => 20,
@@ -114,6 +99,22 @@ class TicketFormType extends AbstractType
                 'required' => true,
                 'placeholder' => 'please Choose ...'
 
+            ])
+            ->add('alertType', TextType::class, [
+                'label' => 'Category of error ',
+                'help'  => 'data gap, inverter, ...',
+                'attr' => [
+                    'readonly' => true,
+                ],
+                'empty_data' => '',
+            ])
+            ->add('errorType', TextType::class, [
+                'label' => 'Type of error',
+                'help'  => 'SOR, EFOR, OMC',
+                'attr' => [
+                    'readonly' => true,
+                ],
+                'empty_data' => '',
             ])
             ->add('answer', CKEditorType::class, [
                 'config' => array('toolbar' => 'my_toolbar'),
@@ -167,12 +168,7 @@ class TicketFormType extends AbstractType
                 'label'     => 'Yield',
                 'required'  => false
             ])
-        ->add('alertType', TextType::class, [
-            'label' => 'Type of error ',
-            'attr' => [
-                'readonly' => true,
-            ]
-        ])
+
             ->add('save', SubmitType::class, [
                 'label'     => 'Save',
                 'attr'      => ['class' => 'primary save'],

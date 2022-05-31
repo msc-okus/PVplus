@@ -1,0 +1,125 @@
+<!--<h4>Chart4 <br> {{ content.data|raw }} {{ content.headline }}</h4>-->
+<script>
+    am4core.ready(function() {
+        // Create chart instance
+        let chart = am4core.create("amchart-holder", am4charts.XYChart);
+
+        chart.data = {{ content.data|raw }};
+
+        let title = chart.titles.create();
+        title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+        title.fontSize = 16;
+        title.marginBottom = 30;
+
+        // Legend
+        //chart.legend = new am4charts.Legend();
+        //chart.legend.useDefaultMarker = true;
+
+        // Create axes
+        let xAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+        let yAxis = chart.yAxes.push(new am4charts.CategoryAxis());
+        xAxis.dataFields.category = "xinv";
+        yAxis.dataFields.category = "ydate";
+        yAxis.renderer.labels.template.fontSize = 10;
+        xAxis.renderer.labels.template.fontSize = 10;
+        xAxis.renderer.grid.template.disabled = true;
+        xAxis.renderer.minGridDistance = 5;
+        xAxis.renderer.inversed = true;
+        yAxis.renderer.grid.template.disabled = true;
+        yAxis.renderer.inversed = true;
+        yAxis.renderer.minGridDistance = 5;
+        xAxis.renderer.labels.template.rotation = -45;
+        xAxis.renderer.labels.template.horizontalCenter = "right";
+        xAxis.renderer.labels.template.verticalCenter = "middle";
+
+        // Create series
+        let series = chart.series.push(new am4charts.ColumnSeries());
+        series.dataFields.categoryX = "xinv";
+        series.dataFields.categoryY = "ydate";
+        series.dataFields.value = "value";
+        series.sequencedInterpolation = false;
+        series.defaultState.transitionDuration = 2000;
+        series.columns.template.width = am4core.percent(100);
+        series.columns.template.height = am4core.percent(100);
+
+        var columnTemplate = series.columns.template;
+        columnTemplate.strokeWidth = 0;
+        columnTemplate.strokeOpacity = 2;
+        columnTemplate.stroke = am4core.color("#ffffff");
+        columnTemplate.tooltipText = "{xinv}, {ydate}: {value.workingValue.formatNumber('#.')} %";
+        columnTemplate.width = am4core.percent(100);
+        columnTemplate.height = am4core.percent(100);
+
+        series.columns.template.column.adapter.add("fill", function(fill, target) {
+            if (target.dataItem) {
+                if (target.dataItem.value > 0 && target.dataItem.value <= 70) {
+                    return am4core.color("#fe131a")
+                }
+                else if (target.dataItem.value > 70 && target.dataItem.value <= 75) {
+                    return am4core.color("#d4d400")
+                }
+                else if (target.dataItem.value > 75 && target.dataItem.value <= 80) {
+                    return am4core.color("#f6f608")
+                }
+                else if (target.dataItem.value > 80 && target.dataItem.value <= 85) {
+                    return am4core.color("#31af31")
+                }
+                else if (target.dataItem.value > 85 && target.dataItem.value <= 100) {
+                    return am4core.color("#008600")
+                }
+                else {
+                    return am4core.color("#fe131a");
+                }
+            }
+            return fill;
+        });
+
+        var legend = new am4charts.Legend();
+        legend.parent = chart.chartContainer;
+        legend.data = [{
+            "name": "PR < 60 %",
+            "fill": am4core.color("#fe131a")
+        }, {
+            "name": "PR < 75 %",
+            "fill": am4core.color("#d4d400")
+        }, {
+            "name": "PR < 100 %",
+            "fill": am4core.color("#008600")
+        }];
+
+        //chart.cursor = new am4charts.XYCursor();
+        //chart.cursor.xAxis = dateAxis;
+
+        // Export
+        chart.exporting.menu = new am4core.ExportMenu();
+        chart.exporting.menu.items[0].label = "Download";
+
+
+        /*
+        series.heatRules.push({
+            target: columnTemplate,
+            property: "fill",
+            dataField: "value",
+            min: am4core.color("#fe131a"),
+            max: am4core.color("#008600")
+        });
+        */
+        /*
+        chart.cursor = new am4charts.XYCursor();
+        chart.cursor.xAxis = dateAxis;
+        chart.exporting.menu = new am4core.ExportMenu();
+        chart.scrollbarX = new am4core.Scrollbar();
+        chart.scrollbarX.marginBottom = "20"
+        chart.scrollbarY = new am4core.Scrollbar();
+        chart.scrollbarY.marginLeft = "20";
+        chart.exporting.menu.items[0].label = "Download";
+        chart.exporting.formatOptions.getKey("json").disabled = true;
+        chart.exporting.formatOptions.getKey("html").disabled = true;
+        chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+        chart.exporting.formatOptions.getKey("print").disabled = true;
+        chart.exporting.formatOptions.getKey("pdf").disabled = true;
+        chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+*/
+
+    }); // end am4core.ready()
+</script>
