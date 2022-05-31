@@ -1,0 +1,146 @@
+{% extends 'report/_epc/_pageBase.html.twig' %}
+
+{% block page %}
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Monthly Values</h3>
+    <table class="basetable monthtable">
+        <thead>
+            <tr>
+                <th style="min-width: 50px">B</th>
+                <th>C</th>
+                <th>D</th>
+                <th>E</th>
+                <th>F</th>
+                <th>G</th>
+                <th>H</th>
+                <th>I</th>
+                <th>J</th>
+                <th>K</th>
+                <th>L</th>
+                <th>M</th>
+                <th>N</th>
+                <th>O</th>
+                <th>P</th>
+                <th>Q</th>
+                <th>R</th>
+                <th>S</th>
+                <th></th>
+                <th>T</th>
+                <!--<th>U</th>-->
+                <th>V</th>
+                <th>W</th>
+                <th>X</th>
+                <th>Y</th>
+                <th>Z</th>
+                <th>AA</th>
+                <th>AB</th>
+                <th>AC</th>
+                <th>AD</th>
+                <th>AE</th>
+                <!--<th>AF</th>
+                <th>AG</th>-->
+                <th></th>
+                <th>AH</th>
+                <th>AI</th>
+                <th>AJ</th>
+                <th>AK</th>
+                <th>AL</th>
+            </tr>
+            <tr>
+                <th colspan="3"></th>
+                <th colspan="15">Design values</th>
+                <th></th>
+                <th colspan="11">Measured values</th>
+                <th></th>
+                <th colspan="5">Analysis</th>
+            </tr>
+            <!--
+            m&sup2;
+            <tr>
+                <th>Month</th>
+                <th>Days in Month</th>
+                <th>Days of month in FAC period</th>
+                <th>Irradiation [kWh/m²]</th>
+                <th>theoretical energy [kWh]</th>
+                <th>Egrid [kWh]</th>
+
+                <th>PR<sub>Guar_M</sub> [%]</th>
+                <th>Theoretical Energy design</th>
+                <th>Irr. [kWh/m&sup2;] average</th>
+                <th>Egrid [kWh]</th>
+                <th>specif. yield<sub>real_M/prog_M</sub> [kWh/kWp]</th>
+                <th>PA [%]</th>
+                <th>Part [%]</th>
+                <th>PR<sub>real_M/Prog_M</sub> [%]</th>
+                <th>Theo. Energy ohne FT-Korr. [kWh]</th>
+                <th>PR<sub>Real_M/Prog_M</sub> [%]<br>
+                    With surcharges / discounts for forecast (from PR difference)</th>
+                <th>Egrid with risk</th>
+                <th class="dark-bg"></th>
+                <th>Guaranteed Expected Energy [kWh]</th>
+                <th>Egrid measured - Egrid guaranteed expected
+                    with risk surcharge / discounts [kWh]</th>
+                <th>PR<sub>real_M - PRGuar_M</sub> [%]
+                    with risk surcharge / discounts</th>
+                <th>Z</th>
+                <th>AA</th>
+                <th>AB</th>
+                <th>AC</th>
+                <th>AD</th>
+                <th>AE</th>
+                <th>AF</th>
+                <th>AG</th>
+                <th class="dark-bg"></th>
+                <th>AH</th>
+                <th>AI</th>
+                <th>AJ</th>
+                <th>AK</th>
+                <th>AL</th>
+            </tr>-->
+        </thead>
+        <tbody>
+        {% for month in monthsTable %}
+            <tr {% if month.current_month < 0 %}style="background-color: #ffb700;"{% endif %} class="{{ month.style }}">
+                <td class="text-left">{{ month.B_month }}</td>
+                <td class="text-center">{{ month.C_days_month }}</td>
+                <td class="text-center">{{ month.D_days_fac }}</td>
+                <td>{{ month.E_IrrDesign|number_format(2, ',', '.') }}</td>
+                <td>{{ month.F_refYieldDesign|number_format(2, ',', '.') }}</td>
+                <td>{{ month.G_theoEnergyDesign|number_format(2, ',', '.') }}</td>
+                <td>{{ month.H_eGridDesign|number_format(2, ',', '.') }}</td>
+                <td>{{ month.I_specificYieldDesign|number_format(2, ',', '.') }}</td>
+                <td>{{ month.J_prDesign|number_format(2, ',', '.') }}</td>
+                <td>{{ month.K_tempAmbDesign|number_format(2, ',', '.') }}</td>
+                <td>{{ month.L_tempAmbWeightedDesign|number_format(2, ',', '.') }}</td>
+                <td>{{ month.M_tempCompFactDesign|number_format(3, ',', '.') }}</td>
+                <td>{{ month.N_effRefYieldDesign|number_format(2, ',', '.') }}</td>
+                <td>{{ month.O_effTheoEnergyDesign|number_format(2, ',', '.') }}</td>
+                <td>{{ month.P_prMonthDesign|number_format(2, ',', '.') }}</td>
+                <td>{{ month.Q_prGuarDesign|number_format(2, ',', '.') }}</td>
+                <td>{{ month.R_specificYieldGuarDesign|number_format(2, ',', '.') }}</td>
+                <td>{{ month.S_eGridGuarDesign|number_format(2, ',', '.') }}</td>
+                <th class="dark-bg"></th>
+                <td>{{ month.T_irr|number_format(4, ',', '.') }}</td>
+                <!--<td>{{ month.U_refYield|number_format(2, ',', '.') }}</td>-->
+                <td>{{ month.V_theoEnergy|number_format(2, ',', '.') }}</td>
+                <td>{{ month.W_eGrid|number_format(2, ',', '.') }}</td>
+                <td>{{ month.X_specificYield|number_format(4, ',', '.') }}</td>
+                <td>{{ month.Y_pr|number_format(2, ',', '.') }}</td>
+                <td>{{ month.Z_tCellAvgWeighted|number_format(2, ',', '.') }}</td>
+                <td>{{ month.AA_tCompensationFactor|number_format(4, ',', '.') }}</td>
+                <td>{{ month.AB_effRefYield|number_format(2, ',', '.') }}</td>
+                <td>{{ month.AC_effTheoEnergy|number_format(2, ',', '.') }}</td>
+                <td>{{ month.AD_prMonth|number_format(2, ',', '.') }}</td>
+                <td>{{ month.AE_ratio|number_format(2, ',', '.') }}</td>
+                <!--<td>{{ month.AF_ratioFT|number_format(2, ',', '.') }}</td>
+                <td>{{ month.AG_epcPA|number_format(2, ',', '.') }}</td>-->
+                <th class="dark-bg"></th>
+                <td>{{ month.AH_prForecast|number_format(2, ',', '.') }}</td>
+                <td>{{ month.AI_eGridForecast|number_format(2, ',', '.') }}</td>
+                <td>{{ month.AJ_specificYieldForecast|number_format(2, ',', '.') }}</td>
+                <td>{{ month.AK_absDiffPrRealGuarForecast|number_format(2, ',', '.') }}</td>
+                <td>{{ month.AL_relDiffPrRealGuarForecast|number_format(2, ',', '.') }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

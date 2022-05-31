@@ -252,7 +252,6 @@ class AlertSystemService
         $ticket = self::getLastTicket($anlage, $nameArray, $time, $sunrise, false);
         if ($message != "") {
             if ($ticket === null) {
-
                 $ticket = new Ticket();
                 $ticket->setAnlage($anlage);
                 $ticket->setStatus("10"); // Status 10 = open
@@ -292,6 +291,7 @@ class AlertSystemService
 
         return $message;
     }
+
     // ---------------Checking Functions-----------------
 
     /**
@@ -307,6 +307,7 @@ class AlertSystemService
 
         return $status_report;
     }
+
     /**
      * New version with datagap algorithm
      * @param $anlage
@@ -314,11 +315,12 @@ class AlertSystemService
      * @param $inverter
      * @return array
      */
-    private static function IstData2($anlage, $time, $inverter){
+    private static function IstData2($anlage, $time, $inverter)
+    {
         $status_report = null;
         $difference = 50;// this will be the variable tolerance in the difference between expected and actual
         $report = self::RetrieveQuarterIst($time, $inverter, $anlage);
-        if($report['istdata'] == "No Data"){
+        if ($report['istdata'] == "No Data"){
             $conn = self::getPdoConnection();
             $quarter = date('Y-m-d H:i:s', strtotime($time) - 900);
             $half = date('Y-m-d H:i:s', strtotime($time) - 1800);
@@ -343,10 +345,11 @@ class AlertSystemService
                 $expq = $respeq->fetch(PDO::FETCH_ASSOC);
                 $acth = $respah->fetch(PDO::FETCH_ASSOC);
                 $actq = $respaq->fetch(PDO::FETCH_ASSOC);
-
             }
+        } else {
+            $status_report = $report;
         }
-        else $status_report = $report;
+
         return $status_report;
     }
 
@@ -358,6 +361,7 @@ class AlertSystemService
      */
     private static function WData(Anlage $anlage, $time): array
     {
+        $status_report = [];
         $conn = self::getPdoConnection();
         $sqlw = "SELECT b.g_lower as gi , b.g_upper as gmod, b.temp_ambient as temp, b.wind_speed as wspeed 
                     FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) 
@@ -365,7 +369,7 @@ class AlertSystemService
 
         $resw = $conn->query($sqlw);
 
-        if($resw->rowCount() > 0) {
+        if ($resw->rowCount() > 0) {
             $wdata = $resw->fetch(PDO::FETCH_ASSOC);
             if ($wdata['gi'] != null && $wdata['gmod'] != null) {
                 if ($wdata['gi'] <= 0 && $wdata['gmod'] <= 0) {
@@ -391,6 +395,7 @@ class AlertSystemService
             }
             else $status_report['wspeed'] = "there is no wind measurer in the plant";
         }
+
         return $status_report;
     }
 
@@ -401,17 +406,18 @@ class AlertSystemService
      * @param $stamp
      * @return string
      */
-    private function getLastQuarter($stamp){
+    private function getLastQuarter($stamp): string
+    {
         //we split the minutes from the rest of the stamp
         $mins = date('i', strtotime($stamp));
         $rest = date('Y-m-d H', strtotime($stamp));
         //we work on the minutes to "round" to the lower quarter
         if ($mins >= "00" && $mins < "15") $quarter = "00";
-        else if ($mins >= "15" && $mins < "30") $quarter = "15";
-        else if ($mins >= "30" && $mins < "45") $quarter = "30";
+        elseif ($mins >= "15" && $mins < "30") $quarter = "15";
+        elseif ($mins >= "30" && $mins < "45") $quarter = "30";
         else $quarter = "45";
-        return ($rest.":".$quarter);
 
+        return ($rest.":".$quarter);
     }
 
 
@@ -422,7 +428,8 @@ class AlertSystemService
      * @param Anlage $anlage
      * @return array
      */
-    private static function RetrieveQuarterIst(string $stamp, ?string $inverter, Anlage $anlage){
+    private static function RetrieveQuarterIst(string $stamp, ?string $inverter, Anlage $anlage): array
+    {
         $conn = self::getPdoConnection();
 
         $sqlw = "SELECT b.g_lower as gi , b.g_upper as gmod
@@ -442,7 +449,6 @@ class AlertSystemService
         $resp = $conn->query($sql);
         if ($irradiation > 30 ){
             if ($resp->rowCount() > 0) {
-
                 $pdata = $resp->fetch(PDO::FETCH_ASSOC);
                 if ($pdata['ist'] <= 0 ){ $return['istdata'] =  "Power is 0";}
                 elseif ($pdata['ist'] === null){ $return['istdata'] = "No Data";}
@@ -475,6 +481,7 @@ class AlertSystemService
             $return['istdata'] = "All is ok";
             $return['freq'] = "All is ok";
             $return['voltage'] = "All is ok";
+
         }
         return $return;
     }
@@ -500,33 +507,42 @@ class AlertSystemService
      * @param $isWeather
      * @return Status|int|mixed|string|null
      */
-    private function getLastStatus($anlage, $date, $sunrise, $isWeather){
+    private function getLastStatus($anlage, $date, $sunrise, $isWeather)
+    {
         $time = date('Y-m-d H:i:s', strtotime($date) - 900);
         $yesterday = date('Y-m-d', strtotime($date) - 86400); // this is the date of yesterday
         $today = date('Y-m-d', strtotime($date));
-        if($time <= $sunrise){
+        if ($time <= $sunrise){
             $status = $this->statusRepo->findLastOfDay($anlage, $yesterday,$today, $isWeather);
         }
         else {
             $status = $this->statusRepo->findOneByanlageDate($anlage, $time, $isWeather);
         }
+
         return $status;
     }
-    public function getLastTicket($anlage, $inverter, $time, $sunrise, $isWeather){
+
+
+    public function getLastTicket($anlage, $inverter, $time, $sunrise, $isWeather)
+    {
         $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
         $today = date('Y-m-d', strtotime($time));
         $quarter = date('Y-m-d H:i:s', strtotime($time) - 900);
-        if(!$isWeather) {
+        if (!$isWeather) {
             if ($quarter <= $sunrise) {
                 $ticket = $this->ticketRepo->findLastByAITNoWeather($anlage, $inverter, $today, $yesterday);
-            } else $ticket = $this->ticketRepo->findByAITNoWeather($anlage, $inverter, $quarter);
+            } else {
+                $ticket = $this->ticketRepo->findByAITNoWeather($anlage, $inverter, $quarter);
+            }
         }
         else {
             if ($quarter <= $sunrise) {
                 $ticket = $this->ticketRepo->findLastByAITWeather($anlage, $today, $yesterday);
-            } else $ticket = $this->ticketRepo->findByAITWeather($anlage, $quarter);
+            } else {
+                $ticket = $this->ticketRepo->findByAITWeather($anlage, $quarter);
+            }
         }
-        if ($ticket != null)  return $ticket[0];
-        else return null;
+
+        return $ticket !== null ?$ticket[0] : null;
     }
 }

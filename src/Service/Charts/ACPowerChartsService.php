@@ -54,7 +54,7 @@ class ACPowerChartsService
 
 
             $resExp = $conn->query($sqlExp);
-            $actSum = $expSum = $expEvuSum = $expNoLimitSum = $evuSum = $cosPhiSum = $theoPowerSum = 0;
+            $actSum = $expSum = $expEvuSum = $expNoLimitSum = $evuSum = $cosPhiSum = $theoPowerSum = $irrSum = 0;
             $dataArray = [];
 
             if ($resExp->rowCount() > 0) {
@@ -129,11 +129,10 @@ class ACPowerChartsService
                     if (isset($dataArrayIrradiation['chart'][$counter]['val1'])) {
                         if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
                             $dataArray['chart'][$counter]["irradiation"] = $dataArrayIrradiation['chart'][$counter]['val1'];
-                            $irrSum += $dataArray['chart'][$counter]["irradiation"];
                         } else {
                             $dataArray['chart'][$counter]["irradiation"] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;
-                            $irrSum += $dataArray['chart'][$counter]["irradiation"];
                         }
+                        $irrSum += $dataArray['chart'][$counter]["irradiation"];
                     }
                     $counter++;
                 }
