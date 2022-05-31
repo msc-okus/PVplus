@@ -220,33 +220,35 @@ class AlertSystemService
         $errorCategorie = "";
         if ($inverter['istdata'] == "No Data") {
             //data gap
-            $message .=  "Data gap at inverter(Power) ".$nameArray . "<br>";
-            $errorType = "";
+            $message .=  "Data gap at inverter(Power)  ".$nameArray;
+            //$errorType = "";
             $errorCategorie = "10";
         } elseif ($inverter['istdata'] == "Power is 0") {
             //inverter error
-            $message .=  "No power at inverter " .$nameArray . "<br>";
-            $errorType = '';
+            $message .=  "No power at inverter " .$nameArray;
+           //$errorType = "";
+
             $errorCategorie = "20";
         }
-
-        if ($anlage->getHasFrequency()) {
-            if ($inverter['freq'] != "All is ok") {
-                if ($errorCategorie == "") {
-                    $errorCategorie= "30";
+        if ($errorCategorie != "10") {
+            if ($anlage->getHasFrequency()) {
+                if ($inverter['freq'] != "All is ok") {
+                    if ($errorCategorie == "") {
+                        $errorCategorie = "30";
+                    }
+                    $errorType = "OMC";
+                    $message = $message . "Error with the frequency in inverter " . $nameArray;
                 }
-                $errorType = OMC;
-                $message = $message . "Error with the frequency in inverter " . $nameArray . "<br>";
             }
-        }
-        if ($inverter['voltage'] != "All is ok") {//grid error
-            $message = $message . "Error with the voltage in inverter " . $nameArray . "<br>";
-            if ($errorCategorie == "") {
-                $errorCategorie = "30";
-            }
-            $errorType = OMC;
-        }
+            if ($inverter['voltage'] != "All is ok") {//grid error
+                $message = $message . "Error with the voltage in inverter " . $nameArray;
+                if ($errorCategorie == "") {
+                    $errorCategorie = "30";
+                }
+                $errorType = "OMC";
 
+            }
+        }
         $ticket = self::getLastTicket($anlage, $nameArray, $time, $sunrise, false);
         if ($message != "") {
             if ($ticket === null) {
@@ -418,42 +420,62 @@ class AlertSystemService
      * @param string $stamp
      * @param string|null $inverter
      * @param Anlage $anlage
-     * @return string
+     * @return array
      */
     private static function RetrieveQuarterIst(string $stamp, ?string $inverter, Anlage $anlage){
         $conn = self::getPdoConnection();
+
+        $sqlw = "SELECT b.g_lower as gi , b.g_upper as gmod
+                    FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) 
+                    WHERE a.stamp = '$stamp' ";
+        $respirr = $conn->query($sqlw);
+
+        if ($respirr->rowCount() > 0) {
+            $pdataw = $respirr->fetch(PDO::FETCH_ASSOC);
+            $irradiation = (float)$pdataw['gi'] + (float)$pdataw['gmod'];
+        }
+        else $irradiation = 0;
 
         $sql = "SELECT wr_pac as ist, frequency as freq, wr_udc as voltage
                 FROM " . $anlage->getDbNameIst() . " 
                 WHERE stamp = '$stamp' AND unit = '$inverter' ";
         $resp = $conn->query($sql);
+        if ($irradiation > 30 ){
+            if ($resp->rowCount() > 0) {
 
-        if ($resp->rowCount() > 0) {
+                $pdata = $resp->fetch(PDO::FETCH_ASSOC);
+                if ($pdata['ist'] <= 0 ){ $return['istdata'] =  "Power is 0";}
+                elseif ($pdata['ist'] === null){ $return['istdata'] = "No Data";}
+                else $return['istdata'] = "All is ok";
 
-            $pdata = $resp->fetch(PDO::FETCH_ASSOC);
-            if ($pdata['ist'] <= 0 ){ $return['istdata'] =  "Power is 0";}
-            elseif ($pdata['ist'] === null){ $return['istdata'] = "No Data";}
-            else $return['istdata'] = "All is ok";
+                if ($pdata['ist'] !== null){
+                    if ($pdata['ist'] <= 0 ) $return['istdata'] =  "Power is 0";
+                    else $return['istdata'] = "All is ok";
+                }
+                else $return['istdata'] = "No Data";
 
-
-            if ($pdata['freq'] !== null){
-                if (($pdata['freq'] <= $anlage->getFreqBase()+$anlage->getFreqTolerance()) && ($pdata['freq'] >= $anlage->getFreqBase()-$anlage->getFreqTolerance())) $return['freq'] = "All is ok";
-                else $return['freq'] = "Error with the frequency";
+                if ($pdata['freq'] !== null){
+                    if (($pdata['freq'] <= $anlage->getFreqBase()+$anlage->getFreqTolerance()) && ($pdata['freq'] >= $anlage->getFreqBase()-$anlage->getFreqTolerance())) $return['freq'] = "All is ok";
+                    else $return['freq'] = "Error with the frequency";
+                }
+                else $return['freq'] = "No Data";
+                if ($pdata['voltage'] !== null){
+                    if ($pdata['voltage'] <= 0) $return['voltage'] = "Voltage is 0";
+                    else $return['voltage'] = "All is ok";
+                }
+                else $return['voltage'] = "No Data";
             }
-            else $return['freq'] = "No Data";
-            if ($pdata['voltage'] !== null){
-                if ($pdata['voltage'] <= 0) $return['voltage'] = "Voltage is 0";
-                else $return['voltage'] = "All is ok";
+            else{
+                $return['istdata'] = "No data";
+                $return['freq'] = "No Data";
+                $return['voltage'] = "No Data";
             }
-            else $return['voltage'] = "No Data";
         }
-
-        else{
-            $return['istdata'] = "No data";
-            $return['freq'] = "No Data";
-            $return['voltage'] = "No Data";
+        else {
+            $return['istdata'] = "All is ok";
+            $return['freq'] = "All is ok";
+            $return['voltage'] = "All is ok";
         }
-
         return $return;
     }
 
