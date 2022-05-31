@@ -175,7 +175,6 @@ class DCPowerChartService
 
             $resultExp = $conn->query($sqlExp);
             $resultActual = $conn->query($sql);
-
             $maxInverter = $resultActual->rowCount() / $resultExp->rowCount();
 
             $dataArray['inverterArray'] = $nameArray;
@@ -330,7 +329,7 @@ class DCPowerChartService
 
         }
         $conn = null;
-        dump($dataArray);
+
         return $dataArray;
     }
 
@@ -558,7 +557,6 @@ class DCPowerChartService
             }
         }
         $conn = null;
-        dump($dataArray);
         return $dataArray;
 
     }
