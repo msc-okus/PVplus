@@ -951,7 +951,7 @@ class FunctionsService
             $_html .= "<tbody><tr><td>$key</td>";
             foreach ($content[$key] as  $cell) {
                 if (is_numeric($cell)) {
-                    $_html .= "<td style='text-align: right;'>" . number_format($cell, $decimal,',', '.') . "</td>";
+                    $_html .= "<td style='text-align: right;'>" . number_format($cell, $decimal,'.', ',') . "</td>";
                 } else {
                     $_html .= "<td>$cell</td>";
                 }

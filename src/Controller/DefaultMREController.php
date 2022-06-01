@@ -173,7 +173,7 @@ class DefaultMREController extends BaseController
         #$chartYieldCumulativ = $epcNew->chartYieldCumulative($anlage, $monthTable, $date);
 
         if ($raw == '1') {
-            $output = $functions->print2DArrayAsTable($result->table);
+            $output = $functions->print2DArrayAsTable($result->table,6);
             $output .= "<br>riskForecastUpToDate: ". $result->riskForecastUpToDate . "<br>riskForecastRollingPeriod: " . $result->riskForecastRollingPeriod;
 
             return $this->render('cron/showResult.html.twig', [
