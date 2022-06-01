@@ -21,11 +21,11 @@ security:
         app_user_provider:
             entity:
                 class: App\Entity\User
-                property: name
+                property: email
 
     role_hierarchy:
         ROLE_DEV: [ROLE_ADMIN]
-        ROLE_ADMIN: [ROLE_G4N, ROLE_ALLOWED_TO_SWITCH, ROLE_ADMIN_USER]
+        ROLE_ADMIN: [ROLE_G4N, ROLE_ALLOWED_TO_SWITCH, ROLE_ADMIN_USER, ROLE_ALLOWED_TO_SWITCH]
         ROLE_G4N: [ROLE_OPERATOR, ROLE_ADMIN_OWNER_CREATE, ROLE_ADMIN_PLANT_CREATE, ROLE_AM]
         ROLE_AM: [ROLE_OWNER_FULL, ROLE_ADMIN_OWNER, ROLE_ADMIN_PLANT]
         ROLE_OPERATOR: [ROLE_OWNER_FULL, ROLE_ADMIN_OWNER, ROLE_ADMIN_PLANT]
@@ -45,6 +45,8 @@ security:
             logout:
                 path: app_logout
                 target: app_login
+
+            switch_user: true
 
             remember_me:
                  secret: '%kernel.secret%'
