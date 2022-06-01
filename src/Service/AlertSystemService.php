@@ -55,7 +55,7 @@ class AlertSystemService
             //sleep
             $from = G4NTrait::timeAjustment($from, 0.25);
             $this->checkSystem($from, $anlId);
-            sleep(0.5);
+            sleep(1);
         }
         //TODO You speed it up, but lost advantage to find old tickets (from last quater, same inverter, same error)
         #$this->em->flush();

@@ -3,17 +3,17 @@
     <tr>
         <th>Ticket ID</th>
         <th {% if pagination.isSorted('a.anlName') %} class="sorted"{% endif %}>
-            {{ knp_pagination_sortable(pagination, 'Plant', ['a.anlName']) }}
+            {{ knp_pagination_sortable(pagination, 'Plant', ['a.anlName'], [], ['ticket-list']) }}
         </th>
 
         <th class="text-center">Status</th>
         <th class="text-center">Priority</th>
         <th {% if pagination.isSorted('ticket.editor') %} class="sorted"{% endif %}>
-            {{ knp_pagination_sortable(pagination, 'Editor', ['ticket.editor']) }}</th>
+            {{ knp_pagination_sortable(pagination, 'Editor', ['ticket.editor'], [], ['ticket-list']) }}</th>
         <th {% if pagination.isSorted('ticket.begin') %} class="sorted"{% endif %}>
-            {{ knp_pagination_sortable(pagination, 'Begin', ['ticket.begin']) }}</th>
+            {{ knp_pagination_sortable(pagination, 'Begin', ['ticket.begin'], [], ['ticket-list']) }}</th>
         <th {% if pagination.isSorted('ticket.end') %} class="sorted"{% endif %}>
-            {{ knp_pagination_sortable(pagination, 'End', ['ticket.end']) }}</th>
+            {{ knp_pagination_sortable(pagination, 'End', ['ticket.end'], [], ['ticket-list']) }}</th>
         {% if (is_granted('ROLE_DEV')) %}
             <th>Last Update</th>
         {% endif %}
@@ -41,9 +41,7 @@
             <td>{{ ticket.editor }}</td>
             <td>{{ ticket.begin|date("d.m.y H:i")}}</td>
             <td>{{ ticket.end|date("d.m.y H:i") }}</td>
-            {% if (is_granted('ROLE_DEV')) %}
-                <td>{{ ticket.updatedAt|date("d.m.y H:i")  }}</td>
-            {% endif %}
+            <td>{{ ticket.updatedAt|date("d.m.y H:i")  }}</td>
             <td>
                 {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}
                 {{ errcat|trans }}{% if is_granted('ROLE_DEV') %} | {{ ticket.alertType }}{% endif %}
