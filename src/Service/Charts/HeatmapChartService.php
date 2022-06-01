@@ -7,6 +7,7 @@ use App\Entity\AnlagenStatus;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenStatusRepository;
 use App\Repository\InvertersRepository;
+use App\Service\WeatherServiceNew;
 use App\Service\Charts\{DCPowerChartService, ACPowerChartsService};
 use App\Service\FunctionsService;
 use PDO;
@@ -21,6 +22,7 @@ class HeatmapChartService
     private InvertersRepository $invertersRepo;
     public functionsService $functions;
     private IrradiationChartService $irradiationChart;
+    private WeatherServiceNew $weatherService;
 
     public function __construct(Security                $security,
                                 AnlagenStatusRepository $statusRepository,
@@ -28,6 +30,7 @@ class HeatmapChartService
                                 IrradiationChartService $irradiationChart,
                                 DCPowerChartService     $DCPowerChartService,
                                 ACPowerChartsService    $ACPowerChartService,
+                                WeatherServiceNew       $weatherService,
                                 FunctionsService        $functions)
     {
         $this->security = $security;
@@ -37,6 +40,7 @@ class HeatmapChartService
         $this->irradiationChart = $irradiationChart;
         $this->DCPowerChartService = $DCPowerChartService;
         $this->ACPowerChartService = $ACPowerChartService;
+        $this->WeatherServiceNew = $weatherService;
     }
     #Help Function for Array search
     #MS
@@ -70,11 +74,25 @@ class HeatmapChartService
         $conn = self::getPdoConnection();
         $dataArray = [];
         $group = 1;
+        $anlagename = $anlage->getAnlName();
         $pnominverter = $anlage->getPnomInverterArray();
         $counter = 0;
 
+        $gmt_offset = 1;   // Unterschied von GMT zur eigenen Zeitzone in Stunden.
+        $zenith = 90+50/60;
+        $current_date = strtotime($from);
+        $sunset = date_sunset($current_date, SUNFUNCS_RET_TIMESTAMP,  (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon(), $zenith, $gmt_offset);
+        $sunrise = date_sunrise($current_date, SUNFUNCS_RET_TIMESTAMP,  (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon(), $zenith, $gmt_offset);
+
         if ($hour) $form = '%y%m%d%H';
         else $form = '%y%m%d%H%i';
+
+       // $sunArray = $this->WeatherServiceNew->getSunrise($anlage,$from);
+       // $sunrise = $sunArray[$anlagename]['sunrise'];
+       // $sunset = $sunArray[$anlagename]['sunset'];
+
+        $from = date('Y-m-d H:00',$sunrise - 3600);
+        $to = date('Y-m-d H:00',$sunset + 5400);
 
         $conn = self::getPdoConnection();
         $dataArray = [];
@@ -105,7 +123,7 @@ class HeatmapChartService
 
         $resultActual = $conn->query($sql);
 
-    #   dd(print($sql));
+        //dd(print($sql),$sunset);
 
         $dataArray['inverterArray'] = $nameArray;
 

@@ -2,18 +2,22 @@
 <script>
     am4core.ready(function() {
         // Create chart instance
+
         let chart = am4core.create("amchart-holder", am4charts.XYChart);
 
         chart.data = {{ content.data|raw }};
+
+        chart.preloader.disabled = false;
+        chart.preloader.transitionDuration = 0;
+        chart.preloader.progress = 5;
+        chart.scrollbarX = new am4core.Scrollbar();
+        chart.scrollbarY = new am4core.Scrollbar();
+
 
         let title = chart.titles.create();
         title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
         title.fontSize = 16;
         title.marginBottom = 30;
-
-        // Legend
-        //chart.legend = new am4charts.Legend();
-        //chart.legend.useDefaultMarker = true;
 
         // Create axes
         let xAxis = chart.xAxes.push(new am4charts.CategoryAxis());
@@ -52,23 +56,38 @@
 
         series.columns.template.column.adapter.add("fill", function(fill, target) {
             if (target.dataItem) {
-                if (target.dataItem.value > 0 && target.dataItem.value <= 70) {
-                    return am4core.color("#fe131a")
+                if (target.dataItem.value == 0) {
+                    return am4core.color("#fafafc")
                 }
-                else if (target.dataItem.value > 70 && target.dataItem.value <= 75) {
-                    return am4core.color("#d4d400")
+                else if (target.dataItem.value >= 1 && target.dataItem.value <= 20) {
+                    return am4core.color("#f60404")
                 }
-                else if (target.dataItem.value > 75 && target.dataItem.value <= 80) {
-                    return am4core.color("#f6f608")
+                else if (target.dataItem.value > 20 && target.dataItem.value <= 40) {
+                    return am4core.color("#f82f1a")
+                }
+                else if (target.dataItem.value > 40 && target.dataItem.value <= 60) {
+                    return am4core.color("#f64432")
+                }
+                else if (target.dataItem.value > 60 && target.dataItem.value <= 70) {
+                    return am4core.color("#f67860")
+                }
+                else if (target.dataItem.value > 70 && target.dataItem.value <= 80) {
+                    return am4core.color("#f69366")
                 }
                 else if (target.dataItem.value > 80 && target.dataItem.value <= 85) {
-                    return am4core.color("#31af31")
+                    return am4core.color("#e5db64")
                 }
-                else if (target.dataItem.value > 85 && target.dataItem.value <= 100) {
-                    return am4core.color("#008600")
+                else if (target.dataItem.value > 85 && target.dataItem.value <= 90) {
+                    return am4core.color("#ece349")
+                }
+                else if (target.dataItem.value > 90 && target.dataItem.value <= 95) {
+                    return am4core.color("#ece126")
+                }
+                else if (target.dataItem.value > 95 && target.dataItem.value <= 100) {
+                    return am4core.color("#ece005")
                 }
                 else {
-                    return am4core.color("#fe131a");
+                    return am4core.color("#0c0c0c");
                 }
             }
             return fill;
@@ -87,39 +106,38 @@
             "fill": am4core.color("#008600")
         }];
 
-        //chart.cursor = new am4charts.XYCursor();
-        //chart.cursor.xAxis = dateAxis;
-
         // Export
         chart.exporting.menu = new am4core.ExportMenu();
         chart.exporting.menu.items[0].label = "Download";
 
+        //
+        yAxis.min = 0;
+        yAxis.renderer.minGridDistance = 30;
 
-        /*
-        series.heatRules.push({
-            target: columnTemplate,
-            property: "fill",
-            dataField: "value",
-            min: am4core.color("#fe131a"),
-            max: am4core.color("#008600")
-        });
-        */
-        /*
-        chart.cursor = new am4charts.XYCursor();
-        chart.cursor.xAxis = dateAxis;
-        chart.exporting.menu = new am4core.ExportMenu();
-        chart.scrollbarX = new am4core.Scrollbar();
-        chart.scrollbarX.marginBottom = "20"
-        chart.scrollbarY = new am4core.Scrollbar();
-        chart.scrollbarY.marginLeft = "20";
-        chart.exporting.menu.items[0].label = "Download";
-        chart.exporting.formatOptions.getKey("json").disabled = true;
-        chart.exporting.formatOptions.getKey("html").disabled = true;
-        chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
-        chart.exporting.formatOptions.getKey("print").disabled = true;
-        chart.exporting.formatOptions.getKey("pdf").disabled = true;
-        chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
-*/
+        var range1 = yAxis.axisRanges.create();
+        //range1.value = 1000;
+        var range2 = yAxis.axisRanges.create();
+        //range2.value = 2000;
 
-    }); // end am4core.ready()
+
+        var image1 = new am4core.Image();
+        var image2 = new am4core.Image();
+        image1.href = "https://cdn.icon-icons.com/icons2/1875/PNG/512/sun_120349.png";
+        image1.width = 15;
+        image1.horizontalCenter = "middle";
+        image1.verticalCenter = "middle";
+        image1.dx = -55;
+        image1.dy = -15;
+        range1.bullet = image1;
+        image2.href = "https://cdn.icon-icons.com/icons2/1173/PNG/512/1489436786-moon_81897.png";
+        image2.width = 15;
+        image2.horizontalCenter = "middle";
+        image2.verticalCenter = "middle";
+        image2.dx = -55;
+        image2.dy = 500;
+        range2.bullet = image2;
+        //
+
+    });
+    // end am4core.ready()
 </script>
