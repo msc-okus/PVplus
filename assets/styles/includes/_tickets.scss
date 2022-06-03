@@ -20,8 +20,8 @@
         color: white;
     }
 
-    .ticket-status-10 {
-        background-color: #d9d9d9;
+    .ticket-status-10 { // new
+        background-color: #b8ffbb;
         color: black;
     }
     .ticket-status-20 {
@@ -29,6 +29,14 @@
         color: black;
     }
     .ticket-status-30 {
+        background-color: #94f1fa;
+        color: unset;
+    }
+    .ticket-status-40 {
+        background-color: #dca3fc;
+        color: unset;
+    }
+    .ticket-status-90 { // closed
         background-color: unset;
         color: unset;
     }

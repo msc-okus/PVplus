@@ -16,9 +16,11 @@ ticket:
 
   status:
     name: Status
-    10: Open
-    20: Work in Progress
-    30: Closed
+    10: New
+    20: Open
+    30: Work in Progress
+    40: Wait external
+    90: Closed
 
   priority:
     name: Priority

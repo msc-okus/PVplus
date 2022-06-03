@@ -254,7 +254,7 @@ class ReportEpcPRNewService
             }
 
             if ($n >= 14) { // Year 2
-                $tableArray[$zeileSumme2]['B_month']                    = "Year 1";
+                $tableArray[$zeileSumme2]['B_month']                    = "Year 2";
                 $tableArray[$zeileSumme2]['C_days_month']               = 0;
                 // DesignValues
                 $tableArray[$zeileSumme2]['D_days_fac']                 += $tableArray[$n]['D_days_fac'];
@@ -480,20 +480,20 @@ class ReportEpcPRNewService
                 $tableArray[$zeileSumme6]['Y_pr']                       = $tableArray[$zeileSumme6]['X_specificYield'] / $tableArray[$zeileSumme6]['U_refYield'] * 100;
                 $tableArray[$zeileSumme6]['Z_tCellAvgWeighted']         = 0;
                 $z_tCellAvgWeighted6                                    += $tableArray[$n]['Z_tCellAvgWeighted'] * $tableArray[$n]['U_refYield'] ; ########### in zweiter Runde noch durch summe aus 'U_refYield' teilen
-                $tableArray[$zeileSumme6]['AA_tCompensationFactor']                 = 0;
-                $tableArray[$zeileSumme6]['AB_effRefYield']                         = 0;
-                $tableArray[$zeileSumme6]['AC_effTheoEnergy']                       = 0;
-                $tableArray[$zeileSumme6]['AC1_theoEnergyMeasured']                 += $tableArray[$n]['AC1_theoEnergyMeasured'];
-                $tableArray[$zeileSumme6]['AD_prMonth']                             = 0;
-                $tableArray[$zeileSumme6]['AE_ratio']                               = 0;
-                $tableArray[$zeileSumme6]['AF_ratioFT']                             = 0;
-                $tableArray[$zeileSumme6]['AG_epcPA']                               = 0;
+                $tableArray[$zeileSumme6]['AA_tCompensationFactor']     = 0;
+                $tableArray[$zeileSumme6]['AB_effRefYield']             = 0;
+                $tableArray[$zeileSumme6]['AC_effTheoEnergy']           = 0;
+                $tableArray[$zeileSumme6]['AC1_theoEnergyMeasured']     += $tableArray[$n]['AC1_theoEnergyMeasured'];
+                $tableArray[$zeileSumme6]['AD_prMonth']                 = 0;
+                $tableArray[$zeileSumme6]['AE_ratio']                   = 0;
+                $tableArray[$zeileSumme6]['AF_ratioFT']                 = 0;
+                $tableArray[$zeileSumme6]['AG_epcPA']                   = 0;
                 //Analysis
-                $tableArray[$zeileSumme6]['AH_prForecast']                          = 0;
-                $tableArray[$zeileSumme6]['AI_eGridForecast']                       = 0;
-                $tableArray[$zeileSumme6]['AJ_specificYieldForecast']               = 0;
-                $tableArray[$zeileSumme6]['AK_absDiffPrRealGuarForecast']           = 0;
-                $tableArray[$zeileSumme6]['AL_relDiffPrRealGuarForecast']           = 0;
+                $tableArray[$zeileSumme6]['AH_prForecast']              = 0;
+                $tableArray[$zeileSumme6]['AI_eGridForecast']           = 0;
+                $tableArray[$zeileSumme6]['AJ_specificYieldForecast']   = 0;
+                $tableArray[$zeileSumme6]['AK_absDiffPrRealGuarForecast'] = 0;
+                $tableArray[$zeileSumme6]['AL_relDiffPrRealGuarForecast'] = 0;
 
                 $tableArray[$zeileSumme6]['current_month']              = 0;
                 $tableArray[$zeileSumme6]['style']                      = "";

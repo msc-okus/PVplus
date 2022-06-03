@@ -6,6 +6,7 @@ namespace App\Form\Ticket;
 use App\Entity\Ticket;
 use App\Form\Type\AnlageTextType;
 use App\Form\Type\SwitchType;
+use App\Helper\PVPNameArraysTrait;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -18,6 +19,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class TicketFormType extends AbstractType
 {
+    use PVPNameArraysTrait;
+
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
@@ -64,15 +67,12 @@ class TicketFormType extends AbstractType
                     'widget' => 'single_text',
                 ]);
         }
+        dump(self::ticketStati());
         $builder
 
             ->add('status', ChoiceType::class, [
                 'label' => 'Status',
-                'choices' => [
-                    'Open' => 10,
-                    'Work in Progress' => 20,
-                    'Closed' => 30
-                ],
+                'choices' => self::ticketStati(),
                 'required' => true,
                 'placeholder' => 'please Choose ...'
             ])
