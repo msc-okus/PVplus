@@ -292,6 +292,7 @@ class ReportService
             'kwPeakPvSyst'  => (float)$report['pvSyst']['powerYear'],
             'G4NExpected'   => (float)$report['lastPR']->getpowerExpYear(),
         ];
+        /*
         $energypPoduction[3] = [
             'PD' => 'FAC Forecast',
             'GMNB' => 0,
@@ -299,7 +300,7 @@ class ReportService
             'IOUT' => 0,
             'kwPeakPvSyst' => 0,
             'G4NExpected' => 0,
-        ];
+        ];*/
 
         $performanceRatioAndAvailability[0] = [
             'PD' => date('F', $yesterday),

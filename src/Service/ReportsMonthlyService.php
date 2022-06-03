@@ -244,6 +244,7 @@ class ReportsMonthlyService
             'kwPeakPvSyst'  => $pvSyst['powerYear'],
             'G4NExpected'   => $prSumArrayYear['powerExp'],
         ];
+        /*
         $energypPoduction[3] = [
             'PD' => 'FAC Forecast',
             'GMNB' => 0,
@@ -251,7 +252,7 @@ class ReportsMonthlyService
             'IOUT' => 0,
             'kwPeakPvSyst' => 0,
             'G4NExpected' => 0,
-        ];
+        ];*/
 
         $performanceRatioAndAvailability[0] = [
             'PD'            => $date->format('F'),
