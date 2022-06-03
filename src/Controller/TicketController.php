@@ -10,6 +10,7 @@ use App\Form\Ticket\TicketEditFormType;
 use App\Form\Ticket\TicketFormType;
 use App\Form\Tools\ToolsFormType;
 use App\Helper\G4NTrait;
+use App\Helper\PVPNameArraysTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
 use App\Repository\TicketRepository;
@@ -24,6 +25,7 @@ use Carbon\Doctrine\DateTimeType;
 use Doctrine\ORM\EntityManagerInterface;
 use http\Url;
 use Knp\Component\Pager\PaginatorInterface;
+use phpDocumentor\Reflection\Types\Object_;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
@@ -38,6 +40,8 @@ $session = new Session();
 
 class TicketController extends BaseController
 {
+    use PVPNameArraysTrait;
+
     #[Route(path: '/ticket/create', name: 'app_ticket_create')]
     public function create(EntityManagerInterface $em, Request $request) : Response
     {
@@ -120,6 +124,7 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/list', name: 'app_ticket_list')]
     public function list(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request) : Response
     {
+        $filter = [];
         $session = $this->container->get('session');
         //Reading data from request
         //$searchstatus = $editor = $anlage = $id = $prio = $inverter = 0;
@@ -130,6 +135,8 @@ class TicketController extends BaseController
         if($request->query->get('inverter') != null)                                                        $inverter = $request->query->get('id');
         if($request->query->get('prio') != null)                                                            $prio = $request->query->get('prio');
         $category = $type = '';
+        $filter['status']['value'] = "";
+        $filter['status']['array'] = self::ticketStati();
 
         $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter);
         $pagination = $paginator->paginate(
@@ -153,6 +160,7 @@ class TicketController extends BaseController
             'id'         => $id,
             'inverter'   => $inverter,
             'prio'       => $prio,
+            'filter'    => $filter,
         ]);
 
     }

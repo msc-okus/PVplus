@@ -46,68 +46,46 @@ class AlertSystemService
         define('EFOR','20');
         define('OMC','30');
 
+        define('DATA_GAP', 10);
+        define('INVERTER_ERROR',20);
+        define('GRID_ERROR',30);
+        define('WEATHER_STATION_ERROR',40);
+
     }
 
 
-    public function generateTicketsInterval(string $from, string $to, ?string $anlId = null)
+    public function generateTicketsInterval(Anlage $anlage, string $from, string $to)
     {
-        while ($from <= $to){ 
-            //sleep
+        while ($from <= $to){
             $from = G4NTrait::timeAjustment($from, 0.25);
-            $this->checkSystem($from, $anlId);
-            sleep(0.5);
+            $this->checkSystem($anlage, $from);
+            usleep(1000);
         }
         //TODO You speed it up, but lost advantage to find old tickets (from last quater, same inverter, same error)
         #$this->em->flush();
     }
 
-    public function checkSystem(?string $time = null, ?string $anlId = null): string
+    public function checkSystem(Anlage $anlage, ?string $time = null): string
     {
         if ($time === null) $time = $this->getLastQuarter(date('Y-m-d H:i:s') );
 
         //TODO: why time Adjusment -2
         $time = G4NTrait::timeAjustment($time, -2);
 
-        //TODO Remove double code
-        if ($anlId == null) {//if no anlage id is provided we will look for all of them
-            $Anlagen = $this->AnlRepo->findAll();
-            foreach ($Anlagen as $anlage) {
-                if ($anlage->getAnlId() == "93"/*Stadskanaal*/) {  // now we limit this to only staadskanal
-                    $sungap = $this->weather->getSunrise($anlage, $time);//we retrieve the sungap
-
-                    if ((($time >= $sungap[$anlage->getanlName()]['sunrise']) && ($time <= $sungap[$anlage->getAnlName()]['sunset']))) {
-                        $nameArray = $this->functions->getInverterArray($anlage);
-                        $counter = 1;
-                        foreach ($nameArray as $inverterName) {
-                            $inverter_status = $this->IstData($anlage, $time, $counter);
-                            $message = self::AnalyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap[$anlage->getanlName()]['sunrise']);
-                            self::messagingFunction($message, $anlage);
-                            $counter++;
-                            $system_status[$inverterName] = $inverter_status;
-                            unset($inverter_status);
-                        }
-                        $this->em->flush();
-                        unset($system_status);
-                    }
-                }
+        $sungap = $this->weather->getSunrise($anlage, $time);
+        if ((($time >= $sungap[$anlage->getanlName()]['sunrise']) && ($time <= $sungap[$anlage->getAnlName()]['sunset']))) {
+            $nameArray = $this->functions->getInverterArray($anlage);
+            $counter = 1;
+            foreach ($nameArray as $inverterName) {
+                $inverter_status = $this->IstData($anlage, $time, $counter);
+                $message = self::AnalyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap[$anlage->getanlName()]['sunrise']);
+                self::messagingFunction($message, $anlage);
+                $counter++;
+                $system_status[$inverterName] = $inverter_status;
+                unset($inverter_status);
             }
-        } else {
-            $anlage = $this->AnlRepo->findIdLike($anlId)[0];
-            $sungap = $this->weather->getSunrise($anlage, $time);
-            if ((($time >= $sungap[$anlage->getanlName()]['sunrise']) && ($time <= $sungap[$anlage->getAnlName()]['sunset']))) {
-                $nameArray = $this->functions->getInverterArray($anlage);
-                $counter = 1;
-                foreach ($nameArray as $inverterName) {
-                    $inverter_status = $this->IstData($anlage, $time, $counter);
-                    $message = self::AnalyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap[$anlage->getanlName()]['sunrise']);
-                    self::messagingFunction($message, $anlage);
-                    $counter++;
-                    $system_status[$inverterName] = $inverter_status;
-                    unset($inverter_status);
-                }
-               // $this->em->flush();
-                unset($system_status);
-            }
+            $this->em->flush();
+            unset($system_status);
         }
 
         return "success";
@@ -115,15 +93,15 @@ class AlertSystemService
 
     public function checkWeatherStation(): bool
     {
-        $Anlagen = $this->AnlRepo->findAll();
+        $anlagen = $this->AnlRepo->findAll();
         $time = $this->getLastQuarter(date('Y-m-d H:i:s') );
         $time = G4NTrait::timeAjustment($time, -2);
         $status_report = false;
-        $sungap = $this->weather->getSunrise($Anlagen);
+        $sungap = $this->weather->getSunrise($anlagen);
 
-        foreach($Anlagen as $anlage) {
-            if($anlage->getAnlId()=="106"||$anlage->getAnlId()=="102" || $anlage->getAnlId()=="47" || $anlage->getAnlId()=="107" || $anlage->getAnlId()=="84") {
-                if (($anlage->getAnlType() != "masterslave")&&($anlage->getCalcPR() == true) && (($time > $sungap[$anlage->getanlName()]['sunrise']) && ($time < $sungap[$anlage->getAnlName()]['sunset']))) {
+        foreach ($anlagen as $anlage) {
+            if ($anlage->getAnlId()=="106"||$anlage->getAnlId()=="102" || $anlage->getAnlId()=="47" || $anlage->getAnlId()=="107" || $anlage->getAnlId()=="84") {
+                if (($anlage->getAnlType() != "masterslave") && ($anlage->getCalcPR() == true) && (($time > $sungap[$anlage->getanlName()]['sunrise']) && ($time < $sungap[$anlage->getAnlName()]['sunset']))) {
                     $status_report[$anlage->getAnlName()] = $this->WData($anlage, $time);
                     $message = self::AnalyzeWeather($status_report[$anlage->getAnlName()], $time, $anlage, $sungap[$anlage->getanlName()]['sunrise']);
                     self::messagingFunction($message, $anlage);
@@ -133,6 +111,8 @@ class AlertSystemService
 
         return $status_report;
     }
+
+
     //----------------Analyzing functions----------------
 
     /**
@@ -226,20 +206,19 @@ class AlertSystemService
         if ($inverter['istdata'] == "No Data") {
             //data gap
             $message .=  "Data gap at inverter(Power)  ".$nameArray . "<br>";
-            //$errorType = "";
-            $errorCategorie = "10";
+            $errorType = "";
+            $errorCategorie = DATA_GAP;
         } elseif ($inverter['istdata'] == "Power is 0") {
             //inverter error
             $message .=  "No power at inverter " .$nameArray . "<br>";
-           //$errorType = "";
-
-            $errorCategorie = "20";
+            $errorType = "";
+            $errorCategorie = INVERTER_ERROR;
         }
         if ($errorCategorie != "10") {
             if ($anlage->getHasFrequency()) {
                 if ($inverter['freq'] != "All is ok") {
                     if ($errorCategorie == "") {
-                        $errorCategorie = "30";
+                        $errorCategorie = GRID_ERROR;
                     }
                     $errorType = OMC;
                     $message .= "Error with the frequency in inverter " . $nameArray . "<br>";
@@ -248,7 +227,7 @@ class AlertSystemService
             if ($inverter['voltage'] != "All is ok") {//grid error
                 $message .= "Error with the voltage in inverter " . $nameArray . "<br>";
                 if ($errorCategorie == "") {
-                    $errorCategorie = "30";
+                    $errorCategorie = GRID_ERROR;
                 }
                 $errorType = OMC;
 

@@ -19,9 +19,7 @@ export default class extends Controller {
             url: this.urlSearchValue,
             method: $searchListform.prop('method'),
             data: $searchListform.serialize(),
-
         });
-
     }
 
     async page(event) {
@@ -31,24 +29,16 @@ export default class extends Controller {
             url: this.urlSearchValue,
             data: $queryParams,
         });
+    }
 
+    async sort(event) {
+        event.preventDefault();
+        const $queryParams = $(event.currentTarget).data("query-value");
+        this.listTarget.innerHTML = await $.ajax({});
     }
 
     async create(event) {
         event.preventDefault();
-        /*
-        this.listTarget.innerHTML = await $.ajax({
-            beforeSend: function(){
-                $('.ajax-loader').css("visibility", "visible");
-            },
-            //url: this.urlCreateValue,
-            //method: $createReportform.prop('method'),
-            //data: $createReportform.serialize(),
-            complete: function(){
-                $('.ajax-loader').css("visibility", "hidden");
-            }
-        });
 
-         */
     }
 }

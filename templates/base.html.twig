@@ -18,8 +18,10 @@
 <div class="ajax-loader">
     <img src="{{ asset('/images/loader.gif') }}" class="img-responsive" alt="loader" />
 </div>
-<header class="grid-container fluid">
-    <div class="top-bar" >
+<header class="grid-container fluid"
+    {{ is_granted('ROLE_PREVIOUS_ADMIN') ? 'style="background-color: red !important"' }}
+>
+    <div class="top-bar">
         <div class="top-bar-left">
             <div class="logo">
                 <a href="{{ path('app_dashboard') }}"><img src="{{ asset('images/green4net.svg') }}" alt="green4net GmbH" title="green4net GmbH" height="70" width="200"></a>
@@ -38,11 +40,18 @@
         <div class="top-bar-right">
             {% if is_granted('ROLE_USER') %}
             <div class="header-menu">
-                <ul class="menu vertical">
+                <ul class="menu vertical" style="font-size: 90%;">
                     {% if (app.user) %}
-                        <li><a href=""><i class="fa fa-clock-o"></i> <span id="uhr"></span></a></li>
-                        <li><a href="{{ path('app_logout') }}"><i class="fa fa-sign-out"></i> Logout</a></li>
-                        <li><a href="#"><i class="fa fa-user"></i>  {{ app.user.username }} </a></li>
+                        <li><a href=""><i class="far fa-clock"></i> <span id="uhr"></span></a></li>
+                        <li><a href="{{ path('app_logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                        {% if is_granted('ROLE_PREVIOUS_ADMIN') %}
+                            <li>
+                                <a class="dropdown-item" href="{{ path('app_dashboard', {
+                                    '_switch_user': '_exit'
+                                }) }}"><i class="fas fa-random"></i> Exit Impersonation</a>
+                            </li>
+                        {% endif %}
+                        <li><a href="#"><i class="fa fa-user"></i> {{ app.user.username }} </a></li>
                     {% endif %}
                 </ul>
             </div>

@@ -1,3 +1,4 @@
+
 <form method="get">
     <div class="grid-x grid-margin-x align-middle">
         <div class="cell medium-1"  style="margin-top:-17px!important;">
@@ -9,9 +10,9 @@
         <div class="cell medium-1">
             <select name="status" >
                 <option value="00"> {% trans %}ticket.status.name{% endtrans %} </option>
-                <option value="10" {% if status == '10' %} selected {% endif %}>{% trans %}ticket.status.10{% endtrans %}</option>
-                <option value="20" {% if status == '20' %} selected {% endif %}>{% trans %}ticket.status.20{% endtrans %}</option>
-                <option value="30" {% if status == '30' %} selected {% endif %}>{% trans %}ticket.status.30{% endtrans %}</option>
+                {% for key, stati in filter.status.array %}
+                    <option value="{{ key }}" {% if status == stati %} selected {% endif %}>{{ key }}</option>
+                {% endfor %}
             </select>
         </div>
         <div class="cell medium-1">

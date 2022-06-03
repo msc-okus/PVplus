@@ -122,15 +122,10 @@ class User implements UserInterface, \Symfony\Component\Security\Core\User\Passw
      */
     private $eigners;
 
-    /**
-     * @ORM\OneToMany(targetEntity=AllowedPlants::class, mappedBy="User")
-     */
-    private $allowedPlants;
 
     public function __construct()
     {
         $this->eigners = new ArrayCollection();
-        $this->allowedPlants = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -325,36 +320,6 @@ class User implements UserInterface, \Symfony\Component\Security\Core\User\Passw
     public function setGrantedList(string $grantedList): self
     {
         $this->grantedList = $grantedList;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, AllowedPlants>
-     */
-    public function getAllowedPlants(): Collection
-    {
-        return $this->allowedPlants;
-    }
-
-    public function addAllowedPlant(AllowedPlants $allowedPlant): self
-    {
-        if (!$this->allowedPlants->contains($allowedPlant)) {
-            $this->allowedPlants[] = $allowedPlant;
-            $allowedPlant->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeAllowedPlant(AllowedPlants $allowedPlant): self
-    {
-        if ($this->allowedPlants->removeElement($allowedPlant)) {
-            // set the owning side to null (unless already changed)
-            if ($allowedPlant->getUser() === $this) {
-                $allowedPlant->setUser(null);
-            }
-        }
 
         return $this;
     }
