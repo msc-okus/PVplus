@@ -3,6 +3,7 @@
 namespace App\Command;
 
 use App\Helper\G4NTrait;
+use App\Repository\AnlagenRepository;
 use App\Service\AlertSystemService;
 use App\Service\WeatherServiceNew;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,23 +19,26 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class GenerateTicketsCommand extends Command
 {
     use G4NTrait;
-    private EntityManagerInterface $em;
+
     protected static $defaultName = 'pvp:GenerateTickets';
 
+    private EntityManagerInterface $em;
     private AlertSystemService $alertService;
+    private AnlagenRepository $anlagenRepository;
 
-
-    public function __construct(AlertSystemService $alertService, EntityManagerInterface $em)
+    public function __construct(AnlagenRepository $anlagenRepository, AlertSystemService $alertService, EntityManagerInterface $em)
     {
         parent::__construct();
         $this->alertService = $alertService;
         $this->em= $em;
+        $this->anlagenRepository = $anlagenRepository;
     }
     protected function configure(): void
     {
         $this
             ->setDescription('Generate Tickets')
-            ->addOption('anlage', 'a', InputOption::VALUE_REQUIRED, 'The plant we want to generate the tickets from')
+            ->addArgument('plantid')
+            #->addOption('anlage', 'a', InputOption::VALUE_REQUIRED, 'The plant we want to generate the tickets from')
             ->addOption('from', null, InputOption::VALUE_REQUIRED, 'the date we want the generation to start')
             ->addOption('to', null, InputOption::VALUE_REQUIRED, 'the date we want the generation to end')
         ;
@@ -42,10 +46,11 @@ class GenerateTicketsCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $io                 = new SymfonyStyle($input, $output);
-        $anlId           = $input->getOption('anlage');
-        $from         = $input->getOption('from');
-        $optionTo           = $input->getOption('to');
+        $io         = new SymfonyStyle($input, $output);
+        #$anlageId      = $input->getOption('anlage');
+        $anlageId   = $input->getArgument('plantid');
+        $from       = $input->getOption('from');
+        $optionTo   = $input->getOption('to');
         $io->comment("Generate Tickets: from $from to $optionTo");
         $minute = (int)date('i');
 
@@ -57,26 +62,35 @@ class GenerateTicketsCommand extends Command
 
         if ($from <= $optionTo) {
             $to = G4NTrait::timeAjustment($optionTo, 24);
-            $from = $from." 00:00:00";
+            $from .= " 00:00:00";
             $fromStamp = strtotime($from);
             $toStamp = strtotime($to);
 
-            $counter = ($toStamp-$fromStamp)/800;
-            $quarterCounter = 0;
+            if ($anlageId) {
+                $io->comment("Generate Tickets: $from - $to | Plant ID: $anlageId");
+                $anlagen = $this->anlagenRepository->findIdLike([$anlageId]);
+            } else {
+                $io->comment("Generate Tickets: $from - $to | All Plants");
+                $anlagen = $this->anlagenRepository->findBy(['anlHidePlant' => 'No', 'calcPR' => true]);
+            }
+
+            $counter = ($toStamp-$fromStamp) / 900;
+
             $io->progressStart($counter);
-            while($from <= $to){//sleep
-                $io->progressAdvance();
-                $this->alertService->checkSystem($from, $anlId);
-                $from = G4NTrait::timeAjustment($from, 0.25);
-                if ($quarterCounter == 17280 ){
-                    $this->em->flush();
-                    $quarterCounter =0;
+            foreach ($anlagen as $anlage) {
+                while ($from <= $to) {//sleep
+                    $this->alertService->checkSystem($anlage, $from);
+                    $from = G4NTrait::timeAjustment($from, 0.25);
+                    $io->progressAdvance();
+                    usleep(1000);
                 }
-                $quarterCounter ++;
+
+                $io->comment($anlage->getAnlName());
             }
             $io->progressFinish();
+            $io->success('Generating tickets finished');
         }
-        $this->em->flush();
+
         return Command::SUCCESS;
     }
 }
