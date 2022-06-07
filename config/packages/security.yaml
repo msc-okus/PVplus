@@ -32,6 +32,8 @@ security:
         ROLE_OWNER_FULL: [ROLE_OWNER]
         ROLE_OWNER: []
 
+        ROLE_BETA: []
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
