@@ -2,18 +2,12 @@
     <thead>
     <tr>
         <th>Ticket ID</th>
-        <th {% if pagination.isSorted('a.anlName') %} class="sorted"{% endif %}>
-            {{ knp_pagination_sortable(pagination, 'Plant', ['a.anlName'], {'data-action': 'ticket-list#sort'}) }}
-        </th>
-
+        <th>Plant</th>
         <th class="text-center">Status</th>
         <th class="text-center">Priority</th>
-        <th {% if pagination.isSorted('ticket.editor') %} class="sorted"{% endif %}>
-            {{ knp_pagination_sortable(pagination, 'Editor', ['ticket.editor'], {'data-action': 'ticket-list#sort'}) }}</th>
-        <th {% if pagination.isSorted('ticket.begin') %} class="sorted"{% endif %}>
-            {{ knp_pagination_sortable(pagination, 'Begin', ['ticket.begin'], {'data-action': 'ticket-list#sort'}) }}</th>
-        <th {% if pagination.isSorted('ticket.end') %} class="sorted"{% endif %}>
-            {{ knp_pagination_sortable(pagination, 'End', ['ticket.end'], [], {'data-action': 'ticket-list#sort'}) }}</th>
+        <th>Editor</th>
+        <th>Begin</th>
+        <th>End</th>
         {% if (is_granted('ROLE_DEV')) %}
             <th>Last Update</th>
         {% endif %}

@@ -11,7 +11,7 @@
             <select name="status" >
                 <option value="00"> {% trans %}ticket.status.name{% endtrans %} </option>
                 {% for key, stati in filter.status.array %}
-                    <option value="{{ key }}" {% if status == stati %} selected {% endif %}>{{ key }}</option>
+                    <option value="{{ stati }}" {% if status == stati %} selected {% endif %}>{{ key }}</option>
                 {% endfor %}
             </select>
         </div>

@@ -120,7 +120,6 @@ class TicketController extends BaseController
         ]);
     }
 
-
     #[Route(path: '/ticket/list', name: 'app_ticket_list')]
     public function list(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request) : Response
     {
@@ -142,7 +141,7 @@ class TicketController extends BaseController
         $pagination = $paginator->paginate(
             $queryBuilder,                                    /* query NOT result */
             $request->query->getInt('page', 1),   /* page number*/
-            20                                          /*limit per page*/
+            100                                          /*limit per page*/
         );
         /*
         $session->set('search', $searchstatus);
@@ -160,10 +159,36 @@ class TicketController extends BaseController
             'id'         => $id,
             'inverter'   => $inverter,
             'prio'       => $prio,
-            'filter'    => $filter,
+            'filter'     => $filter,
         ]);
 
     }
+
+    #[Route(path: '/ticket/search', name: 'app_ticket_search', methods: ['GET', 'POST'])]
+    public function searchTickets(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request): Response
+    {
+
+        $anlage     = $request->query->get('anlage');
+        $status     = $request->query->get('status');
+        $editor     = $request->query->get('editor');
+        $id         = $request->query->get('id');
+        $inverter   = $request->query->get('inverter');
+        $prio       = $request->query->get('prio');
+        $category   = $request->query->get('category');
+        $type       = $request->query->get('type');
+
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter);
+
+        $pagination = $paginator->paginate(
+            $queryBuilder,
+            $request->query->getInt('page', 1),
+            100
+        );
+        return $this->render('ticket/_inc/_listTickets.html.twig', [
+            'pagination' => $pagination,
+        ]);
+    }
+
     #[Route(path: '/ticket/split/{mode}/{id}', name: 'app_ticket_split')]
     public function Split($mode, $id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em) : Response
     {
@@ -239,29 +264,6 @@ class TicketController extends BaseController
             'edited' => true
         ]);
     }
-  
-  
-    #[Route(path: '/ticket/search', name: 'app_ticket_search', methods: ['GET', 'POST'])]
-    public function searchTickets(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request): Response
-    {
 
-        $anlage     = $request->query->get('anlage');
-        $status     = $request->query->get('status');
-        $editor     = $request->query->get('editor');
-        $id         = $request->query->get('id');
-        $inverter   = $request->query->get('inverter');
-        $prio       = $request->query->get('prio');
-        $category   = $request->query->get('category');
-        $type       = $request->query->get('type');
 
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter);
-        $pagination = $paginator->paginate(
-            $queryBuilder,
-            $request->query->getInt('page', 1),
-            20
-        );
-        return $this->render('ticket/_inc/_listTickets.html.twig', [
-            'pagination' => $pagination,
-        ]);
-    }
 }

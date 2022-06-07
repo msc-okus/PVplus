@@ -7,6 +7,7 @@ use App\Repository\AnlagenRepository;
 use App\Service\AlertSystemService;
 use App\Service\WeatherServiceNew;
 use Doctrine\ORM\EntityManagerInterface;
+use phpDocumentor\Reflection\PseudoTypes\LowercaseString;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -38,7 +39,6 @@ class GenerateTicketsCommand extends Command
         $this
             ->setDescription('Generate Tickets')
             ->addArgument('plantid')
-            #->addOption('anlage', 'a', InputOption::VALUE_REQUIRED, 'The plant we want to generate the tickets from')
             ->addOption('from', null, InputOption::VALUE_REQUIRED, 'the date we want the generation to start')
             ->addOption('to', null, InputOption::VALUE_REQUIRED, 'the date we want the generation to end')
         ;
@@ -47,44 +47,52 @@ class GenerateTicketsCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io         = new SymfonyStyle($input, $output);
-        #$anlageId      = $input->getOption('anlage');
-        $anlageId   = $input->getArgument('plantid');
-        $from       = $input->getOption('from');
+        $plantid    = $input->getArgument('plantid');
+        $optionFrom = $input->getOption('from');
         $optionTo   = $input->getOption('to');
-        $io->comment("Generate Tickets: from $from to $optionTo");
-        $minute = (int)date('i');
 
-        while (($minute >= 28 && $minute < 33) || $minute >= 58 || $minute < 3) {
-            echo ".";
-            sleep(20);
-            $minute = (int)date('i');
+        $time = time();
+        $time = $time - ($time % 900);
+        if ($optionFrom) {
+            $from = $optionFrom;
+        } else {
+            $from = date("Y-m-d H:i:00", $time - (2 * 3600));
+        }
+        if ($optionTo) {
+            $to = $optionTo;
+        } else {
+            $to = date("Y-m-d H:i:00", $time);
         }
 
-        if ($from <= $optionTo) {
-            $to = G4NTrait::timeAjustment($optionTo, 24);
-            $from .= " 00:00:00";
+        if ($from <= $to) {
             $fromStamp = strtotime($from);
             $toStamp = strtotime($to);
 
-            if ($anlageId) {
-                $io->comment("Generate Tickets: $from - $to | Plant ID: $anlageId");
-                $anlagen = $this->anlagenRepository->findIdLike([$anlageId]);
-            } else {
+            if (strtoupper($plantid) == 'ALL') {
                 $io->comment("Generate Tickets: $from - $to | All Plants");
                 $anlagen = $this->anlagenRepository->findBy(['anlHidePlant' => 'No', 'calcPR' => true]);
+            } elseif (is_numeric($plantid)) {
+                $io->comment("Generate Tickets: $from - $to | Plant ID: $plantid");
+                $anlagen = $this->anlagenRepository->findIdLike([$plantid]);
+            } else {
+                $io->comment("Generate Tickets: $from - $to | Test Plants (93, 94, 111, 112, 113)");
+                $anlagen = $this->anlagenRepository->findIdLike([93, 94, 111, 112, 113]);
             }
 
-            $counter = ($toStamp-$fromStamp) / 900;
-
+            $counter = (($toStamp - $fromStamp) / 3600 ) * count($anlagen);
             $io->progressStart($counter);
-            foreach ($anlagen as $anlage) {
-                while ($from <= $to) {//sleep
-                    $this->alertService->checkSystem($anlage, $from);
-                    $from = G4NTrait::timeAjustment($from, 0.25);
-                    $io->progressAdvance();
-                    usleep(1000);
-                }
+            $counter = ($counter * 4) - 1;
 
+            foreach ($anlagen as $anlage) {
+                for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900){
+                    while (((int)date('i') >= 28 && (int)date('i') < 33) || (int)date('i') >= 58 || (int)date('i') < 3) {
+                        $io->comment("Wait...");
+                        sleep(20);
+                    }
+                    $this->alertService->checkSystem($anlage, $from = date("Y-m-d H:i:00",$stamp));
+                    if ($counter % 4 == 0) $io->progressAdvance();
+                    $counter--;
+                }
                 $io->comment($anlage->getAnlName());
             }
             $io->progressFinish();

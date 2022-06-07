@@ -172,7 +172,7 @@ class WeatherServiceNew
     }
 //Given a plant and no date it will return the sunrise info of the given plant for the current day
 //Given a plant and a time it will return the sunrise info of the given plant for the given date
-    public function  getSunrise($anlage, ?string $time = null)
+    public function getSunrise($anlage, ?string $time = null): array
     {
         if ($time == null)$current_date = date("Y-m-d");
         else $current_date = date("Y-m-d", strtotime($time));
