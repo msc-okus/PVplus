@@ -2162,7 +2162,6 @@ class AssetManagementService
                             'diff_power_dc' => ($dcIst[$j]['act_power_dc'] != 0) ? (1 - $value[$i]['exp_power_dc'] / $dcIst[$j]['act_power_dc']) * 100 : 0,
                         ];
                         if (date("d", strtotime($value[$i]['form_date'])) >= $daysInReportMonth) {
-                            dump($dcExpDcIst);
                             $outTableCurrentsPower[] = $dcExpDcIst;
                             unset($dcExpDcIst);
                         }
@@ -2259,7 +2258,6 @@ class AssetManagementService
                             'diff_power_dc' => ($dcIst[$j]['act_power_dc'] != 0) ? (1 - $value[$i]['exp_power_dc'] / $dcIst[$j]['act_power_dc']) * 100 : 0,
                         ];
                         if (date("d", strtotime($value[$i]['form_date'])) >= $daysInReportMonth) {
-                            dump($dcExpDcIst);
                             $outTableCurrentsPower[] = $dcExpDcIst;
                             unset($dcExpDcIst);
                         }

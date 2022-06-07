@@ -359,8 +359,8 @@ class ReportingController extends AbstractController
                 }
                 break;
             case 'am-report':
-                if ($reportsRepository->find($id)) {
-                    $report = $reportsRepository->find($id);
+                $report = $reportsRepository->find($id);
+                if ($report) {
                     $output = $report->getContentArray();
                     $form = $this->createForm(AssetManagementeReportFormType::class);
                     $form->handleRequest($request);
@@ -440,10 +440,6 @@ class ReportingController extends AbstractController
                         $pos = $this->substr_Index($this->kernelProjectDir, '/', 5);
                         $pathpart = substr($this->kernelProjectDir, $pos);
                         $anlageName = $anlage->getAnlName();
-
-                        if ($month < 10) {
-                            $month = '0' . $month;
-                        }
 
                         $pdf->output('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlageName . '_AssetReport_' . $month . '_' . $year . '.pdf');
                         $reportfile = fopen('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlageName . '_AssetReport_' . $month . '_' . $year . '.html', "w") or die("Unable to open file!");

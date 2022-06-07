@@ -1522,7 +1522,7 @@ class Anlage
         return $this->pr->matching($criteria);
     }
 
-    public function getYesterdayPR(): Collection
+    public function getYesterdayPR(): ?Collection
     {
         $criteria = AnlagenRepository::yesterdayAnlagenPRCriteria();
 

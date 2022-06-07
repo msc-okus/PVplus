@@ -67,7 +67,6 @@ class TicketFormType extends AbstractType
                     'widget' => 'single_text',
                 ]);
         }
-        dump(self::ticketStati());
         $builder
 
             ->add('status', ChoiceType::class, [

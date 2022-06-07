@@ -237,6 +237,7 @@ class ACPowerChartsService
 
                     switch ($anlage->getConfigType()) {
                         case 3:
+                        case 1:
                             if ($counterInv > $dataArray['maxSeries']) $dataArray['maxSeries'] = $counterInv;
                             break;
                         default:

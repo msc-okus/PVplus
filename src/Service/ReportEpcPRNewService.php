@@ -124,7 +124,6 @@ class ReportEpcPRNewService
             } else {
                 $rollingPeriod = $n <= $rollingPeriodMonthsEnd || $n >= $anzahlMonate + $rollingPeriodMonthsStart;
             }
-            dump("Rolling period: Start: $rollingPeriodMonthsStart End: $rollingPeriodMonthsEnd  n: $n| ". (int)$rollingPeriod, $rollingPeriod);
 
             $monthlyRecalculatedData = $this->monthlyDataRepo->findOneBy(['anlage' => $anlage, 'year' => $year, 'month' => $month]);
 

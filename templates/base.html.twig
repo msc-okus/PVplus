@@ -16,7 +16,7 @@
     <img src="{{ asset('/images/loader.gif') }}" class="img-responsive" alt="loader" />
 </div>
 <header class="grid-container fluid"
-    {# if impersination is active #}
+    {# if impersonation is active #}
     {{ is_granted('ROLE_PREVIOUS_ADMIN') ? 'style="background-color: red !important"' }}
 >
     <div class="top-bar">
