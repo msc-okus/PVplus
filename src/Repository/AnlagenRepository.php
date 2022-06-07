@@ -105,7 +105,7 @@ class AnlagenRepository extends ServiceEntityRepository
     /**
      * @return Anlage []
      */
-    public function findIdLike($like)
+    public function findIdLike($like): array
     {
         return $this->createQueryBuilder('a')
             ->andWhere("a.anlId IN (:val)")
@@ -119,7 +119,7 @@ class AnlagenRepository extends ServiceEntityRepository
     /**
      * @return Anlage[]
      */
-    public function findByEignerActive($eignerId, $anlageId)
+    public function findByEignerActive($eignerId, $anlageId): array
     {
         if ($this->security->isGranted('ROLE_G4N')) {
             $qb = $this->createQueryBuilder('a')
@@ -144,7 +144,7 @@ class AnlagenRepository extends ServiceEntityRepository
     /**
      * @return Anlage[]
      */
-    public function findGrantedActive($eignerId, $anlageId, $granted)
+    public function findGrantedActive($eignerId, $anlageId, $granted): array
     {
         if ($this->security->isGranted('ROLE_G4N')) {
             $qb = $this->createQueryBuilder('a')
@@ -171,7 +171,7 @@ class AnlagenRepository extends ServiceEntityRepository
     /**
      * @return Anlage[]
      */
-    public function findAll()
+    public function findAll(): array
     {
         return $this->createQueryBuilder('a')
             ->andWhere("a.anlHidePlant = 'No'")
@@ -194,11 +194,12 @@ class AnlagenRepository extends ServiceEntityRepository
     /**
      * @return Anlage[]
      */
-    public function findUpdateExpected()
+    public function findUpdateExpected(): array
     {
         return $this->createQueryBuilder('a')
             ->andWhere("a.anlHidePlant = 'No'")
             ->andWhere("a.calcPR = true")
+            ->andWhere("a.excludeFromExpCalc = false OR a.excludeFromExpCalc is null")
             ->orderBy('a.anlId', 'ASC')
             ->innerJoin('a.acGroups', 'acG')
             ->innerJoin('a.groups', 'dcG')
@@ -211,7 +212,7 @@ class AnlagenRepository extends ServiceEntityRepository
     /**
      * @return Anlage[]
      */
-    public function findAllActive()
+    public function findAllActive(): array
     {
         if ($this->security->isGranted('ROLE_G4N')) {
             $qb = $this->createQueryBuilder('a')

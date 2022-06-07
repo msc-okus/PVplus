@@ -826,6 +826,11 @@ class Anlage
      */
     private ?bool $hasFrequency = false;
 
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private ?bool $excludeFromExpCalc = false;
+
 
     public function __construct()
     {
@@ -3402,5 +3407,17 @@ class Anlage
         }
 
         return $dcPNomPerInvereter;
+    }
+
+    public function isExcludeFromExpCalc(): ?bool
+    {
+        return $this->excludeFromExpCalc;
+    }
+
+    public function setExcludeFromExpCalc(?bool $excludeFromExpCalc): self
+    {
+        $this->excludeFromExpCalc = $excludeFromExpCalc;
+
+        return $this;
     }
 }

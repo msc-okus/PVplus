@@ -575,6 +575,10 @@ class AnlageFormType extends AbstractType
                 'choices'       => ['No' => '0', 'Yes' => '1'],
                 'empty_data'    => '0',
             ])
+            ->add('excludeFromExpCalc', SwitchType::class, [
+                'label'         => 'Exclude from expected Calculation',
+                'help'          => '[isExcludeFromExpCalc]',
+            ])
 
 
             ################################################
