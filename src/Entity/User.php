@@ -41,7 +41,8 @@ class User implements UserInterface, \Symfony\Component\Security\Core\User\Passw
         'AssetManagement' => 'ROLE_AM',
         'Operator' => 'ROLE_OPERATOR',
         'Owner (full)' => 'ROLE_OWNER_FULL',
-        'Owner' => 'ROLE_OWNER'
+        'Owner' => 'ROLE_OWNER',
+        'Beta Tester' => 'ROLE_BETA'
     ];
 
     /**

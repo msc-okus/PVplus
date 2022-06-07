@@ -43,6 +43,7 @@ class DashboardPlantsController extends BaseController
                 $user = $this->getUser();
                 $granted = explode(',', $user->getGrantedList());
                 $anlagen = $anlagenRepository->findGrantedActive($eignerId, $anlageId, $granted);
+                dump($anlagen);
             }
         }
         if ($request->request->get('mysubmit') === null || $request->request->all() === null) {
