@@ -8,6 +8,7 @@ use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Security\Core\Security;
 
 /**
  * @method Ticket|null find($id, $lockMode = null, $lockVersion = null)
@@ -17,13 +18,21 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class TicketRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    private Security $security;
+
+    public function __construct(ManagerRegistry $registry, Security $security)
     {
         parent::__construct($registry, Ticket::class);
+        $this->security = $security;
     }
 
 
     /**
+     * Build query with all options, including 'has user rights to see'
+     * OLD VERSION
+     *
+     * @deprecated
+     *
      * @param string|null $status
      * @param string|null $editor
      * @param string|null $anlage
@@ -34,10 +43,20 @@ class TicketRepository extends ServiceEntityRepository
      */
     public function getWithSearchQueryBuilder(?string $status, ?string $editor, ?string $anlage, ?string $id, ?string $prio, ?string $inverter ): QueryBuilder
     {
+        /** @var User $user */
+        $user = $this->security->getUser();
+        $granted = explode(',', $user->getGrantedList());
+
         $qb = $this->createQueryBuilder('ticket')
             ->innerJoin('ticket.anlage', 'a')
             ->addSelect('a')
         ;
+        if (! $this->security->isGranted('ROLE_G4N')) {
+            $qb
+                ->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted)
+            ;
+        }
         if ($status != '' && $status!='00') $qb->andWhere("ticket.status = $status");
         if ($editor != '')                  $qb->andWhere("ticket.editor = '$editor'");
         if ($anlage !='')                   $qb->andWhere("a.anlName LIKE '$anlage'");
@@ -47,12 +66,37 @@ class TicketRepository extends ServiceEntityRepository
         return $qb;
     }
 
+    /**
+     * Build query with all options, including 'has user rights to see'
+     *
+     * @param string|null $anlage
+     * @param string|null $editor
+     * @param string|null $id
+     * @param string|null $prio
+     * @param string|null $status
+     * @param string|null $category
+     * @param string|null $type
+     * @param string|null $inverter
+     * @return QueryBuilder
+     */
     public function getWithSearchQueryBuilderNew(?string $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter): QueryBuilder
     {
+
+        /** @var User $user */
+        $user = $this->security->getUser();
+        $granted = explode(',', $user->getGrantedList());
+
         $qb = $this->createQueryBuilder('ticket')
             ->innerJoin('ticket.anlage', 'a')
             ->addSelect('a')
         ;
+        if (! $this->security->isGranted('ROLE_G4N')) {
+            $qb
+                ->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted)
+            ;
+        }
+
         if ($anlage != '')      $qb->andWhere("a.anlName = $anlage");
         if ($editor != '')      $qb->andWhere("ticket.editor = $editor");
         if ((int)$id > 0)       $qb->andWhere("ticket.id = $id");
@@ -80,6 +124,7 @@ class TicketRepository extends ServiceEntityRepository
         ;
     }
 
+    /* todo: please explain 'AIT' */
     public function findByAITNoWeather($anlage, $inverter, $time){
         $description = "Error with the Data of the Weather station ??? really weather";
         $result = $this->createQueryBuilder('t')
@@ -96,6 +141,7 @@ class TicketRepository extends ServiceEntityRepository
         return $result->getResult();
     }
 
+    /* todo: please explain 'AIT' */
     public function findLastByAITNoWeather($anlage, $inverter, $today, $yesterday)
     {
         $description = "Error with the Data of the Weather station ??? really weather";
@@ -117,6 +163,7 @@ class TicketRepository extends ServiceEntityRepository
         return $result->getResult();
     }
 
+    /* todo: please explain 'AIT' */
     public function findByAITWeather($anlage, $time)
     {
         $description = "Error with the Data of the Weather station";
@@ -132,6 +179,7 @@ class TicketRepository extends ServiceEntityRepository
         return $result->getResult();
     }
 
+    /* todo: please explain 'AIT' */
     public function findLastByAITWeather($anlage, $today, $yesterday)
     {
         $description = "Error with the Data of the Weather station";

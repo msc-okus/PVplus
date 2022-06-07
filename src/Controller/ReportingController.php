@@ -236,7 +236,7 @@ class ReportingController extends AbstractController
         ]);
     }
 
-    #[Route(path: 'app_reporting/pdf/delete/{id}', name: 'app_reporting_delete')]
+    #[Route(path: 'app_reporting/delete/{id}', name: 'app_reporting_delete')]
     #[IsGranted(['ROLE_DEV'])]
     public function deleteReport($id, ReportsRepository $reportsRepository, Security $security, EntityManagerInterface $em) : RedirectResponse
     {

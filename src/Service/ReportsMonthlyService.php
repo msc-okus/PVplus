@@ -74,7 +74,7 @@ class ReportsMonthlyService
             ->setReportTypeVersion(1)
             ->setStartDate($startDate)
             ->setEndDate($endDate)
-            ->setMonth($startDate->format('m'))
+            ->setMonth($startDate->format('n'))
             ->setYear($startDate->format('Y'))
             ->setRawReport($output)
             ->setContentArray($report);

@@ -20,7 +20,7 @@ class AnlagenRepository extends ServiceEntityRepository
 {
     use G4NTrait;
 
-    private $security;
+    private Security $security;
 
     public function __construct(ManagerRegistry $registry, Security $security)
     {

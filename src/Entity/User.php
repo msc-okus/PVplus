@@ -318,6 +318,11 @@ class User implements UserInterface, \Symfony\Component\Security\Core\User\Passw
         return $this->grantedList;
     }
 
+    public function getGrantedArray(): array|false
+    {
+        return explode(',',$this->grantedList);
+    }
+
     public function setGrantedList(string $grantedList): self
     {
         $this->grantedList = $grantedList;

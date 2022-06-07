@@ -64,6 +64,7 @@ class GridMeterDayRepository extends ServiceEntityRepository
             ->setParameter('anlage', $anlage)
             ->setParameter('from', $from)
             ->setParameter('to', $to)
+            ->orderBy('a.stamp', 'ASC')
             ->select('a.stamp, a.gridMeterValue AS eGrid')
             ->getQuery()
             ->getResult();
