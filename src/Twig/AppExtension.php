@@ -12,7 +12,7 @@ use Twig\TwigFunction;
 
 class AppExtension extends AbstractExtension implements ServiceSubscriberInterface
 {
-    private $container;
+    private ContainerInterface $container;
 
     public function __construct(ContainerInterface $container)
     {
@@ -33,7 +33,7 @@ class AppExtension extends AbstractExtension implements ServiceSubscriberInterfa
         ];
     }
 
-    public function processMarkdown($value)
+    public function processMarkdown($value): string
     {
         return $this->container
             ->get(MarkdownHelper::class)
@@ -47,7 +47,7 @@ class AppExtension extends AbstractExtension implements ServiceSubscriberInterfa
             ->getPublicPath($path);
     }
 
-    public static function getSubscribedServices()
+    public static function getSubscribedServices(): array
     {
         return [
             MarkdownHelper::class,
