@@ -266,7 +266,7 @@ class AvailabilityService
 
 
                     isset($istData[$stamp][$inverter]['power_ac']) ? $powerAc = (float)$istData[$stamp][$inverter]['power_ac'] : $powerAc = null;
-                    isset($istData[$stamp][$inverter]['cos_phi'])  ? $cosPhi  = $istData[$stamp][$inverter]['cos_phi']         : $cosPhi  = null;
+                    isset($istData[$stamp][$inverter]['cos_phi'])  ? $cosPhi  = self::cutNumber($istData[$stamp][$inverter]['cos_phi']) : $cosPhi  = null;
 
                     // Wenn Strahlung keine Datenlücke hat dann:
                     if ($strahlung !== null) {

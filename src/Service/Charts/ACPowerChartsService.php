@@ -123,7 +123,7 @@ class ACPowerChartsService
                         if ($anlage->getShowEvuDiag()) $dataArray['chart'][$counter]['eZEvu'] = $eZEvu;
                         if ($anlage->getShowCosPhiPowerDiag()) $dataArray['chart'][$counter]['cosPhi'] = $cosPhi * $actout;
                         $dataArray['chart'][$counter]['theoPower'] = $theoPower;
-                        if ($anlage->getShowCosPhiDiag()) $dataArray['cosPhi'] = $cosPhi;
+                        if ($anlage->getShowCosPhiDiag()) $dataArray['chart'][$counter]['cosPhi'] = $cosPhi * 100;
                     }
 
                     if (isset($dataArrayIrradiation['chart'][$counter]['val1'])) {
