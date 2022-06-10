@@ -1378,4 +1378,6 @@
     {% include 'dashboardPlants/_incl/chart/forecast.html.twig' %}
 {% elseif form.selectedChart == 'heatmap' %}
     {% include 'dashboardPlants/_incl/chart/heatmap.html.twig' %}
+{% elseif form.selectedChart == 'tempheatmap' %}
+    {% include 'dashboardPlants/_incl/chart/tempheatmap.html.twig' %}
 {% endif %}

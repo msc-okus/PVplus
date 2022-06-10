@@ -9,6 +9,7 @@ use App\Service\Charts\DCCurrentChartService;
 use App\Service\Charts\DCPowerChartService;
 use App\Service\Charts\ForecastChartService;
 use App\Service\Charts\HeatmapChartService;
+use App\Service\Charts\TempHeatmapChartService;
 use App\Service\Charts\IrradiationChartService;
 use App\Service\Charts\VoltageChartService;
 use PDO;
@@ -42,6 +43,7 @@ class ChartService
     private DCCurrentChartService $currentChart;
     private VoltageChartService $voltageChart;
     private HeatmapChartService $heatmapChartService;
+    private TempHeatmapChartService $tempheatmapChartService;
 
     public function __construct(Security                     $security,
                                 AnlagenStatusRepository      $statusRepository,
@@ -57,7 +59,8 @@ class ChartService
                                 VoltageChartService          $voltageChart,
                                 IrradiationChartService      $irradiationChart,
                                 GridMeterDayRepository $gridMeterDayRepository,
-                                HeatmapChartService $heatmapChartService)
+                                HeatmapChartService $heatmapChartService,
+                                TempHeatmapChartService $tempheatmapChartService)
     {
         $this->security = $security;
         $this->statusRepository = $statusRepository;
@@ -74,6 +77,7 @@ class ChartService
         $this->voltageChart = $voltageChart;
         $this->gridMeterDayRepository=$gridMeterDayRepository;
         $this->heatmapChartService = $heatmapChartService;
+        $this->tempheatmapChartService = $tempheatmapChartService;
     }
 
     /**
@@ -480,7 +484,12 @@ class ChartService
                 case ("heatmap"):
                     $dataArray = $this->heatmapChartService->getHeatmap($anlage, $from, $to);
                     $resultArray['data'] = json_encode($dataArray['chart']);
-                    $resultArray['headline'] = 'Show Heatmap';
+                    $resultArray['headline'] = 'Inverter PR Heatmap [%]';
+                    break;
+                case ("tempheatmap"):
+                    $dataArray = $this->tempheatmapChartService->getTempHeatmap($anlage, $from, $to);
+                    $resultArray['data'] = json_encode($dataArray['chart']);
+                    $resultArray['headline'] = 'Inverter Temperature Heatmap';
                     break;
                 default:
                     $resultArray['headline'] = 'Something was wrong ' . $form['selectedChart'];

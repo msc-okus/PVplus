@@ -14,7 +14,7 @@ use PDO;
 use Symfony\Component\Security\Core\Security;
 use ContainerXGGeorm\getConsole_ErrorListenerService;
 
-class HeatmapChartService
+class TempHeatmapChartService
 {
     use G4NTrait;
     private Security $security;
@@ -67,8 +67,8 @@ class HeatmapChartService
      * @return array
      * [Heatmap]
      */
-    //MS 05/2022
-    public function getHeatmap(Anlage $anlage, $from, $to,  bool $hour = false): ?array
+    //MS 06/2022
+    public function getTempHeatmap(Anlage $anlage, $from, $to,  bool $hour = false): ?array
     {
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $conn = self::getPdoConnection();
@@ -91,10 +91,10 @@ class HeatmapChartService
        // $sunrise = $sunArray[$anlagename]['sunrise'];
        // $sunset = $sunArray[$anlagename]['sunset'];
 
-        $from = date('Y-m-d H:00',$sunrise - 3600);
-        $to = date('Y-m-d H:00',$sunset + 5400);
+        $from = date('Y-m-d H:00',$sunrise - 5400);
+        $to = date('Y-m-d H:00',$sunset + 7200);
 
-        $conn = self::getPdoConnection();
+               $conn = self::getPdoConnection();
         $dataArray = [];
         $inverterNr = 0;
         switch ($anlage->getConfigType()) {
@@ -108,14 +108,14 @@ class HeatmapChartService
 
         if ($anlage->getUseNewDcSchema()) {
 
-            $sql = "SELECT wr_pdc as istPower,group_dc,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts
+            $sql = "SELECT wr_temp as istTemp,group_dc,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts
                                     FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameDCIst() . " b ON a.stamp = b.stamp)
                                     WHERE a.stamp BETWEEN '$from' AND '$to' 
                                     GROUP BY a.stamp, b.group_ac";
 
         } else {
 
-            $sql = "SELECT wr_pac as istPower,group_dc,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts 
+            $sql = "SELECT wr_temp as istTemp,group_dc,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts 
                                     FROM (db_dummysoll a LEFT JOIN  " . $anlage->getDbNameACIst() . " b ON a.stamp = b.stamp)
                                     WHERE a.stamp BETWEEN '$from' AND '$to' 
                                     GROUP BY a.stamp, b.group_dc";
@@ -137,8 +137,7 @@ class HeatmapChartService
 
             $dataArray['maxSeries'] = 0;
             $counter = 0;
-            $counterInv = 1;
-
+            $rows = $resultActual->rowCount();
             while ( $rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
 
                 $stamp = $rowActual["ts"];
@@ -157,23 +156,13 @@ class HeatmapChartService
                 $e = explode(" ", $stamp);
                 $dataArray['chart'][$counter]['ydate'] = $e[1];
 
-                    $powerist = $rowActual['istPower'];
-
-                    if($powerist != null) $poweristkwh = $powerist * (float)4;
-                    else $poweristkwh = 0;
-
-                        $pnomkwh = $pnominverter[$rowActual['group_dc']] / (float)1000;
-                        if ($dataIrr > 10) {
-                            $theoreticalIRR = ($dataIrr / (float)1000) * $pnomkwh;
-                            if ($poweristkwh == 0) $value = 0;
-                            else $value = round(($poweristkwh / $theoreticalIRR) * (float)100);
-                        } else {
-                                $value = 0;
-                        }
-
+                        $value = round($rowActual['istTemp']);
                         $value = ($value > (float)100) ? (float)100: $value;
+                        $e = explode(" ", $stamp);
+                        $dataArray['chart'][$counter]['ydate'] = $e[1];
                         $dataArray['chart'][$counter]['xinv'] = $nameArray[$rowActual['group_dc']] ;
                         $dataArray['chart'][$counter]['value'] =  $value ;
+                        $dataArray['chart'][$counter]['irr'] =  $dataIrr ;
                         /*
                         $dataArray['chart'][$counter]['irr'] =  $dataIrr;
                         $dataArray['chart'][$counter]['thirr'] =  $theoreticalIRR;

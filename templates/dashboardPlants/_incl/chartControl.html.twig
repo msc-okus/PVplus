@@ -1,4 +1,4 @@
-{% from "dashboardPlants/_incl/macrosMenuSelectBox.html.twig" import showHeatmap ,acActOverview, acActGroup, dcActGroup, dcGroupPowerDiff, irradiation, inverterPerformance, currentDcOverview, currentDcInverter, currentDcGroup, dcActPlant, dcActOverview, currentDcString, acActPlant, acVoltage, acCurrent, acFrequency, acReactive %}
+{% from "dashboardPlants/_incl/macrosMenuSelectBox.html.twig" import showHeatmap ,showTempHeatmap ,acActOverview, acActGroup, dcActGroup, dcGroupPowerDiff, irradiation, inverterPerformance, currentDcOverview, currentDcInverter, currentDcGroup, dcActPlant, dcActOverview, currentDcString, acActPlant, acVoltage, acCurrent, acFrequency, acReactive %}
 {% from "dashboardPlants/_incl/macrosGroupeMenuSelectBox.html.twig" import groupMenu, groupMenuNew %}
 <div class="grid-x grid-margin-x">
     <input type="hidden" name="eide" value="{{ aktAnlage.eignerId }}">
@@ -12,6 +12,7 @@
                 {% if aktAnlage.showPr or is_granted('ROLE_ADMIN') %}<option value="pr_and_av" {% if form.selectedChart == 'pr_and_av' %}selected{% endif %}>Show PR&nbsp;[%]</option>{% endif %}
                 {% if aktAnlage.showForecast %}<option value="forecast" {% if form.selectedChart == 'forecast' %}selected{% endif %}>Forecast&nbsp;[kWh]</option>{% endif %}
                 {{ showHeatmap(form, aktAnlage) }}     {# Headmap #}
+                {{ showTempHeatmap(form, aktAnlage) }}     {# Headmap #}
             </optgroup>
             <!-- ab hier AC -->
             <optgroup label="AC">
