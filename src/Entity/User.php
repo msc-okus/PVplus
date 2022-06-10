@@ -113,7 +113,7 @@ class User implements UserInterface, \Symfony\Component\Security\Core\User\Passw
     /**
      * @var string
      *
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=250)
      */
     #[Groups(['main:read'])]
     private string $grantedList;

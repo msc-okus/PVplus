@@ -10,18 +10,17 @@
         <div class="cell medium-1">
             <select name="status" >
                 <option value="00"> {% trans %}ticket.status.name{% endtrans %} </option>
-                {% for key, stati in filter.status.array %}
-                    <option value="{{ stati }}" {% if status == stati %} selected {% endif %}>{{ key }}</option>
+                {% for key, value in filter.status.array %}
+                    <option value="{{ value }}" {% if filter.status.value == value %} selected {% endif %}>{{ key }}</option>
                 {% endfor %}
             </select>
         </div>
         <div class="cell medium-1">
             <select name="prio" >
                 <option value="00"> {% trans %}ticket.priority.name{% endtrans %} </option>
-                <option value="10" {% if prio == '10' %} selected {% endif %}>{% trans %}ticket.priority.10{% endtrans %}</option>
-                <option value="20" {% if prio == '20' %} selected {% endif %}>{% trans %}ticket.priority.20{% endtrans %}</option>
-                <option value="30" {% if prio == '30' %} selected {% endif %}>{% trans %}ticket.priority.30{% endtrans %}</option>
-                <option value="40" {% if prio == '40' %} selected {% endif %}>{% trans %}ticket.priority.40{% endtrans %}</option>
+                {% for key, value in filter.priority.array %}
+                    <option value="{{ value }}" {% if filter.priority.value == value %} selected {% endif %}>{{ key }}</option>
+                {% endfor %}
             </select>
         </div>
         <div  class="cell medium-2"  style="margin-top:-17px!important;">
@@ -30,17 +29,17 @@
         <div class="cell medium-1">
             <select name="category" >{# category = alertType (bsp: datagap, inverter power, etc.) #}
                 <option value="00">{% trans %}ticket.error.category.name{% endtrans %}</option>
-                <option value="10" {% if status == '10' %} selected {% endif %}>{% trans %}ticket.error.category.10{% endtrans %}</option>
-                <option value="20" {% if status == '20' %} selected {% endif %}>{% trans %}ticket.error.category.20{% endtrans %}</option>
-                <option value="30" {% if status == '30' %} selected {% endif %}>{% trans %}ticket.error.category.30{% endtrans %}</option>
+                {% for key, value in filter.category.array %}
+                    <option value="{{ value }}" {% if filter.category.value == value %} selected {% endif %}>{{ key }}</option>
+                {% endfor %}
             </select>
         </div>
         <div class="cell medium-1">
             <select name="type" > {# type = errorType (Bsp:  SOR, EFOR, OMC) #}
                 <option value="00">{% trans %}ticket.error.type.name{% endtrans %}</option>
-                <option value="10" {% if status == '10' %} selected {% endif %}>{% trans %}ticket.error.type.10{% endtrans %}</option>
-                <option value="20" {% if status == '20' %} selected {% endif %}>{% trans %}ticket.error.type.20{% endtrans %}</option>
-                <option value="30" {% if status == '30' %} selected {% endif %}>{% trans %}ticket.error.type.30{% endtrans %}</option>
+                {% for key, value in filter.type.array %}
+                    <option value="{{ value }}" {% if filter.type.value == value %} selected {% endif %}>{{ key }}</option>
+                {% endfor %}
             </select>
         </div>
         <div class="cell medium-1"  style="margin-top:-17px!important;">

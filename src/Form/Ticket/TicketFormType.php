@@ -89,31 +89,22 @@ class TicketFormType extends AbstractType
 
             ->add('priority', ChoiceType::class, [
                 'label' => 'Priority',
-                'choices' => [
-                    'Low' => 10,
-                    'Normal' => 20,
-                    'High' => 30,
-                    'Urgent' => 40
-                ],
+                'choices' => self::ticketPriority(),
                 'required' => true,
                 'placeholder' => 'please Choose ...'
 
             ])
-            ->add('alertType', TextType::class, [
+            ->add('alertType', ChoiceType::class, [
                 'label' => 'Category of error ',
                 'help'  => 'data gap, inverter, ...',
-                'attr' => [
-                    'readonly' => true,
-                ],
-                'empty_data' => '',
+                'choices' => self::errorCategorie(),
+                'disabled' => true,
             ])
-            ->add('errorType', TextType::class, [
+            ->add('errorType', ChoiceType::class, [
                 'label' => 'Type of error',
                 'help'  => 'SOR, EFOR, OMC',
-                'attr' => [
-                    'readonly' => true,
-                ],
-                'empty_data' => '',
+                'choices' => self::errorType(),
+                'disabled' => true,
             ])
             ->add('answer', CKEditorType::class, [
                 'config' => array('toolbar' => 'my_toolbar'),

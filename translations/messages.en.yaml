@@ -13,6 +13,7 @@ ticket:
       20: inverter error
       30: grid error
       40: weather
+      50: external control
 
   status:
     name: Status

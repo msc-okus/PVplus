@@ -124,7 +124,8 @@ class TicketController extends BaseController
     public function list(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request) : Response
     {
         $filter = [];
-        $session = $this->container->get('session');
+        $status = $prio = '';
+        //$session = $this->container->get('session');
         //Reading data from request
         //$searchstatus = $editor = $anlage = $id = $prio = $inverter = 0;
         if($request->query->get('anlage') != null & $request->query->get('anlage') != "")              $anlage = $request->query->get('anlage');
@@ -133,9 +134,17 @@ class TicketController extends BaseController
         if($request->query->get('id') != null)                                                              $id = $request->query->get('id');
         if($request->query->get('inverter') != null)                                                        $inverter = $request->query->get('id');
         if($request->query->get('prio') != null)                                                            $prio = $request->query->get('prio');
+        $category   = $request->query->get('category');
+        $type       = $request->query->get('type');
         $category = $type = '';
-        $filter['status']['value'] = "";
+        $filter['status']['value'] = $status;
         $filter['status']['array'] = self::ticketStati();
+        $filter['priority']['value'] = $prio;
+        $filter['priority']['array'] = self::ticketPriority();
+        $filter['category']['value'] = $category;
+        $filter['category']['array'] = self::errorCategorie();
+        $filter['type']['value'] = $type;
+        $filter['type']['array'] = self::errorType();
 
         $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter);
         $pagination = $paginator->paginate(
@@ -155,10 +164,8 @@ class TicketController extends BaseController
             'pagination' => $pagination,
             'anlage'     => $anlage,
             'user'       => $editor,
-            'status'     => $status,
             'id'         => $id,
             'inverter'   => $inverter,
-            'prio'       => $prio,
             'filter'     => $filter,
         ]);
 

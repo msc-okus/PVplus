@@ -76,5 +76,35 @@ trait PVPNameArraysTrait
 
         return $status;
     }
+
+    public function ticketPriority(): array
+    {
+        $spriority[$this->translator->trans('ticket.priority.10')] = 10;
+        $spriority[$this->translator->trans('ticket.priority.20')] = 20;
+        $spriority[$this->translator->trans('ticket.priority.30')] = 30;
+        $spriority[$this->translator->trans('ticket.priority.40')] = 40;
+
+        return $spriority;
+    }
+
+    public function errorCategorie(): array
+    {
+        $errorCategory[$this->translator->trans('ticket.error.category.10')] = 10;
+        $errorCategory[$this->translator->trans('ticket.error.category.20')] = 20;
+        $errorCategory[$this->translator->trans('ticket.error.category.30')] = 30;
+        $errorCategory[$this->translator->trans('ticket.error.category.40')] = 40;
+        $errorCategory[$this->translator->trans('ticket.error.category.50')] = 50;
+
+        return $errorCategory;
+    }
+
+    public function errorType(): array
+    {
+        $errorType[$this->translator->trans('ticket.error.type.10')] = 10;
+        $errorType[$this->translator->trans('ticket.error.type.20')] = 20;
+        $errorType[$this->translator->trans('ticket.error.type.30')] = 30;
+
+        return $errorType;
+    }
 }
 
