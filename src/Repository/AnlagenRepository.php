@@ -210,9 +210,23 @@ class AnlagenRepository extends ServiceEntityRepository
     }
 
     /**
+     * Suche alle aktiven anlagen für die ein Benutzer die Zugriffsrechte hat
+     * please use in future 'findAllActivAndAllowed'
+     *
      * @return Anlage[]
+     * @deprecated
      */
     public function findAllActive(): array
+    {
+        return self::findAllActiveAndAllowed();
+    }
+
+    /**
+     * Suche alle aktiven anlagen für die ein Benutzer die Zugriffsrechte hat
+     *
+     * @return Anlage[]
+     */
+    public function findAllActiveAndAllowed(): array
     {
         if ($this->security->isGranted('ROLE_G4N')) {
             $qb = $this->createQueryBuilder('a')

@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\WeatherStation;
 use App\Form\WeatherStation\WeatherStationFormType;
 use App\Helper\G4NTrait;
+use App\Helper\PVPNameArraysTrait;
 use App\Repository\WeatherStationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -15,6 +16,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class WeatherStationController extends BaseController
 {
     use G4NTrait;
+    use PVPNameArraysTrait;
+
 
     #[Route(path: '/admin/weather/new', name: 'app_admin_weather_new')]
     public function new(Request $request, EntityManagerInterface $em) : Response
