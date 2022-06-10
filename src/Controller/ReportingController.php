@@ -8,6 +8,7 @@ use App\Entity\AnlagenReports;
 use App\Form\AssetManagement\AssetManagementeReportFormType;
 use App\Form\Reports\ReportsFormType;
 use App\Helper\G4NTrait;
+use App\Helper\PVPNameArraysTrait;
 use App\Reports\Goldbeck\EPCMonthlyPRGuaranteeReport;
 use App\Reports\ReportMonthly\ReportMonthly;
 use App\Repository\AnlagenRepository;
@@ -35,6 +36,8 @@ use Nuzkito\ChromePdf\ChromePdf;
 class ReportingController extends AbstractController
 {
     use G4NTrait;
+    use PVPNameArraysTrait;
+
     public function __construct(private string $kernelProjectDir)
     {
     }
@@ -186,7 +189,7 @@ class ReportingController extends AbstractController
         $session->set('anlage', $anlage);
         $session->set('month', $searchmonth);
         $session->set('search_year', $searchyear);
-        $anlagen = $anlagenRepo->findAll();
+        $anlagen = $anlagenRepo->findAllActive();
         return $this->render('reporting/listOld.html.twig', [
             'pagination' => $pagination,
             'anlagen'    => $anlagen,

@@ -8,25 +8,21 @@ use PDO;
 use PDOException;
 use App\Entity\Anlage;
 use Symfony\Component\Intl\Timezones;
-use Symfony\Component\Validator\Constraints\Timezone;
 use DateTimeZone;
-use PhpOffice\PhpSpreadsheet\Calculation\DateTime;
 
 trait G4NTrait
 {
-    use PVPNameArraysTrait;
 
     /**
      * truncates decimal number after 2 decimal places
      *
      * @param float $value
-     * @param int $after
+     * @param int $decimal_places
      * @return float
      */
     public static function cutNumber(float $value, int $decimal_places = 1): float
     {
         $result = ((int)($value * 10^$decimal_places) / 10^$decimal_places);
-        dump("before: $value after: $result | dezimal places: $decimal_places");
         return (float)$result;
     }
 

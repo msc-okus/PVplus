@@ -25,6 +25,7 @@ use Carbon\Doctrine\DateTimeType;
 use Doctrine\ORM\EntityManagerInterface;
 use http\Url;
 use Knp\Component\Pager\PaginatorInterface;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use phpDocumentor\Reflection\Types\Object_;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -124,19 +125,17 @@ class TicketController extends BaseController
     public function list(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request) : Response
     {
         $filter = [];
-        $status = $prio = '';
-        //$session = $this->container->get('session');
+
         //Reading data from request
-        //$searchstatus = $editor = $anlage = $id = $prio = $inverter = 0;
-        if($request->query->get('anlage') != null & $request->query->get('anlage') != "")              $anlage = $request->query->get('anlage');
-        if($request->query->get('user') != null & $request->query->get('user') != "")                  $editor = $request->query->get('user');
-        if($request->query->get('status') != null & $request->query->get('searchstatus') != "")        $status = $request->query->get('searchstatus');
-        if($request->query->get('id') != null)                                                              $id = $request->query->get('id');
-        if($request->query->get('inverter') != null)                                                        $inverter = $request->query->get('id');
-        if($request->query->get('prio') != null)                                                            $prio = $request->query->get('prio');
+        $anlage     = $request->query->get('anlage');
+        $status     = $request->query->get('status');
+        $editor     = $request->query->get('editor');
+        $id         = $request->query->get('id');
+        $inverter   = $request->query->get('inverter');
+        $prio       = $request->query->get('prio');
         $category   = $request->query->get('category');
         $type       = $request->query->get('type');
-        $category = $type = '';
+
         $filter['status']['value'] = $status;
         $filter['status']['array'] = self::ticketStati();
         $filter['priority']['value'] = $prio;
@@ -152,13 +151,12 @@ class TicketController extends BaseController
             $request->query->getInt('page', 1),   /* page number*/
             100                                          /*limit per page*/
         );
-        /*
-        $session->set('search', $searchstatus);
-        $session->set('editor', $editor);
-        $session->set('anlage', $anlage);
-        $session->set('id', $id);
-        $session->set('prio', $prio);
-        */
+
+        if ($request->query->get('ajax')) {
+            return $this->render('ticket/_inc/_listTickets.html.twig', [
+                'pagination' => $pagination,
+            ]);
+        }
 
         return $this->render('ticket/list.html.twig',[
             'pagination' => $pagination,
@@ -172,8 +170,10 @@ class TicketController extends BaseController
     }
 
     #[Route(path: '/ticket/search', name: 'app_ticket_search', methods: ['GET', 'POST'])]
+    #[Deprecated]
     public function searchTickets(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request): Response
     {
+        dd('do nort use this Funtion any longer');
 
         $anlage     = $request->query->get('anlage');
         $status     = $request->query->get('status');
@@ -191,6 +191,7 @@ class TicketController extends BaseController
             $request->query->getInt('page', 1),
             100
         );
+
         return $this->render('ticket/_inc/_listTickets.html.twig', [
             'pagination' => $pagination,
         ]);

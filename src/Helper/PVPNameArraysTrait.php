@@ -2,6 +2,8 @@
 
 namespace App\Helper;
 
+use App\Repository\AnlagenRepository;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 trait PVPNameArraysTrait
@@ -12,6 +14,8 @@ trait PVPNameArraysTrait
     {
         $this->translator = $translator;
     }
+
+
     public static function timeArray(): array
     {
         return  [
