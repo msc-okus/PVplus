@@ -165,7 +165,7 @@ class HeatmapChartService
                         $pnomkwh = $pnominverter[$rowActual['group_dc']] / (float)1000;
                         if ($dataIrr > 10) {
                             $theoreticalIRR = ($dataIrr / (float)1000) * $pnomkwh;
-                            if ($poweristkwh == 0) $valueist = 0;
+                            if ($poweristkwh == 0) $value = 0;
                             else $value = round(($poweristkwh / $theoreticalIRR) * (float)100);
                         } else {
                                 $value = 0;
