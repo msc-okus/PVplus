@@ -2,46 +2,22 @@
 
 namespace App\Controller;
 
-use App\Entity\Anlage;
 use App\Entity\AnlageFile;
 use App\Entity\Eigner;
 use App\Form\Owner\OwnerFormType;
 use App\Repository\AnlageFileRepository;
 use App\Repository\EignerRepository;
-use App\Service\G4NSendMailService;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\AnlageFileUpload;
-use App\Repository\AnlagenRepository;
-use App\Repository\AnlageFileUploadRepository;
-use Michelf\MarkdownInterface;
 use App\Api\PlantReferenceUploadApiModel;
 use App\Entity\PlantReference;
-use App\Form\FileUpload\FileUploadFormType;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Symfony\Component\HttpFoundation\File\File as FileObject;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
-use Symfony\Component\HttpFoundation\HeaderUtils;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Component\Validator\Constraints\File;
-use Symfony\Component\Validator\Constraints\NotBlank;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
-use Gedmo\Sluggable\Util\Urlizer;
-use Symfony\Component\Form\FormView;
-use App\Service\MarkdownHelper;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Validator\Constraints\DateTime;
-use App\Entity\TimesConfig;
-use App\Repository\TimesConfigRepository;
-use Symfony\Component\Form\AbstractType;
 use Symfony\Component\OptionsResolver\OptionsResolverInterface;
-use Symfony\Component\Form\FormBuilderInterface;
+
 
 class EignerController extends BaseController
 {

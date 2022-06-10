@@ -69,6 +69,7 @@ class WeatherServiceNew
             $pt_avg = '';
             $gmod_avg = '';
             $gi_avg = '';
+            $wind = '';
             $sqlstamp = '';
             $sql_array = [];
             // Zuordnung der cvs daten in Variablen.
@@ -81,7 +82,7 @@ class WeatherServiceNew
                     $pt_avg = $out[7];
                     $gi_avg = $out[10];
                     $gmod_avg = $out[13];
-                    $wind = @$out[17];
+                    $wind = $out[17];
                     if ($gi_avg < 0) $gi_avg = 0;
                     if ($gmod_avg < 0) $gmod_avg = 0;
                 }
@@ -110,14 +111,7 @@ class WeatherServiceNew
                 // correct stamp if DLS
                 if (date('I', strtotime($sqlstamp)) == 1) $sqlstamp = date('Y-m-d H:i', strtotime($sqlstamp) + 3600);
 
-                // wenn ein Strahlungswert 0 ist und der andere kleienr als 50 dann setzte beide auf 0
-                // soll positive Strahlungswerte mitten in der nacht verhindern
-                #if ($gmod_avg == 0 && $gi_avg <= 30) $gi_avg = 0;
-                #if ($gi_avg == 0 && $gmod_avg <= 30) $gmod_avg = 0;
-
-
                 $output .= $weatherStation->getType() . " -> $zeit $date -- $at_avg | $pt_avg | $gi_avg | $gmod_avg | $wind <br>";
-
                 $sql_array[] = [
                     "anl_intnr" => $weatherStationIdent,
                     "stamp" => $sqlstamp,
@@ -128,8 +122,6 @@ class WeatherServiceNew
                     "wind_speed" => str_replace(',', '.', $wind)
                 ];
             }
-
-            $spalte = [];
 
             foreach ($sql_array as $row) {
                 $anlIntNr           = $row['anl_intnr'];
@@ -151,8 +143,8 @@ class WeatherServiceNew
 
                $conn->exec($sql_insert);
             }
-            $sql_array = [];
-
+            unset($sql_array);
+            unset($spalte);
         } else {
             $output .= "FEHLER: csvinhalt leer";
         }
@@ -170,8 +162,9 @@ class WeatherServiceNew
         }
         return true;
     }
-//Given a plant and no date it will return the sunrise info of the given plant for the current day
-//Given a plant and a time it will return the sunrise info of the given plant for the given date
+
+    //Given a plant and no date it will return the sunrise info of the given plant for the current day
+    //Given a plant and a time it will return the sunrise info of the given plant for the given date
     public function getSunrise($anlage, ?string $time = null): array
     {
         if ($time == null)$current_date = date("Y-m-d");
@@ -187,6 +180,7 @@ class WeatherServiceNew
 
         return $returnArray;
     }
+
     public function getNearestTimezone($cur_lat, $cur_long, $country_code = ''): string
     {
         $timezone_ids = ($country_code) ? DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $country_code)

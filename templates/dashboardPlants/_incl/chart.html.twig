@@ -1324,10 +1324,8 @@
             series0.connect = false;
 
             // Create series
-            function addSeries() {
-                let seriesId = (chart.series.length);
-
-                // Create series Actual
+            function addSeries(seriesId) {
+                // Create series Irradiation Plant
                 let series = new am4charts.LineSeries();
                 series.name = nameX[seriesId];
                 series.dataFields.dateX = "date";
@@ -1338,11 +1336,11 @@
                 series.defaultState.transitionDuration = 300;
                 series.tensionX = 0.8;
                 series.connect = false;
-                //series = chart.series.push(series);
+                chart.series.push(series);
             }
 
             for (let i = 1; i <= {{ content.maxSeries }}; i++) {
-                addSeries();
+                addSeries(i);
             }
 
             chart.cursor = new am4charts.XYCursor();

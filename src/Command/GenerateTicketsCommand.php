@@ -85,11 +85,12 @@ class GenerateTicketsCommand extends Command
 
             foreach ($anlagen as $anlage) {
                 for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900){
-                    while (((int)date('i') >= 28 && (int)date('i') < 33) || (int)date('i') >= 58 || (int)date('i') < 3) {
+                    while (((int)date('i') >= 28 && (int)date('i') < 34) || (int)date('i') >= 58 || (int)date('i') < 4) {
                         $io->comment("Wait...");
                         sleep(20);
                     }
                     $this->alertService->checkSystem($anlage, $from = date("Y-m-d H:i:00",$stamp));
+                    usleep(1000);
                     if ($counter % 4 == 0) $io->progressAdvance();
                     $counter--;
                 }
