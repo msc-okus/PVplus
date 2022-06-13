@@ -76,7 +76,7 @@
             <span class="input-group-label"><i class="fa fa-calendar"></i></span>
         </div>
     </div>
-    {% if (form.selectedChart != 'availability') and (form.selectedChart != 'pr_and_av') and (form.selectedChart != 'forecast') and (form.selectedChart != 'status_log') and (form.selectedChart != 'pvsyst') and (form.selectedChart != 'heatmap') and (form.selectedChart != 'grid')%}
+    {% if (form.selectedChart != 'availability') and (form.selectedChart != 'pr_and_av') and (form.selectedChart != 'forecast') and (form.selectedChart != 'status_log') and (form.selectedChart != 'pvsyst') and (form.selectedChart != 'heatmap') and (form.selectedChart != 'tempheatmap') and (form.selectedChart != 'grid')%}
         <div class="cell medium-2 large-4 xlarge-1">
             <div class="switch tiny align-center-middle">
                 <label class="" style="line-height: 1;"><small>Interval min.</small></label>
@@ -91,7 +91,7 @@
     {% endif %}
 
     <div class="cell medium-6 large-8 xlarge-4">
-        <div class="small button-group round toggle" {% if form.selectedChart == 'heatmap' %}style="display: none"{% endif %}>
+        <div class="small button-group round toggle" {% if form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap'%}style="display: none"{% endif %}>
             <label class="button js-submit-onchange {% if form.optionDate == 1 or not form.optionDate %}active{% endif %} {% if form.selectedChart == 'pr_and_av' %}disabled{% endif %}">
                 <input type="radio" name="optionDate" value="1" {% if form.optionDate == 1 or not form.optionDate %}checked="checked"{% endif %}>one day
             </label>
