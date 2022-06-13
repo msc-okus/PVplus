@@ -105,7 +105,7 @@ class AnlageGroups
     /**
      * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="groups")
      */
-    private  Anlage $anlage;
+    private ?Anlage $anlage;
 
     /**
      * @ORM\ManyToOne(targetEntity=WeatherStation::class)

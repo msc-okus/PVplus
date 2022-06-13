@@ -29,11 +29,11 @@ class DefaultJMController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/default/test/check', name: 'default_check')]
-    public function check(AnlagenRepository $anlagenRepository, AlertSystemService $service)
+    #[Route(path: '/test/createticket', name: 'default_check')]
+    public function check(AnlagenRepository $anlagenRepository, AlertSystemService $service): Response
     {
-        $anlage = $this->anlagenRepository->findOneBy("93");
-        $service->generateTicketsInterval($anlage,"2022-03-01 10:00", "2022-03-01 10:30");
+        $anlage = $anlagenRepository->findOneBy(['anlId' => 96]);
+        $service->generateTicketsInterval($anlage,"2022-06-13 00:00", "2022-06-13 23:30");
 
         return $this->render('cron/showResult.html.twig', [
             'headline'      => 'Ticket',

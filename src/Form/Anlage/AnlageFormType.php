@@ -11,6 +11,7 @@ use App\Form\Groups\GroupsListEmbeddedFormType;
 use App\Form\GroupsAc\AcGroupsListEmbeddedFormType;
 use App\Form\Type\SwitchType;
 use App\Helper\G4NTrait;
+use App\Helper\PVPNameArraysTrait;
 use Doctrine\DBAL\Types\IntegerType;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -30,6 +31,7 @@ use Symfony\Component\Security\Core\Security;
 class AnlageFormType extends AbstractType
 {
     use G4NTrait;
+    use PVPNameArraysTrait;
 
     private Security $security;
 

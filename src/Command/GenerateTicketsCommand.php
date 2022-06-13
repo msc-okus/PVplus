@@ -21,7 +21,7 @@ class GenerateTicketsCommand extends Command
 {
     use G4NTrait;
 
-    protected static $defaultName = 'pvp:GenerateTickets';
+    protected static $defaultName = 'pvp:generateTickets';
 
     private EntityManagerInterface $em;
     private AlertSystemService $alertService;
@@ -76,7 +76,7 @@ class GenerateTicketsCommand extends Command
                 $anlagen = $this->anlagenRepository->findIdLike([$plantid]);
             } else {
                 $io->comment("Generate Tickets: $from - $to | Test Plants (93, 94, 111, 112, 113)");
-                $anlagen = $this->anlagenRepository->findIdLike([93, 94, 111, 112, 113]);
+                $anlagen = $this->anlagenRepository->findIdLike([93, 94, 96, 111, 112, 113]);
             }
 
             $counter = (($toStamp - $fromStamp) / 3600 ) * count($anlagen);
@@ -85,12 +85,12 @@ class GenerateTicketsCommand extends Command
 
             foreach ($anlagen as $anlage) {
                 for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900){
-                    while (((int)date('i') >= 28 && (int)date('i') < 34) || (int)date('i') >= 58 || (int)date('i') < 4) {
+                    while (((int)date('i') >= 28 && (int)date('i') < 35) || (int)date('i') >= 58 || (int)date('i') < 5) {
                         $io->comment("Wait...");
-                        sleep(20);
+                        sleep(30);
                     }
                     $this->alertService->checkSystem($anlage, $from = date("Y-m-d H:i:00",$stamp));
-                    usleep(1000);
+                    usleep(3000);
                     if ($counter % 4 == 0) $io->progressAdvance();
                     $counter--;
                 }
