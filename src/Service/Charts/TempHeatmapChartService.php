@@ -91,10 +91,10 @@ class TempHeatmapChartService
        // $sunrise = $sunArray[$anlagename]['sunrise'];
        // $sunset = $sunArray[$anlagename]['sunset'];
 
-        $from = date('Y-m-d H:00',$sunrise - 5400);
-        $to = date('Y-m-d H:00',$sunset + 7200);
+        $from = date('Y-m-d H:00',$sunrise - 3600);
+        $to = date('Y-m-d H:00',$sunset + 5400);
 
-               $conn = self::getPdoConnection();
+        $conn = self::getPdoConnection();
         $dataArray = [];
         $inverterNr = 0;
         switch ($anlage->getConfigType()) {

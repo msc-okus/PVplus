@@ -80,6 +80,7 @@ class HeatmapChartService
 
         $gmt_offset = 1;   // Unterschied von GMT zur eigenen Zeitzone in Stunden.
         $zenith = 90+50/60;
+
         $current_date = strtotime($from);
         $sunset = date_sunset($current_date, SUNFUNCS_RET_TIMESTAMP,  (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon(), $zenith, $gmt_offset);
         $sunrise = date_sunrise($current_date, SUNFUNCS_RET_TIMESTAMP,  (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon(), $zenith, $gmt_offset);
@@ -92,7 +93,7 @@ class HeatmapChartService
        // $sunset = $sunArray[$anlagename]['sunset'];
 
         $from = date('Y-m-d H:00',$sunrise - 3600);
-        $to = date('Y-m-d H:00',$sunset + 5400);
+        $to = date('Y-m-d H:00',$sunset+ 5400);
 
         $conn = self::getPdoConnection();
         $dataArray = [];
@@ -112,7 +113,6 @@ class HeatmapChartService
                                     FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameDCIst() . " b ON a.stamp = b.stamp)
                                     WHERE a.stamp BETWEEN '$from' AND '$to' 
                                     GROUP BY a.stamp, b.group_ac";
-
         } else {
 
             $sql = "SELECT wr_pac as istPower,group_dc,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts 
@@ -123,16 +123,14 @@ class HeatmapChartService
 
         $resultActual = $conn->query($sql);
 
-        //dd(print($sql),$sunset);
-
         $dataArray['inverterArray'] = $nameArray;
 
         if ($resultActual->rowCount() > 0) {
 
             if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == "Groningen") {
-                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
+                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
             } else {
-                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
+                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
             }
 
             $dataArray['maxSeries'] = 0;
@@ -142,8 +140,10 @@ class HeatmapChartService
             while ( $rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
 
                 $stamp = $rowActual["ts"];
+                $stampAd = date('Y-m-d H:i',strtotime(self::timeAjustment( $stamp, $anlage->getAnlZeitzoneWs())));
 
-                $keys = self::array_recursive_search_key_map( $stamp, $dataArrayIrradiation);
+                // Find Key in Array
+                $keys = self::array_recursive_search_key_map( $stampAd, $dataArrayIrradiation);
 
                 // fetch Irradiation
                 if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
@@ -185,6 +185,7 @@ class HeatmapChartService
             }
             $dataArray['offsetLegend'] = 0;
         }
+       # dd(print_r($dataArray));
         return $dataArray;
     }
 }
