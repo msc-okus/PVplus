@@ -1356,31 +1356,32 @@ class Anlage
         return $this->dbAnlagenData. ".db__pv_dcist_".$this->getAnlIntnr();
     }
 
-    public function getDbNameAcSoll()
+    /** @deprecated use getDBNameSoll() */
+    public function getDbNameAcSoll(): string
     {
         return $this->dbAnlagenData. ".db__pv_soll_".$this->getAnlIntnr();
     }
 
-    public function getDbNameSoll()
+    public function getDbNameSoll(): string
     {
         return $this->dbAnlagenData. ".db__pv_soll_".$this->getAnlIntnr();
     }
 
-    public function getDbNameDcSoll()
+    public function getDbNameDcSoll(): string
     {
         return $this->dbAnlagenData. ".db__pv_dcsoll_".$this->getAnlIntnr();
     }
 
 
     // get Weather Database
-    public function getNameWeather()
+    public function getNameWeather(): ?string
     {
         $weatherDB = ($this->getAnlDbWs()) ? $this->getAnlDbWs() : $this->getAnlIntnr();
         $weatherDB = $this->getWeatherStation()->getDatabaseIdent();
 
         return $weatherDB;
     }
-    public function getDbNameWeather()
+    public function getDbNameWeather(): string
     {
         ($this->getAnlDbWs()) ? $anlageDbWeather = $this->getAnlDbWs() : $anlageDbWeather = $this->getAnlIntnr();
         $anlageDbWeather = $this->getNameWeather();

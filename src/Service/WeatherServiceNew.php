@@ -175,8 +175,8 @@ class WeatherServiceNew
         $sunrise = date("H:i",$sunrisedata['astronomical_twilight_begin'] + 3600);
         $sunset = date("H:i",$sunrisedata['astronomical_twilight_end'] + 3600);
 
-        $returnArray[$anlage->getAnlName()]['sunrise'] = $current_date." ".$sunrise;
-        $returnArray[$anlage->getAnlName()]['sunset'] = $current_date." ".$sunset;
+        $returnArray['sunrise'] = $current_date." ".$sunrise;
+        $returnArray['sunset'] = $current_date." ".$sunset;
 
         return $returnArray;
     }

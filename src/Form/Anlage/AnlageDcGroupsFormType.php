@@ -39,7 +39,7 @@ class AnlageDcGroupsFormType extends AbstractType
             ################################################
             ####                General                 ####
             ################################################
-
+/*
             ###### Plant Location #######
             ->add('eigner', EntityType::class, [
                 'label'         => 'Eigner',
@@ -103,7 +103,7 @@ class AnlageDcGroupsFormType extends AbstractType
                 'empty_data'    => '',
                 'required'      => false,
             ])
-
+*/
 
             ################################################
             ####              Relations                 ####

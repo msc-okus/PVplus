@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\NumericFilter;
@@ -32,7 +33,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * )
 
  */
-class User implements UserInterface, \Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     public const ARRAY_OF_ROLES = [
         'Developer' => 'ROLE_DEV',
@@ -159,6 +160,16 @@ class User implements UserInterface, \Symfony\Component\Security\Core\User\Passw
         return $this->name;
     }
 
+    /**
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
+     */
+    public function getUserIdentifier(): ?string
+    {
+        return $this->name;
+    }
+
     public function setUsername(string $name): self
     {
         $this->name = $name;
@@ -253,10 +264,12 @@ class User implements UserInterface, \Symfony\Component\Security\Core\User\Passw
         return $this;
     }
 
+
     public function getSalt()
     {
-        // not needed when using the "bcrypt" algorithm in security.yaml
+        // TODO: Implement getSalt() method.
     }
+
 
     public function eraseCredentials()
     {
