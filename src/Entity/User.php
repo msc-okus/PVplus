@@ -265,9 +265,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
 
-    public function getSalt()
+    public function getSalt(): ?string
     {
-        // TODO: Implement getSalt() method.
+        return null;
     }
 
 
