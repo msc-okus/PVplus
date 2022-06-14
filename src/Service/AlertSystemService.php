@@ -57,16 +57,23 @@ class AlertSystemService
 
     public function generateTicketsInterval(Anlage $anlage, string $from, string $to)
     {
-        while ($from <= $to){
-            $from = G4NTrait::timeAjustment($from, 0.25);
-            $this->checkSystem($anlage, $from);
-            echo ".";
-            #usleep(1000);
+        $fromStamp = strtotime($from);
+        $toStamp = strtotime($to);
+        for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
+            $this->checkSystem($anlage, $from = date("Y-m-d H:i:00", $stamp));
         }
         //TODO You speed it up, but lost advantage to find old tickets (from last quater, same inverter, same error)
         #$this->em->flush();
     }
 
+    /**
+     * Generate tickets for the given time, check if there is an older ticket for same inverter with same error.
+     * Write new ticket to database or extend existing ticket with new end time.
+     *
+     * @param Anlage $anlage
+     * @param string|null $time
+     * @return string
+     */
     public function checkSystem(Anlage $anlage, ?string $time = null): string
     {
         if ($time === null) $time = $this->getLastQuarter(date('Y-m-d H:i:s') );
@@ -87,9 +94,10 @@ class AlertSystemService
                 $system_status[$inverterName] = $inverter_status;
                 unset($inverter_status);
             }
-            $this->em->flush();
             unset($system_status);
         }
+        $this->em->flush();
+
         return "success";
     }
 
@@ -203,20 +211,25 @@ class AlertSystemService
         $message = "";
         $errorType = "";
         $errorCategorie = "";
-        if ($inverter['istdata'] == "No Data") {
+        if ($inverter['istdata'] === "No Data") {
             //data gap
-            $message .=  "Data gap at inverter(Power)  ".$nameArray . "<br>";
+            $message .=  "Data gap at inverter (Power) " . $nameArray . "<br>";
             $errorType = "";
             $errorCategorie = DATA_GAP;
-        } elseif ($inverter['istdata'] == "Power is 0") {
+        } elseif ($inverter['istdata'] === "Power is 0") {
             //inverter error
-            $message .=  "No power at inverter " .$nameArray . "<br>";
+            $message .=  "No power at inverter " . $nameArray . "<br>";
             $errorType = "";
             $errorCategorie = INVERTER_ERROR;
+        } elseif ($inverter['istdata'] === 'Power to low') {
+            // check if inverter power make sense, to detect ppc
+            $message .=  "Power to low at inverter " . $nameArray . "  (could be external plant control)<br>";
+            $errorType = "";
+            $errorCategorie = EXTERNAL_CONTROL;
         }
         if ($errorCategorie != "10") {
             if ($anlage->getHasFrequency()) {
-                if ($inverter['freq'] != "All is ok") {
+                if ($inverter['freq'] !== "All is ok") {
                     if ($errorCategorie == "") {
                         $errorCategorie = GRID_ERROR;
                     }
@@ -326,7 +339,7 @@ class AlertSystemService
             $respeq = $conn->query($sqleq);
             $respah = $conn->query($sqlah);
             $respeh = $conn->query($sqleh);
-            if (($respaq->rowCount() > 0) && ($respeq->rowCount() > 0)&& ($respah->rowCount() > 0) && ($respeh->rowCount() > 0)) {
+            if (($respaq->rowCount() > 0) && ($respeq->rowCount() > 0) && ($respah->rowCount() > 0) && ($respeh->rowCount() > 0)) {
                 $exph = $respeh->fetch(PDO::FETCH_ASSOC);
                 $expq = $respeq->fetch(PDO::FETCH_ASSOC);
                 $acth = $respah->fetch(PDO::FETCH_ASSOC);
@@ -335,6 +348,7 @@ class AlertSystemService
         } else {
             $status_report = $report;
         }
+        $conn = null;
 
         return $status_report;
     }
@@ -381,6 +395,7 @@ class AlertSystemService
             }
             else $status_report['wspeed'] = "there is no wind measurer in the plant";
         }
+        $conn = null;
 
         return $status_report;
     }
@@ -417,34 +432,39 @@ class AlertSystemService
     private static function RetrieveQuarterIst(string $stamp, ?string $inverter, Anlage $anlage): array
     {
         $conn = self::getPdoConnection();
-
         $irrLimit = 30;
 
-        $sqlw = "SELECT b.g_lower as gi , b.g_upper as gmod
-                    FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) 
-                    WHERE a.stamp = '$stamp' ";
+        $sqlw = "SELECT g_lower, g_upper FROM " . $anlage->getDbNameWeather() . " WHERE stamp = '$stamp' ";
         $respirr = $conn->query($sqlw);
 
         if ($respirr->rowCount() > 0) {
             $pdataw = $respirr->fetch(PDO::FETCH_ASSOC);
-            $irradiation = (float)$pdataw['gi'] + (float)$pdataw['gmod'];
+            /* TODO: Irradiation depends on config of plant (could east/west with wight of sensors by Pnom or only one sensore) */
+            $irradiation = (float)$pdataw['g_lower'] + (float)$pdataw['g_upper'];
         } else {
             $irradiation = 0;
         }
 
-        $sql = "SELECT wr_pac as ist, frequency as freq, u_ac as voltage
-                FROM " . $anlage->getDbNameIst() . " 
-                WHERE stamp = '$stamp' AND unit = '$inverter' ";
-        $resp = $conn->query($sql);
+        $sqlExp = "SELECT ac_exp_power FROM ". $anlage->getDbNameDcSoll() . " WHERE  stamp = '$stamp' AND wr = '$inverter';";
+        $resultExp = $conn->query($sqlExp);
 
+        $sql = "SELECT wr_pac as ac_power, wr_pdc as dc_power, frequency as freq, u_ac as voltage FROM " . $anlage->getDbNameIst() . " WHERE stamp = '$stamp' AND unit = '$inverter' ";
+        $resp = $conn->query($sql);
 
         if ($resp->rowCount() > 0) {
             $pdata = $resp->fetch(PDO::FETCH_ASSOC);
+            if ($resultExp->rowCount() == 1){
+                $expectedData = $resultExp->fetch(PDO::FETCH_ASSOC)['ac_exp_power'];
+            } else {
+                $expectedData = false;
+            }
 
             //check power
-            if ($pdata['ist'] !== null) {
-                if ($pdata['ist'] <= 0 && $irradiation > $irrLimit) {
+            if ($pdata['ac_power'] !== null) {
+                if ($pdata['ac_power'] <= 0 && $irradiation > $irrLimit) {
                     $return['istdata'] = "Power is 0";
+                }  elseif ($pdata['dc_power'] > 0 && $pdata['dc_power'] <= 1 && $irradiation > $irrLimit) {
+                    $return['istdata'] = "Power to low";
                 } else {
                     $return['istdata'] = "All is ok";
                 }
@@ -480,6 +500,7 @@ class AlertSystemService
             $return['freq'] = "No Data";
             $return['voltage'] = "No Data";
         }
+        $conn = null;
 
         return $return;
     }

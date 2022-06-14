@@ -130,9 +130,9 @@ trait G4NTrait
     public static function getPdoConnection($dbdsn = null, $dbusr = null, $dbpass = null):\PDO
     {
         // Check der Parameter wenn null dann nehme default Werte als fallback
-        $dbdsn == null ? $dbdsn = 'mysql:dbname=pvp_data;host=dedi6015.your-server.de' : $dbdsn = $dbdsn;
-        $dbusr == null ? $dbusr = 'pvpluy_2' : $dbusr = $dbusr;
-        $dbpass == null ? $dbpass = 'XD4R5XyVHUkK9U5i' : $dbpass = $dbpass;
+        $dbdsn === null ? $dbdsn = 'mysql:dbname=pvp_data;host=dedi6015.your-server.de' : $dbdsn = $dbdsn;
+        $dbusr === null ? $dbusr = 'pvpluy_2' : $dbusr = $dbusr;
+        $dbpass === null ? $dbpass = 'XD4R5XyVHUkK9U5i' : $dbpass = $dbpass;
         // Config als Array
         $config = [
             'database_dsn' => $dbdsn,
