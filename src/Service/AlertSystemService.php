@@ -62,8 +62,6 @@ class AlertSystemService
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
             $this->checkSystem($anlage, $from = date("Y-m-d H:i:00", $stamp));
         }
-        //TODO You speed it up, but lost advantage to find old tickets (from last quater, same inverter, same error)
-        #$this->em->flush();
     }
 
     /**
@@ -78,7 +76,7 @@ class AlertSystemService
     {
         if ($time === null) $time = $this->getLastQuarter(date('Y-m-d H:i:s') );
 
-        //TODO: why time Adjusment -2
+        //we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
         $time = G4NTrait::timeAjustment($time, -2);
 
         $sungap = $this->weather->getSunrise($anlage, $time);
@@ -223,7 +221,7 @@ class AlertSystemService
             $errorCategorie = INVERTER_ERROR;
         } elseif ($inverter['istdata'] === 'Power to low') {
             // check if inverter power make sense, to detect ppc
-            $message .=  "Power to low at inverter " . $nameArray . "  (could be external plant control)<br>";
+            $message .=  "Power too low at inverter " . $nameArray . "  (could be external plant control)<br>";
             $errorType = "";
             $errorCategorie = EXTERNAL_CONTROL;
         }
@@ -440,12 +438,12 @@ class AlertSystemService
         if ($respirr->rowCount() > 0) {
             $pdataw = $respirr->fetch(PDO::FETCH_ASSOC);
             /* TODO: Irradiation depends on config of plant (could east/west with wight of sensors by Pnom or only one sensore) */
+            //WE CAN USE THE GETIRRADIATION FUNCTION FROM THE CHART SERVICE
             $irradiation = (float)$pdataw['g_lower'] + (float)$pdataw['g_upper'];
         } else {
             $irradiation = 0;
         }
-
-        $sqlExp = "SELECT ac_exp_power FROM ". $anlage->getDbNameDcSoll() . " WHERE  stamp = '$stamp' AND wr = '$inverter';";
+        $sqlExp = "SELECT ac_exp_power  FROM ". $anlage->getDbNameDcSoll() . " WHERE  stamp = '$stamp' AND wr = '$inverter';";
         $resultExp = $conn->query($sqlExp);
 
         $sql = "SELECT wr_pac as ac_power, wr_pdc as dc_power, frequency as freq, u_ac as voltage FROM " . $anlage->getDbNameIst() . " WHERE stamp = '$stamp' AND unit = '$inverter' ";
@@ -463,9 +461,11 @@ class AlertSystemService
             if ($pdata['ac_power'] !== null) {
                 if ($pdata['ac_power'] <= 0 && $irradiation > $irrLimit) {
                     $return['istdata'] = "Power is 0";
-                }  elseif ($pdata['dc_power'] > 0 && $pdata['dc_power'] <= 1 && $irradiation > $irrLimit) {
+                }elseif ($pdata['dc_power'] > 0 && $pdata['dc_power'] <= 1 && $irradiation > $irrLimit) {
                     $return['istdata'] = "Power to low";
-                } else {
+                }elseif($pdata['ac_power'] <= $expectedData * 0.1 && $irradiation > $irrLimit) {
+                    $return['istdata'] = "Power to low compared to expected";
+                }else {
                     $return['istdata'] = "All is ok";
                 }
             } else {

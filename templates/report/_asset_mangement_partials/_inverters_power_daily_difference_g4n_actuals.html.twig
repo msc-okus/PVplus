@@ -53,6 +53,9 @@
                                             {% if (datatr.diff_power_dc == -101) %}
                                                 {% set value = -101 %}
                                             {% endif %}
+                                            {% if (datatr.diff_power_dc > 100) %}
+                                                {% set value = 101 %}
+                                            {% endif %}
                                             {% if (value >= -2) %}{% set color = "#00b050" %}{% endif %}
                                             {% if (value < -2) %}{% set color = "#cee4c0" %}{% endif %}
                                             {% if (value < -8) %}{% set color = "#ffff00" %}{% endif %}
@@ -87,7 +90,8 @@
                         <td style="background-color: #ffc000;">-15,1 to -20%</td>
                         <td style="background-color: #cc0000;">< -20%</td>
                     </tr>
-                    <b style="horiz-align: left">* -101 mean there was no data</b>
+                    <b style="horiz-align: left">* -101 means there was no data</b>
+                    <br><b style="horiz-align: left">* 101 means error with the irradiation</b>
                 </table>
 
             </td>
