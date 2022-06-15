@@ -161,38 +161,29 @@ class DefaultMREController extends BaseController
     }
 
 
-    #[Route(path: '/test/epc/{id}/{raw}', defaults: ['id' => 94, 'raw' => 1])]
-    public function testNewEpc($id, $raw, AnlagenRepository $anlagenRepository, FunctionsService $functions, ReportEpcPRNewService $epcNew) : Response
+    #[Route(path: '/test/epc/{id}', defaults: ['id' => 94])]
+    public function testNewEpc($id, AnlagenRepository $anlagenRepository, FunctionsService $functions, ReportEpcPRNewService $epcNew) : Response
     {
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
         $date = date_create("2022-02-01 00:00");
         $result = $epcNew->monthTable($anlage, $date);
-        #$forcastTable = $epcNew->forcastTable($anlage, $monthTable, $date);
-        #$chartYieldPercenDiff = $epcNew->chartYieldPercenDiff($anlage, $monthTable, $date);
-        #$chartYieldCumulativ = $epcNew->chartYieldCumulative($anlage, $monthTable, $date);
+        $pldTable = $epcNew->pldTable($anlage, $result->table, $date);
+        $forcastTable = $epcNew->forcastTable($anlage, $result->table, $pldTable, $date);
+        #$chartYieldPercenDiff = $epcNew->chartYieldPercenDiff($anlage, $result->table, $date);
+        #$chartYieldCumulativ = $epcNew->chartYieldCumulative($anlage, $result->table, $date);
 
-        if ($raw == '1') {
-            $output = $functions->print2DArrayAsTable($result->table,6);
-            $output .= "<br>riskForecastUpToDate: ". $result->riskForecastUpToDate . "<br>riskForecastRollingPeriod: " . $result->riskForecastRollingPeriod;
+        #$output = "<br>riskForecastUpToDate: ". $result->riskForecastUpToDate . "<br>riskForecastRollingPeriod: " . $result->riskForecastRollingPeriod;
 
-            return $this->render('cron/showResult.html.twig', [
-                'headline'      => 'Tabelle New EPC',
-                'availabilitys' => '',
-                'output'        => $output,
-            ]);
-        } else {
-            $output = "<br>riskForecastUpToDate: ". $result->riskForecastUpToDate . "<br>riskForecastRollingPeriod: " . $result->riskForecastRollingPeriod;
+        return $this->render('report/epcReportPR.html.twig', [
+            'anlage'            => $anlage,
+            'monthsTable'       => $result->table,
+            'forcast'           => $forcastTable,
+            'pldTable'          => $pldTable,
+            'legend'            => $anlage->getLegendEpcReports(),
+            #'chart1'            => $chartYieldPercenDiff,
+            #'chart2'            => $chartYieldCumulativ,
+        ]);
 
-            return $this->render('report/epcReportPR.html.twig', [
-                'anlage'            => $anlage,
-                'monthsTable'       => $result->table,
-                #'forcast'           => $forcastTable,
-                'legend'            => $anlage->getLegendEpcReports(),
-                #'chart1'            => $chartYieldPercenDiff,
-                #'chart2'            => $chartYieldCumulativ,
-                'output'            => $output,
-            ]);
-        }
     }
 }

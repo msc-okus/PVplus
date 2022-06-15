@@ -1,6 +1,6 @@
 <div style="page-break-after: always; height: 100%!important;">
     <div>
-        <table style="width: 297mm; margin-top: 15px!important;">
+        <table style="width: 297mm !important; margin-top: 15px!important;">
             <tr style="border-bottom: solid 2px #00386d;">
                 <td style=" width: 254mm;" class="text-left"><h1>{{ anlage.projektNr }} {{ anlage.anlName }} <small>({% if anlage.kwPeakPLDCalculation > 0 %}{{ anlage.kwPeakPLDCalculation|number_format(2, ',', '.') }}{% else %}{{ anlage.power|number_format(2, ',', '.') }}{% endif%} kWp)</small></h1> </td>
                 <td> <img class="customer_logo" src="{{ absolute_url(asset(anlage.eigner.getCustomerLogo)) }}"></td>
@@ -13,10 +13,10 @@
         {% endblock page %}
     </div>
     <div style="top: 25px; position: relative;">
-        <table style="width: 297mm; margin-bottom: 0; ">
+        <table style="width: 297mm !important; margin-bottom: 0; ">
             <tr>
-                <td style="border-bottom: solid 2px #91bc5b; width: 254mm;"></td>
-                <td rowspan="2"><img class="g4n_logo" src="{{ absolute_url(asset('/images/green4net.jpg')) }}"></td>
+                <td style="border-bottom: solid 2px #91bc5b; width: 266mm;"></td>
+                <td rowspan="2"><img class="g4n_logo" style="max-width: 30mm" src="{{ absolute_url(asset('/images/green4net.jpg')) }}"></td>
             </tr>
             <tr>
                 <td></td>
