@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use ApiPlatform\Core\Api\UrlGeneratorInterface;
 use App\Entity\Ticket;
+use App\Entity\TicketDate;
 use App\Form\Model\ToolsModel;
 use App\Form\Reports\ReportsFormType;
 use App\Form\Ticket\TicketEditFormType;
@@ -208,17 +209,22 @@ class TicketController extends BaseController
             if ($mode == "simple") {
                 $Route = $this->generateUrl('app_ticket_list', [], UrlGeneratorInterface::ABS_PATH);
                 if ($ticket != null && $splitTime) {
-                    $ticketNew = clone $ticket;
-                    $ticketNew->unsetId();
-                    $ticketNew->setBegin(date_create_from_format('Y/m/d H:i', $splitTime));
-                    $ticket->setEnd(date_create_from_format('Y/m/d H:i', $splitTime));
-                    $ticket->setSplitted(true);
-                    $ticketNew->setSplitted(true);
+                    $firstDate = new TicketDate();
+                    $secondDate = new TicketDate();
+                    $firstDate->setBegin($ticket->getBegin()->format("Y/m/d H:i"));
+                    $firstDate->setEnd($splitTime);
+                    $secondDate->setBegin($splitTime);
+                    $secondDate->setEnd($ticket->getEnd()->format("Y/m/d H:i"));
 
-                    $em->persist($ticketNew);
+                    $ticket->addDate($firstDate);
+                    $ticket->addDate($secondDate);
+
+                        dd($ticket);
+
+                    $em->persist($firstDate);
+                    $em->persist($secondDate);
                     $em->persist($ticket);
                     $em->flush();
-
                     return $this->redirect($Route);
                 }
             }
