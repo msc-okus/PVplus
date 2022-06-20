@@ -81,8 +81,10 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/edit/{id}', name: 'app_ticket_edit')]
     public function edit($id, TicketRepository $ticketRepo, EntityManagerInterface $em, Request $request) : Response
     {
+        $ticketDates = null;
         $session=$this->container->get('session');
         $ticket = $ticketRepo->find($id);
+        $ticketDates = $ticket->getDates();
         //reading data from session
         $form = $this->createForm(TicketFormType::class, $ticket);
         $searchstatus = $session->get('search');
@@ -118,7 +120,8 @@ class TicketController extends BaseController
         return $this->render('ticket/edit.html.twig', [
             'ticketForm'    => $form->createView(),
             'ticket'        => $ticket,
-            'edited' => true
+            'edited'        => true,
+            'dates'         => $ticketDates
         ]);
     }
 
@@ -218,9 +221,6 @@ class TicketController extends BaseController
 
                     $ticket->addDate($firstDate);
                     $ticket->addDate($secondDate);
-
-                        dd($ticket);
-
                     $em->persist($firstDate);
                     $em->persist($secondDate);
                     $em->persist($ticket);

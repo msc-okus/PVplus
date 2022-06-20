@@ -5,8 +5,14 @@ namespace App\Entity;
 use App\Repository\TicketDateRepository;
 use Doctrine\ORM\Mapping as ORM;
 
+
 /**
  * @ORM\Entity(repositoryClass=TicketDateRepository::class)
+ * @ORM\Table(name="ticket_date", uniqueConstraints={
+ *          @ORM\UniqueConstraint(name="date_unique",
+ *          columns={"begin", "end", "ticket_id"})
+ *     }
+ * )
  */
 class TicketDate
 {
