@@ -45,7 +45,7 @@ class DashboardPlantsController extends BaseController
                 $anlagen = $anlagenRepository->findGrantedActive($eignerId, $anlageId, $granted);
             }
         }
-        if ($request->request->get('mysubmit') === null || $request->request-xh>all() === null) {
+        if ($request->request->get('mysubmit') === null || $request->request->all() === null) {
             $form['selectedChart'] = 'ac_single';
             $form['selectedGroup'] = 1;
             $form['selectedInverter'] = 1;
