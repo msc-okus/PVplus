@@ -107,7 +107,7 @@
 
             {% if aktAnlage.showCosPhiPowerDiag %}
                 let series4 = chart.series.push(new am4charts.LineSeries());
-                series4.name = "CosPhi"
+                series4.name = "CosPhi (Cos Phi * Inverter Out)"
                 series4.dataFields.dateX = "date";
                 series4.dataFields.valueY = "cosPhi";
                 series4.tooltipText = "CosPhi: {valueY} [/]";
@@ -117,6 +117,20 @@
                 series4.tensionX = 0.8;
                 series4.hidden = true;
                 series4.connect = false;
+            {% endif %}
+
+            {% if aktAnlage.showCosPhiDiag %}
+                let series5 = chart.series.push(new am4charts.LineSeries());
+                series5.name = "CosPhi (*100)"
+                series5.dataFields.dateX = "date";
+                series5.dataFields.valueY = "cosPhi";
+                series5.tooltipText = "CosPhi: {valueY} [/]";
+                series5.fill = am4core.color("#950101");
+                series5.stroke = am4core.color("#950101");
+                series5.strokeWidth = 1;
+                series5.tensionX = 0.8;
+                series5.hidden = true;
+                series5.connect = false;
             {% endif %}
 
             {% if aktAnlage.useCustPRAlgorithm == 'Lelystad' and is_granted('ROLE_G4N') %} {# theoretische Leitung (theoPower) mit TempKorrektur nach NREL #}
@@ -165,7 +179,7 @@
         seriesIrr.dataFields.valueY = "irradiation";
        // seriesIrr.legendSettings.labelText = "Irradiation W/m²";
        // seriesIrr.legendSettings.valueText = "{valueY.total}";
-        seriesIrr.name = "Irradiation {{ (content.irrSum)|number_format(0, ',', '.') }} kW/m²";
+        seriesIrr.name = "Irradiation {{ (content.irrSum)|number_format(2, ',', '.') }} kW/m²";
         seriesIrr.tooltipText = "Irradiation W/m²: {valueY} [/]";
         seriesIrr.fill = am4core.color("#95018e");
         seriesIrr.stroke = am4core.color("#95018e");

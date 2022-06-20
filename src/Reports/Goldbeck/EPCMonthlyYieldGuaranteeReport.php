@@ -16,7 +16,7 @@ class EPCMonthlyYieldGuaranteeReport extends KoolReport
     use \koolreport\excel\BigSpreadsheetExportable;
     use \koolreport\cloudexport\Exportable;
 
-    protected function settings():array
+    protected function settings(): array
     {
         return [
             'dataSources'=>[

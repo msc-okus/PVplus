@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\NumericFilter;
@@ -32,7 +33,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * )
 
  */
-class User implements UserInterface, \Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     public const ARRAY_OF_ROLES = [
         'Developer' => 'ROLE_DEV',
@@ -41,7 +42,8 @@ class User implements UserInterface, \Symfony\Component\Security\Core\User\Passw
         'AssetManagement' => 'ROLE_AM',
         'Operator' => 'ROLE_OPERATOR',
         'Owner (full)' => 'ROLE_OWNER_FULL',
-        'Owner' => 'ROLE_OWNER'
+        'Owner' => 'ROLE_OWNER',
+        'Beta Tester' => 'ROLE_BETA'
     ];
 
     /**
@@ -112,7 +114,7 @@ class User implements UserInterface, \Symfony\Component\Security\Core\User\Passw
     /**
      * @var string
      *
-     * @ORM\Column(type="string", length=50)
+     * @ORM\Column(type="string", length=250)
      */
     #[Groups(['main:read'])]
     private string $grantedList;
@@ -122,15 +124,10 @@ class User implements UserInterface, \Symfony\Component\Security\Core\User\Passw
      */
     private $eigners;
 
-    /**
-     * @ORM\OneToMany(targetEntity=AllowedPlants::class, mappedBy="User")
-     */
-    private $allowedPlants;
 
     public function __construct()
     {
         $this->eigners = new ArrayCollection();
-        $this->allowedPlants = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -161,6 +158,16 @@ class User implements UserInterface, \Symfony\Component\Security\Core\User\Passw
     public function getUsername(): ?string
     {
         return $this->name;
+    }
+
+    /**
+     * A visual identifier that represents this user.
+     *
+     * @see UserInterface
+     */
+    public function getUserIdentifier(): ?string
+    {
+        return $this->email;
     }
 
     public function setUsername(string $name): self
@@ -257,10 +264,12 @@ class User implements UserInterface, \Symfony\Component\Security\Core\User\Passw
         return $this;
     }
 
+
     public function getSalt()
     {
-        // not needed when using the "bcrypt" algorithm in security.yaml
+        // TODO: Implement getSalt() method.
     }
+
 
     public function eraseCredentials()
     {
@@ -322,39 +331,14 @@ class User implements UserInterface, \Symfony\Component\Security\Core\User\Passw
         return $this->grantedList;
     }
 
+    public function getGrantedArray(): array|false
+    {
+        return explode(',',$this->grantedList);
+    }
+
     public function setGrantedList(string $grantedList): self
     {
         $this->grantedList = $grantedList;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, AllowedPlants>
-     */
-    public function getAllowedPlants(): Collection
-    {
-        return $this->allowedPlants;
-    }
-
-    public function addAllowedPlant(AllowedPlants $allowedPlant): self
-    {
-        if (!$this->allowedPlants->contains($allowedPlant)) {
-            $this->allowedPlants[] = $allowedPlant;
-            $allowedPlant->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeAllowedPlant(AllowedPlants $allowedPlant): self
-    {
-        if ($this->allowedPlants->removeElement($allowedPlant)) {
-            // set the owning side to null (unless already changed)
-            if ($allowedPlant->getUser() === $this) {
-                $allowedPlant->setUser(null);
-            }
-        }
 
         return $this;
     }

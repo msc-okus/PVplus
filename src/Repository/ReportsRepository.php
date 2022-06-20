@@ -20,7 +20,7 @@ use Symfony\Component\Security\Core\Security;
 class ReportsRepository extends ServiceEntityRepository
 {
 
-    private $security;
+    private Security $security;
 
     public function __construct(ManagerRegistry $registry, Security $security)
     {
@@ -28,9 +28,10 @@ class ReportsRepository extends ServiceEntityRepository
         $this->security = $security;
     }
 
-
     /**
-     * @param string|null $term
+     * @param Anlage $Anl
+     * @param String $month
+     * @param String $year
      * @return QueryBuilder
      */
     public function findOneByAMY(Anlage $Anl, String $month,String $year){
@@ -49,7 +50,6 @@ class ReportsRepository extends ServiceEntityRepository
    
 
     public function getWithSearchQueryBuilder(?string $term, ?string $searchstatus, ?string $searchtype, ?string $searchmonth, ?string $searchyear): QueryBuilder
-
     {
         $qb = $this->createQueryBuilder('report')
             ->innerJoin('report.anlage', 'a')
@@ -62,7 +62,7 @@ class ReportsRepository extends ServiceEntityRepository
         if (! $this->security->isGranted('ROLE_G4N')) {
             /** @var User $user */
             $user = $this->security->getUser();
-            $granted = explode(',', $user->getGrantedList());
+            $granted = $user->getGrantedArray();
 
             $qb->andWhere("a.anlId IN (:granted)")
                 ->setParameter('granted', $granted)
@@ -73,34 +73,12 @@ class ReportsRepository extends ServiceEntityRepository
         // muss noch via Backend auswählbar gemacht werden
         $qb->andWhere('report.reportStatus != 9');
         $qb->andWhere('report.reportStatus != 11');
-        if ($searchstatus != '') {
-            $qb->andWhere("report.reportStatus = $searchstatus");
-        }
-
-        if ($searchtype != '') {
-            $qb->andWhere("report.reportType like '$searchtype'");
-        }
-
-        if ($searchmonth !='') {
-            $qb->andWhere("report.month = $searchmonth");
-        }
-
-        if ($searchyear !='') {
-            $qb->andWhere("report.year = $searchyear");
-        }
-
-        if ($term != '') {
-            $qb ->andWhere(" a.anlName LIKE '$term' ");
-        }
-
-
+        if ($searchstatus != '') $qb->andWhere("report.reportStatus = $searchstatus");
+        if ($searchtype != '') $qb->andWhere("report.reportType like '$searchtype'");
+        if ($searchmonth !='') $qb->andWhere("report.month = $searchmonth");
+        if ($searchyear !='') $qb->andWhere("report.year = $searchyear");
+        if ($term != '') $qb ->andWhere(" a.anlName LIKE '$term' ");
 
         return $qb;
-        /*->orderBy('e.firma', 'ASC')
-            ->addOrderBy('a.anlName', 'ASC')
-            ->addOrderBy('report.reportType')
-            ->addOrderBy('report.year')
-            ->addOrderBy('report.month');
-            */
     }
 }

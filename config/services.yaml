@@ -27,12 +27,6 @@ services:
         resource: '../src/*'
         exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
 
-    App\Service\MarkdownHelper:
-        arguments:
-            $isDebug: '%kernel.debug%'
-            $markdown: 'dssdfsdf'
-
-
     # MessageHandlers
     App\MessageHandler\Command\:
         resource: '../src/MessageHandler/Command'

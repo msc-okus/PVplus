@@ -22,7 +22,7 @@ class DownloadReport extends \koolreport\KoolReport
     use \koolreport\cloudexport\Exportable;
     use \koolreport\excel\BigSpreadsheetExportable;
 
-    public function settings()
+    public function settings(): array
     {
         return array(
             "dataSources"=>array(

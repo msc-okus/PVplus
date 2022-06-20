@@ -420,7 +420,7 @@ class AnlageModules
         } else {
             $expected = $this->getOperatorCurrentA() * $irr ** 4 + $this->getOperatorCurrentB() * $irr ** 3 + $this->getOperatorCurrentC() * $irr ** 2 + $this->getOperatorCurrentD() * $irr + $this->getOperatorCurrentE() ;
         }
-        $expected = $expected > $this->maxImpp ? $this->maxImpp : $expected;
+        $expected = $expected > $this->maxImpp ? $this->getMaxImpp() : $expected;
 
         return $irr > 0 ? $expected : 0;
     }
@@ -440,7 +440,7 @@ class AnlageModules
         } else {
             $expected = $this->getOperatorPowerA() * $irr ** 4 + $this->getOperatorPowerB() * $irr ** 3 + $this->getOperatorPowerC() * $irr ** 2 + $this->getOperatorPowerD() * $irr + $this->getOperatorPowerE() ;
         }
-        $expected = $expected > $this->maxPmpp ? $this->maxPmpp : $expected;
+        $expected = $expected > $this->maxPmpp ? $this->getMaxPmpp() : $expected;
 
         return $irr > 0 ? $expected : 0;
     }

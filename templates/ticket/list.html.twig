@@ -13,12 +13,13 @@
     <h1>List Tickets</h1>
     <div {{ stimulus_controller('ticket-list', {
                 urlCreate: path('app_ticket_create'),
-                urlSearch: path('app_ticket_search')
+                urlSearch: path('app_ticket_list', { ajax: 1 })
             }) }}
             data-ticket-list-target="ticketForm"
             class="ticket"
     >
         <div data-ticket-list-target="searchBar">
+            <h3>Filter / Search by:</h3>
             {% include 'ticket/_inc/_searchForm.html.twig' %}
         </div>
         <div data-ticket-list-target="list">
@@ -26,7 +27,7 @@
         </div>
         <div class="cell medium-2">
             <button name="new-report" class="button" value="yes"
-                data-action="ticket-list#create">Open Ticket
+                data-action="ticket-list#create">New Ticket
             </button>
         </div>
     </div>

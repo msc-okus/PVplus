@@ -21,7 +21,6 @@
                 {% else  %}
                     {% set maxInv =  40 %}
                 {% endif %}
-                {% dump( acGroups) %}
                 <table class="asset_report_table_operations_data" style="margin-bottom: 5px!important; width: 100%!important;">
                     {% for inv in 0..maxInv-1 %}
                         {%  set data = plantAvailabilityMonth[(page*40)+inv] %}

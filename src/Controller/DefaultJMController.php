@@ -28,16 +28,17 @@ class DefaultJMController extends AbstractController
             'controller_name' => 'DefaultJMController',
         ]);
     }
-    #[Route(path: '/default/test', name: 'default_j_m')]
-    public function test(FunctionsService $functionsService, AnlagenRepository $repo)
+
+    #[Route(path: '/test/createticket', name: 'default_check')]
+    public function check(AnlagenRepository $anlagenRepository, AlertSystemService $service): Response
     {
-        $stringArray = $functionsService->readInverters(" 2, 14 , 25-28, 300", $repo->findIdLike(94)[0]);
-        return $this->redirectToRoute("/default/test");
-    }
-    #[Route(path: '/default/test/check', name: 'default_check')]
-    public function check(AlertSystemService $service)
-    {
-        $service->generateTicketsInterval("2022-05-15", "2022-05-16", "93");
-        dd("fertig");
+        $anlage = $anlagenRepository->findOneBy(['anlId' => 111]);
+        $service->generateTicketsInterval($anlage,"2022-06-06 07:00", "2022-06-06 18:00");
+
+        return $this->render('cron/showResult.html.twig', [
+            'headline'      => 'Ticket',
+            'availabilitys' => '',
+            'output'        => '',
+        ]);
     }
 }

@@ -1,23 +1,27 @@
 # translations/messages.en.yaml
 ticket:
   error:
-    category:
-      name: Error Category
-      10: SOF
+    type:
+      name: Error Type
+      10: SOR
       20: EFOR
       30: OMC
 
-    type:
-      name: Error Type
+    category:
+      name: Error Category
       10: data gap
       20: inverter error
       30: grid error
+      40: weather
+      50: external control
 
   status:
     name: Status
-    10: Open
-    20: Work in Progress
-    30: Closed
+    10: New
+    20: Open
+    30: Work in Progress
+    40: Wait external
+    90: Closed
 
   priority:
     name: Priority

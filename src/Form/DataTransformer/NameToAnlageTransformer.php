@@ -15,14 +15,14 @@ class NameToAnlageTransformer implements DataTransformerInterface
     {
         $this->anlnRepo = $anlRepo;
     }
-    public function transform($value)
+    public function transform($value): mixed
     {
         if($value === null) $Anl = "";
         else $Anl =  $value->getAnlName();
         return $Anl;
     }
 
-    public function reverseTransform($value)
+    public function reverseTransform($value): mixed
     {
         $Anlage = $this->anlnRepo->findOneBy(['anlName' => $value]);
         if (!$Anlage) { throw new TransformationFailedException(sprintf('No plant found by that name'));}

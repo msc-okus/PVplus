@@ -62,7 +62,7 @@ class ToolsController extends BaseController
                 default:
                     $output .= "something went wrong!<br>";
             }
-            $output .= "Command was send to messenger! Will be processed in the background.<br>";
+            $output .= "Command was send to messenger! Will be processed in background.<br>";
         }
         // Wenn Close geklickt wird mache dies:
         if($form->isSubmitted() && $form->isValid() && $form->get('close')->isClicked()) {

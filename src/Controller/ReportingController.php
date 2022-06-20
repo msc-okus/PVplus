@@ -5,10 +5,10 @@ namespace App\Controller;
 use ApiPlatform\Core\Api\UrlGeneratorInterface;
 use App\Entity\AnlagenReports;
 
-use App\Entity\User;
 use App\Form\AssetManagement\AssetManagementeReportFormType;
 use App\Form\Reports\ReportsFormType;
 use App\Helper\G4NTrait;
+use App\Helper\PVPNameArraysTrait;
 use App\Reports\Goldbeck\EPCMonthlyPRGuaranteeReport;
 use App\Reports\ReportMonthly\ReportMonthly;
 use App\Repository\AnlagenRepository;
@@ -23,8 +23,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -38,11 +36,13 @@ use Nuzkito\ChromePdf\ChromePdf;
 class ReportingController extends AbstractController
 {
     use G4NTrait;
+    use PVPNameArraysTrait;
+
     public function __construct(private string $kernelProjectDir)
     {
     }
 
-     #[Route(path: '/reporting/create', name: 'app_reporting_create', methods: ['GET', 'POST'])]
+    #[Route(path: '/reporting/create', name: 'app_reporting_create', methods: ['GET', 'POST'])]
     public function createReport(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo, ReportService $report, ReportEpcService $reportEpc, ReportsMonthlyService $reportsMonthly) : Response
     {
         $searchstatus    = $request->query->get('searchstatus');
@@ -189,7 +189,7 @@ class ReportingController extends AbstractController
         $session->set('anlage', $anlage);
         $session->set('month', $searchmonth);
         $session->set('search_year', $searchyear);
-        $anlagen = $anlagenRepo->findAll();
+        $anlagen = $anlagenRepo->findAllActive();
         return $this->render('reporting/listOld.html.twig', [
             'pagination' => $pagination,
             'anlagen'    => $anlagen,
@@ -202,9 +202,6 @@ class ReportingController extends AbstractController
         ]);
     }
 
-    /**
-     *
-     */
     #[Route(path: '/reporting/edit/{id}', name: 'app_reporting_edit')]
     public function edit($id, ReportsRepository $reportsRepository, Request $request, Security $security, EntityManagerInterface $em) : Response
     {
@@ -242,10 +239,8 @@ class ReportingController extends AbstractController
         ]);
     }
 
-    /**
-     * @IsGranted("ROLE_DEV")
-     */
-    #[Route(path: 'app_reporting/pdf/delete/{id}', name: 'app_reporting_delete')]
+    #[Route(path: 'app_reporting/delete/{id}', name: 'app_reporting_delete')]
+    #[IsGranted(['ROLE_DEV'])]
     public function deleteReport($id, ReportsRepository $reportsRepository, Security $security, EntityManagerInterface $em) : RedirectResponse
     {
         $session        = $this->container->get('session');
@@ -367,8 +362,8 @@ class ReportingController extends AbstractController
                 }
                 break;
             case 'am-report':
-                if ($reportsRepository->find($id)) {
-                    $report = $reportsRepository->find($id);
+                $report = $reportsRepository->find($id);
+                if ($report) {
                     $output = $report->getContentArray();
                     $form = $this->createForm(AssetManagementeReportFormType::class);
                     $form->handleRequest($request);
@@ -448,10 +443,6 @@ class ReportingController extends AbstractController
                         $pos = $this->substr_Index($this->kernelProjectDir, '/', 5);
                         $pathpart = substr($this->kernelProjectDir, $pos);
                         $anlageName = $anlage->getAnlName();
-
-                        if ($month < 10) {
-                            $month = '0' . $month;
-                        }
 
                         $pdf->output('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlageName . '_AssetReport_' . $month . '_' . $year . '.pdf');
                         $reportfile = fopen('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlageName . '_AssetReport_' . $month . '_' . $year . '.html', "w") or die("Unable to open file!");

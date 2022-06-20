@@ -4,24 +4,23 @@ namespace App\Security;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Nexy\Slack\Exception\UserNotFoundException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
-use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
-use Symfony\Component\Security\Core\Security;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
-use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
-use Symfony\Component\Security\Guard\Authenticator\AbstractFormLoginAuthenticator;
-use Symfony\Component\Security\Guard\PasswordAuthenticatedInterface;
+use Symfony\Component\Security\Http\Authenticator\AbstractLoginFormAuthenticator;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\CsrfTokenBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\RememberMeBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
+use Symfony\Component\Security\Http\Authenticator\Passport\Credentials\PasswordCredentials;
+use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
 
-class LoginFormAuthenticator extends AbstractFormLoginAuthenticator implements PasswordAuthenticatedInterface
+class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 {
     use TargetPathTrait;
 
@@ -30,91 +29,56 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator implements P
     private UrlGeneratorInterface $urlGenerator;
     private CsrfTokenManagerInterface $csrfTokenManager;
     private UserPasswordHasherInterface $passwordHasher;
-    private UserRepository $pvpUserRepository;
+    private EntityManagerInterface $em;
 
-    public function __construct(UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordHasherInterface $asswordHasher, UserRepository $userRepository)
+    public function __construct(UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordHasherInterface $asswordHasher, EntityManagerInterface $em)
     {
         $this->urlGenerator = $urlGenerator;
         $this->csrfTokenManager = $csrfTokenManager;
         $this->passwordHasher = $asswordHasher;
-        $this->pvpUserRepository = $userRepository;
+        $this->em = $em;
     }
 
-    public function supports(Request $request)
+    public function authenticate(Request $request): Passport
     {
-        return self::LOGIN_ROUTE === $request->attributes->get('_route')
-            && $request->isMethod('POST');
-    }
-
-    public function getCredentials(Request $request)
-    {
-        $credentials = [
-            'username' => $request->request->get('username'),
-            'password' => $request->request->get('password'),
-            'csrf_token' => $request->request->get('_csrf_token'),
-        ];
-        $request->getSession()->set(
-            Security::LAST_USERNAME,
-            $credentials['username']
+        $username   = $request->request->get('username');
+        $password   = $request->request->get('password');
+        
+        return new Passport(
+            new UserBadge($username, function($userIdentifier) {
+                // optionally pass a callback to load the User manually
+                $user = $this->em
+                    ->getRepository(User::class)
+                    ->findOneBy(['name' => $userIdentifier]);
+                if (!$user) {
+                    throw new UserNotFoundException();
+                }
+                return $user;
+            }),
+            new PasswordCredentials($password),
+            [
+                new RememberMeBadge(),
+                new CsrfTokenBadge(
+                    'authenticate',
+                    $request->request->get('_csrf_token')
+                ),
+            ]
         );
 
-        return $credentials;
     }
 
-    public function getUser($credentials, UserProviderInterface $userProvider)
+
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName ): ?RedirectResponse
     {
 
-        $token = new CsrfToken('authenticate', $credentials['csrf_token']);
-        if (!$this->csrfTokenManager->isTokenValid($token)) {
-            throw new InvalidCsrfTokenException();
-        }
-
-        // Load / create our user however you need.
-        // You can do this by calling the user provider, or with custom logic here.
-        $user = $this->pvpUserRepository->findOneBy(['name' => $credentials['username']]);
-
-        if (!$user) {
-            // fail authentication with a custom error
-            throw new CustomUserMessageAuthenticationException('Name could not be found.');
-        }
-
-        return $user;
-    }
-
-    public function checkCredentials($credentials, UserInterface $user)
-    {
-        if ($this->passwordHasher->isPasswordValid($user, $credentials['password'])) {
-            /* @var User $user */
-            $_SESSION['username']   = $user->getUsername();
-            $_SESSION['Go'] = "10";
-            $_SESSION['level'] = $user->getLevel();
-            $_SESSION['userAccessConfig']['admin'] = $user->getAdmin();
-            if (! isset($_SESSION['allowedEigner']))    $_SESSION['allowedEigner'] = $user->getAccessList();
-            if (! isset($_SESSION['eide']))             $_SESSION['eide'] = $user->getAccessList();
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Used to upgrade (rehash) the user's password automatically over time.
-     */
-    public function getPassword($credentials): ?string
-    {
-        return $credentials['password'];
-    }
-
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
-    {
-
-        if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
+        if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
             return new RedirectResponse($targetPath);
         }
         return new RedirectResponse($this->urlGenerator->generate('app_dashboard'));
 
     }
 
-    protected function getLoginUrl()
+    protected function getLoginUrl(Request $request): string
     {
         return $this->urlGenerator->generate(self::LOGIN_ROUTE);
     }
