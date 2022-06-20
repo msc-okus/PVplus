@@ -404,12 +404,30 @@ class AnlagenAdminController extends BaseController
                       KEY `stamp` (`stamp`)
                 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;";
 
+            $databasePPC = "CREATE TABLE IF NOT EXISTS " . $anlage->getDbNamePPC() . " (
+                           `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
+                           `anl_id` bigint(11) NOT NULL,
+                           `anl_intnr` varchar(50),
+                           `stamp` timestamp NOT NULL,
+                           `p_ac_inv` varchar(20) NOT NULL,
+                           `pf_set` int(3) NOT NULL ,
+                           `p_set_gridop_rel` int(3) NOT NULL,
+                           `p_set_rel` int(3) NOT NULL,
+                           `p_set_rpc_rel` int(3) NOT NULL,
+                           `q_set_rel` int(3) NOT NULL,
+                           `p_set_ctrl_rel` int(3) NOT NULL,
+                           `p_set_ctrl_rel_mean` int(3) NOT NULL,
+                            PRIMARY KEY (`db_id`),
+                            UNIQUE KEY `unique_stamp` (`stamp`),
+                            KEY `stamp` (`stamp`)
+                        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 
             $conn = self::getPdoConnection();
             $conn->exec($databaseAcIst);
             $conn->exec($databaseDcIst);
             $conn->exec($databaseAcSoll);
             $conn->exec($databaseDcSoll);
+            $conn->exec($databasePPC);
             $conn = null;
 
             return true;

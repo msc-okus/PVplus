@@ -54,7 +54,7 @@
     {% if form.selectedChart starts with 'irr' or form.selectedChart == 'temp'
         or form.selectedChart == 'ac_single' or form.selectedChart == 'dc_single'
         or form.selectedChart == 'availability' or form.selectedChart == 'pr_and_av' or form.selectedChart == 'forecast' or form.selectedChart == 'heatmap'
-        or form.selectedChart == 'tempheatmap' or form.selectedChart == 'ac_grp_power_diff' or form.selectedChart == 'dc_grp_power_diff' or form.selectedChart == 'status_log' or form.selectedChart == 'pvsyst' or form.selectedChart == 'grid' %}
+        or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap' or form.selectedChart == 'ac_grp_power_diff' or form.selectedChart == 'dc_grp_power_diff' or form.selectedChart == 'status_log' or form.selectedChart == 'pvsyst' or form.selectedChart == 'grid' %}
         <input type="hidden" name="selectedGroup" value="1">
     {% else %}
         <select class="form-control js-submit-onchange" title="Select a Group" data-toggle="tooltip" name="selectedGroup">

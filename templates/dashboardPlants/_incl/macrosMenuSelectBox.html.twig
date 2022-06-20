@@ -6,6 +6,10 @@
 {% macro showTempHeatmap(form, aktAnlage) %}
     <option value="tempheatmap" {% if form.selectedChart == 'tempheatmap' %}selected{% endif %}>Inverter Temperature Heatmap [°C]</option>
 {% endmacro %}
+{# INV SollIstHeatmap Diagramme #}
+{% macro showSollIstHeatmap(form, aktAnlage) %}
+    <option value="sollistheatmap" {% if form.selectedChart == 'sollistheatmap' %}selected{% endif %}>Soll Ist Heatmap [%]</option>
+{% endmacro %}
 {# AC Power Diagramme #}
 {# AC1 #}
 {% macro acActPlant(form, aktAnlage) %}

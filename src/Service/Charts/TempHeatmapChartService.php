@@ -111,14 +111,14 @@ class TempHeatmapChartService
             $sql = "SELECT wr_temp as istTemp,group_dc,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts
                                     FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameDCIst() . " b ON a.stamp = b.stamp)
                                     WHERE a.stamp BETWEEN '$from' AND '$to' 
-                                    GROUP BY a.stamp, b.group_ac";
+                                    GROUP BY a.stamp, b.group_dc";
 
         } else {
 
             $sql = "SELECT wr_temp as istTemp,group_dc,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts 
                                     FROM (db_dummysoll a LEFT JOIN  " . $anlage->getDbNameACIst() . " b ON a.stamp = b.stamp)
                                     WHERE a.stamp BETWEEN '$from' AND '$to' 
-                                    GROUP BY a.stamp, b.group_dc";
+                                    GROUP BY a.stamp, b.group_ac";
         }
 
         $resultActual = $conn->query($sql);

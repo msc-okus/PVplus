@@ -14,7 +14,7 @@ use PDO;
 use Symfony\Component\Security\Core\Security;
 use ContainerXGGeorm\getConsole_ErrorListenerService;
 
-class HeatmapChartService
+class SollIstHeatmapChartService
 {
     use G4NTrait;
     private Security $security;
@@ -67,8 +67,8 @@ class HeatmapChartService
      * @return array
      * [Heatmap]
      */
-    //MS 05/2022
-    public function getHeatmap(Anlage $anlage, $from, $to,  bool $hour = false): ?array
+    //MS 06/2022
+    public function getSollIstHeatmap(Anlage $anlage, $from, $to,  bool $hour = false): ?array
     {
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $conn = self::getPdoConnection();
@@ -109,21 +109,27 @@ class HeatmapChartService
 
         if ($anlage->getUseNewDcSchema()) {
 
-            $sql = "SELECT wr_pdc as istPower,group_dc,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts
-                                    FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameDCIst() . " b ON a.stamp = b.stamp)
-                                    WHERE a.stamp BETWEEN '$from' AND '$to' 
-                                    GROUP BY a.stamp, b.group_dc";
+            $sql = "SELECT date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts, c.wr_idc as istCurrent, b.soll_imppwr as sollCurrent, b.dc_exp_power as expected, b.group_dc as inv FROM db_dummysoll a 
+                    LEFT JOIN " . $anlage->getDbNameDcSoll() . " b ON a.stamp = b.stamp 
+                    LEFT JOIN " . $anlage->getDbNameDCIst() . " c ON b.stamp = c.stamp 
+                    WHERE a.stamp BETWEEN '$from' AND '$to'
+                    GROUP BY a.stamp, b.group_dc;";
+
         } else {
 
-            $sql = "SELECT wr_pac as istPower,group_dc,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts 
-                                    FROM (db_dummysoll a LEFT JOIN  " . $anlage->getDbNameACIst() . " b ON a.stamp = b.stamp)
-                                    WHERE a.stamp BETWEEN '$from' AND '$to' 
-                                    GROUP BY a.stamp, b.group_ac";
+            $sql = "SELECT date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts, c.wr_idc as istCurrent, b.soll_imppwr as sollCurrent, b.dc_exp_power as expected, b.group_dc as inv FROM db_dummysoll a 
+                    LEFT JOIN " . $anlage->getDbNameDcSoll() . " b ON a.stamp = b.stamp 
+                    LEFT JOIN " . $anlage->getDbNameACIst() . " c ON b.stamp = c.stamp 
+                    WHERE a.stamp BETWEEN '$from' AND '$to'
+                    GROUP BY a.stamp, b.group_dc;";
         }
 
         $resultActual = $conn->query($sql);
 
         $dataArray['inverterArray'] = $nameArray;
+        $maxInverter = $resultActual->rowCount() ;
+
+       // SOLL Strom für diesen Zeitraum und diese Gruppe
 
         if ($resultActual->rowCount() > 0) {
 
@@ -135,7 +141,6 @@ class HeatmapChartService
 
             $dataArray['maxSeries'] = 0;
             $counter = 0;
-            $counterInv = 1;
 
             while ( $rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
 
@@ -157,23 +162,22 @@ class HeatmapChartService
                 $e = explode(" ", $stamp);
                 $dataArray['chart'][$counter]['ydate'] = $e[1];
 
-                    $powerist = $rowActual['istPower'];
+                ($rowActual['sollCurrent'] == null) ? $powersoll = 0 : $powersoll = $rowActual['sollCurrent'];
+                ($rowActual['istCurrent'] == null) ? $powerist = 0 :  $powerist = $rowActual['istCurrent'];
 
-                    if($powerist != null) $poweristkwh = $powerist * (float)4;
-                    else $poweristkwh = 0;
-
-                        $pnomkwh = $pnominverter[$rowActual['group_dc']] / (float)1000;
-                        if ($dataIrr > 10) {
-                            $theoreticalIRR = ($dataIrr / (float)1000) * $pnomkwh;
-                            if ($poweristkwh == 0) $value = 0;
-                            else $value = round(($poweristkwh / $theoreticalIRR) * (float)100);
-                        } else {
-                                $value = 0;
-                        }
-
+                if($powersoll!=0) {
+                    $value = round(($powerist / $powersoll) * (float)100 );
+                }else{
+                    $value = 0;
+                }
                         $value = ($value > (float)100) ? (float)100: $value;
-                        $dataArray['chart'][$counter]['xinv'] = $nameArray[$rowActual['group_dc']] ;
-                        $dataArray['chart'][$counter]['value'] =  $value ;
+                        $value = ($value < (float)0) ? (float)100: $value;
+
+                        $dataArray['maxSeries'] =  $maxInverter;
+                        $dataArray['chart'][$counter]['xinv'] = $nameArray[$rowActual['inv']] ;
+                        $dataArray['chart'][$counter]['value'] =  $value;
+                        $dataArray['chart'][$counter]['ist'] =  $powerist;
+                        $dataArray['chart'][$counter]['expected'] =  $powersoll;
                         /*
                         $dataArray['chart'][$counter]['irr'] =  $dataIrr;
                         $dataArray['chart'][$counter]['thirr'] =  $theoreticalIRR;
@@ -185,7 +189,7 @@ class HeatmapChartService
             }
             $dataArray['offsetLegend'] = 0;
         }
-       # dd(print_r($dataArray));
+      #  dd(print_r($dataArray));
         return $dataArray;
     }
 }

@@ -738,6 +738,11 @@ class Anlage
     /**
      * @ORM\Column(type="boolean", nullable = true)
      */
+    private bool $hasPPC = false;
+
+    /**
+     * @ORM\Column(type="boolean", nullable = true)
+     */
     private bool $hasPannelTemp = false;
 
     /**
@@ -1373,6 +1378,12 @@ class Anlage
     {
         return $this->dbAnlagenData. ".db__pv_dcsoll_".$this->getAnlIntnr();
     }
+
+    public function getDbNamePPC()
+    {
+        return $this->dbAnlagenData. ".db__pv_ppc_".$this->getAnlIntnr();
+    }
+
     /**
      * @return string
      * @deprecated
@@ -3137,6 +3148,18 @@ class Anlage
     public function setHasStrings(bool $hasStrings): self
     {
         $this->hasStrings = $hasStrings;
+
+        return $this;
+    }
+
+    public function getHasPPC(): ?bool
+    {
+        return $this->hasPPC;
+    }
+
+    public function setHasPPC(bool $hasPPC): self
+    {
+        $this->hasPPC = $hasPPC;
 
         return $this;
     }
