@@ -166,7 +166,7 @@ class DefaultMREController extends BaseController
     {
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
-        $date = date_create("2022-02-01 00:00");
+        $date = date_create("2022-04-01 00:00");
         $result = $epcNew->monthTable($anlage, $date);
         $pldTable = $epcNew->pldTable($anlage, $result->table, $date);
         $forcastTable = $epcNew->forcastTable($anlage, $result->table, $pldTable, $date);

@@ -802,7 +802,6 @@ class ReportEpcPRNewService
 
         }
         ksort($result);
-        dump($result);
 
         return $result;
     }
@@ -865,8 +864,8 @@ class ReportEpcPRNewService
         $result['current']['PrActForcast']      = $monthTable[$zeileSumme5]['AD_prMonth'];
         $result['current']['PrActForcastRisk']  = $monthTable[$zeileSumme5]['AH_prForecast'];
         $result['current']['PA']                = $monthTable[$zeileSumme5]['AG_epcPA'];
-        $result['current']['PRdiff']            = (($monthTable[$zeileSumme5]['Q_prGuarDesign'] - $monthTable[$zeileSumme5]['AD_prMonth']) / $monthTable[$zeileSumme5]['Q_prGuarDesign'] * 100) / 100 * $yieldDesign * $anlage->getPnom() / 1000;
-        $result['current']['PRdiffRisk']        = (($monthTable[$zeileSumme5]['Q_prGuarDesign'] - $monthTable[$zeileSumme5]['PrActForcastRisk']) / $monthTable[$zeileSumme5]['Q_prGuarDesign'] * 100) / 100 * $yieldDesign * $anlage->getPnom() / 1000;
+        $result['current']['PRdiff']            = (($monthTable[$zeileSumme5]['Q_prGuarDesign'] - $monthTable[$zeileSumme5]['AD_prMonth']) / $monthTable[$zeileSumme5]['Q_prGuarDesign'] * 100);
+        $result['current']['PRdiffRisk']        = (($monthTable[$zeileSumme5]['Q_prGuarDesign'] - $monthTable[$zeileSumme5]['PrActForcastRisk']) / $monthTable[$zeileSumme5]['Q_prGuarDesign'] * 100);
         $result['current']['Eloss']             = $result['current']['PRdiff'] / 100 * $yieldDesign * $anlage->getPnom() / 1000;
         $result['current']['ElossRisk']         = $result['current']['PRdiffRisk'] / 100 * $yieldDesign * $anlage->getPnom() / 1000;
         $result['current']['PLD']               = $result['current']['Eloss'] <= 0 ? 'no PLD' : $pldTable[16]['value_current'];
