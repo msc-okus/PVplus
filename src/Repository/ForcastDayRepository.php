@@ -38,4 +38,18 @@ class ForcastDayRepository extends ServiceEntityRepository
         return $forecast;
     }
 
+    public function calcForecastByDate(Anlage $anlage, \DateTime $date)
+    {
+        $week = $date->format('YYYY-MM-DD');
+
+        $forecastSum = $this->createQueryBuilder('f')
+            ->andWhere('f.anlage = :anlageId and f.stamp <= :week')
+            ->setParameter('anlageId', $anlage->getAnlId())
+            ->setParameter('week', $week)
+            ->select('SUM(f.expectedWeek)')
+            ->getQuery()
+            ->getSingleScalarResult()
+        ;
+        return $forecastSum;
+    }
 }
