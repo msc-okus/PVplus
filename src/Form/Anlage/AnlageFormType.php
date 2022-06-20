@@ -474,6 +474,12 @@ class AnlageFormType extends AbstractType
                 'choices'       => ['No' => '0', 'Yes' => '1'],
                 'empty_data'    => '0',
             ])
+            ->add('hasPPC', ChoiceType::class, [
+                'label'         => 'Anlage hat PPC Daten',
+                'help'          => '[hasPPC]',
+                'choices'       => ['No' => '0', 'Yes' => '1'],
+                'empty_data'    => '0',
+            ])
             ->add('hasPannelTemp', ChoiceType::class, [
                 'label'         => 'Anlage hat Pannel Temperatur',
                 'help'          => '[hasPannelTemp]',

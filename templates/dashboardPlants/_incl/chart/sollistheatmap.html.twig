@@ -1,0 +1,163 @@
+
+<script>
+     am4core.ready(function() {
+        // Create chart instance
+        let chart = am4core.create("amchart-holder", am4charts.XYChart);
+
+        chart.data = {{ content.data|raw }};
+
+        chart.preloader.disabled = false;
+        chart.preloader.transitionDuration = 0;
+        chart.preloader.progress = 5;
+        // chart.scrollbarX = new am4core.Scrollbar();
+        // chart.scrollbarY = new am4core.Scrollbar();
+
+        // Title
+        let title = chart.titles.create();
+        title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+        title.fontSize = 16;
+        title.marginBottom = 30;
+        // Subtitle
+        let title2 = chart.titles.create();
+        title2.text = "- Soll IST INV  -";
+        title2.dy = 50;
+        title2.fontSize = 12;
+        title2.marginBottom = 10;
+
+        // Create 2 Axes
+        let xAxis = chart.xAxes.push(new am4charts.CategoryAxis());
+        let yAxis = chart.yAxes.push(new am4charts.CategoryAxis());
+        xAxis.dataFields.category = "xinv";
+        yAxis.dataFields.category = "ydate";
+        yAxis.renderer.labels.template.fontSize = 10;
+        xAxis.renderer.labels.template.fontSize = 10;
+        xAxis.renderer.grid.template.disabled = true;
+        xAxis.renderer.minGridDistance = 5;
+        xAxis.renderer.inversed = true;
+        yAxis.renderer.grid.template.disabled = true;
+        yAxis.renderer.inversed = true;
+        yAxis.renderer.minGridDistance = 5;
+        xAxis.renderer.labels.template.rotation = -45;
+        xAxis.renderer.labels.template.horizontalCenter = "right";
+        xAxis.renderer.labels.template.verticalCenter = "middle";
+
+        // Create Series
+        let series = chart.series.push(new am4charts.ColumnSeries());
+        series.dataFields.categoryX = "xinv";
+        series.dataFields.categoryY = "ydate";
+        series.dataFields.value = "value";
+        series.sequencedInterpolation = false;
+        series.defaultState.transitionDuration = 2000;
+        series.tooltip.pointerOrientation = "vertical";
+        series.tooltip.label.interactionsEnabled = true;
+        series.tooltip.background.fill = am4core.color("#31af31");
+        series.columns.template.width = am4core.percent(100);
+        series.columns.template.height = am4core.percent(100);
+
+        var columnTemplate = series.columns.template;
+        columnTemplate.strokeWidth = 0;
+        columnTemplate.strokeOpacity = 2;
+        columnTemplate.stroke = am4core.color("#05d705");
+        columnTemplate.tooltipText = "[bold]Inv[/]: {xinv} \n[bold]Time[/]: {ydate} \n[bold]Result[/]: {value.workingValue.formatNumber('#.')} %";
+        columnTemplate.width = am4core.percent(100);
+        columnTemplate.height = am4core.percent(100);
+
+        // Define Ranges
+        var cranges = {};
+         cranges.range1 = ['#e5ecff','#d8e9f6','#c6dbef','#9ecae1','#6baed6','#4292c6','#2171b5','#08519c','#08306b'];
+         cranges.range2 = ['#fff5eb','#fee6ce','#fdd0a2','#fdae6b','#fd8d3c','#f16913','#d94801','#a63603','#7f2704'];
+         cranges.range3 = ['#f7fcf5','#e5f5e0','#c7e9c0','#a1d99b','#74c476','#41ab5d','#238b45','#006d2c','#00441b'];
+         cranges.range4 = ['#fff5f0','#fee0d2','#fcbba1','#fc9272','#fb6a4a','#ef3b2c','#cb181d','#a50f15','#67000d'];
+         cranges.range5 = ['#18d404','#42db30','#64db56','#7fd974','#99d797','#f8a0a0','#f86969','#fa4545','#f80505'];
+         cranges.range6 = ['#E3E3E3','#cdcdcd','#afafaf','#8b8b8b','#828282','#6a6a6a','#5c5c5c','#262626','#010101'];
+         cranges.range7 = ['#f8ecec','#f8d2d2','#fcb1b1','#f89090','#fa7d7d','#f86565','#f84646','#f82222','#fa0404'];
+
+        var ranges = cranges.range4;
+
+        function inRange(x, min, max, cid = 0) {
+            if (((x-min)*(x-max) <= 0)){
+                return ranges[cid];
+            };
+        };
+       // Range Series
+       series.columns.template.column.adapter.add("fill", function(fill, target) {
+
+            if (target.dataItem) {
+               // if (!target.dataItem.value) { return am4core.color("#7f2704") };
+                if (inRange(target.dataItem.value, 0, 20) || !target.dataItem.value) {return am4core.color(inRange(target.dataItem.value, 0, 20, 8))};
+                if (inRange(target.dataItem.value, 21, 40)) {return am4core.color(inRange(target.dataItem.value, 21, 40, 7))};
+                if (inRange(target.dataItem.value, 41, 50)) {return am4core.color(inRange(target.dataItem.value, 41, 50, 6))};
+                if (inRange(target.dataItem.value, 51, 60)) {return am4core.color(inRange(target.dataItem.value, 51, 60, 5))};
+                if (inRange(target.dataItem.value, 61, 70)) {return am4core.color(inRange(target.dataItem.value, 61, 70, 4))};
+                if (inRange(target.dataItem.value, 71, 80)) {return am4core.color(inRange(target.dataItem.value, 71, 80, 3))};
+                if (inRange(target.dataItem.value, 81, 85)) {return am4core.color(inRange(target.dataItem.value, 81, 85, 2))};
+                if (inRange(target.dataItem.value, 86, 90)) {return am4core.color(inRange(target.dataItem.value, 86, 90, 1))};
+                if (inRange(target.dataItem.value, 91, 100)) {return am4core.color(inRange(target.dataItem.value, 91, 100, 0))};
+            }
+            /*
+ else {
+     return am4core.color("#0c0c0c");
+ }
+ */
+            return fill;
+        });
+        // Build Heatmap Legende
+        let heatLegend = chart.createChild(am4charts.HeatLegend);
+        heatLegend.minColor = am4core.color(ranges[8]);
+        heatLegend.maxColor = am4core.color(ranges[0]);
+        heatLegend.minValue = 0;
+        heatLegend.maxValue = 100;
+        heatLegend.series = series;
+        heatLegend.width = am4core.percent(100);
+        heatLegend.valueAxis.renderer.labels.template.fontSize = 9;
+        heatLegend.valueAxis.renderer.minGridDistance = 30;
+
+        /* Set up heat legend tooltips */
+        series.columns.template.events.on("over", function(ev) {
+            if (!isNaN(ev.target.dataItem.value)) {
+                heatLegend.valueAxis.showTooltipAt(ev.target.dataItem.value)
+            }
+            else {
+                heatLegend.valueAxis.hideTooltip();
+            }
+        });
+
+        series.columns.template.events.on("out", function(ev) {
+            heatLegend.valueAxis.hideTooltip();
+        });
+
+        // Export
+        chart.exporting.menu = new am4core.ExportMenu();
+        chart.exporting.menu.items[0].label = "Download";
+
+        //
+        yAxis.min = 0;
+        yAxis.renderer.minGridDistance = 30;
+
+        var range1 = yAxis.axisRanges.create();
+        //range1.value = 1000;
+        var range2 = yAxis.axisRanges.create();
+        //range2.value = 2000;
+
+
+        var image1 = new am4core.Image();
+        var image2 = new am4core.Image();
+        image1.href = "/images/sun.svg";
+        image1.width = 15;
+        image1.horizontalCenter = "middle";
+        image1.verticalCenter = "middle";
+        image1.dx = -55;
+        image1.dy = -1;
+        range1.bullet = image1;
+        image2.href = "/images/moon.svg";
+        image2.width = 15;
+        image2.horizontalCenter = "middle";
+        image2.verticalCenter = "middle";
+        image2.dx = -55;
+        image2.dy = 520;
+        range2.bullet = image2;
+
+
+    });
+    // end am4core.ready()
+</script>
