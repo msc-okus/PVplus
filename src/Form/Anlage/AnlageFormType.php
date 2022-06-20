@@ -474,17 +474,16 @@ class AnlageFormType extends AbstractType
                 'choices'       => ['No' => '0', 'Yes' => '1'],
                 'empty_data'    => '0',
             ])
-            ->add('hasPPC', ChoiceType::class, [
-                'label'         => 'Anlage hat PPC Daten',
+            ->add('hasPPC', SwitchType::class, [
+                'label'         => 'Anlage hat PowerPlanControler (PPC) Daten',
                 'help'          => '[hasPPC]',
-                'choices'       => ['No' => '0', 'Yes' => '1'],
                 'empty_data'    => '0',
             ])
             ->add('hasPannelTemp', ChoiceType::class, [
                 'label'         => 'Anlage hat Pannel Temperatur',
                 'help'          => '[hasPannelTemp]',
                 'choices'       => ['No' => '0', 'Yes' => '1'],
-                'empty_data'    => '0',
+                'empty_data'    => 0,
             ])
             ->add('useDayForecast', ChoiceType::class, [
                 'label'         => 'use Forecast by Day',
@@ -507,22 +506,26 @@ class AnlageFormType extends AbstractType
                 'required'      => false,
                 'empty_data'    => '0',
             ])
-            ->add('DataSourceAM', CKEditorType::class, [
-                'data' => 'Yield (Grid Meter): <br>Inverter out:',
-                'config' => array('toolbar' => 'my_toolbar'),
+            ->add('dataSourceAM', CKEditorType::class, [
+                'label'         => 'Explanation DataSources AM Report',
+                'data'          => 'Yield (Grid Meter): <br>Inverter out:',
+                'config'        => ['toolbar' => 'my_toolbar'],
             ])
-            ->add('RetrieveAllData', SwitchType::class, [
-                'label'         => 'Use all Data',
-
+            ->add('retrieveAllData', SwitchType::class, [
+                'label'         => 'Use all Data from begining of Working Time',
+                'help'          => '[retrieveAllData]',
             ])
-            ->add('FreqBase', TextType::class, [
-                'label' => 'Base Frequency of the Plant'
+            ->add('freqBase', TextType::class, [
+                'label'         => 'Base frequency of the Plant',
+                'help'          => '[freqBase]',
             ])
-            ->add('FreqTolerance', TextType::class, [
-                'label' => 'Frequency tolerance of the Plant'
+            ->add('freqTolerance', TextType::class, [
+                'label'         => 'Frequency tolerance of the Plant',
+                'help'          => '[hasFrequency]',
             ])
             ->add('hasFrequency', SwitchType::class,[
-                'label' => 'Has Frequency'
+                'label'         => 'Has frequency',
+                'help'          => '[freqTolerance]',
             ])
             ################################################
             ####               Reports                  ####

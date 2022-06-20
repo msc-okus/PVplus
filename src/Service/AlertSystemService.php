@@ -169,7 +169,7 @@ class AlertSystemService
                 if ($wind == "No data") $message .= "There was no wind data at " . $dateString . "<br>";
             }
         }
-        else if ($status_report['Irradiation'] == "Irradiation is 0") {
+        elseif ($status_report['Irradiation'] == "Irradiation is 0") {
             $timetempend = date('Y-m-d H:i:s', strtotime($time));
             $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
             $end->getTimestamp();
@@ -223,11 +223,16 @@ class AlertSystemService
             $errorCategorie = INVERTER_ERROR;
         } elseif ($inverter['istdata'] === 'Power to low') {
             // check if inverter power make sense, to detect ppc
-            $message .=  "Power to low at inverter " . $nameArray . "  (could be external plant control)<br>";
+            $message .=  "Power to low at inverter " . $nameArray . " (could be external plant control)<br>";
+            $errorType = "";
+            $errorCategorie = EXTERNAL_CONTROL;
+        } elseif ($inverter['istdata'] === "Plant Control by PPC") {
+            // PPC Control
+            $message .=  "Inverter is controlled by PPC " . $nameArray . "<br>";
             $errorType = "";
             $errorCategorie = EXTERNAL_CONTROL;
         }
-        if ($errorCategorie != "10") {
+        if ($errorCategorie != DATA_GAP && $errorCategorie != EXTERNAL_CONTROL) {
             if ($anlage->getHasFrequency()) {
                 if ($inverter['freq'] !== "All is ok") {
                     if ($errorCategorie == "") {
@@ -243,9 +248,9 @@ class AlertSystemService
                     $errorCategorie = GRID_ERROR;
                 }
                 $errorType = OMC;
-
             }
         }
+
         $ticket = self::getLastTicket($anlage, $nameArray, $time, $sunrise, false);
         if ($message != "") {
             if ($ticket === null) {
@@ -448,57 +453,71 @@ class AlertSystemService
         $sqlExp = "SELECT ac_exp_power FROM ". $anlage->getDbNameDcSoll() . " WHERE  stamp = '$stamp' AND wr = '$inverter';";
         $resultExp = $conn->query($sqlExp);
 
-        $sql = "SELECT wr_pac as ac_power, wr_pdc as dc_power, frequency as freq, u_ac as voltage FROM " . $anlage->getDbNameIst() . " WHERE stamp = '$stamp' AND unit = '$inverter' ";
-        $resp = $conn->query($sql);
+        $sqlAct = "SELECT wr_pac as ac_power, wr_pdc as dc_power, frequency as freq, u_ac as voltage FROM " . $anlage->getDbNameIst() . " WHERE stamp = '$stamp' AND unit = '$inverter' ";
+        $resp = $conn->query($sqlAct);
 
-        if ($resp->rowCount() > 0) {
-            $pdata = $resp->fetch(PDO::FETCH_ASSOC);
-            if ($resultExp->rowCount() == 1){
-                $expectedData = $resultExp->fetch(PDO::FETCH_ASSOC)['ac_exp_power'];
-            } else {
-                $expectedData = false;
+        if ($anlage->getHasPPC()) {
+            $sqlPpc = "SELECT * FROM " . $anlage->getDbNamePPC() . " WHERE stamp = '$stamp'";
+            $respPpc = $conn->query($sqlPpc);
+            if ($respPpc->rowCount() == 1){
+                $ppdData = $respPpc->fetch(PDO::FETCH_ASSOC);
             }
+        }
 
-            //check power
-            if ($pdata['ac_power'] !== null) {
-                if ($pdata['ac_power'] <= 0 && $irradiation > $irrLimit) {
-                    $return['istdata'] = "Power is 0";
-                }  elseif ($pdata['dc_power'] > 0 && $pdata['dc_power'] <= 1 && $irradiation > $irrLimit) {
-                    $return['istdata'] = "Power to low";
+        if ($anlage->getHasPPC() && $respPpc->rowCount() == 1 && $ppdData['p_set_rel'] < 100){
+            // Power Plant Controller aktiv !!?? Regelung durch Direktvermarkter ??!!
+            $return['istdata'] = "Plant Control by PPC";
+
+        } else {
+            if ($resp->rowCount() > 0) {
+                $pdata = $resp->fetch(PDO::FETCH_ASSOC);
+                if ($resultExp->rowCount() == 1) {
+                    $expectedData = $resultExp->fetch(PDO::FETCH_ASSOC)['ac_exp_power'];
                 } else {
-                    $return['istdata'] = "All is ok";
+                    $expectedData = false;
                 }
-            } else {
-                $return['istdata'] = "No Data";
-            }
 
-            // check frequency
-            if ($pdata['freq'] !== null) {
-                if (($pdata['freq'] <= $anlage->getFreqBase()+$anlage->getFreqTolerance()) && ($pdata['freq'] >= $anlage->getFreqBase()-$anlage->getFreqTolerance())) $return['freq'] = "All is ok";
-                else $return['freq'] = "Error with the frequency";
-            } else {
-                $return['freq'] = "No Data";
-            }
-
-            // check voltage
-            if (date("Y-m-d") > '2022-06-13') { // new definition of database field 'uac'
-                if ($pdata['voltage'] !== null) {
-                    if ($pdata['voltage'] <= 0) {
-                        $return['voltage'] = "Voltage is 0";
+                //check power
+                if ($pdata['ac_power'] !== null) {
+                    if ($pdata['ac_power'] <= 0 && $irradiation > $irrLimit) {
+                        $return['istdata'] = "Power is 0";
+                    } elseif ($pdata['dc_power'] > 0 && $pdata['dc_power'] <= 1 && $irradiation > $irrLimit && !$anlage->getHasPPC()) {
+                        $return['istdata'] = "Power to low";
                     } else {
-                        $return['voltage'] = "All is ok";
+                        $return['istdata'] = "All is ok";
                     }
                 } else {
-                    $return['voltage'] = "No Data";
+                    $return['istdata'] = "No Data";
+                }
+
+                // check frequency
+                if ($pdata['freq'] !== null) {
+                    if (($pdata['freq'] <= $anlage->getFreqBase() + $anlage->getFreqTolerance()) && ($pdata['freq'] >= $anlage->getFreqBase() - $anlage->getFreqTolerance())) $return['freq'] = "All is ok";
+                    else $return['freq'] = "Error with the frequency";
+                } else {
+                    $return['freq'] = "No Data";
+                }
+
+                // check voltage
+                if (date("Y-m-d") > '2022-06-13') { // new definition of database field 'uac'
+                    if ($pdata['voltage'] !== null) {
+                        if ($pdata['voltage'] <= 0) {
+                            $return['voltage'] = "Voltage is 0";
+                        } else {
+                            $return['voltage'] = "All is ok";
+                        }
+                    } else {
+                        $return['voltage'] = "No Data";
+                    }
+                } else {
+                    $return['voltage'] = 'All is ok';
                 }
             } else {
-                $return['voltage'] = 'All is ok';
+                // no records could be found
+                $return['istdata'] = "No data";
+                $return['freq'] = "No Data";
+                $return['voltage'] = "No Data";
             }
-        } else {
-            // no records could be found
-            $return['istdata'] = "No data";
-            $return['freq'] = "No Data";
-            $return['voltage'] = "No Data";
         }
         $conn = null;
 
