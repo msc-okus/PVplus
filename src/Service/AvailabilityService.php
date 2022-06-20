@@ -359,8 +359,8 @@ class AvailabilityService
 
         $sumPart1 = $sumPart2 = $pa = 0;
         $inverterPowerDc = [];
-        // ToDo: muss auf anlagen Typ angepasst werden
         if ($inverter === null) {
+            // ToDo: muss auf Anlagen Typ angepasst werden
             if ($anlage->getUseNewDcSchema()) {
                 foreach ($anlage->getAcGroups() as $acGroup) {
                     $inverterPowerDc[$acGroup->getAcGroup()] = $acGroup->getDcPowerInverter();
@@ -374,8 +374,8 @@ class AvailabilityService
                 }
             }
         } else {
-            // ToDo: nachdenken ob wir die berechnung des Pnom je Inverter überhaupt brauchen,
-            // ToDo: wenn ich nur für einen Inverter Daten berechne wir eh nicht ausgegeben ??????
+            // ToDo: nachdenken ob wir die Berechnung des Pnom je Inverter überhaupt brauchen,
+            // ToDo: wenn ich nur für einen Inverter Daten berechne, wird eh nicht ausgegeben ??????
             /*
             $inverter--;
             if ($anlage->getConfigType() == 1) {

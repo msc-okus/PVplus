@@ -56,6 +56,7 @@ class ReportEpcService
         $currentDate = date('Y-m-d H-i');
         $pdfFilename = 'EPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
         $error = false;
+        $output         = '';
         switch ($anlage->getEpcReportType()) {
             case 'prGuarantee' :
                 $reportArray = $this->reportPRGuarantee($anlage, $date);
@@ -84,11 +85,10 @@ class ReportEpcService
                 $reportArray['monthTable']              = $monthTable;
                 $reportArray['forcastTable']            = $this->epcNew->forcastTable($anlage, $monthTable, $date);
 
-                $output = $this->functions->printArrayAsTable($reportArray['forcastTable']);
-                $output .= $this->functions->print2DArrayAsTable($reportArray['monthTable']);
+                #$output = $this->functions->printArrayAsTable($reportArray['forcastTable']);
+                #$output .= $this->functions->print2DArrayAsTable($reportArray['monthTable']);
                 break;
             default:
-                $output         = '';
                 $error          = true;
                 $reportArray    = [];
                 $report         = null;
@@ -107,50 +107,11 @@ class ReportEpcService
                 ->setStartDate(self::getCetTime('object'))
                 ->setEndDate($endDate)
                 ->setRawReport($output)
-                ->setContentArray($reportArray);
-            switch ($anlage->getEpcReportType()) {
-                case 'prGuarantee':
-                    $reportEntity
-                        //->setMonth(self::getCetTime('object')->sub(new \DateInterval('P1M'))->format('m'))
-                        //->setYear(self::getCetTime('object')->format('Y'));
-                        ->setMonth($date->format('n'))
-                        ->setYear($date->format('Y'));
-                    break;
-
-                case 'yieldGuarantee':
-                    $reportEntity
-                        ->setMonth($date->format('n'))
-                        ->setYear($date->format('Y'));
-                    break;
-            }
-
+                ->setContentArray($reportArray)
+                ->setMonth($date->format('n'))
+                ->setYear($date->format('Y'));
             $this->em->persist($reportEntity);
             $this->em->flush();
-
-
-            /* @deprecated
-            // erzeuge PDF mit CloudExport von KoolReport
-            if ($createPdf && $anlage->getEpcReportType() == 'prGuarantee') {
-                $secretToken = '2bf7e9e8c86aa136b2e0e7a34d5c9bc2f4a5f83291a5c79f5a8c63a3c1227da9';
-                $settings = [
-                    // 'useLocalTempFolder' => true,
-                    'pageWaiting' => 'networkidle2', //load, domcontentloaded, networkidle0, networkidle2
-                ];
-                $report->run();
-                $pdfOptions = [
-                    'format'                => 'A4',
-                    'landscape'             => true,
-                    'noRepeatTableFooter'   => false,
-                    'printBackground'       => true,
-                    'displayHeaderFooter'   => true,
-                ];
-                $report->cloudExport()
-                    ->chromeHeadlessio($secretToken)
-                    ->settings($settings)
-                    ->pdf($pdfOptions)
-                    ->toBrowser($pdfFilename);
-            }
-            */
         }
         else {
             $output = "<h1>Fehler: Es Ist kein Report ausgewählt.</h1>";

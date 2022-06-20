@@ -533,10 +533,10 @@ class PRCalulationService
      *  $result['irradiation']<br>
      *  $result['availability']<br>
      *  $result['availability2'] (not Ready)<br>
-     *  $result['anzCase5'] (prove)<br>
-     *  $result['tCellAvgMeasured'] (prove)<br>
-     *  $result['tCellAvgNrel'] (prove)<br>
-     *  $result['tCellAvgMultiIrr'] (prove)<br>
+     *  $result['anzCase5'] (proof)<br>
+     *  $result['tCellAvgMeasured'] (proof)<br>
+     *  $result['tCellAvgNrel'] (proof)<br>
+     *  $result['tCellAvgMultiIrr'] (proof)<br>
      *
      * @param Anlage $anlage
      * @param DateTime $startDate

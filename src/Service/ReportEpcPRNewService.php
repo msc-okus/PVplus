@@ -96,9 +96,9 @@ class ReportEpcPRNewService
 
         #$availabilitySummeZeil2 = $this->availabilityService->calcAvailability($anlage, $anlage->getFacDateStart(), $endDateCurrentReportMonth);
 
-        $prPVSyst           = 88.43; // muss aus Anlage kommen
-        $prFAC              = 84.23; // muss aus Anlage kommen
-        $deductionTransform = 0; // wo muss das herkommen ????
+        $prPVSyst           = $anlage->getDesignPR(); //88.43;
+        $prFAC              = $anlage->getContractualPR(); //84.23;
+        $deductionTransform = $anlage->getTransformerTee();
         $deductionRisk      = 100 * (1 - $prFAC / $prPVSyst);
         $deductionOverall   = 100 - (100 - $deductionTransform) * (100 - $deductionRisk) / 100;
 
@@ -449,7 +449,7 @@ class ReportEpcPRNewService
                 $tableArray[$zeileSumme5]['current_month']              = 0;
                 $tableArray[$zeileSumme5]['style']                      = "";
             } else {
-                $tableArray[$zeileSumme6]['B_month']                    = "Forcast period (after current date)";
+                $tableArray[$zeileSumme6]['B_month']                    = "Forcast period<br>(after current date)";
                 $tableArray[$zeileSumme6]['C_days_month']               = 0;
                 // DesignValues
                 $tableArray[$zeileSumme6]['D_days_fac']                 += $tableArray[$n]['D_days_fac'];
@@ -715,6 +715,171 @@ class ReportEpcPRNewService
         ksort($tableArray);
 
         $result = (object)['table' => $tableArray, 'riskForecastUpToDate' => $riskForecastUpToDate, 'riskForecastRollingPeriod' => $riskForecastRollingPeriod];
+
+        return $result;
+    }
+
+    public function pldTable(Anlage $anlage, array $monthTable, ?DateTime $date = null): array
+    {
+        $result = [];
+        $zeileSumme1 = count($monthTable) - 5;
+        $zeileSumme2 = count($monthTable) - 4;
+        $zeileSumme3 = count($monthTable) - 3;
+        $zeileSumme4 = count($monthTable) - 2;
+        $zeileSumme5 = count($monthTable) - 1;
+        $zeileSumme6 = count($monthTable) - 0;
+
+        $discountRate = 6.625;
+        $yieldDesign = 882.00; // Yield PVSyst
+
+        $result[16]['year']              = '';
+        $result[16]['Ve']                = '';
+        $result[16]['factor']            = '';
+        $result[16]['multi']             = '';
+        $result[16]['eloss_current']     = '';
+        $result[16]['eloss_year1']       = '';
+        $result[16]['eloss_year2']       = '';
+        $result[16]['eloss_year12']      = '';
+        $result[16]['eloss_rolling']     = '';
+        $result[16]['elossR_year1']      = '';
+        $result[16]['elossR_year2']      = '';
+        $result[16]['elossR_year12']     = '';
+        $result[16]['elossR_rolling']    = '';
+        $result[16]['value_current']     = 0;
+        $result[16]['value_year1']       = 0;
+        $result[16]['value_year2']       = 0;
+        $result[16]['value_year12']      = 0;
+        $result[16]['value_rolling']     = 0;
+        $result[16]['valueR_year1']      = 0;
+        $result[16]['valueR_year2']      = 0;
+        $result[16]['valueR_year12']     = 0;
+        $result[16]['valueR_rolling']    = 0;
+
+        for($year = 1; $year <= 15; $year++)
+        {
+            $result[$year]['year']     = $year;
+            $result[$year]['Ve']       = $anlage->getPldPR() * 1000;
+            $result[$year]['factor']   = ((1 + $discountRate/ 100) ** (2-$year));
+            $result[$year]['multi']    = $result[$year]['Ve'] * $result[$year]['factor'];
+
+            //E loss
+            //without Risk
+            $result[$year]['eloss_current']     = (($monthTable[$zeileSumme5]['Q_prGuarDesign'] - $monthTable[$zeileSumme5]['AD_prMonth']) / $monthTable[$zeileSumme5]['Q_prGuarDesign'] * 100) / 100 * $yieldDesign * $anlage->getPnom() / 1000;
+            $result[$year]['eloss_year1']       = (($anlage->getContractualPR() - $monthTable[$zeileSumme1]['AD_prMonth']) / $anlage->getContractualPR() * 100) / 100 * $yieldDesign * $anlage->getPnom() / 1000;
+            $result[$year]['eloss_year2']       = (($anlage->getContractualPR() - $monthTable[$zeileSumme2]['AD_prMonth']) / $anlage->getContractualPR() * 100) / 100 * $yieldDesign * $anlage->getPnom() / 1000;
+            $result[$year]['eloss_year12']      = (($anlage->getContractualPR() - $monthTable[$zeileSumme3]['AD_prMonth']) / $anlage->getContractualPR() * 100) / 100 * $yieldDesign * $anlage->getPnom() / 1000;
+            $result[$year]['eloss_rolling']     = (($anlage->getContractualPR() - $monthTable[$zeileSumme4]['AD_prMonth']) / $anlage->getContractualPR() * 100) / 100 * $yieldDesign * $anlage->getPnom() / 1000;
+            //with Risk
+            $result[$year]['elossR_year1']      = (($anlage->getContractualPR() - $monthTable[$zeileSumme1]['AH_prForecast']) / $anlage->getContractualPR() * 100) / 100 * $yieldDesign * $anlage->getPnom() / 1000;
+            $result[$year]['elossR_year2']      = (($anlage->getContractualPR() - $monthTable[$zeileSumme2]['AH_prForecast']) / $anlage->getContractualPR() * 100) / 100 * $yieldDesign * $anlage->getPnom() / 1000;
+            $result[$year]['elossR_year12']     = (($anlage->getContractualPR() - $monthTable[$zeileSumme3]['AH_prForecast']) / $anlage->getContractualPR() * 100) / 100 * $yieldDesign * $anlage->getPnom() / 1000;
+            $result[$year]['elossR_rolling']    = (($anlage->getContractualPR() - $monthTable[$zeileSumme4]['AH_prForecast']) / $anlage->getContractualPR() * 100) / 100 * $yieldDesign * $anlage->getPnom() / 1000;
+
+            //Present value at end of period
+            //without Risk
+            $result[$year]['value_current']     = $result[$year]['multi'] * $result[$year]['eloss_current'];
+            $result[$year]['value_year1']       = $result[$year]['multi'] * $result[$year]['eloss_year1'];
+            $result[$year]['value_year2']       = $result[$year]['multi'] * $result[$year]['eloss_year2'];
+            $result[$year]['value_year12']      = $result[$year]['multi'] * $result[$year]['eloss_year12'];
+            $result[$year]['value_rolling']     = $result[$year]['multi'] * $result[$year]['eloss_rolling'];
+            //with Risk
+            $result[$year]['valueR_year1']      = $result[$year]['multi'] * $result[$year]['elossR_year1'];
+            $result[$year]['valueR_year2']      = $result[$year]['multi'] * $result[$year]['elossR_year2'];
+            $result[$year]['valueR_year12']     = $result[$year]['multi'] * $result[$year]['elossR_year12'];
+            $result[$year]['valueR_rolling']    = $result[$year]['multi'] * $result[$year]['elossR_rolling'];
+
+            //without Risk
+            $result[16]['value_current']     += $result[$year]['value_current'];
+            $result[16]['value_year1']       += $result[$year]['value_year1'];
+            $result[16]['value_year2']       += $result[$year]['value_year2'];
+            $result[16]['value_year12']      += $result[$year]['value_year12'];
+            $result[16]['value_rolling']     += $result[$year]['value_rolling'];
+            //with Risk
+            $result[16]['valueR_year1']      += $result[$year]['valueR_year1'];
+            $result[16]['valueR_year2']      += $result[$year]['valueR_year2'];
+            $result[16]['valueR_year12']     += $result[$year]['valueR_year12'];
+            $result[16]['valueR_rolling']    += $result[$year]['valueR_rolling'];
+
+        }
+        ksort($result);
+
+        return $result;
+    }
+
+
+    public function forcastTable(Anlage $anlage, array $monthTable, array $pldTable, ?DateTime $date = null): array
+    {
+        if ($date === null) $date = new DateTime();
+
+        $result = [];
+        $zeileSumme1 = count($monthTable) - 5;
+        $zeileSumme2 = count($monthTable) - 4;
+        $zeileSumme3 = count($monthTable) - 3;
+        $zeileSumme4 = count($monthTable) - 2;
+        $zeileSumme5 = count($monthTable) - 1;
+        $zeileSumme6 = count($monthTable) - 0;
+
+        $yieldDesign = 882.00; // Yield PVSyst
+
+        $result['year1']['PrActForcast']        = $monthTable[$zeileSumme1]['AD_prMonth'];
+        $result['year1']['PrActForcastRisk']    = $monthTable[$zeileSumme1]['AH_prForecast'];
+        $result['year1']['PA']                  = $monthTable[$zeileSumme1]['AG_epcPA'];
+        $result['year1']['PRdiff']              = ($anlage->getContractualPR() - $result['year1']['PrActForcast']) / $anlage->getContractualPR() * 100;
+        $result['year1']['PRdiffRisk']          = ($anlage->getContractualPR() - $result['year1']['PrActForcastRisk']) / $anlage->getContractualPR() * 100;
+        $result['year1']['Eloss']               = $result['year1']['PRdiff'] / 100 * $yieldDesign * $anlage->getPnom() / 1000;
+        $result['year1']['ElossRisk']           = $result['year1']['PRdiffRisk'] / 100 * $yieldDesign * $anlage->getPnom() / 1000;
+        $result['year1']['PLD']                 = $result['year1']['Eloss'] <= 0 ? 'no PLD' : $pldTable[16]['value_year1'];
+        $result['year1']['PLDRisk']             = $result['year1']['ElossRisk'] <= 0 ? 'no PLD' : $pldTable[16]['valueR_year1'];
+
+        $result['year2']['PrActForcast']        = $monthTable[$zeileSumme2]['AD_prMonth'];
+        $result['year2']['PrActForcastRisk']    = $monthTable[$zeileSumme2]['AH_prForecast'];
+        $result['year2']['PA']                  = $monthTable[$zeileSumme2]['AG_epcPA'];
+        $result['year2']['PRdiff']              = ($anlage->getContractualPR() - $result['year2']['PrActForcast']) / $anlage->getContractualPR() * 100;
+        $result['year2']['PRdiffRisk']          = ($anlage->getContractualPR() - $result['year2']['PrActForcastRisk']) / $anlage->getContractualPR() * 100;
+        $result['year2']['Eloss']               = $result['year2']['PRdiff'] / 100 * $yieldDesign * $anlage->getPnom() / 1000;
+        $result['year2']['ElossRisk']           = $result['year2']['PRdiffRisk'] / 100 * $yieldDesign * $anlage->getPnom() / 1000;
+        $result['year2']['PLD']                 = $result['year2']['Eloss'] <= 0 ? 'no PLD' : $pldTable[16]['value_year2'];
+        $result['year2']['PLDRisk']             = $result['year2']['ElossRisk'] <= 0 ? 'no PLD' : $pldTable[16]['valueR_year2'];
+
+        $result['year12']['PrActForcast']       = $monthTable[$zeileSumme3]['AD_prMonth'];
+        $result['year12']['PrActForcastRisk']   = $monthTable[$zeileSumme3]['AH_prForecast'];
+        $result['year12']['PA']                 = $monthTable[$zeileSumme3]['AG_epcPA'];
+        $result['year12']['PRdiff']             = ($anlage->getContractualPR() - $result['year12']['PrActForcast']) / $anlage->getContractualPR() * 100;
+        $result['year12']['PRdiffRisk']         = ($anlage->getContractualPR() - $result['year12']['PrActForcastRisk']) / $anlage->getContractualPR() * 100;
+        $result['year12']['Eloss']              = $result['year12']['PRdiff'] / 100 * $yieldDesign * $anlage->getPnom() / 1000;
+        $result['year12']['ElossRisk']          = $result['year12']['PRdiffRisk'] / 100 * $yieldDesign * $anlage->getPnom() / 1000;
+        $result['year12']['PLD']                = $result['year12']['Eloss'] <= 0 ? 'no PLD' : $pldTable[16]['value_year12'];
+        $result['year12']['PLDRisk']            = $result['year12']['ElossRisk'] <= 0 ? 'no PLD' : $pldTable[16]['valueR_year12'];
+
+        $result['rolling']['PrActForcast']      = $monthTable[$zeileSumme4]['AD_prMonth'];
+        $result['rolling']['PrActForcastRisk']  = $monthTable[$zeileSumme4]['AH_prForecast'];
+        $result['rolling']['PA']                = $monthTable[$zeileSumme4]['AG_epcPA'];
+        $result['rolling']['PRdiff']            = ($anlage->getContractualPR() - $result['rolling']['PrActForcast']) / $anlage->getContractualPR() * 100;
+        $result['rolling']['PRdiffRisk']        = ($anlage->getContractualPR() - $result['rolling']['PrActForcastRisk']) / $anlage->getContractualPR() * 100;
+        $result['rolling']['Eloss']             = $result['rolling']['PRdiff'] / 100 * $yieldDesign * $anlage->getPnom() / 1000;
+        $result['rolling']['ElossRisk']         = $result['rolling']['PRdiffRisk'] / 100 * $yieldDesign * $anlage->getPnom() / 1000;
+        $result['rolling']['PLD']               = $result['rolling']['Eloss'] <= 0 ? 'no PLD' : $pldTable[16]['value_rolling'];
+        $result['rolling']['PLDRisk']           = $result['rolling']['ElossRisk'] <= 0 ? 'no PLD' : $pldTable[16]['valueR_rolling'];
+
+        $result['current']['PrActForcast']      = $monthTable[$zeileSumme5]['AD_prMonth'];
+        $result['current']['PrActForcastRisk']  = $monthTable[$zeileSumme5]['AH_prForecast'];
+        $result['current']['PA']                = $monthTable[$zeileSumme5]['AG_epcPA'];
+        $result['current']['PRdiff']            = (($monthTable[$zeileSumme5]['Q_prGuarDesign'] - $monthTable[$zeileSumme5]['AD_prMonth']) / $monthTable[$zeileSumme5]['Q_prGuarDesign'] * 100);
+        $result['current']['PRdiffRisk']        = (($monthTable[$zeileSumme5]['Q_prGuarDesign'] - $monthTable[$zeileSumme5]['PrActForcastRisk']) / $monthTable[$zeileSumme5]['Q_prGuarDesign'] * 100);
+        $result['current']['Eloss']             = $result['current']['PRdiff'] / 100 * $yieldDesign * $anlage->getPnom() / 1000;
+        $result['current']['ElossRisk']         = $result['current']['PRdiffRisk'] / 100 * $yieldDesign * $anlage->getPnom() / 1000;
+        $result['current']['PLD']               = $result['current']['Eloss'] <= 0 ? 'no PLD' : $pldTable[16]['value_current'];
+        $result['current']['PLDRisk']           = '';
+
+        $result['forcast']['PrActForcast']     = $monthTable[$zeileSumme6]['AD_prMonth'];
+        $result['forcast']['PrActForcastRisk'] = $monthTable[$zeileSumme6]['AH_prForecast'];
+        $result['forcast']['PA']               = $monthTable[$zeileSumme6]['AG_epcPA'];
+        $result['forcast']['PRdiff']           = ($anlage->getContractualPR() - $result['forcast']['PrActForcast']) / $anlage->getContractualPR() * 100;
+        $result['forcast']['PRdiffRisk']       = ($anlage->getContractualPR() - $result['forcast']['PrActForcastRisk']) / $anlage->getContractualPR() * 100;
+        $result['forcast']['Eloss']            = $result['forcast']['PRdiff'] / 100 * $yieldDesign * $anlage->getPnom() / 1000;
+        $result['forcast']['ElossRisk']        = $result['forcast']['PRdiffRisk'] / 100 * $yieldDesign * $anlage->getPnom() / 1000;
+        $result['forcast']['PLD']              = $result['forcast']['Eloss'] <= 0 ? 'no PLD' : 'PLD';
+        $result['forcast']['PLDRisk']          = $result['forcast']['ElossRisk'] <= 0 ? 'no PLD' : 'PLD';
 
         return $result;
     }

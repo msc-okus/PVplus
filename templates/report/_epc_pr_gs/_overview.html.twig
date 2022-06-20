@@ -1,0 +1,248 @@
+{% extends 'report/_epc/_pageBase.html.twig' %}
+
+{% block page %}
+    {% set deductionRisk    = 100 * (1 - anlage.contractualPR / anlage.designPR) %}
+    {% set deductionOverall = 100 - (100 - anlage.transformerTee) * (100 - deductionRisk) / 100 %}
+
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Basic Values</h3>
+    {# Overview #}
+    <table class="basetable">
+        <thead>
+            <tr>
+                <th style="min-width: 60px;">Start&nbsp;FAC</th>
+                <th style="min-width: 60px;">End&nbsp;FAC</th>
+                <th>PR&nbsp;Design [%]</th>
+                <th>PR&nbsp;Guaranteed [%]</th>
+                <th>rel. deduction for transformer loss [%]</th>
+                <th>rel. overall deduction [%]</th>
+                <th>Plant Size as built [kWp]</th>
+                <th>Plant Size as planned [kWp]</th>
+                <th>Yield Pvsyst [kWh/kWp]</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ anlage.facDateStart|date('d.m.Y') }}</td>
+                <td>{{ anlage.facDate|date('d.m.Y') }}</td>
+                <td>{{ anlage.designPR|number_format(2, ',', '.') }}</td>
+                <td>{{ anlage.contractualPR|number_format(2, ',', '.') }}</td>
+                <td>{{ anlage.transformerTee|number_format(2, ',', '.') }}</td>
+                <td>{{ deductionOverall|number_format(2, ',', '.') }}</td>
+                <td>{% if anlage.kwPeakPLDCalculation > 0 %}{{ anlage.kwPeakPLDCalculation|number_format(2, ',', '.') }}{% else %}{{ anlage.power|number_format(2, ',', '.') }}{% endif%}</td>
+                <td>{{ anlage.kwPeakPvSyst|number_format(2, ',', '.') }}</td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+    {# Results Forcast and Actual #}
+    <div class="col-60 float-left" >
+        <div class="cell" style="margin-right: 10px;">
+            <h3 style="color: {{ anlage.eigner.fontColor2 }};">Results with forcast</h3>
+            <table class="basetable text-center">
+                <thead>
+                <tr>
+                    <th class="text-left">Parameter</th>
+                    <th>Unit</th>
+                    <th colspan="4">Values</th>
+                    <th class="text-left">Explanation</th>
+                </tr>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th>year 1</th>
+                    <th>year 2</th>
+                    <th>year 1 & 2</th>
+                    <th>rolling 1year</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="text-left">PR design</td>
+                    <td>%</td>
+                    <td colspan="4">{{ anlage.designPR|number_format(2, ',', '.') }}</td>
+                    <td class="text-left">design</td>
+                </tr>
+                <tr>
+                    <td class="text-left">PR guaranteed</td>
+                    <td>%</td>
+                    <td colspan="4">{{ anlage.contractualPR|number_format(2, ',', '.') }}</td>
+                    <td class="text-left">guaranteed</td>
+                </tr>
+                <tr>
+                    <td class="text-left">PR actual with forecast</td>
+                    <td>%</td>
+                    <td>{{ forcast.year1.PrActForcast|number_format(2, ',', '.') }}</td>
+                    <td>{{ forcast.year2.PrActForcast|number_format(2, ',', '.') }}</td>
+                    <td>{{ forcast.year12.PrActForcast|number_format(2, ',', '.') }}</td>
+                    <td>{{ forcast.rolling.PrActForcast|number_format(2, ',', '.') }}</td>
+                    <td class="text-left"></td>
+                </tr>
+                <tr>
+                    <td class="text-left">PR actual with forecast and risk</td>
+                    <td>%</td>
+                    <td>{{ forcast.year1.PrActForcastRisk|number_format(2, ',', '.') }}</td>
+                    <td>{{ forcast.year2.PrActForcastRisk|number_format(2, ',', '.') }}</td>
+                    <td>{{ forcast.year12.PrActForcastRisk|number_format(2, ',', '.') }}</td>
+                    <td>{{ forcast.rolling.PrActForcastRisk|number_format(2, ',', '.') }}</td>
+                    <td class="text-right"></td>
+                </tr>
+                <tr>
+                    <td class="text-left">Availability</td>
+                    <td>%</td>
+                    <td>{{ forcast.year1.PA|number_format(2, ',', '.') }}</td>
+                    <td>{{ forcast.year2.PA|number_format(2, ',', '.') }}</td>
+                    <td>{{ forcast.year12.PA|number_format(2, ',', '.') }}</td>
+                    <td>{{ forcast.rolling.PA|number_format(2, ',', '.') }}</td>
+                    <td class="text-left"></td>
+                </tr>
+                <tr>
+                    <td class="text-left">(PR guar -PR measured)/PR guar*100</td>
+                    <td>%</td>
+                    <td>{{ forcast.year1.PRdiff|number_format(2, ',', '.') }}</td>
+                    <td>{{ forcast.year2.PRdiff|number_format(2, ',', '.') }}</td>
+                    <td>{{ forcast.year12.PRdiff|number_format(2, ',', '.') }}</td>
+                    <td>{{ forcast.rolling.PRdiff|number_format(2, ',', '.') }}</td>
+                    <td class="text-left"></td>
+                </tr>
+                <tr>
+                    <td class="text-left">(PR guar -PR measured)/PR guar*100 risk</td>
+                    <td>%</td>
+                    <td>{{ forcast.year1.PRdiffRisk|number_format(2, ',', '.') }}</td>
+                    <td>{{ forcast.year2.PRdiffRisk|number_format(2, ',', '.') }}</td>
+                    <td>{{ forcast.year12.PRdiffRisk|number_format(2, ',', '.') }}</td>
+                    <td>{{ forcast.rolling.PRdiffRisk|number_format(2, ',', '.') }}</td>
+                    <td class="text-left"></td>
+                </tr>
+                <tr>
+                    <td class="text-left">E loss</td>
+                    <td>MWh</td>
+                    <td>{{ forcast.year1.Eloss|number_format(2, ',', '.') }}</td>
+                    <td>{{ forcast.year2.Eloss|number_format(2, ',', '.') }}</td>
+                    <td>{{ forcast.year12.Eloss|number_format(2, ',', '.') }}</td>
+                    <td>{{ forcast.rolling.Eloss|number_format(2, ',', '.') }}</td>
+                    <td class="text-left"></td>
+                </tr>
+                <tr>
+                    <td class="text-left">E loss risk</td>
+                    <td>MWh</td>
+                    <td>{{ forcast.year1.ElossRisk|number_format(2, ',', '.') }}</td>
+                    <td>{{ forcast.year2.ElossRisk|number_format(2, ',', '.') }}</td>
+                    <td>{{ forcast.year12.ElossRisk|number_format(2, ',', '.') }}</td>
+                    <td>{{ forcast.rolling.ElossRisk|number_format(2, ',', '.') }}</td>
+                    <td class="text-left"></td>
+                </tr>
+                <tr>
+                    <td class="text-left">PLD</td>
+                    <td>&euro;</td>
+                    <td>{{ forcast.year1.PLD }}</td>
+                    <td>{{ forcast.year2.PLD }}</td>
+                    <td>{{ forcast.year12.PLD }}</td>
+                    <td>{{ forcast.rolling.PLD }}</td>
+                    <td class="text-left"></td>
+                </tr>
+                <tr>
+                    <td class="text-left">PLD risk</td>
+                    <td>&euro;</td>
+                    <td>{{ forcast.year1.PLDRisk }}</td>
+                    <td>{{ forcast.year2.PLDRisk }}</td>
+                    <td>{{ forcast.year12.PLDRisk }}</td>
+                    <td>{{ forcast.rolling.PLDRisk }}</td>
+                    <td class="text-left"></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-40 float-left" >
+        <div class="cell" style="margin-right: 10px;">
+            <h3 style="color: {{ anlage.eigner.fontColor2 }};">Results actual</h3>
+            <table class="basetable text-center">
+                <thead>
+                <tr>
+                    <th class="text-left">Parameter</th>
+                    <th>Unit</th>
+                    <th class="text-center">Values</th>
+                    <th class="text-left">Explanation</th>
+                </tr>
+                <tr>
+                    <th class="text-left">&nbsp;</th>
+                    <th></th>
+                    <th></th>
+                    <th class="text-left"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="text-left">PR design</td>
+                    <td>%</td>
+                    <td class="text-center">{{ anlage.designPR|number_format(2, ',', '.') }}</td>
+                    <td>design</td>
+                </tr>
+                <tr>
+                    <td class="text-left">PR guaranteed</td>
+                    <td>%</td>
+                    <td class="text-center">{{ anlage.contractualPR|number_format(2, ',', '.') }}</td>
+                    <td class="text-left">guaranteed</td>
+                </tr>
+                <tr>
+                    <td class="text-left">PR actual</td>
+                    <td>%</td>
+                    <td>{{ forcast.current.PrActForcast|number_format(2, ',', '.') }}</td>
+                    <td class="text-left"></td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-left">Availability</td>
+                    <td>%</td>
+                    <td>{{ forcast.current.PA|number_format(2, ',', '.') }}</td>
+                    <td class="text-left"></td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-left">(PR guar - PR measured)/PR guar*100</td>
+                    <td>%</td>
+                    <td>{{ forcast.current.PRdiff|number_format(2, ',', '.') }}</td>
+                    <td class="text-left"></td>
+                </tr>
+                <tr>
+                    <td class="text-left">E loss</td>
+                    <td>MWh</td>
+                    <td>{{ forcast.current.Eloss|number_format(2, ',', '.') }}</td>
+                    <td class="text-left"></td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="text-left">PLD</td>
+                    <td>&euro;</td>
+                    <td>{{ forcast.current.PLD }}</td>
+                    <td class="text-left"></td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <span class="clearfix"></span>
+
+{% endblock %}
