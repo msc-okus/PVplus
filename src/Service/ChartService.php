@@ -47,6 +47,7 @@ class ChartService
     private TempHeatmapChartService $tempheatmapChartService;
     private SollIstHeatmapChartService $sollistheatmapChartService;
 
+
     public function __construct(Security                     $security,
                                 AnlagenStatusRepository      $statusRepository,
                                 AnlageAvailabilityRepository $availabilityRepository,
@@ -60,10 +61,10 @@ class ChartService
                                 DCCurrentChartService        $currentChart,
                                 VoltageChartService          $voltageChart,
                                 IrradiationChartService      $irradiationChart,
-                                GridMeterDayRepository $gridMeterDayRepository,
-                                HeatmapChartService $heatmapChartService,
-                                TempHeatmapChartService $tempheatmapChartService,
-                                SollIstHeatmapChartService $sollistheatmapChartService)
+                                GridMeterDayRepository       $gridMeterDayRepository,
+                                HeatmapChartService          $heatmapChartService,
+                                TempHeatmapChartService      $tempheatmapChartService,
+                                SollIstHeatmapChartService   $sollistheatmapChartService)
     {
         $this->security = $security;
         $this->statusRepository = $statusRepository;
@@ -493,12 +494,12 @@ class ChartService
                 case ("tempheatmap"):
                     $dataArray = $this->tempheatmapChartService->getTempHeatmap($anlage, $from, $to);
                     $resultArray['data'] = json_encode($dataArray['chart']);
-                    $resultArray['headline'] = 'Inverter Temperature Heatmap';
+                    $resultArray['headline'] = 'Inverter Temperature Heatmap [C°]';
                     break;
                 case ("sollistheatmap"):
                     $dataArray = $this->sollistheatmapChartService->getSollIstHeatmap($anlage, $from, $to);
                     $resultArray['data'] = json_encode($dataArray['chart']);
-                    $resultArray['headline'] = 'Inverter Soll Ist Heatmap';
+                    $resultArray['headline'] = 'DC Current Heatmap';
                     break;
                 default:
                     $resultArray['headline'] = 'Something was wrong ' . $form['selectedChart'];

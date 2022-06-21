@@ -36,7 +36,12 @@
         valueAxisIrr.renderer.grid.template.disabled = true;
         valueAxisIrr.extraMax = 0.1;
 
-
+        {% if aktAnlage.HasPPC %}
+        let valueAxisPPC = chart.yAxes.push(new am4charts.ValueAxis());
+        valueAxisPPC.title.text = "Active Power Sollvalue [[%]]";
+        valueAxisPPC.renderer.opposite = true;
+        valueAxisPPC.cursorTooltipEnabled = false;
+        {% endif %}
         // Create series
         //Expected
         {% if aktAnlage.showInverterOutDiag or form.selectedChart == 'dc_single' %}
@@ -51,7 +56,7 @@
             {% else %}
                 series1.hidden = true;
             {% endif %}
-            series1.tooltipText = "Expected [kWh]: {valueY} [/]";
+            series1.tooltipText = "Expected : {valueY} kWh [/]";
             series1.fill = am4core.color("#fdd400");
             series1.stroke = am4core.color("#fdd400");
             series1.strokeWidth = 1;
@@ -68,7 +73,7 @@
                 series11.dataFields.valueY = "expexted_evu";
                 series11.dataFields.openValueY = "expexted_evu_good";
                 series11.fillOpacity = 0.3;
-                series11.tooltipText = "Expected Grid [kWh]: {valueY} [/]";
+                series11.tooltipText = "Expected Grid : {valueY} kWh [/]";
                 series11.fill = am4core.color("#fdd400");
                 series11.stroke = am4core.color("#fdb500");
                 series11.strokeWidth = 1;
@@ -77,12 +82,28 @@
                 series11.connect = false;
             {% endif %}
 
+        {% if aktAnlage.HasPPC %}
+        // Wirkleistungs-Sollwert
+        let series14 = chart.series.push(new am4charts.LineSeries());
+        series14.name = "Active Power Sollvalue %"
+        series14.dataFields.dateX = "date";
+        series14.dataFields.valueY = "psetrel";
+        series14.tooltipText = "Active Power Sollvalue : {valueY} % [/]";
+        series14.fill = am4core.color("#fd5900");
+        series14.stroke = am4core.color("#fd5900");
+        //series14.strokeWidth = 1;
+        //series14.tensionX = 0.8;
+        series14.hidden = false;
+        series14.yAxis = valueAxisPPC;
+        series14.connect = false;
+        {% endif %}
+
             // Expected ohne Limits
             let series12 = chart.series.push(new am4charts.LineSeries());
             series12.name = "Expected (no limit) {{ (content.expNoLimitSum)|number_format(0, ',', '.') }} kWh"
             series12.dataFields.dateX = "date";
             series12.dataFields.valueY = "expexted_no_limit";
-            series12.tooltipText = "Expected (no limit) [kWh]: {valueY} [/]";
+            series12.tooltipText = "Expected (no limit) : {valueY} kWh [/]";
             series12.fill = am4core.color("#fd5900");
             series12.stroke = am4core.color("#fd5900");
             series12.strokeWidth = 1;
@@ -96,7 +117,7 @@
                 series3.name = "Grid {{ (content.evuSum)|number_format(0, ',', '.') }} kWh"
                 series3.dataFields.dateX = "date";
                 series3.dataFields.valueY = "eZEvu";
-                series3.tooltipText = "Grid [kWh]: {valueY} [/]";
+                series3.tooltipText = "Grid : {valueY} kWh [/]";
                 series3.fill = am4core.color("#03ac23");
                 series3.stroke = am4core.color("#03ac23");
                 series3.strokeWidth = 1;
@@ -124,7 +145,7 @@
                 theoPower.name = "theoPower nach NREL {{ (content.theoPowerSum)|number_format(0, ',', '.') }} kWh";
                 theoPower.dataFields.dateX = "date";
                 theoPower.dataFields.valueY = "theoPower";
-                theoPower.tooltipText = "theoPower: {valueY} [/]";
+                theoPower.tooltipText = "theoPower: {valueY} kWh [/]";
                 theoPower.fill = am4core.color("#808080");
                 theoPower.stroke = am4core.color("#808080");
                 theoPower.strokeWidth = 1;
@@ -146,9 +167,9 @@
             series2.dataFields.dateX = "date";
             series2.dataFields.valueY = "InvOut";
             {% if form.selectedChart == 'dc_single' %}
-                series2.tooltipText = "Inverter [kWh]: {valueY} [/]";
+                series2.tooltipText = "Inverter : {valueY} kWh [/]";
             {% else %}
-                series2.tooltipText = "Inverter Out [kWh]: {valueY} [/]";
+                series2.tooltipText = "Inverter Out : {valueY} kWh [/]";
             {% endif %}
                 series2.fill = am4core.color("#002ac3");
                 series2.stroke = am4core.color("#002ac3");
@@ -166,7 +187,7 @@
        // seriesIrr.legendSettings.labelText = "Irradiation W/m²";
        // seriesIrr.legendSettings.valueText = "{valueY.total}";
         seriesIrr.name = "Irradiation {{ (content.irrSum)|number_format(0, ',', '.') }} kW/m²";
-        seriesIrr.tooltipText = "Irradiation W/m²: {valueY} [/]";
+        seriesIrr.tooltipText = "Irradiation : {valueY} W/m² [/]";
         seriesIrr.fill = am4core.color("#95018e");
         seriesIrr.stroke = am4core.color("#95018e");
         seriesIrr.strokeWidth = 1;
@@ -196,6 +217,10 @@
         chart.events.on("ready", function(ev) {
             valueAxisIrr.min = valueAxisIrr.minZoomed;
             valueAxisIrr.max = valueAxisIrr.maxZoomed;
+            {% if aktAnlage.HasPPC %}
+            valueAxisPPC.min = 0;
+            valueAxisPPC.max = 100;
+            {% endif %}
         });
 
 

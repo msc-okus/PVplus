@@ -194,11 +194,9 @@ class AnlageFormType extends AbstractType
                 'required'      => true,
                 'disabled'      => !$isDeveloper,
             ])
-            ->add('useLowerIrrForExpected', ChoiceType::class, [
+            ->add('useLowerIrrForExpected', SwitchType::class,[
                 'label'         => 'Benutze \'IrrLower\' für die Berechnung Expected',
-                'help'          => '[useLowerIrrForExpected]',
-                'choices'       => ['Yes' => '1', 'No' => '0'],
-                'empty_data'    => '0',
+                'help'          => '[useLowerIrrForExpected]'
             ])
 
 
@@ -285,13 +283,9 @@ class AnlageFormType extends AbstractType
                 'help'          => '[threshold2PA] (ti / Schwellwert 2)',
                 'label_html'    => true,
             ])
-            ->add('useGridMeterDayData', ChoiceType::class, [
+            ->add('useGridMeterDayData', SwitchType::class,[
                 'label'         => 'Nutze externe GridMeter Daten',
                 'help'          => '[useGridMeterDayData]',
-                'label_html'    => true,
-                'choices'       => ['No' => '0', 'Yes' => '1'],
-                //'placeholder'   => 'Please Choose',
-                'empty_data'    => 'No',
             ])
             ->add('contractualAvailability', TextType::class, [
                 'label'         => 'Verfügbarkeit in %',
@@ -356,11 +350,9 @@ class AnlageFormType extends AbstractType
                 'input'         => 'datetime',
                 //'empty_data'    => new \DateTime('now'),
             ])
-            ->add('usePac', ChoiceType::class, [
+            ->add('usePac', SwitchType::class,[
                 'label'         => 'Use PAC Date',
                 'help'          => '[usePac]',
-                'choices'       => ['No' => '0', 'Yes' => '1'],
-                'empty_data'    => '0',
             ])
             ->add('pacDuration',TextType::class, [
                 'label'         => 'PAC Zeitraums in Monaten',
@@ -460,36 +452,31 @@ class AnlageFormType extends AbstractType
                 'required'      => false,
                 'empty_data'    => '0',
             ])
-            ->add('hasDc', ChoiceType::class, [
+
+            ->add('hasDc', SwitchType::class,[
                 'label'         => 'Anlage hat DC Daten',
                 'help'          => '[hasDc]',
-                'choices'       => ['No' => '0', 'Yes' => '1'],
-                'empty_data'    => '0',
             ])
-            ->add('hasStrings', ChoiceType::class, [
+
+            ->add('hasStrings', SwitchType::class,[
                 'label'         => 'Anlage hat String Daten',
                 'help'          => '[hasStrings]',
-                'choices'       => ['No' => '0', 'Yes' => '1'],
-                'empty_data'    => '0',
             ])
-            ->add('hasPPC', ChoiceType::class, [
-                'label'         => 'Anlage hat PPC Daten',
-                'help'          => '[hasPPC]',
-                'choices'       => ['No' => '0', 'Yes' => '1'],
-                'empty_data'    => '0',
+
+            ->add('hasPPC', SwitchType::class,[
+                'label' => 'Anlage hat Power Plant Controller Daten',
+                'help'  => '[hasPPC]',
             ])
-            ->add('hasPannelTemp', ChoiceType::class, [
+
+            ->add('hasPannelTemp', SwitchType::class,[
                 'label'         => 'Anlage hat Pannel Temperatur',
                 'help'          => '[hasPannelTemp]',
-                'choices'       => ['No' => '0', 'Yes' => '1'],
-                'empty_data'    => '0',
             ])
-            ->add('useDayForecast', ChoiceType::class, [
+
+            ->add('useDayForecast', SwitchType::class,[
                 'label'         => 'use Forecast by Day',
                 'help'          => '[useDayForecast]',
-                'choices'       => ['No' => '0', 'Yes' => '1'],
                 'required'      => false,
-                'empty_data'    => 0,
             ])
             ->add('degradationForecast', TextType::class, [
                 'label'         => 'Degradation, only Forecast [%]',
@@ -520,7 +507,8 @@ class AnlageFormType extends AbstractType
                 'label' => 'Frequency tolerance of the Plant'
             ])
             ->add('hasFrequency', SwitchType::class,[
-                'label' => 'Has Frequency'
+                'label' => 'Has Frequency',
+                'help'  => '[hasFrequency]',
             ])
             ################################################
             ####               Reports                  ####
@@ -554,6 +542,7 @@ class AnlageFormType extends AbstractType
                 'placeholder'   => 'Please Choose',
                 'empty_data'    => 'Yes',
             ])
+
             ->add('anlMute', ChoiceType::class, [
                 'label'         => 'Anlage stummschalten (keine Fehlermeldungen senden) (inaktiv)',
                 'help'          => '[anlMute]',
@@ -562,6 +551,7 @@ class AnlageFormType extends AbstractType
                 'placeholder'   => 'Please Choose',
                 'empty_data'    => 'No',
             ])
+
             ->add('anlMuteUntil', DateType::class, [
                 'label'         => 'Anlage stumgeschaltet bis:',
                 'help'          => '[anlMuteUntil]',
@@ -569,150 +559,80 @@ class AnlageFormType extends AbstractType
                 'disabled'      => true,
                 'widget' => 'single_text',
             ])
-            ->add('useCosPhi', ChoiceType::class, [
+
+            ->add('useCosPhi', SwitchType::class,[
                 'label'         => 'Aktiviere cosPhi',
                 'help'          => '[useCosPhi]',
-                'choices'       => ['No' => '0', 'Yes' => '1'],
-                'empty_data'    => '0',
             ])
-            ->add('calcPR', ChoiceType::class, [
+
+            ->add('calcPR', SwitchType::class,[
                 'label'         => 'PR und andere Werte berechnen (wenn Anlage noch nicht final eingerichtet, bitte auf \'No\' stellen)',
                 'help'          => '[calcPR]',
-                'choices'       => ['No' => '0', 'Yes' => '1'],
-                'empty_data'    => '0',
             ])
 
 
             ################################################
             ####         Configuartion Backend          ####
             ################################################
-            ->add('showOnlyUpperIrr', ChoiceType::class, [
+            ->add('showOnlyUpperIrr', SwitchType::class,[
                 'label'         => 'Zeige nur eine Strahlungskennlinie',
                 'help'          => '[showOnlyUpperIrr]',
-                'choices'       => ['Yes' => '1', 'No' => '0'],
-                'empty_data'    => '0',
-                'expanded'      => false,
-                'multiple'      => false,
             ])
-            ->add('showStringCharts', ChoiceType::class, [
+            ->add('showStringCharts', SwitchType::class,[
                 'help'          => '[showStringCharts]',
-                'choices'       => ['Yes' => '1', 'No' => '0'],
-                'empty_data'    => '0',
-                'expanded'      => false,
-                'multiple'      => false,
             ])
-            ->add('showAvailability', ChoiceType::class, [
+            ->add('showAvailability', SwitchType::class,[
                 'help'          => '[showAvailability]',
-                'choices'       => ['Yes' => '1', 'No' => '0'],
-                'empty_data'    => '0',
-                'expanded'      => false,
-                'multiple'      => false,
             ])
-            ->add('showAvailabilitySecond', ChoiceType::class, [
+            ->add('showAvailabilitySecond', SwitchType::class,[
                 'help'          => '[showAvailabilitySecond]',
-                'choices'       => ['Yes' => '1', 'No' => '0'],
-                'empty_data'    => '0',
-                'expanded'      => false,
-                'multiple'      => false,
             ])
-            ->add('showInverterPerformance', ChoiceType::class, [
+            ->add('showInverterPerformance', SwitchType::class,[
                 'help'          => '[showInverterPerformance]',
-                'choices'       => ['Yes' => '1', 'No' => '0'],
-                'empty_data'    => '0',
-                'expanded'      => false,
-                'multiple'      => false,
             ])
-            ->add('showEvuDiag', ChoiceType::class, [
+            ->add('showEvuDiag', SwitchType::class,[
                 'help'          => '[showEvuDiag]',
-                'choices'       => ['Yes' => '1', 'No' => '0'],
-                'empty_data'    => '0',
-                'expanded'      => false,
-                'multiple'      => false,
             ])
-            ->add('showInverterOutDiag', ChoiceType::class, [
+            ->add('showInverterOutDiag', SwitchType::class,[
                 'help'          => '[showInverterOutDiag]',
-                'choices'       => ['Yes' => '1', 'No' => '0'],
-                'empty_data'    => '0',
-                'expanded'      => false,
-                'multiple'      => false,
             ])
-            ->add('showCosPhiDiag', ChoiceType::class, [
+            ->add('showCosPhiDiag', SwitchType::class,[
                 'help'          => '[showCosPhiDiag]',
-                'choices'       => ['Yes' => '1', 'No' => '0'],
-                'empty_data'    => '0',
-                'expanded'      => false,
-                'multiple'      => false,
             ])
-            ->add('showCosPhiPowerDiag', ChoiceType::class, [
+            ->add('showCosPhiPowerDiag', SwitchType::class,[
                 'help'          => '[showCosPhiPowerDiag]',
-                'choices'       => ['Yes' => '1', 'No' => '0'],
-                'empty_data'    => '0',
-                'expanded'      => false,
-                'multiple'      => false,
             ])
-            ->add('showGraphDcInverter', ChoiceType::class, [
+            ->add('showGraphDcInverter', SwitchType::class,[
                 'help'          => '[showGraphDcInverter]',
                 'label'         => 'Zeige Diagramm \'DC - Inverter\'',
-                'choices'       => ['Yes' => '1', 'No' => '0'],
-                'empty_data'    => '0',
-                'expanded'      => false,
-                'multiple'      => false,
             ])
-            ->add('showGraphDcCurrInv', ChoiceType::class, [
+            ->add('showGraphDcCurrInv', SwitchType::class,[
                 'label'         => 'Zeige Diagramm \'DC - Current Inverter\'',
                 'help'          => '[showGraphDcCurrInv]',
-                'choices'       => ['Yes' => '1', 'No' => '0'],
-                'empty_data'    => '0',
-                'expanded'      => false,
-                'multiple'      => false,
             ])
-            ->add('showGraphDcCurrGrp', ChoiceType::class, [
+            ->add('showGraphDcCurrGrp', SwitchType::class,[
                 'label'         => 'Zeige Diagramm \'DC - Current Group\'',
                 'help'          => '[showGraphDcCurrGrp]',
-                'choices'       => ['Yes' => '1', 'No' => '0'],
-                'empty_data'    => '0',
-                'expanded'      => false,
-                'multiple'      => false,
             ])
-            ->add('showGraphVoltGrp', ChoiceType::class, [
+            ->add('showGraphVoltGrp', SwitchType::class,[
                 'label'         => 'Zeige Diagramm \'DC - Voltage Group\'',
                 'help'          => '[showGraphVoltGrp]',
-                'choices'       => ['Yes' => '1', 'No' => '0'],
-                'empty_data'    => '0',
-                'expanded'      => false,
-                'multiple'      => false,
             ])
-            ->add('showGraphIrrPlant', ChoiceType::class, [
+            ->add('showGraphIrrPlant', SwitchType::class,[
                 'label'         => 'Zeige Diagramm \'Irradiation Plant\'',
                 'help'          => '[showGraphIrrPlant]',
-                'choices'       => ['Yes' => '1', 'No' => '0'],
-                'empty_data'    => '0',
-                'expanded'      => false,
-                'multiple'      => false,
             ])
-            ->add('showPR', ChoiceType::class, [
+            ->add('showPR', SwitchType::class,[
                 'label'         => 'Zeige Diagramm \'PR\'',
                 'help'          => '[showPR]',
-                'choices'       => ['Yes' => '1', 'No' => '0'],
-                'empty_data'    => '0',
-                'expanded'      => false,
-                'multiple'      => false,
             ])
-            ->add('showPvSyst', ChoiceType::class, [
+            ->add('showPvSyst', SwitchType::class,[
                 'label'         => 'Zeige Tabelle \'PvSyst\'',
                 'help'          => '[showPvSyst]',
-                'choices'       => ['Yes' => '1', 'No' => '0'],
-                'empty_data'    => '0',
-                'expanded'      => false,
-                'multiple'      => false,
             ])
-            ->add('showForecast', ChoiceType::class, [
+            ->add('showForecast', SwitchType::class,[
                 'label'         => 'Zeige Forecast',
                 'help'          => '[showForecast]',
-                'choices'       => ['Yes' => '1', 'No' => '0'],
-                'empty_data'    => '0',
-                'expanded'      => false,
-                'multiple'      => false,
             ])
             /*
             ->add('showForecast', CheckboxType::class, [
