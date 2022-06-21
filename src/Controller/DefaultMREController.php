@@ -11,6 +11,7 @@ use App\Repository\AnlageAvailabilityRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\Case5Repository;
 use App\Service\AvailabilityService;
+use App\Service\CheckSystemStatusService;
 use App\Service\ExportService;
 use App\Service\FunctionsService;
 use App\Service\ReportEpcPRNewService;
@@ -33,6 +34,16 @@ class DefaultMREController extends BaseController
     public function __construct(UrlGeneratorInterface $urlGenerator)
     {
         $this->urlGenerator = $urlGenerator;
+    }
+
+    #[Route(path: '/mr/status')]
+    public function updateStatus(CheckSystemStatusService $checkSystemStatus) : Response
+    {
+        return $this->render('cron/showResult.html.twig', [
+            'headline'      => "Update Systemstatus",
+            'availabilitys' => '',
+            'output'        => $checkSystemStatus->checkSystemStatus(),
+        ]);
     }
 
     #[Route(path: '/mr/pa/{id}')]

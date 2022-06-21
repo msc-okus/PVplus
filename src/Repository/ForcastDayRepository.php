@@ -40,16 +40,14 @@ class ForcastDayRepository extends ServiceEntityRepository
 
     public function calcForecastByDate(Anlage $anlage, \DateTime $date)
     {
-        $week = $date->format('YYYY-MM-DD');
-
         $forecastSum = $this->createQueryBuilder('f')
-            ->andWhere('f.anlage = :anlageId and f.stamp <= :week')
+            ->andWhere('f.anlage = :anlageId and f.day <= :day')
             ->setParameter('anlageId', $anlage->getAnlId())
-            ->setParameter('week', $week)
-            ->select('SUM(f.expectedWeek)')
+            ->setParameter('day', $date->format('z'))
+            ->select('SUM(f.factorDay)')
             ->getQuery()
             ->getSingleScalarResult()
         ;
-        return $forecastSum;
+        return $forecastSum * $anlage->getContractualGuarantiedPower();
     }
 }

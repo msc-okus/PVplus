@@ -10,6 +10,7 @@ use App\Entity\AnlagenStatus;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\AnlagenStatusRepository;
+use App\Repository\ForcastDayRepository;
 use App\Repository\ForcastRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -141,9 +142,17 @@ class CheckSystemStatusService
                     $powerActArray = $this->functions->getSumPowerAcAct($anlage, $forecastDate->format('Y-m-d 00:00:00'), $forecastDate->format('Y-m-d 23:00:00'), $pacDate, $forecastDate->format('Y-m-d 23:00:00'));
 
                     if ($anlage->getUseDayForecast()){
-                        $forecastYear = $powerActArray['powerEvuYear'] - $this->forecastDayRepo->calcForecastByDate($anlage, $forecastDate);
+                        if ($anlage->getShowEvuDiag()) {
+                            $forecastYear = $powerActArray['powerEvuYear'] - $this->forecastDayRepo->calcForecastByDate($anlage, $forecastDate);
+                        } else {
+                            $forecastYear = $powerActArray['powerActYear'] - $this->forecastDayRepo->calcForecastByDate($anlage, $forecastDate);
+                        }
                     } else {
-                        $forecastYear = $powerActArray['powerEvuYear'] - $this->forecastRepo->calcForecastByDate($anlage, $forecastDate);
+                        if ($anlage->getShowEvuDiag()) {
+                            $forecastYear = $powerActArray['powerEvuYear'] - $this->forecastRepo->calcForecastByDate($anlage, $forecastDate);
+                        } else {
+                            $forecastYear = $powerActArray['powerActYear'] - $this->forecastRepo->calcForecastByDate($anlage, $forecastDate);
+                        }
                     }
                     if ($forecastYear === null) $forecastYear = 0;
                     $forecastDivMinusYear = 0;
