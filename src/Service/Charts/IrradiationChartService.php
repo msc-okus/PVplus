@@ -48,11 +48,11 @@ class IrradiationChartService
             while ($ro = $res->fetch(PDO::FETCH_ASSOC)) {
                 // upper pannel
                 $irr_upper = (float)str_replace(',', '.', $ro["gmod"]);
-                if($hour) $irr_upper = $irr_upper/4;
+                if ($hour) $irr_upper = $irr_upper / 4 ;
                 if (!$irr_upper) $irr_upper = 0;
                 // lower pannel
                 $irr_lower = (float)str_replace(',', '.', $ro["gi"]);
-                if($hour) $irr_lower = $irr_lower/4;
+                if ($hour) $irr_lower = $irr_lower / 4;
                 if (!$irr_lower) $irr_lower = 0;
                 $stamp = self::timeAjustment(strtotime($ro["stamp"]), $anlage->getWeatherStation()->gettimeZoneWeatherStation());
                 if ($anlage->getAnlIrChange() == "Yes") {
@@ -135,10 +135,9 @@ class IrradiationChartService
                         }
                     }
 
-                   $irrAnlageJson = $row['irr_anlage'];
 
-                    if ($irrAnlageJson != '') {
-                        $irrAnlageArray = json_decode($irrAnlageJson);
+                    if ($row['irr_anlage'] != '') {
+                        $irrAnlageArray = json_decode($row['irr_anlage']);
                         $irrCounter = 1;
                         foreach ($irrAnlageArray as $irrAnlageItem => $irrAnlageValue) {
                             if (!($irrAnlageValue == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {

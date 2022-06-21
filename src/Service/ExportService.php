@@ -46,7 +46,7 @@ class ExportService
         for ($stamp = $from->format('U'); $stamp <= $to->format('U'); $stamp += 86400) {
             $gewichteteStrahlung = $gewichteteTheoPower = $gewichteteTheoPower2 = 0;
             $output .= "<tr>";
-            $output .= "<td>".date('Y-m-d', $stamp)."</td>";
+            $output .= "<td><small>".date('Y-m-d', $stamp)."</small></td>";
 
             // für jede AC Gruppe ermittele Wetterstation, lese Tageswert und gewichte diesen
             foreach ($anlage->getAcGroups() as $groupAC) {
@@ -75,9 +75,9 @@ class ExportService
             $output .= "<td>" . self::mittelwert($tempArray) . "</td>";
             $output .= "<td>".round($availability,2)."</td>";
             $output .= "<td>".round($gewichteteStrahlung / 1000 / 4,2)."</td>";
-            #$output .= "<td>".round($gewichteteTheoPower2,2)."</td>";
-            $output .= "<td>".round($gewichteteTheoPower,2)."</td></tr>";
+            $output .= "<td>".round($gewichteteTheoPower,2)."</td>";
             $output .= "<td></td>";
+            $output .= "</tr>";
         }
         $output .= "</tbody></table></div>";
         return $output;

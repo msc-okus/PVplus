@@ -33,7 +33,7 @@ class CustomNumber extends AbstractType
         $builder->addModelTransformer(new StringToNumberTransformer());
     }
 
-    public function getParent()
+    public function getParent(): ?string
     {
         return TextType::class;
     }

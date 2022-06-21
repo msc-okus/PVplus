@@ -73,7 +73,8 @@ class UserFormType extends AbstractType
                 'expanded'      => true,
                 'choice_label'  => 'firma',
                 'by_reference'  => false,
-            ])            ->add('grantedList', TextType::class, [
+            ])
+            ->add('grantedList', TextType::class, [
                 'label'         => 'List with IDs of granted facilities',
                 'empty_data'    => '',
             ])

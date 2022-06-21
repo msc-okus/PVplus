@@ -4,22 +4,22 @@
     <title>Green4Net PVplus 4.0 - {% block title %}{% endblock %}</title>
     {# <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>"> #}
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
     {% block styles %}
         {{ encore_entry_link_tags('app') }}
     {% endblock %}
-
     {% block javascripts %}
         {{ encore_entry_script_tags('app') }}
     {% endblock %}
-
 </head>
 <body class="">
 <div class="ajax-loader">
     <img src="{{ asset('/images/loader.gif') }}" class="img-responsive" alt="loader" />
 </div>
-<header class="grid-container fluid">
-    <div class="top-bar" >
+<header class="grid-container fluid"
+    {# if impersonation is active #}
+    {{ is_granted('IS_IMPERSONATOR') ? 'style="background-color: red !important"' }}
+>
+    <div class="top-bar">
         <div class="top-bar-left">
             <div class="logo">
                 <a href="{{ path('app_dashboard') }}"><img src="{{ asset('images/green4net.svg') }}" alt="green4net GmbH" title="green4net GmbH" height="70" width="200"></a>
@@ -38,11 +38,18 @@
         <div class="top-bar-right">
             {% if is_granted('ROLE_USER') %}
             <div class="header-menu">
-                <ul class="menu vertical">
+                <ul class="menu vertical" style="font-size: 90%;">
                     {% if (app.user) %}
-                        <li><a href=""><i class="fa fa-clock-o"></i> <span id="uhr"></span></a></li>
-                        <li><a href="{{ path('app_logout') }}"><i class="fa fa-sign-out"></i> Logout</a></li>
-                        <li><a href="#"><i class="fa fa-user"></i>  {{ app.user.username }} </a></li>
+                        <li><a href=""><i class="far fa-clock"></i> <span id="uhr"></span></a></li>
+                        <li><a href="{{ path('app_logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                        {% if is_granted('IS_IMPERSONATOR') %}
+                            <li>
+                                <a class="dropdown-item" href="{{ path('app_dashboard', {
+                                    '_switch_user': '_exit'
+                                }) }}"><i class="fas fa-random"></i> Exit Impersonation</a>
+                            </li>
+                        {% endif %}
+                        <li><a href="#"><i class="fa fa-user"></i> {{ app.user.username }} </a></li>
                     {% endif %}
                 </ul>
             </div>
@@ -114,6 +121,7 @@
                 <li><a href="{{ path('app_dashboard') }}"><i class="fa fa-tachometer-alt"></i><span> Dashboard</span></a></li>
                 <li><a href="{{ path('app_analyse_download') }}"><i class="fa fa-file-download"></i><span> Download</span></a></li>
                 <li><a href="{{ path('app_reporting_list') }}"><i class="fa fa-chart-area"></i><span> Reporting</span></a></li>
+                {% if is_granted('ROLE_BETA') %}<li><a href="{{ path('app_ticket_list') }}"><i class="fa fa-clipboard-list"></i><span> Tickets</span></a></li>{% endif %}
                 <li><a href="{{ path('app_anlagen_list') }}"><i class="fa fa-solar-panel"></i><span> Plants</span></a></li>
                 <!--<li><a href="{{ path('app_ticket_list') }}"><i class="fa fa-clipboard-list"></i><span> Tickets</span></a></li>-->
             {% endif %}
@@ -131,7 +139,7 @@
     <footer class="grid-container fluid">
         <div class="grid-x">
             <div class="cell">
-                <p class="text-center">&copy; 2018 - 2022 Green4Net - All Rights Reserved - PV+ 4.0 v2.2.2 - beta</p>
+                <p class="text-center">&copy; 2018 - 2022 Green4Net - All Rights Reserved - PV+ 4.0 v2.2.5 beta</p>
             </div>
         </div>
     </footer>

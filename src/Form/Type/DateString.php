@@ -28,7 +28,7 @@ class DateString extends AbstractType
         $builder->addModelTransformer(new DateToStringTransformer());
     }
 
-    public function getParent()
+    public function getParent(): ?string
     {
         return DateType::class;
     }

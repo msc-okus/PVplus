@@ -1,0 +1,75 @@
+{% extends 'report/_epc/_pageBase.html.twig' %}
+
+{% block page %}
+    {# PLD Table #}
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">PLD Values</h3>
+    <table class="basetable text-right">
+        <thead>
+        <tr>
+            <th>Year</th>
+            <th>Ve [€/MWh]</th>
+            <th>Factor (1+DR)^(2-T)</th>
+            <th>Multiplicator [€/MWh]</th>
+            <th colspan="9" class="text-center">Eloss [MWh]</th>
+            <th colspan="9" class="text-center">Present value at end of period [&euro;]</th>
+        </tr>
+        <tr>
+            <th colspan="4"></th>
+
+            <th colspan="5" class="text-center">without risk</th>
+            <th colspan="4" class="text-center">with risk</th>
+            <th colspan="5" class="text-center">without risk</th>
+            <th colspan="4" class="text-center">with risk</th>
+        </tr>
+        <tr>
+            <th colspan="4"></th>
+            <th>current up to date</th>
+            <th>year 1</th>
+            <th>year 2</th>
+            <th>year 1 & 2</th>
+            <th>rolling 1 year</th>
+            <th>year 1</th>
+            <th>year 2</th>
+            <th>year 1 & 2</th>
+            <th>rolling 1 year</th>
+            <th>current up to date</th>
+            <th>year 1</th>
+            <th>year 2</th>
+            <th>year 1 & 2</th>
+            <th>rolling 1 year</th>
+            <th>year 1</th>
+            <th>year 2</th>
+            <th>year 1 & 2</th>
+            <th>rolling 1 year</th>
+        </tr>
+        </thead>
+        {% for pld in pldTable %}
+            <tbody>
+            <tr>
+                <td class="text-left">{{ pld.year }}</td>
+                <td>{% if pld.Ve > 0 %}{{ pld.Ve|number_format(0, ',', '.') }}{% endif %}</td>
+                <td>{% if pld.factor > 0 %}{{ (pld.factor * 100)|number_format(2, ',', '.') }}%{% endif %}</td>
+                <td>{% if pld.multi > 0 %}{{ pld.multi|number_format(2, ',', '.') }}{% endif %}</td>
+                <td>{% if pld.eloss_current != '' %}{{ pld.eloss_current|number_format(2, ',', '.') }}{% endif %}</td>
+                <td>{% if pld.eloss_year1 != '' %}{{ pld.eloss_year1|number_format(2, ',', '.') }}{% endif %}</td>
+                <td>{% if pld.eloss_year2 != '' %}{{ pld.eloss_year2|number_format(2, ',', '.') }}{% endif %}</td>
+                <td>{% if pld.eloss_year12 != '' %}{{ pld.eloss_year12|number_format(2, ',', '.') }}{% endif %}</td>
+                <td>{% if pld.eloss_rolling != '' %}{{ pld.eloss_rolling|number_format(2, ',', '.') }}{% endif %}</td>
+                <td>{% if pld.elossR_year1 != '' %}{{ pld.elossR_year1|number_format(2, ',', '.') }}{% endif %}</td>
+                <td>{% if pld.elossR_year2 != '' %}{{ pld.elossR_year2|number_format(2, ',', '.') }}{% endif %}</td>
+                <td>{% if pld.elossR_year12 != '' %}{{ pld.elossR_year12|number_format(2, ',', '.') }}{% endif %}</td>
+                <td>{% if pld.elossR_rolling != '' %}{{ pld.elossR_rolling|number_format(2, ',', '.') }}{% endif %}</td>
+                <td>{% if pld.value_current != '' %}{{ pld.value_current|number_format(2, ',', '.') }}{% endif %}</td>
+                <td>{% if pld.value_year1 != '' %}{{ pld.value_year1|number_format(2, ',', '.') }}{% endif %}</td>
+                <td>{% if pld.value_year2 != '' %}{{ pld.value_year2|number_format(2, ',', '.') }}{% endif %}</td>
+                <td>{% if pld.value_year12 != '' %}{{ pld.value_year12|number_format(2, ',', '.') }}{% endif %}</td>
+                <td>{% if pld.value_rolling != '' %}{{ pld.value_rolling|number_format(2, ',', '.') }}{% endif %}</td>
+                <td>{% if pld.valueR_year1 != '' %}{{ pld.valueR_year1|number_format(2, ',', '.') }}{% endif %}</td>
+                <td>{% if pld.valueR_year2 != '' %}{{ pld.valueR_year2|number_format(2, ',', '.') }}{% endif %}</td>
+                <td>{% if pld.valueR_year2 != '' %}{{ pld.valueR_year2|number_format(2, ',', '.') }}{% endif %}</td>
+                <td>{% if pld.valueR_rolling != '' %}{{ pld.valueR_rolling|number_format(2, ',', '.') }}{% endif %}</td>
+            </tr>
+            </tbody>
+        {% endfor %}
+    </table>
+{% endblock %}

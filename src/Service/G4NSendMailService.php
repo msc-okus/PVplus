@@ -4,12 +4,7 @@ namespace App\Service;
 use App\Entity\AlertMessages;
 use App\Helper\G4NTrait;
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
-use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mailer\MailerInterface;
-use Symfony\Component\Mailer\Transport;
-use Symfony\Component\Mime\Address;
-use Symfony\Component\Mime\Email;
 
 class G4NSendMailService
 {

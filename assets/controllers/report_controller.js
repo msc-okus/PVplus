@@ -41,6 +41,15 @@ export default class extends Controller {
         });
     }
 
+    async page(event) {
+        event.preventDefault();
+        const $queryParams = $(event.currentTarget).data("query-value");
+        this.listTarget.innerHTML = await $.ajax({
+            url: this.urlSearchValue,
+            data: $queryParams,
+        });
+    }
+
     async create(event) {
         event.preventDefault();
         const $createReportform = $(this.reportFormTarget).find('form');

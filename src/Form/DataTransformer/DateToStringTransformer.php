@@ -12,15 +12,16 @@ class DateToStringTransformer implements DataTransformerInterface
     {
 
     }
-    public function transform($value)
+
+    public function transform($value): mixed
     {
         $dates = date('d.m.y H:i', strtotime($value));
         $date = date_create_from_format('d.m.y H:i', $dates);
         return ($date);
     }
 
-    public function reverseTransform($value)
+    public function reverseTransform($value): mixed
     {
-        return$value->format('d.m.y H:i');
+        return $value->format('d.m.y H:i');
     }
 }

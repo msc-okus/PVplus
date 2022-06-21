@@ -2,23 +2,17 @@
     <thead>
     <tr>
         <th>Ticket ID</th>
-        <th {% if pagination.isSorted('a.anlName') %} class="sorted"{% endif %}>
-            {{ knp_pagination_sortable(pagination, 'Plant', ['a.anlName']) }}
-        </th>
-
-        <th>Status</th>
-        <th>Priority</th>
-        <th {% if pagination.isSorted('ticket.editor') %} class="sorted"{% endif %}>
-            {{ knp_pagination_sortable(pagination, 'Editor', ['ticket.editor']) }}</th>
-        <th {% if pagination.isSorted('ticket.begin') %} class="sorted"{% endif %}>
-            {{ knp_pagination_sortable(pagination, 'Begin', ['ticket.begin']) }}</th>
-        <th {% if pagination.isSorted('ticket.end') %} class="sorted"{% endif %}>
-            {{ knp_pagination_sortable(pagination, 'End', ['ticket.end']) }}</th>
+        <th>Plant</th>
+        <th class="text-center">Status</th>
+        <th class="text-center">Priority</th>
+        <th>Editor</th>
+        <th>Begin</th>
+        <th>End</th>
         {% if (is_granted('ROLE_DEV')) %}
             <th>Last Update</th>
         {% endif %}
-        <th>Alert Categorie</th>
-        <th>Alert Type</th>
+        <th>Error Categorie{% if is_granted('ROLE_G4N') %} <br><small>alertType</small> {% endif %}</th>
+        <th>Error Type</th>
         <th>Inverter</th>
         <th></th>
         <th></th>
@@ -30,27 +24,27 @@
         <tr>
             <td>{{ ticket.id }}</td>
             <td>{{ ticket.anlage.anlName }} {% if is_granted('ROLE_G4N') %} ({{ ticket.anlage.anlId }}) {% endif %}</td>
-            <td class="ticket-status-{{ ticket.status }}">
+            <td class="text-center">
                 {% set status %}ticket.status.{{ ticket.status }}{% endset %}
-                {{ status|trans }}
+                <span class="label ticket-status-{{ ticket.status }}">{{ status|trans }}</span>
             </td>
-            <td class="ticket-priority-{{ ticket.priority }}">
+            <td class="text-center">
                 {% set priority %}ticket.priority.{{ ticket.priority }}{% endset %}
-                {{ priority|trans }}
+                <span class="label ticket-priority-{{ ticket.priority }}">{{ priority|trans }}</span>
             </td>
             <td>{{ ticket.editor }}</td>
-            <td>{{ ticket.begin|date("Y-m-d H:i")}}</td>
-            <td>{{ ticket.end|date("Y-m-d H:i") }}</td>
-            {% if (is_granted('ROLE_DEV')) %}
-                <td>{{ ticket.updatedAt|date("Y-m-d H:i")  }}</td>
-            {% endif %}
-            <td>
-                {% set errtyp %}ticket.error.type.{{ ticket.errorType }}{% endset %}
-                 {{ errtyp|trans }}
-                {{ ticket.errorType }}</td>
+            <td>{{ ticket.begin|date("d.m.y H:i")}}</td>
+            <td>{{ ticket.end|date("d.m.y H:i") }}</td>
+            <td>{{ ticket.updatedAt|date("d.m.y H:i")  }}</td>
             <td>
                 {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}
-                {{ errcat|trans }}
+                {{ errcat|trans }}{% if is_granted('ROLE_DEV') %} | {{ ticket.alertType }}{% endif %}
+            </td>
+            <td>
+                {% if ticket.errorType %}
+                    {% set errtyp %}ticket.error.type.{{ ticket.errorType }}{% endset %}
+                    {{ errtyp|trans }}{% if is_granted('ROLE_DEV') %} | {{ ticket.errorType }}{% endif %}
+                {% endif %}
             </td>
             <td>{{ ticket.inverter }}</td>
             <td></td>
@@ -59,4 +53,4 @@
     {% endfor %}
     </tbody>
 </table>
-{{ knp_pagination_render(pagination) }}
+{{ knp_pagination_render(pagination, false, {}, {'controllerNameStimulus': 'ticket-list'}) }}

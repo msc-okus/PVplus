@@ -236,17 +236,17 @@ class AnlagenPR
     /**
      * @ORM\Column(type="json", nullable=true)
      */
-    private array $irradiationJson = [];
+    private ?array $irradiationJson = [];
 
     /**
      * @ORM\Column(type="json", nullable=true)
      */
-    private array $temperaturJson = [];
+    private ?array $temperaturJson = [];
 
     /**
      * @ORM\Column(type="json", nullable=true)
      */
-    private array $windJson = [];
+    private ?array $windJson = [];
 
     /**
      * @ORM\Column(type="string", length=20)

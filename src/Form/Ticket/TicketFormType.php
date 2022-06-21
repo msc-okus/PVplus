@@ -6,6 +6,7 @@ namespace App\Form\Ticket;
 use App\Entity\Ticket;
 use App\Form\Type\AnlageTextType;
 use App\Form\Type\SwitchType;
+use App\Helper\PVPNameArraysTrait;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -18,6 +19,8 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class TicketFormType extends AbstractType
 {
+    use PVPNameArraysTrait;
+
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
@@ -67,12 +70,8 @@ class TicketFormType extends AbstractType
         $builder
 
             ->add('status', ChoiceType::class, [
-                'label' => 'Select the status',
-                'choices' => [
-                    'Open' => 10,
-                    'Work in Progress' => 20,
-                    'Closed' => 30
-                ],
+                'label' => 'Status',
+                'choices' => self::ticketStati(),
                 'required' => true,
                 'placeholder' => 'please Choose ...'
             ])
@@ -87,33 +86,25 @@ class TicketFormType extends AbstractType
             ->add('freeText', CKEditorType::class, [
                 'config' => array('toolbar' => 'my_toolbar'),
             ])
-            /*
-           ->add('description', CKEditorType::class, [
-               'label' => 'Description',
-               'disabled' => true,
-           ])
 
-           ->add('systemStatus', ChoiceType::class, [
-               'label' => 'Select the status of the system',
-               'choices' => [
-                   'test' => 10,
-                   'test2' => 20
-               ],
-               'required' => true,
-               'placeholder' => 'Please Choose ...'
-           ])
-           */
             ->add('priority', ChoiceType::class, [
-                'label' => 'Select the priority',
-                'choices' => [
-                    'Low' => 10,
-                    'Normal' => 20,
-                    'High' => 30,
-                    'Urgent' => 40
-                ],
+                'label' => 'Priority',
+                'choices' => self::ticketPriority(),
                 'required' => true,
                 'placeholder' => 'please Choose ...'
 
+            ])
+            ->add('alertType', ChoiceType::class, [
+                'label' => 'Category of error ',
+                'help'  => 'data gap, inverter, ...',
+                'choices' => self::errorCategorie(),
+                'disabled' => true,
+            ])
+            ->add('errorType', ChoiceType::class, [
+                'label' => 'Type of error',
+                'help'  => 'SOR, EFOR, OMC',
+                'choices' => self::errorType(),
+                'disabled' => true,
             ])
             ->add('answer', CKEditorType::class, [
                 'config' => array('toolbar' => 'my_toolbar'),
@@ -167,12 +158,7 @@ class TicketFormType extends AbstractType
                 'label'     => 'Yield',
                 'required'  => false
             ])
-        ->add('alertType', TextType::class, [
-            'label' => 'Type of error ',
-            'attr' => [
-                'readonly' => true,
-            ]
-        ])
+
             ->add('save', SubmitType::class, [
                 'label'     => 'Save',
                 'attr'      => ['class' => 'primary save'],

@@ -56,7 +56,7 @@ class WeatherStation
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private ?string $timeZoneWeatherStation = '+0';
+    private ?string $timeZoneWeatherStation = '0';
     /**
      * @ORM\OneToMany(targetEntity=Anlage::class, mappedBy="weatherStation")
      */
