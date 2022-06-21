@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use ApiPlatform\Core\Api\UrlGeneratorInterface;
 use App\Entity\Ticket;
+use App\Entity\TicketDate;
 use App\Form\Model\ToolsModel;
 use App\Form\Reports\ReportsFormType;
 use App\Form\Ticket\TicketEditFormType;
@@ -80,8 +81,11 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/edit/{id}', name: 'app_ticket_edit')]
     public function edit($id, TicketRepository $ticketRepo, EntityManagerInterface $em, Request $request) : Response
     {
+
         $session=$this->container->get('session');
         $ticket = $ticketRepo->find($id);
+        $ticketDates = $ticket->getDates();
+        if($ticketDates->isEmpty()) $ticketDates = null;
         //reading data from session
         $form = $this->createForm(TicketFormType::class, $ticket);
         $searchstatus = $session->get('search');
@@ -117,7 +121,8 @@ class TicketController extends BaseController
         return $this->render('ticket/edit.html.twig', [
             'ticketForm'    => $form->createView(),
             'ticket'        => $ticket,
-            'edited' => true
+            'edited'        => true,
+            'dates'         => $ticketDates
         ]);
     }
 
@@ -197,81 +202,60 @@ class TicketController extends BaseController
         ]);
     }
 
-    #[Route(path: '/ticket/split/{mode}/{id}', name: 'app_ticket_split')]
-    public function Split($mode, $id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em) : Response
+    #[Route(path: '/ticket/split/{id}', name: 'app_ticket_split')]
+    public function Split( $id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em) : Response
     {
         $ticket = $ticketRepo->findOneById($id);
+        $beginTime = $request->query->get('begin-time');
+        $endTime = $request->query->get('end-time');
 
-        $splitTime = $request->query->get('split-time');
 
-        if (strtotime($splitTime) <= $ticket->getEnd()->getTimestamp() && strtotime($splitTime) >= $ticket->getBegin()->getTimestamp()) {
-            if ($mode == "simple") {
                 $Route = $this->generateUrl('app_ticket_list', [], UrlGeneratorInterface::ABS_PATH);
-                if ($ticket != null && $splitTime) {
-                    $ticketNew = clone $ticket;
-                    $ticketNew->unsetId();
-                    $ticketNew->setBegin(date_create_from_format('Y/m/d H:i', $splitTime));
-                    $ticket->setEnd(date_create_from_format('Y/m/d H:i', $splitTime));
-                    $ticket->setSplitted(true);
-                    $ticketNew->setSplitted(true);
+                if ($ticket != null && $beginTime && $endTime) {
+                    if ($beginTime > $ticket->getBegin()->format("Y/m/d H:i")){
+                        $firstDate = new TicketDate();
+                        $firstDate->setBegin($ticket->getBegin()->format("Y/m/d H:i"));
+                        $firstDate->setEnd($beginTime);
+                        $firstDate->setTicket($ticket);
+                        $ticket->addDate($firstDate);
+                        $em->persist($firstDate);
+                    }
+                    $mainDate = new TicketDate();
+                    $mainDate->setBegin($beginTime);
+                    $mainDate->setEnd($endTime);
+                    $mainDate->setTicket($ticket);
+                    $ticket->addDate($mainDate);
 
-                    $em->persist($ticketNew);
+                    $em->persist($mainDate);
+                    if ($endTime < $ticket->getEnd()->format("Y/m/d H:i")){
+                        $secondDate = new TicketDate();
+                        $secondDate->setBegin($endTime);
+                        $secondDate->setEnd($ticket->getEnd()->format("Y/m/d H:i"));
+                        $secondDate->setTicket($ticket);
+                        $ticket->addDate($secondDate);
+                        $em->persist($secondDate);
+                    }
+                    $ticket->setSplitted(true);
                     $em->persist($ticket);
                     $em->flush();
-
                     return $this->redirect($Route);
                 }
-            }
-            elseif ($mode == "first") {
-                if ($ticket != null && $splitTime) {
-                    $ticketNew = clone $ticket;
-                    $ticketNew->unsetId();
-                    $ticketNew->setBegin(date_create_from_format('Y/m/d H:i', $splitTime));
-                    $ticket->setEnd(date_create_from_format('Y/m/d H:i', $splitTime));
-                    $ticket->setSplitted(true);
-                    $ticketNew->setSplitted(true);
 
-                    $em->persist($ticketNew);
-                    $em->persist($ticket);
-                    $em->flush();
-                    $form = $this->createForm(TicketFormType::class, $ticket);
-                    return $this->render('ticket/edit.html.twig', [
-                        'ticketForm' => $form->createView(),
-                        'ticket' => $ticket,
-                        'edited' => true
-                    ]);
-                }
-            }
-            else {
 
-                    if ($ticket != null && $splitTime) {
-                        $ticketNew = clone $ticket;
-                        $ticketNew->unsetId();
-                        $ticketNew->setBegin(date_create_from_format('Y/m/d H:i', $splitTime));
-                        $ticket->setEnd(date_create_from_format('Y/m/d H:i', $splitTime));
-                        $ticket->setSplitted(true);
-                        $ticketNew->setSplitted(true);
-                        $em->persist($ticketNew);
-                        $em->persist($ticket);
-                        $em->flush();
-                        $form = $this->createForm(TicketFormType::class, $ticketNew);
-                        return $this->render('ticket/edit.html.twig', [
-                            'ticketForm' => $form->createView(),
-                            'ticket' => $ticketNew,
-                            'edited' => true
-                        ]);
-                    }
-                }
-            }
+        $ticketDates = $ticket->getDates();
+        if($ticketDates->isEmpty()) $ticketDates = null;
 
-        else  $this->addFlash('warning', 'Error with the date of splitting.');
-            $form = $this->createForm(TicketFormType::class, $ticket);
+
+        $form = $this->createForm(TicketFormType::class, $ticket);
         return $this->render('ticket/edit.html.twig', [
             'ticketForm' => $form->createView(),
             'ticket' => $ticket,
-            'edited' => true
+            'edited' => true,
+            'dates' => $ticketDates
         ]);
     }
-
+    #[Route(path: '/ticket/split/edit/{id}', name: 'app_ticket_split_edit')]
+    public function SplitEdit( $id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em) : Response
+    {}
 
 }

@@ -5,6 +5,8 @@ namespace App\Entity;
 use App\Repository\TicketRepository;
 use DateTime;
 use DateTimeInterface;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Gedmo\Blameable\Traits\BlameableEntity;
@@ -158,6 +160,16 @@ class Ticket
      * @ORM\Column(type="boolean")
      */
     private bool $splitted = false;
+
+    /**
+     * @ORM\OneToMany(targetEntity=TicketDate::class, mappedBy="ticket")
+     */
+    private $dates;
+
+    public function __construct()
+    {
+        $this->dates = new ArrayCollection();
+    }
 
 
     public function getId(): ?int
@@ -491,6 +503,36 @@ class Ticket
     public function setSplitted(bool $splitted): self
     {
         $this->splitted = $splitted;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, TicketDate>
+     */
+    public function getDates(): Collection
+    {
+        return $this->dates;
+    }
+
+    public function addDate(TicketDate $date): self
+    {
+        if (!$this->dates->contains($date)) {
+            $this->dates[] = $date;
+            $date->setTicket($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDate(TicketDate $date): self
+    {
+        if ($this->dates->removeElement($date)) {
+            // set the owning side to null (unless already changed)
+            if ($date->getTicket() === $this) {
+                $date->setTicket(null);
+            }
+        }
 
         return $this;
     }
