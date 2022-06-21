@@ -14,7 +14,7 @@ use PDO;
 use Symfony\Component\Security\Core\Security;
 use ContainerXGGeorm\getConsole_ErrorListenerService;
 
-class TempHeatmapChartService
+class SollIstHeatmapChartService
 {
     use G4NTrait;
     private Security $security;
@@ -68,7 +68,7 @@ class TempHeatmapChartService
      * [Heatmap]
      */
     //MS 06/2022
-    public function getTempHeatmap(Anlage $anlage, $from, $to,  bool $hour = false): ?array
+    public function getSollIstHeatmap(Anlage $anlage, $from, $to,  bool $hour = false): ?array
     {
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $conn = self::getPdoConnection();
@@ -80,6 +80,7 @@ class TempHeatmapChartService
 
         $gmt_offset = 1;   // Unterschied von GMT zur eigenen Zeitzone in Stunden.
         $zenith = 90+50/60;
+
         $current_date = strtotime($from);
         $sunset = date_sunset($current_date, SUNFUNCS_RET_TIMESTAMP,  (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon(), $zenith, $gmt_offset);
         $sunrise = date_sunrise($current_date, SUNFUNCS_RET_TIMESTAMP,  (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon(), $zenith, $gmt_offset);
@@ -92,7 +93,7 @@ class TempHeatmapChartService
        // $sunset = $sunArray[$anlagename]['sunset'];
 
         $from = date('Y-m-d H:00',$sunrise - 3600);
-        $to = date('Y-m-d H:00',$sunset + 5400);
+        $to = date('Y-m-d H:00',$sunset+ 5400);
 
         $conn = self::getPdoConnection();
         $dataArray = [];
@@ -108,39 +109,46 @@ class TempHeatmapChartService
 
         if ($anlage->getUseNewDcSchema()) {
 
-            $sql = "SELECT wr_temp as istTemp,wr_group,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts
-                                    FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameDCIst() . " b ON a.stamp = b.stamp)
-                                    WHERE a.stamp BETWEEN '$from' AND '$to' 
-                                    GROUP BY a.stamp, b.wr_group";
+            $sql = "SELECT date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts, c.wr_idc as istCurrent, b.soll_imppwr as sollCurrent, b.dc_exp_power as expected, b.group_dc as inv FROM db_dummysoll a 
+                    LEFT JOIN " . $anlage->getDbNameDcSoll() . " b ON a.stamp = b.stamp 
+                    LEFT JOIN " . $anlage->getDbNameDCIst() . " c ON b.stamp = c.stamp 
+                    WHERE a.stamp BETWEEN '$from' AND '$to'
+                    GROUP BY a.stamp, b.group_dc;";
 
         } else {
 
-            $sql = "SELECT wr_temp as istTemp,group_dc,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts 
-                                    FROM (db_dummysoll a LEFT JOIN  " . $anlage->getDbNameACIst() . " b ON a.stamp = b.stamp)
-                                    WHERE a.stamp BETWEEN '$from' AND '$to' 
-                                    GROUP BY a.stamp, b.group_dc";
+            $sql = "SELECT date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts, c.wr_idc as istCurrent, b.soll_imppwr as sollCurrent, b.dc_exp_power as expected, b.group_dc as inv FROM db_dummysoll a 
+                    LEFT JOIN " . $anlage->getDbNameDcSoll() . " b ON a.stamp = b.stamp 
+                    LEFT JOIN " . $anlage->getDbNameACIst() . " c ON b.stamp = c.stamp 
+                    WHERE a.stamp BETWEEN '$from' AND '$to'
+                    GROUP BY a.stamp, b.group_dc;";
         }
 
         $resultActual = $conn->query($sql);
 
         $dataArray['inverterArray'] = $nameArray;
+        $maxInverter = $resultActual->rowCount() ;
+
+       // SOLL Strom für diesen Zeitraum und diese Gruppe
 
         if ($resultActual->rowCount() > 0) {
 
             if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == "Groningen") {
-                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
+                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
             } else {
-                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
+                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
             }
 
             $dataArray['maxSeries'] = 0;
             $counter = 0;
-            $rows = $resultActual->rowCount();
+
             while ( $rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
 
                 $stamp = $rowActual["ts"];
+                $stampAd = date('Y-m-d H:i',strtotime(self::timeAjustment( $stamp, $anlage->getAnlZeitzoneWs())));
 
-                $keys = self::array_recursive_search_key_map( $stamp, $dataArrayIrradiation);
+                // Find Key in Array
+                $keys = self::array_recursive_search_key_map( $stampAd, $dataArrayIrradiation);
 
                 // fetch Irradiation
                 if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
@@ -154,13 +162,22 @@ class TempHeatmapChartService
                 $e = explode(" ", $stamp);
                 $dataArray['chart'][$counter]['ydate'] = $e[1];
 
-                        $value = round($rowActual['istTemp']);
+                ($rowActual['sollCurrent'] == null) ? $powersoll = 0 : $powersoll = $rowActual['sollCurrent'];
+                ($rowActual['istCurrent'] == null) ? $powerist = 0 :  $powerist = $rowActual['istCurrent'];
+
+                if($powersoll!=0) {
+                    $value = round(($powerist / $powersoll) * (float)100 );
+                }else{
+                    $value = 0;
+                }
                         $value = ($value > (float)100) ? (float)100: $value;
-                        $e = explode(" ", $stamp);
-                        $dataArray['chart'][$counter]['ydate'] = $e[1];
-                        $dataArray['chart'][$counter]['xinv'] = $nameArray[$rowActual['group_dc']] ;
-                        $dataArray['chart'][$counter]['value'] =  $value ;
-                        $dataArray['chart'][$counter]['irr'] =  $dataIrr ;
+                        $value = ($value < (float)0) ? (float)100: $value;
+
+                        $dataArray['maxSeries'] =  $maxInverter;
+                        $dataArray['chart'][$counter]['xinv'] = $nameArray[$rowActual['inv']] ;
+                        $dataArray['chart'][$counter]['value'] =  $value;
+                        $dataArray['chart'][$counter]['ist'] =  $powerist;
+                        $dataArray['chart'][$counter]['expected'] =  $powersoll;
                         /*
                         $dataArray['chart'][$counter]['irr'] =  $dataIrr;
                         $dataArray['chart'][$counter]['thirr'] =  $theoreticalIRR;
@@ -172,6 +189,7 @@ class TempHeatmapChartService
             }
             $dataArray['offsetLegend'] = 0;
         }
+      #  dd(print_r($dataArray));
         return $dataArray;
     }
 }

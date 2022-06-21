@@ -109,10 +109,10 @@ class HeatmapChartService
 
         if ($anlage->getUseNewDcSchema()) {
 
-            $sql = "SELECT wr_pdc as istPower,group_dc,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts
+            $sql = "SELECT wr_pdc as istPower,wr_group as group_dc,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts
                                     FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameDCIst() . " b ON a.stamp = b.stamp)
                                     WHERE a.stamp BETWEEN '$from' AND '$to' 
-                                    GROUP BY a.stamp, b.group_ac";
+                                    GROUP BY a.stamp, b.wr_group";
         } else {
 
             $sql = "SELECT wr_pac as istPower,group_dc,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts 
@@ -165,8 +165,11 @@ class HeatmapChartService
                         $pnomkwh = $pnominverter[$rowActual['group_dc']] / (float)1000;
                         if ($dataIrr > 10) {
                             $theoreticalIRR = ($dataIrr / (float)1000) * $pnomkwh;
-                            if ($poweristkwh == 0) $value = 0;
-                            else $value = round(($poweristkwh / $theoreticalIRR) * (float)100);
+                            if ($poweristkwh == 0 or $theoreticalIRR == 0) {
+                                $value = 0;
+                            } else {
+                                $value = round(($poweristkwh / $theoreticalIRR) * (float)100);
+                              }
                         } else {
                                 $value = 0;
                         }

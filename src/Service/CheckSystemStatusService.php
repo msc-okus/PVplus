@@ -10,6 +10,7 @@ use App\Entity\AnlagenStatus;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\AnlagenStatusRepository;
+use App\Repository\ForcastDayRepository;
 use App\Repository\ForcastRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -23,8 +24,15 @@ class CheckSystemStatusService
     private MessageService $messageService;
     private ForcastRepository $forecastRepo;
     private FunctionsService $functions;
+    private ForcastDayRepository $forecastDayRepo;
 
-    public function __construct(AnlagenRepository $anlagenRepository, AnlagenStatusRepository $statusRepository, EntityManagerInterface $em, MessageService $messageService, ForcastRepository $forecastRepo, FunctionsService $functions)
+    public function __construct(AnlagenRepository $anlagenRepository,
+                                AnlagenStatusRepository $statusRepository,
+                                EntityManagerInterface $em,
+                                MessageService $messageService,
+                                ForcastRepository $forecastRepo,
+                                ForcastDayRepository $forecastDayRepo,
+                                FunctionsService $functions)
     {
         $this->anlagenRepository = $anlagenRepository;
         $this->statusRepository = $statusRepository;
@@ -32,6 +40,7 @@ class CheckSystemStatusService
         $this->messageService = $messageService;
         $this->forecastRepo = $forecastRepo;
         $this->functions = $functions;
+        $this->forecastDayRepo = $forecastDayRepo;
     }
 
     public function checkSystemStatus():string
@@ -132,7 +141,19 @@ class CheckSystemStatusService
                     }
                     $powerActArray = $this->functions->getSumPowerAcAct($anlage, $forecastDate->format('Y-m-d 00:00:00'), $forecastDate->format('Y-m-d 23:00:00'), $pacDate, $forecastDate->format('Y-m-d 23:00:00'));
 
-                    $forecastYear = $powerActArray['powerEvuYear'] - $this->forecastRepo->calcForecastByDate($anlage, $forecastDate);
+                    if ($anlage->getUseDayForecast()){
+                        if ($anlage->getShowEvuDiag()) {
+                            $forecastYear = $powerActArray['powerEvuYear'] - $this->forecastDayRepo->calcForecastByDate($anlage, $forecastDate);
+                        } else {
+                            $forecastYear = $powerActArray['powerActYear'] - $this->forecastDayRepo->calcForecastByDate($anlage, $forecastDate);
+                        }
+                    } else {
+                        if ($anlage->getShowEvuDiag()) {
+                            $forecastYear = $powerActArray['powerEvuYear'] - $this->forecastRepo->calcForecastByDate($anlage, $forecastDate);
+                        } else {
+                            $forecastYear = $powerActArray['powerActYear'] - $this->forecastRepo->calcForecastByDate($anlage, $forecastDate);
+                        }
+                    }
                     if ($forecastYear === null) $forecastYear = 0;
                     $forecastDivMinusYear = 0;
                     $forecastDivPlusYear = 0;

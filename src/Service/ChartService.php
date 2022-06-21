@@ -9,6 +9,7 @@ use App\Service\Charts\DCCurrentChartService;
 use App\Service\Charts\DCPowerChartService;
 use App\Service\Charts\ForecastChartService;
 use App\Service\Charts\HeatmapChartService;
+use App\Service\Charts\SollIstHeatmapChartService;
 use App\Service\Charts\TempHeatmapChartService;
 use App\Service\Charts\IrradiationChartService;
 use App\Service\Charts\VoltageChartService;
@@ -44,6 +45,8 @@ class ChartService
     private VoltageChartService $voltageChart;
     private HeatmapChartService $heatmapChartService;
     private TempHeatmapChartService $tempheatmapChartService;
+    private SollIstHeatmapChartService $sollistheatmapChartService;
+
 
     public function __construct(Security                     $security,
                                 AnlagenStatusRepository      $statusRepository,
@@ -58,9 +61,10 @@ class ChartService
                                 DCCurrentChartService        $currentChart,
                                 VoltageChartService          $voltageChart,
                                 IrradiationChartService      $irradiationChart,
-                                GridMeterDayRepository $gridMeterDayRepository,
-                                HeatmapChartService $heatmapChartService,
-                                TempHeatmapChartService $tempheatmapChartService)
+                                GridMeterDayRepository       $gridMeterDayRepository,
+                                HeatmapChartService          $heatmapChartService,
+                                TempHeatmapChartService      $tempheatmapChartService,
+                                SollIstHeatmapChartService   $sollistheatmapChartService)
     {
         $this->security = $security;
         $this->statusRepository = $statusRepository;
@@ -78,6 +82,7 @@ class ChartService
         $this->gridMeterDayRepository=$gridMeterDayRepository;
         $this->heatmapChartService = $heatmapChartService;
         $this->tempheatmapChartService = $tempheatmapChartService;
+        $this->sollistheatmapChartService = $sollistheatmapChartService;
     }
 
     /**
@@ -489,7 +494,12 @@ class ChartService
                 case ("tempheatmap"):
                     $dataArray = $this->tempheatmapChartService->getTempHeatmap($anlage, $from, $to);
                     $resultArray['data'] = json_encode($dataArray['chart']);
-                    $resultArray['headline'] = 'Inverter Temperature Heatmap';
+                    $resultArray['headline'] = 'Inverter Temperature Heatmap [C°]';
+                    break;
+                case ("sollistheatmap"):
+                    $dataArray = $this->sollistheatmapChartService->getSollIstHeatmap($anlage, $from, $to);
+                    $resultArray['data'] = json_encode($dataArray['chart']);
+                    $resultArray['headline'] = 'DC Current Heatmap';
                     break;
                 default:
                     $resultArray['headline'] = 'Something was wrong ' . $form['selectedChart'];

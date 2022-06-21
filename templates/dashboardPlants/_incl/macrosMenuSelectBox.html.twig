@@ -2,10 +2,16 @@
 {% macro showHeatmap(form, aktAnlage) %}
     <option value="heatmap" {% if form.selectedChart == 'heatmap' %}selected{% endif %}>Inverter PR Heatmap [%]</option>
 {% endmacro %}
-{# INV TempHeatmap Diagramme #}
+{# INV Temp Heatmap Diagramme #}
 {% macro showTempHeatmap(form, aktAnlage) %}
     <option value="tempheatmap" {% if form.selectedChart == 'tempheatmap' %}selected{% endif %}>Inverter Temperature Heatmap [°C]</option>
 {% endmacro %}
+{# INV SollIst DC Current Heatmap Diagramme #}
+{% macro showSollIstHeatmap(form, aktAnlage) %}
+    <option value="sollistheatmap" {% if form.selectedChart == 'sollistheatmap' %}selected{% endif %}>DC Current Heatmap [%]</option>
+{% endmacro %}
+
+
 {# AC Power Diagramme #}
 {# AC1 #}
 {% macro acActPlant(form, aktAnlage) %}

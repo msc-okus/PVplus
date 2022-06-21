@@ -167,7 +167,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getUserIdentifier(): ?string
     {
-        return $this->name;
+        return $this->email;
     }
 
     public function setUsername(string $name): self
@@ -265,9 +265,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
 
-    public function getSalt()
+    public function getSalt(): ?string
     {
-        // TODO: Implement getSalt() method.
+        return null;
     }
 
 
