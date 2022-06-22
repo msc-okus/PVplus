@@ -200,7 +200,7 @@ class ReportEpcService
                             $irrMonth       = $prArray['irradiation'];
                             $prAvailability = $prArray['availability'];
                             if ($anlage->getUseGridMeterDayData()){
-                                $eGridReal = $prArray['powerEGridExt'];
+                                $eGridReal  = $prArray['powerEGridExt'];
                                 $prReal     = $prArray['prEGridExt'];
                                 $prStandard = $prArray['prDefaultEGridExt'];
                             }
@@ -361,21 +361,35 @@ class ReportEpcService
             'currentMonthClass'     => 'sum-real',
         ];
 
-        // PLD Forecast Gesamtlaufzeit
+        // PLD Berechnung
+
         // PR Abweichung für das Jahr berechen -> Daten für PR Forecast
         $prDiffYear = ($sumPrReal / $counter) - $anlage->getContractualPR();
-        // Daten für PLD Forecast
-        $eLoss = (((float)$anlage->getContractualPR()/100 - $sumPrRealPrProg/100) * $sumSpecPowerRealProg * (float)$anlage->getKwPeakPvSyst());
-        $sumPld = 0;
-        for ($year = 1; $year <= 15; $year++){
-            $pld = ($eLoss * $anlage->getPldPR()) / (1 + ($anlage->getPldNPValue() / 100)) ** ($year - 1);
-            $sumPld += $pld;
-            $report[2][] = [
-                'year'              => $year,
-                'eLoss'             => $this->format($eLoss),
-                'pld'               => $this->format($pld),
-            ];
+        switch ($anlage->getPldAlgorithm()){
+            case 'Leek/Kampen':
+                $sumPld = $prDiffYear * $anlage->getPldPR();
+                $report[2][] = [
+                    'year'              => '0',
+                    'eLoss'             => '0',
+                    'pld'               => '0',
+                ];
+                break;
+            default:
+                // PLD Forecast Gesamtlaufzeit
+                // Daten für PLD Forecast
+                $eLoss = (((float)$anlage->getContractualPR()/100 - $sumPrRealPrProg/100) * $sumSpecPowerRealProg * (float)$anlage->getKwPeakPvSyst());
+                $sumPld = 0;
+                for ($year = 1; $year <= 15; $year++){
+                    $pld = ($eLoss * $anlage->getPldPR()) / (1 + ($anlage->getPldNPValue() / 100)) ** ($year - 1);
+                    $sumPld += $pld;
+                    $report[2][] = [
+                        'year'              => $year,
+                        'eLoss'             => $this->format($eLoss),
+                        'pld'               => $this->format($pld),
+                    ];
+                }
         }
+
         // Daten für PR Forecast
         $report[1] = [
             [
@@ -401,6 +415,10 @@ class ReportEpcService
                 'pld'               => $this->format($pld),
             ];
         }
+
+        $report['pld'][] = [
+            'algorithmus'           => $anlage->getPldAlgorithm(),
+        ];
 
         // Daten für PR Forecast
         $report['prForecast'][]= [

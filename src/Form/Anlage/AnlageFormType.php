@@ -47,6 +47,10 @@ class AnlageFormType extends AbstractType
             'Veendam'                   => 'Veendam',
             'Lelystad (Temp Korrektur)' => 'Lelystad',
         ];
+        $pldAlgorithmArray = [
+            'Lelystad'      => 'Lelystad',
+            'Leek/Kampen'   => 'Leek/Kampen',
+        ];
         $epcReportArry = [
             'Kein Bericht'      => 'no',
             'PR Garantie'       => 'prGuarantee',
@@ -458,6 +462,11 @@ class AnlageFormType extends AbstractType
             ->add('hasDc', SwitchType::class,[
                 'label'         => 'Anlage hat DC Daten',
                 'help'          => '[hasDc]',
+            ])
+            ->add('pldAlgorithm', ChoiceType::class, [
+                'label'         => 'Select the PLD Calculation Algorrithm',
+                'choices'       => $pldAlgorithmArray,
+                'help'          => '[pldAlgorithm]'
             ])
 
             ->add('hasStrings', SwitchType::class,[

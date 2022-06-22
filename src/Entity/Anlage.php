@@ -332,6 +332,11 @@ class Anlage
     private ?string $useCustPRAlgorithm;
 
     /**
+     * @ORM\Column(type="string", length=50, nullable=true)
+     */
+    private ?string $pldAlgorithm = "Lelystad";
+
+    /**
      * @ORM\Column(type="boolean")
      */
     private bool $showOnlyUpperIrr = false;
@@ -1778,6 +1783,18 @@ class Anlage
         return $this->anlagenReports;
     }
 
+    public function getPldAlgorithm(): ?string
+    {
+        return $this->pldAlgorithm;
+    }
+
+    public function setPldAlgorithm(?string $pldAlgorithm): self
+    {
+        $this->pldAlgorithm = $pldAlgorithm;
+
+        return $this;
+    }
+
     public function addAnlagenReport(AnlagenReports $anlagenReport): self
     {
         if (!$this->anlagenReports->contains($anlagenReport)) {
@@ -2685,9 +2702,9 @@ class Anlage
         $this->usePnomForPld = $usePnomForPld;
     }
 
-    public function getPldYield(): ?string
+    public function getPldYield(): ?float
     {
-        return $this->pldYield;
+        return (float)$this->pldYield;
     }
 
     public function setPldYield(string $pldYield): self
