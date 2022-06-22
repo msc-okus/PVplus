@@ -39,6 +39,7 @@ export default class extends Controller {
             method: $searchReportform.prop('method'),
             data: $searchReportform.serialize(),
         });
+        $(document).foundation();
     }
 
     async page(event) {

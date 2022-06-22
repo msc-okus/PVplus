@@ -45,6 +45,7 @@ class ReportingController extends AbstractController
     #[Route(path: '/reporting/create', name: 'app_reporting_create', methods: ['GET', 'POST'])]
     public function createReport(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo, ReportService $report, ReportEpcService $reportEpc, ReportsMonthlyService $reportsMonthly) : Response
     {
+        dd('break');
         $searchstatus    = $request->query->get('searchstatus');
         $searchtype      = $request->query->get('searchtype');
         $searchmonth     = $request->query->get('searchmonth');
@@ -117,8 +118,8 @@ class ReportingController extends AbstractController
         $anlagen = $anlagenRepo->findAll();
         return $this->render('reporting/list.html.twig', [
             'pagination' => $pagination,
-            'anlagen'    => $anlagen,
             'stati'      => self::reportStati(),
+            'anlagen'    => $anlagen,
             'searchyear' => $searchyear,
             'month'      => $searchmonth,
             'type'       => $searchtype,
@@ -205,35 +206,27 @@ class ReportingController extends AbstractController
     #[Route(path: '/reporting/edit/{id}', name: 'app_reporting_edit')]
     public function edit($id, ReportsRepository $reportsRepository, Request $request, Security $security, EntityManagerInterface $em) : Response
     {
-        $session=$this->container->get('session');
-        $searchstatus=$session->get('search');
-        $searchtype=$session->get('type');
-        $anlageq=$session->get('anlage');
-        $searchmonth=$session->get('month');
-        $searchyear     = $session->get('search_year');
-        $route = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
-        $route = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&searchyear=".$searchyear."&search=yes";
         $report = $reportsRepository->find($id);
         $anlage = $report->getAnlage();
         $form = $this->createForm(ReportsFormType::class, $report);
         $form->handleRequest($request);
-        //Creating the route with the query
-        if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked() ) ) {
+
+        if ($form->isSubmitted() && $form->isValid()) {
             $successMessage = 'Plant data saved!';
             $em->persist($report);
             $em->flush();
             if ($form->get('saveclose')->isClicked()) {
                 $this->addFlash('success', $successMessage);
-                return $this->redirect($route);
+            }
+            if ($request->isXmlHttpRequest()) {
+                return new Response(null, 204);
             }
         }
-        if ($form->isSubmitted() && $form->get('close')->isClicked()) {
-            $this->addFlash('warning', 'Canceled. No data was saved.');
 
-            return $this->redirect($route);
-        }
-        return $this->render('reporting/edit.html.twig', [
-            'reportForm'    => $form->createView(),
+        $template = $request->isXmlHttpRequest() ? 'reporting/_inc/_editForm.html.twig' : 'reporting/edit.html.twig';
+
+        return $this->renderForm($template, [
+            'reportForm'    => $form,//->createView(),
             'report'        => $report,
             'anlage'        => $anlage,
         ]);
