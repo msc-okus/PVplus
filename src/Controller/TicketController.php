@@ -314,5 +314,8 @@ class TicketController extends BaseController
         ]);
 
     }
+    #[Route(path: '/ticket/split/join', name: 'app_ticket_join')]
+    public function join(TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em){
 
+    }
 }
