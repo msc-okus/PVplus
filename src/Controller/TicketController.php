@@ -315,7 +315,12 @@ class TicketController extends BaseController
 
     }
     #[Route(path: '/ticket/join', name: 'app_ticket_join', methods:['GET','POST'])]
-    public function join(TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em){
-        dd($request, $request->request->get('json'));
+    public function join(TicketRepository $ticketRepo, Request $request, $clientrequest, EntityManagerInterface $em){
+        dump(file_get_contents('php://input'), $request, $clientrequest);
+
+        return $this->render('/ticket/join.html.twig', [
+            'text' => "estamos aqui"
+        ]);
     }
+
 }

@@ -54,26 +54,8 @@
     {% endfor %}
     </tbody>
 </table>
-    <button  onclick="CheckCheckboxes()" name="search" type="submit" class="button" value="yes">Join</button>
+
+    <button  onclick="CheckCheckboxes()" name="search" type="button" class="button" value="yes">Join</button>
 </form>
 
 {{ knp_pagination_render(pagination, false, {}, {'controllerNameStimulus': 'ticket-list'}) }}
-
-<script>
-    function CheckCheckboxes(){
-        var array = []
-        var checkboxes = document.querySelectorAll('input[type=checkbox]:checked')
-
-        for (var i = 0; i < checkboxes.length; i++) {
-            array.push(checkboxes[i].value)
-        }
-        $.ajax({
-            url: "/ticket/join",
-            type: "POST",
-            dataType: 'json',
-            contentType: 'application/json; charset=utf-8',
-            data: JSON.stringify(array),
-        });
-
-    }
-</script>
