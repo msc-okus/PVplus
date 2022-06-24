@@ -61,7 +61,7 @@
                         {% if is_granted('ROLE_G4N') %}
                             <button {# href="{{ path('app_reporting_edit', { id: report.id}) }}" #}  class="hollow button tiny action-icon shadow"
                                data-action="modal-form#openModal"
-                               data-append-to="div#modal-form" data-open="modal{{ report.id }}"
+                               data-append-to="div#modal-form" {# data-open="modal{{ report.id }} #}"
 
                             ><span class="fa fa-edit"></span></button>
 

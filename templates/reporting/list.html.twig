@@ -27,8 +27,16 @@
                 {% include 'reporting/_inc/_searchForm.html.twig' %}
             </div>
         </form>
-        <div data-report-target="list">
-            {% include 'reporting/_inc/_listReports.html.twig' %}
+        <div
+            data-report-target="list"
+            {{ stimulus_controller('reload-content', {
+                url: path('app_reporting_search'),
+            }) }}
+            data-action="modal-form:success->reload-content#refreshContent"
+        >
+            <div data-reload-content-target="content" >
+                {% include 'reporting/_inc/_listReports.html.twig' %}
+            </div>
         </div>
         <hr>
         <form>

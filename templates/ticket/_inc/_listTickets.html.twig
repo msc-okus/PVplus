@@ -8,9 +8,7 @@
         <th>Editor</th>
         <th>Begin</th>
         <th>End</th>
-        {% if (is_granted('ROLE_DEV')) %}
-            <th>Last Update</th>
-        {% endif %}
+        <th>Last Update</th>
         <th>Error Categorie{% if is_granted('ROLE_G4N') %} <br><small>alertType</small> {% endif %}</th>
         <th>Error Type</th>
         <th>Inverter</th>

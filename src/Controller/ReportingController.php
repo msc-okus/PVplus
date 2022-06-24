@@ -115,7 +115,7 @@ class ReportingController extends AbstractController
             $request->query->getInt('page', 1),
             20
         );
-        $anlagen = $anlagenRepo->findAll();
+        $anlagen = $anlagenRepo->findAllActiveAndAllowed();
         return $this->render('reporting/list.html.twig', [
             'pagination' => $pagination,
             'stati'      => self::reportStati(),
@@ -190,7 +190,7 @@ class ReportingController extends AbstractController
         $session->set('anlage', $anlage);
         $session->set('month', $searchmonth);
         $session->set('search_year', $searchyear);
-        $anlagen = $anlagenRepo->findAllActive();
+        $anlagen = $anlagenRepo->findAllActiveAndAllowed();
         return $this->render('reporting/listOld.html.twig', [
             'pagination' => $pagination,
             'anlagen'    => $anlagen,

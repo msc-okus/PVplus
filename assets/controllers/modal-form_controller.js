@@ -1,9 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
+import { useDispatch } from 'stimulus-use';
 import { Reveal } from 'foundation-sites';
 import $ from 'jquery';
-// Import and register all TailwindCSS Components
-//import { Modal } from "tailwindcss-stimulus-components"
-//Controller.register('modal', Modal)
 
 export default class extends Controller {
     static targets = ['modal', 'modalBody'];
@@ -12,17 +10,18 @@ export default class extends Controller {
         reportId: String,
     }
 
+    modal = null;
+
     connect() {
-        //console.log(this.reportIdValue);
+        useDispatch(this);
     }
 
     async openModal(event) {
-        console.log($(this.modalTarget).find('reveal'));
-        const modal = new Reveal($(this.modalTarget).find('#modal'.reportIdValue));
-        modal.open();
-        console.log(modal);
-        modal.destroy();
         this.modalBodyTarget.innerHTML = 'Loading ...';
+
+        this.modal = new Reveal($(this.modalTarget));
+        this.modal.open();
+
         this.modalBodyTarget.innerHTML = await $.ajax(this.formUrlValue);
     }
 
@@ -35,7 +34,8 @@ export default class extends Controller {
                 method: $form.prop('method'),
                 data: $form.serialize(),
             });
-            console.log('success!');
+            this.dispatch('success');
+            this.modal.destroy();
         } catch (e) {
             this.modalBodyTarget.innerHTML = e.responseText;
         }

@@ -32,6 +32,7 @@
         "foundation": "^4.2.1-1",
         "foundation-sites": "^6.7.4",
         "sass-loader": "^12.4.0",
+        "stimulus-use": "^0.50.0",
         "tailwindcss-stimulus-components": "^3.0.4"
     },
     "browserslist": [
