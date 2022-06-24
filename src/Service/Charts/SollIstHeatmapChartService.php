@@ -109,19 +109,19 @@ class SollIstHeatmapChartService
 
         if ($anlage->getUseNewDcSchema()) {
 
-            $sql = "SELECT date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts, c.wr_idc as istCurrent, b.soll_imppwr as sollCurrent, b.dc_exp_power as expected, b.group_dc as inv FROM db_dummysoll a 
+            $sql = "SELECT date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts, c.wr_idc as istCurrent, b.soll_imppwr as sollCurrent, b.dc_exp_power as expected, c.group_dc as inv FROM db_dummysoll a 
                     LEFT JOIN " . $anlage->getDbNameDcSoll() . " b ON a.stamp = b.stamp 
                     LEFT JOIN " . $anlage->getDbNameDCIst() . " c ON b.stamp = c.stamp 
                     WHERE a.stamp BETWEEN '$from' AND '$to'
-                    GROUP BY a.stamp, b.group_dc;";
+                    GROUP BY a.stamp, c.group_dc;";
 
         } else {
 
-            $sql = "SELECT date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts, c.wr_idc as istCurrent, b.soll_imppwr as sollCurrent, b.dc_exp_power as expected, b.group_dc as inv FROM db_dummysoll a 
+            $sql = "SELECT date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts, c.wr_idc as istCurrent, b.soll_imppwr as sollCurrent, b.dc_exp_power as expected, c.group_dc as inv FROM db_dummysoll a 
                     LEFT JOIN " . $anlage->getDbNameDcSoll() . " b ON a.stamp = b.stamp 
                     LEFT JOIN " . $anlage->getDbNameACIst() . " c ON b.stamp = c.stamp 
                     WHERE a.stamp BETWEEN '$from' AND '$to'
-                    GROUP BY a.stamp, b.group_dc;";
+                    GROUP BY a.stamp, c.group_dc;";
         }
 
         $resultActual = $conn->query($sql);
@@ -189,7 +189,6 @@ class SollIstHeatmapChartService
             }
             $dataArray['offsetLegend'] = 0;
         }
-      #  dd(print_r($dataArray));
         return $dataArray;
     }
 }
