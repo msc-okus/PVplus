@@ -33,6 +33,7 @@
         "foundation-sites": "^6.7.4",
         "sass-loader": "^12.4.0",
         "stimulus-use": "^0.50.0",
+        "sweetalert2": "^11.4.18",
         "tailwindcss-stimulus-components": "^3.0.4"
     },
     "browserslist": [

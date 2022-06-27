@@ -67,12 +67,12 @@ class ReportsRepository extends ServiceEntityRepository
             $qb->andWhere("a.anlId IN (:granted)")
                 ->setParameter('granted', $granted)
             ;
+            // schließe Archiv und falsche Reports aus
+            // muss noch via Backend auswählbar gemacht werden
+            $qb->andWhere('report.reportStatus != 9');
+            $qb->andWhere('report.reportStatus != 11');
         }
 
-        // schließe Archiv und falsche Reports aus
-        // muss noch via Backend auswählbar gemacht werden
-        $qb->andWhere('report.reportStatus != 9');
-        $qb->andWhere('report.reportStatus != 11');
         if ($searchstatus != '') $qb->andWhere("report.reportStatus = $searchstatus");
         if ($searchtype != '') $qb->andWhere("report.reportType like '$searchtype'");
         if ($searchmonth !='') $qb->andWhere("report.month = $searchmonth");
