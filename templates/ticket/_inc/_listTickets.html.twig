@@ -1,4 +1,4 @@
-<form action="{{ path('app_ticket_join') }}">
+<form >
 <table class="table sortable">
     <thead>
     <tr>
@@ -13,7 +13,7 @@
         <th>Error Categorie{% if is_granted('ROLE_G4N') %} <br><small>alertType</small> {% endif %}</th>
         <th>Error Type</th>
         <th>Inverter</th>
-        <th></th>
+        <th>Join</th>
         <th></th>
     </tr>
     </thead>
@@ -46,12 +46,14 @@
                 {% endif %}
             </td>
             <td>{{ ticket.inverter }}</td>
-            <td></td>
+            <td><input type="checkbox" value="{{ ticket.id }}"></td>
             <td class="text-right"><a href="{{ path('app_ticket_edit', { id: ticket.id }) }}" class="hollow button tiny action-icon shadow"><span class="fa fa-edit"></span></a></td>
         </tr>
     {% endfor %}
     </tbody>
 </table>
-    <button   name="search" type="submit" class="button" value="yes">Join</button>
+
+    <button  onclick="CheckCheckboxes()" name="search" type="button" class="button" value="yes">Join</button>
 </form>
+
 {{ knp_pagination_render(pagination, false, {}, {'controllerNameStimulus': 'ticket-list'}) }}
