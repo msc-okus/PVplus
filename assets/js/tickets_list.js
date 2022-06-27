@@ -3,11 +3,11 @@ import './components/autocomplete_plant';
 import './components/autocomplete_user';
 
 export function CheckCheckboxes() {
-    var array = []
-    const checkboxes = document.querySelectorAll('input[type=checkbox]:checked')
+    var array = [];
+    const checkboxes = document.querySelectorAll('input[type=checkbox]:checked');
 
     for (var i = 0; i < checkboxes.length; i++) {
-        array.push(checkboxes[i].value)
+        array.push(checkboxes[i].value);
     }
     const jsonString = JSON.stringify(array);
     /*
