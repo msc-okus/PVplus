@@ -91,10 +91,11 @@ class ReportingController extends AbstractController
         $searchtype      = $request->query->get('searchtype');
         $searchmonth     = $request->query->get('searchmonth');
         $searchyear      = $request->query->get('searchyear');
-        $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($anlage, $searchstatus, $searchtype, $searchmonth, $searchyear);
+        $page            = $request->query->getInt('page', 1);
+        $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($anlage, $searchstatus, $searchtype, $searchmonth, $searchyear, $page);
         $pagination = $paginator->paginate(
             $queryBuilder,
-            $request->query->getInt('page', 1),
+            $page,
             20
         );
         return $this->render('reporting/_inc/_listReports.html.twig', [
@@ -113,7 +114,7 @@ class ReportingController extends AbstractController
         $pagination = $paginator->paginate(
             $queryBuilder,
             $request->query->getInt('page', 1),
-            25
+            20
         );
         $anlagen = $anlagenRepo->findAllActiveAndAllowed();
         return $this->render('reporting/list.html.twig', [
@@ -129,8 +130,8 @@ class ReportingController extends AbstractController
     }
 
 
-    #[Route(path: '/reporting/edit/{id}', name: 'app_reporting_edit')]
-    public function edit($id, ReportsRepository $reportsRepository, Request $request, Security $security, EntityManagerInterface $em) : Response
+    #[Route(path: '/reporting/edit/{id}/{page}', name: 'app_reporting_edit', defaults: ['page' => 1])]
+    public function edit($id, $page, ReportsRepository $reportsRepository, Request $request, Security $security, EntityManagerInterface $em) : Response
     {
         $report = $reportsRepository->find($id);
         $form = $this->createForm(ReportsFormType::class, $report);
@@ -152,6 +153,7 @@ class ReportingController extends AbstractController
             'reportForm'    => $form,//->createView(),
             'report'        => $report,
             'anlage'        => $report->getAnlage(),
+            'page'          => $page
         ]);
     }
 

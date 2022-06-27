@@ -8,18 +8,18 @@ export default class extends Controller {
         urlSearch: String
     }
 
-    connect() {
-
-    }
+    connect() {}
 
     async search(event){
         event.preventDefault();
         const $searchListform = $(this.searchBarTarget).find('form');
+        const $queryParams = $(event.currentTarget).data("query-value");
         this.listTarget.innerHTML = await $.ajax({
             url: this.urlSearchValue,
             method: $searchListform.prop('method'),
-            data: $searchListform.serialize(),
+            data: $searchListform.serialize()+'&'+$queryParams,
         });
+        $(document).foundation();
     }
 
     async page(event) {

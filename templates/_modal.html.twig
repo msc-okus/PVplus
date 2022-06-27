@@ -1,10 +1,14 @@
-<div class="reveal text-left " id="modal{{ modalId }}" data-modal-form-target="modal"
+<div class="reveal text-left {{ class|default('') }}" id="modal{{ modalId }}" data-modal-form-target="modal"
      data-reveal
      data-append-to="div#modal-form{{ modalId }}"
 >
     <h1>{{ modalTitel }} - {{ modalId }}</h1>
     <div class="grid-x grid-padding-y">
-        <div class="cell modal-body" data-modal-form-target="modalBody">
+        <div
+            class="cell modal-body"
+            data-modal-form-target="modalBody"
+            data-action="submit->modal-form#submitForm"
+        >
                 {{ modalContent|default('Loading...') }}
         </div>
     </div>

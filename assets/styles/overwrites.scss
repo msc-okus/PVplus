@@ -319,10 +319,7 @@
                 padding: 0.2rem;
                 border-radius: 0;
             }
-            select {
-                height: 1.8rem;
-                margin: 0;
-            }
+            select.small { height: 1.8rem; margin: 0; }
         }
         ul.tabs {
             background: none;

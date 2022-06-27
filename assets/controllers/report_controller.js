@@ -6,8 +6,9 @@ export default class extends Controller {
     static targets = ['list', 'reportForm', 'searchForm', 'createForm', 'required', 'deactivable'];
     static values = {
         urlCreate: String,
-        urlSearch: String
+        urlSearch: String,
     }
+    myData = null;
 
     connect() {
         useDispatch(this);
@@ -15,7 +16,6 @@ export default class extends Controller {
 
     toggle(){
         const $button = $(this.deactivableTargets);
-
         if ($button.attr('disabled')) {
             $button.removeAttr('disabled')
         } else {
@@ -56,7 +56,6 @@ export default class extends Controller {
     async create(event) {
         event.preventDefault();
         const $createReportform = $(this.reportFormTarget).find('form');
-
 
         this.listTarget.innerHTML = await $.ajax({
             url: this.urlCreateValue,
