@@ -16,7 +16,7 @@
 
 {% block body %}
     <h1>List Reports</h1>
-    <div  {{ stimulus_controller('report', {
+    <div {{ stimulus_controller('report', {
             urlCreate: path('app_reporting_create'),
             urlSearch: path('app_reporting_search')
         }) }}
@@ -26,10 +26,10 @@
             <div id="search-form" data-report-target="searchForm">
                 {% include 'reporting/_inc/_searchForm.html.twig' %}
             </div>
-            <div data-report-target="list">
-                {% include 'reporting/_inc/_listReports.html.twig' %}
-            </div>
+        </form>
+            {% include 'reporting/_inc/_listReports.html.twig' %}
             <hr>
+        <form>
             <div id="create-form" data-report-target="createForm">
                 {% include'reporting/_inc/_createForm.html.twig' %}
             </div>

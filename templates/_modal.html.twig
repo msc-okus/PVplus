@@ -1,8 +1,17 @@
-<div data-modal-form-target="modal" class="reveal" id="exampleModal1" data-reveal>
-    <h1>Awesome. I Have It.</h1>
-    <p class="lead">Your couch. It is mine.</p>
-    <p>I'm a cool paragraph that lives inside of an even cooler modal. Wins!</p>
-    <button class="close-button" data-close aria-label="Close modal" type="button">
-        <span aria-hidden="true">&times;</span>
-    </button>
+<div class="reveal text-left " id="modal{{ modalId }}" data-modal-form-target="modal"
+     data-reveal
+     data-append-to="div#modal-form{{ modalId }}"
+>
+    <h1>{{ modalTitel }} - {{ modalId }}</h1>
+    <div class="grid-x grid-padding-y">
+        <div class="cell modal-body" data-modal-form-target="modalBody">
+                {{ modalContent|default('Loading...') }}
+        </div>
+    </div>
+    <div class="grid-x grid-padding-y">
+        <div class="cell text-right">
+            <button type="button" class="button secondary small" data-close>Cancel</button>
+            <button type="button" class="button small" data-action="modal-form#submitForm">Save</button>
+        </div>
+    </div>
 </div>
