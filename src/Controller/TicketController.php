@@ -256,6 +256,66 @@ class TicketController extends BaseController
     }
     #[Route(path: '/ticket/split/edit/{id}', name: 'app_ticket_split_edit')]
     public function SplitEdit( $id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em) : Response
-    {}
+    {
+        $ticket = $ticketRepo->findOneById($id);
+        $dates = $ticket->getDates()->getValues();
 
+
+        for ($i = 0; $i < $ticket->getDates()->count(); $i++){
+            $date = $dates[$i];
+            $em->remove($date);
+        }
+        $ticket->setSplitted(false);
+        $ticket->removeAllDates();
+        $em->flush();
+        $beginTime = $request->query->get('begin-time');
+        $endTime = $request->query->get('end-time');
+
+        if ($ticket != null && $beginTime && $endTime) {
+            if ($beginTime > $ticket->getBegin()->format("Y/m/d H:i")){
+                $firstDate = new TicketDate();
+                $firstDate->setBegin($ticket->getBegin()->format("Y/m/d H:i"));
+                $firstDate->setEnd($beginTime);
+                $firstDate->setTicket($ticket);
+                $ticket->addDate($firstDate);
+                $em->persist($firstDate);
+            }
+            $mainDate = new TicketDate();
+            $mainDate->setBegin($beginTime);
+            $mainDate->setEnd($endTime);
+            $mainDate->setTicket($ticket);
+            $ticket->addDate($mainDate);
+
+            $em->persist($mainDate);
+            if ($endTime < $ticket->getEnd()->format("Y/m/d H:i")){
+                $secondDate = new TicketDate();
+                $secondDate->setBegin($endTime);
+                $secondDate->setEnd($ticket->getEnd()->format("Y/m/d H:i"));
+                $secondDate->setTicket($ticket);
+                $ticket->addDate($secondDate);
+                $em->persist($secondDate);
+            }
+            $ticket->setSplitted(true);
+            $em->persist($ticket);
+            $em->flush();
+            $Route = $this->generateUrl('app_ticket_edit', ['id' => $id], UrlGeneratorInterface::ABS_PATH);
+            return $this->redirect($Route);
+        }
+        $ticketDates = $ticket->getDates();
+        if($ticketDates->isEmpty()) $ticketDates = null;
+
+
+        $form = $this->createForm(TicketFormType::class, $ticket);
+        return $this->render('ticket/edit.html.twig', [
+            'ticketForm' => $form->createView(),
+            'ticket' => $ticket,
+            'edited' => true,
+            'dates' => $ticketDates
+        ]);
+
+    }
+    #[Route(path: '/ticket/split/join', name: 'app_ticket_join')]
+    public function join(TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em){
+
+    }
 }

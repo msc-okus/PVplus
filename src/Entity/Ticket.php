@@ -533,7 +533,11 @@ class Ticket
                 $date->setTicket(null);
             }
         }
-
+        return $this;
+    }
+    public function removeAllDates(): self
+    {
+        $this->dates->clear();
         return $this;
     }
 }
