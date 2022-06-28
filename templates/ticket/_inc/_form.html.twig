@@ -149,7 +149,6 @@
 </div>
 {{ form_end(ticketForm) }}
 {% if (edited == true) %}
-
     <div class="grid-x grid-margin-x grid-padding-x" id="formd">
         <div class="reveal" id="Modal1" data-reveal data-append-to="div#formd">
             <form action="{{ path('app_ticket_split', { id: ticket.id }) }}">
@@ -158,14 +157,12 @@
                 <input type="datetime" id="begin-time"
                        name="begin-time"
                        value="{{ ticket.getBegin().format('Y/m/d H:i') }}"
-                       dataformatas="Y/m/d H:i"
                        min="{{ ticket.getBegin().format('Y/m/d H:i') }}" max="{{ ticket.getEnd().format('Y/m/d H:i') }}"
                        step="900">
 
                 <input type="datetime" id="end-time"
                        name="end-time"
                        value="{{ ticket.getEnd().format('Y/m/d H:i') }}"
-                       dataformatas="Y/m/d H:i"
                        min="{{ ticket.getBegin().format('Y/m/d H:i') }}" max="{{ ticket.getEnd().format('Y/m/d H:i') }}"
                        step="900">
                 <div class="input-group-button" style="height:35px !important; width:35px !important; padding:0; margin-top:-15px;">
@@ -191,14 +188,12 @@
                         <input type="datetime" id="begin-time"
                                name="begin-time"
                                value="{{ ticket.getBegin().format('Y/m/d H:i') }}"
-                               dataformatas="Y/m/d H:i"
                                min="{{ ticket.getBegin().format('Y/m/d H:i') }}" max="{{ ticket.getEnd().format('Y/m/d H:i') }}"
                                step="900">
 
                         <input type="datetime" id="end-time"
                                name="end-time"
                                value="{{ ticket.getEnd().format('Y/m/d H:i') }}"
-                               dataformatas="Y/m/d H:i"
                                min="{{ ticket.getBegin().format('Y/m/d H:i') }}" max="{{ ticket.getEnd().format('Y/m/d H:i') }}"
                                step="900">
                         <div class="input-group-button" style="height:35px !important; width:35px !important; padding:0; margin-top:-15px;">
