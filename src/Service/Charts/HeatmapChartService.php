@@ -109,10 +109,10 @@ class HeatmapChartService
 
         if ($anlage->getUseNewDcSchema()) {
 
-            $sql = "SELECT wr_pdc as istPower,wr_group as group_dc,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts
+            $sql = "SELECT sum(wr_idc) as istPower,wr_num as group_dc,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts
                                     FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameDCIst() . " b ON a.stamp = b.stamp)
                                     WHERE a.stamp BETWEEN '$from' AND '$to' 
-                                    GROUP BY a.stamp, b.wr_group";
+                                    GROUP BY a.stamp, b.wr_num";
         } else {
 
             $sql = "SELECT wr_pac as istPower,group_dc,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts 

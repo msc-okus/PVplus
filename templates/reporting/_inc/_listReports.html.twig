@@ -1,5 +1,9 @@
-
-<table class="table sortable">
+<div
+        data-report-target="list"
+        data-action="modal-form:success->report#search submit-confirm:async:submitted->report#search"
+>
+    <div data-reload-content-target="content" >
+        <table class="table sortable">
     <thead>
     <tr>
         <th>Report ID</th>
@@ -43,28 +47,58 @@
                 {# <td>{% if report.reportStatus == 0 %} final {% elseif report.reportStatus <= 5 %} proof reading {% elseif report.reportStatus == 9 %} archive {% else %} draft (only g4n) {% endif %}</td>  #}
                 <td>{{ stati[report.reportStatus] }}</td>
                 <td class="text-right">
-                    {# <a href="{{ path('app_reporting_edit', { id: report.id}) }}"><span class="fa fa-pencil"></span></a>&nbsp;{# {{ path('app_reporting_edit', { id: report.id}) }} #}
-                    {% if is_granted('ROLE_G4N') or report.reportStatus <= 1 %}
-                        <a href="{{ path('app_reporting_excel', { id: report.id}) }}" target="_blank" title="load Excel file" class="hollow button tiny action-icon shadow
-                            {% if report.reportType == 'am-report' or (report.reportType == 'epc-report' and report.anlage.epcReportType == 'yieldGuarantee') %}
-                                disabled
+                    <div id="modal-form{{ report.id }}" {{ stimulus_controller('modal-form', {
+                            formUrl: path('app_reporting_edit', { id: report.id}),
+                            reportId: report.id,
+                    }) }}>
+                        {# <a href="{{ path('app_reporting_edit', { id: report.id}) }}"><span class="fa fa-pencil"></span></a>&nbsp;{# {{ path('app_reporting_edit', { id: report.id}) }} #}
+                        {% if is_granted('ROLE_G4N') or report.reportStatus <= 1 %}
+                            <a href="{{ path('app_reporting_excel', { id: report.id}) }}" target="_blank" title="load Excel file" class="hollow button tiny action-icon shadow
+                                {% if report.reportType == 'am-report' or (report.reportType == 'epc-report' and report.anlage.epcReportType == 'yieldGuarantee') %}
+                                    disabled
+                                {% endif %}
+                            "><span class="fa fa-file-excel"></span></a>
+                            {% if report.reportType != 'am-report' or is_granted('ROLE_AM') %} {# Zeige Download Butten wenn es keine AM Bericht ist, oder wenn die Berichtigung für AM Bericht ausreicht #}
+                                <a href="{{ path('app_reporting_pdf', { id: report.id}) }}"   target="_blank" title="load PDF file" class="hollow button tiny action-icon shadow"><span class="fa fa-file-pdf"></span></a>
                             {% endif %}
-                        "><span class="fa fa-file-excel"></span></a>
-                        {% if report.reportType != 'am-report' or is_granted('ROLE_AM') %} {# Zeige Download Butten wenn es keine AM Bericht ist, oder wenn die Berichtigung für AM Bericht ausreicht #}
-                            <a href="{{ path('app_reporting_pdf', { id: report.id}) }}"   target="_blank" title="load PDF file" class="hollow button tiny action-icon shadow"><span class="fa fa-file-pdf"></span></a>
                         {% endif %}
-                    {% endif %}
-                    {% if is_granted('ROLE_G4N') %}
-                        <a href="{{ path('app_reporting_edit', { id: report.id}) }}"  class="hollow button tiny action-icon shadow"><span class="fa fa-edit"></span></a>
 
-                        <a href="{{ path('app_reporting_html', { id: report.id}) }}" target="_blank" title="load html code into new window" class="hollow button tiny action-icon shadow"><span class="fas fa-code"></span></a>
+                        {# edit report #}
+                        {% if is_granted('ROLE_G4N') %}
+                            <button {# href="{{ path('app_reporting_edit', { id: report.id}) }}" #}  class="hollow button tiny action-icon shadow"
+                               data-action="modal-form#openModal"
+                               data-append-to="div#modal-form"
+                            ><span class="fa fa-edit"></span></button>
+                            <a href="{{ path('app_reporting_html', { id: report.id}) }}" target="_blank" title="load html code into new window" class="hollow button tiny action-icon shadow"><span class="fas fa-code"></span></a>
+                        {% endif %}
 
-                    {% endif %}
-                    {% if is_granted('ROLE_DEV') %}<a href="{{ path('app_reporting_delete', { id: report.id}) }}" onclick="return window.confirm('Löschen?');" class="hollow alert button tiny action-icon shadow"><span class="fa fa-trash-alt"></span></a>{% endif %}
+                        {# delete report #}
+                        {% if is_granted('ROLE_DEV') %}
+                            <a href="#"
+                               class="hollow alert button tiny action-icon shadow"
+                               {{ stimulus_controller('submit-confirm', {
+                                   title: 'Remove this report?',
+                                   confirmButtonText: 'Yes, remove it',
+                                   redirectUrl: path('app_reporting_delete', { id: report.id})
+                               }) }}
+                               data-action="submit-confirm#onSubmit"
+                            >
+                                <span class="fa fa-trash-alt"></span>
+                            </a>
+                        {% endif %}
+
+                        {{ include('_modal.html.twig', {
+                            modalId: report.id,
+                            modalTitel: 'Edit Report',
+                        }) }}
+
+                    </div>
                 </td>
             </tr>
         {% endif %}
     {% endfor %}
     </tbody>
 </table>
-{{ knp_pagination_render(pagination, false, {}, {'controllerNameStimulus': 'report'}) }}
+        {{ knp_pagination_render(pagination, false, {}, {'controllerNameStimulus': 'report'}) }}
+    </div>
+</div>

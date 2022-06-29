@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { useDispatch } from 'stimulus-use';
 import $ from 'jquery';
 
 export default class extends Controller {
@@ -9,6 +10,7 @@ export default class extends Controller {
     }
 
     connect() {
+        useDispatch(this);
     }
 
     toggle(){
@@ -39,6 +41,7 @@ export default class extends Controller {
             method: $searchReportform.prop('method'),
             data: $searchReportform.serialize(),
         });
+        $(document).foundation();
     }
 
     async page(event) {
@@ -53,16 +56,20 @@ export default class extends Controller {
     async create(event) {
         event.preventDefault();
         const $createReportform = $(this.reportFormTarget).find('form');
+
+
         this.listTarget.innerHTML = await $.ajax({
-            beforeSend: function(){
-                $('.ajax-loader').css("visibility", "visible");
-            },
             url: this.urlCreateValue,
             method: $createReportform.prop('method'),
             data: $createReportform.serialize(),
+            beforeSend: function(){
+                $('.ajax-loader').css("visibility", "visible");
+            },
             complete: function(){
                 $('.ajax-loader').css("visibility", "hidden");
             }
         });
+        this.dispatch('success');
     }
+
 }
