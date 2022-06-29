@@ -39,14 +39,14 @@ export default class extends Controller {
             }
         }
         const jsonString = JSON.stringify(array);
-        $.ajax({
+        const response = $.ajax({
             url: '/ticket/join',
             type: 'POST',
             contentType: 'application/json; charset=utf-8',
             data: jsonString
         });
+        //response.open('GET', '/ticket/join', true);
 
-        console.log(array);
     }
     check(){
         if (!event.currentTarget.classList.contains('checked')) {
