@@ -1,9 +1,10 @@
 import { Controller } from '@hotwired/stimulus';
 import $ from 'jquery';
+import { Reveal } from 'foundation-sites';
 
 export default class extends Controller {
 
-    static targets = ['box'];
+    static targets = ['box', 'modal', 'modalBody'];
 
     connect() {
         // const button = $(this.joinTargets);
@@ -28,7 +29,7 @@ export default class extends Controller {
 */
     }
 
-    submit() {
+    async submit() {
         var array = [];
         const checkboxes = $(this.boxTargets);
         console.log(checkboxes);
@@ -39,14 +40,18 @@ export default class extends Controller {
             }
         }
         const jsonString = JSON.stringify(array);
-        const response = $.ajax({
+        const response = await $.ajax({
             url: '/ticket/join',
             type: 'POST',
-            contentType: 'application/json; charset=utf-8',
             data: jsonString
         });
-        //response.open('GET', '/ticket/join', true);
+        console.log(response);
 
+        this.modal = new Reveal($(this.modalTargets));
+
+        this.modal.open();
+
+        $(this.modalBodyTargets).innerHTML = response;
     }
     check(){
         if (!event.currentTarget.classList.contains('checked')) {

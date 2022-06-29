@@ -376,12 +376,12 @@ class TicketController extends BaseController
 
     }
     #[Route(path: '/ticket/join', name: 'app_ticket_join', methods:['GET','POST'])]
-    public function join(TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em){
+    public function join(TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
+    {
 
         dump(json_decode(file_get_contents('php://input')));
         $tickets = json_decode(file_get_contents('php://input'));
-        $Route = $this->generateUrl('app_ticket_edit', ['id' => "302"], UrlGeneratorInterface::ABS_PATH);
-        return $this->redirect($Route);
+
         return $this->render('/ticket/join.html.twig', [
             'text' => "estamos aqui"
         ]);
