@@ -54,11 +54,27 @@
 </table>
 
     <button data-request-target="join" data-action="request#submit" name="join" type="button" class="button" value="yes">Join</button>
+
+    <div class="reveal text-left " id="modal" data-request-target="modal"
+         data-reveal
+    >
+        <h1>Joining Tickets</h1>
+        <div class="grid-x grid-padding-y">
+            <div class="cell modal-body" data-request-target="modalBody">
+                hi hi
+            </div>
+        </div>
+        <div class="grid-x grid-padding-y">
+            <div class="cell text-right">
+                <button type="button" class="button secondary small" data-close>Cancel</button>
+                <button type="button" class="button small" {# data-action="modal-form#submitForm" #} >Save</button>
+            </div>
+        </div>
+    </div>
 </form>
 
-<div class="reveal text-left " id="modal" data-request-target="modal"
-     data-reveal>
-    <div class="cell modal-body" data-request-target="modalBody">
-    </div>
-</div>
+
+{#         <div class="cell small-12 medium-6 large-6">
+            <div class="grid-x grid-margin-x grid-padding-x" id="forme">
+                <div class="reveal" id="Modal2" data-reveal data-append-to="div#forme"> #}
 {{ knp_pagination_render(pagination, false, {}, {'controllerNameStimulus': 'ticket-list'}) }}

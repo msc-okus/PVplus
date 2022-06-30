@@ -6,28 +6,7 @@ export default class extends Controller {
 
     static targets = ['box', 'modal', 'modalBody'];
 
-    connect() {
-        // const button = $(this.joinTargets);
-        //const button = this.element.children.namedItem('join');
-        /*
-        var array = [];
-        //const checkboxes = this.element.querySelectorAll('input[type=checkbox]:checked');
-        var checkboxes = this.element;
-
-        const jsonString = JSON.stringify(array);
-        console.log(jsonString);
-
-        $(button).on('click', () => {
-            this.element.innerHTML = checkboxes.length.toString();
-        });
-        */
-
-        /*
-        $(checkboxes).addEventListener('change', () => {
-           this.element.classList.add('checked');
-        });
-*/
-    }
+    connect() {}
 
     async submit() {
         var array = [];
@@ -45,13 +24,13 @@ export default class extends Controller {
             type: 'POST',
             data: jsonString
         });
-        console.log(response);
+        //console.log(response);
 
-        this.modal = new Reveal($(this.modalTargets));
+       var modal = new Reveal($(this.modalTargets));
+        modal.open();
+       //$(this.modalBodyTargets).innerHTML = response;
 
-        this.modal.open();
 
-        $(this.modalBodyTargets).innerHTML = response;
     }
     check(){
         if (!event.currentTarget.classList.contains('checked')) {
