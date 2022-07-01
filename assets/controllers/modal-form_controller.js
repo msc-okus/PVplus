@@ -7,7 +7,6 @@ export default class extends Controller {
     static targets = ['modal', 'modalBody'];
     static values = {
         formUrl: String,
-        reportId: String,
     }
 
     modal = null;

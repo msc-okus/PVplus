@@ -1,16 +1,17 @@
 import { Controller } from '@hotwired/stimulus';
 import $ from 'jquery';
+import {Reveal} from "foundation-sites";
 
 export default class extends Controller {
-    static targets = ['list', 'searchBar'];
+    static targets = ['list', 'searchBar', 'newSplitModal'];
     static values = {
         urlCreate: String,
         urlSearch: String
     }
 
-    connect() {
+    splitModal = null;
 
-    }
+    connect() {}
 
     async search(event){
         event.preventDefault();
@@ -20,6 +21,7 @@ export default class extends Controller {
             method: $searchListform.prop('method'),
             data: $searchListform.serialize(),
         });
+        $(document).foundation();
     }
 
     async page(event) {
@@ -37,8 +39,23 @@ export default class extends Controller {
         this.listTarget.innerHTML = await $.ajax({});
     }
 
-    async create(event) {
+    async createTicket(event) {
         event.preventDefault();
 
+    }
+
+    openSplitTicket(event){
+        event.preventDefault();
+        this.splitModal = new Reveal($(this.newSplitModalTarget));
+        this.splitModal.open();
+    }
+
+    closeSplitTicket(event){
+        event.preventDefault();
+        this.splitModal.destroy();
+    }
+
+    async splitTicket(event) {
+        event.preventDefault();
     }
 }

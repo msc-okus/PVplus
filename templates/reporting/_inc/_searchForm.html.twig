@@ -47,6 +47,7 @@
             <option value="2024"  {% if searchyear == '2024' %}  selected {% endif %}>  2024    </option>
         </select>
     </div>
+    <input type="hidden" name="page" value="{{ pagination.currentPageNumber }}">
     <div class="input-group-button" style="height:35px !important; width:35px !important; padding:0; margin-top:-15px;">
         <button type="submit" name="search" class="button" value="yes"
                 data-action="report#search"

@@ -88,11 +88,12 @@ class TicketController extends BaseController
         if($ticketDates->isEmpty()) $ticketDates = null;
         //reading data from session
         $form = $this->createForm(TicketFormType::class, $ticket);
-        $searchstatus = $session->get('search');
-        $editor = $session->get('editor');
-        $anlage = $session->get('anlage');
-        $id = $session->get('id');
-        $prio = $session->get('prio');
+        $searchstatus   = $session->get('search');
+        $editor         = $session->get('editor');
+        $anlage         = $session->get('anlage');
+        $id             = $session->get('id');
+        $prio           = $session->get('prio');
+        $page           = $request->query->getInt('page', 1);
 
         $form->handleRequest($request);
       
@@ -118,11 +119,12 @@ class TicketController extends BaseController
             return $this->redirect($Route);
         }
 
-        return $this->render('ticket/edit.html.twig', [
+        return $this->render('ticket/_inc/_edit.html.twig', [
             'ticketForm'    => $form->createView(),
             'ticket'        => $ticket,
             'edited'        => true,
-            'dates'         => $ticketDates
+            'dates'         => $ticketDates,
+            'page'          => $page,
         ]);
     }
 
