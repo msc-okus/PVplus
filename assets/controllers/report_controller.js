@@ -8,7 +8,6 @@ export default class extends Controller {
         urlCreate: String,
         urlSearch: String,
     }
-    myData = null;
 
     connect() {
         useDispatch(this);
@@ -51,6 +50,12 @@ export default class extends Controller {
             url: this.urlSearchValue,
             data: $queryParams,
         });
+    }
+
+    async sort(event) {
+        event.preventDefault();
+        const $queryParams = $(event.currentTarget).data("query-value");
+        this.listTarget.innerHTML = await $.ajax({});
     }
 
     async create(event) {

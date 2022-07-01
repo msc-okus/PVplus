@@ -82,11 +82,6 @@ class TicketFormType extends AbstractType
                 'input' => 'datetime',
                 'widget' => 'single_text',
             ])
-
-            ->add('freeText', CKEditorType::class, [
-                'config' => array('toolbar' => 'my_toolbar'),
-            ])
-
             ->add('priority', ChoiceType::class, [
                 'label' => 'Priority',
                 'choices' => self::ticketPriority(),
@@ -106,8 +101,14 @@ class TicketFormType extends AbstractType
                 'choices' => self::errorType(),
                 'disabled' => true,
             ])
+
+            ->add('freeText', CKEditorType::class, [
+                'config' => array('toolbar' => 'my_toolbar'),
+                'required' => false,
+            ])
             ->add('answer', CKEditorType::class, [
                 'config' => array('toolbar' => 'my_toolbar'),
+                'required' => false,
             ])
             ->add('PR0', SwitchType::class, [
                 'label'     => 'PR',

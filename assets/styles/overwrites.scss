@@ -274,6 +274,9 @@
             right: 0;
             padding: 0 10px;
         }
+        .reveal .action-menu {
+            display: none;
+        }
         .alerts {
             padding: 0;
             margin-bottom: 0;
@@ -312,6 +315,12 @@
             background-color: $g4n-white;
 
         }
+        td .reveal  {
+            [type=text], [type=password], [type=date], [type=datetime], [type=datetime-local], [type=month], [type=week], [type=email], [type=number], [type=search], [type=tel], [type=time], [type=url], [type=color], textarea {
+                @include form-select;
+            }
+            select { @include form-select; }
+        }
         td {
             [type=text], [type=password], [type=date], [type=datetime], [type=datetime-local], [type=month], [type=week], [type=email], [type=number], [type=search], [type=tel], [type=time], [type=url], [type=color], textarea {
                 height: 1.8rem;
@@ -319,7 +328,7 @@
                 padding: 0.2rem;
                 border-radius: 0;
             }
-            select.small { height: 1.8rem; margin: 0; }
+            select { height: 1.8rem; margin: 0; }
         }
         ul.tabs {
             background: none;

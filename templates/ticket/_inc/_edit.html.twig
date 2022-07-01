@@ -28,7 +28,6 @@
                             <div class="cell small-4 large-2"> {# type = errorType (Bsp:  SFOR, EFOR, OMC) #}
                                 {{ form_row(ticketForm.errorType) }}
                             </div>
-
                         </div>
 
                         {% if (dates != null) %}
@@ -149,57 +148,88 @@
                 {{ form_widget(ticketForm.close) }}
             </div>
         </div>
+
+        <input type="hidden" name="page" value="{{ page }}">
+        {{ form_end(ticketForm) }}
+
+
         {% if (edited == true) %}
-            <div class="grid-x grid-margin-x grid-padding-x" id="formd">
-                <div class="reveal" id="Modal1" data-reveal data-append-to="div#formd">
-                    <form action="{{ path('app_ticket_split', { id: ticket.id }) }}">
-                        <label for="begin-time">Choose the time when you want to split:</label>
-
-                        <input type="datetime" id="begin-time"
-                               name="begin-time"
-                               value="{{ ticket.getBegin().format('Y/m/d H:i') }}"
-                               dataformatas="Y/m/d H:i"
-                               min="{{ ticket.getBegin().format('Y/m/d H:i') }}" max="{{ ticket.getEnd().format('Y/m/d H:i') }}"
-                               step="900">
-
-                        <input type="datetime" id="end-time"
-                               name="end-time"
-                               value="{{ ticket.getEnd().format('Y/m/d H:i') }}"
-                               dataformatas="Y/m/d H:i"
-                               min="{{ ticket.getBegin().format('Y/m/d H:i') }}" max="{{ ticket.getEnd().format('Y/m/d H:i') }}"
-                               step="900">
-                        <div class="input-group-button" style="height:35px !important; width:35px !important; padding:0; margin-top:-15px;">
-                            <button   name="search" type="submit" class="button" value="yes">Split Ticket</button>
-                        </div>
-                    </form>
-                    <button class="close-button" data-close aria-label="Close modal" type="button">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-
-                </div>
-
+            <div class="grid-x grid-margin-x grid-padding-y">
                 <div class="cell medium-4 small-4">
-                    <p><button {% if (ticket.splitted) %} disabled {% endif %}class="button" data-open="Modal1">Split ticket</button></p>
+                    <button {% if (ticket.splitted) %} disabled {% endif %}
+                            class="button"
+                            data-action="ticket-list#openSplitTicket"
+                    >Split ticket</button>
                 </div>
+                <div class="cell medium-4 small-4">
+                    <button class="button" data-open="Modal2">Edit Splitting</button>
+                </div>
+            </div>
 
-                <div class="cell small-12 medium-6 large-6">
-                    <div class="grid-x grid-margin-x grid-padding-x" id="forme">
-                        <div class="reveal" id="Modal2" data-reveal data-append-to="div#forme">
+            <div id="formd">
+                <div class="reveal" id="split-ticket"
+                     data-reveal
+                     data-append-to="div#formd"
+                     data-multiple-opened="true"
+                     data-ticket-list-target="newSplitModal"
+                >
+                    <div>
+                            <form action="{{ path('app_ticket_split', { id: ticket.id }) }}">
+                                <fieldset class="fieldset">
+                                    <legend>Choose the time when you want to split:</legend>
+                                    <div class="grid-x grid-padding-y grid-padding-x">
+                                        <div class="cell small-12">
+                                            <input type="datetime-local" id="begin-time"
+                                                   name="begin-time"
+                                                   value="{{ ticket.getBegin().format('Y-m-d\\Th:i') }}"
+                                                   min="{{ ticket.getBegin().format('Y-m-d\\Th:i') }}" max="{{ ticket.getEnd().format('Y-m-d\\Th:i') }}"
+                                                   step="900"
+                                            >
+                                        </div>
+                                    </div>
+                                    <div class="grid-x grid-padding-y grid-padding-x">
+                                        <div class="cell small-12">
+                                            <input type="datetime-local" id="end-time"
+                                                   name="end-time"
+                                                   value="{{ ticket.getEnd().format('Y-m-d\\Th:i') }}"
+                                                   min="{{ ticket.getBegin().format('Y-m-d\\Th:i') }}" max="{{ ticket.getEnd().format('Y-m-d\\Th:i') }}"
+                                                   step="900"
+                                            >
+                                        </div>
+                                    </div>
+                                </fieldset>
+                                <div class="grid-x grid-padding-y grid-padding-x">
+                                    <div class="cell small-12">
+                                        <button type="button" class="button" value="yes">Split Ticket</button>
+                                    </div>
+                                </div>
+                            </form>
+                            <button class="close-button"  type="button"
+                                data-action="ticket-list#closeSplitTicket"
+                            >
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+
+                    </div>
+                </div>
+            </div>
+            <!--<div id="forme">
+                <div class="reveal" id="Modal2" data-reveal data-append-to="div#forme" data-multiple-opened="true">
+                    <div class="grid-x grid-margin-x grid-padding-x">
+                        <div class="cell small-12">
                             <form action="{{ path('app_ticket_split_edit', { id: ticket.id }) }}">
                                 <label for="begin-time">Choose the time when you want to split:</label>
 
-                                <input type="datetime" id="begin-time"
+                                <input type="time" id="begin-time"
                                        name="begin-time"
-                                       value="{{ ticket.getBegin().format('Y/m/d H:i') }}"
-                                       dataformatas="Y/m/d H:i"
-                                       min="{{ ticket.getBegin().format('Y/m/d H:i') }}" max="{{ ticket.getEnd().format('Y/m/d H:i') }}"
+                                       value="{{ ticket.getBegin().format('Y-m-d\\Th:i') }}"
+                                       min="{{ ticket.getBegin().format('Y-m-d\\Th:i') }}" max="{{ ticket.getEnd().format('Y-m-d\\Th:i') }}"
                                        step="900">
 
                                 <input type="datetime" id="end-time"
                                        name="end-time"
-                                       value="{{ ticket.getEnd().format('Y/m/d H:i') }}"
-                                       dataformatas="Y/m/d H:i"
-                                       min="{{ ticket.getBegin().format('Y/m/d H:i') }}" max="{{ ticket.getEnd().format('Y/m/d H:i') }}"
+                                       value="{{ ticket.getEnd().format('Y-m-d\\Th:i') }}"
+                                       min="{{ ticket.getBegin().format('Y-m-d\\Th:i') }}" max="{{ ticket.getEnd().format('Y-m-d\\Th:i') }}"
                                        step="900">
                                 <div class="input-group-button" style="height:35px !important; width:35px !important; padding:0; margin-top:-15px;">
                                     <button   name="search" type="submit" class="button" value="yes">Split Ticket</button>
@@ -208,17 +238,10 @@
                             <button class="close-button" data-close aria-label="Close modal" type="button">
                                 <span aria-hidden="true">&times;</span>
                             </button>
-
-                        </div>
-
-                        <div class="cell medium-4 small-4">
-                            <p><button class="button" data-open="Modal2">Edit Splitting</button></p>
                         </div>
                     </div>
                 </div>
-            </div>
+            </div>-->
         {% endif %}
-
-        {{ form_end(ticketForm) }}
     </div>
 </div>

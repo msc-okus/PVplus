@@ -152,19 +152,23 @@ class ExpectedService
 
                     /** @var AnlageGroupModules[] $modules */
                     $modules = $group->getModules();
-                    $expPowerDc = $expCurrentDc = 0;
+                    $expPowerDc = $expCurrentDc =  $limitExpCurrent = $limitExpPower = 0;
                     foreach ($modules as $modul) {
 
                         if ($anlage->getIsOstWestAnlage()) {
                             // Ist 'Ost/West' Anlage, dann nutze $irrUpper (Strahlung Osten) und $irrLower (Strahlung Westen) und multipliziere mit der Anzahl Strings Ost / West
                             $expPowerDcHlp      = $modul->getModuleType()->getFactorPower($irrUpper) * $modul->getNumStringsPerUnitEast() * $modul->getNumModulesPerString() / 1000 / 4; // Ost
                             $expPowerDcHlp     += $modul->getModuleType()->getFactorPower($irrLower) * $modul->getNumStringsPerUnitWest() * $modul->getNumModulesPerString() / 1000 / 4; // West
+                            $limitExpPowerHlp   = ($modul->getNumStringsPerUnitWest() + $modul->getNumStringsPerUnitEast()) * $modul->getNumModulesPerString() * $modul->getModuleType()->getMaxPmpp() / 1000 / 4;
                             $expCurrentDcHlp    = $modul->getModuleType()->getFactorCurrent($irrUpper) * $modul->getNumStringsPerUnitEast(); // Ost // nicht durch 4 teilen, sind keine Ah, sondern A
                             $expCurrentDcHlp   += $modul->getModuleType()->getFactorCurrent($irrLower) * $modul->getNumStringsPerUnitWest(); // West // nicht durch 4 teilen, sind keine Ah, sondern A
+                            $limitExpCurrentHlp = ($modul->getNumStringsPerUnitWest() + $modul->getNumStringsPerUnitEast()) * ($modul->getModuleType()->getMaxImpp() * 1.015); // 1,5% Sicherheitsaufschlag
                         } else {
                             // Ist keine 'Ost/West' Anlage
                             $expPowerDcHlp      = $modul->getModuleType()->getFactorPower($irr) * $modul->getNumStringsPerUnit() * $modul->getNumModulesPerString() / 1000 / 4;
+                            $limitExpPowerHlp   = $modul->getNumStringsPerUnit() * $modul->getNumModulesPerString() * $modul->getModuleType()->getMaxPmpp() / 1000 / 4;
                             $expCurrentDcHlp    = $modul->getModuleType()->getFactorCurrent($irr) * $modul->getNumStringsPerUnit(); // nicht durch 4 teilen, sind keine Ah, sondern A
+                            $limitExpCurrentHlp = $modul->getNumStringsPerUnit() * ($modul->getModuleType()->getMaxImpp() * 1.015); // 1,5% Sicherheitsaufschlag
                         }
 
                         // Temperatur Korrektur
@@ -177,8 +181,10 @@ class ExpectedService
                         $expPowerDcHlp = $expPowerDcHlp - ($expPowerDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
                         $expCurrentDcHlp = $expCurrentDcHlp - ($expCurrentDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
 
-                        $expPowerDc     += $expPowerDcHlp;
-                        $expCurrentDc   += $expCurrentDcHlp;
+                        $expPowerDc      += $expPowerDcHlp;
+                        $expCurrentDc    += $expCurrentDcHlp;
+                        $limitExpPower   += $limitExpPowerHlp;
+                        $limitExpCurrent += $limitExpCurrentHlp;
                     }
 
                     // Verluste auf der DC Seite brechnen
@@ -190,6 +196,9 @@ class ExpectedService
                         $expPowerDc = $expPowerDc - ($expPowerDc / 100 * $loss);
                         $expCurrentDc = $expCurrentDc - ($expCurrentDc / 100 * $loss);
                     }
+
+                    // Limitierung durch Modul prüfen und entsprechend abregeln
+                    $expCurrentDc = $expCurrentDc > $limitExpCurrent ? $limitExpCurrent : $expCurrentDc;
 
                     // AC Expected Berechnung
                     // Umrechnung DC nach AC

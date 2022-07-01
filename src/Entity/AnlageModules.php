@@ -420,7 +420,6 @@ class AnlageModules
         } else {
             $expected = $this->getOperatorCurrentA() * $irr ** 4 + $this->getOperatorCurrentB() * $irr ** 3 + $this->getOperatorCurrentC() * $irr ** 2 + $this->getOperatorCurrentD() * $irr + $this->getOperatorCurrentE() ;
         }
-        $expected = $expected > $this->maxImpp ? $this->getMaxImpp() : $expected;
 
         return $irr > 0 ? $expected : 0;
     }
