@@ -354,8 +354,6 @@ class ReportingController extends AbstractController
 
                         $pos = $this->substr_Index($this->kernelProjectDir, '/', 5);
                         $pathpart = substr($this->kernelProjectDir, $pos);
-                        $anlageName = $anlage->getAnlName();
-
                         $pdf->output('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlageName . '_AssetReport_' . $month . '_' . $year . '.pdf');
                         $reportfile = fopen('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlageName . '_AssetReport_' . $month . '_' . $year . '.html', "w") or die("Unable to open file!");
                         //cleanup html
@@ -363,9 +361,9 @@ class ReportingController extends AbstractController
                         fwrite($reportfile, substr($result, $pos));
                         fclose($reportfile);
 
-                        #$pdf->generateFromHtml(substr($result, $pos));
-                        $pdf->generateFromFile('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlageName . '_AssetReport_' . $month . '_' . $year . '.html');
-                        $filename = $anlageName . '_AssetReport_' . $month . '_' . $year . '.pdf';
+                        $pdf->generateFromHtml(substr($result, $pos));
+                        $pdf->generateFromFile('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.html');
+                        $filename = $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf';
                         $pdf->output($filename);
 
                         // Header content type
