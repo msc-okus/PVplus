@@ -400,20 +400,60 @@ class ReportEpcService
             ]
         ];
 
-        // PLD für FAC Zeitraum berechnen
+        // PLD für 'Current' Zeitraum berechnen
+
+        // PR Abweichung für das Jahr berechen -> Daten für PR Forecast
+        $prDiffYear = ($sumPrReal / $counter) - $anlage->getContractualPR();
+        switch ($anlage->getPldAlgorithm()){
+            case 'Leek/Kampen':
+                $sumPld = $prDiffYear * $anlage->getPldPR();
+                $report[2][] = [
+                    'year'              => '0',
+                    'eLoss'             => '0',
+                    'pld'               => '0',
+                ];
+                break;
+            default:
+                // PLD Forecast Gesamtlaufzeit
+                // Daten für PLD Forecast
+                $eLoss = (((float)$anlage->getContractualPR()/100 - $sumPrRealPrProg/100) * $sumSpecPowerRealProg * (float)$anlage->getKwPeakPvSyst());
+                $sumPld = 0;
+                for ($year = 1; $year <= 15; $year++){
+                    $pld = ($eLoss * $anlage->getPldPR()) / (1 + ($anlage->getPldNPValue() / 100)) ** ($year - 1);
+                    $sumPld += $pld;
+                    $report[2][0] = [
+                        'year'              => $year,
+                        'eLoss'             => $this->format($eLoss),
+                        'pld'               => $this->format($pld),
+                    ];
+                }
+        }
+
         // PR Abweichung für das Jahr berechen -> Daten für PR Forecast
         $prDiffForecast = $formelPR - $anlage->getContractualPR();
-        // Daten für PLD Forecast
-        $eLoss = (((float)$anlage->getContractualPR()/100 - $sumPrRealPrProgReal/100) * $sumSpecPowerRealProgReal * (float)$anlage->getKwPeakPvSyst());
-        $sumPld = 0;
-        for ($year = 1; $year <= 15; $year++){
-            $pld = ($eLoss * $anlage->getPldPR()) / (1 + ($anlage->getPldNPValue() / 100)) ** ($year - 1);
-            $sumPld += $pld;
-            $report[6][] = [
-                'year'              => $year,
-                'eLoss'             => $this->format($eLoss),
-                'pld'               => $this->format($pld),
-            ];
+        switch ($anlage->getPldAlgorithm()){
+            case 'Leek/Kampen':
+                $sumPld = abs($prDiffForecast) * $anlage->getPldPR();
+                $report[2][0] = [
+                    'year'              => '0',
+                    'eLoss'             => '0',
+                    'pld'               => '0',
+                ];
+                break;
+            default:
+                // PLD Forecast Gesamtlaufzeit
+                // Daten für PLD Forecast
+                $eLoss = (((float)$anlage->getContractualPR()/100 - $sumPrRealPrProg/100) * $sumSpecPowerRealProg * (float)$anlage->getKwPeakPvSyst());
+                $sumPld = 0;
+                for ($year = 1; $year <= 15; $year++){
+                    $pld = ($eLoss * $anlage->getPldPR()) / (1 + ($anlage->getPldNPValue() / 100)) ** ($year - 1);
+                    $sumPld += $pld;
+                    $report[2][] = [
+                        'year'              => $year,
+                        'eLoss'             => $this->format($eLoss),
+                        'pld'               => $this->format($pld),
+                    ];
+                }
         }
 
         $report['pld'][] = [
