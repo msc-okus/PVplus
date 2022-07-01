@@ -416,17 +416,7 @@ class ReportEpcService
             default:
                 // PLD Forecast Gesamtlaufzeit
                 // Daten für PLD Forecast
-                $eLoss = (((float)$anlage->getContractualPR()/100 - $sumPrRealPrProg/100) * $sumSpecPowerRealProg * (float)$anlage->getKwPeakPvSyst());
-                $sumPld = 0;
-                for ($year = 1; $year <= 15; $year++){
-                    $pld = ($eLoss * $anlage->getPldPR()) / (1 + ($anlage->getPldNPValue() / 100)) ** ($year - 1);
-                    $sumPld += $pld;
-                    $report[2][0] = [
-                        'year'              => $year,
-                        'eLoss'             => $this->format($eLoss),
-                        'pld'               => $this->format($pld),
-                    ];
-                }
+
         }
 
         // PR Abweichung für das Jahr berechen -> Daten für PR Forecast
@@ -448,11 +438,6 @@ class ReportEpcService
                 for ($year = 1; $year <= 15; $year++){
                     $pld = ($eLoss * $anlage->getPldPR()) / (1 + ($anlage->getPldNPValue() / 100)) ** ($year - 1);
                     $sumPld += $pld;
-                    $report[2][] = [
-                        'year'              => $year,
-                        'eLoss'             => $this->format($eLoss),
-                        'pld'               => $this->format($pld),
-                    ];
                 }
         }
 
