@@ -383,10 +383,11 @@ class TicketController extends BaseController
         $tickets = json_decode(file_get_contents('php://input'));
         $MasterTicket = new Ticket();
         if (count($tickets) > 0) {
-            $ticket = $tickets[0];
+            $ticket = $ticketRepo->findOneById($tickets[0]);
             $ticketdate = new TicketDate();
-            $ticketdate->setBegin($ticket->getBegin());
-            $ticketdate->setEnd($ticket->getEnd());
+            $anlage = $ticket->getAnlage();
+            $ticketdate->setBegin($ticket->getBegin()->format("Y/m/d H:i"));
+            $ticketdate->setEnd($ticket->getEnd()->format("Y/m/d H:i"));
             $begin = $ticket->getBegin();
             $end = $ticket->getEnd();
             $ticketdate->setAlertType($ticket->getAlertType());
@@ -395,38 +396,47 @@ class TicketController extends BaseController
             $ticketdate->setSystemStatus($ticket->getStatus());
             $ticketdate->setErrorType($ticket->getErrorType());
             $ticketdate->setDescription($ticket->getDescription());
-            $ticketdate->setAnlage($ticket->getAnlge());
+            $ticketdate->setAnlage($ticket->getAnlage());
             $ticketdate->setAnswer($ticket->getAnswer());
             $ticketdate->setTicket($MasterTicket);
             $ticketdate->setStatus($ticket->getStatus());
-            $ticketdate->setFreeText($ticket->getFreeText());
+            $ticketdate->setFreeText("");
+            $MasterTicket->addDate($ticketdate);
             for ($i = 1; $i < count($tickets); $i++) {
                 $ticket = $ticketRepo->findOneById($tickets[$i]);
                 $ticketdate = new TicketDate();
-                $ticketdate->setBegin($ticket->getBegin());
-                $ticketdate->setEnd($ticket->getEnd());
+                $ticketdate->setBegin($ticket->getBegin()->format("Y/m/d H:i"));
+                $ticketdate->setEnd($ticket->getEnd()->format("Y/m/d H:i"));
 
-                if ($ticket->getBegin() < $begin) $begin = $ticket->getBegin();
+                if ($ticket->getBegin()->format("Y/m/d H:i") < $begin) $begin = $ticket->getBegin();
 
-                if ($ticket->getEnd() > $end) $end = $ticket->getEnd();
+                if ($ticket->getEnd()->format("Y/m/d H:i") > $end) $end = $ticket->getEnd();
                 $ticketdate->setAlertType($ticket->getAlertType());
                 $ticketdate->setInverter($ticket->getInverter());
                 $ticketdate->setPriority($ticket->getPriority());
                 $ticketdate->setSystemStatus($ticket->getStatus());
                 $ticketdate->setErrorType($ticket->getErrorType());
                 $ticketdate->setDescription($ticket->getDescription());
-                $ticketdate->setAnlage($ticket->getAnlge());
+                $ticketdate->setAnlage($ticket->getAnlage());
                 $ticketdate->setAnswer($ticket->getAnswer());
                 $ticketdate->setTicket($MasterTicket);
                 $ticketdate->setStatus($ticket->getStatus());
-                $ticketdate->setFreeText($ticket->getFreeText());
+                $ticketdate->setFreeText("");
                 $MasterTicket->addDate($ticketdate);
                 dump($ticket);
             }
             $MasterTicket->setEnd($end);
-            $MasterTicket->setBegin($begin);
+            $MasterTicket->setBegin( $begin);
+            $MasterTicket->setAnlage($anlage);
+            $MasterTicket->setAlertType("Defined in the Sub-Tickets");
+            $MasterTicket->setAnswer("Defined in the Sub-Tickets");
+            $MasterTicket->setInverter("Defined in the Sub-Ticket");
+            $MasterTicket->setSplitted(true);
+
+
+
             $em->flush();
-            dump($ticket);
+            dump($MasterTicket);
         }
         return $this->render('/ticket/join.html.twig', [
             'text' => "estamos aqui"

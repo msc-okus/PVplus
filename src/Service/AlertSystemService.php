@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Anlage;
 use App\Entity\Status;
 use App\Entity\Ticket;
+use App\Entity\TicketDate;
 use App\Repository\AnlagenRepository;
 use App\Repository\StatusRepository;
 use App\Repository\TicketRepository;
@@ -75,7 +76,7 @@ class AlertSystemService
     public function checkSystem(Anlage $anlage, ?string $time = null): string
     {
         if ($time === null) $time = $this->getLastQuarter(date('Y-m-d H:i:s') );
-
+        $ppc = false;
         //we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
         $time = G4NTrait::timeAjustment($time, -2);
 
@@ -85,12 +86,21 @@ class AlertSystemService
             $nameArray = $this->functions->getInverterArray($anlage);
             $counter = 1;
             foreach ($nameArray as $inverterName) {
-                $inverter_status = $this->RetrieveQuarterIst($time, $counter, $anlage); //IstData($anlage, $time, $counter);
-                $message = $this->AnalyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap['sunrise']);
-                self::messagingFunction($message, $anlage);
-                $counter++;
-                $system_status[$inverterName] = $inverter_status;
-                unset($inverter_status);
+                if($ppc == false) {
+                    $inverter_status = $this->RetrieveQuarterIst($time, $counter, $anlage); //IstData($anlage, $time, $counter);
+                    if ($inverter_status == "Plant Control by PPC"){
+                        $ppc = true;
+                        $message = $this->AnalyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap['sunrise']);
+                        self::messagingFunction($message, $anlage);
+                    }
+                    else {
+                        $message = $this->AnalyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap['sunrise']);
+                        self::messagingFunction($message, $anlage);
+                        $counter++;
+                        $system_status[$inverterName] = $inverter_status;
+                        unset($inverter_status);
+                    }
+                }
             }
             unset($system_status);
         }
@@ -253,19 +263,35 @@ class AlertSystemService
         if ($message != "") {
             if ($ticket === null) {
                 $ticket = new Ticket();
+                $ticketDate = new TicketDate();
+                $ticketDate->setAnlage($anlage);
+                $ticketDate->setStatus("10");
+                $ticketDate->setDescription($message);
+                $ticketDate->setSystemStatus(10);
+                $ticketDate->setPriority(10);
                 $ticket->setAnlage($anlage);
                 $ticket->setStatus("10"); // Status 10 = open
                 $ticket->setEditor("Alert system");
                 $ticket->setDescription($message);
                 $ticket->setSystemStatus(10);
                 $ticket->setPriority(10);
-                $ticket->setInverter($nameArray);
+                if ($inverter['istdata'] === "Plant Control by PPC"){
+                    $ticket->setInverter("*");
+                    $ticketDate->setInverter("*");
+                }
+                else {
+                    $ticket->setInverter($nameArray);
+                    $ticketDate->setInverter($nameArray);
+                }
                 $ticket->setAlertType($errorCategorie); //  category = alertType (bsp: datagap, inverter power, etc.)
+                $ticketDate->setAlertType($errorCategorie);
                 $ticket->setErrorType($errorType); // type = errorType (Bsp:  SOR, EFOR, OMC)
+                $ticketDate->setErrorType($errorType);
                 $timetemp = date('Y-m-d H:i:s', strtotime($time));
                 $begin = date_create_from_format('Y-m-d H:i:s', $timetemp);
                 $begin->getTimestamp();
                 $ticket->setBegin(($begin));
+                $ticketDate->setBegin($begin);
             }
             $timetemp = date('Y-m-d H:i:s', strtotime($time));
             $end = date_create_from_format('Y-m-d H:i:s', $timetemp);
