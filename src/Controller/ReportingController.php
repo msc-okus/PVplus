@@ -92,16 +92,17 @@ class ReportingController extends AbstractController
         $searchmonth     = $request->query->get('searchmonth');
         $searchyear      = $request->query->get('searchyear');
         $page            = $request->query->getInt('page', 1);
-        $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($anlage, $searchstatus, $searchtype, $searchmonth, $searchyear, $page);
+
+        $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($anlage, $searchstatus, $searchtype, $searchmonth, $searchyear);
         $pagination = $paginator->paginate(
             $queryBuilder,
             $page,
             20
         );
+
         return $this->render('reporting/_inc/_listReports.html.twig', [
             'pagination' => $pagination,
             'stati'      => self::reportStati(),
-            'anlage'     => $anlage,
         ]);
     }
 

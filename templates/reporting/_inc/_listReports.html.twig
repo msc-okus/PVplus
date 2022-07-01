@@ -8,22 +8,22 @@
             <tr>
                 <th>Report ID</th>
                 <th {% if pagination.isSorted('a.anlName') %} class="sorted"{% endif %}>
-                    {{ knp_pagination_sortable(pagination, 'Plant', ['a.anlName']) }}</th>
+                    {{ knp_pagination_sortable(pagination, 'Plant', ['a.anlName'], {'data-action': 'report#sort'}) }}</th>
                 {% if is_granted('ROLE_G4N') %}
                     <th>Owner</th>
                     <th {% if pagination.isSorted('report.createdAt') %} class="sorted"{% endif %}>
-                        {{ knp_pagination_sortable(pagination, 'created at', ['report.createdAt']) }}</th>
+                        {{ knp_pagination_sortable(pagination, 'created at', ['report.createdAt'], {'data-action': 'report#sort'}) }}</th>
                     <th {% if pagination.isSorted('report.createdBy') %} class="sorted"{% endif %}>
-                        {{ knp_pagination_sortable(pagination, 'created by', ['report.createdBy']) }}</th>
+                        {{ knp_pagination_sortable(pagination, 'created by', ['report.createdBy'], {'data-action': 'report#sort'}) }}</th>
                 {% endif %}
                 <th {% if pagination.isSorted('report.month') %} class="sorted"{% endif %}>
-                    {{ knp_pagination_sortable(pagination, 'Month', ['report.month']) }}</th>
+                    {{ knp_pagination_sortable(pagination, 'Month', ['report.month'], {'data-action': 'report#sort'}) }}</th>
                 <th {% if pagination.isSorted('report.year') %} class="sorted"{% endif %}>
-                    {{ knp_pagination_sortable(pagination, 'Year', ['report.year']) }}</th>
+                    {{ knp_pagination_sortable(pagination, 'Year', ['report.year'], {'data-action': 'report#sort'}) }}</th>
                 <th {% if pagination.isSorted('report.reportType') %} class="sorted"{% endif %}>
-                    {{ knp_pagination_sortable(pagination, 'Report Type', ['report.reportType']) }}</th>
+                    {{ knp_pagination_sortable(pagination, 'Report Type', ['report.reportType'], {'data-action': 'report#sort'}) }}</th>
                 <th {% if pagination.isSorted('report.reportStatus') %} class="sorted" {% else  %} class="unsorted"{% endif %}>
-                    {{ knp_pagination_sortable(pagination, 'Status', ['report.reportStatus']) }}</th>
+                    {{ knp_pagination_sortable(pagination, 'Status', ['report.reportStatus'], {'data-action': 'report#sort'}) }}</th>
                 <th></th>
             </tr>
             </thead>

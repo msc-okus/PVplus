@@ -55,7 +55,10 @@ export default class extends Controller {
     async sort(event) {
         event.preventDefault();
         const $queryParams = $(event.currentTarget).data("query-value");
-        this.listTarget.innerHTML = await $.ajax({});
+        this.listTarget.innerHTML = await $.ajax({
+            url: this.urlSearchValue,
+            data: $queryParams,
+        });
     }
 
     async create(event) {
