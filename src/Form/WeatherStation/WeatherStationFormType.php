@@ -3,6 +3,7 @@ namespace App\Form\WeatherStation;
 
 use App\Entity\WeatherStation;
 use App\Helper\G4NTrait;
+use App\Helper\PVPNameArraysTrait;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -14,6 +15,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 class WeatherStationFormType extends AbstractType
 {
     use G4NTrait;
+    use PVPNameArraysTrait;
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
@@ -76,7 +78,8 @@ class WeatherStationFormType extends AbstractType
             ->add('timeZoneWeatherStation', ChoiceType::class, [
                 'label'         => 'Zeitzone Wetterstation',
                 'choices'       => self::timeArray(),
-                'empty_data'    => '+0',
+                'placeholder'   => 'Please Choose',
+                'empty_data'    => '0',
             ])
             ->add('labelUpper', TextType::class, [
                 'label'         => 'Beschreibung für Irr Upper',

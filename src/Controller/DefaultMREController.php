@@ -11,6 +11,7 @@ use App\Repository\AnlageAvailabilityRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\Case5Repository;
 use App\Service\AvailabilityService;
+use App\Service\CheckSystemStatusService;
 use App\Service\ExportService;
 use App\Service\FunctionsService;
 use App\Service\ReportEpcPRNewService;
@@ -35,6 +36,16 @@ class DefaultMREController extends BaseController
         $this->urlGenerator = $urlGenerator;
     }
 
+    #[Route(path: '/mr/status')]
+    public function updateStatus(CheckSystemStatusService $checkSystemStatus) : Response
+    {
+        return $this->render('cron/showResult.html.twig', [
+            'headline'      => "Update Systemstatus",
+            'availabilitys' => '',
+            'output'        => $checkSystemStatus->checkSystemStatus(),
+        ]);
+    }
+
     #[Route(path: '/mr/pa/{id}')]
     public function pa($id, AvailabilityService $availability, AnlagenRepository $anlagenRepository) : Response
     {
@@ -54,8 +65,8 @@ class DefaultMREController extends BaseController
         $output = '';
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => '97']);
-        $from = date_create('2022-04-01');
-        $to   = date_create('2022-05-01');
+        $from = date_create('2022-05-01');
+        $to   = date_create('2022-05-31');
         $output = $bavelseExport->gewichtetTagesstrahlung($anlage, $from, $to);
         return $this->render('cron/showResult.html.twig', [
             'headline'      => 'Systemstatus',
@@ -95,71 +106,6 @@ class DefaultMREController extends BaseController
             'headline'      => $anlage->getAnlName() . ' FacData Export',
             'availabilitys' => '',
             'output'        => $output,
-        ]);
-    }
-
-    #[Route(path: '/test/olli')]
-    public function olliExport() : Response
-    {
-        $conn = self::getPdoConnection();
-        $sqlExp = "
-        SELECT DATE_FORMAT(stamp, '%Y-%m-%d') as mystamp, 
-            stamp,
-            group_ac,
-            round(sum(ac_exp_power),2) as soll, 
-            round(sum(ac_exp_power_evu),2) as soll_evu, 
-            round(sum(ac_exp_power_no_limit),2) as soll_nolimit
-        FROM pvp_data.db__pv_dcsoll_AX102 WHERE stamp >= '2021-07-01 00:00' AND stamp <= '2021-07-31 23:59' GROUP by group_ac, stamp order by group_ac*1, stamp;
-        ";
-        $result = [];
-        $expected = $conn->prepare($sqlExp);
-        $expected->execute();
-        foreach ($expected->fetchAll(PDO::FETCH_CLASS) as $row) {
-            $sqlIst = "SELECT sum(wr_pac) as istsum FROM pvp_data.db__pv_ist_AX102 where wr_pac > 0 and stamp = '$row->stamp' and group_ac = $row->group_ac;";
-            $ist = $conn->prepare($sqlIst);
-            $ist->execute();
-            $rowIst = $ist->fetch(PDO::FETCH_OBJ);
-
-            if ($row->group_ac == 1) {
-                $result[$row->stamp] = [
-                    "stamp"                             => $row->stamp,
-                    "soll-tr$row->group_ac"             => $row->soll,
-                    "soll-nolimit-tr$row->group_ac"     => $row->soll_nolimit,
-                    "ist-tr$row->group_ac"              => ($rowIst->istsum == null) ? 0 : $rowIst->istsum,
-                ];
-                $headlinesBase = [
-                    "stamp"                             => 'stamp',
-                    "soll-tr$row->group_ac"             => "soll-tr$row->group_ac",
-                    "soll-nolimit-tr$row->group_ac"     => "soll-nolimit-tr$row->group_ac",
-                    "ist-tr$row->group_ac"              => "ist-tr$row->group_ac",
-                ];
-            } else {
-                $help[$row->stamp] = [
-                    "stamp"                             => $row->stamp,
-                    "soll-tr$row->group_ac"             => $row->soll,
-                    "soll-nolimit-tr$row->group_ac"     => $row->soll_nolimit,
-                    "ist-tr$row->group_ac"              => $row->istsum,
-                ];
-                $headlinesHelp = [
-                    "stamp"                             => 'stamp',
-                    "soll-tr$row->group_ac"             => "soll-tr$row->group_ac",
-                    "soll-nolimit-tr$row->group_ac"     => "soll-nolimit-tr$row->group_ac",
-                    "ist-tr$row->group_ac"              => "ist-tr$row->group_ac",
-                ];
-                $result[$row->stamp] = array_merge($result[$row->stamp], $help[$row->stamp]);
-                $headlinesBase = array_merge($headlinesBase, $headlinesHelp);
-            }
-        }
-        $fp = fopen("daten.csv", 'a');
-        fputcsv($fp, $headlinesBase, ";");
-        foreach ($result as $export) {
-            fputcsv($fp, $export,";");
-        }
-        fclose($fp);
-        return $this->render('cron/showResult.html.twig', [
-            'headline'      => 'EPC Report',
-            'availabilitys' => '',
-            'output'        => $result,
         ]);
     }
 
@@ -225,49 +171,30 @@ class DefaultMREController extends BaseController
         ]);
     }
 
-    #[Route(path: '/test/forcast')]
-    public function testForcast(AnlagenRepository $anlagenRepository, FunctionsService $functions) : Response
-    {
-        $output = '';
-        $month = 11;
-        /** @var Anlage $anlage */
-        $anlage = $anlagenRepository->findOneBy(['anlId' => 104]);
-        $output .= "<h1>".$anlage->getAnlName()." - Monat: $month</h1>";
-        $output .= $functions->getForcastByMonth($anlage, $month);
-        return $this->render('cron/showResult.html.twig', [
-            'headline'      => 'Test Forcast',
-            'availabilitys' => '',
-            'output'        => $output,
-        ]);
-    }
 
-    #[Route(path: '/test/epc/{id}/{raw}', defaults: ['id' => 94, 'raw' => true])]
-    public function testNewEpc($id, $raw, AnlagenRepository $anlagenRepository, FunctionsService $functions, ReportEpcPRNewService $epcNew) : Response
+    #[Route(path: '/test/epc/{id}', defaults: ['id' => 94])]
+    public function testNewEpc($id, AnlagenRepository $anlagenRepository, FunctionsService $functions, ReportEpcPRNewService $epcNew) : Response
     {
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
-        $date = date_create("2022-02-01 00:00");
-        $monthTable = $epcNew->monthTable($anlage, $date);
-        #$forcastTable = $epcNew->forcastTable($anlage, $monthTable, $date);
-        #$chartYieldPercenDiff = $epcNew->chartYieldPercenDiff($anlage, $monthTable, $date);
-        #$chartYieldCumulativ = $epcNew->chartYieldCumulative($anlage, $monthTable, $date);
-        #$output = $functions->printArrayAsTable($forcastTable);
-        $output = $functions->print2DArrayAsTable($monthTable);
-        if ($raw) {
-            return $this->render('cron/showResult.html.twig', [
-                'headline'      => 'Tabelle New EPC',
-                'availabilitys' => '',
-                'output'        => $output,
-            ]);
-        } else {
-            return $this->render('report/epcReport.html.twig', [
-                'anlage' => $anlage,
-                'monthsTable' => $monthTable,
-                #'forcast'           => $forcastTable,
-                'legend' => $anlage->getLegendEpcReports(),
-                # 'chart1'            => $chartYieldPercenDiff,
-                #'chart2'            => $chartYieldCumulativ,
-            ]);
-        }
+        $date = date_create("2022-04-01 00:00");
+        $result = $epcNew->monthTable($anlage, $date);
+        $pldTable = $epcNew->pldTable($anlage, $result->table, $date);
+        $forcastTable = $epcNew->forcastTable($anlage, $result->table, $pldTable, $date);
+        #$chartYieldPercenDiff = $epcNew->chartYieldPercenDiff($anlage, $result->table, $date);
+        #$chartYieldCumulativ = $epcNew->chartYieldCumulative($anlage, $result->table, $date);
+
+        #$output = "<br>riskForecastUpToDate: ". $result->riskForecastUpToDate . "<br>riskForecastRollingPeriod: " . $result->riskForecastRollingPeriod;
+
+        return $this->render('report/epcReportPR.html.twig', [
+            'anlage'            => $anlage,
+            'monthsTable'       => $result->table,
+            'forcast'           => $forcastTable,
+            'pldTable'          => $pldTable,
+            'legend'            => $anlage->getLegendEpcReports(),
+            #'chart1'            => $chartYieldPercenDiff,
+            #'chart2'            => $chartYieldCumulativ,
+        ]);
+
     }
 }

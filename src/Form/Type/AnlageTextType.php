@@ -35,7 +35,7 @@ class AnlageTextType extends AbstractType
         $builder->addModelTransformer(new NameToAnlageTransformer($this->anlnRepo));
     }
 
-    public function getParent()
+    public function getParent(): ?string
     {
         return TextType::class;
     }

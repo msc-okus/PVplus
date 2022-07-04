@@ -144,27 +144,49 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
                     break;
                     //jasdkas
                 case 'Veendam':
-                    $html = "";
+                    $html = "<table>
+                        <tr>
+                            <td style='text-align: center'>".number_format($array['eGridReal'], 2, ',', '.')." kWh</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td style='text-align: center'>----------------------------</td>
+                            <td style='text-align: center'>x</td>
+                            <td style='text-align: center'>100</td>
+                            <td style='text-align: center'>=</td>
+                            <td style='text-align: center'>".number_format($array['prReal'], 2, ',', '.')."%</td>
+                        </tr>
+                        <tr>
+                            <td style='text-align: center'>".number_format($array['theoPower'], 2, ',', '.') . " kWh * " . number_format($array['availability'] / 100, 4, ',', '.') . "</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </table>";
                     break;
                     // sdf
                 case 'Lelystad':
                     $html = "<table style='text-align: center'>
                         <tr>
-                            <td>".number_format($array['eGridReal'], 2, ',', '.')." kWh</td>
+                            <td style='text-align: center'>".number_format($array['eGridReal'], 2, ',', '.')." kWh</td>
                             <td></td>
                             <td></td>
                             <td></td>
                             <td></td>
                         </tr>
                         <tr>
-                            <td>----------------------------</td>
-                            <td>x</td>
-                            <td>100</td>
-                            <td>=</td>
-                            <td>".number_format($array['prReal'], 2, ',', '.')."%</td>
+                            <td style='text-align: center'>----------------------------</td>
+                            <td style='text-align: center'>x</td>
+                            <td style='text-align: center'>100</td>
+                            <td style='text-align: center'>=</td>
+                            <td style='text-align: center'>".number_format($array['prReal'], 2, ',', '.')."%</td>
                         </tr>
                         <tr>
-                            <td>".number_format($array['theoPower'], 2, ',', '.')." kWh</td>
+                            <td style='text-align: center'>".number_format($array['theoPower'], 2, ',', '.')." kWh</td>
                             <td></td>
                             <td></td>
                             <td></td>
@@ -175,17 +197,17 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
                 default:
                     $html = "<table>
                         <tr>
-                            <td>".number_format($array['eGridReal'], 2, ',', '.')." kWh</td>
+                            <td style='text-align: center'>".number_format($array['eGridReal'], 2, ',', '.')." kWh</td>
                             <td></td>
                             <td></td>
                         </tr>
                         <tr>
-                            <td>------------------------</td>
-                            <td>=</td>
-                            <td>".number_format($array['prReal'], 2, ',', '.')."%</td>
+                            <td style='text-align: center'>------------------------</td>
+                            <td style='text-align: center'>=</td>
+                            <td style='text-align: center'>".number_format($array['prReal'], 2, ',', '.')." %</td>
                         </tr>
                         <tr>
-                            <td>".number_format($array['theoPower'], 2, ',', '.')." kWh</td>
+                            <td style='text-align: center'>".number_format($array['theoPower'], 2, ',', '.')." kWh</td>
                             <td></td>
                             <td></td>
                         </tr>

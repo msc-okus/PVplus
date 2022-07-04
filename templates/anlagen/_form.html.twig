@@ -235,8 +235,8 @@
                             </fieldset>
                             <fieldset class="fieldset">
                                 <legend>Alert System Config</legend>
-                                {{ form_row(anlageForm.FreqBase) }}
-                                {{ form_row(anlageForm.FreqTolerance) }}
+                                {{ form_row(anlageForm.freqBase) }}
+                                {{ form_row(anlageForm.freqTolerance) }}
                             </fieldset>
 
                         </div>
@@ -273,11 +273,6 @@
                                     <div class="cell medium-4">{{ form_row((anlageForm.transformerTee)) }}</div>
                                     <div class="cell medium-4">{{ form_row((anlageForm.guaranteeTee)) }}</div>
                                 </div>
-                                <div class="grid-x grid-padding-x">
-                                    <div class="cell medium-3">{{ form_row((anlageForm.pldYield)) }}</div>
-                                    <div class="cell medium-6">{{ form_row((anlageForm.pldDivisor)) }}</div>
-                                    <div class="cell medium-3">{{ form_row(anlageForm.usePnomForPld) }}</div>
-                                </div>
                             </fieldset>
                             <fieldset class="fieldset">
                                 <legend>Vertragliche Werte (Verfügbarkeit)</legend>
@@ -285,7 +280,17 @@
                                     <div class="cell medium-4">{{ form_row((anlageForm.contractualAvailability)) }}</div>
                                 </div>
                             </fieldset>
-
+                            <fieldset class="fieldset">
+                                <legend>PLD </legend>
+                                <div class="grid-x grid-padding-x">
+                                    <div class="cell medium-12">{{ form_row(anlageForm.pldAlgorithm) }}</div>
+                                </div>
+                                <div class="grid-x grid-padding-x">
+                                    <div class="cell medium-4">{{ form_row((anlageForm.pldYield)) }}</div>
+                                    <div class="cell medium-4">{{ form_row((anlageForm.pldDivisor)) }}</div>
+                                    <div class="cell medium-4">{{ form_row(anlageForm.usePnomForPld) }}</div>
+                                </div>
+                            </fieldset>
                             <fieldset class="fieldset">
                                 <legend>PAC / FAC Konfiguration</legend>
                                 <div class="grid-x grid-padding-x">
@@ -317,8 +322,8 @@
                             </fieldset>
                             <fieldset class="fieldset">
                                 <legend>Asset Management Configuration</legend>
-                                <div class="cell medium-3">{{ form_row(anlageForm.DataSourceAM) }}</div>
-                                <div class="cell medium-3">{{ form_row(anlageForm.RetrieveAllData) }}</div>
+                                <div class="cell medium-3">{{ form_row(anlageForm.dataSourceAM) }}</div>
+                                <div class="cell medium-3">{{ form_row(anlageForm.retrieveAllData) }}</div>
                             </fieldset>
                         </div>
                     </div>
@@ -409,6 +414,7 @@
                                 {{ form_row(anlageForm.anlMute) }}
                                 {{ form_row(anlageForm.anlMuteUntil) }}
                                 {{ form_row(anlageForm.calcPR) }}
+                                {{ form_row(anlageForm.excludeFromExpCalc) }}
                             </fieldset>
                         </div>
                         <div class="cell medium-6">

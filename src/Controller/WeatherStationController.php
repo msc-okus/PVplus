@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\WeatherStation;
 use App\Form\WeatherStation\WeatherStationFormType;
 use App\Helper\G4NTrait;
+use App\Helper\PVPNameArraysTrait;
 use App\Repository\WeatherStationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
@@ -15,6 +16,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class WeatherStationController extends BaseController
 {
     use G4NTrait;
+    use PVPNameArraysTrait;
+
 
     #[Route(path: '/admin/weather/new', name: 'app_admin_weather_new')]
     public function new(Request $request, EntityManagerInterface $em) : Response
@@ -96,10 +99,10 @@ class WeatherStationController extends BaseController
         $pdo = self::getPdoConnection();
         $sqlCreateWeatherDatabase = "
         CREATE TABLE IF NOT EXISTS `db__pv_ws_$databaseIdent` (
-            `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
-            `anl_id` bigint(11) NOT NULL,
-            `anl_intnr` varchar(50) NOT NULL,
-            `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+            `db_id` int(11) NOT NULL AUTO_INCREMENT,
+            `anl_id` int(11) NOT NULL,
+            `anl_intnr` varchar(20) NOT NULL,
+            `stamp` timestamp NOT NULL,
             `at_avg` varchar(20) NOT NULL,
             `pt_avg` varchar(20) NOT NULL,
             `gi_avg` varchar(20) NOT NULL,
@@ -112,6 +115,8 @@ class WeatherStationController extends BaseController
             `rso` varchar(20) NOT NULL,
             `gi` varchar(20) NOT NULL,
             `wind_speed` varchar(20) NOT NULL,
+            `temp_cell_corr` varchar(20) DEFAULT NULL,
+            `temp_cell_multi_irr` varchar(20) DEFAULT NULL,
             PRIMARY KEY (`db_id`),
             UNIQUE KEY `stamp` (`stamp`)
         ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;";

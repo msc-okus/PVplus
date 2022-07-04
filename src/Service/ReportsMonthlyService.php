@@ -74,7 +74,7 @@ class ReportsMonthlyService
             ->setReportTypeVersion(1)
             ->setStartDate($startDate)
             ->setEndDate($endDate)
-            ->setMonth($startDate->format('m'))
+            ->setMonth($startDate->format('n'))
             ->setYear($startDate->format('Y'))
             ->setRawReport($output)
             ->setContentArray($report);
@@ -154,7 +154,6 @@ class ReportsMonthlyService
         $fromDay = new \DateTime("$year-$month-01 00:00");
         $toDay   = new \DateTime("$year-$month-$daysInMonth 23:59");
         $prSumArray = $this->PRCalulation->calcPR($anlage, $fromDay, $toDay);
-        dump($prSumArray);
         // Summe / Total Row
         $sumValues['datum'] = $total;
         $sumValues['PowerEvuMonth']     = $anlage->getShowEvuDiag() ? $prSumArray['powerEvu'] : $prSumArray['powerAct'];
@@ -244,6 +243,7 @@ class ReportsMonthlyService
             'kwPeakPvSyst'  => $pvSyst['powerYear'],
             'G4NExpected'   => $prSumArrayYear['powerExp'],
         ];
+        /*
         $energypPoduction[3] = [
             'PD' => 'FAC Forecast',
             'GMNB' => 0,
@@ -251,7 +251,7 @@ class ReportsMonthlyService
             'IOUT' => 0,
             'kwPeakPvSyst' => 0,
             'G4NExpected' => 0,
-        ];
+        ];*/
 
         $performanceRatioAndAvailability[0] = [
             'PD'            => $date->format('F'),

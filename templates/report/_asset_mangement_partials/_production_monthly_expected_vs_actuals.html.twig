@@ -15,14 +15,10 @@
     {% set PAsum = 0 %}
     {% set PAsum2 = 0 %}
 
-
-
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Daily Production - {{ month }} {{ year }}</h3>
-
         <table style="width: 100% !important">
             <tr>
                 <td style="vertical-align: top;">
-
                     <table class="asset_report_table_operations_data ">
                         <thead>
                         <tr>
@@ -146,52 +142,51 @@
                                 {% endif %}
                                 <td class="tr_next_columns">{{ data.panneltemp|number_format(2, ',', '.') }}</td>
                                 {% set tempsum = tempsum + data.panneltemp %}
-                                <td class="tr_next_columns"> {{ (data.irradiation * anlage.kwPeak )|number_format(0, ',', '.') }}</td>
+                                <td class="tr_next_columns"> {{ (data.irradiation * anlage.pNom )|number_format(0, ',', '.') }}</td>
 
                             </tr>
                             {% set daycount = daycount + 1 %}
                         {% endfor %}
-                        {% set TheoSum = irrsum * anlage.kwPeak %}
-                        <tr>
-                            <td class="tr_next_columns"> <b>Overall</b></td>
-                            <td class="tr_next_columns"><b>{{ irrsum | number_format(2, ',', '.') }}</b></td>
-                            {% if (anlage.useGridMeterDayData == true)%}
-                                <td class="tr_next_columns"><b>{{ extgrid |number_format(0, ',', '.')}}</b></td>
-                            {% endif %}
-                            {% if (anlage.getShowEvuDiag) %}
-                                <td class="tr_next_columns"><b>{{ gridsum |number_format(0, ',', '.')}}</b></td>
-                            {% endif %}
-                            <td class="tr_next_columns"> <b>{{ ACInvsum |number_format(0, ',', '.') }}</b></td>
-                            <td class="tr_next_columns"> <b>{{ DCInvsum |number_format(0, ',', '.') }}</b></td>
-                            <td class="tr_next_columns"> <b>{{ ACexpsum |number_format(0, ',', '.') }}</b> </td>
-                            <td class="tr_next_columns"> <b>{{ DCexpsum |number_format(0, ',', '.') }}</b> </td>
-                            {% if (anlage.getShowEvuDiag == true)%}
-                                <td class="tr_next_columns"> <b>{{ ((gridsum/TheoSum)*100)|number_format(2, ',', '.') }}</b></td>
-                            {% endif %}
-                            <td class="tr_next_columns"><b>{{  ((ACInvsum/TheoSum)*100) |number_format(2, ',', '.')}}</b></td>
-                            <td class="tr_next_columns"> <b>{{  ((ACexpsum/TheoSum)*100) |number_format(2, ',', '.')}}</b></td>
-                            {% if (anlage.showAvailability == true) %}
-                                <td class="tr_next_columns"> <b>{{ (PAsum/daycount)|number_format(2, ',', '.') }}</b></td>
-                            {% endif %}
-                            {% if (anlage.showAvailabilitySecond == true) %}
-                                <td class="tr_next_columns"> <b>{{ (PAsum2/daycount)|number_format(2, ',', '.') }}</b></td>
-                            {% endif %}
-                            <td class="tr_next_columns"> <b>{{ (tempsum/daycount)|number_format(2, ',', '.')}}</b> </td>
-                            <td class="tr_next_columns"> <b>{{ TheoSum |number_format(0, ',', '.')}}</b></td>
+                        {% set TheoSum = irrsum * anlage.pNom %}
+                        {% if (daycount > 0 and TheoSum > 0) %}
+                            <tr>
+                                <td class="tr_next_columns"> <b>Overall</b></td>
+                                <td class="tr_next_columns"><b>{{ irrsum | number_format(2, ',', '.') }}</b></td>
+                                {% if (anlage.useGridMeterDayData == true)%}
+                                    <td class="tr_next_columns"><b>{{ extgrid |number_format(0, ',', '.')}}</b></td>
+                                {% endif %}
+                                {% if (anlage.getShowEvuDiag) %}
+                                    <td class="tr_next_columns"><b>{{ gridsum |number_format(0, ',', '.')}}</b></td>
+                                {% endif %}
+                                <td class="tr_next_columns"> <b>{{ ACInvsum |number_format(0, ',', '.') }}</b></td>
+                                <td class="tr_next_columns"> <b>{{ DCInvsum |number_format(0, ',', '.') }}</b></td>
+                                <td class="tr_next_columns"> <b>{{ ACexpsum |number_format(0, ',', '.') }}</b> </td>
+                                <td class="tr_next_columns"> <b>{{ DCexpsum |number_format(0, ',', '.') }}</b> </td>
+                                {% if (anlage.getShowEvuDiag == true)%}
+                                    <td class="tr_next_columns"> <b>{{ ((gridsum/TheoSum)*100)|number_format(2, ',', '.') }}</b></td>
+                                {% endif %}
+                                <td class="tr_next_columns"><b>{{  ((ACInvsum/TheoSum)*100) |number_format(2, ',', '.')}}</b></td>
+                                <td class="tr_next_columns"> <b>{{  ((ACexpsum/TheoSum)*100) |number_format(2, ',', '.')}}</b></td>
+                                {% if (anlage.showAvailability == true) %}
+                                    <td class="tr_next_columns"> <b>{{ (PAsum/daycount)|number_format(2, ',', '.') }}</b></td>
+                                {% endif %}
+                                {% if (anlage.showAvailabilitySecond == true) %}
+                                    <td class="tr_next_columns"> <b>{{ (PAsum2/daycount)|number_format(2, ',', '.') }}</b></td>
+                                {% endif %}
+                                <td class="tr_next_columns"> <b>{{ (tempsum/daycount)|number_format(2, ',', '.')}}</b> </td>
+                                <td class="tr_next_columns"> <b>{{ TheoSum |number_format(0, ',', '.')}}</b></td>
 
-                        </tr>
+                            </tr>
+                        {% else %}
+                            error PR Berechnung fehlt
+                        {% endif %}
                         </tbody>
                     </table>
-
                 </td>
                 <td class="pr-formula" >
                         <img src="{{ absolute_url(asset('/images/Formulas/prFormelStandard.png')) }}">
-
                         <img src="{{ absolute_url(asset('/images/Formulas/Theo_Power_formula.png')) }}">
                 </td>
-
             </tr>
         </table>
-
-
 {% endblock page %}

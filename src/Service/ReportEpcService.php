@@ -56,6 +56,7 @@ class ReportEpcService
         $currentDate = date('Y-m-d H-i');
         $pdfFilename = 'EPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
         $error = false;
+        $output         = '';
         switch ($anlage->getEpcReportType()) {
             case 'prGuarantee' :
                 $reportArray = $this->reportPRGuarantee($anlage, $date);
@@ -84,11 +85,10 @@ class ReportEpcService
                 $reportArray['monthTable']              = $monthTable;
                 $reportArray['forcastTable']            = $this->epcNew->forcastTable($anlage, $monthTable, $date);
 
-                $output = $this->functions->printArrayAsTable($reportArray['forcastTable']);
-                $output .= $this->functions->print2DArrayAsTable($reportArray['monthTable']);
+                #$output = $this->functions->printArrayAsTable($reportArray['forcastTable']);
+                #$output .= $this->functions->print2DArrayAsTable($reportArray['monthTable']);
                 break;
             default:
-                $output         = '';
                 $error          = true;
                 $reportArray    = [];
                 $report         = null;
@@ -107,50 +107,11 @@ class ReportEpcService
                 ->setStartDate(self::getCetTime('object'))
                 ->setEndDate($endDate)
                 ->setRawReport($output)
-                ->setContentArray($reportArray);
-            switch ($anlage->getEpcReportType()) {
-                case 'prGuarantee':
-                    $reportEntity
-                        //->setMonth(self::getCetTime('object')->sub(new \DateInterval('P1M'))->format('m'))
-                        //->setYear(self::getCetTime('object')->format('Y'));
-                        ->setMonth($date->format('n'))
-                        ->setYear($date->format('Y'));
-                    break;
-
-                case 'yieldGuarantee':
-                    $reportEntity
-                        ->setMonth($date->format('n'))
-                        ->setYear($date->format('Y'));
-                    break;
-            }
-
+                ->setContentArray($reportArray)
+                ->setMonth($date->format('n'))
+                ->setYear($date->format('Y'));
             $this->em->persist($reportEntity);
             $this->em->flush();
-
-
-            /* @deprecated
-            // erzeuge PDF mit CloudExport von KoolReport
-            if ($createPdf && $anlage->getEpcReportType() == 'prGuarantee') {
-                $secretToken = '2bf7e9e8c86aa136b2e0e7a34d5c9bc2f4a5f83291a5c79f5a8c63a3c1227da9';
-                $settings = [
-                    // 'useLocalTempFolder' => true,
-                    'pageWaiting' => 'networkidle2', //load, domcontentloaded, networkidle0, networkidle2
-                ];
-                $report->run();
-                $pdfOptions = [
-                    'format'                => 'A4',
-                    'landscape'             => true,
-                    'noRepeatTableFooter'   => false,
-                    'printBackground'       => true,
-                    'displayHeaderFooter'   => true,
-                ];
-                $report->cloudExport()
-                    ->chromeHeadlessio($secretToken)
-                    ->settings($settings)
-                    ->pdf($pdfOptions)
-                    ->toBrowser($pdfFilename);
-            }
-            */
         }
         else {
             $output = "<h1>Fehler: Es Ist kein Report ausgewählt.</h1>";
@@ -239,7 +200,7 @@ class ReportEpcService
                             $irrMonth       = $prArray['irradiation'];
                             $prAvailability = $prArray['availability'];
                             if ($anlage->getUseGridMeterDayData()){
-                                $eGridReal = $prArray['powerEGridExt'];
+                                $eGridReal  = $prArray['powerEGridExt'];
                                 $prReal     = $prArray['prEGridExt'];
                                 $prStandard = $prArray['prDefaultEGridExt'];
                             }
@@ -400,21 +361,35 @@ class ReportEpcService
             'currentMonthClass'     => 'sum-real',
         ];
 
-        // PLD Forecast Gesamtlaufzeit
+        // PLD Berechnung
+
         // PR Abweichung für das Jahr berechen -> Daten für PR Forecast
         $prDiffYear = ($sumPrReal / $counter) - $anlage->getContractualPR();
-        // Daten für PLD Forecast
-        $eLoss = (((float)$anlage->getContractualPR()/100 - $sumPrRealPrProg/100) * $sumSpecPowerRealProg * (float)$anlage->getKwPeakPvSyst());
-        $sumPld = 0;
-        for ($year = 1; $year <= 15; $year++){
-            $pld = ($eLoss * $anlage->getPldPR()) / (1 + ($anlage->getPldNPValue() / 100)) ** ($year - 1);
-            $sumPld += $pld;
-            $report[2][] = [
-                'year'              => $year,
-                'eLoss'             => $this->format($eLoss),
-                'pld'               => $this->format($pld),
-            ];
+        switch ($anlage->getPldAlgorithm()){
+            case 'Leek/Kampen':
+                $sumPld = $prDiffYear * $anlage->getPldPR();
+                $report[2][] = [
+                    'year'              => '0',
+                    'eLoss'             => '0',
+                    'pld'               => '0',
+                ];
+                break;
+            default:
+                // PLD Forecast Gesamtlaufzeit
+                // Daten für PLD Forecast
+                $eLoss = (((float)$anlage->getContractualPR()/100 - $sumPrRealPrProg/100) * $sumSpecPowerRealProg * (float)$anlage->getKwPeakPvSyst());
+                $sumPld = 0;
+                for ($year = 1; $year <= 15; $year++){
+                    $pld = ($eLoss * $anlage->getPldPR()) / (1 + ($anlage->getPldNPValue() / 100)) ** ($year - 1);
+                    $sumPld += $pld;
+                    $report[2][] = [
+                        'year'              => $year,
+                        'eLoss'             => $this->format($eLoss),
+                        'pld'               => $this->format($pld),
+                    ];
+                }
         }
+
         // Daten für PR Forecast
         $report[1] = [
             [
@@ -425,21 +400,50 @@ class ReportEpcService
             ]
         ];
 
-        // PLD für FAC Zeitraum berechnen
+        // PLD für 'Current' Zeitraum berechnen
+
+        // PR Abweichung für das Jahr berechen -> Daten für PR Forecast
+        $prDiffYear = ($sumPrReal / $counter) - $anlage->getContractualPR();
+        switch ($anlage->getPldAlgorithm()){
+            case 'Leek/Kampen':
+                $sumPld = $prDiffYear * $anlage->getPldPR();
+                $report[2][] = [
+                    'year'              => '0',
+                    'eLoss'             => '0',
+                    'pld'               => '0',
+                ];
+                break;
+            default:
+                // PLD Forecast Gesamtlaufzeit
+                // Daten für PLD Forecast
+
+        }
+
         // PR Abweichung für das Jahr berechen -> Daten für PR Forecast
         $prDiffForecast = $formelPR - $anlage->getContractualPR();
-        // Daten für PLD Forecast
-        $eLoss = (((float)$anlage->getContractualPR()/100 - $sumPrRealPrProgReal/100) * $sumSpecPowerRealProgReal * (float)$anlage->getKwPeakPvSyst());
-        $sumPld = 0;
-        for ($year = 1; $year <= 15; $year++){
-            $pld = ($eLoss * $anlage->getPldPR()) / (1 + ($anlage->getPldNPValue() / 100)) ** ($year - 1);
-            $sumPld += $pld;
-            $report[6][] = [
-                'year'              => $year,
-                'eLoss'             => $this->format($eLoss),
-                'pld'               => $this->format($pld),
-            ];
+        switch ($anlage->getPldAlgorithm()){
+            case 'Leek/Kampen':
+                $sumPld = abs($prDiffForecast) * $anlage->getPldPR();
+                $report[2][0] = [
+                    'year'              => '0',
+                    'eLoss'             => '0',
+                    'pld'               => '0',
+                ];
+                break;
+            default:
+                // PLD Forecast Gesamtlaufzeit
+                // Daten für PLD Forecast
+                $eLoss = (((float)$anlage->getContractualPR()/100 - $sumPrRealPrProg/100) * $sumSpecPowerRealProg * (float)$anlage->getKwPeakPvSyst());
+                $sumPld = 0;
+                for ($year = 1; $year <= 15; $year++){
+                    $pld = ($eLoss * $anlage->getPldPR()) / (1 + ($anlage->getPldNPValue() / 100)) ** ($year - 1);
+                    $sumPld += $pld;
+                }
         }
+
+        $report['pld'][] = [
+            'algorithmus'           => $anlage->getPldAlgorithm(),
+        ];
 
         // Daten für PR Forecast
         $report['prForecast'][]= [
@@ -453,7 +457,7 @@ class ReportEpcService
         // Daten für die Darstellung der Formel
         $report['formel'][]= [
             'eGridReal'             => $this->format($sumEGridRealReal),//$formelEnergy
-            'prReal'                => $formelPowerTheo > 0 ? $this->format($sumEGridRealReal / $formelPowerTheo * 100) : 0,//$formelPR
+            'prReal'                => $formelPR,
             'availability'          => $this->format($formelAvailability),
             'theoPower'             => $this->format($formelPowerTheo),
             'irradiation'           => $this->format($formelIrr),

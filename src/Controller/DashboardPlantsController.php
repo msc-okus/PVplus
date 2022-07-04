@@ -41,7 +41,8 @@ class DashboardPlantsController extends BaseController
             } else {
                 /* @var User $user */
                 $user = $this->getUser();
-                $granted = explode(',', $user->getGrantedList());
+                #$granted = explode(',', $user->getGrantedList());
+                $granted = $user->getGrantedArray();
                 $anlagen = $anlagenRepository->findGrantedActive($eignerId, $anlageId, $granted);
             }
         }

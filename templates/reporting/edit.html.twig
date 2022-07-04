@@ -1,35 +1,13 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    {{ form_start(reportForm) }}
-    <div class="grid-x">
-        <div class="cell">
-            <h1>Edit {{ report.reportType }} – {{ anlage.anlName }} Month: {{ report.month }} </h1>
-
-            <fieldset class="fieldset">
-                <legend>Report Settings</legend>
-                <div class="grid-x grid-padding-x">
-                    <div class="cell">{{ form_row(reportForm.reportStatus) }}</div>
-                </div>
-            </fieldset>
-
-
-        </div>
-    </div>
-    <div class="grid-x grid-padding-y action-menu">
-        <div class="cell">
-            {{ form_widget(reportForm.save) }}
-            {{ form_widget(reportForm.saveclose) }}
-            {{ form_widget(reportForm.close) }}
-        </div>
-    </div>
-    {{ form_end(reportForm) }}
-
+    <h1>Edit {{ report.reportType }} – {{ anlage.anlName }} Month: {{ report.month }} </h1>
+    {% include'reporting/_inc/_editForm.html.twig' %}
 {% endblock %}
 
 
 {% block title %}
-    {{  parent() }}edit Report
+    {{  parent() }}Edit Report
 {% endblock %}
 
 

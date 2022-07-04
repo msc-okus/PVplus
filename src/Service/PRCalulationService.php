@@ -533,9 +533,10 @@ class PRCalulationService
      *  $result['irradiation']<br>
      *  $result['availability']<br>
      *  $result['availability2'] (not Ready)<br>
-     *  $result['anzCase5'] (prove)<br>
-     *  $result['tCellAvgMeasured'] (prove)<br>
-     *  $result['tCellAvgNrel'] (prove)<br>
+     *  $result['anzCase5'] (proof)<br>
+     *  $result['tCellAvgMeasured'] (proof)<br>
+     *  $result['tCellAvgNrel'] (proof)<br>
+     *  $result['tCellAvgMultiIrr'] (proof)<br>
      *
      * @param Anlage $anlage
      * @param DateTime $startDate
@@ -606,7 +607,6 @@ class PRCalulationService
         // if theoretic Power ist corrected by temperature (NREL) (PR Algoritm = Lelystad) then use 'powerTheo' from array $power, if not calc by Pnom and Irr.
         $powerTheo = round($anlage->getUseCustPRAlgorithm() == 'Lelystad' ? $power['powerTheo'] : $anlage->getPnom() * $irr,4);
         $result['powerTheo'] = $powerTheo;
-        $result['tCellAvgNrel'] = (float)$power['tCellAvg'];
         $tempCorrection = 0; // not used at the Moment
 
         // PR Calculation
@@ -660,14 +660,16 @@ class PRCalulationService
 
         $anzCase5PerDay = $this->case5Repo->countCase5DayAnlage($anlage, $localStartDate, $localEndDate);
 
-        $result['algorithmus']       = $anlage->getUseCustPRAlgorithm();
-        $result['powerTheoTempCorr'] = (float)$power['powerTheo'];
-        $result['tempCorrection']    = (float)$tempCorrection;
-        $result['irradiation']       = (float)$irr;
-        $result['availability']      = $availability;
-        $result['availability2']     = $availability2; // NOT Ready
-        $result['anzCase5']          = $anzCase5PerDay;
-        $result['tCellAvgMeasured']  = (float)$weather['panelTempAvg'];
+        $result['algorithmus']          = $anlage->getUseCustPRAlgorithm();
+        $result['powerTheoTempCorr']    = (float)$power['powerTheo'];
+        $result['tempCorrection']       = (float)$tempCorrection;
+        $result['irradiation']          = (float)$irr;
+        $result['availability']         = $availability;
+        $result['availability2']        = $availability2; // NOT Ready
+        $result['anzCase5']             = $anzCase5PerDay;
+        $result['tCellAvgMeasured']     = (float)$weather['panelTempAvg'];
+        $result['tCellAvgNrel']         = (float)$weather['temp_cell_corr'];
+        $result['tCellAvgMultiIrr']     = (float)$weather['temp_cell_multi_irr'];
 
         return $result;
     }

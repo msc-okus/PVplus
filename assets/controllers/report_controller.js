@@ -1,19 +1,20 @@
 import { Controller } from '@hotwired/stimulus';
+import { useDispatch } from 'stimulus-use';
 import $ from 'jquery';
 
 export default class extends Controller {
     static targets = ['list', 'reportForm', 'searchForm', 'createForm', 'required', 'deactivable'];
     static values = {
         urlCreate: String,
-        urlSearch: String
+        urlSearch: String,
     }
 
     connect() {
+        useDispatch(this);
     }
 
     toggle(){
         const $button = $(this.deactivableTargets);
-
         if ($button.attr('disabled')) {
             $button.removeAttr('disabled')
         } else {
@@ -39,21 +40,43 @@ export default class extends Controller {
             method: $searchReportform.prop('method'),
             data: $searchReportform.serialize(),
         });
+        $(document).foundation();
+    }
+
+    async page(event) {
+        event.preventDefault();
+        const $queryParams = $(event.currentTarget).data("query-value");
+        this.listTarget.innerHTML = await $.ajax({
+            url: this.urlSearchValue,
+            data: $queryParams,
+        });
+    }
+
+    async sort(event) {
+        event.preventDefault();
+        const $queryParams = $(event.currentTarget).data("query-value");
+        this.listTarget.innerHTML = await $.ajax({
+            url: this.urlSearchValue,
+            data: $queryParams,
+        });
     }
 
     async create(event) {
         event.preventDefault();
         const $createReportform = $(this.reportFormTarget).find('form');
+
         this.listTarget.innerHTML = await $.ajax({
-            beforeSend: function(){
-                $('.ajax-loader').css("visibility", "visible");
-            },
             url: this.urlCreateValue,
             method: $createReportform.prop('method'),
             data: $createReportform.serialize(),
+            beforeSend: function(){
+                $('.ajax-loader').css("visibility", "visible");
+            },
             complete: function(){
                 $('.ajax-loader').css("visibility", "hidden");
             }
         });
+        this.dispatch('success');
     }
+
 }

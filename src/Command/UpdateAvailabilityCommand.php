@@ -18,8 +18,8 @@ class UpdateAvailabilityCommand extends Command
 
     protected static $defaultName = 'pvp:updatePA';
 
-    private $anlagenRepository;
-    private $availability;
+    private AnlagenRepository $anlagenRepository;
+    private AvailabilityService $availability;
 
     public function __construct(AnlagenRepository $anlagenRepository, AvailabilityService $availability)
     {
@@ -34,7 +34,6 @@ class UpdateAvailabilityCommand extends Command
             ->setDescription('Berechnung der Verfügbarkeit (availability) ')
             ->addArgument('plantid')
             ->addOption('day', null, InputOption::VALUE_REQUIRED, 'Tag (day) im Format \'yyyy-mm-dd\' für den, die \'Verfügbarkeit\' berechnet werden soll.')
-            ->addOption('anlage', 'a', InputOption::VALUE_REQUIRED, 'Anlagen ID für die, die Berechnung ausgeführt werden soll')
             ->addOption('from', null, InputOption::VALUE_REQUIRED, 'Datum ab dem berechnet werden soll')
             ->addOption('to', null, InputOption::VALUE_REQUIRED, 'Datum bis zu dem berechnet werden soll')
         ;

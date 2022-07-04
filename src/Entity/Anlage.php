@@ -7,6 +7,7 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Symfony\Component\Serializer\Annotation\Groups;
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
@@ -329,6 +330,11 @@ class Anlage
      * @ORM\Column(type="string", length=50, nullable=true)
      */
     private ?string $useCustPRAlgorithm;
+
+    /**
+     * @ORM\Column(type="string", length=50, nullable=true)
+     */
+    private ?string $pldAlgorithm = "Lelystad";
 
     /**
      * @ORM\Column(type="boolean")
@@ -829,6 +835,11 @@ class Anlage
      * @ORM\Column(type="boolean")
      */
     private ?bool $hasFrequency = false;
+
+    /**
+     * @ORM\Column(type="boolean", nullable=true)
+     */
+    private ?bool $excludeFromExpCalc = false;
 
 
     public function __construct()
@@ -1355,26 +1366,18 @@ class Anlage
         return $this->dbAnlagenData. ".db__pv_dcist_".$this->getAnlIntnr();
     }
 
-    public function getDbNameAcSoll()
+    /** @deprecated use getDBNameSoll() */
+    public function getDbNameAcSoll(): string
     {
         return $this->dbAnlagenData. ".db__pv_soll_".$this->getAnlIntnr();
     }
 
-    /**
-     * @return string
-     * @deprecated
-     */
-    public function getDbNameAcSollOld()
-    {
-        return "db__pv_soll_".$this->getAnlIntnr();
-    }
-
-    public function getDbNameSoll()
+    public function getDbNameSoll(): string
     {
         return $this->dbAnlagenData. ".db__pv_soll_".$this->getAnlIntnr();
     }
 
-    public function getDbNameDcSoll()
+    public function getDbNameDcSoll(): string
     {
         return $this->dbAnlagenData. ".db__pv_dcsoll_".$this->getAnlIntnr();
     }
@@ -1384,24 +1387,15 @@ class Anlage
         return $this->dbAnlagenData. ".db__pv_ppc_".$this->getAnlIntnr();
     }
 
-    /**
-     * @return string
-     * @deprecated
-     */
-    public function getDbNameDcSollOld()
-    {
-        return "db__pv_dcsoll_".$this->getAnlIntnr();
-    }
-
     // get Weather Database
-    public function getNameWeather()
+    public function getNameWeather(): ?string
     {
         $weatherDB = ($this->getAnlDbWs()) ? $this->getAnlDbWs() : $this->getAnlIntnr();
         $weatherDB = $this->getWeatherStation()->getDatabaseIdent();
 
         return $weatherDB;
     }
-    public function getDbNameWeather()
+    public function getDbNameWeather(): string
     {
         ($this->getAnlDbWs()) ? $anlageDbWeather = $this->getAnlDbWs() : $anlageDbWeather = $this->getAnlIntnr();
         $anlageDbWeather = $this->getNameWeather();
@@ -1416,9 +1410,6 @@ class Anlage
         return "db__pv_ws_".$anlageDbWeather;
     }
 
-    /**
-     * @return Collection|AnlageAcGroups[]
-     */
     public function getAcGroups(): Collection
     {
         return $this->acGroups;
@@ -1447,10 +1438,7 @@ class Anlage
         return $this;
     }
 
-    /**
-     * @return array
-     */
-    public function getGroupsAc():array
+    public function getGroupsAc(): array
     {
         $gruppe = [];
 
@@ -1466,27 +1454,25 @@ class Anlage
         return $gruppe;
     }
 
-    public function getAnzInverterFromGroupsAC():int
+    public function getAnzInverter(): int
     {
-        $anzGruppen = 0;
-
-        if($this->getConfigType() == "3" | $this->getConfigType() == "4")
-        {
-            $anzGruppen = $this->getAcGroups()->count();
-        }
-        else{
+        $anzInverter = 0;
+        if ($this->getConfigType() == "3" | $this->getConfigType() == "4") {
+            $anzInverter = $this->getAcGroups()->count();
+        } else {
             foreach ($this->getAcGroups() as $group) {
-                $anzGruppen += $group->getUnitLast() - $group->getUnitFirst() + 1;
+                $anzInverter += $group->getUnitLast() - $group->getUnitFirst() + 1;
             }
         }
 
-
-        return $anzGruppen;
+        return $anzInverter;
     }
 
-    /**
-     * @return Collection|AnlageAvailability[]
-     */
+    public function getAnzInverterFromGroupsAC():int
+    {
+        return $this->getAnzInverter();
+    }
+
     public function getAvailability(): Collection
     {
         return $this->availability;
@@ -1515,10 +1501,6 @@ class Anlage
         return $this;
     }
 
-
-    /**
-     * @return Collection|AnlagenStatus[]
-     */
     public function getLastStatus(): Collection
     {
         $criteria = AnlagenRepository::lastAnlagenStatusCriteria();
@@ -1549,27 +1531,18 @@ class Anlage
         return $this;
     }
 
-
-    /**
-     * @return Collection|AnlagenPR[]
-     */
     public function getPr(): Collection
     {
         return $this->pr;
     }
 
-    /**
-     * @return Collection|AnlagenPR
-     */
     public function getLastPR(): Collection
     {
         $criteria = AnlagenRepository::lastAnlagenPRCriteria();
         return $this->pr->matching($criteria);
     }
-    /**
-     * @return Collection|AnlagenPR
-     */
-    public function getYesterdayPR(): Collection
+
+    public function getYesterdayPR(): ?Collection
     {
         $criteria = AnlagenRepository::yesterdayAnlagenPRCriteria();
 
@@ -1805,12 +1778,21 @@ class Anlage
         return $this;
     }
 
-    /**
-     * @return Collection|AnlagenReports[]
-     */
     public function getAnlagenReports(): Collection
     {
         return $this->anlagenReports;
+    }
+
+    public function getPldAlgorithm(): ?string
+    {
+        return $this->pldAlgorithm;
+    }
+
+    public function setPldAlgorithm(?string $pldAlgorithm): self
+    {
+        $this->pldAlgorithm = $pldAlgorithm;
+
+        return $this;
     }
 
     public function addAnlagenReport(AnlagenReports $anlagenReport): self
@@ -1934,9 +1916,6 @@ class Anlage
         return false;
     }
 
-    /**
-     * @return Collection|AnlageEventMail[]
-     */
     public function getEventMails(): Collection
     {
         return $this->eventMails;
@@ -2024,17 +2003,11 @@ class Anlage
         return $this;
     }
 
-    /**
-     * @return Collection|AnlageCase5[]
-     */
     public function getAnlageCase5s(): Collection
     {
         return $this->anlageCase5s;
     }
 
-    /**
-     * @return Collection|AnlageCase5[]
-     */
     public function getAnlageCase5sDate($date): Collection
     {
         $criteria = AnlagenRepository::case5ByDateCriteria($date);
@@ -2066,17 +2039,11 @@ class Anlage
         return $this;
     }
 
-    /**
-     * @return Collection|AnlageCase6[]
-     */
     public function getAnlageCase6s(): Collection
     {
         return $this->anlageCase6s;
     }
 
-    /**
-     * @return Collection|AnlageCase6[]
-     */
     public function getAnlageCase6sDate($date): Collection
     {
         $criteria = AnlagenRepository::case6ByDateCriteria($date);
@@ -2108,10 +2075,6 @@ class Anlage
         return $this;
     }
 
-
-    /**
-     * @return Collection|AnlagePVSystDaten[]
-     */
     public function getAnlagePVSystDatens(): Collection
     {
         return $this->anlagePVSystDatens;
@@ -2199,9 +2162,6 @@ class Anlage
         return $this;
     }
 
-    /**
-     * @return Collection|AnlageForcast[]
-     */
     public function getAnlageForecasts(): Collection
     {
         return $this->anlageForecasts;
@@ -2229,9 +2189,6 @@ class Anlage
         return $this;
     }
 
-    /**
-     * @return Collection|AnlageForcastDay[]
-     */
     public function getAnlageForecastDays(): Collection
     {
         return $this->anlageForecastDays;
@@ -2259,15 +2216,10 @@ class Anlage
         return $this;
     }
 
-
-    /**
-     * @return Collection|AnlageGroups[]
-     */
     public function getGroups(): Collection
     {
         return $this->groups;
     }
-
 
     public function addGroup(AnlageGroups $group): self
     {
@@ -2291,9 +2243,6 @@ class Anlage
         return $this;
     }
 
-    /**
-     * @return Collection|AnlageModules[]
-     */
     public function getModules(): Collection
     {
         return $this->modules;
@@ -2340,7 +2289,7 @@ class Anlage
 
     public function setMinIrradiationAvailability(?string $minIrradiationAvailability): self
     {
-        $this->threshold2PA =  str_replace(',', '.', $minIrradiationAvailability);
+        $this->threshold2PA = str_replace(',', '.', $minIrradiationAvailability);
 
         return $this;
     }
@@ -2352,7 +2301,7 @@ class Anlage
 
     public function setThreshold1PA(?string $threshold1PA): self
     {
-        $this->threshold1PA =  str_replace(',', '.', $threshold1PA);
+        $this->threshold1PA = str_replace(',', '.', $threshold1PA);
 
         return $this;
     }
@@ -2364,14 +2313,11 @@ class Anlage
 
     public function setThreshold2PA(?string $threshold2PA): self
     {
-        $this->threshold2PA =  str_replace(',', '.', $threshold2PA);
+        $this->threshold2PA = str_replace(',', '.', $threshold2PA);
 
         return $this;
     }
 
-    /**
-     * @return Collection|TimesConfig[]
-     */
     public function getTimesConfigs(): Collection
     {
         return $this->timesConfigs;
@@ -2411,9 +2357,6 @@ class Anlage
         return $this;
     }
 
-    /**
-     * @return Collection|AnlageGridMeterDay[]
-     */
     public function getAnlageGridMeterDays(): Collection
     {
         return $this->anlageGridMeterDays;
@@ -2759,9 +2702,9 @@ class Anlage
         $this->usePnomForPld = $usePnomForPld;
     }
 
-    public function getPldYield(): ?string
+    public function getPldYield(): ?float
     {
-        return $this->pldYield;
+        return (float)$this->pldYield;
     }
 
     public function setPldYield(string $pldYield): self
@@ -3503,5 +3446,17 @@ class Anlage
         }
 
         return $dcPNomPerInvereter;
+    }
+
+    public function isExcludeFromExpCalc(): ?bool
+    {
+        return $this->excludeFromExpCalc;
+    }
+
+    public function setExcludeFromExpCalc(?bool $excludeFromExpCalc): self
+    {
+        $this->excludeFromExpCalc = $excludeFromExpCalc;
+
+        return $this;
     }
 }

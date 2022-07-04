@@ -125,7 +125,7 @@
     <div class="grid-x">
         <div class="cell">
             <ul class="tabs" data-tabs id="anlage-tabs" data-deep-link="true">
-                <li class="tabs-title is-active"><a data-tabs-target="plant-data" href="#plant-data" aria-selected="true" >General</a></li>
+                {# <li class="tabs-title is-active"><a data-tabs-target="plant-data" href="#plant-data" aria-selected="true" >General</a></li> #}
                 {% if is_granted('ROLE_G4N') %}
                     <li class="tabs-title"><a data-tabs-target="groups" href="#groups">Groups</a></li>
                     <li class="tabs-title"><a data-tabs-target="plant-month" href="#plant-month">Months</a></li>
@@ -133,8 +133,8 @@
             </ul>
 
             <div class="tabs-content" data-tabs-content="anlage-tabs">
-                {# General #}
-                <div class="tabs-panel is-active" id="plant-data">
+                {# General
+                <div class="tabs-panel" id="plant-data">
 
                     <fieldset class="fieldset">
                         <legend>Standort</legend>
@@ -168,9 +168,9 @@
                         </div>
                     </fieldset>
                 </div>
-
+                #}
                 {# Groups #}
-                <div class="tabs-panel" id="groups">
+                <div class="tabs-panel is-active" id="groups">
                     <fieldset class="fieldset js-group-wrapper"
                               data-prototype="{{ formMacros.addGroup(anlageForm.groups.vars.prototype, (anlageForm.groups|length +1))|e('html_attr') }}"
                               data-index="{{ anlageForm.groups|length }}"

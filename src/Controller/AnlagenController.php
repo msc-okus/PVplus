@@ -7,6 +7,7 @@ use App\Entity\Eigner;
 use App\Form\Anlage\AnlageCustomerFormType;
 
 use App\Helper\G4NTrait;
+use App\Helper\PVPNameArraysTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\EconomicVarNamesRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,6 +20,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class AnlagenController extends BaseController
 {
     use G4NTrait;
+    use PVPNameArraysTrait;
+
 
     #[Route(path: '/anlagen/list', name: 'app_anlagen_list')]
     public function list(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository) : Response

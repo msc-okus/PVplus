@@ -11,6 +11,7 @@ use App\Form\Groups\GroupsListEmbeddedFormType;
 use App\Form\GroupsAc\AcGroupsListEmbeddedFormType;
 use App\Form\Type\SwitchType;
 use App\Helper\G4NTrait;
+use App\Helper\PVPNameArraysTrait;
 use Doctrine\DBAL\Types\IntegerType;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -30,6 +31,7 @@ use Symfony\Component\Security\Core\Security;
 class AnlageFormType extends AbstractType
 {
     use G4NTrait;
+    use PVPNameArraysTrait;
 
     private Security $security;
 
@@ -44,6 +46,10 @@ class AnlageFormType extends AbstractType
             'Groningen'                 => 'Groningen',
             'Veendam'                   => 'Veendam',
             'Lelystad (Temp Korrektur)' => 'Lelystad',
+        ];
+        $pldAlgorithmArray = [
+            'Lelystad'      => 'Lelystad',
+            'Leek/Kampen'   => 'Leek/Kampen',
         ];
         $epcReportArry = [
             'Kein Bericht'      => 'no',
@@ -457,22 +463,24 @@ class AnlageFormType extends AbstractType
                 'label'         => 'Anlage hat DC Daten',
                 'help'          => '[hasDc]',
             ])
+            ->add('pldAlgorithm', ChoiceType::class, [
+                'label'         => 'Select the PLD Calculation Algorrithm',
+                'choices'       => $pldAlgorithmArray,
+                'help'          => '[pldAlgorithm]'
+            ])
 
             ->add('hasStrings', SwitchType::class,[
                 'label'         => 'Anlage hat String Daten',
                 'help'          => '[hasStrings]',
             ])
-
             ->add('hasPPC', SwitchType::class,[
                 'label' => 'Anlage hat Power Plant Controller Daten',
                 'help'  => '[hasPPC]',
             ])
-
             ->add('hasPannelTemp', SwitchType::class,[
                 'label'         => 'Anlage hat Pannel Temperatur',
                 'help'          => '[hasPannelTemp]',
             ])
-
             ->add('useDayForecast', SwitchType::class,[
                 'label'         => 'use Forecast by Day',
                 'help'          => '[useDayForecast]',
@@ -492,23 +500,27 @@ class AnlageFormType extends AbstractType
                 'required'      => false,
                 'empty_data'    => '0',
             ])
-            ->add('DataSourceAM', CKEditorType::class, [
-                'data' => 'Yield (Grid Meter): <br>Inverter out:',
-                'config' => array('toolbar' => 'my_toolbar'),
+            ->add('dataSourceAM', CKEditorType::class, [
+                'label'         => 'Explanation DataSources AM Report',
+                'data'          => 'Yield (Grid Meter): <br>Inverter out:',
+                'config'        => ['toolbar' => 'my_toolbar'],
             ])
-            ->add('RetrieveAllData', SwitchType::class, [
-                'label'         => 'Use all Data',
-
+            ->add('retrieveAllData', SwitchType::class, [
+                'label'         => 'Use all Data from begining of Working Time',
+                'help'          => '[retrieveAllData]',
             ])
-            ->add('FreqBase', TextType::class, [
-                'label' => 'Base Frequency of the Plant'
+            ->add('freqBase', TextType::class, [
+                'label'         => 'Base frequency of the Plant',
+                'help'          => '[freqBase]',
             ])
-            ->add('FreqTolerance', TextType::class, [
-                'label' => 'Frequency tolerance of the Plant'
+            ->add('freqTolerance', TextType::class, [
+                'label'         => 'Frequency tolerance of the Plant',
+                'help'          => '[hasFrequency]',
             ])
             ->add('hasFrequency', SwitchType::class,[
                 'label' => 'Has Frequency',
                 'help'  => '[hasFrequency]',
+
             ])
             ################################################
             ####               Reports                  ####
@@ -568,6 +580,10 @@ class AnlageFormType extends AbstractType
             ->add('calcPR', SwitchType::class,[
                 'label'         => 'PR und andere Werte berechnen (wenn Anlage noch nicht final eingerichtet, bitte auf \'No\' stellen)',
                 'help'          => '[calcPR]',
+            ])
+            ->add('excludeFromExpCalc', SwitchType::class, [
+                'label'         => 'Exclude from expected Calculation',
+                'help'          => '[isExcludeFromExpCalc]',
             ])
 
 

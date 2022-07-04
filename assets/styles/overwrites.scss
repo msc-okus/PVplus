@@ -88,7 +88,7 @@
 
         img {
             position: relative;
-            top:50%;
+            top:20%;
             left:50%;
         }
     }
@@ -162,8 +162,8 @@
 
         .title-bar,
         .top-bar {
-            background-color: $g4n-white;
-            * {color: $body-font-color; background-color: $g4n-white;}
+            background-color: transparent;
+            * {color: $body-font-color; background-color: transparent;}
             .logo, .menu-button {max-height: 100px; display: inline-block;}
             .helper-messages {display: inline-block; padding-left: 20px; p{font-size: 12px; margin-bottom: 0;}}
             .header-menu {
@@ -274,6 +274,9 @@
             right: 0;
             padding: 0 10px;
         }
+        .reveal .action-menu {
+            display: none;
+        }
         .alerts {
             padding: 0;
             margin-bottom: 0;
@@ -312,6 +315,12 @@
             background-color: $g4n-white;
 
         }
+        td .reveal  {
+            [type=text], [type=password], [type=date], [type=datetime], [type=datetime-local], [type=month], [type=week], [type=email], [type=number], [type=search], [type=tel], [type=time], [type=url], [type=color], textarea {
+                @include form-select;
+            }
+            select { @include form-select; }
+        }
         td {
             [type=text], [type=password], [type=date], [type=datetime], [type=datetime-local], [type=month], [type=week], [type=email], [type=number], [type=search], [type=tel], [type=time], [type=url], [type=color], textarea {
                 height: 1.8rem;
@@ -319,10 +328,7 @@
                 padding: 0.2rem;
                 border-radius: 0;
             }
-            select {
-                height: 1.8rem;
-                margin: 0;
-            }
+            select { height: 1.8rem; margin: 0; }
         }
         ul.tabs {
             background: none;
