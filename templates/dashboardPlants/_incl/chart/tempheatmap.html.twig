@@ -94,6 +94,7 @@
 
                 series1.columns.template.column.adapter.add("fill", function(fill, target) {
                      if (target.dataItem) {
+                         if (target.dataItem.value == -1) { return am4core.color("#050505") };
                          if (target.dataItem.value == 0) { return am4core.color("#fffefe") };
                          if (inRange(target.dataItem.value, 1, 15)) {return am4core.color(inRange(target.dataItem.value, 1, 15, 0))};
                          if (inRange(target.dataItem.value, 16, 20)) {return am4core.color(inRange(target.dataItem.value, 16, 20, 1))};
