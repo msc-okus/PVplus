@@ -251,11 +251,11 @@ class AlertSystemService
                 }
             }
             if ($inverter['voltage'] != "All is ok") {//grid error
-                $message .= "Error with the voltage in inverter " . $nameArray . "<br>";
                 if ($errorCategorie == "") {
                     $errorCategorie = GRID_ERROR;
                 }
                 $errorType = OMC;
+                $message .= "Error with the voltage in inverter " . $nameArray . "<br>";
             }
         }
 
@@ -529,7 +529,7 @@ class AlertSystemService
                 }
 
                 // check voltage
-                if (date("Y-m-d") > '2022-06-13') { // new definition of database field 'uac'
+                if (date("Y-m-d", strtotime($stamp)) > '2022-06-13') { // new definition of database field 'uac'
                     if ($pdata['voltage'] !== null) {
                         if ($pdata['voltage'] <= 0) {
                             $return['voltage'] = "Voltage is 0";

@@ -158,19 +158,6 @@ class TicketFormType extends AbstractType
             ->add('Yield2', SwitchType::class,[
                 'label'     => 'Yield',
                 'required'  => false
-            ])
-
-            ->add('save', SubmitType::class, [
-                'label'     => 'Save',
-                'attr'      => ['class' => 'primary save'],
-            ])
-            ->add('saveclose', SubmitType::class, [
-                'label'     => 'Save and Close',
-                'attr'      => ['class' => 'primary saveclose'],
-            ])
-            ->add('close', SubmitType::class, [
-                'label'     => 'Close without save',
-                'attr'      => ['class' => 'secondary close', 'formnovalidate' => 'formnovalidate'],
             ]);
 
     }

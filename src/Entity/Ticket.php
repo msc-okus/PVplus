@@ -162,7 +162,7 @@ class Ticket
     private bool $splitted = false;
 
     /**
-     * @ORM\OneToMany(targetEntity=TicketDate::class, mappedBy="ticket")
+     * @ORM\OneToMany(targetEntity=TicketDate::class, mappedBy="ticket", cascade={"persist", "remove"})
      */
     private $dates;
 

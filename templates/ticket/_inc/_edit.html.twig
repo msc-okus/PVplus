@@ -53,7 +53,13 @@
                                             {% endfor %}
                                         </tbody>
                                     </table>
-
+                                    <button {% if (ticket.splitted) %} disabled {% endif %}
+                                            class="button small"
+                                            data-action="ticket-edit#openSplitTicket"
+                                    >Split ticket</button>
+                                    <button {% if (ticket.splitted) %} enable {% else %}disabled{% endif %}
+                                            class="button small"
+                                    >Edit Splitting</button>
                                 </div>
                             </div>
                         {% endif %}
@@ -141,30 +147,12 @@
             </div>
         </div>
 
-        <div class="grid-x grid-padding-y action-menu">
-            <div class="cell">
-                {{ form_widget(ticketForm.save) }}
-                {{ form_widget(ticketForm.saveclose) }}
-                {{ form_widget(ticketForm.close) }}
-            </div>
-        </div>
-
         <input type="hidden" name="page" value="{{ page }}">
         {{ form_end(ticketForm) }}
 
 
         {% if (edited == true) %}
-            <div class="grid-x grid-margin-x grid-padding-y">
-                <div class="cell medium-4 small-4">
-                    <button {% if (ticket.splitted) %} disabled {% endif %}
-                            class="button"
-                            data-action="ticket-edit#openSplitTicket"
-                    >Split ticket</button>
-                </div>
-                <div class="cell medium-4 small-4">
-                    <button class="button" data-open="Modal2">Edit Splitting</button>
-                </div>
-            </div>
+
 
             <div id="formd">
                 <div class="reveal" id="split-ticket"
@@ -222,3 +210,4 @@
 
         {% endif %}
     </div>
+</div>
