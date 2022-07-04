@@ -84,19 +84,18 @@ class AlertSystemService
         if ((($time >= $sungap['sunrise']) && ($time <= $sungap['sunset']))) {
 
             $nameArray = $this->functions->getInverterArray($anlage);
-            $counter = 1;
-            foreach ($nameArray as $inverterName) {
-                if($ppc == false) {
-                    $inverter_status = $this->RetrieveQuarterIst($time, $counter, $anlage); //IstData($anlage, $time, $counter);
-                    if ($inverter_status == "Plant Control by PPC"){
+            foreach ($nameArray as $inverterNo => $inverterName) {
+                // We do this to avoid checking further inverters if we have a PPC control shut
+                if($ppc === false) {
+                    $inverter_status = $this->RetrieveQuarterIst($time, $inverterNo, $anlage); //IstData($anlage, $time, $counter);
+                    if ($inverter_status['istdata'] == "Plant Control by PPC"){
                         $ppc = true;
-                        $message = $this->AnalyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap['sunrise']);
+                        $message = $this->analyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap['sunrise'], $inverterNo);
                         self::messagingFunction($message, $anlage);
                     }
                     else {
-                        $message = $this->AnalyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap['sunrise']);
+                        $message = $this->analyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap['sunrise'], $inverterNo);
                         self::messagingFunction($message, $anlage);
-                        $counter++;
                         $system_status[$inverterName] = $inverter_status;
                         unset($inverter_status);
                     }
@@ -143,7 +142,7 @@ class AlertSystemService
     {
         $message = "";
 
-        $ticket = self::getLastTicket($anlage, null, $time, $sunrise, true);
+        $ticket = self::getLastTicket($anlage, null, $time, true);
 
         if($ticket != null && $status_report['Irradiation'] == "No data" || $status_report['Irradiation'] == "Irradiation is 0"){
             $ticket = new Ticket();
@@ -214,7 +213,7 @@ class AlertSystemService
      * @param $sunrise
      * @return string
      */
-    private function AnalyzeIst($inverter, $time, Anlage $anlage, $nameArray, $sunrise): string
+    private function analyzeIst($inverter, $time, Anlage $anlage, $nameArray, $sunrise, $inverterNo): string
     {
         $message = "";
         $errorType = "";
@@ -236,9 +235,10 @@ class AlertSystemService
             $errorCategorie = EXTERNAL_CONTROL;
         } elseif ($inverter['istdata'] === "Plant Control by PPC") {
             // PPC Control
-            $message .=  "Inverter is controlled by PPC " . $nameArray . "<br>";
+            $message .=  "Plant is controlled by PPC <br>";
             $errorType = "";
             $errorCategorie = EXTERNAL_CONTROL;
+            $inverterNo = "*";
         }
         if ($errorCategorie != DATA_GAP && $errorCategorie != EXTERNAL_CONTROL) {
             if ($anlage->getHasFrequency()) {
@@ -259,7 +259,7 @@ class AlertSystemService
             }
         }
 
-        $ticket = self::getLastTicket($anlage, $nameArray, $time, $sunrise, false);
+        $ticket = self::getLastTicket($anlage, $inverterNo, $time, false);
         if ($message != "") {
             if ($ticket === null) {
                 $ticket = new Ticket();
@@ -280,8 +280,8 @@ class AlertSystemService
                     $ticketDate->setInverter("*");
                 }
                 else {
-                    $ticket->setInverter($nameArray);
-                    $ticketDate->setInverter($nameArray);
+                    $ticket->setInverter($inverterNo);
+                    $ticketDate->setInverter($inverterNo);
                 }
                 $ticket->setAlertType($errorCategorie); //  category = alertType (bsp: datagap, inverter power, etc.)
                 $ticketDate->setAlertType($errorCategorie);
@@ -292,12 +292,18 @@ class AlertSystemService
                 $begin->getTimestamp();
                 $ticket->setBegin(($begin));
                 $ticketDate->setBegin($begin);
+                $ticket->addDate($ticketDate);
+            }
+            else{
+                $ticketDate = $ticket->getDates()->last();
             }
             $timetemp = date('Y-m-d H:i:s', strtotime($time));
             $end = date_create_from_format('Y-m-d H:i:s', $timetemp);
             $end->getTimestamp();
-            $ticket->setEnd(($end));
+            $ticketDate->setEnd($end);
+            $ticket->setEnd($end);
             $this->em->persist($ticket);
+            $this->em->persist($ticketDate);
             $this->em->flush();
 
             //this is to send a message after and only after 30 mins
@@ -560,15 +566,15 @@ class AlertSystemService
             $this->mailservice->sendMessage($anlage, 'alert', 3, $subject, $message, false, true, true, true);
         }
     }
-
-    /**
+/*
+    /** depracated, very likely to remove
      * this function retrieves the previous status (if any), taking into account that the previous status can be the last from the previous day
      * @param $anlage
      * @param $date
      * @param $sunrise
      * @param $isWeather
      * @return mixed
-     */
+
     private function getLastStatus($anlage, $date, $sunrise, $isWeather): mixed
     {
         $time = date('Y-m-d H:i:s', strtotime($date) - 900);
@@ -583,29 +589,33 @@ class AlertSystemService
 
         return $status;
     }
+    */
 
-    public function getLastTicket($anlage, $inverter, $time, $sunrise, $isWeather)
+    public function getLastTicket($anlage, $inverter, $time, $isWeather)
     {
-        $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
         $today = date('Y-m-d', strtotime($time));
-        $quarter = date('Y-m-d H:i:s', strtotime($time) - 900);
+        $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
+        $sunrise = self::getLastQuarter($this->weather->getSunrise($anlage, $today)['sunrise']); // the first quarter of today
+        $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
+
+        $quarter = date('Y-m-d H:i', strtotime($time) - 900); // the quarter before the actual
+
         if (!$isWeather) {
             // Inverter Tickets
             if ($quarter <= $sunrise) {
-                $ticket = $this->ticketRepo->findLastByAITNoWeather($anlage, $inverter, $today, $yesterday);
+                $ticket = $this->ticketRepo->findLastByAITNoWeather($anlage, $inverter, $today, $lastQuarterYesterday); // we try to retrieve the last quarter of yesterday
             } else {
-                $ticket = $this->ticketRepo->findByAITNoWeather($anlage, $inverter, $quarter);
+                $ticket = $this->ticketRepo->findByAITNoWeather($anlage, $inverter, $quarter);// we try to retrieve the ticket in the previous quarter
             }
         }
         else {
             // Weather Tickets
             if ($quarter <= $sunrise) {
-                $ticket = $this->ticketRepo->findLastByAITWeather($anlage, $today, $yesterday);
+                $ticket = $this->ticketRepo->findLastByAITWeather($anlage, $today, $lastQuarterYesterday); //the same as above but for weather station
             } else {
                 $ticket = $this->ticketRepo->findByAITWeather($anlage, $quarter);
             }
         }
-
         return $ticket ? $ticket[0] : null;
     }
 }
