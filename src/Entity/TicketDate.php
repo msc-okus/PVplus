@@ -264,16 +264,16 @@ class TicketDate
     public function copyTicket(Ticket $ticket){
         $this->Begin = $ticket->getBegin();
         $this->End = $ticket->getEnd();
-        $this->Anlage($ticket->getAnlage());
-        $secondDate->setStatus($ticket->getStatus());
-        $secondDate->setErrorType($ticket->getErrorType());
-        $secondDate->setFreeText($text);
-        $secondDate->setDescription($ticket->getDescription());
-        $secondDate->setSystemStatus($ticket->getSystemStatus());
-        $secondDate->setPriority($ticket->getPriority());
-        $secondDate->setAnswer($ticket->getAnswer());
-        $secondDate->setInverter($ticket->getInverter());
-        $secondDate->setAlertType($ticket->getAlertType());
+        $this->Anlage = $ticket->getAnlage();
+        $this->Status = $ticket->getStatus();
+        $this->ErrorType = $ticket->getErrorType();
+        $this->FreeText = "";
+        $this->Description = $ticket->getDescription();
+        $this->SystemStatus = $ticket->getSystemStatus();
+        $this->Priority = $ticket->getPriority();
+        $this->Answer = $ticket->getAnswer();
+        $this->Inverter = $ticket->getInverter();
+        $this->AlertType = $ticket->getAlertType();
     }
 
 }

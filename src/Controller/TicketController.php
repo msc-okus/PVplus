@@ -425,8 +425,8 @@ class TicketController extends BaseController
             for ($i = 1; $i < count($tickets); $i++) {
                 $ticket = $ticketRepo->findOneById($tickets[$i]);
                 $ticketdate = new TicketDate();
-                $ticketdate->setBegin($ticket->getBegin()->format("Y/m/d H:i"));
-                $ticketdate->setEnd($ticket->getEnd()->format("Y/m/d H:i"));
+                $ticketdate->setBegin($ticket->getBegin());
+                $ticketdate->setEnd($ticket->getEnd());
 
                 if ($ticket->getBegin()->format("Y/m/d H:i") < $begin) {$begin = $ticket->getBegin();}
 
@@ -444,7 +444,6 @@ class TicketController extends BaseController
                 $ticketdate->setStatus($ticket->getStatus());
                 $ticketdate->setFreeText("");
                 $MasterTicket->addDate($ticketdate);
-                dump($ticket);
             }
             $MasterTicket->setEnd($end);
             $MasterTicket->setBegin($begin);
@@ -454,8 +453,6 @@ class TicketController extends BaseController
             $MasterTicket->setInverter("Defined in the Sub-Ticket");
             $MasterTicket->setSplitted(true);
         }
-
-
             $em->flush();
             dump($MasterTicket);
 
