@@ -261,5 +261,19 @@ class TicketDate
 
         return $this;
     }
+    public function copyTicket(Ticket $ticket){
+        $this->Begin = $ticket->getBegin();
+        $this->End = $ticket->getEnd();
+        $this->Anlage = $ticket->getAnlage();
+        $this->Status = $ticket->getStatus();
+        $this->ErrorType = $ticket->getErrorType();
+        $this->FreeText = "";
+        $this->Description = $ticket->getDescription();
+        $this->SystemStatus = $ticket->getSystemStatus();
+        $this->Priority = $ticket->getPriority();
+        $this->Answer = $ticket->getAnswer();
+        $this->Inverter = $ticket->getInverter();
+        $this->AlertType = $ticket->getAlertType();
+    }
 
 }

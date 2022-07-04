@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use ApiPlatform\Core\Api\UrlGeneratorInterface;
-use App\Entity\Anlage;
 use App\Entity\Ticket;
 use App\Entity\TicketDate;
 use App\Form\Model\ToolsModel;
@@ -295,17 +294,17 @@ class TicketController extends BaseController
 
 
         $ticketDates = $ticket->getDates();
-        if ($ticketDates->isEmpty()) $ticketDates = null;
+        if($ticketDates->isEmpty()) $ticketDates = null;
 
 
         $form = $this->createForm(TicketFormType::class, $ticket);
 
         return $this->renderForm('ticket/_inc/_edit.html.twig', [
-            'ticketForm' => $form,
-            'ticket' => $ticket,
-            'edited' => true,
-            'dates' => $ticketDates,
-            'page' => $page,
+            'ticketForm'    => $form,
+            'ticket'        => $ticket,
+            'edited'        => true,
+            'dates'         => $ticketDates,
+            'page'          => $page,
         ]);
     }
 
@@ -434,9 +433,10 @@ class TicketController extends BaseController
                 $ticketdate->setBegin($ticket->getBegin());
                 $ticketdate->setEnd($ticket->getEnd());
 
-                if ($ticket->getBegin()->format("Y/m/d H:i") < $begin) $begin = $ticket->getBegin();
+                if ($ticket->getBegin()->format("Y/m/d H:i") < $begin) {$begin = $ticket->getBegin();}
 
-                if ($ticket->getEnd()->format("Y/m/d H:i") > $end) $end = $ticket->getEnd();
+                if ($ticket->getEnd()->format("Y/m/d H:i") > $end){ $end = $ticket->getEnd();}
+
                 $ticketdate->setAlertType($ticket->getAlertType());
                 $ticketdate->setInverter($ticket->getInverter());
                 $ticketdate->setPriority($ticket->getPriority());
