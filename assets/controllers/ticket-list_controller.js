@@ -3,13 +3,11 @@ import $ from 'jquery';
 import {Reveal} from "foundation-sites";
 
 export default class extends Controller {
-    static targets = ['list', 'searchBar', 'newSplitModal'];
+    static targets = ['list', 'searchBar'];
     static values = {
         urlCreate: String,
-        urlSearch: String
+        urlSearch: String,
     }
-
-    splitModal = null;
 
     connect() {}
 
@@ -44,18 +42,5 @@ export default class extends Controller {
 
     }
 
-    openSplitTicket(event){
-        event.preventDefault();
-        this.splitModal = new Reveal($(this.newSplitModalTarget));
-        this.splitModal.open();
-    }
 
-    closeSplitTicket(event){
-        event.preventDefault();
-        this.splitModal.destroy();
-    }
-
-    async splitTicket(event) {
-        event.preventDefault();
-    }
 }

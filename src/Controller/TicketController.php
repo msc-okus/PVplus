@@ -101,26 +101,22 @@ class TicketController extends BaseController
         $Route = $this->generateUrl('app_ticket_list',[], UrlGeneratorInterface::ABS_PATH);
         $Route = $Route."?anlage=".$anlage."&user=".$editor."&id=".$id."&prio=".$prio."&searchstatus=".$searchstatus."&search=yes";
 
-        if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $ticket = $form->getData();
             $ticket->setEditor($this->getUser()->getUsername());
-            if($ticket->getStatus() === 30 && $ticket->getend()===null)$ticket->setEnd(new \DateTime("now"));
+            if ($ticket->getStatus() === 30 && $ticket->getend() === null) $ticket->setEnd(new \DateTime("now"));
 
             $em->persist($ticket);
             $em->flush();
-            $this->addFlash('success', 'Ticket saved!');
-            if ($form->get('saveclose')->isClicked()) {
-                return $this->redirect($Route);
+
+            if ($request->isXmlHttpRequest()) {
+                return new Response(null, 204);
             }
         }
-        if ($form->isSubmitted() && $form->get('close')->isClicked()) {
-            $this->addFlash('warning', 'Canceled. No data was saved.');
 
-            return $this->redirect($Route);
-        }
 
-        return $this->render('ticket/_inc/_edit.html.twig', [
-            'ticketForm'    => $form->createView(),
+        return $this->renderForm('ticket/_inc/_edit.html.twig', [
+            'ticketForm'    => $form,
             'ticket'        => $ticket,
             'edited'        => true,
             'dates'         => $ticketDates,
@@ -156,7 +152,7 @@ class TicketController extends BaseController
         $pagination = $paginator->paginate(
             $queryBuilder,                                    /* query NOT result */
             $request->query->getInt('page', 1),   /* page number*/
-            100                                          /*limit per page*/
+            25                                          /*limit per page*/
         );
 
         if ($request->query->get('ajax')) {
@@ -196,7 +192,7 @@ class TicketController extends BaseController
         $pagination = $paginator->paginate(
             $queryBuilder,
             $request->query->getInt('page', 1),
-            100
+            25
         );
 
         return $this->render('ticket/_inc/_listTickets.html.twig', [
@@ -204,44 +200,58 @@ class TicketController extends BaseController
         ]);
     }
 
-    #[Route(path: '/ticket/split/{id}', name: 'app_ticket_split')]
-    public function Split( $id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em) : Response
+    #[Route(path: '/ticket/split/{id}', name: 'app_ticket_split', methods: ['GET', 'POST'])]
+    public function split( $id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em) : Response
     {
-        $ticket = $ticketRepo->findOneById($id);
-        $beginTime = $request->query->get('begin-time');
-        $endTime = $request->query->get('end-time');
+        $page           = $request->query->getInt('page', 1);
+        $ticket         = $ticketRepo->findOneById($id);
+        $beginTime      = date_create($request->query->get('begin-time'));
+        $endTime        = date_create($request->query->get('end-time'));
 
+        dump($ticket, $beginTime, $endTime, $request);
+        #$Route = $this->generateUrl('app_ticket_list', [], UrlGeneratorInterface::ABS_PATH);
+        if ($ticket !== null && $beginTime && $endTime) {
+            if ($beginTime > $ticket->getBegin()){
+                $firstDate = new TicketDate();
+                $firstDate
+                    ->setBegin($ticket->getBegin())
+                    ->setEnd($beginTime)
+                    ->setTicket($ticket)
+                    ->setAnlage($ticket->getAnlage());
+                #$ticket->addDate($firstDate);
+                $em->persist($firstDate);
+            }
 
-                $Route = $this->generateUrl('app_ticket_list', [], UrlGeneratorInterface::ABS_PATH);
-                if ($ticket != null && $beginTime && $endTime) {
-                    if ($beginTime > $ticket->getBegin()->format("Y/m/d H:i")){
-                        $firstDate = new TicketDate();
-                        $firstDate->setBegin($ticket->getBegin()->format("Y/m/d H:i"));
-                        $firstDate->setEnd($beginTime);
-                        $firstDate->setTicket($ticket);
-                        $ticket->addDate($firstDate);
-                        $em->persist($firstDate);
-                    }
-                    $mainDate = new TicketDate();
-                    $mainDate->setBegin($beginTime);
-                    $mainDate->setEnd($endTime);
-                    $mainDate->setTicket($ticket);
-                    $ticket->addDate($mainDate);
+            $mainDate = new TicketDate();
+            $mainDate
+                ->setBegin($beginTime)
+                ->setEnd($endTime)
+                ->setTicket($ticket)
+                ->setAnlage($ticket->getAnlage());
+            #$ticket->addDate($mainDate);
+            $em->persist($mainDate);
 
-                    $em->persist($mainDate);
-                    if ($endTime < $ticket->getEnd()->format("Y/m/d H:i")){
-                        $secondDate = new TicketDate();
-                        $secondDate->setBegin($endTime);
-                        $secondDate->setEnd($ticket->getEnd()->format("Y/m/d H:i"));
-                        $secondDate->setTicket($ticket);
-                        $ticket->addDate($secondDate);
-                        $em->persist($secondDate);
-                    }
-                    $ticket->setSplitted(true);
-                    $em->persist($ticket);
-                    $em->flush();
-                    return $this->redirect($Route);
-                }
+            if ($endTime < $ticket->getEnd()){
+                $secondDate = new TicketDate();
+                $secondDate
+                    ->setBegin($endTime)
+                    ->setEnd($ticket->getEnd())
+                    ->setTicket($ticket)
+                    ->setAnlage($ticket->getAnlage());
+                #$ticket->addDate($secondDate);
+                $em->persist($secondDate);
+            }
+            $ticket->setSplitted(true);
+            $em->persist($ticket);
+            $em->flush();
+
+            $ticketDates = $ticket->getDates();
+            if($ticketDates->isEmpty()) $ticketDates = null;
+
+            if ($request->isXmlHttpRequest()) {
+                return new Response(null, 204);
+            }
+        }
 
 
         $ticketDates = $ticket->getDates();
@@ -249,13 +259,16 @@ class TicketController extends BaseController
 
 
         $form = $this->createForm(TicketFormType::class, $ticket);
-        return $this->render('ticket/edit.html.twig', [
-            'ticketForm' => $form->createView(),
-            'ticket' => $ticket,
-            'edited' => true,
-            'dates' => $ticketDates
+
+        return $this->renderForm('ticket/_inc/_edit.html.twig', [
+            'ticketForm'    => $form,
+            'ticket'        => $ticket,
+            'edited'        => true,
+            'dates'         => $ticketDates,
+            'page'          => $page,
         ]);
     }
+
     #[Route(path: '/ticket/split/edit/{id}', name: 'app_ticket_split_edit')]
     public function SplitEdit( $id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em) : Response
     {
@@ -316,6 +329,7 @@ class TicketController extends BaseController
         ]);
 
     }
+
     #[Route(path: '/ticket/join', name: 'app_ticket_join', methods:['GET','POST'])]
     public function join(TicketRepository $ticketRepo, Request $request, $clientrequest, EntityManagerInterface $em){
         dump(file_get_contents('php://input'), $request, $clientrequest);
