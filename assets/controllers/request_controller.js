@@ -21,7 +21,7 @@ export default class extends Controller {
         });
         */
         const checkboxes = $(this.boxTargets);
-        console.log(checkboxes);
+
         for (var i = 0; i < checkboxes.length; i++) {
             var checkbox = checkboxes[i];
             console.log(checkbox.checked);
@@ -39,8 +39,7 @@ export default class extends Controller {
 
     }
     check(){
-        event.currentTarget.classList.add('checked');
-        console.log(event.currentTarget.classList);
+
     }
 
 }

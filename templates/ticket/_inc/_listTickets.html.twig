@@ -1,76 +1,97 @@
 <form id="tableForm" data-controller="request"></form>
-<table class="table sortable">
-    <thead>
-    <tr>
-        <th>Ticket ID</th>
-        <th>Plant</th>
-        <th class="text-center">Status</th>
-        <th class="text-center">Priority</th>
-        <th>Editor</th>
-        <th>Begin</th>
-        <th>End</th>
-        <th>Last Update</th>
-        <th>Error Categorie{% if is_granted('ROLE_G4N') %} <br><small>alertType</small> {% endif %}</th>
-        <th>Error Type</th>
-        <th>Inverter</th>
-        <th>Join</th>
-        <th></th>
-    </tr>
-    </thead>
-
-    <tbody>
-    {% for ticket in pagination %}
+<div
+    data-action="ticket-edit:success->ticket-list#search">
+    <table class="table sortable">
+        <thead>
         <tr>
-            <td>{{ ticket.id }}</td>
-            <td>{{ ticket.anlage.anlName }} {% if is_granted('ROLE_G4N') %} ({{ ticket.anlage.anlId }}) {% endif %}</td>
-            <td class="text-center">
-                {% set status %}ticket.status.{{ ticket.status }}{% endset %}
-                <span class="label ticket-status-{{ ticket.status }}">{{ status|trans }}</span>
-            </td>
-            <td class="text-center">
-                {% set priority %}ticket.priority.{{ ticket.priority }}{% endset %}
-                <span class="label ticket-priority-{{ ticket.priority }}">{{ priority|trans }}</span>
-            </td>
-            <td>{{ ticket.editor }}</td>
-            <td>{{ ticket.begin|date("d.m.y H:i")}}</td>
-            <td>{{ ticket.end|date("d.m.y H:i") }}</td>
-            <td>{{ ticket.updatedAt|date("d.m.y H:i")  }}</td>
-            <td>
-                {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}
-                {{ errcat|trans }}{% if is_granted('ROLE_DEV') %} | {{ ticket.alertType }}{% endif %}
-            </td>
-            <td>
-                {% if ticket.errorType %}
-                    {% set errtyp %}ticket.error.type.{{ ticket.errorType }}{% endset %}
-                    {{ errtyp|trans }}{% if is_granted('ROLE_DEV') %} | {{ ticket.errorType }}{% endif %}
-                {% endif %}
-            </td>
-            <td>{{ ticket.inverter }}</td>
-            <td><input type="checkbox" value="{{ ticket.id }}" form="tableForm" style="margin: 0;"></td>
-            <td class="text-right">
-                <div id="modal-form{{ ticket.id }}" {{ stimulus_controller('modal-form', {
-                    formUrl: path('app_ticket_edit', { id: ticket.id}),
-                }) }}>
-                    <button class="hollow button tiny action-icon shadow"
-                            data-action="modal-form#openModal"
-                            data-append-to="div#modal-form{{ ticket.id }}"
-                    ><span class="fa fa-edit"></span></button>
-                    {# <a href="{{ path('app_ticket_edit', { id: ticket.id }) }}" class="hollow button tiny action-icon shadow"><span class="fa fa-edit"></span></a> #}
-
-                    {{ include('_modal.html.twig', {
-                        modalId: ticket.id,
-                        modalTitel: 'Edit Ticket',
-                        class: 'large',
-                        dataVOffset: '10',
-                    }) }}
-                </div>
-            </td>
+            <th>Ticket ID</th>
+            <th>Plant</th>
+            <th class="text-center">Status</th>
+            <th class="text-center">Priority</th>
+            <th>Editor</th>
+            <th>Begin</th>
+            <th>End</th>
+            <th>Last Update</th>
+            <th>Error Categorie{% if is_granted('ROLE_G4N') %} <br><small>alertType</small> {% endif %}</th>
+            <th>Error Type</th>
+            <th>Inverter</th>
+            <th>Join</th>
+            <th></th>
         </tr>
-    {% endfor %}
-    </tbody>
-</table>
+        </thead>
 
-<button  onclick="CheckCheckboxes()" name="search" type="button" class="button" value="yes">Join</button>
+        <tbody>
+        {% for ticket in pagination %}
+            <tr>
+                <td>{{ ticket.id }}</td>
+                <td>{{ ticket.anlage.anlName }} {% if is_granted('ROLE_G4N') %} ({{ ticket.anlage.anlId }}) {% endif %}</td>
+                <td class="text-center">
+                    {% set status %}ticket.status.{{ ticket.status }}{% endset %}
+                    <span class="label ticket-status-{{ ticket.status }}">{{ status|trans }}</span>
+                </td>
+                <td class="text-center">
+                    {% set priority %}ticket.priority.{{ ticket.priority }}{% endset %}
+                    <span class="label ticket-priority-{{ ticket.priority }}">{{ priority|trans }}</span>
+                </td>
+                <td>{{ ticket.editor }}</td>
+                <td>{{ ticket.begin|date("d.m.y H:i")}}</td>
+                <td>{{ ticket.end|date("d.m.y H:i") }}</td>
+                <td>{{ ticket.updatedAt|date("d.m.y H:i")  }}</td>
+                <td>
+                    {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}
+                    {{ errcat|trans }}{% if is_granted('ROLE_DEV') %} | {{ ticket.alertType }}{% endif %}
+                </td>
+                <td>
+                    {% if ticket.errorType %}
+                        {% set errtyp %}ticket.error.type.{{ ticket.errorType }}{% endset %}
+                        {{ errtyp|trans }}{% if is_granted('ROLE_DEV') %} | {{ ticket.errorType }}{% endif %}
+                    {% endif %}
+                </td>
+                <td>{{ ticket.inverter }}</td>
+                <td><input data-request-target="box" data-action="click->request#check" type="checkbox" value="{{ ticket.id }}" class="generated-checkbox"></td>
+                <td class="text-right">
+                    <div id="modal-form{{ ticket.id }}" {{ stimulus_controller('ticket-edit', {
+                        formUrl: path('app_ticket_edit', { id: ticket.id}),
+                        splitUrl: path('app_ticket_split', { id: ticket.id}),
+                    }) }}>
+                        <button class="hollow button tiny action-icon shadow"
+                                data-action="ticket-edit#openModal"
+                                data-append-to="div#modal-form{{ ticket.id }}"
+                        ><span class="fa fa-edit"></span></button>
 
+                        {{ include('ticket/_inc/_modalTicket.html.twig', {
+                            modalId: ticket.id,
+                            modalTitel: 'Edit Ticket',
+                            class: 'large',
+                            dataVOffset: '10',
+                        }) }}
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% if (is_granted('ROLE_DEV')) %}
+    <button data-request-target="join" data-action="request#submit" name="join" type="button" class="button" value="yes">Join</button>
+
+    <div class="reveal text-left " id="modal"
+         data-request-target="modal"
+         data-reveal
+    >
+        <h1>Joining Tickets</h1>
+        <div class="grid-x grid-padding-y">
+            <div class="cell modal-body" data-request-target="modalBody">
+                hi hi
+            </div>
+        </div>
+        <div class="grid-x grid-padding-y">
+            <div class="cell text-right">
+                <button type="button" class="button secondary small" data-close>Cancel</button>
+                <button type="button" class="button small" {# data-action="modal-form#submitForm" #} >Save</button>
+            </div>
+        </div>
+    </div>
+{% endif %}
 
 {{ knp_pagination_render(pagination, false, {}, {'controllerNameStimulus': 'ticket-list'}) }}
