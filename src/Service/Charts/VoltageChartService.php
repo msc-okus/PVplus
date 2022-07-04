@@ -113,20 +113,23 @@ class VoltageChartService
     {
         if($hour) $form = '%y%m%d%H';
         else $form = '%y%m%d%H%i';
-        $conn = self::connectToDatabase();
+        $conn = self::getPdoConnection();
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
 
         // Strom für diesen Zeitraum und diesen Inverter
-        // ACHTUNG Strom und Spannungs Werte werden im Moment (Sep2020) immer in der AC TAbelle gespeichert, auch wenn neues 'DC IST Schema' genutzt wird.
-        if($hour )$sql_voltage = "SELECT a.stamp as stamp, sum(b.wr_mpp_voltage) AS mpp_voltage FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameAcIst() . " WHERE unit = '$inverter') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY date_format(stamp, '$form')";
-        else $sql_voltage = "SELECT a.stamp as stamp, b.wr_mpp_voltage AS mpp_voltage FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameAcIst() . " WHERE unit = '$inverter') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to'";
+        // ACHTUNG Strom und Spannungs Werte werden im Moment (Sep2020) immer in der AC Tabelle gespeichert, auch wenn neues 'DC IST Schema' genutzt wird.
+        if ($hour) {
+            $sql_voltage = "SELECT a.stamp as stamp, sum(b.wr_mpp_voltage) AS mpp_voltage FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameAcIst() . " WHERE unit = '$inverter') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY date_format(stamp, '$form')";
+        } else {
+            $sql_voltage = "SELECT a.stamp as stamp, b.wr_mpp_voltage AS mpp_voltage FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameAcIst() . " WHERE unit = '$inverter') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to'";
+        }
         $result = $conn->query($sql_voltage);
 
         if ($result != false) {
-            if ($result->num_rows > 0) {
+            if ($result->rowCount() > 0) {
                 $counter = 0;
-                while ($row = $result->fetch_assoc()) {
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                     $stamp = self::timeAjustment($row['stamp'], (int)$anlage->getAnlZeitzone(), true);
                     if($hour)$mppVoltageJson = $row['mpp_voltage']/4;
                     else $mppVoltageJson = $row['mpp_voltage'];
@@ -146,11 +149,11 @@ class VoltageChartService
                     }
                 }
             }
-            $conn->close();
+            $conn = null;
 
             return $dataArray;
         } else {
-            $conn->close();
+            $conn = null;
 
             return false;
         }

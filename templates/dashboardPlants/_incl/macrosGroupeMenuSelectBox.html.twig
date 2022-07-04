@@ -58,7 +58,7 @@
         <input type="hidden" name="selectedGroup" value="1">
     {% else %}
         <select class="form-control js-submit-onchange" title="Select a Group" data-toggle="tooltip" name="selectedGroup">
-            {% if ((form.selectedChart == 'dc_act_overview' or form.selectedChart == 'dc_act_group')and is_granted('ROLE_G4N')) %}
+            {% if ((form.selectedChart == 'dc_act_overview' or form.selectedChart == 'dc_act_group') and is_granted('ROLE_G4N')) %}
                 <option value="-1" >All</option>
             {% endif %}
             {% if     aktAnlage.configType == 1 %}
@@ -118,7 +118,7 @@
 {#{% if form.selectedGroup == loop.index %}selected{% endif %}
 {# configType == 2 #}
 {% macro configType2(form, aktAnlage) %}
-    {% if form.selectedChart starts with 'ac_act' or form.selectedChart starts with 'dc_act' or form.selectedChart starts with 'dc_current' or form.selectedChart == 'reactive_power' %}
+    {% if form.selectedChart starts with 'ac_act' or form.selectedChart starts with 'dc_act' or form.selectedChart starts with 'dc_current' or form.selectedChart == 'reactive_power' or form.selectedChart == 'dc_voltage_mpp' %}
         {% for group in aktAnlage.groups %}
             <option value="{{ loop.index }}" {% if form.selectedGroup == loop.index %}selected{% endif %}>{{ group.dcGroupName }}</option>
         {% endfor %}
@@ -127,7 +127,7 @@
 
 {# configType == 3 #}
 {% macro configType3(form, aktAnlage) %}
-    {% if form.selectedChart starts with 'ac_act' or form.selectedChart starts with 'dc_act' or form.selectedChart == 'dc_current_overview' or form.selectedChart == 'reactive_power'%}
+    {% if form.selectedChart starts with 'ac_act' or form.selectedChart starts with 'dc_act' or form.selectedChart == 'dc_current_overview' or form.selectedChart == 'reactive_power' or form.selectedChart == 'dc_voltage_mpp'%}
         {% for group in aktAnlage.acGroups %}
             <option value="{{ loop.index }}" {% if form.selectedGroup == loop.index %}selected{% endif %}>{{ group.acGroupName }}</option>
         {% endfor %}
@@ -140,7 +140,7 @@
 
 {# configType == 4 #}
 {% macro configType4(form, aktAnlage) %}
-    {% if form.selectedChart starts with 'ac_act' or form.selectedChart starts with 'dc_act' or form.selectedChart == 'dc_current_overview' or form.selectedChart == 'reactive_power'%}
+    {% if form.selectedChart starts with 'ac_act' or form.selectedChart starts with 'dc_act' or form.selectedChart == 'dc_current_overview' or form.selectedChart == 'reactive_power' or form.selectedChart == 'dc_voltage_mpp'%}
         {% for group in aktAnlage.acGroups %}
             <option value="{{ loop.index }}" {% if form.selectedGroup == loop.index %}selected{% endif %}>{{ group.acGroupName }}</option>
         {% endfor %}

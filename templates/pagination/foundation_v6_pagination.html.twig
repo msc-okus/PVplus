@@ -49,14 +49,12 @@
                     </li>
                 {% else %}
                     <li>
-                        <a href="{{ path(route, query|merge({(pageParameterName): (pageCount - 1)})) }}" data-action="{{ controllerNameStimulus }}#page" data-query-value="{{ query|merge({(pageParameterName): pageCount-1})|serialize }}">
-                            {{ pageCount -1 }}
-                        </a>
+                        <a href="{{ path(route, query|merge({(pageParameterName): (pageCount - 1)})) }}" data-action="{{ controllerNameStimulus }}#page" data-query-value="{{ query|merge({(pageParameterName): pageCount-1})|serialize }}">{{ pageCount -1 }}</a>
                     </li>
                 {% endif %}
             {% endif %}
             <li>
-                <a href="{{ path(route, query|merge({(pageParameterName): pageCount})) }}" data-action="{{ controllerNameStimulus }}#page" data--query-value="{{ query|merge({(pageParameterName): pageCount})|serialize }}">{{ pageCount }}</a>
+                <a href="{{ path(route, query|merge({(pageParameterName): pageCount})) }}" data-action="{{ controllerNameStimulus }}#page" data-query-value="{{ query|merge({(pageParameterName): pageCount})|serialize }}">{{ pageCount }}</a>
             </li>
         {% endif %}
 
