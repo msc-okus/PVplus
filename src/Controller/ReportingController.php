@@ -376,7 +376,7 @@ class ReportingController extends AbstractController
 
                     }
 
-                    return $this->render('report/_form.html.twig', [
+                    return $this->render('report/_edit.html.twig', [
                         'assetForm' => $form->createView(),
                         'anlage' => $anlage
                     ]);
@@ -588,7 +588,7 @@ class ReportingController extends AbstractController
                         ]);
                         break;
                     }
-                    return $this->render('report/_form.html.twig', [
+                    return $this->render('report/_edit.html.twig', [
                         'assetForm' => $form->createView(),
                         'anlage' => $anlage
                     ]);

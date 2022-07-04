@@ -261,4 +261,5 @@ class TicketDate
 
         return $this;
     }
+
 }

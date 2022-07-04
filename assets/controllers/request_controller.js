@@ -1,44 +1,44 @@
 import { Controller } from '@hotwired/stimulus';
 import $ from 'jquery';
+import { Reveal } from 'foundation-sites';
 
 export default class extends Controller {
 
-    static targets = ['box'];
+    static targets = ['box', 'modal', 'modalBody'];
 
-    connect() {
-        // const button = $(this.joinTargets);
-        //const button = this.element.children.namedItem('join');
-        /*
+    connect() {}
+
+    async submit() {
         var array = [];
-        //const checkboxes = this.element.querySelectorAll('input[type=checkbox]:checked');
-        var checkboxes = this.element;
-
-        const jsonString = JSON.stringify(array);
-        console.log(jsonString);
-
-        $(button).on('click', () => {
-            this.element.innerHTML = checkboxes.length.toString();
-        });
-        */
         const checkboxes = $(this.boxTargets);
 
         for (var i = 0; i < checkboxes.length; i++) {
             var checkbox = checkboxes[i];
-            console.log(checkbox.checked);
-
-
+            if (checkbox.checked){
+                array.push(checkbox.value);
+            }
         }
-        /*
-        $(checkboxes).addEventListener('change', () => {
-           this.element.classList.add('checked');
+        const jsonString = JSON.stringify(array);
+        const response = await $.ajax({
+            url: '/ticket/join',
+            type: 'POST',
+            data: jsonString
         });
-*/
-    }
+        //console.log(response);
 
-    submit() {
+       var modal = new Reveal($(this.modalTargets));
+        modal.open();
+       //$(this.modalBodyTargets).innerHTML = response;
+
 
     }
     check(){
+        if (!event.currentTarget.classList.contains('checked')) {
+            event.currentTarget.classList.add('checked');
+        }
+        else {
+            event.currentTarget.classList.remove('checked');
+        }
 
     }
 
