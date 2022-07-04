@@ -21,6 +21,8 @@ class ChartControlFormType extends AbstractType
                 'empty_data' => new \DateTime('now'),
             ])
             ->add('optionDate')
+            ->add('optionStep')
+
 
         ;
     }

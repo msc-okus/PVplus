@@ -380,6 +380,8 @@ class DCPowerChartService
                                     WHERE a.stamp BETWEEN '$from' AND '$to' 
                                     GROUP BY date_format(a.stamp, '$form'), group_dc ";
             }
+
+
             $resultExp = $conn->query($sqlExp);
             $resultActual = $conn->query($sql);
 

@@ -10,6 +10,7 @@ class ChartControlModel
     public $selectedSet = 1;
     public $to;
     public $optionDate = 1;
+    public $optionStep;
     public $case5from;
     public $case5to;
     public $case5inverter;

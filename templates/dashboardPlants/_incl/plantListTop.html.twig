@@ -1,40 +1,68 @@
-{#
-<div class="cell medium-12 large-12 xlarge-12">
-    <button type="button" class="button" id="showGrid" data-toggle="showGrid"><i id="bton" class="fa fa-bars"></i></button>
+
+<div class="cell medium-4 large-6 xlarge-6">
+    <button type="button" class="button" id="showGrid" value="NO" data-toggle="showGrid"><i id="bton" class="fa fa-bars"></i></button>
 </div>
+<div class="cell medium-4 large-6 xlarge-6">
+    <input class="showLinetoogle" type="text" id="Search" onkeyup="searchFunction()" placeholder="find your plant .." title="Type in a name" style="display: none">
+</div>
+
 <script>
 
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById("showGrid").addEventListener('click',function () {
-            var x = document.getElementById("showGridtoogle");
-            var y = document.getElementById("showLinetoogle");
-            if (x.style.display === "none") {
-                x.style.display = "block";
-                y.style.display = "none";
+
+            const coll = document.getElementsByClassName("showGridtoogle");
+            const coll2 = document.getElementsByClassName("showLinetoogle");
+
+            var t = document.getElementById("showGrid");
+
+            if(t.value=="YES"){
+                t.value="NO";
                 document.getElementById("bton").className = "fa fa-bars";
-            } else {
-                x.style.display = "none";
-                y.style.display = "block";
-                document.getElementById("bton").className = "fa fa-pause";
+                changeDisplay(coll,'block');
+                changeDisplay(coll2,'none');
             }
+            else if(t.value=="NO"){
+                t.value="YES";
+                document.getElementById("bton").className = "fa fa-pause";
+                changeDisplay(coll,'none');
+                changeDisplay(coll2,'block');
+            }
+
          } );
     } );
 
+    function changeDisplay(coll, value){
+        for(var i=0, len=coll.length; i<len; i++)
+        {
+            coll[i].style["display"] = value;
+        }
+    }
+
+    function searchFunction() {
+        var input = document.getElementById("Search");
+        var filter = input.value.toLowerCase();
+        var nodes = document.getElementsByClassName('target');
+
+        for (i = 0; i < nodes.length; i++) {
+            if (nodes[i].innerText.toLowerCase().includes(filter)) {
+                nodes[i].style.display = "block";
+            } else {
+                nodes[i].style.display = "none";
+            }
+        }
+    }
+
 </script>
+
 <div class="clear clearfix"></div>
-<span  id="showGridtoogle">
-    <p>Grid</p>
-</span>
-<span  id="showLinetoogle" style="display:none">
-       <p>Line</p>
-</span>
-#}
-{% for anlage in anlagen %}
-    {% if anlage.lastStatus[0] is defined %}{% set status = anlage.lastStatus[0] %}{% endif %}
-    {% if anlage.yesterdayPR[0] is defined %}{% set pr = anlage.yesterdayPR[0] %}{% endif %}
-    {% if anlage.lastOpenWeather[0] is defined %}{% set openWeather = anlage.lastOpenWeather[0] %}{% endif %}
-    {% if loop.index == 1 or not aktAnlage %}
-         <div class="cell medium-6 large-4 xlarge-3 box kachel shadow {% if aktAnlage %}fb{% endif %}">
+
+    {% for anlage in anlagen %}
+        {% if anlage.lastStatus[0] is defined %}{% set status = anlage.lastStatus[0] %}{% endif %}
+        {% if anlage.yesterdayPR[0] is defined %}{% set pr = anlage.yesterdayPR[0] %}{% endif %}
+        {% if anlage.lastOpenWeather[0] is defined %}{% set openWeather = anlage.lastOpenWeather[0] %}{% endif %}
+        {% if loop.index == 1 or not aktAnlage %}
+            <div class="showGridtoogle cell medium-6 large-4 xlarge-3 box kachel shadow {% if aktAnlage %}fb{% endif %}">
             <a href='{{ path('app_dashboard_plant', {eignerId: anlage.eignerId, anlageId: anlage.anlagenId}) }}' class="plant">
                 <div class="grid-x">
                     <div class="cell small-8">
@@ -161,7 +189,7 @@
                                             </td>
                                         </tr>
                                         {% if anlage.showForecast %}
-                                            <tr>
+                                        <tr>
                                                 {% if  status.forecastYear < 0 %}
                                                     {% set class = 'forecast-red' %}
                                                 {% else %}
@@ -170,14 +198,14 @@
                                                 <td>Forecast <small>(last sunday)</small></td>
                                                 <td class="{{ class }}" colspan="3">{{ status.forecastYear|number_format(0, ',', '.') }}</td>
                                             </tr>
-                                        {% endif %}
+                                    {% endif %}
                                     {% endif %}
                                 </tbody>
                             </table>
                         </div>
                     </div>
                     {% if anlage.facDate|date('Y-m') >= 'now'|date('Y-m') and anlage.facDate is not null %}
-                        <div class="grid-x">
+                    <div class="grid-x">
                         <div class="cell">
                             <h2>Contract year ({{ anlage.pacDate|date('Y-m-d') }} - {{ anlage.facDate|date('Y-m-d') }})</h2>
                             <table>
@@ -275,85 +303,84 @@
                             </table>
                         </div>
                     </div>
-                    {% endif %}
+                {% endif %}
                 {% endif %}
             </a>
             {# STATUS der Anlage anlage.isInTimeRange or #}
-            {% if status is defined and pr is defined %}
-                {#
-                {% if is_granted('ROLE_G4N') or isInTimeRange %}
-                    <div class="grid-x text-center">
-                        <div class="cell">
-                            <p><small><i class="fa fa-clock-o"></i>&nbsp;{{ status.stampLastBoth|date("Y-m-d H:i") }}</small></p>
-                        </div>
-                    </div>
-                    <div class="grid-x alerts text-center">
-                        <div class="cell small-6 large-3">
-                            <div class="alertbox {{ status.acDiffStatus }}">
-                                <form name="showAc" method="GET" action="#chart">
-                                    <input type="hidden" name="selectedChart" value="ac_single">
-                                    <input type="hidden" name="aid" value="{{ anlage.anlId }}">
-                                    <input type="hidden" name="eide" value="{{ anlage.eignerId }}">
-                                    <button title="Differenz zwischen Ist- und Sollproduktion" data-tooltip>
-                                        <p class="text-center">AC difference<br>{{ (status.AcActBoth - status.AcExpBoth) }} kWh</p>
-                                    </button>
-                                </form>
+                {% if status is defined and pr is defined %}
+                    {#
+                    {% if is_granted('ROLE_G4N') or isInTimeRange %}
+                        <div class="grid-x text-center">
+                            <div class="cell">
+                                <p><small><i class="fa fa-clock-o"></i>&nbsp;{{ status.stampLastBoth|date("Y-m-d H:i") }}</small></p>
                             </div>
                         </div>
-                        <div class="cell small-6 large-3">
-                            <div class="alertbox {{ status.dcDiffStatus }}">
-                                <form name="showDc" method="GET" action="#chart">
-                                    <input type="hidden" name="selectedChart" value="dc_single">
-                                    <input type="hidden" name="aid" value="{{ anlage.anlId }}">
-                                    <input type="hidden" name="eide" value="{{ anlage.eignerId }}">
-                                    <button title="Differenz zwischen Ist- und Sollproduktion" data-tooltip>
-                                        <p class="text-center">DC difference<br>{{ (status.dcActBoth - status.dcExpBoth) }} kWh</p>
-                                    </button>
-                                </form>
+                        <div class="grid-x alerts text-center">
+                            <div class="cell small-6 large-3">
+                                <div class="alertbox {{ status.acDiffStatus }}">
+                                    <form name="showAc" method="GET" action="#chart">
+                                        <input type="hidden" name="selectedChart" value="ac_single">
+                                        <input type="hidden" name="aid" value="{{ anlage.anlId }}">
+                                        <input type="hidden" name="eide" value="{{ anlage.eignerId }}">
+                                        <button title="Differenz zwischen Ist- und Sollproduktion" data-tooltip>
+                                            <p class="text-center">AC difference<br>{{ (status.AcActBoth - status.AcExpBoth) }} kWh</p>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="cell small-6 large-3">
+                                <div class="alertbox {{ status.dcDiffStatus }}">
+                                    <form name="showDc" method="GET" action="#chart">
+                                        <input type="hidden" name="selectedChart" value="dc_single">
+                                        <input type="hidden" name="aid" value="{{ anlage.anlId }}">
+                                        <input type="hidden" name="eide" value="{{ anlage.eignerId }}">
+                                        <button title="Differenz zwischen Ist- und Sollproduktion" data-tooltip>
+                                            <p class="text-center">DC difference<br>{{ (status.dcActBoth - status.dcExpBoth) }} kWh</p>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="cell small-6 large-3">
+                                <div class="alertbox {{ status.invStatus }}">
+                                    <form name="showInv" method="GET" action="#chart">
+                                        <input type="hidden" name="selectedChart" value="dc_grp_power_diff">
+                                        <input type="hidden" name="aid" value="{{ anlage.anlId }}">
+                                        <input type="hidden" name="eide" value="{{ anlage.eignerId }}">
+                                        <button title="Vergleich Ist- zur Sollproduktion, Fehlermeldung" data-tooltip>
+                                            <p class="text-center">Inverter status<br>&nbsp;
+                                                {% if status.invStatus == 'normal' %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-exclamation-triangle"></i>{% endif %}
+                                            </p>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div class="cell small-6 large-3">
+                                <div class="alertbox {{ status.dcStatus }}">
+                                    <form name="showString" method="GET" action="#chart">
+                                        <input type="hidden" name="selectedChart" value="dc_current_group">
+                                        <input type="hidden" name="aid" value="{{ anlage.anlagenId }}">
+                                        <input type="hidden" name="eide" value="{{ anlage.eignerId }}">
+                                        <button title="Strom- und Spannungskennlinien, Fehlermeldung " data-tooltip>
+                                            <p class="text-center">String status<br>&nbsp;
+                                                <b>I: </b>{% if status.stringIStatus == 'normal' %}<i class="fa fa-check"></i>{% elseif status.stringIStatus == 'warning' or status.stringIStatus == 'alert' %}<i class="fa fa-exclamation-triangle"></i>{% else %}<i></i>{% endif %}
+                                                <b>U: </b>{% if status.stringUStatus == 'normal' %}<i class="fa fa-check"></i>{% elseif status.stringUStatus == 'warning' or status.stringUStatus == 'alert' %}<i class="fa fa-exclamation-triangle"></i>{% else %}<i></i>{% endif %}
+                                            </p>
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
-                        <div class="cell small-6 large-3">
-                            <div class="alertbox {{ status.invStatus }}">
-                                <form name="showInv" method="GET" action="#chart">
-                                    <input type="hidden" name="selectedChart" value="dc_grp_power_diff">
-                                    <input type="hidden" name="aid" value="{{ anlage.anlId }}">
-                                    <input type="hidden" name="eide" value="{{ anlage.eignerId }}">
-                                    <button title="Vergleich Ist- zur Sollproduktion, Fehlermeldung" data-tooltip>
-                                        <p class="text-center">Inverter status<br>&nbsp;
-                                            {% if status.invStatus == 'normal' %}<i class="fa fa-check"></i>{% else %}<i class="fa fa-exclamation-triangle"></i>{% endif %}
-                                        </p>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                        <div class="cell small-6 large-3">
-                            <div class="alertbox {{ status.dcStatus }}">
-                                <form name="showString" method="GET" action="#chart">
-                                    <input type="hidden" name="selectedChart" value="dc_current_group">
-                                    <input type="hidden" name="aid" value="{{ anlage.anlagenId }}">
-                                    <input type="hidden" name="eide" value="{{ anlage.eignerId }}">
-                                    <button title="Strom- und Spannungskennlinien, Fehlermeldung " data-tooltip>
-                                        <p class="text-center">String status<br>&nbsp;
-                                            <b>I: </b>{% if status.stringIStatus == 'normal' %}<i class="fa fa-check"></i>{% elseif status.stringIStatus == 'warning' or status.stringIStatus == 'alert' %}<i class="fa fa-exclamation-triangle"></i>{% else %}<i></i>{% endif %}
-                                            <b>U: </b>{% if status.stringUStatus == 'normal' %}<i class="fa fa-check"></i>{% elseif status.stringUStatus == 'warning' or status.stringUStatus == 'alert' %}<i class="fa fa-exclamation-triangle"></i>{% else %}<i></i>{% endif %}
-                                        </p>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
+                    {% endif %}
+                    #}
                 {% endif %}
-                #}
-            {% endif %}
         </div>
     {% else %}
-        {# MINI SHOW - Alles in deisem else Zweig ist für die 'Mini Show' (kleine Quadrate für die Plants)#}
-        {% if loop.index == 2 %}
-            <div class="cell medium-6 large-8 xlarge-9 scroll-area">
+            {# MINI SHOW - Alles in deisem else Zweig ist für die 'Mini Show' (kleine Quadrate für die Plants)#}
+            {% if loop.index == 2 %}
+                <div class="showGridtoogle cell medium-6 large-8 xlarge-9 scroll-area" style="margin: 0 0 0 5px;width: 74.44%;">
                 <div class="grid-x grid-margin-x grid-margin-x-bottom grid-padding-x grid-padding-y">
-        {% endif %}
-
-                    <div class='cell medium-6 large-4 xlarge-3 box shadow text-center '>
+            {% endif %}
+            <div class='showGridtoogle cell medium-6 large-4 xlarge-3 box shadow text-center'>
                         <a href='{{ path('app_dashboard_plant', {eignerId: anlage.eignerId, anlageId: anlage.anlagenId}) }}' class="plant">
                             <div class="charts-grids">
                                 <div class="grid-x">
@@ -381,17 +408,17 @@
                                     </div>
                                     <div class='cell small-3'>
                                        {% if status is defined %} {# anlag e.isInTimeRange #}
-                                            {% if status.anlagenStatus == 0 %}
-                                                <p class="icon-anlagen-status"><i class="fa fa-check"></i></p>
+                                           {% if status.anlagenStatus == 0 %}
+                                               <p class="icon-anlagen-status"><i class="fa fa-check"></i></p>
                                             {% elseif status.anlagenStatus > 0 and status.anlagenStatus <= 10 %}
-                                                <p class="icon-anlagen-status"><i class="fa fa-exclamation-triangle"></i></p>
+                                               <p class="icon-anlagen-status"><i class="fa fa-exclamation-triangle"></i></p>
                                             {% elseif status.anlagenStatus > 10 and status.anlagenStatus <= 20 %}
-                                                <p class="icon-anlagen-status warning"><i class="fa fa-exclamation-triangle"></i></p>
+                                               <p class="icon-anlagen-status warning"><i class="fa fa-exclamation-triangle"></i></p>
                                             {% elseif status.anlagenStatus > 20 %}
-                                                <p class="icon-anlagen-status alert"><i class="fa fa-exclamation-triangle"></i></p>
-                                            {% endif %}
+                                               <p class="icon-anlagen-status alert"><i class="fa fa-exclamation-triangle"></i></p>
+                                           {% endif %}
                                            {% if is_granted('ROLE_G4N') %}{{ status.anlagenStatus }}{% endif %}
-                                        {% endif %}
+                                       {% endif %}
                                     </div>
                                 </div>
                                 <div class="grid-x">
@@ -415,12 +442,93 @@
                         </a>
                     </div>
 
-        {% if loop.index == loop.length%}
+            {% if loop.index == loop.length%}
                 </div>
-            </div> <!--last Div-->
+                </div> <!--last Div-->
 
+            {% endif %}
+            {# ENDE MINI SHOW #}
         {% endif %}
-        {# ENDE MINI SHOW #}
-    {% endif %}
-{% endfor %}
+    {% endfor %}
 
+<div class="showLinetoogle cell medium-6 large-8 xlarge-12 scroll-area"  style="display:none">
+
+    {% for anlage in anlagen %}
+    {% if anlage.lastStatus[0] is defined %}{% set status = anlage.lastStatus[0] %}{% endif %}
+    {% if anlage.yesterdayPR[0] is defined %}{% set pr = anlage.yesterdayPR[0] %}{% endif %}
+    {% if anlage.lastOpenWeather[0] is defined %}{% set openWeather = anlage.lastOpenWeather[0] %}{% endif %}
+
+    {% if loop.index >= 0 or not aktAnlage %}
+
+        <div class='showLinetoogle cell medium-6 large-4 xlarge-3 shadow text-center box target {% if loop.index == 1 and aktAnlage %}fb{% endif %}'  style="display:none">
+                        <a href='{{ path('app_dashboard_plant', {eignerId: anlage.eignerId, anlageId: anlage.anlagenId}) }}' class="plant">
+                            <div class="charts-grids">
+                                <div class="grid-x">
+
+                                    <div class='cell small-2'>
+                                        {% if openWeather is defined %}
+                                            {% if openWeather %}
+                                                <img height='40' width='40' data-tooltip data-placement='top' data-original-title='{{ openWeather.description }}' title='{{ openWeather.description }}' src='{{ asset('images/openWeatherIconsOld/') }}{{ openWeather.iconWeather }}.png' />
+                                                <p>
+                                                    {% if anlage.country %}<img height='20' width='20' src='/images/flag/flag-{{ anlage.country }}.png' /> {% endif %}
+                                                    <b>{{ openWeather.tempC }}&deg;C</b>
+                                                </p>
+                                            {% else %}
+                                                <p>
+                                                    {% if anlage.country %}<img height='20' width='20' src='/images/flag/flag-{{ anlage.country }}.png' /> {% endif %}
+                                                </p>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+
+                                    <div class='cell small-2'>
+                                        <h5><b>{{ anlage.anlName }}</b></h5>
+                                        <h4>{{ (anlage.power)|number_format(1, ',', '.') }} kWp</h4>
+                                        {% if is_granted('ROLE_G4N') %}
+                                            <h6 class="small">{{ anlage.anlagenId}} / {{ anlage.anlIntnr}} / {{ anlage.anlDbWs }}</h6>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class='cell small-2'>
+                                       {% if status is defined %} {# anlag e.isInTimeRange #}
+                                           {% if status.anlagenStatus == 0 %}
+                                               <p class="icon-anlagen-status"><i class="fa fa-check"></i></p>
+                                            {% elseif status.anlagenStatus > 0 and status.anlagenStatus <= 10 %}
+                                               <p class="icon-anlagen-status"><i class="fa fa-exclamation-triangle"></i></p>
+                                            {% elseif status.anlagenStatus > 10 and status.anlagenStatus <= 20 %}
+                                               <p class="icon-anlagen-status warning"><i class="fa fa-exclamation-triangle"></i></p>
+                                            {% elseif status.anlagenStatus > 20 %}
+                                               <p class="icon-anlagen-status alert"><i class="fa fa-exclamation-triangle"></i></p>
+                                           {% endif %}
+                                           {% if is_granted('ROLE_G4N') %}{{ status.anlagenStatus }}{% endif %}
+                                       {% endif %}
+                                    </div>
+
+                                    <div class="cell small-3">
+                                        <h5><b>Actual today (AC)</b></h5>
+                                        {% if status is defined %}
+                                            <h5><b>{{ (status.acActAll)|number_format(0, ',', '.') }} [kWh]</b></h5>
+                                            <p><i class="fa fa-clock-o"></i> {{ status.lastDataIo|date("H:i") }}</p>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="cell small-3">
+                                        <h5><b>Expected today (AC)</b></h5>
+                                        {% if status is defined %}
+                                            <h5><b>{{ (status.acExpAll)|number_format(0, ',', '.') }} [kWh]</b></h5>
+                                            <p><i class="fa fa-clock-o"></i> {{ status.lastWeatherIo|date("H:i") }}</p>
+                                        {% endif %}
+                                    </div>
+
+                                </div>
+                            </div>
+                        </a>
+        </div>
+
+    {% endif %}
+
+    {% endfor %}
+
+</div>
+
+<div class="clear clearfix"></div>

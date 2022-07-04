@@ -75,6 +75,7 @@ class DashboardPlantsController extends BaseController
             $form['selectedInverter'] = $request->request->get('selectedInverter');
             $form['selectedSet'] = $request->request->get('selectedSet');
             $form['optionDate'] = $request->request->get('optionDate');
+            $form['optionStep'] = $request->request->get('optionStep');
             $form['backFromMonth'] = false;
             $form['hour'] = $request->request->get('hour');
 
@@ -82,17 +83,40 @@ class DashboardPlantsController extends BaseController
             // bei Verfügbarkeit Anzeige kann nur ein Tag angezeigt werden
             #if ($form['selectedChart'] == 'availability' && $form['optionDate'] > 1) { $form['optionDate'] = 1; }
 
-            // optionDate == 100000 → Zeige Daten für den ganzen Monat, also vom ersten bis zum letzten Tages des ausgewäten Monats
-            if ($form['optionDate'] == 100000){
-                $daysInMonth    = date("t", strtotime($request->request->get('to')));
-                $form['to']     = date("Y-m-$daysInMonth 23:59", strtotime($request->request->get('to')));
-                $form['from']   = date("Y-m-01 00:00", strtotime($request->request->get('to')));
+
+            if ($form['optionStep'] == 'lastday' or $form['optionStep'] == 'nextday') {
+                switch ($form['optionStep']) {
+                    case "lastday":
+                        $date = ($request->request->get('to')) ? $request->request->get('to') : date('Y-m-d');
+                        $form['from'] = date('Y-m-d 00:00', strtotime($date . ' -1 day'));
+                        $form['to'] = date('Y-m-d 23:59', strtotime($date . ' -1 day'));
+                        break;
+
+                    case "nextday":
+                        $date = ($request->request->get('to')) ? $request->request->get('to') : date('Y-m-d');
+                        $form['from'] = date('Y-m-d 00:00', strtotime($date . ' +1 day'));
+                        $form['to'] = date('Y-m-d 23:59', strtotime($date . ' +1 day'));
+                        if (strtotime($form['to']) > strtotime("now")) {
+                            $form['from'] = date('Y-m-d 00:00');
+                            $form['to'] = date('Y-m-d H:i');
+                        }
+                        break;
+                }
+
+            } else {
+
+                // optionDate == 100000 → Zeige Daten für den ganzen Monat, also vom ersten bis zum letzten Tages des ausgewäten Monats
+                if ($form['optionDate'] == 100000) {
+                    $daysInMonth = date("t", strtotime($request->request->get('to')));
+                    $form['to'] = date("Y-m-$daysInMonth 23:59", strtotime($request->request->get('to')));
+                    $form['from'] = date("Y-m-01 00:00", strtotime($request->request->get('to')));
+                } else {
+                    $form['to'] = $request->request->get('to');
+                    if ($form['to'] > date('Y-m-d')) $form['to'] = date('Y-m-d H:i'); // Korriegiert Datum, wenn diese in der Zukunft liegt
+                    $form['from'] = date("Y-m-d 00:00", strtotime($form['to']) - (86400 * ($form['optionDate'] - 1)));
+                }
             }
-            else {
-                $form['to']     = $request->request->get('to');
-                if ($form['to'] > date('Y-m-d')) $form['to'] = date('Y-m-d H:i'); // Korriegiert Datum, wenn diese in der Zukunft liegt
-                $form['from']   = date("Y-m-d 00:00", strtotime($form['to']) - (86400 * ($form['optionDate'] - 1)));
-            }
+
 
             // ergänze um Uhrzeit
             if (strlen($form['to']) <= 10) {$form['to'] = $form['to'] . " 23:59"; }
