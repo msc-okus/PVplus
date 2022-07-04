@@ -213,7 +213,7 @@ class TicketController extends BaseController
         dump($ticket, $beginTime, $endTime, $request);
         #$Route = $this->generateUrl('app_ticket_list', [], UrlGeneratorInterface::ABS_PATH);
         if ($ticket !== null && $beginTime && $endTime) {
-            if ($beginTime > $ticket->getBegin()){
+            if ($beginTime > $ticket->getBegin()) {
                 $firstDate = new TicketDate();
                 $firstDate
                     ->setBegin($ticket->getBegin())
@@ -225,69 +225,69 @@ class TicketController extends BaseController
             }
 
 
-             $text = "";
+            $text = "";
 
-                $Route = $this->generateUrl('app_ticket_list', [], UrlGeneratorInterface::ABS_PATH);
-                if ($ticket != null && $beginTime && $endTime) {
-                    if ($beginTime > $ticket->getBegin()->format("Y/m/d H:i")){
-                        $firstDate = new TicketDate();
-                        $firstDate->setBegin($ticket->getBegin()->format("Y/m/d H:i"));
-                        $firstDate->setEnd($beginTime);
-                        $firstDate->setTicket($ticket);
-                        $firstDate->setAnlage($ticket->getAnlage());
-                        $firstDate->setStatus($ticket->getStatus());
-                        $firstDate->setErrorType($ticket->getErrorType());
-                        $firstDate->setFreeText($text);
-                        $firstDate->setDescription($ticket->getDescription());
-                        $firstDate->setSystemStatus($ticket->getSystemStatus());
-                        $firstDate->setPriority($ticket->getPriority());
-                        $firstDate->setAnswer($ticket->getAnswer());
-                        $firstDate->setInverter($ticket->getInverter());
-                        $firstDate->setAlertType($ticket->getAlertType());
-                        $ticket->addDate($firstDate);
-                        $em->persist($firstDate);
-                    }
-                    $mainDate = new TicketDate();
-                    $mainDate->setBegin($beginTime);
-                    $mainDate->setEnd($endTime);
-                    $mainDate->setAnlage($ticket->getAnlage());
-                    $mainDate->setTicket($ticket);
-                    $mainDate->setStatus($ticket->getStatus());
-                    $mainDate->setErrorType($ticket->getErrorType());
-                    $mainDate->setFreeText($text);
-                    $mainDate->setDescription($ticket->getDescription());
-                    $mainDate->setSystemStatus($ticket->getSystemStatus());
-                    $mainDate->setPriority($ticket->getPriority());
-                    $mainDate->setAnswer($ticket->getAnswer());
-                    $mainDate->setInverter($ticket->getInverter());
-                    $mainDate->setAlertType($ticket->getAlertType());
-                    $ticket->addDate($mainDate);
-
-                    $em->persist($mainDate);
-                    if ($endTime < $ticket->getEnd()->format("Y/m/d H:i")){
-                        $secondDate = new TicketDate();
-                        $secondDate->setBegin($endTime);
-                        $secondDate->setEnd($ticket->getEnd()->format("Y/m/d H:i"));
-                        $secondDate->setTicket($ticket);
-                        $secondDate->setAnlage($ticket->getAnlage());
-                        $secondDate->setStatus($ticket->getStatus());
-                        $secondDate->setErrorType($ticket->getErrorType());
-                        $secondDate->setFreeText($text);
-                        $secondDate->setDescription($ticket->getDescription());
-                        $secondDate->setSystemStatus($ticket->getSystemStatus());
-                        $secondDate->setPriority($ticket->getPriority());
-                        $secondDate->setAnswer($ticket->getAnswer());
-                        $secondDate->setInverter($ticket->getInverter());
-                        $secondDate->setAlertType($ticket->getAlertType());
-                        $ticket->addDate($secondDate);
-                        $em->persist($secondDate);
-                    }
-                    $ticket->setSplitted(true);
-                    $em->persist($ticket);
-                    $em->flush();
-                    return $this->redirect($Route);
+            $Route = $this->generateUrl('app_ticket_list', [], UrlGeneratorInterface::ABS_PATH);
+            if ($ticket != null && $beginTime && $endTime) {
+                if ($beginTime > $ticket->getBegin()->format("Y/m/d H:i")) {
+                    $firstDate = new TicketDate();
+                    $firstDate->setBegin($ticket->getBegin()->format("Y/m/d H:i"));
+                    $firstDate->setEnd($beginTime);
+                    $firstDate->setTicket($ticket);
+                    $firstDate->setAnlage($ticket->getAnlage());
+                    $firstDate->setStatus($ticket->getStatus());
+                    $firstDate->setErrorType($ticket->getErrorType());
+                    $firstDate->setFreeText($text);
+                    $firstDate->setDescription($ticket->getDescription());
+                    $firstDate->setSystemStatus($ticket->getSystemStatus());
+                    $firstDate->setPriority($ticket->getPriority());
+                    $firstDate->setAnswer($ticket->getAnswer());
+                    $firstDate->setInverter($ticket->getInverter());
+                    $firstDate->setAlertType($ticket->getAlertType());
+                    $ticket->addDate($firstDate);
+                    $em->persist($firstDate);
                 }
+                $mainDate = new TicketDate();
+                $mainDate->setBegin($beginTime);
+                $mainDate->setEnd($endTime);
+                $mainDate->setAnlage($ticket->getAnlage());
+                $mainDate->setTicket($ticket);
+                $mainDate->setStatus($ticket->getStatus());
+                $mainDate->setErrorType($ticket->getErrorType());
+                $mainDate->setFreeText($text);
+                $mainDate->setDescription($ticket->getDescription());
+                $mainDate->setSystemStatus($ticket->getSystemStatus());
+                $mainDate->setPriority($ticket->getPriority());
+                $mainDate->setAnswer($ticket->getAnswer());
+                $mainDate->setInverter($ticket->getInverter());
+                $mainDate->setAlertType($ticket->getAlertType());
+                $ticket->addDate($mainDate);
 
+                $em->persist($mainDate);
+                if ($endTime < $ticket->getEnd()->format("Y/m/d H:i")) {
+                    $secondDate = new TicketDate();
+                    $secondDate->setBegin($endTime);
+                    $secondDate->setEnd($ticket->getEnd()->format("Y/m/d H:i"));
+                    $secondDate->setTicket($ticket);
+                    $secondDate->setAnlage($ticket->getAnlage());
+                    $secondDate->setStatus($ticket->getStatus());
+                    $secondDate->setErrorType($ticket->getErrorType());
+                    $secondDate->setFreeText($text);
+                    $secondDate->setDescription($ticket->getDescription());
+                    $secondDate->setSystemStatus($ticket->getSystemStatus());
+                    $secondDate->setPriority($ticket->getPriority());
+                    $secondDate->setAnswer($ticket->getAnswer());
+                    $secondDate->setInverter($ticket->getInverter());
+                    $secondDate->setAlertType($ticket->getAlertType());
+                    $ticket->addDate($secondDate);
+                    $em->persist($secondDate);
+                }
+                $ticket->setSplitted(true);
+                $em->persist($ticket);
+                $em->flush();
+                return $this->redirect($Route);
+            }
+        }
 
 
         $ticketDates = $ticket->getDates();
@@ -399,7 +399,6 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/join', name: 'app_ticket_join', methods:['GET','POST'])]
     public function join(TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
     {
-
         dump(json_decode(file_get_contents('php://input')));
         $tickets = json_decode(file_get_contents('php://input'));
         $MasterTicket = new Ticket();
@@ -429,9 +428,10 @@ class TicketController extends BaseController
                 $ticketdate->setBegin($ticket->getBegin()->format("Y/m/d H:i"));
                 $ticketdate->setEnd($ticket->getEnd()->format("Y/m/d H:i"));
 
-                if ($ticket->getBegin()->format("Y/m/d H:i") < $begin) $begin = $ticket->getBegin();
+                if ($ticket->getBegin()->format("Y/m/d H:i") < $begin) {$begin = $ticket->getBegin();}
 
-                if ($ticket->getEnd()->format("Y/m/d H:i") > $end) $end = $ticket->getEnd();
+                if ($ticket->getEnd()->format("Y/m/d H:i") > $end){ $end = $ticket->getEnd();}
+
                 $ticketdate->setAlertType($ticket->getAlertType());
                 $ticketdate->setInverter($ticket->getInverter());
                 $ticketdate->setPriority($ticket->getPriority());
@@ -447,18 +447,18 @@ class TicketController extends BaseController
                 dump($ticket);
             }
             $MasterTicket->setEnd($end);
-            $MasterTicket->setBegin( $begin);
+            $MasterTicket->setBegin($begin);
             $MasterTicket->setAnlage($anlage);
             $MasterTicket->setAlertType("Defined in the Sub-Tickets");
             $MasterTicket->setAnswer("Defined in the Sub-Tickets");
             $MasterTicket->setInverter("Defined in the Sub-Ticket");
             $MasterTicket->setSplitted(true);
-
+        }
 
 
             $em->flush();
             dump($MasterTicket);
-        }
+
         return $this->render('/ticket/join.html.twig', [
             'text' => "estamos aqui"
         ]);

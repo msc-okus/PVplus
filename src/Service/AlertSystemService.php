@@ -84,19 +84,18 @@ class AlertSystemService
         if ((($time >= $sungap['sunrise']) && ($time <= $sungap['sunset']))) {
 
             $nameArray = $this->functions->getInverterArray($anlage);
-            $counter = 1;
-            foreach ($nameArray as $inverterName) {
-                if($ppc == false) {
-                    $inverter_status = $this->RetrieveQuarterIst($time, $counter, $anlage); //IstData($anlage, $time, $counter);
-                    if ($inverter_status == "Plant Control by PPC"){
+            foreach ($nameArray as $inverterNo => $inverterName) {
+                // We do this to avoid checking further inverters if we have a PPC control shut
+                if($ppc === false) {
+                    $inverter_status = $this->RetrieveQuarterIst($time, $inverterNo, $anlage); //IstData($anlage, $time, $counter);
+                    if ($inverter_status['istdata'] == "Plant Control by PPC"){
                         $ppc = true;
-                        $message = $this->AnalyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap['sunrise']);
+                        $message = $this->analyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap['sunrise'], $inverterNo);
                         self::messagingFunction($message, $anlage);
                     }
                     else {
-                        $message = $this->AnalyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap['sunrise']);
+                        $message = $this->analyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap['sunrise'], $inverterNo);
                         self::messagingFunction($message, $anlage);
-                        $counter++;
                         $system_status[$inverterName] = $inverter_status;
                         unset($inverter_status);
                     }
@@ -214,7 +213,7 @@ class AlertSystemService
      * @param $sunrise
      * @return string
      */
-    private function AnalyzeIst($inverter, $time, Anlage $anlage, $nameArray, $sunrise): string
+    private function analyzeIst($inverter, $time, Anlage $anlage, $nameArray, $sunrise, $inverterNo): string
     {
         $message = "";
         $errorType = "";
@@ -236,9 +235,10 @@ class AlertSystemService
             $errorCategorie = EXTERNAL_CONTROL;
         } elseif ($inverter['istdata'] === "Plant Control by PPC") {
             // PPC Control
-            $message .=  "Inverter is controlled by PPC " . $nameArray . "<br>";
+            $message .=  "Plant is controlled by PPC <br>";
             $errorType = "";
             $errorCategorie = EXTERNAL_CONTROL;
+            $nameArray = "*";
         }
         if ($errorCategorie != DATA_GAP && $errorCategorie != EXTERNAL_CONTROL) {
             if ($anlage->getHasFrequency()) {
@@ -280,8 +280,8 @@ class AlertSystemService
                     $ticketDate->setInverter("*");
                 }
                 else {
-                    $ticket->setInverter($nameArray);
-                    $ticketDate->setInverter($nameArray);
+                    $ticket->setInverter($inverterNo);
+                    $ticketDate->setInverter($inverterNo);
                 }
                 $ticket->setAlertType($errorCategorie); //  category = alertType (bsp: datagap, inverter power, etc.)
                 $ticketDate->setAlertType($errorCategorie);
@@ -292,12 +292,18 @@ class AlertSystemService
                 $begin->getTimestamp();
                 $ticket->setBegin(($begin));
                 $ticketDate->setBegin($begin);
+                $ticket->addDate($ticketDate);
+            }
+            else{
+                $ticketDate = $ticket->getDates()->last();
             }
             $timetemp = date('Y-m-d H:i:s', strtotime($time));
             $end = date_create_from_format('Y-m-d H:i:s', $timetemp);
             $end->getTimestamp();
-            $ticket->setEnd(($end));
+            $ticketDate->setEnd($end);
+            $ticket->setEnd($end);
             $this->em->persist($ticket);
+            $this->em->persist($ticketDate);
             $this->em->flush();
 
             //this is to send a message after and only after 30 mins
