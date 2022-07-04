@@ -94,7 +94,7 @@
                 <li><a href="{{ path('app_download') }}"><i class="fa fa-file-download"></i><span> Download Old</span></a></li>
                 <li><a href="{{ path('app_analyse_download') }}"><i class="fa fa-file-download"></i><span> Download</span></a></li>
                 <li><a href="{{ path('app_reporting_list') }}"><i class="fa fa-chart-area"></i><span> Reporting</span></a></li>
-                <li><a href="{{ path('app_ticket_list') }}"><i class="fa fa-clipboard-list"></i><span> Tickets</span></a></li>
+                <li><a href="{{ path('app_ticket_list') }}"><i class="fa fa-clipboard-list"></i><span> Tickets (Beta)</span></a></li>
                 {% if is_granted('ROLE_DEV') %}
                     <li>
                         <a href="#"><i class="fa fa-file-import"></i><span> Import</span></a>
@@ -118,7 +118,7 @@
                 <li><a href="{{ path('app_dashboard') }}"><i class="fa fa-tachometer-alt"></i><span> Dashboard</span></a></li>
                 <li><a href="{{ path('app_analyse_download') }}"><i class="fa fa-file-download"></i><span> Download</span></a></li>
                 <li><a href="{{ path('app_reporting_list') }}"><i class="fa fa-chart-area"></i><span> Reporting</span></a></li>
-                {% if is_granted('ROLE_BETA') %}<li><a href="{{ path('app_ticket_list') }}"><i class="fa fa-clipboard-list"></i><span> Tickets</span></a></li>{% endif %}
+                {% if is_granted('ROLE_BETA') %}<li><a href="{{ path('app_ticket_list') }}"><i class="fa fa-clipboard-list"></i><span> Tickets (Beta)</span></a></li>{% endif %}
                 <li><a href="{{ path('app_anlagen_list') }}"><i class="fa fa-solar-panel"></i><span> Plants</span></a></li>
                 <!--<li><a href="{{ path('app_ticket_list') }}"><i class="fa fa-clipboard-list"></i><span> Tickets</span></a></li>-->
             {% endif %}
@@ -126,7 +126,7 @@
     </nav>
 </div>
 <div class="off-canvas-content" data-off-canvas-content>
-    <main class="grid-container fluid">
+    <main class="grid-container fluid" style="padding-top: 1rem">
         <div class="grid-x grid-margin-x grid-padding-x">
             <div class="cell small-12">
                 {% block body %}{% endblock %}

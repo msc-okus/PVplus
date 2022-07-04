@@ -1,14 +1,21 @@
-<div class="reveal text-left " id="modal{{ modalId }}" data-modal-form-target="modal"
+<div class="reveal text-left {{ class|default('') }}" id="modal{{ modalId }}"
+     data-multiple-opened="true"
+     data-v-offset = "{{ dataVOffset|default('auto') }}"
+     data-modal-form-target="modal"
      data-reveal
      data-append-to="div#modal-form{{ modalId }}"
 >
     <h1>{{ modalTitel|default('Titel') }} - {{ modalId }}</h1>
     <div class="grid-x grid-padding-y">
-        <div class="cell modal-body" data-modal-form-target="modalBody">
+        <div
+            class="cell modal-body"
+            data-modal-form-target="modalBody"
+            data-action="submit->modal-form#submitForm"
+        >
                 {{ modalContent|default('Loading...') }}
         </div>
     </div>
-    <div class="grid-x grid-padding-y">
+    <div class="grid-x">
         <div class="cell text-right">
             <button type="button" class="button secondary small" data-close>Cancel</button>
             <button type="button" class="button small" data-action="modal-form#submitForm">Save</button>

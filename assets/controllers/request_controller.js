@@ -11,7 +11,7 @@ export default class extends Controller {
     async submit() {
         var array = [];
         const checkboxes = $(this.boxTargets);
-        console.log(checkboxes);
+
         for (var i = 0; i < checkboxes.length; i++) {
             var checkbox = checkboxes[i];
             if (checkbox.checked){
@@ -39,6 +39,7 @@ export default class extends Controller {
         else {
             event.currentTarget.classList.remove('checked');
         }
+
     }
 
 }

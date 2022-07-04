@@ -1,16 +1,15 @@
 import { Controller } from '@hotwired/stimulus';
 import $ from 'jquery';
+import {Reveal} from "foundation-sites";
 
 export default class extends Controller {
     static targets = ['list', 'searchBar'];
     static values = {
         urlCreate: String,
-        urlSearch: String
+        urlSearch: String,
     }
 
-    connect() {
-
-    }
+    connect() {}
 
     async search(event){
         event.preventDefault();
@@ -20,6 +19,7 @@ export default class extends Controller {
             method: $searchListform.prop('method'),
             data: $searchListform.serialize(),
         });
+        $(document).foundation();
     }
 
     async page(event) {
@@ -37,8 +37,10 @@ export default class extends Controller {
         this.listTarget.innerHTML = await $.ajax({});
     }
 
-    async create(event) {
+    async createTicket(event) {
         event.preventDefault();
 
     }
+
+
 }

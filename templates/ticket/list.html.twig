@@ -13,7 +13,7 @@
     <h1>List Tickets</h1>
     <div {{ stimulus_controller('ticket-list', {
                 urlCreate: path('app_ticket_create'),
-                urlSearch: path('app_ticket_list', { ajax: 1 })
+                urlSearch: path('app_ticket_list', { ajax: 1 }),
             }) }}
             data-ticket-list-target="ticketForm"
             class="ticket"
@@ -27,7 +27,7 @@
         </div>
         <div class="cell medium-2">
             <button name="new-report" class="button" value="yes"
-                data-action="ticket-list#create">New Ticket
+                data-action="ticket-list#createTicket">New Ticket
             </button>
         </div>
     </div>

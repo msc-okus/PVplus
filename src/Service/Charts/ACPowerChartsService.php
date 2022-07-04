@@ -297,7 +297,9 @@ class ACPowerChartsService
      */
     public function getAC3(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
+            $filter = $hour ? 'a.stamp' : 'a.stamp';
             $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
+
             $conn = self::getPdoConnection();
             $dataArray = [];
             $dataArray['maxSeries'] = 0;
@@ -314,84 +316,91 @@ class ACPowerChartsService
                     $nameArray = $this->functions->getNameArray($anlage, 'ac');
             }
 
-            $sqlExpected = "SELECT a.stamp, sum(b.ac_exp_power) as soll
-                        FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE " . $groupQuery . " ) b ON a.stamp = b.stamp)  
-                        WHERE a.stamp BETWEEN '$from' AND '$to' 
-                        GROUP by date_format(a.stamp, '$form')";
+           $sqlIst = "SELECT c.stamp, sum(c.wr_pac) as actPower, avg(c.wr_temp) as temp, c.wr_cos_phi_korrektur FROM ( `db_dummysoll` a 
+                 LEFT JOIN (SELECT * FROM " . $anlage->getDbNameIst() . " WHERE " . $groupQuery . "  ) c ON a.stamp = c.stamp ) WHERE a.stamp 
+                 BETWEEN '$from' AND '$to' GROUP BY date_format($filter, '$form')";
 
             $dataArray['inverterArray'] = $nameArray;
-            $resultExpected = $conn->query($sqlExpected);
-            $maxInverter = 0;
+            $resultIst = $conn->query($sqlIst);
 
-            // add Irradiation
-            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
-                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
-            } else {
-                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
-            }
+           if ($resultIst->rowCount() > 0) {
 
-            if ($resultExpected->rowCount() > 0) {
-                $counter = 0;
-                switch ($anlage->getConfigType()) {
-                    case 3: // Groningen
-                    case 4:
-                        $dataArray['offsetLegend'] = $group - 1;
-                        break;
-                    default:
-                        $dataArray['offsetLegend'] = $groups[$group]['GMIN'] - 1;
-                }
-                $dataArray['label'] = $groups[$group]['GroupName'];
+               $counter = 0;
+               switch ($anlage->getConfigType()) {
+                   case 3: // Groningen
+                   case 4:
+                       $dataArray['offsetLegend'] = $group - 1;
+                       break;
+                   default:
+                       $dataArray['offsetLegend'] = $groups[$group]['GMIN'] - 1;
+               }
+               // add Irradiation
+               if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
+                   $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
+               } else {
+                   $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
+               }
 
-                while ($rowExp = $resultExpected->fetch(PDO::FETCH_ASSOC)) {
-                    $stamp = self::timeShift($anlage, $rowExp["stamp"]);
-                    $stampAdjust = self::timeAjustment($rowExp["stamp"], $anlage->getAnlZeitzone());
-                    $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
+               $dataArray['label'] = $groups[$group]['GroupName'];
 
-                    $dataArray['chart'][$counter]['date'] = $stampAdjust;
-                    ($rowExp['soll'] == null) ? $expected = 0 : $expected = $rowExp['soll'];
-                    $dataArray['maxSeries'] = 1;
-                    $whereQueryPart1 = $hour ? "stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'" : "stamp = '$stampAdjust'";
-                    $sql = "SELECT  sum(wr_pac) as actPower, avg(wr_temp) as temp, wr_cos_phi_korrektur 
-                        FROM " . $anlage->getDbNameIst() . " WHERE $groupQuery and $whereQueryPart1 GROUP BY date_format(stamp, '$form')";
+               while ($rowIst = $resultIst->fetch(PDO::FETCH_ASSOC)) {
+                   $stamp = self::timeShift($anlage, $rowIst["stamp"]);
+                   $stampAdjust = self::timeAjustment($stamp, $anlage->getAnlZeitzone());
+                   $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
+                   $dataArray['chart'][$counter]['date'] = $stampAdjust;
 
-                    $resultActual = $conn->query($sql);
-                    if($resultActual->rowCount() == 1) {
-                        $rowAct = $resultActual->fetch(PDO::FETCH_ASSOC);
+                   $queryf = $hour ? "BETWEEN '$from' AND '$to'" : "LIKE '$rowIst[stamp]'";
 
-                        $dataArray['chart'][$counter]['temperature'] = $rowAct['temp'] == null ?  null : $rowAct['temp'];
-                        $actPower = $rowAct['actPower'];
-                        $actPower = $actPower > 0 ? round(self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()), 2) : 0; // neagtive Werte auschließen
+                   $sqlSoll = "SELECT b.stamp, sum(b.ac_exp_power) as soll FROM ( `db_dummysoll` a 
+                         LEFT JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE " . $groupQuery . "  ) b ON a.stamp = b.stamp ) WHERE a.stamp 
+                         " . $queryf . " GROUP BY date_format($filter, '$form')";
 
-                        switch ($anlage->getConfigType()) {
-                            case 3: // Groningen
-                            case 4:
-                                $dataArray['chart'][$counter][$nameArray[$group]] = $actPower;
-                                break;
-                            default:
-                                $dataArray['chart'][$counter][$nameArray[$group]] = $actPower;
-                        }
+                   if($hour){
+                       $result = $conn->query($sqlSoll);
+                       while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                           if($rowIst["stamp"] == $row["stamp"]) {
+                               ($row['soll'] == null) ? $expected = 0 : $expected = $row['soll'];
+                           }
+                         }
+                       } else {
+                       $result = $conn->query($sqlSoll);
+                       while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
+                           ($row['soll'] == null) ? $expected = 0 : $expected = $row['soll'];
+                       }
+                   }
 
-                        if ($anlage->getShowCosPhiDiag()) $dataArray['chart'][$counter]['cosPhi'] = abs((float)$rowAct['wr_cos_phi_korrektur']);
-                    }
+                   $dataArray['maxSeries'] = 1;
+                   $dataArray['chart'][$counter]['temperature'] = $rowIst['temp'] == null ? null : $rowIst['temp'];
+                   $actPower = $rowIst['actPower'];
+                   $actPower = $actPower > 0 ? round(self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()), 2) : 0; // neagtive Werte auschließen
 
+                   switch ($anlage->getConfigType()) {
+                       case 3: // Groningen
+                       case 4:
+                           $dataArray['chart'][$counter][$nameArray[$group]] = $actPower;
+                           break;
+                       default:
+                           $dataArray['chart'][$counter][$nameArray[$group]] = $actPower;
+                   }
 
-                     $dataArray['chart'][$counter]['expected'] = (float)$expected;
+                   if ($anlage->getShowCosPhiDiag()) {
+                       $dataArray['chart'][$counter]['cosPhi'] = abs((float)$rowIst['wr_cos_phi_korrektur']) ;
+                   }
 
-                    // add Irradiation
-                    if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
-                        $dataArray['chart'][$counter]["irradiation"] = $dataArrayIrradiation['chart'][$counter]['val1'];
-                    } else {
-                        $dataArray['chart'][$counter]["irradiation"] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;
-                    }
-                    $counter++;
-                }
-            }
+                   $dataArray['chart'][$counter]['expected'] = (float)$expected;
 
-        $conn = null;
-
+                   // add Irradiation
+                   if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
+                       $dataArray['chart'][$counter]["irradiation"] = $dataArrayIrradiation['chart'][$counter]['val1'];
+                   } else {
+                       $dataArray['chart'][$counter]["irradiation"] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;
+                   }
+                   $counter++;
+               }
+           }
+         $conn = null;
         return $dataArray;
-    }
-
+       }
 
     /**
      * erzeugt Daten für Gruppen Leistungsunterschiede Diagramm (Group Power Difference)

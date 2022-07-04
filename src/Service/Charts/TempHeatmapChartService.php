@@ -101,25 +101,18 @@ class TempHeatmapChartService
             case 3:
             case 4:
                 $nameArray = $this->functions->getNameArray($anlage, 'ac');
+                $group = "group_ac";
                 break;
             default:
                 $nameArray = $this->functions->getNameArray($anlage, 'dc');
+                $group = "group_dc";
         }
 
-        if ($anlage->getUseNewDcSchema()) {
-
-            $sql = "SELECT wr_temp as istTemp,wr_group,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts
-                                    FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameDCIst() . " b ON a.stamp = b.stamp)
-                                    WHERE a.stamp BETWEEN '$from' AND '$to' 
-                                    GROUP BY a.stamp, b.wr_group";
-
-        } else {
-
-            $sql = "SELECT wr_temp as istTemp,group_dc,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts 
+            $sql = "SELECT wr_temp as istTemp,$group as group_dc,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts 
                                     FROM (db_dummysoll a LEFT JOIN  " . $anlage->getDbNameACIst() . " b ON a.stamp = b.stamp)
                                     WHERE a.stamp BETWEEN '$from' AND '$to' 
-                                    GROUP BY a.stamp, b.group_dc";
-        }
+                                    GROUP BY a.stamp, b.$group";
+
 
         $resultActual = $conn->query($sql);
 

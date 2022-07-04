@@ -6,6 +6,7 @@ use App\Repository\TicketDateRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use DateTimeInterface;
 
 
 /**
@@ -26,14 +27,14 @@ class TicketDate
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(type="datetime")
      */
-    private $Begin;
+    private ?DateTimeInterface $begin;
 
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(type="datetime")
      */
-    private $End;
+    private ?DateTimeInterface $end;
 
     /**
      * @ORM\ManyToOne(targetEntity=Ticket::class, inversedBy="dates")
@@ -102,26 +103,26 @@ class TicketDate
         return $this->id;
     }
 
-    public function getBegin(): ?string
+    public function getBegin(): ?DateTimeInterface
     {
-        return $this->Begin;
+        return $this->begin;
     }
 
-    public function setBegin(string $Begin): self
+    public function setBegin(?DateTimeInterface $begin): self
     {
-        $this->Begin = $Begin;
+        $this->begin = $begin;
 
         return $this;
     }
 
-    public function getEnd(): ?string
+    public function getEnd(): ?DateTimeInterface
     {
-        return $this->End;
+        return $this->end;
     }
 
-    public function setEnd(string $End): self
+    public function setEnd(?DateTimeInterface $end): self
     {
-        $this->End = $End;
+        $this->end = $end;
 
         return $this;
     }
@@ -260,4 +261,5 @@ class TicketDate
 
         return $this;
     }
+
 }
