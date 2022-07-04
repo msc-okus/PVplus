@@ -124,9 +124,9 @@ class TicketRepository extends ServiceEntityRepository
         ;
     }
 
-    /* todo: please explain 'AIT' */
+    // AIT stands for Anlage, Inverter, Time
     public function findByAITNoWeather($anlage, $inverter, $time){
-        $description = "Error with the Data of the Weather station ??? really weather";
+        $description = "Error with the Data of the Weather station";
         $result = $this->createQueryBuilder('t')
             ->andWhere('t.end = :end')
             ->andWhere('t.anlage = :anl')
@@ -141,10 +141,10 @@ class TicketRepository extends ServiceEntityRepository
         return $result->getResult();
     }
 
-    /* todo: please explain 'AIT' */
+    // AIT stands for Anlage, Inverter, Time
     public function findLastByAITNoWeather($anlage, $inverter, $today, $yesterday)
     {
-        $description = "Error with the Data of the Weather station ??? really weather";
+        $description = "Error with the Data of the Weather station";
         $result = $this->createQueryBuilder('t')
             ->andWhere('t.end < :today')
             ->andWhere('t.end > :yesterday')
@@ -163,7 +163,7 @@ class TicketRepository extends ServiceEntityRepository
         return $result->getResult();
     }
 
-    /* todo: please explain 'AIT' */
+    // AIT stands for Anlage, Inverter, Time
     public function findByAITWeather($anlage, $time)
     {
         $description = "Error with the Data of the Weather station";
@@ -179,7 +179,7 @@ class TicketRepository extends ServiceEntityRepository
         return $result->getResult();
     }
 
-    /* todo: please explain 'AIT' */
+    // AIT stands for Anlage, Inverter, Time
     public function findLastByAITWeather($anlage, $today, $yesterday)
     {
         $description = "Error with the Data of the Weather station";
