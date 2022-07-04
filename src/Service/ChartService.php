@@ -365,7 +365,7 @@ class ChartService
                     }
                     break;
                 case ("dc_current_mpp"):
-                    $dataArray = $this->currentChart->getCurr4($anlage, $from, $to, $form['selectedInverter'], $hour);
+                    $dataArray = $this->currentChart->getCurr4($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -377,7 +377,7 @@ class ChartService
 
                 // Voltage Charts DC //
                 case ("dc_voltage_groups"):
-                    $dataArray = $this->voltageChart->getVoltageGroups($anlage, $from, $to, $form['selectedGroup'],$hour);
+                    $dataArray = $this->voltageChart->getVoltageGroups($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
@@ -387,7 +387,7 @@ class ChartService
                     }
                     break;
                 case ("dc_voltage_mpp"):
-                    $dataArray = $this->voltageChart->getVoltageMpp($anlage, $from, $to, $form['selectedInverter'], $hour);
+                    $dataArray = $this->voltageChart->getVoltageMpp($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];

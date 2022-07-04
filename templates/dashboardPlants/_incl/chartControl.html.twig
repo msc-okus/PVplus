@@ -1,4 +1,5 @@
-{% from "dashboardPlants/_incl/macrosMenuSelectBox.html.twig" import showHeatmap ,showTempHeatmap ,showSollIstHeatmap, acActOverview, acActGroup, dcActGroup, dcGroupPowerDiff, irradiation, inverterPerformance, currentDcOverview, currentDcInverter, currentDcGroup, dcActPlant, dcActOverview, currentDcString, acActPlant, acVoltage, acCurrent, acFrequency, acReactive %}
+{% from "dashboardPlants/_incl/macrosMenuSelectBox.html.twig" import showHeatmap ,showTempHeatmap ,showSollIstHeatmap, acActOverview, acActGroup, dcActGroup, dcGroupPowerDiff, irradiation, inverterPerformance,
+    currentDcOverview, currentDcInverter, currentDcGroup, dcActPlant, dcActOverview, currentDcString, acActPlant, acVoltage, acCurrent, acFrequency, acReactive, voltageDcString %}
 {% from "dashboardPlants/_incl/macrosGroupeMenuSelectBox.html.twig" import groupMenu, groupMenuNew %}
 <div class="grid-x grid-margin-x">
     <input type="hidden" name="eide" value="{{ aktAnlage.eignerId }}">
@@ -43,6 +44,12 @@
                     {{ currentDcInverter(form, aktAnlage) }}    {# Curr3 #}
                     {{ currentDcString(form, aktAnlage) }}      {# Curr4 #}
                 </optgroup>
+
+
+                <optgroup label="DC Voltage">
+                    {{ voltageDcString(form, aktAnlage) }}      {# VoltDC1 #}
+                </optgroup>
+
             {% endif %}
 
             <!-- diverses -->
@@ -72,24 +79,22 @@
     </div>
 
     <div class="grid-x">
-
-    <div class="cell medium-4 large-4 xlarge-2">
-        <label class="button js-submit-onchange" style="background-color: #701b1b00;display: block;font-weight: 800;color: green;font-size: 38px;padding: 0;">
-            <input type="radio" name="optionStep" value="lastday" style="display: none">
-            <i class="fa fa-angle-left"></i></label>
-    </div>
-    <div class="cell medium-4 large-4 xlarge-8">
-        <div class="input-group">
-            <input id="startDate" name="to" class="input-group-field js-submit-onchange" size="16" type="text" value="{{ form.to|date('Y-m-d') }}" data-date-format="yyyy-mm-dd" style="max-width: 158px;">
-            <span class="input-group-label"><i class="fa fa-calendar"></i></span>
+        <div class="cell medium-4 large-4 xlarge-2">
+            <label class="button js-submit-onchange" style="background-color: #701b1b00;display: block;font-weight: 800;color: green;font-size: 38px;padding: 0;">
+                <input type="radio" name="optionStep" value="lastday" style="display: none">
+                <i class="fa fa-angle-left"></i></label>
         </div>
-    </div>
-    <div class="cell medium-4 large-4 xlarge-2">
-        <label class="button js-submit-onchange" style="background-color: #701b1b00;display: block;font-weight: 800;color: green;font-size: 38px;padding: 0;">
-            <input type="radio" name="optionStep" value="nextday" style="display: none">
-                <i class="fa fa-angle-right"></i></label>
-    </div>
-
+        <div class="cell medium-4 large-4 xlarge-8">
+            <div class="input-group">
+                <input id="startDate" name="to" class="input-group-field js-submit-onchange" size="16" type="text" value="{{ form.to|date('Y-m-d') }}" data-date-format="yyyy-mm-dd" style="max-width: 158px;">
+                <span class="input-group-label"><i class="fa fa-calendar"></i></span>
+            </div>
+        </div>
+        <div class="cell medium-4 large-4 xlarge-2">
+            <label class="button js-submit-onchange" style="background-color: #701b1b00;display: block;font-weight: 800;color: green;font-size: 38px;padding: 0;">
+                <input type="radio" name="optionStep" value="nextday" style="display: none">
+                    <i class="fa fa-angle-right"></i></label>
+        </div>
     </div>
 
     {% if (form.selectedChart != 'availability') and (form.selectedChart != 'pr_and_av') and (form.selectedChart != 'forecast') and (form.selectedChart != 'status_log') and (form.selectedChart != 'pvsyst') and (form.selectedChart != 'heatmap') and (form.selectedChart != 'tempheatmap') and (form.selectedChart != 'sollistheatmap') and (form.selectedChart != 'grid')%}

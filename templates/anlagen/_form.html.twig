@@ -167,10 +167,6 @@
                         <div class="grid-x grid-padding-x">
                             <div class="cell medium-4">{{ form_row(anlageForm.WeatherStation) }}</div>
                             <div class="cell medium-4">{{ form_row(anlageForm.useLowerIrrForExpected) }}</div>
-                            {#
-                            <div class="cell medium-3">{{ form_row(anlageForm.anlIrChange) }}</div>
-                            <div class="cell medium-3">{{ form_row(anlageForm.anlWindUnit) }}</div>
-                            #}
                         </div>
                     </fieldset>
                 </div>
@@ -218,19 +214,19 @@
                             <fieldset class="fieldset">
                                 <legend>Config</legend>
                                 <div class="grid-x">
-                                <div class="cell medium-6"> {{ form_row(anlageForm.useGridMeterDayData) }}</div>
-                                <div class="cell medium-6"> {{ form_row(anlageForm.hasDc) }}</div>
+                                    <div class="cell medium-6"> {{ form_row(anlageForm.useGridMeterDayData) }}</div>
+                                    <div class="cell medium-6"> {{ form_row(anlageForm.hasDc) }}</div>
                                 </div>
                                 <div class="grid-x">
-                                <div class="cell medium-6"> {{ form_row(anlageForm.hasStrings) }}</div>
-                                <div class="cell medium-6"> {{ form_row(anlageForm.hasPPC) }}</div>
+                                    <div class="cell medium-6"> {{ form_row(anlageForm.hasStrings) }}</div>
+                                    <div class="cell medium-6"> {{ form_row(anlageForm.hasPPC) }}</div>
                                 </div>
                                 <div class="grid-x">
-                                <div class="cell medium-6"> {{ form_row(anlageForm.hasPannelTemp) }}</div>
-                                <div class="cell medium-6"> {{ form_row(anlageForm.useCosPhi) }}</div>
+                                    <div class="cell medium-6"> {{ form_row(anlageForm.hasPannelTemp) }}</div>
+                                    <div class="cell medium-6"> {{ form_row(anlageForm.useCosPhi) }}</div>
                                 </div>
                                 <div class="grid-x">
-                                <div class="cell medium-6"> {{ form_row(anlageForm.hasFrequency) }}</div>
+                                    <div class="cell medium-6"> {{ form_row(anlageForm.hasFrequency) }}</div>
                                 </div>
                             </fieldset>
                             <fieldset class="fieldset">

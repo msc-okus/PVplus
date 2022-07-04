@@ -209,7 +209,7 @@ class DCCurrentChartService
      * @return array
      *  // dc_current_inverter
      */
-    public function getCurr3(Anlage $anlage, $from, $to, int $group = 1,  bool $hour = false): array
+    public function getCurr3(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $conn = self::getPdoConnection();
@@ -231,7 +231,6 @@ class DCCurrentChartService
                   FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE wr_num = '$group') b ON a.stamp = b.stamp) 
                   WHERE a.stamp BETWEEN '$from' AND '$to' GROUP BY date_format(a.stamp, '$form')";
         $result = $conn->query($sql_strom);
-       # dd($sql_strom);
         if ($result->rowCount() > 0) {
             if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == "Groningen") {
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
@@ -312,40 +311,39 @@ class DCCurrentChartService
      * @param Anlage $anlage
      * @param $from
      * @param $to
-     * @param int $inverter
+     * @param int|null $inverter
      * @param bool $hour
      * @return bool|array // dc_current_mpp
      *  // dc_current_mpp
      */
-    public function getCurr4(Anlage $anlage, $from, $to, int $inverter = 1,  bool $hour = false): bool|array
+    public function getCurr4(Anlage $anlage, $from, $to, ?int $inverter = 1, bool $hour = false): bool|array
     {
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-        $conn = self::connectToDatabase();
+        $conn = self::getPdoConnection();
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
 
         // Strom für diesen Zeitraum und diesen Inverter
         // ACHTUNG Strom und Spannungs Werte werden im Moment (Sep2020) immer in der AC Tabelle gespeichert, auch wenn neues 'DC IST Schema' genutzt wird.
 
-        if($hour){if ($anlage->getUseNewDcSchema()) {
-            $sql_strom = "SELECT a.stamp as stamp, sum(b.wr_mpp_current) AS mpp_current FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDCIst() . " WHERE wr_num = '$inverter') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
+        if ($hour)
+            {if ($anlage->getUseNewDcSchema()) {
+                $sql_strom = "SELECT a.stamp as stamp, sum(b.wr_mpp_current) AS mpp_current FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDCIst() . " WHERE wr_num = '$inverter') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
+            } else {
+                $sql_strom = "SELECT a.stamp as stamp, sum(b.wr_mpp_current) AS mpp_current FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameAcIst() . " WHERE unit = '$inverter') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
+            }
         } else {
-            $sql_strom = "SELECT a.stamp as stamp, sum(b.wr_mpp_current) AS mpp_current FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameAcIst() . " WHERE unit = '$inverter') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
+            if ($anlage->getUseNewDcSchema()) {
+                $sql_strom = "SELECT a.stamp as stamp, b.wr_mpp_current AS mpp_current FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDCIst() . " WHERE wr_num = '$inverter') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to'";
+            } else {
+                $sql_strom = "SELECT a.stamp as stamp, b.wr_mpp_current AS mpp_current FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameAcIst() . " WHERE unit = '$inverter') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to'";
+            }
         }
-    }
-    else{
-        if ($anlage->getUseNewDcSchema()) {
-            $sql_strom = "SELECT a.stamp as stamp, b.wr_mpp_current AS mpp_current FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameDCIst() . " WHERE wr_num = '$inverter') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to'";
-        } else {
-            $sql_strom = "SELECT a.stamp as stamp, b.wr_mpp_current AS mpp_current FROM (db_dummysoll a left JOIN (SELECT * FROM " . $anlage->getDbNameAcIst() . " WHERE unit = '$inverter') b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to'";
-        }
-
-    }
         $result = $conn->query($sql_strom);
         if ($result != false) {
-            if ($result->num_rows > 0) {
+            if ($result->rowCount() > 0) {
                 $counter = 0;
-                while ($row = $result->fetch_assoc()) {
+                while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                     $stamp = self::timeAjustment($row['stamp'], (int)$anlage->getAnlZeitzone(), true);
                     //$stamp = $row['stamp'];
                     $mppCurrentJson = $row['mpp_current'];
@@ -356,8 +354,7 @@ class DCCurrentChartService
                         $mppCounter = 1;
                         foreach ($mppCurrentArray as $mppCurrentItem => $mppCurrentValue) {
                             if (!($mppCurrentValue == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
-                                if($hour)$dataArray['chart'][$counter]["val$mppCounter"] = $mppCurrentValue/4;
-                                else $dataArray['chart'][$counter]["val$mppCounter"] = $mppCurrentValue;
+                                $dataArray['chart'][$counter]["val$mppCounter"] = $hour ? $mppCurrentValue / 4 : $mppCurrentValue;
                             }
                             $mppCounter++;
                         }
@@ -366,11 +363,11 @@ class DCCurrentChartService
                     }
                 }
             }
-            $conn->close();
+            $conn = null;
 
             return $dataArray;
         } else {
-            $conn->close();
+            $conn = null;
 
             return false;
         }
