@@ -274,16 +274,19 @@ trait G4NTrait
     public function timeShift(Anlage $anlage, $stamp, bool $reverse = false): string
     {
         $country = strtoupper($anlage->getCountry());
+        $offset = 0;
+        //dd($offset = Timezones::getRawOffset(self::getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), $country)));
 
-        $offset = Timezones::getRawOffset(self::getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), $country));
+                $offset = Timezones::getRawOffset(self::getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), $country));
 
-        if (date('I',strtotime($stamp)) == 1) {
-            //summertime
-            $offset = $offset - 7200; // not sure why this is nessary
-        } else {
-            //wintertime
-            $offset = $offset - 3600; // not sure why this is nessary
-        }
+                if (date('I',time()) == 1) {
+                    //summertime
+                    $offset = $offset - 7200; // not sure why this is nessary
+                } else {
+                    //wintertime
+                    $offset = $offset - 3600; // not sure why this is nessary
+                }
+                dump($offset);
 
         $of = $offset / 3600;
 
