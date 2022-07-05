@@ -346,8 +346,6 @@ class TicketController extends BaseController
     {
         $ticket = $ticketRepo->findOneById($id);
         $dates = $ticket->getDates()->getValues();
-
-
         for ($i = 0; $i < $ticket->getDates()->count(); $i++){
             $date = $dates[$i];
             $em->remove($date);
@@ -359,9 +357,9 @@ class TicketController extends BaseController
         $endTime = $request->query->get('end-time');
         $text = "";
         if ($ticket != null && $beginTime && $endTime) {
-            if ($beginTime > $ticket->getBegin()->format("Y/m/d H:i")){
+            if ($beginTime > $ticket->getBegin()){
                 $firstDate = new TicketDate();
-                $firstDate->setBegin($ticket->getBegin()->format("Y/m/d H:i"));
+                $firstDate->setBegin($ticket->getBegin());
                 $firstDate->setEnd($beginTime);
                 $firstDate->setTicket($ticket);
                 $firstDate->setAnlage($ticket->getAnlage());
@@ -394,10 +392,10 @@ class TicketController extends BaseController
             $ticket->addDate($mainDate);
 
             $em->persist($mainDate);
-            if ($endTime < $ticket->getEnd()->format("Y/m/d H:i")){
+            if ($endTime < $ticket->getEnd()){
                 $secondDate = new TicketDate();
                 $secondDate->setBegin($endTime);
-                $secondDate->setEnd($ticket->getEnd()->format("Y/m/d H:i"));
+                $secondDate->setEnd($ticket->getEnd());
                 $secondDate->setTicket($ticket);
                 $secondDate->setAnlage($ticket->getAnlage());
                 $secondDate->setStatus($ticket->getStatus());
@@ -442,41 +440,15 @@ class TicketController extends BaseController
             $ticket = $ticketRepo->findOneById($tickets[0]);
             $ticketdate = new TicketDate();
             $anlage = $ticket->getAnlage();
-            $ticketdate->setBegin($ticket->getBegin());
-            $ticketdate->setEnd($ticket->getEnd());
             $begin = $ticket->getBegin();
             $end = $ticket->getEnd();
-            $ticketdate->setAlertType($ticket->getAlertType());
-            $ticketdate->setInverter($ticket->getInverter());
-            $ticketdate->setPriority($ticket->getPriority());
-            $ticketdate->setSystemStatus($ticket->getStatus());
-            $ticketdate->setErrorType($ticket->getErrorType());
-            $ticketdate->setDescription($ticket->getDescription());
-            $ticketdate->setAnlage($ticket->getAnlage());
-            $ticketdate->setAnswer($ticket->getAnswer());
-            $ticketdate->setTicket($masterTicket);
-            $ticketdate->setStatus($ticket->getStatus());
-            $ticketdate->setFreeText("");
+            $ticketdate->copyTicket($ticket);
             $masterTicket->addDate($ticketdate);
             for ($i = 1; $i < count($tickets); $i++) {
                 $ticket = $ticketRepo->findOneById($tickets[$i]);
                 $ticketdate = new TicketDate();
-                $ticketdate->setBegin($ticket->getBegin());
-                $ticketdate->setEnd($ticket->getEnd());
                 if ($ticket->getBegin()->format("Y/m/d H:i") < $begin) {$begin = $ticket->getBegin();}
                 if ($ticket->getEnd()->format("Y/m/d H:i") > $end){ $end = $ticket->getEnd();}
-                $ticketdate->setAlertType($ticket->getAlertType());
-                $ticketdate->setInverter($ticket->getInverter());
-                $ticketdate->setPriority($ticket->getPriority());
-                $ticketdate->setSystemStatus($ticket->getStatus());
-                $ticketdate->setErrorType($ticket->getErrorType());
-                $ticketdate->setDescription($ticket->getDescription());
-                $ticketdate->setAnlage($ticket->getAnlage());
-                $ticketdate->setAnswer($ticket->getAnswer());
-                $ticketdate->setTicket($masterTicket);
-                $ticketdate->setStatus($ticket->getStatus());
-                $ticketdate->setFreeText("");
-
                 $masterTicket->addDate($ticketdate);
             }
             $masterTicket->setEnd($end);
@@ -487,9 +459,7 @@ class TicketController extends BaseController
             $masterTicket->setInverter("Defined in the Sub-Ticket");
             $masterTicket->setSplitted(true);
 
-
-
-            $em->flush();
+            //$em->flush();
             dump($masterTicket);
         }
         return $this->render('/ticket/join.html.twig', [
