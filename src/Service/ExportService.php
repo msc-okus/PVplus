@@ -8,6 +8,7 @@ use App\Entity\Anlage;
 use App\Entity\AnlageAcGroups;
 use App\Helper\G4NTrait;
 use App\Repository\AnlageAvailabilityRepository;
+use App\Repository\GridMeterDayRepository;
 use App\Repository\PRRepository;
 use DateTime;
 use PDO;
@@ -19,12 +20,14 @@ class ExportService
     private FunctionsService $functions;
     private PRRepository $PRRepository;
     private AnlageAvailabilityRepository $availabilityRepo;
+    private GridMeterDayRepository $gridRepo;
 
-    public function __construct(FunctionsService $functions, PRRepository $PRRepository, AnlageAvailabilityRepository $availabilityRepo)
+    public function __construct(FunctionsService $functions, PRRepository $PRRepository, AnlageAvailabilityRepository $availabilityRepo, GridMeterDayRepository $gridRepo)
     {
         $this->functions = $functions;
         $this->PRRepository = $PRRepository;
         $this->availabilityRepo = $availabilityRepo;
+        $this->gridRepo = $gridRepo;
     }
 
     public function gewichtetTagesstrahlung(Anlage $anlage, DateTime $from, DateTime $to):string
@@ -72,11 +75,11 @@ class ExportService
                 $gewichteteStrahlung    += $groupAC->getGewichtungAnlagenPR() * $irradiation;
                 $availability            = $this->availabilityRepo->sumAvailabilityPerDay($anlage->getAnlId(), date('Y-m-d', $stamp));
             }
-            $output .= "<td>" . self::mittelwert($tempArray) . "</td>";
+            $output .= "<td>" . round(self::mittelwert($tempArray),3) . "</td>";
             $output .= "<td>".round($availability,2)."</td>";
             $output .= "<td>".round($gewichteteStrahlung / 1000 / 4,2)."</td>";
             $output .= "<td>".round($gewichteteTheoPower,2)."</td>";
-            $output .= "<td></td>";
+            $output .= "<td>".round($this->gridRepo->sumByDate($anlage, date('Y-m-d', $stamp)))."</td>";
             $output .= "</tr>";
         }
         $output .= "</tbody></table></div>";
