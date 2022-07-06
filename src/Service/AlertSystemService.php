@@ -236,7 +236,7 @@ class AlertSystemService
         } elseif ($inverter['istdata'] === "Plant Control by PPC") {
             // PPC Control
             $message .=  "Plant is controlled by PPC <br>";
-            $errorType = "";
+            $errorType = OMC;
             $errorCategorie = EXTERNAL_CONTROL;
             $inverterNo = "*";
         }

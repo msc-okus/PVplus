@@ -214,116 +214,39 @@ class TicketController extends BaseController
         $beginTime = date_create($request->query->get('begin-time'));
         $endTime = date_create($request->query->get('end-time'));
 
-        dump($ticket, $beginTime, $endTime, $request);
-
         if ($ticket !== null && $beginTime && $endTime) {
+            if($ticket->getDates()->count() == 1) $ticket->removeAllDates();
             if ($beginTime > $ticket->getBegin()) {
                 $firstDate = new TicketDate();
-                $firstDate
-                    ->setBegin($ticket->getBegin())
-                    ->setEnd($beginTime)
-                    ->setTicket($ticket)
-                    ->setAnlage($ticket->getAnlage());
-
-            }
-            $text = "";
-            if ($beginTime > $ticket->getBegin()) {
-                $firstDate = new TicketDate();
+                $firstDate->copyTicket($ticket);
                 $firstDate->setBegin($ticket->getBegin());
                 $firstDate->setEnd($beginTime);
-                $firstDate->setTicket($ticket);
-                $firstDate->setAnlage($ticket->getAnlage());
-                $firstDate->setStatus($ticket->getStatus());
-                $firstDate->setErrorType($ticket->getErrorType());
-                $firstDate->setFreeText($text);
-                $firstDate->setDescription($ticket->getDescription());
-                $firstDate->setSystemStatus($ticket->getSystemStatus());
-                $firstDate->setPriority($ticket->getPriority());
-                $firstDate->setAnswer($ticket->getAnswer());
-                $firstDate->setInverter($ticket->getInverter());
-                $firstDate->setAlertType($ticket->getAlertType());
-            }
-
-            $mainDate = new TicketDate();
-            $mainDate->setBegin($beginTime);
-            $mainDate->setEnd($endTime);
-            $mainDate->setAnlage($ticket->getAnlage());
-            $mainDate->setTicket($ticket);
-            $mainDate->setStatus($ticket->getStatus());
-            $mainDate->setErrorType($ticket->getErrorType());
-            $mainDate->setFreeText($text);
-            $mainDate->setDescription($ticket->getDescription());
-            $mainDate->setSystemStatus($ticket->getSystemStatus());
-            $mainDate->setPriority($ticket->getPriority());
-            $mainDate->setAnswer($ticket->getAnswer());
-            $mainDate->setInverter($ticket->getInverter());
-            $mainDate->setAlertType($ticket->getAlertType());
-
-            $text = "";
-            if ($beginTime > $ticket->getBegin()) {
-                $firstDate = new TicketDate();
-                $firstDate->setBegin($ticket->getBegin());
-                $firstDate->setEnd($beginTime);
-                $firstDate->setTicket($ticket);
-                $firstDate->setAnlage($ticket->getAnlage());
-                $firstDate->setStatus($ticket->getStatus());
-                $firstDate->setErrorType($ticket->getErrorType());
-                $firstDate->setFreeText($text);
-                $firstDate->setDescription($ticket->getDescription());
-                $firstDate->setSystemStatus($ticket->getSystemStatus());
-                $firstDate->setPriority($ticket->getPriority());
-                $firstDate->setAnswer($ticket->getAnswer());
-                $firstDate->setInverter($ticket->getInverter());
-                $firstDate->setAlertType($ticket->getAlertType());
                 $ticket->addDate($firstDate);
-                #$em->persist($firstDate);
             }
+
             $mainDate = new TicketDate();
+            $mainDate->copyTicket($ticket);
             $mainDate->setBegin($beginTime);
             $mainDate->setEnd($endTime);
-            $mainDate->setAnlage($ticket->getAnlage());
-            $mainDate->setTicket($ticket);
-            $mainDate->setStatus($ticket->getStatus());
-            $mainDate->setErrorType($ticket->getErrorType());
-            $mainDate->setFreeText($text);
-            $mainDate->setDescription($ticket->getDescription());
-            $mainDate->setSystemStatus($ticket->getSystemStatus());
-            $mainDate->setPriority($ticket->getPriority());
-            $mainDate->setAnswer($ticket->getAnswer());
-            $mainDate->setInverter($ticket->getInverter());
-            $mainDate->setAlertType($ticket->getAlertType());
-            #$em->persist($mainDate);
+            $ticket->addDate($mainDate);
 
             if ($endTime < $ticket->getEnd()) {
                 $secondDate = new TicketDate();
+                $secondDate->copyTicket($ticket);
                 $secondDate->setBegin($endTime);
                 $secondDate->setEnd($ticket->getEnd());
-                $secondDate->setTicket($ticket);
-                $secondDate->setAnlage($ticket->getAnlage());
-                $secondDate->setStatus($ticket->getStatus());
-                $secondDate->setErrorType($ticket->getErrorType());
-                $secondDate->setFreeText($text);
-                $secondDate->setDescription($ticket->getDescription());
-                $secondDate->setSystemStatus($ticket->getSystemStatus());
-                $secondDate->setPriority($ticket->getPriority());
-                $secondDate->setAnswer($ticket->getAnswer());
-                $secondDate->setInverter($ticket->getInverter());
-                $secondDate->setAlertType($ticket->getAlertType());
-
-                #$em->persist($secondDate);
+                $ticket->addDate($secondDate);
             }
             $ticket->setSplitted(true);
 
-            if ($firstDate)  $ticket->addDate($firstDate);
-            if ($secondDate) $ticket->addDate($secondDate);
-            $ticket->addDate($mainDate);
-
             $em->persist($ticket);
             $em->flush();
-
+/*
             if ($request->isXmlHttpRequest()) {
                 return new Response(null, 204);
+
             }
+*/
         }
 
         $ticketDates = $ticket->getDates();
@@ -355,60 +278,22 @@ class TicketController extends BaseController
         $em->flush();
         $beginTime = $request->query->get('begin-time');
         $endTime = $request->query->get('end-time');
-        $text = "";
         if ($ticket != null && $beginTime && $endTime) {
             if ($beginTime > $ticket->getBegin()){
                 $firstDate = new TicketDate();
-                $firstDate->setBegin($ticket->getBegin());
-                $firstDate->setEnd($beginTime);
-                $firstDate->setTicket($ticket);
-                $firstDate->setAnlage($ticket->getAnlage());
-                $firstDate->setStatus($ticket->getStatus());
-                $firstDate->setErrorType($ticket->getErrorType());
-                $firstDate->setFreeText($text);
-                $firstDate->setDescription($ticket->getDescription());
-                $firstDate->setSystemStatus($ticket->getSystemStatus());
-                $firstDate->setPriority($ticket->getPriority());
-                $firstDate->setAnswer($ticket->getAnswer());
-                $firstDate->setInverter($ticket->getInverter());
-                $firstDate->setAlertType($ticket->getAlertType());
                 $ticket->addDate($firstDate);
-                $em->persist($firstDate);
+                //$em->persist($firstDate);
             }
             $mainDate = new TicketDate();
-            $mainDate->setBegin($beginTime);
-            $mainDate->setEnd($endTime);
-            $mainDate->setAnlage($ticket->getAnlage());
-            $mainDate->setTicket($ticket);
-            $mainDate->setStatus($ticket->getStatus());
-            $mainDate->setErrorType($ticket->getErrorType());
-            $mainDate->setFreeText($text);
-            $mainDate->setDescription($ticket->getDescription());
-            $mainDate->setSystemStatus($ticket->getSystemStatus());
-            $mainDate->setPriority($ticket->getPriority());
-            $mainDate->setAnswer($ticket->getAnswer());
-            $mainDate->setInverter($ticket->getInverter());
-            $mainDate->setAlertType($ticket->getAlertType());
+            $mainDate->copyTicket();
             $ticket->addDate($mainDate);
 
-            $em->persist($mainDate);
+            //$em->persist($mainDate);
             if ($endTime < $ticket->getEnd()){
                 $secondDate = new TicketDate();
-                $secondDate->setBegin($endTime);
-                $secondDate->setEnd($ticket->getEnd());
-                $secondDate->setTicket($ticket);
-                $secondDate->setAnlage($ticket->getAnlage());
-                $secondDate->setStatus($ticket->getStatus());
-                $secondDate->setErrorType($ticket->getErrorType());
-                $secondDate->setFreeText($text);
-                $secondDate->setDescription($ticket->getDescription());
-                $secondDate->setSystemStatus($ticket->getSystemStatus());
-                $secondDate->setPriority($ticket->getPriority());
-                $secondDate->setAnswer($ticket->getAnswer());
-                $secondDate->setInverter($ticket->getInverter());
-                $secondDate->setAlertType($ticket->getAlertType());
+                $secondDate->copyTicket($ticket);
                 $ticket->addDate($secondDate);
-                $em->persist($secondDate);
+                //$em->persist($secondDate);
             }
             $ticket->setSplitted(true);
             $em->persist($ticket);
@@ -449,6 +334,7 @@ class TicketController extends BaseController
                 $ticketdate = new TicketDate();
                 if ($ticket->getBegin()->format("Y/m/d H:i") < $begin) {$begin = $ticket->getBegin();}
                 if ($ticket->getEnd()->format("Y/m/d H:i") > $end){ $end = $ticket->getEnd();}
+                $ticketdate->copyTicket($ticket);
                 $masterTicket->addDate($ticketdate);
             }
             $masterTicket->setEnd($end);
