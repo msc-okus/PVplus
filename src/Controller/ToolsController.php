@@ -64,10 +64,12 @@ class ToolsController extends BaseController
             }
             $output .= "Command was send to messenger! Will be processed in background.<br>";
         }
+
         // Wenn Close geklickt wird mache dies:
-        if($form->isSubmitted() && $form->isValid() && $form->get('close')->isClicked()) {
+        if ($form->isSubmitted() && $form->isValid() && $form->get('close')->isClicked()) {
             return $this->redirectToRoute('app_dashboard');
         }
+
         return $this->render('tools/index.html.twig', [
             'toolsForm' => $form->createView(),
             'output'    => $output,

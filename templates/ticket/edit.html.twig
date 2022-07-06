@@ -1,17 +1,15 @@
 {% extends 'base.html.twig' %}
 
-{% block body %}
-    <h1>Editing Ticket</h1>
-    {{ include('ticket/_inc/_edit.html.twig') }}
-{% endblock %}
-
-
 {% block title %}
     {{  parent() }}Edit Ticket
 {% endblock %}
 
-
 {% block javascripts %}
     {{ parent() }}
     {{ encore_entry_script_tags('ticket_edit') }}
+{% endblock %}
+
+{% block body %}
+    <h1>Editing Ticket</h1>
+    {{ include('ticket/_inc/_edit.html.twig') }}
 {% endblock %}

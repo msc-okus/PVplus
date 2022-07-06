@@ -121,23 +121,32 @@ class AnlagenRepository extends ServiceEntityRepository
      */
     public function findByEignerActive($eignerId, $anlageId): array
     {
+        $qb = $this->createQueryBuilder('a')
+            ->leftJoin('a.economicVarNames', 'varName')
+            ->leftJoin('a.economicVarValues', 'ecoValu')
+            ->leftJoin('a.settings', 'settings')
+            ->addSelect('varName')
+            ->addSelect('ecoValu')
+            ->addSelect('settings');
         if ($this->security->isGranted('ROLE_G4N')) {
-            $qb = $this->createQueryBuilder('a')
+            $qb
                 ->andWhere("a.anlHidePlant = 'No'");
         } else {
-            $qb = $this->createQueryBuilder('a')
+            $qb
                 ->andWhere("a.anlHidePlant = 'No'")
                 ->andWhere("a.anlView = 'Yes'")
             ;
         }
-        $qb->andWhere("a.eigner = :eigner")
+        $qb
+            ->andWhere("a.eigner = :eigner")
             ->add("orderBy", ['FIELD(a.anlId, :anlage) DESC'])
             ->addOrderBy('a.anlName')
             ->setParameter('eigner', $eignerId)
             ->setParameter('anlage', $anlageId)
         ;
 
-        return $qb->getQuery()
+        return $qb
+            ->getQuery()
             ->getResult();
     }
 
@@ -146,16 +155,24 @@ class AnlagenRepository extends ServiceEntityRepository
      */
     public function findGrantedActive($eignerId, $anlageId, $granted): array
     {
+        $qb = $this->createQueryBuilder('a')
+            ->leftJoin('a.economicVarNames', 'varName')
+            ->leftJoin('a.economicVarValues', 'ecoValu')
+            ->leftJoin('a.settings', 'settings')
+            ->addSelect('varName')
+            ->addSelect('ecoValu')
+            ->addSelect('settings');
         if ($this->security->isGranted('ROLE_G4N')) {
-            $qb = $this->createQueryBuilder('a')
+            $qb
                 ->andWhere("a.anlHidePlant = 'No'");
         } else {
-            $qb = $this->createQueryBuilder('a')
+            $qb
                 ->andWhere("a.anlHidePlant = 'No'")
                 ->andWhere("a.anlView = 'Yes'")
             ;
         }
-        $qb->andWhere("a.eigner = :eigner")
+        $qb
+            ->andWhere("a.eigner = :eigner")
             ->andWhere("a.anlId IN (:granted)")
             ->add("orderBy", ['FIELD(a.anlId, :anlage) DESC'])
             ->addOrderBy('a.anlName')
@@ -164,12 +181,14 @@ class AnlagenRepository extends ServiceEntityRepository
             ->setParameter('anlage', $anlageId)
         ;
 
-        return $qb->getQuery()
+        return $qb
+            ->getQuery()
             ->getResult();
     }
 
     /**
      * @return Anlage[]
+     * @deprecated
      */
     public function findAll(): array
     {
@@ -177,6 +196,12 @@ class AnlagenRepository extends ServiceEntityRepository
             ->andWhere("a.anlHidePlant = 'No'")
             ->orderBy('a.eigner', 'ASC')
             ->addOrderBy('a.anlName', 'ASC')
+            ->leftJoin('a.economicVarNames', 'varName')
+            ->leftJoin('a.economicVarValues', 'ecoValu')
+            ->leftJoin('a.settings', 'settings')
+            ->addSelect('varName')
+            ->addSelect('ecoValu')
+            ->addSelect('settings')
             ->getQuery()
             ->getResult();
     }
@@ -187,6 +212,12 @@ class AnlagenRepository extends ServiceEntityRepository
             ->andWhere("a.anlHidePlant = 'No'")
             ->andWhere('a.eignerId = :eigner')
             ->setParameter('eigner', $eigner)
+            ->leftJoin('a.economicVarNames', 'varName')
+            ->leftJoin('a.economicVarValues', 'ecoValu')
+            ->leftJoin('a.settings', 'settings')
+            ->addSelect('varName')
+            ->addSelect('ecoValu')
+            ->addSelect('settings')
             ->getQuery()
             ->getResult();
     }
@@ -228,24 +259,30 @@ class AnlagenRepository extends ServiceEntityRepository
      */
     public function findAllActiveAndAllowed(): array
     {
+        $qb = $this->createQueryBuilder('a')
+            ->leftJoin('a.economicVarNames', 'varName')
+            ->leftJoin('a.economicVarValues', 'ecoValu')
+            ->leftJoin('a.settings', 'settings')
+            ->addSelect('varName')
+            ->addSelect('ecoValu')
+            ->addSelect('settings');
+
         if ($this->security->isGranted('ROLE_G4N')) {
-            $qb = $this->createQueryBuilder('a')
-                ->andWhere("a.anlHidePlant = 'No'")
-            ;
+            $qb
+                ->andWhere("a.anlHidePlant = 'No'");
         } else {
             /** @var User $user */
             $user = $this->security->getUser();
             $accesslist = $user->getAccessList();
-            $qb = $this->createQueryBuilder('a')
+            $qb
                 ->andWhere("a.anlHidePlant = 'No'")
                 ->andWhere("a.anlView = 'Yes'")
                 ->andWhere("a.eigner IN (:accesslist)")
-                ->setParameter('accesslist', $accesslist)
-            ;
+                ->setParameter('accesslist', $accesslist);
         }
-        $qb->orderBy('a.eigner', 'ASC')
-            ->addOrderBy('a.anlName', 'ASC')
-            ;
+        $qb
+            ->orderBy('a.eigner', 'ASC')
+            ->addOrderBy('a.anlName', 'ASC');
 
         return $qb  ->getQuery()
                     ->getResult();
@@ -257,18 +294,23 @@ class AnlagenRepository extends ServiceEntityRepository
      */
     public function getWithSearchQueryBuilder(?string $term): QueryBuilder
     {
-        $qb = $this->createQueryBuilder('c')
-            ->innerJoin('c.eigner', 'a')
-            ->leftJoin('c.economicVarNames', 'eco')
-            ->addSelect('a')
-            ->addSelect('eco');
+        $qb = $this->createQueryBuilder('a')
+            ->innerJoin('a.eigner', 'eigner')
+            ->addSelect('eigner')
+            ->leftJoin('a.economicVarNames', 'varName')
+            ->leftJoin('a.economicVarValues', 'ecoValu')
+            ->leftJoin('a.settings', 'settings')
+            ->addSelect('varName')
+            ->addSelect('ecoValu')
+            ->addSelect('settings')
+        ;
 
         if ($term) {
-            $qb ->andWhere('c.anlName LIKE :term OR c.anlPlz LIKE :term OR c.anlOrt LIKE :term OR a.firma LIKE :term' )
+            $qb ->andWhere('a.anlName LIKE :term OR a.anlPlz LIKE :term OR a.anlOrt LIKE :term OR eigner.firma LIKE :term' )
                 ->setParameter('term', '%' . $term . '%');
         }
-        return $qb  ->orderBy('a.firma', 'ASC')
-                    ->addOrderBy('c.anlName', 'ASC');
+        return $qb  ->orderBy('eigner.firma', 'ASC')
+                    ->addOrderBy('a.anlName', 'ASC');
 
     }
 
@@ -279,9 +321,15 @@ class AnlagenRepository extends ServiceEntityRepository
     public function findByAllMatching(string $query, int $limit = 100)
     {
         $qb = $this->createQueryBuilder('a')
-        ->andWhere('a.anlName LIKE :query')
-        ->setParameter('query', '%'.$query.'%')
-        ->setMaxResults($limit)
+            ->leftJoin('a.economicVarNames', 'varName')
+            ->leftJoin('a.economicVarValues', 'ecoValu')
+            ->leftJoin('a.settings', 'settings')
+            ->addSelect('varName')
+            ->addSelect('ecoValu')
+            ->addSelect('settings')
+            ->andWhere('a.anlName LIKE :query')
+            ->setParameter('query', '%'.$query.'%')
+            ->setMaxResults($limit)
             ->addSelect('a');
 
 
@@ -316,7 +364,13 @@ class AnlagenRepository extends ServiceEntityRepository
             ->setParameter('eigners', $eigners)
             ->setParameter('grantedPlantList', $grantedPlantList)
             ->innerJoin('c.eigner', 'a')
-            ->addSelect('a');
+            ->addSelect('a')
+            ->leftJoin('a.economicVarNames', 'varName')
+            ->leftJoin('a.economicVarValues', 'ecoValu')
+            ->leftJoin('a.settings', 'settings')
+            ->addSelect('varName')
+            ->addSelect('ecoValu')
+            ->addSelect('settings');
 
         if ($term) {
             $qb ->andWhere('c.anlName LIKE :term OR c.anlPlz LIKE :term OR c.anlOrt LIKE :term OR a.firma LIKE :term' )
