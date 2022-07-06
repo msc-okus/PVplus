@@ -172,8 +172,8 @@ class WeatherServiceNew
 
         $sunrisedata = date_sun_info(date_create_from_format('Y-m-d H:m', $current_date),  (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon());
 
-        $sunrise = date("H:i",$sunrisedata['astronomical_twilight_begin'] + 3600);
-        $sunset = date("H:i",$sunrisedata['astronomical_twilight_end'] + 3600);
+        $sunrise = date("H:i",$sunrisedata['sunrise'] + 3600);
+        $sunset = date("H:i",$sunrisedata['sunset'] + 3600);
 
         $returnArray['sunrise'] = $current_date." ".$sunrise;
         $returnArray['sunset'] = $current_date." ".$sunset;

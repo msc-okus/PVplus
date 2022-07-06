@@ -286,7 +286,7 @@ trait G4NTrait
                     //wintertime
                     $offset = $offset - 3600; // not sure why this is nessary
                 }
-                dump($offset);
+        dump($offset);
 
         $of = $offset / 3600;
 
