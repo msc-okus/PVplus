@@ -61,13 +61,19 @@ export default class extends Controller {
         event.preventDefault();
         const  $form = $(this.modalBodyTarget).find('.js-split-ticket');
         try {
-            await $.ajax({
+            const response = await $.ajax({
                 url: this.splitUrlValue,
                 data: $form.serialize(),
             });
+            console.log("eo")
+            console.log(response);
+            this.modalBodyTarget.innerHTML = response;
             this.splitModal.destroy();
         } catch(e) {
+            console.log(e);
+
             this.modalBodyTarget.innerHTML = e.responseText;
         }
+
     }
 }
