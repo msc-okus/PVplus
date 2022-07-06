@@ -42,9 +42,9 @@ class DefaultJMController extends AbstractController
         ]);
     }
     #[Route(path: '/test/read', name: 'default_read')]
-public function testread(FunctionsService $fs, AnlagenRepository $ar){
-        $inverter = $ar->findIdLike("96");
-        dd($fs->readInverters("11, 5, 14-22", $inverter[0]));
+public function testread(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather){
+        $anlage = $ar->findIdLike("94")[0];
+        dump($weather->getSunrise($anlage, "2022-01-01"));
 
         return $this->render('base.html.twig');// this is suposed to never run so no problem
 

@@ -103,12 +103,14 @@ class TicketFormType extends AbstractType
             ])
 
             ->add('freeText', CKEditorType::class, [
-                'config' => array('toolbar' => 'my_toolbar'),
-                'required' => false,
+                'config'        => ['toolbar' => 'my_toolbar'],
+                'attr'          => ['rows' => '9'],
+                'required'      => false,
             ])
             ->add('answer', CKEditorType::class, [
-                'config' => array('toolbar' => 'my_toolbar'),
-                'required' => false,
+                'config'        => ['toolbar' => 'my_toolbar'],
+                'attr'          => ['rows' => '9'],
+                'required'      => false,
             ])
             ->add('PR0', SwitchType::class, [
                 'label'     => 'PR',

@@ -1,5 +1,14 @@
-
 {% extends 'base.html.twig' %}
+
+{% block title %}
+    {{  parent() }}new Ticket
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {{ encore_entry_script_tags('ticket_edit') }}
+{% endblock %}
 
 {% block body %}
     <div class="grid-x">
@@ -8,16 +17,4 @@
         </div>
     </div>
     {{ include('ticket/_inc/_edit.html.twig') }}
-{% endblock %}
-
-
-{% block title %}
-    {{  parent() }}new Ticket
-{% endblock %}
-
-
-{% block javascripts %}
-    {{ parent() }}
-
-    {{ encore_entry_script_tags('ticket_edit') }}
 {% endblock %}

@@ -84,7 +84,7 @@ class GenerateTicketsCommand extends Command
             $counter = ($counter * 4) - 1;
 
             foreach ($anlagen as $anlage) {
-                while (((int)date('i') >= 28 && (int)date('i') < 35) || (int)date('i') >= 58 || (int)date('i') < 5) {
+                while (((int)date('i') >= 26 && (int)date('i') < 35) || (int)date('i') >= 56 || (int)date('i') < 5) {
                     $io->comment("Wait...");
                     sleep(30);
                 }
