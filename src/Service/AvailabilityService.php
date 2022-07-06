@@ -49,7 +49,7 @@ class AvailabilityService
      * @param bool $second
      * @return string
      */
-    public function checkAvailability(Anlage|int $anlage, $date, $second = false): string
+    public function checkAvailability(Anlage|int $anlage, $date, bool $second = false): string
     {
         if (is_int($anlage)) $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);
 
@@ -96,19 +96,7 @@ class AvailabilityService
                         $inverterPowerDc[$acGroup->getAcGroup()] = $acGroup->getDcPowerInverter();
                     }
                     break;
-                /*
-                    default:
-                    if ($anlage->getUseNewDcSchema()) {
 
-                    } else {
-                        foreach ($anlage->getAcGroups() as $acGroup) {
-                            ($acGroup->getDcPowerInverter() > 0) ? $powerPerInverter = $acGroup->getDcPowerInverter() / ($acGroup->getUnitLast() - $acGroup->getUnitFirst() + 1) : $powerPerInverter = 0;
-                            for ($inverter = $acGroup->getUnitFirst(); $inverter <= $acGroup->getUnitLast(); $inverter++) {
-                                $inverterPowerDc[$inverter] = $powerPerInverter;
-                            }
-                        }
-                    }
-                */
             }
             // Speichern der ermittelten Werte
             foreach ($availabilitysHelper as $inverter => $availability) {

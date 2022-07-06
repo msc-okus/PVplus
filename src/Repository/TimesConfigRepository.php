@@ -21,7 +21,7 @@ class TimesConfigRepository extends ServiceEntityRepository
     }
 
     /**
-    * @return TimesConfig[] Returns an array of TimesConfig objects
+    * @return TimesConfig Returns an array of TimesConfig objects
     */
     public function findValidConfig(Anlage $anlage, $type, \DateTime $date)
     {
@@ -52,17 +52,4 @@ class TimesConfigRepository extends ServiceEntityRepository
 
         return $qb[0];
     }
-
-
-    /*
-    public function findOneBySomeField($value): ?TimesConfig
-    {
-        return $this->createQueryBuilder('t')
-            ->andWhere('t.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }
