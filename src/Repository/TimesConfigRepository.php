@@ -38,15 +38,15 @@ class TimesConfigRepository extends ServiceEntityRepository
             ->getResult()
             ;
 
+        //Search for fallback if we can not find any other config
         if (! $qb) {
             $qb = $this->createQueryBuilder('t')
                 ->andWhere('t.anlage IS NULL')
                 ->andWhere('t.type = :type')
                 ->setParameter('type', $type)
                 ->getQuery()
-                ->getSingleResult()
-            ;
-
+                ->getSingleResult();
+            
             return $qb;
         }
 

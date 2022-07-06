@@ -45,7 +45,6 @@ class UpdateAvailabilityCommand extends Command
         $ergebniss = '';
         $io = new SymfonyStyle($input, $output);
         $day = $input->getOption('day');
-//        $anlageId = $input->getOption('anlage');
         $anlageId = $input->getArgument('plantid');
         $optionFrom = $input->getOption('from');
         $optionTo = $input->getOption('to');
