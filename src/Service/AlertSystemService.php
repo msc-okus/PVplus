@@ -127,7 +127,44 @@ class AlertSystemService
         return $status_report;
     }
 
+     //TEST FOR OPTIMIZED VERSION
+//Notes: Maybe we could make 2 separate functions, the one to create old tickets will do only one super big query to the db (depending on which is the max amount of records we can take from the db)
+    public function checkSystem2(Anlage $anlage, ?string $time = null): string
+    {
+        if ($time === null) $time = $this->getLastQuarter(date('Y-m-d H:i:s') );
+        $ppc = false;
+        //we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
+        $time = G4NTrait::timeAjustment($time, -2);
 
+        $sungap = $this->weather->getSunrise($anlage, $time);
+        if ((($time >= $sungap['sunrise']) && ($time <= $sungap['sunset']))) {
+                $plant_status = self::RetrieveQuarterPlant($time, $anlage);
+                // We do this to avoid checking further inverters if we have a PPC control shut
+                if($ppc === false) {
+
+                    if ($plant_status['istdata'] == "Plant Control by PPC"){
+                        $ppc = true;
+                        $message = $this->analyzePlant($time, $anlage, $sungap['sunrise']);
+                        self::messagingFunction($message, $anlage);
+                    }
+                    else {
+                        $message = $this->analyzeIst($time, $anlage, $sungap['sunrise']);
+                        self::messagingFunction($message, $anlage);
+                        unset($inverter_status);
+                    }
+
+                }
+            unset($system_status);
+        }
+        $this->em->flush();
+
+        return "success";
+    }
+
+    private static function RetrieveQuarterPlant(string $stamp, Anlage $anlage): array
+    {}
+    private function analyzePlant($time, Anlage $anlage, $sunrise): string
+    {}
     //----------------Analyzing functions----------------
 
     /**
@@ -325,18 +362,6 @@ class AlertSystemService
     }
 
     // ---------------Checking Functions-----------------
-
-    /**
-     * here we analyze the data of the inverter and generate the status
-     * @param $anlage
-     * @param $time
-     * @param $inverter
-     * @return array
-     */
-    private static function IstData($anlage, $time, $inverter): array
-    {
-        return self::RetrieveQuarterIst($time, $inverter, $anlage);
-    }
 
     /**
      * New version with datagap algorithm
