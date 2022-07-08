@@ -162,7 +162,19 @@ class AlertSystemService
     }
 
     private static function RetrieveQuarterPlant(string $stamp, Anlage $anlage): array
-    {}
+    {
+        $conn = self::getPdoConnection();
+        $irrLimit = 30;
+
+        $sqlw = "SELECT g_lower, g_upper FROM " . $anlage->getDbNameWeather() . " WHERE stamp = '$stamp' ";
+        $respirr = $conn->query($sqlw);
+
+        $sqlExp = "SELECT ac_exp_power  FROM ". $anlage->getDbNameDcSoll() . " WHERE  stamp = '$stamp' AND wr = '$inverter';";
+        $resultExp = $conn->query($sqlExp);
+
+        $sqlAct = "SELECT wr_pac as ac_power, wr_pdc as dc_power, frequency as freq, u_ac as voltage FROM " . $anlage->getDbNameIst() . " WHERE stamp = '$stamp' AND unit = '$inverter' ";
+        $resp = $conn->query($sqlAct);
+    }
     private function analyzePlant($time, Anlage $anlage, $sunrise): string
     {}
     //----------------Analyzing functions----------------

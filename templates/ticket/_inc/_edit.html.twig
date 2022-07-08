@@ -45,8 +45,8 @@
                                             {% for date in dates %}
                                                 <tr>
                                                     <td>{{ loop.index }}</td>
-                                                    <td>{{ date.begin|format_datetime() }}</td>
-                                                    <td>{{ date.end|format_datetime() }}</td>
+                                                    <td>{{ date.begin|format_datetime(pattern="yyyy-MM-dd HH:mm") }}</td>
+                                                    <td>{{ date.end|format_datetime(pattern="yyyy-MM-dd HH:mm") }}</td>
                                                 </tr>
                                             {% endfor %}
                                         </tbody>
