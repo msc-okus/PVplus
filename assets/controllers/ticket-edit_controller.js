@@ -46,6 +46,7 @@ export default class extends Controller {
         }
     }
 
+
     openSplitTicket(event){
         event.preventDefault();
         this.splitModal = new Reveal($(this.splitModalTarget));
@@ -65,8 +66,6 @@ export default class extends Controller {
                 url: this.splitUrlValue,
                 data: $form.serialize(),
             });
-            console.log("eo")
-            console.log(response);
             this.modalBodyTarget.innerHTML = response;
             this.splitModal.destroy();
         } catch(e) {
@@ -75,5 +74,10 @@ export default class extends Controller {
             this.modalBodyTarget.innerHTML = e.responseText;
         }
 
+    }
+
+    async dataGap(event){
+        event.preventDefault();
+        console.log()
     }
 }

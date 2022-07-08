@@ -38,9 +38,6 @@ use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\Translation\TranslatableMessage;
 
 
-$session = new Session();
-
-
 class TicketController extends BaseController
 {
     use PVPNameArraysTrait;
@@ -82,26 +79,17 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/edit/{id}', name: 'app_ticket_edit')]
     public function edit($id, TicketRepository $ticketRepo, EntityManagerInterface $em, Request $request) : Response
     {
-        #$session=$this->container->get('session');
         $ticket = $ticketRepo->find($id);
         $ticketDates = $ticket->getDates();
         if($ticketDates->isEmpty()) $ticketDates = null;
         //reading data from session
         $form = $this->createForm(TicketFormType::class, $ticket);
-        #$searchstatus   = $session->get('search');
-        #$editor         = $session->get('editor');
-        #$anlage         = $session->get('anlage');
-        #$id             = $session->get('id');
-        #$prio           = $session->get('prio');
         $page           = $request->query->getInt('page', 1);
-
+        dump($page);
         $form->handleRequest($request);
-      
-        //Creating the route with the query
-        #$Route = $this->generateUrl('app_ticket_list',[], UrlGeneratorInterface::ABS_PATH);
-        #$Route = $Route."?anlage=".$anlage."&user=".$editor."&id=".$id."&prio=".$prio."&searchstatus=".$searchstatus."&search=yes";
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $request->attributes->set('page', $page);
             $ticket = $form->getData();
             $ticket->setEditor($this->getUser()->getUsername());
             if ($ticket->getStatus() === 30 && $ticket->getend() === null) $ticket->setEnd(new \DateTime("now"));
@@ -143,6 +131,7 @@ class TicketController extends BaseController
         $prio       = $request->query->get('prio');
         $category   = $request->query->get('category');
         $type       = $request->query->get('type');
+        $page       = $request->query->getInt('page', 1);
 
         $filter['status']['value'] = $status;
         $filter['status']['array'] = self::ticketStati();
@@ -153,10 +142,10 @@ class TicketController extends BaseController
         $filter['type']['value'] = $type;
         $filter['type']['array'] = self::errorType();
 
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter);
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $page);
         $pagination = $paginator->paginate(
             $queryBuilder,                                    /* query NOT result */
-            $request->query->getInt('page', 1),   /* page number*/
+            $page,   /* page number*/
             25                                          /*limit per page*/
         );
 

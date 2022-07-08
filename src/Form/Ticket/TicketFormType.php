@@ -96,10 +96,13 @@ class TicketFormType extends AbstractType
                 'disabled' => true,
             ])
             ->add('errorType', ChoiceType::class, [
-                'label' => 'Type of error',
-                'help'  => 'SOR, EFOR, OMC',
-                'choices' => self::errorType(),
-                'disabled' => true,
+                'label'         => 'Type of error',
+                'help'          => 'SOR, EFOR, OMC',
+                'choices'       => self::errorType(),
+                'placeholder'   => 'Please select ...',
+                'disabled'      => false,
+                'empty_data'    => '',
+                'required'      => false,
             ])
 
             ->add('freeText', CKEditorType::class, [
@@ -112,6 +115,12 @@ class TicketFormType extends AbstractType
                 'attr'          => ['rows' => '9'],
                 'required'      => false,
             ])
+
+            #### ACTIONS
+
+
+
+            ####
             ->add('PR0', SwitchType::class, [
                 'label'     => 'PR',
                 'required'  => false
