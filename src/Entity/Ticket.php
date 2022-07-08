@@ -42,9 +42,9 @@ class Ticket
     private int $status;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", nullable=true)
      */
-    private string $errorType; // SFOR, EFOR, OMC  //errorType
+    private ?string $errorType; // SFOR, EFOR, OMC  //errorType
 
     /**
      * @ORM\Column(type="string", length=50)
@@ -124,7 +124,7 @@ class Ticket
     /**
      * @ORM\Column(type="text", nullable=true)
      */
-    private string $freeText;
+    private ?string $freeText;
 
     /**
      * @ORM\Column(type="string", length=255)
@@ -165,6 +165,11 @@ class Ticket
      * @ORM\OneToMany(targetEntity=TicketDate::class, mappedBy="ticket", cascade={"persist", "remove"})
      */
     private $dates;
+
+    /**
+     * @ORM\Column(type="string", length=20, nullable=true)
+     */
+    private string $dataGapEvaluation;
 
     public function __construct()
     {
@@ -216,14 +221,16 @@ class Ticket
         return $this;
     }
 
-    public function getErrorType(): string
+    public function getErrorType(): ?string
     {
         return $this->errorType;
     }
 
-    public function setErrorType(string $errorType): void
+    public function setErrorType(?string $errorType): self
     {
         $this->errorType = $errorType;
+
+        return $this;
     }
 
     public function getEditor(): ?string
@@ -540,4 +547,17 @@ class Ticket
         $this->dates->clear();
         return $this;
     }
+
+    public function getDataGapEvaluation(): string
+    {
+        return $this->dataGapEvaluation;
+    }
+
+    public function setDataGapEvaluation(string $dataGapEvaluation): self
+    {
+        $this->dataGapEvaluation = $dataGapEvaluation;
+
+        return $this;
+    }
+
 }

@@ -79,7 +79,7 @@ class TicketRepository extends ServiceEntityRepository
      * @param string|null $inverter
      * @return QueryBuilder
      */
-    public function getWithSearchQueryBuilderNew(?string $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter): QueryBuilder
+    public function getWithSearchQueryBuilderNew(?string $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, $page): QueryBuilder
     {
 
         /** @var User $user */
