@@ -31,7 +31,6 @@
                         </div>
 
                         {% if (dates != null) %}
-                            {% set counter = 1 %}
                             <div class="grid-x grid-margin-x grid-padding-x">
                                 <div class="cell small-12 medium-6 large-6">
                                     <table>
@@ -45,11 +44,10 @@
                                         <tbody>
                                             {% for date in dates %}
                                                 <tr>
-                                                    <td>{{ counter }}</td>
+                                                    <td>{{ loop.index }}</td>
                                                     <td>{{ date.begin|format_datetime() }}</td>
                                                     <td>{{ date.end|format_datetime() }}</td>
                                                 </tr>
-                                                {% set counter = counter + 1 %}
                                             {% endfor %}
                                         </tbody>
                                     </table>
@@ -68,18 +66,23 @@
                     <fieldset class="fieldset">
                         <legend>Actions</legend>
                         <div class="grid-x grid-margin-x grid-padding-x">
-                            <div class="cell small-12 medium-4 large-2">
-                                <p style="display: inline-block;">
-                                    Could be a Communication error!
-                                    <button type="button" class="button small alert action-icon shadow">confirm</button>
-                                    <button type="button" class="button small success action-icon shadow">outage</button>
-                                </p>
-                                <select style="display: inline-block;" name="data-gap">
-                                    <option>unresolved</option>
-                                    <option>confirmed</option>
-                                    <option>downtime</option>
-                                </select>
-                            </div>
+                            {% if (ticket.alertType == 10) %}
+                                <div class="cell small-12 medium-4 large-2">
+                                    <p style="display: inline-block;">
+                                        Could be a Communication error!
+                                        <button type="button" class="button small alert action-icon shadow">confirm</button>
+                                        <button type="button" class="button small success action-icon shadow">outage</button>
+                                    </p>
+                                    <select style="display: inline-block;"
+                                            name="data-gap"
+                                            data-action="select->dataGap"
+                                    >
+                                        <option value="10">outage</option>
+                                        <option value="30">data gap</option>
+                                        <option value="30">com. error</option>
+                                    </select>
+                                </div>
+                            {% endif %}
                         </div>
                     </fieldset>
                     <fieldset class="fieldset">
@@ -146,14 +149,11 @@
                 </div>
             </div>
         </div>
-
         <input type="hidden" name="page" value="{{ page }}">
         {{ form_end(ticketForm) }}
 
 
         {% if (edited == true) %}
-
-
             <div id="formd">
                 <div class="reveal" id="split-ticket"
                      data-reveal
@@ -199,7 +199,8 @@
                         <button
                             class="close-button"
                             type="button"
-                            data-action="ticket-edit#closeSplitTicket">
+                            data-action="ticket-edit#closeSplitTicket"
+                        >
                             <span aria-hidden="true">&times;</span>
                         </button>
 
