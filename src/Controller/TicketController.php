@@ -32,6 +32,7 @@ use phpDocumentor\Reflection\Types\Object_;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -85,7 +86,6 @@ class TicketController extends BaseController
         //reading data from session
         $form = $this->createForm(TicketFormType::class, $ticket);
         $page           = $request->query->getInt('page', 1);
-        dump($page);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -113,9 +113,22 @@ class TicketController extends BaseController
     }
 
     #[Route(path: '/ticket/list', name: 'app_ticket_list')]
-    public function list(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo) : Response
+    public function list(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo, RequestStack $requestStack) : Response
     {
         $filter = [];
+        $session = $requestStack->getSession();
+
+        $pageSession = $session->get('page');
+        $page = $request->query->getInt('page');
+        dump("1 || Page: ".$page." | Page Session: ".$pageSession);
+        if ($page == 0) {
+            if ($pageSession == 0){
+                $page = 1;
+            } else {
+                $page = $pageSession;
+            }
+        }
+        dump("2 || Page: ".$page." | Page Session: ".$pageSession);
 
         //Reading data from request
         /** @var Anlage|string $anlage */
@@ -131,7 +144,7 @@ class TicketController extends BaseController
         $prio       = $request->query->get('prio');
         $category   = $request->query->get('category');
         $type       = $request->query->get('type');
-        $page       = $request->query->getInt('page', 1);
+
 
         $filter['status']['value'] = $status;
         $filter['status']['array'] = self::ticketStati();
@@ -142,12 +155,14 @@ class TicketController extends BaseController
         $filter['type']['value'] = $type;
         $filter['type']['array'] = self::errorType();
 
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $page);
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter);
         $pagination = $paginator->paginate(
             $queryBuilder,                                    /* query NOT result */
             $page,   /* page number*/
             25                                          /*limit per page*/
         );
+
+        $session->set('page', "$page");
 
         if ($request->query->get('ajax')) {
             return $this->render('ticket/_inc/_listTickets.html.twig', [
