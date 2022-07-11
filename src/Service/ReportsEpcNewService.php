@@ -204,7 +204,7 @@ class ReportsEpcNewService
                 }
             }
             $tableArray[$n]['M_eGridYield']                           = ($hasMonthData) ? $eGridReal : $pvSystData[$month - 1]['ertragDesign'] * $factor; // Spalte M // eGrid gemessen (je nach Konfiguration der Anlage aus dem Feld e_z_evu oder aus den Tageswerten der externen Grid Messung
-            $tableArray[$n]['N_specificYield']                        = $tableArray[$n]['M_eGridYield'] / $anlage->getKwPeak(); // Spalte N
+            $tableArray[$n]['N_specificYield']                        = $tableArray[$n]['M_eGridYield'] / $anlage->getPnom(); // Spalte N
             $tableArray[$n]['O_availability']                         = ($hasMonthData) ? $prArray['availability'] : ''; // Spalte O
             $tableArray[$n]['P_part']                                 = 0; // Spalte P // muss in Runde 2 Berechnet werden
             $tableArray[$n]['Q_prReal_prProg']                        = $this->PRCalulation->calcPrByValues($anlage, $tableArray[$n]['L_irr'], $tableArray[$n]['N_specificYield'], $tableArray[$n]['M_eGridYield'], $prArray['powerTheoTempCorr'], $tableArray[$n]['O_availability']); // Spalte Q // PR Real bzw PR prognostiziert wenn noch kein PR Real vorhanden
