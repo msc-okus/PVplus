@@ -33,7 +33,7 @@ class DefaultJMController extends AbstractController
     public function check(AnlagenRepository $anlagenRepository, AlertSystemService $service): Response
     {
         $anlage = $anlagenRepository->findOneBy(['anlId' => 111]);
-        $service->generateTicketsInterval($anlage,"2022-06-06 07:00", "2022-06-06 18:00");
+        $service->checkSystem2($anlage, "2022-01-04 10:45:00");
 
         return $this->render('cron/showResult.html.twig', [
             'headline'      => 'Ticket',
