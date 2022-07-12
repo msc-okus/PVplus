@@ -120,7 +120,6 @@ class TicketController extends BaseController
 
         $pageSession = $session->get('page');
         $page = $request->query->getInt('page');
-        dump("1 || Page: ".$page." | Page Session: ".$pageSession);
         if ($page == 0) {
             if ($pageSession == 0){
                 $page = 1;
@@ -128,7 +127,6 @@ class TicketController extends BaseController
                 $page = $pageSession;
             }
         }
-        dump("2 || Page: ".$page." | Page Session: ".$pageSession);
 
         //Reading data from request
         /** @var Anlage|string $anlage */
@@ -137,7 +135,7 @@ class TicketController extends BaseController
         } else {
             $anlage = "";
         }
-        $status     = $request->query->get('status');
+        $status     = $request->query->get('status', default: 10);
         $editor     = $request->query->get('editor');
         $id         = $request->query->get('id');
         $inverter   = $request->query->get('inverter');
@@ -155,7 +153,9 @@ class TicketController extends BaseController
         $filter['type']['value'] = $type;
         $filter['type']['array'] = self::errorType();
 
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter);
+        $order['begin'] = 'DESC'; // null, ASC, DESC
+
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $order);
         $pagination = $paginator->paginate(
             $queryBuilder,                                    /* query NOT result */
             $page,   /* page number*/
