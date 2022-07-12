@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8e66afd5cb4543db618850c8cb45b420",
+    "content-hash": "ab687226acaf30968b19add3b66cbf70",
     "packages": [
         {
             "name": "api-platform/core",
@@ -7956,6 +7956,67 @@
             "time": "2020-08-25T19:10:18+00:00"
         },
         {
+            "name": "stakovicz/ux-collection",
+            "version": "0.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/stakovicz/ux-collection.git",
+                "reference": "ec10a942ef10b93397d4151f3ffbbd21436d7884"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/stakovicz/ux-collection/zipball/ec10a942ef10b93397d4151f3ffbbd21436d7884",
+                "reference": "ec10a942ef10b93397d4151f3ffbbd21436d7884",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2.5",
+                "symfony/config": "^4.4.17|^5.0",
+                "symfony/dependency-injection": "^4.4.17|^5.0",
+                "symfony/form": "^4.4.17|^5.0",
+                "symfony/http-kernel": "^4.4.17|^5.0"
+            },
+            "require-dev": {
+                "symfony/framework-bundle": "^4.4.17|^5.0",
+                "symfony/phpunit-bridge": "^5.2",
+                "symfony/twig-bundle": "^4.4.17|^5.0",
+                "symfony/var-dumper": "^4.4.17|^5.0"
+            },
+            "type": "symfony-bundle",
+            "extra": {
+                "branch-alias": {
+                    "dev-main": "0.0.4-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Stakovicz\\UXCollection\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Stakovicz",
+                    "email": "albin.kester@gmail.com"
+                }
+            ],
+            "description": "UX Collection for Symfony Forms",
+            "keywords": [
+                "ux-collection"
+            ],
+            "support": {
+                "issues": "https://github.com/stakovicz/ux-collection/issues",
+                "source": "https://github.com/stakovicz/ux-collection/tree/0.0.4"
+            },
+            "time": "2021-04-29T19:52:43+00:00"
+        },
+        {
             "name": "stof/doctrine-extensions-bundle",
             "version": "v1.7.0",
             "source": {
@@ -15290,5 +15351,5 @@
         "ext-pdo": "*"
     },
     "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "plugin-api-version": "2.1.0"
 }

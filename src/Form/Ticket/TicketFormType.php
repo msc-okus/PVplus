@@ -8,8 +8,10 @@ use App\Form\Type\AnlageTextType;
 use App\Form\Type\SwitchType;
 use App\Helper\PVPNameArraysTrait;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
+use Stakovicz\UXCollection\Form\UXCollectionType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -68,6 +70,10 @@ class TicketFormType extends AbstractType
                 ]);
         }
         $builder
+            ->add('dates', UXCollectionType::class, [
+                'entry_type'    => TicketDateEmbeddedFormType::class,
+
+            ])
 
             ->add('status', ChoiceType::class, [
                 'label' => 'Status',

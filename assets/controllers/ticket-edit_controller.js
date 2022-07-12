@@ -66,7 +66,7 @@ export default class extends Controller {
                 url: this.splitUrlValue,
                 data: $form.serialize(),
             });
-            this.modalBodyTarget.innerHTML = response;
+            this.modalBodyTarget.innerHTML = response ;
             this.splitModal.destroy();
         } catch(e) {
             console.log(e);
@@ -76,8 +76,12 @@ export default class extends Controller {
 
     }
 
-    async dataGap(event){
+    async dataGap({params: {id}}){
+        const  select= $(this.modalBodyTarget).find('.id-'+id+' option:selected');
+        console.log(select.val());
         event.preventDefault();
-        console.log()
+        console.log(id);
+
+
     }
 }

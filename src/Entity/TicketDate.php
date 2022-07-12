@@ -235,10 +235,8 @@ class TicketDate
         return $this;
     }
 
-    /**
-     * @return Collection<int, Anlage>
-     */
-    public function getInverter(): Collection
+
+    public function getInverter(): string
     {
         return $this->Inverter;
     }
