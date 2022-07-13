@@ -13,11 +13,11 @@ class TicketDateEmbeddedFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('alertType', ChoiceType::class, [
+            ->add('dataGapEvaluation', ChoiceType::class, [
+                'placeholder' => 'please Choose ...',
                 'choices' => [
-                    'Outage' => 10,
-                    'Data gap' => 30,
-                    'Com. error' => 30
+                    'outage' => 'outage',
+                    'comm. issue' => 'comm. issue'
                 ]
 
             ])
