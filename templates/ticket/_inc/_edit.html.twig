@@ -1,5 +1,6 @@
 <div class="grid-x">
     <div class="cell">
+        <form id="split-form"></form>
         {{ form_start(ticketForm) }}
         <div id="ticket-edit" class="grid-x">
             <div class="cell">
@@ -57,7 +58,50 @@
                                                                 data-action="ticket-edit#openSplitTicket"
                                                                 data-ticket-edit-id-param="{{ date.id }}"
                                                         ></button>
-                                                        {{ data-ticket-reader-splitUrl-value }}
+                                                        <div id="formd">
+                                                            <div class="reveal" id="split-ticket"
+                                                                 data-reveal
+                                                                 data-append-to="div#formd"
+                                                                 data-multiple-opened="true"
+                                                                 data-ticket-edit-target="splitModal"
+                                                            >
+                                                                <div>
+                                                                    <form class="js-split-ticket" action="{{ path('app_ticket_split', { id: ticket.id }) }}">
+                                                                        <fieldset class="fieldset">
+                                                                            <legend>Choose the time when you want to split:</legend>
+                                                                            <div class="grid-x grid-padding-y grid-padding-x">
+                                                                                <div class="cell small-12">
+                                                                                    <input type="datetime-local" id="begin-time"
+                                                                                           name="begin-time"
+                                                                                           value="{{ ticket.begin()|format_datetime(pattern="yyyy-MM-dd'T'HH:mm") }}"
+                                                                                           min="{{ ticket.begin()|format_datetime(pattern="yyyy-MM-dd'T'HH:mm") }}" max="{{ ticket.end()|format_datetime(pattern="yyyy-MM-dd'T'HH:mm") }}"
+                                                                                           step="900"
+                                                                                    >
+                                                                                </div>
+                                                                            </div>
+                                                                        </fieldset>
+                                                                        <div class="grid-x grid-padding-y grid-padding-x">
+                                                                            <div class="cell small-12">
+                                                                                <button
+                                                                                        type="button"
+                                                                                        class="button"
+                                                                                        data-action="ticket-edit#splitTicket"
+                                                                                >Split Ticket</button>
+                                                                            </div>
+                                                                        </div>
+                                                                    </form>
+                                                                    <button
+                                                                            class="close-button"
+                                                                            type="button"
+                                                                            data-action="ticket-edit#closeSplitTicket"
+                                                                    >
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
                                                     </td>
                                                 </tr>
                                             {% endfor %}
@@ -148,50 +192,13 @@
 
 
         {% if (edited == true) %}
-            <div id="formd">
-                <div class="reveal" id="split-ticket"
-                     data-reveal
-                     data-append-to="div#formd"
-                     data-multiple-opened="true"
-                     data-ticket-edit-target="splitModal"
-                >
-                    <div>
-                        <form class="js-split-ticket" action="{{ path('app_ticket_split', { id: ticket.id }) }}">
-                            <fieldset class="fieldset">
-                                <legend>Choose the time when you want to split:</legend>
-                                <div class="grid-x grid-padding-y grid-padding-x">
-                                    <div class="cell small-12">
-                                        <input type="datetime-local" id="begin-time"
-                                               name="begin-time"
-                                               value="{{ ticket.begin()|format_datetime(pattern="yyyy-MM-dd'T'HH:mm") }}"
-                                               min="{{ ticket.begin()|format_datetime(pattern="yyyy-MM-dd'T'HH:mm") }}" max="{{ ticket.end()|format_datetime(pattern="yyyy-MM-dd'T'HH:mm") }}"
-                                               step="900"
-                                        >
-                                    </div>
-                                </div>
-                            </fieldset>
-                            <div class="grid-x grid-padding-y grid-padding-x">
-                                <div class="cell small-12">
-                                    <button
-                                        type="button"
-                                        class="button"
-                                        data-action="ticket-edit#splitTicket"
-                                    >Split Ticket</button>
-                                </div>
-                            </div>
-                        </form>
-                        <button
-                            class="close-button"
-                            type="button"
-                            data-action="ticket-edit#closeSplitTicket"
-                        >
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-
-                    </div>
-                </div>
-            </div>
 
         {% endif %}
     </div>
 </div>
+
+<script>
+    function variables(){
+        document.va
+    }
+</script>

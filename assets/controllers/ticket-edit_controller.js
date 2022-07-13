@@ -2,6 +2,8 @@ import { Controller } from '@hotwired/stimulus';
 import { useDispatch } from 'stimulus-use';
 import { Reveal } from 'foundation-sites';
 import $ from 'jquery';
+import * as Stimulus from "@hotwired/stimulus";
+
 
 export default class extends Controller {
     static targets = ['modal', 'modalBody', 'splitModal'];
@@ -9,7 +11,6 @@ export default class extends Controller {
         formUrl: String,
         splitUrl: String,
     }
-
     modal = null;
     splitModal = null;
 
@@ -19,7 +20,6 @@ export default class extends Controller {
 
     async openModal(event) {
         this.modalBodyTarget.innerHTML = 'Loading ...';
-
         this.modal = new Reveal($(this.modalTarget));
         this.modal.open();
         this.modalBodyTarget.innerHTML = await $.ajax(this.formUrlValue);
@@ -48,7 +48,9 @@ export default class extends Controller {
 
 
     openSplitTicket(event){
-        console.log(event.params.id);
+
+        console.log(this.data);
+        console.log(this.testValue);
         event.preventDefault();
         this.splitModal = new Reveal($(this.splitModalTarget));
         this.splitModal.open();
@@ -58,7 +60,9 @@ export default class extends Controller {
         event.preventDefault();
         this.splitModal.destroy();
     }
-
+    getId(event){
+        return "hola";
+    }
     async splitTicket(event) {
         event.preventDefault();
         const  $form = $(this.modalBodyTarget).find('.js-split-ticket');
