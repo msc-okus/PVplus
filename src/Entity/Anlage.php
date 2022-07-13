@@ -3410,7 +3410,7 @@ class Anlage
     }
 
     /**
-     * Function to calculate the Pnom for every Inverter, returns a Array with the Pnom for all inverters
+     * Function to calculate the Pnom for every inverter, returns a Array with the Pnom for all inverters
      *
      * @return array
      */

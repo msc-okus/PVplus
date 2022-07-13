@@ -188,11 +188,10 @@ class AvailabilityService
         // hole IST Werte
         $istData = $this->getIstData($anlage, $from, $to);
         // hole Strahlung (für Verfügbarkeit)
-        $sql_einstrahlung = "SELECT a.stamp, b.g_lower, b.g_upper, b.wind_speed FROM (db_dummysoll a left JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' AND '$to'";
-        $resultEinstrahlung = $conn->query($sql_einstrahlung);
+        $einstrahlungen = $this->getIrrData($anlage, $from, $to);
 
         // Aus IstDaten und Strahlungsdaten die Tages-Verfügbarkeit je Inverter berechnen
-        if ($resultEinstrahlung->rowCount() > 0) {
+        if (count($einstrahlungen) > 0) {
             if ($anlage->getUseNewDcSchema()) {
                 $anzInverter = $anlage->getAcGroups()->count();
             } else {
@@ -225,17 +224,9 @@ class AvailabilityService
                 }
             }
 
-            while ($einstrahlung = $resultEinstrahlung->fetch(PDO::FETCH_ASSOC)) {
-                $stamp = $einstrahlung['stamp'];
-                if ($anlage->getIsOstWestAnlage()) {
-                    $strahlung = self::mittelwert([$einstrahlung['g_upper'], $einstrahlung['g_lower']]);
-                } else {
-                    if ($anlage->getUseLowerIrrForExpected()) {
-                        $strahlung = $einstrahlung['g_lower'];
-                    } else {
-                        $strahlung = $einstrahlung['g_upper'];
-                    }
-                }
+            foreach ($einstrahlungen as $einstrahlung) {
+                $stamp      = $einstrahlung['stamp'];
+                $strahlung  = $einstrahlung['irr'];
                 $startInverter = 1;
 
                 for ($inverter = $startInverter; $inverter <= $anzInverter; $inverter++) {
@@ -347,6 +338,8 @@ class AvailabilityService
 
         $sumPart1 = $sumPart2 = $pa = 0;
         $inverterPowerDc = [];
+
+        // START: calulate pNom for each inverter
         if ($inverter === null) {
             // ToDo: muss auf Anlagen Typ angepasst werden
             if ($anlage->getUseNewDcSchema()) {
@@ -378,6 +371,8 @@ class AvailabilityService
                 }
             }*/
         }
+        // END: calulate pNom for each inverter
+
         $availabilitys = $this->availabilityRepository->sumAllCasesByDate($anlage, $from, $to, $inverter);
         foreach ($availabilitys as $row) {
             $inverterNr = $row['inverter'];
@@ -399,7 +394,7 @@ class AvailabilityService
         return $inverter === null ? $pa : $sumPart1;
     }
 
-    private function getIstData(Anlage $anlage, $from, $to):array
+    private function getIstData(Anlage $anlage, $from, $to): array
     {
         $conn = self::getPdoConnection();
         $istData = [];
@@ -421,6 +416,35 @@ class AvailabilityService
         $conn = null;
 
         return $istData;
+    }
+
+    private function getIrrData(Anlage $anlage, $from, $to): array
+    {
+        $conn = self::getPdoConnection();
+        $irrData = [];
+        $sql_einstrahlung = "SELECT a.stamp, b.g_lower, b.g_upper, b.wind_speed FROM (db_dummysoll a left JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' AND '$to'";
+        $resultEinstrahlung = $conn->query($sql_einstrahlung);
+
+        if ($resultEinstrahlung->rowCount() > 0) {
+            while ($row = $resultEinstrahlung->fetch(PDO::FETCH_ASSOC)) {
+                $stamp = $row['stamp'];
+                if ($anlage->getIsOstWestAnlage()) {
+                    $strahlung = self::mittelwert([$row['g_upper'], $row['g_lower']]);
+                } else {
+                    if ($anlage->getUseLowerIrrForExpected()) {
+                        $strahlung = $row['g_lower'];
+                    } else {
+                        $strahlung = $row['g_upper'];
+                    }
+                }
+                $irrData[$stamp]['stamp']   = $stamp;
+                $irrData[$stamp]['irr']     = $strahlung;
+            }
+        }
+        unset($result);
+        $conn = null;
+
+        return $irrData;
     }
 
     private function calcInvAPart1(array $row): float

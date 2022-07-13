@@ -4,6 +4,7 @@ namespace App\Command;
 
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
+use App\Service\AvailabilityByTicketService;
 use App\Service\AvailabilityService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -20,12 +21,14 @@ class UpdateAvailabilityCommand extends Command
 
     private AnlagenRepository $anlagenRepository;
     private AvailabilityService $availability;
+    private AvailabilityByTicketService $availabilityByTicket;
 
-    public function __construct(AnlagenRepository $anlagenRepository, AvailabilityService $availability)
+    public function __construct(AnlagenRepository $anlagenRepository, AvailabilityService $availability, AvailabilityByTicketService $availabilityByTicket)
     {
         parent::__construct();
         $this->anlagenRepository = $anlagenRepository;
         $this->availability = $availability;
+        $this->availabilityByTicket = $availabilityByTicket;
     }
 
     protected function configure()
@@ -89,10 +92,15 @@ class UpdateAvailabilityCommand extends Command
                 if ($anlage->getAnlInputDaily() == 'Yes') {
                     $from = ($from - (24 * 3600)); //gestern, da Anlage heute keine Daten bekommt
                 }
-                $ergebniss  = $this->availability->checkAvailability($anlage, strtotime($from));
-                if($anlage->getShowAvailabilitySecond()) {
-                    $ergebniss .= $this->availability->checkAvailability($anlage, strtotime($from), true); //Second
+                if ($anlage->getAnlId() == 112 || $anlage->getAnlId() == 113) {
+                    $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, strtotime($from), 1);
+                } else {
+                    $ergebniss = $this->availability->checkAvailability($anlage, strtotime($from));
+                    if($anlage->getShowAvailabilitySecond()) {
+                        $ergebniss .= $this->availability->checkAvailability($anlage, strtotime($from), true); //Second
+                    }
                 }
+
                 $io->progressAdvance();
             }
             sleep(2);

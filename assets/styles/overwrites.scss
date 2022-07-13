@@ -320,12 +320,12 @@
 
 
             td {
-                input {
+                input, input .plain {
                     margin: 0 !important;
                     padding: 0.2rem !important;
                 }
 
-                select {
+                select, select .plain {
                     height: 1.8rem;
                     margin: 0;
                 }
