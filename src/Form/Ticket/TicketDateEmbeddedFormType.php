@@ -14,6 +14,7 @@ class TicketDateEmbeddedFormType extends AbstractType
     {
         $builder
             ->add('dataGapEvaluation', ChoiceType::class, [
+                'required' => false,
                 'placeholder' => 'please Choose ...',
                 'choices' => [
                     'outage' => 'outage',
