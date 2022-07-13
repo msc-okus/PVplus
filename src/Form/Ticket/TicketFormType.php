@@ -74,6 +74,14 @@ class TicketFormType extends AbstractType
                 'entry_type'    => TicketDateEmbeddedFormType::class,
 
             ])
+            ->add('dataGapEvaluation', ChoiceType::class, [
+                'required' => false,
+                'placeholder' => 'please Choose ...',
+                'choices' => [
+                    'outage' => 'outage',
+                    'comm. issue' => 'comm. issue'
+                ]
+            ])
 
             ->add('status', ChoiceType::class, [
                 'label' => 'Status',

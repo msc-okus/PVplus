@@ -213,6 +213,7 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/split/{id}', name: 'app_ticket_split', methods: ['GET', 'POST'])]
     public function split( $id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
     {
+        dd($id);
         $page = $request->query->getInt('page', 1);
         $ticket = $ticketRepo->findOneById($id);
         $beginTime = date_create($request->query->get('begin-time'));

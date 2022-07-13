@@ -50,7 +50,7 @@ trait TicketTrait
     /**
      * @ORM\Column(type="string", length=100)
      */
-    private $Inverter;
+    private $inverter;
 
     /**
      * @ORM\Column(type="string", length=100, nullable=true)
@@ -127,12 +127,12 @@ trait TicketTrait
 
     public function getInverter(): string
     {
-        return $this->Inverter;
+        return $this->inverter;
     }
 
     public function setInverter(string $Inverter): self
     {
-        $this->Inverter = $Inverter;
+        $this->inverter = $Inverter;
 
         return $this;
     }

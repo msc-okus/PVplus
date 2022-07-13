@@ -48,6 +48,7 @@ export default class extends Controller {
 
 
     openSplitTicket(event){
+        console.log(event.params.id);
         event.preventDefault();
         this.splitModal = new Reveal($(this.splitModalTarget));
         this.splitModal.open();
@@ -77,11 +78,5 @@ export default class extends Controller {
     }
 
     async dataGap({params: {id}}){
-        const  select= $(this.modalBodyTarget).find('.id-'+id+' option:selected');
-        console.log(select.val());
-        event.preventDefault();
-        console.log(id);
-
-
     }
 }
