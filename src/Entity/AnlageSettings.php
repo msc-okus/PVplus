@@ -25,80 +25,92 @@ class AnlageSettings
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private string $name0;
+    private string $paDep1Name = 'EPC';
 
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private string $name1;
+    private string $paDep2Name ='O&M';
 
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private string $name2;
+    private string $paDep3Name = 'AM';
+
+    /**
+     * @ORM\Column(type="string", length=20)
+     */
+    private string $paDefaultDataGapHandling = 'available'; // not available
+
+
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getAnlage(): ?Anlage
+    /**
+     * Department name for plant availability 1
+     * default: 'EPC'
+     * @return string
+     */
+    public function getPaDep1Name(): string
     {
-        return $this->anlage;
+        return $this->paDep1Name;
     }
 
-    public function setAnlage(?Anlage $anlage): self
+    public function setPaDep1Name(string $paDep1Name): self
     {
-        $this->anlage = $anlage;
+        $this->paDep1Name = $paDep1Name;
+        return $this;
+    }
+    /**
+     * Department name for plant availability 2
+     * default: 'O&M'
+     * @return string
+     */
+    public function getPaDep2Name(): string
+    {
+        return $this->paDep2Name;
+    }
 
+    public function setPaDep2Name(string $paDep2Name): self
+    {
+        $this->paDep2Name = $paDep2Name;
         return $this;
     }
 
-    public function getName0(): string
+    /**
+     * Department name for plant availability 3
+     * default: 'AM'
+     * @return string
+     */
+    public function getPaDep3Name(): string
     {
-        if ($this->name0 === null){
-            return 'AM';
-        } else {
-            return $this->name0;
-        }
+        return $this->paDep3Name;
     }
 
-    public function setName0(string $name0): self
+    public function setPaDep3Name(string $paDep3Name): self
     {
-        $this->name0 = $name0;
-
+        $this->paDep3Name = $paDep3Name;
         return $this;
     }
 
-    public function getName1(): string
+    /**
+     * indicateing the default behavior, how data gaps should be handled
+     * default: 'available', the other option should be: 'not available'
+     * @return string
+     */
+    public function getPaDefaultDataGapHandling(): string
     {
-        if ($this->name1 === null){
-            return 'EPC';
-        } else {
-            return $this->name1;
-        }
+        return $this->paDefaultDataGapHandling;
     }
 
-    public function setName1(string $name1): self
+    public function setPaDefaultDataGapHandling(string $paDefaultDataGapHandling): self
     {
-        $this->name1 = $name1;
-
+        $this->paDefaultDataGapHandling = $paDefaultDataGapHandling;
         return $this;
     }
 
-    public function getName2(): string
-    {
-        if ($this->name2 === null){
-            return 'O&M';
-        } else {
-            return $this->name2;
-        }
-    }
 
-    public function setName2(string $name2): self
-    {
-        $this->name2 = $name2;
-
-        return $this;
-    }
 }
