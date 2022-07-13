@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Helper\TicketTrait;
 use App\Repository\TicketRepository;
 use DateTime;
 use DateTimeInterface;
@@ -18,6 +19,7 @@ class Ticket
 {
     use TimestampableEntity;
     use BlameableEntity;
+    use TicketTrait;
     /**
      * @ORM\Id
      * @ORM\GeneratedValue(strategy="IDENTITY")
@@ -37,29 +39,9 @@ class Ticket
     private ?bool $autoTicket = false; // automatisches Ticket ausgelöst durch Fehlererkennung im Import oder Fehlermeldung Algoritmuas
 
     /**
-     * @ORM\Column(type="integer")
-     */
-    private int $status;
-
-    /**
-     * @ORM\Column(type="string", nullable=true)
-     */
-    private ?string $errorType; // SFOR, EFOR, OMC  //errorType
-
-    /**
      * @ORM\Column(type="string", length=50)
      */
     private string $editor;
-
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private ?DateTimeInterface $begin;
-
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private ?DateTimeInterface $end;
 
     /**
      * @ORM\Column(type="boolean")
@@ -122,41 +104,6 @@ class Ticket
     private bool $yield2 = false;
 
     /**
-     * @ORM\Column(type="text", nullable=true)
-     */
-    private ?string $freeText;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private string $description;
-
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private int $systemStatus;
-
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private int $priority;
-
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
-    private ?string $answer;
-
-    /**
-     * @ORM\Column(type="string", length=50, nullable=true)
-     */
-    private ?string $inverter;
-
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
-    private string $alertType = ""; //errorCategory
-
-    /**
      * @ORM\Column(type="boolean")
      */
     private bool $splitted = false;
@@ -166,10 +113,6 @@ class Ticket
      */
     private $dates;
 
-    /**
-     * @ORM\Column(type="string", length=20, nullable=true)
-     */
-    private string $dataGapEvaluation;
 
     public function __construct()
     {
@@ -241,30 +184,6 @@ class Ticket
     public function setEditor(string $Editor): self
     {
         $this->editor = $Editor;
-
-        return $this;
-    }
-
-    public function getBegin(): ?DateTimeInterface
-    {
-        return $this->begin;
-    }
-
-    public function setBegin(?DateTimeInterface $Begin): self
-    {
-        $this->begin = $Begin;
-
-        return $this;
-    }
-
-    public function getEnd(): ?DateTimeInterface
-    {
-        return $this->end;
-    }
-
-    public function setEnd(?DateTimeInterface $End): self
-    {
-        $this->end = $End;
 
         return $this;
     }
@@ -415,89 +334,6 @@ class Ticket
         return $this;
     }
 
-    public function getFreeText(): ?string
-    {
-        return $this->freeText;
-    }
-
-    public function setFreeText(?string $FreeText): self
-    {
-        $this->freeText = $FreeText;
-
-        return $this;
-    }
-
-    public function getDescription(): ?string
-    {
-        return $this->description;
-    }
-
-    public function setDescription(string $Description): self
-    {
-        $this->description = $Description;
-
-        return $this;
-    }
-
-    public function getSystemStatus(): ?int
-    {
-        return $this->systemStatus;
-    }
-
-    public function setSystemStatus(int $SystemStatus): self
-    {
-        $this->systemStatus = $SystemStatus;
-
-        return $this;
-    }
-
-    public function getPriority(): ?int
-    {
-        return $this->priority;
-    }
-
-    public function setPriority(int $Priority): self
-    {
-        $this->priority = $Priority;
-
-        return $this;
-    }
-
-    public function getAnswer(): ?string
-    {
-        return $this->answer;
-    }
-
-    public function setAnswer(?string $Answer): self
-    {
-        $this->answer = $Answer;
-
-        return $this;
-    }
-
-    public function getInverter(): ?string
-    {
-        return $this->inverter;
-    }
-
-    public function setInverter(?string $inverter): self
-    {
-        $this->inverter = $inverter;
-
-        return $this;
-    }
-
-    public function getAlertType(): ?string
-    {
-        return $this->alertType;
-    }
-
-    public function setAlertType(string $alertType): self
-    {
-        $this->alertType = $alertType;
-
-        return $this;
-    }
     public function unsetId(){
         unset($this->id);
     }
@@ -548,16 +384,5 @@ class Ticket
         return $this;
     }
 
-    public function getDataGapEvaluation(): string
-    {
-        return $this->dataGapEvaluation;
-    }
-
-    public function setDataGapEvaluation(string $dataGapEvaluation): self
-    {
-        $this->dataGapEvaluation = $dataGapEvaluation;
-
-        return $this;
-    }
 
 }
