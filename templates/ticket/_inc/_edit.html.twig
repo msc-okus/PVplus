@@ -54,7 +54,7 @@
                                                     <td>
                                                         <button
                                                                 type="button"
-                                                                class="button small fa-solid fa-plus"
+                                                                class="button small"
                                                                 data-action="ticket-edit#openSplitTicket"
                                                                 data-ticket-edit-id-param="{{ date.id }}"
                                                         ><span class="fa fa-plus"></span></button>
@@ -65,13 +65,13 @@
                                                                  data-multiple-opened="true"
                                                                  data-ticket-edit-target="splitModal"
                                                             >
-                                                                <div>
-                                                                    <form class="js-split-ticket" action="{{ path('app_ticket_split', { id: date.id }) }}">
+                                                                <div >
+                                                                    <form >
                                                                         <fieldset class="fieldset">
                                                                             <legend>Choose the time when you want to split:</legend>
                                                                             <div class="grid-x grid-padding-y grid-padding-x">
-                                                                                <div class="cell small-12">
-                                                                                    <input type="datetime-local" id="begin-time"
+                                                                                <div class="cell small-12" data-ticket-edit-target="splitForm">
+                                                                                    <input type="datetime-local" id="begin-time" class="js-split-ticket"
                                                                                            name="begin-time"
                                                                                            value="{{ date.begin()|format_datetime(pattern="yyyy-MM-dd'T'HH:mm") }}"
                                                                                            min="{{ date.begin()|format_datetime(pattern="yyyy-MM-dd'T'HH:mm") }}" max="{{ date.end()|format_datetime(pattern="yyyy-MM-dd'T'HH:mm") }}"
@@ -86,6 +86,7 @@
                                                                                         type="button"
                                                                                         class="button"
                                                                                         data-action="ticket-edit#splitTicket"
+                                                                                        data-ticket-edit-id-param="{{ date.id }}"
                                                                                 >Split Ticket</button>
                                                                             </div>
                                                                         </div>

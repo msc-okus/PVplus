@@ -2,11 +2,11 @@ import { Controller } from '@hotwired/stimulus';
 import { useDispatch } from 'stimulus-use';
 import { Reveal } from 'foundation-sites';
 import $ from 'jquery';
-import * as Stimulus from "@hotwired/stimulus";
+
 
 
 export default class extends Controller {
-    static targets = ['modal', 'modalBody', 'splitModal'];
+    static targets = ['modal', 'modalBody', 'splitModal', 'splitForm'];
     static values = {
         formUrl: String,
         splitUrl: String,
@@ -49,8 +49,6 @@ export default class extends Controller {
 
     openSplitTicket(event){
 
-        console.log(this.data);
-        console.log(this.testValue);
         event.preventDefault();
         this.splitModal = new Reveal($(this.splitModalTarget));
         this.splitModal.open();
@@ -61,21 +59,25 @@ export default class extends Controller {
         this.splitModal.destroy();
     }
     getId(event){
-        return "hola";
     }
-    async splitTicket(event) {
-        event.preventDefault();
-        const  $form = $(this.modalBodyTarget).find('.js-split-ticket');
+    async splitTicket({params: {id}}) {
+        var array = []; array.push(id);
+        //event.preventDefault();
+        //const  $form = $(this.splitFormTarget).find('.js-split-ticket');
+        array.push($(this.splitFormTarget).find('.js-split-ticket').serialize());
+        console.log(array);
+        const jsonString = JSON.stringify(array);
         try {
             const response = await $.ajax({
                 url: this.splitUrlValue,
-                data: $form.serialize(),
+                //data: $form.serialize(),
+                type: 'POST',
+                data: jsonString
             });
             this.modalBodyTarget.innerHTML = response ;
             this.splitModal.destroy();
         } catch(e) {
             console.log(e);
-
             this.modalBodyTarget.innerHTML = e.responseText;
         }
 
