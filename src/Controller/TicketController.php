@@ -213,13 +213,13 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/split/{id}', name: 'app_ticket_split', methods: ['GET', 'POST'])]
     public function split( $id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
     {
-        dd($id);
+        $tickets = json_decode(file_get_contents('php://input'));
         $page = $request->query->getInt('page', 1);
         $ticket = $ticketRepo->findOneById($id);
         $beginTime = date_create($request->query->get('begin-time'));
-        $endTime = date_create($request->query->get('end-time'));
-
-        if ($ticket !== null && $beginTime && $endTime) {
+        dd($tickets);
+       /*
+        if ($ticket !== null && $beginTime) {
             if($ticket->getDates()->count() == 1) $ticket->removeAllDates();
             if ($beginTime > $ticket->getBegin()) {
                 $firstDate = new TicketDate();
@@ -246,14 +246,8 @@ class TicketController extends BaseController
 
             $em->persist($ticket);
             $em->flush();
-/*
-            if ($request->isXmlHttpRequest()) {
-                return new Response(null, 204);
-
-            }
-*/
         }
-
+*/
         $ticketDates = $ticket->getDates();
         if ($ticketDates->isEmpty()) $ticketDates = null;
 
@@ -272,6 +266,7 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/split/edit/{id}', name: 'app_ticket_split_edit')]
     public function splitEdit( $id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em) : Response
     {
+
         $ticket = $ticketRepo->findOneById($id);
         $dates = $ticket->getDates()->getValues();
         for ($i = 0; $i < $ticket->getDates()->count(); $i++){
