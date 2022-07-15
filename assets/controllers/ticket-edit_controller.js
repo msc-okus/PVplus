@@ -60,22 +60,18 @@ export default class extends Controller {
     }
     getId(event){
     }
-    async splitTicket({params: {id}}) {
-        var array = []; array.push(id);
-        //event.preventDefault();
-        //const  $form = $(this.splitFormTarget).find('.js-split-ticket');
-        array.push($(this.splitFormTarget).find('.js-split-ticket').serialize());
-        console.log(array);
-        const jsonString = JSON.stringify(array);
+    async splitTicket({params: {id}}) {;
+        console.log("/ticket/split/"+id);
         try {
             const response = await $.ajax({
-                url: this.splitUrlValue,
+                url: "/ticket/split/"+id,
                 //data: $form.serialize(),
-                type: 'POST',
-                data: jsonString
+                data: $(this.splitFormTarget).find('.js-split-ticket').serialize()
             });
-            this.modalBodyTarget.innerHTML = response ;
+
             this.splitModal.destroy();
+            this.modalBodyTarget.innerHTML = response ;
+
         } catch(e) {
             console.log(e);
             this.modalBodyTarget.innerHTML = e.responseText;

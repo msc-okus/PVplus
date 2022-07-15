@@ -61,11 +61,13 @@
                                                     <td>
 
                                                         <button
-                                                                {% if (date.begin == date.end) %} disabled {% endif %}
+                                                                {% if (date.end|date("U") - date.begin|date("U") <= 900) %} disabled {% endif %}
                                                                 type="button"
                                                                 class="button small"
                                                                 data-action="ticket-edit#openSplitTicket"
                                                                 data-ticket-edit-id-param="{{ date.id }}"
+
+
                                                         ><span class="fa fa-plus"></span></button>
 
                                                         <div id="formd">

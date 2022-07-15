@@ -15,6 +15,7 @@ use App\Helper\G4NTrait;
 use App\Helper\PVPNameArraysTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
+use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
 use App\Repository\UserRepository;
 use App\Service\AvailabilityService;
@@ -211,45 +212,44 @@ class TicketController extends BaseController
 
 
     #[Route(path: '/ticket/split/{id}', name: 'app_ticket_split', methods: ['GET', 'POST'])]
-    public function split( $id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
+    public function split( $id, TicketDateRepository $ticketDateRepo, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
     {
-        $tickets = json_decode(file_get_contents('php://input'));
         $page = $request->query->getInt('page', 1);
-        $ticket = $ticketRepo->findOneById($id);
-        $beginTime = date_create($request->query->get('begin-time'));
-        dd($tickets);
-       /*
-        if ($ticket !== null && $beginTime) {
-            if($ticket->getDates()->count() == 1) $ticket->removeAllDates();
-            if ($beginTime > $ticket->getBegin()) {
-                $firstDate = new TicketDate();
-                $firstDate->copyTicket($ticket);
-                $firstDate->setBegin($ticket->getBegin());
-                $firstDate->setEnd($beginTime);
-                $ticket->addDate($firstDate);
-            }
+
+        $ticketDate = $ticketDateRepo->findOneById($id);
+        #$ticket = $ticketRepo->findOneById($ticketDate->getTicket()->getId());
+        $ticket = $ticketDate->getTicket();
+        $splitTime = date_create($request->query->get('begin-time'));
+
+        if ($splitTime && $ticket) {
+
+            /*$firstDate = new TicketDate();
+            $firstDate->copyTicket($ticket);
+            $firstDate->setBegin($ticketDate->getBegin());
+            $firstDate->setEnd($beginTime);
+            */
+
 
             $mainDate = new TicketDate();
-            $mainDate->copyTicket($ticket);
-            $mainDate->setBegin($beginTime);
-            $mainDate->setEnd($endTime);
+            $mainDate->copyTicketDate($ticketDate);
+
+            $mainDate->setBegin($splitTime);
+
+            $ticketDate->setEnd($splitTime);
+
             $ticket->addDate($mainDate);
 
-            if ($endTime < $ticket->getEnd()) {
-                $secondDate = new TicketDate();
-                $secondDate->copyTicket($ticket);
-                $secondDate->setBegin($endTime);
-                $secondDate->setEnd($ticket->getEnd());
-                $ticket->addDate($secondDate);
-            }
             $ticket->setSplitted(true);
 
+            $em->persist($mainDate);
             $em->persist($ticket);
+
             $em->flush();
         }
-*/
-        $ticketDates = $ticket->getDates();
-        if ($ticketDates->isEmpty()) $ticketDates = null;
+
+        $ticketDates = $ticket->getDates()->getValues();
+
+        if (count($ticketDates) == 0) $ticketDates = null;
 
         $form = $this->createForm(TicketFormType::class, $ticket);
 

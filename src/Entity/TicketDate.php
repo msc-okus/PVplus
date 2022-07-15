@@ -39,10 +39,9 @@ class TicketDate
      */
     private $Anlage;
 
-
     public function __construct()
     {
-        $this->Inverter = new ArrayCollection();
+
     }
 
     public function getId(): ?int
@@ -74,14 +73,26 @@ class TicketDate
 
         return $this;
     }
+
     public function copyTicket(Ticket $ticket){
-
-        //this only show
         $this->Begin = $ticket->getBegin();
-        $this->End = $ticket->getEnd();
+        $this->end = $ticket->getEnd();
         $this->Anlage = $ticket->getAnlage();
-        $this->Inverter = $ticket->getInverter();
-
+        $this->inverter = $ticket->getInverter();
+        $this->Status = $ticket->getStatus();//from here on allow to edit inside the table inside edit Ticket
+        $this->ErrorType = $ticket->getErrorType();
+        $this->FreeText = "";
+        $this->Description = $ticket->getDescription();
+        $this->SystemStatus = $ticket->getSystemStatus();
+        $this->Priority = $ticket->getPriority();
+        $this->Answer = $ticket->getAnswer();
+        $this->AlertType = $ticket->getAlertType();
+    }
+    public function copyTicketDate(TicketDate $ticket){
+        $this->Begin = $ticket->getBegin();
+        $this->end = $ticket->getEnd();
+        $this->Anlage = $ticket->getAnlage();
+        $this->inverter = $ticket->getInverter();
         $this->Status = $ticket->getStatus();//from here on allow to edit inside the table inside edit Ticket
         $this->ErrorType = $ticket->getErrorType();
         $this->FreeText = "";
