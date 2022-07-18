@@ -51,7 +51,7 @@
                                         </thead>
                                         <tbody>
                                             {% for date in dates %}
-                                                <tr>
+                                                <tr >
                                                     <td>{{ loop.index }}</td>
                                                     <td>{{ date.begin|format_datetime(pattern="yyyy-MM-dd HH:mm") }}</td>
                                                     <td>{{ date.end|format_datetime(pattern="yyyy-MM-dd HH:mm") }}</td>
@@ -60,7 +60,7 @@
                                                     {% else %}
                                                         {% do ticketForm.dates[loop.index0].dataGapEvaluation.setRendered() %}
                                                     {% endif %}
-                                                    <td {{ stimulus_controller('ticket-split', {
+                                                    <td id="{{ date.id }}" {{ stimulus_controller('ticket-split', {
                                                         urlSplit: path('app_ticket_split', {id: date.id}),
                                                     }) }}>
 
@@ -74,10 +74,10 @@
 
                                                         ><span class="fa fa-plus"></span></button>
 
-                                                        <div id="formd">
-                                                            <div class="reveal" id="split-ticket"
+                                                        <div id="formd{{ date.id }}">
+                                                            <div class="reveal" id="split-ticket{{ date.id }}"
                                                                  data-reveal
-                                                                 data-append-to="div#formd"
+                                                                 data-append-to="div#formd{{ date.id }}"
                                                                  data-multiple-opened="true"
                                                                  data-ticket-split-target="splitModal"
                                                             >
@@ -93,7 +93,7 @@
                                                                                            value="{{ date.begin|format_datetime(pattern="yyyy-MM-dd'T'HH:mm") }}"
                                                                                     >
 
-                                                                                    <input type="datetime-local" id="begin-time" class="js-split-ticket"
+                                                                                    <input type="datetime-local" id="begin-time" class="{{ date.id }}"
                                                                                            name="begin-time"
                                                                                            value="{{ date.begin()|format_datetime(pattern="yyyy-MM-dd'T'HH:mm") }}"
                                                                                            min="{{ date.begin()|format_datetime(pattern="yyyy-MM-dd'T'HH:mm") }}" max="{{ date.end()|format_datetime(pattern="yyyy-MM-dd'T'HH:mm") }}"
@@ -112,6 +112,7 @@
                                                                                         type="button"
                                                                                         class="button"
                                                                                         data-action="ticket-split#splitTicket"
+                                                                                        data-ticket-split-id-param="{{ date.id }}"
                                                                                 >Split Ticket</button>
                                                                             </div>
                                                                         </div>

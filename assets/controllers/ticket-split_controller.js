@@ -29,16 +29,21 @@ export default class extends Controller {
         this.dispatch('async:submitted');
     }
 
-    async splitTicket() {
-        try {
-            await $.ajax({
-                url: this.urlSplitValue,
-                data: $(this.splitFormTarget).find('.js-split-ticket').serialize()
-            });
-            this.dispatch('async:submitted');
-            //this.splitModal.destroy();
-        } catch(e) {
-            console.log(e);
+    async splitTicket({params: {id}}) {
+        console.log(id);
+        console.log($(this.splitModalTarget));
+        console.log('hola');
+        if ($(this.splitFormTarget).find('.'+id).serialize() != "") {
+            try {
+                await $.ajax({
+                    url: this.urlSplitValue,
+                    data: $(this.splitFormTarget).find('.' + id).serialize()
+                });
+                this.dispatch('async:submitted');
+                //this.splitModal.destroy();
+            } catch (e) {
+                console.log(e);
+            }
         }
 
     }

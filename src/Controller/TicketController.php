@@ -217,18 +217,19 @@ class TicketController extends BaseController
         $page = $request->query->getInt('page', 1);
 
         $ticketDate = $ticketDateRepo->findOneById($id);
-        $ticket = $ticketDate->getTicket();
+
+        $ticket = $ticketRepo->findOneById($ticketDate->getTicket());
+        dump($ticket);
         $splitTime = date_create($request->query->get('begin-time'));
 
         if ($splitTime && $ticket) {
-
             $mainDate = new TicketDate();
             $mainDate->copyTicketDate($ticketDate);
             $mainDate->setBegin($splitTime);
             $ticketDate->setEnd($splitTime);
             $ticket->addDate($mainDate);
             $ticket->setSplitted(true);
-            $em->persist($mainDate);
+
             $em->persist($ticket);
             $em->flush();
         }

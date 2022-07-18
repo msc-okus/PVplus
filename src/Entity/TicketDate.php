@@ -79,7 +79,8 @@ class TicketDate
         $this->end = $ticket->getEnd();
         $this->Anlage = $ticket->getAnlage();
         $this->inverter = $ticket->getInverter();
-        $this->status = $ticket->getStatus();//from here on allow to edit inside the table inside edit Ticket
+        $this->status = $ticket->getStatus();
+        //from here on allow to edit inside the table inside edit Ticket
         $this->errorType = $ticket->getErrorType();
         $this->freeText = "";
         $this->description = $ticket->getDescription();
@@ -93,7 +94,8 @@ class TicketDate
         $this->end = $ticket->getEnd();
         $this->Anlage = $ticket->getAnlage();
         $this->inverter = $ticket->getInverter();
-        $this->status = $ticket->getStatus();//from here on allow to edit inside the table inside edit Ticket
+        $this->status = $ticket->getStatus();
+        //from here on allow to edit inside the table inside edit Ticket
         $this->errorType = $ticket->getErrorType();
         $this->freeText = "";
         $this->description = $ticket->getDescription();
