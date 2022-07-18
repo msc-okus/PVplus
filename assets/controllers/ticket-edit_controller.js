@@ -24,7 +24,9 @@ export default class extends Controller {
         this.modal.open();
         this.modalBodyTarget.innerHTML = await $.ajax(this.formUrlValue);
     }
-
+    setBody(html){
+        this.modalBodyTarget.innerHTML = html;
+    }
     closeTicket(event) {
         event.preventDefault();
         this.modal.destroy();
@@ -45,40 +47,10 @@ export default class extends Controller {
             this.modalBodyTarget.innerHTML = e.responseText;
         }
     }
-
-
-    openSplitTicket(event){
-
-        event.preventDefault();
-        this.splitModal = new Reveal($(this.splitModalTarget));
-        this.splitModal.open();
+    async reload(event){
+        this.modalBodyTarget.innerHTML = await $.ajax(this.formUrlValue);
     }
 
-    closeSplitTicket(event){
-        event.preventDefault();
-        this.splitModal.destroy();
-    }
-    getId(event){
-    }
-    async splitTicket({params: {id}}) {;
-        console.log("/ticket/split/"+id);
-        try {
-            const response = await $.ajax({
-                url: "/ticket/split/"+id,
-                //data: $form.serialize(),
-                data: $(this.splitFormTarget).find('.js-split-ticket').serialize()
-            });
 
-            this.splitModal.destroy();
-            this.modalBodyTarget.innerHTML = response ;
 
-        } catch(e) {
-            console.log(e);
-            this.modalBodyTarget.innerHTML = e.responseText;
-        }
-
-    }
-
-    async dataGap({params: {id}}){
-    }
 }

@@ -75,32 +75,32 @@ class TicketDate
     }
 
     public function copyTicket(Ticket $ticket){
-        $this->Begin = $ticket->getBegin();
+        $this->begin = $ticket->getBegin();
         $this->end = $ticket->getEnd();
         $this->Anlage = $ticket->getAnlage();
         $this->inverter = $ticket->getInverter();
-        $this->Status = $ticket->getStatus();//from here on allow to edit inside the table inside edit Ticket
-        $this->ErrorType = $ticket->getErrorType();
-        $this->FreeText = "";
-        $this->Description = $ticket->getDescription();
-        $this->SystemStatus = $ticket->getSystemStatus();
-        $this->Priority = $ticket->getPriority();
-        $this->Answer = $ticket->getAnswer();
-        $this->AlertType = $ticket->getAlertType();
+        $this->status = $ticket->getStatus();//from here on allow to edit inside the table inside edit Ticket
+        $this->errorType = $ticket->getErrorType();
+        $this->freeText = "";
+        $this->description = $ticket->getDescription();
+        $this->systemStatus = $ticket->getSystemStatus();
+        $this->priority = $ticket->getPriority();
+        $this->answer = $ticket->getAnswer();
+        $this->alertType = $ticket->getAlertType();
     }
     public function copyTicketDate(TicketDate $ticket){
-        $this->Begin = $ticket->getBegin();
+        $this->begin = $ticket->getBegin();
         $this->end = $ticket->getEnd();
         $this->Anlage = $ticket->getAnlage();
         $this->inverter = $ticket->getInverter();
-        $this->Status = $ticket->getStatus();//from here on allow to edit inside the table inside edit Ticket
-        $this->ErrorType = $ticket->getErrorType();
-        $this->FreeText = "";
-        $this->Description = $ticket->getDescription();
-        $this->SystemStatus = $ticket->getSystemStatus();
-        $this->Priority = $ticket->getPriority();
-        $this->Answer = $ticket->getAnswer();
-        $this->AlertType = $ticket->getAlertType();
+        $this->status = $ticket->getStatus();//from here on allow to edit inside the table inside edit Ticket
+        $this->errorType = $ticket->getErrorType();
+        $this->freeText = "";
+        $this->description = $ticket->getDescription();
+        $this->systemStatus = $ticket->getSystemStatus();
+        $this->priority = $ticket->getPriority();
+        $this->answer = $ticket->getAnswer();
+        $this->alertType = $ticket->getAlertType();
     }
 
 }

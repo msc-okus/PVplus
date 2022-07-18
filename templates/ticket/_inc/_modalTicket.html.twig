@@ -6,10 +6,11 @@
      data-append-to="div#modal-form{{ modalId }}"
 >
     <h1>{{ modalTitel }} - {{ modalId }}</h1>
-    <div class="grid-x grid-padding-y">
+    <div class="grid-x grid-padding-y" data-action="async:submitted->ticket-edit#reload">
         <div
                 class="cell modal-body"
                 data-ticket-edit-target="modalBody"
+
                 data-action="submit->ticket-edit#submitForm"
         >
             {{ modalContent|default('Loading...') }}
