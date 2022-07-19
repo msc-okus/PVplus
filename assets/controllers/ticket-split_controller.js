@@ -7,10 +7,11 @@ import $ from 'jquery';
 
 export default class extends Controller {
 
-    static targets = ['splitModal', 'splitForm'];
+    static targets = ['splitModal', 'splitForm', 'splitDelete'];
 
     static values = {
         urlSplit: String,
+        urlDelete: String,
     }
 
     connect() {
@@ -30,9 +31,6 @@ export default class extends Controller {
     }
 
     async splitTicket({params: {id}}) {
-        console.log(id);
-        console.log($(this.splitModalTarget));
-        console.log('hola');
         if ($(this.splitFormTarget).find('.'+id).serialize() != "") {
             try {
                 await $.ajax({
@@ -40,12 +38,23 @@ export default class extends Controller {
                     data: $(this.splitFormTarget).find('.' + id).serialize()
                 });
                 this.dispatch('async:submitted');
-                //this.splitModal.destroy();
             } catch (e) {
                 console.log(e);
             }
         }
 
+    }
+    async delete({params: {id}}){
+        var data = {'value': $(this.splitDeleteTarget).find('.select-' + id).val()}
+        try {
+            await $.ajax({
+                url: this.urlDeleteValue,
+                data: data
+            });
+            this.dispatch('async:submitted');
+        } catch (e) {
+            console.log(e);
+        }
     }
 
 }

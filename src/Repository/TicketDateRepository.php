@@ -63,4 +63,26 @@ class TicketDateRepository extends ServiceEntityRepository
             ->getOneOrNullResult()
         ;
     }
+    public function findOneByBeginTicket($begin, $ticket): ?TicketDate
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.begin = :begin')
+            ->andWhere('t.ticket = :ticket')
+            ->setParameter('begin', $begin)
+            ->setParameter('ticket', $ticket)
+            ->getQuery()
+            ->getOneOrNullResult()
+            ;
+    }
+    public function findOneByEndTicket($end, $ticket): ?TicketDate
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.end = :end')
+            ->andWhere('t.ticket = :ticket')
+            ->setParameter('end', $end)
+            ->setParameter('ticket', $ticket)
+            ->getQuery()
+            ->getOneOrNullResult()
+            ;
+    }
 }

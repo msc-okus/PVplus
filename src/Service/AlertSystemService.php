@@ -221,17 +221,17 @@ class AlertSystemService
         if ($inverter['istdata'] === "No Data") {
             //data gap
             $message .=  "Data gap at inverter (Power) " . $nameArray . "<br>";
-            $errorType = "";
+            $errorType = EFOR;
             $errorCategorie = DATA_GAP;
         } elseif ($inverter['istdata'] === "Power is 0") {
             //inverter error
             $message .=  "No power at inverter " . $nameArray . "<br>";
-            $errorType = "";
+            $errorType = EFOR;
             $errorCategorie = INVERTER_ERROR;
         } elseif ($inverter['istdata'] === 'Power to low') {
             // check if inverter power make sense, to detect ppc
             $message .=  "Power too low at inverter " . $nameArray . " (could be external plant control)<br>";
-            $errorType = "";
+            $errorType = EFOR;
             $errorCategorie = EXTERNAL_CONTROL;
         } elseif ($inverter['istdata'] === "Plant Control by PPC") {
             // PPC Control

@@ -46,12 +46,16 @@
                                                     <th>Gap Ev.</th>
 
                                                 {% endif %}
+                                                <th>Delete</th>
                                                 <th></th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {% for date in dates %}
-                                                <tr >
+                                                <tr {{ stimulus_controller('ticket-split', {
+                                                    urlSplit: path('app_ticket_split', {id: date.id}),
+                                                    urlDelete: path('app_ticket_delete', {id: date.id})
+                                                }) }}>
                                                     <td>{{ loop.index }}</td>
                                                     <td>{{ date.begin|format_datetime(pattern="yyyy-MM-dd HH:mm") }}</td>
                                                     <td>{{ date.end|format_datetime(pattern="yyyy-MM-dd HH:mm") }}</td>
@@ -60,9 +64,18 @@
                                                     {% else %}
                                                         {% do ticketForm.dates[loop.index0].dataGapEvaluation.setRendered() %}
                                                     {% endif %}
-                                                    <td id="{{ date.id }}" {{ stimulus_controller('ticket-split', {
-                                                        urlSplit: path('app_ticket_split', {id: date.id}),
-                                                    }) }}>
+                                                    <td data-ticket-split-target="splitDelete">
+                                                        <select
+                                                                class="select-{{ date.id }}"
+                                                                data-ticket-split-id-param="{{ date.id }}"
+                                                                data-action="change->ticket-split#delete"
+                                                                >
+                                                            <option value="Next"> next </option>
+                                                            <option value="Previous"> previous </option>
+                                                            <option value="None"> none </option>
+                                                        </select>
+                                                    </td>
+                                                    <td id="{{ date.id }}" >
 
                                                         <button
                                                                 {% if (date.end|date("U") - date.begin|date("U") <= 900) %} disabled {% endif %}
@@ -81,7 +94,7 @@
                                                                  data-multiple-opened="true"
                                                                  data-ticket-split-target="splitModal"
                                                             >
-                                                                <div >
+                                                                <div>
                                                                         <fieldset class="fieldset">
                                                                             <legend>Choose the time when you want to split:</legend>
                                                                             <div class="grid-x grid-padding-y grid-padding-x">
@@ -93,7 +106,7 @@
                                                                                            value="{{ date.begin|format_datetime(pattern="yyyy-MM-dd'T'HH:mm") }}"
                                                                                     >
 
-                                                                                    <input type="datetime-local" id="begin-time" class="{{ date.id }}"
+                                                                                    <input type="datetime-local" class="{{ date.id }}"
                                                                                            name="begin-time"
                                                                                            value="{{ date.begin()|format_datetime(pattern="yyyy-MM-dd'T'HH:mm") }}"
                                                                                            min="{{ date.begin()|format_datetime(pattern="yyyy-MM-dd'T'HH:mm") }}" max="{{ date.end()|format_datetime(pattern="yyyy-MM-dd'T'HH:mm") }}"
