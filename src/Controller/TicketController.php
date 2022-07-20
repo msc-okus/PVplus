@@ -258,22 +258,32 @@ class TicketController extends BaseController
         $page = $request->query->getInt('page', 1);
         $ticketDate = $ticketDateRepo->findOneById($id);
         $ticket = $ticketRepo->findOneById($ticketDate->getTicket());
-        $dates = $ticket->getDates();
+        if($ticket && $ticketDate) {
+            switch ($option) {
+                case "Previous":
+                    $previousDate = $ticketDateRepo->findOneByEndTicket($ticketDate->getBegin(), $ticket);
+                    if ($previousDate) {
+                        $previousDate->setEnd($ticketDate->getEnd());
+                        $ticket->removeDate($ticketDate);
+                    }
 
-        switch($option){
-            case "Previous":
-
-                break;
-            case "Next":
-
-                break;
-            case "None":
-
-                break;
-            default:
+                    break;
+                case "Next":
+                    $nextDate = $ticketDateRepo->findOneByBeginTicket($ticketDate->getEnd(), $ticket);
+                    if ($nextDate) {
+                        $nextDate->setBegin($ticketDate->getBegin());
+                        $ticket->removeDate($ticketDate);
+                    }
+                    break;
+                case "None":
+                    $ticket->removeDate($ticketDate);
+                    break;
+                default:
+            }
         }
 
         $ticketDates = $ticket->getDates();
+        dd($ticketDates);
         if($ticketDates->isEmpty()) $ticketDates = null;
 
         $form = $this->createForm(TicketFormType::class, $ticket);

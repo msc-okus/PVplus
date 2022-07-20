@@ -46,7 +46,7 @@
                                                     <th>Gap Ev.</th>
 
                                                 {% endif %}
-                                                <th>Delete</th>
+                                                <th></th>
                                                 <th></th>
                                             </tr>
                                         </thead>
@@ -64,17 +64,49 @@
                                                     {% else %}
                                                         {% do ticketForm.dates[loop.index0].dataGapEvaluation.setRendered() %}
                                                     {% endif %}
-                                                    <td data-ticket-split-target="splitDelete">
-                                                        <select
-                                                                class="select-{{ date.id }}"
-                                                                data-ticket-split-id-param="{{ date.id }}"
-                                                                data-action="change->ticket-split#delete"
-                                                                >
-                                                            <option value="Next"> next </option>
-                                                            <option value="Previous"> previous </option>
-                                                            <option value="None"> none </option>
-                                                        </select>
+                                                    <td>
+
+                                                        <button {% if (dates|length) <= 1  %}disabled{% endif %}
+                                                                type="button"
+                                                                class="button small"
+                                                                data-action="ticket-split#openDelete"
+                                                                data-ticket-edit-id-param="{{ date.id }}"
+                                                        ><span class="fa fa-trash-alt"></span></button>
+
+                                                        <div id="formdelete{{ date.id }}">
+                                                            <div class="reveal"
+                                                                 data-reveal
+                                                                 data-append-to="div#formdelete{{ date.id }}"
+                                                                 data-multiple-opened="true"
+                                                                 data-ticket-split-target="splitDelete"
+                                                            >
+                                                                <div>
+                                                                    <fieldset class="fieldset">
+                                                                        <legend>Choose which interval you want to extend:</legend>
+                                                                        <select
+                                                                                class="select-{{ date.id }}"
+                                                                                data-ticket-split-id-param="{{ date.id }}"
+                                                                                data-action="change->ticket-split#delete"
+                                                                        >
+                                                                            <option value="">Please Choose one</option>
+                                                                            {% if (date.end != ticket.end) %}<option value="Next"> next </option> {% endif %}
+                                                                            {% if (date.begin != ticket.begin) %}<option value="Previous"> previous </option> {% endif %}
+                                                                            <option value="None"> none </option>
+                                                                        </select>
+                                                                    </fieldset>
+                                                                    <button
+                                                                            class="close-button"
+                                                                            type="button"
+                                                                            data-action="ticket-split#closeSplitTicket"
+                                                                    >
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     </td>
+
+
                                                     <td id="{{ date.id }}" >
 
                                                         <button

@@ -23,10 +23,14 @@ export default class extends Controller {
         this.splitModal = new Reveal($(this.splitModalTarget));
         this.splitModal.open();
     }
+    openDelete(event){
+        event.preventDefault();
+        this.splitModal = new Reveal($(this.splitDeleteTarget));
+        this.splitModal.open();
+    }
 
     closeSplitTicket(event){
         event.preventDefault();
-        //this.splitModal.destroy();
         this.dispatch('async:submitted');
     }
 
@@ -46,15 +50,16 @@ export default class extends Controller {
     }
     async delete({params: {id}}){
         var data = {'value': $(this.splitDeleteTarget).find('.select-' + id).val()}
-        try {
-            await $.ajax({
-                url: this.urlDeleteValue,
-                data: data
-            });
-            this.dispatch('async:submitted');
-        } catch (e) {
-            console.log(e);
+        if (data !="") {
+            try {
+                await $.ajax({
+                    url: this.urlDeleteValue,
+                    data: data
+                });
+                this.dispatch('async:submitted');
+            } catch (e) {
+                console.log(e);
+            }
         }
     }
-
 }
