@@ -10,12 +10,12 @@
         <div
                 class="cell modal-body"
                 data-ticket-edit-target="modalBody"
-
                 data-action="submit->ticket-edit#submitForm"
         >
             {{ modalContent|default('Loading...') }}
         </div>
     </div>
+
     <div class="grid-x">
         <div class="cell text-right">
             <button
@@ -28,4 +28,5 @@
             <button type="button" class="button small" data-action="ticket-edit#saveTicket">Save</button>
         </div>
     </div>
+
 </div>

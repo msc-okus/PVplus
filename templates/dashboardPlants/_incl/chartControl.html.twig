@@ -21,7 +21,7 @@
                 {{ acActPlant(form, aktAnlage) }}       {# AC1 #}
                 {{ acActOverview(form, aktAnlage) }}    {# AC2 #}
                 {{ acActGroup(form, aktAnlage) }}       {# AC3 #}
-                {% if is_granted('ROLE_DEV') %}<option value="ac_grp_power_diff" {% if form.selectedChart == 'ac_grp_power_diff' or not form.selectedChart %}selected{% endif %}>AC - Inverter {% if is_granted('ROLE_DEV') %}[AC 4]{% endif %}</option>{% endif %}
+                <option value="ac_grp_power_diff" {% if form.selectedChart == 'ac_grp_power_diff' or not form.selectedChart %}selected{% endif %}>AC - Inverter {% if is_granted('ROLE_DEV') %}[AC 4]{% endif %}</option>
                 {{ acVoltage(form, aktAnlage) }}
                 {{ acCurrent(form, aktAnlage) }}
                 {{ acFrequency(form, aktAnlage) }}

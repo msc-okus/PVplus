@@ -1,6 +1,5 @@
 <div class="grid-x" data-action="ticket-split:async:submitted->ticket-edit#reload">
     <div class="cell">
-        <form id="split-form"></form>
         {{ form_start(ticketForm) }}
         <div id="ticket-edit" class="grid-x">
             <div class="cell">
@@ -12,7 +11,7 @@
                                 {{ form_row(ticketForm.anlage) }}
                             </div>
                             <div class="cell small-6 medium-3 large-2">
-                                {{ form_row(ticketForm.begin) }}
+                                {{ form_row(ticketForm.begin)}}
                             </div>
                             <div class="cell small-6 medium-3 large-2">
                                 {{ form_row(ticketForm.end) }}

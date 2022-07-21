@@ -85,24 +85,25 @@ class TicketController extends BaseController
         $ticketDates = $ticket->getDates();
         if($ticketDates->isEmpty()) $ticketDates = null;
         //reading data from session
-        $form = $this->createForm(TicketFormType::class, $ticket);
-        $page           = $request->query->getInt('page', 1);
-        $form->handleRequest($request);
 
+        $form = $this->createForm(TicketFormType::class, $ticket);
+        $page= $request->query->getInt('page', 1);
+        $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $request->attributes->set('page', $page);
+            $ticket = new Ticket();
             $ticket = $form->getData();
+            $ticketDates = $ticket->getDates();
             $ticket->setEditor($this->getUser()->getUsername());
             if ($ticket->getStatus() === 30 && $ticket->getend() === null) $ticket->setEnd(new \DateTime("now"));
-
+            dd($ticketDates);
             $em->persist($ticket);
             $em->flush();
 
             if ($request->isXmlHttpRequest()) {
-                return new Response(null, 204);
+                return new Response(null, 404);
             }
         }
-
 
         return $this->renderForm('ticket/_inc/_edit.html.twig', [
             'ticketForm'    => $form,
