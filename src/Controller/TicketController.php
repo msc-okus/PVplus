@@ -96,12 +96,15 @@ class TicketController extends BaseController
             $ticketDates = $ticket->getDates();
             $ticket->setEditor($this->getUser()->getUsername());
             if ($ticket->getStatus() === 30 && $ticket->getend() === null) $ticket->setEnd(new \DateTime("now"));
-            dd($ticketDates);
+            if($ticketDates){
+                $ticketDates->first()->setBegin($ticket->getBegin());
+                $ticketDates->last()->setEnd($ticket->getEnd());
+            }
             $em->persist($ticket);
             $em->flush();
 
             if ($request->isXmlHttpRequest()) {
-                return new Response(null, 404);
+                return new Response(null, 204);
             }
         }
 
