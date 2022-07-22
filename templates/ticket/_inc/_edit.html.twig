@@ -88,8 +88,8 @@
                                                                                 data-action="change->ticket-split#delete"
                                                                         >
                                                                             <option value="">Please Choose one</option>
-                                                                            {% if (date.end != ticket.end) %}<option value="Next"> next </option> {% endif %}
-                                                                            {% if (date.begin != ticket.begin) %}<option value="Previous"> previous </option> {% endif %}
+                                                                            {% if (loop.index < loop.length) %}<option value="Next"> next </option> {% endif %}
+                                                                            {% if (loop.index0 > 0 ) %}<option value="Previous"> previous </option> {% endif %}
                                                                             <option value="None"> none </option>
                                                                         </select>
                                                                     </fieldset>

@@ -263,24 +263,25 @@ class TicketController extends BaseController
 
 
     #[Route(path: '/ticket/delete/{id}', name: 'app_ticket_delete')]
-    public function delete($id, TicketRepository $ticketRepo, TicketDateRepository $ticketDateRepo, Request $request):Response
+    public function delete($id, TicketRepository $ticketRepo, TicketDateRepository $ticketDateRepo, Request $request, EntityManagerInterface $em):Response
     {
+
         $option = $request->query->get('value');
         $page = $request->query->getInt('page', 1);
         $ticketDate = $ticketDateRepo->findOneById($id);
         $ticket = $ticketRepo->findOneById($ticketDate->getTicket());
-        if($ticket && $ticketDate) {
+        if($ticket) {
+            dump("hey");
             switch ($option) {
                 case "Previous":
-                    $previousDate = $ticketDateRepo->findOneByEndTicket($ticketDate->getBegin(), $ticket);
+                    $previousDate = $this->findPreviousDate($ticketDate->getBegin()->format('Y-m-d H:i'), $ticket, $ticketDateRepo);
                     if ($previousDate) {
                         $previousDate->setEnd($ticketDate->getEnd());
                         $ticket->removeDate($ticketDate);
                     }
-
                     break;
                 case "Next":
-                    $nextDate = $ticketDateRepo->findOneByBeginTicket($ticketDate->getEnd(), $ticket);
+                    $nextDate = $this::findNextDate($ticketDate->getEnd()->format('Y-m-d H:i'), $ticket, $ticketDateRepo);
                     if ($nextDate) {
                         $nextDate->setBegin($ticketDate->getBegin());
                         $ticket->removeDate($ticketDate);
@@ -291,6 +292,10 @@ class TicketController extends BaseController
                     break;
                 default:
             }
+            $em->persist($ticket);
+
+            $em->flush();
+            return new Response(null, 204);
         }
         $ticketDates = $ticket->getDates();
         if($ticketDates->isEmpty()) $ticketDates = null;
@@ -344,4 +349,30 @@ class TicketController extends BaseController
         ]);
     }
 
+    public function findNextDate($stamp, $ticket, $ticketDateRepo): ?TicketDate
+    {
+        $ticketDate = $ticketDateRepo->findOneByBeginTicket($stamp, $ticket);
+        /*
+        $found = false;
+        while (($found != true) && (strtotime($stamp) < $ticket->getEnd()->getTimestamp())) {
+            $ticketDate = $ticketDateRepo->findOneByBeginTicket($stamp, $ticket);
+            if ($ticketDate) $found == true;
+            else  $stamp = date('Y-m-d H:i', strtotime($stamp) + 900);
+        }
+        */
+        return $ticketDate;
+    }
+    public function findPreviousDate($stamp, $ticket, $ticketDateRepo): ?TicketDate
+    {
+        $ticketDate = $ticketDateRepo->findOneByEndTicket($stamp, $ticket);
+        /*
+        $found = false;
+        while (($found != true) && (strtotime($stamp) < $ticket->getEnd()->getTimestamp())) {
+            $ticketDate = $ticketDateRepo->findOneByEndTicket($stamp, $ticket);
+            if ($ticketDate) $found == true;
+            else  $stamp = date('Y-m-d H:i', strtotime($stamp) - 900);
+        }
+        */
+        return $ticketDate;
+    }
 }
