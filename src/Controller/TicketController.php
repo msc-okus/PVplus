@@ -84,28 +84,36 @@ class TicketController extends BaseController
         $ticket = $ticketRepo->find($id);
         $ticketDates = $ticket->getDates();
         if($ticketDates->isEmpty()) $ticketDates = null;
-        //reading data from session
-
         $form = $this->createForm(TicketFormType::class, $ticket);
         $page= $request->query->getInt('page', 1);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $request->attributes->set('page', $page);
-            $ticket = new Ticket();
             $ticket = $form->getData();
             $ticketDates = $ticket->getDates();
             $ticket->setEditor($this->getUser()->getUsername());
             if ($ticket->getStatus() === 30 && $ticket->getend() === null) $ticket->setEnd(new \DateTime("now"));
             if($ticketDates){
-                $ticketDates->first()->setBegin($ticket->getBegin());
-                $ticketDates->last()->setEnd($ticket->getEnd());
+                if ($ticketDates->first()->getBegin < $ticket->getBegin()){
+                    $ticket->setBegin($ticketDates->first()->getBegin());
+                    $this->addFlash('warning', 'Inconsistent date, the date was not saved');
+                }
+                else{
+                    $ticketDates->first()->setBegin($ticket->getBegin());
+                }
+                if ($ticketDates->last()->getEnd() > $ticket->getEnd()){
+                    $ticket->setEnd($ticketDates->last()->getEnd());
+                    $this->addFlash('warning', 'Inconsistent date, the date was not saved');
+                }
+                else{
+                    $ticketDates->last()->setEnd($ticket->getEnd());
+                }
             }
+            $ticket->setStatus(30);
             $em->persist($ticket);
             $em->flush();
+            return new Response(null, 204);
 
-            if ($request->isXmlHttpRequest()) {
-                return new Response(null, 204);
-            }
         }
 
         return $this->renderForm('ticket/_inc/_edit.html.twig', [
@@ -223,7 +231,6 @@ class TicketController extends BaseController
         $ticketDate = $ticketDateRepo->findOneById($id);
 
         $ticket = $ticketRepo->findOneById($ticketDate->getTicket());
-        dump($ticket);
         $splitTime = date_create($request->query->get('begin-time'));
 
         if ($splitTime && $ticket) {
@@ -285,9 +292,7 @@ class TicketController extends BaseController
                 default:
             }
         }
-
         $ticketDates = $ticket->getDates();
-        dd($ticketDates);
         if($ticketDates->isEmpty()) $ticketDates = null;
 
         $form = $this->createForm(TicketFormType::class, $ticket);
