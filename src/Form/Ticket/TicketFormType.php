@@ -52,6 +52,13 @@ class TicketFormType extends AbstractType
                     'input' => 'datetime',
                     'widget' => 'single_text',
                     'data' => new \DateTime("now")
+                ])
+                ->add('end', DateTimeType::class, [
+                    'label' => 'End',
+                    'label_html' => true,
+                    'required' => true,
+                    'input' => 'datetime',
+                    'widget' => 'single_text',
                 ]);
         } else {
             $builder
@@ -61,13 +68,25 @@ class TicketFormType extends AbstractType
                         'readonly' => true,
                     ]
                 ])
+                ->add('begin',)
+
                 ->add('begin', DateTimeType::class, [
                     'label' => 'Begin',
                     'label_html' => true,
                     'required' => false,
                     'input' => 'datetime',
+                    'attr' => ['max'=>$ticket->getBegin()->format("Y/m/d H:i")],
                     'widget' => 'single_text',
-                ]);
+                ])
+                ->add('end', DateTimeType::class, [
+                    'label' => 'End',
+                    'label_html' => true,
+                    'required' => true,
+                    'input' => 'datetime',
+                    'widget' => 'single_text',
+                    'attr' => ['min' => $ticket->getEnd()->format("Y/m/d H:i")]
+                ])
+                ;
         }
         $builder
             ->add('dates', UXCollectionType::class, [
@@ -88,13 +107,6 @@ class TicketFormType extends AbstractType
                 'choices' => self::ticketStati(),
                 'required' => true,
                 'placeholder' => 'please Choose ...'
-            ])
-            ->add('end', DateTimeType::class, [
-                'label' => 'End',
-                'label_html' => true,
-                'required' => true,
-                'input' => 'datetime',
-                'widget' => 'single_text',
             ])
             ->add('priority', ChoiceType::class, [
                 'label' => 'Priority',
@@ -131,8 +143,6 @@ class TicketFormType extends AbstractType
             ])
 
             #### ACTIONS
-
-
 
             ####
             ->add('PR0', SwitchType::class, [

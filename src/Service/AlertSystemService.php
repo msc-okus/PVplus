@@ -221,17 +221,17 @@ class AlertSystemService
         if ($inverter['istdata'] === "No Data") {
             //data gap
             $message .=  "Data gap at inverter (Power) " . $nameArray . "<br>";
-            $errorType = "";
+            $errorType = EFOR;
             $errorCategorie = DATA_GAP;
         } elseif ($inverter['istdata'] === "Power is 0") {
             //inverter error
             $message .=  "No power at inverter " . $nameArray . "<br>";
-            $errorType = "";
+            $errorType = EFOR;
             $errorCategorie = INVERTER_ERROR;
         } elseif ($inverter['istdata'] === 'Power to low') {
             // check if inverter power make sense, to detect ppc
             $message .=  "Power too low at inverter " . $nameArray . " (could be external plant control)<br>";
-            $errorType = "";
+            $errorType = EFOR;
             $errorCategorie = EXTERNAL_CONTROL;
         } elseif ($inverter['istdata'] === "Plant Control by PPC") {
             // PPC Control
@@ -325,19 +325,6 @@ class AlertSystemService
     }
 
     // ---------------Checking Functions-----------------
-
-    /**
-     * here we analyze the data of the inverter and generate the status
-     * @param $anlage
-     * @param $time
-     * @param $inverter
-     * @return array
-     */
-    private static function IstData($anlage, $time, $inverter): array
-    {
-        return self::RetrieveQuarterIst($time, $inverter, $anlage);
-    }
-
     /**
      * New version with datagap algorithm
      * @param $anlage
@@ -468,7 +455,7 @@ class AlertSystemService
     {
         $conn = self::getPdoConnection();
         $irrLimit = 30;
-
+        $stamp = date('Y-m-d H:i', strtotime($stamp) - 900);
         $sqlw = "SELECT g_lower, g_upper FROM " . $anlage->getDbNameWeather() . " WHERE stamp = '$stamp' ";
         $respirr = $conn->query($sqlw);
 
@@ -566,30 +553,6 @@ class AlertSystemService
             $this->mailservice->sendMessage($anlage, 'alert', 3, $subject, $message, false, true, true, true);
         }
     }
-/*
-    /** depracated, very likely to remove
-     * this function retrieves the previous status (if any), taking into account that the previous status can be the last from the previous day
-     * @param $anlage
-     * @param $date
-     * @param $sunrise
-     * @param $isWeather
-     * @return mixed
-
-    private function getLastStatus($anlage, $date, $sunrise, $isWeather): mixed
-    {
-        $time = date('Y-m-d H:i:s', strtotime($date) - 900);
-        $yesterday = date('Y-m-d', strtotime($date) - 86400); // this is the date of yesterday
-        $today = date('Y-m-d', strtotime($date));
-        if ($time <= $sunrise){
-            $status = $this->statusRepo->findLastOfDay($anlage, $yesterday,$today, $isWeather);
-        }
-        else {
-            $status = $this->statusRepo->findOneByanlageDate($anlage, $time, $isWeather);
-        }
-
-        return $status;
-    }
-    */
 
     public function getLastTicket($anlage, $inverter, $time, $isWeather)
     {

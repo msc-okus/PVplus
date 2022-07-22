@@ -85,16 +85,21 @@ class TicketController extends BaseController
         $ticketDates = $ticket->getDates();
         if($ticketDates->isEmpty()) $ticketDates = null;
         //reading data from session
-        $form = $this->createForm(TicketFormType::class, $ticket);
-        $page           = $request->query->getInt('page', 1);
-        $form->handleRequest($request);
 
+        $form = $this->createForm(TicketFormType::class, $ticket);
+        $page= $request->query->getInt('page', 1);
+        $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $request->attributes->set('page', $page);
+            $ticket = new Ticket();
             $ticket = $form->getData();
+            $ticketDates = $ticket->getDates();
             $ticket->setEditor($this->getUser()->getUsername());
             if ($ticket->getStatus() === 30 && $ticket->getend() === null) $ticket->setEnd(new \DateTime("now"));
-
+            if($ticketDates){
+                $ticketDates->first()->setBegin($ticket->getBegin());
+                $ticketDates->last()->setEnd($ticket->getEnd());
+            }
             $em->persist($ticket);
             $em->flush();
 
@@ -102,7 +107,6 @@ class TicketController extends BaseController
                 return new Response(null, 204);
             }
         }
-
 
         return $this->renderForm('ticket/_inc/_edit.html.twig', [
             'ticketForm'    => $form,
@@ -217,38 +221,25 @@ class TicketController extends BaseController
         $page = $request->query->getInt('page', 1);
 
         $ticketDate = $ticketDateRepo->findOneById($id);
-        #$ticket = $ticketRepo->findOneById($ticketDate->getTicket()->getId());
-        $ticket = $ticketDate->getTicket();
+
+        $ticket = $ticketRepo->findOneById($ticketDate->getTicket());
+        dump($ticket);
         $splitTime = date_create($request->query->get('begin-time'));
 
         if ($splitTime && $ticket) {
-
-            /*$firstDate = new TicketDate();
-            $firstDate->copyTicket($ticket);
-            $firstDate->setBegin($ticketDate->getBegin());
-            $firstDate->setEnd($beginTime);
-            */
-
-
             $mainDate = new TicketDate();
             $mainDate->copyTicketDate($ticketDate);
-
             $mainDate->setBegin($splitTime);
-
             $ticketDate->setEnd($splitTime);
-
             $ticket->addDate($mainDate);
-
             $ticket->setSplitted(true);
 
-            $em->persist($mainDate);
             $em->persist($ticket);
-
             $em->flush();
+
         }
 
         $ticketDates = $ticket->getDates()->getValues();
-
         if (count($ticketDates) == 0) $ticketDates = null;
 
         $form = $this->createForm(TicketFormType::class, $ticket);
@@ -263,56 +254,51 @@ class TicketController extends BaseController
     }
 
 
-    #[Route(path: '/ticket/split/edit/{id}', name: 'app_ticket_split_edit')]
-    public function splitEdit( $id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em) : Response
+
+    #[Route(path: '/ticket/delete/{id}', name: 'app_ticket_delete')]
+    public function delete($id, TicketRepository $ticketRepo, TicketDateRepository $ticketDateRepo, Request $request):Response
     {
+        $option = $request->query->get('value');
+        $page = $request->query->getInt('page', 1);
+        $ticketDate = $ticketDateRepo->findOneById($id);
+        $ticket = $ticketRepo->findOneById($ticketDate->getTicket());
+        if($ticket && $ticketDate) {
+            switch ($option) {
+                case "Previous":
+                    $previousDate = $ticketDateRepo->findOneByEndTicket($ticketDate->getBegin(), $ticket);
+                    if ($previousDate) {
+                        $previousDate->setEnd($ticketDate->getEnd());
+                        $ticket->removeDate($ticketDate);
+                    }
 
-        $ticket = $ticketRepo->findOneById($id);
-        $dates = $ticket->getDates()->getValues();
-        for ($i = 0; $i < $ticket->getDates()->count(); $i++){
-            $date = $dates[$i];
-            $em->remove($date);
-        }
-        $ticket->setSplitted(false);
-        $ticket->removeAllDates();
-        $em->flush();
-        $beginTime = $request->query->get('begin-time');
-        $endTime = $request->query->get('end-time');
-        if ($ticket != null && $beginTime && $endTime) {
-            if ($beginTime > $ticket->getBegin()){
-                $firstDate = new TicketDate();
-                $ticket->addDate($firstDate);
-                //$em->persist($firstDate);
+                    break;
+                case "Next":
+                    $nextDate = $ticketDateRepo->findOneByBeginTicket($ticketDate->getEnd(), $ticket);
+                    if ($nextDate) {
+                        $nextDate->setBegin($ticketDate->getBegin());
+                        $ticket->removeDate($ticketDate);
+                    }
+                    break;
+                case "None":
+                    $ticket->removeDate($ticketDate);
+                    break;
+                default:
             }
-            $mainDate = new TicketDate();
-            $mainDate->copyTicket();
-            $ticket->addDate($mainDate);
+        }
 
-            //$em->persist($mainDate);
-            if ($endTime < $ticket->getEnd()){
-                $secondDate = new TicketDate();
-                $secondDate->copyTicket($ticket);
-                $ticket->addDate($secondDate);
-                //$em->persist($secondDate);
-            }
-            $ticket->setSplitted(true);
-            $em->persist($ticket);
-            $em->flush();
-            $Route = $this->generateUrl('app_ticket_edit', ['id' => $id], UrlGeneratorInterface::ABS_PATH);
-            return $this->redirect($Route);
-        }
         $ticketDates = $ticket->getDates();
+        dd($ticketDates);
         if($ticketDates->isEmpty()) $ticketDates = null;
 
-
         $form = $this->createForm(TicketFormType::class, $ticket);
-        return $this->render('ticket/edit.html.twig', [
-            'ticketForm' => $form->createView(),
-            'ticket' => $ticket,
-            'edited' => true,
-            'dates' => $ticketDates
-        ]);
 
+        return $this->renderForm('ticket/_inc/_edit.html.twig', [
+            'ticketForm'    => $form,
+            'ticket'        => $ticket,
+            'edited'        => true,
+            'dates'         => $ticketDates,
+            'page'          => $page,
+        ]);
     }
 
     #[Route(path: '/ticket/join', name: 'app_ticket_join', methods:['GET','POST'])]
