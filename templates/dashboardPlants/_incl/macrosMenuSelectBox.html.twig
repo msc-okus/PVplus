@@ -166,7 +166,7 @@
 {# VoltDC1  #}
 {% macro voltageDcString(form, aktAnlage) %}
     {% if (aktAnlage.hasStrings and aktAnlage.showStringCharts) %}
-        <option value="dc_voltage_mpp" {% if form.selectedChart == 'dc_voltage_mpp' %}selected{% endif %}>DC - Voltage, String&nbsp;[A]{% if is_granted('ROLE_DEV') %}[VoltDc1 4]{% endif %}</option>
+        <option value="dc_voltage_mpp" {% if form.selectedChart == 'dc_voltage_mpp' %}selected{% endif %}>DC - Voltage, String&nbsp;[A]{% if is_granted('ROLE_DEV') %}[VoltDC 1]{% endif %}</option>
     {% endif %}
 {% endmacro %}
 
