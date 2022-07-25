@@ -74,15 +74,13 @@ class TicketFormType extends AbstractType
                     'label' => 'Begin',
                     'label_html' => true,
                     'required' => false,
-                    'input' => 'datetime',
-                    'attr' => ['max'=>$ticket->getBegin()->format("Y/m/d H:i")],
+                    'attr' => ['max'=>$ticket->getBegin()->format("Y-m-d H:i:s")],
                     'widget' => 'single_text',
                 ])
                 ->add('end', DateTimeType::class, [
                     'label' => 'End',
                     'label_html' => true,
                     'required' => true,
-                    'input' => 'datetime',
                     'widget' => 'single_text',
                     'attr' => ['min' => $ticket->getEnd()->format("Y/m/d H:i")]
                 ])

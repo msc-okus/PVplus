@@ -59,7 +59,7 @@
 
 {# AC8 #}
 {% macro acReactive(form, aktAnlage) %}
-    <option value="reactive_power" {% if form.selectedChart == 'reactive_power' %}selected{% endif %}>AC Reactive Power&nbsp;- Inverter [kvar] {% if is_granted('ROLE_DEV') %}[AC 8]{% endif %}</option>
+    {% if is_granted('ROLE_G4N') %}<option value="reactive_power" {% if form.selectedChart == 'reactive_power' %}selected{% endif %}>AC Reactive Power&nbsp;- Inverter [kvar] {% if is_granted('ROLE_DEV') %}[AC 8]{% endif %}</option>{% endif %}
 {% endmacro %}
 
 

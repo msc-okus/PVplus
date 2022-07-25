@@ -49,7 +49,7 @@ export default class extends Controller {
 
     }
     async delete({params: {id}}){
-        var data = {'value': $(this.splitDeleteTarget).find('.select-' + id).val()}
+        var data = {'value': $(this.splitDeleteTarget).find('.select-' + id).val()};
         if (data !="") {
             try {
                 await $.ajax({

@@ -52,7 +52,4 @@ export default class extends Controller {
     async reload(event){
         this.modalBodyTarget.innerHTML = await $.ajax(this.formUrlValue);
     }
-
-
-
 }
