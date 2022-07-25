@@ -367,7 +367,7 @@ class TicketController extends BaseController
         $ticketDate = $ticketDateRepo->findOneByEndTicket($stamp, $ticket);
         /*
         $found = false;
-        while (($found != true) && (strtotime($stamp) < $ticket->getEnd()->getTimestamp())) {
+        while (($found != true) && (strtotime($stamp) < $ticket->getBegin()->getTimestamp())) {
             $ticketDate = $ticketDateRepo->findOneByEndTicket($stamp, $ticket);
             if ($ticketDate) $found == true;
             else  $stamp = date('Y-m-d H:i', strtotime($stamp) - 900);

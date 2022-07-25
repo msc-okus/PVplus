@@ -104,5 +104,10 @@ class TicketDate
         $this->answer = $ticket->getAnswer();
         $this->alertType = $ticket->getAlertType();
     }
+    public function getIntervalCount(){
+        $endstamp = $this->getEnd()->getTimestamp();
+        $beginstamp = $this->getBegin()->getTimestamp();
+        return ($endstamp - $beginstamp)/900;
+    }
 
 }
