@@ -45,7 +45,8 @@ class ACPowerChartsService
     public function getAC1(Anlage $anlage, $from, $to, bool $hour = false): array
     {
         $conn = self::getPdoConnection();
-        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
+        $formExp = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
+        $form = $hour ? '%y%m%d%' : '%y%m%d%H%i';
 
         if ($anlage->getHasPPC()) {
             $sqlExp = "SELECT a.stamp as stamp, 
@@ -57,7 +58,7 @@ class ACPowerChartsService
                         LEFT JOIN " . $anlage->getDbNameDcSoll() . " b ON a.stamp = b.stamp
                         LEFT JOIN " . $anlage->getDbNamePPC() . " c ON b.stamp = c.stamp
                         WHERE a.stamp >= '$from' AND a.stamp < '$to' 
-                        GROUP by date_format(a.stamp, '$form')";
+                        GROUP by date_format(a.stamp, '$formExp')";
         } else {
             $sqlExp = "SELECT a.stamp as stamp, 
                         sum(b.ac_exp_power) as soll, 
@@ -66,7 +67,7 @@ class ACPowerChartsService
                         FROM db_dummysoll a 
                         LEFT JOIN " . $anlage->getDbNameDcSoll() . " b ON a.stamp = b.stamp                     
                         WHERE a.stamp >= '$from' AND a.stamp < '$to' 
-                        GROUP by date_format(a.stamp, '$form')";
+                        GROUP by date_format(a.stamp, '$formExp')";
         }
 
         $resExp = $conn->query($sqlExp);
@@ -95,6 +96,7 @@ class ACPowerChartsService
                 $whereQueryPart1 = $hour ? "stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'" : "stamp = '$stampAdjust'";
                 $sqlActual = "SELECT sum(wr_pac) as acIst, wr_cos_phi_korrektur as cosPhi, sum(theo_power) as theoPower FROM " . $anlage->getDbNameIst() . " 
                         WHERE wr_pac >= 0 AND $whereQueryPart1 GROUP by date_format(stamp, '$form')";
+                dump($sqlActual);
 
                 $sqlEvu = "SELECT sum(e_z_evu) as eZEvu FROM " . $anlage->getDbNameIst() . " WHERE $whereQueryPart1 GROUP by date_format(stamp, '$form')";
 
@@ -296,7 +298,6 @@ class ACPowerChartsService
      */
     public function getAC3(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
-        $filter = $hour ? 'a.stamp' : 'a.stamp';
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
 
         $conn = self::getPdoConnection();
@@ -317,7 +318,7 @@ class ACPowerChartsService
 
         $sqlIst = "SELECT a.stamp, sum(c.wr_pac) as actPower, avg(c.wr_temp) as temp, c.wr_cos_phi_korrektur FROM ( `db_dummysoll` a 
                  LEFT JOIN (SELECT * FROM " . $anlage->getDbNameIst() . " WHERE " . $groupQuery . "  ) c ON a.stamp = c.stamp ) WHERE a.stamp 
-                 BETWEEN '$from' AND '$to' GROUP BY date_format($filter, '$form')";
+                 BETWEEN '$from' AND '$to' GROUP BY date_format(a.stamp, '$form')";
 
         $dataArray['inverterArray'] = $nameArray;
         $resultIst = $conn->query($sqlIst);
@@ -344,15 +345,14 @@ class ACPowerChartsService
 
             while ($rowIst = $resultIst->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = self::timeShift($anlage, $rowIst["stamp"]);
-                $stampAdjust = self::timeAjustment($stamp, $anlage->getAnlZeitzone());
+                $stampAdjust = self::timeAjustment($stamp, $anlage->getAnlZeitzone() * (-1));
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
                 $dataArray['chart'][$counter]['date'] = $stampAdjust;
 
-                $queryf = $hour ? "BETWEEN '$from' AND '$to'" : "LIKE '$rowIst[stamp]'";
-
+                $queryf = $hour ? "BETWEEN '$from' AND '$to'" : "LIKE '$stampAdjust'";
                 $sqlSoll = "SELECT a.stamp, sum(b.ac_exp_power) as soll FROM ( `db_dummysoll` a 
                          LEFT JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE " . $groupQuery . "  ) b ON a.stamp = b.stamp ) WHERE a.stamp 
-                         " . $queryf . " GROUP BY date_format($filter, '$form')";
+                         " . $queryf . " GROUP BY date_format(a.stamp, '$form')";
 
                 $result = $conn->query($sqlSoll);
                 if ($hour) {
