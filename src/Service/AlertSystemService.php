@@ -287,7 +287,14 @@ class AlertSystemService
                 $ticketDate->setAlertType($errorCategorie);
                 $ticket->setErrorType($errorType); // type = errorType (Bsp:  SOR, EFOR, OMC)
                 $ticketDate->setErrorType($errorType);
-                $timetemp = date('Y-m-d H:i:s', strtotime($time));
+                $varWeWillUseToDecideInterval = true;
+                if ($varWeWillUseToDecideInterval){
+                    $timetemp = date('Y-m-d H:i:s', strtotime($time) - 900);
+                }
+                else {
+                    $timetemp = date('Y-m-d H:i:s', strtotime($time));
+                }
+
                 $begin = date_create_from_format('Y-m-d H:i:s', $timetemp);
                 $begin->getTimestamp();
                 $ticket->setBegin(($begin));
@@ -455,7 +462,6 @@ class AlertSystemService
     {
         $conn = self::getPdoConnection();
         $irrLimit = 30;
-        $stamp = date('Y-m-d H:i', strtotime($stamp) - 900);
         $sqlw = "SELECT g_lower, g_upper FROM " . $anlage->getDbNameWeather() . " WHERE stamp = '$stamp' ";
         $respirr = $conn->query($sqlw);
 

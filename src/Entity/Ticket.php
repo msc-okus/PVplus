@@ -384,6 +384,8 @@ class Ticket
         $this->dates->clear();
         return $this;
     }
-
+    public function getIntervalCount(){
+        return $this->dates->count();
+    }
 
 }
