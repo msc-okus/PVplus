@@ -21,7 +21,7 @@ class ToolsController extends BaseController
 {
     use G4NTrait;
     #[Route(path: '/admin/tools', name: 'app_admin_tools')]
-    public function tools(Request $request, PRCalulationService $PRCalulation, AvailabilityService $availability, ExpectedService $expectedService, MessageBusInterface $messageBus, LogMessagesService $logMessages) : Response
+    public function tools(Request $request, MessageBusInterface $messageBus, LogMessagesService $logMessages) : Response
     {
         $form = $this->createForm(ToolsFormType::class);
         $form->handleRequest($request);
@@ -50,7 +50,6 @@ class ToolsController extends BaseController
                     $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'PR', $job);
                     $message = new CalcPR($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
                     $messageBus->dispatch($message);
-
                     break;
                 case 'availability':
                     $output = "<h3>Availability:</h3>";
@@ -70,8 +69,8 @@ class ToolsController extends BaseController
             return $this->redirectToRoute('app_dashboard');
         }
 
-        return $this->render('tools/index.html.twig', [
-            'toolsForm' => $form->createView(),
+        return $this->renderForm('tools/index.html.twig', [
+            'toolsForm' => $form,
             'output'    => $output,
         ]);
     }

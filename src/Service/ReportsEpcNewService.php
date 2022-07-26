@@ -184,27 +184,8 @@ class ReportsEpcNewService
             $tableArray[$n]['J_theorYieldMTDesign']                   = ''; // Spalte J
             $tableArray[$n]['K_irrFTDesign']                          = ""; // Spalte K
             $tableArray[$n]['L_irr']                                  = ($hasMonthData) ? $prArray['irradiation'] : $tableArray[$n]['D_irrDesign']; // Spalte L // Irradiation
-            if($anlage->getAnlId() == 84) {
-                switch ($n) {
-                    case 4:
-                        $tableArray[$n]['L_irr'] = 107.66;
-                        break;
-                    case 6:
-                        $tableArray[$n]['L_irr'] = 179.05;
-                        break;
-                    case 7:
-                        $tableArray[$n]['L_irr'] = 151.38;
-                        break;
-                    case 21:
-                        $tableArray[$n]['L_irr'] = 136.68;
-                        break;
-                    case 22:
-                        $tableArray[$n]['L_irr'] = 81.21;
-                        break;
-                }
-            }
             $tableArray[$n]['M_eGridYield']                           = ($hasMonthData) ? $eGridReal : $pvSystData[$month - 1]['ertragDesign'] * $factor; // Spalte M // eGrid gemessen (je nach Konfiguration der Anlage aus dem Feld e_z_evu oder aus den Tageswerten der externen Grid Messung
-            $tableArray[$n]['N_specificYield']                        = $tableArray[$n]['M_eGridYield'] / $anlage->getKwPeak(); // Spalte N
+            $tableArray[$n]['N_specificYield']                        = $tableArray[$n]['M_eGridYield'] / $anlage->getPnom(); // Spalte N
             $tableArray[$n]['O_availability']                         = ($hasMonthData) ? $prArray['availability'] : ''; // Spalte O
             $tableArray[$n]['P_part']                                 = 0; // Spalte P // muss in Runde 2 Berechnet werden
             $tableArray[$n]['Q_prReal_prProg']                        = $this->PRCalulation->calcPrByValues($anlage, $tableArray[$n]['L_irr'], $tableArray[$n]['N_specificYield'], $tableArray[$n]['M_eGridYield'], $prArray['powerTheoTempCorr'], $tableArray[$n]['O_availability']); // Spalte Q // PR Real bzw PR prognostiziert wenn noch kein PR Real vorhanden

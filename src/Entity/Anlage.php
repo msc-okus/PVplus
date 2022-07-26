@@ -824,12 +824,12 @@ class Anlage
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private float $freqTolerance = 0.0;
+    private string $freqTolerance = '2.0';
 
     /**
      * @ORM\Column(type="string", length=20)
      */
-    private int $freqBase = 50;
+    private string $freqBase = '50';
 
     /**
      * @ORM\Column(type="boolean")
@@ -3373,24 +3373,24 @@ class Anlage
         return $this;
     }
 
-    public function getFreqTolerance(): ?int
+    public function getFreqTolerance(): ?float
     {
-        return $this->freqTolerance;
+        return (float)$this->freqTolerance;
     }
 
-    public function setFreqTolerance(int $freqTolerance): self
+    public function setFreqTolerance(string $freqTolerance): self
     {
         $this->freqTolerance = $freqTolerance;
 
         return $this;
     }
 
-    public function getFreqBase(): ?int
+    public function getFreqBase(): ?float
     {
-        return $this->freqBase;
+        return (float)$this->freqBase;
     }
 
-    public function setFreqBase(int $freqBase): self
+    public function setFreqBase(string $freqBase): self
     {
         $this->freqBase = $freqBase;
 
@@ -3410,7 +3410,7 @@ class Anlage
     }
 
     /**
-     * Function to calculate the Pnom for every Inverter, returns a Array with the Pnom for all inverters
+     * Function to calculate the Pnom for every inverter, returns a Array with the Pnom for all inverters
      *
      * @return array
      */

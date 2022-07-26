@@ -15,6 +15,7 @@ use App\Helper\G4NTrait;
 use App\Helper\PVPNameArraysTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
+use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
 use App\Repository\UserRepository;
 use App\Service\AvailabilityService;
@@ -32,6 +33,7 @@ use phpDocumentor\Reflection\Types\Object_;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -82,26 +84,37 @@ class TicketController extends BaseController
         $ticket = $ticketRepo->find($id);
         $ticketDates = $ticket->getDates();
         if($ticketDates->isEmpty()) $ticketDates = null;
-        //reading data from session
         $form = $this->createForm(TicketFormType::class, $ticket);
-        $page           = $request->query->getInt('page', 1);
-        dump($page);
+        $page= $request->query->getInt('page', 1);
         $form->handleRequest($request);
-
         if ($form->isSubmitted() && $form->isValid()) {
             $request->attributes->set('page', $page);
             $ticket = $form->getData();
+            $ticketDates = $ticket->getDates();
             $ticket->setEditor($this->getUser()->getUsername());
             if ($ticket->getStatus() === 30 && $ticket->getend() === null) $ticket->setEnd(new \DateTime("now"));
-
+            if($ticketDates){
+                if ($ticketDates->first()->getBegin < $ticket->getBegin()){
+                    $ticket->setBegin($ticketDates->first()->getBegin());
+                    $this->addFlash('warning', 'Inconsistent date, the date was not saved');
+                }
+                else{
+                    $ticketDates->first()->setBegin($ticket->getBegin());
+                }
+                if ($ticketDates->last()->getEnd() > $ticket->getEnd()){
+                    $ticket->setEnd($ticketDates->last()->getEnd());
+                    $this->addFlash('warning', 'Inconsistent date, the date was not saved');
+                }
+                else{
+                    $ticketDates->last()->setEnd($ticket->getEnd());
+                }
+            }
+            $ticket->setStatus(30);
             $em->persist($ticket);
             $em->flush();
+            return new Response(null, 204);
 
-            if ($request->isXmlHttpRequest()) {
-                return new Response(null, 204);
-            }
         }
-
 
         return $this->renderForm('ticket/_inc/_edit.html.twig', [
             'ticketForm'    => $form,
@@ -113,9 +126,20 @@ class TicketController extends BaseController
     }
 
     #[Route(path: '/ticket/list', name: 'app_ticket_list')]
-    public function list(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo) : Response
+    public function list(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo, RequestStack $requestStack) : Response
     {
         $filter = [];
+        $session = $requestStack->getSession();
+
+        $pageSession = $session->get('page');
+        $page = $request->query->getInt('page');
+        if ($page == 0) {
+            if ($pageSession == 0){
+                $page = 1;
+            } else {
+                $page = $pageSession;
+            }
+        }
 
         //Reading data from request
         /** @var Anlage|string $anlage */
@@ -124,14 +148,14 @@ class TicketController extends BaseController
         } else {
             $anlage = "";
         }
-        $status     = $request->query->get('status');
+        $status     = $request->query->get('status', default: 10);
         $editor     = $request->query->get('editor');
         $id         = $request->query->get('id');
         $inverter   = $request->query->get('inverter');
         $prio       = $request->query->get('prio');
         $category   = $request->query->get('category');
         $type       = $request->query->get('type');
-        $page       = $request->query->getInt('page', 1);
+
 
         $filter['status']['value'] = $status;
         $filter['status']['array'] = self::ticketStati();
@@ -142,12 +166,16 @@ class TicketController extends BaseController
         $filter['type']['value'] = $type;
         $filter['type']['array'] = self::errorType();
 
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $page);
+        $order['begin'] = 'DESC'; // null, ASC, DESC
+
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $order);
         $pagination = $paginator->paginate(
             $queryBuilder,                                    /* query NOT result */
             $page,   /* page number*/
             25                                          /*limit per page*/
         );
+
+        $session->set('page', "$page");
 
         if ($request->query->get('ajax')) {
             return $this->render('ticket/_inc/_listTickets.html.twig', [
@@ -196,50 +224,30 @@ class TicketController extends BaseController
 
 
     #[Route(path: '/ticket/split/{id}', name: 'app_ticket_split', methods: ['GET', 'POST'])]
-    public function split( $id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
+    public function split( $id, TicketDateRepository $ticketDateRepo, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
     {
         $page = $request->query->getInt('page', 1);
-        $ticket = $ticketRepo->findOneById($id);
-        $beginTime = date_create($request->query->get('begin-time'));
-        $endTime = date_create($request->query->get('end-time'));
 
-        if ($ticket !== null && $beginTime && $endTime) {
-            if($ticket->getDates()->count() == 1) $ticket->removeAllDates();
-            if ($beginTime > $ticket->getBegin()) {
-                $firstDate = new TicketDate();
-                $firstDate->copyTicket($ticket);
-                $firstDate->setBegin($ticket->getBegin());
-                $firstDate->setEnd($beginTime);
-                $ticket->addDate($firstDate);
-            }
+        $ticketDate = $ticketDateRepo->findOneById($id);
 
+        $ticket = $ticketRepo->findOneById($ticketDate->getTicket());
+        $splitTime = date_create($request->query->get('begin-time'));
+
+        if ($splitTime && $ticket) {
             $mainDate = new TicketDate();
-            $mainDate->copyTicket($ticket);
-            $mainDate->setBegin($beginTime);
-            $mainDate->setEnd($endTime);
+            $mainDate->copyTicketDate($ticketDate);
+            $mainDate->setBegin($splitTime);
+            $ticketDate->setEnd($splitTime);
             $ticket->addDate($mainDate);
-
-            if ($endTime < $ticket->getEnd()) {
-                $secondDate = new TicketDate();
-                $secondDate->copyTicket($ticket);
-                $secondDate->setBegin($endTime);
-                $secondDate->setEnd($ticket->getEnd());
-                $ticket->addDate($secondDate);
-            }
             $ticket->setSplitted(true);
 
             $em->persist($ticket);
             $em->flush();
-/*
-            if ($request->isXmlHttpRequest()) {
-                return new Response(null, 204);
 
-            }
-*/
         }
 
-        $ticketDates = $ticket->getDates();
-        if ($ticketDates->isEmpty()) $ticketDates = null;
+        $ticketDates = $ticket->getDates()->getValues();
+        if (count($ticketDates) == 0) $ticketDates = null;
 
         $form = $this->createForm(TicketFormType::class, $ticket);
 
@@ -253,55 +261,54 @@ class TicketController extends BaseController
     }
 
 
-    #[Route(path: '/ticket/split/edit/{id}', name: 'app_ticket_split_edit')]
-    public function splitEdit( $id, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em) : Response
-    {
-        $ticket = $ticketRepo->findOneById($id);
-        $dates = $ticket->getDates()->getValues();
-        for ($i = 0; $i < $ticket->getDates()->count(); $i++){
-            $date = $dates[$i];
-            $em->remove($date);
-        }
-        $ticket->setSplitted(false);
-        $ticket->removeAllDates();
-        $em->flush();
-        $beginTime = $request->query->get('begin-time');
-        $endTime = $request->query->get('end-time');
-        if ($ticket != null && $beginTime && $endTime) {
-            if ($beginTime > $ticket->getBegin()){
-                $firstDate = new TicketDate();
-                $ticket->addDate($firstDate);
-                //$em->persist($firstDate);
-            }
-            $mainDate = new TicketDate();
-            $mainDate->copyTicket();
-            $ticket->addDate($mainDate);
 
-            //$em->persist($mainDate);
-            if ($endTime < $ticket->getEnd()){
-                $secondDate = new TicketDate();
-                $secondDate->copyTicket($ticket);
-                $ticket->addDate($secondDate);
-                //$em->persist($secondDate);
+    #[Route(path: '/ticket/delete/{id}', name: 'app_ticket_delete')]
+    public function delete($id, TicketRepository $ticketRepo, TicketDateRepository $ticketDateRepo, Request $request, EntityManagerInterface $em):Response
+    {
+
+        $option = $request->query->get('value');
+        $page = $request->query->getInt('page', 1);
+        $ticketDate = $ticketDateRepo->findOneById($id);
+        $ticket = $ticketRepo->findOneById($ticketDate->getTicket());
+        if($ticket) {
+            dump("hey");
+            switch ($option) {
+                case "Previous":
+                    $previousDate = $this->findPreviousDate($ticketDate->getBegin()->format('Y-m-d H:i'), $ticket, $ticketDateRepo);
+                    if ($previousDate) {
+                        $previousDate->setEnd($ticketDate->getEnd());
+                        $ticket->removeDate($ticketDate);
+                    }
+                    break;
+                case "Next":
+                    $nextDate = $this::findNextDate($ticketDate->getEnd()->format('Y-m-d H:i'), $ticket, $ticketDateRepo);
+                    if ($nextDate) {
+                        $nextDate->setBegin($ticketDate->getBegin());
+                        $ticket->removeDate($ticketDate);
+                    }
+                    break;
+                case "None":
+                    $ticket->removeDate($ticketDate);
+                    break;
+                default:
             }
-            $ticket->setSplitted(true);
             $em->persist($ticket);
+
             $em->flush();
-            $Route = $this->generateUrl('app_ticket_edit', ['id' => $id], UrlGeneratorInterface::ABS_PATH);
-            return $this->redirect($Route);
+            return new Response(null, 204);
         }
         $ticketDates = $ticket->getDates();
         if($ticketDates->isEmpty()) $ticketDates = null;
 
-
         $form = $this->createForm(TicketFormType::class, $ticket);
-        return $this->render('ticket/edit.html.twig', [
-            'ticketForm' => $form->createView(),
-            'ticket' => $ticket,
-            'edited' => true,
-            'dates' => $ticketDates
-        ]);
 
+        return $this->renderForm('ticket/_inc/_edit.html.twig', [
+            'ticketForm'    => $form,
+            'ticket'        => $ticket,
+            'edited'        => true,
+            'dates'         => $ticketDates,
+            'page'          => $page,
+        ]);
     }
 
     #[Route(path: '/ticket/join', name: 'app_ticket_join', methods:['GET','POST'])]
@@ -342,4 +349,30 @@ class TicketController extends BaseController
         ]);
     }
 
+    public function findNextDate($stamp, $ticket, $ticketDateRepo): ?TicketDate
+    {
+        $ticketDate = $ticketDateRepo->findOneByBeginTicket($stamp, $ticket);
+        /*
+        $found = false;
+        while (($found != true) && (strtotime($stamp) < $ticket->getEnd()->getTimestamp())) {
+            $ticketDate = $ticketDateRepo->findOneByBeginTicket($stamp, $ticket);
+            if ($ticketDate) $found == true;
+            else  $stamp = date('Y-m-d H:i', strtotime($stamp) + 900);
+        }
+        */
+        return $ticketDate;
+    }
+    public function findPreviousDate($stamp, $ticket, $ticketDateRepo): ?TicketDate
+    {
+        $ticketDate = $ticketDateRepo->findOneByEndTicket($stamp, $ticket);
+        /*
+        $found = false;
+        while (($found != true) && (strtotime($stamp) < $ticket->getBegin()->getTimestamp())) {
+            $ticketDate = $ticketDateRepo->findOneByEndTicket($stamp, $ticket);
+            if ($ticketDate) $found == true;
+            else  $stamp = date('Y-m-d H:i', strtotime($stamp) - 900);
+        }
+        */
+        return $ticketDate;
+    }
 }

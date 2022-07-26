@@ -77,9 +77,10 @@ class TicketRepository extends ServiceEntityRepository
      * @param string|null $category
      * @param string|null $type
      * @param string|null $inverter
+     * @param array $orders Array Key defines the 'order field', value defines order direction (ASC, DESC) or order should not used (null)
      * @return QueryBuilder
      */
-    public function getWithSearchQueryBuilderNew(?string $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, $page): QueryBuilder
+    public function getWithSearchQueryBuilderNew(?string $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, array $orders = []): QueryBuilder
     {
 
         /** @var User $user */
@@ -109,6 +110,10 @@ class TicketRepository extends ServiceEntityRepository
         if ((int)$status > 0)   $qb->andWhere("ticket.status = $status");
         if ((int)$type > 0)     $qb->andWhere("ticket.errorType = $type"); // SFOR, EFOR, OMC
         if ((int)$category > 0) $qb->andWhere("ticket.alertType = $category");
+
+        foreach ($orders as $field => $order) {
+            if ($order !== null) $qb->orderBy("ticket.".$field, $order);
+        }
 
         return $qb;
     }

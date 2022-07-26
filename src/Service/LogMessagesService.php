@@ -14,7 +14,6 @@ class LogMessagesService
 
     public function __construct(EntityManagerInterface $em, LogMessagesRepository $logMessagesRepo)
     {
-
         $this->em = $em;
         $this->logMessagesRepo = $logMessagesRepo;
     }

@@ -206,9 +206,8 @@
                             <fieldset class="fieldset">
                                 <legend>PA Berechnung</legend>
                                 <div class="grid-x grid-padding-x">
-                                    <div class="cell medium-4">{{ form_row(anlageForm.threshold1PA) }}</div>
-                                    <div class="cell medium-4">{{ form_row(anlageForm.threshold2PA) }}</div>
-                                    <div class="cell medium-4"><label>Schwellwert 3 für ti,theo (existiert noch nicht)</label></div>
+                                    <div class="cell medium-6">{{ form_row(anlageForm.threshold1PA) }}</div>
+                                    <div class="cell medium-6">{{ form_row(anlageForm.threshold2PA) }}</div>
                                 </div>
                             </fieldset>
                             <fieldset class="fieldset">
@@ -416,40 +415,24 @@
                         <div class="cell medium-6">
                             <fieldset class="fieldset">
                                 <legend>Configuration Backend</legend>
-                                <div class="grid-x">
-                                <div class="cell medium-6">{{ form_row(anlageForm.showOnlyUpperIrr) }}</div>
-                                <div class="cell medium-6">{{ form_row(anlageForm.showStringCharts) }}</div>
-                                </div>
-                                <div class="grid-x">
-                                <div class="cell medium-6">{{ form_row(anlageForm.showAvailability) }}</div>
-                                <div class="cell medium-6">{{ form_row(anlageForm.showAvailabilitySecond) }}</div>
-                                </div>
-                                <div class="grid-x">
-                                <div class="cell medium-6">{{ form_row(anlageForm.showInverterPerformance) }}</div>
-                                <div class="cell medium-6">{{ form_row(anlageForm.showEvuDiag) }}</div>
-                                </div>
-                                <div class="grid-x">
-                                <div class="cell medium-6">{{ form_row(anlageForm.showInverterOutDiag) }}</div>
-                                <div class="cell medium-6">{{ form_row(anlageForm.showCosPhiDiag) }}</div>
-                                </div>
-                                <div class="grid-x">
-                                <div class="cell medium-6">{{ form_row(anlageForm.showCosPhiPowerDiag) }}</div>
-                                <div class="cell medium-6">{{ form_row(anlageForm.showGraphDcInverter) }}</div>
-                                </div>
-                                <div class="grid-x">
-                                <div class="cell medium-6">{{ form_row(anlageForm.showGraphDcCurrInv) }}</div>
-                                <div class="cell medium-6">{{ form_row(anlageForm.showGraphDcCurrGrp) }}</div>
-                                </div>
-                                <div class="grid-x">
-                                <div class="cell medium-6">{{ form_row(anlageForm.showGraphVoltGrp) }}</div>
-                                <div class="cell medium-6">{{ form_row(anlageForm.showGraphIrrPlant) }}</div>
-                                </div>
-                                <div class="grid-x">
-                                <div class="cell medium-6">{{ form_row(anlageForm.showPR) }}</div>
-                                <div class="cell medium-6"> {{ form_row(anlageForm.showPvSyst) }}</div>
-                                </div>
-                                <div class="grid-x">
-                                <div class="cell medium-6"> {{ form_row(anlageForm.showForecast) }}</div>
+                                <div class="grid-x grid-padding-x small-up-1 medium-up-2">
+                                    <div class="cell">{{ form_row(anlageForm.showOnlyUpperIrr) }}</div>
+                                    <div class="cell">{{ form_row(anlageForm.showStringCharts) }}</div>
+                                    <div class="cell">{{ form_row(anlageForm.showAvailability) }}</div>
+                                    <div class="cell">{{ form_row(anlageForm.showAvailabilitySecond) }}</div>
+                                    <div class="cell">{{ form_row(anlageForm.showInverterPerformance) }}</div>
+                                    <div class="cell">{{ form_row(anlageForm.showEvuDiag) }}</div>
+                                    <div class="cell">{{ form_row(anlageForm.showInverterOutDiag) }}</div>
+                                    <div class="cell">{{ form_row(anlageForm.showCosPhiDiag) }}</div>
+                                    <div class="cell">{{ form_row(anlageForm.showCosPhiPowerDiag) }}</div>
+                                    <div class="cell">{{ form_row(anlageForm.showGraphDcInverter) }}</div>
+                                    <div class="cell">{{ form_row(anlageForm.showGraphDcCurrInv) }}</div>
+                                    <div class="cell">{{ form_row(anlageForm.showGraphDcCurrGrp) }}</div>
+                                    <div class="cell">{{ form_row(anlageForm.showGraphVoltGrp) }}</div>
+                                    <div class="cell">{{ form_row(anlageForm.showGraphIrrPlant) }}</div>
+                                    <div class="cell">{{ form_row(anlageForm.showPR) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.showPvSyst) }}</div>
+                                    <div class="cell"> {{ form_row(anlageForm.showForecast) }}</div>
                                 </div>
                             </fieldset>
                         </div>

@@ -71,12 +71,10 @@ trait PVPNameArraysTrait
 
     public function ticketStati(): array
     {
-        $status[$this->translator->trans('ticket.status.10')] = 10;
-        $status[$this->translator->trans('ticket.status.20')] = 20;
-        $status[$this->translator->trans('ticket.status.30')] = 30;
-        $status[$this->translator->trans('ticket.status.40')] = 40;
-
-        $status[$this->translator->trans('ticket.status.90')] = 90;
+        $status[$this->translator->trans('ticket.status.10')] = 10; // New
+        $status[$this->translator->trans('ticket.status.30')] = 30; // Work in Progress
+        $status[$this->translator->trans('ticket.status.40')] = 40; // wait external
+        $status[$this->translator->trans('ticket.status.90')] = 90; // Closed
 
         return $status;
     }

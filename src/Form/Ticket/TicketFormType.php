@@ -8,8 +8,10 @@ use App\Form\Type\AnlageTextType;
 use App\Form\Type\SwitchType;
 use App\Helper\PVPNameArraysTrait;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
+use Stakovicz\UXCollection\Form\UXCollectionType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
@@ -50,6 +52,13 @@ class TicketFormType extends AbstractType
                     'input' => 'datetime',
                     'widget' => 'single_text',
                     'data' => new \DateTime("now")
+                ])
+                ->add('end', DateTimeType::class, [
+                    'label' => 'End',
+                    'label_html' => true,
+                    'required' => true,
+                    'input' => 'datetime',
+                    'widget' => 'single_text',
                 ]);
         } else {
             $builder
@@ -59,28 +68,46 @@ class TicketFormType extends AbstractType
                         'readonly' => true,
                     ]
                 ])
+                ->add('begin',)
+
                 ->add('begin', DateTimeType::class, [
-                    'label' => 'Begin',
+                    'label'         => 'Begin',
+                    'label_html'    => true,
+                    'required'      => false,
+                    'attr'          => [
+                        'max'   => $ticket->getBegin()->format("Y-m-d\TH:i"),
+                        'step'  => '600',
+                    ],
+                    'widget'        => 'single_text',
+                ])
+                ->add('end', DateTimeType::class, [
+                    'label' => 'End',
                     'label_html' => true,
-                    'required' => false,
-                    'input' => 'datetime',
+                    'required' => true,
                     'widget' => 'single_text',
-                ]);
+                    'attr' => ['min' => $ticket->getEnd()->format("Y-m-d\TH:i")]
+                ])
+                ;
         }
         $builder
+            ->add('dates', UXCollectionType::class, [
+                'entry_type'    => TicketDateEmbeddedFormType::class,
+
+            ])
+            ->add('dataGapEvaluation', ChoiceType::class, [
+                'required' => false,
+                'placeholder' => 'please Choose ...',
+                'choices' => [
+                    'outage' => 'outage',
+                    'comm. issue' => 'comm. issue'
+                ]
+            ])
 
             ->add('status', ChoiceType::class, [
                 'label' => 'Status',
                 'choices' => self::ticketStati(),
                 'required' => true,
                 'placeholder' => 'please Choose ...'
-            ])
-            ->add('end', DateTimeType::class, [
-                'label' => 'End',
-                'label_html' => true,
-                'required' => true,
-                'input' => 'datetime',
-                'widget' => 'single_text',
             ])
             ->add('priority', ChoiceType::class, [
                 'label' => 'Priority',
@@ -117,8 +144,6 @@ class TicketFormType extends AbstractType
             ])
 
             #### ACTIONS
-
-
 
             ####
             ->add('PR0', SwitchType::class, [

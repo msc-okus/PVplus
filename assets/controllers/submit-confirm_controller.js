@@ -1,10 +1,11 @@
-import { Controller } from 'stimulus';
+import { Controller } from '@hotwired/stimulus';
 import Swal from 'sweetalert2';
 import $ from 'jquery';
-import {useDispatch} from "stimulus-use";
+import { useDispatch } from "stimulus-use";
 
 export default class extends Controller {
     static values = {
+        id: String,
         title: String,
         text: String,
         icon: String,
@@ -19,7 +20,7 @@ export default class extends Controller {
     onSubmit(event) {
         event.preventDefault();
 
-        Swal.fire({
+        Swal({
             title: this.titleValue || null,
             text: this.textValue || null,
             icon: this.iconValue || null,
@@ -44,4 +45,5 @@ export default class extends Controller {
         }
 
     }
+
 }

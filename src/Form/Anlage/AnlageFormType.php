@@ -650,15 +650,6 @@ class AnlageFormType extends AbstractType
                 'label'         => 'Zeige Forecast',
                 'help'          => '[showForecast]',
             ])
-            /*
-            ->add('showForecast', CheckboxType::class, [
-                'label'         => 'Zeige Forecast',
-                'help'          => '[showForecast]',
-                'false_values'  => ['0', 'no', 'No', 'NO'],
-                'attr'          => ['class' => 'switch-input'],
-
-            ])
-            */
 
             ################################################
             ####              Relations                 ####

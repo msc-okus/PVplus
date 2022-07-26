@@ -482,6 +482,9 @@
             "config/packages/sensio_framework_extra.yaml"
         ]
     },
+    "stakovicz/ux-collection": {
+        "version": "0.0.4"
+    },
     "stof/doctrine-extensions-bundle": {
         "version": "1.7",
         "recipe": {
