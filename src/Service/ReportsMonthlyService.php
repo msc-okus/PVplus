@@ -329,7 +329,6 @@ class ReportsMonthlyService
                 ],
             ],
         ];
-        #dd("Fertig");
         return $report;
     }
 

@@ -182,7 +182,7 @@ class HeatmapChartService
             }
             $dataArray['offsetLegend'] = 0;
         }
-       # dd(print_r($dataArray));
+
         return $dataArray;
     }
 }

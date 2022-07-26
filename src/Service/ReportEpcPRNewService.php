@@ -102,7 +102,6 @@ class ReportEpcPRNewService
         $deductionRisk      = 100 * (1 - $prFAC / $prPVSyst);
         $deductionOverall   = 100 - (100 - $deductionTransform) * (100 - $deductionRisk) / 100;
 
-        #dump("Deduction Overall: $deductionOverall | ");
         /////////////////////////////
         /// Runde 1
         /////////////////////////////

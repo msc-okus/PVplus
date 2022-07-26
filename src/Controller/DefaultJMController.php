@@ -41,10 +41,10 @@ class DefaultJMController extends AbstractController
             'output'        => '',
         ]);
     }
+
     #[Route(path: '/test/read', name: 'default_read')]
-public function testread(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather){
+    public function testread(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather){
         $anlage = $ar->findIdLike("94")[0];
-        dump($weather->getSunrise($anlage, "2022-01-01"));
 
         return $this->render('base.html.twig');// this is suposed to never run so no problem
 
