@@ -315,7 +315,7 @@ class ACPowerChartsService
                 $nameArray = $this->functions->getNameArray($anlage, 'ac');
         }
 
-        $sqlIst = "SELECT c.stamp, sum(c.wr_pac) as actPower, avg(c.wr_temp) as temp, c.wr_cos_phi_korrektur FROM ( `db_dummysoll` a 
+        $sqlIst = "SELECT a.stamp, sum(c.wr_pac) as actPower, avg(c.wr_temp) as temp, c.wr_cos_phi_korrektur FROM ( `db_dummysoll` a 
                  LEFT JOIN (SELECT * FROM " . $anlage->getDbNameIst() . " WHERE " . $groupQuery . "  ) c ON a.stamp = c.stamp ) WHERE a.stamp 
                  BETWEEN '$from' AND '$to' GROUP BY date_format($filter, '$form')";
 
@@ -350,7 +350,7 @@ class ACPowerChartsService
 
                 $queryf = $hour ? "BETWEEN '$from' AND '$to'" : "LIKE '$rowIst[stamp]'";
 
-                $sqlSoll = "SELECT b.stamp, sum(b.ac_exp_power) as soll FROM ( `db_dummysoll` a 
+                $sqlSoll = "SELECT a.stamp, sum(b.ac_exp_power) as soll FROM ( `db_dummysoll` a 
                          LEFT JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE " . $groupQuery . "  ) b ON a.stamp = b.stamp ) WHERE a.stamp 
                          " . $queryf . " GROUP BY date_format($filter, '$form')";
 

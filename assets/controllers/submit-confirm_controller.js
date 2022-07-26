@@ -1,7 +1,7 @@
-import { Controller } from 'stimulus';
+import { Controller } from '@hotwired/stimulus';
 import Swal from 'sweetalert2';
 import $ from 'jquery';
-import {useDispatch} from "stimulus-use";
+import { useDispatch } from "stimulus-use";
 
 export default class extends Controller {
     static values = {
