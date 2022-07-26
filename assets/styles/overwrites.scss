@@ -239,8 +239,8 @@
         padding-bottom: 2rem;
         padding-top: 2rem;
 
-        button .no-margin, .button.no-margin {
-            margin: 0;
+        .no-margin {
+            margin: 0 !important;
         }
         .button.tiny{
             padding: 0.65em 0.75em;
