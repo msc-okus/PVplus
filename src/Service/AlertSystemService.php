@@ -137,8 +137,7 @@ class AlertSystemService
         $ppc = false;
         //we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
 
-        $sungap = $this->weather->getSunrise($anlage, $time);
-
+        $sungap = $this->weather->getSunrise($anlage, $time);;
                 $plant_status = self::RetrieveQuarterPlant($anlage, $sungap);
                 // We do this to avoid checking further inverters if we have a PPC control shut
                 if($ppc === false) {
