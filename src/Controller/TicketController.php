@@ -271,7 +271,6 @@ class TicketController extends BaseController
         $ticketDate = $ticketDateRepo->findOneById($id);
         $ticket = $ticketRepo->findOneById($ticketDate->getTicket());
         if($ticket) {
-            dump("hey");
             switch ($option) {
                 case "Previous":
                     $previousDate = $this->findPreviousDate($ticketDate->getBegin()->format('Y-m-d H:i'), $ticket, $ticketDateRepo);
@@ -314,7 +313,6 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/join', name: 'app_ticket_join', methods:['GET','POST'])]
     public function join(TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
     {
-        dump(json_decode(file_get_contents('php://input')));
         $tickets = json_decode(file_get_contents('php://input'));
         $masterTicket = new Ticket();
         if (count($tickets) > 0) {
@@ -342,7 +340,6 @@ class TicketController extends BaseController
             $masterTicket->setSplitted(true);
 
             //$em->flush();
-            dump($masterTicket);
         }
         return $this->render('/ticket/join.html.twig', [
             'text' => "estamos aqui"

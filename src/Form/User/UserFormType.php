@@ -35,7 +35,6 @@ class UserFormType extends AbstractType
         if ($user != null){
             $eigner = $user->getEigners()->getValues()[0];
             $anlagen = $this->repo->findAllByEigner($eigner);
-            //dd($anlagen);
         }
 
         $builder

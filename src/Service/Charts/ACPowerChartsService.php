@@ -96,7 +96,6 @@ class ACPowerChartsService
                 $whereQueryPart1 = $hour ? "stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'" : "stamp = '$stampAdjust'";
                 $sqlActual = "SELECT sum(wr_pac) as acIst, wr_cos_phi_korrektur as cosPhi, sum(theo_power) as theoPower FROM " . $anlage->getDbNameIst() . " 
                         WHERE wr_pac >= 0 AND $whereQueryPart1 GROUP by date_format(stamp, '$form')";
-                dump($sqlActual);
 
                 $sqlEvu = "SELECT sum(e_z_evu) as eZEvu FROM " . $anlage->getDbNameIst() . " WHERE $whereQueryPart1 GROUP by date_format(stamp, '$form')";
 

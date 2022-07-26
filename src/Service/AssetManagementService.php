@@ -864,7 +864,6 @@ class AssetManagementService
         //beginn chart
         # $chart->tooltip->show = true;
         # $chart->tooltip->trigger = 'item';
-       // dd($dataMonthArray, $difference_Egrid_to_Expected_G4n);
         $chart->xAxis = array(
             'type' => 'category',
             'axisLabel' => array(
@@ -1641,7 +1640,6 @@ class AssetManagementService
                         "plantAvailabilitySecond" => (float)$output2['availability2'],
                         "panneltemp" => (float)$output[$i]->getpanneltemp(),
                     ];
-               // dd($table_overview_dayly);
             }
         }
 
@@ -1671,7 +1669,6 @@ class AssetManagementService
             $outPaCY[] = $pa;
             unset($pa);
         }
-        //dd($outPaCY);
 
         $chart->series = [
             [
@@ -2305,7 +2302,6 @@ class AssetManagementService
             }
         }
         if ($dcExpDcIst) $outTableCurrentsPower[] = $dcExpDcIst;
-        //dd($outTableCurrentsPower[0]);
         $resultEconomicsNames = $this->ecoVarNameRepo->findOneByAnlage($anlage);
 
         if ($resultEconomicsNames) {
@@ -2646,7 +2642,6 @@ class AssetManagementService
         $chart->setOption($option);
 
         $losses_monthly = $chart->render('losses_monthly', ['style' => 'height: 450px; width:23cm;']);
-        //dd($losses_monthly);
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
