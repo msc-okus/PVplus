@@ -3,12 +3,8 @@ import { useDispatch } from 'stimulus-use';
 import { Reveal } from 'foundation-sites';
 import $ from 'jquery';
 
-
-
 export default class extends Controller {
-
     static targets = ['splitModal', 'splitForm', 'splitDelete', 'splitAlert', 'splitButton', 'splitAlertFormat'];
-
     static values = {
         urlSplit: String,
         urlDelete: String,
@@ -49,19 +45,19 @@ export default class extends Controller {
                     });
                     this.dispatch('async:submitted');
                 } catch (e) {
-                    console.log(e);
+                    //console.log(e);
                 }
             }
-        }
-        else{
+        } else {
             $(this.splitAlertTarget).removeClass('is-hidden');
 
         }
 
     }
+
     async delete({params: {id}}){
         const data = {'value': $(this.splitDeleteTarget).find('.select-' + id).val()};
-        if (data !="") {
+        if (data !== "") {
             try {
                 await $.ajax({
                     url: this.urlDeleteValue,
@@ -69,10 +65,11 @@ export default class extends Controller {
                 });
                 this.dispatch('async:submitted');
             } catch (e) {
-                console.log(e);
+                //console.log(e);
             }
         }
     }
+
     check({params: {id}}) {
         const min = $(this.splitFormTarget).find('.' + id).prop('min');
         const max = $(this.splitFormTarget).find('.' + id).prop('max');
@@ -81,21 +78,20 @@ export default class extends Controller {
         const date1 = new Date(value);
 
         const timestamp = date1.getTime();
-        console.log();
+        //console.log();
         if (value < max && value > min) {
             $(this.splitAlertTarget).addClass('is-hidden');
             $(this.splitButtonTarget).removeAttr('disabled');
-        }
-        else{
+        } else {
             $(this.splitAlertTarget).removeClass('is-hidden');
             $(this.splitButtonTarget).attr('disabled', 'disabled')
 
-            console.log( $(this.splitButtonTarget))
+            //console.log( $(this.splitButtonTarget))
         }
         if (timestamp % 900 === 0){
             $(this.splitAlertFormatTarget).addClass('is-hidden');
             $(this.splitButtonTarget).removeAttr('disabled');
-        }else{
+        } else {
             $(this.splitAlertFormatTarget).removeClass('is-hidden');
             $(this.splitButtonTarget).attr('disabled', 'disabled')
         }
