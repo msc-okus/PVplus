@@ -33,7 +33,7 @@ class DefaultJMController extends AbstractController
     public function check(AnlagenRepository $anlagenRepository, AlertSystemService $service)
     {
         $anlage = $anlagenRepository->findIdLike("111")[0];
-        $service->checkSystem2($anlage, "2022-01-04 10:45:00");
+        $service->checkSystem2($anlage, "2022-01-14");
     }
     #[Route(path: '/test/read', name: 'default_read')]
 public function testread(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather){

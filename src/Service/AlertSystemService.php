@@ -167,29 +167,45 @@ class AlertSystemService
         $irrLimit = 30;
         $sunrise = $sungap['sunrise'];
         $sunset = $sungap['sunset'];
-        $sqlw = "SELECT g_lower , g_upper , stamp
-                    FROM " . $anlage->getDbNameWeather() . "
-                    WHERE stamp >= '$sunrise' AND  stamp < '$sunset' 
-                    GROUP BY stamp";
+        $sqlw = "SELECT b.g_lower as lower, b.g_upper as upper, a.stamp
+                    FROM (db_dummysoll a left JOIN " . $anlage->getDbNameWeather() . " b on a.stamp = b.stamp)
+                    WHERE a.stamp >= '$sunrise' AND  a.stamp < '$sunset' 
+                    GROUP BY a.stamp";
         $respirr = $conn->query($sqlw);
 
-        $sqlExp = "SELECT dc_exp_power, wr, stamp  
-                    FROM ". $anlage->getDbNameDcSoll() . " 
-                    WHERE stamp >= '$sunrise' AND  stamp < '$sunset' 
-                    GROUP BY stamp, wr";
+        $sqlExp = "SELECT b.dc_exp_power as exp, b.wr as wr, a.stamp as stamp  
+                    FROM (db_dummysoll a left JOIN ". $anlage->getDbNameDcSoll() . " b on a.stamp = b.stamp) 
+                    WHERE a.stamp >= '$sunrise' AND  a.stamp < '$sunset' 
+                    GROUP BY a.stamp, b.wr";
         $resultExp = $conn->query($sqlExp);
 
-        $sqlAct = "SELECT wr_pac as ac_power, wr_pdc as dc_power, frequency as freq, u_ac as voltage, stamp, unit 
-                    FROM " . $anlage->getDbNameIst() . " 
-                    WHERE stamp >= '$sunrise' AND  stamp < '$sunset' 
-                    GROUP BY stamp, unit";
+        $sqlAct = "SELECT b.wr_pac as ac_power, b.wr_pdc as dc_power, b.frequency as freq, b.u_ac as voltage, a.stamp, b.unit as unit
+                    FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
+                    WHERE a.stamp >= '$sunrise' AND  a.stamp < '$sunset' 
+                    GROUP BY a.stamp, b.unit";
         $resp = $conn->query($sqlAct);
 
-        while ($result = $resp->fetch(PDO::FETCH_ASSOC)){
-            $resulte = $resultExp->fetch(PDO::FETCH_ASSOC);
-            dump($result, $resulte);
-        }
-        dd($respirr, $resultExp->rowCount(), $resp->rowCount());
+            $result = $resp->fetchAll(PDO::FETCH_ASSOC);
+            $resulte = $resultExp->fetchAll(PDO::FETCH_ASSOC);
+            $resulti = $respirr->fetchAll(PDO::FETCH_ASSOC);
+            $stamp = $result[0]['stamp'];
+            $irraditerator = 0;
+            for ($iterator = 0 ; $iterator < count($result); $iterator++){
+                if ($stamp == $result[$iterator]['stamp']) {
+                    $return[$result[$iterator]['stamp']]['Irradiarionl'] = $resulti[$irraditerator]['lower'];
+                    $return[$result[$iterator]['stamp']]['Irradiarionu'] = $resulti[$irraditerator]['upper'];
+                    $irraditerator ++;
+                    $stamp = date('Y-m-d H:i:s', strtotime($stamp) + 900);
+                    dump($stamp);
+                }
+                $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['acp'] = $result[$iterator]['ac_power'];
+                $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['dcp'] = $result[$iterator]['dc_power'];
+                $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['freq'] = $result[$iterator]['freq'];
+                $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['voltage'] = $result[$iterator]['vol'];
+                $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['exp'] = $resulte[$iterator]['exp'];
+
+            }
+        dd($return);
     }
     private function analyzePlant($time, Anlage $anlage, $sunrise): string
     {
