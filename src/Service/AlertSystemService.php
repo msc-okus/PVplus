@@ -185,24 +185,43 @@ class AlertSystemService
                     GROUP BY a.stamp, b.unit";
         $resp = $conn->query($sqlAct);
 
+
+
             $result = $resp->fetchAll(PDO::FETCH_ASSOC);
             $resulte = $resultExp->fetchAll(PDO::FETCH_ASSOC);
             $resulti = $respirr->fetchAll(PDO::FETCH_ASSOC);
+
             $stamp = $result[0]['stamp'];
             $irraditerator = 0;
             for ($iterator = 0 ; $iterator < count($result); $iterator++){
                 if ($stamp == $result[$iterator]['stamp']) {
-                    $return[$result[$iterator]['stamp']]['Irradiarionl'] = $resulti[$irraditerator]['lower'];
-                    $return[$result[$iterator]['stamp']]['Irradiarionu'] = $resulti[$irraditerator]['upper'];
-                    $irraditerator ++;
-                    $stamp = date('Y-m-d H:i:s', strtotime($stamp) + 900);
-                    dump($stamp);
+                    if ($anlage->getHasPPC()) {
+                        $sqlPpc = "SELECT * 
+                        FROM " . $anlage->getDbNamePPC() . " 
+                        WHERE stamp = $stamp ";
+                        $respPpc = $conn->query($sqlPpc);
+
+                    }
+                    if ($respPpc->rowCount() === 1){
+                        $ppdData = $respPpc->fetch(PDO::FETCH_ASSOC);
+                    }
+
+                    if (!($anlage->getHasPPC() && $respPpc->rowCount() == 1 && $ppdData['p_set_rel'] < 100)) {
+                        $irradiation = (float)$resulti[$irraditerator]['lower'] + (float)$resulti[$irraditerator]['upper'];
+                        $irraditerator++;
+                        $stamp = date('Y-m-d H:i:s', strtotime($stamp) + 900);
+
+                    }
                 }
-                $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['acp'] = $result[$iterator]['ac_power'];
-                $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['dcp'] = $result[$iterator]['dc_power'];
-                $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['freq'] = $result[$iterator]['freq'];
-                $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['voltage'] = $result[$iterator]['vol'];
-                $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['exp'] = $resulte[$iterator]['exp'];
+                if ($anlage->getHasPPC() && $respPpc->rowCount() == 1 && $ppdData['p_set_rel'] < 100) {
+                    $return[$result[$iterator]['stamp']]['istdata'] = "Plant Control by PPC";
+                }else{
+                    $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['acp'] = $result[$iterator]['ac_power'];
+                    $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['dcp'] = $result[$iterator]['dc_power'];
+                    $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['freq'] = $result[$iterator]['freq'];
+                    $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['voltage'] = $result[$iterator]['vol'];
+                    $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['exp'] = $resulte[$iterator]['exp'];
+                }
 
             }
         dd($return);
@@ -411,56 +430,6 @@ class AlertSystemService
     // ---------------Checking Functions-----------------
 
     /**
-     * New version with datagap algorithm
-     * @param $anlage
-     * @param $time
-     * @param $inverter
-     * @return array|null
-     */
-    private static function IstData2($anlage, $time, $inverter): ?array
-    {
-        $status_report = null;
-        $difference = 50;// this will be the variable tolerance in the difference between expected and actual
-        $report = self::RetrieveQuarterIst($time, $inverter, $anlage);
-        if ($report['istdata'] == "No Data"){
-            $conn = self::getPdoConnection();
-            $quarter = date('Y-m-d H:i:s', strtotime($time) - 900);
-            $half = date('Y-m-d H:i:s', strtotime($time) - 1800);
-            $sqlaq = "SELECT wr_pac as ist
-                FROM " . $anlage->getDbNameIst() . " 
-                WHERE stamp = '$quarter' AND unit = '$inverter' ";
-
-            $sqleq = "SELECT ac_exp_power as exp
-                FROM " . $anlage->getDbNameAcSoll() . " 
-                WHERE stamp = '$quarter' AND unit = '$inverter' ";
-
-            $sqlah = "SELECT wr_pac as ist
-                FROM " . $anlage->getDbNameIst() . " 
-                WHERE stamp = '$half' AND unit = '$inverter' ";
-
-            $sqleh = "SELECT ac_exp_power as exp
-                FROM " . $anlage->getDbNameAcSoll() . " 
-                WHERE stamp = '$half' AND unit = '$inverter' ";
-
-            $respaq = $conn->query($sqlaq);
-            $respeq = $conn->query($sqleq);
-            $respah = $conn->query($sqlah);
-            $respeh = $conn->query($sqleh);
-            if (($respaq->rowCount() > 0) && ($respeq->rowCount() > 0) && ($respah->rowCount() > 0) && ($respeh->rowCount() > 0)) {
-                $exph = $respeh->fetch(PDO::FETCH_ASSOC);
-                $expq = $respeq->fetch(PDO::FETCH_ASSOC);
-                $acth = $respah->fetch(PDO::FETCH_ASSOC);
-                $actq = $respaq->fetch(PDO::FETCH_ASSOC);
-            }
-        } else {
-            $status_report = $report;
-        }
-        $conn = null;
-
-        return $status_report;
-    }
-
-    /**
      * here we analyze the data from the weather station and generate the status
      * @param Anlage $anlage
      * @param $time
@@ -547,7 +516,6 @@ class AlertSystemService
         if ($respirr->rowCount() > 0) {
             $pdataw = $respirr->fetch(PDO::FETCH_ASSOC);
             /* TODO: Irradiation depends on config of plant (could east/west with wight of sensors by Pnom or only one sensore) */
-            //WE CAN USE THE GETIRRADIATION FUNCTION FROM THE CHART SERVICE
             $irradiation = (float)$pdataw['g_lower'] + (float)$pdataw['g_upper'];
         } else {
             $irradiation = 0;
@@ -562,7 +530,7 @@ class AlertSystemService
                     FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp)
                     WHERE a.stamp = '$stamp' 
                     AND b.unit = '$inverter' ";
-        dump($sqlAct);
+
         $resp = $conn->query($sqlAct);
 
         if ($anlage->getHasPPC()) {
@@ -649,30 +617,6 @@ class AlertSystemService
             $this->mailservice->sendMessage($anlage, 'alert', 3, $subject, $message, false, true, true, true);
         }
     }
-/*
-    /** depracated, very likely to remove
-     * this function retrieves the previous status (if any), taking into account that the previous status can be the last from the previous day
-     * @param $anlage
-     * @param $date
-     * @param $sunrise
-     * @param $isWeather
-     * @return mixed
-
-    private function getLastStatus($anlage, $date, $sunrise, $isWeather): mixed
-    {
-        $time = date('Y-m-d H:i:s', strtotime($date) - 900);
-        $yesterday = date('Y-m-d', strtotime($date) - 86400); // this is the date of yesterday
-        $today = date('Y-m-d', strtotime($date));
-        if ($time <= $sunrise){
-            $status = $this->statusRepo->findLastOfDay($anlage, $yesterday,$today, $isWeather);
-        }
-        else {
-            $status = $this->statusRepo->findOneByanlageDate($anlage, $time, $isWeather);
-        }
-
-        return $status;
-    }
-    */
 
     public function getLastTicket($anlage, $inverter, $time, $isWeather)
     {
