@@ -333,6 +333,7 @@ class ReportingController extends AbstractController
                             'tableColsLimit' => $output['tableColsLimit'],
                             'acGroups' => $output['acGroups'],
                             'availability_Year_To_Date' => $output['availability_Year_To_Date'],
+                            'Availability_Year_To_Date_Table' => $output['Availability_Year_To_Date_Table'],
                             'failures_Year_To_Date' => $output['failures_Year_To_Date'],
                             'plant_availability' => $output['plant_availability'],
                             'actual' => $output['actual'],
@@ -351,11 +352,10 @@ class ReportingController extends AbstractController
                             'cumulated_losses_compared_chart' => $output['cumulated_losses_compared_chart'],
                         ]);
                         $pdf = new ChromePdf('/usr/bin/chromium');
-
                         $pos = $this->substr_Index($this->kernelProjectDir, '/', 5);
                         $pathpart = substr($this->kernelProjectDir, $pos);
-                        $pdf->output('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlageName . '_AssetReport_' . $month . '_' . $year . '.pdf');
-                        $reportfile = fopen('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlageName . '_AssetReport_' . $month . '_' . $year . '.html', "w") or die("Unable to open file!");
+                        $pdf->output('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf');
+                        $reportfile = fopen('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.html', "w") or die("Unable to open file!");
                         //cleanup html
                         $pos = strpos($result, '<html>');
                         fwrite($reportfile, substr($result, $pos));
@@ -370,13 +370,12 @@ class ReportingController extends AbstractController
                         header("Content-type: application/pdf");
                         header("Content-Length: " . filesize($filename));
                         header("Content-type: application/pdf");
-
                         // Send the file to the browser.
                         readfile($filename);
 
                     }
 
-                    return $this->render('report/_edit.html.twig', [
+                    return $this->render('report/_form.html.twig', [
                         'assetForm' => $form->createView(),
                         'anlage' => $anlage
                     ]);
@@ -555,6 +554,7 @@ class ReportingController extends AbstractController
                             'operations_monthly_right_g4n_tr4' => $output['operations_monthly_right_g4n_tr4'],
                             'operations_monthly_right_g4n_tr5' => $output['operations_monthly_right_g4n_tr5'],
                             'operations_monthly_right_g4n_tr6' => $output['operations_monthly_right_g4n_tr6'],
+                            'Availability_Year_To_Date_Table' => $output['Availability_Year_To_Date_Table'],
                             'operations_monthly_right_g4n_tr7' => $output['operations_monthly_right_g4n_tr7'],
                             'operations_monthly_right_iout_tr1' => $output['operations_monthly_right_iout_tr1'],
                             'operations_monthly_right_iout_tr2' => $output['operations_monthly_right_iout_tr2'],
@@ -588,7 +588,7 @@ class ReportingController extends AbstractController
                         ]);
                         break;
                     }
-                    return $this->render('report/_edit.html.twig', [
+                    return $this->render('report/_form.html.twig', [
                         'assetForm' => $form->createView(),
                         'anlage' => $anlage
                     ]);

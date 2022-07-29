@@ -13,6 +13,7 @@ use App\Repository\PvSystMonthRepository;
 use App\Repository\ReportsRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\PRRepository;
+use App\Repository\TicketDateRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Twig\Environment;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -35,6 +36,7 @@ class AssetManagementService
     private DownloadAnalyseService $DownloadAnalyseService;
     private PRCalulationService $PRCalulation;
     private AvailabilityService $availability;
+    private TicketDateRepository $ticketDateRepo;
 
     public function __construct(
         EntityManagerInterface $em,
@@ -45,7 +47,8 @@ class AssetManagementService
         EconomicVarValuesRepository $ecoVarValueRep,
         PRCalulationService $PRCalulation,
         EconomicVarNamesRepository $ecoVarNameRep,
-        AvailabilityService $availability
+        AvailabilityService $availability,
+        TicketDateRepository $ticketDateRepo
     )
     {
         $this->functions = $functions;
@@ -58,8 +61,8 @@ class AssetManagementService
         $this->connAnlage = self::connectToDatabaseAnlage();
         $this->DownloadAnalyseService = $analyseService;
         $this->PRCalulation = $PRCalulation;
-
         $this->availability = $availability;
+        $this->ticketDateRepo = $ticketDateRepo;
     }
 
     public function assetReport($anlage, $month = 0, $year = 0, $pages = 0): array
@@ -1670,24 +1673,68 @@ class AssetManagementService
             unset($pa);
         }
 
+        //we have to generate the overall values of errors for the year
+        $daysInThisMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
+        $endate = $report['reportYear']."-".$report['reportMonth']."-".$daysInThisMonth;
+        $SOFErrors = (int)$this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear']."-01-01", $endate, 10, $anlage)[0][1];
+        $EFORErrors = (int)$this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear']."-01-01", $endate, 20, $anlage)[0][1];
+        $OMCErrors = (int)$this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear']."-01-01", $endate, 30, $anlage)[0][1];
+        $totalErrors = $SOFErrors + $EFORErrors + $OMCErrors;
+        //here we calculate the ammount of quarters to calculate the relative percentages
+        $sumquarters = 0;
+        for ($month = 1 ; $month <= (int)$report['reportMonth']; $month++){
+            $quartersInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $report['reportYear']) * 96;
+            $sumquarters = $sumquarters + $quartersInMonth;
+        }
+
+        $actualAvailabilityPorcent = (($sumquarters - $totalErrors  ) / $sumquarters) * (100);
+        $actualSOFPorcent = 100 - (($sumquarters - $SOFErrors) / $sumquarters) * (100);
+        $actualEFORPorcent = 100 - (($sumquarters - $EFORErrors) / $sumquarters) * (100);
+        $actualOMCPorcent = 100 - (($sumquarters - $OMCErrors) / $sumquarters) * (100);
+
+        if ($totalErrors != 0) {
+            $failRelativeSOFPorcent = 100 - (($totalErrors - $SOFErrors) / $totalErrors) * (100);
+            $failRelativeEFORPorcent = 100 - (($totalErrors - $EFORErrors) / $totalErrors) * (100);
+            $failRelativeOMCPorcent = 100 - (($totalErrors - $OMCErrors) / $totalErrors) * (100);
+        }
+        else{
+            $failRelativeSOFPorcent = 0;
+            $failRelativeEFORPorcent = 0;
+            $failRelativeOMCPorcent = 0;
+        }
+
+
+
+        $availabilityYearToDateTable = [
+            'expectedAvailability'  => (int)$anlage->getContractualAvailability(),
+            'expectedSOF'           => 0, //this will be a variable in the future
+            'expectedEFOR'          => 0, //and this
+            'expectedOMC'           => 0, //and this
+            'actualAvailability'    => $actualAvailabilityPorcent,
+            'actualSOF'             => $actualSOFPorcent,
+            'actualEFOR'            => $actualEFORPorcent,
+            'actualOMC'             => $actualOMCPorcent
+        ];
+        //dd($availabilityYearToDateTable);
+        //we can add the values we generate for the table of the errors to generate the pie graphic directly
         $chart->series = [
             [
                 'type' => 'pie',
                 'data' => [
                     [
-                        'value' => 92.36,
-                        'name' => 'PA (Plant availability)'
+                        'value' => $actualAvailabilityPorcent,
+                        'name' => 'PA'
                     ],
                     [
-                        'value' => 0,
+                        'value' => $actualSOFPorcent,
                         'name' => 'SOF'
                     ],
                     [
-                        'value' => 7.64,
+                        'value' => $actualEFORPorcent,
                         'name' => 'EFOR**'
                     ],
                     [
-                        'value' => 0,
+                        'value' => $actualOMCPorcent,
                         'name' => 'OMC***'
                     ]
                 ],
@@ -1709,26 +1756,25 @@ class AssetManagementService
             'title' => [
                 'text' => 'Availability: Year to date',
                 'left' => 'center',
-                'top' => 0,
+                'top' => 'top',
+                'textStyle' => ['fontSize' => 10]
             ],
             'tooltip' => [
                     'show' => true,
                 ],
             'legend' => [
                     'show' => true,
-                    'orient' => 'vertical',
+                    'orient' => 'horizontal',
                     'left' => 'left',
-                    'top' => 30,
+                    'bottom' => 0,
                     'padding' => 0, 90, 0, 0,
                 ],
-            'grid' => [
-                    'top' => 150,
-                ],
+
         );
 
 
         $chart->setOption($option);
-        $availability_Year_To_Date = $chart->render('availability_Year_To_Date', ['style' => 'height: 300px; width:400px; margin-top:8px']);
+        $availability_Year_To_Date = $chart->render('availability_Year_To_Date', ['style' => 'height: 175px; width:300px; ']);
 
         $chart->tooltip = [];
         $chart->xAxis = [];
@@ -1745,15 +1791,15 @@ class AssetManagementService
                     'type' => 'pie',
                     'data' => [
                         [
-                            'value' => 0,
+                            'value' => $failRelativeSOFPorcent,
                             'name' => 'SOF*'
                         ],
                         [
-                            'value' => 100,
+                            'value' => $failRelativeEFORPorcent,
                             'name' => 'EFOR**'
                         ],
                         [
-                            'value' => 0,
+                            'value' => $failRelativeOMCPorcent,
                             'name' => 'OMC***'
                         ]
                     ],
@@ -1775,7 +1821,8 @@ class AssetManagementService
             'title' => [
                 'text' => 'Failure - Year to date',
                 'left' => 'center',
-                'top' => 0,
+                'top' => 'top',
+                'textStyle' => ['fontSize' => 10]
             ],
             'tooltip' =>
                 [
@@ -1784,16 +1831,16 @@ class AssetManagementService
             'legend' =>
                 [
                     'show' => true,
-                    'orient' => 'vertical',
+                    'orient' => 'horizontal',
                     'left' => 'left',
-                    'top' => 30,
+                    'bottom' => 0,
                     'padding' => 0, 90, 0, 0,
                 ],
         );
 
 
         $chart->setOption($option);
-        $failures_Year_To_Date = $chart->render('failures_Year_To_Date', ['style' => 'height: 300px; width:360px; margin-top:8px;']);
+        $failures_Year_To_Date = $chart->render('failures_Year_To_Date', ['style' => 'height: 175px; width:300px; ']);
 
         $chart->tooltip = [];
         $chart->xAxis = [];
@@ -1811,7 +1858,7 @@ class AssetManagementService
                     'data' => [
                         [
                             'value' => 92, 98,
-                            'name' => 'PA (Plant availability)'
+                            'name' => 'PA'
                         ],
                         [
                             'value' => 0,
@@ -1852,7 +1899,7 @@ class AssetManagementService
             'title' => [
                 'text' => 'Plant availability: ' . $monthName . ' ' . $report['reportYear'],
                 'left' => 'center',
-                'top' => 0,
+                'top' => 'top',
             ],
             'tooltip' =>
                 [
@@ -3167,6 +3214,7 @@ class AssetManagementService
             'daysInReportMonth' => $daysInReportMonth,
             'tableColsLimit' => 10,
             'acGroups' => $acGroupsCleaned,
+            'Availability_Year_To_Date_Table' => $availabilityYearToDateTable,
             'availability_Year_To_Date' => $availability_Year_To_Date,
             'failures_Year_To_Date' => $failures_Year_To_Date,
             'plant_availability' => $plant_availability,

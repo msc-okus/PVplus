@@ -114,6 +114,11 @@ class Ticket
      */
     private $dates;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $Intervals;
+
 
     public function __construct()
     {
@@ -386,6 +391,18 @@ class Ticket
     }
     public function getIntervalCount(){
         return $this->dates->count();
+    }
+
+    public function getIntervals(): ?int
+    {
+        return $this->Intervals;
+    }
+
+    public function setIntervals(int $Intervals): self
+    {
+        $this->Intervals = $Intervals;
+
+        return $this;
     }
 
 }

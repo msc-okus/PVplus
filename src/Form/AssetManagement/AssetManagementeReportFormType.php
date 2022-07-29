@@ -109,17 +109,7 @@ class AssetManagementeReportFormType extends AbstractType
             ])
 
 
-            /*
-            ->add('EconomicsPos', ChoiceType::class,[
-                'expanded' => false,
-                'multiple' => false,
-                'choices' => [
-                    '1' => 1,
-                    '2' => 2,
-                    '3' => 3,
-                ],
-            ])
-            */
+
             ->add('submit', SubmitType::class, [
                 'label'     => 'submit',
                 'attr'      => ['class' => 'primary save'],
