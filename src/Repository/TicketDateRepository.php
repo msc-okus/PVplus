@@ -100,4 +100,20 @@ class TicketDateRepository extends ServiceEntityRepository
             ->getResult()
             ;
     }
+    public function countByIntervalNullPlant($begin, $end, $anlage){
+        return $this->createQueryBuilder('t')
+            ->addSelect('sum(t.Intervals)')
+            ->andWhere('t.begin >= :begin')
+            ->andWhere('t.begin <= :end')
+            ->andWhere('t.Anlage = :anlage')
+            ->andWhere('t.dataGapEvaluation is NULL ')
+            ->andWhere('t.errorType = 20')
+            ->andWhere('t.alertType = 10')
+            ->setParameter('begin', $begin)
+            ->setParameter('end', $end)
+            ->setParameter('anlage', $anlage)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
 }
