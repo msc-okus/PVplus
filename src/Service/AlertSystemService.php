@@ -65,6 +65,15 @@ class AlertSystemService
         }
     }
 
+    public function generateTicketsIntervalWeather(Anlage $anlage, string $from, string $to)
+    {
+        $fromStamp = strtotime($from);
+        $toStamp = strtotime($to);
+        for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
+            $this->checkSystem($anlage, $from = date("Y-m-d H:i:00", $stamp));
+        }
+    }
+
     /**
      * Generate tickets for the given time, check if there is an older ticket for same inverter with same error.
      * Write new ticket to database or extend existing ticket with new end time.
@@ -110,26 +119,68 @@ class AlertSystemService
         return "success";
     }
 
-    public function checkWeatherStation(): bool
+    public function checkWeatherStation(Anlage $anlage, ?string $time = null)
     {
-        $anlagen = $this->AnlRepo->findAll();
-        $time = $this->getLastQuarter(date('Y-m-d H:i:s') );
-        $time = G4NTrait::timeAjustment($time, -2);
-        $status_report = false;
-        $sungap = $this->weather->getSunrise($anlagen);
+        if ($time === null) {
+            $time = $this->getLastQuarter(date('Y-m-d H:i:s'));
+            $time = G4NTrait::timeAjustment($time, -2);
+        }
+        $sungap = $this->weather->getSunrise($anlage, $time);
 
-        foreach ($anlagen as $anlage) {
+        $weatherStation  = $anlage->getWeatherStation();
+        if ($weatherStation->getType() !== "custom") {
             if (($anlage->getAnlType() != "masterslave") && ($anlage->getCalcPR() == true) && (($time > $sungap['sunrise']) && ($time < $sungap['sunset']))) {
-                $status_report[$anlage->getAnlName()] = $this->WData($anlage, $time);
-                $message = self::AnalyzeWeather($status_report[$anlage->getAnlName()], $time, $anlage, $sungap['sunrise']);
-                self::messagingFunction($message, $anlage);
+                //$status_report = $this->WData($anlage, $time);
+                $status_report = $this->WDataFix($anlage, $time);
+
+                //$message = self::AnalyzeWeather($status_report, $time, $anlage, $sungap['sunrise']);
+                //$message = self::AnalyzeWeatherFix($status_report, $time, $anlage, $sungap['sunrise']);
+                if($status_report === 0) {
+                    self::messagingFunction("No Data received from the weather station in the last four hours.", $anlage);
+                }
+                unset($status_report);
             }
         }
-
-        return $status_report;
     }
 
-     //TEST FOR OPTIMIZED VERSION
+    //quick fix to send messages
+    /**
+     * We use this to make an error message of the status array from the weather station and to generate/update Tickets
+     * @param $status_report
+     * @param $time
+     * @param $anlage
+     * @param $sunrise
+     * @return string
+     */
+    private function AnalyzeWeatherFix($status_report, $time, $anlage, $sunrise): string
+    {
+        $message = "";
+
+
+        return $message;
+    }
+
+    /**
+     * here we analyze the data from the weather station and generate the status
+     * @param Anlage $anlage
+     * @param $time
+     * @return array
+     */
+    private static function WDataFix(Anlage $anlage, $time): int
+    {
+        $conn = self::getPdoConnection();
+        $begin = G4NTrait::timeAjustment($time, -4);
+
+        $sqlw = "SELECT *
+                    FROM " . $anlage->getDbNameWeather() . " 
+                    WHERE stamp >= '$begin' AND stamp <= '$time' ";
+
+        $resw = $conn->query($sqlw);
+
+        return $resw->rowCount();
+    }
+
+    //TEST FOR OPTIMIZED VERSION
 //Notes: Maybe we could make 2 separate functions, the one to create old tickets will do only one super big query to the db (depending on which is the max amount of records we can take from the db)
     public function checkSystem2(Anlage $anlage, ?string $time = null): string
     {
@@ -198,7 +249,7 @@ class AlertSystemService
                     if ($anlage->getHasPPC()) {
                         $sqlPpc = "SELECT * 
                         FROM " . $anlage->getDbNamePPC() . " 
-                        WHERE stamp = $stamp ";
+                        WHERE stamp = '$stamp' ";
                         $respPpc = $conn->query($sqlPpc);
 
                     }
