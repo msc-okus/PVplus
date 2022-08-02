@@ -3,6 +3,7 @@ import { useDispatch } from 'stimulus-use';
 import { Reveal } from 'foundation-sites';
 import $ from 'jquery';
 
+
 export default class extends Controller {
     static targets = ['modal', 'modalBody'];
     static values = {

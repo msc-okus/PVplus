@@ -91,14 +91,13 @@ class DefaultMREController extends BaseController
         ]);
     }
 
-    #[Route(path: '/mr/export/facRawData/{id}/{year}/{month}')]
-    public function exportFacRawDataExport($id, $month, $year, ExportService $export, AnlagenRepository $anlagenRepository) : Response
+    #[Route(path: '/mr/export/facRawData/{id}')]
+    public function exportFacRawDataExport($id, ExportService $export, AnlagenRepository $anlagenRepository) : Response
     {
         $output = '';
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
-        $daysOfMonth = date('t', strtotime($year.'-'.$month.'-1'));
-        $output .= self::printArrayAsTable($export->getFacPRData($anlage));
+        $output .= self::printArrayAsTable($export->getFacPRData($anlage, $anlage->getEpcReportStart(), $anlage->getEpcReportEnd()));
         $output .= "<hr>";
         //$output .= self::printArrayAsTable($export->getFacPAData($anlage, $from, $to));
         $output .= "<hr>";
@@ -172,12 +171,12 @@ class DefaultMREController extends BaseController
     }
 
 
-    #[Route(path: '/test/epc/{id}', defaults: ['id' => 94])]
+    #[Route(path: '/test/epc/{id}', defaults: ['id' => 92])]
     public function testNewEpc($id, AnlagenRepository $anlagenRepository, FunctionsService $functions, ReportEpcPRNewService $epcNew) : Response
     {
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
-        $date = date_create("2022-04-01 00:00");
+        $date = date_create("2022-07-01 00:00");
         $result = $epcNew->monthTable($anlage, $date);
         $pldTable = $epcNew->pldTable($anlage, $result->table, $date);
         $forcastTable = $epcNew->forcastTable($anlage, $result->table, $pldTable, $date);
