@@ -2,92 +2,89 @@
 
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Availability - Monthly Overview</h3>
-    <span class="subheadline" style="color: {{ anlage.eigner.fontColor3 }};">Resolution according to failure groups(todo:alle Werte dieser Tabelle sind statisch und nur zum Test)</span>
+    <span class="subheadline" style="color: {{ anlage.eigner.fontColor3 }};">Resolution according to failure groups - {{ month }} {{ year }}</span>
     <table >
         <tr>
-            <td style="vertical-align: top; text-align: left; width: 400px;">
-                <table style="width: 400px;">
+            <td style="width:50%">
+                <table style="width: 90%">
                     <thead>
                     <tr>
+                        <th class="table-center"> Availability</th>
+                        <th class="table-center"> Planned</th>
+                        <th class="table-center"> Actual</th>
+                        <th class="table-center" rowspan="2"> Difference </th>
+                    </tr>
+                    <tr>
+                        <th class="table-center"> Operation year</th>
+                        <th class="table-center"> Expected</th>
                         <th class="table-center">Availability</th>
-                        <th class="table-center">Planned</th>
-                        <th class="table-center">Actual</th>
-                        <th rowspan="2" class="table-center">Difference</th>
                     </tr>
                     <tr>
-                        <th class="table-center">Month</th>
-                        <th class="table-center">Expected</th>
-                        <th class="table-center">Availibility</th>
-                    </tr>
-                    <tr>
-                        <th class="table-center">{{ montharray[reportmonth-1] }} {{ year }}</th>
-                        <th class="table-center">[%]</th>
-                        <th class="table-center">[%]</th>
-                        <th class="table-center">[%]</th>
+                        <th class="table-center">{{ month }} {{ year|slice(2,3) }}</th>
+                        <th class="table-center"> [%] </th>
+                        <th class="table-center"> [%]</th>
+                        <th class="table-center">  [%]</th>
                     </tr>
                     </thead>
-                    {# Anlage Gesamtverfuegbarkeit: availabilityall/counterall #}
                     <tbody>
-                    <tr style="background-color: #d9d9d9;">
-                        <td class="tr_next_columns">PA (Plant availability)</td>
-                        <td class="tr_next_columns">100,00</td>
-                        <td class="tr_next_columns">92,98</td>
-                        <td class="tr_next_columns">7,02</td>
+                    <tr>
+                        <td style="text-align: left" class="tr_next_columns"> PA(Plant Availability) </td>
+                        <td class="tr_next_columns"> {{ availabilityMonthTable['expectedAvailability'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns"> {{ availabilityMonthTable['actualAvailability'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns"> {{ (availabilityMonthTable['expectedAvailability'] - availabilityMonthTable['actualAvailability']) |number_format(2, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td class="tr_next_columns">SOF*</td>
-                        <td class="tr_next_columns">0,00</td>
-                        <td class="tr_next_columns">0,00</td>
-                        <td class="tr_next_columns"></td>
+                        <td style="text-align: left" class="tr_next_columns">SOF</td>
+                        <td class="tr_next_columns"> {{ availabilityMonthTable['expectedSOF'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns"> {{ availabilityMonthTable['actualSOF'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns"> {{ (availabilityMonthTable['expectedSOF'] - availabilityMonthTable['actualSOF']) |number_format(2, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td class="tr_next_columns">EFOR*</td>
-                        <td class="tr_next_columns">0,00</td>
-                        <td class="tr_next_columns">7,02</td>
-                        <td class="tr_next_columns"></td>
+                        <td style="text-align: left" class="tr_next_columns">EFOR <sup>a</sup> </td>
+                        <td class="tr_next_columns"> {{ availabilityMonthTable['expectedEFOR'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns"> {{ availabilityMonthTable['actualEFOR'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns"> {{ (availabilityMonthTable['expectedEFOR'] - availabilityMonthTable['actualEFOR']) |number_format(2, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td class="tr_next_columns">OMC*</td>
-                        <td class="tr_next_columns">0,00</td>
-                        <td class="tr_next_columns">0,00</td>
-                        <td class="tr_next_columns"></td>
+                        <td style="text-align: left" class="tr_next_columns">OMC</td>
+                        <td class="tr_next_columns"> {{ availabilityMonthTable['expectedOMC'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns"> {{ availabilityMonthTable['actualOMC'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns"> {{ (availabilityMonthTable['expectedOMC'] - availabilityMonthTable['actualOMC']) |number_format(2, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td class="tr_next_columns">Environment*</td>
-                        <td class="tr_next_columns">0,00</td>
-                        <td class="tr_next_columns">0,00</td>
-                        <td class="tr_next_columns">0,00</td>
-                    </tr>
-                    <tr>
-                        <td class="tr_next_columns">Communication error*</td>
-                        <td class="tr_next_columns">0,00</td>
-                        <td class="tr_next_columns">0,00</td>
-                        <td class="tr_next_columns"></td>
-                    </tr>
-                    <tr>
-                        <td class="tr_next_columns">TOTAL</td>
-                        <td class="tr_next_columns">0,00</td>
-                        <td class="tr_next_columns">7,02</td>
-                        <td class="tr_next_columns">0,00</td>
+                        <td style="text-align: left" class="tr_next_columns"><b>Total</b></td>
+                        <td  class="tr_next_columns">{{ (availabilityMonthTable['expectedAvailability']
+                            +  availabilityMonthTable['expectedSOF']
+                            + availabilityMonthTable['expectedEFOR']
+                            + availabilityMonthTable['expectedOMC']) |number_format(2, ',', '.')}} </td>
+
+                        <td  class="tr_next_columns">{{ (availabilityMonthTable['actualAvailability']
+                            +  availabilityMonthTable['actualSOF']
+                            + availabilityMonthTable['actualEFOR']
+                            + availabilityMonthTable['actualOMC']) |number_format(2, ',', '.')}} </td>
+                        <td  class="tr_next_columns">{{ ((availabilityMonthTable['actualAvailability']
+                            +  availabilityMonthTable['actualSOF']
+                            + availabilityMonthTable['actualEFOR']
+                            + availabilityMonthTable['actualOMC']) -
+                            (availabilityMonthTable['expectedAvailability']
+                            +  availabilityMonthTable['expectedSOF']
+                            + availabilityMonthTable['expectedEFOR']
+                            + availabilityMonthTable['expectedOMC']))|number_format(2, ',', '.') }}
+                        </td>
                     </tr>
                     </tbody>
                 </table>
-                <ul style="font-size: 9px; padding-left: 12px;">
-                    <li>SOF: Maintenance</li>
-                    <li>EFOR: Defects / Failures</li>
-                    <li>OMC: Grid / Grid regulate</li>
-                    <li>Environment: Snow, storm, weather</li>
-                    <li>Communication error: Data gaps, transmission error</li>
-                </ul>
+                <div style="text-align: left">
+                    <sup><b>a </b></sup><b>From this EFOR errors a {{ availabilityMonthTable['actualGaps'] |number_format(2, ',', '.') }}% are Data Gaps </b>
+                </div>
             </td>
-            <td style="vertical-align: top; padding-left: 10px;">
+            <td style="width:25%">
                 {{ plant_availability|raw }}
+            </td>
+            <td style="width:25%">
+                {{ fails_month|raw }}
             </td>
 
         </tr>
     </table>
-    <div class="explanation">
-        Explanation: For example !<br>
-        What a listing of the downtimes could look like. A detailed failure report based on the g4n error messages should / will be supplied as an attachment.
-    </div>
 {% endblock page %}

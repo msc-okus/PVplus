@@ -59,12 +59,10 @@
                     {% include 'report/_asset_mangement_partials/_aufloesung_availibility_fuerr_den_act_monat.html.twig'%}
                 {% endif %}
                 {% if (data.AvInv == true) %}
-
                     {%  for page in 0..(((invNr/40)|round(0, 'ceil'))-1) %}
                         {% include 'report/_asset_mangement_partials/_availability_inverter_daily.html.twig'%}
                     {% endfor %}
                 {% endif %}
-
             {% endif %}
 
 

@@ -39,6 +39,11 @@ class TicketDate
      */
     private $Anlage;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private int $Intervals = 0;
+
     public function __construct()
     {
 
@@ -88,6 +93,9 @@ class TicketDate
         $this->priority = $ticket->getPriority();
         $this->answer = $ticket->getAnswer();
         $this->alertType = $ticket->getAlertType();
+        $endstamp = $this->getEnd()->getTimestamp();
+        $beginstamp = $this->getBegin()->getTimestamp();
+        $this->Intervals = ($endstamp - $beginstamp)/900;
     }
     public function copyTicketDate(TicketDate $ticket){
         $this->begin = $ticket->getBegin();
@@ -103,11 +111,26 @@ class TicketDate
         $this->priority = $ticket->getPriority();
         $this->answer = $ticket->getAnswer();
         $this->alertType = $ticket->getAlertType();
+        $endstamp = $this->getEnd()->getTimestamp();
+        $beginstamp = $this->getBegin()->getTimestamp();
+        $this->Intervals = ($endstamp - $beginstamp)/900;
     }
     public function getIntervalCount(){
         $endstamp = $this->getEnd()->getTimestamp();
         $beginstamp = $this->getBegin()->getTimestamp();
         return ($endstamp - $beginstamp)/900;
+    }
+
+    public function getIntervals(): ?int
+    {
+        return $this->Intervals;
+    }
+
+    public function setIntervals(int $Intervals): self
+    {
+        $this->Intervals = $Intervals;
+
+        return $this;
     }
 
 }
