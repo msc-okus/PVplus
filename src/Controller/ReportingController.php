@@ -658,6 +658,7 @@ class ReportingController extends AbstractController
             'AvInv' => true,
             'StringCurr' => true,
             'InvPow' => true,
+            'AvYearlyTicketOverview' => true,
             'Economics' => true];
         $output["data"] = $data;
         $report = new AnlagenReports();
