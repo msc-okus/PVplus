@@ -32,19 +32,19 @@
                         <td class="tr_next_columns"> {{ (Availability_Year_To_Date_Table['expectedAvailability'] - Availability_Year_To_Date_Table['actualAvailability']) |number_format(2, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td style="text-align: left" class="tr_next_columns">SOF</td>
+                        <td style="text-align: left" class="tr_next_columns">Planned Outage <sup><b> a</b></sup></td>
                         <td class="tr_next_columns"> {{ Availability_Year_To_Date_Table['expectedSOF'] |number_format(2, ',', '.') }}</td>
                         <td class="tr_next_columns"> {{ Availability_Year_To_Date_Table['actualSOF'] |number_format(2, ',', '.') }}</td>
                         <td class="tr_next_columns"> {{ (Availability_Year_To_Date_Table['expectedSOF'] - Availability_Year_To_Date_Table['actualSOF']) |number_format(2, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td style="text-align: left" class="tr_next_columns">EFOR <sup>a</sup> </td>
+                        <td style="text-align: left" class="tr_next_columns">Unplanned Outage <sup><b> b</b></sup> <sup><b>c</b></sup> </td>
                         <td class="tr_next_columns"> {{ Availability_Year_To_Date_Table['expectedEFOR'] |number_format(2, ',', '.') }}</td>
                         <td class="tr_next_columns"> {{ Availability_Year_To_Date_Table['actualEFOR'] |number_format(2, ',', '.') }}</td>
                         <td class="tr_next_columns"> {{ (Availability_Year_To_Date_Table['expectedEFOR'] - Availability_Year_To_Date_Table['actualEFOR']) |number_format(2, ',', '.') }}</td>
                     </tr>
                     <tr>
-                        <td style="text-align: left" class="tr_next_columns">OMC</td>
+                        <td style="text-align: left" class="tr_next_columns">Grid Error/Grid Off <sup><b> d</b></sup></td>
                         <td class="tr_next_columns"> {{ Availability_Year_To_Date_Table['expectedOMC'] |number_format(2, ',', '.') }}</td>
                         <td class="tr_next_columns"> {{ Availability_Year_To_Date_Table['actualOMC'] |number_format(2, ',', '.') }}</td>
                         <td class="tr_next_columns"> {{ (Availability_Year_To_Date_Table['expectedOMC'] - Availability_Year_To_Date_Table['actualOMC']) |number_format(2, ',', '.') }}</td>
@@ -73,7 +73,10 @@
                     </tbody>
                 </table>
                 <div style="text-align: left">
-                    <sup><b>a </b></sup><b>From this EFOR errors a {{ Availability_Year_To_Date_Table['actualGaps'] |number_format(2, ',', '.') }}% are Data Gaps </b>
+                    <sup><b>a</b></sup> Maintenance, SOR<br>
+                    <sup><b>b</b></sup> Defects, EFOR<br>
+                    <sup><b>c</b></sup><b> From this EFOR errors a {{ Availability_Year_To_Date_Table['actualGaps'] |number_format(2, ',', '.') }}% are Data Gaps</b><br>
+                    <sup><b>d</b></sup> The system is not responsible, OMC
                 </div>
             </td>
             <td style="width:25%">
