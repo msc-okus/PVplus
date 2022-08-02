@@ -20,7 +20,7 @@ export default class extends Controller {
     onSubmit(event) {
         event.preventDefault();
 
-        Swal({
+        Swal.fire({
             title: this.titleValue || null,
             text: this.textValue || null,
             icon: this.iconValue || null,

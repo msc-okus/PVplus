@@ -324,7 +324,7 @@ class ReportEpcService
             'prGuar'                => $this->format($anlage->getContractualPR()),
             'eGridReal'             => $this->format($sumEGridReal),
             'eGridReal-Design'      => $this->format($sumEGridRealDesign),
-            'spezErtrag'            => $this->format($sumEGridReal / $anlage->getKwPeak()),
+            'spezErtrag'            => $this->format($sumEGridReal / $anlage->getPnom()),
             'prReal'                => $this->format($sumPrReal  / $counter),
             'prReal_prDesign'       => $this->format(($sumPrReal / $counter) - $anlage->getDesignPR()), // PR Real minus PR Design
             'availability'          => '',
