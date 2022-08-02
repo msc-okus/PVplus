@@ -76,6 +76,12 @@ trait TicketTrait
     {
         $this->end = $End;
 
+        if (isset($this->end) && isset($this->begin)) {
+            $endstamp = $this->getEnd()->getTimestamp();
+            $beginstamp = $this->getBegin()->getTimestamp();
+            $this->Intervals = ($endstamp - $beginstamp) / 900;
+        }
+
         return $this;
     }
 
@@ -87,6 +93,14 @@ trait TicketTrait
     public function setBegin(?DateTimeInterface $Begin): self
     {
         $this->begin = $Begin;
+
+        if (isset($this->end) && isset($this->begin))
+        {
+            $endstamp = $this->getEnd()->getTimestamp();
+            $beginstamp = $this->getBegin()->getTimestamp();
+            $this->Intervals = ($endstamp - $beginstamp)/900;
+        }
+
 
         return $this;
     }

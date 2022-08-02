@@ -239,6 +239,12 @@
         padding-bottom: 2rem;
         padding-top: 2rem;
 
+        .no-margin {
+            margin: 0 !important;
+        }
+        .button.tiny{
+            padding: 0.65em 0.75em;
+        }
         .content {
             border: 1px solid #b7b7b7;
             background: #fefefe;
@@ -249,9 +255,9 @@
 
         .action-icon {
             padding: rem-calc(4);
-            margin: 0 0.2rem;
+            margin: 0 0.2rem !important;
 
-            .fas, .fa {font-size: 180%;}
+            .fas, .fa {font-size: rem-calc(16);}
         }
         .button-icon {
             i {font-size: 1.5rem;}

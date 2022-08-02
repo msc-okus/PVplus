@@ -154,17 +154,13 @@ class AnlagenAdminController extends BaseController
 
                 $anlage->setPicture($uploadsPath);
             }
-            if($economicVarNames1==null) {
+            if ($economicVarNames1 === null) {
                 $economicVarNames = new EconomicVarNames();
-                $economicVarNames->setparams($anlage, $form->get('var_1')->getData(), $form->get('var_2')->getData(), $form->get('var_3')->getData(), $form->get('var_4')->getData(), $form->get('var_5')->getData(), $form->get('var_6')->getData()
-                    , $form->get('var_7')->getData(), $form->get('var_8')->getData(), $form->get('var_9')->getData(), $form->get('var_10')->getData(), $form->get('var_11')->getData(), $form->get('var_12')->getData(), $form->get('var_13')->getData(), $form->get('var_14')->getData(), $form->get('var_15')->getData());
-            }
-            else{
+            } else {
                 $economicVarNames = $economicVarNames1;
-                $economicVarNames->setparams($anlage, $form->get('var_1')->getData(), $form->get('var_2')->getData(), $form->get('var_3')->getData(), $form->get('var_4')->getData(), $form->get('var_5')->getData(), $form->get('var_6')->getData()
-                    , $form->get('var_7')->getData(), $form->get('var_8')->getData(), $form->get('var_9')->getData(), $form->get('var_10')->getData(), $form->get('var_11')->getData(), $form->get('var_12')->getData(), $form->get('var_13')->getData(), $form->get('var_14')->getData(), $form->get('var_15')->getData());
-
             }
+            $economicVarNames->setparams($anlage, $form->get('var_1')->getData(), $form->get('var_2')->getData(), $form->get('var_3')->getData(), $form->get('var_4')->getData(), $form->get('var_5')->getData(), $form->get('var_6')->getData()
+                , $form->get('var_7')->getData(), $form->get('var_8')->getData(), $form->get('var_9')->getData(), $form->get('var_10')->getData(), $form->get('var_11')->getData(), $form->get('var_12')->getData(), $form->get('var_13')->getData(), $form->get('var_14')->getData(), $form->get('var_15')->getData());
 
             //TODO: think and work on the switches, they are quite complex!
             $anlage->setEconomicVarNames($economicVarNames);
@@ -306,7 +302,7 @@ class AnlagenAdminController extends BaseController
             $databaseAcIst = "CREATE TABLE IF NOT EXISTS " . $anlage->getDbNameIst() . " (
                   `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
                   `anl_id` int(11) NOT NULL,
-                  `stamp` timestamp NOT NULL,
+                  `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',,
                   `inv` int(11) NOT NULL,
                   `group_dc` int(11) NOT NULL,
                   `group_ac` int(11) NOT NULL,
@@ -348,7 +344,7 @@ class AnlagenAdminController extends BaseController
             $databaseDcIst = "CREATE TABLE IF NOT EXISTS " . $anlage->getDbNameIstDc() . " (
                   `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
                   `anl_id` int(11) NOT NULL,
-                  `stamp` timestamp NOT NULL,
+                  `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
                   `wr_group` int(11) NOT NULL,
                   `group_ac` int(11) NOT NULL,
                   `wr_num` int(11) NOT NULL,
@@ -380,7 +376,7 @@ class AnlagenAdminController extends BaseController
             $databaseDcSoll = "CREATE TABLE IF NOT EXISTS " . $anlage->getDbNameDcSoll() . " (
                       `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
                       `anl_id` int(11) NOT NULL,
-                      `stamp` timestamp NOT NULL,
+                      `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
                       `wr` int(11) NOT NULL,
                       `wr_num` int(11) NOT NULL,
                       `group_dc` int(11) NOT NULL,
@@ -405,7 +401,7 @@ class AnlagenAdminController extends BaseController
                            `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
                            `anl_id` bigint(11) NOT NULL,
                            `anl_intnr` varchar(50),
-                           `stamp` timestamp NOT NULL,
+                           `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
                            `p_ac_inv` varchar(20) NOT NULL,
                            `pf_set` int(3) NOT NULL ,
                            `p_set_gridop_rel` int(3) NOT NULL,

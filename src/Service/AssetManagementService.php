@@ -13,6 +13,7 @@ use App\Repository\PvSystMonthRepository;
 use App\Repository\ReportsRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\PRRepository;
+use App\Repository\TicketDateRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Twig\Environment;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -35,6 +36,7 @@ class AssetManagementService
     private DownloadAnalyseService $DownloadAnalyseService;
     private PRCalulationService $PRCalulation;
     private AvailabilityService $availability;
+    private TicketDateRepository $ticketDateRepo;
 
     public function __construct(
         EntityManagerInterface $em,
@@ -45,7 +47,8 @@ class AssetManagementService
         EconomicVarValuesRepository $ecoVarValueRep,
         PRCalulationService $PRCalulation,
         EconomicVarNamesRepository $ecoVarNameRep,
-        AvailabilityService $availability
+        AvailabilityService $availability,
+        TicketDateRepository $ticketDateRepo
     )
     {
         $this->functions = $functions;
@@ -58,8 +61,8 @@ class AssetManagementService
         $this->connAnlage = self::connectToDatabaseAnlage();
         $this->DownloadAnalyseService = $analyseService;
         $this->PRCalulation = $PRCalulation;
-
         $this->availability = $availability;
+        $this->ticketDateRepo = $ticketDateRepo;
     }
 
     public function assetReport($anlage, $month = 0, $year = 0, $pages = 0): array
@@ -864,7 +867,6 @@ class AssetManagementService
         //beginn chart
         # $chart->tooltip->show = true;
         # $chart->tooltip->trigger = 'item';
-       // dd($dataMonthArray, $difference_Egrid_to_Expected_G4n);
         $chart->xAxis = array(
             'type' => 'category',
             'axisLabel' => array(
@@ -1641,7 +1643,6 @@ class AssetManagementService
                         "plantAvailabilitySecond" => (float)$output2['availability2'],
                         "panneltemp" => (float)$output[$i]->getpanneltemp(),
                     ];
-               // dd($table_overview_dayly);
             }
         }
 
@@ -1671,27 +1672,82 @@ class AssetManagementService
             $outPaCY[] = $pa;
             unset($pa);
         }
-        //dd($outPaCY);
 
+        //we have to generate the overall values of errors for the year
+        $daysInThisMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
+        $endate = $report['reportYear']."-".$report['reportMonth']."-".$daysInThisMonth;
+        $SOFErrors = (int)$this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear']."-01-01", $endate, 10, $anlage)[0][1];
+        $EFORErrors = (int)$this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear']."-01-01", $endate, 20, $anlage)[0][1];
+        $OMCErrors = (int)$this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear']."-01-01", $endate, 30, $anlage)[0][1];
+        $dataGaps = (int)$this->ticketDateRepo->countByIntervalNullPlant($report['reportYear']."-01-01", $endate, $anlage)[0][1];
+        $totalErrors = $SOFErrors + $EFORErrors + $OMCErrors;
+        //here we calculate the ammount of quarters to calculate the relative percentages
+        $sumquarters = 0;
+        for ($month = 1 ; $month <= (int)$report['reportMonth']; $month++){
+
+            $begin = $report['reportYear']."-".$month."-"."01 00:00:00";
+            $lastDayOfMonth = date("t", strtotime($begin));
+            $end = $report['reportYear']."-".$month."-".$lastDayOfMonth." 23:55:00";
+            $sqlw = "SELECT count(db_id) as quarters
+                    FROM  " . $anlage->getDbNameWeather() . "  
+                    WHERE stamp BETWEEN '$begin' AND '$end' ";
+
+            $resw = $this->conn->query($sqlw);
+            $quartersInMonth = $resw->fetch(PDO::FETCH_ASSOC)['quarters'] * $anlage->getAnzInverter();
+            $sumquarters = $sumquarters + $quartersInMonth;
+        }
+
+        $actualAvailabilityPorcent = (($sumquarters - $totalErrors  ) / $sumquarters) * (100);
+        $actualSOFPorcent = 100 - (($sumquarters - $SOFErrors) / $sumquarters) * (100);
+        $actualEFORPorcent = 100 - (($sumquarters - $EFORErrors) / $sumquarters) * (100);
+        $actualOMCPorcent = 100 - (($sumquarters - $OMCErrors) / $sumquarters) * (100);
+        $actualGapPorcent = 100 - (($EFORErrors - $dataGaps) / $EFORErrors) * (100);
+
+        if ($totalErrors != 0) {
+            $failRelativeSOFPorcent = 100 - (($totalErrors - $SOFErrors) / $totalErrors) * (100);
+            $failRelativeEFORPorcent = 100 - (($totalErrors - $EFORErrors) / $totalErrors) * (100);
+            $failRelativeOMCPorcent = 100 - (($totalErrors - $OMCErrors) / $totalErrors) * (100);
+        }
+        else{
+            $failRelativeSOFPorcent = 0;
+            $failRelativeEFORPorcent = 0;
+            $failRelativeOMCPorcent = 0;
+        }
+
+
+
+        $availabilityYearToDateTable = [
+            'expectedAvailability'  => (int)$anlage->getContractualAvailability(),
+            'expectedSOF'           => 0, //this will be a variable in the future
+            'expectedEFOR'          => 0, //and this
+            'expectedOMC'           => 0, //and this
+            'expectedGaps'          => 0,
+            'actualAvailability'    => $actualAvailabilityPorcent,
+            'actualSOF'             => $actualSOFPorcent,
+            'actualEFOR'            => $actualEFORPorcent,
+            'actualOMC'             => $actualOMCPorcent,
+            'actualGaps'            => $actualGapPorcent
+        ];
+        //we can add the values we generate for the table of the errors to generate the pie graphic directly
         $chart->series = [
             [
                 'type' => 'pie',
                 'data' => [
                     [
-                        'value' => 92.36,
-                        'name' => 'PA (Plant availability)'
+                        'value' => $actualAvailabilityPorcent,
+                        'name' => 'PA'
                     ],
                     [
-                        'value' => 0,
+                        'value' => $actualSOFPorcent,
                         'name' => 'SOF'
                     ],
                     [
-                        'value' => 7.64,
-                        'name' => 'EFOR**'
+                        'value' => $actualEFORPorcent,
+                        'name' => 'EFOR'
                     ],
                     [
-                        'value' => 0,
-                        'name' => 'OMC***'
+                        'value' => $actualOMCPorcent,
+                        'name' => 'OMC'
                     ]
                 ],
                 'visualMap' => 'false',
@@ -1712,26 +1768,25 @@ class AssetManagementService
             'title' => [
                 'text' => 'Availability: Year to date',
                 'left' => 'center',
-                'top' => 0,
+                'top' => 'top',
+                'textStyle' => ['fontSize' => 10]
             ],
             'tooltip' => [
                     'show' => true,
                 ],
             'legend' => [
                     'show' => true,
-                    'orient' => 'vertical',
+                    'orient' => 'horizontal',
                     'left' => 'left',
-                    'top' => 30,
+                    'bottom' => 0,
                     'padding' => 0, 90, 0, 0,
                 ],
-            'grid' => [
-                    'top' => 150,
-                ],
+
         );
 
 
         $chart->setOption($option);
-        $availability_Year_To_Date = $chart->render('availability_Year_To_Date', ['style' => 'height: 300px; width:400px; margin-top:8px']);
+        $availability_Year_To_Date = $chart->render('availability_Year_To_Date', ['style' => 'height: 175px; width:300px; ']);
 
         $chart->tooltip = [];
         $chart->xAxis = [];
@@ -1748,16 +1803,16 @@ class AssetManagementService
                     'type' => 'pie',
                     'data' => [
                         [
-                            'value' => 0,
-                            'name' => 'SOF*'
+                            'value' => $failRelativeSOFPorcent,
+                            'name' => 'SOF'
                         ],
                         [
-                            'value' => 100,
-                            'name' => 'EFOR**'
+                            'value' => $failRelativeEFORPorcent,
+                            'name' => 'EFOR'
                         ],
                         [
-                            'value' => 0,
-                            'name' => 'OMC***'
+                            'value' => $failRelativeOMCPorcent,
+                            'name' => 'OMC'
                         ]
                     ],
                     'visualMap' => 'false',
@@ -1778,7 +1833,8 @@ class AssetManagementService
             'title' => [
                 'text' => 'Failure - Year to date',
                 'left' => 'center',
-                'top' => 0,
+                'top' => 'top',
+                'textStyle' => ['fontSize' => 10]
             ],
             'tooltip' =>
                 [
@@ -1787,55 +1843,90 @@ class AssetManagementService
             'legend' =>
                 [
                     'show' => true,
-                    'orient' => 'vertical',
+                    'orient' => 'horizontal',
                     'left' => 'left',
-                    'top' => 30,
+                    'bottom' => 0,
                     'padding' => 0, 90, 0, 0,
                 ],
         );
 
 
         $chart->setOption($option);
-        $failures_Year_To_Date = $chart->render('failures_Year_To_Date', ['style' => 'height: 300px; width:360px; margin-top:8px;']);
+        $failures_Year_To_Date = $chart->render('failures_Year_To_Date', ['style' => 'height: 175px; width:300px; ']);
 
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
         $chart->series = [];
         unset($option);
+        $SOFErrorsMonth = (int)$this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear']."-".$report['reportMonth']."-01", $endate, 10, $anlage)[0][1];
+        $EFORErrorsMonth = (int)$this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear']."-".$report['reportMonth']."-01", $endate, 20, $anlage)[0][1];
+        $OMCErrorsMonth = (int)$this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear']."-".$report['reportMonth']."-01", $endate, 30, $anlage)[0][1];
+        $dataGapsMonth = (int)$this->ticketDateRepo->countByIntervalNullPlant($report['reportYear']."-".$report['reportMonth']."-01", $endate, $anlage)[0][1];
 
-        //Plant Availability
-        # $chart->tooltip->show = true;
-        # $chart->tooltip->trigger = 'item';
+        $totalErrorsMonth = $SOFErrorsMonth + $EFORErrorsMonth + $OMCErrorsMonth;
+
+        $begin = $report['reportYear']."-".$report['reportMonth']."-"."01 00:00:00";
+        $lastDayOfMonth = date("t", strtotime($begin));
+        $end = $report['reportYear']."-".$report['reportMonth']."-".$lastDayOfMonth." 23:55:00";
+        $sqlw = "SELECT count(db_id) as quarters
+                    FROM  " . $anlage->getDbNameWeather() . "  
+                    WHERE stamp BETWEEN '$begin' AND '$end' 
+                    AND g_lower + g_upper > 0";
+
+        $resw = $this->conn->query($sqlw);
+
+        $quartersInMonth = $resw->fetch(PDO::FETCH_ASSOC)['quarters'] * $anlage->getAnzInverter();
+        $actualAvailabilityPorcentMonth = (($quartersInMonth - $totalErrorsMonth) / $quartersInMonth) * (100);
+        $actualSOFPorcentMonth = 100 - (($quartersInMonth - $SOFErrorsMonth) / $quartersInMonth) * (100);
+        $actualEFORPorcentMonth = 100 - (($quartersInMonth - $EFORErrorsMonth) / $quartersInMonth) * (100);
+        $actualOMCPorcentMonth = 100 - (($quartersInMonth - $OMCErrorsMonth) / $quartersInMonth) * (100);
+        $actualGapPorcentMonth = 100 - (($EFORErrorsMonth - $dataGapsMonth) / $EFORErrorsMonth) * (100);
+
+        $availabilityMonthTable = [
+            'expectedAvailability'  => (float)$anlage->getContractualAvailability(),
+            'expectedSOF'           => 0, //this will be a variable in the future
+            'expectedEFOR'          => 0, //and this
+            'expectedOMC'           => 0, //and this
+            'expectedGaps'          => 0,
+            'actualAvailability'    => $actualAvailabilityPorcentMonth,
+            'actualSOF'             => $actualSOFPorcentMonth,
+            'actualEFOR'            => $actualEFORPorcentMonth,
+            'actualOMC'             => $actualOMCPorcentMonth,
+            'actualGaps'            => $actualGapPorcentMonth
+        ];
+        if ($totalErrors != 0) {
+            $failRelativeSOFPorcentMonth = 100 - (($totalErrorsMonth - $SOFErrorsMonth) / $totalErrorsMonth) * (100);
+            $failRelativeEFORPorcentMonth = 100 - (($totalErrorsMonth - $EFORErrorsMonth) / $totalErrorsMonth) * (100);
+            $failRelativeOMCPorcentMonth = 100 - (($totalErrorsMonth - $OMCErrorsMonth) / $totalErrorsMonth) * (100);
+        }
+        else{
+            $failRelativeSOFPorcentMonth = 0;
+            $failRelativeEFORPorcentMonth = 0;
+            $failRelativeOMCPorcentMonth = 0;
+        }
+
         $chart->series =
             [
                 [
                     'type' => 'pie',
                     'data' => [
                         [
-                            'value' => 92, 98,
-                            'name' => 'PA (Plant availability)'
+                            'value' => $actualAvailabilityPorcent,
+                            'name' => 'PA'
                         ],
                         [
-                            'value' => 0,
+                            'value' => $actualSOFPorcentMonth,
                             'name' => 'SOF'
                         ],
                         [
-                            'value' => 7, 02,
+                            'value' => $actualEFORPorcentMonth,
                             'name' => 'EFOR'
                         ],
                         [
-                            'value' => 0,
+                            'value' => $actualOMCPorcentMonth,
                             'name' => 'OMC'
                         ],
-                        [
-                            'value' => 0,
-                            'name' => 'Environment'
-                        ],
-                        [
-                            'value' => 0,
-                            'name' => 'Communication error'
-                        ]
                     ],
                     'visualMap' => 'false',
                     'label' => [
@@ -1851,11 +1942,12 @@ class AssetManagementService
 
         $option = array(
             'animation' => false,
-            'color' => ['#c5e0b4', '#ed7d31', '#941651', '#ffc000', '#548235', '#2e75b6'],
+            'color' => ['#c5e0b4', '#ed7d31', '#941651', '#ffc000'],
             'title' => [
                 'text' => 'Plant availability: ' . $monthName . ' ' . $report['reportYear'],
                 'left' => 'center',
-                'top' => 0,
+                'top' => 'top',
+                'textStyle' => ['fontSize' => 10]
             ],
             'tooltip' =>
                 [
@@ -1864,15 +1956,16 @@ class AssetManagementService
             'legend' =>
                 [
                     'show' => true,
-                    'orient' => 'vertical',
+                    'orient' => 'horizontal',
                     'left' => 'left',
-                    'top' => 30,
+                    'bottom' => 0,
+                    'padding' => 0, 90, 0, 0,
                 ],
         );
 
 
         $chart->setOption($option);
-        $plant_availability = $chart->render('plant_availability', ['style' => 'height: 200px; width:450px; margin-top:8px']);
+        $plant_availability = $chart->render('plant_availability', ['style' => 'height: 175px; width:300px; ']);
 
         $chart->tooltip = [];
         $chart->xAxis = [];
@@ -1887,33 +1980,22 @@ class AssetManagementService
                     'type' => 'pie',
                     'data' => [
                         [
-                            'value' => 0,
+                            'value' => $failRelativeSOFPorcentMonth,
                             'name' => 'SOF'
                         ],
                         [
-                            'value' => 100,
+                            'value' => $failRelativeEFORPorcentMonth,
                             'name' => 'EFOR'
                         ],
                         [
-                            'value' => 0,
+                            'value' => $failRelativeOMCPorcentMonth,
                             'name' => 'OMC'
                         ],
-                        [
-                            'value' => 0,
-                            'name' => 'Environment'
-                        ],
-                        [
-                            'value' => 0,
-                            'name' => 'Communication error'
-                        ]
                     ],
 
                     'visualMap' => 'false',
                     'label' => [
                         'show' => false
-                    ],
-                    'center' => [
-                        235, 100
                     ],
                     'itemStyle' => [
                         'borderType' => 'solid',
@@ -1925,11 +2007,12 @@ class AssetManagementService
 
         $option = array(
             'animation' => false,
-            'color' => ['#ed7d31', '#941651', '#ffc000', '#548235', '#2e75b6'],
+            'color' => ['#ed7d31', '#941651', '#ffc000'],
             'title' => [
-                'text' => 'Actual',
+                'text' => 'Failures',
                 'left' => 'center',
-                'top' => 0,
+                'top' => 'top',
+                'textStyle' => ['fontSize' => 10]
             ],
             'tooltip' =>
                 [
@@ -1938,14 +2021,15 @@ class AssetManagementService
             'legend' =>
                 [
                     'show' => true,
-                    'orient' => 'vertical',
+                    'orient' => 'horizontal',
                     'left' => 'left',
-                    'top' => 30,
+                    'bottom' => 0,
+                    'padding' => 0, 90, 0, 0,
                 ],
         );
 
         $chart->setOption($option);
-        $actual = $chart->render('actual', ['style' => 'height: 200px; width:450px; margin-top:8px']);
+        $fails_month= $chart->render('fails_month', ['style' => 'height: 175px; width:300px; ']);
 
         $chart->tooltip = [];
         $chart->xAxis = [];
@@ -2012,37 +2096,6 @@ class AssetManagementService
                         GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
             break;
         }
-        /*
-        if ($anlage->getConfigType() == 1){
-            $sql = "SELECT DATE_FORMAT( stamp,'%d.%m.%Y') AS form_date, sum(wr_pdc) AS act_power_dc, group_dc as invgroup
-                        FROM " . $anlage->getDbNameIst() . "  
-                        WHERE stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and group_dc > 0
-                        GROUP BY form_date,group_dc ORDER BY group_dc,form_date";
-
-            $sqlc = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.wr_idc) AS act_current_dc
-                    FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
-                    WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_dc > 0 
-                    GROUP BY form_date,b.group_dc ORDER BY b.group_dc,form_date";
-
-        }
-        else {
-                $sql = "SELECT DATE_FORMAT( a.stamp,'%d.%m.%Y') AS form_date, sum(b.wr_pdc) AS act_power_dc, b.group_ac as invgroup
-                        FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
-                        WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_ac > 0
-                        GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
-                if ($anlage->getUseNewDcSchema()) {
-                            $sqlc = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.wr_idc) AS act_current_dc
-                    FROM (db_dummysoll a left JOIN " . $anlage->getDbNameDcIst() . " b ON a.stamp = b.stamp) 
-                    WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_ac > 0 
-                    GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
-                } else {
-                            $sqlc = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.wr_idc) AS act_current_dc
-                    FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp) 
-                    WHERE a.stamp BETWEEN '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-1 00:00' and '" . $report['reportYear'] . "-" . $report['reportMonth'] . "-" . $daysInReportMonth . " 23:59' and b.group_ac > 0 
-                    GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
-                }
-        }
-        */
         $result = $this->conn->prepare($sql);
         $result->execute();
         $resultc = $this->conn->prepare($sqlc);
@@ -2305,7 +2358,6 @@ class AssetManagementService
             }
         }
         if ($dcExpDcIst) $outTableCurrentsPower[] = $dcExpDcIst;
-        //dd($outTableCurrentsPower[0]);
         $resultEconomicsNames = $this->ecoVarNameRepo->findOneByAnlage($anlage);
 
         if ($resultEconomicsNames) {
@@ -2646,7 +2698,6 @@ class AssetManagementService
         $chart->setOption($option);
 
         $losses_monthly = $chart->render('losses_monthly', ['style' => 'height: 450px; width:23cm;']);
-        //dd($losses_monthly);
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
@@ -3165,6 +3216,7 @@ class AssetManagementService
             'operations_monthly_right_iout_tr6' => $operations_monthly_right_iout_tr6,
             'operations_monthly_right_iout_tr7' => $operations_monthly_right_iout_tr7,
             'useGridMeterDayData' => $useGridMeterDayData,
+            'availabilityMonthTable' => $availabilityMonthTable,
             'showAvailability' => $showAvailability,
             'showAvailabilitySecond' => $showAvailabilitySecond,
             'table_overview_dayly' => $table_overview_dayly,
@@ -3172,10 +3224,11 @@ class AssetManagementService
             'daysInReportMonth' => $daysInReportMonth,
             'tableColsLimit' => 10,
             'acGroups' => $acGroupsCleaned,
+            'Availability_Year_To_Date_Table' => $availabilityYearToDateTable,
             'availability_Year_To_Date' => $availability_Year_To_Date,
             'failures_Year_To_Date' => $failures_Year_To_Date,
             'plant_availability' => $plant_availability,
-            'actual' => $actual,
+            'fails_month' => $fails_month,
             'plantAvailabilityMonth' => $outPa,
             'operations_currents_dayly_table' => $outTableCurrentsPower,
             'income_per_month' => $incomePerMonth,

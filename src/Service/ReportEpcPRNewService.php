@@ -46,7 +46,8 @@ class ReportEpcPRNewService
         if ($date === null) $date = new DateTime();
 
         $tableArray = [];
-        $anzahlMonate = ((int)$anlage->getEpcReportEnd()->format('Y') - (int)$anlage->getEpcReportStart()->format('Y')) * 12 + ((int)$anlage->getEpcReportEnd()->format('m') - (int)$anlage->getEpcReportStart()->format('m')) + 2;
+        $anzahlMonate = ((int)$anlage->getEpcReportEnd()->format('Y') - (int)$anlage->getEpcReportStart()->format('Y')) * 12 + ((int)$anlage->getEpcReportEnd()->format('m') - (int)$anlage->getEpcReportStart()->format('m'));
+        $anzahlMonate = $anzahlMonate + (int)($anzahlMonate / 12);
         $rollingPeriodMonthsStart = ((int)$date->format('Y') - (int)$anlage->getEpcReportStart()->format('Y')) * 12 + ((int)$date->format('m') - (int)$anlage->getEpcReportStart()->format('m')) - 11;
         $rollingPeriodMonthsEnd = ((int)$date->format('Y') - (int)$anlage->getEpcReportStart()->format('Y')) * 12 + ((int)$date->format('m') - (int)$anlage->getEpcReportStart()->format('m')) + 2;
 
@@ -102,7 +103,6 @@ class ReportEpcPRNewService
         $deductionRisk      = 100 * (1 - $prFAC / $prPVSyst);
         $deductionOverall   = 100 - (100 - $deductionTransform) * (100 - $deductionRisk) / 100;
 
-        #dump("Deduction Overall: $deductionOverall | ");
         /////////////////////////////
         /// Runde 1
         /////////////////////////////
@@ -185,7 +185,7 @@ class ReportEpcPRNewService
             $tableArray[$n]['AA_tCompensationFactor']                 = 0;
             $tableArray[$n]['AB_effRefYield']                         = 0;
             $tableArray[$n]['AC_effTheoEnergy']                       = 0;
-            $tableArray[$n]['AC1_theoEnergyMeasured']                 = $hasMonthData ? $prArray['powerTheoTempCorr'] * $factor : 0;
+            $tableArray[$n]['AC1_theoEnergyMeasured']                 = $hasMonthData ? $prArray['powerTheoTempCorr'] : 0;
             $tableArray[$n]['AD_prMonth']                             = 0;
             $tableArray[$n]['AE_ratio']                               = 0;
             $tableArray[$n]['AF_ratioFT']                             = 0;

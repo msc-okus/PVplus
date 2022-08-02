@@ -74,7 +74,12 @@ class AssetManagementeReportFormType extends AbstractType
                 'data' => true
             ])
             ->add('AvMonthlyOverview',SwitchType::class,[
-                'label'     => 'Availability-Monthly Overview',
+                'label'     => 'Availability Analysis - Monthly Overview',
+                'required'  => false,
+                'data' => true
+            ])
+            ->add('AvYearlyTicketOverview',SwitchType::class,[
+                'label'     => 'Availability Analysis - Yearly Overview',
                 'required'  => false,
                 'data' => true
             ])
@@ -93,33 +98,13 @@ class AssetManagementeReportFormType extends AbstractType
                 'required'  => false,
                 'data' => true
             ])
-            /*
-            ->add('AvailabilityPos', ChoiceType::class,[
-                'expanded' => false,
-                'multiple' => false,
-                'choices' => [
-                    '1' => 1,
-                    '2' => 2,
-                    '3' => 3,
-                ],
-            ])
-            */
+
             ->add('Economics',SwitchType::class, [
                 'required' => false
             ])
 
 
-            /*
-            ->add('EconomicsPos', ChoiceType::class,[
-                'expanded' => false,
-                'multiple' => false,
-                'choices' => [
-                    '1' => 1,
-                    '2' => 2,
-                    '3' => 3,
-                ],
-            ])
-            */
+
             ->add('submit', SubmitType::class, [
                 'label'     => 'submit',
                 'attr'      => ['class' => 'primary save'],

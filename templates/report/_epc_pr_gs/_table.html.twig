@@ -33,6 +33,7 @@
                 <!--<th>AA</th>-->
                 <th>AB</th>
                 <th>AC</th>
+                <th>AC1</th>
                 <th>AD</th>
                 <!--<th>AE</th>-->
                 <!--<th>AF</th>-->
@@ -48,11 +49,11 @@
                 <th class="border-right-2"></th>
                 <th colspan="9" class="border-right-2">Design_M expected / predicted</th>
 
-                <th colspan="9" class="border-right-2">Measured</th>
+                <th colspan="10" class="border-right-2">Measured</th>
                 <th colspan="5">Data Analysis with risk forecast & FT</th>
             </tr>
             <tr>
-                <th style="min-width: 70px">Month</th>
+                <th style="min-width: 45px">Month</th>
                 <!--<th>Days in Month</th>-->
                 <th class="border-right-2">Days</th>
 
@@ -82,6 +83,7 @@
                 <!--<th>T compensation factor</th>-->
                 <th>effective reference yield [kWh/kWp] with FT</th>
                 <th>effective theoretical energy [kWh] with FT</th>
+                <th>theoretical energy [kWh] with FT</th>
                 <th>PR month [%] with FT</th>
                 <!--<th>Ratio [%]</th>-->
                 <!--<th>Ratio [%] with FT</th>-->
@@ -127,6 +129,7 @@
                 <!--<td>{{ month.AA_tCompensationFactor|number_format(2, ',', '.') }}</td>-->
                 <td>{{ month.AB_effRefYield|number_format(2, ',', '.') }}</td>
                 <td>{{ month.AC_effTheoEnergy|number_format(2, ',', '.') }}</td>
+                <td>{{ month.AC1_theoEnergyMeasured|number_format(2, ',', '.') }}</td>
                 <td>{{ month.AD_prMonth|number_format(2, ',', '.') }}</td>
                 <!--<td>{% if month.AE_ratio > 0 %}{{ month.AE_ratio|number_format(2, ',', '.') }}{% endif %}</td>-->
                 <!--<td>{% if month.AF_ratioFT > 0 %}{{ month.AF_ratioFT|number_format(2, ',', '.') }}{% endif %}</td>-->
