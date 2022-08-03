@@ -90,19 +90,6 @@ class TicketFormType extends AbstractType
                 ;
         }
         $builder
-            ->add('dates', UXCollectionType::class, [
-                'entry_type'    => TicketDateEmbeddedFormType::class,
-
-            ])
-            ->add('dataGapEvaluation', ChoiceType::class, [
-                'required' => false,
-                'placeholder' => 'please Choose ...',
-                'choices' => [
-                    'outage' => 'outage',
-                    'comm. issue' => 'comm. issue'
-                ]
-            ])
-
             ->add('status', ChoiceType::class, [
                 'label' => 'Status',
                 'choices' => self::ticketStati(),
@@ -132,6 +119,23 @@ class TicketFormType extends AbstractType
                 'required'      => false,
             ])
 
+            #### List of Ticket Dates
+            ->add('dates', UXCollectionType::class, [
+                'entry_type'    => TicketDateEmbeddedFormType::class,
+
+            ])
+
+            #### ACTIONS
+            ->add('dataGapEvaluation', ChoiceType::class, [
+                'required' => false,
+                'placeholder' => 'please Choose ...',
+                'choices' => [
+                    'outage' => 'outage',
+                    'comm. issue' => 'comm. issue'
+                ]
+            ])
+
+            #### Free Text for descriptions
             ->add('freeText', CKEditorType::class, [
                 'config'        => ['toolbar' => 'my_toolbar'],
                 'attr'          => ['rows' => '9'],
@@ -142,8 +146,6 @@ class TicketFormType extends AbstractType
                 'attr'          => ['rows' => '9'],
                 'required'      => false,
             ])
-
-            #### ACTIONS
 
             ####
             ->add('PR0', SwitchType::class, [

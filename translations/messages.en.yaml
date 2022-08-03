@@ -3,9 +3,9 @@ ticket:
   error:
     type:
       name: Error Type
-      10: SOR
-      20: EFOR
-      30: OMC
+      10: planned outage (SOR)
+      20: unplanned outage (EFOR)
+      30: grid error/grid off (OMC)
 
     category:
       name: Error Category
