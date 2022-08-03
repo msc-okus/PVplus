@@ -23,7 +23,7 @@ class WeatherStationRepository extends ServiceEntityRepository
     /**
      * @return WeatherStation[]
      */
-    public function findAllUp()
+    public function findAllUp(): array
     {
         return $this->createQueryBuilder('w')
             ->andWhere("w.type LIKE 'UP%'")
