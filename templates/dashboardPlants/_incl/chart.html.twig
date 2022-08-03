@@ -1073,7 +1073,7 @@
             series1.name = "{{ content.series1.name }}";
             series1.ttname = "{{ content.series1.tooltipText }}";
             series1.dataFields.dateX = "date";
-            series1.dataFields.valueY = "val1";
+            series1.dataFields.valueY = "tempAmbient";
             series1.tooltipText = "{ttname}: {valueY} [/]";
             series1.stroke = am4core.color("#fdd400");
             series1.fill = "#fdd400";
@@ -1083,12 +1083,12 @@
             series1.tensionX = 0.8;
             series1.connect = false;
 
-            {% if aktAnlage.showOnlyUpperIrr == false %}
+            {% if aktAnlage.weatherStation.hasPannelTemp == true %}
             let series2 = chart.series.push(new am4charts.LineSeries());
                 series2.name = "{{ content.series2.name }}";
                 series2.ttname = "{{ content.series2.tooltipText }}";
                 series2.dataFields.dateX = "date";
-                series2.dataFields.valueY = "val2";
+                series2.dataFields.valueY = "tempCellMeasuerd";
                 series2.tooltipText = "{ttname}: {valueY} [/]";
                 series2.stroke = am4core.color("#016195");
                 series2.fill = "#016195";
@@ -1099,7 +1099,21 @@
                 series2.connect = false;
             {% endif %}
 
-
+            {% if aktAnlage.useCustPRAlgorithm == 'Lelystad' %}
+                let series3 = chart.series.push(new am4charts.LineSeries());
+                series3.name = "{{ content.series3.name }}";
+                series3.ttname = "{{ content.series3.tooltipText }}";
+                series3.dataFields.dateX = "date";
+                series3.dataFields.valueY = "tempCellCorr";
+                series3.tooltipText = "{ttname}: {valueY} [/]";
+                series3.stroke = am4core.color("#950193");
+                series3.fill = "#950193";
+                series3.strokeWidth = 1;
+                series3.sequencedInterpolation = true;
+                series3.defaultState.transitionDuration = 300;
+                series3.tensionX = 0.8;
+                series3.connect = false;
+            {% endif %}
 
             let windSpeed = chart.series.push(new am4charts.LineSeries());
             windSpeed.name = "Wind Speed m/s";
