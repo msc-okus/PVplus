@@ -73,17 +73,19 @@
             </tbody>
         </table>
     </div>
+
     {% if (is_granted('ROLE_DEV')) %}
         <button data-request-target="join" data-action="request#submit" name="join" type="button" class="button" value="yes">Join</button>
 
         <div class="reveal text-left " id="modal"
              data-request-target="modal"
+             data-append-to="form#tableForm"
              data-reveal
         >
             <h1>Joining Tickets</h1>
             <div class="grid-x grid-padding-y">
                 <div class="cell modal-body" data-request-target="modalBody">
-                    hi hi
+
                 </div>
             </div>
             <div class="grid-x grid-padding-y">

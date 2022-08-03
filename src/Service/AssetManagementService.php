@@ -1684,7 +1684,16 @@ class AssetManagementService
         //here we calculate the ammount of quarters to calculate the relative percentages
         $sumquarters = 0;
         for ($month = 1 ; $month <= (int)$report['reportMonth']; $month++){
-            $quartersInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $report['reportYear']) * 96;
+
+            $begin = $report['reportYear']."-".$month."-"."01 00:00:00";
+            $lastDayOfMonth = date("t", strtotime($begin));
+            $end = $report['reportYear']."-".$month."-".$lastDayOfMonth." 23:55:00";
+            $sqlw = "SELECT count(db_id) as quarters
+                    FROM  " . $anlage->getDbNameWeather() . "  
+                    WHERE stamp BETWEEN '$begin' AND '$end' ";
+
+            $resw = $this->conn->query($sqlw);
+            $quartersInMonth = $resw->fetch(PDO::FETCH_ASSOC)['quarters'] * $anlage->getAnzInverter();
             $sumquarters = $sumquarters + $quartersInMonth;
         }
 
@@ -1718,6 +1727,15 @@ class AssetManagementService
             'actualEFOR'            => $actualEFORPorcent,
             'actualOMC'             => $actualOMCPorcent,
             'actualGaps'            => $actualGapPorcent
+        ];
+
+        $ticketCountTable = [
+            'SOFTickets'    => (int)$this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear']."-01-01", $endate, 10, $anlage)[0][1],
+            'EFORTickets'   => (int)$this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear']."-01-01", $endate, 20, $anlage)[0][1],
+            'OMCTickets'    => (int)$this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear']."-01-01", $endate, 30, $anlage)[0][1],
+            'SOFQuarters'   => $SOFErrors,
+            'EFORQuarters'  => $EFORErrors,
+            'OMCErrors'     => $OMCErrors,
         ];
         //we can add the values we generate for the table of the errors to generate the pie graphic directly
         $chart->series = [
@@ -1857,7 +1875,17 @@ class AssetManagementService
 
         $totalErrorsMonth = $SOFErrorsMonth + $EFORErrorsMonth + $OMCErrorsMonth;
 
-        $quartersInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $report['reportYear']) * 96;
+        $begin = $report['reportYear']."-".$report['reportMonth']."-"."01 00:00:00";
+        $lastDayOfMonth = date("t", strtotime($begin));
+        $end = $report['reportYear']."-".$report['reportMonth']."-".$lastDayOfMonth." 23:55:00";
+        $sqlw = "SELECT count(db_id) as quarters
+                    FROM  " . $anlage->getDbNameWeather() . "  
+                    WHERE stamp BETWEEN '$begin' AND '$end' 
+                    AND g_lower + g_upper > 0";
+
+        $resw = $this->conn->query($sqlw);
+
+        $quartersInMonth = $resw->fetch(PDO::FETCH_ASSOC)['quarters'] * $anlage->getAnzInverter();
         $actualAvailabilityPorcentMonth = (($quartersInMonth - $totalErrorsMonth) / $quartersInMonth) * (100);
         $actualSOFPorcentMonth = 100 - (($quartersInMonth - $SOFErrorsMonth) / $quartersInMonth) * (100);
         $actualEFORPorcentMonth = 100 - (($quartersInMonth - $EFORErrorsMonth) / $quartersInMonth) * (100);
@@ -1865,7 +1893,7 @@ class AssetManagementService
         $actualGapPorcentMonth = 100 - (($EFORErrorsMonth - $dataGapsMonth) / $EFORErrorsMonth) * (100);
 
         $availabilityMonthTable = [
-            'expectedAvailability'  => (int)$anlage->getContractualAvailability(),
+            'expectedAvailability'  => (float)$anlage->getContractualAvailability(),
             'expectedSOF'           => 0, //this will be a variable in the future
             'expectedEFOR'          => 0, //and this
             'expectedOMC'           => 0, //and this
@@ -1875,6 +1903,14 @@ class AssetManagementService
             'actualEFOR'            => $actualEFORPorcentMonth,
             'actualOMC'             => $actualOMCPorcentMonth,
             'actualGaps'            => $actualGapPorcentMonth
+        ];
+        $ticketCountTableMonth = [
+            'SOFTickets'    => (int)$this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear']."-".$report['reportMonth']."-01", $endate, 10, $anlage)[0][1],
+            'EFORTickets'   => (int)$this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear']."-".$report['reportMonth']."-01", $endate, 20, $anlage)[0][1],
+            'OMCTickets'    => (int)$this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear']."-".$report['reportMonth']."-01", $endate, 30, $anlage)[0][1],
+            'SOFQuarters'   => $SOFErrorsMonth,
+            'EFORQuarters'  => $EFORErrorsMonth,
+            'OMCErrors'     => $OMCErrorsMonth,
         ];
         if ($totalErrors != 0) {
             $failRelativeSOFPorcentMonth = 100 - (($totalErrorsMonth - $SOFErrorsMonth) / $totalErrorsMonth) * (100);
@@ -3223,6 +3259,8 @@ class AssetManagementService
             'losses_compared_chart' => $losses_compared_chart,
             'lossesComparedTableCumulated' => $lossesComparedTableCumulated,
             'cumulated_losses_compared_chart' => $cumulated_losses_compared_chart,
+            'ticketCountTable' => $ticketCountTable,
+            'ticketCountTableMonth' => $ticketCountTableMonth,
         ];
         return $output;
     }

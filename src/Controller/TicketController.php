@@ -72,9 +72,11 @@ class TicketController extends BaseController
 
             return $this->redirect($Route);
         }
-        return $this->render('ticket/create.html.twig',[
+        $page= $request->query->getInt('page', 1);
+        return $this->render('ticket/_inc/_edit.html.twig',[
             'ticketForm'=>$form->createView(),
-            'edited' => false
+            'edited' => false,
+            'page'          => $page,
         ]);
     }
 

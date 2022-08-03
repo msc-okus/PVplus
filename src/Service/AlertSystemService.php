@@ -65,6 +65,15 @@ class AlertSystemService
         }
     }
 
+    public function generateTicketsIntervalWeather(Anlage $anlage, string $from, string $to)
+    {
+        $fromStamp = strtotime($from);
+        $toStamp = strtotime($to);
+        for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
+            $this->checkSystem($anlage, $from = date("Y-m-d H:i:00", $stamp));
+        }
+    }
+
     /**
      * Generate tickets for the given time, check if there is an older ticket for same inverter with same error.
      * Write new ticket to database or extend existing ticket with new end time.
@@ -79,8 +88,9 @@ class AlertSystemService
         $ppc = false;
         //we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
         $time = G4NTrait::timeAjustment($time, -2);
-
+        dump($time);
         $sungap = $this->weather->getSunrise($anlage, $time);
+        dump($sungap);
         if ((($time >= $sungap['sunrise']) && ($time <= $sungap['sunset']))) {
 
             $nameArray = $this->functions->getInverterArray($anlage);
@@ -88,13 +98,14 @@ class AlertSystemService
                 // We do this to avoid checking further inverters if we have a PPC control shut
                 if($ppc === false) {
                     $inverter_status = $this->RetrieveQuarterIst($time, $inverterNo, $anlage); //IstData($anlage, $time, $counter);
+                    dump($inverter_status);
                     if ($inverter_status['istdata'] == "Plant Control by PPC"){
                         $ppc = true;
-                        $message = $this->analyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap['sunrise'], $inverterNo);
+                        $message = $this->analyzeIst($inverter_status, $time, $anlage, $inverterName, $inverterNo);
                         self::messagingFunction($message, $anlage);
                     }
                     else {
-                        $message = $this->analyzeIst($inverter_status, $time, $anlage, $inverterName, $sungap['sunrise'], $inverterNo);
+                        $message = $this->analyzeIst($inverter_status, $time, $anlage, $inverterName, $inverterNo);
                         self::messagingFunction($message, $anlage);
                         $system_status[$inverterName] = $inverter_status;
                         unset($inverter_status);
@@ -108,26 +119,153 @@ class AlertSystemService
         return "success";
     }
 
-    public function checkWeatherStation(): bool
+    public function checkWeatherStation(Anlage $anlage, ?string $time = null)
     {
-        $anlagen = $this->AnlRepo->findAll();
-        $time = $this->getLastQuarter(date('Y-m-d H:i:s') );
-        $time = G4NTrait::timeAjustment($time, -2);
-        $status_report = false;
-        $sungap = $this->weather->getSunrise($anlagen);
+        if ($time === null) {
+            $time = $this->getLastQuarter(date('Y-m-d H:i:s'));
+            $time = G4NTrait::timeAjustment($time, -2);
+        }
+        $sungap = $this->weather->getSunrise($anlage, $time);
 
-        foreach ($anlagen as $anlage) {
+        $weatherStation  = $anlage->getWeatherStation();
+        if ($weatherStation->getType() !== "custom") {
             if (($anlage->getAnlType() != "masterslave") && ($anlage->getCalcPR() == true) && (($time > $sungap['sunrise']) && ($time < $sungap['sunset']))) {
-                $status_report[$anlage->getAnlName()] = $this->WData($anlage, $time);
-                $message = self::AnalyzeWeather($status_report[$anlage->getAnlName()], $time, $anlage, $sungap['sunrise']);
-                self::messagingFunction($message, $anlage);
+                //$status_report = $this->WData($anlage, $time);
+                $status_report = $this->WDataFix($anlage, $time);
+
+                //$message = self::AnalyzeWeather($status_report, $time, $anlage, $sungap['sunrise']);
+                //$message = self::AnalyzeWeatherFix($status_report, $time, $anlage, $sungap['sunrise']);
+                if($status_report === 0) {
+                    self::messagingFunction("No Data received from the weather station in the last four hours.", $anlage);
+                }
+                unset($status_report);
             }
         }
-
-        return $status_report;
     }
 
+    //quick fix to send messages
+    /**
+     * here we analyze the data from the weather station and generate the status
+     * @param Anlage $anlage
+     * @param $time
+     * @return array
+     */
+    private static function WDataFix(Anlage $anlage, $time): int
+    {
+        $conn = self::getPdoConnection();
+        $begin = G4NTrait::timeAjustment($time, -4);
 
+        $sqlw = "SELECT count(db_id)
+                    FROM " . $anlage->getDbNameWeather() . " 
+                    WHERE stamp >= '$begin' AND stamp <= '$time' ";
+
+        $resw = $conn->query($sqlw);
+
+        return $resw->rowCount();
+    }
+
+    //TEST FOR OPTIMIZED VERSION
+//Notes: Maybe we could make 2 separate functions, the one to create old tickets will do only one super big query to the db (depending on which is the max amount of records we can take from the db)
+    public function checkSystem2(Anlage $anlage, ?string $time = null): string
+    {
+        if ($time === null) $time = $this->getLastQuarter(date('Y-m-d H:i:s') );
+        $ppc = false;
+        //we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
+
+        $sungap = $this->weather->getSunrise($anlage, $time);;
+                $plant_status = self::RetrieveQuarterPlant($anlage, $sungap);
+                // We do this to avoid checking further inverters if we have a PPC control shut
+                if($ppc === false) {
+
+                    if ($plant_status['istdata'] == "Plant Control by PPC"){
+                        $ppc = true;
+                        $message = $this->analyzePlant($time, $anlage, $sungap['sunrise']);
+                        self::messagingFunction($message, $anlage);
+                    }
+                    else {
+                        $message = $this->analyzeIst($time, $anlage, $sungap['sunrise']);
+                        self::messagingFunction($message, $anlage);
+                        unset($inverter_status);
+                    }
+
+                }
+            unset($system_status);
+
+        $this->em->flush();
+
+        return "success";
+    }
+
+    private static function RetrieveQuarterPlant(Anlage $anlage, $sungap): array
+    {
+        $conn = self::getPdoConnection();
+        $irrLimit = 30;
+        $sunrise = $sungap['sunrise'];
+        $sunset = $sungap['sunset'];
+        $sqlw = "SELECT b.g_lower as lower, b.g_upper as upper, a.stamp
+                    FROM (db_dummysoll a left JOIN " . $anlage->getDbNameWeather() . " b on a.stamp = b.stamp)
+                    WHERE a.stamp >= '$sunrise' AND  a.stamp < '$sunset' 
+                    GROUP BY a.stamp";
+        $respirr = $conn->query($sqlw);
+
+        $sqlExp = "SELECT b.dc_exp_power as exp, b.wr as wr, a.stamp as stamp  
+                    FROM (db_dummysoll a left JOIN ". $anlage->getDbNameDcSoll() . " b on a.stamp = b.stamp) 
+                    WHERE a.stamp >= '$sunrise' AND  a.stamp < '$sunset' 
+                    GROUP BY a.stamp, b.wr";
+        $resultExp = $conn->query($sqlExp);
+
+        $sqlAct = "SELECT b.wr_pac as ac_power, b.wr_pdc as dc_power, b.frequency as freq, b.u_ac as voltage, a.stamp, b.unit as unit
+                    FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
+                    WHERE a.stamp >= '$sunrise' AND  a.stamp < '$sunset' 
+                    GROUP BY a.stamp, b.unit";
+        $resp = $conn->query($sqlAct);
+
+
+
+            $result = $resp->fetchAll(PDO::FETCH_ASSOC);
+            $resulte = $resultExp->fetchAll(PDO::FETCH_ASSOC);
+            $resulti = $respirr->fetchAll(PDO::FETCH_ASSOC);
+
+            $stamp = $result[0]['stamp'];
+            $irraditerator = 0;
+            for ($iterator = 0 ; $iterator < count($result); $iterator++){
+                if ($stamp == $result[$iterator]['stamp']) {
+                    if ($anlage->getHasPPC()) {
+                        $sqlPpc = "SELECT * 
+                        FROM " . $anlage->getDbNamePPC() . " 
+                        WHERE stamp = '$stamp' ";
+                        $respPpc = $conn->query($sqlPpc);
+
+                    }
+                    if ($respPpc->rowCount() === 1){
+                        $ppdData = $respPpc->fetch(PDO::FETCH_ASSOC);
+                    }
+
+                    if (!($anlage->getHasPPC() && $respPpc->rowCount() == 1 && $ppdData['p_set_rel'] < 100)) {
+                        $irradiation = (float)$resulti[$irraditerator]['lower'] + (float)$resulti[$irraditerator]['upper'];
+                        $irraditerator++;
+                        $stamp = date('Y-m-d H:i:s', strtotime($stamp) + 900);
+
+                    }
+                }
+                if ($anlage->getHasPPC() && $respPpc->rowCount() == 1 && $ppdData['p_set_rel'] < 100) {
+                    $return[$result[$iterator]['stamp']]['istdata'] = "Plant Control by PPC";
+                }else{
+                    $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['acp'] = $result[$iterator]['ac_power'];
+                    $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['dcp'] = $result[$iterator]['dc_power'];
+                    $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['freq'] = $result[$iterator]['freq'];
+                    $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['voltage'] = $result[$iterator]['vol'];
+                    $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['exp'] = $resulte[$iterator]['exp'];
+                }
+
+            }
+        dd($return);
+    }
+    private function analyzePlant($time, Anlage $anlage, $sunrise): string
+    {
+
+        dd("todo");
+    }
     //----------------Analyzing functions----------------
 
     /**
@@ -210,10 +348,9 @@ class AlertSystemService
      * @param $time
      * @param Anlage $anlage
      * @param $nameArray
-     * @param $sunrise
      * @return string
      */
-    private function analyzeIst($inverter, $time, Anlage $anlage, $nameArray, $sunrise, $inverterNo): string
+    private function analyzeIst($inverter, $time, Anlage $anlage, $nameArray, $inverterNo): string
     {
         $message = "";
         $errorType = "";
@@ -221,17 +358,17 @@ class AlertSystemService
         if ($inverter['istdata'] === "No Data") {
             //data gap
             $message .=  "Data gap at inverter (Power) " . $nameArray . "<br>";
-            $errorType = EFOR;
+            $errorType = "";
             $errorCategorie = DATA_GAP;
         } elseif ($inverter['istdata'] === "Power is 0") {
             //inverter error
             $message .=  "No power at inverter " . $nameArray . "<br>";
-            $errorType = EFOR;
+            $errorType = "";
             $errorCategorie = INVERTER_ERROR;
         } elseif ($inverter['istdata'] === 'Power to low') {
             // check if inverter power make sense, to detect ppc
             $message .=  "Power too low at inverter " . $nameArray . " (could be external plant control)<br>";
-            $errorType = EFOR;
+            $errorType = "";
             $errorCategorie = EXTERNAL_CONTROL;
         } elseif ($inverter['istdata'] === "Plant Control by PPC") {
             // PPC Control
@@ -287,14 +424,7 @@ class AlertSystemService
                 $ticketDate->setAlertType($errorCategorie);
                 $ticket->setErrorType($errorType); // type = errorType (Bsp:  SOR, EFOR, OMC)
                 $ticketDate->setErrorType($errorType);
-                $varWeWillUseToDecideInterval = true;
-                if ($varWeWillUseToDecideInterval){
-                    $timetemp = date('Y-m-d H:i:s', strtotime($time) - 900);
-                }
-                else {
-                    $timetemp = date('Y-m-d H:i:s', strtotime($time));
-                }
-
+                $timetemp = date('Y-m-d H:i:s', strtotime($time));
                 $begin = date_create_from_format('Y-m-d H:i:s', $timetemp);
                 $begin->getTimestamp();
                 $ticket->setBegin(($begin));
@@ -332,55 +462,6 @@ class AlertSystemService
     }
 
     // ---------------Checking Functions-----------------
-    /**
-     * New version with datagap algorithm
-     * @param $anlage
-     * @param $time
-     * @param $inverter
-     * @return array|null
-     */
-    private static function IstData2($anlage, $time, $inverter): ?array
-    {
-        $status_report = null;
-        $difference = 50;// this will be the variable tolerance in the difference between expected and actual
-        $report = self::RetrieveQuarterIst($time, $inverter, $anlage);
-        if ($report['istdata'] == "No Data"){
-            $conn = self::getPdoConnection();
-            $quarter = date('Y-m-d H:i:s', strtotime($time) - 900);
-            $half = date('Y-m-d H:i:s', strtotime($time) - 1800);
-            $sqlaq = "SELECT wr_pac as ist
-                FROM " . $anlage->getDbNameIst() . " 
-                WHERE stamp = '$quarter' AND unit = '$inverter' ";
-
-            $sqleq = "SELECT ac_exp_power as exp
-                FROM " . $anlage->getDbNameAcSoll() . " 
-                WHERE stamp = '$quarter' AND unit = '$inverter' ";
-
-            $sqlah = "SELECT wr_pac as ist
-                FROM " . $anlage->getDbNameIst() . " 
-                WHERE stamp = '$half' AND unit = '$inverter' ";
-
-            $sqleh = "SELECT ac_exp_power as exp
-                FROM " . $anlage->getDbNameAcSoll() . " 
-                WHERE stamp = '$half' AND unit = '$inverter' ";
-
-            $respaq = $conn->query($sqlaq);
-            $respeq = $conn->query($sqleq);
-            $respah = $conn->query($sqlah);
-            $respeh = $conn->query($sqleh);
-            if (($respaq->rowCount() > 0) && ($respeq->rowCount() > 0) && ($respah->rowCount() > 0) && ($respeh->rowCount() > 0)) {
-                $exph = $respeh->fetch(PDO::FETCH_ASSOC);
-                $expq = $respeq->fetch(PDO::FETCH_ASSOC);
-                $acth = $respah->fetch(PDO::FETCH_ASSOC);
-                $actq = $respaq->fetch(PDO::FETCH_ASSOC);
-            }
-        } else {
-            $status_report = $report;
-        }
-        $conn = null;
-
-        return $status_report;
-    }
 
     /**
      * here we analyze the data from the weather station and generate the status
@@ -462,25 +543,34 @@ class AlertSystemService
     {
         $conn = self::getPdoConnection();
         $irrLimit = 30;
+
         $sqlw = "SELECT g_lower, g_upper FROM " . $anlage->getDbNameWeather() . " WHERE stamp = '$stamp' ";
         $respirr = $conn->query($sqlw);
 
         if ($respirr->rowCount() > 0) {
             $pdataw = $respirr->fetch(PDO::FETCH_ASSOC);
             /* TODO: Irradiation depends on config of plant (could east/west with wight of sensors by Pnom or only one sensore) */
-            //WE CAN USE THE GETIRRADIATION FUNCTION FROM THE CHART SERVICE
             $irradiation = (float)$pdataw['g_lower'] + (float)$pdataw['g_upper'];
         } else {
             $irradiation = 0;
         }
-        $sqlExp = "SELECT ac_exp_power  FROM ". $anlage->getDbNameDcSoll() . " WHERE  stamp = '$stamp' AND wr = '$inverter';";
+        $sqlExp = "SELECT b.ac_exp_power, a.stamp
+                    FROM (db_dummysoll a LEFT JOIN ". $anlage->getDbNameDcSoll() . "  b ON a.stamp = b.stamp)  
+                    WHERE a.stamp = '$stamp' 
+                    AND b.wr = '$inverter';";
         $resultExp = $conn->query($sqlExp);
 
-        $sqlAct = "SELECT wr_pac as ac_power, wr_pdc as dc_power, frequency as freq, u_ac as voltage FROM " . $anlage->getDbNameIst() . " WHERE stamp = '$stamp' AND unit = '$inverter' ";
+        $sqlAct = "SELECT b.wr_pac as ac_power, b.wr_pdc as dc_power, b.frequency as freq, b.u_ac as voltage 
+                    FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameIst() . " b ON a.stamp = b.stamp)
+                    WHERE a.stamp = '$stamp' 
+                    AND b.unit = '$inverter' ";
+
         $resp = $conn->query($sqlAct);
 
         if ($anlage->getHasPPC()) {
-            $sqlPpc = "SELECT * FROM " . $anlage->getDbNamePPC() . " WHERE stamp = '$stamp'";
+            $sqlPpc = "SELECT * 
+                        FROM " . $anlage->getDbNamePPC() . " 
+                        WHERE stamp = '$stamp'";
             $respPpc = $conn->query($sqlPpc);
             if ($respPpc->rowCount() == 1){
                 $ppdData = $respPpc->fetch(PDO::FETCH_ASSOC);
@@ -502,7 +592,9 @@ class AlertSystemService
 
                 //check power
                 if ($pdata['ac_power'] !== null) {
+
                     if ($pdata['ac_power'] <= 0 && $irradiation > $irrLimit) {
+
                         $return['istdata'] = "Power is 0";
                     } elseif ($pdata['dc_power'] > 0 && $pdata['dc_power'] <= 1 && $irradiation > $irrLimit && !$anlage->getHasPPC()) {
                         $return['istdata'] = "Power too low";

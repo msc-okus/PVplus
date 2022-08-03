@@ -29,11 +29,12 @@
                                 {{ form_row(ticketForm.errorType) }}
                             </div>
                         </div>
-
-                        {% include 'reporting/_inc/_ticketDatesList.html.twig' %}
-
+                        {% if edited == true %}
+                            {% include 'reporting/_inc/_ticketDatesList.html.twig' %}
+                        {% endif %}
                     </fieldset>
-                    <fieldset class="fieldset">
+                    {% if edited ==true %}
+                        <fieldset class="fieldset">
                         <legend>Actions</legend>
                         <div class="grid-x grid-margin-x grid-padding-x">
                             {% if (ticket.alertType == 10) %}
@@ -49,7 +50,9 @@
                         <legend>Descriptions</legend>
                         <div class="grid-x grid-margin-x grid-padding-x">
                             <div class="cell medium-12 small-12">
-                                <div class="callout warning">{{ ticket.description|raw }}</div>
+                                {% if (edited == true) %}
+                                    <div class="callout warning">{{ ticket.description|raw }}</div>
+                                {% endif %}
                                 {{ form_row(ticketForm.freeText) }}
                                 {{ form_row(ticketForm.answer) }}
                             </div>
@@ -110,6 +113,7 @@
                 </div>
             </div>
         </div>
+        <div style="visibility: hidden">{{ form_rest(ticketForm) }}</div>
         <input type="hidden" name="page" value="{{ page }}">
         {{ form_end(ticketForm) }}
     </div>
