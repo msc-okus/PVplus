@@ -47,31 +47,25 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/create', name: 'app_ticket_create')]
     public function create(EntityManagerInterface $em, Request $request) : Response
     {
+
         $session=$this->container->get('session');
-        $searchstatus = $session->get('search');
-        $editor = $session->get('editor');
-        $anlage = $session->get('anlage');
-        $id = $session->get('id');
-        $prio = $session->get('prio');
-        $Route = $this->generateUrl('app_ticket_list',[], UrlGeneratorInterface::ABS_PATH);
-        $Route = $Route."?anlage=".$anlage."&user=".$editor."&id=".$id."&prio=".$prio."&searchstatus=".$searchstatus."&search=yes";
+
         $form = $this->createForm(TicketFormType::class);
         $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
+        if ($form->isSubmitted() && $form->isValid()) {
             $ticket = $form->getData();
             $ticket->setEditor($this->getUser()->getUsername());
-            $em->persist($ticket);
-            $em->flush();
-            $this->addFlash('success', 'Ticket saved!');
-            if ($form->get('saveclose')->isClicked()) {
-                return $this->redirect($Route);
-            }
-        }
-        if ($form->isSubmitted() && $form->get('close')->isClicked()) {
-            $this->addFlash('warning', 'Canceled. No data was saved.');
+            $ticket->setInverter("*");
+            $date = new TicketDate();
+            $date->copyTicket($ticket);
+            $ticket->addDate($date);
 
-            return $this->redirect($Route);
+            dd($ticket);
+            //$em->persist($ticket);
+            //$em->flush();
+            return new Response(null, 204);
         }
+
         $page= $request->query->getInt('page', 1);
         return $this->render('ticket/_inc/_edit.html.twig',[
             'ticketForm'=>$form->createView(),
@@ -90,6 +84,7 @@ class TicketController extends BaseController
         $page= $request->query->getInt('page', 1);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+
             $request->attributes->set('page', $page);
             $ticket = $form->getData();
             $ticketDates = $ticket->getDates();

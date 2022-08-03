@@ -1,4 +1,17 @@
 <div class="grid-x" data-action="ticket-split:async:submitted->ticket-edit#reload">
+    <div class="cell small-12 is-hidden"
+         style="background-color: red"
+         data-ticket-list-target="AlertFormat"
+    >
+        Error with the format of the date, it is
+        quarter based.
+    </div>
+    <div class="cell small-12 is-hidden"
+         style="background-color: red"
+         data-ticket-list-target="AlertDates"
+    >
+        Error, end date ca not be before beginning
+    </div>
     <div class="cell">
         {{ form_start(ticketForm) }}
         <div id="ticket-edit" class="grid-x">
@@ -10,6 +23,12 @@
                             <div class="cell small-12 medium-3 large-2">
                                 {{ form_row(ticketForm.anlage) }}
                             </div>
+                            {% if (edited == false) %}
+                                <div class="cell small-12 medium-3 large-2">
+                                    <label>inverter</label>
+                                    <input disabled type="text" value="*" >
+                                </div>
+                            {% endif %}
                             <div class="cell small-6 medium-3 large-2">
                                 {{ form_row(ticketForm.begin) }}
                             </div>
