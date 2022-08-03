@@ -34,7 +34,8 @@ class ReportsRepository extends ServiceEntityRepository
      * @param String $year
      * @return QueryBuilder
      */
-    public function findOneByAMY(Anlage $Anl, String $month,String $year){
+    public function findOneByAMY(Anlage $Anl, String $month,String $year)
+    {
         return $this->createQueryBuilder('a')
             ->andWhere("a.anlage = :anl")
             ->andWhere("a.reportType = 'am-report'")

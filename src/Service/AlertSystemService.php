@@ -88,23 +88,19 @@ class AlertSystemService
         $ppc = false;
         //we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
         $time = G4NTrait::timeAjustment($time, -2);
-        dump($time);
         $sungap = $this->weather->getSunrise($anlage, $time);
-        dump($sungap);
         if ((($time >= $sungap['sunrise']) && ($time <= $sungap['sunset']))) {
 
             $nameArray = $this->functions->getInverterArray($anlage);
             foreach ($nameArray as $inverterNo => $inverterName) {
                 // We do this to avoid checking further inverters if we have a PPC control shut
-                if($ppc === false) {
+                if ($ppc === false) {
                     $inverter_status = $this->RetrieveQuarterIst($time, $inverterNo, $anlage); //IstData($anlage, $time, $counter);
-                    dump($inverter_status);
                     if ($inverter_status['istdata'] == "Plant Control by PPC"){
                         $ppc = true;
                         $message = $this->analyzeIst($inverter_status, $time, $anlage, $inverterName, $inverterNo);
                         self::messagingFunction($message, $anlage);
-                    }
-                    else {
+                    } else {
                         $message = $this->analyzeIst($inverter_status, $time, $anlage, $inverterName, $inverterNo);
                         self::messagingFunction($message, $anlage);
                         $system_status[$inverterName] = $inverter_status;
@@ -135,7 +131,7 @@ class AlertSystemService
 
                 //$message = self::AnalyzeWeather($status_report, $time, $anlage, $sungap['sunrise']);
                 //$message = self::AnalyzeWeatherFix($status_report, $time, $anlage, $sungap['sunrise']);
-                if($status_report === 0) {
+                if ($status_report === 0) {
                     self::messagingFunction("No Data received from the weather station in the last four hours.", $anlage);
                 }
                 unset($status_report);
@@ -175,14 +171,12 @@ class AlertSystemService
         $sungap = $this->weather->getSunrise($anlage, $time);;
                 $plant_status = self::RetrieveQuarterPlant($anlage, $sungap);
                 // We do this to avoid checking further inverters if we have a PPC control shut
-                if($ppc === false) {
-
+                if ($ppc === false) {
                     if ($plant_status['istdata'] == "Plant Control by PPC"){
                         $ppc = true;
                         $message = $this->analyzePlant($time, $anlage, $sungap['sunrise']);
                         self::messagingFunction($message, $anlage);
-                    }
-                    else {
+                    } else {
                         $message = $this->analyzeIst($time, $anlage, $sungap['sunrise']);
                         self::messagingFunction($message, $anlage);
                         unset($inverter_status);
@@ -250,7 +244,7 @@ class AlertSystemService
                 }
                 if ($anlage->getHasPPC() && $respPpc->rowCount() == 1 && $ppdData['p_set_rel'] < 100) {
                     $return[$result[$iterator]['stamp']]['istdata'] = "Plant Control by PPC";
-                }else{
+                } else {
                     $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['acp'] = $result[$iterator]['ac_power'];
                     $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['dcp'] = $result[$iterator]['dc_power'];
                     $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['freq'] = $result[$iterator]['freq'];
@@ -261,11 +255,13 @@ class AlertSystemService
             }
         dd($return);
     }
+
     private function analyzePlant($time, Anlage $anlage, $sunrise): string
     {
-
         dd("todo");
     }
+
+
     //----------------Analyzing functions----------------
 
     /**

@@ -422,11 +422,11 @@ class ChartService
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'Irradiation [w/m²]';
+                        $resultArray['headline'] = 'Irradiation w/m²';
                         $resultArray['series1']['name'] = "Irr G4N";
                         $resultArray['series1']['tooltipText'] = "G4N";
                         $resultArray['seriesx']['name'] = "Irradiation ";
-                        $resultArray['seriesx']['tooltipText'] = "Irradiation [w/m²]";
+                        $resultArray['seriesx']['tooltipText'] = "Irradiation w/m²";
                         $resultArray["nameX"] = json_encode($dataArray["nameX"]);
                     }
                     break;
@@ -434,11 +434,13 @@ class ChartService
                     $dataArray = $this->getAirAndPanelTemp($anlage, $from, $to, $hour);
                     if ($dataArray != false) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
-                        $resultArray['headline'] = 'Air and Panel Temperature [°C]';
-                        $resultArray['series1']['name'] = "Air temperature";
-                        $resultArray['series1']['tooltipText'] = "Air temperature [°C]";
-                        $resultArray['series2']['name'] = "Panel temperature";
-                        $resultArray['series2']['tooltipText'] = "Panel temperature [°C]";
+                        $resultArray['headline'] = 'Air and Panel Temperature °C';
+                        $resultArray['series1']['name'] = "Air temperature °C";
+                        $resultArray['series1']['tooltipText'] = "Air temperature °C";
+                        $resultArray['series2']['name'] = "Panel temperature °C";
+                        $resultArray['series2']['tooltipText'] = "Panel temperature °C";
+                        $resultArray['series3']['name'] = "Panel temperature corrected °C";
+                        $resultArray['series3']['tooltipText'] = "Panel temperature corrected °C";
                     }
                     break;
                 case ("pr_and_av"):
@@ -575,22 +577,24 @@ class ChartService
         if ($hour) $sql2 = "SELECT a.stamp, sum(b.at_avg) as at_avg, sum(b.pt_avg) as pt_avg FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
         else $sql2 = "SELECT a.stamp, b.at_avg as at_avg, b.pt_avg as pt_avg FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
         */
-        if ($hour) $sql2 = "SELECT a.stamp, avg(b.temp_ambient) as tempAmbient, avg(b.temp_pannel) as tempPannel, avg(b.wind_speed) as windSpeed FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
-        else $sql2 = "SELECT a.stamp, sum(b.temp_ambient) as tempAmbient, sum(b.temp_pannel) as tempPannel, sum(b.wind_speed) as windSpeed FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
+        if ($hour) $sql2 = "SELECT a.stamp, avg(b.temp_ambient) as tempAmbient, avg(b.temp_pannel) as tempPannel, avg(b.temp_cell_corr) as tempCellCorr, avg(b.wind_speed) as windSpeed FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
+        else $sql2 = "SELECT a.stamp, sum(b.temp_ambient) as tempAmbient, sum(b.temp_pannel) as tempPannel, b.temp_cell_corr as tempCellCorr, sum(b.wind_speed) as windSpeed FROM (db_dummysoll a LEFT JOIN " . $anlage->getDbNameWeather() . " b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
 
         $res = $conn->query($sql2);
         while ($ro = $res->fetch(PDO::FETCH_ASSOC)) {
             $tempAmbient = $ro["tempAmbient"];
             $tempPannel = $ro["tempPannel"];
+            $tempCellCorr = $ro["tempCellCorr"];
             $windSpeed = $ro["windSpeed"];
             $stamp = $ro["stamp"];  #utc_date($stamp,$anintzzws);
 
             //Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
             $dataArray['chart'][$counter]["date"] = self::timeShift($anlage, $stamp);
             if (!($tempAmbient + $tempPannel == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
-                $dataArray['chart'][$counter]["val1"] = $tempAmbient; // upper pannel
-                $dataArray['chart'][$counter]["val2"] = $tempPannel; // lower pannel
-                $dataArray['chart'][$counter]["windSpeed"] = $windSpeed; // Wind Speed
+                $dataArray['chart'][$counter]["tempAmbient"]           = $tempAmbient; // Temp. ambient
+                $dataArray['chart'][$counter]["tempCellMeasuerd"]           = $tempPannel; // Temp. cell measuerd
+                $dataArray['chart'][$counter]["tempCellCorr"]   = $tempCellCorr; // Temp cell corrected
+                $dataArray['chart'][$counter]["windSpeed"]      = $windSpeed; // Wind Speed
             }
 
             $counter++;

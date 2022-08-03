@@ -44,7 +44,9 @@ class ReportingController extends AbstractController
     }
 
     #[Route(path: '/reporting/create', name: 'app_reporting_create', methods: ['GET', 'POST'])]
-    public function createReport(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo, ReportService $report, ReportEpcService $reportEpc, ReportsMonthlyService $reportsMonthly) : Response
+    public function createReport(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo,
+                                 ReportService $report, ReportEpcService $reportEpc, ReportsMonthlyService $reportsMonthly, EntityManagerInterface $em,
+                                 AssetManagementService $assetManagement, ReportsRepository $reportRepo) : Response
     {
         $anlage          = $request->query->get('anlage');
         $searchstatus    = $request->query->get('searchstatus');
@@ -67,7 +69,49 @@ class ReportingController extends AbstractController
                 $output = $reportEpc->createEpcReport($aktAnlagen[0], $reportDate);
                 break;
             case 'am':
-                return $this->redirectToRoute('report_asset_management', ['id' => $anlageId, 'month' => $reportMonth, 'year' => $reportYear, 'export' => 1, 'pages' => 0]);
+                #return $this->redirectToRoute('report_asset_management', ['id' => $anlageId, 'month' => $reportMonth, 'year' => $reportYear, 'export' => 1, 'pages' => 0]);
+                #$output = $this->assetReport($anlageId, $reportMonth, $reportYear, 0);
+
+                // we try to find and delete a previous report from this month/year
+                $report = $reportRepo->findOneByAMY($aktAnlagen[0], $reportMonth, $reportYear)[0];
+                $comment ="";
+                if ($report) {
+                    $comment = $report->getComments();
+                    $em->remove($report);
+                    $em->flush();
+                }
+                $report = new AnlagenReports();
+                //then we generate our own report and try to persist it
+                $output = $assetManagement->assetReport($aktAnlagen[0], $reportMonth, $reportYear, 0);
+                $data = [
+                    'Production' => true,
+                    'ProdCap' => true,
+                    'CumulatForecastPVSYS' => true,
+                    'CumulatForecastG4N' => true,
+                    'CumulatLosses' => true,
+                    'MonthlyProd' => true,
+                    'DailyProd' => true,
+                    'Availability' => true,
+                    'AvYearlyOverview' => true,
+                    'AvMonthlyOverview' => true,
+                    'AvInv' => true,
+                    'StringCurr' => true,
+                    'InvPow' => true,
+                    'Economics' => true];
+                $output["data"] = $data;
+                $report = new AnlagenReports();
+                $report->setAnlage($aktAnlagen[0])
+                    ->setEigner($aktAnlagen[0]->getEigner())
+                    ->setMonth($reportMonth)
+                    ->setYear($reportYear)
+                    ->setStartDate(date_create_from_format('d.m.y', date('d.m.y', strtotime("01." . $reportMonth . "." . $reportYear))))
+                    ->setEndDate(date_create_from_format('d.m.y', date('d.m.y', strtotime("30." . $reportMonth . "." . $reportYear))))
+                    ->setReportType("am-report")
+                    ->setContentArray($output)
+                    ->setRawReport("")
+                    ->setComments($comment);
+                $em->persist($report);
+                $em->flush();
                 break;
         }
         $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($anlage, $searchstatus, $searchtype, $searchmonth, $searchyear);
@@ -129,7 +173,6 @@ class ReportingController extends AbstractController
             'anlage'     => $anlage,
         ]);
     }
-
 
     #[Route(path: '/reporting/edit/{id}/{page}', name: 'app_reporting_edit', defaults: ['page' => 1])]
     public function edit($id, $page, ReportsRepository $reportsRepository, Request $request, Security $security, EntityManagerInterface $em) : Response
@@ -626,7 +669,8 @@ class ReportingController extends AbstractController
     }
 
     #[Route(path: '/asset/report/{id}/{month}/{year}/{export}/{pages}', name: 'report_asset_management', defaults: ['export' => 0, 'pages' => 0])]
-    public function assetReport($id, $month, $year, $pages, AssetManagementService $assetManagement, AnlagenRepository $anlagenRepository, EntityManagerInterface $em, ReportsRepository $reportRepo) : RedirectResponse
+    #[Deprecated]
+    private function assetReport($id, $month, $year, $pages, AssetManagementService $assetManagement, AnlagenRepository $anlagenRepository, EntityManagerInterface $em, ReportsRepository $reportRepo): RedirectResponse
     {
         $session=$this->container->get('session');
         $searchstatus   = $session->get('search');
@@ -643,7 +687,6 @@ class ReportingController extends AbstractController
             $comment = $report->getComments();
             $em->remove($report);
             $em->flush();
-
         }
         $report = new AnlagenReports();
         //then we generate our own report and try to persist it
@@ -678,87 +721,8 @@ class ReportingController extends AbstractController
             ->setComments($comment);
         $em->persist($report);
         $em->flush();
+
         return $this->redirect($route);
-    }
-
-    #[Route(path: '/reporting_old', name: 'app_reporting_list_old')]
-    #[Deprecated]
-    public function listold(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo, ReportService $report, ReportEpcService $reportEpc, ReportsMonthlyService $reportsMonthly) : Response
-    {
-        dd('Deperecated - do not use');
-        $session = $this->container->get('session');
-        $anlage = $searchstatus = $searchtype = $searchmonth = null;
-        $searchyear = date('Y');
-        if ($request->query->get('searchstatus') != null && $request->query->get('searchstatus')  != "") $searchstatus    = $request->query->get('searchstatus');
-        if ($request->query->get('searchtype')   != null && $request->query->get('searchtype')    != "") $searchtype      = $request->query->get('searchtype');
-        if ($request->query->get('searchmonth')  != null && $request->query->get('searchmonth')   != "") $searchmonth     = $request->query->get('searchmonth');
-        if ($request->query->get('searchyear')   != null && $request->query->get('searchyear')    != "") $searchyear      = $request->query->get('searchyear'); else $searchyear = null;
-        if ($request->query->get('anlage')       != null && $request->query->get('anlage')        != "") $anlage          = $request->query->get('anlage');
-        if ($request->query->get('new-report') === 'yes' ) {
-            $searchstatus   = $session->get('search');
-            $searchtype     = $session->get('type');
-            $searchmonth    = $session->get('month');
-            $searchyear     = $session->get('search_year');
-            $anlage         = $session->get('anlage');
-            $new            = $request->query->get('new-report');
-            $reportType     = $request->query->get('report-typ');
-            $reportMonth    = $request->query->get('month');
-            $reportYear     = $request->query->get('year');
-            $daysOfMonth    = date('t',strtotime("$reportYear-$reportMonth-01"));
-            $reportDate     = new \DateTime("$reportYear-$reportMonth-$daysOfMonth");
-            $anlageId       = $request->query->get('anlage-id');
-            $aktAnlagen     = $anlagenRepo->findIdLike([$anlageId]);
-            // create Reports
-            switch ($reportType){
-                case 'monthly':
-                    #$output = $report->monthlyReport($aktAnlagen, $reportMonth, $reportYear, 0, 0, true, false, false);
-                    $output = $reportsMonthly->createMonthlyReport($aktAnlagen[0], $reportMonth, $reportYear);
-                    break;
-                case 'epc':
-                    $output = $reportEpc->createEpcReport($aktAnlagen[0], $reportDate);
-                    break;
-                case 'am':
-                    return $this->redirectToRoute('report_asset_management', ['id' => $anlageId, 'month' => $reportMonth, 'year' => $reportYear, 'export' => 1, 'pages' => 0]);
-                    //$output = $assetManagement->assetReport($aktAnlagen[0], $reportMonth, $reportYear, 1);
-                    break;
-
-            }
-            $request->query->set('new-report', 'no');
-            $request->query->set('report-typ', $reportType);
-            $request->query->set('month', $reportMonth);
-            $request->query->set('year', $reportYear);
-            $request->query->set('anlage-id', $anlageId);
-
-            $route = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
-            $route = $route."?anlage=".$anlage."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&searchyear=".$searchyear."&search=yes";
-
-            return $this->redirect($route);
-        }
-        $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($anlage,$searchstatus,$searchtype,$searchmonth,$searchyear);
-        $pagination = $paginator->paginate(
-            $queryBuilder,
-            $request->query->getInt('page', 1),
-            20
-        );
-        $session->set('search', $searchstatus);
-        $session->set('type', $searchtype);
-        $session->set('anlage', $anlage);
-        $session->set('month', $searchmonth);
-        $session->set('search_year', $searchyear);
-        $anlagen = $anlagenRepo->findAllActiveAndAllowed();
-
-        $template = $request->isXmlHttpRequest() ? '_inc/_list.html.twig' : 'list.html.twig';
-
-        return $this->render('reporting/'.$template, [
-            'pagination' => $pagination,
-            'anlagen'    => $anlagen,
-            'stati'      => self::reportStati(),
-            'searchyear' => $searchyear,
-            'month'      => $searchmonth,
-            'type'       => $searchtype,
-            'status'     => $searchstatus,
-            'anlage'     => $anlage,
-        ]);
     }
 
 
