@@ -29,9 +29,8 @@ class MessageService
 
     public function sendMessage(Anlage $anlage, $eventType, $alertType, $subject, $message, $attachedFiles = false, $g4nAlert = true, $g4nAdmin = false, $upAlert = false)
     {
-        $alertEmailG4n = new Address('jm@green4net.com', 'PV+ Alert Email');
+        $alertEmailG4n = new Address('os@green4net.com', 'PV+ Alert Email');
         $adminEmailG4n = new Address('mr@green4net.com', 'PV+ Admin Email');
-        $alertEmailKast = new Address('t.recke@upgmbh.com', 'Tobias Recke');
         $to = '';
 
         $email = new TemplatedEmail();
