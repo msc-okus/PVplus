@@ -72,12 +72,7 @@
                     </tr>
                     </tbody>
                 </table>
-                <div style="text-align: left">
-                    <sup><b>a</b></sup> Maintenance, SOR<br>
-                    <sup><b>b</b></sup> Defects, EFOR<br>
-                    <sup><b>c</b></sup><b> From this EFOR errors a {{ Availability_Year_To_Date_Table['actualGaps'] |number_format(2, ',', '.') }}% are Data Gaps</b><br>
-                    <sup><b>d</b></sup> The system is not responsible, OMC
-                </div>
+
             </td>
             <td style="width:25%">
 
@@ -85,6 +80,40 @@
             </td>
             <td style="width:25%">
                 {{ failures_Year_To_Date|raw }}
+            </td>
+        </tr>
+        <tr >
+            <td style="width: 50%">
+                <table style="margin-top: 30px; width: 90%">
+                    <thead>
+                        <th> Type of Ticket</th>
+                        <th> Number of Tickets</th>
+                        <th> Number of quarters</th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="tr_next_columns">Planned Outage <sup><b> a</b></sup></td>
+                            <td class="tr_next_columns"> {{ ticketCountTable.SOFTickets }} </td>
+                            <td class="tr_next_columns"> {{ ticketCountTable.SOFQuarters }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns">Unplanned Outage <sup><b> b</b></sup> <sup><b>c</b></sup></td>
+                            <td class="tr_next_columns"> {{ ticketCountTable.EFORTickets }} </td>
+                            <td class="tr_next_columns"> {{ ticketCountTable.EFORQuarters }}</td>
+                        </tr>
+                        <tr>
+                            <td class="tr_next_columns">Grid Error/Grid Off <sup><b> d</b></sup></td>
+                            <td class="tr_next_columns"> {{ ticketCountTable.SOFTickets }} </td>
+                            <td class="tr_next_columns"> {{ ticketCountTable.SOFQuarters }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div style="text-align: left">
+                    <sup><b>a</b></sup> Maintenance, SOR<br>
+                    <sup><b>b</b></sup> Defects, EFOR<br>
+                    <sup><b>c</b></sup><b> From this EFOR errors a {{ Availability_Year_To_Date_Table['actualGaps'] |number_format(2, ',', '.') }}% are Data Gaps</b><br>
+                    <sup><b>d</b></sup> The system is not responsible, OMC
+                </div>
             </td>
         </tr>
     </table>

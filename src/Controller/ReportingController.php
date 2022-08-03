@@ -394,7 +394,9 @@ class ReportingController extends AbstractController
                             'lossesComparedTableCumulated' => $output['lossesComparedTableCumulated'],
                             'cumulated_losses_compared_chart' => $output['cumulated_losses_compared_chart'],
                             'availabilityMonthTable' => $output['availabilityMonthTable'],
-                            'fails_month' => $output['fails_month']
+                            'fails_month' => $output['fails_month'],
+                            'ticketCountTable' => $output['ticketCountTable'],
+                            'ticketCountTableMonth' => $output['ticketCountTableMonth'],
                         ]);
                         $pdf = new ChromePdf('/usr/bin/chromium');
                         $pos = $this->substr_Index($this->kernelProjectDir, '/', 5);
@@ -631,7 +633,9 @@ class ReportingController extends AbstractController
                             'lossesComparedTableCumulated' => $output['lossesComparedTableCumulated'],
                             'cumulated_losses_compared_chart' => $output['cumulated_losses_compared_chart'],
                             'availabilityMonthTable' => $output['availabilityMonthTable'],
-                            'fails_month' => $output['fails_month']
+                            'fails_month' => $output['fails_month'],
+                            'ticketCountTable' => $output['ticketCountTable'],
+                            'ticketCountTableMonth' => $output['ticketCountTableMonth'],
                         ]);
                         break;
                     }

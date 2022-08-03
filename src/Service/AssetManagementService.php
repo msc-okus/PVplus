@@ -1728,6 +1728,15 @@ class AssetManagementService
             'actualOMC'             => $actualOMCPorcent,
             'actualGaps'            => $actualGapPorcent
         ];
+
+        $ticketCountTable = [
+            'SOFTickets'    => (int)$this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear']."-01-01", $endate, 10, $anlage)[0][1],
+            'EFORTickets'   => (int)$this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear']."-01-01", $endate, 20, $anlage)[0][1],
+            'OMCTickets'    => (int)$this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear']."-01-01", $endate, 30, $anlage)[0][1],
+            'SOFQuarters'   => $SOFErrors,
+            'EFORQuarters'  => $EFORErrors,
+            'OMCErrors'     => $OMCErrors,
+        ];
         //we can add the values we generate for the table of the errors to generate the pie graphic directly
         $chart->series = [
             [
@@ -1894,6 +1903,14 @@ class AssetManagementService
             'actualEFOR'            => $actualEFORPorcentMonth,
             'actualOMC'             => $actualOMCPorcentMonth,
             'actualGaps'            => $actualGapPorcentMonth
+        ];
+        $ticketCountTableMonth = [
+            'SOFTickets'    => (int)$this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear']."-".$report['reportMonth']."-01", $endate, 10, $anlage)[0][1],
+            'EFORTickets'   => (int)$this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear']."-".$report['reportMonth']."-01", $endate, 20, $anlage)[0][1],
+            'OMCTickets'    => (int)$this->ticketDateRepo->countTicketsByIntervalErrorPlant($report['reportYear']."-".$report['reportMonth']."-01", $endate, 30, $anlage)[0][1],
+            'SOFQuarters'   => $SOFErrorsMonth,
+            'EFORQuarters'  => $EFORErrorsMonth,
+            'OMCErrors'     => $OMCErrorsMonth,
         ];
         if ($totalErrors != 0) {
             $failRelativeSOFPorcentMonth = 100 - (($totalErrorsMonth - $SOFErrorsMonth) / $totalErrorsMonth) * (100);
@@ -3242,6 +3259,8 @@ class AssetManagementService
             'losses_compared_chart' => $losses_compared_chart,
             'lossesComparedTableCumulated' => $lossesComparedTableCumulated,
             'cumulated_losses_compared_chart' => $cumulated_losses_compared_chart,
+            'ticketCountTable' => $ticketCountTable,
+            'ticketCountTableMonth' => $ticketCountTableMonth,
         ];
         return $output;
     }

@@ -100,6 +100,21 @@ class TicketDateRepository extends ServiceEntityRepository
             ->getResult()
             ;
     }
+    public function countTicketsByIntervalErrorPlant($begin, $end, $error, $anlage){
+        return $this->createQueryBuilder('t')
+            ->addSelect('count(t.id)')
+            ->andWhere('t.begin >= :begin')
+            ->andWhere('t.begin <= :end')
+            ->andWhere('t.Anlage = :anlage')
+            ->andWhere('t.errorType = :error')
+            ->setParameter('begin', $begin)
+            ->setParameter('end', $end)
+            ->setParameter('error', $error)
+            ->setParameter('anlage', $anlage)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
     public function countByIntervalNullPlant($begin, $end, $anlage){
         return $this->createQueryBuilder('t')
             ->addSelect('sum(t.Intervals)')
