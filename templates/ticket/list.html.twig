@@ -15,6 +15,7 @@
                 urlCreate: path('app_ticket_create'),
                 urlSearch: path('app_ticket_list', { ajax: 1 }),
             }) }}
+            id="list"
             data-ticket-list-target="ticketForm"
             class="ticket"
     >
@@ -26,9 +27,30 @@
             {% include 'ticket/_inc/_listTickets.html.twig' %}
         </div>
         <div class="cell medium-2">
-            <button name="new-report" class="button" value="yes"
-                data-action="ticket-list#createTicket">New Ticket
+            <button name="new-ticket" class="button" value="yes"
+                    data-action="ticket-list#createTicket"
+                    data-ticket-list-url-param="{{ path('app_ticket_create') }}">
+                New Ticket
             </button>
+        </div>
+        <div class="reveal text-left " id="modalCreate"
+             data-ticket-list-target="modalCreate"
+             data-append-to="div#list"
+             data-reveal
+        >
+            <h1>Create Ticket</h1>
+            <div class="grid-x grid-padding-y">
+                <div class="cell modal-body" data-ticket-list-target="modalCreateBody">
+                    LOADING...
+                </div>
+            </div>
+            <div class="grid-x grid-padding-y">
+                <div class="cell text-right">
+                    <button type="button" class="button secondary small" data-close>Cancel</button>
+                    <button type="button" class="button small" data-action="ticket-list#saveTicket"
+                            data-ticket-list-url-param="{{ path('app_ticket_create') }}">Save</button>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

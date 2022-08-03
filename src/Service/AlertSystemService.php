@@ -145,22 +145,6 @@ class AlertSystemService
 
     //quick fix to send messages
     /**
-     * We use this to make an error message of the status array from the weather station and to generate/update Tickets
-     * @param $status_report
-     * @param $time
-     * @param $anlage
-     * @param $sunrise
-     * @return string
-     */
-    private function AnalyzeWeatherFix($status_report, $time, $anlage, $sunrise): string
-    {
-        $message = "";
-
-
-        return $message;
-    }
-
-    /**
      * here we analyze the data from the weather station and generate the status
      * @param Anlage $anlage
      * @param $time
@@ -171,7 +155,7 @@ class AlertSystemService
         $conn = self::getPdoConnection();
         $begin = G4NTrait::timeAjustment($time, -4);
 
-        $sqlw = "SELECT *
+        $sqlw = "SELECT count(db_id)
                     FROM " . $anlage->getDbNameWeather() . " 
                     WHERE stamp >= '$begin' AND stamp <= '$time' ";
 
@@ -455,7 +439,6 @@ class AlertSystemService
             $end->getTimestamp();
             $ticketDate->setEnd($end);
             $ticket->setEnd($end);
-            dd($ticket);
             $this->em->persist($ticket);
             $this->em->persist($ticketDate);
             $this->em->flush();
