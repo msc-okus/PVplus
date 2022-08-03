@@ -35,32 +35,32 @@
                     </fieldset>
                     {% if edited ==true %}
                         <fieldset class="fieldset">
-                        <legend>Actions</legend>
-                        <div class="grid-x grid-margin-x grid-padding-x">
-                            {% if (ticket.alertType == 10) %}
-                                <div class="cell small-12 medium-4 large-2">
-                                    {{ form_widget(ticketForm.dataGapEvaluation) }}
-                                </div>
-                            {% else %}
-                                {% do ticketForm.dataGapEvaluation.setRendered() %}
-                            {% endif %}
-                        </div>
-                    </fieldset>
-                    <fieldset class="fieldset">
-                        <legend>Descriptions</legend>
-                        <div class="grid-x grid-margin-x grid-padding-x">
-                            <div class="cell medium-12 small-12">
-                                {% if (edited == true) %}
-                                    <div class="callout warning">{{ ticket.description|raw }}</div>
+                            <legend>Actions</legend>
+                            <div class="grid-x grid-margin-x grid-padding-x">
+                                {% if (ticket.alertType == 10) %}
+                                    <div class="cell small-12 medium-4 large-2">
+                                        {{ form_widget(ticketForm.dataGapEvaluation) }}
+                                    </div>
+                                {% else %}
+                                    {% do ticketForm.dataGapEvaluation.setRendered() %}
                                 {% endif %}
-                                {{ form_row(ticketForm.freeText) }}
-                                {{ form_row(ticketForm.answer) }}
                             </div>
+                        </fieldset>
+                        <fieldset class="fieldset">
+                            <legend>Descriptions</legend>
+                            <div class="grid-x grid-margin-x grid-padding-x">
+                                <div class="cell medium-12 small-12">
+                                    {% if (edited == true) %}
+                                        <div class="callout warning">{{ ticket.description|raw }}</div>
+                                    {% endif %}
+                                    {{ form_row(ticketForm.freeText) }}
+                                    {{ form_row(ticketForm.answer) }}
+                                </div>
 
-                        </div>
-                    </fieldset>
+                            </div>
+                        </fieldset>
 
-                    <div data-controller="hide">
+                        <div data-controller="hide">
                         <div class="switch tiny cell medium-3 small-6">
                             <label>Show effects on ...</label>
                             <input class="switch-input" id="exampleSwitch" type="checkbox" name="exampleSwitch"
@@ -109,7 +109,7 @@
                             </div>
                         </fieldset>
                     </div>
-
+                    {% endif %}
                 </div>
             </div>
         </div>
