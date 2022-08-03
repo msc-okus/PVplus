@@ -3,7 +3,7 @@ import $ from 'jquery';
 import {Reveal} from "foundation-sites";
 
 export default class extends Controller {
-    static targets = ['list', 'searchBar', 'modalCreate', 'modalCreateBody'];
+    static targets = ['list', 'searchBar', 'modalCreate', 'modalCreateBody', 'AlertFormat','AlertDates', 'saveButton', 'formBegin', 'formEnd'];
     static values = {
         urlCreate: String,
         urlSearch: String,
@@ -49,9 +49,7 @@ export default class extends Controller {
 
     async saveTicket({params: {url}}) {
         event.preventDefault();
-        const  $form = $(this.modalCreateBodyTarget).find('form');
-        console.log($form);
-
+        const  $form = $(this.formBeginTarget).find('form');
         try {
             await $.ajax({
                 url: url,
@@ -60,10 +58,41 @@ export default class extends Controller {
             });
             this.modal.destroy();
         } catch(e) {
-            this.modalBodyTarget.innerHTML = e.responseText;
+            this.modalCreateBodyTarget.innerHTML = e.responseText;
+        }
+    }
+    check() {
+        console.log( $(this.saveButtonTarget),  $(this.splitAlertFormatTarget)
+        );
+        const valueBegin = $(this.formBeginTarget).prop('value');
+        const valueEnd = $(this.formEndTarget).prop('value');
+        console.log(valueBegin, valueEnd)
+
+        const date1 = new Date(valueBegin);
+        const date2 = new Date(valueEnd);
+        date1.setSeconds(0);
+        date2.setSeconds(0);
+        const timestamp = date1.getTime();
+        const timestamp2 = date2.getTime();
+
+
+        if (timestamp2 >= timestamp){
+            $(this.AlertDatesTarget).addClass('is-hidden');
+            $(this.saveButtonTarget).removeAttr('disabled');
+        }
+        else {
+            $(this.AlertDatesTarget).removeClass('is-hidden');
+            $(this.saveButtonTarget).attr('disabled', 'disabled')
         }
 
-
+        if ((timestamp % 900 === 0) && (timestamp2 % 900 === 0)){
+            $(this.AlertFormatTarget).addClass('is-hidden');
+            $(this.saveButtonTarget).removeAttr('disabled');
+        } else {
+            $(this.AlertFormatTarget).removeClass('is-hidden');
+            $(this.saveButtonTarget).attr('disabled', 'disabled')
+        }
+        console.log($(this.AlertFormatTarget), $(this.AlertDatesTarget), $(this.saveButtonTarget))
 
 
     }

@@ -33,8 +33,9 @@
                 New Ticket
             </button>
         </div>
-        <div class="reveal text-left " id="modalCreate"
+        <div class="reveal text-left large" id="modalCreate"
              data-ticket-list-target="modalCreate"
+             data-v-offset = "10"
              data-append-to="div#list"
              data-reveal
         >
@@ -48,7 +49,8 @@
                 <div class="cell text-right">
                     <button type="button" class="button secondary small" data-close>Cancel</button>
                     <button type="button" class="button small" data-action="ticket-list#saveTicket"
-                            data-ticket-list-url-param="{{ path('app_ticket_create') }}">Save</button>
+                            data-ticket-list-url-param="{{ path('app_ticket_create') }}"
+                            data-ticket-list-target = "saveButton">Save</button>
                 </div>
             </div>
         </div>

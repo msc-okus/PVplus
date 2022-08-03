@@ -3,12 +3,15 @@
 namespace App\Form\Ticket;
 
 
+use App\Entity\Anlage;
 use App\Entity\Ticket;
 use App\Form\Type\AnlageTextType;
 use App\Form\Type\SwitchType;
 use App\Helper\PVPNameArraysTrait;
+use App\Repository\AnlagenRepository;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Stakovicz\UXCollection\Form\UXCollectionType;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -18,10 +21,18 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TicketFormType extends AbstractType
 {
     use PVPNameArraysTrait;
+    private $anlagenRepository;
+
+    public function __construct(AnlagenRepository $anlagenRepository, TranslatorInterface $translator)
+    {
+        $this->anlagenRepository = $anlagenRepository;
+        $this->translator = $translator;
+    }
 
     public function configureOptions(OptionsResolver $resolver)
     {
@@ -38,12 +49,12 @@ class TicketFormType extends AbstractType
 
         if ($ticket === null) {
             $builder
-                ->add('anlage', AnlageTextType::class, [
-                    'label' => 'Plant name ',
-                    'attr' => [
-                        'class' => 'js-autocomplete-anlagen input-group-field',
-                        'data-autocomplete-url' => '/admin/anlagen/find'
-                    ]
+
+                ->add('anlage', EntityType::class, [
+                    'label'         => 'please select a Plant',
+                    'class'         => Anlage::class,
+                    'choices'       => $this->anlagenRepository->findAllActiveAndAllowed(),
+                    'choice_label'  => 'anlName',
                 ])
                 ->add('begin', DateTimeType::class, [
                     'label' => 'Begin',
@@ -51,7 +62,9 @@ class TicketFormType extends AbstractType
                     'required' => false,
                     'input' => 'datetime',
                     'widget' => 'single_text',
-                    'data' => new \DateTime("now")
+                    'data' => new \DateTime("now"),
+                    'attr' => ['step' => 900 , 'data-action' => 'change->ticket-list#check', 'data-ticket-list-target' => 'formBegin'],
+
                 ])
                 ->add('end', DateTimeType::class, [
                     'label' => 'End',
@@ -59,6 +72,9 @@ class TicketFormType extends AbstractType
                     'required' => true,
                     'input' => 'datetime',
                     'widget' => 'single_text',
+                    'data' => new \DateTime("now"),
+                    'attr' => ['step' => 900 , 'data-action' => 'change->ticket-list#check', 'data-ticket-list-target' => 'formEnd'],
+
                 ]);
         } else {
             $builder
@@ -90,6 +106,20 @@ class TicketFormType extends AbstractType
                 ;
         }
         $builder
+            ->add('dates', UXCollectionType::class, [
+                'required' => false,
+                'entry_type'    => TicketDateEmbeddedFormType::class,
+            ])
+            ->add('dataGapEvaluation', ChoiceType::class, [
+                'required' => false,
+                'placeholder' => 'please Choose ...',
+                'choices' => [
+                    'outage' => 'outage',
+                    'comm. issue' => 'comm. issue'
+                ]
+            ])
+
+
             ->add('status', ChoiceType::class, [
                 'label' => 'Status',
                 'choices' => self::ticketStati(),
