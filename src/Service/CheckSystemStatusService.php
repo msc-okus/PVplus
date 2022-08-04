@@ -18,29 +18,15 @@ class CheckSystemStatusService
 {
     use G4NTrait;
 
-    private AnlagenRepository $anlagenRepository;
-    private AnlagenStatusRepository $statusRepository;
-    private EntityManagerInterface $em;
-    private MessageService $messageService;
-    private ForcastRepository $forecastRepo;
-    private FunctionsService $functions;
-    private ForcastDayRepository $forecastDayRepo;
-
-    public function __construct(AnlagenRepository $anlagenRepository,
-                                AnlagenStatusRepository $statusRepository,
-                                EntityManagerInterface $em,
-                                MessageService $messageService,
-                                ForcastRepository $forecastRepo,
-                                ForcastDayRepository $forecastDayRepo,
-                                FunctionsService $functions)
+    public function __construct(
+        private AnlagenRepository $anlagenRepository,
+        private AnlagenStatusRepository $statusRepository,
+        private EntityManagerInterface $em,
+        private MessageService $messageService,
+        private ForcastRepository $forecastRepo,
+        private ForcastDayRepository $forecastDayRepo,
+        private FunctionsService $functions)
     {
-        $this->anlagenRepository = $anlagenRepository;
-        $this->statusRepository = $statusRepository;
-        $this->em = $em;
-        $this->messageService = $messageService;
-        $this->forecastRepo = $forecastRepo;
-        $this->functions = $functions;
-        $this->forecastDayRepo = $forecastDayRepo;
     }
 
     public function checkSystemStatus():string
@@ -346,7 +332,7 @@ class CheckSystemStatusService
                             // Send Alert Email an Kast
                             $subject = "green4net - Keine Daten von Wetterstation $anlageDbWeather";
                             $message = "<h3 class='block'>Keine Daten von der Wetterstation $anlageDbWeather, seit $acExpStamp</h3>";
-                            $this->messageService->sendMessage($anlage, 'alert', 2, $subject, $message, false, false, true, true);
+                            #$this->messageService->sendMessage($anlage, 'alert', 2, $subject, $message, false, false, true, true);
                         }
                     }
 
@@ -364,7 +350,7 @@ class CheckSystemStatusService
                                 // Send Alert Email an G4N
                                 $subject = "Keine Daten von der Anlage: $anlagenName";
                                 $message = "<h3 class='block'>Keine Daten von der Anlage $anlagenName ($anlagenId), seit $acActStamp</h3>";
-                                $this->messageService->sendMessage($anlage, 'alert', 2, $subject, $message, false, false, true);
+                                #$this->messageService->sendMessage($anlage, 'alert', 2, $subject, $message, false, false, true);
                             }
                         }
 
@@ -374,7 +360,7 @@ class CheckSystemStatusService
                                 // Send Alert Email an G4N und Kunden
                                 $subject = "$anlagenName AC Abweichungen";
                                 $message = "<p class='block'>'Abweichungen auf der AC Seite hoch. Bitte prüfen.'</p>";
-                                $this->messageService->sendMessage($anlage, 'alert', 3, $subject, $message);
+                                #$this->messageService->sendMessage($anlage, 'alert', 3, $subject, $message);
                             }
                         }
                         // AlertType = 4
@@ -385,7 +371,7 @@ class CheckSystemStatusService
                             // Send Alert Email an G4N und Kunden
                             $subject = "$anlagenName Inverter Error";
                             $message = "<p class='block'>$inverterErrorMessage</p>";
-                            $this->messageService->sendMessage($anlage, 'alert', 5, $subject, $message);
+                            #$this->messageService->sendMessage($anlage, 'alert', 5, $subject, $message);
                         }
 
                         // AlertType = 6, Stringfehler
@@ -393,7 +379,7 @@ class CheckSystemStatusService
                             // Send Alert Email an G4N und Kunden
                             $subject = "$anlagenName String Error";
                             $message = "<p class='block'>$stringErrorMessages</p>";
-                            $this->messageService->sendMessage($anlage, 'alert', 6, $subject, $message);
+                            #$this->messageService->sendMessage($anlage, 'alert', 6, $subject, $message);
                         }
                     }
                 }

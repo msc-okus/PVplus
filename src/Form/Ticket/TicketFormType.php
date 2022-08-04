@@ -26,7 +26,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class TicketFormType extends AbstractType
 {
     use PVPNameArraysTrait;
-    private $anlagenRepository;
+    private AnlagenRepository $anlagenRepository;
 
     public function __construct(AnlagenRepository $anlagenRepository, TranslatorInterface $translator)
     {
@@ -51,7 +51,8 @@ class TicketFormType extends AbstractType
             $builder
 
                 ->add('anlage', EntityType::class, [
-                    'label'         => 'please select a Plant',
+                    'label'         => 'Plant',
+                    'placeholder'   => 'please select …',
                     'class'         => Anlage::class,
                     'choices'       => $this->anlagenRepository->findAllActiveAndAllowed(),
                     'choice_label'  => 'anlName',
