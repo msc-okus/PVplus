@@ -47,15 +47,12 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/create', name: 'app_ticket_create')]
     public function create(EntityManagerInterface $em, Request $request) : Response
     {
-
-        $session=$this->container->get('session');
-
         $form = $this->createForm(TicketFormType::class);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $ticket = $form->getData();
             $ticket->setEditor($this->getUser()->getUsername());
-            $ticket->setInverter("*");
+            #$ticket->setInverter("*");
             $date = new TicketDate();
             $date->copyTicket($ticket);
             $ticket->addDate($date);
@@ -66,11 +63,9 @@ class TicketController extends BaseController
             return new Response(null, 204);
         }
 
-        $page= $request->query->getInt('page', 1);
-        return $this->render('ticket/_inc/_edit.html.twig',[
-            'ticketForm'    =>$form->createView(),
+        return $this->renderForm('ticket/_inc/_edit.html.twig',[
+            'ticketForm'    =>$form,
             'edited'        => false,
-            'page'          => $page,
         ]);
     }
 
@@ -94,31 +89,27 @@ class TicketController extends BaseController
                 if ($ticketDates->first()->getBegin < $ticket->getBegin()){
                     $ticket->setBegin($ticketDates->first()->getBegin());
                     $this->addFlash('warning', 'Inconsistent date, the date was not saved');
-                }
-                else{
+                } else {
                     $ticketDates->first()->setBegin($ticket->getBegin());
                 }
                 if ($ticketDates->last()->getEnd() > $ticket->getEnd()){
                     $ticket->setEnd($ticketDates->last()->getEnd());
                     $this->addFlash('warning', 'Inconsistent date, the date was not saved');
-                }
-                else{
+                } else {
                     $ticketDates->last()->setEnd($ticket->getEnd());
                 }
             }
             $ticket->setStatus(30);
             $em->persist($ticket);
             $em->flush();
-            return new Response(null, 204);
 
+            return new Response(null, 204);
         }
 
         return $this->renderForm('ticket/_inc/_edit.html.twig', [
             'ticketForm'    => $form,
             'ticket'        => $ticket,
             'edited'        => true,
-            #'dates'         => $ticketDates,
-            #'page'          => $page,
         ]);
     }
 
@@ -148,7 +139,6 @@ class TicketController extends BaseController
             $anlageName = "";
             $anlage = null;
         }
-        dump($anlage, $anlageId, $anlageName);
 
         $status     = $request->query->get('status', default: 10);
         $editor     = $request->query->get('editor');
@@ -197,7 +187,6 @@ class TicketController extends BaseController
 
     }
 
-
     #[Route(path: '/ticket/split/{id}', name: 'app_ticket_split', methods: ['GET', 'POST'])]
     public function split( $id, TicketDateRepository $ticketDateRepo, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
     {
@@ -234,7 +223,6 @@ class TicketController extends BaseController
             'page'          => $page,
         ]);
     }
-
 
     #[Route(path: '/ticket/delete/{id}', name: 'app_ticket_delete')]
     public function delete($id, TicketRepository $ticketRepo, TicketDateRepository $ticketDateRepo, Request $request, EntityManagerInterface $em):Response

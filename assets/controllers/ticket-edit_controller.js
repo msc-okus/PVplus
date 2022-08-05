@@ -24,9 +24,11 @@ export default class extends Controller {
         this.modal.open();
         this.modalBodyTarget.innerHTML = await $.ajax(this.formUrlValue);
     }
+
     setBody(html){
         this.modalBodyTarget.innerHTML = html;
     }
+
     closeTicket(event) {
         event.preventDefault();
         this.modal.destroy();
@@ -46,10 +48,10 @@ export default class extends Controller {
         } catch(e) {
             this.modalBodyTarget.innerHTML = e.responseText;
         }
-
-
     }
+
     async reload(event){
         this.modalBodyTarget.innerHTML = await $.ajax(this.formUrlValue);
     }
+
 }

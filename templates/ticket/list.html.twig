@@ -27,14 +27,25 @@
             {% include 'ticket/_inc/_listTickets.html.twig' %}
         </div>
         <div class="cell medium-2">
-            <button name="new-ticket" class="button" value="yes"
-                    data-action="ticket-list#createTicket"
-                    data-ticket-list-url-param="{{ path('app_ticket_create') }}">
-                New Ticket
-            </button>
+            <div id="modal-form0" {{ stimulus_controller('ticket-edit', {
+                    formUrl: path('app_ticket_create'),
+                }) }}
+            >
+                <button name="new-ticket" class="button"
+                        data-action="ticket-edit#openModal"
+                >
+                    New Ticket
+                </button>
+                {{ include('ticket/_inc/_modalTicket.html.twig', {
+                    modalId: 0,
+                    modalTitel: 'New Ticket',
+                    class: 'large',
+                    dataVOffset: '10',
+                }) }}
+            </div>
         </div>
 
-        <div class="reveal text-left large" id="modalCreate"
+        {# <div class="reveal text-left large" id="modalCreate"
              data-ticket-list-target="modalCreate"
              data-v-offset = "10"
              data-append-to = "div#list"
@@ -48,12 +59,19 @@
             </div>
             <div class="grid-x grid-padding-y">
                 <div class="cell text-right">
-                    <button type="button" class="button secondary small" data-close>Cancel</button>
+                    <button
+                            class="close-button"
+                            type="button"
+                            data-action="ticket-edit#closeTicket">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <button type="button" class="button secondary small" data-action="ticket-edit#closeTicket">Cancel</button>
                     <button type="button" class="button small" data-action="ticket-list#saveTicket"
                             data-ticket-list-url-param="{{ path('app_ticket_create') }}"
-                            data-ticket-list-target = "saveButton">Save</button>
+                            data-ticket-list-target = "saveButton"
+                    >Save</button>
                 </div>
             </div>
-        </div>
+        </div> #}
     </div>
 {% endblock %}
