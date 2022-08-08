@@ -70,13 +70,6 @@ class TempHeatmapChartService
     //MS 06/2022
     public function getTempHeatmap(Anlage $anlage, $from, $to,  bool $hour = false): ?array
     {
-        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-        $conn = self::getPdoConnection();
-        $dataArray = [];
-        $group = 1;
-        $anlagename = $anlage->getAnlName();
-        $pnominverter = $anlage->getPnomInverterArray();
-        $counter = 0;
 
         $gmt_offset = 1;   // Unterschied von GMT zur eigenen Zeitzone in Stunden.
         $zenith = 90+50/60;
@@ -96,7 +89,7 @@ class TempHeatmapChartService
 
         $conn = self::getPdoConnection();
         $dataArray = [];
-        $inverterNr = 0;
+
         switch ($anlage->getConfigType()) {
             case 3:
             case 4:

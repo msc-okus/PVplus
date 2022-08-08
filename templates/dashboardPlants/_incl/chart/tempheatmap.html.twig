@@ -35,7 +35,7 @@
         xAxis.renderer.labels.template.fontSize = 10;
         xAxis.renderer.grid.template.disabled = true;
         xAxis.renderer.minGridDistance = 5;
-        xAxis.renderer.inversed = true;
+        xAxis.renderer.inversed = false;
         yAxis.renderer.grid.template.disabled = true;
         yAxis.renderer.inversed = true;
         yAxis.renderer.minGridDistance = 15;
@@ -55,6 +55,7 @@
         series1.tooltip.background.fill = am4core.color("#31af31");
         series1.columns.template.width = am4core.percent(100);
         series1.columns.template.height = am4core.percent(100);
+        series1.showOnInit = false;
         //series1.columns.template.dx = 10;
 
         var columnTemplate1 = series1.columns.template;
@@ -72,7 +73,7 @@
         cranges.range4 = ['#fff5f0','#fee0d2','#fcbba1','#fc9272','#fb6a4a','#ef3b2c','#cb181d','#a50f15','#67000d'];
         cranges.range5 = ['#18d404','#42db30','#64db56','#7fd974','#99d797','#f8a0a0','#f86969','#fa4545','#f80505'];
         cranges.range6 = ['#E3E3E3','#cdcdcd','#afafaf','#8b8b8b','#828282','#6a6a6a','#5c5c5c','#262626','#010101'];
-        cranges.range7 = ['#f8ecec','#f8d2d2','#fcb1b1','#f89090','#fa7d7d','#f86565','#f84646','#f82222','#fa0404'];
+        cranges.range7 = ['#6baed6','#4292c6','#9ecae1','#9ecae1','#e5ecff','#ffd9d9','#fdd4d4','#fcabab','#ff9393','#fa7d7d','#f86565','#f84646','#f82222','#fa0404'];
 
         var ranges = cranges.range7;
 
@@ -94,17 +95,22 @@
 
                 series1.columns.template.column.adapter.add("fill", function(fill, target) {
                      if (target.dataItem) {
-                         if (target.dataItem.value == -1) { return am4core.color("#050505") };
+                         if (target.dataItem.value == -1) { return am4core.color("#afafaf") };
                          if (target.dataItem.value == 0) { return am4core.color("#fffefe") };
-                         if (inRange(target.dataItem.value, 1, 15)) {return am4core.color(inRange(target.dataItem.value, 1, 15, 0))};
-                         if (inRange(target.dataItem.value, 16, 20)) {return am4core.color(inRange(target.dataItem.value, 16, 20, 1))};
-                         if (inRange(target.dataItem.value, 21, 30)) {return am4core.color(inRange(target.dataItem.value, 21, 30, 2))};
-                         if (inRange(target.dataItem.value, 31, 40)) {return am4core.color(inRange(target.dataItem.value, 31, 40, 3))};
-                         if (inRange(target.dataItem.value, 41, 50)) {return am4core.color(inRange(target.dataItem.value, 41, 50, 4))};
-                         if (inRange(target.dataItem.value, 51, 55)) {return am4core.color(inRange(target.dataItem.value, 51, 55, 5))};
-                         if (inRange(target.dataItem.value, 56, 59)) {return am4core.color(inRange(target.dataItem.value, 56, 59, 6))};
-                         if (inRange(target.dataItem.value, 60, 68)) {return am4core.color(inRange(target.dataItem.value, 60, 68, 7))};
-                         if (inRange(target.dataItem.value, 69, 75)) {return am4core.color(inRange(target.dataItem.value, 69, 75, 8))};
+                         if (inRange(target.dataItem.value, 1, 5)) {return am4core.color(inRange(target.dataItem.value, 1, 5, 0))};
+                         if (inRange(target.dataItem.value, 6, 10)) {return am4core.color(inRange(target.dataItem.value, 6, 10, 1))};
+                         if (inRange(target.dataItem.value, 11, 15)) {return am4core.color(inRange(target.dataItem.value, 11, 15, 2))};
+                         if (inRange(target.dataItem.value, 16, 20)) {return am4core.color(inRange(target.dataItem.value, 16, 20, 3))};
+                         if (inRange(target.dataItem.value, 21, 25)) {return am4core.color(inRange(target.dataItem.value, 21, 25, 4))};
+                         if (inRange(target.dataItem.value, 26, 30)) {return am4core.color(inRange(target.dataItem.value, 26, 30, 5))};
+                         if (inRange(target.dataItem.value, 31, 35)) {return am4core.color(inRange(target.dataItem.value, 31, 35, 6))};
+                         if (inRange(target.dataItem.value, 36, 38)) {return am4core.color(inRange(target.dataItem.value, 36, 38, 7))};
+                         if (inRange(target.dataItem.value, 39, 42)) {return am4core.color(inRange(target.dataItem.value, 39, 42, 8))};
+                         if (inRange(target.dataItem.value, 31, 45)) {return am4core.color(inRange(target.dataItem.value, 31, 45, 9))};
+                         if (inRange(target.dataItem.value, 46, 50)) {return am4core.color(inRange(target.dataItem.value, 46, 50, 10))};
+                         if (inRange(target.dataItem.value, 51, 55)) {return am4core.color(inRange(target.dataItem.value, 51, 55, 11))};
+                         if (inRange(target.dataItem.value, 56, 65)) {return am4core.color(inRange(target.dataItem.value, 56, 65, 12))};
+                         if (inRange(target.dataItem.value, 66, 75)) {return am4core.color(inRange(target.dataItem.value, 66, 75, 13))};
                      }
                      return fill;
                  });
