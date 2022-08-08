@@ -52,9 +52,10 @@
                     <td><input data-request-target="box" data-action="click->request#check" type="checkbox" value="{{ ticket.id }}" class="generated-checkbox" form="tableForm"></td>
                     <td class="text-right">
                         <div id="modal-form{{ ticket.id }}" {{ stimulus_controller('ticket-edit', {
-                            formUrl: path('app_ticket_edit', { id: ticket.id}),
-                            splitUrl: path('app_ticket_split', { id: ticket.id}),
-                        }) }}>
+                                formUrl: path('app_ticket_edit', { id: ticket.id}),
+                                splitUrl: path('app_ticket_split', { id: ticket.id}),
+                            }) }}
+                        >
                             <button class="hollow button action-icon shadow"
                                     data-action="ticket-edit#openModal"
                                     data-append-to="div#modal-form{{ ticket.id }}"

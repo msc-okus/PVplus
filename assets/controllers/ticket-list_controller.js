@@ -1,6 +1,7 @@
 import { Controller } from '@hotwired/stimulus';
 import $ from 'jquery';
 import {Reveal} from "foundation-sites";
+import {useDispatch} from "stimulus-use";
 
 export default class extends Controller {
     static targets = ['list', 'searchBar', 'modalCreate', 'modalCreateBody', 'AlertFormat','AlertDates', 'saveButton', 'formBegin', 'formEnd'];
@@ -9,7 +10,9 @@ export default class extends Controller {
         urlSearch: String,
     }
 
-    connect() {}
+    connect() {
+        useDispatch(this);
+    }
 
     async search(event){
         event.preventDefault();
@@ -37,30 +40,6 @@ export default class extends Controller {
         this.listTarget.innerHTML = await $.ajax({});
     }
 
-    async createTicket({params: {url}}) {
-        this.modalCreateBodyTarget.innerHTML = 'Loading ...';
-        //console.log($(this.modalCreateTarget));
-        this.modal = new Reveal($(this.modalCreateTarget));
-        this.modal.open();
-
-        this.modalCreateBodyTarget.innerHTML = await $.ajax(url);
-
-    }
-
-    async saveTicket({params: {url}}) {
-        event.preventDefault();
-        const  $form = $(this.formBeginTarget).find('form');
-        try {
-            await $.ajax({
-                url: url,
-                method: $form.prop('method'),
-                data: $form.serialize(),
-            });
-            this.modal.destroy();
-        } catch(e) {
-            this.modalCreateBodyTarget.innerHTML = e.responseText;
-        }
-    }
     check() {
         console.log( $(this.saveButtonTarget),  $(this.splitAlertFormatTarget)
         );

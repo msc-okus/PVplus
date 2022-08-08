@@ -10,13 +10,12 @@ class G4NSendMailService
 {
     use G4NTrait;
 
-    private $em;
-    private $mailer;
-
-    public function __construct(EntityManagerInterface $em, MailerInterface $mailer)
+    public function __construct(
+        private EntityManagerInterface $em,
+        private MailerInterface $mailer
+    )
     {
-        $this->em = $em;
-        $this->mailer = $mailer;
+
     }
 
     public function SendAlertMail($to, $subject, $message, $alertType = 0, $anlagenId = 0, $statusId = 0, $statusIdLast = 0){

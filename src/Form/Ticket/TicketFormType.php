@@ -26,7 +26,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class TicketFormType extends AbstractType
 {
     use PVPNameArraysTrait;
-    private $anlagenRepository;
+    private AnlagenRepository $anlagenRepository;
 
     public function __construct(AnlagenRepository $anlagenRepository, TranslatorInterface $translator)
     {
@@ -46,15 +46,19 @@ class TicketFormType extends AbstractType
         /** @var Ticket $ticket */
 
         $ticket = $options['data'] ?? null;
+        $isNewTicket = (bool)$ticket;
 
-        if ($ticket === null) {
+        if (!$isNewTicket) {
             $builder
-
                 ->add('anlage', EntityType::class, [
-                    'label'         => 'please select a Plant',
-                    'class'         => Anlage::class,
-                    'choices'       => $this->anlagenRepository->findAllActiveAndAllowed(),
-                    'choice_label'  => 'anlName',
+                    'label'             => 'Plant',
+                    'placeholder'       => 'please select …',
+                    'empty_data'        => 0,
+                    'class'             => Anlage::class,
+                    'choices'           => $this->anlagenRepository->findAllActiveAndAllowed(),
+                    'choice_label'      => 'anlName',
+                    'required'          => true,
+                    'invalid_message'   => 'Please select a Plant.'
                 ])
                 ->add('begin', DateTimeType::class, [
                     'label' => 'Begin',
@@ -62,9 +66,8 @@ class TicketFormType extends AbstractType
                     'required' => false,
                     'input' => 'datetime',
                     'widget' => 'single_text',
-                    'data' => new \DateTime("now"),
+                    'data' => new \DateTime(date('Y-m-d H:i', time() - time() % 900)),
                     'attr' => ['step' => 900 , 'data-action' => 'change->ticket-list#check', 'data-ticket-list-target' => 'formBegin'],
-
                 ])
                 ->add('end', DateTimeType::class, [
                     'label' => 'End',
@@ -72,10 +75,16 @@ class TicketFormType extends AbstractType
                     'required' => true,
                     'input' => 'datetime',
                     'widget' => 'single_text',
-                    'data' => new \DateTime("now"),
+                    'data' => new \DateTime(date('Y-m-d H:i', 900 + time() - time() % 900)),
                     'attr' => ['step' => 900 , 'data-action' => 'change->ticket-list#check', 'data-ticket-list-target' => 'formEnd'],
-
-                ]);
+                ])
+                ->add('inverter', TextType::class, [
+                    'label'     => 'Inverter',
+                    'required'  => true,
+                    'data'      => '*',
+                    'help'      => '* = all Invertres, 1-3 = Inverter 1 to 3, ...'
+                ])
+            ;
         } else {
             $builder
                 ->add('anlage', AnlageTextType::class, [
@@ -84,8 +93,6 @@ class TicketFormType extends AbstractType
                         'readonly' => true,
                     ]
                 ])
-                ->add('begin',)
-
                 ->add('begin', DateTimeType::class, [
                     'label'         => 'Begin',
                     'label_html'    => true,
@@ -103,41 +110,44 @@ class TicketFormType extends AbstractType
                     'widget' => 'single_text',
                     'attr' => ['min' => $ticket->getEnd()->format("Y-m-d\TH:i")]
                 ])
-                ;
+            ;
         }
         $builder
             ->add('dates', UXCollectionType::class, [
-                'required' => false,
+                'required'      => false,
                 'entry_type'    => TicketDateEmbeddedFormType::class,
             ])
             ->add('dataGapEvaluation', ChoiceType::class, [
-                'required' => false,
-                'placeholder' => 'please Choose ...',
-                'choices' => [
+                'required'      => false,
+                'placeholder'   => 'please Choose …',
+                'choices'       => [
                     'outage' => 'outage',
                     'comm. issue' => 'comm. issue'
                 ]
             ])
-
-
             ->add('status', ChoiceType::class, [
-                'label' => 'Status',
-                'choices' => self::ticketStati(),
-                'required' => true,
-                'placeholder' => 'please Choose ...'
+                'label'             => 'Status',
+                'choices'           => self::ticketStati(),
+                'required'          => true,
+                'placeholder'       => 'please Choose ...',
+                'empty_data'        => 20,
+                'invalid_message'   => 'Please select a Status.',
             ])
             ->add('priority', ChoiceType::class, [
-                'label' => 'Priority',
-                'choices' => self::ticketPriority(),
-                'required' => true,
-                'placeholder' => 'please Choose ...'
-
+                'label'             => 'Priority',
+                'choices'           => self::ticketPriority(),
+                'required'          => true,
+                'placeholder'       => 'please Choose ...',
+                'empty_data'        => 20,
+                'invalid_message'   => 'Please select a Priority.',
             ])
             ->add('alertType', ChoiceType::class, [
-                'label' => 'Category of error ',
-                'help'  => 'data gap, inverter, ...',
-                'choices' => self::errorCategorie(),
-                'disabled' => true,
+                'label'             => 'Category of error ',
+                'help'              => 'data gap, inverter, ...',
+                'choices'           => self::errorCategorie(),
+                'disabled'          => $isNewTicket,
+                'placeholder'       => 'Please select ...',
+                'invalid_message'   => 'Please select a Error Category.',
             ])
             ->add('errorType', ChoiceType::class, [
                 'label'         => 'Type of error',

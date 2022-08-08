@@ -163,20 +163,21 @@ class WeatherServiceNew
         return true;
     }
 
-    //Given a plant and no date it will return the sunrise info of the given plant for the current day
-    //Given a plant and a time it will return the sunrise info of the given plant for the given date
-    public function getSunrise($anlage, ?string $time = null): array
+    /** Given a plant and no date it will return the sunrise info of the given plant for the current day
+     * Given a plant and a time it will return the sunrise info of the given plant for the given date
+     */
+    public function getSunrise(Anlage $anlage, ?string $time = null): array
     {
-        if ($time == null)$current_date = date("Y-m-d");
-        else $current_date = date("Y-m-d", strtotime($time));
+        if ($time === null) {
+            $current_date = date("Y-m-d");
+            $sunrisedata = date_sun_info(time(),  (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon());
+        } else {
+            $current_date = date("Y-m-d", strtotime($time));
+            $sunrisedata = date_sun_info(strtotime($time),  (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon());
+        }
 
-        $sunrisedata = date_sun_info(strtotime($time),  (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon());
-
-        $sunrise = date("H:i",$sunrisedata['sunrise'] );
-        $sunset = date("H:i",$sunrisedata['sunset']);
-
-        $returnArray['sunrise'] = $current_date." ".$sunrise;
-        $returnArray['sunset'] = $current_date." ".$sunset;
+        $returnArray['sunrise'] = $current_date." ".date("H:i",$sunrisedata['sunrise']);
+        $returnArray['sunset']  = $current_date." ".date("H:i",$sunrisedata['sunset']);
 
         return $returnArray;
     }

@@ -9,26 +9,26 @@
                 <table style="width: 90%">
                     <thead>
                     <tr>
-                        <th class="table-center"> Availability</th>
-                        <th class="table-center"> Planned</th>
-                        <th class="table-center"> Actual</th>
-                        <th class="table-center" rowspan="2"> Difference </th>
+                        <th class="table-center">Availability</th>
+                        <th class="table-center">Planned</th>
+                        <th class="table-center">Actual</th>
+                        <th class="table-center" rowspan="2">Difference</th>
                     </tr>
                     <tr>
-                        <th class="table-center"> Operation year</th>
-                        <th class="table-center"> Expected</th>
+                        <th class="table-center">Operation year</th>
+                        <th class="table-center">Expected</th>
                         <th class="table-center">Availability</th>
                     </tr>
                     <tr>
                         <th class="table-center">{{ month }} {{ year|slice(2,3) }}</th>
-                        <th class="table-center"> [%] </th>
                         <th class="table-center"> [%]</th>
-                        <th class="table-center">  [%]</th>
+                        <th class="table-center"> [%]</th>
+                        <th class="table-center"> [%]</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr>
-                        <td style="text-align: left" class="tr_next_columns"> PA(Plant Availability) </td>
+                        <td style="text-align: left" class="tr_next_columns"> PA (Plant Availability) </td>
                         <td class="tr_next_columns"> {{ availabilityMonthTable['expectedAvailability'] |number_format(2, ',', '.') }}</td>
                         <td class="tr_next_columns"> {{ availabilityMonthTable['actualAvailability'] |number_format(2, ',', '.') }}</td>
                         <td class="tr_next_columns"> {{ (availabilityMonthTable['expectedAvailability'] - availabilityMonthTable['actualAvailability']) |number_format(2, ',', '.') }}</td>
@@ -87,9 +87,9 @@
             <td style="width: 50%">
                 <table style="margin-top: 30px; width: 90%">
                     <thead>
-                    <th> Type of Ticket</th>
-                    <th> Number of Tickets</th>
-                    <th> Number of quarters</th>
+                    <th>Type of Ticket</th>
+                    <th>Number of Tickets</th>
+                    <th>Number of 15 min. cases</th>
                     </thead>
                     <tbody>
                     <tr>
@@ -112,8 +112,8 @@
                 <div style="text-align: left">
                     <sup><b>a</b></sup> Maintenance, SOR<br>
                     <sup><b>b</b></sup> Defects, EFOR<br>
-                    <sup><b>c</b></sup><b> From this EFOR errors a {{ Availability_Year_To_Date_Table['actualGaps'] |number_format(2, ',', '.') }}% are Data Gaps</b><br>
-                    <sup><b>d</b></sup> The system is not responsible, OMC
+                    <sup><b>c</b></sup><b> From this EFOR errors {{ Availability_Year_To_Date_Table['actualGaps'] |number_format(2, ',', '.') }}% are Data Gaps</b><br>
+                    <sup><b>d</b></sup> Availability is not effected, OMC
                 </div>
             </td>
         </tr>

@@ -2,42 +2,20 @@
 
 namespace App\Controller;
 
-use ApiPlatform\Core\Api\UrlGeneratorInterface;
 use App\Entity\Anlage;
 use App\Entity\Ticket;
 use App\Entity\TicketDate;
-use App\Form\Model\ToolsModel;
-use App\Form\Reports\ReportsFormType;
-use App\Form\Ticket\TicketEditFormType;
 use App\Form\Ticket\TicketFormType;
-use App\Form\Tools\ToolsFormType;
-use App\Helper\G4NTrait;
 use App\Helper\PVPNameArraysTrait;
 use App\Repository\AnlagenRepository;
-use App\Repository\ReportsRepository;
 use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
-use App\Repository\UserRepository;
-use App\Service\AvailabilityService;
-use App\Service\ExpectedService;
-use App\Service\PRCalulationService;
-use App\Service\ReportEpcService;
-use App\Service\ReportService;
-use App\Service\ReportsMonthlyService;
-use Carbon\Doctrine\DateTimeType;
 use Doctrine\ORM\EntityManagerInterface;
-use http\Url;
 use Knp\Component\Pager\PaginatorInterface;
-use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
-use phpDocumentor\Reflection\Types\Object_;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\Translation\TranslatableMessage;
 
 
 class TicketController extends BaseController
@@ -47,30 +25,26 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/create', name: 'app_ticket_create')]
     public function create(EntityManagerInterface $em, Request $request) : Response
     {
-
-        $session=$this->container->get('session');
-
         $form = $this->createForm(TicketFormType::class);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $ticket = $form->getData();
             $ticket->setEditor($this->getUser()->getUsername());
-            $ticket->setInverter("*");
+            #$ticket->setInverter("*");
             $date = new TicketDate();
             $date->copyTicket($ticket);
             $ticket->addDate($date);
 
-            dd($ticket);
-            //$em->persist($ticket);
-            //$em->flush();
+            #dd($ticket);
+            $em->persist($ticket);
+            $em->flush();
+
             return new Response(null, 204);
         }
 
-        $page= $request->query->getInt('page', 1);
-        return $this->render('ticket/_inc/_edit.html.twig',[
-            'ticketForm'=>$form->createView(),
-            'edited' => false,
-            'page'          => $page,
+        return $this->renderForm('ticket/_inc/_edit.html.twig',[
+            'ticketForm'    =>$form,
+            'edited'        => false,
         ]);
     }
 
@@ -79,7 +53,7 @@ class TicketController extends BaseController
     {
         $ticket = $ticketRepo->find($id);
         $ticketDates = $ticket->getDates();
-        if($ticketDates->isEmpty()) $ticketDates = null;
+        if ($ticketDates->isEmpty()) $ticketDates = null;
         $form = $this->createForm(TicketFormType::class, $ticket);
         $page= $request->query->getInt('page', 1);
         $form->handleRequest($request);
@@ -90,35 +64,31 @@ class TicketController extends BaseController
             $ticketDates = $ticket->getDates();
             $ticket->setEditor($this->getUser()->getUsername());
             if ($ticket->getStatus() === 30 && $ticket->getend() === null) $ticket->setEnd(new \DateTime("now"));
-            if($ticketDates){
+            if ($ticketDates){
                 if ($ticketDates->first()->getBegin < $ticket->getBegin()){
                     $ticket->setBegin($ticketDates->first()->getBegin());
                     $this->addFlash('warning', 'Inconsistent date, the date was not saved');
-                }
-                else{
+                } else {
                     $ticketDates->first()->setBegin($ticket->getBegin());
                 }
                 if ($ticketDates->last()->getEnd() > $ticket->getEnd()){
                     $ticket->setEnd($ticketDates->last()->getEnd());
                     $this->addFlash('warning', 'Inconsistent date, the date was not saved');
-                }
-                else{
+                } else {
                     $ticketDates->last()->setEnd($ticket->getEnd());
                 }
             }
             $ticket->setStatus(30);
             $em->persist($ticket);
             $em->flush();
-            return new Response(null, 204);
 
+            return new Response(null, 204);
         }
 
         return $this->renderForm('ticket/_inc/_edit.html.twig', [
             'ticketForm'    => $form,
             'ticket'        => $ticket,
             'edited'        => true,
-            'dates'         => $ticketDates,
-            'page'          => $page,
         ]);
     }
 
@@ -140,11 +110,15 @@ class TicketController extends BaseController
 
         //Reading data from request
         /** @var Anlage|string $anlage */
-        if ($request->query->get('anlage') != '') {
-            $anlage = $anlagenRepo->findOneBy(['anlName' => $request->query->get('anlage')]);
+        $anlageId = $request->query->get('anlage');
+        if ($anlageId != '') {
+            $anlage = $anlagenRepo->findOneBy(['anlId' => $anlageId]);
+            $anlageName = $anlage->getAnlName();
         } else {
-            $anlage = "";
+            $anlageName = "";
+            $anlage = null;
         }
+
         $status     = $request->query->get('status', default: 10);
         $editor     = $request->query->get('editor');
         $id         = $request->query->get('id');
@@ -153,7 +127,8 @@ class TicketController extends BaseController
         $category   = $request->query->get('category');
         $type       = $request->query->get('type');
 
-
+        $filter['anlagen']['value'] = $anlage;
+        $filter['anlagen']['array'] = $anlagenRepo->findAllActiveAndAllowed();;
         $filter['status']['value'] = $status;
         $filter['status']['array'] = self::ticketStati();
         $filter['priority']['value'] = $prio;
@@ -165,7 +140,7 @@ class TicketController extends BaseController
 
         $order['begin'] = 'DESC'; // null, ASC, DESC
 
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $order);
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlageName, $editor, $id, $prio, $status, $category, $type, $inverter, $order);
         $pagination = $paginator->paginate(
             $queryBuilder,                                    /* query NOT result */
             $page,   /* page number*/
@@ -190,35 +165,6 @@ class TicketController extends BaseController
         ]);
 
     }
-
-    #[Route(path: '/ticket/search', name: 'app_ticket_search', methods: ['GET', 'POST'])]
-    #[Deprecated]
-    public function searchTickets(TicketRepository $ticketRepo, PaginatorInterface $paginator, Request $request): Response
-    {
-        dd('do nort use this Funtion any longer');
-
-        $anlage     = $request->query->get('anlage');
-        $status     = $request->query->get('status');
-        $editor     = $request->query->get('editor');
-        $id         = $request->query->get('id');
-        $inverter   = $request->query->get('inverter');
-        $prio       = $request->query->get('prio');
-        $category   = $request->query->get('category');
-        $type       = $request->query->get('type');
-
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter);
-
-        $pagination = $paginator->paginate(
-            $queryBuilder,
-            $request->query->getInt('page', 1),
-            25
-        );
-
-        return $this->render('ticket/_inc/_listTickets.html.twig', [
-            'pagination' => $pagination,
-        ]);
-    }
-
 
     #[Route(path: '/ticket/split/{id}', name: 'app_ticket_split', methods: ['GET', 'POST'])]
     public function split( $id, TicketDateRepository $ticketDateRepo, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
@@ -256,8 +202,6 @@ class TicketController extends BaseController
             'page'          => $page,
         ]);
     }
-
-
 
     #[Route(path: '/ticket/delete/{id}', name: 'app_ticket_delete')]
     public function delete($id, TicketRepository $ticketRepo, TicketDateRepository $ticketDateRepo, Request $request, EntityManagerInterface $em):Response

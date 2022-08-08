@@ -99,10 +99,10 @@ class AlertSystemService
                     if ($inverter_status['istdata'] == "Plant Control by PPC"){
                         $ppc = true;
                         $message = $this->analyzeIst($inverter_status, $time, $anlage, $inverterName, $inverterNo);
-                        self::messagingFunction($message, $anlage);
+                        #self::messagingFunction($message, $anlage);
                     } else {
                         $message = $this->analyzeIst($inverter_status, $time, $anlage, $inverterName, $inverterNo);
-                        self::messagingFunction($message, $anlage);
+                        #self::messagingFunction($message, $anlage);
                         $system_status[$inverterName] = $inverter_status;
                         unset($inverter_status);
                     }
@@ -165,6 +165,7 @@ class AlertSystemService
     public function checkSystem2(Anlage $anlage, ?string $time = null): string
     {
         if ($time === null) $time = $this->getLastQuarter(date('Y-m-d H:i:s') );
+        /** Todo: $ppc read from Plant ??? */
         $ppc = false;
         //we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
 
@@ -175,10 +176,10 @@ class AlertSystemService
                     if ($plant_status['istdata'] == "Plant Control by PPC"){
                         $ppc = true;
                         $message = $this->analyzePlant($time, $anlage, $sungap['sunrise']);
-                        self::messagingFunction($message, $anlage);
+                        #self::messagingFunction($message, $anlage);
                     } else {
                         $message = $this->analyzeIst($time, $anlage, $sungap['sunrise']);
-                        self::messagingFunction($message, $anlage);
+                        #self::messagingFunction($message, $anlage);
                         unset($inverter_status);
                     }
 
@@ -426,8 +427,7 @@ class AlertSystemService
                 $ticket->setBegin(($begin));
                 $ticketDate->setBegin($begin);
                 $ticket->addDate($ticketDate);
-            }
-            else{
+            } else {
                 $ticketDate = $ticket->getDates()->last();
             }
             $timetemp = date('Y-m-d H:i:s', strtotime($time));

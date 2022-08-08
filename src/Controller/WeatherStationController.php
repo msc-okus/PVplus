@@ -102,7 +102,7 @@ class WeatherStationController extends BaseController
             `db_id` int(11) NOT NULL AUTO_INCREMENT,
             `anl_id` int(11) NOT NULL,
             `anl_intnr` varchar(20) NOT NULL,
-            `stamp` timestamp NOT NULL,
+            `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
             `at_avg` varchar(20) NOT NULL,
             `pt_avg` varchar(20) NOT NULL,
             `gi_avg` varchar(20) NOT NULL,

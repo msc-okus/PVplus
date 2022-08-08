@@ -20,66 +20,68 @@
                     <fieldset class="fieldset">
                         <legend>Base Info</legend>
                         <div class="grid-x grid-margin-x grid-padding-x">
-                            <div class="cell small-12 medium-3 large-2">
+                            <div class="cell small-12 medium-3">
                                 {{ form_row(ticketForm.anlage) }}
                             </div>
-                            {% if (edited == false) %}
-                                <div class="cell small-12 medium-3 large-2">
-                                    <label>inverter</label>
-                                    <input disabled type="text" value="*" >
-                                </div>
-                            {% endif %}
-                            <div class="cell small-6 medium-3 large-2">
+                            <div class="cell small-12 medium-3">
+                                {% if (edited == false) %}
+                                    {{ form_row(ticketForm.inverter) }}
+                                {% endif %}
+                            </div>
+                            <div class="cell small-6 medium-3">
                                 {{ form_row(ticketForm.begin) }}
                             </div>
-                            <div class="cell small-6 medium-3 large-2">
+                            <div class="cell small-6 medium-3">
                                 {{ form_row(ticketForm.end) }}
                             </div>
-                            <div class="cell small-6 large-1">
+                        </div>
+                        <div class="grid-x grid-margin-x grid-padding-x">
+                            <div class="cell small-3">
                                 {{ form_row(ticketForm.status) }}
                             </div>
-                            <div class="cell small-4 large-1">
+                            <div class="cell small-3">
                                 {{ form_row(ticketForm.priority) }}
                             </div>
-                            <div class="cell small-4 large-2"> {# category = alertType (bsp: datagap, inverter power, etc.) #}
+                            <div class="cell small-3"> {# category = alertType (bsp: datagap, inverter power, etc.) #}
                                 {{ form_row(ticketForm.alertType) }}
                             </div>
-                            <div class="cell small-4 large-2"> {# type = errorType (Bsp:  SFOR, EFOR, OMC) #}
+                            <div class="cell small-3"> {# type = errorType (Bsp:  SFOR, EFOR, OMC) #}
                                 {{ form_row(ticketForm.errorType) }}
                             </div>
                         </div>
-                        {% if edited == true %}
+
                             {% include 'reporting/_inc/_ticketDatesList.html.twig' %}
-                        {% endif %}
+
                     </fieldset>
-                    {% if edited ==true %}
-                        <fieldset class="fieldset">
-                            <legend>Actions</legend>
-                            <div class="grid-x grid-margin-x grid-padding-x">
-                                {% if (ticket.alertType == 10) %}
-                                    <div class="cell small-12 medium-4 large-2">
-                                        {{ form_widget(ticketForm.dataGapEvaluation) }}
-                                    </div>
-                                {% else %}
-                                    {% do ticketForm.dataGapEvaluation.setRendered() %}
-                                {% endif %}
-                            </div>
-                        </fieldset>
-                        <fieldset class="fieldset">
-                            <legend>Descriptions</legend>
-                            <div class="grid-x grid-margin-x grid-padding-x">
-                                <div class="cell medium-12 small-12">
-                                    {% if (edited == true) %}
-                                        <div class="callout warning">{{ ticket.description|raw }}</div>
-                                    {% endif %}
-                                    {{ form_row(ticketForm.freeText) }}
-                                    {{ form_row(ticketForm.answer) }}
+
+                    <fieldset class="fieldset">
+                        <legend>Actions</legend>
+                        <div class="grid-x grid-margin-x grid-padding-x">
+                            {% if (edited == true and ticket.alertType == 10) %}
+                                <div class="cell small-12 medium-4 large-2">
+                                    {{ form_widget(ticketForm.dataGapEvaluation) }}
                                 </div>
-
+                            {% else %}
+                                {% do ticketForm.dataGapEvaluation.setRendered() %}
+                            {% endif %}
+                        </div>
+                    </fieldset>
+                    <fieldset class="fieldset">
+                        <legend>Descriptions</legend>
+                        <div class="grid-x grid-margin-x grid-padding-x">
+                            <div class="cell medium-12 small-12">
+                                {% if (edited == true) %}
+                                    <div class="callout warning">{{ ticket.description|raw }}</div>
+                                {% endif %}
+                                {{ form_row(ticketForm.freeText) }}
+                                {{ form_row(ticketForm.answer) }}
                             </div>
-                        </fieldset>
 
-                        <div data-controller="hide">
+                        </div>
+                    </fieldset>
+
+                    {#
+                    <div data-controller="hide">
                         <div class="switch tiny cell medium-3 small-6">
                             <label>Show effects on ...</label>
                             <input class="switch-input" id="exampleSwitch" type="checkbox" name="exampleSwitch"
@@ -128,12 +130,12 @@
                             </div>
                         </fieldset>
                     </div>
-                    {% endif %}
+                    #}
+
                 </div>
             </div>
         </div>
-        <div style="visibility: hidden">{{ form_rest(ticketForm) }}</div>
-        <input type="hidden" name="page" value="{{ page }}">
+        <div style="display: none">{{ form_rest(ticketForm) }}</div>
         {{ form_end(ticketForm) }}
     </div>
 </div>
