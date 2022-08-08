@@ -343,12 +343,13 @@ class ACPowerChartsService
             $dataArray['label'] = $groups[$group]['GroupName'];
 
             while ($rowIst = $resultIst->fetch(PDO::FETCH_ASSOC)) {
-                $stamp = self::timeShift($anlage, $rowIst["stamp"]);
+                $stamp = $rowIst["stamp"];
                 $stampAdjust = self::timeAjustment($stamp, $anlage->getAnlZeitzone() * (-1));
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
-                $dataArray['chart'][$counter]['date'] = $stampAdjust;
 
-                $queryf = $hour ? "BETWEEN '$from' AND '$to'" : "LIKE '$stampAdjust'";
+                $dataArray['chart'][$counter]['date'] = self::timeAjustment(self::timeShift($anlage, $rowIst["stamp"]), $anlage->getAnlZeitzone() * (-1));
+
+                $queryf = $hour ? "BETWEEN '$stampAdjust' AND '$stampAdjust2'" : "LIKE '$stampAdjust'";
                 $sqlSoll = "SELECT a.stamp, sum(b.ac_exp_power) as soll FROM ( `db_dummysoll` a 
                          LEFT JOIN (SELECT * FROM " . $anlage->getDbNameDcSoll() . " WHERE " . $groupQuery . "  ) b ON a.stamp = b.stamp ) WHERE a.stamp 
                          " . $queryf . " GROUP BY date_format(a.stamp, '$form')";

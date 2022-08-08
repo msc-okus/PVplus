@@ -17,6 +17,7 @@ use App\Service\FunctionsService;
 use App\Service\ReportEpcPRNewService;
 use App\Service\ReportEpcService;
 use App\Service\ReportsEpcNewService;
+use App\Service\WeatherServiceNew;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -36,8 +37,24 @@ class DefaultMREController extends BaseController
         $this->urlGenerator = $urlGenerator;
     }
 
+    #[Route(path: '/mr/sun')]
+    public function testSunRise(WeatherServiceNew $weatherService, AnlagenRepository $anlagenRepository): Response
+    {
+        $anlage = $anlagenRepository->find('106');
+        $output = $weatherService->getSunrise($anlage);
+        $sunrisedatas = date_sun_info(time(),  (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon());
+        foreach ($sunrisedatas as $key => $value) {
+            $sunrisedatas[$key] = date('Y-m-d H:i', $value);
+        }
+        dd($sunrisedatas, $output);
+        return $this->render('cron/showResult.html.twig', [
+            'headline'      => "Sunrise / Sunset",
+            'availabilitys' => '',
+            'output'        => self::printArrayAsTable($output),
+        ]);
+    }
     #[Route(path: '/mr/status')]
-    public function updateStatus(CheckSystemStatusService $checkSystemStatus) : Response
+    public function updateStatus(CheckSystemStatusService $checkSystemStatus): Response
     {
         return $this->render('cron/showResult.html.twig', [
             'headline'      => "Update Systemstatus",

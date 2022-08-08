@@ -2,42 +2,20 @@
 
 namespace App\Controller;
 
-use ApiPlatform\Core\Api\UrlGeneratorInterface;
 use App\Entity\Anlage;
 use App\Entity\Ticket;
 use App\Entity\TicketDate;
-use App\Form\Model\ToolsModel;
-use App\Form\Reports\ReportsFormType;
-use App\Form\Ticket\TicketEditFormType;
 use App\Form\Ticket\TicketFormType;
-use App\Form\Tools\ToolsFormType;
-use App\Helper\G4NTrait;
 use App\Helper\PVPNameArraysTrait;
 use App\Repository\AnlagenRepository;
-use App\Repository\ReportsRepository;
 use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
-use App\Repository\UserRepository;
-use App\Service\AvailabilityService;
-use App\Service\ExpectedService;
-use App\Service\PRCalulationService;
-use App\Service\ReportEpcService;
-use App\Service\ReportService;
-use App\Service\ReportsMonthlyService;
-use Carbon\Doctrine\DateTimeType;
 use Doctrine\ORM\EntityManagerInterface;
-use http\Url;
 use Knp\Component\Pager\PaginatorInterface;
-use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
-use phpDocumentor\Reflection\Types\Object_;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Symfony\Component\Translation\TranslatableMessage;
 
 
 class TicketController extends BaseController
@@ -57,9 +35,10 @@ class TicketController extends BaseController
             $date->copyTicket($ticket);
             $ticket->addDate($date);
 
-            dd($ticket);
-            //$em->persist($ticket);
-            //$em->flush();
+            #dd($ticket);
+            $em->persist($ticket);
+            $em->flush();
+
             return new Response(null, 204);
         }
 

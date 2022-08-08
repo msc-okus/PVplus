@@ -13,7 +13,7 @@
                     <th colspan="2"></th>
                 </tr> #}
                 <tr>
-                    <th>Interval</th>
+                    <th>Interval (Cases)</th>
                     <th>Begin</th>
                     <th>End</th>
                     {% if (edited == true and ticket.alertType == 10) %}
@@ -34,7 +34,7 @@
                         urlSplit: path('app_ticket_split', {id: date.vars.value.id}),
                         urlDelete: path('app_ticket_delete', {id: date.vars.value.id})
                     }) }}>
-                        <td>{{ loop.index }}</td>
+                        <td>{{ loop.index }} ({{ date.vars.value.intervals }})</td>
                         <td>{{ date.vars.value.begin|format_datetime(pattern="yyyy-MM-dd HH:mm") }}</td>
                         <td>{{ date.vars.value.end|format_datetime(pattern="yyyy-MM-dd HH:mm") }}</td>
                         {% if (ticket.alertType == 10) %}

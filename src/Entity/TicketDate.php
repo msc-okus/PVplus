@@ -26,7 +26,7 @@ class TicketDate
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      */
-    private $id;
+    private int $id;
 
     /**
      * @ORM\ManyToOne(targetEntity=Ticket::class, inversedBy="dates")
@@ -42,7 +42,7 @@ class TicketDate
     /**
      * @ORM\Column(type="integer")
      */
-    private int $Intervals = 0;
+    private int $intervals = 0;
 
     public function __construct()
     {
@@ -95,7 +95,7 @@ class TicketDate
         $this->alertType = $ticket->getAlertType();
         $endstamp = $this->getEnd()->getTimestamp();
         $beginstamp = $this->getBegin()->getTimestamp();
-        $this->Intervals = ($endstamp - $beginstamp)/900;
+        $this->intervals = ($endstamp - $beginstamp) /900 ;
     }
     public function copyTicketDate(TicketDate $ticket){
         $this->begin = $ticket->getBegin();
@@ -113,22 +113,22 @@ class TicketDate
         $this->alertType = $ticket->getAlertType();
         $endstamp = $this->getEnd()->getTimestamp();
         $beginstamp = $this->getBegin()->getTimestamp();
-        $this->Intervals = ($endstamp - $beginstamp)/900;
+        $this->intervals = ($endstamp - $beginstamp) / 900;
     }
     public function getIntervalCount(){
         $endstamp = $this->getEnd()->getTimestamp();
         $beginstamp = $this->getBegin()->getTimestamp();
-        return ($endstamp - $beginstamp)/900;
+        return ($endstamp - $beginstamp) / 900;
     }
 
     public function getIntervals(): ?int
     {
-        return $this->Intervals;
+        return $this->intervals;
     }
 
-    public function setIntervals(int $Intervals): self
+    public function setIntervals(int $intervals): self
     {
-        $this->Intervals = $Intervals;
+        $this->intervals = $intervals;
 
         return $this;
     }

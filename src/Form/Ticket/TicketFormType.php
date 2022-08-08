@@ -51,12 +51,14 @@ class TicketFormType extends AbstractType
         if (!$isNewTicket) {
             $builder
                 ->add('anlage', EntityType::class, [
-                    'label'         => 'Plant',
-                    'placeholder'   => 'please select …',
-                    'class'         => Anlage::class,
-                    'choices'       => $this->anlagenRepository->findAllActiveAndAllowed(),
-                    'choice_label'  => 'anlName',
-                    'required'      => true,
+                    'label'             => 'Plant',
+                    'placeholder'       => 'please select …',
+                    'empty_data'        => 0,
+                    'class'             => Anlage::class,
+                    'choices'           => $this->anlagenRepository->findAllActiveAndAllowed(),
+                    'choice_label'      => 'anlName',
+                    'required'          => true,
+                    'invalid_message'   => 'Please select a Plant.'
                 ])
                 ->add('begin', DateTimeType::class, [
                     'label' => 'Begin',
@@ -124,24 +126,28 @@ class TicketFormType extends AbstractType
                 ]
             ])
             ->add('status', ChoiceType::class, [
-                'label'         => 'Status',
-                'choices'       => self::ticketStati(),
-                'required'      => true,
-                'placeholder'   => 'please Choose ...',
-                'empty_data'    => 20,
+                'label'             => 'Status',
+                'choices'           => self::ticketStati(),
+                'required'          => true,
+                'placeholder'       => 'please Choose ...',
+                'empty_data'        => 20,
+                'invalid_message'   => 'Please select a Status.',
             ])
             ->add('priority', ChoiceType::class, [
-                'label'         => 'Priority',
-                'choices'       => self::ticketPriority(),
-                'required'      => true,
-                'placeholder'   => 'please Choose ...',
-                'empty_data'    => 20,
+                'label'             => 'Priority',
+                'choices'           => self::ticketPriority(),
+                'required'          => true,
+                'placeholder'       => 'please Choose ...',
+                'empty_data'        => 20,
+                'invalid_message'   => 'Please select a Priority.',
             ])
             ->add('alertType', ChoiceType::class, [
-                'label'         => 'Category of error ',
-                'help'          => 'data gap, inverter, ...',
-                'choices'       => self::errorCategorie(),
-                'disabled'      => !$isNewTicket,
+                'label'             => 'Category of error ',
+                'help'              => 'data gap, inverter, ...',
+                'choices'           => self::errorCategorie(),
+                'disabled'          => $isNewTicket,
+                'placeholder'       => 'Please select ...',
+                'invalid_message'   => 'Please select a Error Category.',
             ])
             ->add('errorType', ChoiceType::class, [
                 'label'         => 'Type of error',

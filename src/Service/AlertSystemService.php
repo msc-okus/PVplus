@@ -165,6 +165,7 @@ class AlertSystemService
     public function checkSystem2(Anlage $anlage, ?string $time = null): string
     {
         if ($time === null) $time = $this->getLastQuarter(date('Y-m-d H:i:s') );
+        /** Todo: $ppc read from Plant ??? */
         $ppc = false;
         //we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
 
@@ -426,8 +427,7 @@ class AlertSystemService
                 $ticket->setBegin(($begin));
                 $ticketDate->setBegin($begin);
                 $ticket->addDate($ticketDate);
-            }
-            else{
+            } else {
                 $ticketDate = $ticket->getDates()->last();
             }
             $timetemp = date('Y-m-d H:i:s', strtotime($time));
