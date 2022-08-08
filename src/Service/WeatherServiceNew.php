@@ -163,8 +163,9 @@ class WeatherServiceNew
         return true;
     }
 
-    //Given a plant and no date it will return the sunrise info of the given plant for the current day
-    //Given a plant and a time it will return the sunrise info of the given plant for the given date
+    /** Given a plant and no date it will return the sunrise info of the given plant for the current day
+     * Given a plant and a time it will return the sunrise info of the given plant for the given date
+     */
     public function getSunrise(Anlage $anlage, ?string $time = null): array
     {
         if ($time === null) {
