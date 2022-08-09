@@ -148,6 +148,7 @@ class TicketFormType extends AbstractType
                 'disabled'          => $isNewTicket,
                 'placeholder'       => 'Please select ...',
                 'invalid_message'   => 'Please select a Error Category.',
+                'empty_data'        => 0
             ])
             ->add('errorType', ChoiceType::class, [
                 'label'         => 'Type of error',
