@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Form\Anlage;
 
 use App\Entity\TimesConfig;
@@ -17,30 +16,29 @@ class TimeConfigListEmbeddedFormType extends AbstractType
     {
         $builder
             ->add('type', ChoiceType::class, [
-
-                'choices'   => ['Availability' => 'availability_first', 'Availability Second' => 'availability_second'],
-                'required'  => true
+                'choices' => ['Availability' => 'availability_first', 'Availability Second' => 'availability_second'],
+                'required' => true,
             ])
             ->add('startDateMonth', ChoiceType::class, [
-                'choices'   => array_combine(range(1,12), range(1,12)),
-                'placeholder'   => 'please choose'
+                'choices' => array_combine(range(1, 12), range(1, 12)),
+                'placeholder' => 'please choose',
             ])
             ->add('startDateDay', ChoiceType::class, [
-                'choices'   => array_combine(range(1,31), range(1,31)),
-                'placeholder'   => 'please choose'
+                'choices' => array_combine(range(1, 31), range(1, 31)),
+                'placeholder' => 'please choose',
             ])
             ->add('endDateMonth', ChoiceType::class, [
-                'choices'   => array_combine(range(1,12), range(1,12)),
-                'placeholder'   => 'please choose'
+                'choices' => array_combine(range(1, 12), range(1, 12)),
+                'placeholder' => 'please choose',
             ])
             ->add('endDateDay', ChoiceType::class, [
-                'choices'   => array_combine(range(1,31), range(1,31)),
-                'placeholder'   => 'please choose'
+                'choices' => array_combine(range(1, 31), range(1, 31)),
+                'placeholder' => 'please choose',
             ])
             ->add('startTime', TimeType::class)
             ->add('endTime', TimeType::class)
             ->add('maxFailTime', TextType::class, [
-                'empty_data'    => '30',
+                'empty_data' => '30',
             ])
         ;
     }

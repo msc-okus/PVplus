@@ -5,41 +5,27 @@ namespace App\Entity;
 use App\Repository\GroupMonthsRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=GroupMonthsRepository::class)
- */
+#[ORM\Entity(repositoryClass: GroupMonthsRepository::class)]
 class AnlageGroupMonths
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private int $id;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private int $month;
 
-    /**
-     * @ORM\Column(type="string", length=20, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private string $irrUpper;
 
-    /**
-     * @ORM\Column(type="string", length=20, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private string $irrLower;
 
-    /**
-     * @ORM\Column(type="string", length=20, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private string $shadowLoss;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=AnlageGroups::class, inversedBy="months")
-     */
+    #[ORM\ManyToOne(targetEntity: AnlageGroups::class, inversedBy: 'months')]
     private $anlageGroup;
 
     public function getId(): ?int
@@ -61,7 +47,7 @@ class AnlageGroupMonths
 
     public function getIrrUpper(): ?float
     {
-        return (float)str_replace(',', '.', $this->irrUpper);
+        return (float) str_replace(',', '.', $this->irrUpper);
     }
 
     public function setIrrUpper(string $irrUpper): self
@@ -73,7 +59,7 @@ class AnlageGroupMonths
 
     public function getIrrLower(): ?float
     {
-        return (float)str_replace(',', '.', $this->irrLower);
+        return (float) str_replace(',', '.', $this->irrLower);
     }
 
     public function setIrrLower(string $irrLower): self
@@ -85,7 +71,7 @@ class AnlageGroupMonths
 
     public function getShadowLoss(): ?float
     {
-        return (float)str_replace(',', '.', $this->shadowLoss);
+        return (float) str_replace(',', '.', $this->shadowLoss);
     }
 
     public function setShadowLoss(string $shadowLoss): self

@@ -18,7 +18,4 @@ class AcGroupsRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, AnlageAcGroups::class);
     }
-
-
-
 }

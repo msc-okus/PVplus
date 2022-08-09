@@ -7,8 +7,8 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGeneratorInterface;
 use ApiPlatform\Core\Exception\InvalidArgumentException;
 use Closure;
 use Doctrine\DBAL\Types\Types;
-use Doctrine\ORM\QueryBuilder;
 use Doctrine\DBAL\Types\Types as DBALType;
+use Doctrine\ORM\QueryBuilder;
 
 final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterInterface
 {
@@ -17,10 +17,7 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
     ];
 
     /**
-     * Get swagger documentation field description
-     *
-     * @param string $resourceClass
-     * @return array
+     * Get swagger documentation field description.
      */
     public function getDescription(string $resourceClass): array
     {
@@ -69,19 +66,15 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
     //
 
     /**
-     * Filter property
+     * Filter property.
      *
-     * @param string $property
      * @param $value
-     * @param QueryBuilder $queryBuilder
-     * @param QueryNameGeneratorInterface $queryNameGenerator
-     * @param string $resourceClass
-     * @param string|null $operationName
+     *
      * @return void
      */
     protected function filterProperty(
         string $property,
-               $value,
+        $value,
         QueryBuilder $queryBuilder,
         QueryNameGeneratorInterface $queryNameGenerator,
         string $resourceClass,
@@ -121,17 +114,13 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
                 break;
 
             default:
-                throw new InvalidArgumentException(
-                    "Type \"{$type}\" specified for property \"{$property}\" is not supported (yet)."
-                );
+                throw new InvalidArgumentException("Type \"{$type}\" specified for property \"{$property}\" is not supported (yet).");
         }
     }
 
     /**
-     * Check & normalize value
+     * Check & normalize value.
      *
-     * @param array $values
-     * @param string $property
      * @return mixed
      */
     protected function normalizeValues(array $values, string $property)
@@ -140,7 +129,7 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
             $this->setLoggerError(
                 'Invalid filter ignored',
                 'At least one value is required, multiple values should be in '
-                . '"%1$s[]=firstvalue&%1$s[]=secondvalue" format',
+                .'"%1$s[]=firstvalue&%1$s[]=secondvalue" format',
                 [$property]
             );
         }
@@ -179,11 +168,6 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
         return true;
     }
 
-    /**
-     * @param array $values
-     * @param string $property
-     * @return bool|null
-     */
     private function getBooleanValue(array $values, string $property): ?bool
     {
         if (in_array($values[0], [true, 'true', '1'], true)) {
@@ -211,9 +195,9 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
     }
 
     /**
-     * Checked if a property is required
+     * Checked if a property is required.
+     *
      * @param mixed $config
-     * @return bool
      */
     private function isPropertyRequired($config): bool
     {
@@ -221,11 +205,7 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
     }
 
     /**
-     * Is JSON Field
-     *
-     * @param string $property
-     * @param string $resourceClass
-     * @return boolean
+     * Is JSON Field.
      */
     private function isJsonField(string $property, string $resourceClass): bool
     {
@@ -233,10 +213,9 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
     }
 
     /**
-     * Is valid / available type
+     * Is valid / available type.
      *
-     * @param string $property
-     * @return boolean
+     * @return bool
      */
     private function isValidType(string $property): ?bool
     {
@@ -257,10 +236,7 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
     }
 
     /**
-     * Is numeric array
-     *
-     * @param array $values
-     * @return boolean
+     * Is numeric array.
      */
     private function isNumericArray(array $values): bool
     {
@@ -274,9 +250,8 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
     }
 
     /**
-     * Get JSON Column
+     * Get JSON Column.
      *
-     * @param string $property
      * @return string
      */
     private function getJsonColumn(string $property)
@@ -287,9 +262,8 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
     }
 
     /**
-     * Get JSON Key
+     * Get JSON Key.
      *
-     * @param string $property
      * @return string
      */
     private function getJsonKey(string $property)
@@ -304,9 +278,8 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
     }
 
     /**
-     * Get property type
+     * Get property type.
      *
-     * @param string $property
      * @return string
      */
     private function getPropertyType(string $property)
@@ -323,9 +296,8 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
     }
 
     /**
-     * Get property strategy
+     * Get property strategy.
      *
-     * @param string $property
      * @return string
      */
     private function getPropertyStrategy(string $property)
@@ -336,12 +308,7 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
     }
 
     /**
-     * Add property name to array of filters
-     * @param array $filterParameterNames
-     * @param string $propertyType
-     * @param string $propertyName
-     * @param string $propertyStrategy
-     * @return array
+     * Add property name to array of filters.
      */
     private function addPropertyNameToFilter(
         array $filterParameterNames,
@@ -352,19 +319,15 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
         if ($propertyType == self::TYPE_INT
             || $propertyType == self::TYPE_FLOAT
             || ($propertyType == self::TYPE_STRING && self::STRATEGY_EXACT === $propertyStrategy)) {
-            $filterParameterNames[] = $propertyName . '[]';
+            $filterParameterNames[] = $propertyName.'[]';
         }
 
         return $filterParameterNames;
     }
 
     /**
-     * Add numeric filter
+     * Add numeric filter.
      *
-     * @param string $property
-     * @param array $values
-     * @param QueryBuilder $queryBuilder
-     * @param QueryNameGeneratorInterface $queryNameGenerator
      * @return void
      */
     private function addNumericFilter(
@@ -399,12 +362,10 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
     }
 
     /**
-     * Add boolean filter
+     * Add boolean filter.
      *
-     * @param string $property
      * @param bool $value
-     * @param QueryBuilder $queryBuilder
-     * @param QueryNameGeneratorInterface $queryNameGenerator
+     *
      * @return void
      */
     private function addBooleanFilter(
@@ -435,12 +396,8 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
     }
 
     /**
-     * Add string filter depending on the strategy
+     * Add string filter depending on the strategy.
      *
-     * @param string $property
-     * @param array $values
-     * @param QueryBuilder $queryBuilder
-     * @param QueryNameGeneratorInterface $queryNameGenerator
      * @return void
      */
     private function addStringFilter(
@@ -497,7 +454,7 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
         foreach ($values as $index => $value) {
             $condition = $this->addOperatorToQueryCondition($condition, $index);
 
-            $valueParameter = $queryNameGenerator->generateParameterName($jsonColumn . $index);
+            $valueParameter = $queryNameGenerator->generateParameterName($jsonColumn.$index);
             $condition .= "JSON_UNQUOTE(JSON_EXTRACT({$jsonColumnWithAlias}, '$.{$jsonKey}')) = :{$valueParameter}";
 
             $value = $caseSensitive ? $value : strtolower($value);
@@ -510,7 +467,7 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
 
     private function addOperatorToQueryCondition(string $condition, int $index)
     {
-        $condition = $index > 0 ? ' OR ': $condition;
+        $condition = $index > 0 ? ' OR ' : $condition;
 
         return $condition;
     }
@@ -518,14 +475,7 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
     /**
      * Adds string filter where clause according to the strategy.
      *
-     * @param string $strategy
-     * @param QueryBuilder $queryBuilder
-     * @param QueryNameGeneratorInterface $queryNameGenerator
-     * @param string $alias
-     * @param string $jsonColumn
-     * @param string $jsonKey
      * @param $value
-     * @param bool $caseSensitive
      */
     private function addStringFilterWhereByStrategy(
         string $strategy,
@@ -556,7 +506,7 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
                 $queryBuilder
                     ->andWhere(
                         "JSON_UNQUOTE(JSON_EXTRACT({$jsonColumnWithAlias}, '$.{$jsonKey}')) LIKE "
-                        . $wrapCase("CONCAT('%%', :{$valueParameter}, '%%')")
+                        .$wrapCase("CONCAT('%%', :{$valueParameter}, '%%')")
                     )
                     ->setParameter($valueParameter, $value, Types::STRING);
 
@@ -566,7 +516,7 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
                 $queryBuilder
                     ->andWhere(
                         "JSON_UNQUOTE(JSON_EXTRACT({$jsonColumnWithAlias}, '$.{$jsonKey}')) LIKE "
-                        . $wrapCase("CONCAT(:{$valueParameter}, '%%')")
+                        .$wrapCase("CONCAT(:{$valueParameter}, '%%')")
                     )
                     ->setParameter($valueParameter, $value, Types::STRING);
 
@@ -576,7 +526,7 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
                 $queryBuilder
                     ->andWhere(
                         "JSON_UNQUOTE(JSON_EXTRACT({$jsonColumnWithAlias}, '$.{$jsonKey}')) LIKE "
-                        . $wrapCase("CONCAT('%%', :{$valueParameter}")
+                        .$wrapCase("CONCAT('%%', :{$valueParameter}")
                     )
                     ->setParameter($valueParameter, $value, Types::STRING);
 
@@ -586,12 +536,12 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
                 $queryBuilder
                     ->andWhere(
                         '('
-                        . "JSON_UNQUOTE(JSON_EXTRACT({$jsonColumnWithAlias}, '$.{$jsonKey}')) LIKE "
-                        . $wrapCase("CONCAT(:{$valueParameter}, '%%')")
-                        . ' OR '
-                        . "JSON_UNQUOTE(JSON_EXTRACT({$jsonColumnWithAlias}, '$.{$jsonKey}')) LIKE "
-                        . $wrapCase("CONCAT('%% ', :{$valueParameter}, '%%')")
-                        . ')'
+                        ."JSON_UNQUOTE(JSON_EXTRACT({$jsonColumnWithAlias}, '$.{$jsonKey}')) LIKE "
+                        .$wrapCase("CONCAT(:{$valueParameter}, '%%')")
+                        .' OR '
+                        ."JSON_UNQUOTE(JSON_EXTRACT({$jsonColumnWithAlias}, '$.{$jsonKey}')) LIKE "
+                        .$wrapCase("CONCAT('%% ', :{$valueParameter}, '%%')")
+                        .')'
                     )
                     ->setParameter($valueParameter, $value, Types::STRING);
 
@@ -608,9 +558,6 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
      *
      * For example, "o.name" will get wrapped into "LOWER(o.name)" when $caseSensitive
      * is false.
-     *
-     * @param bool $caseSensitive
-     * @return Closure
      */
     private function createWrapCase(bool $caseSensitive): Closure
     {
@@ -623,11 +570,6 @@ final class JsonFilter extends AbstractContextAwareFilter implements JsonFilterI
         };
     }
 
-    /**
-     * @param string $type
-     * @param string $message
-     * @param array $properties
-     */
     private function setLoggerError(string $type, string $message, array $properties)
     {
         $message = vsprintf($message, $properties);

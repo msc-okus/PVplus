@@ -9,272 +9,225 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 
 /**
- * Eigner
- *
- * @ORM\Table(name="eigner")
- * @ORM\Entity(repositoryClass="App\Repository\EignerRepository")
+ * Eigner.
  */
+#[ORM\Table(name: 'eigner')]
+#[ORM\Entity(repositoryClass: 'App\Repository\EignerRepository')]
 class Eigner
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     * @ORM\Column(name="id", type="bigint", nullable=false)
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
+    #[ORM\Id]
+    #[ORM\Column(name: 'id', type: 'bigint', nullable: false)]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
 
     /**
      * @var \DateTime
      *
-     * @ORM\Column(name="created", type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      * @Gedmo\Timestampable(on="create")
      */
+    #[ORM\Column(name: 'created', type: 'datetime', nullable: false, options: ['default' => 'CURRENT_TIMESTAMP'])]
     private $created;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="firma", type="string", length=100, nullable=false)
      */
+    #[ORM\Column(name: 'firma', type: 'string', length: 100, nullable: false)]
     private $firma;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="zusatz", type="string", length=100, nullable=false)
      */
+    #[ORM\Column(name: 'zusatz', type: 'string', length: 100, nullable: false)]
     private $zusatz;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="anrede", type="string", length=100, nullable=false)
      */
+    #[ORM\Column(name: 'anrede', type: 'string', length: 100, nullable: false)]
     private $anrede;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="vorname", type="string", length=100, nullable=false)
      */
+    #[ORM\Column(name: 'vorname', type: 'string', length: 100, nullable: false)]
     private $vorname;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="nachname", type="string", length=100, nullable=false)
      */
+    #[ORM\Column(name: 'nachname', type: 'string', length: 100, nullable: false)]
     private $nachname;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="strasse", type="string", length=100, nullable=false)
      */
+    #[ORM\Column(name: 'strasse', type: 'string', length: 100, nullable: false)]
     private $strasse;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="plz", type="string", length=10, nullable=false)
      */
+    #[ORM\Column(name: 'plz', type: 'string', length: 10, nullable: false)]
     private $plz;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="ort", type="string", length=100, nullable=false)
      */
+    #[ORM\Column(name: 'ort', type: 'string', length: 100, nullable: false)]
     private $ort;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="nachricht", type="text", length=65535, nullable=true)
      */
+    #[ORM\Column(name: 'nachricht', type: 'text', length: 65535, nullable: true)]
     private $nachricht;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="telefon1", type="string", length=100, nullable=false)
      */
+    #[ORM\Column(name: 'telefon1', type: 'string', length: 100, nullable: false)]
     private $telefon1;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="telefon2", type="string", length=100, nullable=false)
      */
+    #[ORM\Column(name: 'telefon2', type: 'string', length: 100, nullable: false)]
     private $telefon2;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="mobil", type="string", length=100, nullable=false)
      */
+    #[ORM\Column(name: 'mobil', type: 'string', length: 100, nullable: false)]
     private $mobil;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="fax", type="string", length=100, nullable=false)
      */
+    #[ORM\Column(name: 'fax', type: 'string', length: 100, nullable: false)]
     private $fax;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="home_dir", type="string", length=100, nullable=false, options={"default"="user/home/"})
      */
+    #[ORM\Column(name: 'home_dir', type: 'string', length: 100, nullable: false, options: ['default' => 'user/home/'])]
     private $homeDir = 'user/home/';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="home_folder", type="text", length=65535, nullable=true)
      */
+    #[ORM\Column(name: 'home_folder', type: 'text', length: 65535, nullable: true)]
     private $homeFolder;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="email", type="text", length=65535, nullable=false)
      */
+    #[ORM\Column(name: 'email', type: 'text', length: 65535, nullable: false)]
     private $email;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="web", type="text", length=65535, nullable=true)
      */
+    #[ORM\Column(name: 'web', type: 'text', length: 65535, nullable: true)]
     private $web;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="bv_anrede", type="string", length=100, nullable=false)
      */
+    #[ORM\Column(name: 'bv_anrede', type: 'string', length: 100, nullable: false)]
     private $bvAnrede;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="bv_vorname", type="string", length=100, nullable=false)
      */
+    #[ORM\Column(name: 'bv_vorname', type: 'string', length: 100, nullable: false)]
     private $bvVorname;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="bv_nachname", type="string", length=100, nullable=false)
      */
+    #[ORM\Column(name: 'bv_nachname', type: 'string', length: 100, nullable: false)]
     private $bvNachname;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="bv_email", type="text", length=65535, nullable=false)
      */
+    #[ORM\Column(name: 'bv_email', type: 'text', length: 65535, nullable: false)]
     private $bvEmail;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="bv_telefon1", type="string", length=100, nullable=false)
      */
+    #[ORM\Column(name: 'bv_telefon1', type: 'string', length: 100, nullable: false)]
     private $bvTelefon1;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="bv_telefon2", type="string", length=100, nullable=false)
      */
+    #[ORM\Column(name: 'bv_telefon2', type: 'string', length: 100, nullable: false)]
     private $bvTelefon2;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="bv_mobil", type="string", length=100, nullable=false)
      */
+    #[ORM\Column(name: 'bv_mobil', type: 'string', length: 100, nullable: false)]
     private $bvMobil;
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="active", type="bigint", nullable=false)
      */
+    #[ORM\Column(name: 'active', type: 'bigint', nullable: false)]
     private $active = '0';
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="editlock", type="bigint", nullable=false, options={"default"="1"})
      */
+    #[ORM\Column(name: 'editlock', type: 'bigint', nullable: false, options: ['default' => 1])]
     private $editlock = '1';
 
     /**
      * @var int
-     *
-     * @ORM\Column(name="userlock", type="bigint", nullable=false)
      */
+    #[ORM\Column(name: 'userlock', type: 'bigint', nullable: false)]
     private $userlock = '0';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="language", type="string", length=10, nullable=false, options={"default"="EN"})
      */
+    #[ORM\Column(name: 'language', type: 'string', length: 10, nullable: false, options: ['default' => 'EN'])]
     private $language = 'EN';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="level", type="string", length=5, nullable=false, options={"default"="1"})
      */
+    #[ORM\Column(name: 'level', type: 'string', length: 5, nullable: false, options: ['default' => 1])]
     private $level = '1';
 
-    /**
-     * @ORM\ManyToMany(targetEntity=User::class, inversedBy="eigners")
-     * @ORM\JoinTable(name="eigner_user")
-     *
-     */
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'eigners')]
+    #[ORM\JoinTable(name: 'eigner_user')]
     private $user;
 
-    /**
-     * @ORM\Column(type="string", length=15, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 15, nullable: true)]
     private $activateAlertMessage;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Anlage::class, mappedBy="eigner")
-     */
+    #[ORM\OneToMany(targetEntity: Anlage::class, mappedBy: 'eigner')]
     private $anlage;
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlagenReports::class, mappedBy="eigner")
-     */
+    #[ORM\OneToMany(targetEntity: AnlagenReports::class, mappedBy: 'eigner')]
     private $anlagenReports;
-    /**
-     * @ORM\Column(type="string", length=10, nullable=true)
-     */
+
+    #[ORM\Column(type: 'string', length: 10, nullable: true)]
     private string $fontColor = '#9aacc3';
 
-    /**
-     * @ORM\Column(type="string", length=10, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 10, nullable: true)]
     private string $fontColor2 = '#2e639a';
 
-    /**
-     * @ORM\Column(type="string", length=10, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 10, nullable: true)]
     private string $fontColor3 = '#36639c';
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private $Logo;
 
     public function __construct()
@@ -702,6 +655,7 @@ class Eigner
 
     /**
      * @param bool $role
+     *
      * @return Collection|Anlage[]
      */
     public function getActiveAnlage($role = false): Collection
@@ -817,5 +771,4 @@ class Eigner
 
         return $this;
     }
-
 }

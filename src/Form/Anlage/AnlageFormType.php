@@ -5,18 +5,12 @@ namespace App\Form\Anlage;
 use App\Entity\Anlage;
 use App\Entity\Eigner;
 use App\Entity\WeatherStation;
-use App\Form\EconomimcVarNamesFormType;
-use App\Form\EventMail\EventMailListEmbeddedFormType;
-use App\Form\Groups\GroupsListEmbeddedFormType;
-use App\Form\GroupsAc\AcGroupsListEmbeddedFormType;
 use App\Form\Type\SwitchType;
 use App\Helper\G4NTrait;
 use App\Helper\PVPNameArraysTrait;
-use Doctrine\DBAL\Types\IntegerType;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
@@ -25,679 +19,674 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\Security\Core\Security;
 
 class AnlageFormType extends AbstractType
 {
     use G4NTrait;
+
     use PVPNameArraysTrait;
 
     private Security $security;
 
-    public function __construct(Security $security) {
+    public function __construct(Security $security)
+    {
         $this->security = $security;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $prArray = [
-            'No Cust PR'                => 'no',
-            'Groningen'                 => 'Groningen',
-            'Veendam'                   => 'Veendam',
+            'No Cust PR' => 'no',
+            'Groningen' => 'Groningen',
+            'Veendam' => 'Veendam',
             'Lelystad (Temp Korrektur)' => 'Lelystad',
         ];
         $pldAlgorithmArray = [
-            'Lelystad'      => 'Lelystad',
-            'Leek/Kampen'   => 'Leek/Kampen',
+            'Lelystad' => 'Lelystad',
+            'Leek/Kampen' => 'Leek/Kampen',
         ];
         $epcReportArry = [
-            'Kein Bericht'      => 'no',
-            'PR Garantie'       => 'prGuarantee',
-            'Ertrags Garantie'  => 'yieldGuarantee',
+            'Kein Bericht' => 'no',
+            'PR Garantie' => 'prGuarantee',
+            'Ertrags Garantie' => 'yieldGuarantee',
         ];
         $pldDiviorArray = [
-            'Expected Energy'               => 'expected',
-            'Guaranteed Expected Energy'    => 'guaranteedExpected',
+            'Expected Energy' => 'expected',
+            'Guaranteed Expected Energy' => 'guaranteedExpected',
         ];
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $builder
-            ################################################
-            ####                General                 ####
-            ################################################
+            // ###############################################
+            // ###                General                 ####
+            // ###############################################
 
-            ###### Plant Location #######
+            // ##### Plant Location #######
             ->add('eigner', EntityType::class, [
-                'label'         => 'Eigner',
-                'help'          => '[eigner]',
-                'class'         => Eigner::class,
-                'choice_label'  => 'firma',
-                'required'      => true,
-                'disabled'      => !$isDeveloper,
+                'label' => 'Eigner',
+                'help' => '[eigner]',
+                'class' => Eigner::class,
+                'choice_label' => 'firma',
+                'required' => true,
+                'disabled' => !$isDeveloper,
             ])
             ->add('anlName', TextType::class, [
-                'label'         => 'Anlagen Name',
-                'help'          => '[anlName]',
-                'empty_data'    => '',
-                'required'      => true,
+                'label' => 'Anlagen Name',
+                'help' => '[anlName]',
+                'empty_data' => '',
+                'required' => true,
             ])
             ->add('projektNr', TextType::class, [
-                'label'         => 'Projekt Nummer',
-                'help'          => '[projektNr]',
-                'empty_data'    => '',
-                'required'      => false,
+                'label' => 'Projekt Nummer',
+                'help' => '[projektNr]',
+                'empty_data' => '',
+                'required' => false,
             ])
             ->add('anlStrasse', TextType::class, [
-                'label'         => 'Strasse',
-                'help'          => '[anlStrasse]',
-                'empty_data'    => '',
-                'required'      => false,
+                'label' => 'Strasse',
+                'help' => '[anlStrasse]',
+                'empty_data' => '',
+                'required' => false,
             ])
             ->add('anlPlz', TextType::class, [
-                'label'         => 'PLZ',
-                'help'          => '[anlPlz]',
-                'empty_data'    => '',
-                'required'      => false,
+                'label' => 'PLZ',
+                'help' => '[anlPlz]',
+                'empty_data' => '',
+                'required' => false,
             ])
             ->add('anlOrt', TextType::class, [
-                'label'         => 'Ort',
-                'help'          => '[anlOrt]',
-                'empty_data'    => '',
-                'required'      => false,
+                'label' => 'Ort',
+                'help' => '[anlOrt]',
+                'empty_data' => '',
+                'required' => false,
             ])
             ->add('country', TextType::class, [
-                'label'         => 'Land als Kürzel (de, nl, ...)',
-                'help'          => '[country]',
-                'empty_data'    => '',
-                'required'      => false,
+                'label' => 'Land als Kürzel (de, nl, ...)',
+                'help' => '[country]',
+                'empty_data' => '',
+                'required' => false,
             ])
             ->add('anlGeoLat', TextType::class, [
-                'label'         => 'Geografische Breite (Latitude) [Dezimalgrad]',
-                'help'          => '[anlGeoLat]',
-                'empty_data'    => '',
-                'required'      => false,
+                'label' => 'Geografische Breite (Latitude) [Dezimalgrad]',
+                'help' => '[anlGeoLat]',
+                'empty_data' => '',
+                'required' => false,
             ])
             ->add('anlGeoLon', TextType::class, [
-                'label'         => 'Geografische Länge (Longitude) [Dezimalgrad]',
-                'help'          => '[anlGeoLon]',
-                'empty_data'    => '',
-                'required'      => false,
+                'label' => 'Geografische Länge (Longitude) [Dezimalgrad]',
+                'help' => '[anlGeoLon]',
+                'empty_data' => '',
+                'required' => false,
             ])
             ->add('notes', TextareaType::class, [
-                'label'         => 'Notizen zur Anlage',
-                'attr'          => ['rows' => '6'],
-                'empty_data'    => '',
-                'required'      => false,
+                'label' => 'Notizen zur Anlage',
+                'attr' => ['rows' => '6'],
+                'empty_data' => '',
+                'required' => false,
             ])
 
-            ###### Plant Base Configuration #######
+            // ##### Plant Base Configuration #######
             ->add('anlIntnr', TextType::class, [
-                'label'         => 'Datenbankkennung',
-                'help'          => '[anlIntnr]',
-                'empty_data'    => '',
-                'required'      => true,
-                'disabled'      => !$isDeveloper,
+                'label' => 'Datenbankkennung',
+                'help' => '[anlIntnr]',
+                'empty_data' => '',
+                'required' => true,
+                'disabled' => !$isDeveloper,
             ])
 
             ->add('anlType', ChoiceType::class, [
-                'label'         => 'Anlagen Typ',
-                'help'          => '[anlType]',
-                'choices'       => ['String WR' => 'string', 'ZWR' => 'zwr', 'Master Slave' => 'masterslave'],
-                'placeholder'   => 'Please Choose',
-                'empty_data'    => '',
-                'required'      => true,
+                'label' => 'Anlagen Typ',
+                'help' => '[anlType]',
+                'choices' => ['String WR' => 'string', 'ZWR' => 'zwr', 'Master Slave' => 'masterslave'],
+                'placeholder' => 'Please Choose',
+                'empty_data' => '',
+                'required' => true,
             ])
             ->add('anlBetrieb', null, [
-                'label'         => 'In Betrieb seit:',
-                'help'          => '[anlBetrieb]',
-                'widget'        => 'single_text',
-                'input'         => 'datetime',
-
+                'label' => 'In Betrieb seit:',
+                'help' => '[anlBetrieb]',
+                'widget' => 'single_text',
+                'input' => 'datetime',
             ])
             ->add('anlZeitzone', ChoiceType::class, [
-                'label'         => 'Zeit Korrektur Anlage',
-                'help'          => '[anlZeitzone]',
-                'choices'       => self::timeArray(),
-                'placeholder'   => 'Please Choose',
-                'empty_data'    => '+0',
+                'label' => 'Zeit Korrektur Anlage',
+                'help' => '[anlZeitzone]',
+                'choices' => self::timeArray(),
+                'placeholder' => 'Please Choose',
+                'empty_data' => '+0',
             ])
             ->add('anlInputDaily', ChoiceType::class, [
-                'label'         => 'Nur einmal am Tag neue Daten',
-                'help'          => '[anlInputDaily]',
-                'choices'       => ['Yes' => 'Yes', 'No' => 'No'],
-                'placeholder'   => 'Please Choose',
-                'empty_data'    => 'No',
+                'label' => 'Nur einmal am Tag neue Daten',
+                'help' => '[anlInputDaily]',
+                'choices' => ['Yes' => 'Yes', 'No' => 'No'],
+                'placeholder' => 'Please Choose',
+                'empty_data' => 'No',
             ])
             ->add('configType', ChoiceType::class, [
-                'label'         => 'Configuration der Anlage',
-                'help'          => '[configType]',
-                'choices'       => ['1' => 1, '2' => 2, '3' => 3, '4' => 4],
-                'placeholder'   => 'Please Choose',
-                'empty_data'    => 1,
-                'disabled'      => !$isDeveloper,
+                'label' => 'Configuration der Anlage',
+                'help' => '[configType]',
+                'choices' => ['1' => 1, '2' => 2, '3' => 3, '4' => 4],
+                'placeholder' => 'Please Choose',
+                'empty_data' => 1,
+                'disabled' => !$isDeveloper,
             ]);
 
         if ($this->security->isGranted('ROLE_DEV')) {
             $builder
                 ->add('useNewDcSchema', ChoiceType::class, [
-                    'label'         => 'Neues DC Database Schema (separate Tabelle für DC IST)',
-                    'help'          => '[useNewDcSchema]',
-                    'choices'       => ['Yes' => '1', 'No' => '0'],
-                    'empty_data'    => '0',
-                    'expanded'      => false,
-                    'multiple'      => false,
+                    'label' => 'Neues DC Database Schema (separate Tabelle für DC IST)',
+                    'help' => '[useNewDcSchema]',
+                    'choices' => ['Yes' => '1', 'No' => '0'],
+                    'empty_data' => '0',
+                    'expanded' => false,
+                    'multiple' => false,
                 ])
             ;
         }
 
         $builder
-            ###### WeatherStation #######
+            // ##### WeatherStation #######
             ->add('WeatherStation', EntityType::class, [
-                'label'         => 'Wetterstation',
-                'help'          => '[WeatherStation]',
-                'class'         => WeatherStation::class,
-                'choice_label'  => function(WeatherStation $station) {return sprintf('%s - %s', $station->getDatabaseIdent(), $station->getLocation());},
-                'required'      => true,
-                'disabled'      => !$isDeveloper,
+                'label' => 'Wetterstation',
+                'help' => '[WeatherStation]',
+                'class' => WeatherStation::class,
+                'choice_label' => function (WeatherStation $station) {return sprintf('%s - %s', $station->getDatabaseIdent(), $station->getLocation()); },
+                'required' => true,
+                'disabled' => !$isDeveloper,
             ])
-            ->add('useLowerIrrForExpected', SwitchType::class,[
-                'label'         => 'Benutze \'IrrLower\' für die Berechnung Expected',
-                'help'          => '[useLowerIrrForExpected]'
+            ->add('useLowerIrrForExpected', SwitchType::class, [
+                'label' => 'Benutze \'IrrLower\' für die Berechnung Expected',
+                'help' => '[useLowerIrrForExpected]',
             ])
 
-
-            ################################################
-            ####       Plant Data / Configuration       ####
-            ################################################
+            // ###############################################
+            // ###       Plant Data / Configuration       ####
+            // ###############################################
             ->add('pnom', TextType::class, [
-                'label'         => 'Anlagenleistung [kWp] (für PA Berechnung)',
-                'help'          => '[pNom]',
-                'label_html'    => true,
-                'required'      => false,
-                'empty_data'    => '',
+                'label' => 'Anlagenleistung [kWp] (für PA Berechnung)',
+                'help' => '[pNom]',
+                'label_html' => true,
+                'required' => false,
+                'empty_data' => '',
             ])
             ->add('kwPeakPvSyst', TextType::class, [
-                'label'         => 'Anlagenleistung PVSYST [kWp]',
-                'help'          => '[kwPeakPvSyst]',
-                'label_html'    => true,
-                'required'      => false,
-                'empty_data'    => '',
+                'label' => 'Anlagenleistung PVSYST [kWp]',
+                'help' => '[kwPeakPvSyst]',
+                'label_html' => true,
+                'required' => false,
+                'empty_data' => '',
             ])
 
             ->add('kwPeakPLDCalculation', TextType::class, [
-                'label'         => 'Anlagenleistung für PLD Berechnung [kWp]',
-                'help'          => '[kwPeakPLDCalculation]',
-                'label_html'    => true,
-                'required'      => false,
-                'empty_data'    => '',
+                'label' => 'Anlagenleistung für PLD Berechnung [kWp]',
+                'help' => '[kwPeakPLDCalculation]',
+                'label_html' => true,
+                'required' => false,
+                'empty_data' => '',
             ])
 
             ->add('useCustPRAlgorithm', ChoiceType::class, [
-                'label'         => 'Wähle und aktiviere Kundenspezifische PR Berechnung',
-                'help'          => '[useCustPRAlgorithm]',
-                'choices'       => $prArray,
-                'empty_data'    => 'no',
-                'expanded'      => false,
-                'multiple'      => false,
+                'label' => 'Wähle und aktiviere Kundenspezifische PR Berechnung',
+                'help' => '[useCustPRAlgorithm]',
+                'choices' => $prArray,
+                'empty_data' => 'no',
+                'expanded' => false,
+                'multiple' => false,
             ])
             ->add('tempCorrCellTypeAvg', TextType::class, [
-                'label'         => 't Cell AVG (nur für PR Algor. Lelystadt, wenn 0 dann ohne Temperatur korrektur)',
-                'help'          => '[tempCorrCellTypeAvg]',
-                'label_html'    => true,
-                'required'      => false,
-                'empty_data'    => '0',
+                'label' => 't Cell AVG (nur für PR Algor. Lelystadt, wenn 0 dann ohne Temperatur korrektur)',
+                'help' => '[tempCorrCellTypeAvg]',
+                'label_html' => true,
+                'required' => false,
+                'empty_data' => '0',
             ])
             ->add('tempCorrGamma', TextType::class, [
-                'label'         => 'Gamma',
-                'help'          => '[tempCorrGamma]',
-                'label_html'    => true,
-                'required'      => false,
-                'empty_data'    => '-0.4',
-                'disabled'      => !$isDeveloper,
+                'label' => 'Gamma',
+                'help' => '[tempCorrGamma]',
+                'label_html' => true,
+                'required' => false,
+                'empty_data' => '-0.4',
+                'disabled' => !$isDeveloper,
             ])
             ->add('tempCorrA', TextType::class, [
-                'label'         => 'A',
-                'help'          => '[tempCorrA]',
-                'label_html'    => true,
-                'required'      => false,
-                'empty_data'    => '-3.56',
-                'disabled'      => !$isDeveloper,
+                'label' => 'A',
+                'help' => '[tempCorrA]',
+                'label_html' => true,
+                'required' => false,
+                'empty_data' => '-3.56',
+                'disabled' => !$isDeveloper,
             ])
             ->add('tempCorrB', TextType::class, [
-                'label'         => 'B',
-                'help'          => '[tempCorrB]',
-                'label_html'    => true,
-                'required'      => false,
-                'empty_data'    => '-0.0750',
-                'disabled'      => !$isDeveloper,
+                'label' => 'B',
+                'help' => '[tempCorrB]',
+                'label_html' => true,
+                'required' => false,
+                'empty_data' => '-0.0750',
+                'disabled' => !$isDeveloper,
             ])
             ->add('tempCorrDeltaTCnd', TextType::class, [
-                'label'         => 'Delta T CND',
-                'help'          => '[tempCorrDeltaTCnd]',
-                'label_html'    => true,
-                'required'      => false,
-                'empty_data'    => '3.0',
-                'disabled'      => !$isDeveloper,
+                'label' => 'Delta T CND',
+                'help' => '[tempCorrDeltaTCnd]',
+                'label_html' => true,
+                'required' => false,
+                'empty_data' => '3.0',
+                'disabled' => !$isDeveloper,
             ])
             ->add('threshold1PA', TextType::class, [
-                'label'         => 'unterer Schwellwert (normal 0) [Watt] ',
-                'help'          => '[threshold1PA] (ti,theo / Schwellwert 1)',
-                'label_html'    => true,
+                'label' => 'unterer Schwellwert (normal 0) [Watt] ',
+                'help' => '[threshold1PA] (ti,theo / Schwellwert 1)',
+                'label_html' => true,
             ])
             ->add('threshold2PA', TextType::class, [
-                'label'         => 'min Irr. ab der PA berechnet werden soll [Watt] ',
-                'help'          => '[threshold2PA] (ti / Schwellwert 2)',
-                'label_html'    => true,
+                'label' => 'min Irr. ab der PA berechnet werden soll [Watt] ',
+                'help' => '[threshold2PA] (ti / Schwellwert 2)',
+                'label_html' => true,
             ])
-            ->add('useGridMeterDayData', SwitchType::class,[
-                'label'         => 'Nutze externe GridMeter Daten',
-                'help'          => '[useGridMeterDayData]',
+            ->add('useGridMeterDayData', SwitchType::class, [
+                'label' => 'Nutze externe GridMeter Daten',
+                'help' => '[useGridMeterDayData]',
             ])
             ->add('contractualAvailability', TextType::class, [
-                'label'         => 'Verfügbarkeit in %',
-                'help'          => '[contractualAvailability]',
-                'label_html'    => true,
-                'empty_data'    => '0',
+                'label' => 'Verfügbarkeit in %',
+                'help' => '[contractualAvailability]',
+                'label_html' => true,
+                'empty_data' => '0',
             ])
             ->add('contractualPR', TextType::class, [
-                'label'         => 'PR (Garantie) in %',
-                'help'          => '[contractualPR]',
-                'label_html'    => true,
-                'empty_data'    => '0',
+                'label' => 'PR (Garantie) in %',
+                'help' => '[contractualPR]',
+                'label_html' => true,
+                'empty_data' => '0',
             ])
             ->add('contractualPower', TextType::class, [
-                'label'         => 'Jahres Leistung in [kWh]',
-                'help'          => '[contractualPower]',
-                'label_html'    => true,
-                'empty_data'    => '',
+                'label' => 'Jahres Leistung in [kWh]',
+                'help' => '[contractualPower]',
+                'label_html' => true,
+                'empty_data' => '',
             ])
             ->add('designPR', TextType::class, [
-                'label'         => 'PR Design (pvSyst) [%]',
-                'help'          => '[designPR]',
-                'label_html'    => true,
-                'required'      => false,
-                'empty_data'    => '',
+                'label' => 'PR Design (pvSyst) [%]',
+                'help' => '[designPR]',
+                'label_html' => true,
+                'required' => false,
+                'empty_data' => '',
             ])
             ->add('isOstWestAnlage', ChoiceType::class, [
-                'label'         => 'Anlage hat Ost/West Ausrichtung',
-                'help'          => '[isOstWestAnlage]',
-                'label_html'    => true,
-                'choices'       => ['No' => '0', 'Yes' => '1'],
-                //'placeholder'   => 'Please Choose',
-                'empty_data'    => 'No',
+                'label' => 'Anlage hat Ost/West Ausrichtung',
+                'help' => '[isOstWestAnlage]',
+                'label_html' => true,
+                'choices' => ['No' => '0', 'Yes' => '1'],
+                // 'placeholder'   => 'Please Choose',
+                'empty_data' => 'No',
             ])
             ->add('powerEast', TextType::class, [
-                'label'         => 'Anlagenleistung [kWp] Osten',
-                'help'          => '[powerEast]',
-                'label_html'    => true,
-                'required'      => false,
-                'empty_data'    => '',
+                'label' => 'Anlagenleistung [kWp] Osten',
+                'help' => '[powerEast]',
+                'label_html' => true,
+                'required' => false,
+                'empty_data' => '',
             ])
             ->add('powerWest', TextType::class, [
-                'label'         => 'Anlagenleistung [kWp] Westen',
-                'help'          => '[powerWest]',
-                'label_html'    => true,
-                'required'      => false,
-                'empty_data'    => '',
+                'label' => 'Anlagenleistung [kWp] Westen',
+                'help' => '[powerWest]',
+                'label_html' => true,
+                'required' => false,
+                'empty_data' => '',
             ])
             ->add('pacDate', null, [
-                'label'         => 'PAC Datum',
-                'help'          => '[pacDate]',
-                'label_html'    => true,
-                'widget'        => 'single_text',
-                'input'         => 'datetime',
-                //'empty_data'    => new \DateTime('now'),
+                'label' => 'PAC Datum',
+                'help' => '[pacDate]',
+                'label_html' => true,
+                'widget' => 'single_text',
+                'input' => 'datetime',
+                // 'empty_data'    => new \DateTime('now'),
             ])
             ->add('pacDateEnd', null, [
-                'label'         => 'PAC Zeitraum Ende',
-                'help'          => '[pacDate]',
-                'label_html'    => true,
-                'widget'        => 'single_text',
-                'input'         => 'datetime',
-                //'empty_data'    => new \DateTime('now'),
+                'label' => 'PAC Zeitraum Ende',
+                'help' => '[pacDate]',
+                'label_html' => true,
+                'widget' => 'single_text',
+                'input' => 'datetime',
+                // 'empty_data'    => new \DateTime('now'),
             ])
-            ->add('usePac', SwitchType::class,[
-                'label'         => 'Use PAC Date',
-                'help'          => '[usePac]',
+            ->add('usePac', SwitchType::class, [
+                'label' => 'Use PAC Date',
+                'help' => '[usePac]',
             ])
-            ->add('pacDuration',TextType::class, [
-                'label'         => 'PAC Zeitraums in Monaten',
-                'help'          => '[pacDuration]',
-                'required'      => false,
-                'empty_data'    => '0',
+            ->add('pacDuration', TextType::class, [
+                'label' => 'PAC Zeitraums in Monaten',
+                'help' => '[pacDuration]',
+                'required' => false,
+                'empty_data' => '0',
             ])
             ->add('facDateStart', null, [
-                'label'         => 'FAC Zeitraum Start',
-                'help'          => '[facDateStart]',
-                'required'      => false,
-                'widget'        => 'single_text',
-                'input'         => 'datetime',
+                'label' => 'FAC Zeitraum Start',
+                'help' => '[facDateStart]',
+                'required' => false,
+                'widget' => 'single_text',
+                'input' => 'datetime',
             ])
             ->add('facDate', null, [
-                'label'         => 'FAC Datum',
-                'help'          => '[facDate]',
-                'label_html'    => true,
-                'widget'        => 'single_text',
-                'input'         => 'datetime',
+                'label' => 'FAC Datum',
+                'help' => '[facDate]',
+                'label_html' => true,
+                'widget' => 'single_text',
+                'input' => 'datetime',
             ])
             ->add('epcReportStart', null, [
-                'label'         => 'EPC Report Zeitraum Start',
-                'help'          => '[epcReportStart]',
-                'required'      => false,
-                'widget'        => 'single_text',
-                'input'         => 'datetime',
+                'label' => 'EPC Report Zeitraum Start',
+                'help' => '[epcReportStart]',
+                'required' => false,
+                'widget' => 'single_text',
+                'input' => 'datetime',
             ])
             ->add('epcReportEnd', null, [
-                'label'         => 'EPC Report Datum',
-                'help'          => '[epcReportEnd]',
-                'label_html'    => true,
-                'widget'        => 'single_text',
-                'input'         => 'datetime',
+                'label' => 'EPC Report Datum',
+                'help' => '[epcReportEnd]',
+                'label_html' => true,
+                'widget' => 'single_text',
+                'input' => 'datetime',
             ])
             ->add('lid', TextType::class, [
-                'label'         => 'Verlust Risikoabsch. (LID) [%]',
-                'help'          => '[lid]',
-                'label_html'    => true,
-                'required'      => false,
-                'empty_data'    => '0',
+                'label' => 'Verlust Risikoabsch. (LID) [%]',
+                'help' => '[lid]',
+                'label_html' => true,
+                'required' => false,
+                'empty_data' => '0',
             ])
             ->add('annualDegradation', TextType::class, [
-                'label'         => 'Verlust Annual Degrad. [%]',
-                'help'          => '[annualDegradation]',
-                'label_html'    => true,
-                'required'      => false,
-                'empty_data'    => '0',
+                'label' => 'Verlust Annual Degrad. [%]',
+                'help' => '[annualDegradation]',
+                'label_html' => true,
+                'required' => false,
+                'empty_data' => '0',
             ])
             ->add('pldPR', TextType::class, [
-                'label'         => 'PLD PR (VE) [EUR/kWh]',
-                'help'          => '[pldPR]',
-                'label_html'    => true,
-                'required'      => false,
-                'empty_data'    => '0',
+                'label' => 'PLD PR (VE) [EUR/kWh]',
+                'help' => '[pldPR]',
+                'label_html' => true,
+                'required' => false,
+                'empty_data' => '0',
             ])
             ->add('pldNPValue', TextType::class, [
-                'label'         => 'PLD NP Wert [%]',
-                'help'          => '[pldNPValue]',
-                'label_html'    => true,
-                'required'      => false,
-                'empty_data'    => '0',
+                'label' => 'PLD NP Wert [%]',
+                'help' => '[pldNPValue]',
+                'label_html' => true,
+                'required' => false,
+                'empty_data' => '0',
             ])
             ->add('pldYield', TextType::class, [
-                'label'         => 'PLD Ertrag <br>[faktor]',
-                'help'          => '[pldYield]',
-                'label_html'    => true,
-                'required'      => false,
-                'empty_data'    => '0',
+                'label' => 'PLD Ertrag <br>[faktor]',
+                'help' => '[pldYield]',
+                'label_html' => true,
+                'required' => false,
+                'empty_data' => '0',
             ])
             ->add('pldDivisor', ChoiceType::class, [
-                'label'         => 'PLD Divisor (Welcher Wert soll als Divisior in PLD Formel genutzt werden)',
-                'help'          => '[pldDivisor]',
-                'label_html'    => true,
-                'choices'       => $pldDiviorArray,
-                'empty_data'    => 'expected',
-                'expanded'      => false,
-                'multiple'      => false,
+                'label' => 'PLD Divisor (Welcher Wert soll als Divisior in PLD Formel genutzt werden)',
+                'help' => '[pldDivisor]',
+                'label_html' => true,
+                'choices' => $pldDiviorArray,
+                'empty_data' => 'expected',
+                'expanded' => false,
+                'multiple' => false,
             ])
-            ->add('usePnomForPld', SwitchType::class,[
-                'label'         => 'use Pnom for PLD <br>calculation',
-                'help'          => '[usePnomForPld]',
-                'label_html'    => true,
-                'required'      => false
+            ->add('usePnomForPld', SwitchType::class, [
+                'label' => 'use Pnom for PLD <br>calculation',
+                'help' => '[usePnomForPld]',
+                'label_html' => true,
+                'required' => false,
             ])
             ->add('transformerTee', TextType::class, [
-                'label'         => 'Abschalg Trafoverlust [%]',
-                'help'          => '[transformerTee]',
-                'label_html'    => true,
-                'required'      => false,
-                'empty_data'    => '0',
+                'label' => 'Abschalg Trafoverlust [%]',
+                'help' => '[transformerTee]',
+                'label_html' => true,
+                'required' => false,
+                'empty_data' => '0',
             ])
             ->add('guaranteeTee', TextType::class, [
-                'label'         => 'Abschlag Garantie [%]',
-                'help'          => '[guaranteeTee]',
-                'label_html'    => true,
-                'required'      => false,
-                'empty_data'    => '0',
+                'label' => 'Abschlag Garantie [%]',
+                'help' => '[guaranteeTee]',
+                'label_html' => true,
+                'required' => false,
+                'empty_data' => '0',
             ])
 
-            ->add('hasDc', SwitchType::class,[
-                'label'         => 'Anlage hat DC Daten',
-                'help'          => '[hasDc]',
+            ->add('hasDc', SwitchType::class, [
+                'label' => 'Anlage hat DC Daten',
+                'help' => '[hasDc]',
             ])
             ->add('pldAlgorithm', ChoiceType::class, [
-                'label'         => 'Select the PLD Calculation Algorrithm',
-                'choices'       => $pldAlgorithmArray,
-                'help'          => '[pldAlgorithm]'
+                'label' => 'Select the PLD Calculation Algorrithm',
+                'choices' => $pldAlgorithmArray,
+                'help' => '[pldAlgorithm]',
             ])
 
-            ->add('hasStrings', SwitchType::class,[
-                'label'         => 'Anlage hat String Daten',
-                'help'          => '[hasStrings]',
+            ->add('hasStrings', SwitchType::class, [
+                'label' => 'Anlage hat String Daten',
+                'help' => '[hasStrings]',
             ])
-            ->add('hasPPC', SwitchType::class,[
+            ->add('hasPPC', SwitchType::class, [
                 'label' => 'Anlage hat Power Plant Controller Daten',
-                'help'  => '[hasPPC]',
+                'help' => '[hasPPC]',
             ])
-            ->add('hasPannelTemp', SwitchType::class,[
-                'label'         => 'Anlage hat Pannel Temperatur',
-                'help'          => '[hasPannelTemp]',
+            ->add('hasPannelTemp', SwitchType::class, [
+                'label' => 'Anlage hat Pannel Temperatur',
+                'help' => '[hasPannelTemp]',
             ])
-            ->add('useDayForecast', SwitchType::class,[
-                'label'         => 'use Forecast by Day',
-                'help'          => '[useDayForecast]',
-                'required'      => false,
+            ->add('useDayForecast', SwitchType::class, [
+                'label' => 'use Forecast by Day',
+                'help' => '[useDayForecast]',
+                'required' => false,
             ])
             ->add('degradationForecast', TextType::class, [
-                'label'         => 'Degradation, only Forecast [%]',
-                'help'          => '[degradationForecast]',
-                'label_html'    => true,
-                'required'      => false,
-                'empty_data'    => '0',
+                'label' => 'Degradation, only Forecast [%]',
+                'help' => '[degradationForecast]',
+                'label_html' => true,
+                'required' => false,
+                'empty_data' => '0',
             ])
             ->add('lossesForecast', TextType::class, [
-                'label'         => 'Losses, only Forecast [%]',
-                'help'          => '[lossesForecast]',
-                'label_html'    => true,
-                'required'      => false,
-                'empty_data'    => '0',
+                'label' => 'Losses, only Forecast [%]',
+                'help' => '[lossesForecast]',
+                'label_html' => true,
+                'required' => false,
+                'empty_data' => '0',
             ])
             ->add('dataSourceAM', CKEditorType::class, [
-                'label'         => 'Explanation DataSources AM Report',
-                'data'          => 'Yield (Grid Meter): <br>Inverter out:',
-                'config'        => ['toolbar' => 'my_toolbar'],
+                'label' => 'Explanation DataSources AM Report',
+                'data' => 'Yield (Grid Meter): <br>Inverter out:',
+                'config' => ['toolbar' => 'my_toolbar'],
             ])
             ->add('retrieveAllData', SwitchType::class, [
-                'label'         => 'Use all Data from begining of Working Time',
-                'help'          => '[retrieveAllData]',
+                'label' => 'Use all Data from begining of Working Time',
+                'help' => '[retrieveAllData]',
             ])
             ->add('freqBase', TextType::class, [
-                'label'         => 'Base frequency of the Plant',
-                'help'          => '[freqBase]',
+                'label' => 'Base frequency of the Plant',
+                'help' => '[freqBase]',
             ])
             ->add('freqTolerance', TextType::class, [
-                'label'         => 'Frequency tolerance of the Plant',
-                'help'          => '[hasFrequency]',
+                'label' => 'Frequency tolerance of the Plant',
+                'help' => '[hasFrequency]',
             ])
-            ->add('hasFrequency', SwitchType::class,[
+            ->add('hasFrequency', SwitchType::class, [
                 'label' => 'Has Frequency',
-                'help'  => '[hasFrequency]',
-
+                'help' => '[hasFrequency]',
             ])
-            ################################################
-            ####               Reports                  ####
-            ################################################
+            // ###############################################
+            // ###               Reports                  ####
+            // ###############################################
 
             ->add('epcReportType', ChoiceType::class, [
-                'label'         => 'Welchen EPC Report',
-                'help'          => '[epcReportType]',
-                'choices'       => $epcReportArry,
-                //'placeholder'   => 'Please Choose',
-                'empty_data'    => 'no',
-                'expanded'      => false,
-                'multiple'      => false,
+                'label' => 'Welchen EPC Report',
+                'help' => '[epcReportType]',
+                'choices' => $epcReportArry,
+                // 'placeholder'   => 'Please Choose',
+                'empty_data' => 'no',
+                'expanded' => false,
+                'multiple' => false,
             ])
 
-            ################################################
-            ####              Settings                  ####
-            ################################################
+            // ###############################################
+            // ###              Settings                  ####
+            // ###############################################
             ->add('anlView', ChoiceType::class, [
-                'label'         => 'Anlage für Eigner:',
-                'help'          => '[anlView]',
-                'choices'       => ['aktiv' => 'Yes', 'deaktiviert' => 'No'],
-                'placeholder'   => 'Please Choose',
-                'empty_data'    => 'No',
+                'label' => 'Anlage für Eigner:',
+                'help' => '[anlView]',
+                'choices' => ['aktiv' => 'Yes', 'deaktiviert' => 'No'],
+                'placeholder' => 'Please Choose',
+                'empty_data' => 'No',
             ])
             ->add('anlHidePlant', ChoiceType::class, [
-                'label'         => 'Anlage komplett ausblenden (Eigner und Admins)',
-                'help'          => '[anlHidePlant]',
-                'label_html'    => true,
-                'choices'       => ['Yes' => 'Yes', 'No' => 'No'],
-                'placeholder'   => 'Please Choose',
-                'empty_data'    => 'Yes',
+                'label' => 'Anlage komplett ausblenden (Eigner und Admins)',
+                'help' => '[anlHidePlant]',
+                'label_html' => true,
+                'choices' => ['Yes' => 'Yes', 'No' => 'No'],
+                'placeholder' => 'Please Choose',
+                'empty_data' => 'Yes',
             ])
 
             ->add('anlMute', ChoiceType::class, [
-                'label'         => 'Anlage stummschalten (keine Fehlermeldungen senden) (inaktiv)',
-                'help'          => '[anlMute]',
-                'label_html'    => true,
-                'choices'       => ['Yes' => 'Yes', 'No' => 'No'],
-                'placeholder'   => 'Please Choose',
-                'empty_data'    => 'No',
+                'label' => 'Anlage stummschalten (keine Fehlermeldungen senden) (inaktiv)',
+                'help' => '[anlMute]',
+                'label_html' => true,
+                'choices' => ['Yes' => 'Yes', 'No' => 'No'],
+                'placeholder' => 'Please Choose',
+                'empty_data' => 'No',
             ])
 
             ->add('anlMuteUntil', DateType::class, [
-                'label'         => 'Anlage stumgeschaltet bis:',
-                'help'          => '[anlMuteUntil]',
-                'label_html'    => true,
-                'disabled'      => true,
+                'label' => 'Anlage stumgeschaltet bis:',
+                'help' => '[anlMuteUntil]',
+                'label_html' => true,
+                'disabled' => true,
                 'widget' => 'single_text',
             ])
 
-            ->add('useCosPhi', SwitchType::class,[
-                'label'         => 'Aktiviere cosPhi',
-                'help'          => '[useCosPhi]',
+            ->add('useCosPhi', SwitchType::class, [
+                'label' => 'Aktiviere cosPhi',
+                'help' => '[useCosPhi]',
             ])
 
-            ->add('calcPR', SwitchType::class,[
-                'label'         => 'PR und andere Werte berechnen (wenn Anlage noch nicht final eingerichtet, bitte auf \'No\' stellen)',
-                'help'          => '[calcPR]',
+            ->add('calcPR', SwitchType::class, [
+                'label' => 'PR und andere Werte berechnen (wenn Anlage noch nicht final eingerichtet, bitte auf \'No\' stellen)',
+                'help' => '[calcPR]',
             ])
             ->add('excludeFromExpCalc', SwitchType::class, [
-                'label'         => 'Exclude from expected Calculation',
-                'help'          => '[isExcludeFromExpCalc]',
+                'label' => 'Exclude from expected Calculation',
+                'help' => '[isExcludeFromExpCalc]',
             ])
 
+            // ###############################################
+            // ###         Configuartion Backend          ####
+            // ###############################################
+            ->add('showOnlyUpperIrr', SwitchType::class, [
+                'label' => 'Zeige nur eine Strahlungskennlinie',
+                'help' => '[showOnlyUpperIrr]',
+            ])
+            ->add('showStringCharts', SwitchType::class, [
+                'help' => '[showStringCharts]',
+            ])
+            ->add('showAvailability', SwitchType::class, [
+                'help' => '[showAvailability]',
+            ])
+            ->add('showAvailabilitySecond', SwitchType::class, [
+                'help' => '[showAvailabilitySecond]',
+            ])
+            ->add('showInverterPerformance', SwitchType::class, [
+                'help' => '[showInverterPerformance]',
+            ])
+            ->add('showEvuDiag', SwitchType::class, [
+                'help' => '[showEvuDiag]',
+            ])
+            ->add('showInverterOutDiag', SwitchType::class, [
+                'help' => '[showInverterOutDiag]',
+            ])
+            ->add('showCosPhiDiag', SwitchType::class, [
+                'help' => '[showCosPhiDiag]',
+            ])
+            ->add('showCosPhiPowerDiag', SwitchType::class, [
+                'help' => '[showCosPhiPowerDiag]',
+            ])
+            ->add('showGraphDcInverter', SwitchType::class, [
+                'help' => '[showGraphDcInverter]',
+                'label' => 'Zeige Diagramm \'DC - Inverter\'',
+            ])
+            ->add('showGraphDcCurrInv', SwitchType::class, [
+                'label' => 'Zeige Diagramm \'DC - Current Inverter\'',
+                'help' => '[showGraphDcCurrInv]',
+            ])
+            ->add('showGraphDcCurrGrp', SwitchType::class, [
+                'label' => 'Zeige Diagramm \'DC - Current Group\'',
+                'help' => '[showGraphDcCurrGrp]',
+            ])
+            ->add('showGraphVoltGrp', SwitchType::class, [
+                'label' => 'Zeige Diagramm \'DC - Voltage Group\'',
+                'help' => '[showGraphVoltGrp]',
+            ])
+            ->add('showGraphIrrPlant', SwitchType::class, [
+                'label' => 'Zeige Diagramm \'Irradiation Plant\'',
+                'help' => '[showGraphIrrPlant]',
+            ])
+            ->add('showPR', SwitchType::class, [
+                'label' => 'Zeige Diagramm \'PR\'',
+                'help' => '[showPR]',
+            ])
+            ->add('showPvSyst', SwitchType::class, [
+                'label' => 'Zeige Tabelle \'PvSyst\'',
+                'help' => '[showPvSyst]',
+            ])
+            ->add('showForecast', SwitchType::class, [
+                'label' => 'Zeige Forecast',
+                'help' => '[showForecast]',
+            ])
 
-            ################################################
-            ####         Configuartion Backend          ####
-            ################################################
-            ->add('showOnlyUpperIrr', SwitchType::class,[
-                'label'         => 'Zeige nur eine Strahlungskennlinie',
-                'help'          => '[showOnlyUpperIrr]',
-            ])
-            ->add('showStringCharts', SwitchType::class,[
-                'help'          => '[showStringCharts]',
-            ])
-            ->add('showAvailability', SwitchType::class,[
-                'help'          => '[showAvailability]',
-            ])
-            ->add('showAvailabilitySecond', SwitchType::class,[
-                'help'          => '[showAvailabilitySecond]',
-            ])
-            ->add('showInverterPerformance', SwitchType::class,[
-                'help'          => '[showInverterPerformance]',
-            ])
-            ->add('showEvuDiag', SwitchType::class,[
-                'help'          => '[showEvuDiag]',
-            ])
-            ->add('showInverterOutDiag', SwitchType::class,[
-                'help'          => '[showInverterOutDiag]',
-            ])
-            ->add('showCosPhiDiag', SwitchType::class,[
-                'help'          => '[showCosPhiDiag]',
-            ])
-            ->add('showCosPhiPowerDiag', SwitchType::class,[
-                'help'          => '[showCosPhiPowerDiag]',
-            ])
-            ->add('showGraphDcInverter', SwitchType::class,[
-                'help'          => '[showGraphDcInverter]',
-                'label'         => 'Zeige Diagramm \'DC - Inverter\'',
-            ])
-            ->add('showGraphDcCurrInv', SwitchType::class,[
-                'label'         => 'Zeige Diagramm \'DC - Current Inverter\'',
-                'help'          => '[showGraphDcCurrInv]',
-            ])
-            ->add('showGraphDcCurrGrp', SwitchType::class,[
-                'label'         => 'Zeige Diagramm \'DC - Current Group\'',
-                'help'          => '[showGraphDcCurrGrp]',
-            ])
-            ->add('showGraphVoltGrp', SwitchType::class,[
-                'label'         => 'Zeige Diagramm \'DC - Voltage Group\'',
-                'help'          => '[showGraphVoltGrp]',
-            ])
-            ->add('showGraphIrrPlant', SwitchType::class,[
-                'label'         => 'Zeige Diagramm \'Irradiation Plant\'',
-                'help'          => '[showGraphIrrPlant]',
-            ])
-            ->add('showPR', SwitchType::class,[
-                'label'         => 'Zeige Diagramm \'PR\'',
-                'help'          => '[showPR]',
-            ])
-            ->add('showPvSyst', SwitchType::class,[
-                'label'         => 'Zeige Tabelle \'PvSyst\'',
-                'help'          => '[showPvSyst]',
-            ])
-            ->add('showForecast', SwitchType::class,[
-                'label'         => 'Zeige Forecast',
-                'help'          => '[showForecast]',
-            ])
-
-            ################################################
-            ####              Relations                 ####
-            ################################################
+            // ###############################################
+            // ###              Relations                 ####
+            // ###############################################
             ->add('modules', CollectionType::class, [
-                'entry_type'    => ModulesListEmbeddedFormType::class,
-                'allow_add'     => true,
-                'allow_delete'  => true,
-                'delete_empty'  => true,
-                'by_reference'  => false,
+                'entry_type' => ModulesListEmbeddedFormType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'delete_empty' => true,
+                'by_reference' => false,
             ])
             ->add('timesConfigs', CollectionType::class, [
-                'entry_type'    => TimeConfigListEmbeddedFormType::class,
-                'allow_add'     => true,
-                'allow_delete'  => true,
-                'delete_empty'  => true,
-                'by_reference'  => false,
+                'entry_type' => TimeConfigListEmbeddedFormType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'delete_empty' => true,
+                'by_reference' => false,
             ])
 
-            ##############################################
-            ####          STEUERELEMENTE              ####
-            ##############################################
+            // #############################################
+            // ###          STEUERELEMENTE              ####
+            // #############################################
             ->add('save', SubmitType::class, [
                 'label' => 'Save Plant',
-                'attr'  => ['class' => 'primary save'],
+                'attr' => ['class' => 'primary save'],
             ])
             ->add('saveclose', SubmitType::class, [
                 'label' => 'Save and Close Plant',
-                'attr'  => ['class' => 'primary saveclose'],
+                'attr' => ['class' => 'primary saveclose'],
             ])
             ->add('close', SubmitType::class, [
                 'label' => 'Close without save',
-                'attr'  => ['class' => 'secondary close', 'formnovalidate' => 'formnovalidate'],
+                'attr' => ['class' => 'secondary close', 'formnovalidate' => 'formnovalidate'],
             ])
             ->add('savecreatedb', SubmitType::class, [
-                'label'         => 'Save and Create Databases',
-                'attr'  => ['class' => 'secondary small', 'formnovalidate' => 'formnovalidate'],
+                'label' => 'Save and Create Databases',
+                'attr' => ['class' => 'secondary small', 'formnovalidate' => 'formnovalidate'],
             ])
         ;
-
     }
-
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class'    => Anlage::class,
-            'anlagenId'     => '',
+            'data_class' => Anlage::class,
+            'anlagenId' => '',
         ]);
         $resolver->setAllowedTypes('anlagenId', 'string');
     }

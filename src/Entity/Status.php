@@ -4,43 +4,27 @@ namespace App\Entity;
 
 use App\Repository\StatusRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Blameable\Traits\BlameableEntity;
-use Gedmo\Timestampable\Traits\TimestampableEntity;
 
-/**
- * @ORM\Entity(repositoryClass=StatusRepository::class)
- */
+#[ORM\Entity(repositoryClass: StatusRepository::class)]
 class Status
 {
-
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=50)
-     */
+    #[ORM\Column(type: 'string', length: 50)]
     private $stamp;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="statuses")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'statuses')]
+    #[ORM\JoinColumn(nullable: false)]
     private $Anlage;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: 'text')]
     private $Status;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private $isWeather;
-
 
     public function getId(): ?int
     {
@@ -94,5 +78,4 @@ class Status
 
         return $this;
     }
-
 }

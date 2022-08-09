@@ -21,8 +21,8 @@ class TimesConfigRepository extends ServiceEntityRepository
     }
 
     /**
-    * @return TimesConfig Returns an array of TimesConfig objects
-    */
+     * @return TimesConfig Returns an array of TimesConfig objects
+     */
     public function findValidConfig(Anlage $anlage, $type, \DateTime $date)
     {
         $qb = $this->createQueryBuilder('t')
@@ -36,17 +36,17 @@ class TimesConfigRepository extends ServiceEntityRepository
             ->setMaxResults('1')
             ->getQuery()
             ->getResult()
-            ;
+        ;
 
-        //Search for fallback if we can not find any other config
-        if (! $qb) {
+        // Search for fallback if we can not find any other config
+        if (!$qb) {
             $qb = $this->createQueryBuilder('t')
                 ->andWhere('t.anlage IS NULL')
                 ->andWhere('t.type = :type')
                 ->setParameter('type', $type)
                 ->getQuery()
                 ->getSingleResult();
-            
+
             return $qb;
         }
 

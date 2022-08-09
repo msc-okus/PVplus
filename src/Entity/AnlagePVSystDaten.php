@@ -7,57 +7,41 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 
-/**
- * @ORM\Entity(repositoryClass=PVSystDatenRepository::class)
- * @ORM\Table(uniqueConstraints={@ORM\UniqueConstraint(name="uniquePvSyst", columns={"anlage_id", "stamp"})}, indexes={@ORM\Index(name="stamp", columns={"stamp"})})
- */
+#[ORM\Entity(repositoryClass: PVSystDatenRepository::class)]
+#[ORM\Table]
+#[ORM\UniqueConstraint(name: 'uniquePvSyst', columns: ['anlage_id', 'stamp'])]
+#[ORM\Index(name: 'stamp', columns: ['stamp'])]
 class AnlagePVSystDaten
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private int $id;
-
     use TimestampableEntity;
+
     use BlameableEntity;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="anlagePVSystDatens")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private int $id;
+
+    #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'anlagePVSystDatens')]
     private Anlage $anlage;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $stamp;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $irrGlobalHor;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $irrGlobalInc;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $tempAmbiant;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $electricityGrid;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $electricityInverterOut;
-
 
     public function getId(): ?int
     {

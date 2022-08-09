@@ -18,46 +18,46 @@ class AcGroupsListEmbeddedFormType extends AbstractType
         $builder
             ->add('acGroup')
             ->add('acGroupName', TextType::class, [
-                'help'          => '[acGroupName]',
-                'empty_data'    => '',
+                'help' => '[acGroupName]',
+                'empty_data' => '',
             ])
             ->add('unitFirst', TextType::class, [
-                'help'          => '[unitFirst]',
-                'empty_data'    => '',
+                'help' => '[unitFirst]',
+                'empty_data' => '',
             ])
             ->add('unitLast', TextType::class, [
-                'help'          => '[unitLast]',
-                'empty_data'    => '',
+                'help' => '[unitLast]',
+                'empty_data' => '',
             ])
             ->add('dcPowerInverter', TextType::class, [
-                'required'      => false,
-                'help'          => '[dcPowerInverter]',
-                'empty_data'    => '0',
+                'required' => false,
+                'help' => '[dcPowerInverter]',
+                'empty_data' => '0',
             ])
             ->add('weatherStation', EntityType::class, [
-                'label'         => 'Wetterstation',
-                'help'          => '[weatherStation]',
-                'class'         => WeatherStation::class,
-                'choice_label'  => function(WeatherStation $station) {return sprintf('%s - %s', $station->getDatabaseIdent(), $station->getLocation());},
-                'placeholder'   => 'select a Weatherstation',
-                'required'      => false,
-                'empty_data'    => null,
+                'label' => 'Wetterstation',
+                'help' => '[weatherStation]',
+                'class' => WeatherStation::class,
+                'choice_label' => function (WeatherStation $station) {return sprintf('%s - %s', $station->getDatabaseIdent(), $station->getLocation()); },
+                'placeholder' => 'select a Weatherstation',
+                'required' => false,
+                'empty_data' => null,
             ])
             ->add('isEastWestGroup', ChoiceType::class, [
-                'required'      => false,
-                'choices'       => ['Yes' => '1', 'No' => '0'],
-                'help'          => '[isEastWestGroup]',
-                'empty_data'    => '0',
+                'required' => false,
+                'choices' => ['Yes' => '1', 'No' => '0'],
+                'help' => '[isEastWestGroup]',
+                'empty_data' => '0',
             ])
             ->add('gewichtungAnlagenPR', TextType::class, [
-                'required'      => false,
-                'help'          => '[gewichtungAnlagenPR]',
-                'empty_data'    => '',
+                'required' => false,
+                'help' => '[gewichtungAnlagenPR]',
+                'empty_data' => '',
             ])
             ->add('tCellAvg', TextType::class, [
-                'required'      => false,
-                'help'          => '[tCellAvg]',
-                'empty_data'    => '',
+                'required' => false,
+                'help' => '[tCellAvg]',
+                'empty_data' => '',
             ])
         ;
     }
@@ -69,4 +69,3 @@ class AcGroupsListEmbeddedFormType extends AbstractType
         ]);
     }
 }
-

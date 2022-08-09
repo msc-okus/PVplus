@@ -1,513 +1,308 @@
 <?php
 
 namespace App\Entity;
+
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * DbAnlPrw
- *
- * @ORM\Table(name="anlagen_pr", indexes={@ORM\Index(name="stamp", columns={"stamp"})}, uniqueConstraints={@ORM\UniqueConstraint(name="uniquePR", columns={"anlage_id", "stamp"})})
- * @ORM\Entity(repositoryClass="App\Repository\PRRepository")
+ * DbAnlPrw.
  */
+#[ORM\Table(name: 'anlagen_pr')]
+#[ORM\Index(name: 'stamp', columns: ['stamp'])]
+#[ORM\UniqueConstraint(name: 'uniquePR', columns: ['anlage_id', 'stamp'])]
+#[ORM\Entity(repositoryClass: 'App\Repository\PRRepository')]
 class AnlagenPR
 {
     /**
      * @var int
-     *
-     * @ORM\Column(name="id", type="bigint", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
+    #[ORM\Column(name: 'id', type: 'bigint', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="anl_id", type="string", length=50, nullable=false)
-     */
+    #[ORM\Column(name: 'anl_id', type: 'string', length: 50, nullable: false)]
     private string $anlId;
 
-    /**
-     * @var DateTime
-     *
-     * @ORM\Column(name="stamp", type="date", nullable=false)
-     */
+    #[ORM\Column(name: 'stamp', type: 'date', nullable: false)]
     private DateTime $stamp;
 
     /**
-     * @var DateTime
      * @deprecated
-     * @ORM\Column(name="stamp_ist", type="datetime", nullable=false)
      */
+    #[ORM\Column(name: 'stamp_ist', type: 'datetime', nullable: false)]
     private DateTime $stampIst;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="power_act", type="string", length=20, nullable=false)
-     */
+    #[ORM\Column(name: 'power_act', type: 'string', length: 20, nullable: false)]
     private string $powerAct;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="power_exp", type="string", length=20, nullable=false)
-     */
+    #[ORM\Column(name: 'power_exp', type: 'string', length: 20, nullable: false)]
     private string $powerExp;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="power_diff", type="string", length=20, nullable=false)
-     */
+    #[ORM\Column(name: 'power_diff', type: 'string', length: 20, nullable: false)]
     private string $powerDiff;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="pr_diff", type="string", length=20, nullable=false)
-     */
+    #[ORM\Column(name: 'pr_diff', type: 'string', length: 20, nullable: false)]
     private string $prDiff;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="irradiation", type="string", length=20, nullable=false)
-     */
+    #[ORM\Column(name: 'irradiation', type: 'string', length: 20, nullable: false)]
     private string $irradiation;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="pr_act", type="string", length=20, nullable=false)
-     */
+    #[ORM\Column(name: 'pr_act', type: 'string', length: 20, nullable: false)]
     private string $prActPoz;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="pr_exp", type="string", length=20, nullable=false)
-     */
+    #[ORM\Column(name: 'pr_exp', type: 'string', length: 20, nullable: false)]
     private string $prExpPoz;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="panneltemp", type="string", length=20, nullable=false)
-     */
+    #[ORM\Column(name: 'panneltemp', type: 'string', length: 20, nullable: false)]
     private string $panneltemp;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $power_evu;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $power_evu_year;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $power_act_year;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $powerExpYear;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $cust_irr;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prEvuProz;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="pr")
-     */
+    #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'pr')]
     private ?Anlage $anlage;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $plantAvailability;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $plantAvailabilityPerYear;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $plantAvailabilityPerPac;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $plantAvailabilitySecond;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $plantAvailabilityPerYearSecond;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $plantAvailabilityPerPacSecond;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $powerTheo;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $g4nIrrAvg;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $powerEvuPac;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $powerActPac;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $powerExpPac;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prPac;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $electricityGrid;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $powerPvSyst;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $powerPvSystYear;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $powerPvSystPac;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $tempCorrection;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private ?string $theoPowerPac;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $theoPowerYear;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $pacDate;
 
-    /**
-     * @ORM\Column(type="json", nullable=true)
-     */
+    #[ORM\Column(type: 'json', nullable: true)]
     private ?array $irradiationJson = [];
 
-    /**
-     * @ORM\Column(type="json", nullable=true)
-     */
+    #[ORM\Column(type: 'json', nullable: true)]
     private ?array $temperaturJson = [];
 
-    /**
-     * @ORM\Column(type="json", nullable=true)
-     */
+    #[ORM\Column(type: 'json', nullable: true)]
     private ?array $windJson = [];
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $forecastSumAct;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $forecastSum;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $forecastDivMinus;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $forecastDivPlus;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prEvuMonth;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prActMonth;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private $powerEGridExt;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private $powerEGridExtPac;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private $powerEGridExtYear;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prEGridExt;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prEGridExtPac;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prEGridExtYear;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private $powerEGridExtMonth;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prEGridExtMonth;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prEvuPac;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prActPac;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prEvuYear;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prActYear;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prExpMonth;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prExpPac;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prExpYear;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $powerActMonth;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $powerExpMonth;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $PowerEvuMonth;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $powerTheoMonth;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $plantAvailabilityPerMonth;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $plantAvailabilityPerMonthSecond;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $IrrMonth;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $IrrPac;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $IrrYear;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $spezYield;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $case5perDay;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $theoPowerDefault;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $theoPowerDefaultMonth;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $theoPowerDefaultPac;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $theoPowerDefaultYear;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prDefaultEvu;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prDefaultAct;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prDefaultExp;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prDefaultEGridExt;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prDefaultMonthEvu;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prDefaultMonthAct;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prDefaultMonthExp;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prDefaultMonthEGridExt;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prDefaultPacEvu;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prDefaultPacAct;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prDefaultPacExp;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prDefaultPacEGridExt;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prDefaultYearEvu;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prDefaultYearAct;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prDefaultYearExp;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prDefaultYearEGridExt;
-
 
     public function getId(): ?string
     {

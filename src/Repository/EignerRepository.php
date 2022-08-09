@@ -2,7 +2,6 @@
 
 namespace App\Repository;
 
-
 use App\Entity\Eigner;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\Criteria;
@@ -22,7 +21,6 @@ class EignerRepository extends ServiceEntityRepository
         parent::__construct($registry, Eigner::class);
     }
 
-
     public static function activeAnlagenCriteria($role): Criteria
     {
         if ($role === true) {
@@ -33,7 +31,6 @@ class EignerRepository extends ServiceEntityRepository
                 ->andWhere(Criteria::expr()->eq('anlHidePlant', 'No'))
                 ->andWhere(Criteria::expr()->eq('anlView', 'Yes'));
         }
-
     }
 
     /**
@@ -55,19 +52,16 @@ class EignerRepository extends ServiceEntityRepository
             ->orderBy('anlage.anlName', 'ASC')
             ->getQuery()
             ->getResult()
-            ;
+        ;
     }
 
-    /**
-     * @param string|null $term
-     * @return QueryBuilder
-     */
-    public function getWithSearchQueryBuilder(?string $term): QueryBuilder {
+    public function getWithSearchQueryBuilder(?string $term): QueryBuilder
+    {
         $qb = $this->createQueryBuilder('a');
 
         if ($term) {
             $qb->andWhere('a.firma LIKE :term OR a.plz LIKE :term OR a.ort LIKE :term')
-                ->setParameter('term', '%' . $term . '%')
+                ->setParameter('term', '%'.$term.'%')
             ;
         }
 

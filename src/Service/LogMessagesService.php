@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 class LogMessagesService
 {
     private EntityManagerInterface $em;
+
     private LogMessagesRepository $logMessagesRepo;
 
     public function __construct(EntityManagerInterface $em, LogMessagesRepository $logMessagesRepo)
@@ -22,7 +23,7 @@ class LogMessagesService
     {
         $log = new LogMessages();
         $log
-            ->setPlant($anlage->getAnlName() . " - " . $anlage->getProjektNr())
+            ->setPlant($anlage->getAnlName().' - '.$anlage->getProjektNr())
             ->setFunction($function)
             ->setJob($job)
             ->setStartedAt(new \DateTimeImmutable())
@@ -38,9 +39,12 @@ class LogMessagesService
     {
         $log = $this->logMessagesRepo->findOneBy(['id' => $id]);
         $log->setState($state);
-        if ($progress) $log->setProgress($progress);
-        if ($state == 'done') $log->setFinishedAt(new \DateTimeImmutable());
+        if ($progress) {
+            $log->setProgress($progress);
+        }
+        if ($state == 'done') {
+            $log->setFinishedAt(new \DateTimeImmutable());
+        }
         $this->em->flush();
-
     }
 }

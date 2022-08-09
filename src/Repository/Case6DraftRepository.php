@@ -20,7 +20,8 @@ class Case6DraftRepository extends ServiceEntityRepository
         parent::__construct($registry, Case6Draft::class);
     }
 
-    public function findByCase(string $inverter, string $stampTo, string $stampFrom, string $Reason){
+    public function findByCase(string $inverter, string $stampTo, string $stampFrom, string $Reason)
+    {
         return $this->createQueryBuilder('a')
             ->andWhere('a.inverter = :inverter')
             ->andWhere('a.stampTo = :stampTo')
@@ -32,27 +33,25 @@ class Case6DraftRepository extends ServiceEntityRepository
             ->setParameter('reason', $Reason)
             ->getQuery()
             ->getResult();
-
     }
 
-    public function findById(string $id){
+    public function findById(string $id)
+    {
         return $this->createQueryBuilder('a')
             ->andWhere('a.id = :id')
             ->setParameter('id', $id)
             ->getQuery()
             ->getResult();
-
     }
 
-    public function findAllByAnlage(Anlage $anlage){
-
+    public function findAllByAnlage(Anlage $anlage)
+    {
         return $this->createQueryBuilder('a')
             ->andWhere('a.anlage = :anlage')
             ->setParameter('anlage', $anlage)
             ->getQuery()
             ->getResult();
-            ;
-}
+    }
     // /**
     //  * @return Case6Draft[] Returns an array of Case6Draft objects
     //  */

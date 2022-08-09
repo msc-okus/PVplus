@@ -3,68 +3,44 @@
 namespace App\Helper;
 
 use DateTimeInterface;
+use Doctrine\ORM\Mapping as ORM;
 
 trait TicketTrait
 {
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private ?DateTimeInterface $begin;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private ?DateTimeInterface $end;
 
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $errorType;
 
-    /**
-     * @ORM\Column(type="string", length=100, nullable=true)
-     */
-    private $errorType;
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $freeText = '';
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
-    private $freeText = "";
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $description = '';
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $description = "";
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $systemStatus;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private $systemStatus;
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private int $priority;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private $priority;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $answer = '';
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $answer = "";
-
-    /**
-     * @ORM\Column(type="string", length=100, nullable=false)
-     */
+    #[ORM\Column(type: 'string', length: 100, nullable: false)]
     private string $inverter;
 
-    /**
-     * @ORM\Column(type="string", length=100, nullable=true)
-     */
-    private $alertType = "";
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $alertType = '';
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
-    private $status;
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private ?int $status;
 
-    /**
-     * @ORM\Column(type="string", length=20, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private string $dataGapEvaluation;
 
     public function getEnd(): ?DateTimeInterface
@@ -94,24 +70,23 @@ trait TicketTrait
     {
         $this->begin = $Begin;
 
-        if (isset($this->end) && isset($this->begin))
-        {
+        if (isset($this->end) && isset($this->begin)) {
             $endstamp = $this->getEnd()->getTimestamp();
             $beginstamp = $this->getBegin()->getTimestamp();
-            $this->Intervals = ($endstamp - $beginstamp)/900;
+            $this->intervals = ($endstamp - $beginstamp) / 900;
         }
-
 
         return $this;
     }
+
     public function getStatus(): ?int
     {
         return $this->status;
     }
 
-    public function setStatus(?int $Status): self
+    public function setStatus(?int $status): self
     {
-        $this->status = $Status;
+        $this->status = $status;
 
         return $this;
     }
@@ -127,6 +102,7 @@ trait TicketTrait
 
         return $this;
     }
+
     public function getErrorType(): ?string
     {
         return $this->errorType;
@@ -162,6 +138,7 @@ trait TicketTrait
 
         return $this;
     }
+
     public function getAnswer(): ?string
     {
         return $this->answer;

@@ -5,36 +5,24 @@ namespace App\Entity;
 use App\Repository\DayLightDataRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=DayLightDataRepository::class)
- */
+#[ORM\Entity(repositoryClass: DayLightDataRepository::class)]
 class DayLightData
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=40)
-     */
+    #[ORM\Column(type: 'string', length: 40)]
     private $Sunrise;
 
-    /**
-     * @ORM\Column(type="string", length=40)
-     */
+    #[ORM\Column(type: 'string', length: 40)]
     private $Sunset;
 
-    /**
-     * @ORM\Column(type="string", length=40)
-     */
+    #[ORM\Column(type: 'string', length: 40)]
     private $date;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="dayLightData")
-     */
+    #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'dayLightData')]
     private $anlage;
 
     public function getId(): ?int

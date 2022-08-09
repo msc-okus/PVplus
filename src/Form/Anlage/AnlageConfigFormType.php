@@ -3,11 +3,8 @@
 namespace App\Form\Anlage;
 
 use App\Entity\Anlage;
-use App\Entity\Eigner;
-use App\Entity\WeatherStation;
 use App\Form\EventMail\EventMailListEmbeddedFormType;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -24,7 +21,8 @@ class AnlageConfigFormType extends AbstractType
 {
     private Security $security;
 
-    public function __construct(Security $security) {
+    public function __construct(Security $security)
+    {
         $this->security = $security;
     }
 
@@ -34,71 +32,71 @@ class AnlageConfigFormType extends AbstractType
 
         $builder
             ->add('anlName', TextType::class, [
-                'label'         => 'Anlagen Name',
-                'help'          => '[anlName]',
-                'empty_data'    => '',
-                'required'      => true,
+                'label' => 'Anlagen Name',
+                'help' => '[anlName]',
+                'empty_data' => '',
+                'required' => true,
             ])
             ->add('projektNr', TextType::class, [
-                'label'         => 'Projekt Nummer',
-                'help'          => '[projektNr]',
-                'empty_data'    => '',
-                'required'      => false,
+                'label' => 'Projekt Nummer',
+                'help' => '[projektNr]',
+                'empty_data' => '',
+                'required' => false,
             ])
             ->add('anlStrasse', TextType::class, [
-                'label'         => 'Strasse',
-                'help'          => '[anlStrasse]',
-                'empty_data'    => '',
-                'required'      => false,
+                'label' => 'Strasse',
+                'help' => '[anlStrasse]',
+                'empty_data' => '',
+                'required' => false,
             ])
             ->add('anlPlz', TextType::class, [
-                'label'         => 'PLZ',
-                'help'          => '[anlPlz]',
-                'empty_data'    => '',
-                'required'      => false,
+                'label' => 'PLZ',
+                'help' => '[anlPlz]',
+                'empty_data' => '',
+                'required' => false,
             ])
             ->add('anlOrt', TextType::class, [
-                'label'         => 'Ort',
-                'help'          => '[anlOrt]',
-                'empty_data'    => '',
-                'required'      => false,
+                'label' => 'Ort',
+                'help' => '[anlOrt]',
+                'empty_data' => '',
+                'required' => false,
             ])
             ->add('country', TextType::class, [
-                'label'         => 'Land als Kürzel (de, nl, ...)',
-                'help'          => '[country]',
-                'empty_data'    => '',
-                'required'      => false,
+                'label' => 'Land als Kürzel (de, nl, ...)',
+                'help' => '[country]',
+                'empty_data' => '',
+                'required' => false,
             ])
             ->add('anlGeoLat', TextType::class, [
-                'label'         => 'Geografische Breite (Latitude) [Dezimalgrad]',
-                'help'          => '[anlGeoLat]',
-                'empty_data'    => '',
-                'required'      => false,
+                'label' => 'Geografische Breite (Latitude) [Dezimalgrad]',
+                'help' => '[anlGeoLat]',
+                'empty_data' => '',
+                'required' => false,
             ])
             ->add('anlGeoLon', TextType::class, [
-                'label'         => 'Geografische Länge (Longitude) [Dezimalgrad]',
-                'help'          => '[anlGeoLon]',
-                'empty_data'    => '',
-                'required'      => false,
+                'label' => 'Geografische Länge (Longitude) [Dezimalgrad]',
+                'help' => '[anlGeoLon]',
+                'empty_data' => '',
+                'required' => false,
             ])
             ->add('notes', TextareaType::class, [
-                'label'         => 'Notizen zur Anlage',
-                'attr'          => ['rows' => '6'],
-                'empty_data'    => '',
-                'required'      => false,
+                'label' => 'Notizen zur Anlage',
+                'attr' => ['rows' => '6'],
+                'empty_data' => '',
+                'required' => false,
             ])
 
             ->add('epcReportNote', CKEditorType::class, [
-                'config'        => ['toolbar' => 'my_toolbar'],
-                'attr'          => ['rows' => '9'],
-                'empty_data'    => '',
-                'required'      => false,
+                'config' => ['toolbar' => 'my_toolbar'],
+                'attr' => ['rows' => '9'],
+                'empty_data' => '',
+                'required' => false,
             ])
 
             ->add('sendWarnMail', ChoiceType::class, [
-                'label'         => 'Sende Warn E-Mails',
-                'choices'       => ['No' => '0', 'Yes' => '1'],
-                'empty_data'    => '0',
+                'label' => 'Sende Warn E-Mails',
+                'choices' => ['No' => '0', 'Yes' => '1'],
+                'empty_data' => '0',
             ])
             ->add('picture', FileType::class, [
                 'label' => 'Picture',
@@ -111,11 +109,11 @@ class AnlageConfigFormType extends AbstractType
                             'image/png',
                             'image/gif',
                             'image/jpg',
-                            'image/svg'
+                            'image/svg',
                         ],
                         'mimeTypesMessage' => 'Please upload a valid image type(jpeg, png, gif, jpg, svg)',
-                    ])
-                ]
+                    ]),
+                ],
             ])
         ;
 
@@ -229,84 +227,82 @@ class AnlageConfigFormType extends AbstractType
             ;
         }
 
-            ################################################
-            ####              Relations                 ####
-            ################################################
+        // ###############################################
+        // ###              Relations                 ####
+        // ###############################################
         $builder
             ->add('eventMails', CollectionType::class, [
-                'entry_type'    => EventMailListEmbeddedFormType::class,
-                'allow_add'     => true,
-                'allow_delete'  => true,
-                'delete_empty'  => true,
-                'by_reference'  => false,
+                'entry_type' => EventMailListEmbeddedFormType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'delete_empty' => true,
+                'by_reference' => false,
             ])
             ->add('legendMonthlyReports', CollectionType::class, [
-                'entry_type'    => MonthlyLegendListEmbeddedFormType::class,
-                'allow_add'     => true,
-                'allow_delete'  => true,
-                'delete_empty'  => true,
-                'by_reference'  => false,
+                'entry_type' => MonthlyLegendListEmbeddedFormType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'delete_empty' => true,
+                'by_reference' => false,
             ])
             ->add('legendEpcReports', CollectionType::class, [
-                'entry_type'    => EpcLegendListEmbeddedFormType::class,
-                'allow_add'     => true,
-                'allow_delete'  => true,
-                'delete_empty'  => true,
-                'by_reference'  => false,
+                'entry_type' => EpcLegendListEmbeddedFormType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'delete_empty' => true,
+                'by_reference' => false,
             ])
             ->add('pvSystMonths', CollectionType::class, [
-                'entry_type'    => PvSystMonthListEmbeddedFormType::class,
-                'allow_add'     => true,
-                'allow_delete'  => true,
-                'delete_empty'  => true,
-                'by_reference'  => false,
+                'entry_type' => PvSystMonthListEmbeddedFormType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'delete_empty' => true,
+                'by_reference' => false,
             ])
             ->add('monthlyYields', CollectionType::class, [
-                'entry_type'    => MonthlyYieldListEmbeddedFormType::class,
-                'allow_add'     => true,
-                'allow_delete'  => true,
-                'delete_empty'  => true,
-                'by_reference'  => false,
+                'entry_type' => MonthlyYieldListEmbeddedFormType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'delete_empty' => true,
+                'by_reference' => false,
             ])
         ;
         if ($this->security->isGranted('ROLE_AM')) {
             $builder
                 ->add('economicVarValues', CollectionType::class, [
-                    'entry_type'    => EconomicVarsValuesEmbeddedFormType::class,
-                    'allow_add'     => true,
-                    'allow_delete'  => true,
-                    'delete_empty'  => true,
-                    'by_reference'  => false,
+                    'entry_type' => EconomicVarsValuesEmbeddedFormType::class,
+                    'allow_add' => true,
+                    'allow_delete' => true,
+                    'delete_empty' => true,
+                    'by_reference' => false,
                 ])
             ;
         }
 
-            ##############################################
-            ####          STEUERELEMENTE              ####
-            ##############################################
+        // #############################################
+        // ###          STEUERELEMENTE              ####
+        // #############################################
         $builder
             ->add('save', SubmitType::class, [
                 'label' => 'Save Plant',
-                'attr'  => ['class' => 'primary save'],
+                'attr' => ['class' => 'primary save'],
             ])
             ->add('saveclose', SubmitType::class, [
                 'label' => 'Save and Close Plant',
-                'attr'  => ['class' => 'primary saveclose'],
+                'attr' => ['class' => 'primary saveclose'],
             ])
             ->add('close', SubmitType::class, [
                 'label' => 'Close without save',
-                'attr'  => ['class' => 'secondary close', 'formnovalidate' => 'formnovalidate'],
+                'attr' => ['class' => 'secondary close', 'formnovalidate' => 'formnovalidate'],
             ])
         ;
-
     }
-
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class'    => Anlage::class,
-            'anlagenId'     => '',
+            'data_class' => Anlage::class,
+            'anlagenId' => '',
         ]);
         $resolver->setAllowedTypes('anlagenId', 'string');
     }

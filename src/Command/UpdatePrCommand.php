@@ -19,6 +19,7 @@ class UpdatePrCommand extends Command
     protected static $defaultName = 'pvp:updatePr';
 
     private AnlagenRepository $anlagenRepository;
+
     private PRCalulationService $prCalulation;
 
     public function __construct(AnlagenRepository $anlagenRepository, PRCalulationService $prCalulation)
@@ -33,7 +34,7 @@ class UpdatePrCommand extends Command
         $this
             ->setDescription('Berechnung des PR ')
             ->addArgument('plantid', InputArgument::OPTIONAL, 'Anlagen ID für die, die Berechnung ausgeführt werden soll oder nichts, dann werden alle Anlagen berechnet')
-            ->addOption('day', null,InputOption::VALUE_REQUIRED, 'Tag (day) im Format \'yyyy-mm-dd\' für den, der PR berechnet werden soll.')
+            ->addOption('day', null, InputOption::VALUE_REQUIRED, 'Tag (day) im Format \'yyyy-mm-dd\' für den, der PR berechnet werden soll.')
            // ->addOption('anlage', 'a', InputOption::VALUE_REQUIRED, 'Anlagen ID für die, die Berechnung ausgeführt werden soll')
             ->addOption('from', null, InputOption::VALUE_REQUIRED, 'Datum ab dem berechnet werden soll')
             ->addOption('to', null, InputOption::VALUE_REQUIRED, 'Datum bis zu dem berechnet werden soll')
@@ -43,19 +44,19 @@ class UpdatePrCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $ergebniss          = '';
-        $io                 = new SymfonyStyle($input, $output);
-        $day                = $input->getOption('day');
-        //$anlageId           = $input->getOption('anlage');
-        $anlageId           = $input->getArgument('plantid');
-        $optionFrom         = $input->getOption('from');
-        $optionTo           = $input->getOption('to');
-        $optionLastMonth    = $input->getOption('lastMonth');
+        $ergebniss = '';
+        $io = new SymfonyStyle($input, $output);
+        $day = $input->getOption('day');
+        // $anlageId           = $input->getOption('anlage');
+        $anlageId = $input->getArgument('plantid');
+        $optionFrom = $input->getOption('from');
+        $optionTo = $input->getOption('to');
+        $optionLastMonth = $input->getOption('lastMonth');
 
         if ($day) {
-            $day    = strtotime($day);
-            $from   = date("Y-m-d 00:00", $day);
-            $to     = date("Y-m-d 23:50", $day);
+            $day = strtotime($day);
+            $from = date('Y-m-d 00:00', $day);
+            $to = date('Y-m-d 23:50', $day);
         } elseif ($optionLastMonth) {
             $month = date('m');
             if ($month == 1) {
@@ -64,22 +65,22 @@ class UpdatePrCommand extends Command
                 $year = date('Y') - 1;
             } else {
                 // $month != Januar => $month auf letzten Monat, $year auf aktuelles Jahr
-                $month -= 1;
-                $year   = date('Y');
+                --$month;
+                $year = date('Y');
             }
             $lastDayOfMonth = date('t', strtotime($year.'-'.$month.'-01'));
-            $from   = "$year-$month-01 00:00";
-            $to     = "$year-$month-$lastDayOfMonth 23:59";
+            $from = "$year-$month-01 00:00";
+            $to = "$year-$month-$lastDayOfMonth 23:59";
         } else {
             if ($optionFrom) {
-                $from = $optionFrom . ' 00:00:00';
+                $from = $optionFrom.' 00:00:00';
             } else {
-                $from = date("Y-m-d 00:00:00", time() - (48 * 3600));
+                $from = date('Y-m-d 00:00:00', time() - (48 * 3600));
             }
             if ($optionTo) {
-                $to = $optionTo . ' 23:59:00';
+                $to = $optionTo.' 23:59:00';
             } else {
-                $to = date("Y-m-d 23:59:00", time() - (24 * 3600));
+                $to = date('Y-m-d 23:59:00', time() - (24 * 3600));
             }
         }
 
@@ -88,14 +89,14 @@ class UpdatePrCommand extends Command
             $anlagen = $this->anlagenRepository->findIdLike([$anlageId]);
         } else {
             $io->comment("Berechne PR: $from - $to Alle Anlagen");
-            $anlagen = $this->anlagenRepository->findBy(['anlHidePlant' => 'No', 'calcPR' => true]); //, 'anlView' => 'Yes']);
+            $anlagen = $this->anlagenRepository->findBy(['anlHidePlant' => 'No', 'calcPR' => true]); // , 'anlView' => 'Yes']);
         }
 
-        $fromStamp  = strtotime($from);
-        $toStamp    = strtotime($to);
-        $counter    = 0;
+        $fromStamp = strtotime($from);
+        $toStamp = strtotime($to);
+        $counter = 0;
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp = $stamp + (24 * 3600)) {
-            $counter++;
+            ++$counter;
         }
 
         $io->progressStart(count($anlagen) * $counter);

@@ -26,17 +26,17 @@ class GroupsRepository extends ServiceEntityRepository
     public function findAllWeatherStations(Anlage $anlage, $exclude = null)
     {
         $qb = $this->createQueryBuilder('ws')
-            ->andWhere("ws.anlage = :anlage")
+            ->andWhere('ws.anlage = :anlage')
             ->andWhere('ws.weatherStation != :null')
             ->groupBy('ws.weatherStation')
             ->setParameter('anlage', $anlage)
             ->setParameter('null', 0)
-            ;
+        ;
         if ($exclude) {
             $qb->andWhere('ws.weatherStation != :exclude')
                 ->setParameter('exclude', $exclude);
         }
 
-        return  $qb->getQuery()->getResult();
+        return $qb->getQuery()->getResult();
     }
 }

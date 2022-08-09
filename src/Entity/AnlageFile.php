@@ -7,44 +7,32 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 
-/**
- * @ORM\Entity(repositoryClass=AnlageFileRepository::class)
- */
+#[ORM\Entity(repositoryClass: AnlageFileRepository::class)]
 class AnlageFile
 {
     use TimestampableEntity;
+
     use BlameableEntity;
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private int $id;
 
-    /**
-     * @ORM\Column(type="string", length=50)
-     */
+    #[ORM\Column(type: 'string', length: 50)]
     private string $stamp;
 
-    /**
-     * @ORM\Column(type="string", length=150)
-     */
+    #[ORM\Column(type: 'string', length: 150)]
     private string $filename;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private string $path;
 
-    /**
-     * @ORM\Column(type="string", length=50, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
     private string $mimeType;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="anlageFiles")
-     * @ORM\JoinColumn(nullable=true)
-     */
+    #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'anlageFiles')]
+    #[ORM\JoinColumn(nullable: true)]
     private $plant;
 
     public function getId(): ?int

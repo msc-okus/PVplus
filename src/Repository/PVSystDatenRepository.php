@@ -22,7 +22,6 @@ class PVSystDatenRepository extends ServiceEntityRepository
 
     public function sumByStamp(Anlage $anlage, $stamp)
     {
-
         $result = $this->createQueryBuilder('a')
             ->andWhere('a.anlage = :anlage')
             ->andWhere('a.stamp LIKE :stamp')
@@ -38,7 +37,6 @@ class PVSystDatenRepository extends ServiceEntityRepository
 
     public function sumByDateRange(Anlage $anlage, $from, $to)
     {
-
         $result = $this->createQueryBuilder('a')
             ->andWhere('a.anlage = :anlage')
             ->andWhere('a.stamp BETWEEN :from AND :to')
@@ -52,5 +50,4 @@ class PVSystDatenRepository extends ServiceEntityRepository
 
         return $result;
     }
-
 }

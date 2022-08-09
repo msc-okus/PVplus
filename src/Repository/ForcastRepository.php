@@ -31,8 +31,8 @@ class ForcastRepository extends ServiceEntityRepository
             ->select('SUM(f.expectedWeek)')
             ->getQuery()
             ->getSingleScalarResult()
-            ;
+        ;
+
         return $forecastSum;
     }
-
 }

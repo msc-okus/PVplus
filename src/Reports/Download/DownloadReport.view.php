@@ -1,11 +1,9 @@
 <?php
 
-use koolreport\widgets\koolphp\Table;
-use koolreport\widgets\google\ComboChart;
-
+use Hisune\EchartsPHP\Config;
+use Hisune\EchartsPHP\Doc\IDE\Series;
 use Hisune\EchartsPHP\ECharts;
-use \Hisune\EchartsPHP\Doc\IDE\Series;
-use \Hisune\EchartsPHP\Config;
+use koolreport\widgets\koolphp\Table;
 
 $params = $this->dataStores['params']->toArray()[0];
 
@@ -15,12 +13,12 @@ $useGridMeterDayData = $params['useGridMeterDayData'];
 $formatBody = $params['formatBody'];
 $plantPower = $params['plant_power'];
 
-if($params['doctype'] != 'excel'){
+if ($params['doctype'] != 'excel') {
     $lineBreake = '<br>';
     $doubleLineBreake = '<br><br>';
     $gradCelsius = '&deg;';
     $durchschnitt = '&Oslash;';
-}else{
+} else {
     $lineBreake = ' ';
     $doubleLineBreake = ' ';
     $gradCelsius = '°';
@@ -39,41 +37,39 @@ if($params['doctype'] != 'excel'){
 <script src="https://dev.g4npvplus.net/echarts/theme/sakura.js" type="text/javascript"></script>
 -->
 <?php
-include_once __DIR__ . '/table_fields_downloads.tmpl';
-if($params['tableType'] == 'default'){
+include_once __DIR__.'/table_fields_downloads.tmpl';
+if ($params['tableType'] == 'default') {
     ?>
     <div class="grid-x grid-margin-x">
         <div class="cell">
             <?php
-            Table::create(array(
+            Table::create([
                 'dataSource' => $this->dataStores['download'],
-                "columns" => getTablefieldsDefault($showAvailability,$showAvailabilitySecond,$useGridMeterDayData,$lineBreake,$doubleLineBreake,$gradCelsius,$durchschnitt),
-                "cssClass"=>array(
-                    "table"=>"table-bordered table-striped table-hover"
-                ),
-                "max-width"=>"2000px",
-                "height"=>"100%",
-            ));
-            ?>
+                'columns' => getTablefieldsDefault($showAvailability, $showAvailabilitySecond, $useGridMeterDayData, $lineBreake, $doubleLineBreake, $gradCelsius, $durchschnitt),
+                'cssClass' => [
+                    'table' => 'table-bordered table-striped table-hover',
+                ],
+                'max-width' => '2000px',
+                'height' => '100%',
+            ]); ?>
         </div>
     </div>
     <?php
 }
-if($params['tableType'] == 'daybase'){
+if ($params['tableType'] == 'daybase') {
     ?>
     <div class="grid-x grid-margin-x">
         <div class="cell">
             <?php
-            Table::create(array(
+            Table::create([
                 'dataSource' => $this->dataStores['download'],
-                "columns"=>getTablefieldsDaybase($lineBreake,$doubleLineBreake),
-                "cssClass"=>array(
-                    "table"=>"table-bordered table-striped table-hover"
-                ),
-                "max-width"=>"2000px",
-                "height"=>"100%",
-            ));
-            ?>
+                'columns' => getTablefieldsDaybase($lineBreake, $doubleLineBreake),
+                'cssClass' => [
+                    'table' => 'table-bordered table-striped table-hover',
+                ],
+                'max-width' => '2000px',
+                'height' => '100%',
+            ]); ?>
         </div>
     </div>
     <?php

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Service;
-
 
 use App\Entity\WeatherStation;
 use App\Helper\G4NTrait;
@@ -18,21 +16,25 @@ class WeatherFunctionsService
 {
     use G4NTrait;
 
-
     private PVSystDatenRepository $pvSystRepo;
+
     private GroupMonthsRepository $groupMonthsRepo;
+
     private GroupModulesRepository $groupModulesRepo;
+
     private GroupsRepository $groupsRepo;
+
     private GridMeterDayRepository $gridMeterDayRepo;
+
     private ForcastRepository $forecastRepo;
 
     public function __construct(
-        PVSystDatenRepository  $pvSystRepo,
-        GroupMonthsRepository  $groupMonthsRepo,
+        PVSystDatenRepository $pvSystRepo,
+        GroupMonthsRepository $groupMonthsRepo,
         GroupModulesRepository $groupModulesRepo,
-        GroupsRepository       $groupsRepo,
+        GroupsRepository $groupsRepo,
         GridMeterDayRepository $gridMeterDayRepo,
-        ForcastRepository      $forecastRepo)
+        ForcastRepository $forecastRepo)
     {
         $this->pvSystRepo = $pvSystRepo;
         $this->groupMonthsRepo = $groupMonthsRepo;
@@ -43,10 +45,8 @@ class WeatherFunctionsService
     }
 
     /**
-     * @param WeatherStation $weatherStation
      * @param $from
      * @param $to
-     * @return array|null
      */
     public function getWeather(WeatherStation $weatherStation, $from, $to): ?array
     {
@@ -58,7 +58,7 @@ class WeatherFunctionsService
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
-            $weather['anzahl'] = $row["anzahl"];
+            $weather['anzahl'] = $row['anzahl'];
         }
         unset($res);
 
@@ -77,19 +77,19 @@ class WeatherFunctionsService
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {
                 $row = $res->fetch(PDO::FETCH_ASSOC);
-                $weather['airTempAvg']          = $row["air_temp"];
-                $weather['panelTempAvg']        = $row["panel_temp"];
-                $weather['windSpeedAvg']        = $row['wind_speed'];
-                $weather['horizontalIrr']       = $row['irr_horizontal'];
-                $weather['horizontalIrrAvg']    = $row['irr_horizontal'] / $weather['anzahl'];
-                if ($weatherStation->getChangeSensor() == "Yes") {
-                    $weather['upperIrr'] = $row["irr_lower"];
-                    $weather['lowerIrr'] = $row["irr_upper"];
+                $weather['airTempAvg'] = $row['air_temp'];
+                $weather['panelTempAvg'] = $row['panel_temp'];
+                $weather['windSpeedAvg'] = $row['wind_speed'];
+                $weather['horizontalIrr'] = $row['irr_horizontal'];
+                $weather['horizontalIrrAvg'] = $row['irr_horizontal'] / $weather['anzahl'];
+                if ($weatherStation->getChangeSensor() == 'Yes') {
+                    $weather['upperIrr'] = $row['irr_lower'];
+                    $weather['lowerIrr'] = $row['irr_upper'];
                 } else {
-                    $weather['upperIrr'] = $row["irr_upper"];
-                    $weather['lowerIrr'] = $row["irr_lower"];
+                    $weather['upperIrr'] = $row['irr_upper'];
+                    $weather['lowerIrr'] = $row['irr_lower'];
                 }
-                $weather['temp_cell_corr']      = $row['temp_cell_corr'];
+                $weather['temp_cell_corr'] = $row['temp_cell_corr'];
                 $weather['temp_cell_multi_irr'] = $row['temp_cell_multi_irr'];
             }
             unset($res);

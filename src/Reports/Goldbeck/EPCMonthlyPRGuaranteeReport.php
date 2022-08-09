@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Reports\Goldbeck;
-
 
 use koolreport\KoolReport;
 use koolreport\processes\Filter;
@@ -10,45 +8,46 @@ use koolreport\processes\Filter;
 class EPCMonthlyPRGuaranteeReport extends KoolReport
 {
     use \koolreport\excel\BigSpreadsheetExportable;
+
     use \koolreport\cloudexport\Exportable;
 
-    protected function settings():array
+    protected function settings(): array
     {
         return [
-            'dataSources'=>[
-                'headlines'    => [
-                    'class'         => '\koolreport\datasources\ArrayDataSource',
-                    'data'          => $this->params['headlines'],
+            'dataSources' => [
+                'headlines' => [
+                    'class' => '\koolreport\datasources\ArrayDataSource',
+                    'data' => $this->params['headlines'],
                 ],
-                'header'        => [
-                    'class'         => '\koolreport\datasources\ArrayDataSource',
-                    'data'          => $this->params['header'],
+                'header' => [
+                    'class' => '\koolreport\datasources\ArrayDataSource',
+                    'data' => $this->params['header'],
                 ],
-                'main'          => [
-                    'class'         => '\koolreport\datasources\ArrayDataSource',
-                    'data'          => $this->params['main'],
+                'main' => [
+                    'class' => '\koolreport\datasources\ArrayDataSource',
+                    'data' => $this->params['main'],
                 ],
-                'forecast'      => [
-                    'class'         => '\koolreport\datasources\ArrayDataSource',
-                    'data'          => $this->params['forecast'],
+                'forecast' => [
+                    'class' => '\koolreport\datasources\ArrayDataSource',
+                    'data' => $this->params['forecast'],
                 ],
                 'forecast_real' => [
-                    'class'         => '\koolreport\datasources\ArrayDataSource',
-                    'data'          => $this->params['forecast_real'],
+                    'class' => '\koolreport\datasources\ArrayDataSource',
+                    'data' => $this->params['forecast_real'],
                 ],
-                'pld'           => [
-                    'class'         => '\koolreport\datasources\ArrayDataSource',
-                    'data'          => $this->params['pld'],
+                'pld' => [
+                    'class' => '\koolreport\datasources\ArrayDataSource',
+                    'data' => $this->params['pld'],
                 ],
-                'legend'        => [
-                    'class'         => '\koolreport\datasources\ArrayDataSource',
-                    'data'          => $this->params['legend'],
+                'legend' => [
+                    'class' => '\koolreport\datasources\ArrayDataSource',
+                    'data' => $this->params['legend'],
                 ],
-                'formel'        => [
-                    'class'         => '\koolreport\datasources\ArrayDataSource',
-                    'data'          => $this->params['formel'],
+                'formel' => [
+                    'class' => '\koolreport\datasources\ArrayDataSource',
+                    'data' => $this->params['formel'],
                 ],
-            ]
+            ],
         ];
     }
 
@@ -64,11 +63,9 @@ class EPCMonthlyPRGuaranteeReport extends KoolReport
         $this->src('formel')->pipe($this->dataStore('formel'));
         $this->src('main')
             ->pipe(new Filter([
-                ['month', 'notContain', '<br>']
+                ['month', 'notContain', '<br>'],
             ]))
             ->pipe($this->dataStore('graph'))
         ;
     }
-
-
 }

@@ -3,9 +3,7 @@
 namespace App\Form\AssetManagement;
 
 use App\Form\Type\SwitchType;
-use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -16,42 +14,40 @@ class AssetManagementeReportFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('Production',SwitchType::class,[
-                'required'  => false,
-                'data' => true
-            ])
-            ->add('ProdCap',SwitchType::class,[
-                'label'    => 'Production & Capacity Factor',
+            ->add('Production', SwitchType::class, [
                 'required' => false,
-                'data' => true
+                'data' => true,
             ])
-            ->add('CumulatForecastPVSYS',SwitchType::class,[
-                'label'     => 'Cumulative Forecast - PVSYST',
-                'required'  => false,
+            ->add('ProdCap', SwitchType::class, [
+                'label' => 'Production & Capacity Factor',
+                'required' => false,
+                'data' => true,
+            ])
+            ->add('CumulatForecastPVSYS', SwitchType::class, [
+                'label' => 'Cumulative Forecast - PVSYST',
+                'required' => false,
                 'data' => false,
             ])
-            ->add('CumulatForecastG4N',SwitchType::class,[
-                'label'     => 'Cumulative Forecast - G4N',
-                'required'  => false,
-                'data' => true
+            ->add('CumulatForecastG4N', SwitchType::class, [
+                'label' => 'Cumulative Forecast - G4N',
+                'required' => false,
+                'data' => true,
             ])
-            ->add('CumulatLosses',SwitchType::class,[
-                'label'     => 'Cumulative Losses',
-                'required'  => false,
-                'data' => true
+            ->add('CumulatLosses', SwitchType::class, [
+                'label' => 'Cumulative Losses',
+                'required' => false,
+                'data' => true,
             ])
-            ->add('MonthlyProd',SwitchType::class,[
-                'label'     => 'Monthly Production',
-                'required'  => false,
-                'data' => true
+            ->add('MonthlyProd', SwitchType::class, [
+                'label' => 'Monthly Production',
+                'required' => false,
+                'data' => true,
             ])
-            ->add('DailyProd',SwitchType::class,[
-                'label'     => 'Daily Production',
-                'required'  => false,
-                'data' => true
+            ->add('DailyProd', SwitchType::class, [
+                'label' => 'Daily Production',
+                'required' => false,
+                'data' => true,
             ])
-
-
 
             /*
             ->add('ProductionPos', ChoiceType::class,[
@@ -64,50 +60,48 @@ class AssetManagementeReportFormType extends AbstractType
                 ],
             ])
             */
-            ->add('Availability',SwitchType::class,[
+            ->add('Availability', SwitchType::class, [
                 'required' => false,
-                'data' => true
+                'data' => true,
             ])
-            ->add('AvYearlyOverview',SwitchType::class,[
-                'label'     => 'Availability-Yearly Overview',
-                'required'  => false,
-                'data' => true
+            ->add('AvYearlyOverview', SwitchType::class, [
+                'label' => 'Availability-Yearly Overview',
+                'required' => false,
+                'data' => true,
             ])
-            ->add('AvMonthlyOverview',SwitchType::class,[
-                'label'     => 'Availability Analysis - Monthly Overview',
-                'required'  => false,
-                'data' => true
+            ->add('AvMonthlyOverview', SwitchType::class, [
+                'label' => 'Availability Analysis - Monthly Overview',
+                'required' => false,
+                'data' => true,
             ])
-            ->add('AvYearlyTicketOverview',SwitchType::class,[
-                'label'     => 'Availability Analysis - Yearly Overview',
-                'required'  => false,
-                'data' => true
+            ->add('AvYearlyTicketOverview', SwitchType::class, [
+                'label' => 'Availability Analysis - Yearly Overview',
+                'required' => false,
+                'data' => true,
             ])
-            ->add('AvInv',SwitchType::class,[
-                'label'     => 'Availability Inverter',
-                'required'  => false,
-                'data' => true
+            ->add('AvInv', SwitchType::class, [
+                'label' => 'Availability Inverter',
+                'required' => false,
+                'data' => true,
             ])
-            ->add('StringCurr',SwitchType::class,[
-                'label'     => 'String Current',
-                'required'  => false,
-                'data' => true
+            ->add('StringCurr', SwitchType::class, [
+                'label' => 'String Current',
+                'required' => false,
+                'data' => true,
             ])
-            ->add('InvPow',SwitchType::class,[
-                'label'     => 'Inverter Power-DC Heatmap',
-                'required'  => false,
-                'data' => true
-            ])
-
-            ->add('Economics',SwitchType::class, [
-                'required' => false
+            ->add('InvPow', SwitchType::class, [
+                'label' => 'Inverter Power-DC Heatmap',
+                'required' => false,
+                'data' => true,
             ])
 
-
+            ->add('Economics', SwitchType::class, [
+                'required' => false,
+            ])
 
             ->add('submit', SubmitType::class, [
-                'label'     => 'submit',
-                'attr'      => ['class' => 'primary save'],
+                'label' => 'submit',
+                'attr' => ['class' => 'primary save'],
             ])
         ;
     }

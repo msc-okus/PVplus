@@ -6,22 +6,21 @@ use Gedmo\Sluggable\Util\Urlizer;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\FilesystemInterface;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\Asset\Context\RequestStackContext;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
-
-
 
 class UploaderHelper
 {
-    const PLANT_IMAGE = 'plants';
-    const PLANT_REFERENCE = 'plant_reference';
-    const EIGNER_LOGO = 'eigners';
-    const CSV = 'csv';
-
+    public const PLANT_IMAGE = 'plants';
+    public const PLANT_REFERENCE = 'plant_reference';
+    public const EIGNER_LOGO = 'eigners';
+    public const CSV = 'csv';
 
     private FilesystemInterface $filesystem;
+
     private RequestStackContext $requestStackContext;
+
     private LoggerInterface $logger;
 
     public function __construct(FilesystemInterface $filesystem, RequestStackContext $requestStackContext, LoggerInterface $logger)
@@ -31,28 +30,27 @@ class UploaderHelper
         $this->logger = $logger;
     }
 
-    public function uploadImage(UploadedFile $uploadedFile, $id, String $type): array
+    public function uploadImage(UploadedFile $uploadedFile, $id, string $type): array
     {
         $originalFilename = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
         $mimeType = pathinfo($uploadedFile->getClientMimeType(), PATHINFO_FILENAME);
 
         $newFilename = Urlizer::urlize($originalFilename).'-'.uniqid().'.'.$uploadedFile->guessExtension();
-        switch($type){
-            case "plant":
-                $foldern = self::PLANT_IMAGE."/";
+        switch ($type) {
+            case 'plant':
+                $foldern = self::PLANT_IMAGE.'/';
                 break;
-            case "owner":
-                $foldern = self::EIGNER_LOGO."/";
+            case 'owner':
+                $foldern = self::EIGNER_LOGO.'/';
                 break;
-            case "reference";
-                $foldern = self::PLANT_REFERENCE."/";
-                break;
-            case "csv";
-                $foldern = self::CSV."/";
-                break;
+            case 'reference':
+            $foldern = self::PLANT_REFERENCE.'/';
+            break;
+            case 'csv':
+            $foldern = self::CSV.'/';
+            break;
             default:
-                $foldern = "/";
-
+                $foldern = '/';
         }
 
         $this->filesystem->write(
@@ -67,7 +65,6 @@ class UploaderHelper
 
         return $result;
     }
-
 
     public function uploadArticleReference(File $file): string
     {
@@ -125,7 +122,7 @@ class UploaderHelper
             $directory.'/'.$newFilename,
             $stream,
             [
-                'visibility' => $isPublic ? AdapterInterface::VISIBILITY_PUBLIC : AdapterInterface::VISIBILITY_PRIVATE
+                'visibility' => $isPublic ? AdapterInterface::VISIBILITY_PUBLIC : AdapterInterface::VISIBILITY_PRIVATE,
             ]
         );
 

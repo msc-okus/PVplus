@@ -3,142 +3,82 @@
 namespace App\Entity;
 
 use App\Repository\EconomicVarNamesRepository;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use DateTime;
-use koolreport\excel\AreaChart;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Serializer\Annotation\Groups;
-use Symfony\Component\Validator\Constraints as Assert;
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\NumericFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
-use App\Repository\ReportsRepository;
-use Gedmo\Blameable\Traits\BlameableEntity;
-use Gedmo\Timestampable\Traits\TimestampableEntity;
-use ApiPlatform\Core\Annotation\ApiResource;
 
-/**
- * @ORM\Entity(repositoryClass=EconomicVarNamesRepository::class)
- */
+#[ORM\Entity(repositoryClass: EconomicVarNamesRepository::class)]
 class EconomicVarNames
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    #[ORM\Column(type: 'integer')]
     private int $id;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     *      * @Assert\Length(
-     *      min = 2,
-     *      max = 50,
-     *      minMessage = "Your first name must be at least {{ limit }} characters long",
-     *      maxMessage = "Your first name cannot be longer than {{ limit }} characters"
-     * )
-     */
-    private ?string $var_1 = "";
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $var_1 = '';
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private ?string $var_2 = "";
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $var_2 = '';
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private ?string $var_3 = "";
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $var_3 = '';
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private ?string $var_4 = "";
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $var_4 = '';
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private ?string $var_5 = "";
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $var_5 = '';
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private ?string $var_6 = "";
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $var_6 = '';
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private ?string $var_7 = "";
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $var_7 = '';
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private ?string $var_8 = "";
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $var_8 = '';
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private ?string $var_9 = "";
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $var_9 = '';
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private ?string $var_10 = "";
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $var_10 = '';
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private ?string $var_11 = "";
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $var_11 = '';
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private ?string $var_12 = "";
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $var_12 = '';
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private ?string $var_13 = "";
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $var_13 = '';
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private ?string $var_14 = "";
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $var_14 = '';
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private ?string $var_15 = "";
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $var_15 = '';
 
-    /**
-     * @ORM\OneToOne(targetEntity=Anlage::class, inversedBy="economicVarNames")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\OneToOne(targetEntity: Anlage::class, inversedBy: 'economicVarNames')]
+    #[ORM\JoinColumn(nullable: false)]
     private $anlage;
 
     public function __construct()
     {
-
-
     }
-    public function setparams(Anlage $anlage, string $var1, string $var2, string $var3, string $var4, string $var5, string $var6, string $var7, string $var8, string $var9, string $var10
-        , string $var11, string $var12, string $var13, string $var14, string $var15)
+
+    public function setparams(Anlage $anlage, string $var1, string $var2, string $var3, string $var4, string $var5, string $var6, string $var7, string $var8, string $var9, string $var10, string $var11, string $var12, string $var13, string $var14, string $var15)
     {
         $this->anlage = $anlage;
-        $this->var_1  = $var1;
-        $this->var_2  = $var2;
-        $this->var_3  = $var3;
-        $this->var_4  = $var4;
-        $this->var_5  = $var5;
-        $this->var_6  = $var6;
-        $this->var_7  = $var7;
-        $this->var_8  = $var8;
-        $this->var_9  = $var9;
+        $this->var_1 = $var1;
+        $this->var_2 = $var2;
+        $this->var_3 = $var3;
+        $this->var_4 = $var4;
+        $this->var_5 = $var5;
+        $this->var_6 = $var6;
+        $this->var_7 = $var7;
+        $this->var_8 = $var8;
+        $this->var_9 = $var9;
         $this->var_10 = $var10;
         $this->var_11 = $var11;
         $this->var_12 = $var12;
@@ -146,6 +86,7 @@ class EconomicVarNames
         $this->var_14 = $var14;
         $this->var_15 = $var15;
     }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -360,23 +301,54 @@ class EconomicVarNames
 
         return $this;
     }
-    public function getNamesArray():array
+
+    public function getNamesArray(): array
     {
-        if($this->var_1 != "") $name['var_1'] = $this->var_1;
-        if($this->var_2 != "") $name['var_2'] = $this->var_2;
-        if($this->var_3 != "") $name['var_3'] = $this->var_3;
-        if($this->var_4 != "") $name['var_4'] = $this->var_4;
-        if($this->var_5 != "") $name['var_5'] = $this->var_5;
-        if($this->var_6 != "") $name['var_6'] = $this->var_6;
-        if($this->var_7 != "") $name['var_7'] = $this->var_7;
-        if($this->var_8 != "") $name['var_8'] = $this->var_8;
-        if($this->var_9 != "") $name['var_9'] = $this->var_9;
-        if($this->var_10 != "") $name['var_10'] = $this->var_10;
-        if($this->var_11 != "") $name['var_11'] = $this->var_11;
-        if($this->var_12 != "") $name['var_12'] = $this->var_12;
-        if($this->var_13 != "") $name['var_13'] = $this->var_13;
-        if($this->var_14 != "") $name['var_14'] = $this->var_14;
-        if($this->var_15 != "") $name['var_15'] = $this->var_15;
+        if ($this->var_1 != '') {
+            $name['var_1'] = $this->var_1;
+        }
+        if ($this->var_2 != '') {
+            $name['var_2'] = $this->var_2;
+        }
+        if ($this->var_3 != '') {
+            $name['var_3'] = $this->var_3;
+        }
+        if ($this->var_4 != '') {
+            $name['var_4'] = $this->var_4;
+        }
+        if ($this->var_5 != '') {
+            $name['var_5'] = $this->var_5;
+        }
+        if ($this->var_6 != '') {
+            $name['var_6'] = $this->var_6;
+        }
+        if ($this->var_7 != '') {
+            $name['var_7'] = $this->var_7;
+        }
+        if ($this->var_8 != '') {
+            $name['var_8'] = $this->var_8;
+        }
+        if ($this->var_9 != '') {
+            $name['var_9'] = $this->var_9;
+        }
+        if ($this->var_10 != '') {
+            $name['var_10'] = $this->var_10;
+        }
+        if ($this->var_11 != '') {
+            $name['var_11'] = $this->var_11;
+        }
+        if ($this->var_12 != '') {
+            $name['var_12'] = $this->var_12;
+        }
+        if ($this->var_13 != '') {
+            $name['var_13'] = $this->var_13;
+        }
+        if ($this->var_14 != '') {
+            $name['var_14'] = $this->var_14;
+        }
+        if ($this->var_15 != '') {
+            $name['var_15'] = $this->var_15;
+        }
 
         return $name;
     }

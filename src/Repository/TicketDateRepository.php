@@ -63,6 +63,7 @@ class TicketDateRepository extends ServiceEntityRepository
             ->getOneOrNullResult()
         ;
     }
+
     public function findOneByBeginTicket($begin, $ticket): ?TicketDate
     {
         return $this->createQueryBuilder('t')
@@ -72,8 +73,9 @@ class TicketDateRepository extends ServiceEntityRepository
             ->setParameter('ticket', $ticket)
             ->getQuery()
             ->getOneOrNullResult()
-            ;
+        ;
     }
+
     public function findOneByEndTicket($end, $ticket): ?TicketDate
     {
         return $this->createQueryBuilder('t')
@@ -83,9 +85,11 @@ class TicketDateRepository extends ServiceEntityRepository
             ->setParameter('ticket', $ticket)
             ->getQuery()
             ->getOneOrNullResult()
-            ;
+        ;
     }
-    public function countByIntervalErrorPlant($begin, $end, $error, $anlage){
+
+    public function countByIntervalErrorPlant($begin, $end, $error, $anlage)
+    {
         return $this->createQueryBuilder('t')
             ->addSelect('sum(t.Intervals)')
             ->andWhere('t.begin >= :begin')
@@ -98,9 +102,11 @@ class TicketDateRepository extends ServiceEntityRepository
             ->setParameter('anlage', $anlage)
             ->getQuery()
             ->getResult()
-            ;
+        ;
     }
-    public function countTicketsByIntervalErrorPlant($begin, $end, $error, $anlage){
+
+    public function countTicketsByIntervalErrorPlant($begin, $end, $error, $anlage)
+    {
         return $this->createQueryBuilder('t')
             ->addSelect('count(t.id)')
             ->andWhere('t.begin >= :begin')
@@ -113,9 +119,11 @@ class TicketDateRepository extends ServiceEntityRepository
             ->setParameter('anlage', $anlage)
             ->getQuery()
             ->getResult()
-            ;
+        ;
     }
-    public function countByIntervalNullPlant($begin, $end, $anlage){
+
+    public function countByIntervalNullPlant($begin, $end, $anlage)
+    {
         return $this->createQueryBuilder('t')
             ->addSelect('sum(t.Intervals)')
             ->andWhere('t.begin >= :begin')
@@ -129,6 +137,6 @@ class TicketDateRepository extends ServiceEntityRepository
             ->setParameter('anlage', $anlage)
             ->getQuery()
             ->getResult()
-            ;
+        ;
     }
 }

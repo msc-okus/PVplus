@@ -54,7 +54,7 @@ class LogMessagesRepository extends ServiceEntityRepository
             ->orderBy('log.startedAt', 'DESC')
             ->getQuery()
             ->getResult()
-            ;
+        ;
     }
 
     // /**

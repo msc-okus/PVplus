@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Eigner;
-use App\Entity\User;
 use App\Repository\EignerRepository;
 use App\Repository\UserRepository;
 use Symfony\Component\Routing\Annotation\Route;
@@ -25,17 +24,19 @@ class DashboardController extends BaseController
                 foreach ($eigners as $eigner) { // leitet auf die Anlagen Seite um
                     return $this->redirectToRoute('app_dashboard_plant', ['eignerId' => $eigner->getEignerId(), 'anlageId' => '00']);
                 }
-           }
+            }
         }
         foreach ($eigners as $eigner) {
             $owners[] = $eigner;
         }
+
         return $this->render('dashboardAdmin/eignerShow.html.twig', [
-            'content'   => $owners
+            'content' => $owners,
         ]);
     }
+
     /**
-     * Dashboard für den Eigner (nur Anlagen eines Eigners / standard Seite für Eigner)
+     * Dashboard für den Eigner (nur Anlagen eines Eigners / standard Seite für Eigner).
      */
     #[Route(path: '/dashboard/{eignerId}', name: 'app_dashboard_eigner')]
     public function eignerDashboard($eignerId, Security $security, UserRepository $userRepository, EignerRepository $eignerRepository)
