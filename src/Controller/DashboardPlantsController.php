@@ -84,23 +84,30 @@ class DashboardPlantsController extends BaseController
             // bei Verfügbarkeit Anzeige kann nur ein Tag angezeigt werden
             #if ($form['selectedChart'] == 'availability' && $form['optionDate'] > 1) { $form['optionDate'] = 1; }
 
-
             if ($form['optionStep'] == 'lastday' or $form['optionStep'] == 'nextday') {
                 switch ($form['optionStep']) {
                     case "lastday":
                         $date = ($request->request->get('to')) ? $request->request->get('to') : date('Y-m-d');
-                        $form['from'] = date('Y-m-d 00:00', strtotime($date . ' -1 day'));
-                        $form['to'] = date('Y-m-d 23:59', strtotime($date . ' -1 day'));
+                        $from = date('Y-m-d 00:00', strtotime($date . ' -1 day'));
+                        $to = date('Y-m-d 23:59', strtotime($date . ' -1 day'));
+
+                        if ($form['optionDate']){
+                           $from = date("Y-m-d 00:00", strtotime( $from) - (86400 * ($form['optionDate'] - 1)));
+                        }
+                        $form['from']  = $from  ;
+                        (strtotime($to) > strtotime("now")) ? $form['to'] = date('Y-m-d H:i') : $form['to'] = $to  ;
                         break;
 
                     case "nextday":
                         $date = ($request->request->get('to')) ? $request->request->get('to') : date('Y-m-d');
-                        $form['from'] = date('Y-m-d 00:00', strtotime($date . ' +1 day'));
-                        $form['to'] = date('Y-m-d 23:59', strtotime($date . ' +1 day'));
-                        if (strtotime($form['to']) > strtotime("now")) {
-                            $form['from'] = date('Y-m-d 00:00');
-                            $form['to'] = date('Y-m-d H:i');
+                        $from = date('Y-m-d 00:00', strtotime($date . ' +1 day'));
+                        $to = date('Y-m-d 23:59', strtotime($date . ' +1 day'));
+
+                        if ($form['optionDate']){
+                            $from = date("Y-m-d 00:00", strtotime( $from) - (86400 * ($form['optionDate'] - 1)));
                         }
+                        $form['from']  = $from  ;
+                        (strtotime($to) > strtotime("now")) ? $form['to'] = date('Y-m-d H:i') : $form['to'] = $to  ;
                         break;
                 }
 
@@ -117,7 +124,6 @@ class DashboardPlantsController extends BaseController
                     $form['from'] = date("Y-m-d 00:00", strtotime($form['to']) - (86400 * ($form['optionDate'] - 1)));
                 }
             }
-
 
             // ergänze um Uhrzeit
             if (strlen($form['to']) <= 10) {$form['to'] = $form['to'] . " 23:59"; }
