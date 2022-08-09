@@ -16,10 +16,9 @@ class AnlageMonthFormType extends AbstractType
 {
     use G4NTrait;
 
-    private $security;
 
-    public function __construct(Security $security) {
-        $this->security = $security;
+
+    public function __construct(private Security $security) {
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)

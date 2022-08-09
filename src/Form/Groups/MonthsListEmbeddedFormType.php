@@ -39,12 +39,15 @@ class MonthsListEmbeddedFormType extends AbstractType
             ])
             ->add('irrUpper', TextType::class, [
                 'required'  => false,
+                'empty_data'    => '0.5',
                 ])
             ->add('irrLower', TextType::class, [
                 'required'  => false,
+                'empty_data'    => '0.5',
             ])
             ->add('shadowLoss', TextType::class, [
                 'required'  => false,
+                'empty_data'    => '0',
             ])
         ;
     }

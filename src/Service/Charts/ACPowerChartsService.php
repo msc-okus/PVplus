@@ -326,12 +326,16 @@ class ACPowerChartsService
 
             $counter = 0;
             switch ($anlage->getConfigType()) {
+                case 1:
+                    $dataArray['offsetLegend'] = $groups[$group]['GMIN'] - 1;
+                    $groupID = $dataArray['maxSeries'] + $dataArray['offsetLegend'];
                 case 3: // Groningen
                 case 4:
                     $dataArray['offsetLegend'] = $group - 1;
                     break;
                 default:
                     $dataArray['offsetLegend'] = $groups[$group]['GMIN'] - 1;
+
             }
             // add Irradiation
             if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
@@ -373,6 +377,10 @@ class ACPowerChartsService
                 $actPower = $actPower > 0 ? round(self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()), 2) : 0; // neagtive Werte auschließen
 
                 switch ($anlage->getConfigType()) {
+                    case 2:
+
+                        $dataArray['chart'][$counter][$nameArray[$groupID]] = $actPower;
+                        break;
                     case 3: // Groningen
                     case 4:
                         $dataArray['chart'][$counter][$nameArray[$group]] = $actPower;
