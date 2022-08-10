@@ -3,7 +3,6 @@
 namespace App\Security;
 
 use App\Entity\User;
-use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Nexy\Slack\Exception\UserNotFoundException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -27,8 +26,11 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
     public const LOGIN_ROUTE = 'app_login';
 
     private UrlGeneratorInterface $urlGenerator;
+
     private CsrfTokenManagerInterface $csrfTokenManager;
+
     private UserPasswordHasherInterface $passwordHasher;
+
     private EntityManagerInterface $em;
 
     public function __construct(UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordHasherInterface $asswordHasher, EntityManagerInterface $em)
@@ -41,11 +43,11 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 
     public function authenticate(Request $request): Passport
     {
-        $username   = $request->request->get('username');
-        $password   = $request->request->get('password');
-        
+        $username = $request->request->get('username');
+        $password = $request->request->get('password');
+
         return new Passport(
-            new UserBadge($username, function($userIdentifier) {
+            new UserBadge($username, function ($userIdentifier) {
                 // optionally pass a callback to load the User manually
                 $user = $this->em
                     ->getRepository(User::class)
@@ -53,6 +55,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
                 if (!$user) {
                     throw new UserNotFoundException();
                 }
+
                 return $user;
             }),
             new PasswordCredentials($password),
@@ -64,18 +67,15 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
                 ),
             ]
         );
-
     }
 
-
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName ): ?RedirectResponse
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?RedirectResponse
     {
-
         if ($targetPath = $this->getTargetPath($request->getSession(), $firewallName)) {
             return new RedirectResponse($targetPath);
         }
-        return new RedirectResponse($this->urlGenerator->generate('app_dashboard'));
 
+        return new RedirectResponse($this->urlGenerator->generate('app_dashboard'));
     }
 
     protected function getLoginUrl(Request $request): string

@@ -7,57 +7,41 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 
-/**
- * @ORM\Entity(repositoryClass=MonthlyDataRepository::class)
- */
+#[ORM\Entity(repositoryClass: MonthlyDataRepository::class)]
 class AnlagenMonthlyData
 {
     use TimestampableEntity;
-    use BlameableEntity;
 
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private int $id;
+    use BlameableEntity;
 
     use TimestampableEntity;
+
     use BlameableEntity;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="anlagenMonthlyData")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private int $id;
+
+    #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'anlagenMonthlyData')]
     private ?Anlage $anlage;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $pvSystErtrag;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $pvSystPR;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $pvSystIrr;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $externMeterDataMonth;
 
-    /**
-     * @ORM\Column(type="integer", length=255)
-     */
+    #[ORM\Column(type: 'integer', length: 255)]
     private int $month;
 
-    /**
-     * @ORM\Column(type="integer", length=20)
-     */
+    #[ORM\Column(type: 'integer', length: 20)]
     private int $year;
 
     public function getId(): ?int
@@ -79,7 +63,7 @@ class AnlagenMonthlyData
 
     public function getPvSystErtrag(): ?float
     {
-        return (float)$this->pvSystErtrag;
+        return (float) $this->pvSystErtrag;
     }
 
     public function setPvSystErtrag(string $pvSystErtrag): self
@@ -91,7 +75,7 @@ class AnlagenMonthlyData
 
     public function getPvSystPR(): ?float
     {
-        return (float)$this->pvSystPR;
+        return (float) $this->pvSystPR;
     }
 
     public function setPvSystPR(string $pvSystPR): self
@@ -103,7 +87,7 @@ class AnlagenMonthlyData
 
     public function getPvSystIrr(): ?float
     {
-        return (float)$this->pvSystIrr;
+        return (float) $this->pvSystIrr;
     }
 
     public function setPvSystIrr(string $pvSystIrr): self
@@ -115,7 +99,7 @@ class AnlagenMonthlyData
 
     public function getExternMeterDataMonth(): ?float
     {
-        return (float)$this->externMeterDataMonth;
+        return (float) $this->externMeterDataMonth;
     }
 
     public function setExternMeterDataMonth(string $externMeterDataMonth): self

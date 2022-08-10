@@ -5,76 +5,67 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * DbAnlBericht
- *
- * @ORM\Table(name="db_anl_bericht", indexes={@ORM\Index(name="wert_create_date", columns={"report_create_date"})})
- * @ORM\Entity
+ * DbAnlBericht.
  */
+#[ORM\Table(name: 'db_anl_bericht')]
+#[ORM\Index(name: 'wert_create_date', columns: ['report_create_date'])]
+#[ORM\Entity]
 class DbAnlBericht
 {
     /**
      * @var int
-     *
-     * @ORM\Column(name="report_id", type="bigint", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
+    #[ORM\Column(name: 'report_id', type: 'bigint', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $reportId;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="eigner_id", type="string", length=25, nullable=false)
      */
+    #[ORM\Column(name: 'eigner_id', type: 'string', length: 25, nullable: false)]
     private $eignerId;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="anl_id", type="string", length=50, nullable=false)
      */
+    #[ORM\Column(name: 'anl_id', type: 'string', length: 50, nullable: false)]
     private $anlId;
 
     /**
      * @var \DateTime
-     *
-     * @ORM\Column(name="report_create_date", type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
+    #[ORM\Column(name: 'report_create_date', type: 'datetime', nullable: false, options: ['default' => 'CURRENT_TIMESTAMP'])]
     private $reportCreateDate = 'CURRENT_TIMESTAMP';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="report_ist", type="string", length=10, nullable=false)
      */
+    #[ORM\Column(name: 'report_ist', type: 'string', length: 10, nullable: false)]
     private $reportIst;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="report_kw", type="string", length=10, nullable=false)
      */
+    #[ORM\Column(name: 'report_kw', type: 'string', length: 10, nullable: false)]
     private $reportKw;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="report_month", type="string", length=10, nullable=false)
      */
+    #[ORM\Column(name: 'report_month', type: 'string', length: 10, nullable: false)]
     private $reportMonth;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="report_year", type="string", length=10, nullable=false)
      */
+    #[ORM\Column(name: 'report_year', type: 'string', length: 10, nullable: false)]
     private $reportYear;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="report_code", type="text", length=0, nullable=false)
      */
+    #[ORM\Column(name: 'report_code', type: 'text', length: 0, nullable: false)]
     private $reportCode;
 
     public function getReportId(): ?string
@@ -177,6 +168,4 @@ class DbAnlBericht
 
         return $this;
     }
-
-
 }

@@ -5,97 +5,85 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * DbAnlBerichte
- *
- * @ORM\Table(name="db_anl_berichte", indexes={@ORM\Index(name="br_create_date", columns={"br_create_date"})})
- * @ORM\Entity
+ * DbAnlBerichte.
  */
+#[ORM\Table(name: 'db_anl_berichte')]
+#[ORM\Index(name: 'br_create_date', columns: ['br_create_date'])]
+#[ORM\Entity]
 class DbAnlBerichte
 {
     /**
      * @var int
-     *
-     * @ORM\Column(name="br_id", type="bigint", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
+    #[ORM\Column(name: 'br_id', type: 'bigint', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $brId;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="eigner_id", type="string", length=25, nullable=false)
      */
+    #[ORM\Column(name: 'eigner_id', type: 'string', length: 25, nullable: false)]
     private $eignerId;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="anl_id", type="string", length=50, nullable=false)
      */
+    #[ORM\Column(name: 'anl_id', type: 'string', length: 50, nullable: false)]
     private $anlId;
 
     /**
      * @var \DateTime
-     *
-     * @ORM\Column(name="br_create_date", type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
+    #[ORM\Column(name: 'br_create_date', type: 'datetime', nullable: false, options: ['default' => 'CURRENT_TIMESTAMP'])]
     private $brCreateDate = 'CURRENT_TIMESTAMP';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="rep_id", type="string", length=5, nullable=false)
      */
+    #[ORM\Column(name: 'rep_id', type: 'string', length: 5, nullable: false)]
     private $repId;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="br_name", type="string", length=50, nullable=false)
      */
+    #[ORM\Column(name: 'br_name', type: 'string', length: 50, nullable: false)]
     private $brName;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="br_dateiname", type="string", length=50, nullable=false)
      */
+    #[ORM\Column(name: 'br_dateiname', type: 'string', length: 50, nullable: false)]
     private $brDateiname;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="br_ist", type="string", length=20, nullable=false)
      */
+    #[ORM\Column(name: 'br_ist', type: 'string', length: 20, nullable: false)]
     private $brIst;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="br_gelesen", type="string", length=5, nullable=false)
      */
+    #[ORM\Column(name: 'br_gelesen', type: 'string', length: 5, nullable: false)]
     private $brGelesen = '0';
 
     /**
      * @var \DateTime
-     *
-     * @ORM\Column(name="br_viewdate", type="datetime", nullable=false, options={"default"="0000-00-00 00:00:00"})
      */
+    #[ORM\Column(name: 'br_viewdate', type: 'datetime', nullable: false, options: ['default' => '0000-00-00 00:00:00'])]
     private $brViewdate = '0000-00-00 00:00:00';
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="br_folder", type="text", length=65535, nullable=false)
      */
+    #[ORM\Column(name: 'br_folder', type: 'text', length: 65535, nullable: false)]
     private $brFolder;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="br_checkin", type="string", length=2, nullable=false)
      */
+    #[ORM\Column(name: 'br_checkin', type: 'string', length: 2, nullable: false)]
     private $brCheckin;
 
     public function getBrId(): ?string
@@ -234,6 +222,4 @@ class DbAnlBerichte
 
         return $this;
     }
-
-
 }

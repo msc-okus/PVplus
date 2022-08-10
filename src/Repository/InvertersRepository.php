@@ -18,5 +18,4 @@ class InvertersRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, AnlageInverters::class);
     }
-    
 }

@@ -7,138 +7,85 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=ModulesRepository::class)
- */
+#[ORM\Entity(repositoryClass: ModulesRepository::class)]
 class AnlageModules
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private int $id;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $type;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $power;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $tempCoefCurrent;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $tempCoefPower;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $tempCoefVoltage;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $maxImpp;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $maxUmpp;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $maxPmpp;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $operatorPowerA;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $operatorPowerB;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $operatorPowerC;
 
-    /**
-     * @ORM\Column(type="string", length=20, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $operatorPowerD;
 
-    /**
-     * @ORM\Column(type="string", length=20, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $operatorPowerE;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $operatorPowerHighA;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $operatorPowerHighB;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $operatorCurrentA;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $operatorCurrentB;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $operatorCurrentC;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $operatorCurrentD;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $operatorCurrentE;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $operatorCurrentHighA;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="modules")
-     */
+    #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'modules')]
     private Anlage $anlage;
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlageGroupModules::class, mappedBy="moduleType")
-     */
+    #[ORM\OneToMany(targetEntity: AnlageGroupModules::class, mappedBy: 'moduleType')]
     private $anlageGroupModules;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $degradation;
-
 
     public function __construct()
     {
@@ -164,43 +111,43 @@ class AnlageModules
 
     public function getPower(): ?float
     {
-        return (float)$this->power;
+        return (float) $this->power;
     }
 
     public function setPower(string $power): self
     {
-        $this->power =  str_replace(',', '.', $power);
+        $this->power = str_replace(',', '.', $power);
 
         return $this;
     }
 
     public function getTempCoefCurrent(): ?float
     {
-        return (float)$this->tempCoefCurrent;
+        return (float) $this->tempCoefCurrent;
     }
 
     public function setTempCoefCurrent(string $tempCoefCurrent): self
     {
-        $this->tempCoefCurrent =  str_replace(',', '.', $tempCoefCurrent);
+        $this->tempCoefCurrent = str_replace(',', '.', $tempCoefCurrent);
 
         return $this;
     }
 
     public function getTempCoefPower(): ?float
     {
-        return (float)$this->tempCoefPower;
+        return (float) $this->tempCoefPower;
     }
 
     public function setTempCoefPower(string $tempCoefPower): self
     {
-        $this->tempCoefPower =  str_replace(',', '.', $tempCoefPower);
+        $this->tempCoefPower = str_replace(',', '.', $tempCoefPower);
 
         return $this;
     }
 
     public function getTempCoefVoltage(): float
     {
-        return (float)$this->tempCoefVoltage;
+        return (float) $this->tempCoefVoltage;
     }
 
     public function setTempCoefVoltage(string $tempCoefVoltage): self
@@ -212,7 +159,7 @@ class AnlageModules
 
     public function getMaxImpp(): float
     {
-        return (float)$this->maxImpp;
+        return (float) $this->maxImpp;
     }
 
     public function setMaxImpp(string $maxImpp): self
@@ -224,7 +171,7 @@ class AnlageModules
 
     public function getMaxUmpp(): float
     {
-        return (float)$this->maxUmpp;
+        return (float) $this->maxUmpp;
     }
 
     public function setMaxUmpp(string $maxUmpp): self
@@ -236,7 +183,7 @@ class AnlageModules
 
     public function getMaxPmpp(): float
     {
-        return (float)$this->maxPmpp;
+        return (float) $this->maxPmpp;
     }
 
     public function setMaxPmpp(string $maxPmpp): self
@@ -248,177 +195,172 @@ class AnlageModules
 
     public function getOperatorPowerA(): ?float
     {
-        return (float)$this->operatorPowerA;
+        return (float) $this->operatorPowerA;
     }
 
     public function setOperatorPowerA(string $operatorPowerA): self
     {
-        $this->operatorPowerA =  str_replace(',', '.', $operatorPowerA);
+        $this->operatorPowerA = str_replace(',', '.', $operatorPowerA);
 
         return $this;
     }
 
     public function getOperatorPowerB(): ?float
     {
-        return (float)$this->operatorPowerB;
+        return (float) $this->operatorPowerB;
     }
 
     public function setOperatorPowerB(string $operatorPowerB): self
     {
-        $this->operatorPowerB =  str_replace(',', '.', $operatorPowerB);
+        $this->operatorPowerB = str_replace(',', '.', $operatorPowerB);
 
         return $this;
     }
 
     public function getOperatorPowerC(): ?float
     {
-        return (float)$this->operatorPowerC;
+        return (float) $this->operatorPowerC;
     }
 
     public function setOperatorPowerD(string $operatorPowerD): self
     {
-        $this->operatorPowerD =  str_replace(',', '.', $operatorPowerD);
+        $this->operatorPowerD = str_replace(',', '.', $operatorPowerD);
 
         return $this;
     }
 
     public function getOperatorPowerD(): ?float
     {
-        return (float)$this->operatorPowerD;
+        return (float) $this->operatorPowerD;
     }
 
     public function setOperatorPowerC(string $operatorPowerC): self
     {
-        $this->operatorPowerC =  str_replace(',', '.', $operatorPowerC);
+        $this->operatorPowerC = str_replace(',', '.', $operatorPowerC);
 
         return $this;
     }
 
     public function getOperatorPowerE(): ?float
     {
-        return (float)$this->operatorPowerE;
+        return (float) $this->operatorPowerE;
     }
 
     public function setOperatorPowerE(string $operatorPowerE): self
     {
-        $this->operatorPowerE =  str_replace(',', '.', $operatorPowerE);
+        $this->operatorPowerE = str_replace(',', '.', $operatorPowerE);
 
         return $this;
     }
 
     public function getOperatorPowerHighA(): ?float
     {
-        return (float)$this->operatorPowerHighA;
+        return (float) $this->operatorPowerHighA;
     }
 
     public function setOperatorPowerHighA(string $operatorPowerHighA): self
     {
-        $this->operatorPowerHighA =  str_replace(',', '.', $operatorPowerHighA);
+        $this->operatorPowerHighA = str_replace(',', '.', $operatorPowerHighA);
 
         return $this;
     }
 
     public function getOperatorPowerHighB(): ?float
     {
-        return (float)$this->operatorPowerHighB;
+        return (float) $this->operatorPowerHighB;
     }
 
     public function setOperatorPowerHighB(string $operatorPowerHighB): self
     {
-        $this->operatorPowerHighB =  str_replace(',', '.', $operatorPowerHighB);
+        $this->operatorPowerHighB = str_replace(',', '.', $operatorPowerHighB);
 
         return $this;
     }
 
-    ######## Cuurent
-
+    // ####### Cuurent
     public function getOperatorCurrentA(): ?float
     {
-        return (float)$this->operatorCurrentA;
+        return (float) $this->operatorCurrentA;
     }
 
     public function setOperatorCurrentA(string $operatorCurrentA): self
     {
-        $this->operatorCurrentA =  str_replace(',', '.', $operatorCurrentA);
+        $this->operatorCurrentA = str_replace(',', '.', $operatorCurrentA);
 
         return $this;
     }
 
     public function getOperatorCurrentB(): ?float
     {
-        return (float)$this->operatorCurrentB;
+        return (float) $this->operatorCurrentB;
     }
 
     public function setOperatorCurrentB(string $operatorCurrentB): self
     {
-        $this->operatorCurrentB =  str_replace(',', '.', $operatorCurrentB);
+        $this->operatorCurrentB = str_replace(',', '.', $operatorCurrentB);
 
         return $this;
     }
 
     public function getOperatorCurrentC(): ?float
     {
-        return (float)$this->operatorCurrentC;
+        return (float) $this->operatorCurrentC;
     }
 
     public function setOperatorCurrentC(string $operatorCurrentC): self
     {
-        $this->operatorCurrentC =  str_replace(',', '.', $operatorCurrentC);
+        $this->operatorCurrentC = str_replace(',', '.', $operatorCurrentC);
 
         return $this;
     }
 
     public function getOperatorCurrentD(): ?float
     {
-        return (float)$this->operatorCurrentD;
+        return (float) $this->operatorCurrentD;
     }
 
     public function setOperatorCurrentD(string $operatorCurrentD): self
     {
-        $this->operatorCurrentD =  str_replace(',', '.', $operatorCurrentD);
+        $this->operatorCurrentD = str_replace(',', '.', $operatorCurrentD);
 
         return $this;
     }
 
     public function getOperatorCurrentE(): ?float
     {
-        return (float)$this->operatorCurrentE;
+        return (float) $this->operatorCurrentE;
     }
 
     public function setOperatorCurrentE(string $operatorCurrentE): self
     {
-        $this->operatorCurrentE =  str_replace(',', '.', $operatorCurrentE);
+        $this->operatorCurrentE = str_replace(',', '.', $operatorCurrentE);
 
         return $this;
     }
 
     public function getOperatorCurrentHighA(): ?float
     {
-        return (float)$this->operatorCurrentHighA;
+        return (float) $this->operatorCurrentHighA;
     }
 
     public function setOperatorCurrentHighA(string $operatorCurrentHighA): self
     {
-        $this->operatorCurrentHighA =  str_replace(',', '.', $operatorCurrentHighA);
+        $this->operatorCurrentHighA = str_replace(',', '.', $operatorCurrentHighA);
 
         return $this;
     }
 
-    #### Calulated Values
-
+    // ### Calulated Values
     /**
      * This Factor has to multiply by the numbers of modules, to calculate the expected current.<br>
      * The Parameter $irr (Irradiation) must be of type float.
-     *
-     * @param float $irr
-     * @return float
      */
     public function getFactorCurrent(float $irr): float
     {
         if ($irr > 200) {
             $expected = $this->getOperatorCurrentHighA() * $irr;
         } else {
-            $expected = $this->getOperatorCurrentA() * $irr ** 4 + $this->getOperatorCurrentB() * $irr ** 3 + $this->getOperatorCurrentC() * $irr ** 2 + $this->getOperatorCurrentD() * $irr + $this->getOperatorCurrentE() ;
+            $expected = $this->getOperatorCurrentA() * $irr ** 4 + $this->getOperatorCurrentB() * $irr ** 3 + $this->getOperatorCurrentC() * $irr ** 2 + $this->getOperatorCurrentD() * $irr + $this->getOperatorCurrentE();
         }
 
         return $irr > 0 ? $expected : 0;
@@ -427,17 +369,13 @@ class AnlageModules
     /**
      * This Factor has to multiply by the numbers of modules, to calculate the expected power.<br>
      * The Parameter $irr (Irradiation) must be of type float.
-     *
-     * @param float $irr
-     * @return float
      */
     public function getFactorPower(float $irr): float
     {
-
         if ($irr > 200) {
             $expected = $this->getOperatorPowerHighA() * $irr + $this->getOperatorPowerHighB();
         } else {
-            $expected = $this->getOperatorPowerA() * $irr ** 4 + $this->getOperatorPowerB() * $irr ** 3 + $this->getOperatorPowerC() * $irr ** 2 + $this->getOperatorPowerD() * $irr + $this->getOperatorPowerE() ;
+            $expected = $this->getOperatorPowerA() * $irr ** 4 + $this->getOperatorPowerB() * $irr ** 3 + $this->getOperatorPowerC() * $irr ** 2 + $this->getOperatorPowerD() * $irr + $this->getOperatorPowerE();
         }
         $expected = $expected > $this->maxPmpp ? $this->getMaxPmpp() : $expected;
 
@@ -446,12 +384,12 @@ class AnlageModules
 
     public function getTempCorrPower(float $pannelTemp): float
     {
-        return (float)(1 + ($this->getTempCoefPower() * ($pannelTemp - 25) / 100));
+        return (float) (1 + ($this->getTempCoefPower() * ($pannelTemp - 25) / 100));
     }
 
     public function getTempCorrCurrent(float $pannelTemp): float
     {
-        return (float)(1 + ($this->getTempCoefCurrent() * ($pannelTemp - 25) / 100));
+        return (float) (1 + ($this->getTempCoefCurrent() * ($pannelTemp - 25) / 100));
     }
 
     public function getAnlage(): ?Anlage
@@ -466,9 +404,6 @@ class AnlageModules
         return $this;
     }
 
-    /**
-     * @return Collection
-     */
     public function getAnlageGroupModules(): Collection
     {
         return $this->anlageGroupModules;
@@ -498,14 +433,13 @@ class AnlageModules
 
     public function getDegradation(): ?float
     {
-        return (float)$this->degradation;
+        return (float) $this->degradation;
     }
 
     public function setDegradation(string $degradation): self
     {
-        $this->degradation =  str_replace(',', '.', $degradation);
+        $this->degradation = str_replace(',', '.', $degradation);
 
         return $this;
     }
-
 }

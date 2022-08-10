@@ -15,6 +15,7 @@ class DummySollCommand extends Command
     use G4NTrait;
 
     protected static $defaultName = 'pvp:dummysoll';
+
     private DummySollService $dummySoll;
 
     public function __construct(DummySollService $dummySoll)
@@ -38,9 +39,9 @@ class DummySollCommand extends Command
         $day = $input->getArgument('day');
 
         if ($day) {
-            $from       = strtotime($day);
+            $from = strtotime($day);
         } else {
-            $from       = null;
+            $from = null;
         }
 
         $io->comment("Berechne DummySoll: $from - Alle Anlagen");

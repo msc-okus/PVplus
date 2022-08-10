@@ -24,9 +24,9 @@ class PvSystMonthRepository extends ServiceEntityRepository
 
     public function findAllPac(Anlage $anlage, $month)
     {
-        $startMonth  = (int)$anlage->getPacDate()->format('m');
+        $startMonth = (int) $anlage->getPacDate()->format('m');
         $startMonth2 = 0;
-        $endMonth2   = 0;
+        $endMonth2 = 0;
         if ($month < $startMonth) {
             $endMonth = 12;
             $startMonth2 = 1;
@@ -34,6 +34,7 @@ class PvSystMonthRepository extends ServiceEntityRepository
         } else {
             $endMonth = $month;
         }
+
         return $this->createQueryBuilder('a')
             ->andWhere('a.anlage = :anlage')
             ->andWhere('(a.month >= :startMonth AND a.month <= :month) OR (a.month >= :startMonth2 AND a.month <= :endMonth2)')
@@ -45,7 +46,7 @@ class PvSystMonthRepository extends ServiceEntityRepository
             ->orderBy('a.month', 'ASC')
             ->getQuery()
             ->getResult()
-            ;
+        ;
     }
 
     public function findAllYear(Anlage $anlage, $month)
@@ -59,7 +60,7 @@ class PvSystMonthRepository extends ServiceEntityRepository
 
             ->getQuery()
             ->getResult()
-            ;
+        ;
     }
 
     /**
@@ -78,8 +79,11 @@ class PvSystMonthRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleResult();
     }
-    public function findOneByQuarter($anlage, $quarter){
-        if($quarter == 1) return $this->createQueryBuilder('a')
+
+    public function findOneByQuarter($anlage, $quarter)
+    {
+        if ($quarter == 1) {
+            return $this->createQueryBuilder('a')
             ->andWhere('a.month >=1')
             ->andWhere('a.month <= 3')
             ->andWhere('a.anlage = :anlage')
@@ -88,7 +92,8 @@ class PvSystMonthRepository extends ServiceEntityRepository
 
             ->getQuery()
             ->getSingleResult();
-        else if($quarter == 2) return $this->createQueryBuilder('a')
+        } elseif ($quarter == 2) {
+            return $this->createQueryBuilder('a')
             ->andWhere('a.month >=4')
             ->andWhere('a.month <= 6')
             ->andWhere('a.anlage = :anlage')
@@ -97,7 +102,8 @@ class PvSystMonthRepository extends ServiceEntityRepository
 
             ->getQuery()
             ->getSingleResult();
-        else if ($quarter == 3) return $this->createQueryBuilder('a')
+        } elseif ($quarter == 3) {
+            return $this->createQueryBuilder('a')
             ->andWhere('a.month >=7')
             ->andWhere('a.month <= 9')
             ->andWhere('a.anlage = :anlage')
@@ -106,7 +112,8 @@ class PvSystMonthRepository extends ServiceEntityRepository
 
             ->getQuery()
             ->getSingleResult();
-        else if ($quarter == 4) return $this->createQueryBuilder('a')
+        } elseif ($quarter == 4) {
+            return $this->createQueryBuilder('a')
             ->andWhere('a.month >=10')
             ->andWhere('a.month <= 12')
             ->andWhere('a.anlage = :anlage')
@@ -115,10 +122,13 @@ class PvSystMonthRepository extends ServiceEntityRepository
 
             ->getQuery()
             ->getSingleResult();
-        else return null;
-
+        } else {
+            return null;
+        }
     }
-    public function findOneByInterval(Anlage $anlage, $from, $to){
+
+    public function findOneByInterval(Anlage $anlage, $from, $to)
+    {
         return $this->createQueryBuilder('a')
             ->andWhere('a.month >= :from')
             ->andWhere('a.month <=  :to')
@@ -130,7 +140,5 @@ class PvSystMonthRepository extends ServiceEntityRepository
 
             ->getQuery()
             ->getSingleResult();
-
     }
-
 }

@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Repository;
 
 use App\Entity\User;
@@ -26,19 +25,16 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         parent::__construct($registry, User::class);
     }
 
-    /**
-     * @param string|null $term
-     * @return QueryBuilder
-     */
-    public function getWithSearchQueryBuilder(?string $term): QueryBuilder {
+    public function getWithSearchQueryBuilder(?string $term): QueryBuilder
+    {
         $qb = $this->createQueryBuilder('c');
 
-        $qb->leftJoin('c.eigners','u')
+        $qb->leftJoin('c.eigners', 'u')
             ->addSelect('u')
             ->orderBy('c.name', 'ASC');
         if ($term) {
             $qb->andWhere('c.name LIKE :term OR c.email LIKE :term OR u.id LIKE :pureterm')
-                ->setParameter('term', '%' . $term . '%')
+                ->setParameter('term', '%'.$term.'%')
                 ->setParameter('pureterm', $term)
             ;
         }
@@ -48,7 +44,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
     /**
      * @param User $user
-     * @param string $newHashedPassword
+     *
      * @throws ORMException
      * @throws OptimisticLockException
      */
@@ -61,8 +57,10 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $user->setPassword($newHashedPassword);
         $this->getEntityManager()->flush($user);
     }
+
     /**
      * @param string|null $query
+     *
      * @return array
      */
     public function findByAllMatching(string $query, int $limit = 100)
@@ -73,9 +71,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->setMaxResults($limit)
             ->addSelect('u');
 
-
         return $qb->getQuery()
             ->getResult();
     }
-
 }

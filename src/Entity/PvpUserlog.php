@@ -5,62 +5,54 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * PvpUserlog
- *
- * @ORM\Table(name="pvp_userlog")
- * @ORM\Entity
+ * PvpUserlog.
  */
+#[ORM\Table(name: 'pvp_userlog')]
+#[ORM\Entity]
 class PvpUserlog
 {
     /**
      * @var int
-     *
-     * @ORM\Column(name="user_id", type="bigint", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
+    #[ORM\Column(name: 'user_id', type: 'bigint', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private $userId;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="eigner_id", type="string", length=25, nullable=false)
      */
+    #[ORM\Column(name: 'eigner_id', type: 'string', length: 25, nullable: false)]
     private $eignerId;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="login_ip", type="string", length=25, nullable=false)
      */
+    #[ORM\Column(name: 'login_ip', type: 'string', length: 25, nullable: false)]
     private $loginIp;
 
     /**
      * @var string
-     *
-     * @ORM\Column(name="online", type="string", length=5, nullable=false, options={"default"="1"})
      */
+    #[ORM\Column(name: 'online', type: 'string', length: 5, nullable: false, options: ['default' => 1])]
     private $online = '1';
 
     /**
      * @var \DateTime
-     *
-     * @ORM\Column(name="logtime", type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
      */
+    #[ORM\Column(name: 'logtime', type: 'datetime', nullable: false, options: ['default' => 'CURRENT_TIMESTAMP'])]
     private $logtime = 'CURRENT_TIMESTAMP';
 
     /**
      * @var \DateTime
-     *
-     * @ORM\Column(name="logout", type="datetime", nullable=false, options={"default"="0000-00-00 00:00:00"})
      */
+    #[ORM\Column(name: 'logout', type: 'datetime', nullable: false, options: ['default' => '0000-00-00 00:00:00'])]
     private $logout = '0000-00-00 00:00:00';
 
     /**
      * @var string|null
-     *
-     * @ORM\Column(name="pvp_userlogcol", type="string", length=45, nullable=true)
      */
+    #[ORM\Column(name: 'pvp_userlogcol', type: 'string', length: 45, nullable: true)]
     private $pvpUserlogcol;
 
     public function getUserId(): ?string
@@ -139,6 +131,4 @@ class PvpUserlog
 
         return $this;
     }
-
-
 }

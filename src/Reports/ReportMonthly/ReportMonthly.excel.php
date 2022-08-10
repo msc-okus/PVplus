@@ -1,11 +1,7 @@
 <?php
-use \koolreport\excel\Table;
-use \koolreport\excel\PieChart;
-use \koolreport\excel\BarChart;
-use \koolreport\excel\LineChart;
-use \koolreport\excel\ComboChart;
+use koolreport\excel\Table;
 
-$sheet1 = "Data";
+$sheet1 = 'Data';
 $params = $this->dataStores['ownparams']->toArray()[0];
 
 $lineBreake = ' ';
@@ -24,7 +20,7 @@ $dataourcePandR = $this->dataStores['performanceratioandavailability'];
 $dataourceDayValues = $this->dataStores['dayvalues'];
 $irradiationandtempvalues = $this->dataStores['irradiationandtempvalues'];
 
-include_once __DIR__ . '/tablechart_fields.tmpl';
+include_once __DIR__.'/tablechart_fields.tmpl';
 
 ?>
 <meta charset="UTF-8">
@@ -40,11 +36,11 @@ include_once __DIR__ . '/tablechart_fields.tmpl';
     <div>
         <?php
         Table::create([
-            'dataSource'    => $dataourceEP,
-            'showHeader'    => true,
-            "columns" => getEPFields($lineBreake,$doubleLineBreake,$auml,$useGridMeterDayData,$showPvSyst, $useEvu)
+            'dataSource' => $dataourceEP,
+            'showHeader' => true,
+            'columns' => getEPFields($lineBreake, $doubleLineBreake, $auml, $useGridMeterDayData, $showPvSyst, $useEvu),
         ]);
-        ?>
+?>
     </div>
     <div>&nbsp;</div>
     <div>
@@ -52,12 +48,12 @@ include_once __DIR__ . '/tablechart_fields.tmpl';
     </div>
     <div>
         <?php
-        Table::create([
-            'name' => 'Performance Ratio and Availability',
-            'dataSource'    => $dataourcePandR,
-            "columns" => getPandRFields($lineBreake,$doubleLineBreake,$auml,$showAvailability,$showAvailabilitySecond,$useGridMeterDayData,$showPvSyst,$useEvu),
-        ]);
-        ?>
+Table::create([
+    'name' => 'Performance Ratio and Availability',
+    'dataSource' => $dataourcePandR,
+    'columns' => getPandRFields($lineBreake, $doubleLineBreake, $auml, $showAvailability, $showAvailabilitySecond, $useGridMeterDayData, $showPvSyst, $useEvu),
+]);
+?>
     </div>
     <div>&nbsp;</div>
     <div>
@@ -65,15 +61,15 @@ include_once __DIR__ . '/tablechart_fields.tmpl';
     </div>
     <div>
         <?php
-        Table::create([
-            'name' => 'Day Values',
-            'dataSource'    => $dataourceDayValues,
-            'columns' => getDayValuesields($lineBreake,$doubleLineBreake,$auml,$showAvailability,$showAvailabilitySecond,$useGridMeterDayData,$useEvu),
-        ]);
-        ?>
+Table::create([
+    'name' => 'Day Values',
+    'dataSource' => $dataourceDayValues,
+    'columns' => getDayValuesields($lineBreake, $doubleLineBreake, $auml, $showAvailability, $showAvailabilitySecond, $useGridMeterDayData, $useEvu),
+]);
+?>
     </div>
     <?php
-        if($showHeatAndTemperaturTable == true){
+if ($showHeatAndTemperaturTable == true) {
     ?>
         <div>&nbsp;</div>
         <div>
@@ -81,16 +77,15 @@ include_once __DIR__ . '/tablechart_fields.tmpl';
         </div>
         <div>
             <?php
-            Table::create([
-                'name' => 'Irradiation and Temperature',
-                'dataSource'    => $this->dataStores['irradiationandtempvalues'],
-                'columns'       => getIandTFields($lineBreake,$doubleLineBreake,$auml,$irradiationandtempvalues[0]),
-            ]);
-            ?>
+    Table::create([
+        'name' => 'Irradiation and Temperature',
+        'dataSource' => $this->dataStores['irradiationandtempvalues'],
+        'columns' => getIandTFields($lineBreake, $doubleLineBreake, $auml, $irradiationandtempvalues[0]),
+    ]); ?>
         </div>
     <?php
-        }
-    ?>
+}
+?>
 
     <div>&nbsp;</div>
     <div>
@@ -98,11 +93,11 @@ include_once __DIR__ . '/tablechart_fields.tmpl';
     </div>
     <div>
         <?php
-        Table::create([
-            'name' => 'Case5',
-            'dataSource'    => $this->dataStores['case5'],
-            'columns'       => getCase5Fields($lineBreake,$doubleLineBreake,$auml),
-        ]);
-        ?>
+    Table::create([
+        'name' => 'Case5',
+        'dataSource' => $this->dataStores['case5'],
+        'columns' => getCase5Fields($lineBreake, $doubleLineBreake, $auml),
+    ]);
+?>
     </div>
 </div>

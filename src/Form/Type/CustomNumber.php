@@ -2,9 +2,7 @@
 
 namespace App\Form\Type;
 
-use App\Form\DataTransformer\NameToAnlageTransformer;
 use App\Form\DataTransformer\StringToNumberTransformer;
-use App\Repository\AnlagenRepository;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -19,13 +17,13 @@ class CustomNumber extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'invalid_message' => 'Non Numeric value inserted'
+            'invalid_message' => 'Non Numeric value inserted',
         ]);
     }
 
     public function getBlockPrefix(): string
     {
-        return "custom_number_type";
+        return 'custom_number_type';
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -37,5 +35,4 @@ class CustomNumber extends AbstractType
     {
         return TextType::class;
     }
-
 }

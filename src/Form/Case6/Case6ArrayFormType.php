@@ -2,7 +2,6 @@
 
 namespace App\Form\Case6;
 
-use App\Entity\AnlageCase6;
 use App\Entity\Case6Array;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
@@ -19,8 +18,8 @@ class Case6ArrayFormType extends AbstractType
             'entry_options' => ['label' => false],
         ])
         ->add('save', SubmitType::class, [
-        'label'     => 'Save',
-        'attr'      => ['class' => 'primary save'],
+        'label' => 'Save',
+        'attr' => ['class' => 'primary save'],
     ]);
     }
 

@@ -8,6 +8,9 @@ php.ini
 tempfiles/*
 symfony.exe
 
+/tools/php-cs-fixer/vendor/
+/.php-cs-fixer.cache
+
 ###> symfony/framework-bundle ###
 /.env.local
 /.env.local.php

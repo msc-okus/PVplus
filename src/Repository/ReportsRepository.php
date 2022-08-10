@@ -8,7 +8,6 @@ use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
-use phpDocumentor\Reflection\Types\Integer;
 use Symfony\Component\Security\Core\Security;
 
 /**
@@ -19,7 +18,6 @@ use Symfony\Component\Security\Core\Security;
  */
 class ReportsRepository extends ServiceEntityRepository
 {
-
     private Security $security;
 
     public function __construct(ManagerRegistry $registry, Security $security)
@@ -29,26 +27,22 @@ class ReportsRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param Anlage $Anl
-     * @param String $month
-     * @param String $year
      * @return QueryBuilder
      */
-    public function findOneByAMY(Anlage $Anl, String $month,String $year)
+    public function findOneByAMY(Anlage $Anl, string $month, string $year)
     {
         return $this->createQueryBuilder('a')
-            ->andWhere("a.anlage = :anl")
+            ->andWhere('a.anlage = :anl')
             ->andWhere("a.reportType = 'am-report'")
-            ->andWhere("a.month LIKE :month")
-            ->andWhere("a.year = :year")
-            ->setParameter('anl', $Anl )
-            ->setParameter('month',  '%'.$month )
-            ->setParameter('year', $year )
+            ->andWhere('a.month LIKE :month')
+            ->andWhere('a.year = :year')
+            ->setParameter('anl', $Anl)
+            ->setParameter('month', '%'.$month)
+            ->setParameter('year', $year)
             ->getQuery()
             ->getResult()
-            ;
+        ;
     }
-   
 
     public function getWithSearchQueryBuilder(?string $term, ?string $searchstatus, ?string $searchtype, ?string $searchmonth, ?string $searchyear): QueryBuilder
     {
@@ -57,15 +51,15 @@ class ReportsRepository extends ServiceEntityRepository
             ->innerJoin('report.eigner', 'e')
             ->addSelect('a')
             ->addSelect('e')
-            ;
+        ;
 
         // Wenn Benutzer kein G4N Rolle hat
-        if (! $this->security->isGranted('ROLE_G4N')) {
+        if (!$this->security->isGranted('ROLE_G4N')) {
             /** @var User $user */
             $user = $this->security->getUser();
             $granted = $user->getGrantedArray();
 
-            $qb->andWhere("a.anlId IN (:granted)")
+            $qb->andWhere('a.anlId IN (:granted)')
                 ->setParameter('granted', $granted)
             ;
             // schließe Archiv und falsche Reports aus
@@ -74,11 +68,21 @@ class ReportsRepository extends ServiceEntityRepository
             $qb->andWhere('report.reportStatus != 11');
         }
 
-        if ($searchstatus != '') $qb->andWhere("report.reportStatus = $searchstatus");
-        if ($searchtype != '') $qb->andWhere("report.reportType like '$searchtype'");
-        if ($searchmonth !='') $qb->andWhere("report.month = $searchmonth");
-        if ($searchyear !='') $qb->andWhere("report.year = $searchyear");
-        if ($term != '') $qb ->andWhere(" a.anlName LIKE '$term' ");
+        if ($searchstatus != '') {
+            $qb->andWhere("report.reportStatus = $searchstatus");
+        }
+        if ($searchtype != '') {
+            $qb->andWhere("report.reportType like '$searchtype'");
+        }
+        if ($searchmonth != '') {
+            $qb->andWhere("report.month = $searchmonth");
+        }
+        if ($searchyear != '') {
+            $qb->andWhere("report.year = $searchyear");
+        }
+        if ($term != '') {
+            $qb->andWhere(" a.anlName LIKE '$term' ");
+        }
 
         return $qb;
     }

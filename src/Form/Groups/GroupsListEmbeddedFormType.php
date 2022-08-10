@@ -18,102 +18,101 @@ class GroupsListEmbeddedFormType extends AbstractType
     {
         $builder
             ->add('id', null, [
-                'mapped'        => false,
+                'mapped' => false,
             ])
             ->add('dcGroup', IntegerType::class, [
-                'label'         => 'DC Group',
-                'help'          => '[dcGroup]',
-                'required'      => true,
+                'label' => 'DC Group',
+                'help' => '[dcGroup]',
+                'required' => true,
             ])
             ->add('dcGroupName', TextType::class, [
-                'label'         => 'Group Name (Real Name)',
-                'help'          => '[dcGroupName]',
+                'label' => 'Group Name (Real Name)',
+                'help' => '[dcGroupName]',
             ])
             ->add('acGroup', IntegerType::class, [
-                'label'         => 'AC Group',
-                'help'          => '[acGroup]',
-                'required'      => true,
+                'label' => 'AC Group',
+                'help' => '[acGroup]',
+                'required' => true,
             ])
             ->add('unitFirst', IntegerType::class, [
-                'label'         => 'First unit (GAK, Inverter, ...)',
-                'help'          => '[unitFirst]',
-                'required'      => true,
+                'label' => 'First unit (GAK, Inverter, ...)',
+                'help' => '[unitFirst]',
+                'required' => true,
             ])
             ->add('unitLast', IntegerType::class, [
-                'label'         => 'Last unit (GAK, Inverter, ...)',
-                'help'          => '[unitLast]',
-                'required'      => true,
+                'label' => 'Last unit (GAK, Inverter, ...)',
+                'help' => '[unitLast]',
+                'required' => true,
             ])
             ->add('factorAC', TextType::class, [
-                'label'         => 'DC -> AC [%]',
-                'help'          => '[factorAC]',
-                'empty_data'    => '0',
-                'required'      => false,
+                'label' => 'DC -> AC [%]',
+                'help' => '[factorAC]',
+                'empty_data' => '0',
+                'required' => false,
             ])
             ->add('limitAC', TextType::class, [
-                'label'         => 'Abriegelung Inverter AC',
-                'help'          => '[limitAC]',
-                'empty_data'    => '0',
-                'required'      => false,
+                'label' => 'Abriegelung Inverter AC',
+                'help' => '[limitAC]',
+                'empty_data' => '0',
+                'required' => false,
             ])
             ->add('gridLimitAC', TextType::class, [
-                'label'         => 'Abriegelung Grid AC',
-                'help'          => '[gridLimitAC]',
-                'empty_data'    => '0',
-                'required'      => false,
+                'label' => 'Abriegelung Grid AC',
+                'help' => '[gridLimitAC]',
+                'empty_data' => '0',
+                'required' => false,
             ])
             ->add('irrUpper', TextType::class, [
-                'help'          => '[irrUpper]',
-                'empty_data'    => '0.5',
-                'required'      => false,
+                'help' => '[irrUpper]',
+                'empty_data' => '0.5',
+                'required' => false,
             ])
             ->add('irrLower', TextType::class, [
-                'help'          => '[irrLower]',
-                'empty_data'    => '0.5',
-                'required'      => false,
+                'help' => '[irrLower]',
+                'empty_data' => '0.5',
+                'required' => false,
             ])
             ->add('gridLoss', TextType::class, [
-                'help'          => '[gridLoss]',
-                'empty_data'    => '0',
-                'required'      => false,
+                'help' => '[gridLoss]',
+                'empty_data' => '0',
+                'required' => false,
             ])
             ->add('secureLoss', TextType::class, [
-                'help'          => '[secureLoss]',
-                'label'         => 'Security loss',
-                'empty_data'    => '0',
-                'required'      => false,
+                'help' => '[secureLoss]',
+                'label' => 'Security loss',
+                'empty_data' => '0',
+                'required' => false,
             ])
             ->add('weatherStation', EntityType::class, [
-                'label'         => 'Wetterstation',
-                'help'          => '[weatherStation]',
-                'class'         => WeatherStation::class,
-                'choice_label'  => function(WeatherStation $station) {return sprintf('%s - %s', $station->getDatabaseIdent(), $station->getLocation());},
-                'placeholder'   => 'select a Weatherstation',
-                'required'      => false,
-                'empty_data'    => null,
+                'label' => 'Wetterstation',
+                'help' => '[weatherStation]',
+                'class' => WeatherStation::class,
+                'choice_label' => function (WeatherStation $station) {return sprintf('%s - %s', $station->getDatabaseIdent(), $station->getLocation()); },
+                'placeholder' => 'select a Weatherstation',
+                'required' => false,
+                'empty_data' => null,
             ])
 
-            ################################################
-            ####              Relations                 ####
-            ################################################
+            // ###############################################
+            // ###              Relations                 ####
+            // ###############################################
 
             ->add('modules', CollectionType::class, [
-                'entry_type'    => GroupModulsListEmbeddedFormType::class,
-                'allow_add'     => true,
-                'allow_delete'  => true,
-                'delete_empty'  => true,
-                'by_reference'  => false,
+                'entry_type' => GroupModulsListEmbeddedFormType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'delete_empty' => true,
+                'by_reference' => false,
                 'entry_options' => ['anlagenId' => $options['anlagenId']],
             ])
             ->add('months', CollectionType::class, [
-                'entry_type'    => MonthsListEmbeddedFormType::class,
-                'allow_add'     => true,
-                'allow_delete'  => true,
-                'delete_empty'  => true,
-                'by_reference'  => false,
+                'entry_type' => MonthsListEmbeddedFormType::class,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'delete_empty' => true,
+                'by_reference' => false,
             ])
         ;
-
     }
 
     public function configureOptions(OptionsResolver $resolver)

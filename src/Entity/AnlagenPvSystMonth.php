@@ -7,60 +7,43 @@ use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 
-/**
- * @ORM\Entity(repositoryClass=PvSystMonthRepository::class)
- */
+#[ORM\Entity(repositoryClass: PvSystMonthRepository::class)]
 class AnlagenPvSystMonth
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private int $id;
-
     use TimestampableEntity;
+
     use BlameableEntity;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="anlagenPvSystMonths")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
+    private int $id;
+
+    #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'anlagenPvSystMonths')]
     private ?Anlage $anlage;
 
     /**
-     * @ORM\Column(type="string", length=20)
      * @deprecated
      */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $stamp = '';
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $prDesign;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $ertragDesign;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $irrDesign;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $tempAmbientDesign;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $tempArrayAvgDesign;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private int $month;
 
     public function getId(): ?int
@@ -94,7 +77,7 @@ class AnlagenPvSystMonth
 
     public function getPrDesign(): ?float
     {
-        return (float)$this->prDesign;
+        return (float) $this->prDesign;
     }
 
     public function setPrDesign(string $prDesign): self
@@ -106,7 +89,7 @@ class AnlagenPvSystMonth
 
     public function getErtragDesign(): ?float
     {
-        return (float)$this->ertragDesign;
+        return (float) $this->ertragDesign;
     }
 
     public function setErtragDesign(string $ertragDesign): self
@@ -118,7 +101,7 @@ class AnlagenPvSystMonth
 
     public function getIrrDesign(): ?float
     {
-        return (float)$this->irrDesign;
+        return (float) $this->irrDesign;
     }
 
     public function setIrrDesign(?string $irrDesign): self
@@ -130,7 +113,7 @@ class AnlagenPvSystMonth
 
     public function getTempAmbientDesign(): float
     {
-        return (float)$this->tempAmbientDesign;
+        return (float) $this->tempAmbientDesign;
     }
 
     public function setTempAmbientDesign(string $tempAmbientDesign): self
@@ -142,7 +125,7 @@ class AnlagenPvSystMonth
 
     public function getTempArrayAvgDesign(): float
     {
-        return (float)$this->tempArrayAvgDesign;
+        return (float) $this->tempArrayAvgDesign;
     }
 
     public function setTempArrayAvgDesign(string $tempArrayAvgDesign): self
@@ -163,5 +146,4 @@ class AnlagenPvSystMonth
 
         return $this;
     }
-
 }

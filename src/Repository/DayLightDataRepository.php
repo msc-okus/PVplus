@@ -82,6 +82,6 @@ class DayLightDataRepository extends ServiceEntityRepository
             ->setParameter('anl', $anlage)
             ->getQuery()
             ->getOneOrNullResult()
-            ;
+        ;
     }
 }

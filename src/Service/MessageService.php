@@ -15,13 +15,15 @@ use Symfony\Component\Mime\Address;
 class MessageService
 {
     use G4NTrait;
+
     private $anlageEventMail;
+
     private $mailer;
+
     private $em;
 
     public function __construct(EntityManagerInterface $em, MailerInterface $mailer, AnlageEventMailRepository $anlageEventMail)
     {
-
         $this->anlageEventMail = $anlageEventMail;
         $this->mailer = $mailer;
         $this->em = $em;
@@ -47,17 +49,17 @@ class MessageService
                     switch ($recipent->getSendType()) {
                         case 'to':
                             if ($to == '') {
-                                $email->To(new Address($recipent->getMail(), $recipent->getFirstName() . ' ' . $recipent->getLastname()));
+                                $email->To(new Address($recipent->getMail(), $recipent->getFirstName().' '.$recipent->getLastname()));
                             } else {
-                                $email->addTo(new Address($recipent->getMail(), $recipent->getFirstName() . ' ' . $recipent->getLastname()));
+                                $email->addTo(new Address($recipent->getMail(), $recipent->getFirstName().' '.$recipent->getLastname()));
                             }
-                            $to .= $recipent->getMail() . ', ';
+                            $to .= $recipent->getMail().', ';
                             break;
                         case 'cc':
-                            $email->addCc(new Address($recipent->getMail(), $recipent->getFirstName() . ' ' . $recipent->getLastname()));
+                            $email->addCc(new Address($recipent->getMail(), $recipent->getFirstName().' '.$recipent->getLastname()));
                             break;
                         case 'bcc':
-                            $email->addBcc(new Address($recipent->getMail(), $recipent->getFirstName() . ' ' . $recipent->getLastname()));
+                            $email->addBcc(new Address($recipent->getMail(), $recipent->getFirstName().' '.$recipent->getLastname()));
                             break;
                     }
                 }
@@ -76,9 +78,9 @@ class MessageService
 
             if ($upAlert && false) { // temporär abgeschaltet
                 if ($to == '' || $to == 'G4N') {
-                    //$email->to($alertEmailKast);
+                    // $email->to($alertEmailKast);
                 } else {
-                    //$email->addCc($alertEmailKast);
+                    // $email->addCc($alertEmailKast);
                 }
                 $to .= 'UP Alert';
             }
@@ -112,8 +114,8 @@ class MessageService
         $alertMessage->setEmailRecipient($to);
         $alertMessage->setSubject($subject);
         $alertMessage->setMessage($message);
-        $alertMessage->setStatusId("0");
-        $alertMessage->setStatusIdLast("0");
+        $alertMessage->setStatusId('0');
+        $alertMessage->setStatusIdLast('0');
         $alertMessage->setStamp($this->getCetTime('OBJECT'));
         $this->em->persist($alertMessage);
         $this->em->flush();

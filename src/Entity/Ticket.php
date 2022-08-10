@@ -4,127 +4,84 @@ namespace App\Entity;
 
 use App\Helper\TicketTrait;
 use App\Repository\TicketRepository;
-use DateTime;
-use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Gedmo\Blameable\Traits\BlameableEntity;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 
-/**
- * @ORM\Entity(repositoryClass=TicketRepository::class)
- */
+#[ORM\Entity(repositoryClass: TicketRepository::class)]
 class Ticket
 {
     use TimestampableEntity;
     use BlameableEntity;
     use TicketTrait;
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     * @ORM\Column(type="integer")
-     */
+
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    #[ORM\Column(type: 'integer')]
     private int $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="tickets")
-     * @ORM\JoinColumn(nullable=false)
-     */
+    #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'tickets')]
+    #[ORM\JoinColumn(nullable: false)]
     private Anlage $anlage;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
-    private ?bool $autoTicket = false; // automatisches Ticket ausgelöst durch Fehlererkennung im Import oder Fehlermeldung Algoritmuas
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private ?bool $autoTicket = false;
 
-    /**
-     * @ORM\Column(type="string", length=50)
-     */
+    #[ORM\Column(type: 'string', length: 50)]
     private string $editor;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $PR0 = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $PR1 = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $PR2 = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $PA0C5 = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $PA1C5 = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $PA2C5 = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $PA0C6 = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $PA1C6 = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $PA2C6 = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $yield0 = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $yield1 = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $yield2 = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $splitted = false;
 
-    /**
-     * @ORM\OneToMany(targetEntity=TicketDate::class, mappedBy="ticket", cascade={ "persist", "remove"})
-     * @ORM\OrderBy({"begin" = "ASC"})
-     */
+    #[ORM\OneToMany(targetEntity: TicketDate::class, mappedBy: 'ticket', cascade: ['persist', 'remove'])]
+    #[ORM\OrderBy(['begin' => 'ASC'])]
     private $dates;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
-    private $Intervals;
-
+    #[ORM\Column(type: 'integer')]
+    private int|float $intervals;
 
     public function __construct()
     {
         $this->dates = new ArrayCollection();
     }
-
 
     public function getId(): ?int
     {
@@ -138,7 +95,7 @@ class Ticket
 
     public function setAnlage(?Anlage $Anlage): self
     {
-        $this->anlage= $Anlage;
+        $this->anlage = $Anlage;
 
         return $this;
     }
@@ -158,29 +115,7 @@ class Ticket
         $this->autoTicket = $autoTicket;
     }
 
-    public function getStatus(): ?int
-    {
-        return $this->status;
-    }
 
-    public function setStatus(int $Status): self
-    {
-        $this->status = $Status;
-
-        return $this;
-    }
-
-    public function getErrorType(): ?string
-    {
-        return $this->errorType;
-    }
-
-    public function setErrorType(?string $errorType): self
-    {
-        $this->errorType = $errorType;
-
-        return $this;
-    }
 
     public function getEditor(): ?string
     {
@@ -340,7 +275,8 @@ class Ticket
         return $this;
     }
 
-    public function unsetId(){
+    public function unsetId()
+    {
         unset($this->id);
     }
 
@@ -382,27 +318,31 @@ class Ticket
                 $date->setTicket(null);
             }
         }
+
         return $this;
     }
+
     public function removeAllDates(): self
     {
         $this->dates->clear();
+
         return $this;
     }
-    public function getIntervalCount(){
+
+    public function getIntervalCount()
+    {
         return $this->dates->count();
     }
 
     public function getIntervals(): ?int
     {
-        return $this->Intervals;
+        return $this->intervals;
     }
 
-    public function setIntervals(int $Intervals): self
+    public function setIntervals(int $intervals): self
     {
-        $this->Intervals = $Intervals;
+        $this->intervals = $intervals;
 
         return $this;
     }
-
 }

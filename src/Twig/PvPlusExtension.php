@@ -2,18 +2,16 @@
 
 namespace App\Twig;
 
-use App\Repository\PVSystDatenRepository;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 class PvPlusExtension extends AbstractExtension
 {
-
-
     public function __construct()
     {
     }
+
     /*
     public function getFilters(): array
     {
@@ -31,7 +29,6 @@ class PvPlusExtension extends AbstractExtension
             new TwigFunction('getJson', [$this, 'getJson']),
         ];
     }
-
 
     public function getJson($json)
     {

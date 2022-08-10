@@ -31,7 +31,7 @@ class UpdateSystemStatusCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $io->comment("System Status aktualisieren: Alle Anlagen");
+        $io->comment('System Status aktualisieren: Alle Anlagen');
         $ergebniss = $this->checkSystemStatus->checkSystemStatus();
         $io->success('Berechnung des System Status abgeschlossen!');
 

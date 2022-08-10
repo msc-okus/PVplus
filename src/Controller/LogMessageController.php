@@ -14,8 +14,9 @@ class LogMessageController extends BaseController
     public function listActualMessages(LogMessagesRepository $logMessagesRepo)
     {
         $logMessages = $logMessagesRepo->findUseful();
+
         return $this->render('logMessages/_list.html.twig', [
-            'logs'       => $logMessages,
+            'logs' => $logMessages,
         ]);
     }
 }

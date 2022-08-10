@@ -25,12 +25,12 @@ class AnlageFileUploadRepository extends ServiceEntityRepository
     public function findIdLike($like)
     {
         return $this->createQueryBuilder('a')
-            ->andWhere("a.plant_id IN (:val)")
+            ->andWhere('a.plant_id IN (:val)')
             ->orderBy('a.plant_id', 'ASC')
             ->setParameter('val', $like)
             ->getQuery()
             ->getResult()
-            ;
+        ;
     }
 
     /*

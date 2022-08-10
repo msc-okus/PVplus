@@ -26,42 +26,42 @@ class ToolsFormType extends AbstractType
     {
         $builder
             ->add('anlage', EntityType::class, [
-                'label'         => 'please select a Plant',
-                'class'         => Anlage::class,
-                'choices'       => $this->anlagenRepository->findAllActiveAndAllowed(),
-                'choice_label'  => 'anlName',
+                'label' => 'please select a Plant',
+                'class' => Anlage::class,
+                'choices' => $this->anlagenRepository->findAllActiveAndAllowed(),
+                'choice_label' => 'anlName',
             ])
             ->add('startDate', DateType::class, [
-                'widget'    => 'single_text',
-                'format'    => 'yyyy-MM-dd',
-                'data'      => new \DateTime('now'),
+                'widget' => 'single_text',
+                'format' => 'yyyy-MM-dd',
+                'data' => new \DateTime('now'),
             ])
             ->add('endDate', DateType::class, [
                 'widget' => 'single_text',
                 'format' => 'yyyy-MM-dd',
-                'data'      => new \DateTime('now'),
+                'data' => new \DateTime('now'),
             ])
             ->add('function', ChoiceType::class, [
-                'choices'       => [
-                    //'Write weather data to database'    => 'weather',
-                    'Expected (New)'                    => 'expected',
-                    'Update availability'               => 'availability',
-                    'Update PR'                         => 'pr',
+                'choices' => [
+                    // 'Write weather data to database'    => 'weather',
+                    'Expected (New)' => 'expected',
+                    'Update availability' => 'availability',
+                    'Update PR' => 'pr',
                 ],
-                'placeholder'   => 'please Choose ...'
+                'placeholder' => 'please Choose ...',
             ])
 
-            ##############################################
-            ####          STEUERELEMENTE              ####
-            ##############################################
+            // #############################################
+            // ###          STEUERELEMENTE              ####
+            // #############################################
 
             ->add('calc', SubmitType::class, [
                 'label' => 'Start calculation',
-                'attr'  => ['class' => 'primary save'],
+                'attr' => ['class' => 'primary save'],
             ])
             ->add('close', SubmitType::class, [
                 'label' => 'Close (do nothing)',
-                'attr'  => ['class' => 'secondary close', 'formnovalidate' => 'formnovalidate'],
+                'attr' => ['class' => 'secondary close', 'formnovalidate' => 'formnovalidate'],
             ])
         ;
     }
@@ -69,7 +69,7 @@ class ToolsFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => ToolsModel::class
+            'data_class' => ToolsModel::class,
         ]);
     }
 }

@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Form\Anlage;
 
 use App\Entity\AnlagenMonthlyData;
@@ -16,32 +15,32 @@ class MonthlyYieldListEmbeddedFormType extends AbstractType
     {
         $builder
             ->add('year', ChoiceType::class, [
-                'choices'       => [2019 => 2019, 2020 => 2020, 2021 =>2021, 2022 =>2022],
-                'placeholder'   => 'please choose'
+                'choices' => [2019 => 2019, 2020 => 2020, 2021 => 2021, 2022 => 2022],
+                'placeholder' => 'please choose',
             ])
             ->add('month', ChoiceType::class, [
-                'choices'       => array_combine(range(1,12), range(1,12)),
-                'placeholder'   => 'please choose'
+                'choices' => array_combine(range(1, 12), range(1, 12)),
+                'placeholder' => 'please choose',
             ])
             ->add('pvSystErtrag', TextType::class, [
-                'label'         => 'Yield [kWh]',
-                'empty_data'    => 0,
-                'required'      => false,
+                'label' => 'Yield [kWh]',
+                'empty_data' => 0,
+                'required' => false,
             ])
             ->add('pvSystPR', TextType::class, [
-                'label'         => 'PR [%]',
-                'empty_data'    => 0,
-                'required'      => false,
+                'label' => 'PR [%]',
+                'empty_data' => 0,
+                'required' => false,
             ])
             ->add('externMeterDataMonth', TextType::class, [
-                'label'         => 'external Meter Data',
-                'empty_data'    => 0,
-                'required'      => false,
+                'label' => 'external Meter Data',
+                'empty_data' => 0,
+                'required' => false,
             ])
             ->add('pvSystIrr', TextType::class, [
-                'label'         => 'Irradiation',
-                'empty_data'    => 0,
-                'required'      => false,
+                'label' => 'Irradiation',
+                'empty_data' => 0,
+                'required' => false,
             ])
 
         ;

@@ -8,111 +8,70 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=GroupsRepository::class)
- */
+#[ORM\Entity(repositoryClass: GroupsRepository::class)]
 class AnlageGroups
 {
     use G4NTrait;
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private int $id;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private int $dcGroup;
 
-    /**
-     * @ORM\Column(type="string", length=30)
-     */
+    #[ORM\Column(type: 'string', length: 30)]
     private string $dcGroupName;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private int $acGroup;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private int $unitFirst;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private int $unitLast;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $irrUpper;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $irrLower;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $shadowLoss = '0';
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $cabelLoss = '0';
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $secureLoss = '0';
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $factorAC;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $gridLoss;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $limitAc;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $gridLimitAc;
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlageGroupMonths::class, mappedBy="anlageGroup", cascade={"persist", "remove"})
-     * @ORM\OrderBy({"month" = "ASC"})
-     */
+    #[ORM\OneToMany(targetEntity: AnlageGroupMonths::class, mappedBy: 'anlageGroup', cascade: ['persist', 'remove'])]
+    #[ORM\OrderBy(['month' => 'ASC'])]
     private $months;
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlageGroupModules::class, mappedBy="anlageGroup", cascade={"persist", "remove"})
-     */
+    #[ORM\OneToMany(targetEntity: AnlageGroupModules::class, mappedBy: 'anlageGroup', cascade: ['persist', 'remove'])]
     private $modules;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="groups")
-     */
+    #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'groups')]
     private ?Anlage $anlage;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=WeatherStation::class)
-     */
+    #[ORM\ManyToOne(targetEntity: WeatherStation::class)]
     private ?WeatherStation $weatherStation;
-
-
 
     public function __construct()
     {
@@ -187,60 +146,60 @@ class AnlageGroups
 
     public function getIrrUpper(): ?float
     {
-        return (float)str_replace(',', '.', $this->irrUpper);
+        return (float) str_replace(',', '.', $this->irrUpper);
     }
 
     public function setIrrUpper(string $irrUpper): self
     {
-        $this->irrUpper =  str_replace(',', '.', $irrUpper);
+        $this->irrUpper = str_replace(',', '.', $irrUpper);
 
         return $this;
     }
 
     public function getIrrLower(): ?float
     {
-        return (float)str_replace(',', '.', $this->irrLower);
+        return (float) str_replace(',', '.', $this->irrLower);
     }
 
     public function setIrrLower(string $irrLower): self
     {
-        $this->irrLower =  str_replace(',', '.', $irrLower);
+        $this->irrLower = str_replace(',', '.', $irrLower);
 
         return $this;
     }
 
     public function getShadowLoss(): ?float
     {
-        return (float)str_replace(',', '.', $this->shadowLoss);
+        return (float) str_replace(',', '.', $this->shadowLoss);
     }
 
     public function setShadowLoss(string $shadowLoss): self
     {
-        $this->shadowLoss =  str_replace(',', '.', $shadowLoss);
+        $this->shadowLoss = str_replace(',', '.', $shadowLoss);
 
         return $this;
     }
 
     public function getCabelLoss(): ?float
     {
-        return (float)str_replace(',', '.', $this->cabelLoss);
+        return (float) str_replace(',', '.', $this->cabelLoss);
     }
 
     public function setCabelLoss(string $cabelLoss): self
     {
-        $this->cabelLoss =  str_replace(',', '.', $cabelLoss);
+        $this->cabelLoss = str_replace(',', '.', $cabelLoss);
 
         return $this;
     }
 
     public function getSecureLoss(): ?float
     {
-        return (float)str_replace(',', '.', $this->secureLoss);
+        return (float) str_replace(',', '.', $this->secureLoss);
     }
 
     public function setSecureLoss(string $secureLoss): self
     {
-        $this->secureLoss =  str_replace(',', '.', $secureLoss);
+        $this->secureLoss = str_replace(',', '.', $secureLoss);
 
         return $this;
     }
@@ -259,6 +218,7 @@ class AnlageGroups
             $this->months[] = $month;
             $month->setAnlageGroup($this);
         }
+
         return $this;
     }
 
@@ -318,12 +278,12 @@ class AnlageGroups
 
     public function getFactorAC(): ?float
     {
-        return (float)$this->factorAC;
+        return (float) $this->factorAC;
     }
 
     public function setFactorAC(string $factorAC): self
     {
-        $this->factorAC =  str_replace(',', '.', $factorAC);
+        $this->factorAC = str_replace(',', '.', $factorAC);
 
         return $this;
     }
@@ -342,7 +302,7 @@ class AnlageGroups
 
     public function getLimitAc(): ?float
     {
-        return (float)$this->limitAc;
+        return (float) $this->limitAc;
     }
 
     public function setLimitAc(string $limitAc): self
@@ -354,7 +314,7 @@ class AnlageGroups
 
     public function getGridLoss(): ?float
     {
-        return (float)$this->gridLoss;
+        return (float) $this->gridLoss;
     }
 
     public function setGridLoss(string $gridLoss): self
@@ -378,16 +338,15 @@ class AnlageGroups
 
     /**
      * Calculate Pnom for every single Inverter (Group)<br>
-     * makes only sense if anlage->configType == 1 or 2<br>
-     *
-     * @return float
+     * makes only sense if anlage->configType == 1 or 2<br>.
      */
     public function getPnomPerGroup(): float
     {
         $pNom = 0.0;
-        foreach($this->getModules() as $module) {
+        foreach ($this->getModules() as $module) {
             $pNom += ($module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower()) / 1000;
         }
+
         return $pNom;
     }
 }

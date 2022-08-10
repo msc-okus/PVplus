@@ -5,46 +5,30 @@ namespace App\Entity;
 use App\Repository\OpenWeatherRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=OpenWeatherRepository::class)
- */
+#[ORM\Entity(repositoryClass: OpenWeatherRepository::class)]
 class OpenWeather
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private $stamp;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private $tempC;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private $iconWeather;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $description;
 
-    /**
-     * @ORM\Column(type="json")
-     */
+    #[ORM\Column(type: 'json')]
     private $data = [];
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="openWeather")
-     */
+    #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'openWeather')]
     private $anlage;
 
     public function getId(): ?int

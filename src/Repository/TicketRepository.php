@@ -26,22 +26,13 @@ class TicketRepository extends ServiceEntityRepository
         $this->security = $security;
     }
 
-
     /**
      * Build query with all options, including 'has user rights to see'
-     * OLD VERSION
+     * OLD VERSION.
      *
      * @deprecated
-     *
-     * @param string|null $status
-     * @param string|null $editor
-     * @param string|null $anlage
-     * @param string|null $id
-     * @param string|null $prio
-     * @param string|null $inverter
-     * @return QueryBuilder
      */
-    public function getWithSearchQueryBuilder(?string $status, ?string $editor, ?string $anlage, ?string $id, ?string $prio, ?string $inverter ): QueryBuilder
+    public function getWithSearchQueryBuilder(?string $status, ?string $editor, ?string $anlage, ?string $id, ?string $prio, ?string $inverter): QueryBuilder
     {
         /** @var User $user */
         $user = $this->security->getUser();
@@ -51,38 +42,38 @@ class TicketRepository extends ServiceEntityRepository
             ->innerJoin('ticket.anlage', 'a')
             ->addSelect('a')
         ;
-        if (! $this->security->isGranted('ROLE_G4N')) {
+        if (!$this->security->isGranted('ROLE_G4N')) {
             $qb
                 ->andWhere('a.anlId IN (:plantList)')
                 ->setParameter('plantList', $granted)
             ;
         }
-        if ($status != '' && $status!='00') $qb->andWhere("ticket.status = $status");
-        if ($editor != '')                  $qb->andWhere("ticket.editor = '$editor'");
-        if ($anlage !='')                   $qb->andWhere("a.anlName LIKE '$anlage'");
-        if ($id != '')                      $qb->andWhere("ticket.id = '$id'");
-        if ($prio != '' && $prio != '00')   $qb->andWhere("ticket.priority = '$prio'");
+        if ($status != '' && $status != '00') {
+            $qb->andWhere("ticket.status = $status");
+        }
+        if ($editor != '') {
+            $qb->andWhere("ticket.editor = '$editor'");
+        }
+        if ($anlage != '') {
+            $qb->andWhere("a.anlName LIKE '$anlage'");
+        }
+        if ($id != '') {
+            $qb->andWhere("ticket.id = '$id'");
+        }
+        if ($prio != '' && $prio != '00') {
+            $qb->andWhere("ticket.priority = '$prio'");
+        }
 
         return $qb;
     }
 
     /**
-     * Build query with all options, including 'has user rights to see'
+     * Build query with all options, including 'has user rights to see'.
      *
-     * @param string|null $anlage
-     * @param string|null $editor
-     * @param string|null $id
-     * @param string|null $prio
-     * @param string|null $status
-     * @param string|null $category
-     * @param string|null $type
-     * @param string|null $inverter
      * @param array $orders Array Key defines the 'order field', value defines order direction (ASC, DESC) or order should not used (null)
-     * @return QueryBuilder
      */
     public function getWithSearchQueryBuilderNew(?string $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, array $orders = []): QueryBuilder
     {
-
         /** @var User $user */
         $user = $this->security->getUser();
         $granted = explode(',', $user->getGrantedList());
@@ -91,33 +82,48 @@ class TicketRepository extends ServiceEntityRepository
             ->innerJoin('ticket.anlage', 'a')
             ->addSelect('a')
         ;
-        if (! $this->security->isGranted('ROLE_G4N')) {
+        if (!$this->security->isGranted('ROLE_G4N')) {
             $qb
                 ->andWhere('a.anlId IN (:plantList)')
                 ->setParameter('plantList', $granted)
             ;
         }
 
-        if ($anlage != '')      $qb->andWhere("a.anlName = '$anlage'");
-        if ($editor != '')      $qb->andWhere("ticket.editor = '$editor'");
-        if ((int)$id > 0)       $qb->andWhere("ticket.id = $id");
+        if ($anlage != '') {
+            $qb->andWhere("a.anlName = '$anlage'");
+        }
+        if ($editor != '') {
+            $qb->andWhere("ticket.editor = '$editor'");
+        }
+        if ((int) $id > 0) {
+            $qb->andWhere("ticket.id = $id");
+        }
 
         if ($inverter != '') {
-            $qb ->andWhere('ticket.inverter LIKE :inverter')
-                ->setParameter('inverter', '%' . $inverter .'%');
+            $qb->andWhere('ticket.inverter LIKE :inverter')
+                ->setParameter('inverter', '%'.$inverter.'%');
         }
-        if ((int)$prio > 0)     $qb->andWhere("ticket.priority = $prio");
-        if ((int)$status > 0)   $qb->andWhere("ticket.status = $status");
-        if ((int)$type > 0)     $qb->andWhere("ticket.errorType = $type"); // SFOR, EFOR, OMC
-        if ((int)$category > 0) $qb->andWhere("ticket.alertType = $category");
+        if ((int) $prio > 0) {
+            $qb->andWhere("ticket.priority = $prio");
+        }
+        if ((int) $status > 0) {
+            $qb->andWhere("ticket.status = $status");
+        }
+        if ((int) $type > 0) {
+            $qb->andWhere("ticket.errorType = $type");
+        } // SFOR, EFOR, OMC
+        if ((int) $category > 0) {
+            $qb->andWhere("ticket.alertType = $category");
+        }
 
         foreach ($orders as $field => $order) {
-            if ($order !== null) $qb->orderBy("ticket.".$field, $order);
+            if ($order !== null) {
+                $qb->orderBy('ticket.'.$field, $order);
+            }
         }
 
         return $qb;
     }
-
 
     public function findOneById($id): ?ticket
     {
@@ -130,8 +136,9 @@ class TicketRepository extends ServiceEntityRepository
     }
 
     // AIT stands for Anlage, Inverter, Time
-    public function findByAITNoWeather($anlage, $inverter, $time){
-        $description = "Error with the Data of the Weather station";
+    public function findByAITNoWeather($anlage, $inverter, $time)
+    {
+        $description = 'Error with the Data of the Weather station';
         $result = $this->createQueryBuilder('t')
             ->andWhere('t.end = :end')
             ->andWhere('t.anlage = :anl')
@@ -139,8 +146,8 @@ class TicketRepository extends ServiceEntityRepository
             ->andWhere('t.description != :description')
             ->setParameter('end', $time)
             ->setParameter('anl', $anlage)
-            ->setParameter('inv',$inverter)
-            ->setParameter('description',$description)
+            ->setParameter('inv', $inverter)
+            ->setParameter('description', $description)
             ->getQuery();
 
         return $result->getResult();
@@ -149,7 +156,7 @@ class TicketRepository extends ServiceEntityRepository
     // AIT stands for Anlage, Inverter, Time
     public function findLastByAITNoWeather($anlage, $inverter, $today, $yesterday)
     {
-        $description = "Error with the Data of the Weather station";
+        $description = 'Error with the Data of the Weather station';
         $result = $this->createQueryBuilder('t')
             ->andWhere('t.end < :today')
             ->andWhere('t.end > :yesterday')
@@ -159,7 +166,7 @@ class TicketRepository extends ServiceEntityRepository
             ->setParameter('today', $today)
             ->setParameter('yesterday', $yesterday)
             ->setParameter('anl', $anlage)
-            ->setParameter('inv',$inverter)
+            ->setParameter('inv', $inverter)
             ->setParameter('description', $description)
             ->orderBy('t.end', 'DESC')
             ->setMaxResults(1)
@@ -171,14 +178,14 @@ class TicketRepository extends ServiceEntityRepository
     // AIT stands for Anlage, Inverter, Time
     public function findByAITWeather($anlage, $time)
     {
-        $description = "Error with the Data of the Weather station";
+        $description = 'Error with the Data of the Weather station';
         $result = $this->createQueryBuilder('t')
             ->andWhere('t.end = :end')
             ->andWhere('t.anlage = :anl')
             ->andWhere('t.description = :description')
             ->setParameter('end', $time)
             ->setParameter('anl', $anlage)
-            ->setParameter('description',$description)
+            ->setParameter('description', $description)
             ->getQuery();
 
         return $result->getResult();
@@ -187,7 +194,7 @@ class TicketRepository extends ServiceEntityRepository
     // AIT stands for Anlage, Inverter, Time
     public function findLastByAITWeather($anlage, $today, $yesterday)
     {
-        $description = "Error with the Data of the Weather station";
+        $description = 'Error with the Data of the Weather station';
         $result = $this->createQueryBuilder('t')
             ->andWhere('t.end < :today')
             ->andWhere('t.end > :yesterday')
@@ -196,12 +203,11 @@ class TicketRepository extends ServiceEntityRepository
             ->setParameter('today', $today)
             ->setParameter('yesterday', $yesterday)
             ->setParameter('anl', $anlage)
-            ->setParameter('description',$description)
+            ->setParameter('description', $description)
             ->orderBy('t.end', 'DESC')
             ->setMaxResults(1)
             ->getQuery();
 
         return $result->getResult();
     }
-
 }

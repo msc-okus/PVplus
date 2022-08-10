@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Form\EventMail;
 
 use App\Entity\AnlageEventMail;
@@ -16,18 +15,17 @@ class EventMailListEmbeddedFormType extends AbstractType
     {
         $builder
             ->add('event', ChoiceType::class, [
-                'choices'   => ['Alert' => 'alert', 'Montly Report' => 'monthlyReport'],
-                'required'  => true,
+                'choices' => ['Alert' => 'alert', 'Montly Report' => 'monthlyReport'],
+                'required' => true,
             ])
             ->add('mail', TextType::class, [
-                'required'  => true,
-
+                'required' => true,
             ])
             ->add('firstName')
             ->add('lastName')
-            ->add('sendType',ChoiceType::class, [
-                'choices'   => ['to'=>'to', 'cc'=>'cc', 'bcc'=>'bcc'],
-                'required'  => true,
+            ->add('sendType', ChoiceType::class, [
+                'choices' => ['to' => 'to', 'cc' => 'cc', 'bcc' => 'bcc'],
+                'required' => true,
             ])
 
         ;

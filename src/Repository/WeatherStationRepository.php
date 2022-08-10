@@ -32,20 +32,16 @@ class WeatherStationRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /**
-     * @param string|null $term
-     * @return QueryBuilder
-     */
-    public function getWithSearchQueryBuilder(?string $term): QueryBuilder {
+    public function getWithSearchQueryBuilder(?string $term): QueryBuilder
+    {
         $qb = $this->createQueryBuilder('a');
 
         if ($term) {
             $qb->andWhere('a.type LIKE :term OR a.location LIKE :term OR a.databaseIdent LIKE :term')
-                ->setParameter('term', '%' . $term . '%')
+                ->setParameter('term', '%'.$term.'%')
             ;
         }
 
         return $qb->orderBy('a.databaseIdent', 'ASC');
     }
-
 }

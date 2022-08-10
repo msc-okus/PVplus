@@ -19,16 +19,20 @@ class EconomicVarValuesRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, EconomicVarValues::class);
     }
-    public function findOneByDate($year, $month){
+
+    public function findOneByDate($year, $month)
+    {
         $qb = $this->createQueryBuilder('e')
             ->andWhere('e.year = :year')
             ->andWhere('e.month = :month')
             ->setParameter('year', $year)
             ->setParameter('month', $month)
             ->addSelect('e');
+
         return $qb->getQuery()
             ->getResult();
     }
+
     public function findByAnlage(Anlage $anlage)
     {
         return $this->createQueryBuilder('e')
@@ -36,7 +40,7 @@ class EconomicVarValuesRepository extends ServiceEntityRepository
             ->setParameter('anlage', $anlage)
             ->getQuery()
             ->getResult()
-            ;
+        ;
     }
     // /**
     //  * @return EconomicVarValues[] Returns an array of EconomicVarValues objects

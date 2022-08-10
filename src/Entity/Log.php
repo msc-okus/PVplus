@@ -3,49 +3,33 @@
 namespace App\Entity;
 
 use App\Repository\LogRepository;
-use Doctrine\ORM\Mapping as ORM;
 use DateTime;
+use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=LogRepository::class)
- */
+#[ORM\Entity(repositoryClass: LogRepository::class)]
 class Log
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="logs")
-     */
+    #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'logs')]
     private $anlage;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private $createdAt;
 
-    /**
-     * @ORM\Column(type="string", length=50)
-     */
+    #[ORM\Column(type: 'string', length: 50)]
     private string $createdBy;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $type;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     private string $description;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private $stamp;
 
     public function getId(): ?int
@@ -65,12 +49,12 @@ class Log
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTime
+    public function getCreatedAt(): ?DateTime
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTime $createdAt): self
+    public function setCreatedAt(DateTime $createdAt): self
     {
         $this->createdAt = $createdAt;
 

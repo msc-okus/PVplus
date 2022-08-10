@@ -22,8 +22,8 @@ class MonthlyDataRepository extends ServiceEntityRepository
 
     public function findSumByYear(Anlage $anlage, $to)
     {
-        $toYear     = $to->format('Y');
-        $toMonth    = $to->format('m');
+        $toYear = $to->format('Y');
+        $toMonth = $to->format('m');
 
         return $this->createQueryBuilder('a')
             ->andWhere('a.anlage = :anlage')
@@ -34,7 +34,7 @@ class MonthlyDataRepository extends ServiceEntityRepository
             ->select('SUM(a.externMeterDataMonth)')
             ->getQuery()
             ->getSingleScalarResult()
-            ;
+        ;
     }
 
     /**
@@ -42,20 +42,17 @@ class MonthlyDataRepository extends ServiceEntityRepository
      * Entytie stores no real DateTime only month and year.
      * Creates from month and year a number (Year + (Month / 10)), this allows to search very easy.
      *
-     * @param Anlage $anlage
-     * @param \DateTime $from
-     * @param \DateTime $to
      * @return int|mixed|string
      */
     public function findByDateRange(Anlage $anlage, \DateTime $from, \DateTime $to)
     {
-        $startYear    = (int)$from->format('Y');
-        $startMonth   = (int)$from->format('m');
-        $endYear      = (int)$to->format('Y');
-        $endMonth     = (int)$to->format('m');
+        $startYear = (int) $from->format('Y');
+        $startMonth = (int) $from->format('m');
+        $endYear = (int) $to->format('Y');
+        $endMonth = (int) $to->format('m');
 
         $start = $startYear + ($startMonth / 100);
-        $end   = $endYear   + ($endMonth / 100);
+        $end = $endYear + ($endMonth / 100);
 
         $result = $this->createQueryBuilder('a')
             ->andWhere('a.anlage = :anlage')
@@ -67,15 +64,16 @@ class MonthlyDataRepository extends ServiceEntityRepository
             ->orderBy('a.month')
             ->getQuery()
         ;
+
         return $result->getResult();
     }
 
     public function findSumByPac(Anlage $anlage, \DateTime $pacDate, \DateTime $to)
     {
-        $pacYear    = $pacDate->format('Y');
-        $pacMonth   = $pacDate->format('m');
-        $toYear     = $to->format('Y');
-        $toMonth    = $to->format('m');
+        $pacYear = $pacDate->format('Y');
+        $pacMonth = $pacDate->format('m');
+        $toYear = $to->format('Y');
+        $toMonth = $to->format('m');
 
         if ($toYear > $pacYear) {
             $result = $this->createQueryBuilder('a')
@@ -118,6 +116,6 @@ class MonthlyDataRepository extends ServiceEntityRepository
             ->select('SUM(a.externMeterDataMonth)')
             ->getQuery()
             ->getSingleScalarResult()
-            ;
+        ;
     }
 }

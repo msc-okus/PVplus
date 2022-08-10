@@ -2,6 +2,9 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\AnlagenRepository;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -9,17 +12,10 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Symfony\Component\Serializer\Annotation\Groups;
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Core\Annotation\ApiResource;
-
 
 /**
- * DbAnlage
+ * DbAnlage.
  *
- * @ORM\Table(name="anlage")
- * @ORM\Entity(repositoryClass="App\Repository\AnlagenRepository")
- * @ORM\HasLifecycleCallbacks()
  * @ApiResource(
  *     shortName="anlage",
  *     normalizationContext={"groups"={"main:read"}},
@@ -28,817 +24,483 @@ use ApiPlatform\Core\Annotation\ApiResource;
  *          "formats"={"jsonld", "json", "html", "csv"={"text/csv"}}
  *     }
  * )
-
  * @ApiFilter(SearchFilter::class, properties={"anlName": "partial"})
  */
+#[ORM\Table(name: 'anlage')]
+#[ORM\Entity(repositoryClass: 'App\Repository\AnlagenRepository')]
+#[ORM\HasLifecycleCallbacks]
 class Anlage
 {
-    private string $dbAnlagenData = "pvp_data";
+    private string $dbAnlagenData = 'pvp_data';
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="bigint", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     */
     #[Groups(['main'])]
+    #[ORM\Column(name: 'id', type: 'bigint', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private int $anlId;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="eigner_id", type="bigint", nullable=false)
-     */
     #[Groups(['main'])]
+    #[ORM\Column(name: 'eigner_id', type: 'bigint', nullable: false)]
     private string $eignerId;
 
-    /**
-     * @ORM\Column(name="anl_type", type="string", length=25, nullable=false)
-     */
     #[Groups(['main'])]
+    #[ORM\Column(name: 'anl_type', type: 'string', length: 25, nullable: false)]
     private string $anlType;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="anl_dbase", type="string", length=25, nullable=false, options={"default"="web32_db2"})
      * @deprecated
      */
+    #[ORM\Column(name: 'anl_dbase', type: 'string', length: 25, nullable: false, options: ['default' => 'web32_db2'])]
     private string $anlDbase = 'web32_db2';
 
-    /**
-     * @var DateTime
-     *
-     * @ORM\Column(name="anl_betrieb", type="date", nullable=false)
-     * Groups({"main"})
-     */
+    #[ORM\Column(name: 'anl_betrieb', type: 'date', nullable: false)]
     private DateTime $anlBetrieb;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="anl_name", type="string", length=50, nullable=false)
-     */
     #[Groups(['main'])]
+    #[ORM\Column(name: 'anl_name', type: 'string', length: 50, nullable: false)]
     private string $anlName;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="anl_strasse", type="string", length=100, nullable=false)
-     * Groups({"main"})
-     */
+    #[ORM\Column(name: 'anl_strasse', type: 'string', length: 100, nullable: false)]
     private string $anlStrasse;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="anl_plz", type="string", length=10, nullable=false)
-     */
     #[Groups(['main'])]
+    #[ORM\Column(name: 'anl_plz', type: 'string', length: 10, nullable: false)]
     private string $anlPlz;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="anl_ort", type="string", length=100, nullable=false)
-     */
     #[Groups(['main'])]
+    #[ORM\Column(name: 'anl_ort', type: 'string', length: 100, nullable: false)]
     private string $anlOrt;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="anl_intnr", type="string", length=50, nullable=false)
-     */
     #[Groups(['main'])]
+    #[ORM\Column(name: 'anl_intnr', type: 'string', length: 50, nullable: false)]
     private string $anlIntnr;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=20)
-     */
     #[Groups(['main'])]
+    #[ORM\Column(type: 'string', length: 20)]
     private string $power = '0';
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $powerEast = '0';
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $powerWest = '0';
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="anl_data_go_ws", type="string", length=10, nullable=false, options={"default"="No"})
-     */
+    #[ORM\Column(name: 'anl_data_go_ws', type: 'string', length: 10, nullable: false, options: ['default' => 'No'])]
     private string $anlDataGoWs = 'No';
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="anl_modul_anz", type="string", length=50, nullable=false)
-     */
+    #[ORM\Column(name: 'anl_modul_anz', type: 'string', length: 50, nullable: false)]
     private string $anlModulAnz = '';
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="anl_modul_name", type="string", length=100, nullable=false)
-     */
+    #[ORM\Column(name: 'anl_modul_name', type: 'string', length: 100, nullable: false)]
     private string $anlModulName = '';
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="anl_modul_leistung", type="string", length=50, nullable=false)
-     */
+    #[ORM\Column(name: 'anl_modul_leistung', type: 'string', length: 50, nullable: false)]
     private string $anlModulLeistung = '';
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="anl_db_ist", type="string", length=50, nullable=false)
      * @deprecated
      */
+    #[ORM\Column(name: 'anl_db_ist', type: 'string', length: 50, nullable: false)]
     private string $anlDbIst = '';
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="anl_db_ws", type="string", length=50, nullable=false)
      * @deprecated
      */
+    #[ORM\Column(name: 'anl_db_ws', type: 'string', length: 50, nullable: false)]
     private string $anlDbWs = '';
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="anl_same_ws", type="string", length=10, nullable=false, options={"default"="No"})
      * @deprecated
      */
+    #[ORM\Column(name: 'anl_same_ws', type: 'string', length: 10, nullable: false, options: ['default' => 'No'])]
     private string $anlSameWs = 'No';
 
-    /**
-     * @var boolean
-     *
-     * @ORM\Column(name="send_warn_mail", type="boolean")
-     */
+    #[ORM\Column(name: 'send_warn_mail', type: 'boolean')]
     private bool $sendWarnMail = false;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="anl_input_daily", type="string", length=10, nullable=false, options={"default"="No"})
-     */
+    #[ORM\Column(name: 'anl_input_daily', type: 'string', length: 10, nullable: false, options: ['default' => 'No'])]
     private string $anlInputDaily = 'No';
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="anl_grupe", type="string", length=10, nullable=false, options={"default"="No"})
      * @deprecated
      */
+    #[ORM\Column(name: 'anl_grupe', type: 'string', length: 10, nullable: false, options: ['default' => 'No'])]
     private string $anlGruppe = 'No';
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="anl_grupe_dc", type="string", length=10, nullable=false, options={"default"="No"})
      * @deprecated
      */
+    #[ORM\Column(name: 'anl_grupe_dc', type: 'string', length: 10, nullable: false, options: ['default' => 'No'])]
     private string $anlGruppeDc = 'No';
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="anl_zeitzone", type="string", length=50, nullable=false)
-     */
+    #[ORM\Column(name: 'anl_zeitzone', type: 'string', length: 50, nullable: false)]
     private string $anlZeitzone = '0';
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(name="anl_db_unit", type="string", length=10, nullable=true, options={"default"="kwh"})
-     */
+    #[ORM\Column(name: 'anl_db_unit', type: 'string', length: 10, nullable: true, options: ['default' => 'kwh'])]
     private ?string $anlDbUnit = 'kwh';
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="anl_wind_unit", type="string", length=10, nullable=false, options={"default"="km/h"})
      * @deprecated
      */
+    #[ORM\Column(name: 'anl_wind_unit', type: 'string', length: 10, nullable: false, options: ['default' => 'km/h'])]
     private string $anlWindUnit = 'km/h';
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="anl_view", type="string", length=10, nullable=false, options={"default"="No"})
      * @deprecated
      */
+    #[ORM\Column(name: 'anl_view', type: 'string', length: 10, nullable: false, options: ['default' => 'No'])]
     private string $anlView = 'No';
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="anl_hide_plant", type="string", length=10, nullable=false)
-     */
+    #[ORM\Column(name: 'anl_hide_plant', type: 'string', length: 10, nullable: false)]
     private string $anlHidePlant = 'No';
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="anl_geo_lat", type="string", length=30, nullable=false)
-     */
+    #[ORM\Column(name: 'anl_geo_lat', type: 'string', length: 30, nullable: false)]
     private string $anlGeoLat = '';
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="anl_geo_lon", type="string", length=30, nullable=false)
-     */
+    #[ORM\Column(name: 'anl_geo_lon', type: 'string', length: 30, nullable: false)]
     private string $anlGeoLon = '';
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="anl_mute", type="string", length=10, nullable=false, options={"default"="No"})
-     */
+    #[ORM\Column(name: 'anl_mute', type: 'string', length: 10, nullable: false, options: ['default' => 'No'])]
     private string $anlMute = 'No';
 
-    /**
-     * @var DateTime|null
-     *
-     * @ORM\Column(name="anl_mute_until", type="datetime", nullable=true)
-     */
+    #[ORM\Column(name: 'anl_mute_until', type: 'datetime', nullable: true)]
     private ?DateTime $anlMuteUntil;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Eigner::class, inversedBy="anlage")
-     */
+    #[ORM\ManyToOne(targetEntity: Eigner::class, inversedBy: 'anlage')]
     private ?Eigner $eigner;
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlageAcGroups::class, mappedBy="anlage", cascade={"persist", "remove"})
-     */
+    #[ORM\OneToMany(targetEntity: AnlageAcGroups::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
     private Collection $acGroups;
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlageEventMail::class, mappedBy="anlage", cascade={"persist", "remove"})
-     */
+    #[ORM\OneToMany(targetEntity: AnlageEventMail::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
     private Collection $eventMails;
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlagenReports::class, mappedBy="anlage", cascade={"remove"})
-     */
+    #[ORM\OneToMany(targetEntity: AnlagenReports::class, mappedBy: 'anlage', cascade: ['remove'])]
     private Collection $anlagenReports;
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlageAvailability::class, mappedBy="anlage", cascade={"remove"})
-     * @ORM\OrderBy({"inverter" = "ASC"})
-     */
+    #[ORM\OneToMany(targetEntity: AnlageAvailability::class, mappedBy: 'anlage', cascade: ['remove'])]
+    #[ORM\OrderBy(['inverter' => 'ASC'])]
     private Collection $availability;
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlagenStatus::class, mappedBy="anlage", cascade={"remove"})
-     */
+    #[ORM\OneToMany(targetEntity: AnlagenStatus::class, mappedBy: 'anlage', cascade: ['remove'])]
     private Collection $status;
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlagenPR::class, mappedBy="anlage", cascade={"remove"})
-     */
+    #[ORM\OneToMany(targetEntity: AnlagenPR::class, mappedBy: 'anlage', cascade: ['remove'])]
     private Collection $pr;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $useNewDcSchema = true;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $useCosPhi = false;
 
-    /**
-     * @ORM\Column(type="string", length=50, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
     private ?string $useCustPRAlgorithm;
 
-    /**
-     * @ORM\Column(type="string", length=50, nullable=true)
-     */
-    private ?string $pldAlgorithm = "Lelystad";
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    private ?string $pldAlgorithm = 'Lelystad';
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $showOnlyUpperIrr = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $showStringCharts = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $showAvailability = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $showAvailabilitySecond = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $showInverterPerformance = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $showMenuReporting = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $showMenuDownload = false;
 
-    //use this to check if EVU is used
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $showEvuDiag = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $showInverterOutDiag = true;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $showCosPhiDiag = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $showCosPhiPowerDiag = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $showGraphDcCurrInv = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $showGraphDcCurrGrp = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $showGraphVoltGrp = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $showGraphDcInverter = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $showGraphIrrPlant = false;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $showPR = false;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $irrLimitAvailability = '0';
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $contractualAvailability = '100';
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $contractualPR = '100';
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $contractualPower = '0';
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlageCase5::class, mappedBy="anlage", cascade={"persist", "remove"})
-     */
+    #[ORM\OneToMany(targetEntity: AnlageCase5::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
     private Collection $anlageCase5s;
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlageCase6::class, mappedBy="anlage", cascade={"persist", "remove"})
-     */
+    #[ORM\OneToMany(targetEntity: AnlageCase6::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
     private Collection $anlageCase6s;
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlagePVSystDaten::class, mappedBy="anlage", cascade={"persist", "remove"})
-     */
+    #[ORM\OneToMany(targetEntity: AnlagePVSystDaten::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
     private Collection $anlagePVSystDatens;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $showPvSyst = false;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=WeatherStation::class, inversedBy="anlagen", cascade={"persist"})
-     */
+    #[ORM\ManyToOne(targetEntity: WeatherStation::class, inversedBy: 'anlagen', cascade: ['persist'])]
     private ?weatherStation $weatherStation;
 
-    /**
-     * @ORM\Column(type="date", nullable=true)
-     */
+    #[ORM\Column(type: 'date', nullable: true)]
     private ?DateTime $pacDate;
 
-    /**
-     * @ORM\Column(type="date", nullable=true)
-     */
+    #[ORM\Column(type: 'date', nullable: true)]
     private ?DateTime $facDate;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $usePac = false;
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlageForcast::class, mappedBy="anlage", cascade={"persist", "remove"})
-     */
+    #[ORM\OneToMany(targetEntity: AnlageForcast::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
     private Collection $anlageForecasts;
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlageForcastDay::class, mappedBy="anlage", cascade={"persist", "remove"})
-     */
+    #[ORM\OneToMany(targetEntity: AnlageForcastDay::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
     private Collection $anlageForecastDays;
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlageGroups::class, mappedBy="anlage", cascade={"persist", "remove"})
-     * @ORM\OrderBy({"dcGroup" = "ASC"})
-     */
+    #[ORM\OneToMany(targetEntity: AnlageGroups::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
+    #[ORM\OrderBy(['dcGroup' => 'ASC'])]
     private Collection $groups;
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlageModules::class, mappedBy="anlage", cascade={"persist", "remove"})
-     */
+    #[ORM\OneToMany(targetEntity: AnlageModules::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
     private Collection $modules;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $isOstWestAnlage = false;
 
-    /**
-     * @ORM\Column(type="string", length=20, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $threshold1PA = '0';
 
-    /**
-     * @ORM\Column(name="min_irradiation_availability", type="string", length=20, nullable=true)
-     */
+    #[ORM\Column(name: 'min_irradiation_availability', type: 'string', length: 20, nullable: true)]
     private ?string $threshold2PA = '50';
 
-    /**
-     * @ORM\OneToMany(targetEntity=TimesConfig::class, mappedBy="anlage", cascade={"persist", "remove"})
-     */
+    #[ORM\OneToMany(targetEntity: TimesConfig::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
     private $timesConfigs;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $showForecast = false;
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlageGridMeterDay::class, mappedBy="anlage")
-     */
+    #[ORM\OneToMany(targetEntity: AnlageGridMeterDay::class, mappedBy: 'anlage')]
     private $anlageGridMeterDays;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $useGridMeterDayData = false;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $country = '';
 
-    /**
-     * @ORM\OneToMany(targetEntity=OpenWeather::class, mappedBy="anlage")
-     */
+    #[ORM\OneToMany(targetEntity: OpenWeather::class, mappedBy: 'anlage')]
     private $openWeather;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $calcPR = false;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $pacDuration = '';
 
-    /**
-     * @ORM\Column(type="string", length=20, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $kwPeakPvSyst;
 
-    /**
-     * @ORM\Column(type="string", length=20, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $kwPeakPLDCalculation;
 
-    /**
-     * @ORM\Column(type="string", length=20, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $designPR;
 
-    /**
-     * @ORM\Column(type="date", nullable=true)
-     */
+    #[ORM\Column(type: 'date', nullable: true)]
     private ?DateTime $facDateStart;
 
-    /**
-     * @ORM\Column(type="date", nullable=true)
-     */
+    #[ORM\Column(type: 'date', nullable: true)]
     private ?DateTime $pacDateEnd;
 
-
-    /**
-     * @ORM\Column(type="string", length=20, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private string $lid;
 
-    /**
-     * @ORM\Column(type="string", length=20, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private $annualDegradation;
 
-    /**
-     * @ORM\Column(type="string", length=20, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $pldPR;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $epcReportType = '';
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlagenPvSystMonth::class, mappedBy="anlage", cascade={"persist", "remove"})
-     * @ORM\OrderBy({"month" = "ASC"})
-     */
+    #[ORM\OneToMany(targetEntity: AnlagenPvSystMonth::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
+    #[ORM\OrderBy(['month' => 'ASC'])]
     private $anlagenPvSystMonths;
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlagenMonthlyData::class, mappedBy="anlage", cascade={"persist", "remove"})
-     * @ORM\OrderBy({"year" = "ASC", "month" = "ASC"})
-     */
+    #[ORM\OneToMany(targetEntity: AnlagenMonthlyData::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
+    #[ORM\OrderBy(['year' => 'ASC', 'month' => 'ASC'])]
     private $anlagenMonthlyData;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $transformerTee = '';
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $guaranteeTee = '';
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $pldYield = '';
 
-    /**
-     * @ORM\Column(type="string", length=30)
-     */
+    #[ORM\Column(type: 'string', length: 30)]
     private string $projektNr = '';
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlageLegendReport::class, mappedBy="anlage", cascade={"persist", "remove"})
-     */
+    #[ORM\OneToMany(targetEntity: AnlageLegendReport::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
     private $anlageLegendReports;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $Notes;
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlageMonth::class, mappedBy="anlage", orphanRemoval=true, cascade={"persist", "remove"})
-     */
+    #[ORM\OneToMany(targetEntity: AnlageMonth::class, mappedBy: 'anlage', orphanRemoval: true, cascade: ['persist', 'remove'])]
     private $anlageMonth;
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlageInverters::class, mappedBy="anlage")
-     */
+    #[ORM\OneToMany(targetEntity: AnlageInverters::class, mappedBy: 'anlage')]
     private $Inverters;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $tempCorrCellTypeAvg = '0';
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $tempCorrGamma = '-0.4';
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $tempCorrA = '-3.56';
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $tempCorrB = '-0.0750';
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $tempCorrDeltaTCnd = '3.0';
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $pldNPValue = '';
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $usePnomForPld = false;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $pldDivisor = '';
 
-    /**
-     * @ORM\Column(type="date", nullable=true)
-     */
+    #[ORM\Column(type: 'date', nullable: true)]
     private ?DateTime $epcReportStart;
 
-    /**
-     * @ORM\Column(type="date", nullable=true)
-     */
+    #[ORM\Column(type: 'date', nullable: true)]
     private ?DateTime $epcReportEnd;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $inverterStartVoltage = '540';
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $useLowerIrrForExpected = false;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     private string $epcReportNote;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private int $configType;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Log::class, mappedBy="anlage")
-     */
+    #[ORM\OneToMany(targetEntity: Log::class, mappedBy: 'anlage')]
     private $logs;
 
-    /**
-     * @ORM\Column(type="boolean", nullable = true)
-     */
+    #[ORM\Column(type: 'boolean', nullable: true)]
     private bool $hasDc = true;
 
-    /**
-     * @ORM\Column(type="boolean", nullable = true)
-     */
+    #[ORM\Column(type: 'boolean', nullable: true)]
     private bool $hasStrings = false;
 
-    /**
-     * @ORM\Column(type="boolean", nullable = true)
-     */
+    #[ORM\Column(type: 'boolean', nullable: true)]
     private bool $hasPPC = false;
 
-    /**
-     * @ORM\Column(type="boolean", nullable = true)
-     */
+    #[ORM\Column(type: 'boolean', nullable: true)]
     private bool $hasPannelTemp = false;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Ticket::class, mappedBy="anlage")
-     */
+    #[ORM\OneToMany(targetEntity: Ticket::class, mappedBy: 'anlage')]
     private $tickets;
 
-    /**
-     * @ORM\OneToOne(targetEntity=EconomicVarNames::class, mappedBy="anlage", orphanRemoval=true, cascade={"persist", "remove"})
-     */
+    #[ORM\OneToOne(targetEntity: EconomicVarNames::class, mappedBy: 'anlage', orphanRemoval: true, cascade: ['persist', 'remove'])]
     private $economicVarNames;
 
-    /**
-     * @ORM\OneToMany(targetEntity=EconomicVarValues::class, mappedBy="anlage", orphanRemoval=true, cascade={"persist", "remove"})
-     */
+    #[ORM\OneToMany(targetEntity: EconomicVarValues::class, mappedBy: 'anlage', orphanRemoval: true, cascade: ['persist', 'remove'])]
     private $economicVarValues;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
+    #[ORM\Column(type: 'boolean', nullable: true)]
     private $useDayForecast = false;
 
-    /**
-     * @ORM\Column(type="string", length=20, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $degradationForecast = '0';
 
-    /**
-     * @ORM\Column(type="string", length=20, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $lossesForecast = '5';
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlageFile::class, mappedBy="plant", orphanRemoval=true)
-     */
+    #[ORM\OneToMany(targetEntity: AnlageFile::class, mappedBy: 'plant', orphanRemoval: true)]
     private $anlageFiles;
 
-    /**
-     * @ORM\OneToOne(targetEntity=AnlageSettings::class, mappedBy="anlage", cascade={"persist", "remove"})
-     */
+    #[ORM\OneToOne(targetEntity: AnlageSettings::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
     private AnlageSettings $settings;
 
-    /**
-     * @ORM\Column(type="string", length=150, nullable=true)
-     */
-    private $picture = "";
+    #[ORM\Column(type: 'string', length: 150, nullable: true)]
+    private $picture = '';
 
-    /**
-     * @ORM\OneToMany(targetEntity=Status::class, mappedBy="Anlage", orphanRemoval=true)
-     */
+    #[ORM\OneToMany(targetEntity: Status::class, mappedBy: 'Anlage', orphanRemoval: true)]
     private $statuses;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $hasWindSpeed = true;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $DataSourceAM;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $RetrieveAllData = false;
 
-    /**
-     * @ORM\OneToMany(targetEntity=DayLightData::class, mappedBy="anlage")
-     */
+    #[ORM\OneToMany(targetEntity: DayLightData::class, mappedBy: 'anlage')]
     private Collection $dayLightData;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $freqTolerance = '2.0';
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $freqBase = '50';
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private ?bool $hasFrequency = false;
 
-    /**
-     * @ORM\Column(type="boolean", nullable=true)
-     */
+    #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $excludeFromExpCalc = false;
 
     public function __construct()
@@ -913,12 +575,12 @@ class Anlage
         return $this;
     }
 
-    public function getAnlBetrieb(): ?\DateTime
+    public function getAnlBetrieb(): ?DateTime
     {
         return $this->anlBetrieb;
     }
 
-    public function setAnlBetrieb(\DateTime $anlBetrieb): self
+    public function setAnlBetrieb(DateTime $anlBetrieb): self
     {
         $this->anlBetrieb = $anlBetrieb;
 
@@ -994,19 +656,19 @@ class Anlage
     /** @deprecated  */
     public function setPower(string $power): self
     {
-        $this->power =  str_replace(',', '.', $power);
+        $this->power = str_replace(',', '.', $power);
 
         return $this;
     }
 
     public function getPnom(): ?float
     {
-        return (float)$this->power;
+        return (float) $this->power;
     }
 
     public function setPnom(string $power): self
     {
-        $this->power =  str_replace(',', '.', $power);
+        $this->power = str_replace(',', '.', $power);
 
         return $this;
     }
@@ -1014,41 +676,40 @@ class Anlage
     /** @deprecated  */
     public function getKwPeak(): ?float
     {
-        return (float)$this->power;
+        return (float) $this->power;
     }
 
     /** @deprecated  */
     public function setKwPeak(string $power): self
     {
-        $this->power =  str_replace(',', '.', $power);
+        $this->power = str_replace(',', '.', $power);
 
         return $this;
     }
 
     public function getPowerEast(): ?float
     {
-        return (float)$this->powerEast;
+        return (float) $this->powerEast;
     }
 
     public function setPowerEast(string $powerEast): self
     {
-        $this->powerEast =  str_replace(',', '.', $powerEast);
+        $this->powerEast = str_replace(',', '.', $powerEast);
 
         return $this;
     }
 
     public function getPowerWest(): ?float
     {
-        return (float)$this->powerWest;
+        return (float) $this->powerWest;
     }
 
     public function setPowerWest(string $powerWest): self
     {
-        $this->powerWest =  str_replace(',', '.', $powerWest);
+        $this->powerWest = str_replace(',', '.', $powerWest);
 
         return $this;
     }
-
 
     public function getAnlDataGoWs(): ?string
     {
@@ -1189,7 +850,7 @@ class Anlage
 
     public function getAnlZeitzone(): ?float
     {
-        return (float)$this->anlZeitzone;
+        return (float) $this->anlZeitzone;
     }
 
     public function setAnlZeitzone(string $anlZeitzone): self
@@ -1201,7 +862,7 @@ class Anlage
 
     public function getAnlZeitzoneWs(): ?string
     {
-        if($this->getWeatherStation()) {
+        if ($this->getWeatherStation()) {
             return $this->getWeatherStation()->gettimeZoneWeatherStation();
         } else {
             return false;
@@ -1221,10 +882,9 @@ class Anlage
         return $this;
     }
 
-
     public function getAnlIrChange(): ?string
     {
-        if($this->getWeatherStation()) {
+        if ($this->getWeatherStation()) {
             return $this->getWeatherStation()->getChangeSensor() ? '1' : '0';
         } else {
             return false;
@@ -1349,41 +1009,43 @@ class Anlage
 
     public function getDbNameIst()
     {
-        return $this->dbAnlagenData. ".db__pv_ist_".$this->getAnlIntnr();
+        return $this->dbAnlagenData.'.db__pv_ist_'.$this->getAnlIntnr();
     }
+
     public function getDbNameAcIst()
     {
-        return $this->dbAnlagenData. ".db__pv_ist_".$this->getAnlIntnr();
+        return $this->dbAnlagenData.'.db__pv_ist_'.$this->getAnlIntnr();
     }
 
     public function getDbNameIstDc()
     {
-        return $this->dbAnlagenData. ".db__pv_dcist_".$this->getAnlIntnr();
+        return $this->dbAnlagenData.'.db__pv_dcist_'.$this->getAnlIntnr();
     }
+
     public function getDbNameDCIst()
     {
-        return $this->dbAnlagenData. ".db__pv_dcist_".$this->getAnlIntnr();
+        return $this->dbAnlagenData.'.db__pv_dcist_'.$this->getAnlIntnr();
     }
 
     /** @deprecated use getDBNameSoll() */
     public function getDbNameAcSoll(): string
     {
-        return $this->dbAnlagenData. ".db__pv_soll_".$this->getAnlIntnr();
+        return $this->dbAnlagenData.'.db__pv_soll_'.$this->getAnlIntnr();
     }
 
     public function getDbNameSoll(): string
     {
-        return $this->dbAnlagenData. ".db__pv_soll_".$this->getAnlIntnr();
+        return $this->dbAnlagenData.'.db__pv_soll_'.$this->getAnlIntnr();
     }
 
     public function getDbNameDcSoll(): string
     {
-        return $this->dbAnlagenData. ".db__pv_dcsoll_".$this->getAnlIntnr();
+        return $this->dbAnlagenData.'.db__pv_dcsoll_'.$this->getAnlIntnr();
     }
 
     public function getDbNamePPC()
     {
-        return $this->dbAnlagenData. ".db__pv_ppc_".$this->getAnlIntnr();
+        return $this->dbAnlagenData.'.db__pv_ppc_'.$this->getAnlIntnr();
     }
 
     // get Weather Database
@@ -1394,19 +1056,21 @@ class Anlage
 
         return $weatherDB;
     }
+
     public function getDbNameWeather(): string
     {
         ($this->getAnlDbWs()) ? $anlageDbWeather = $this->getAnlDbWs() : $anlageDbWeather = $this->getAnlIntnr();
         $anlageDbWeather = $this->getNameWeather();
 
-        return $this->dbAnlagenData. ".db__pv_ws_".$anlageDbWeather;
+        return $this->dbAnlagenData.'.db__pv_ws_'.$anlageDbWeather;
     }
+
     public function getDbNameWeatherOld()
     {
         ($this->getAnlDbWs()) ? $anlageDbWeather = $this->getAnlDbWs() : $anlageDbWeather = $this->getAnlIntnr();
         $anlageDbWeather = $this->getNameWeather();
 
-        return "db__pv_ws_".$anlageDbWeather;
+        return 'db__pv_ws_'.$anlageDbWeather;
     }
 
     public function getAcGroups(): Collection
@@ -1444,19 +1108,20 @@ class Anlage
         /** @var AnlageAcGroups $group */
         foreach ($this->getAcGroups() as $group) {
             $gruppe[$group->getAcGroup()] = [
-                "GMIN" => $group->getUnitFirst(),
-                "GMAX" => $group->getUnitLast(),
-                "INVNR" => $group->getAcGroup(),
-                "GroupName" => $group->getAcGroupName()
+                'GMIN' => $group->getUnitFirst(),
+                'GMAX' => $group->getUnitLast(),
+                'INVNR' => $group->getAcGroup(),
+                'GroupName' => $group->getAcGroupName(),
             ];
         }
+
         return $gruppe;
     }
 
     public function getAnzInverter(): int
     {
         $anzInverter = 0;
-        if ($this->getConfigType() == "3" | $this->getConfigType() == "4") {
+        if ($this->getConfigType() == '3' | $this->getConfigType() == '4') {
             $anzInverter = $this->getAcGroups()->count();
         } else {
             foreach ($this->getAcGroups() as $group) {
@@ -1467,7 +1132,7 @@ class Anlage
         return $anzInverter;
     }
 
-    public function getAnzInverterFromGroupsAC():int
+    public function getAnzInverterFromGroupsAC(): int
     {
         return $this->getAnzInverter();
     }
@@ -1538,6 +1203,7 @@ class Anlage
     public function getLastPR(): Collection
     {
         $criteria = AnlagenRepository::lastAnlagenPRCriteria();
+
         return $this->pr->matching($criteria);
     }
 
@@ -1666,7 +1332,8 @@ class Anlage
 
         return $this;
     }
-        //use this to check if EVU is used
+
+    // use this to check if EVU is used
     public function getShowEvuDiag(): ?bool
     {
         return $this->showEvuDiag;
@@ -1706,37 +1373,34 @@ class Anlage
     /**
      * @return array
      */
-    public function getGroupsDc() {
+    public function getGroupsDc()
+    {
         $gruppe = [];
         /** @var AnlageGroups $row */
         foreach ($this->getGroups() as $row) {
             $grpnr = $row->getDcGroup();
             $gruppe[$grpnr] = [
-                "ANLID"     => $row->getAnlage()->getAnlId(),
-                "GMIN"      => $row->getUnitFirst(),
-                "GMAX"      => $row->getUnitLast(),
-                "GRPNR"     => $row->getDcGroup(),
-                "GroupName" => $row->getDcGroupName()
+                'ANLID' => $row->getAnlage()->getAnlId(),
+                'GMIN' => $row->getUnitFirst(),
+                'GMAX' => $row->getUnitLast(),
+                'GRPNR' => $row->getDcGroup(),
+                'GroupName' => $row->getDcGroupName(),
             ];
         }
 
         return $gruppe;
     }
 
-
-    /**
-     * @return array
-     */
-    function getInvertersFromDcGroups(): array
+    public function getInvertersFromDcGroups(): array
     {
         $inverters = [];
         $groups = $this->getGroups();
         foreach ($groups as $key => $group) {
-            for ($i = $group->getUnitFirst(); $i <= $group->getUnitLast(); $i++) {
+            for ($i = $group->getUnitFirst(); $i <= $group->getUnitLast(); ++$i) {
                 $inverters[] = [
-                    'inverterNo'    => $i,
-                    'group'         => $group->getDcGroupName(),
-                    'name'          => "Inv. #$i",
+                    'inverterNo' => $i,
+                    'group' => $group->getDcGroupName(),
+                    'name' => "Inv. #$i",
                 ];
             }
         }
@@ -1761,9 +1425,7 @@ class Anlage
      * no | without customer algorithm, use standard calculation
      * Groningen<br>
      * Veendamm<br>
-     * Lelystad | with temp corr. <br>
-     *
-     * @return string|null
+     * Lelystad | with temp corr. <br>.
      */
     public function getUseCustPRAlgorithm(): ?string
     {
@@ -1889,24 +1551,23 @@ class Anlage
         return $this;
     }
 
-
     public function getOpenWeather()
     {
         $weatherArray = [];
-        $apiKey = "795982a4e205f23abb3ce3cf9a9a032a";
+        $apiKey = '795982a4e205f23abb3ce3cf9a9a032a';
         $lat = $this->anlGeoLat;
         $lng = $this->anlGeoLon;
         if ($lat and $lng) {
-            $urli     = "https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lng&lang=en&APPID=$apiKey";
+            $urli = "https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lng&lang=en&APPID=$apiKey";
             $contents = file_get_contents($urli);
-            $clima    = json_decode($contents);
+            $clima = json_decode($contents);
             if ($clima) {
-                $weatherArray['tempC']          = round(($clima->main->temp - 273.15), 0);
-                $weatherArray['tempF']          = round(((($clima->main->temp * 9) / 5) + 32), 0);
-                $weatherArray['iconCountry']    = strtolower($clima->sys->country);
-                $weatherArray['iconWeather']    = "https://openweathermap.org/img/w/" . strtolower($clima->weather[0]->icon) . ".png";
-                $weatherArray['description']    = @$clima->weather[0]->description;
-                $weatherArray['cityName']       = @$clima->name;
+                $weatherArray['tempC'] = round($clima->main->temp - 273.15, 0);
+                $weatherArray['tempF'] = round((($clima->main->temp * 9) / 5) + 32, 0);
+                $weatherArray['iconCountry'] = strtolower($clima->sys->country);
+                $weatherArray['iconWeather'] = 'https://openweathermap.org/img/w/'.strtolower($clima->weather[0]->icon).'.png';
+                $weatherArray['description'] = @$clima->weather[0]->description;
+                $weatherArray['cityName'] = @$clima->name;
 
                 return $weatherArray;
             }
@@ -1962,26 +1623,26 @@ class Anlage
 
     public function setContractualAvailability(string $contractualAvailability): self
     {
-        $this->contractualAvailability =  str_replace(',', '.', $contractualAvailability);
+        $this->contractualAvailability = str_replace(',', '.', $contractualAvailability);
 
         return $this;
     }
 
     public function getContractualPR(): ?float
     {
-        return (float)$this->contractualPR;
+        return (float) $this->contractualPR;
     }
 
     public function setContractualPR(string $contractualPR): self
     {
-        $this->contractualPR =  str_replace(',', '.', $contractualPR);
+        $this->contractualPR = str_replace(',', '.', $contractualPR);
 
         return $this;
     }
 
     public function getContractualPower(): ?float
     {
-        return (float)$this->contractualPower;
+        return (float) $this->contractualPower;
     }
 
     public function getGuaranteedExpectedEnergy($expectedEnergy): float
@@ -1992,12 +1653,13 @@ class Anlage
     public function getContractualGuarantiedPower(): float
     {
         $factor = 1 - $this->getGuaranteeTee() / 100 - $this->getTransformerTee() / 100;
-        return (float)$this->contractualPower * $factor;
+
+        return (float) $this->contractualPower * $factor;
     }
 
     public function setContractualPower(string $contractualPower): self
     {
-        $this->contractualPower =  str_replace(',', '.', $contractualPower);
+        $this->contractualPower = str_replace(',', '.', $contractualPower);
 
         return $this;
     }
@@ -2012,7 +1674,6 @@ class Anlage
         $criteria = AnlagenRepository::case5ByDateCriteria($date);
 
         return $this->anlageCase5s->matching($criteria);
-
     }
 
     public function addAnlageCase5(AnlageCase5 $anlageCase5): self
@@ -2048,7 +1709,6 @@ class Anlage
         $criteria = AnlagenRepository::case6ByDateCriteria($date);
 
         return $this->anlageCase5s->matching($criteria);
-
     }
 
     public function addAnlageCase6(AnlageCase6 $anlageCase6): self
@@ -2125,24 +1785,24 @@ class Anlage
         return $this;
     }
 
-    public function getPacDate(): ?\DateTime
+    public function getPacDate(): ?DateTime
     {
         return $this->pacDate;
     }
 
-    public function setPacDate(?\DateTime $pacDate): self
+    public function setPacDate(?DateTime $pacDate): self
     {
         $this->pacDate = $pacDate;
 
         return $this;
     }
 
-    public function getFacDate(): ?\DateTime
+    public function getFacDate(): ?DateTime
     {
         return $this->facDate;
     }
 
-    public function setFacDate(?\DateTime $facDate): self
+    public function setFacDate(?DateTime $facDate): self
     {
         $this->facDate = $facDate;
 
@@ -2465,7 +2125,7 @@ class Anlage
 
     public function getKwPeakPvSyst(): ?float
     {
-        return (float)$this->kwPeakPvSyst;
+        return (float) $this->kwPeakPvSyst;
     }
 
     public function setKwPeakPvSyst(?string $kwPeakPvSyst): self
@@ -2477,7 +2137,7 @@ class Anlage
 
     public function getKwPeakPLDCalculation(): ?float
     {
-        return (float)$this->kwPeakPLDCalculation;
+        return (float) $this->kwPeakPLDCalculation;
     }
 
     public function setKwPeakPLDCalculation(?string $kwPeakPLDCalculation): void
@@ -2487,7 +2147,7 @@ class Anlage
 
     public function getDesignPR(): ?float
     {
-        return (float)$this->designPR;
+        return (float) $this->designPR;
     }
 
     public function setDesignPR(?string $designPR): self
@@ -2497,24 +2157,24 @@ class Anlage
         return $this;
     }
 
-    public function getFacDateStart(): ?\DateTime
+    public function getFacDateStart(): ?DateTime
     {
         return $this->facDateStart;
     }
 
-    public function setFacDateStart(?\DateTime $facDateStart): self
+    public function setFacDateStart(?DateTime $facDateStart): self
     {
         $this->facDateStart = $facDateStart;
 
         return $this;
     }
 
-    public function getPacDateEnd(): ?\DateTime
+    public function getPacDateEnd(): ?DateTime
     {
         return $this->pacDateEnd;
     }
 
-    public function setPacDateEnd(?\DateTime $pacDateEnd): self
+    public function setPacDateEnd(?DateTime $pacDateEnd): self
     {
         $this->pacDateEnd = $pacDateEnd;
 
@@ -2535,7 +2195,7 @@ class Anlage
         /** @var AnlagenPvSystMonth $month */
         foreach ($this->getPvSystMonths() as $month) {
             $array[] = [
-                'prDesign'  => $month->getPrDesign(),
+                'prDesign' => $month->getPrDesign(),
                 'ertragDesign' => $month->getErtragDesign(),
                 'irrDesign' => $month->getIrrDesign(),
                 'tempAmbDesign' => $month->getTempAmbientDesign(),
@@ -2543,7 +2203,7 @@ class Anlage
             ];
         }
 
-        return $array ;
+        return $array;
     }
 
     public function addPvSystMonth(AnlagenPvSystMonth $anlagenPvSystMonth): self
@@ -2568,7 +2228,7 @@ class Anlage
         return $this;
     }
 
-    public function getOneMonthPvSyst($month):?AnlagenPvSystMonth
+    public function getOneMonthPvSyst($month): ?AnlagenPvSystMonth
     {
         $criteria = AnlagenRepository::oneMonthPvSystCriteria($month);
         $result = $this->anlagenPvSystMonths->matching($criteria);
@@ -2578,7 +2238,7 @@ class Anlage
 
     public function getLid(): float
     {
-        return (float)$this->lid;
+        return (float) $this->lid;
     }
 
     public function setLid(string $lid): self
@@ -2590,7 +2250,7 @@ class Anlage
 
     public function getAnnualDegradation(): ?float
     {
-        return (float)$this->annualDegradation;
+        return (float) $this->annualDegradation;
     }
 
     public function setAnnualDegradation(?string $annualDegradation): self
@@ -2602,7 +2262,7 @@ class Anlage
 
     public function getPldPR(): ?float
     {
-        return (float)$this->pldPR;
+        return (float) $this->pldPR;
     }
 
     public function setPldPR(?string $pldPR): self
@@ -2664,7 +2324,7 @@ class Anlage
 
     public function getTransformerTee(): ?float
     {
-        return (float)$this->transformerTee;
+        return (float) $this->transformerTee;
     }
 
     public function setTransformerTee(string $transformerTee): self
@@ -2676,7 +2336,7 @@ class Anlage
 
     public function getGuaranteeTee(): ?float
     {
-        return (float)$this->guaranteeTee;
+        return (float) $this->guaranteeTee;
     }
 
     public function setGuaranteeTee(string $guaranteeTee): self
@@ -2703,7 +2363,7 @@ class Anlage
 
     public function getPldYield(): ?float
     {
-        return (float)$this->pldYield;
+        return (float) $this->pldYield;
     }
 
     public function setPldYield(string $pldYield): self
@@ -2951,24 +2611,24 @@ class Anlage
         return $this;
     }
 
-    public function getEpcReportStart(): ?\DateTime
+    public function getEpcReportStart(): ?DateTime
     {
         return $this->epcReportStart;
     }
 
-    public function setEpcReportStart(?\DateTime $epcReportStart): self
+    public function setEpcReportStart(?DateTime $epcReportStart): self
     {
         $this->epcReportStart = $epcReportStart;
 
         return $this;
     }
 
-    public function getEpcReportEnd(): ?\DateTime
+    public function getEpcReportEnd(): ?DateTime
     {
         return $this->epcReportEnd;
     }
 
-    public function setEpcReportEnd(?\DateTime $epcReportEnd): self
+    public function setEpcReportEnd(?DateTime $epcReportEnd): self
     {
         $this->epcReportEnd = $epcReportEnd;
 
@@ -3147,8 +2807,10 @@ class Anlage
 
         return $this;
     }
-    public function __toString(){
-        return  $this->getAnlName();
+
+    public function __toString()
+    {
+        return $this->getAnlName();
     }
 
     public function getEconomicVarNames(): EconomicVarNames
@@ -3229,7 +2891,7 @@ class Anlage
 
     public function getDegradationForecast(): float
     {
-        return (float)$this->degradationForecast;
+        return (float) $this->degradationForecast;
     }
 
     public function setDegradationForecast(?string $degradationForecast): self
@@ -3241,7 +2903,7 @@ class Anlage
 
     public function getLossesForecast(): float
     {
-        return (float)$this->lossesForecast;
+        return (float) $this->lossesForecast;
     }
 
     public function setLossesForecast(?string $lossesForecast): self
@@ -3280,7 +2942,9 @@ class Anlage
 
         return $this;
     }
-    public function hasPVSYST():bool{
+
+    public function hasPVSYST(): bool
+    {
         return intval($this->kwPeakPvSyst) > 0;
     }
 
@@ -3315,8 +2979,10 @@ class Anlage
 
         return $this;
     }
-    public function hasGrid(): bool{
-        return ($this->showEvuDiag ||$this->useGridMeterDayData);
+
+    public function hasGrid(): bool
+    {
+        return $this->showEvuDiag || $this->useGridMeterDayData;
     }
 
     public function getDataSourceAM(): ?string
@@ -3375,7 +3041,7 @@ class Anlage
 
     public function getFreqTolerance(): ?float
     {
-        return (float)$this->freqTolerance;
+        return (float) $this->freqTolerance;
     }
 
     public function setFreqTolerance(string $freqTolerance): self
@@ -3387,7 +3053,7 @@ class Anlage
 
     public function getFreqBase(): ?float
     {
-        return (float)$this->freqBase;
+        return (float) $this->freqBase;
     }
 
     public function setFreqBase(string $freqBase): self
@@ -3410,9 +3076,7 @@ class Anlage
     }
 
     /**
-     * Function to calculate the Pnom for every inverter, returns a Array with the Pnom for all inverters
-     *
-     * @return array
+     * Function to calculate the Pnom for every inverter, returns a Array with the Pnom for all inverters.
      */
     public function getPnomInverterArray(): array
     {
@@ -3458,5 +3122,4 @@ class Anlage
 
         return $this;
     }
-
 }

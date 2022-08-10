@@ -2,10 +2,7 @@
 
 namespace App\Form\DataTransformer;
 
-use App\Entity\Anlage;
-use App\Repository\AnlagenRepository;
 use Symfony\Component\Form\DataTransformerInterface;
-use Symfony\Component\Form\Exception\TransformationFailedException;
 
 class StringToNumberTransformer implements DataTransformerInterface
 {
@@ -20,7 +17,7 @@ class StringToNumberTransformer implements DataTransformerInterface
 
     public function reverseTransform($value): mixed
     {
-        $value = (String)$value;
+        $value = (string) $value;
         if ($value === null) {
             return 0;
         } else {
@@ -28,7 +25,6 @@ class StringToNumberTransformer implements DataTransformerInterface
             $value = str_replace(' ', '', $value);
         }
 
-        return (float)$value;
+        return (float) $value;
     }
-
 }
