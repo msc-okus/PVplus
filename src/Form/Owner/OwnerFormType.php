@@ -56,6 +56,7 @@ class OwnerFormType extends AbstractType
                 'label' => 'Lastname',
                 'empty_data' => '',
             ])
+            /*
             ->add('telefon1', TextType::class, [
                 'label' => 'Phone 1',
                 'empty_data' => '',
@@ -108,13 +109,15 @@ class OwnerFormType extends AbstractType
                 'label' => 'Operator Mobile',
                 'empty_data' => '',
             ])
-
+            */
             ->add('active', ChoiceType::class, [
                 'label' => 'Eigner aktiv ?',
                 'choices' => ['Yes' => '1', 'No' => '0'],
                 'placeholder' => 'Please Choose',
                 'empty_data' => '1',
             ])
+
+           /*
             ->add('editlock', ChoiceType::class, [
                 'label' => '?? deprecatetd',
                 'choices' => ['Yes' => '1', 'No' => '0'],
@@ -127,6 +130,7 @@ class OwnerFormType extends AbstractType
                 'placeholder' => 'Please Choose',
                 'empty_data' => '0',
             ])
+            */
             ->add('language', ChoiceType::class, [
                 'label' => 'Sprache (im Moment nur EN)',
                 'choices' => ['EN' => 'EN', 'DE' => 'DE'],

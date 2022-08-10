@@ -3,50 +3,69 @@
     <div class="cell">
         <ul class="tabs" data-tabs id="example-tabs" data-deep-link="true">
             <li class="tabs-title is-active"><a href="#owner1" aria-selected="true">Owner</a></li>
-            <li class="tabs-title"><a data-tabs-target="owner2" href="#owner2">Operator</a></li>
-            {% if is_granted('ROLE_G4N') %}<li class="tabs-title"><a data-tabs-target="owner3" href="#owner3">Settings</a></li>{% endif %}
+            {% if is_granted('ROLE_G4N') %}
+                <li class="tabs-title"><a data-tabs-target="owner3" href="#settings">Settings</a></li>
+                <li class="tabs-title"><a data-tabs-target="owner4" href="#features">Features</a></li>
+            {% endif %}
         </ul>
 
+        {# Basic Infos Owner #}
         <div class="tabs-content" data-tabs-content="example-tabs">
             <div class="tabs-panel is-active" id="owner1">
-                {{ form_row(ownerForm.firma) }}
-                {{ form_row(ownerForm.zusatz) }}
-                {{ form_row(ownerForm.strasse) }}
-                {{ form_row(ownerForm.plz) }}
-                {{ form_row(ownerForm.ort) }}
-                {{ form_row(ownerForm.anrede) }}
-                {{ form_row(ownerForm.vorname) }}
-                {{ form_row(ownerForm.nachname) }}
-                {{ form_row(ownerForm.telefon1) }}
-                {{ form_row(ownerForm.telefon2) }}
-                {{ form_row(ownerForm.fax) }}
-                {{ form_row(ownerForm.mobil) }}
-                {{ form_row(ownerForm.email) }}
-                {% if isupload != '' %}
-                    {{ form_row(ownerForm.imageFile) }}
-                    {% if isupload == 'yes' %}
-                        Last Uploaded:<br>
-                        <img class="article-img" src="{{ asset(imageuploadet)|imagine_filter('squared_thumbnail_small') }}" alt=""><br>
-                    {% endif %}
-                {% else %}
-                    {% do ownerForm.imageFile.setRendered() %}
-                {% endif %}
+                <div class="grid-x grid-margin-x grid-margin-y">
+                    <div class="cell medium-6">
+                        <fieldset class="fieldset">
+                            <legend>Basic Information</legend>
+                            {{ form_row(ownerForm.firma) }}
+                            {{ form_row(ownerForm.zusatz) }}
+                            {{ form_row(ownerForm.strasse) }}
+                            {{ form_row(ownerForm.plz) }}
+                            {{ form_row(ownerForm.ort) }}
+                            {{ form_row(ownerForm.anrede) }}
+                            {{ form_row(ownerForm.vorname) }}
+                            {{ form_row(ownerForm.nachname) }}
+                        </fieldset>
+                    </div>
+                    <div class="cell medium-6">
+                        <fieldset class="fieldset">
+                            <legend>Admin Settings</legend>
+                            {% if is_granted('ROLE_G4N') %}
+                                {{ form_row(ownerForm.active) }}
+                                {{ form_row(ownerForm.language) }}
+                            {% endif %}
+
+                            {% if isupload != '' %}
+                                {{ form_row(ownerForm.imageFile) }}
+                                {% if isupload == 'yes' %}
+                                    <div class="grid-x">
+                                        <div class="cell">
+                                            <p>Last Uploaded:</p>
+                                            <img class="article-img" src="{{ asset(imageuploadet) }}" alt="Logo">{# |imagine_filter('squared_thumbnail_small') #}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                {% do ownerForm.imageFile.setRendered() %}
+                            {% endif %}
+
+                        </fieldset>
+                    </div>
+                </div>
             </div>
-            <div class="tabs-panel" id="owner2">
-                {{ form_row(ownerForm.bv_anrede) }}
-                {{ form_row(ownerForm.bv_vorname) }}
-                {{ form_row(ownerForm.bv_nachname) }}
-                {{ form_row(ownerForm.bv_telefon1) }}
-                {{ form_row(ownerForm.bv_telefon2) }}
-                {{ form_row(ownerForm.bv_mobil) }}
-                {{ form_row(ownerForm.bv_email) }}
+
+            {# Setting #}
+            <div class="tabs-panel" id="settings">
+                <fieldset class="fieldset">
+                    <legend>Settings</legend>
+                </fieldset>
             </div>
+
+            {# Features #}
             {% if is_granted('ROLE_G4N') %}
-                <div class="tabs-panel" id="owner3">
-                    {{ form_row(ownerForm.active) }}
-                    {{ form_row(ownerForm.editlock) }}
-                    {{ form_row(ownerForm.userlock) }}
-                    {{ form_row(ownerForm.language) }}
+                <div class="tabs-panel" id="features">
+                    <fieldset class="fieldset">
+                        <legend>Features</legend>
+                    </fieldset>
                 </div>
             {% endif %}
         </div>

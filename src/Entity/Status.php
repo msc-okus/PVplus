@@ -11,20 +11,20 @@ class Status
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private $id;
+    private int $id;
 
     #[ORM\Column(type: 'string', length: 50)]
-    private $stamp;
+    private ?string $stamp;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'statuses')]
     #[ORM\JoinColumn(nullable: false)]
-    private $Anlage;
+    private ?Anlage $Anlage;
 
     #[ORM\Column(type: 'text')]
     private $Status;
 
     #[ORM\Column(type: 'boolean')]
-    private $isWeather;
+    private ?bool $isWeather;
 
     public function getId(): ?int
     {

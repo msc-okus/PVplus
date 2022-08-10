@@ -55,7 +55,7 @@ trait TicketTrait
         if (isset($this->end) && isset($this->begin)) {
             $endstamp = $this->getEnd()->getTimestamp();
             $beginstamp = $this->getBegin()->getTimestamp();
-            $this->Intervals = ($endstamp - $beginstamp) / 900;
+            $this->intervals = ($endstamp - $beginstamp) / 900;
         }
 
         return $this;
