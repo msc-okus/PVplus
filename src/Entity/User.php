@@ -253,7 +253,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 
     /**
-     * @return Collection|Eigner[]
+     * @return Collection
      */
     public function getEigners(): Collection
     {

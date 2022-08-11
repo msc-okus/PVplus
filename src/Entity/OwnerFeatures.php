@@ -13,17 +13,17 @@ class OwnerFeatures
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\OneToOne(inversedBy: 'ownerFeatures', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(inversedBy: 'features', cascade: ['persist', 'remove'])]
     private ?Eigner $owner = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?bool $aktDep1 = null;
+    #[ORM\Column(nullable: true, options: ['default' => '0'])]
+    private ?bool $aktDep1 = false;
 
-    #[ORM\Column(nullable: true)]
-    private ?bool $aktDep2 = null;
+    #[ORM\Column(nullable: true, options: ['default' => '0'])]
+    private ?bool $aktDep2 = false;
 
-    #[ORM\Column(nullable: true)]
-    private ?bool $aktDep3 = null;
+    #[ORM\Column(nullable: true, options: ['default' => '1'])]
+    private ?bool $aktDep3 = true;
 
     public function getId(): ?int
     {

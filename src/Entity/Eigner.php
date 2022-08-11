@@ -157,6 +157,12 @@ class Eigner
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private $Logo;
 
+    #[ORM\OneToOne(mappedBy: 'owner', cascade: ['persist', 'remove'])]
+    private ?OwnerFeatures $features = null;
+
+    #[ORM\OneToOne(mappedBy: 'owner', cascade: ['persist', 'remove'])]
+    private ?OwnerSettings $settings = null;
+
     public function __construct()
     {
         $this->user = new ArrayCollection();
@@ -695,6 +701,50 @@ class Eigner
     public function setLogo(?string $Logo): self
     {
         $this->Logo = $Logo;
+
+        return $this;
+    }
+
+    public function getFeatures(): ?OwnerFeatures
+    {
+        return $this->features;
+    }
+
+    public function setFeatures(?OwnerFeatures $features): self
+    {
+        // unset the owning side of the relation if necessary
+        if ($features === null && $this->features !== null) {
+            $this->features->setOwner(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($features !== null && $features->getOwner() !== $this) {
+            $features->setOwner($this);
+        }
+
+        $this->features = $features;
+
+        return $this;
+    }
+
+    public function getSettings(): ?OwnerSettings
+    {
+        return $this->settings;
+    }
+
+    public function setSettings(?OwnerSettings $settings): self
+    {
+        // unset the owning side of the relation if necessary
+        if ($settings === null && $this->settings !== null) {
+            $this->settings->setOwner(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($settings !== null && $settings->getOwner() !== $this) {
+            $settings->setOwner($this);
+        }
+
+        $this->settings = $settings;
 
         return $this;
     }
