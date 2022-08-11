@@ -19,14 +19,12 @@ class TicketDate
     private int $id;
 
     #[ORM\ManyToOne(targetEntity: Ticket::class, inversedBy: 'dates')]
-    private $ticket;
+    private Ticket $ticket;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class)]
     #[ORM\JoinColumn(nullable: false)]
-    private $Anlage;
+    private Anlage $Anlage;
 
-    #[ORM\Column(type: 'integer')]
-    private int $intervals = 0;
 
     public function __construct()
     {
@@ -101,23 +99,11 @@ class TicketDate
         $this->intervals = ($endstamp - $beginstamp) / 900;
     }
 
-    public function getIntervalCount()
+    public function getIntervalCount(): int
     {
         $endstamp = $this->getEnd()->getTimestamp();
         $beginstamp = $this->getBegin()->getTimestamp();
 
-        return ($endstamp - $beginstamp) / 900;
-    }
-
-    public function getIntervals(): ?int
-    {
-        return $this->intervals;
-    }
-
-    public function setIntervals(int $intervals): self
-    {
-        $this->intervals = $intervals;
-
-        return $this;
+        return (int)(($endstamp - $beginstamp) / 900);
     }
 }
