@@ -4,8 +4,8 @@
         <ul class="tabs" data-tabs id="example-tabs" data-deep-link="true">
             <li class="tabs-title is-active"><a href="#owner1" aria-selected="true">Owner</a></li>
             {% if is_granted('ROLE_G4N') %}
-                <li class="tabs-title"><a data-tabs-target="owner3" href="#settings">Settings</a></li>
-                <li class="tabs-title"><a data-tabs-target="owner4" href="#features">Features</a></li>
+                <li class="tabs-title"><a data-tabs-target="settings" href="#settings">Settings</a></li>
+                <li class="tabs-title"><a data-tabs-target="features" href="#features">Features</a></li>
             {% endif %}
         </ul>
 
@@ -47,7 +47,6 @@
                             {% else %}
                                 {% do ownerForm.imageFile.setRendered() %}
                             {% endif %}
-
                         </fieldset>
                     </div>
                 </div>
@@ -57,6 +56,9 @@
             <div class="tabs-panel" id="settings">
                 <fieldset class="fieldset">
                     <legend>Settings</legend>
+                    {{ form_row(ownerForm.settings.nameDep1) }}
+                    {{ form_row(ownerForm.settings.nameDep2) }}
+                    {{ form_row(ownerForm.settings.nameDep3) }}
                 </fieldset>
             </div>
 
@@ -65,6 +67,9 @@
                 <div class="tabs-panel" id="features">
                     <fieldset class="fieldset">
                         <legend>Features</legend>
+                        {{ form_row(ownerForm.features.aktDep1) }}
+                        {{ form_row(ownerForm.features.aktDep2) }}
+                        {{ form_row(ownerForm.features.aktDep3) }}
                     </fieldset>
                 </div>
             {% endif %}

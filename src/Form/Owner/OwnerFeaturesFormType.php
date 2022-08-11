@@ -2,24 +2,24 @@
 
 namespace App\Form\Owner;
 
-use App\Entity\OwnerSettings;
+use App\Entity\OwnerFeatures;
+use App\Form\Type\SwitchType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class OwnerSettingsFormType extends AbstractType
+class OwnerFeaturesFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options) {
         $builder
-            ->add('nameDep1', TextType::class, [
-
+            ->add('aktDep1', SwitchType::class, [
+                'label'     => 'aktiviere Departemnet 1 (O&M)',
             ])
-            ->add('nameDep2', TextType::class, [
-
+            ->add('aktDep2', SwitchType::class, [
+                'label'     => 'aktiviere Departemnet 2 (EPC)',
             ])
-            ->add('nameDep3', TextType::class, [
-
+            ->add('aktDep3', SwitchType::class, [
+                'label'     => 'aktiviere Departemnet 3 (AM)',
             ])
         ;
     }
@@ -27,7 +27,7 @@ class OwnerSettingsFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => OwnerSettings::class,
+            'data_class' => OwnerFeatures::class,
         ]);
     }
 }

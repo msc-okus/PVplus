@@ -3,8 +3,10 @@
 namespace App\Form\Owner;
 
 use App\Entity\Eigner;
+use App\Form\Anlage\ModulesListEmbeddedFormType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -155,6 +157,26 @@ class OwnerFormType extends AbstractType
                 ],
             ])
 
+            // #############################################
+            // ###             Features                 ####
+            // #############################################
+
+            ->add('features', OwnerFeaturesFormType::class, [
+                'label' => 'Features',
+            ])
+
+
+            // #############################################
+            // ###              Settings                ####
+            // #############################################
+
+            ->add('settings', OwnerSettingsFormType::class, [
+                'label' => 'Settings',
+            ])
+
+            // #############################################
+            // ###          STEUERELEMENTE              ####
+            // #############################################
             ->add('save', SubmitType::class, [
                 'label' => 'Save Owner',
                 'attr' => ['class' => 'primary save'],
