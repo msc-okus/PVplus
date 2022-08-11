@@ -73,10 +73,7 @@ class Ticket
 
     #[ORM\OneToMany(targetEntity: TicketDate::class, mappedBy: 'ticket', cascade: ['persist', 'remove'])]
     #[ORM\OrderBy(['begin' => 'ASC'])]
-    private $dates;
-
-    #[ORM\Column(type: 'integer')]
-    private int|float $intervals;
+    private Collection $dates;
 
     public function __construct()
     {
@@ -329,20 +326,4 @@ class Ticket
         return $this;
     }
 
-    public function getIntervalCount()
-    {
-        return $this->dates->count();
-    }
-
-    public function getIntervals(): ?int
-    {
-        return $this->intervals;
-    }
-
-    public function setIntervals(int $intervals): self
-    {
-        $this->intervals = $intervals;
-
-        return $this;
-    }
 }

@@ -41,7 +41,19 @@ trait TicketTrait
     private ?int $status;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private string $dataGapEvaluation;
+    private ?string $dataGapEvaluation;
+
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
+    private int $intervals = 0;
+
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $kpiPaDep1;
+
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $kpiPaDep2;
+
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $kpiPaDep3;
 
     public function getEnd(): ?DateTimeInterface
     {
@@ -55,7 +67,7 @@ trait TicketTrait
         if (isset($this->end) && isset($this->begin)) {
             $endstamp = $this->getEnd()->getTimestamp();
             $beginstamp = $this->getBegin()->getTimestamp();
-            $this->Intervals = ($endstamp - $beginstamp) / 900;
+            $this->intervals = (int)(($endstamp - $beginstamp) / 900);
         }
 
         return $this;
@@ -73,7 +85,7 @@ trait TicketTrait
         if (isset($this->end) && isset($this->begin)) {
             $endstamp = $this->getEnd()->getTimestamp();
             $beginstamp = $this->getBegin()->getTimestamp();
-            $this->intervals = ($endstamp - $beginstamp) / 900;
+            $this->intervals = (int)(($endstamp - $beginstamp) / 900);
         }
 
         return $this;
@@ -198,4 +210,50 @@ trait TicketTrait
 
         return $this;
     }
+
+    public function getIntervals(): ?int
+    {
+        return $this->intervals;
+    }
+
+    public function setIntervals(int $intervals): self
+    {
+        $this->intervals = $intervals;
+
+        return $this;
+    }
+
+    public function getKpiPaDep1(): string
+    {
+        return $this->kpiPaDep1;
+    }
+
+    public function setKpiPaDep1(string $kpiPaDep1): self
+    {
+        $this->kpiPaDep1 = $kpiPaDep1;
+        return $this;
+    }
+
+    public function getKpiPaDep2(): string
+    {
+        return $this->kpiPaDep2;
+    }
+
+    public function setKpiPaDep2(string $kpiPaDep2): self
+    {
+        $this->kpiPaDep2 = $kpiPaDep2;
+        return $this;
+    }
+
+    public function getKpiPaDep3(): string
+    {
+        return $this->kpiPaDep3;
+    }
+
+    public function setKpiPaDep3(string $kpiPaDep3): self
+    {
+        $this->kpiPaDep3 = $kpiPaDep3;
+        return $this;
+    }
+
 }

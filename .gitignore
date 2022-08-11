@@ -8,8 +8,6 @@ php.ini
 tempfiles/*
 symfony.exe
 
-/tools/php-cs-fixer/vendor/
-/.php-cs-fixer.cache
 
 ###> symfony/framework-bundle ###
 /.env.local
@@ -34,3 +32,8 @@ symfony.exe
 npm-debug.log
 yarn-error.log
 ###< symfony/webpack-encore-bundle ###
+/tools/
+/tools/php-cs-fixer/
+/tools/php-cs-fixer/vendor/
+
+.php-cs-fixer.cache
