@@ -43,6 +43,7 @@ class TicketController extends BaseController
 
         return $this->renderForm('ticket/_inc/_edit.html.twig', [
             'ticketForm' => $form,
+            'ticket' => false,
             'edited' => false,
         ]);
     }

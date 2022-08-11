@@ -199,12 +199,12 @@ trait TicketTrait
         return $this;
     }
 
-    public function getDataGapEvaluation(): string
+    public function getDataGapEvaluation(): ?string
     {
         return $this->dataGapEvaluation;
     }
 
-    public function setDataGapEvaluation(string $dataGapEvaluation): self
+    public function setDataGapEvaluation(?string $dataGapEvaluation): self
     {
         $this->dataGapEvaluation = $dataGapEvaluation;
 
