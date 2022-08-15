@@ -133,6 +133,7 @@ class TicketController extends BaseController
 
         $filter['anlagen']['value'] = $anlage;
         $filter['anlagen']['array'] = $anlagenRepo->findAllActiveAndAllowed();
+        dump($filter['anlagen']['array']);
         $filter['status']['value'] = $status;
         $filter['status']['array'] = self::ticketStati();
         $filter['priority']['value'] = $prio;
@@ -160,12 +161,12 @@ class TicketController extends BaseController
         }
 
         return $this->render('ticket/list.html.twig', [
-            'pagination' => $pagination,
-            'anlage' => $anlage,
-            'user' => $editor,
-            'id' => $id,
-            'inverter' => $inverter,
-            'filter' => $filter,
+            'pagination'    => $pagination,
+            'anlage'        => $anlage,
+            'user'          => $editor,
+            'id'            => $id,
+            'inverter'      => $inverter,
+            'filter'        => $filter,
         ]);
     }
 

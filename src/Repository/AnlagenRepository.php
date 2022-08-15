@@ -278,12 +278,12 @@ class AnlagenRepository extends ServiceEntityRepository
         } else {
             /** @var User $user */
             $user = $this->security->getUser();
-            $accesslist = $user->getAccessList();
+            $granted = $user->getGrantedArray();
             $qb
                 ->andWhere("a.anlHidePlant = 'No'")
                 ->andWhere("a.anlView = 'Yes'")
-                ->andWhere('a.eigner IN (:accesslist)')
-                ->setParameter('accesslist', $accesslist);
+                ->andWhere("a.anlId IN (:granted)")
+                ->setParameter('granted', $granted);
         }
         $qb
             ->orderBy('a.eigner', 'ASC')
@@ -316,11 +316,11 @@ class AnlagenRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param string|null $query
-     *
+     * @param string $query
+     * @param int $limit
      * @return array
      */
-    public function findByAllMatching(string $query, int $limit = 100)
+    public function findByAllMatching(string $query, int $limit = 100): array
     {
         $qb = $this->createQueryBuilder('a')
             ->leftJoin('a.economicVarNames', 'varName')
@@ -351,13 +351,13 @@ class AnlagenRepository extends ServiceEntityRepository
 
     public function getWithSearchQueryBuilderOwner(?string $term, array $eigners = [], array $grantedPlantList = []): QueryBuilder
     {
-        $qb = $this->createQueryBuilder('c')
-            ->andWhere('c.eignerId IN (:eigners) ')
-            ->andWhere('c.anlId IN (:grantedPlantList)')
+        $qb = $this->createQueryBuilder('a')
+            ->andWhere('a.eignerId IN (:eigners) ')
+            ->andWhere('a.anlId IN (:grantedPlantList)')
             ->setParameter('eigners', $eigners)
             ->setParameter('grantedPlantList', $grantedPlantList)
-            ->innerJoin('c.eigner', 'a')
-            ->addSelect('a')
+            ->innerJoin('a.eigner', 'eigner')
+            ->addSelect('eigner')
             ->leftJoin('a.economicVarNames', 'varName')
             ->leftJoin('a.economicVarValues', 'ecoValu')
             ->leftJoin('a.settings', 'settings')
@@ -366,11 +366,11 @@ class AnlagenRepository extends ServiceEntityRepository
             ->addSelect('settings');
 
         if ($term) {
-            $qb->andWhere('c.anlName LIKE :term OR c.anlPlz LIKE :term OR c.anlOrt LIKE :term OR a.firma LIKE :term')
+            $qb->andWhere('a.anlName LIKE :term OR eigner.anlPlz LIKE :term OR eigner.anlOrt LIKE :term OR eigner.firma LIKE :term')
                 ->setParameter('term', '%'.$term.'%');
         }
 
-        return $qb->orderBy('a.firma', 'ASC')
-            ->addOrderBy('c.anlName', 'ASC');
+        return $qb->orderBy('eigner.firma', 'ASC')
+            ->addOrderBy('a.anlName', 'ASC');
     }
 }

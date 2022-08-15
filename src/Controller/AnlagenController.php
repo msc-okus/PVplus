@@ -25,7 +25,7 @@ class AnlagenController extends BaseController
     #[Route(path: '/anlagen/list', name: 'app_anlagen_list')]
     public function list(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository): Response
     {
-        $grantedPlantList = explode(',', $this->getUser()->getGrantedList());
+        $grantedPlantList = $this->getUser()->getGrantedArray();
         $eigners = [];
         /** @var Eigner $eigner */
         foreach ($this->getUser()->getEigners()->toArray() as $eigner) {
