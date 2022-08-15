@@ -37,7 +37,6 @@ class DefaultMREController extends BaseController
         foreach ($sunrisedatas as $key => $value) {
             $sunrisedatas[$key] = date('Y-m-d H:i', $value);
         }
-        dd($sunrisedatas, $output);
 
         return $this->render('cron/showResult.html.twig', [
             'headline' => 'Sunrise / Sunset',
@@ -76,8 +75,8 @@ class DefaultMREController extends BaseController
         $output = '';
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => '97']);
-        $from = date_create('2022-06-01');
-        $to = date_create('2022-06-30');
+        $from = date_create('2022-07-01');
+        $to = date_create('2022-07-31');
         $output = $bavelseExport->gewichtetTagesstrahlung($anlage, $from, $to);
 
         return $this->render('cron/showResult.html.twig', [

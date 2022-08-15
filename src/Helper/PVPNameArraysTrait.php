@@ -105,4 +105,31 @@ trait PVPNameArraysTrait
 
         return $errorType;
     }
+
+    public function kpiPaDep1(): array
+    {
+        $kpi['normal outage'] = 10;
+        $kpi['force majeure'] = 20;
+        $kpi['tbd'] = 30;
+
+        return $kpi;
+    }
+
+    public function kpiPaDep2(): array
+    {
+        $kpi['normal outage'] = 10;
+        $kpi['force majeure'] = 20;
+        $kpi['tbd'] = 30;
+
+        return $kpi;
+    }
+
+    public function kpiPaDep3(): array
+    {
+        $kpi['normal outage'] = 10;
+        $kpi['force majeure'] = 20;
+        $kpi['tbd'] = 30;
+
+        return $kpi;
+    }
 }
