@@ -26,9 +26,9 @@
                     <th>Gap Ev.</th>
                 {% endif %}
                 {# <th>Reason</th> #}
-                {% if (features and features.aktDep1) %}<td>{{ settings.nameDep1 }}</td>{% endif %}
-                {% if (features and features.aktDep2) %}<td>{{ settings.nameDep2 }}</td>{% endif %}
-                {% if (features and features.aktDep3) %}<td>{{ settings.nameDep3 }}</td>{% endif %}
+                {% if (features and features.aktDep1) %}<td>PA {{ settings.nameDep1 }}</td>{% endif %}
+                {% if (features and features.aktDep2) %}<td>PA {{ settings.nameDep2 }}</td>{% endif %}
+                {% if (features and features.aktDep3) %}<td>PA {{ settings.nameDep3 }}</td>{% endif %}
                 <th></th>
                 <th></th>
             </tr>
@@ -49,9 +49,9 @@
                         {% do date.dataGapEvaluation.setRendered() %}
                     {% endif %}
                     {# <td>reason</td> #}
-                    {% if (features and features.aktDep1) %}<td>om</td>{% endif %}
-                    {% if (features and features.aktDep2) %}<td>epc</td>{% endif %}
-                    {% if (features and features.aktDep3) %}<td>{{ form_widget(date.errorType, { 'attr': {'class': 'no-margin'} }) }}</td>{% endif %}
+                    {% if (features and features.aktDep1) %}<td>{{ form_widget(date.kpiPaDep1, { 'attr': {'class': 'no-margin'} }) }}</td>{% endif %}
+                    {% if (features and features.aktDep2) %}<td>{{ form_widget(date.kpiPaDep2, { 'attr': {'class': 'no-margin'} }) }}</td>{% endif %}
+                    {% if (features and features.aktDep3) %}<td>{{ form_widget(date.kpiPaDep3, { 'attr': {'class': 'no-margin'} }) }}</td>{% endif %}
                     <td class="text-right">
                         <button {% if (ticketForm.dates|length) <= 1 %}disabled{% endif %}
                                 type="button"
