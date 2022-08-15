@@ -14,7 +14,7 @@ trait TicketTrait
     private ?DateTimeInterface $end;
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
-    private ?string $errorType;
+    private ?string $errorType = '';
 
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $freeText = '';
@@ -23,10 +23,10 @@ trait TicketTrait
     private ?string $description = '';
 
     #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $systemStatus;
+    private ?int $systemStatus = 0;
 
     #[ORM\Column(type: 'integer', nullable: true)]
-    private int $priority;
+    private int $priority = 0;
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $answer = '';
@@ -47,13 +47,13 @@ trait TicketTrait
     private int $intervals = 0;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $kpiPaDep1;
+    private ?string $kpiPaDep1 = '';
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $kpiPaDep2;
+    private ?string $kpiPaDep2 = '';
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $kpiPaDep3;
+    private ?string $kpiPaDep3 = '';
 
     public function getEnd(): ?DateTimeInterface
     {

@@ -28,6 +28,7 @@ class TicketController extends BaseController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $ticket = $form->getData();
+
             $ticket->setEditor($this->getUser()->getUsername());
             // $ticket->setInverter("*");
             $date = new TicketDate();

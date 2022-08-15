@@ -302,7 +302,7 @@ class AnlagenAdminController extends BaseController
             $databaseAcIst = 'CREATE TABLE IF NOT EXISTS '.$anlage->getDbNameIst()." (
                   `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
                   `anl_id` int(11) NOT NULL,
-                  `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',,
+                  `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
                   `inv` int(11) NOT NULL,
                   `group_dc` int(11) NOT NULL,
                   `group_ac` int(11) NOT NULL,

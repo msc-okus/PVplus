@@ -8,7 +8,6 @@ use koolreport\processes\Filter;
 class EPCMonthlyPRGuaranteeReport extends KoolReport
 {
     use \koolreport\excel\BigSpreadsheetExportable;
-
     use \koolreport\cloudexport\Exportable;
 
     protected function settings(): array
