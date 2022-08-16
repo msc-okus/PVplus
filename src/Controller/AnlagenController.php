@@ -104,4 +104,5 @@ class AnlagenController extends BaseController
             'anlagen' => $anlage,
         ], 200, [], ['groups' => ['main']]);
     }
+
 }
