@@ -15,6 +15,9 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\FormEvent;
+use Symfony\Component\Form\FormEvents;
+
 
 class UserFormType extends AbstractType
 {
@@ -33,7 +36,21 @@ class UserFormType extends AbstractType
         $anlagen = [];
         if ($user != null) {
             $eigner = $user->getEigners()->getValues()[0];
-            $anlagen = $this->repo->findAllByEigner($eigner);
+            $anlagen = $this->repo->findAllIDByEigner($eigner);
+            $GrantedArray = $user->getGrantedArray();
+        }
+
+
+        if ($GrantedArray) {
+            foreach ($GrantedArray as $Gkey) {
+                $fixGrantedArray[] = preg_replace('/\s+/', '', $Gkey);
+            }
+        }
+
+        if ($anlagen){
+            foreach ($anlagen as $key => $val){
+                $anlagenid[] = [$anlagen[$key]['anlName'] => $anlagen[$key]['anlId']];
+            }
         }
 
         $builder
@@ -63,7 +80,6 @@ class UserFormType extends AbstractType
                 'choices' => User::ARRAY_OF_ROLES,
                 'multiple' => true,
                 'expanded' => true,
-                'attr' => ['class' => 'callout'],
             ])
             ->add('eigners', EntityType::class, [
                 'class' => Eigner::class,
@@ -73,18 +89,19 @@ class UserFormType extends AbstractType
                 'by_reference' => false,
             ])
             ->add('grantedList', TextType::class, [
-                'label' => 'List with IDs of granted facilities',
+                'label' => '',
+                'compound' => true,
                 'empty_data' => '',
             ])
-            /*
 
-
-            ->add('grantedList', ChoiceType::class,[
-                'choices' => $anlagen,
+            ->add('eignersPlantList', ChoiceType::class,[
+                'choices' => $anlagenid,
                 'expanded' => true,
-                'multiple' => true
+                'multiple' => true,
+                'required' => true,
+                'data' => $fixGrantedArray,
+                'mapped' => false
             ])
-*/
 
             // #############################################
             // ###          STEUERELEMENTE              ####

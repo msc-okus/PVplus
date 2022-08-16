@@ -210,7 +210,7 @@ class AnlagenRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findAllByEigner($eigner)
+    public function findAllByEigner($eigner): array
     {
         return $this->createQueryBuilder('a')
             ->andWhere("a.anlHidePlant = 'No'")
@@ -224,6 +224,26 @@ class AnlagenRepository extends ServiceEntityRepository
             ->addSelect('settings')
             ->getQuery()
             ->getResult();
+    }
+
+    public function findAllIDByEigner($eigner): array
+    {
+        return $this->createQueryBuilder('a')
+            ->select('a.anlName','a.anlId')
+            ->andWhere('a.eignerId = :eigner')
+            ->setParameter('eigner', $eigner)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findAllAnlageByUser($userid): array
+    {
+        $query = $this->createQueryBuilder('a');
+        $query->select('a.anlId')
+            ->leftJoin('a.eigner','e')->addSelect('e.id')
+            ->where('a.eigner = :creator')
+            ->setParameter('creator', $userid);
+        return $query->getQuery()->getResult();
     }
 
     /**
