@@ -82,8 +82,13 @@ class UserController extends BaseController
         $user = $userRepository->find($id);
         $form = $this->createForm(UserFormType::class, $user);
         $form->handleRequest($request);
+        $selPlantList = $form->get('eignersPlantList')->getData();
+        $savPlantList = (implode(",", $selPlantList));
+
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
             $user = $form->getData();
+            $user->setGrantedList($savPlantList);
+
             if ($form['plainPassword']->getData() != '') {
                 $user->setPassword($userPasswordHasher->hashPassword(
                     $user,
