@@ -73,7 +73,8 @@ class ReportEpcService
                             'anlage' => $anlage->getAnlName(),
                             'eigner' => $anlage->getEigner()->getFirma(),
                             'date' => $currentDate,
-                            'kwpeak' => $anlage->getKwPeak(),
+                            'kwpeak' => $anlage->getPnom(),
+                            'finalReport' => $reportArray['finalReport'],
                         ],
                     ],
                     'main' => $reportArray[0],
@@ -131,6 +132,8 @@ class ReportEpcService
         $startYear = $anlage->getEpcReportStart()->format('Y');
         $currentMonth = (int) $date->format('m');
         $currentYear = (int) $date->format('Y');
+        if ($currentMonth == $anlage->getEpcReportEnd()->format('m') && $currentYear == $anlage->getEpcReportEnd()->format('Y')) $finalReport = true; else $finalReport = false;
+        $report['finalReport'] = $finalReport;
 
         $sumPrRealPrProg = $sumDays = $sumErtragDesign = $sumEGridReal = $sumAnteil = $sumPrReal = $sumSpecPowerGuar = $sumSpecPowerRealProg = $counter = $sumPrDesign = $sumSpezErtragDesign = 0;
         $sumIrrMonth = $sumDaysReal = $sumErtragDesignReal = $sumEGridRealReal = $sumPrRealReal = $sumEGridRealDesignReal = $sumEGridRealDesign = $sumPrRealPrProgReal = 0;
@@ -322,31 +325,33 @@ class ReportEpcService
         }
 
         // Forecast (ganzes Jahr, Bsp Sep20 bis Sep21)
-        $report[0][] = [
-            'month' => 'Forecast<br>'.$forecastDateText,
-            'days' => 'months: '.$anzahlMonate,
-            'irradiation' => $this->format($sumIrrMonth),
-            'prDesign' => $this->format($anlage->getDesignPR()),
-            'ertragDesign' => $this->format($sumErtragDesign),
-            'spezErtragDesign' => $this->format($sumErtragDesign / $anlage->getKwPeakPvSyst()),
-            'prGuar' => $this->format($anlage->getContractualPR()),
-            'eGridReal' => $this->format($sumEGridReal),
-            'eGridReal-Design' => $this->format($sumEGridRealDesign),
-            'spezErtrag' => $this->format($sumEGridReal / $anlage->getPnom()),
-            'prReal' => $this->format($sumPrReal / $counter),
-            'prReal_prDesign' => $this->format(($sumPrReal / $counter) - $anlage->getDesignPR()), // PR Real minus PR Design
-            'availability' => '',
-            'dummy' => '',
-            'prReal_prGuar' => $this->format(($sumPrReal / $counter) - $anlage->getContractualPR()), // PR Real minus PR Garantiert
-            'prReal_prProg' => $this->format($sumPrRealPrProg),  // PR Real oder wenn kein PR Real dann PR Prognostiziert
-            'anteil' => $this->format($sumAnteil * 100),
-            'specPowerGuar' => $this->format($sumSpecPowerGuar),
-            'specPowerRealProg' => $this->format($sumSpecPowerRealProg),
-            'currentMonthClass' => 'sum-forcast',
-        ];
+        if (!$finalReport) {
+            $report[0][] = [
+                'month' => 'Forecast<br>' . $forecastDateText,
+                'days' => 'months: ' . $anzahlMonate,
+                'irradiation' => $this->format($sumIrrMonth),
+                'prDesign' => $this->format($anlage->getDesignPR()),
+                'ertragDesign' => $this->format($sumErtragDesign),
+                'spezErtragDesign' => $this->format($sumErtragDesign / $anlage->getKwPeakPvSyst()),
+                'prGuar' => $this->format($anlage->getContractualPR()),
+                'eGridReal' => $this->format($sumEGridReal),
+                'eGridReal-Design' => $this->format($sumEGridRealDesign),
+                'spezErtrag' => $this->format($sumEGridReal / $anlage->getPnom()),
+                'prReal' => $this->format($sumPrReal / $counter),
+                'prReal_prDesign' => $this->format(($sumPrReal / $counter) - $anlage->getDesignPR()), // PR Real minus PR Design
+                'availability' => '',
+                'dummy' => '',
+                'prReal_prGuar' => $this->format(($sumPrReal / $counter) - $anlage->getContractualPR()), // PR Real minus PR Garantiert
+                'prReal_prProg' => $this->format($sumPrRealPrProg),  // PR Real oder wenn kein PR Real dann PR Prognostiziert
+                'anteil' => $this->format($sumAnteil * 100),
+                'specPowerGuar' => $this->format($sumSpecPowerGuar),
+                'specPowerRealProg' => $this->format($sumSpecPowerRealProg),
+                'currentMonthClass' => 'sum-forcast',
+            ];
+        }
         // Real / Aktuell (nur bis zum aktuellen Monat, Bsp Sep20 bis Jan 20
         $report[0][] = [
-            'month' => 'Real<br>'.$realDateText,
+            'month' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Real&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>'.$realDateText,
             'days' => 'months: '.$monateReal,
             'irradiation' => $this->format($sumIrrMonth),
             'prDesign' => $this->format($anlage->getDesignPR()),
@@ -355,14 +360,14 @@ class ReportEpcService
             'prGuar' => $this->format($anlage->getContractualPR()),
             'eGridReal' => $this->format($sumEGridRealReal),
             'eGridReal-Design' => $this->format($sumEGridRealDesignReal),
-            'spezErtrag' => $this->format($sumEGridRealReal / $anlage->getKwPeak()),
+            'spezErtrag' => $this->format($sumEGridRealReal / $anlage->getPnom()),
             'prReal' => $this->format($formelPR),
             'prReal_prDesign' => $this->format($formelPR - $anlage->getDesignPR()),
             'availability' => $this->format($formelAvailability),
             'dummy' => '',
             'prReal_prGuar' => $this->format($formelPR - $anlage->getContractualPR()),
             'prReal_prProg' => $this->format($formelPR),
-            'anteil' => '-',
+            'anteil' => $this->format($sumAnteil * 100),
             'specPowerGuar' => $this->format($sumSpecPowerGuarReal),
             'specPowerRealProg' => $this->format($sumSpecPowerRealProgReal),
             'currentMonthClass' => 'sum-real',

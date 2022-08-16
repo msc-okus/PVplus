@@ -133,7 +133,6 @@ class TicketController extends BaseController
 
         $filter['anlagen']['value'] = $anlage;
         $filter['anlagen']['array'] = $anlagenRepo->findAllActiveAndAllowed();
-        dump($filter['anlagen']['array']);
         $filter['status']['value'] = $status;
         $filter['status']['array'] = self::ticketStati();
         $filter['priority']['value'] = $prio;
