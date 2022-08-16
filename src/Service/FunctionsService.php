@@ -648,6 +648,13 @@ class FunctionsService
         return $gewichtetStrahlung;
     }
 
+    /**
+     * @param Anlage $anlage
+     * @param $from
+     * @param $to
+     * @param bool $day
+     * @return float
+     */
     public function getSumeGridMeter(Anlage $anlage, $from, $to, bool $day = false): float
     {
         if ($anlage->getUseGridMeterDayData()) {

@@ -45,8 +45,22 @@ class WeatherFunctionsService
     }
 
     /**
+     * Function to retrieve WeatherData for the given Time (from - to)
+     * $from and $to are in string format.
+     *
+     * $weather['airTempAvg']
+     * $weather['panelTempAvg']
+     * $weather['windSpeedAvg']
+     * $weather['horizontalIrr']
+     * $weather['horizontalIrrAvg']
+     * $weather['lowerIrr']
+     * $weather['temp_cell_corr']
+     * $weather['temp_cell_multi_irr']
+     *
+     * @param WeatherStation $weatherStation
      * @param $from
      * @param $to
+     * @return array|null
      */
     public function getWeather(WeatherStation $weatherStation, $from, $to): ?array
     {
