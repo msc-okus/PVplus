@@ -397,6 +397,8 @@ class ReportingController extends AbstractController
                             'fails_month' => $output['fails_month'],
                             'ticketCountTable' => $output['ticketCountTable'],
                             'ticketCountTableMonth' => $output['ticketCountTableMonth'],
+                            'kwhLossesYearTable' => $output['kwhLossesYearTable'],
+                            'kwhLossesMonthTable' => $output['kwhLossesMonthTable']
                         ]);
                         $pdf = new ChromePdf('/usr/bin/chromium');
                         $pos = $this->substr_Index($this->kernelProjectDir, '/', 5);
@@ -633,6 +635,8 @@ class ReportingController extends AbstractController
                             'fails_month' => $output['fails_month'],
                             'ticketCountTable' => $output['ticketCountTable'],
                             'ticketCountTableMonth' => $output['ticketCountTableMonth'],
+                            'kwhLossesYearTable' => $output['kwhLossesYearTable'],
+                            'kwhLossesMonthTable' => $output['kwhLossesMonthTable']
                         ]);
                         break;
                     }
