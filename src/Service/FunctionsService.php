@@ -797,7 +797,7 @@ class FunctionsService
     {
         $conn = self::getPdoConnection();
         $result = [];
-        $powerEvu = 0;
+        $powerEvu = $powerAct = $powerTheo = 0;
         $powerExp = $powerExpEvu = 0;
 
         // ############ für den angeforderten Zeitraum #############
@@ -837,18 +837,26 @@ class FunctionsService
         unset($res);
 
         // Actual (Inverter Out) Leistung ermitteln
-        $sql = 'SELECT sum(wr_pac) as sum_power_ac, sum(theo_power) as theo_power FROM '.$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to'  AND group_ac = $acGroup AND wr_pac > 0";
+        $sql = 'SELECT sum(wr_pac) as sum_power_ac FROM '.$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to'  AND group_ac = $acGroup AND wr_pac > 0";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
-            $result['powerEvu'] = $powerEvu;
-            $result['powerAct'] = round($row['sum_power_ac'], 4);
-            $result['powerExp'] = $powerExp;
-            $result['powerExpEvu'] = $powerExpEvu;
-            $result['powerEGridExt'] = $powerEGridExt;
-            $result['powerTheo'] = round($row['theo_power'], 4);
+            $powerAct = round($row['sum_power_ac'], 4);
+        }
+        $sql = 'SELECT sum(theo_power) as theo_power FROM '.$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to'  AND group_ac = $acGroup AND theo_power > 0";
+        $res = $conn->query($sql);
+        if ($res->rowCount() == 1) {
+            $row = $res->fetch(PDO::FETCH_ASSOC);
+            $powerTheo = round($row['theo_power'], 4);
         }
         unset($res);
+
+        $result['powerEvu'] = $powerEvu;
+        $result['powerAct'] = $powerAct;
+        $result['powerExp'] = $powerExp;
+        $result['powerExpEvu'] = $powerExpEvu;
+        $result['powerEGridExt'] = $powerEGridExt;
+        $result['powerTheo'] = $powerTheo;
 
         return $result;
     }
