@@ -53,8 +53,8 @@ class Anlage
     #[ORM\Column(name: 'anl_dbase', type: 'string', length: 25, nullable: false, options: ['default' => 'web32_db2'])]
     private string $anlDbase = 'web32_db2';
 
-    #[ORM\Column(name: 'anl_betrieb', type: 'date', nullable: false)]
-    private DateTime $anlBetrieb;
+    #[ORM\Column(name: 'anl_betrieb', type: 'date', nullable: true)]
+    private ?DateTime $anlBetrieb;
 
     #[Groups(['main'])]
     #[ORM\Column(name: 'anl_name', type: 'string', length: 50, nullable: false)]
@@ -580,7 +580,7 @@ class Anlage
         return $this->anlBetrieb;
     }
 
-    public function setAnlBetrieb(DateTime $anlBetrieb): self
+    public function setAnlBetrieb(?DateTime $anlBetrieb): self
     {
         $this->anlBetrieb = $anlBetrieb;
 
