@@ -4,14 +4,25 @@ import { Reveal } from 'foundation-sites';
 import $ from 'jquery';
 
 export default class extends Controller {
-    static targets = ['splitModal', 'splitForm', 'splitDelete', 'splitAlert', 'splitButton', 'splitAlertFormat'];
+    static targets = ['splitModal', 'splitForm', 'splitDelete', 'splitAlert', 'splitButton', 'splitAlertFormat', 'dataGapEv', 'aktDep1', 'aktDep2', 'aktDep3'];
     static values = {
         urlSplit: String,
         urlDelete: String,
+        errorType: String
     }
 
     connect() {
         useDispatch(this);
+        if (this.errorTypeValue == '10'){
+            $(this.aktDep1Target).prop('disabled', true);
+            $(this.aktDep2Target).prop('disabled', true);
+            $(this.aktDep3Target).prop('disabled', true);
+        }
+        else{
+            $(this.aktDep1Target).prop('disabled', false);
+            $(this.aktDep2Target).prop('disabled', false);
+            $(this.aktDep3Target).prop('disabled', false);
+        }
     }
 
     openSplitTicket(event){
@@ -85,8 +96,6 @@ export default class extends Controller {
         } else {
             $(this.splitAlertTarget).removeClass('is-hidden');
             $(this.splitButtonTarget).attr('disabled', 'disabled')
-
-            //console.log( $(this.splitButtonTarget))
         }
         if (timestamp % 900 === 0){
             $(this.splitAlertFormatTarget).addClass('is-hidden');
@@ -95,5 +104,21 @@ export default class extends Controller {
             $(this.splitAlertFormatTarget).removeClass('is-hidden');
             $(this.splitButtonTarget).attr('disabled', 'disabled')
         }
+    }
+    checkEv(){
+        if ($(this.dataGapEvTarget).prop('value') != 'outage'){
+            $(this.aktDep1Target).prop('disabled', true);
+            $(this.aktDep2Target).prop('disabled', true);
+            $(this.aktDep3Target).prop('disabled', true);
+            $(this.aktDep1Target).prop('value', '');
+            $(this.aktDep2Target).prop('value', '');
+            $(this.aktDep3Target).prop('value', '');
+        }
+        else {
+            $(this.aktDep1Target).prop('disabled', false);
+            $(this.aktDep2Target).prop('disabled', false);
+            $(this.aktDep3Target).prop('disabled', false);
+        }
+
     }
 }
