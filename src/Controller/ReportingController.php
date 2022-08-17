@@ -250,9 +250,10 @@ class ReportingController extends AbstractController
                                 'anlage' => $anlage->getAnlName(),
                                 'eigner' => $anlage->getEigner()->getFirma(),
                                 'date' => $currentDate,
-                                'kwpeak' => $anlage->getKwPeak(),
+                                'kwpeak' => $anlage->getPnom(),
                                 'reportCreationDate' => $reportCreationDate,
                                 'epcNote' => $anlage->getEpcReportNote(),
+                                'finalReport' => $reportArray['finalReport'],
                             ],
                         ];
                         $report = new EPCMonthlyPRGuaranteeReport([
@@ -265,18 +266,21 @@ class ReportingController extends AbstractController
                             'forecast_real' => $reportArray['prForecast'],
                             'formel' => $reportArray['formel'],
                         ]);
+
+                        #dd($report->run()->render());
+                        $report->run();
                         $secretToken = '2bf7e9e8c86aa136b2e0e7a34d5c9bc2f4a5f83291a5c79f5a8c63a3c1227da9';
                         $settings = [
                             // 'useLocalTempFolder' => true,
                             'pageWaiting' => 'networkidle2', // load, domcontentloaded, networkidle0, networkidle2
                         ];
-                        $report->run();
                         $pdfOptions = [
                             'format' => 'A4',
                             'landscape' => true,
                             'noRepeatTableFooter' => false,
                             'printBackground' => true,
                             'displayHeaderFooter' => true,
+                            'scale' => 0.9,
                         ];
                         $report->cloudExport()
                             ->chromeHeadlessio($secretToken)

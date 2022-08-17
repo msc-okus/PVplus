@@ -24,7 +24,6 @@ use Symfony\Component\Security\Core\Security;
 class AnlageFormType extends AbstractType
 {
     use G4NTrait;
-
     use PVPNameArraysTrait;
 
     private Security $security;
@@ -36,6 +35,9 @@ class AnlageFormType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $isDeveloper = $this->security->isGranted('ROLE_DEV');
+        $isAdmin     = $this->security->isGranted('ROLE_ADMIN');
+
         $prArray = [
             'No Cust PR' => 'no',
             'Groningen' => 'Groningen',
@@ -55,7 +57,7 @@ class AnlageFormType extends AbstractType
             'Expected Energy' => 'expected',
             'Guaranteed Expected Energy' => 'guaranteedExpected',
         ];
-        $isDeveloper = $this->security->isGranted('ROLE_DEV');
+
         $builder
             // ###############################################
             // ###                General                 ####
@@ -68,7 +70,7 @@ class AnlageFormType extends AbstractType
                 'class' => Eigner::class,
                 'choice_label' => 'firma',
                 'required' => true,
-                'disabled' => !$isDeveloper,
+                'disabled' => !($isDeveloper || $isAdmin),
             ])
             ->add('anlName', TextType::class, [
                 'label' => 'Anlagen Name',
@@ -161,6 +163,16 @@ class AnlageFormType extends AbstractType
                 'choices' => ['Yes' => 'Yes', 'No' => 'No'],
                 'placeholder' => 'Please Choose',
                 'empty_data' => 'No',
+                'disabled' => !($isDeveloper),
+            ])
+            ->add('useNewDcSchema', ChoiceType::class, [
+                'label' => 'Neues DC Database Schema (separate Tabelle für DC IST)',
+                'help' => '[useNewDcSchema]',
+                'choices' => ['Yes' => '1', 'No' => '0'],
+                'empty_data' => '0',
+                'expanded' => false,
+                'multiple' => false,
+                'disabled' => !($isDeveloper || $isAdmin),
             ])
             ->add('configType', ChoiceType::class, [
                 'label' => 'Configuration der Anlage',
@@ -168,21 +180,10 @@ class AnlageFormType extends AbstractType
                 'choices' => ['1' => 1, '2' => 2, '3' => 3, '4' => 4],
                 'placeholder' => 'Please Choose',
                 'empty_data' => 1,
-                'disabled' => !$isDeveloper,
-            ]);
+                'disabled' => !($isDeveloper || $isAdmin),
+            ])
+        ;
 
-        if ($this->security->isGranted('ROLE_DEV')) {
-            $builder
-                ->add('useNewDcSchema', ChoiceType::class, [
-                    'label' => 'Neues DC Database Schema (separate Tabelle für DC IST)',
-                    'help' => '[useNewDcSchema]',
-                    'choices' => ['Yes' => '1', 'No' => '0'],
-                    'empty_data' => '0',
-                    'expanded' => false,
-                    'multiple' => false,
-                ])
-            ;
-        }
 
         $builder
             // ##### WeatherStation #######

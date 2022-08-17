@@ -19,50 +19,20 @@ class PRCalulationService
 {
     use G4NTrait;
 
-    private PVSystDatenRepository $pvSystRepo;
-
-    private AnlagenRepository $anlagenRepository;
-
-    private PRRepository $PRRepository;
-
-    private AnlageAvailabilityRepository $anlageAvailabilityRepo;
-
-    private FunctionsService $functions;
-
-    private EntityManagerInterface $em;
-
-    private Case5Repository $case5Repo;
-
-    private MonthlyDataRepository $monthlyDataRepo;
-
-    private WeatherFunctionsService $weatherFunctions;
-
-    private GridMeterDayRepository $gridMeterDayRepo;
-
-    private AvailabilityService $availabilityService;
-
-    public function __construct(AnlagenRepository $anlagenRepository,
-        PRRepository $PRRepository,
-        AnlageAvailabilityRepository $anlageAvailabilityRepo,
-        FunctionsService $functions, EntityManagerInterface $em,
-        PVSystDatenRepository $pvSystRepo,
-        Case5Repository $case5Repo,
-        MonthlyDataRepository $monthlyDataRepo,
-        WeatherFunctionsService $weatherFunctions,
-        GridMeterDayRepository $gridMeterDayRepo,
-        AvailabilityService $availabilityService)
+    public function __construct(
+        private PVSystDatenRepository $pvSystRepo,
+        private AnlagenRepository $anlagenRepository,
+        private PRRepository $PRRepository,
+        private AnlageAvailabilityRepository $anlageAvailabilityRepo,
+        private FunctionsService $functions,
+        private EntityManagerInterface $em,
+        private Case5Repository $case5Repo,
+        private MonthlyDataRepository $monthlyDataRepo,
+        private WeatherFunctionsService $weatherFunctions,
+        private GridMeterDayRepository $gridMeterDayRepo,
+        private AvailabilityService $availabilityService
+    )
     {
-        $this->pvSystRepo = $pvSystRepo;
-        $this->anlagenRepository = $anlagenRepository;
-        $this->PRRepository = $PRRepository;
-        $this->anlageAvailabilityRepo = $anlageAvailabilityRepo;
-        $this->functions = $functions;
-        $this->em = $em;
-        $this->case5Repo = $case5Repo;
-        $this->monthlyDataRepo = $monthlyDataRepo;
-        $this->weatherFunctions = $weatherFunctions;
-        $this->gridMeterDayRepo = $gridMeterDayRepo;
-        $this->availabilityService = $availabilityService;
     }
 
     public function calcPRAll(Anlage|int $anlage, string $day): string
@@ -85,10 +55,6 @@ class PRCalulationService
             if ($anlage->getUsePac()) {
                 $pacDate = $anlage->getPacDate()->format('Y-m-d 00:00');
                 $pacDateEnd = $anlage->getPacDateEnd()->format('Y-m-d 23:59');
-                /*
-                $pacDateEnd = date('Y-m-d 23:59',strtotime("$pacDate +".$anlage->getPacDuration()." month" ));
-                if ($pacDateEnd > $day) $pacDateEnd = date("Y-m-d 23:59", $timeStamp);
-                */
                 // FAC Date bzw letztes FAC Jahr berechnen
                 ($anlage->getFacDate()) ? $facDate = $anlage->getFacDate()->format('Y-m-d') : $facDate = $pacDateEnd;
                 $facDateForecast = $facDate;
