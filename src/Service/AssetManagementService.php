@@ -1673,7 +1673,7 @@ class AssetManagementService
         $sumLossesYearSOR = 0;
         $sumLossesYearEFOR = 0;
         $sumLossesYearOMC = 0;
-        foreach ($this->ticketDateRepo->getAllByInterval($begin, $end,$anlage) as $date){
+        foreach ($this->ticketDateRepo->getAllByInterval($report['reportYear'].'-01-01', $end,$anlage) as $date){
             $intervalBegin = date("Y-m-d H:i",$date->getBegin()->getTimestamp());
             $intervalEnd = date("Y-m-d H:i",$date->getEnd()->getTimestamp());
             $inverter = $date->getInverter();
@@ -1924,6 +1924,7 @@ class AssetManagementService
         $sumLossesMonthSOR = 0;
         $sumLossesMonthEFOR = 0;
         $sumLossesMonthOMC = 0;
+
         foreach ($this->ticketDateRepo->getAllByInterval($begin, $end, $anlage) as $date){
             $intervalBegin = date("Y-m-d H:i",$date->getBegin()->getTimestamp());
             $intervalEnd = date("Y-m-d H:i",$date->getEnd()->getTimestamp());
