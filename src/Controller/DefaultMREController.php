@@ -75,8 +75,8 @@ class DefaultMREController extends BaseController
         $output = '';
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => '97']);
-        $from = date_create('2022-07-01');
-        $to = date_create('2022-07-31');
+        $from = date_create('2022-03-01');
+        $to = date_create('2022-04-1');
         $output = $bavelseExport->gewichtetTagesstrahlung($anlage, $from, $to);
 
         return $this->render('cron/showResult.html.twig', [

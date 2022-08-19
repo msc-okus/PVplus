@@ -439,7 +439,7 @@ class AnlageFormType extends AbstractType
                 'required' => false,
             ])
             ->add('transformerTee', TextType::class, [
-                'label' => 'Abschalg Trafoverlust [%]',
+                'label' => 'Abschlag Trafoverlust [%]',
                 'help' => '[transformerTee]',
                 'label_html' => true,
                 'required' => false,
