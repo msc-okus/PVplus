@@ -237,10 +237,8 @@ class TicketController extends BaseController
                 case 'None':
                     $ticket->removeDate($ticketDate);
                     break;
-                default:
-                }
+            }
             $em->persist($ticket);
-
             $em->flush();
 
             return new Response(null, 204);
