@@ -45,7 +45,7 @@
                         <div class="cell medium-3">{{ form_row(anlageForm.anlZeitzone) }}</div>
                         <div class="cell medium-3">{{ form_row(anlageForm.anlBetrieb) }}</div>
                     </div>
-                    {% if is_granted('ROLE_DEV') %}
+                    {% if is_granted('ROLE_G4N') %}
                         <div class="grid-x grid-padding-x">
                             <div class="cell medium-3">{{ form_row(anlageForm.anlInputDaily) }}</div>
                             <div class="cell medium-3">{{ form_row(anlageForm.useNewDcSchema) }}</div>

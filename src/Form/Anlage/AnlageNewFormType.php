@@ -42,7 +42,7 @@ class AnlageNewFormType extends AbstractType
                 'class' => Eigner::class,
                 'choice_label' => 'firma',
                 'required' => true,
-                'disabled' => !$isDeveloper,
+                'disabled' => false,
             ])
             ->add('anlName', TextType::class, [
                 'label' => 'Anlagen Name',
@@ -135,6 +135,7 @@ class AnlageNewFormType extends AbstractType
                 'choices' => ['Yes' => 'Yes', 'No' => 'No'],
                 'placeholder' => 'Please Choose',
                 'empty_data' => 'No',
+                'disabled' => !($isDeveloper),
             ])
             ->add('useNewDcSchema', ChoiceType::class, [
                 'label' => 'Neues DC Database Schema (separate Tabelle für DC IST)',
@@ -143,7 +144,7 @@ class AnlageNewFormType extends AbstractType
                 'empty_data' => '0',
                 'expanded' => false,
                 'multiple' => false,
-                'disabled' => !($isDeveloper || $isAdmin),
+                'disabled' => !($isDeveloper),
             ])
             ->add('configType', ChoiceType::class, [
                 'label' => 'Configuration der Anlage',
