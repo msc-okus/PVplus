@@ -72,8 +72,8 @@ class Anlage
     private string $anlOrt;
 
     #[Groups(['main'])]
-    #[ORM\Column(name: 'anl_intnr', type: 'string', length: 50, nullable: false)]
-    private string $anlIntnr;
+    #[ORM\Column(name: 'anl_intnr', type: 'string', length: 50, nullable: true)]
+    private ?string $anlIntnr;
 
     #[Groups(['main'])]
     #[ORM\Column(type: 'string', length: 20)]
@@ -640,7 +640,7 @@ class Anlage
         return $this->anlIntnr;
     }
 
-    public function setAnlIntnr(string $anlIntnr): self
+    public function setAnlIntnr(?string $anlIntnr): self
     {
         $this->anlIntnr = $anlIntnr;
 

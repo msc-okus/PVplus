@@ -40,8 +40,12 @@ class ACPowerChartsService
     /**
      * Erzeugt Daten für das normale Soll/Ist AC Diagramm.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param bool $hour
+     * @return array
+     * @throws \Exception
      */
     public function getAC1(Anlage $anlage, $from, $to, bool $hour = false): array
     {
@@ -185,8 +189,13 @@ class ACPowerChartsService
     }
 
     /**
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param int $group
+     * @param bool $hour
+     * @return array
+     * @throws \Exception
      */
     public function getAC2(Anlage $anlage, $from, $to, int $group, bool $hour = false): array
     {
@@ -298,8 +307,13 @@ class ACPowerChartsService
     /**
      * Erzeugt Daten für das Soll/Ist AC Diagramm nach Gruppen.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param int $group
+     * @param bool $hour
+     * @return array
+     * @throws \Exception
      */
     public function getAC3(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
@@ -334,7 +348,11 @@ class ACPowerChartsService
                 case 1:
                     $dataArray['offsetLegend'] = $groups[$group]['GMIN'] - 1;
                     $groupID = $dataArray['maxSeries'] + $dataArray['offsetLegend'];
-                    // no break
+                    break;
+                case 2 :
+                    $dataArray['offsetLegend'] = $groups[$group]['GMIN'] - 1 ;
+                    $groupID = $dataArray['maxSeries'] + $dataArray['offsetLegend'] + 1;
+                    break;
                 case 3: // Groningen
                 case 4:
                     $dataArray['offsetLegend'] = $group - 1;
