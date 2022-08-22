@@ -223,7 +223,7 @@ trait TicketTrait
         return $this;
     }
 
-    public function getKpiPaDep1(): string
+    public function getKpiPaDep1(): ?string
     {
         return $this->kpiPaDep1;
     }
@@ -234,7 +234,7 @@ trait TicketTrait
         return $this;
     }
 
-    public function getKpiPaDep2(): string
+    public function getKpiPaDep2(): ?string
     {
         return $this->kpiPaDep2;
     }
@@ -245,7 +245,7 @@ trait TicketTrait
         return $this;
     }
 
-    public function getKpiPaDep3(): string
+    public function getKpiPaDep3(): ?string
     {
         return $this->kpiPaDep3;
     }

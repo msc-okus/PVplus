@@ -50,11 +50,9 @@
                                 {{ form_row(ticketForm.errorType) }}
                             </div>
                         </div>
-
-                            {% include 'ticket/_inc/_ticketDatesList.html.twig' %}
-
+                        {% include 'ticket/_inc/_ticketDatesList.html.twig' %}
                     </fieldset>
-{#
+                    {#
                     <fieldset class="fieldset">
                         <legend>Actions</legend>
                         <div class="grid-x grid-margin-x grid-padding-x">
@@ -67,7 +65,7 @@
                             {% endif %}
                         </div>
                     </fieldset>
-#}
+                    #}
                     <fieldset class="fieldset">
                         <legend>Descriptions</legend>
                         <div class="grid-x grid-margin-x grid-padding-x">
@@ -82,7 +80,7 @@
                         </div>
                     </fieldset>
 
-
+                    {% if (is_granted('ROLE_G4N')) %}
                     <div data-controller="hide">
                         <div class="switch tiny cell medium-3 small-6">
                             <label>Show effects on ...</label>
@@ -132,7 +130,7 @@
                             </div>
                         </fieldset>
                     </div>
-
+                    {% endif %}
 
                 </div>
             </div>

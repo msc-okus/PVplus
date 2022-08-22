@@ -149,12 +149,13 @@ class TicketController extends BaseController
         $order['begin'] = 'DESC'; // null, ASC, DESC
 
         $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlageName, $editor, $id, $prio, $status, $category, $type, $inverter, $order);
-        $pagination = $paginator->paginate(
-            $queryBuilder,                                    /* query NOT result */
-            $page,   /* page number */
-            25                                          /* limit per page */
-        );
+        $pagination = $paginator->paginate($queryBuilder, $page,25 );
 
+        // check if we get no result
+        if ($pagination->count() == 0){
+            $page = 1;
+            $pagination = $paginator->paginate($queryBuilder, $page,25 );
+        }
         $session->set('page', "$page");
 
         if ($request->query->get('ajax')) {
