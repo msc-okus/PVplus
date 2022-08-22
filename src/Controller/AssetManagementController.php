@@ -109,6 +109,8 @@ class AssetManagementController extends BaseController
             'losses_compared_chart' => $output['losses_compared_chart'],
             'lossesComparedTableCumulated' => $output['lossesComparedTableCumulated'],
             'cumulated_losses_compared_chart' => $output['cumulated_losses_compared_chart'],
+            'kwhLossesYearTable' => $output['kwhLossesYearTable'],
+            'kwhLossesMonthTable' => $output['kwhLossesMonthTable']
         ]);
         if ($export == 0) {
             return $result;

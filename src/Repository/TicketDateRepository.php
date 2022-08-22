@@ -91,7 +91,7 @@ class TicketDateRepository extends ServiceEntityRepository
     public function countByIntervalErrorPlant($begin, $end, $error, $anlage)
     {
         return $this->createQueryBuilder('t')
-            ->addSelect('sum(t.Intervals)')
+            ->addSelect('sum(t.intervals)')
             ->andWhere('t.begin >= :begin')
             ->andWhere('t.begin <= :end')
             ->andWhere('t.Anlage = :anlage')
@@ -125,7 +125,7 @@ class TicketDateRepository extends ServiceEntityRepository
     public function countByIntervalNullPlant($begin, $end, $anlage)
     {
         return $this->createQueryBuilder('t')
-            ->addSelect('sum(t.Intervals)')
+            ->addSelect('sum(t.intervals)')
             ->andWhere('t.begin >= :begin')
             ->andWhere('t.begin <= :end')
             ->andWhere('t.Anlage = :anlage')
@@ -138,5 +138,18 @@ class TicketDateRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult()
         ;
+    }
+    public function getAllByInterval($begin, $end, $anlage)
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.begin >= :begin')
+            ->andWhere('t.begin <= :end')
+            ->andWhere('t.Anlage = :anlage')
+            ->setParameter('begin', $begin)
+            ->setParameter('end', $end)
+            ->setParameter('anlage', $anlage)
+            ->getQuery()
+            ->getResult()
+            ;
     }
 }

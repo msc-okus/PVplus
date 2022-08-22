@@ -3,7 +3,7 @@
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Availability Analysis - Monthly Overview</h3>
     <span class="subheadline" style="color: {{ anlage.eigner.fontColor3 }};">Resolution according to failure groups - {{ month }} {{ year }}</span>
-    <table >
+    <table style="vertical-align: bottom">
         <tr>
             <td style="width:50%">
                 <table style="width: 90%">
@@ -83,7 +83,8 @@
                 {{ fails_month|raw }}
             </td>
 
-        </tr><tr >
+        </tr>
+        <tr >
             <td style="width: 50%">
                 <table style="margin-top: 30px; width: 90%">
                     <thead>
@@ -109,6 +110,34 @@
                     </tr>
                     </tbody>
                 </table>
+
+            </td>
+
+            <td>
+                <table style="margin-top: 30px">
+                    <thead>
+                    <th>Type of Ticket</th>
+                    <th>Losses in kWh</th>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="tr_next_columns">Planned Outage <sup><b> a</b></sup></td>
+                        <td class="tr_next_columns"> {{ kwhLossesMonthTable['SORLosses'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">Unplanned Outage <sup><b> b</b></sup> <sup><b>c</b></sup></td>
+                        <td class="tr_next_columns"> {{ kwhLossesMonthTable['EFORLosses'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">Grid Error/Grid Off <sup><b> d</b></sup></td>
+                        <td class="tr_next_columns"> {{ kwhLossesMonthTable['OMCLosses'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <div style="text-align: left">
                     <sup><b>a</b></sup> Maintenance, SOR<br>
                     <sup><b>b</b></sup> Defects, EFOR<br>
