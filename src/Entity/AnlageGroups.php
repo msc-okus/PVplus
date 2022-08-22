@@ -60,12 +60,12 @@ class AnlageGroups
     #[ORM\Column(type: 'string', length: 20)]
     private string $gridLimitAc;
 
-    #[ORM\OneToMany(targetEntity: AnlageGroupMonths::class, mappedBy: 'anlageGroup', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'anlageGroup', targetEntity: AnlageGroupMonths::class, cascade: ['persist', 'remove'])]
     #[ORM\OrderBy(['month' => 'ASC'])]
-    private $months;
+    private Collection $months;
 
-    #[ORM\OneToMany(targetEntity: AnlageGroupModules::class, mappedBy: 'anlageGroup', cascade: ['persist', 'remove'])]
-    private $modules;
+    #[ORM\OneToMany(mappedBy: 'anlageGroup', targetEntity: AnlageGroupModules::class, cascade: ['persist', 'remove'])]
+    private Collection $modules;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'groups')]
     private ?Anlage $anlage;
@@ -235,7 +235,7 @@ class AnlageGroups
     }
 
     /**
-     * @return Collection|AnlageGroupModules[]
+     * @return Collection
      */
     public function getModules(): Collection
     {

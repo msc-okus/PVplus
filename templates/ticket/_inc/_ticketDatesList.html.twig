@@ -9,26 +9,18 @@
     <div class="cell small-12">
         <table>
             <thead>
-            {# <tr>
-                {% if (ticket.alertType == 10) %}
-                    <th colspan="4"></th>
-                {% else %}
-                    <th colspan="3"></th>
-                {% endif %}
-                <th colspan="4">PA</th>
-                <th colspan="2"></th>
-            </tr> #}
             <tr>
                 <th>Interval (Cases)</th>
                 <th>Begin</th>
                 <th>End</th>
                 {% if (edited == true and ticket.alertType == 10) %}
-                    <th>Gap Ev.</th>
+                    <th>Gap Evaluation</th>
                 {% endif %}
                 {# <th>Reason</th> #}
-                {% if (features and features.aktDep1) %}<td>PA {{ settings.nameDep1 }}</td>{% endif %}
-                {% if (features and features.aktDep2) %}<td>PA {{ settings.nameDep2 }}</td>{% endif %}
-                {% if (features and features.aktDep3) %}<td>PA {{ settings.nameDep3 }}</td>{% endif %}
+                    {% if (features and features.aktDep1) %}<td>PA {{ settings.nameDep1 }}</td>{% endif %}
+                    {% if (features and features.aktDep2) %}<td>PA {{ settings.nameDep2 }}</td>{% endif %}
+                    {% if (features and features.aktDep3) %}<td>PA {{ settings.nameDep3 }}</td>{% endif %}
+
                 <th></th>
                 <th></th>
             </tr>
@@ -38,20 +30,32 @@
                 {% for date in ticketForm.dates %}
                 <tr {{ stimulus_controller('ticket-split', {
                     urlSplit: path('app_ticket_split', {id: date.vars.value.id}),
-                    urlDelete: path('app_ticket_delete', {id: date.vars.value.id})
+                    urlDelete: path('app_ticket_delete', {id: date.vars.value.id}),
+                    errorType:  ticket.alertType
                 }) }}>
                     <td>{{ loop.index }} ({{ date.vars.value.intervals }})</td>
                     <td>{{ date.vars.value.begin|format_datetime(pattern="yyyy-MM-dd HH:mm") }}</td>
                     <td>{{ date.vars.value.end|format_datetime(pattern="yyyy-MM-dd HH:mm") }}</td>
                     {% if (ticket.alertType == 10) %}
-                        <td>{{ form_widget(date.dataGapEvaluation, { 'attr': {'class': 'no-margin'} }) }}</td>
+                        <td>{{ form_widget(date.dataGapEvaluation, { 'attr': {'class': 'no-margin', 'data-ticket-split-target':'dataGapEv', 'data-action':'change->ticket-split#checkEv'} }) }}</td>
                     {% else %}
                         {% do date.dataGapEvaluation.setRendered() %}
                     {% endif %}
-                    {# <td>reason</td> #}
-                    {% if (features and features.aktDep1) %}<td>{{ form_widget(date.kpiPaDep1, { 'attr': {'class': 'no-margin'} }) }}</td>{% endif %}
-                    {% if (features and features.aktDep2) %}<td>{{ form_widget(date.kpiPaDep2, { 'attr': {'class': 'no-margin'} }) }}</td>{% endif %}
-                    {% if (features and features.aktDep3) %}<td>{{ form_widget(date.kpiPaDep3, { 'attr': {'class': 'no-margin'} }) }}</td>{% endif %}
+                        {% if (features and features.aktDep1) %}<td>{{ form_widget(date.kpiPaDep1, { 'attr': {'class': 'no-margin',  'data-ticket-split-target':'aktDep1' } }) }}</td>
+                        {% else %}
+                            <td hidden >{{ form_widget(date.kpiPaDep1, { 'attr': {'class': 'no-margin',  'data-ticket-split-target':'aktDep1' } }) }}</td>
+                        {% endif %}
+
+                        {% if (features and features.aktDep2) %}<td>{{ form_widget(date.kpiPaDep2, { 'attr': {'class': 'no-margin',  'data-ticket-split-target':'aktDep2' } }) }}</td>
+                        {% else %}
+                            <td hidden >{{ form_widget(date.kpiPaDep2, { 'attr': {'class': 'no-margin', 'data-ticket-split-target':'aktDep2' } }) }}</td>
+                        {% endif %}
+                        {% if (features and features.aktDep3) %}<td>{{ form_widget(date.kpiPaDep3, { 'attr': {'class': 'no-margin',  'data-ticket-split-target':'aktDep3'} }) }}</td>
+                        {% else %}
+                            <td hidden >{{ form_widget(date.kpiPaDep3, { 'attr': {'class': 'no-margin', 'data-ticket-split-target':'aktDep3' } }) }}</td>
+                        {% endif %}
+
+
                     <td class="text-right">
                         <button {% if (ticketForm.dates|length) <= 1 %}disabled{% endif %}
                                 type="button"
@@ -185,13 +189,13 @@
                                 </div>
                             </div>
                         </div>
-                    </td> {# split Button #}
+                    </td>
                 </tr>
             {% endfor %}
             {% else %}
                 <tr>
                     <td colspan="7">
-                        <b>no Ticket Dates Data found - looks like somthing is wrong</b>
+                        <b>no Ticket Dates Data found - looks like something is wrong</b>
                     </td>
                 </tr>
             {% endif %}

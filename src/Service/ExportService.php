@@ -15,20 +15,14 @@ class ExportService
 {
     use G4NTrait;
 
-    private FunctionsService $functions;
-
-    private PRRepository $PRRepository;
-
-    private AnlageAvailabilityRepository $availabilityRepo;
-
-    private GridMeterDayRepository $gridRepo;
-
-    public function __construct(FunctionsService $functions, PRRepository $PRRepository, AnlageAvailabilityRepository $availabilityRepo, GridMeterDayRepository $gridRepo)
+    public function __construct(
+        private FunctionsService $functions,
+        private PRRepository $PRRepository,
+        private AnlageAvailabilityRepository $availabilityRepo,
+        private GridMeterDayRepository $gridRepo,
+        private WeatherFunctionsService $weatherFunctions
+    )
     {
-        $this->functions = $functions;
-        $this->PRRepository = $PRRepository;
-        $this->availabilityRepo = $availabilityRepo;
-        $this->gridRepo = $gridRepo;
     }
 
     public function gewichtetTagesstrahlung(Anlage $anlage, DateTime $from, DateTime $to): string
@@ -47,7 +41,7 @@ class ExportService
         $output .= $help.'</thead><tbody>';
 
         /* @var AnlageAcGroups $groupAC */
-        for ($stamp = $from->format('U'); $stamp <= $to->format('U'); $stamp += 86400) {
+        for ($stamp = (int)$from->format('U') + (5*3600); $stamp <= (int)$to->format('U'); $stamp += 86400) {
             $gewichteteStrahlung = $gewichteteTheoPower = $gewichteteTheoPower2 = 0;
             $output .= '<tr>';
             $output .= '<td><small>'.date('Y-m-d', $stamp).'</small></td>';
@@ -96,7 +90,7 @@ class ExportService
         $fromSql = $from->format('Y-m-d 00:00');
         $toSql = $to->format('Y-m-d 23:59');
         $nameArray = $this->functions->getNameArray($anlage);
-        $startDay = strtotime($from->format('Y-m-d 00:00'));
+        $startDay = strtotime($from->format('Y-m-d 05:00')); // start at 5 o'clock to prevent problems with DLS
         $endDay = strtotime($to->format('Y-m-d 23:59'));
 
         // Export der PR Tageswerte (stamp, egrid, Pnorm_ft, Ft ??, )
@@ -104,22 +98,13 @@ class ExportService
             $localFrom = date('Y-m-d 00:00', $dayStamp);
             $localTo = date('Y-m-d 23:59', $dayStamp);
             $stamp = date('Y-m-d', $dayStamp);
-            // $export[$stamp]['stamp']        = $stamp;
-            $export[$stamp]['eGrid'] = $this->functions->getSumeGridMeter($anlage, $localFrom, $localTo);
-
-            $sql = 'SELECT sum(theo_power) as theoPower, avg(temp_corr) as Ft FROM '.$anlage->getDbNameIst()." WHERE stamp BETWEEN '$localFrom' AND '$localTo'";
-            $res = $conn->prepare($sql);
-            $res->execute();
-            if ($res->rowCount() == 1) {
-                $row = $res->fetch(PDO::FETCH_OBJ);
-                $export[$stamp]['theoPower'] = (float) $row->theoPower;
-            // $export[$stamp]['Ft']           = (float)$row->Ft;
+            $sumAcPower = $this->functions->getSumAcPower($anlage, $localFrom, $localTo);
+            if($anlage->getUseGridMeterDayData()){
+                $export[$stamp]['eGrid'] = $sumAcPower['powerEGridExt'];
             } else {
-                $export[$stamp]['theoPower'] = null;
-                // $export[$stamp]['Ft']           = null;
+                $export[$stamp]['eGrid'] = $sumAcPower['powerEvu'];
             }
-
-            // $export[$stamp]['pa']               =  (float)$this->availabilityRepo->sumAvailabilityPerDay($anlage->getAnlId(), $stamp);
+            $export[$stamp]['theoPower'] = $sumAcPower['powerTheo'];
 
             $sql = 'SELECT sum(g_upper) as upper, sum(g_lower) as lower, sum(g_horizontal) as horizontal FROM '.$anlage->getDbNameWeather()." WHERE stamp BETWEEN '$localFrom' AND '$localTo'";
             $res = $conn->prepare($sql);
@@ -129,9 +114,9 @@ class ExportService
                 // Strahlung berechnen
                 if ($anlage->getIsOstWestAnlage()) {
                     // Strahlung (upper = Ost / lower = West)
-                    $export[$stamp]['irr_mod'] = ($row->upper * $anlage->getPowerEast() + $row->lower * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 4; // Umrechnug zu Wh
+                    $export[$stamp]['irr_mod'] = ($row->upper * $anlage->getPowerEast() + $row->lower * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 4 / 1000; // Umrechnug zu kWh
                 } else {
-                    $export[$stamp]['irr_mod'] = $row->upper() / 4; // Umrechnug zu Wh
+                    $export[$stamp]['irr_mod'] = $row->upper() / 4 / 1000; // Umrechnug zu kWh
                 }
             } else {
                 $export[$stamp]['irr_mod'] = null;

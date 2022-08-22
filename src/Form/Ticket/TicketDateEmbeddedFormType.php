@@ -47,7 +47,7 @@ class TicketDateEmbeddedFormType extends AbstractType
             ])
             ->add('kpiPaDep3',ChoiceType::class, [
                 'label'         => 'AM',
-                'choices'       => self::errorType(),
+                'choices'       => self::kpiPaDep3(),
                 'placeholder'   => 'Please select …',
                 'empty_data'    => '',
             ])

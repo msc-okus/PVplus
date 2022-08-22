@@ -62,27 +62,31 @@ class TicketController extends BaseController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $request->attributes->set('page', $page);
+            /** @var Ticket $ticket */
             $ticket = $form->getData();
             $ticketDates = $ticket->getDates();
             $ticket->setEditor($this->getUser()->getUsername());
-            if ($ticket->getStatus() === 30 && $ticket->getend() === null) {
+            if ($ticket->getStatus() === 30 && $ticket->getEnd() === null) {
                 $ticket->setEnd(new \DateTime('now'));
             }
+            // Adjust, if neccesary, the start ean end Date of the master Ticket, depending on the TicketDates
+            // TODO: Check what hapend if the last ticket is not the 'last' ticket, means if the order of the ticketDates are not respected
             if ($ticketDates) {
                 if ($ticketDates->first()->getBegin < $ticket->getBegin()) {
                     $ticket->setBegin($ticketDates->first()->getBegin());
-                    $this->addFlash('warning', 'Inconsistent date, the date was not saved');
+                    #$this->addFlash('warning', 'Inconsistent date, the date was not saved');
                 } else {
                     $ticketDates->first()->setBegin($ticket->getBegin());
                 }
                 if ($ticketDates->last()->getEnd() > $ticket->getEnd()) {
                     $ticket->setEnd($ticketDates->last()->getEnd());
-                    $this->addFlash('warning', 'Inconsistent date, the date was not saved');
+                    #$this->addFlash('warning', 'Inconsistent date, the date was not saved');
                 } else {
                     $ticketDates->last()->setEnd($ticket->getEnd());
                 }
             }
-            $ticket->setStatus(30);
+            if ($ticket->getStatus() == '10') $ticket->setStatus(30); // If 'New' Ticket change to work in Progress
+
             $em->persist($ticket);
             $em->flush();
 
@@ -233,10 +237,8 @@ class TicketController extends BaseController
                 case 'None':
                     $ticket->removeDate($ticketDate);
                     break;
-                default:
-                }
+            }
             $em->persist($ticket);
-
             $em->flush();
 
             return new Response(null, 204);

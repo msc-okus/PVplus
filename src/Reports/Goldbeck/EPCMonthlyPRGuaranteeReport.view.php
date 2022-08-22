@@ -3,6 +3,7 @@ use koolreport\widgets\google\ComboChart;
 use koolreport\widgets\koolphp\Table;
 
 $headlines = $this->dataStore('headlines')->toArray()[0];
+
 ?>
 <html>
 <head>
@@ -14,79 +15,81 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
     <div class="cell">
         <h3>Basic Values</h3>
         <?php
-        Table::create([
-            'dataSource' => $this->dataStore('header')->toArray(),
-            'showHeader' => true,
-            'columns' => [
-                'startFac' => [
-                    'label' => 'Start FAC',
+            Table::create([
+                'dataSource' => $this->dataStore('header')->toArray(),
+                'showHeader' => true,
+                'columns' => [
+                    'startFac' => [
+                        'label' => 'Start FAC',
+                    ],
+                    'endeFac' => [
+                        'label' => 'End FAC',
+                    ],
+                    'pld' => [
+                        'type' => 'number',
+                        'label' => 'PLD<br>[EUR/kWh]',
+                        'formatValue' => function ($value) {return number_format($value, 8, ',', '.'); },
+                    ],
+                    'PRDesign' => [
+                        'type' => 'number',
+                        'label' => 'PR design<br>[%]',
+                        'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
+                    ],
+                    'PRgarantiert' => [
+                        'type' => 'number',
+                        'label' => 'PR guaranteed<br>[%]',
+                        'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
+                    ],
+                    'Risikoabschlag' => [
+                        'type' => 'number',
+                        'label' => 'Risk discount<br>[%]',
+                        'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
+                    ],
+                    'AnnualDegradation' => [
+                        'type' => 'number',
+                        'label' => 'Annual Degradation<br>[%]',
+                        'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
+                    ],
+                    'kwPeak' => [
+                        'type' => 'number',
+                        'label' => 'Plant size as build<br>[kWp]',
+                        'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
+                    ],
+                    'kwPeakPvSyst' => [
+                        'type' => 'number',
+                        'label' => 'Plant size by PVSYST<br>[kWp]',
+                        'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
+                    ],
                 ],
-                'endeFac' => [
-                    'label' => 'End FAC',
-                ],
-                'pld' => [
-                    'type' => 'number',
-                    'label' => 'PLD<br>[EUR/kWh]',
-                    'formatValue' => function ($value) {return number_format($value, 8, ',', '.'); },
-                ],
-                'PRDesign' => [
-                    'type' => 'number',
-                    'label' => 'PR design<br>[%]',
-                    'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
-                ],
-                'PRgarantiert' => [
-                    'type' => 'number',
-                    'label' => 'PR guaranteed<br>[%]',
-                    'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
-                ],
-                'Risikoabschlag' => [
-                    'type' => 'number',
-                    'label' => 'Risk discount<br>[%]',
-                    'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
-                ],
-                'AnnualDegradation' => [
-                    'type' => 'number',
-                    'label' => 'Annual Degradation<br>[%]',
-                    'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
-                ],
-                'kwPeak' => [
-                    'type' => 'number',
-                    'label' => 'Plant size as build<br>[kWp]',
-                    'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
-                ],
-                'kwPeakPvSyst' => [
-                    'type' => 'number',
-                    'label' => 'Plant size by PVSYST<br>[kWp]',
-                    'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
-                ],
-            ],
-        ]);
-?>
+            ]);
+        ?>
     </div>
 </div>
 <div class="grid-x grid-margin-x">
     <div class="cell small-6">
+        <?php if ($headlines['finalReport'] != true) {?>
         <h3>PR Forecast <small><?php echo $this->dataStore('forecast')->toArray()[0]['forecastDateText']; ?></small></h3>
         <?php
-Table::create([
-    'dataSource' => $this->dataStore('forecast'),
-    'showHeader' => true,
-    'columns' => [
-        'PRDiffYear' => [
-            'label' => 'PR<sub><small>Prog</small></sub> - PR<sub><small>Guar</small></sub> [%]',
-            'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
-        ],
-        'message' => [
-            'label' => '',
-        ],
-        'pld' => [
-            'label' => 'Total PLD [EUR]',
-            'type' => 'number',
-            'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
-        ],
-    ],
-]);
-?>
+            Table::create([
+                'dataSource' => $this->dataStore('forecast'),
+                'showHeader' => true,
+                'columns' => [
+                    'PRDiffYear' => [
+                        'label' => 'PR<sub><small>Prog</small></sub> - PR<sub><small>Guar</small></sub> [%]',
+                        'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
+                    ],
+                    'message' => [
+                        'label' => '',
+                    ],
+                    'pld' => [
+                        'label' => 'Total PLD [EUR]',
+                        'type' => 'number',
+                        'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
+                    ],
+                ],
+            ]);
+        ?>
+        <?php  } ?>
     </div>
     <div class="cell small-6">
         <h3>PR Real <small><?php echo $this->dataStore('forecast_real')->toArray()[0]['forecastDateText']; ?></small></h3>
@@ -236,8 +239,8 @@ Table::create([
             ]);
         ?>
     </div>
-    <div class="cell small-8">
-        <h3>Difference PR<sub><small>prog</small></sub> - PR<sub><small>Guar</small></sub> <small>(<?php echo $this->dataStore('forecast')->toArray()[0]['forecastDateText']; ?>)</small></h3>
+    <div class="cell small-9">
+        <h3>Difference PR<sub><small>prog/real</small></sub> - PR<sub><small>Guar</small></sub> <small>(<?php echo $this->dataStore('forecast')->toArray()[0]['forecastDateText']; ?>)</small></h3>
         <?php
             ComboChart::create([
                 'dataSource' => $this->dataStore('graph'),
@@ -247,10 +250,9 @@ Table::create([
                         'left' => 50,
                         'right' => 0,
                         'top' => 10,
-                        'bottom' => 100,
+                        'bottom' => 50,
                     ],
                     'annotations' => [
-                        // 'style'           => 'line',
                         'alwaysOutside' => 'true',
                         'textStyle' => [
                             'fontSize' => 10,
@@ -258,7 +260,8 @@ Table::create([
                         'color' => '#4d4d4d',
                     ],
                     'fontSize' => 12,
-                    'width' => 900,
+                    'width' => 800,
+                    'height' => 350,
                 ],
                 'columns' => [
                     'month',
@@ -279,10 +282,19 @@ Table::create([
     <div class="cell">
         <h3>Monthly Values</h3>
         <?php
-
+            if ($headlines['finalReport'] == true) {
+                $excludedColumns[] = 'prReal_prDesign';
+                $excludedColumns[] = 'dummy';
+                $excludedColumns[] = 'eGridReal-Design';
+                $excludedColumns[] = 'prReal_prGuar';
+                $excludedColumns[] = 'prReal_prProg';
+                $excludedColumns[] = 'anteil';
+                $excludedColumns[] = 'specPowerGuar';
+            } else {
+                $excludedColumns = [];
+            }
             match ($array['algorithmus']) {
-                'Lelystad'  => $excludedColumns = ['availability'],
-                default     => $excludedColumns = [],
+                'Lelystad'  => $excludedColumns[] = 'availability',
             };
             Table::create([
                 'excludedColumns'   => $excludedColumns,
@@ -294,7 +306,7 @@ Table::create([
                 'columns'           => [
                     'month' => [
                         'type' => 'string',
-                        'label' => 'Month<br><br>',
+                        'label' => 'Month  <br><br>',
                         'cssStyle' => 'text-align:center',
                     ],
                     'days' => [
