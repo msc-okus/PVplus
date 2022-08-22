@@ -176,7 +176,9 @@
         <option value="irradiation_one" {% if form.selectedChart == 'irradiation_one' %}selected{% endif %}>Irradiation [W/m²]</option>
     {% else %}
         <option value="irradiation" {% if form.selectedChart == 'irradiation' %}selected{% endif %}>Irradiation [W/m²]</option>
-        {% if aktAnlage.showGraphIrrPlant or is_granted('ROLE_ADMIN') %}<option value="irradiation_plant" {% if form.selectedChart == 'irradiation_plant' %}selected{% endif %}>Irradiation Plant [W/m²]</option>{% endif %}
+        {% if aktAnlage.showGraphIrrPlant %}
+            <option value="irradiation_plant" {% if form.selectedChart == 'irradiation_plant' %}selected{% endif %}>Irradiation Plant [W/m²]</option>
+        {% endif %}
     {% endif %}
 {% endmacro %}
 
