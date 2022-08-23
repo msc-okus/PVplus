@@ -5,73 +5,13 @@
     <td></td>
 {% endmacro %}
 
-<style>
-    .tooltipContainer {
-        width: 325px;
-        position: relative;
-    }
-
-    .tooltipIcon {
-        text-decoration: none;
-    }
-
-    a.tooltipIcon {
-        line-height: inherit;
-        color: #1779ba;
-        text-decoration: none;
-        cursor: pointer;
-    }
-
-    a.tooltipIcon:hover + div {
-        display:block;
-        float: right;
-    }
-
-    .tooltip {
-        position: absolute;
-        display: none;
-        background-color: #e9ebec;
-        border: 2px solid #739e40;
-        font-size: 12px;
-        color: black;
-        padding: 10px 0 10px 10px;
-        margin-left: 20px;
-        width: 10rem;
-    }
-
-    .tooltip:after, .tooltip:before {
-        border: solid transparent;
-        content:' ';
-        height: 0;
-        right: 100%;
-        position: absolute;
-        width: 0;
-    }
-
-    .tooltip:after {
-        border-width: 11px;
-        border-right-color: #e9ebec;
-        top: 13px;
-    }
-
-    .tooltip:before {
-        border-width: 14px;
-        border-right-color: #739e40;
-        top: 10px;
-    }
-</style>
-
 {{ form_start(userForm, {'attr': {'novalidate': 'no', 'autocomplete': 'off'}}) }}
 <div class="grid-x grid-margin-x grid-padding-x">
     <div class="cell small-6 medium-3">
         <fieldset class="fieldset">
             <legend>User
-                <span class="tooltipContainer">
-            <a class="tooltipIcon" href=""><i class="fa fa-info-circle"></i></a>
-            <div class="tooltip">
-            Please enter the user data !<br/>
-            </div>
-           </span></legend>
+                <span data-tooltip tabindex="1" title="Please enter the user data !"><i class="fa fa-info-circle"></i></span>
+            </legend>
         {{ form_row(userForm.username) }}
         {{ form_row(userForm.plainPassword) }}
         {{ form_row(userForm.email) }}
@@ -82,12 +22,8 @@
     <div class="cell small-6 medium-3">
         <fieldset class="fieldset">
             <legend>List with Roles
-                <span class="tooltipContainer">
-            <a class="tooltipIcon" href=""><i class="fa fa-info-circle"></i></a>
-            <div class="tooltip">
-            Please assign roles rights for this User !<br/>
-            </div>
-           </span></legend>
+                <span data-tooltip tabindex="1" title="Please assign roles rights for this User !"><i class="fa fa-info-circle"></i></span>
+            </legend>
              {{ form_widget(userForm.roles) }}
         </fieldset>
     </div>
@@ -95,28 +31,18 @@
     <div class="cell small-6 medium-3">
         <fieldset class="fieldset">
             <legend>List with Access to Owners
-                <span class="tooltipContainer">
-            <a class="tooltipIcon" href=""><i class="fa fa-info-circle"></i></a>
-            <div class="tooltip">
-            Please assign the Access to Owners for this User !<br/>
-            </div>
-           </span></legend>
-              {{ form_widget(userForm.eigners) }}
+                <span data-tooltip tabindex="1" title="Please assign the Access to Owners for this User !"><i class="fa fa-info-circle"></i></span>
+            </legend>
+            {{ form_widget(userForm.eigners) }}
         </fieldset>
     </div>
 
     <div class="cell small-6 medium-3">
         <fieldset class="fieldset">
             <legend>List with Plants
-            <span class="tooltipContainer">
-            <a class="tooltipIcon" href=""><i class="fa fa-info-circle"></i></a>
-            <div class="tooltip">
-            Please assign a plant for this User !<br/>
-            </div>
-           </span></legend>
-
+                <span data-tooltip tabindex="1" title="Please assign a plant for this User !"><i class="fa fa-info-circle"></i></span>
+            </legend>
             {{ form_widget(userForm.eignersPlantList) }}
-
             {#
             <div id="user_form_eignersPlantList">
                 {% for key, item in userForm.eignersPlantList %}
