@@ -22,6 +22,7 @@ export default class extends Controller {
         this.modal = new Reveal($(this.modalTarget));
         this.modal.open();
         this.modalBodyTarget.innerHTML = await $.ajax(this.formUrlValue);
+        $(this.modalBodyTarget).foundation();
     }
 
     setBody(html){
