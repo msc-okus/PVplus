@@ -7,87 +7,51 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * Tabelle für AC Gruppen
- * anlage_groups_ac
- *
- * @ORM\Table(name="anlage_groups_ac")
- * @ORM\Entity(repositoryClass="App\Repository\AcGroupsRepository")
+ * anlage_groups_ac.
  */
+#[ORM\Table(name: 'anlage_groups_ac')]
+#[ORM\Entity(repositoryClass: 'App\Repository\AcGroupsRepository')]
 class AnlageAcGroups
 {
     use G4NTrait;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="bigint", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     */
+    #[ORM\Column(name: 'id', type: 'bigint', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private int $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="acGroups")
-     */
+    #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'acGroups')]
     private $anlage;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="ac_group_id", type="string", length=20, nullable=false)
-     */
+    #[ORM\Column(name: 'ac_group_id', type: 'string', length: 20, nullable: false)]
     private string $acGroup;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="ac_group_name", type="string", length=20, nullable=false)
-     */
+    #[ORM\Column(name: 'ac_group_name', type: 'string', length: 20, nullable: false)]
     private string $acGroupName;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="unit_first", type="string", length=20, nullable=false)
-     */
+    #[ORM\Column(name: 'unit_first', type: 'string', length: 20, nullable: false)]
     private string $unitFirst;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="unit_last", type="string", length=50, nullable=false)
-     */
+    #[ORM\Column(name: 'unit_last', type: 'string', length: 50, nullable: false)]
     private string $unitLast;
 
-    /**
-     * @ORM\Column(type="string", length=20, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private string $limitation;
 
-    /**
-     * @ORM\Column(type="string", length=20, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private string $dcPowerInverter;
 
-    /**
-     * @ORM\Column(type="boolean")
-     */
+    #[ORM\Column(type: 'boolean')]
     private bool $isEastWestGroup;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=WeatherStation::class, inversedBy="anlageAcGroups")
-     */
+    #[ORM\ManyToOne(targetEntity: WeatherStation::class, inversedBy: 'anlageAcGroups')]
     private $weatherStation;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private ?string $gewichtungAnlagenPR;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private $tCellAvg;
-
 
     public function getId(): ?string
     {
@@ -161,12 +125,12 @@ class AnlageAcGroups
 
     public function getDcPowerInverter(): float
     {
-        return (float)$this->dcPowerInverter;
+        return (float) $this->dcPowerInverter;
     }
 
     public function setDcPowerInverter(string $dcPowerInverter): self
     {
-        $this->dcPowerInverter =  str_replace(',', '.', $dcPowerInverter);
+        $this->dcPowerInverter = str_replace(',', '.', $dcPowerInverter);
 
         return $this;
     }
@@ -178,7 +142,7 @@ class AnlageAcGroups
 
     public function setLimitation(string $limitation): self
     {
-        $this->limitation =  str_replace(',', '.', $limitation);
+        $this->limitation = str_replace(',', '.', $limitation);
 
         return $this;
     }

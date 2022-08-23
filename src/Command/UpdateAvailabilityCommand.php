@@ -7,7 +7,6 @@ use App\Repository\AnlagenRepository;
 use App\Service\AvailabilityByTicketService;
 use App\Service\AvailabilityService;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -20,7 +19,9 @@ class UpdateAvailabilityCommand extends Command
     protected static $defaultName = 'pvp:updatePA';
 
     private AnlagenRepository $anlagenRepository;
+
     private AvailabilityService $availability;
+
     private AvailabilityByTicketService $availabilityByTicket;
 
     public function __construct(AnlagenRepository $anlagenRepository, AvailabilityService $availability, AvailabilityByTicketService $availabilityByTicket)
@@ -44,7 +45,6 @@ class UpdateAvailabilityCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-
         $ergebniss = '';
         $io = new SymfonyStyle($input, $output);
         $day = $input->getOption('day');
@@ -52,21 +52,20 @@ class UpdateAvailabilityCommand extends Command
         $optionFrom = $input->getOption('from');
         $optionTo = $input->getOption('to');
 
-
         if ($day) {
             $day = strtotime($day);
-            $from = date("Y-m-d 04:00", $day);
-            $to = date("Y-m-d 22:00", $day);
+            $from = date('Y-m-d 04:00', $day);
+            $to = date('Y-m-d 22:00', $day);
         } else {
             if ($optionFrom) {
                 $from = $optionFrom;
             } else {
-                $from = date("Y-m-d H:i:00", time() - (4 * 3600));
+                $from = date('Y-m-d H:i:00', time() - (4 * 3600));
             }
             if ($optionTo) {
                 $to = $optionTo;
             } else {
-                $to = date("Y-m-d H:i:00", time());
+                $to = date('Y-m-d H:i:00', time());
             }
         }
 
@@ -82,22 +81,22 @@ class UpdateAvailabilityCommand extends Command
         $toStamp = strtotime($to);
         $counter = 0;
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp = $stamp + (24 * 3600)) {
-            $counter++;
+            ++$counter;
         }
 
-        $io->progressStart(count($anlagen)*$counter);
+        $io->progressStart(count($anlagen) * $counter);
         foreach ($anlagen as $anlage) {
             for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp = $stamp + (24 * 3600)) {
-                $from = date('Y-m-d 00:00',$stamp);
+                $from = date('Y-m-d 00:00', $stamp);
                 if ($anlage->getAnlInputDaily() == 'Yes') {
-                    $from = ($from - (24 * 3600)); //gestern, da Anlage heute keine Daten bekommt
+                    $from = ($from - (24 * 3600)); // gestern, da Anlage heute keine Daten bekommt
                 }
                 if ($anlage->getAnlId() == 112 || $anlage->getAnlId() == 113) {
                     $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, strtotime($from), 1);
                 } else {
                     $ergebniss = $this->availability->checkAvailability($anlage, strtotime($from));
-                    if($anlage->getShowAvailabilitySecond()) {
-                        $ergebniss .= $this->availability->checkAvailability($anlage, strtotime($from), true); //Second
+                    if ($anlage->getShowAvailabilitySecond()) {
+                        $ergebniss .= $this->availability->checkAvailability($anlage, strtotime($from), true); // Second
                     }
                 }
 

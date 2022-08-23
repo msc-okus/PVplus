@@ -3,19 +3,26 @@ import { useDispatch } from 'stimulus-use';
 import { Reveal } from 'foundation-sites';
 import $ from 'jquery';
 
-
-
 export default class extends Controller {
-
-    static targets = ['splitModal', 'splitForm', 'splitDelete', 'splitAlert', 'splitButton', 'splitAlertFormat'];
-
+    static targets = ['splitModal', 'splitForm', 'splitDelete', 'splitAlert', 'splitButton', 'splitAlertFormat', 'dataGapEv', 'aktDep1', 'aktDep2', 'aktDep3'];
     static values = {
         urlSplit: String,
         urlDelete: String,
+        errorType: String
     }
 
     connect() {
         useDispatch(this);
+        if (this.errorTypeValue == '10'){
+            $(this.aktDep1Target).prop('disabled', true);
+            $(this.aktDep2Target).prop('disabled', true);
+            $(this.aktDep3Target).prop('disabled', true);
+        }
+        else{
+            $(this.aktDep1Target).prop('disabled', false);
+            $(this.aktDep2Target).prop('disabled', false);
+            $(this.aktDep3Target).prop('disabled', false);
+        }
     }
 
     openSplitTicket(event){
@@ -49,19 +56,19 @@ export default class extends Controller {
                     });
                     this.dispatch('async:submitted');
                 } catch (e) {
-                    console.log(e);
+                    //console.log(e);
                 }
             }
-        }
-        else{
+        } else {
             $(this.splitAlertTarget).removeClass('is-hidden');
 
         }
 
     }
+
     async delete({params: {id}}){
         const data = {'value': $(this.splitDeleteTarget).find('.select-' + id).val()};
-        if (data !="") {
+        if (data !== "") {
             try {
                 await $.ajax({
                     url: this.urlDeleteValue,
@@ -69,10 +76,11 @@ export default class extends Controller {
                 });
                 this.dispatch('async:submitted');
             } catch (e) {
-                console.log(e);
+                //console.log(e);
             }
         }
     }
+
     check({params: {id}}) {
         const min = $(this.splitFormTarget).find('.' + id).prop('min');
         const max = $(this.splitFormTarget).find('.' + id).prop('max');
@@ -81,23 +89,36 @@ export default class extends Controller {
         const date1 = new Date(value);
 
         const timestamp = date1.getTime();
-        console.log();
+        //console.log();
         if (value < max && value > min) {
             $(this.splitAlertTarget).addClass('is-hidden');
             $(this.splitButtonTarget).removeAttr('disabled');
-        }
-        else{
+        } else {
             $(this.splitAlertTarget).removeClass('is-hidden');
             $(this.splitButtonTarget).attr('disabled', 'disabled')
-
-            console.log( $(this.splitButtonTarget))
         }
         if (timestamp % 900 === 0){
             $(this.splitAlertFormatTarget).addClass('is-hidden');
             $(this.splitButtonTarget).removeAttr('disabled');
-        }else{
+        } else {
             $(this.splitAlertFormatTarget).removeClass('is-hidden');
             $(this.splitButtonTarget).attr('disabled', 'disabled')
         }
+    }
+    checkEv(){
+        if ($(this.dataGapEvTarget).prop('value') != 'outage'){
+            $(this.aktDep1Target).prop('disabled', true);
+            $(this.aktDep2Target).prop('disabled', true);
+            $(this.aktDep3Target).prop('disabled', true);
+            $(this.aktDep1Target).prop('value', '');
+            $(this.aktDep2Target).prop('value', '');
+            $(this.aktDep3Target).prop('value', '');
+        }
+        else {
+            $(this.aktDep1Target).prop('disabled', false);
+            $(this.aktDep2Target).prop('disabled', false);
+            $(this.aktDep3Target).prop('disabled', false);
+        }
+
     }
 }

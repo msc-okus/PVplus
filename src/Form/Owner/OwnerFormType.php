@@ -1,9 +1,12 @@
 <?php
+
 namespace App\Form\Owner;
 
 use App\Entity\Eigner;
+use App\Form\Anlage\ModulesListEmbeddedFormType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -21,116 +24,120 @@ class OwnerFormType extends AbstractType
 
         $builder
             ->add('firma', TextType::class, [
-                'label'         => 'Company',
-                'empty_data'    => '',
+                'label' => 'Company',
+                'empty_data' => '',
             ])
             ->add('zusatz', TextType::class, [
-                'label'         => 'Additional Information',
-                'empty_data'    => '',
+                'label' => 'Additional Information',
+                'empty_data' => '',
             ])
             ->add('plz', TextType::class, [
-                'label'         => 'ZIP Code',
-                'empty_data'    => '',
+                'label' => 'ZIP Code',
+                'empty_data' => '',
             ])
             ->add('ort', TextType::class, [
-                'label'         => 'City',
-                'empty_data'    => '',
+                'label' => 'City',
+                'empty_data' => '',
             ])
             ->add('strasse', TextType::class, [
-                'label'         => 'Adress',
-                'empty_data'    => '',
+                'label' => 'Adress',
+                'empty_data' => '',
             ])
             ->add('anrede', ChoiceType::class, [
-                'choices'       => [
-                    'Mr.'   => 'Mr.',
-                    'Mrs.'  => 'Mrs.'
+                'choices' => [
+                    'Mr.' => 'Mr.',
+                    'Mrs.' => 'Mrs.',
                 ],
-                'label'         => 'Salutation',
+                'label' => 'Salutation',
             ])
             ->add('vorname', TextType::class, [
-                'label'         => 'Firstname',
-                'empty_data'    => '',
+                'label' => 'Firstname',
+                'empty_data' => '',
             ])
             ->add('nachname', TextType::class, [
-                'label'         => 'Lastname',
-                'empty_data'    => '',
+                'label' => 'Lastname',
+                'empty_data' => '',
             ])
+            /*
             ->add('telefon1', TextType::class, [
-                'label'         => 'Phone 1',
-                'empty_data'    => '',
+                'label' => 'Phone 1',
+                'empty_data' => '',
             ])
             ->add('telefon2', TextType::class, [
-                'label'         => 'Phone 2',
-                'empty_data'    => '',
+                'label' => 'Phone 2',
+                'empty_data' => '',
             ])
             ->add('mobil', TextType::class, [
-                'label'         => 'Mobile Phone',
-                'empty_data'    => '',
+                'label' => 'Mobile Phone',
+                'empty_data' => '',
             ])
             ->add('fax', TextType::class, [
-                'label'         => 'Fax',
-                'empty_data'    => '',
+                'label' => 'Fax',
+                'empty_data' => '',
             ])
             ->add('email', TextType::class, [
-                'label'         => 'eMail',
-                'empty_data'    => '',
+                'label' => 'eMail',
+                'empty_data' => '',
             ])
 
             ->add('bv_anrede', ChoiceType::class, [
-                'label'         => 'Operator Salutation',
-                'choices'       => [
-                    'Mr.'   => 'Mr.',
-                    'Mrs.'  => 'Mrs.'
+                'label' => 'Operator Salutation',
+                'choices' => [
+                    'Mr.' => 'Mr.',
+                    'Mrs.' => 'Mrs.',
                 ],
             ])
             ->add('bv_vorname', TextType::class, [
-                'label'         => 'Operator Firstname',
+                'label' => 'Operator Firstname',
                 'empty_data' => '',
             ])
             ->add('bv_nachname', TextType::class, [
-                'label'         => 'Operator Lastname',
+                'label' => 'Operator Lastname',
                 'empty_data' => '',
             ])
             ->add('bv_email', TextType::class, [
-                'label'         => 'Operator eMail',
+                'label' => 'Operator eMail',
                 'empty_data' => '',
             ])
             ->add('bv_telefon1', TextType::class, [
-                'label'         => 'Operator Phone 1',
+                'label' => 'Operator Phone 1',
                 'empty_data' => '',
             ])
             ->add('bv_telefon2', TextType::class, [
-                'label'         => 'Operator Phone 2',
+                'label' => 'Operator Phone 2',
                 'empty_data' => '',
             ])
             ->add('bv_mobil', TextType::class, [
-                'label'         => 'Operator Mobile',
+                'label' => 'Operator Mobile',
                 'empty_data' => '',
             ])
-
+            */
             ->add('active', ChoiceType::class, [
-                'label'     => 'Eigner aktiv ?',
-                'choices'  => ['Yes' => '1', 'No' => '0'],
+                'label' => 'Eigner aktiv ?',
+                'choices' => ['Yes' => '1', 'No' => '0'],
                 'placeholder' => 'Please Choose',
-                'empty_data'    => '1',
+                'empty_data' => '1',
             ])
+
+           /*
             ->add('editlock', ChoiceType::class, [
-                'label'     => '?? deprecatetd',
-                'choices'  => ['Yes' => '1', 'No' => '0'],
+                'label' => '?? deprecatetd',
+                'choices' => ['Yes' => '1', 'No' => '0'],
                 'placeholder' => 'Please Choose',
-                'empty_data'    => '0',
+                'empty_data' => '0',
             ])
             ->add('userlock', ChoiceType::class, [
-                'label'     => '?? deprecatetd',
-                'choices'  => ['Yes' => '1', 'No' => '0'],
+                'label' => '?? deprecatetd',
+                'choices' => ['Yes' => '1', 'No' => '0'],
                 'placeholder' => 'Please Choose',
-                'empty_data'    => '0',
+                'empty_data' => '0',
             ])
+            */
             ->add('language', ChoiceType::class, [
-                'label'     => 'Sprache (im Moment nur EN)',
-                'choices'  => ['EN' => 'EN', 'DE' => 'DE'],
+                'label' => 'Sprache (im Moment nur EN)',
+                'choices' => ['EN' => 'EN', 'DE' => 'DE'],
                 'placeholder' => 'Please Choose',
-                'empty_data'    => 'EN',
+                'empty_data' => 'EN',
             ])
             ->add('imageFile', FileType::class, [
                 'label' => 'Logo',
@@ -143,14 +150,33 @@ class OwnerFormType extends AbstractType
                             'image/png',
                             'image/gif',
                             'image/jpg',
-                            'image/svg'
+                            'image/svg',
                         ],
                         'mimeTypesMessage' => 'Please upload a valid image type(jpeg, png, gif, jpg, svg)',
-                    ])
-                ]
+                    ]),
+                ],
+            ])
+
+            // #############################################
+            // ###             Features                 ####
+            // #############################################
+
+            ->add('features', OwnerFeaturesFormType::class, [
+                'label' => 'Features',
             ])
 
 
+            // #############################################
+            // ###              Settings                ####
+            // #############################################
+
+            ->add('settings', OwnerSettingsFormType::class, [
+                'label' => 'Settings',
+            ])
+
+            // #############################################
+            // ###          STEUERELEMENTE              ####
+            // #############################################
             ->add('save', SubmitType::class, [
                 'label' => 'Save Owner',
                 'attr' => ['class' => 'primary save'],
@@ -169,9 +195,7 @@ class OwnerFormType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'data_class' => Eigner::class
+            'data_class' => Eigner::class,
         ]);
     }
-
-
 }

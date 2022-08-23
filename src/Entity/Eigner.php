@@ -7,275 +7,161 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 
 /**
- * Eigner
- *
- * @ORM\Table(name="eigner")
- * @ORM\Entity(repositoryClass="App\Repository\EignerRepository")
+ * Eigner.
  */
+#[ORM\Table(name: 'eigner')]
+#[ORM\Entity(repositoryClass: 'App\Repository\EignerRepository')]
 class Eigner
 {
     /**
      * @var int
-     *
-     * @ORM\Id
-     * @ORM\Column(name="id", type="bigint", nullable=false)
-     * @ORM\GeneratedValue(strategy="IDENTITY")
      */
-    private $id;
+    #[ORM\Id]
+    #[ORM\Column(name: 'id', type: 'bigint', nullable: false)]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
+    private int $id;
 
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="created", type="datetime", nullable=false, options={"default"="CURRENT_TIMESTAMP"})
-     * @Gedmo\Timestampable(on="create")
-     */
-    private $created;
+    #[ORM\Column(name: 'created', type: 'datetime', nullable: false, options: ['default' => 'CURRENT_TIMESTAMP'])]
+    #[Gedmo\Timestampable(on: 'create')]
+    private \DateTimeInterface $created;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="firma", type="string", length=100, nullable=false)
-     */
-    private $firma;
+    #[ORM\Column(name: 'firma', type: 'string', length: 100, nullable: false)]
+    private string $firma;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="zusatz", type="string", length=100, nullable=false)
-     */
-    private $zusatz;
+    #[ORM\Column(name: 'zusatz', type: 'string', length: 100, nullable: false)]
+    private string $zusatz;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="anrede", type="string", length=100, nullable=false)
-     */
-    private $anrede;
+    #[ORM\Column(name: 'anrede', type: 'string', length: 100, nullable: false)]
+    private string $anrede;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="vorname", type="string", length=100, nullable=false)
-     */
-    private $vorname;
+    #[ORM\Column(name: 'vorname', type: 'string', length: 100, nullable: false)]
+    private string $vorname;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="nachname", type="string", length=100, nullable=false)
-     */
-    private $nachname;
+    #[ORM\Column(name: 'nachname', type: 'string', length: 100, nullable: false)]
+    private string $nachname;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="strasse", type="string", length=100, nullable=false)
-     */
-    private $strasse;
+    #[ORM\Column(name: 'strasse', type: 'string', length: 100, nullable: false)]
+    private string $strasse;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="plz", type="string", length=10, nullable=false)
-     */
-    private $plz;
+    #[ORM\Column(name: 'plz', type: 'string', length: 10, nullable: false)]
+    private string $plz;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="ort", type="string", length=100, nullable=false)
-     */
-    private $ort;
+    #[ORM\Column(name: 'ort', type: 'string', length: 100, nullable: false)]
+    private string $ort;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="nachricht", type="text", length=65535, nullable=true)
-     */
-    private $nachricht;
+    #[ORM\Column(name: 'nachricht', type: 'text', length: 65535, nullable: true)]
+    #[Deprecated]
+    private string $nachricht;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="telefon1", type="string", length=100, nullable=false)
-     */
-    private $telefon1;
+    #[ORM\Column(name: 'telefon1', type: 'string', length: 100, nullable: false)]
+    #[Deprecated]
+    private string $telefon1;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="telefon2", type="string", length=100, nullable=false)
-     */
-    private $telefon2;
+    #[ORM\Column(name: 'telefon2', type: 'string', length: 100, nullable: false)]
+    #[Deprecated]
+    private string $telefon2;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="mobil", type="string", length=100, nullable=false)
-     */
-    private $mobil;
+    #[ORM\Column(name: 'mobil', type: 'string', length: 100, nullable: false)]
+    #[Deprecated]
+    private string $mobil;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="fax", type="string", length=100, nullable=false)
-     */
-    private $fax;
+    #[ORM\Column(name: 'fax', type: 'string', length: 100, nullable: false)]
+    #[Deprecated]
+    private string $fax;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="home_dir", type="string", length=100, nullable=false, options={"default"="user/home/"})
-     */
-    private $homeDir = 'user/home/';
+    #[ORM\Column(name: 'home_dir', type: 'string', length: 100, nullable: false, options: ['default' => 'user/home/'])]
+    #[Deprecated]
+    private string $homeDir = 'user/home/';
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="home_folder", type="text", length=65535, nullable=true)
-     */
-    private $homeFolder;
+    #[ORM\Column(name: 'home_folder', type: 'text', length: 65535, nullable: true)]
+    #[Deprecated]
+    private ?string $homeFolder;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="email", type="text", length=65535, nullable=false)
-     */
-    private $email;
+    #[ORM\Column(name: 'email', type: 'text', length: 65535, nullable: false)]
+    #[Deprecated]
+    private ?string $email;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="web", type="text", length=65535, nullable=true)
-     */
-    private $web;
+    #[ORM\Column(name: 'web', type: 'text', length: 65535, nullable: true)]
+    #[Deprecated]
+    private ?string $web;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="bv_anrede", type="string", length=100, nullable=false)
-     */
-    private $bvAnrede;
+    #[ORM\Column(name: 'bv_anrede', type: 'string', length: 100, nullable: false)]
+    #[Deprecated]
+    private string $bvAnrede;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="bv_vorname", type="string", length=100, nullable=false)
-     */
-    private $bvVorname;
+    #[ORM\Column(name: 'bv_vorname', type: 'string', length: 100, nullable: false)]
+    #[Deprecated]
+    private string $bvVorname;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="bv_nachname", type="string", length=100, nullable=false)
-     */
-    private $bvNachname;
+    #[ORM\Column(name: 'bv_nachname', type: 'string', length: 100, nullable: false)]
+    #[Deprecated]
+    private ?string $bvNachname;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="bv_email", type="text", length=65535, nullable=false)
-     */
-    private $bvEmail;
+    #[ORM\Column(name: 'bv_email', type: 'text', length: 65535, nullable: false)]
+    #[Deprecated]
+    private ?string $bvEmail;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="bv_telefon1", type="string", length=100, nullable=false)
-     */
-    private $bvTelefon1;
+    #[ORM\Column(name: 'bv_telefon1', type: 'string', length: 100, nullable: false)]
+    #[Deprecated]
+    private ?string $bvTelefon1;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="bv_telefon2", type="string", length=100, nullable=false)
-     */
-    private $bvTelefon2;
+    #[ORM\Column(name: 'bv_telefon2', type: 'string', length: 100, nullable: false)]
+    #[Deprecated]
+    private ?string $bvTelefon2;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="bv_mobil", type="string", length=100, nullable=false)
-     */
-    private $bvMobil;
+    #[ORM\Column(name: 'bv_mobil', type: 'string', length: 100, nullable: false)]
+    #[Deprecated]
+    private ?string $bvMobil;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="active", type="bigint", nullable=false)
-     */
-    private $active = '0';
+    #[ORM\Column(name: 'active', type: 'bigint', nullable: false)]
+    private string|int $active = '0';
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="editlock", type="bigint", nullable=false, options={"default"="1"})
-     */
-    private $editlock = '1';
+    #[ORM\Column(name: 'editlock', type: 'bigint', nullable: false, options: ['default' => 1])]
+    private string $editlock = '1';
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="userlock", type="bigint", nullable=false)
-     */
-    private $userlock = '0';
+    #[ORM\Column(name: 'userlock', type: 'bigint', nullable: false)]
+    private string $userlock = '0';
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="language", type="string", length=10, nullable=false, options={"default"="EN"})
-     */
-    private $language = 'EN';
+    #[ORM\Column(name: 'language', type: 'string', length: 10, nullable: false, options: ['default' => 'EN'])]
+    private string $language = 'EN';
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="level", type="string", length=5, nullable=false, options={"default"="1"})
-     */
-    private $level = '1';
+    #[ORM\Column(name: 'level', type: 'string', length: 5, nullable: false, options: ['default' => 1])]
+    #[Deprecated]
+    private string $level = '1';
 
-    /**
-     * @ORM\ManyToMany(targetEntity=User::class, inversedBy="eigners")
-     * @ORM\JoinTable(name="eigner_user")
-     *
-     */
-    private $user;
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'eigners')]
+    #[ORM\JoinTable(name: 'eigner_user')]
+    private Collection $user;
 
-    /**
-     * @ORM\Column(type="string", length=15, nullable=true)
-     */
-    private $activateAlertMessage;
+    #[ORM\Column(type: 'string', length: 15, nullable: true)]
+    private ?string $activateAlertMessage;
 
-    /**
-     * @ORM\OneToMany(targetEntity=Anlage::class, mappedBy="eigner")
-     */
-    private $anlage;
+    #[ORM\OneToMany(mappedBy: 'eigner', targetEntity: Anlage::class)]
+    private Collection $anlage;
 
-    /**
-     * @ORM\OneToMany(targetEntity=AnlagenReports::class, mappedBy="eigner")
-     */
-    private $anlagenReports;
-    /**
-     * @ORM\Column(type="string", length=10, nullable=true)
-     */
+    #[ORM\OneToMany(mappedBy: 'eigner', targetEntity: AnlagenReports::class)]
+    private Collection $anlagenReports;
+
+    #[ORM\Column(type: 'string', length: 10, nullable: true)]
     private string $fontColor = '#9aacc3';
 
-    /**
-     * @ORM\Column(type="string", length=10, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 10, nullable: true)]
     private string $fontColor2 = '#2e639a';
 
-    /**
-     * @ORM\Column(type="string", length=10, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 10, nullable: true)]
     private string $fontColor3 = '#36639c';
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private $Logo;
+
+    #[ORM\OneToOne(mappedBy: 'owner', cascade: ['persist', 'remove'])]
+    private ?OwnerFeatures $features = null;
+
+    #[ORM\OneToOne(mappedBy: 'owner', cascade: ['persist', 'remove'])]
+    private ?OwnerSettings $settings = null;
 
     public function __construct()
     {
@@ -702,6 +588,7 @@ class Eigner
 
     /**
      * @param bool $role
+     *
      * @return Collection|Anlage[]
      */
     public function getActiveAnlage($role = false): Collection
@@ -818,4 +705,47 @@ class Eigner
         return $this;
     }
 
+    public function getFeatures(): ?OwnerFeatures
+    {
+        return $this->features;
+    }
+
+    public function setFeatures(?OwnerFeatures $features): self
+    {
+        // unset the owning side of the relation if necessary
+        if ($features === null && $this->features !== null) {
+            $this->features->setOwner(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($features !== null && $features->getOwner() !== $this) {
+            $features->setOwner($this);
+        }
+
+        $this->features = $features;
+
+        return $this;
+    }
+
+    public function getSettings(): ?OwnerSettings
+    {
+        return $this->settings;
+    }
+
+    public function setSettings(?OwnerSettings $settings): self
+    {
+        // unset the owning side of the relation if necessary
+        if ($settings === null && $this->settings !== null) {
+            $this->settings->setOwner(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($settings !== null && $settings->getOwner() !== $this) {
+            $settings->setOwner($this);
+        }
+
+        $this->settings = $settings;
+
+        return $this;
+    }
 }

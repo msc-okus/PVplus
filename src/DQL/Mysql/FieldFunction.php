@@ -1,6 +1,7 @@
 <?php
 
 // /app/src/DQL/Mysql/FieldFunction.php
+
 namespace App\DQL\Mysql;
 
 use Doctrine\ORM\Query\AST\Functions\FunctionNode;
@@ -47,7 +48,7 @@ class FieldFunction extends FunctionNode
 
         $query .= ', ';
 
-        for ($i = 0; $i < count($this->values); $i++) {
+        for ($i = 0; $i < count($this->values); ++$i) {
             if ($i > 0) {
                 $query .= ', ';
             }

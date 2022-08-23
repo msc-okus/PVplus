@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Form\Anlage;
 
 use App\Entity\AnlageLegendReport;
@@ -17,32 +16,32 @@ class MonthlyLegendListEmbeddedFormType extends AbstractType
     {
         $builder
             ->add('type', HiddenType::class, [
-                'data'      => 'monthly',
+                'data' => 'monthly',
             ])
             ->add('row', TextType::class, [
-                'label'         => 'Row',
-                'empty_data'    => '',
-                'required'      => true,
+                'label' => 'Row',
+                'empty_data' => '',
+                'required' => true,
             ])
             ->add('title', TextType::class, [
-                'label'         => 'Title / Formula',
-                'empty_data'    => '',
-                'required'      => true,
+                'label' => 'Title / Formula',
+                'empty_data' => '',
+                'required' => true,
             ])
             ->add('unit', TextType::class, [
-                'label'         => 'Unit',
-                'empty_data'    => '',
-                'required'      => false,
+                'label' => 'Unit',
+                'empty_data' => '',
+                'required' => false,
             ])
             ->add('description', TextareaType::class, [
-                'label'         => 'Description',
-                'empty_data'    => '',
-                'required'      => false,
+                'label' => 'Description',
+                'empty_data' => '',
+                'required' => false,
             ])
             ->add('source', TextType::class, [
-                'label'         => 'Description',
-                'empty_data'    => '',
-                'required'      => false,
+                'label' => 'Description',
+                'empty_data' => '',
+                'required' => false,
             ])
         ;
     }

@@ -20,17 +20,14 @@ class LogRepository extends ServiceEntityRepository
         parent::__construct($registry, Log::class);
     }
 
-    /**
-     * @param string|null $term
-     * @return QueryBuilder
-     */
-    public function getWithSearchQueryBuilder(?string $term): QueryBuilder {
+    public function getWithSearchQueryBuilder(?string $term): QueryBuilder
+    {
         $qb = $this->createQueryBuilder('log')
             ->innerJoin('log.anlage', 'anlage');
 
         if ($term) {
             $qb->andWhere('log.createdBy LIKE :term OR log.type LIKE :term OR log.description LIKE :term')
-                ->setParameter('term', '%' . $term . '%')
+                ->setParameter('term', '%'.$term.'%')
             ;
         }
 

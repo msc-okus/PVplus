@@ -22,7 +22,6 @@ class ForcastDayRepository extends ServiceEntityRepository
 
     public function findForcastDayByMonth(Anlage $anlage, int $month)
     {
-
         $firstDayMonth = date('z', strtotime("2001-$month-01"));
         $daysInMonth = date('t', strtotime("2001-$month-01"));
         $lastDayMonth = date('z', strtotime("2001-$month-$daysInMonth"));
@@ -34,7 +33,8 @@ class ForcastDayRepository extends ServiceEntityRepository
             ->setParameter('lastDay', $lastDayMonth + 1) // plus 1, because 'date' count the first day in year with 0
             ->getQuery()
             ->getResult()
-            ;
+        ;
+
         return $forecast;
     }
 
@@ -48,6 +48,7 @@ class ForcastDayRepository extends ServiceEntityRepository
             ->getQuery()
             ->getSingleScalarResult()
         ;
+
         return $forecastSum * $anlage->getContractualGuarantiedPower();
     }
 }

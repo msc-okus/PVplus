@@ -5,53 +5,34 @@ namespace App\Entity;
 use App\Repository\ForcastDayRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=ForcastDayRepository::class)
- */
+#[ORM\Entity(repositoryClass: ForcastDayRepository::class)]
 class AnlageForcastDay
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private int $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="anlageForecastDays")
-     */
+    #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'anlageForecastDays')]
     private ?Anlage $anlage;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private int $week;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private int $day;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $expectedDay;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $factorDay;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $factorMin;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $factorMax;
-
 
     public function getId(): ?int
     {
@@ -96,7 +77,7 @@ class AnlageForcastDay
 
     public function getFactorDay(): ?float
     {
-        return (float)$this->factorDay;
+        return (float) $this->factorDay;
     }
 
     public function setFactorDay(int $factorDay): self
@@ -108,7 +89,7 @@ class AnlageForcastDay
 
     public function getFactorMin(): ?float
     {
-        return (float)$this->factorMin;
+        return (float) $this->factorMin;
     }
 
     public function setFactorMin(int $factorMin): self
@@ -120,7 +101,7 @@ class AnlageForcastDay
 
     public function getFactorMax(): ?float
     {
-        return (float)$this->factorMax;
+        return (float) $this->factorMax;
     }
 
     public function setFactorMax(int $factorMax): self
@@ -132,7 +113,7 @@ class AnlageForcastDay
 
     public function getExpectedDay(): ?float
     {
-        return (float)str_replace(',', '.', $this->expectedDay);
+        return (float) str_replace(',', '.', $this->expectedDay);
     }
 
     public function setExpectedDay(string $expectedDay): self

@@ -5,71 +5,45 @@ namespace App\Entity;
 use App\Repository\TimesConfigRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=TimesConfigRepository::class)
- */
+#[ORM\Entity(repositoryClass: TimesConfigRepository::class)]
 class TimesConfig
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="timesConfigs")
-     */
+    #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'timesConfigs')]
     private $anlage;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private $type;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private int $startDateMonth;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private int $startDateDay;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private $startDate;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private int $endDateMonth;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private int $endDateDay;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private $endDate;
 
-    /**
-     * @ORM\Column(type="time")
-     */
+    #[ORM\Column(type: 'time')]
     private $startTime;
 
-    /**
-     * @ORM\Column(type="time")
-     */
+    #[ORM\Column(type: 'time')]
     private $endTime;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private $maxFailTime;
 
     public function getId(): ?int
@@ -109,7 +83,9 @@ class TimesConfig
     public function setStartDateMonth(int $startDateMonth): self
     {
         $this->startDateMonth = $startDateMonth;
-        if (isset($this->startDateDay)) $this->startDate = "2000-" . $this->startDateMonth . "-" . $this->startDateDay;
+        if (isset($this->startDateDay)) {
+            $this->startDate = '2000-'.$this->startDateMonth.'-'.$this->startDateDay;
+        }
 
         return $this;
     }
@@ -122,7 +98,9 @@ class TimesConfig
     public function setStartDateDay(int $startDateDay): self
     {
         $this->startDateDay = $startDateDay;
-        if (isset($this->startDateMonth)) $this->startDate = "2000-" . $this->startDateMonth . "-" . $this->startDateDay;
+        if (isset($this->startDateMonth)) {
+            $this->startDate = '2000-'.$this->startDateMonth.'-'.$this->startDateDay;
+        }
 
         return $this;
     }
@@ -140,7 +118,9 @@ class TimesConfig
     public function setEndDateMonth(int $endDateMonth): self
     {
         $this->endDateMonth = $endDateMonth;
-        if (isset($this->endDateDay)) $this->endDate = "2000-" . $this->endDateMonth . "-" . $this->endDateDay;
+        if (isset($this->endDateDay)) {
+            $this->endDate = '2000-'.$this->endDateMonth.'-'.$this->endDateDay;
+        }
 
         return $this;
     }
@@ -153,7 +133,9 @@ class TimesConfig
     public function setEndDateDay(int $endDateDay): self
     {
         $this->endDateDay = $endDateDay;
-        if (isset($this->endDateMonth)) $this->endDate = "2000-" . $this->endDateMonth . "-" . $this->endDateDay;
+        if (isset($this->endDateMonth)) {
+            $this->endDate = '2000-'.$this->endDateMonth.'-'.$this->endDateDay;
+        }
 
         return $this;
     }
@@ -198,5 +180,4 @@ class TimesConfig
 
         return $this;
     }
-
 }

@@ -2,28 +2,18 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
+use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use ApiPlatform\Core\Annotation\ApiFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\NumericFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
-use App\Repository\UserRepository;
-use Gedmo\Blameable\Traits\BlameableEntity;
-use Gedmo\Timestampable\Traits\TimestampableEntity;
-use Symfony\Component\Validator\Constraints as Assert;
-use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
+
 /**
- * PvpUser
+ * PvpUser.
  *
- * @ORM\Table(name="pvp_user", uniqueConstraints={@ORM\UniqueConstraint(name="name", columns={"name"})})
- * @ORM\Entity(repositoryClass=UserRepository::class)
- * @ORM\HasLifecycleCallbacks()
  * @ApiResource(
  *     normalizationContext={"groups"={"user:read"}},
  *     denormalizationContext={"groups"={"user:write"}},
@@ -31,8 +21,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *          "formats"={"jsonld", "json", "html", "csv"={"text/csv"}}
  *     }
  * )
-
  */
+#[ORM\Table(name: 'pvp_user')]
+#[ORM\UniqueConstraint(name: 'name', columns: ['name'])]
+#[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     public const ARRAY_OF_ROLES = [
@@ -43,87 +36,48 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'Operator' => 'ROLE_OPERATOR',
         'Owner (full)' => 'ROLE_OWNER_FULL',
         'Owner' => 'ROLE_OWNER',
-        'Beta Tester' => 'ROLE_BETA'
+        'Beta Tester' => 'ROLE_BETA',
     ];
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="id", type="bigint", nullable=false)
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="IDENTITY")
-     */
     #[Groups(['user:read'])]
+    #[ORM\Column(name: 'id', type: 'bigint', nullable: false)]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private int $id;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="name", type="string", length=20, nullable=false)
-     */
     #[Groups(['user:read', 'user_list'])]
+    #[ORM\Column(name: 'name', type: 'string', length: 20, nullable: false)]
     private string $name;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="password", type="string")
-     */
     #[Groups(['user:read'])]
+    #[ORM\Column(name: 'password', type: 'string')]
     private string $password;
 
-    /**
-     * @ORM\Column(type="json")
-     */
+    #[ORM\Column(type: 'json')]
     private array $roles = [];
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="level", type="integer", nullable=false, options={"default"="1"})
-     */
     #[Groups(['user:read'])]
+    #[ORM\Column(name: 'level', type: 'integer', nullable: false, options: ['default' => 1])]
     private int $level = 1;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="admin", type="integer", nullable=false)
-     */
+    #[ORM\Column(name: 'admin', type: 'integer', nullable: false)]
     private int $admin = 0;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="email", type="string", length=80, nullable=false)
-     */
+    #[ORM\Column(name: 'email', type: 'string', length: 80, nullable: false)]
     private string $email;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="language", type="string", length=10, nullable=false, options={"default"="EN"})
-     */
+    #[ORM\Column(name: 'language', type: 'string', length: 10, nullable: false, options: ['default' => 'EN'])]
     private string $language = 'EN';
 
-    /**
-     * @ORM\Column(type="json")
-     */
+    #[ORM\Column(type: 'json')]
     private ?array $assignedAnlagen = [];
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string", length=250)
-     */
     #[Groups(['main:read'])]
+    #[ORM\Column(type: 'string', length: 250)]
     private string $grantedList;
 
-    /**
-     * @ORM\ManyToMany(targetEntity=Eigner::class, mappedBy="user")
-     */
+    #[ORM\ManyToMany(targetEntity: Eigner::class, mappedBy: 'user')]
     private $eigners;
-
 
     public function __construct()
     {
@@ -237,9 +191,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function getRolesAsString(): string
     {
         $roles = $this->roles;
-        $rolesString = "";
+        $rolesString = '';
         foreach ($roles as $role) {
-            ($rolesString == "") ? $rolesString .= $role : $rolesString .= ", " . $role;
+            ($rolesString == '') ? $rolesString .= $role : $rolesString .= ', '.$role;
         }
 
         return $rolesString;
@@ -264,12 +218,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-
     public function getSalt(): ?string
     {
         return null;
     }
-
 
     public function eraseCredentials()
     {
@@ -284,6 +236,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         foreach ($eignerList as $eigner) {
             $accessList[] = $eigner->getEignerId();
         }
+
         return $accessList;
     }
 
@@ -292,14 +245,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $eignerList = $this->getEigners();
         $accessList = "'";
         foreach ($eignerList as $eigner) {
-            ($accessList == "'") ? $accessList .= $eigner->getEignerId() : $accessList .= "', '" . $eigner->getEignerId();
+            ($accessList == "'") ? $accessList .= $eigner->getEignerId() : $accessList .= "', '".$eigner->getEignerId();
         }
         $accessList .= "'";
+
         return $accessList;
     }
 
     /**
-     * @return Collection|Eigner[]
+     * @return Collection
      */
     public function getEigners(): Collection
     {
@@ -333,7 +287,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getGrantedArray(): array|false
     {
-        return explode(',',$this->grantedList);
+        return explode(',', $this->grantedList);
     }
 
     public function setGrantedList(string $grantedList): self
@@ -342,5 +296,4 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
-
 }

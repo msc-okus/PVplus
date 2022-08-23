@@ -53,6 +53,7 @@
         series.tooltip.background.fill = am4core.color("#31af31");
         series.columns.template.width = am4core.percent(100);
         series.columns.template.height = am4core.percent(100);
+        series.showOnInit = false;
 
         var columnTemplate = series.columns.template;
         columnTemplate.strokeWidth = 0;
@@ -95,11 +96,7 @@
                 if (inRange(target.dataItem.value, 86, 90)) {return am4core.color(inRange(target.dataItem.value, 86, 90, 1))};
                 if (inRange(target.dataItem.value, 91, 100)) {return am4core.color(inRange(target.dataItem.value, 91, 100, 0))};
             }
-            /*
- else {
-     return am4core.color("#0c0c0c");
- }
- */
+
             return fill;
         });
         // Build Heatmap Legende

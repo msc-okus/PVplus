@@ -21,13 +21,13 @@ class AnlageTextType extends AbstractType
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
-            'invalid_message'   => 'No plant found by that name'
+            'invalid_message' => 'No plant found by that name',
         ]);
     }
 
     public function getBlockPrefix(): string
     {
-        return "anlage_text_type";
+        return 'anlage_text_type';
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -39,5 +39,4 @@ class AnlageTextType extends AbstractType
     {
         return TextType::class;
     }
-
 }

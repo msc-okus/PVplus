@@ -17,7 +17,7 @@
 </div>
 <header class="grid-container fluid"
     {# if impersonation is active #}
-    {{ is_granted('IS_IMPERSONATOR') ? 'style="background-color: red !important"' }}
+    {{ is_granted('IS_IMPERSONATOR') ? 'style="border-top: red solid 5px;"' }}
 >
     <div class="top-bar">
         <div class="top-bar-left">
@@ -41,15 +41,12 @@
                 <ul class="menu vertical" style="font-size: 90%;">
                     {% if (app.user) %}
                         <li><a href=""><i class="far fa-clock"></i> <span id="uhr"></span></a></li>
-                        <li><a href="{{ path('app_logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                         {% if is_granted('IS_IMPERSONATOR') %}
-                            <li>
-                                <a class="dropdown-item" href="{{ path('app_dashboard', {
-                                    '_switch_user': '_exit'
-                                }) }}"><i class="fas fa-random"></i> Exit Impersonation</a>
-                            </li>
+                            <li><a class="dropdown-item" href="{{ path('app_dashboard', {'_switch_user': '_exit'}) }}"><i class="fas fa-random"></i> Exit Impersonation</a></li>
+                        {% else %}
+                            <li><a href="{{ path('app_logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                         {% endif %}
-                        <li><a href="#"><i class="fa fa-user"></i> {{ app.user.username }} </a></li>
+                        <li><a href="#"><i class="fa fa-user"></i> {{ app.user.name }} </a></li>
                     {% endif %}
                 </ul>
             </div>
@@ -57,7 +54,6 @@
         </div>
     </div>
 </header>
-
 <div class="alert-wrapper">
     {% for message in app.flashes('error') %}
         <div data-closable data-alert class="my-alert-box callout alert-callout-border alert">
@@ -136,7 +132,7 @@
     <footer class="grid-container fluid">
         <div class="grid-x">
             <div class="cell">
-                <p class="text-center">&copy; 2018 - 2022 Green4Net - All Rights Reserved - PV+ 4.0 v2.2.5 beta</p>
+                <p class="text-center">&copy; 2018 - 2022 Green4Net - All Rights Reserved - PV+ 4.0 v2.2.6</p>
             </div>
         </div>
     </footer>

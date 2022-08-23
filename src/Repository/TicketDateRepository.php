@@ -63,6 +63,7 @@ class TicketDateRepository extends ServiceEntityRepository
             ->getOneOrNullResult()
         ;
     }
+
     public function findOneByBeginTicket($begin, $ticket): ?TicketDate
     {
         return $this->createQueryBuilder('t')
@@ -72,8 +73,9 @@ class TicketDateRepository extends ServiceEntityRepository
             ->setParameter('ticket', $ticket)
             ->getQuery()
             ->getOneOrNullResult()
-            ;
+        ;
     }
+
     public function findOneByEndTicket($end, $ticket): ?TicketDate
     {
         return $this->createQueryBuilder('t')
@@ -83,11 +85,13 @@ class TicketDateRepository extends ServiceEntityRepository
             ->setParameter('ticket', $ticket)
             ->getQuery()
             ->getOneOrNullResult()
-            ;
+        ;
     }
-    public function countByIntervalErrorPlant($begin, $end, $error, $anlage){
+
+    public function countByIntervalErrorPlant($begin, $end, $error, $anlage)
+    {
         return $this->createQueryBuilder('t')
-            ->addSelect('sum(t.Intervals)')
+            ->addSelect('sum(t.intervals)')
             ->andWhere('t.begin >= :begin')
             ->andWhere('t.begin <= :end')
             ->andWhere('t.Anlage = :anlage')
@@ -98,17 +102,49 @@ class TicketDateRepository extends ServiceEntityRepository
             ->setParameter('anlage', $anlage)
             ->getQuery()
             ->getResult()
-            ;
+        ;
     }
-    public function countByIntervalNullPlant($begin, $end, $anlage){
+
+    public function countTicketsByIntervalErrorPlant($begin, $end, $error, $anlage)
+    {
         return $this->createQueryBuilder('t')
-            ->addSelect('sum(t.Intervals)')
+            ->addSelect('count(t.id)')
+            ->andWhere('t.begin >= :begin')
+            ->andWhere('t.begin <= :end')
+            ->andWhere('t.Anlage = :anlage')
+            ->andWhere('t.errorType = :error')
+            ->setParameter('begin', $begin)
+            ->setParameter('end', $end)
+            ->setParameter('error', $error)
+            ->setParameter('anlage', $anlage)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+
+    public function countByIntervalNullPlant($begin, $end, $anlage)
+    {
+        return $this->createQueryBuilder('t')
+            ->addSelect('sum(t.intervals)')
             ->andWhere('t.begin >= :begin')
             ->andWhere('t.begin <= :end')
             ->andWhere('t.Anlage = :anlage')
             ->andWhere('t.dataGapEvaluation is NULL ')
             ->andWhere('t.errorType = 20')
             ->andWhere('t.alertType = 10')
+            ->setParameter('begin', $begin)
+            ->setParameter('end', $end)
+            ->setParameter('anlage', $anlage)
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+    public function getAllByInterval($begin, $end, $anlage)
+    {
+        return $this->createQueryBuilder('t')
+            ->andWhere('t.begin >= :begin')
+            ->andWhere('t.begin <= :end')
+            ->andWhere('t.Anlage = :anlage')
             ->setParameter('begin', $begin)
             ->setParameter('end', $end)
             ->setParameter('anlage', $anlage)

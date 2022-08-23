@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controller;
 
 use App\Entity\Anlage;
@@ -17,6 +18,7 @@ class CronController extends BaseController
     use G4NTrait;
 
     private $urlGenerator;
+
     private $messageService;
 
     public function __construct(UrlGeneratorInterface $urlGenerator, MessageService $messageService)
@@ -30,15 +32,13 @@ class CronController extends BaseController
     public function checkSystemStatus(checkSystemStatusService $checkSystemStatus)
     {
         $output = $checkSystemStatus->checkSystemStatus();
-        return $this->render('cron/showResult.html.twig', [
-            'headline'      => 'Status',
-            'availabilitys' => '',
-            'output'        => $output,
 
+        return $this->render('cron/showResult.html.twig', [
+            'headline' => 'Status',
+            'availabilitys' => '',
+            'output' => $output,
         ]);
     }
-
-
 
     #[Route(path: '/cron/createMonthlyReport', name: 'app_cron_createmonthlyreport')]
     #[deprecated]
@@ -47,12 +47,11 @@ class CronController extends BaseController
         /** @var Anlage $anlagen */
         $anlagen = $anlagenRepository->findAll();
         $output = $report->monthlyReport($anlagen);
+
         return $this->render('cron/showResult.html.twig', [
-            'headline'      => 'Monthly Report',
+            'headline' => 'Monthly Report',
             'availabilitys' => '',
-            'output'        => $output,
+            'output' => $output,
         ]);
     }
-
-
 }

@@ -3,22 +3,16 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\NumericFilter;
-use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
-use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
 use App\Repository\ReportsRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
-use Doctrine\Common\Collections\ArrayCollection;
-use Symfony\Component\Validator\Constraints as Assert;
-use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
+
 /**
- * @ORM\Entity(repositoryClass=ReportsRepository::class)
- * @ORM\HasLifecycleCallbacks()
- * @ORM\Table(name="anlagen_reports")
  * @ApiResource(
  *     shortName="reports",
  *     normalizationContext={"groups"={"main:read"}},
@@ -30,82 +24,61 @@ use Symfony\Component\Serializer\Annotation\Groups;
  * @ApiFilter(NumericFilter::class, properties={"reportStatus"})
  * @ApiFilter(SearchFilter::class, properties={"reportType": "partial"})
  */
+#[ORM\Entity(repositoryClass: ReportsRepository::class)]
+#[ORM\HasLifecycleCallbacks]
+#[ORM\Table(name: 'anlagen_reports')]
 class AnlagenReports
 {
     use TimestampableEntity;
+
     use BlameableEntity;
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private int $id;
 
-    /**
-     * @ORM\Column(type="string", length=50)
-     */
     #[Groups(['main:read'])]
+    #[ORM\Column(type: 'string', length: 50)]
     private string $reportType;
 
     /**
      * Indicats wich version of Report.
      * Depending on this information we have to decide wich function to use for PDF and Excel files.
-     *
-     * @ORM\Column(type="integer")
      */
+    #[ORM\Column(type: 'integer')]
     private int $reportTypeVersion = 0;
 
-    /**
-     * @ORM\Column(type="date")
-     */
+    #[ORM\Column(type: 'date')]
     private $startDate;
 
-    /**
-     * @ORM\Column(type="date")
-     */
+    #[ORM\Column(type: 'date')]
     private $endDate;
 
-    /**
-     * @ORM\Column(type="text")
-     */
+    #[ORM\Column(type: 'text')]
     private string $rawReport;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="anlagenReports")
-     */
+    #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'anlagenReports')]
     private ?Anlage $anlage;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Eigner::class, inversedBy="anlagenReports")
-     */
+    #[ORM\ManyToOne(targetEntity: Eigner::class, inversedBy: 'anlagenReports')]
     private ?Eigner $eigner;
 
-    /**
-     * @ORM\Column(type="string", length=10, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 10, nullable: true)]
     private ?string $month;
 
-    /**
-     * @ORM\Column(type="string", length=10, nullable=true)
-     */
+    #[ORM\Column(type: 'string', length: 10, nullable: true)]
     private ?string $year;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     private string $contentArray;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
     #[Groups(['main:read'])]
+    #[ORM\Column(type: 'integer')]
     private int $reportStatus = 10;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     private $comments;
-
 
     public function getId(): ?int
     {
@@ -132,6 +105,7 @@ class AnlagenReports
     public function setReportTypeVersion(int $reportTypeVersion): self
     {
         $this->reportTypeVersion = $reportTypeVersion;
+
         return $this;
     }
 
@@ -143,6 +117,7 @@ class AnlagenReports
     public function setStartDate(\DateTimeInterface $startDate): self
     {
         $this->startDate = $startDate;
+
         return $this;
     }
 
@@ -205,6 +180,7 @@ class AnlagenReports
 
         return $this;
     }
+
     public function getYear(): ?string
     {
         return $this->year;
@@ -252,6 +228,4 @@ class AnlagenReports
 
         return $this;
     }
-
-
 }

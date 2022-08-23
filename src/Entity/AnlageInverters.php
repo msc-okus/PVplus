@@ -5,36 +5,24 @@ namespace App\Entity;
 use App\Repository\InvertersRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=InvertersRepository::class)
- */
+#[ORM\Entity(repositoryClass: InvertersRepository::class)]
 class AnlageInverters
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private int $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="Inverters")
-     */
+    #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'Inverters')]
     private ?Anlage $anlage;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private int $invNr;
 
-    /**
-     * @ORM\Column(type="string", length=50)
-     */
+    #[ORM\Column(type: 'string', length: 50)]
     private string $InverterName;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $powerDc;
 
     public function getId(): ?int

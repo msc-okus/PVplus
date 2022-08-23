@@ -19,8 +19,8 @@ class StatusRepository extends ServiceEntityRepository
         parent::__construct($registry, Status::class);
     }
 
-
-    public function findOneByanlageDate($anlage, $date, $isWeather){
+    public function findOneByanlageDate($anlage, $date, $isWeather)
+    {
         return $this->createQueryBuilder('s')
             ->andWhere('s.Anlage = :anl')
             ->andWhere('s.stamp = :date')
@@ -30,10 +30,11 @@ class StatusRepository extends ServiceEntityRepository
             ->setParameter('isWeather', $isWeather)
             ->getQuery()
             ->getOneOrNullResult()
-            ;
+        ;
     }
-    public function findLastOfDay($anlage, $yesterday, $today, $isWeather){
 
+    public function findLastOfDay($anlage, $yesterday, $today, $isWeather)
+    {
         return $this->createQueryBuilder('s')
             ->andWhere('s.Anlage = :anl')
             ->andWhere('s.stamp > :yesterday')
@@ -41,13 +42,13 @@ class StatusRepository extends ServiceEntityRepository
             ->andWhere('s.isWeather = :isWeather')
             ->setParameter('anl', $anlage)
             ->setParameter('yesterday', $yesterday)
-            ->setParameter('today' , $today)
+            ->setParameter('today', $today)
             ->setParameter('isWeather', $isWeather)
             ->orderBy('s.stamp', 'DESC')
             ->setMaxResults(1)
             ->getQuery()
             ->getOneOrNullResult()
-            ;
+        ;
     }
     // /**
     //  * @return Status[] Returns an array of Status objects

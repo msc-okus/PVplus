@@ -52,9 +52,10 @@
                     <td><input data-request-target="box" data-action="click->request#check" type="checkbox" value="{{ ticket.id }}" class="generated-checkbox" form="tableForm"></td>
                     <td class="text-right">
                         <div id="modal-form{{ ticket.id }}" {{ stimulus_controller('ticket-edit', {
-                            formUrl: path('app_ticket_edit', { id: ticket.id}),
-                            splitUrl: path('app_ticket_split', { id: ticket.id}),
-                        }) }}>
+                                formUrl: path('app_ticket_edit', { id: ticket.id}),
+                                splitUrl: path('app_ticket_split', { id: ticket.id}),
+                            }) }}
+                        >
                             <button class="hollow button action-icon shadow"
                                     data-action="ticket-edit#openModal"
                                     data-append-to="div#modal-form{{ ticket.id }}"
@@ -73,17 +74,19 @@
             </tbody>
         </table>
     </div>
+
     {% if (is_granted('ROLE_DEV')) %}
         <button data-request-target="join" data-action="request#submit" name="join" type="button" class="button" value="yes">Join</button>
 
         <div class="reveal text-left " id="modal"
              data-request-target="modal"
+             data-append-to="form#tableForm"
              data-reveal
         >
             <h1>Joining Tickets</h1>
             <div class="grid-x grid-padding-y">
                 <div class="cell modal-body" data-request-target="modalBody">
-                    hi hi
+
                 </div>
             </div>
             <div class="grid-x grid-padding-y">

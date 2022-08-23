@@ -2,15 +2,11 @@
 
 namespace App\Twig;
 
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
 use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 class ProcessCheckerExtension extends AbstractExtension
 {
-
     public function getFunctions(): array
     {
         return [
@@ -21,7 +17,7 @@ class ProcessCheckerExtension extends AbstractExtension
     public function checkProcess($command): string
     {
         $command = '';
-        exec("ps -A comm,pid", $command, $retval);
+        exec('ps -A comm,pid', $command, $retval);
 
         if (1) {
             $return = "'$command' is running ($retval)";

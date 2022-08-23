@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Repository;
 
 use App\Entity\AnlagenStatus;
@@ -21,16 +20,13 @@ class AnlagenStatusRepository extends ServiceEntityRepository
         parent::__construct($registry, AnlagenStatus::class);
     }
 
-    /**
-     * @param string|null $term
-     * @return QueryBuilder
-     */
-    public function getWithSearchQueryBuilder(?string $term): QueryBuilder {
+    public function getWithSearchQueryBuilder(?string $term): QueryBuilder
+    {
         $qb = $this->createQueryBuilder('c');
 
         if ($term) {
             $qb->andWhere('c.name LIKE :term OR c.plz LIKE :term OR c.ort LIKE :term')
-                ->setParameter('term', '%' . $term . '%')
+                ->setParameter('term', '%'.$term.'%')
             ;
         }
 
@@ -40,28 +36,26 @@ class AnlagenStatusRepository extends ServiceEntityRepository
     public function findStatusAnlageDate($anlage, $from, $to)
     {
         return $this->createQueryBuilder('s')
-            ->andWhere("s.anlage = :anlage")
-            ->andWhere("s.stamp BETWEEN :from AND :to")
+            ->andWhere('s.anlage = :anlage')
+            ->andWhere('s.stamp BETWEEN :from AND :to')
             ->orderBy('s.stamp', 'DESC')
             ->setParameter('anlage', $anlage)
             ->setParameter('from', $from)
             ->setParameter('to', $to)
             ->getQuery()
             ->getResult()
-            ;
+        ;
     }
 
-    public function findLastByAnlagenId($id) {
-
+    public function findLastByAnlagenId($id)
+    {
         return $this->createQueryBuilder('o')
-            ->andWhere("o.anlId = :id")
+            ->andWhere('o.anlId = :id')
             ->orderBy('o.stamp', 'DESC')
             ->setMaxResults(1)
             ->setParameter('id', $id)
             ->getQuery()
             ->getResult()
-            ;
+        ;
     }
-
-
 }

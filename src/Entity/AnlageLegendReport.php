@@ -6,56 +6,38 @@ use App\Repository\AnlageLegendReportRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
 
-/**
- * @ORM\Entity(repositoryClass=AnlageLegendReportRepository::class)
- */
+#[ORM\Entity(repositoryClass: AnlageLegendReportRepository::class)]
 class AnlageLegendReport
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private int $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="anlageLegendReports")
-     */
+    #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'anlageLegendReports')]
     private ?Anlage $anlage;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $type;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
     #[Groups(['legend'])]
+    #[ORM\Column(type: 'string', length: 20)]
     private string $row;
 
-    /**
-     * @ORM\Column(type="string", length=50)
-     */
     #[Groups(['legend'])]
+    #[ORM\Column(type: 'string', length: 50)]
     private string $title;
 
-    /**
-     * @ORM\Column(type="string", length=10)
-     */
     #[Groups(['legend'])]
+    #[ORM\Column(type: 'string', length: 10)]
     private string $unit;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
     #[Groups(['legend'])]
+    #[ORM\Column(type: 'string', length: 255)]
     private string $description;
 
-    /**
-     * @ORM\Column(type="string", length=50)
-     */
     #[Groups(['legend'])]
+    #[ORM\Column(type: 'string', length: 50)]
     private string $source;
 
     public function getId(): ?int
@@ -146,5 +128,4 @@ class AnlageLegendReport
 
         return $this;
     }
-
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Service;
 
 use App\Entity\AlertMessages;
@@ -10,16 +11,14 @@ class G4NSendMailService
 {
     use G4NTrait;
 
-    private $em;
-    private $mailer;
-
-    public function __construct(EntityManagerInterface $em, MailerInterface $mailer)
-    {
-        $this->em = $em;
-        $this->mailer = $mailer;
+    public function __construct(
+        private EntityManagerInterface $em,
+        private MailerInterface $mailer
+    ) {
     }
 
-    public function SendAlertMail($to, $subject, $message, $alertType = 0, $anlagenId = 0, $statusId = 0, $statusIdLast = 0){
+    public function SendAlertMail($to, $subject, $message, $alertType = 0, $anlagenId = 0, $statusId = 0, $statusIdLast = 0)
+    {
         /*
         $email =  new TemplatedEmail();
         $alertEmailG4n = new Address('alert@g4npvplus.de', 'Alert Email');
@@ -44,8 +43,8 @@ class G4NSendMailService
         ($to) ? $alertMessage->setEmailRecipient($to) : $alertMessage->setEmailRecipient($alertEmailG4n);
         $alertMessage->setSubject($subject);
         $alertMessage->setMessage($message);
-        $alertMessage->setStatusId("0");
-        $alertMessage->setStatusIdLast("0");
+        $alertMessage->setStatusId('0');
+        $alertMessage->setStatusIdLast('0');
         $alertMessage->setStamp($this->getCetTime('OBJECT'));
         $this->em->persist($alertMessage);
         $this->em->flush();

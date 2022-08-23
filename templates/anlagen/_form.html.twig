@@ -127,7 +127,7 @@
                             <div class="cell medium-3">{{ form_row(anlageForm.anlZeitzone) }}</div>
                             <div class="cell medium-3">{{ form_row(anlageForm.anlBetrieb) }}</div>
                         </div>
-                        {% if is_granted('ROLE_DEV') %}
+                        {% if is_granted('ROLE_ADMIN') %}
                         <div class="grid-x grid-padding-x">
                             <div class="cell medium-3">{{ form_row(anlageForm.anlInputDaily) }}</div>
                             <div class="cell medium-3">{{ form_row(anlageForm.useNewDcSchema) }}</div>
@@ -325,8 +325,7 @@
                 </div>
 
                 {# Modules #}
-                {% if is_granted('ROLE_ADMIN') %}
-                    <div class="tabs-panel" id="modules">
+                <div class="tabs-panel" id="modules">
                     <fieldset class="fieldset js-module-wrapper"
                               data-prototype="{{ formMacros.addModule(anlageForm.modules.vars.prototype)|e('html_attr') }}"
                               data-index="{{ anlageForm.modules|length }}"
@@ -396,7 +395,7 @@
                         <button type="button" class="button secondary small js-add-module"> <span class="fa fa-plus-circle"></span>&nbsp;Add Modul</button>
                     </fieldset>
                 </div>
-                {% endif %}
+
 
                 {# Settings and Config #}
                 <div class="tabs-panel" id="settings">

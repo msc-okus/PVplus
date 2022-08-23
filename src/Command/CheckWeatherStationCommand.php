@@ -3,8 +3,8 @@
 namespace App\Command;
 
 use App\Helper\G4NTrait;
+use App\Repository\AnlagenRepository;
 use App\Service\AlertSystemService;
-use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,11 +20,13 @@ class CheckWeatherStationCommand extends Command
 
     private AlertSystemService $alertService;
 
-    public function __construct(AlertSystemService $alertService)
+    private AnlagenRepository $anlRepo;
+
+    public function __construct(AlertSystemService $alertService, AnlagenRepository $anlRepo)
     {
         parent::__construct();
         $this->alertService = $alertService;
-
+        $this->anlRepo = $anlRepo;
     }
 
     protected function configure(): void
@@ -37,10 +39,12 @@ class CheckWeatherStationCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        //$io = new SymfonyStyle($input, $output);
-
-        $this->alertService->checkWeatherStation();
-        //$io->success('You have a new command! Now make it your own! Pass --help to see your options.');
+        // $io = new SymfonyStyle($input, $output);
+        $anlagen = $this->anlRepo->findAll();
+        foreach ($anlagen as $anlage) {
+            $this->alertService->checkWeatherStation($anlage);
+            // $io->success('You have a new command! Now make it your own! Pass --help to see your options.');
+        }
 
         return Command::SUCCESS;
     }

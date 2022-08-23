@@ -21,39 +21,35 @@ class FileUploadFormType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-
         $builder
             ->add('imageFile', FileType::class, [
                 'mapped' => false,
                 'constraints' => [
                     new Image([
-                        'maxSize' => '5M'
-                    ])
-                ]
+                        'maxSize' => '5M',
+                    ]),
+                ],
             ])
-            ->add('File', FileType::class,[
+            ->add('File', FileType::class, [
                 'mapped' => false,
-                'label' => "CSV File",
+                'label' => 'CSV File',
                 'constraints' => [
                     new File([
                         'maxSize' => '5M',
                         'mimeTypes' => [
                //             'application/csv'
-                        ]
-                    ])
-                ]
+                        ],
+                    ]),
+                ],
             ])
 
-            ##############################################
-            ####          STEUERELEMENTE              ####
-            ##############################################
+            // #############################################
+            // ###          STEUERELEMENTE              ####
+            // #############################################
 
             ->add('import', SubmitType::class, [
-                'label'     => 'Upload',
-                'attr'      => ['class' => 'primary save'],
+                'label' => 'Upload',
+                'attr' => ['class' => 'primary save'],
             ]);
-
     }
-
-
 }

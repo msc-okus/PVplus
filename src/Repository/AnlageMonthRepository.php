@@ -18,5 +18,4 @@ class AnlageMonthRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, AnlageMonth::class);
     }
-
 }

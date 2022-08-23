@@ -53,7 +53,8 @@ class GridMeterDayRepository extends ServiceEntityRepository
 
         return $result;
     }
-    public function getDateRange( $anlage, $from, $to)
+
+    public function getDateRange($anlage, $from, $to)
     {
         $from = date('Y-m-d', strtotime($from));
         $to = date('Y-m-d', strtotime($to));

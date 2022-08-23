@@ -2,7 +2,6 @@
 
 namespace App\MessageHandler\Command;
 
-use App\Message\Command\CalcExpected;
 use App\Message\Command\CalcPlantAvailability;
 use App\Repository\AnlagenRepository;
 use App\Service\AvailabilityService;
@@ -12,7 +11,9 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 class CalcPlantAvailabilityHandler implements MessageHandlerInterface
 {
     private LogMessagesService $logMessages;
+
     private AvailabilityService $availabilityService;
+
     private AnlagenRepository $anlagenRepository;
 
     public function __construct(AvailabilityService $availabilityService, LogMessagesService $logMessages, AnlagenRepository $anlagenRepository)
@@ -35,11 +36,10 @@ class CalcPlantAvailabilityHandler implements MessageHandlerInterface
             $this->logMessages->updateEntry($logId, 'working', ($timeCounter / $timeRange) * 100);
             $timeCounter += (24 * 3600);
             $this->availabilityService->checkAvailability($anlageId, $stamp);
-            if($anlage->getShowAvailabilitySecond()) {
+            if ($anlage->getShowAvailabilitySecond()) {
                 $this->availabilityService->checkAvailability($anlageId, $stamp, true);
             }
         }
         $this->logMessages->updateEntry($logId, 'done');
     }
-
 }

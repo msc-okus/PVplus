@@ -1,15 +1,18 @@
 import { Controller } from '@hotwired/stimulus';
 import $ from 'jquery';
 import {Reveal} from "foundation-sites";
+import {useDispatch} from "stimulus-use";
 
 export default class extends Controller {
-    static targets = ['list', 'searchBar'];
+    static targets = ['list', 'searchBar', 'modalCreate', 'modalCreateBody', 'AlertFormat','AlertDates', 'saveButton', 'formBegin', 'formEnd'];
     static values = {
         urlCreate: String,
         urlSearch: String,
     }
 
-    connect() {}
+    connect() {
+        useDispatch(this);
+    }
 
     async search(event){
         event.preventDefault();
@@ -37,8 +40,39 @@ export default class extends Controller {
         this.listTarget.innerHTML = await $.ajax({});
     }
 
-    async createTicket(event) {
-        event.preventDefault();
+    check() {
+        console.log( $(this.saveButtonTarget),  $(this.splitAlertFormatTarget)
+        );
+        const valueBegin = $(this.formBeginTarget).prop('value');
+        const valueEnd = $(this.formEndTarget).prop('value');
+        console.log(valueBegin, valueEnd)
+
+        const date1 = new Date(valueBegin);
+        const date2 = new Date(valueEnd);
+        date1.setSeconds(0);
+        date2.setSeconds(0);
+        const timestamp = date1.getTime();
+        const timestamp2 = date2.getTime();
+
+
+        if (timestamp2 >= timestamp){
+            $(this.AlertDatesTarget).addClass('is-hidden');
+            $(this.saveButtonTarget).removeAttr('disabled');
+        }
+        else {
+            $(this.AlertDatesTarget).removeClass('is-hidden');
+            $(this.saveButtonTarget).attr('disabled', 'disabled')
+        }
+
+        if ((timestamp % 900 === 0) && (timestamp2 % 900 === 0)){
+            $(this.AlertFormatTarget).addClass('is-hidden');
+            $(this.saveButtonTarget).removeAttr('disabled');
+        } else {
+            $(this.AlertFormatTarget).removeClass('is-hidden');
+            $(this.saveButtonTarget).attr('disabled', 'disabled')
+        }
+        console.log($(this.AlertFormatTarget), $(this.AlertDatesTarget), $(this.saveButtonTarget))
+
 
     }
 

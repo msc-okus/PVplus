@@ -5,32 +5,24 @@ namespace App\Entity;
 use App\Repository\GridMeterDayRepository;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Table(indexes={@ORM\Index(name="stamp", columns={"stamp"})}, uniqueConstraints={@ORM\UniqueConstraint(name="unique_key", columns={"stamp", "anlage_id"})})
- * @ORM\Entity(repositoryClass=GridMeterDayRepository::class)
- */
+#[ORM\Table]
+#[ORM\Index(name: 'stamp', columns: ['stamp'])]
+#[ORM\UniqueConstraint(name: 'unique_key', columns: ['stamp', 'anlage_id'])]
+#[ORM\Entity(repositoryClass: GridMeterDayRepository::class)]
 class AnlageGridMeterDay
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private int $id;
 
-    /**
-     * @ORM\ManyToOne(targetEntity=Anlage::class, inversedBy="anlageGridMeterDays")
-     */
+    #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'anlageGridMeterDays')]
     private $anlage;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $stamp;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private string $gridMeterValue;
 
     public function getId(): ?int

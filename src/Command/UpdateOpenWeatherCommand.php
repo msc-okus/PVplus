@@ -17,6 +17,7 @@ class UpdateOpenWeatherCommand extends Command
     protected static $defaultName = 'pvp:updateOpenWeather';
 
     private AnlagenRepository $anlagenRepository;
+
     private OpenWeatherService $openWeatherService;
 
     public function __construct(AnlagenRepository $anlagenRepository, OpenWeatherService $openWeatherService)
@@ -38,8 +39,8 @@ class UpdateOpenWeatherCommand extends Command
         $ergebniss = '';
         $io = new SymfonyStyle($input, $output);
 
-        $io->comment("Lade Open Weather: Alle Anlagen");
-        $anlagen = $this->anlagenRepository->findBy(['anlHidePlant' => 'No']); //, 'anlView' => 'Yes']);
+        $io->comment('Lade Open Weather: Alle Anlagen');
+        $anlagen = $this->anlagenRepository->findBy(['anlHidePlant' => 'No']); // , 'anlView' => 'Yes']);
         $io->progressStart(count($anlagen));
         foreach ($anlagen as $anlage) {
             $ergebniss .= $this->openWeatherService->loadOpenWeather($anlage);

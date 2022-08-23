@@ -32,7 +32,7 @@
         xAxis.renderer.labels.template.fontSize = 10;
         xAxis.renderer.grid.template.disabled = true;
         xAxis.renderer.minGridDistance = 5;
-        xAxis.renderer.inversed = true;
+        xAxis.renderer.inversed = false;
         yAxis.renderer.grid.template.disabled = true;
         yAxis.renderer.inversed = true;
         yAxis.renderer.minGridDistance = 5;
@@ -52,6 +52,7 @@
         series.tooltip.background.fill = am4core.color("#31af31");
         series.columns.template.width = am4core.percent(100);
         series.columns.template.height = am4core.percent(100);
+        series.showOnInit = false;
 
         var columnTemplate = series.columns.template;
         columnTemplate.strokeWidth = 0;

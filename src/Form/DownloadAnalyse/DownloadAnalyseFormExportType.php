@@ -1,16 +1,12 @@
 <?php
 
-
 namespace App\Form\DownloadAnalyse;
 
 use App\Entity\Anlage;
-use App\Form\Model\DownloadAnalyseModel;
-use App\Form\Model\DownloadDataModel;
 use App\Repository\AnlagenRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
-use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -27,13 +23,12 @@ class DownloadAnalyseFormExportType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-
         $builder
             ->add('anlageexport', EntityType::class, [
-                'label'         => ' ',
-                'class'         => Anlage::class,
-                'choices'       => $this->anlagenRepository->findIdLike($options['anlagenid']),
-                'choice_label'  => 'anlName',
+                'label' => ' ',
+                'class' => Anlage::class,
+                'choices' => $this->anlagenRepository->findIdLike($options['anlagenid']),
+                'choice_label' => 'anlName',
             ])
             ->add('year', HiddenType::class, [
             ])
@@ -42,31 +37,29 @@ class DownloadAnalyseFormExportType extends AbstractType
             ->add('day', HiddenType::class, [
             ])
             ->add('documenttype', ChoiceType::class, [
-                'label'         => 'select Document type',
-                'choices'       => [
-                    'PDF'    => 'pdf',
-                    'Excel'           => 'excel',
+                'label' => 'select Document type',
+                'choices' => [
+                    'PDF' => 'pdf',
+                    'Excel' => 'excel',
                 ],
                 'required' => true,
-                'placeholder'   => 'please Choose ...'
+                'placeholder' => 'please Choose ...',
             ])
             ->setAction('/download/analyse/download/'.$options['anlagenid'])
-            ##############################################
-            ####          STEUERELEMENTE              ####
-            ##############################################
+            // #############################################
+            // ###          STEUERELEMENTE              ####
+            // #############################################
 
             ->add('export', SubmitType::class, [
-                'label'     => 'Download',
-                'attr'      => ['class' => 'primary save'],
+                'label' => 'Download',
+                'attr' => ['class' => 'primary save'],
             ]);
-
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(array(
+        $resolver->setDefaults([
             'anlagenid' => null,
-        ));
+        ]);
     }
-
 }

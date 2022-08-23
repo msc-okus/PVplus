@@ -7,7 +7,6 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\Date;
 
 class ChartControlFormType extends AbstractType
 {
@@ -23,7 +22,6 @@ class ChartControlFormType extends AbstractType
             ->add('optionDate')
             ->add('optionStep')
 
-
         ;
     }
 
@@ -34,4 +32,3 @@ class ChartControlFormType extends AbstractType
         ]);
     }
 }
-

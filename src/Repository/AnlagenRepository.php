@@ -1,6 +1,6 @@
 <?php
-namespace App\Repository;
 
+namespace App\Repository;
 
 use App\Entity\Anlage;
 use App\Entity\User;
@@ -20,12 +20,9 @@ class AnlagenRepository extends ServiceEntityRepository
 {
     use G4NTrait;
 
-    private Security $security;
-
-    public function __construct(ManagerRegistry $registry, Security $security)
+    public function __construct(ManagerRegistry $registry, private Security $security)
     {
         parent::__construct($registry, Anlage::class);
-        $this->security = $security;
     }
 
     public static function selectLegendType($type): Criteria
@@ -33,7 +30,7 @@ class AnlagenRepository extends ServiceEntityRepository
         return Criteria::create()
             ->andWhere(Criteria::expr()->eq('type', $type))
             ->orderBy(['row' => 'ASC'])
-            ;
+        ;
     }
 
     public static function case5ByDateCriteria($date): Criteria
@@ -42,7 +39,7 @@ class AnlagenRepository extends ServiceEntityRepository
             ->andWhere(Criteria::expr()->gte('stampFrom', date_create($date)->format('Y-m-d 00:00')))
             ->andWhere(Criteria::expr()->lte('stampFrom', date_create($date)->format('Y-m-d 23:59')))
             ->orderBy(['inverter' => 'ASC'])
-            ;
+        ;
     }
 
     public static function case6ByDateCriteria($date): Criteria
@@ -51,7 +48,7 @@ class AnlagenRepository extends ServiceEntityRepository
             ->andWhere(Criteria::expr()->gte('stampFrom', date_create($date)->format('Y-m-d 00:00')))
             ->andWhere(Criteria::expr()->lte('stampFrom', date_create($date)->format('Y-m-d 23:59')))
             ->orderBy(['inverter' => 'ASC'])
-            ;
+        ;
     }
 
     public static function lastAnlagenStatusCriteria(): Criteria
@@ -69,14 +66,14 @@ class AnlagenRepository extends ServiceEntityRepository
             ->andWhere(Criteria::expr()->gt('stamp', G4NTrait::getCetTime('object')->format('Y-m-d 00:00')))
             ->orderBy(['stamp' => 'DESC'])
             ->setMaxResults(1)
-            ;
+        ;
     }
 
     public static function anlagenStatusOrderedCriteria(): Criteria
     {
         return Criteria::create()
             ->orderBy(['anlagenStatus' => 'ASC'])
-            ;
+        ;
     }
 
     public static function lastAnlagenPRCriteria(): Criteria
@@ -84,22 +81,25 @@ class AnlagenRepository extends ServiceEntityRepository
         return Criteria::create()
             ->orderBy(['stamp' => 'DESC'])
             ->setMaxResults(1)
-            ;
+        ;
     }
+
     public static function yesterdayAnlagenPRCriteria(): Criteria
     {
         $date = new \DateTime('-1day');
+
         return Criteria::create()
             ->andWhere(Criteria::expr()->lte('stamp', $date))
             ->orderBy(['stamp' => 'DESC'])
             ->setMaxResults(1)
-            ;
+        ;
     }
+
     public static function oneMonthPvSystCriteria($month): Criteria
     {
         return Criteria::create()
             ->andWhere(Criteria::expr()->eq('month', $month))
-            ;
+        ;
     }
 
     /**
@@ -108,12 +108,12 @@ class AnlagenRepository extends ServiceEntityRepository
     public function findIdLike($like): array
     {
         return $this->createQueryBuilder('a')
-            ->andWhere("a.anlId IN (:val)")
+            ->andWhere('a.anlId IN (:val)')
             ->orderBy('a.anlId', 'ASC')
             ->setParameter('val', $like)
             ->getQuery()
             ->getResult()
-            ;
+        ;
     }
 
     /**
@@ -138,8 +138,8 @@ class AnlagenRepository extends ServiceEntityRepository
             ;
         }
         $qb
-            ->andWhere("a.eigner = :eigner")
-            ->add("orderBy", ['FIELD(a.anlId, :anlage) DESC'])
+            ->andWhere('a.eigner = :eigner')
+            ->add('orderBy', ['FIELD(a.anlId, :anlage) DESC'])
             ->addOrderBy('a.anlName')
             ->setParameter('eigner', $eignerId)
             ->setParameter('anlage', $anlageId)
@@ -172,9 +172,9 @@ class AnlagenRepository extends ServiceEntityRepository
             ;
         }
         $qb
-            ->andWhere("a.eigner = :eigner")
-            ->andWhere("a.anlId IN (:granted)")
-            ->add("orderBy", ['FIELD(a.anlId, :anlage) DESC'])
+            ->andWhere('a.eigner = :eigner')
+            ->andWhere('a.anlId IN (:granted)')
+            ->add('orderBy', ['FIELD(a.anlId, :anlage) DESC'])
             ->addOrderBy('a.anlName')
             ->setParameter('eigner', $eignerId)
             ->setParameter('granted', $granted)
@@ -188,6 +188,7 @@ class AnlagenRepository extends ServiceEntityRepository
 
     /**
      * @return Anlage[]
+     *
      * @deprecated
      */
     public function findAll(): array
@@ -206,7 +207,7 @@ class AnlagenRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    public function findAllByEigner($eigner)
+    public function findAllByEigner($eigner): array
     {
         return $this->createQueryBuilder('a')
             ->andWhere("a.anlHidePlant = 'No'")
@@ -222,6 +223,26 @@ class AnlagenRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function findAllIDByEigner($eigner): array
+    {
+        return $this->createQueryBuilder('a')
+            ->select('a.anlName','a.anlId')
+            ->andWhere('a.eignerId = :eigner')
+            ->setParameter('eigner', $eigner)
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findAllAnlageByUser($userid): array
+    {
+        $query = $this->createQueryBuilder('a');
+        $query->select('a.anlId')
+            ->leftJoin('a.eigner','e')->addSelect('e.id')
+            ->where('a.eigner = :creator')
+            ->setParameter('creator', $userid);
+        return $query->getQuery()->getResult();
+    }
+
     /**
      * @return Anlage[]
      */
@@ -229,8 +250,8 @@ class AnlagenRepository extends ServiceEntityRepository
     {
         return $this->createQueryBuilder('a')
             ->andWhere("a.anlHidePlant = 'No'")
-            ->andWhere("a.calcPR = true")
-            ->andWhere("a.excludeFromExpCalc = false OR a.excludeFromExpCalc is null")
+            ->andWhere('a.calcPR = true')
+            ->andWhere('a.excludeFromExpCalc = false OR a.excludeFromExpCalc is null')
             ->orderBy('a.anlId', 'ASC')
             ->innerJoin('a.acGroups', 'acG')
             ->innerJoin('a.groups', 'dcG')
@@ -242,9 +263,10 @@ class AnlagenRepository extends ServiceEntityRepository
 
     /**
      * Suche alle aktiven anlagen für die ein Benutzer die Zugriffsrechte hat
-     * please use in future 'findAllActivAndAllowed'
+     * please use in future 'findAllActivAndAllowed'.
      *
      * @return Anlage[]
+     *
      * @deprecated
      */
     public function findAllActive(): array
@@ -253,7 +275,7 @@ class AnlagenRepository extends ServiceEntityRepository
     }
 
     /**
-     * Suche alle aktiven anlagen für die ein Benutzer die Zugriffsrechte hat
+     * Suche alle aktiven anlagen für die ein Benutzer die Zugriffsrechte hat.
      *
      * @return Anlage[]
      */
@@ -273,25 +295,21 @@ class AnlagenRepository extends ServiceEntityRepository
         } else {
             /** @var User $user */
             $user = $this->security->getUser();
-            $accesslist = $user->getAccessList();
+            $granted = $user->getGrantedArray();
             $qb
                 ->andWhere("a.anlHidePlant = 'No'")
                 ->andWhere("a.anlView = 'Yes'")
-                ->andWhere("a.eigner IN (:accesslist)")
-                ->setParameter('accesslist', $accesslist);
+                ->andWhere("a.anlId IN (:granted)")
+                ->setParameter('granted', $granted);
         }
         $qb
             ->orderBy('a.eigner', 'ASC')
             ->addOrderBy('a.anlName', 'ASC');
 
-        return $qb  ->getQuery()
+        return $qb->getQuery()
                     ->getResult();
     }
 
-    /**
-     * @param string|null $term
-     * @return QueryBuilder
-     */
     public function getWithSearchQueryBuilder(?string $term): QueryBuilder
     {
         $qb = $this->createQueryBuilder('a')
@@ -306,19 +324,20 @@ class AnlagenRepository extends ServiceEntityRepository
         ;
 
         if ($term) {
-            $qb ->andWhere('a.anlName LIKE :term OR a.anlPlz LIKE :term OR a.anlOrt LIKE :term OR eigner.firma LIKE :term' )
-                ->setParameter('term', '%' . $term . '%');
+            $qb->andWhere('a.anlName LIKE :term OR a.anlPlz LIKE :term OR a.anlOrt LIKE :term OR eigner.firma LIKE :term')
+                ->setParameter('term', '%'.$term.'%');
         }
-        return $qb  ->orderBy('eigner.firma', 'ASC')
-                    ->addOrderBy('a.anlName', 'ASC');
 
+        return $qb->orderBy('eigner.firma', 'ASC')
+                    ->addOrderBy('a.anlName', 'ASC');
     }
 
     /**
-     * @param string|null $query
+     * @param string $query
+     * @param int $limit
      * @return array
      */
-    public function findByAllMatching(string $query, int $limit = 100)
+    public function findByAllMatching(string $query, int $limit = 100): array
     {
         $qb = $this->createQueryBuilder('a')
             ->leftJoin('a.economicVarNames', 'varName')
@@ -332,15 +351,13 @@ class AnlagenRepository extends ServiceEntityRepository
             ->setMaxResults($limit)
             ->addSelect('a');
 
-
         // Wenn Benutzer kein G4N Rolle hat
-        if (! $this->security->isGranted('ROLE_G4N')) {
-
+        if (!$this->security->isGranted('ROLE_G4N')) {
             /** @var User $user */
             $user = $this->security->getUser();
             $granted = explode(',', $user->getGrantedList());
 
-            $qb->andWhere("a.anlId IN (:granted)")
+            $qb->andWhere('a.anlId IN (:granted)')
                 ->setParameter('granted', $granted)
             ;
         }
@@ -349,22 +366,15 @@ class AnlagenRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-
-    /**
-     * @param string|null $term
-     * @param array $eigners
-     * @param array $grantedPlantList
-     * @return QueryBuilder
-     */
     public function getWithSearchQueryBuilderOwner(?string $term, array $eigners = [], array $grantedPlantList = []): QueryBuilder
     {
-        $qb = $this->createQueryBuilder('c')
-            ->andWhere('c.eignerId IN (:eigners) ')
-            ->andWhere('c.anlId IN (:grantedPlantList)')
+        $qb = $this->createQueryBuilder('a')
+            ->andWhere('a.eignerId IN (:eigners) ')
+            ->andWhere('a.anlId IN (:grantedPlantList)')
             ->setParameter('eigners', $eigners)
             ->setParameter('grantedPlantList', $grantedPlantList)
-            ->innerJoin('c.eigner', 'a')
-            ->addSelect('a')
+            ->innerJoin('a.eigner', 'eigner')
+            ->addSelect('eigner')
             ->leftJoin('a.economicVarNames', 'varName')
             ->leftJoin('a.economicVarValues', 'ecoValu')
             ->leftJoin('a.settings', 'settings')
@@ -373,11 +383,11 @@ class AnlagenRepository extends ServiceEntityRepository
             ->addSelect('settings');
 
         if ($term) {
-            $qb ->andWhere('c.anlName LIKE :term OR c.anlPlz LIKE :term OR c.anlOrt LIKE :term OR a.firma LIKE :term' )
-                ->setParameter('term', '%' . $term . '%');
+            $qb->andWhere('a.anlName LIKE :term OR eigner.anlPlz LIKE :term OR eigner.anlOrt LIKE :term OR eigner.firma LIKE :term')
+                ->setParameter('term', '%'.$term.'%');
         }
 
-        return $qb  ->orderBy('a.firma', 'ASC')
-            ->addOrderBy('c.anlName', 'ASC');
+        return $qb->orderBy('eigner.firma', 'ASC')
+            ->addOrderBy('a.anlName', 'ASC');
     }
 }

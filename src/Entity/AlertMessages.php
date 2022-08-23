@@ -4,64 +4,41 @@ namespace App\Entity;
 
 use App\Repository\AlertMessagesRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Mime\Address;
 
-/**
- * @ORM\Table(name="pvp_alert_messages")
- * @ORM\Entity(repositoryClass=AlertMessagesRepository::class)
- */
+#[ORM\Table(name: 'pvp_alert_messages')]
+#[ORM\Entity(repositoryClass: AlertMessagesRepository::class)]
 class AlertMessages
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: 'integer')]
     private $id;
 
-    /**
-     * @ORM\Column(type="datetime")
-     */
+    #[ORM\Column(type: 'datetime')]
     private $stamp;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private $AlertType;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private $AnlagenId;
 
-    /**
-     * @ORM\Column(type="string", length=60)
-     */
+    #[ORM\Column(type: 'string', length: 60)]
     private $emailRecipient;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: 'string', length: 255)]
     private $subject;
 
-    /**
-     * @ORM\Column(type="text", nullable=true)
-     */
+    #[ORM\Column(type: 'text', nullable: true)]
     private $message;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private $statusId;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Column(type: 'integer')]
     private $statusIdLast;
 
-    /**
-     * @ORM\Column(type="string", length=20)
-     */
+    #[ORM\Column(type: 'string', length: 20)]
     private $eventType;
 
     public function getId(): ?int

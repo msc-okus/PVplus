@@ -6,16 +6,16 @@ use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\AssetManagementService;
 use Nuzkito\ChromePdf\ChromePdf;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
 
 class AssetManagementController extends BaseController
 {
     use G4NTrait;
+
     private string $kernelProjectDir;
 
-    public function __construct(String $kernelProjectDir = '')
+    public function __construct(string $kernelProjectDir = '')
     {
         $this->kernelProjectDir = $kernelProjectDir;
     }
@@ -23,6 +23,7 @@ class AssetManagementController extends BaseController
     /**
      * @param $doctype ( 0 = PDF, 1 = Excel, 2 = PNG (Grafiken) )
      * @param $charttypetoexport (0 = , 1 = )
+     *
      * @deprecated
      */
     #[Route(path: '/asset/report/{id}/{month}/{year}/{export}/{pages}', name: 'report_asset_management')]
@@ -38,7 +39,7 @@ class AssetManagementController extends BaseController
             'plantSize' => $output['plantSize'],
             'plantName' => $output['plantName'],
             'anlGeoLat' => $output['anlGeoLat'],
-            'anlGeoLon'  => $output['anlGeoLon'],
+            'anlGeoLon' => $output['anlGeoLon'],
             'year' => $output['year'],
             'month' => $output['month'],
             'reportmonth' => $output['reportmonth'],
@@ -108,62 +109,61 @@ class AssetManagementController extends BaseController
             'losses_compared_chart' => $output['losses_compared_chart'],
             'lossesComparedTableCumulated' => $output['lossesComparedTableCumulated'],
             'cumulated_losses_compared_chart' => $output['cumulated_losses_compared_chart'],
+            'kwhLossesYearTable' => $output['kwhLossesYearTable'],
+            'kwhLossesMonthTable' => $output['kwhLossesMonthTable']
         ]);
-        if ($export == 0){
+        if ($export == 0) {
             return $result;
         } else {
             // specify the route to the binary.
             $pdf = new ChromePdf('/usr/bin/chromium');
 
-
             // Route when PDF will be saved.
-            ///usr/www/users/pvpluy/dev.gs/PVplus-4.0
+            // /usr/www/users/pvpluy/dev.gs/PVplus-4.0
             $pos = $this->substr_Index($this->kernelProjectDir, '/', 5);
             $pathpart = substr($this->kernelProjectDir, $pos);
             $anlageName = $anlage->getAnlName();
 
-
-            if($month < 10){
+            if ($month < 10) {
                 $month = '0'.$month;
             }
 
             $pdf->output('/usr/home/pvpluy/public_html'.$pathpart.'/public/'.$anlageName.'_AssetReport_'.$month.'_'.$year.'.pdf');
-            $reportfile = fopen('/usr/home/pvpluy/public_html'.$pathpart.'/public/'.$anlageName.'_AssetReport_'.$month.'_'.$year.'.html', "w") or die("Unable to open file!");
-            //cleanup html
+            $reportfile = fopen('/usr/home/pvpluy/public_html'.$pathpart.'/public/'.$anlageName.'_AssetReport_'.$month.'_'.$year.'.html', 'w') or exit('Unable to open file!');
+            // cleanup html
             $pos = strpos($result, '<html>');
             fwrite($reportfile, substr($result, $pos));
             fclose($reportfile);
 
-
-            #$pdf->generateFromHtml(substr($result, $pos));
+            // $pdf->generateFromHtml(substr($result, $pos));
             $pdf->generateFromFile('/usr/home/pvpluy/public_html'.$pathpart.'/public/'.$anlageName.'_AssetReport_'.$month.'_'.$year.'.html');
             $filename = $anlageName.'_AssetReport_'.$month.'_'.$year.'.pdf';
             $pdf->output($filename);
             // Header content type
-            header("Content-type: application/pdf");
-            header("Content-Length: " . filesize($filename));
-            header("Content-type: application/pdf");
+            header('Content-type: application/pdf');
+            header('Content-Length: '.filesize($filename));
+            header('Content-type: application/pdf');
 
             // Send the file to the browser.
             readfile($filename);
-            #return $result;
+            // return $result;
         }
     }
 
-    private function substr_Index($str, $needle, $nth ){
+    private function substr_Index($str, $needle, $nth)
+    {
         $str2 = '';
         $posTotal = 0;
-        for($i=0; $i < $nth; $i++){
-
-            if($str2 != ''){
+        for ($i = 0; $i < $nth; ++$i) {
+            if ($str2 != '') {
                 $str = $str2;
             }
 
-            $pos   = strpos($str, $needle);
-            $str2  = substr($str, $pos+1);
-            $posTotal += $pos+1;
-
+            $pos = strpos($str, $needle);
+            $str2 = substr($str, $pos + 1);
+            $posTotal += $pos + 1;
         }
-        return $posTotal-1;
+
+        return $posTotal - 1;
     }
 }

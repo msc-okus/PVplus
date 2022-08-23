@@ -4,7 +4,6 @@ namespace App\Twig;
 
 use App\Repository\PVSystDatenRepository;
 use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
 use Twig\TwigFunction;
 
 class PvSystExtension extends AbstractExtension
@@ -29,5 +28,4 @@ class PvSystExtension extends AbstractExtension
 
         return $result;
     }
-
 }

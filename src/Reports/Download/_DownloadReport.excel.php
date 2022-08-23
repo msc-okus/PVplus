@@ -1,6 +1,6 @@
 <?php
 
-use \koolreport\excel\Table;
+use koolreport\excel\Table;
 
 $params = $this->dataStores['params']->toArray()[0];
 
@@ -10,9 +10,9 @@ $useGridMeterDayData = $params['useGridMeterDayData'];
 $gradCelsius = '°';
 $durchschnitt = 'Ø';
 
-$sheet1 = "Data";
+$sheet1 = 'Data';
 
-include_once __DIR__ . '/table_fields_downloads.tmpl';
+include_once __DIR__.'/table_fields_downloads.tmpl';
 ?>
 <meta charset="UTF-8">
 <meta name="keywords" content="">
@@ -21,50 +21,48 @@ include_once __DIR__ . '/table_fields_downloads.tmpl';
 <meta name="title" content="">
 
 <div sheet-name="<?php echo $sheet1; ?>">
-    <div><?php echo $params['downloadHeadline'].' for '.$params['downloadPlantName'];?></div>
+    <div><?php echo $params['downloadHeadline'].' for '.$params['downloadPlantName']; ?></div>
     <div>
 
         <?php
 
-        if($params['tableType'] == 'default'){
+        if ($params['tableType'] == 'default') {
             ?>
             <div class="grid-x grid-margin-x">
                 <div class="cell">
                     <?php
-                    Table::create(array(
+                    Table::create([
                         'dataSource' => $this->dataStores['download'],
-                        "columns" => getTablefieldsDefault($showAvailability,$showAvailabilitySecond,$useGridMeterDayData,$lineBreake,$doubleLineBreake,$gradCelsius,$durchschnitt),
-                        "cssClass"=>array(
-                            "table"=>"table-bordered table-striped table-hover"
-                        ),
-                        "max-width"=>"2000px",
-                        "height"=>"100%",
-                    ));
-                    ?>
+                        'columns' => getTablefieldsDefault($showAvailability, $showAvailabilitySecond, $useGridMeterDayData, $lineBreake, $doubleLineBreake, $gradCelsius, $durchschnitt),
+                        'cssClass' => [
+                            'table' => 'table-bordered table-striped table-hover',
+                        ],
+                        'max-width' => '2000px',
+                        'height' => '100%',
+                    ]); ?>
                 </div>
             </div>
             <?php
         }
-        if($params['tableType'] == 'daybase'){
+        if ($params['tableType'] == 'daybase') {
             ?>
             <div class="grid-x grid-margin-x">
                 <div class="cell">
                     <?php
-                    Table::create(array(
+                    Table::create([
                         'dataSource' => $this->dataStores['download'],
-                        "columns"=>getTablefieldsDaybase(),
-                        "cssClass"=>array(
-                            "table"=>"table-bordered table-striped table-hover"
-                        ),
-                        "max-width"=>"2000px",
-                        "height"=>"100%",
-                    ));
-                    ?>
+                        'columns' => getTablefieldsDaybase(),
+                        'cssClass' => [
+                            'table' => 'table-bordered table-striped table-hover',
+                        ],
+                        'max-width' => '2000px',
+                        'height' => '100%',
+                    ]); ?>
                 </div>
             </div>
             <?php
         }
-        ?>
+?>
         <div class="grid-x grid-margin-x">
             <div class="cell">
                 xxxxx<img id="xxx" src="">
