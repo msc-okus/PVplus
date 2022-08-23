@@ -260,8 +260,8 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
                         'color' => '#4d4d4d',
                     ],
                     'fontSize' => 12,
-                    'width' => 800,
-                    'height' => 350,
+                    'width' => 750,
+                    'height' => 310,
                 ],
                 'columns' => [
                     'month',
