@@ -1740,7 +1740,8 @@ class AssetManagementService
         $actualSOFPorcent = 100 - (($sumquarters - $SOFErrors) / $sumquarters) * 100;
         $actualEFORPorcent = 100 - (($sumquarters - $EFORErrors) / $sumquarters) * 100;
         $actualOMCPorcent = 100 - (($sumquarters - $OMCErrors) / $sumquarters) * 100;
-        if ($EFORErrors > 0) $actualGapPorcent = 100 - (($EFORErrors - $dataGaps) / $EFORErrors) * 100;
+
+        if ($EFORErrors > 0)$actualGapPorcent = 100 - (($EFORErrors - $dataGaps) / $EFORErrors) * 100;
         else $actualGapPorcent = 0;
 
         if ($totalErrors != 0) {
@@ -1994,7 +1995,7 @@ class AssetManagementService
         $actualSOFPorcentMonth = 100 - (($quartersInMonth - $SOFErrorsMonth) / $quartersInMonth) * 100;
         $actualEFORPorcentMonth = 100 - (($quartersInMonth - $EFORErrorsMonth) / $quartersInMonth) * 100;
         $actualOMCPorcentMonth = 100 - (($quartersInMonth - $OMCErrorsMonth) / $quartersInMonth) * 100;
-        if ($EFORErrorsMonth > 0) $actualGapPorcentMonth = 100 - (($EFORErrorsMonth - $dataGapsMonth) / $EFORErrorsMonth) * 100;
+        if ($EFORErrorsMonth > 0)$actualGapPorcentMonth = 100 - (($EFORErrorsMonth - $dataGapsMonth) / $EFORErrorsMonth) * 100;
         else $actualGapPorcentMonth = 0;
 
         $kwhLossesMonthTable = [
