@@ -113,7 +113,6 @@ class AlertSystemService
             }
             unset($system_status);
         }
-        $this->em->flush();
 
         return 'success';
     }
@@ -401,6 +400,7 @@ class AlertSystemService
         }
 
         $ticket = self::getLastTicket($anlage, $inverterNo, $time, false);
+        dump($ticket);
         if ($message != '') {
             if ($ticket === null) {
                 $ticket = new Ticket();
@@ -441,14 +441,18 @@ class AlertSystemService
             $end->getTimestamp();
             $ticketDate->setEnd($end);
             $ticket->setEnd($end);
+            dump($ticket, $ticketDate);
+
             $this->em->persist($ticket);
             $this->em->persist($ticketDate);
             $this->em->flush();
-
             // this is to send a message after and only after 30 mins
+
             if (date_diff($end, $ticket->getBegin(), true)->i != 30) {
                 $message = '';
             }
+
+
         } else {
             if ($ticket !== null) {
                 // $ticket->setStatus(30); // Close Ticket
@@ -460,6 +464,8 @@ class AlertSystemService
             $message = $message.' at '.$ticket->getBegin()->format('Y-m-d H:i').'<br>';
         }
 
+        unset($ticket);
+        unset($ticketDate);
         return $message;
     }
 
