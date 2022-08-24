@@ -60,7 +60,7 @@
 //  55. Top Bar
 //  56. Xy Grid
 
-@import '~foundation-sites/scss/util/util';
+@import '../../node_modules/foundation-sites/scss/util/util';
 
 // 1. Global
 // ---------
@@ -879,7 +879,7 @@ $titlebar-icon-spacing: 0.25rem;
 
 $has-tip-cursor: help;
 $has-tip-font-weight: $global-weight-bold;
-$has-tip-border-bottom: none;
+$has-tip-border-bottom: dotted 1px $dark-gray;
 $tooltip-background-color: $g4n-tooltip-color;
 $tooltip-color: $g4n-white;
 $tooltip-padding: 0.75rem;

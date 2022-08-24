@@ -20,12 +20,9 @@ class AnlagenRepository extends ServiceEntityRepository
 {
     use G4NTrait;
 
-    private Security $security;
-
-    public function __construct(ManagerRegistry $registry, Security $security)
+    public function __construct(ManagerRegistry $registry, private Security $security)
     {
         parent::__construct($registry, Anlage::class);
-        $this->security = $security;
     }
 
     public static function selectLegendType($type): Criteria

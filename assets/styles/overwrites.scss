@@ -131,8 +131,7 @@
     .alert-wrapper {
         position: absolute;
         z-index: 1500;
-        top: 0;
-        right: 0;
+        top: 0; right: 0;
         margin: 1rem;
         width: 300px;
 
@@ -148,6 +147,8 @@
             max-width: 90%;
         }
     }
+
+    .has-tip {color: $g4n-blue;}
     @import "includes/off-canvas";
     @import 'includes/tooltip';
 
@@ -257,6 +258,7 @@
         .action-icon {
             padding: rem-calc(4);
             margin: 0 0.2rem !important;
+            font-size: 85%;
 
             .fas, .fa {font-size: rem-calc(16);}
         }

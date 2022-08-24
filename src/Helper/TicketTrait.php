@@ -223,34 +223,34 @@ trait TicketTrait
         return $this;
     }
 
-    public function getKpiPaDep1(): string
+    public function getKpiPaDep1(): ?string
     {
         return $this->kpiPaDep1;
     }
 
-    public function setKpiPaDep1(string $kpiPaDep1): self
+    public function setKpiPaDep1(?string $kpiPaDep1): self
     {
         $this->kpiPaDep1 = $kpiPaDep1;
         return $this;
     }
 
-    public function getKpiPaDep2(): string
+    public function getKpiPaDep2(): ?string
     {
         return $this->kpiPaDep2;
     }
 
-    public function setKpiPaDep2(string $kpiPaDep2): self
+    public function setKpiPaDep2(?string $kpiPaDep2): self
     {
         $this->kpiPaDep2 = $kpiPaDep2;
         return $this;
     }
 
-    public function getKpiPaDep3(): string
+    public function getKpiPaDep3(): ?string
     {
         return $this->kpiPaDep3;
     }
 
-    public function setKpiPaDep3(string $kpiPaDep3): self
+    public function setKpiPaDep3(?string $kpiPaDep3): self
     {
         $this->kpiPaDep3 = $kpiPaDep3;
         return $this;

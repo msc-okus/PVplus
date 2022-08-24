@@ -360,18 +360,6 @@ class AnlagenAdminController extends BaseController
                   KEY `wr_group` (`wr_group`)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 
-            /*
-            $databaseAcSoll = "CREATE TABLE IF NOT EXISTS " . $anlage->getDbNameAcSoll() . " (
-                    `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
-                    `anl_id` int(11) NOT NULL,
-                    `anl_intnr` varchar(20) NOT NULL,
-                    `stamp` timestamp NOT NULL,
-                    `grp_id` int(11) NOT NULL,
-                    `exp_kwh` varchar(20) NOT NULL,
-                    PRIMARY KEY (`db_id`),
-                    KEY `stamp` (`stamp`)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
-            */
 
             $databaseDcSoll = 'CREATE TABLE IF NOT EXISTS '.$anlage->getDbNameDcSoll()." (
                       `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
@@ -403,6 +391,7 @@ class AnlagenAdminController extends BaseController
                            `anl_intnr` varchar(50),
                            `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
                            `p_ac_inv` varchar(20) NOT NULL,
+                           `q_ac_inv` varchar(20) NOT NULL,
                            `pf_set` int(3) NOT NULL ,
                            `p_set_gridop_rel` int(3) NOT NULL,
                            `p_set_rel` int(3) NOT NULL,

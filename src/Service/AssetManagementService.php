@@ -1664,18 +1664,85 @@ class AssetManagementService
             $end = $report['reportYear'].'-'.$month.'-'.$lastDayOfMonth.' 23:55:00';
             $sqlw = 'SELECT count(db_id) as quarters
                     FROM  '.$anlage->getDbNameWeather()."  
-                    WHERE stamp BETWEEN '$begin' AND '$end' ";
+                    WHERE stamp BETWEEN '$begin' AND '$end' AND (g_lower + g_upper)/2 > '$anlage->getThreshold2PA()'";// hay que cambiar aqui para que la radiacion sea mayor que un valor
 
             $resw = $this->conn->query($sqlw);
             $quartersInMonth = $resw->fetch(PDO::FETCH_ASSOC)['quarters'] * $anlage->getAnzInverter();
             $sumquarters = $sumquarters + $quartersInMonth;
+        }
+        $sumLossesYearSOR = 0;
+        $sumLossesYearEFOR = 0;
+        $sumLossesYearOMC = 0;
+        foreach ($this->ticketDateRepo->getAllByInterval($report['reportYear'].'-01-01', $end,$anlage) as $date){
+            $intervalBegin = date("Y-m-d H:i",$date->getBegin()->getTimestamp());
+            $intervalEnd = date("Y-m-d H:i",$date->getEnd()->getTimestamp());
+            $inverter = $date->getInverter();
+            switch ($anlage->getConfigType()) { // we need this to query for the inverter in the SOR and EFOR cases, in the OMC case the whole plant is down
+
+                case 1 :
+                    $inverterQuery = "group_dc = '$inverter'";
+                    break;
+                default:
+                    $inverterQuery = "group_ac = '$inverter'";
+            }
+            if ($date->getErrorType() == 10) {
+                $sqlActual = "SELECT sum(wr_pac) as power
+                            FROM " . $anlage->getDbNameIst() . " 
+                            WHERE wr_pac >= 0 AND WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
+
+                $sqlExpected = "SELECT sum(ac_exp_power) as expected
+                            FROM " . $anlage->getDbNameDcSoll() . "                      
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
+                $resAct = $this->conn->query($sqlActual);
+                $resExp = $this->conn->query($sqlExpected);
+
+                if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
+                else $exp = 0;
+                if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
+                else $actual = 0;
+                $sumLossesYearSOR = $sumLossesYearSOR - ($actual - $exp);
+            }
+            else if ($date->getErrorType() == 20) {
+                $sqlActual = "SELECT sum(wr_pac) as power
+                            FROM " . $anlage->getDbNameIst() . " 
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
+                $sqlExpected = "SELECT sum(ac_exp_power) as expected
+                            FROM " . $anlage->getDbNameDcSoll() . "                      
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
+                $resAct = $this->conn->query($sqlActual);
+                $resExp = $this->conn->query($sqlExpected);
+
+                if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
+                else $exp = 0;
+                if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
+                else $actual = 0;
+                $sumLossesYearEFOR = $sumLossesYearEFOR - ($actual - $exp);
+            }
+            else if ($date->getErrorType() == 30) {
+                $sqlActual = "SELECT sum(wr_pac) as power
+                            FROM " . $anlage->getDbNameIst() . " 
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'";
+                $sqlExpected = "SELECT sum(ac_exp_power) as expected
+                            FROM " . $anlage->getDbNameDcSoll() . "                      
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'";
+                $resAct = $this->conn->query($sqlActual);
+                $resExp = $this->conn->query($sqlExpected);
+
+                if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
+                else $exp = 0;
+                if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
+                else $actual = 0;
+                $sumLossesYearOMC = $sumLossesYearEFOR - ($actual - $exp);
+            }
         }
 
         $actualAvailabilityPorcent = (($sumquarters - $totalErrors) / $sumquarters) * 100;
         $actualSOFPorcent = 100 - (($sumquarters - $SOFErrors) / $sumquarters) * 100;
         $actualEFORPorcent = 100 - (($sumquarters - $EFORErrors) / $sumquarters) * 100;
         $actualOMCPorcent = 100 - (($sumquarters - $OMCErrors) / $sumquarters) * 100;
-        $actualGapPorcent = 100 - (($EFORErrors - $dataGaps) / $EFORErrors) * 100;
+
+        if ($EFORErrors > 0)$actualGapPorcent = 100 - (($EFORErrors - $dataGaps) / $EFORErrors) * 100;
+        else $actualGapPorcent = 0;
 
         if ($totalErrors != 0) {
             $failRelativeSOFPorcent = 100 - (($totalErrors - $SOFErrors) / $totalErrors) * 100;
@@ -1686,7 +1753,11 @@ class AssetManagementService
             $failRelativeEFORPorcent = 0;
             $failRelativeOMCPorcent = 0;
         }
-
+        $kwhLossesYearTable = [
+            'SORLosses'     => $sumLossesYearSOR,
+            'EFORLosses'    => $sumLossesYearEFOR,
+            'OMCLosses'     => $sumLossesYearOMC
+        ];
         $availabilityYearToDateTable = [
             'expectedAvailability' => (int) $anlage->getContractualAvailability(),
             'expectedSOF' => 0, // this will be a variable in the future
@@ -1852,13 +1923,86 @@ class AssetManagementService
 
         $resw = $this->conn->query($sqlw);
 
+        $sumLossesMonthSOR = 0;
+        $sumLossesMonthEFOR = 0;
+        $sumLossesMonthOMC = 0;
+
+        foreach ($this->ticketDateRepo->getAllByInterval($begin, $end, $anlage) as $date){
+            $intervalBegin = date("Y-m-d H:i",$date->getBegin()->getTimestamp());
+            $intervalEnd = date("Y-m-d H:i",$date->getEnd()->getTimestamp());
+            $inverter = $date->getInverter();
+            switch ($anlage->getConfigType()) { // we need this to query for the inverter in the SOR and EFOR cases, in the OMC case the whole plant is down
+
+                case 1 :
+                    $inverterQuery = "group_dc = '$inverter'";
+                    break;
+                default:
+                    $inverterQuery = "group_ac = '$inverter'";
+            }
+            if ($date->getErrorType() == 10) {
+                $sqlActual = "SELECT sum(wr_pac) as power
+                            FROM " . $anlage->getDbNameIst() . " 
+                            WHERE wr_pac >= 0 AND WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
+
+                $sqlExpected = "SELECT sum(ac_exp_power) as expected
+                            FROM " . $anlage->getDbNameDcSoll() . "                      
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
+                $resAct = $this->conn->query($sqlActual);
+                $resExp = $this->conn->query($sqlExpected);
+
+                if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
+                else $exp = 0;
+                if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
+                else $actual = 0;
+                $sumLossesMonthSOR = $sumLossesMonthSOR - ($actual - $exp);
+            }
+            else if ($date->getErrorType() == 20) {
+                $sqlActual = "SELECT sum(wr_pac) as power
+                            FROM " . $anlage->getDbNameIst() . " 
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
+                $sqlExpected = "SELECT sum(ac_exp_power) as expected
+                            FROM " . $anlage->getDbNameDcSoll() . "                      
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
+                $resAct = $this->conn->query($sqlActual);
+                $resExp = $this->conn->query($sqlExpected);
+
+                if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
+                else $exp = 0;
+                if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
+                else $actual = 0;
+                $sumLossesMonthEFOR = $sumLossesMonthEFOR - ($actual - $exp);
+            }
+            else if ($date->getErrorType() == 30) {
+                $sqlActual = "SELECT sum(wr_pac) as power
+                            FROM " . $anlage->getDbNameIst() . " 
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'";
+                $sqlExpected = "SELECT sum(ac_exp_power) as expected
+                            FROM " . $anlage->getDbNameDcSoll() . "                      
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'";
+                $resAct = $this->conn->query($sqlActual);
+                $resExp = $this->conn->query($sqlExpected);
+
+                if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
+                else $exp = 0;
+                if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
+                else $actual = 0;
+                $sumLossesMonthOMC = $sumLossesMonthEFOR - ($actual - $exp);
+            }
+        }
+
         $quartersInMonth = $resw->fetch(PDO::FETCH_ASSOC)['quarters'] * $anlage->getAnzInverter();
         $actualAvailabilityPorcentMonth = (($quartersInMonth - $totalErrorsMonth) / $quartersInMonth) * 100;
         $actualSOFPorcentMonth = 100 - (($quartersInMonth - $SOFErrorsMonth) / $quartersInMonth) * 100;
         $actualEFORPorcentMonth = 100 - (($quartersInMonth - $EFORErrorsMonth) / $quartersInMonth) * 100;
         $actualOMCPorcentMonth = 100 - (($quartersInMonth - $OMCErrorsMonth) / $quartersInMonth) * 100;
-        $actualGapPorcentMonth = 100 - (($EFORErrorsMonth - $dataGapsMonth) / $EFORErrorsMonth) * 100;
+        if ($EFORErrorsMonth > 0)$actualGapPorcentMonth = 100 - (($EFORErrorsMonth - $dataGapsMonth) / $EFORErrorsMonth) * 100;
+        else $actualGapPorcentMonth = 0;
 
+        $kwhLossesMonthTable = [
+            'SORLosses'     => $sumLossesMonthSOR,
+            'EFORLosses'    => $sumLossesMonthEFOR,
+            'OMCLosses'     => $sumLossesMonthOMC
+        ];
         $availabilityMonthTable = [
             'expectedAvailability' => (float) $anlage->getContractualAvailability(),
             'expectedSOF' => 0, // this will be a variable in the future
@@ -3176,6 +3320,8 @@ class AssetManagementService
             'cumulated_losses_compared_chart' => $cumulated_losses_compared_chart,
             'ticketCountTable' => $ticketCountTable,
             'ticketCountTableMonth' => $ticketCountTableMonth,
+            'kwhLossesYearTable' =>$kwhLossesYearTable,
+            'kwhLossesMonthTable' =>$kwhLossesMonthTable
         ];
 
         return $output;

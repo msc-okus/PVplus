@@ -19,7 +19,8 @@ class TicketDate
     private int $id;
 
     #[ORM\ManyToOne(targetEntity: Ticket::class, inversedBy: 'dates')]
-    private Ticket $ticket;
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Ticket $ticket;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class)]
     #[ORM\JoinColumn(nullable: false)]
@@ -74,6 +75,9 @@ class TicketDate
         $this->priority = $ticket->getPriority();
         $this->answer = $ticket->getAnswer();
         $this->alertType = $ticket->getAlertType();
+        $this->kpiPaDep1 = $ticket->getKpiPaDep1();
+        $this->kpiPaDep2 = $ticket->getKpiPaDep2();
+        $this->kpiPaDep3 = $ticket->getKpiPaDep3();
         $endstamp = $this->getEnd()->getTimestamp();
         $beginstamp = $this->getBegin()->getTimestamp();
         $this->intervals = ($endstamp - $beginstamp) / 900;
@@ -94,6 +98,9 @@ class TicketDate
         $this->priority = $ticket->getPriority();
         $this->answer = $ticket->getAnswer();
         $this->alertType = $ticket->getAlertType();
+        $this->kpiPaDep1 = $ticket->getKpiPaDep1();
+        $this->kpiPaDep2 = $ticket->getKpiPaDep2();
+        $this->kpiPaDep3 = $ticket->getKpiPaDep3();
         $endstamp = $this->getEnd()->getTimestamp();
         $beginstamp = $this->getBegin()->getTimestamp();
         $this->intervals = ($endstamp - $beginstamp) / 900;

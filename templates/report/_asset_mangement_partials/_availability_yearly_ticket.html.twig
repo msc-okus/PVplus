@@ -2,7 +2,7 @@
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Availability Analysis - Yearly Overview</h3>
     <table>
-        <tr style="vertical-align: bottom">
+        <tr>
             <td style="width: 50%">
                 <table style="width: 90%">
                     <thead>
@@ -87,8 +87,8 @@
                 <table style="margin-top: 30px; width: 90%">
                     <thead>
                         <th>Type of Ticket</th>
-                        <th>Number of Tickets</th>
-                        <th>Number of 15 min. cases</th>
+                        <th> Tickets</th>
+                        <th> 15 min. cases</th>
                     </thead>
                     <tbody>
                         <tr>
@@ -108,6 +108,33 @@
                         </tr>
                     </tbody>
                 </table>
+
+            </td>
+            <td style="width: 50%">
+                <table style="margin-top: 30px; width: 90%">
+                    <thead>
+                    <th>Type of Ticket</th>
+                    <th>Losses in kWh to G4N Expected</th>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="tr_next_columns">Planned Outage <sup><b> a</b></sup></td>
+                        <td class="tr_next_columns"> {{ kwhLossesYearTable['SORLosses'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">Unplanned Outage <sup><b> b</b></sup> <sup><b>c</b></sup></td>
+                        <td class="tr_next_columns"> {{ kwhLossesYearTable['EFORLosses'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">Grid Error/Grid Off <sup><b> d</b></sup></td>
+                        <td class="tr_next_columns"> {{ kwhLossesYearTable['OMCLosses'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <div style="text-align: left">
                     <sup><b>a</b></sup> Maintenance, SOR<br>
                     <sup><b>b</b></sup> Defects, EFOR<br>
@@ -116,5 +143,6 @@
                 </div>
             </td>
         </tr>
+
     </table>
 {% endblock page %}

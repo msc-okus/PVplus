@@ -71,7 +71,7 @@ class Ticket
     #[ORM\Column(type: 'boolean')]
     private bool $splitted = false;
 
-    #[ORM\OneToMany(targetEntity: TicketDate::class, mappedBy: 'ticket', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'ticket', targetEntity: TicketDate::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     #[ORM\OrderBy(['begin' => 'ASC'])]
     private Collection $dates;
 
@@ -311,6 +311,7 @@ class Ticket
     {
         if ($this->dates->removeElement($date)) {
             // set the owning side to null (unless already changed)
+
             if ($date->getTicket() === $this) {
                 $date->setTicket(null);
             }

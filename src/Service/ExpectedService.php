@@ -18,31 +18,14 @@ class ExpectedService
 {
     use G4NTrait;
 
-    private AnlagenRepository $anlagenRepo;
-
-    private GroupsRepository $groupsRepo;
-
-    private GroupMonthsRepository $groupMonthsRepo;
-
-    private GroupModulesRepository $groupModulesRepo;
-
-    private FunctionsService $functions;
-
-    private AnlageMonthRepository $anlageMonthRepo;
-
-    public function __construct(AnlagenRepository $anlagenRepo,
-        GroupsRepository $groupsRepo,
-        GroupMonthsRepository $groupMonthsRepo,
-        GroupModulesRepository $groupModulesRepo,
-        AnlageMonthRepository $anlageMonthRepo,
-        FunctionsService $functions)
+    public function __construct(
+        private AnlagenRepository $anlagenRepo,
+        private GroupsRepository $groupsRepo,
+        private GroupMonthsRepository $groupMonthsRepo,
+        private GroupModulesRepository $groupModulesRepo,
+        private AnlageMonthRepository $anlageMonthRepo,
+        private FunctionsService $functions)
     {
-        $this->anlagenRepo = $anlagenRepo;
-        $this->groupsRepo = $groupsRepo;
-        $this->groupMonthsRepo = $groupMonthsRepo;
-        $this->groupModulesRepo = $groupModulesRepo;
-        $this->functions = $functions;
-        $this->anlageMonthRepo = $anlageMonthRepo;
     }
 
     public function storeExpectedToDatabase(Anlage|int $anlage, $from, $to): string
