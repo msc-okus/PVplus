@@ -54,7 +54,7 @@ class GenerateTicketsCommand extends Command
         if ($optionFrom) {
             $from = $optionFrom;
         } else {
-            $from = date('Y-m-d H:i:00', $time - (2 * 3600));
+            $from = date('Y-m-d H:i:00', $time);
         }
         if ($optionTo) {
             $to = $optionTo;
@@ -82,16 +82,22 @@ class GenerateTicketsCommand extends Command
             $counter = ($counter * 4) - 1;
 
             foreach ($anlagen as $anlage) {
+                /*
                 while (((int) date('i') >= 26 && (int) date('i') < 35) || (int) date('i') >= 56 || (int) date('i') < 5) {
                     $io->comment('Wait...');
                     sleep(30);
                 }
+                */
+                dump($anlage);
                 for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-                    $this->alertService->checkSystem($anlage, $from = date('Y-m-d H:i:00', $stamp));
+                    dump( date('Y-m-d H:i:00', $stamp));
+                    $this->alertService->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
+                    /*
                     if (((int) date('i') >= 28 && (int) date('i') < 35) || (int) date('i') >= 58 || (int) date('i') < 5) {
                         sleep(1);
                         echo '.';
                     }
+                    */
                     if ($counter % 4 == 0) {
                         $io->progressAdvance();
                     }
