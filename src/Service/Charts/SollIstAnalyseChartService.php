@@ -15,36 +15,16 @@ class SollIstAnalyseChartService
 {
     use G4NTrait;
 
-    private Security $security;
-
-    private AnlagenStatusRepository $statusRepository;
-
-    private InvertersRepository $invertersRepo;
-
-    public functionsService $functions;
-
-    private IrradiationChartService $irradiationChart;
-
-    private WeatherServiceNew $weatherService;
-
-    public function __construct(Security $security,
-        AnlagenStatusRepository $statusRepository,
-        InvertersRepository $invertersRepo,
-        IrradiationChartService $irradiationChart,
-        DCPowerChartService $DCPowerChartService,
-        ACPowerChartsService $ACPowerChartService,
-        WeatherServiceNew $weatherService,
-        FunctionsService $functions)
-    {
-        $this->security = $security;
-        $this->statusRepository = $statusRepository;
-        $this->invertersRepo = $invertersRepo;
-        $this->functions = $functions;
-        $this->irradiationChart = $irradiationChart;
-        $this->DCPowerChartService = $DCPowerChartService;
-        $this->ACPowerChartService = $ACPowerChartService;
-        $this->WeatherServiceNew = $weatherService;
-    }
+    public function __construct(
+        private Security $security,
+        private AnlagenStatusRepository $statusRepository,
+        private InvertersRepository $invertersRepo,
+        private IrradiationChartService $irradiationChart,
+        private DCPowerChartService $DCPowerChartService,
+        private ACPowerChartsService $ACPowerChartService,
+        private WeatherServiceNew $weatherService,
+        private FunctionsService $functions)
+    {    }
 
     // Help Function for Array search
     // MS
@@ -111,7 +91,7 @@ class SollIstAnalyseChartService
                     WHERE a.stamp BETWEEN '$from' AND '$to'
                     GROUP BY a.stamp";
         }
-
+        dump($sql);
         $resultActual = $conn->query($sql);
 
         $dataArray['inverterArray'] = $nameArray;
@@ -133,7 +113,7 @@ class SollIstAnalyseChartService
                 ($rowActual['prz'] == null) ? $prz = 0 : $prz = $rowActual['prz'];
                 ($prz > 100) ? $prz = 100 : $prz = $prz;
 
-                switch(TRUE){
+                switch (TRUE){
                     case ($prz >= 95 and $prz <= 100);
                     $color = "#009900";
                     break;
