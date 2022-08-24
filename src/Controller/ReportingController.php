@@ -352,6 +352,8 @@ class ReportingController extends AbstractController
                             'cumulated_losses_compared_chart' => $output['cumulated_losses_compared_chart'],
                             'availabilityMonthTable' => $output['availabilityMonthTable'],
                             'fails_month' => $output['fails_month'],
+                            'ticketCountTableMonth' => $output['ticketCountTableMonth'],
+                            'ticketCountTable' => $output['ticketCountTable'],
                             'kwhLossesMonthTable' => $output['kwhLossesMonthTable'],
                             'kwhLossesYearTable' => $output['kwhLossesYearTable']
                         ]);
@@ -591,6 +593,8 @@ class ReportingController extends AbstractController
                             'cumulated_losses_compared_chart' => $output['cumulated_losses_compared_chart'],
                             'availabilityMonthTable' => $output['availabilityMonthTable'],
                             'fails_month' => $output['fails_month'],
+                            'ticketCountTableMonth' => $output['ticketCountTableMonth'],
+                            'ticketCountTable' => $output['ticketCountTable'],
                             'kwhLossesMonthTable' => $output['kwhLossesMonthTable'],
                             'kwhLossesYearTable' => $output['kwhLossesYearTable']
                         ]);

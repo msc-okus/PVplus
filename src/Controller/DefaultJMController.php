@@ -7,6 +7,7 @@ use App\Entity\Status;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\StatusRepository;
+use App\Repository\TicketRepository;
 use App\Service\AlertSystemService;
 use App\Service\Charts\IrradiationChartService;
 use App\Service\FunctionsService;
@@ -20,7 +21,12 @@ use PDO;
 
 class DefaultJMController extends AbstractController
 {
+    private functionsService $functions;
     use G4NTrait;
+    public function __construct(FunctionsService $functions)
+    {
+        $this->functions = $functions;
+    }
     #[Route(path: '/default/j/m', name: 'default_j_m')]
     public function index() : Response
     {
@@ -33,7 +39,10 @@ class DefaultJMController extends AbstractController
     public function check(AnlagenRepository $anlagenRepository, AlertSystemService $service)
     {
         $anlage = $anlagenRepository->findIdLike("96")[0];
-        $service->generateTicketsInterval($anlage, "2022-08-22", "2022-08-23");
+        $nameArray = $this->functions->getInverterArray($anlage);
+        dd($nameArray);
+
+        //$service->generateTicketsInterval($anlage, "2022-08-22", "2022-08-23");
         dd("hello");
     }
 

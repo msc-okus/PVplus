@@ -400,7 +400,6 @@ class AlertSystemService
         }
 
         $ticket = self::getLastTicket($anlage, $inverterNo, $time, false);
-        dump($ticket);
         if ($message != '') {
             if ($ticket === null) {
                 $ticket = new Ticket();
@@ -441,7 +440,7 @@ class AlertSystemService
             $end->getTimestamp();
             $ticketDate->setEnd($end);
             $ticket->setEnd($end);
-            dump($ticket, $ticketDate);
+
 
             $this->em->persist($ticket);
             $this->em->persist($ticketDate);
