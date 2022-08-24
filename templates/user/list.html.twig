@@ -12,7 +12,7 @@
             <th></th>
             <th>Name</th>
             <th>Email</th>
-            <th>Owner Access List</th>
+            {# <th>Owner Access List</th> #}
             <th>Role</th>
             {% if is_granted('ROLE_G4N') %}
                 <th>Plant List</th>
@@ -27,7 +27,7 @@
                 <td>{{ user.userId }}</td>
                 <td>{{ user.userName }}</td>
                 <td>{{ user.email }}</td>
-                <td>{{ user.accessListText }}</td>
+              {#  <td>{{ user.getEignerIdNew }}</td> #}
                 <td>{{ user.rolesAsString }}</td>
                 {% if is_granted('ROLE_G4N') %}
                     <td>{{ user.grantedList }}</td>

@@ -92,18 +92,35 @@
         </fieldset>
     </div>
 
-    <div class="cell small-6 medium-3">
-        <fieldset class="fieldset">
-            <legend>List with Access to Owners
-                <span class="tooltipContainer">
+
+    {% if is_granted('ROLE_ADMIN_USER') %}
+        <div class="cell small-6 medium-3">
+            <fieldset class="fieldset">
+                <legend>Access to Owner
+                    <span class="tooltipContainer">
+            <a class="tooltipIcon" href=""><i class="fa fa-info-circle"></i></a>
+            <div class="tooltip">
+            Yau are Access to Owners !<br/>
+            </div>
+           </span></legend>
+                {{ form_widget(userForm.singleeigners) }}
+            </fieldset>
+        </div>
+        {% else %}
+            <div class="cell small-6 medium-3">
+                <fieldset class="fieldset">
+                    <legend>List with Access to Owners
+                        <span class="tooltipContainer">
             <a class="tooltipIcon" href=""><i class="fa fa-info-circle"></i></a>
             <div class="tooltip">
             Please assign the Access to Owners for this User !<br/>
             </div>
            </span></legend>
-              {{ form_widget(userForm.eigners) }}
-        </fieldset>
-    </div>
+                    {{ form_widget(userForm.eigners) }}
+                </fieldset>
+            </div>
+    {% endif %}
+
 
     <div class="cell small-6 medium-3">
         <fieldset class="fieldset">
@@ -142,6 +159,11 @@
 
     <div class="cell small-1 medium-1">
         {{ form_widget(userForm.grantedList) }}
+    </div>
+
+    <div class="cell small-12 medium-12">
+        <a href="{{ path('app_admin_user_delete', {id: app.request.attributes.get('id')}) }}"><i class="fa fa-trash"></i> Delete User</a>
+{# {{ form_widget(userForm.delete) }}#}
     </div>
 
 </div>
