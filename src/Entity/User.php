@@ -31,12 +31,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public const ARRAY_OF_ROLES = [
         'Developer' => 'ROLE_DEV',
         'Admin' => 'ROLE_ADMIN',
+        'AdminUser' => 'ROLE_ADMIN_USER',
         'Green4Net User' => 'ROLE_G4N',
         'AssetManagement' => 'ROLE_AM',
         'Operator' => 'ROLE_OPERATOR',
         'Owner (full)' => 'ROLE_OWNER_FULL',
         'Owner' => 'ROLE_OWNER',
         'Beta Tester' => 'ROLE_BETA',
+    ];
+
+    public const ARRAY_OF_ROLES_USER = [
+        'AdminUser' => 'ROLE_ADMIN_USER',
+        'AssetManagement' => 'ROLE_AM',
+        'Operator' => 'ROLE_OPERATOR',
+        'Owner (full)' => 'ROLE_OWNER_FULL',
+        'Owner' => 'ROLE_OWNER',
     ];
 
     #[Groups(['user:read'])]
@@ -252,6 +261,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $accessList;
     }
 
+    public function getEignerIdNew(): string
+    {
+        $eignerList = $this->getEigners();
+
+        foreach ($eignerList as $eigner) {
+            $eignersID = $eigner->getEignerId();
+        }
+        return $eignersID;
+    }
     /**
      * @return Collection
      */

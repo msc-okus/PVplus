@@ -82,6 +82,9 @@ class DashboardPlantsController extends BaseController
             if ($form['selectedChart'] == 'pr_and_av' && $form['optionDate'] < 7) {
                 $form['optionDate'] = 7;
             }
+            if ($form['selectedChart'] == 'sollistanalyse' && $form['optionDate'] < 7) {
+                $form['optionDate'] = 100000;
+            }
             // bei Verfügbarkeit Anzeige kann nur ein Tag angezeigt werden
             // if ($form['selectedChart'] == 'availability' && $form['optionDate'] > 1) { $form['optionDate'] = 1; }
 
@@ -117,7 +120,12 @@ class DashboardPlantsController extends BaseController
                     $daysInMonth = date('t', strtotime($request->request->get('to')));
                     $form['to'] = date("Y-m-$daysInMonth 23:59", strtotime($request->request->get('to')));
                     $form['from'] = date('Y-m-01 00:00', strtotime($request->request->get('to')));
-                } else {
+                } elseif ($form['optionDate'] == 300000) {
+                    $current_quarter = ceil(date('n',strtotime($request->request->get('to'))) / 3);
+                    $form['from'] = date('Y-m-d 23:59', strtotime(date('Y') . '-' . (($current_quarter * 3) - 2) . '-1'));
+                    $form['to'] = date('Y-m-t 00:00', strtotime(date('Y') . '-' . (($current_quarter * 3)) . '-1'));
+
+                 } else {
                     $form['to'] = $request->request->get('to');
                     if ($form['to'] > date('Y-m-d')) {
                         $form['to'] = date('Y-m-d H:i');

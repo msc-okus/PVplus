@@ -25,6 +25,22 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         parent::__construct($registry, User::class);
     }
 
+    public function getWithSearchQueryBuilderbyID(?string $term): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('c');
+
+        $qb->leftJoin('c.eigners', 'u')
+            ->addSelect('u')
+            ->orderBy('c.name', 'ASC');
+        if ($term) {
+            $qb->andWhere('c.name LIKE :term OR c.email LIKE :term OR u.id LIKE :pureterm')
+                ->setParameter('term', '%'.$term.'%')
+                ->setParameter('pureterm', $term)
+            ;
+        }
+        return $qb;
+    }
+
     public function getWithSearchQueryBuilder(?string $term): QueryBuilder
     {
         $qb = $this->createQueryBuilder('c');
