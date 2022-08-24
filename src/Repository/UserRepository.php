@@ -60,9 +60,6 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
     /**
      * @param User $user
-     *
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
     public function upgradePassword(UserInterface $user, string $newHashedPassword): void
     {
@@ -75,8 +72,8 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
     }
 
     /**
-     * @param string|null $query
-     *
+     * @param string $query
+     * @param int $limit
      * @return array
      */
     public function findByAllMatching(string $query, int $limit = 100)

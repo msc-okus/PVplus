@@ -17,8 +17,8 @@ use Symfony\Component\Routing\Annotation\Route;
 class UserController extends BaseController
 {
     #[Route(path: '/admin/user/new', name: 'app_admin_user_new')]
-    #[IsGranted('ROLE_G4N')]
-    public function new(EntityManagerInterface $em, Request $request, UserPasswordHasherInterface $userPasswordHasher,SecurityController $security): Response
+    #[IsGranted(['ROLE_G4N'])]
+    public function new(EntityManagerInterface $em, Request $request, UserPasswordHasherInterface $userPasswordHasher, SecurityController $security): Response
     {
         $form = $this->createForm(UserFormType::class);
         $form->handleRequest($request);
@@ -28,7 +28,7 @@ class UserController extends BaseController
             $selPlantList = $form->get('eignersPlantList')->getData();
             $savPlantList = (implode(",", $selPlantList));
 
-            if ($this->isGranted('ROLE_ADMIN_USER') and $security->getUser()->getUsername() != "admin" ) {
+            if ($this->isGranted('ROLE_ADMIN_USER') && $security->getUser()->getUsername() != "admin" ) {
                 $eignerDn = $security->getUser()->getEigners()[0];
                 $user->addEigner($eignerDn);
             } else {
@@ -66,8 +66,8 @@ class UserController extends BaseController
     }
 
     #[Route(path: '/admin/user/list', name: 'app_admin_user_list')]
-    #[IsGranted('ROLE_ADMIN_USER')]
-    public function listuser(Request $request, PaginatorInterface $paginator, UserRepository $userRepository, SecurityController $security): Response
+    #[IsGranted(['ROLE_ADMIN_USER'])]
+    public function list(Request $request, PaginatorInterface $paginator, UserRepository $userRepository, SecurityController $security): Response
     {
         /** @var User $user */
         /** @var Eigner $eigner */
@@ -88,7 +88,7 @@ class UserController extends BaseController
         if ($q) {
             $term = $q;
         } else {
-          if ($this->isGranted('ROLE_ADMIN_USER') and $security->getUser()->getUsername() != "admin" ) {
+          if ($this->isGranted('ROLE_ADMIN_USER') && $security->getUser()->getUsername() != "admin" ) {
               $eigner = $security->getUser()->getEigners()[0];
               #dd($security->getUser()->getUsername());
               $eignerID = $eigner->getId();
@@ -112,7 +112,7 @@ class UserController extends BaseController
     }
 
     #[Route(path: '/admin/user/edit/{id}', name: 'app_admin_user_edit')]
-    #[IsGranted('ROLE_G4N')]
+    #[IsGranted(['ROLE_G4N'])]
     public function edit($id, EntityManagerInterface $em, Request $request, UserRepository $userRepository, UserPasswordHasherInterface $userPasswordHasher): Response
     {
         $user = $userRepository->find($id);
@@ -162,7 +162,7 @@ class UserController extends BaseController
 
 
     #[Route(path: 'admin/user/delete/{id}', name: 'app_admin_user_delete', methods: 'DELETE')]
-    #[IsGranted('ROLE_G4N')]
+    #[IsGranted(['ROLE_G4N'])]
     public function delete($id, EntityManagerInterface $em, Request $request,  UserRepository $userRepository, SecurityController $security)
     {
         $user = $userRepository->find($id);
