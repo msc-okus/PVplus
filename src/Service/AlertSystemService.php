@@ -180,10 +180,10 @@ class AlertSystemService
         if ($ppc === false) {
             if ($plant_status['istdata'] == 'Plant Control by PPC') {
                 $ppc = true;
-                $message = $this->analyzePlant($time, $anlage, $sungap['sunrise']);
+                $message = $this->analyzePlant($plant_status, $anlage);
             // self::messagingFunction($message, $anlage);
             } else {
-                $message = $this->analyzeIst($time, $anlage, $sungap['sunrise']);
+                $message = $this->analyzeIst($plant_status, $anlage);
                 // self::messagingFunction($message, $anlage);
                 unset($inverter_status);
             }
@@ -256,9 +256,9 @@ class AlertSystemService
         dd($return);
     }
 
-    private function analyzePlant($time, Anlage $anlage, $sunrise): string
+    private function analyzePlant($plantStatus, Anlage $anlage): string
     {
-        dd('todo');
+
     }
 
     // ----------------Analyzing functions----------------

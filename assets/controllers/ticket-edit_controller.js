@@ -5,7 +5,7 @@ import { Foundation } from 'foundation-sites';
 import $ from 'jquery';
 
 export default class extends Controller {
-    static targets = ['modal', 'modalBody', 'splitModal', 'splitForm'];
+    static targets = ['modal', 'modalBody', 'splitModal', 'splitForm', "switch"];
     static values = {
         formUrl: String,
         splitUrl: String,
@@ -54,4 +54,16 @@ export default class extends Controller {
         this.modalBodyTarget.innerHTML = await $.ajax(this.formUrlValue);
     }
 
+    check(){
+        if($(this.switchTarget).prop('checked')) {
+            $('input:checkbox[class=js-checkbox]').each(function () {
+                $(this).prop('checked', true);
+            });
+        }
+        else {
+            $('input:checkbox[class=js-checkbox]').each(function(){
+                $(this).prop('checked', false);
+            });
+        }
+    }
 }

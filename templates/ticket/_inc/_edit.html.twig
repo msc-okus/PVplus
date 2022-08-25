@@ -81,23 +81,29 @@
                     </fieldset>
 
                     {% if (is_granted('ROLE_G4N')) %}
-                    <div class="cell small-12 medium-3">
+                        <div class="cell small-12 medium-3">
                         <button class="button" type="button" data-toggle="example-dropdown">Select Inverters</button>
                         <div class="dropdown-pane" id="example-dropdown" data-dropdown data-auto-focus="true">
-                            Inverter List 1
-                            <div class="grid-x grid-padding-x small-up-2 medium-up-3 large-up-5">
+                            {% if (invArray != null) %}
+                            Inverter List
+                            <label> Select All</label>
+                            <input  type="checkbox"
+                                           data-action="click->ticket-edit#check" data-ticket-edit-target="switch">
 
-                                <div class="cell">cell</div>
-                                <div class="cell">cell</div>
-                                <div class="cell">cell</div>
-                                <div class="cell">cell</div>
-                                <div class="cell">cell</div>
-                                <div class="cell">cell</div>
-                                <div class="cell">cell</div>
-                                <div class="cell">cell</div>
-                                <div class="cell">cell</div>
+
+                            <div style="margin-top: 40px" class="grid-x grid-padding-x small-up-2 medium-up-3 large-up-4">
+
+                                {% for inverter in invArray %}
+                                    <div class="cell">
+                                        <label > {{ inverter }} </label>
+                                        <input type="checkbox" class="js-checkbox" name="{{ inverter }}">
+                                    </div>
+                                {% endfor %}
 
                             </div>
+                            {% else %}
+                                No Inverters found to select
+                            {% endif %}
                         </div>
 
                     </div>
