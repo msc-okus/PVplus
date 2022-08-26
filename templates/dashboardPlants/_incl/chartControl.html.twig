@@ -15,7 +15,7 @@
                 {{ showHeatmap(form, aktAnlage) }}            {# Headmap #}
                 {{ showTempHeatmap(form, aktAnlage) }}        {# Headmap #}
                 {{ showSollIstHeatmap(form, aktAnlage) }}     {# Headmap #}
-                {% if is_granted('ROLE_G4N') or is_granted('ROLE_BETA') %}
+                {% if is_granted('ROLE_G4N') %}
                     {{ showSollIstAnalyse(form, aktAnlage) }}     {# Bubblechart #}
                 {% endif %}
             </optgroup>

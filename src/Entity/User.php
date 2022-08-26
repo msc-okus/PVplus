@@ -31,21 +31,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public const ARRAY_OF_ROLES = [
         'Developer' => 'ROLE_DEV',
         'Admin' => 'ROLE_ADMIN',
-        'AdminUser' => 'ROLE_ADMIN_USER',
         'Green4Net User' => 'ROLE_G4N',
-        'AssetManagement' => 'ROLE_AM',
-        'Operator' => 'ROLE_OPERATOR',
+        'AdminUser' => 'ROLE_ADMIN_USER',
         'Owner (full)' => 'ROLE_OWNER_FULL',
         'Owner' => 'ROLE_OWNER',
+        'AssetManagement' => 'ROLE_AM',
         'Beta Tester' => 'ROLE_BETA',
     ];
 
     public const ARRAY_OF_ROLES_USER = [
-        'AdminUser' => 'ROLE_ADMIN_USER',
-        'AssetManagement' => 'ROLE_AM',
-        'Operator' => 'ROLE_OPERATOR',
+        'Admin Owner' => 'ROLE_ADMIN_OWNER',
         'Owner (full)' => 'ROLE_OWNER_FULL',
         'Owner' => 'ROLE_OWNER',
+        'AssetManagement' => 'ROLE_AM',
     ];
 
     #[Groups(['user:read'])]

@@ -91,7 +91,6 @@ class SollIstAnalyseChartService
                     WHERE a.stamp BETWEEN '$from' AND '$to'
                     GROUP BY a.stamp";
         }
-        dump($sql);
         $resultActual = $conn->query($sql);
 
         $dataArray['inverterArray'] = $nameArray;

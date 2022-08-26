@@ -66,13 +66,12 @@ class UserController extends BaseController
     }
 
     #[Route(path: '/admin/user/list', name: 'app_admin_user_list')]
-    #[IsGranted(['ROLE_ADMIN_USER'])]
+    #[IsGranted(['ROLE_ADMIN_OWNER'])]
     public function list(Request $request, PaginatorInterface $paginator, UserRepository $userRepository, SecurityController $security): Response
     {
         /** @var User $user */
         /** @var Eigner $eigner */
 
-#dd($this->isGranted('ROLE_ADMIN_USER'));
 
         $q = $request->query->get('qu');
         if ($request->query->get('search') == 'yes' && $q == '') {
@@ -88,7 +87,7 @@ class UserController extends BaseController
         if ($q) {
             $term = $q;
         } else {
-          if ($this->isGranted('ROLE_ADMIN_USER') && $security->getUser()->getUsername() != "admin" ) {
+          if (!$this->isGranted('ROLE_G4N')  ) { //&& $security->getUser()->getUsername() != "admin"
               $eigner = $security->getUser()->getEigners()[0];
               #dd($security->getUser()->getUsername());
               $eignerID = $eigner->getId();
@@ -112,7 +111,7 @@ class UserController extends BaseController
     }
 
     #[Route(path: '/admin/user/edit/{id}', name: 'app_admin_user_edit')]
-    #[IsGranted(['ROLE_G4N'])]
+    #[IsGranted(['ROLE_ADMIN_OWNER'])]
     public function edit($id, EntityManagerInterface $em, Request $request, UserRepository $userRepository, UserPasswordHasherInterface $userPasswordHasher): Response
     {
         $user = $userRepository->find($id);
