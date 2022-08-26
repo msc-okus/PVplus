@@ -1,7 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import { useDispatch } from 'stimulus-use';
 import { Reveal } from 'foundation-sites';
-import { Foundation } from 'foundation-sites';
 import $ from 'jquery';
 
 export default class extends Controller {
