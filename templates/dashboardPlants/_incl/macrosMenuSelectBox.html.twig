@@ -10,6 +10,10 @@
 {% macro showSollIstHeatmap(form, aktAnlage) %}
     <option value="sollistheatmap" {% if form.selectedChart == 'sollistheatmap' %}selected{% endif %}>DC Current Heatmap [%]</option>
 {% endmacro %}
+{# INV SollIst AC Analyse #}
+{% macro showSollIstAnalyse(form, aktAnlage) %}
+    <option value="sollistanalyse" {% if form.selectedChart == 'sollistanalyse' %}selected{% endif %}>Analysis actual - expected (BETA)</option>
+{% endmacro %}
 
 
 {# AC Power Diagramme #}

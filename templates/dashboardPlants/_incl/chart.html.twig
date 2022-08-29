@@ -1396,6 +1396,8 @@
     {% include 'dashboardPlants/_incl/chart/tempheatmap.html.twig' %}
 {% elseif form.selectedChart == 'sollistheatmap' %}
     {% include 'dashboardPlants/_incl/chart/sollistheatmap.html.twig' %}
+{% elseif form.selectedChart == 'sollistanalyse' %}
+    {% include 'dashboardPlants/_incl/chart/sollistanalyse.html.twig' %}
 {% elseif form.selectedChart == 'ppcontrollerchart' %}
     {% include 'dashboardPlants/_incl/chart/Ppcontroller1.html.twig' %}
 {% endif %}

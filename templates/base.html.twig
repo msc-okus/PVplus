@@ -1,4 +1,5 @@
 <!DOCTYPE HTML>
+
 <head>
     <meta charset="UTF-8">
     <title>Green4Net PVplus 4.0 - {% block title %}{% endblock %}</title>
@@ -116,6 +117,7 @@
                 <li><a href="{{ path('app_reporting_list') }}"><i class="fa fa-chart-area"></i><span> Reporting</span></a></li>
                 {% if is_granted('ROLE_BETA') %}<li><a href="{{ path('app_ticket_list') }}"><i class="fa fa-clipboard-list"></i><span> Tickets (Beta)</span></a></li>{% endif %}
                 <li><a href="{{ path('app_anlagen_list') }}"><i class="fa fa-solar-panel"></i><span> Plants</span></a></li>
+                {% if is_granted('ROLE_ADMIN_USER') %}<li><a href="{{ path('app_admin_user_list') }}"><i class="fa fa-user-edit"></i> User</a></li>{% endif %}
                 <!--<li><a href="{{ path('app_ticket_list') }}"><i class="fa fa-clipboard-list"></i><span> Tickets</span></a></li>-->
             {% endif %}
         </ul>
@@ -132,7 +134,7 @@
     <footer class="grid-container fluid">
         <div class="grid-x">
             <div class="cell">
-                <p class="text-center">&copy; 2018 - 2022 Green4Net - All Rights Reserved - PV+ 4.0 v2.2.7 beta</p>
+                <p class="text-center">&copy; 2018 - 2022 Green4Net - All Rights Reserved - PV+ 4.0 v2.2.8 beta</p>
             </div>
         </div>
     </footer>

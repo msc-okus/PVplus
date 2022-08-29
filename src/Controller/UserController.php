@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Entity\Eigner;
 use App\Form\User\UserFormType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,14 +17,30 @@ use Symfony\Component\Routing\Annotation\Route;
 class UserController extends BaseController
 {
     #[Route(path: '/admin/user/new', name: 'app_admin_user_new')]
-    #[IsGranted('ROLE_G4N')]
-    public function new(EntityManagerInterface $em, Request $request, UserPasswordHasherInterface $userPasswordHasher): Response
+    #[IsGranted(['ROLE_G4N'])]
+    public function new(EntityManagerInterface $em, Request $request, UserPasswordHasherInterface $userPasswordHasher, SecurityController $security): Response
     {
         $form = $this->createForm(UserFormType::class);
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
             /** @var User $user */
+            $selPlantList = $form->get('eignersPlantList')->getData();
+            $savPlantList = (implode(",", $selPlantList));
+
+            if ($this->isGranted('ROLE_ADMIN_USER') && $security->getUser()->getUsername() != "admin" ) {
+                $eignerDn = $security->getUser()->getEigners()[0];
+                $user->addEigner($eignerDn);
+            } else {
+               # $eignerDn = $security->getUser()->getEigners()[0];
+               # $user->addEigner($eignerDn);
+            }
+
+            $roles =  $form->get('roles')->getData();
             $user = $form->getData();
+
+            $user->setGrantedList($savPlantList);
+            $user->setRoles($roles);
 
             $user->setPassword($userPasswordHasher->hashPassword(
                 $user,
@@ -49,9 +66,13 @@ class UserController extends BaseController
     }
 
     #[Route(path: '/admin/user/list', name: 'app_admin_user_list')]
-    #[IsGranted('ROLE_G4N')]
-    public function list(Request $request, PaginatorInterface $paginator, UserRepository $userRepository): Response
+    #[IsGranted(['ROLE_ADMIN_OWNER'])]
+    public function list(Request $request, PaginatorInterface $paginator, UserRepository $userRepository, SecurityController $security): Response
     {
+        /** @var User $user */
+        /** @var Eigner $eigner */
+
+
         $q = $request->query->get('qu');
         if ($request->query->get('search') == 'yes' && $q == '') {
             $request->getSession()->set('qu', '');
@@ -63,7 +84,21 @@ class UserController extends BaseController
             $q = $request->getSession()->get('qu');
             $request->query->set('qu', $q);
         }
-        $queryBuilder = $userRepository->getWithSearchQueryBuilder($q);
+        if ($q) {
+            $term = $q;
+        } else {
+          if (!$this->isGranted('ROLE_G4N')  ) { //&& $security->getUser()->getUsername() != "admin"
+              $eigner = $security->getUser()->getEigners()[0];
+              #dd($security->getUser()->getUsername());
+              $eignerID = $eigner->getId();
+              $term = $eignerID;
+          } else {
+              $term = $q;
+          }
+        }
+
+        $queryBuilder = $userRepository->getWithSearchQueryBuilderbyID($term);
+
         $pagination = $paginator->paginate(
             $queryBuilder, /* query NOT result */
             $request->query->getInt('page', 1)  /* page number */,
@@ -76,7 +111,7 @@ class UserController extends BaseController
     }
 
     #[Route(path: '/admin/user/edit/{id}', name: 'app_admin_user_edit')]
-    #[IsGranted('ROLE_G4N')]
+    #[IsGranted(['ROLE_ADMIN_OWNER'])]
     public function edit($id, EntityManagerInterface $em, Request $request, UserRepository $userRepository, UserPasswordHasherInterface $userPasswordHasher): Response
     {
         $user = $userRepository->find($id);
@@ -123,4 +158,29 @@ class UserController extends BaseController
             'userss' => $user,
         ], 200, [], ['groups' => ['user_list']]);
     }
+
+
+    #[Route(path: 'admin/user/delete/{id}', name: 'app_admin_user_delete', methods: 'DELETE')]
+    #[IsGranted(['ROLE_G4N'])]
+    public function delete($id, EntityManagerInterface $em, Request $request,  UserRepository $userRepository, SecurityController $security)
+    {
+        $user = $userRepository->find($id);
+
+        if(!$id)
+        {
+            $user = $userRepository->find($id);
+        }
+
+        $rmoves = "";
+
+        if($rmoves != null)
+        {
+           // $em->remove($rmoves);
+           // $em->flush();
+            // To do Abfrage Yes No
+        }
+
+        return $this->redirectToRoute('app_admin_user_list');
+    }
+
 }
