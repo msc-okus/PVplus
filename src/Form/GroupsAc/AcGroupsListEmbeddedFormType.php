@@ -49,6 +49,16 @@ class AcGroupsListEmbeddedFormType extends AbstractType
                 'help' => '[isEastWestGroup]',
                 'empty_data' => '0',
             ])
+            ->add('powerEast',TextType::class, [
+                'required' => false,
+                'help' => '[powerEast]',
+                'empty_data' => '0.5',
+            ])
+            ->add('powerWest',TextType::class, [
+                'required' => false,
+                'help' => '[powerWest]',
+                'empty_data' => '0.5',
+            ])
             ->add('gewichtungAnlagenPR', TextType::class, [
                 'required' => false,
                 'help' => '[gewichtungAnlagenPR]',

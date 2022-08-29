@@ -53,6 +53,12 @@ class AnlageAcGroups
     #[ORM\Column(type: 'string', length: 20)]
     private $tCellAvg;
 
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $powerEast = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $powerWest = null;
+
     public function getId(): ?string
     {
         return $this->id;
@@ -178,7 +184,7 @@ class AnlageAcGroups
 
     public function setGewichtungAnlagenPR(string $gewichtungAnlagenPR): self
     {
-        $this->gewichtungAnlagenPR = $gewichtungAnlagenPR;
+        $this->gewichtungAnlagenPR = str_replace(',', '.', $gewichtungAnlagenPR);
 
         return $this;
     }
@@ -190,7 +196,31 @@ class AnlageAcGroups
 
     public function setTCellAvg(string $tCellAvg): self
     {
-        $this->tCellAvg = $tCellAvg;
+        $this->tCellAvg = str_replace(',', '.', $tCellAvg);
+
+        return $this;
+    }
+
+    public function getPowerEast(): ?string
+    {
+        return $this->powerEast;
+    }
+
+    public function setPowerEast(?string $powerEast): self
+    {
+        $this->powerEast = str_replace(',', '.', $powerEast);
+
+        return $this;
+    }
+
+    public function getPowerWest(): ?string
+    {
+        return $this->powerWest;
+    }
+
+    public function setPowerWest(?string $powerWest): self
+    {
+        $this->powerWest = str_replace(',', '.', $powerWest);
 
         return $this;
     }

@@ -67,11 +67,10 @@ class UserController extends BaseController
 
     #[Route(path: '/admin/user/list', name: 'app_admin_user_list')]
     #[IsGranted(['ROLE_ADMIN_OWNER'])]
-    public function list(Request $request, PaginatorInterface $paginator, UserRepository $userRepository, SecurityController $security): Response
+    public function list(Request $request, PaginatorInterface $paginator, UserRepository $userRepository): Response
     {
         /** @var User $user */
         /** @var Eigner $eigner */
-
 
         $q = $request->query->get('qu');
         if ($request->query->get('search') == 'yes' && $q == '') {
@@ -84,20 +83,8 @@ class UserController extends BaseController
             $q = $request->getSession()->get('qu');
             $request->query->set('qu', $q);
         }
-        if ($q) {
-            $term = $q;
-        } else {
-          if (!$this->isGranted('ROLE_G4N')  ) { //&& $security->getUser()->getUsername() != "admin"
-              $eigner = $security->getUser()->getEigners()[0];
-              #dd($security->getUser()->getUsername());
-              $eignerID = $eigner->getId();
-              $term = $eignerID;
-          } else {
-              $term = $q;
-          }
-        }
 
-        $queryBuilder = $userRepository->getWithSearchQueryBuilderbyID($term);
+        $queryBuilder = $userRepository->getWithSearchQueryBuilderbyID($q);
 
         $pagination = $paginator->paginate(
             $queryBuilder, /* query NOT result */
@@ -144,8 +131,9 @@ class UserController extends BaseController
             return $this->redirectToRoute('app_admin_user_list');
         }
 
-        return $this->render('user/edit.html.twig', [
-            'userForm' => $form->createView(),
+        return $this->renderForm('user/edit.html.twig', [
+            'userForm' => $form,
+            ''
         ]);
     }
 

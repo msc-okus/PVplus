@@ -9,6 +9,8 @@
     <td>{{ form_widget(acgroup.dcPowerInverter) }}</td>
     <td>{{ form_widget(acgroup.weatherStation) }}</td>
     <td>{{ form_widget(acgroup.isEastWestGroup) }}</td>
+    <td>{{ form_widget(acgroup.powerEast) }}</td>
+    <td>{{ form_widget(acgroup.powerWest) }}</td>
     <td>{{ form_widget(acgroup.gewichtungAnlagenPR) }}</td>
     <td>{{ form_widget(acgroup.tCellAvg) }}</td>
     <td><a href="#" class="js-remove-acgroup"><span class="fa fa-minus-circle"></span></a></td>
@@ -80,6 +82,8 @@
                                     <th><small>DC Power for this AC Group</small></th>
                                     <th><small>Weatherstation</small></th>
                                     <th><small>Is East / West</small></th>
+                                    <th><small>Power East</small></th>
+                                    <th><small>Power West</small></th>
                                     <th><small>Gewichtung</small></th>
                                     <th><small>tCellAvg</small></th>
                                     <th></th>
@@ -96,6 +100,8 @@
                                         <td>{{ form_widget(acgroup.dcPowerInverter) }}</td>
                                         <td>{{ form_widget(acgroup.weatherStation) }}</td>
                                         <td>{{ form_widget(acgroup.isEastWestGroup) }}</td>
+                                        <td>{{ form_widget(acgroup.powerEast) }}</td>
+                                        <td>{{ form_widget(acgroup.powerWest) }}</td>
                                         <td>{{ form_widget(acgroup.gewichtungAnlagenPR) }}</td>
                                         <td>{{ form_widget(acgroup.tCellAvg) }}</td>
                                         <td><a href="#" class="js-remove-acgroup"><span class="fa fa-minus-circle"></span></a></td>
