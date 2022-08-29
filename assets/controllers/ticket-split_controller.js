@@ -118,6 +118,9 @@ export default class extends Controller {
             $(this.aktDep1Target).prop('disabled', false);
             $(this.aktDep2Target).prop('disabled', false);
             $(this.aktDep3Target).prop('disabled', false);
+            $(this.aktDep1Target).prop('value', 10);
+            $(this.aktDep2Target).prop('value', 10);
+            $(this.aktDep3Target).prop('value', 10);
         }
 
     }
