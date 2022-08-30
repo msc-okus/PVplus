@@ -9,6 +9,8 @@
     <td>{{ form_widget(acgroup.dcPowerInverter) }}</td>
     <td>{{ form_widget(acgroup.weatherStation) }}</td>
     <td>{{ form_widget(acgroup.isEastWestGroup) }}</td>
+    <td>{{ form_widget(acgroup.pyro1) }}</td>
+    <td>{{ form_widget(acgroup.pyro2) }}</td>
     <td>{{ form_widget(acgroup.powerEast) }}</td>
     <td>{{ form_widget(acgroup.powerWest) }}</td>
     <td>{{ form_widget(acgroup.gewichtungAnlagenPR) }}</td>
@@ -29,42 +31,6 @@
             </ul>
 
             <div class="tabs-content" data-tabs-content="anlage-tabs">
-                {# General
-                <div class="tabs-panel" id="plant-data">
-
-                    <fieldset class="fieldset">
-                        <legend>Standort</legend>
-                        <div class="grid-x grid-margin-x grid-padding-x">
-                            <div class="cell medium-6">
-                                {{ form_row(anlageForm.eigner) }}
-                                {{ form_row(anlageForm.anlName) }}
-                                {{ form_row(anlageForm.projektNr) }}
-                            </div>
-                            <div class="cell medium-6">
-                                {{ form_row(anlageForm.anlStrasse) }}
-                                {{ form_row(anlageForm.anlPlz) }}
-                                {{ form_row(anlageForm.anlOrt) }}
-                                {{ form_row(anlageForm.country) }}
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="grid-x grid-margin-x grid-padding-x">
-                            <div class="cell medium-6">
-                                {{ form_row(anlageForm.anlGeoLat) }}
-                            </div>
-                            <div class="cell medium-6">
-                                {{ form_row(anlageForm.anlGeoLon) }}
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="grid-x grid-margin-x grid-padding-x">
-                            <div class="cell">
-                                {{ form_row(anlageForm.notes)}}
-                            </div>
-                        </div>
-                    </fieldset>
-                </div>
-                #}
                 {# AC Groups #}
                 <div class="tabs-panel is-active" id="acgroups">
                     <fieldset class="fieldset js-acgroup-wrapper"
@@ -81,6 +47,9 @@
                                     <th><small>Last Unit</small></th>
                                     <th><small>DC Power for this AC Group</small></th>
                                     <th><small>Weatherstation</small></th>
+                                    <th><small>Is East / West</small></th>
+                                    <th><small>Pyra. (East, deafult) 1</small></th>
+                                    <th><small>Pyra. (West) 2</small></th>
                                     <th><small>Is East / West</small></th>
                                     <th><small>Power East</small></th>
                                     <th><small>Power West</small></th>
@@ -100,6 +69,8 @@
                                         <td>{{ form_widget(acgroup.dcPowerInverter) }}</td>
                                         <td>{{ form_widget(acgroup.weatherStation) }}</td>
                                         <td>{{ form_widget(acgroup.isEastWestGroup) }}</td>
+                                        <td>{{ form_widget(acgroup.pyro1) }}</td>
+                                        <td>{{ form_widget(acgroup.pyro2) }}</td>
                                         <td>{{ form_widget(acgroup.powerEast) }}</td>
                                         <td>{{ form_widget(acgroup.powerWest) }}</td>
                                         <td>{{ form_widget(acgroup.gewichtungAnlagenPR) }}</td>

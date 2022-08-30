@@ -63,10 +63,10 @@ class ExportService
                     $irradiation = $weather['upperIrr'];
                 }
                 // TheoPower gewichtet berechnen
-                $output .= '<td><small>'.round($weather['upperIrr'] / 1000 / 4, 2).'</small></td><td><small>'.round($weather['lowerIrr'] / 1000 / 4, 2).'</small></td><td><small>'.round($acPower['powerTheo'], 2).'</small></td>';
+                $output .= '<td><small>'.round($weather['upperIrr'] / 1000 / 4, 2).'</small></td><td><small>'.round($weather['lowerIrr'] / 1000 / 4, 2).'</small></td><td><small>'.round($acPower['powerTheoFt'], 2).'</small></td>';
 
                 // Aufsummieren der gewichteten Werte zum Gesamtwert
-                $gewichteteTheoPower += $acPower['powerTheo'];
+                $gewichteteTheoPower += $acPower['powerTheoFt'];
                 $gewichteteStrahlung += $groupAC->getGewichtungAnlagenPR() * $irradiation;
                 $availability = $this->availabilityRepo->sumAvailabilityPerDay($anlage->getAnlId(), date('Y-m-d', $stamp));
             }

@@ -49,6 +49,14 @@ class AcGroupsListEmbeddedFormType extends AbstractType
                 'help' => '[isEastWestGroup]',
                 'empty_data' => '0',
             ])
+            ->add('pyro1', TextType::class, [
+                'required' => false,
+                'help' => '[pyro1]',
+            ])
+            ->add('pyro2', TextType::class, [
+                'required' => false,
+                'help' => '[pyro1]',
+            ])
             ->add('powerEast',TextType::class, [
                 'required' => false,
                 'help' => '[powerEast]',

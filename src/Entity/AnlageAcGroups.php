@@ -59,6 +59,12 @@ class AnlageAcGroups
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $powerWest = null;
 
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $pyro1 = null;
+
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $pyro2 = null;
+
     public function getId(): ?string
     {
         return $this->id;
@@ -221,6 +227,30 @@ class AnlageAcGroups
     public function setPowerWest(?string $powerWest): self
     {
         $this->powerWest = str_replace(',', '.', $powerWest);
+
+        return $this;
+    }
+
+    public function getPyro1(): ?string
+    {
+        return $this->pyro1;
+    }
+
+    public function setPyro1(?string $pyro1): self
+    {
+        $this->pyro1 = $pyro1;
+
+        return $this;
+    }
+
+    public function getPyro2(): ?string
+    {
+        return $this->pyro2;
+    }
+
+    public function setPyro2(?string $pyro2): self
+    {
+        $this->pyro2 = $pyro2;
 
         return $this;
     }

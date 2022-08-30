@@ -79,8 +79,8 @@ class UserFormType extends AbstractType
             }
         }
         if ($anlagen){
-            foreach ($anlagen as $key => $val){
-                $anlagenid[] = [$anlagen[$key]['anlName'] => $anlagen[$key]['anlId']];
+            foreach ($anlagen as $key => $anlage){
+                $anlagenid[] = [$anlage['anlName'] => $anlage['anlId']];
             }
         }
 
@@ -90,7 +90,6 @@ class UserFormType extends AbstractType
            $choicesRolesArray = User::ARRAY_OF_ROLES;
         }
 
-       dump( (!$isAdmin) || ($isEdit), $isAdmin, $isEdit);
 
         $builder
             ->add('username', TextType::class, [
