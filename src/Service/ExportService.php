@@ -34,10 +34,10 @@ class ExportService
         $output .= "<div class='table-scroll'><table><thead><tr><th>Datum</th>";
         foreach ($anlage->getAcGroups() as $groupAC) {
             $output .= '<th>'.$groupAC->getAcGroupName().'</th><th></th><th></th>';
-            $help .= '<th><small>Irr [kWh/qm]</small></th><th></th><th><small>gewichtete TheoPower mit TempCorr [kWh]</small></th>';
+            $help .= '<th><small>Irr [kWh/qm]</small></th><th></th><th><small>gewichtete TheoPower mit TempCorr [kWh]</small></th>'; // part of second row Headline
         }
-        $output .= '<td>Mittelwert Luft Temp.</td><td>Verfügbarkeit</td><td>gewichtete Strahlung</td><td>gewichtete TheoPower mit TempCorr</td></tr>';
-        $help .= '<td>°C</td><td>[%]</td><td>[kWh/qm]</td><td>[kWh]</td><td>eGrid</td></tr>';
+        $output .= '<td>Mittelwert Luft Temp.</td><td>Verfügbarkeit</td><td>gewichtete Strahlung</td><td>gewichtete TheoPower mit TempCorr</td><td></td></tr>';
+        $help .= '<td>°C</td><td>[%]</td><td>[kWh/qm]</td><td>[kWh]</td><td>eGrid</td></tr>'; // part of second row Headline
         $output .= $help.'</thead><tbody>';
 
         /* @var AnlageAcGroups $groupAC */
@@ -63,10 +63,10 @@ class ExportService
                     $irradiation = $weather['upperIrr'];
                 }
                 // TheoPower gewichtet berechnen
-                $output .= '<td><small>'.round($weather['upperIrr'] / 1000 / 4, 2).'</small></td><td><small>'.round($weather['lowerIrr'] / 1000 / 4, 2).'</small></td><td><small>'.round($acPower['powerTheo'], 2).'</small></td>';
+                $output .= '<td><small>'.round($weather['upperIrr'] / 1000 / 4, 2).'</small></td><td><small>'.round($weather['lowerIrr'] / 1000 / 4, 2).'</small></td><td><small>'.round($acPower['powerTheoFt'], 2).'</small></td>';
 
                 // Aufsummieren der gewichteten Werte zum Gesamtwert
-                $gewichteteTheoPower += $acPower['powerTheo'];
+                $gewichteteTheoPower += $acPower['powerTheoFt'];
                 $gewichteteStrahlung += $groupAC->getGewichtungAnlagenPR() * $irradiation;
                 $availability = $this->availabilityRepo->sumAvailabilityPerDay($anlage->getAnlId(), date('Y-m-d', $stamp));
             }

@@ -58,8 +58,10 @@
                         <thead>
                         <tr>
                             <th><small>Month</small></th>
+                            {#
                             <th><small>Irr Upper</small></th>
                             <th><small>Irr Lower</small></th>
+                            #}
                             <th><small>Shadow Loss</small></th>
                             <th></th>
                         </tr>
@@ -69,8 +71,10 @@
                         {% for month in group.months %}
                             <tr class="js-month-item">
                                 <td>{{ form_widget(month.month) }}</td>
+                                {#
                                 <td>{{ form_widget(month.irrUpper) }}</td>
                                 <td>{{ form_widget(month.irrLower) }}</td>
+                                #}
                                 <td>{{ form_widget(month.shadowLoss) }}</td>
                                 <td></td>
                             </tr>
@@ -103,8 +107,10 @@
 {% macro addMonth(month) %}
     <tr>
         <td>{{ form_widget(month.month) }}</td>
+        {#
         <td>{{ form_widget(month.irrUpper) }}</td>
         <td>{{ form_widget(month.irrLower) }}</td>
+        #}
         <td>{{ form_widget(month.shadowLoss) }}</td>
         <td></td>
     </tr>
@@ -126,49 +132,11 @@
         <div class="cell">
             <ul class="tabs" data-tabs id="anlage-tabs" data-deep-link="true">
                 {# <li class="tabs-title is-active"><a data-tabs-target="plant-data" href="#plant-data" aria-selected="true" >General</a></li> #}
-                {% if is_granted('ROLE_G4N') %}
-                    <li class="tabs-title"><a data-tabs-target="groups" href="#groups">Groups</a></li>
-                    <li class="tabs-title"><a data-tabs-target="plant-month" href="#plant-month">Months</a></li>
-                {% endif %}
+                <li class="tabs-title"><a data-tabs-target="groups" href="#groups" aria-selected="true">Groups</a></li>
+                <li class="tabs-title"><a data-tabs-target="plant-month" href="#plant-month">Months</a></li>
             </ul>
 
             <div class="tabs-content" data-tabs-content="anlage-tabs">
-                {# General
-                <div class="tabs-panel" id="plant-data">
-
-                    <fieldset class="fieldset">
-                        <legend>Standort</legend>
-                        <div class="grid-x grid-margin-x grid-padding-x">
-                            <div class="cell medium-6">
-                                {{ form_row(anlageForm.eigner) }}
-                                {{ form_row(anlageForm.anlName) }}
-                                {{ form_row(anlageForm.projektNr) }}
-                            </div>
-                            <div class="cell medium-6">
-                                {{ form_row(anlageForm.anlStrasse) }}
-                                {{ form_row(anlageForm.anlPlz) }}
-                                {{ form_row(anlageForm.anlOrt) }}
-                                {{ form_row(anlageForm.country) }}
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="grid-x grid-margin-x grid-padding-x">
-                            <div class="cell medium-6">
-                                {{ form_row(anlageForm.anlGeoLat) }}
-                            </div>
-                            <div class="cell medium-6">
-                                {{ form_row(anlageForm.anlGeoLon) }}
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="grid-x grid-margin-x grid-padding-x">
-                            <div class="cell">
-                                {{ form_row(anlageForm.notes)}}
-                            </div>
-                        </div>
-                    </fieldset>
-                </div>
-                #}
                 {# Groups #}
                 <div class="tabs-panel is-active" id="groups">
                     <fieldset class="fieldset js-group-wrapper"
@@ -244,8 +212,10 @@
                                                         <thead>
                                                           <tr>
                                                             <th><small>Month</small></th>
+                                                            {#
                                                             <th><small>Irr Upper</small></th>
                                                             <th><small>Irr Lower</small></th>
+                                                            #}
                                                             <th><small>Shadow Loss</small></th>
                                                             <th></th>
                                                         </tr>
@@ -255,8 +225,10 @@
                                                         {% for month in group.months %}
                                                             <tr class="js-month-item">
                                                                 <td>{{ form_widget(month.month) }}</td>
+                                                                {#
                                                                 <td>{{ form_widget(month.irrUpper) }}</td>
                                                                 <td>{{ form_widget(month.irrLower) }}</td>
+                                                                #}
                                                                 <td>{{ form_widget(month.shadowLoss) }}</td>
                                                                 <td><a href="#" class="js-remove-month"><span class="fa fa-minus-circle"></span></a></td>
                                                             </tr>
@@ -315,6 +287,7 @@
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>

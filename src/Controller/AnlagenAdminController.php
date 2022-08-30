@@ -385,7 +385,7 @@ class AnlagenAdminController extends BaseController
                       KEY `stamp` (`stamp`)
                 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;";
 
-            $databasePPC = 'CREATE TABLE IF NOT EXISTS '.$anlage->getDbNamePPC()." (
+            $databasePPC = "CREATE TABLE IF NOT EXISTS ".$anlage->getDbNamePPC()." (
                            `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
                            `anl_id` bigint(11) NOT NULL,
                            `anl_intnr` varchar(50),
@@ -404,12 +404,29 @@ class AnlagenAdminController extends BaseController
                             KEY `stamp` (`stamp`)
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 
+            $databaseSections = "CREATE TABLE IF NOT EXISTS `pvp_data`.`db__pv_section_".$anlage->getAnlIntnr()."BX107` (
+                                  `id` BIGINT(11) NOT NULL AUTO_INCREMENT,
+                                  `stamp` VARCHAR(45) NOT NULL DEFAULT '0000-00-00 00:00:00',
+                                  `section` VARCHAR(45) NOT NULL,
+                                  `ac_power` VARCHAR(20) NOT NULL,
+                                  `dc_power` VARCHAR(20) NOT NULL,
+                                  `grid_power` VARCHAR(20) NULL,
+                                  `theo_power` VARCHAR(20) NULL,
+                                  `theo_power_ft` VARCHAR(20) NULL,
+                                  `ft_cor_factor` VARCHAR(20) NULL,
+                                  `temp_module` VARCHAR(20) NULL,
+                                  `temp_module_nrel` VARCHAR(20) NULL,
+                                  PRIMARY KEY (`id`),
+                                  UNIQUE INDEX `stamp_section` (`stamp` ASC, `section` ASC));
+                                ";
+
             $conn = self::getPdoConnection();
             $conn->exec($databaseAcIst);
             $conn->exec($databaseDcIst);
             // $conn->exec($databaseAcSoll);
             $conn->exec($databaseDcSoll);
             $conn->exec($databasePPC);
+            if (false) $conn->exec($databaseSections);
             $conn = null;
 
             return true;

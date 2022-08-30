@@ -26,23 +26,5 @@
         <div data-ticket-list-target="list">
             {% include 'ticket/_inc/_listTickets.html.twig' %}
         </div>
-        <div class="cell medium-2">
-            <div id="modal-form0" {{ stimulus_controller('ticket-edit', {
-                    formUrl: path('app_ticket_create'),
-                }) }}
-            >
-                <button name="new-ticket" class="button"
-                        data-action="ticket-edit#openModal"
-                >
-                    New Ticket
-                </button>
-                {{ include('ticket/_inc/_modalTicket.html.twig', {
-                    modalId: 0,
-                    modalTitel: 'New Ticket',
-                    class: 'large',
-                    dataVOffset: '10',
-                }) }}
-            </div>
-        </div>
     </div>
 {% endblock %}

@@ -10,19 +10,20 @@
     <div class="cell small-6 medium-3">
         <fieldset class="fieldset">
             <legend>User
-                <span data-tooltip tabindex="1" title="Please enter the user data !"><i class="fa fa-info-circle"></i></span>
+                <span data-tooltip tabindex="1" title="Please> enter the user data !" data-allow-html="true"><i class="fa fa-info-circle"></i></span>
             </legend>
-        {{ form_row(userForm.username) }}
-        {{ form_row(userForm.plainPassword) }}
-        {{ form_row(userForm.email) }}
-        {#  {{ form_row(userForm.level) }}#}
+            {{ form_row(userForm.username) }}
+            {{ form_row(userForm.plainPassword) }}
+            {{ form_row(userForm.email) }}
+            {{ form_widget(userForm.eigners) }}
+            {#  {{ form_row(userForm.level) }}#}
         </fieldset>
     </div>
 
     <div class="cell small-6 medium-3">
         <fieldset class="fieldset">
             <legend>List with Roles
-                <span data-tooltip tabindex="1" title="Please assign roles rights for this User !"><i class="fa fa-info-circle"></i></span>
+                <span data-tooltip tabindex="1" title="Please assign roles rights for this User !" data-allow-html="true"><i class="fa fa-info-circle"></i></span>
             </legend>
              {{ form_widget(userForm.roles) }}
         </fieldset>
@@ -31,29 +32,28 @@
     <div class="cell small-6 medium-3">
         <fieldset class="fieldset">
             <legend>List with Plants
-                <span data-tooltip tabindex="1" title="Please assign a plant for this User !"><i class="fa fa-info-circle"></i></span>
+                <span data-tooltip tabindex="1" title="Please assign a plant for this User !" data-allow-html="true"><i class="fa fa-info-circle"></i></span>
             </legend>
-            {{ form_widget(userForm.eignersPlantList) }}
-            {#
-            <div id="user_form_eignersPlantList">
-                {% for key, item in userForm.eignersPlantList %}
-                    <label>{{item.vars.label}}</label>
-                    <div class="switch tiny checkbox">
-                        <input
-                                type="checkbox"
-                                value="{{item.vars.value}}"
-                                id="{{item.vars.id}}"
-                                class="switch-input"
-                                name="{{item.vars.full_name}}"
-                                aria-describedby="{{item.vars.id}}"
-                                {{ item.vars.checked ? 'checked="checked"' : '' }}
-                        >
-                        <label class="switch-paddle" for="{{item.vars.id}}" id="{{item.vars.id}}" name="{{item.vars.full_name}}" required="required" aria-describedby="{{item.vars.id}}"></label>
-                    </div>
-                {% endfor %}
-            </div>
-            #}
-
+                {{ form_widget(userForm.eignersPlantList) }}
+                {#
+                <div id="user_form_eignersPlantList">
+                    {% for key, item in userForm.eignersPlantList %}
+                        <label>{{item.vars.label}}</label>
+                        <div class="switch tiny checkbox">
+                            <input
+                                    type="checkbox"
+                                    value="{{item.vars.value}}"
+                                    id="{{item.vars.id}}"
+                                    class="switch-input"
+                                    name="{{item.vars.full_name}}"
+                                    aria-describedby="{{item.vars.id}}"
+                                    {{ item.vars.checked ? 'checked="checked"' : '' }}
+                            >
+                            <label class="switch-paddle" for="{{item.vars.id}}" id="{{item.vars.id}}" name="{{item.vars.full_name}}" required="required" aria-describedby="{{item.vars.id}}"></label>
+                        </div>
+                    {% endfor %}
+                </div>
+                #}
         </fieldset>
     </div>
 
@@ -63,7 +63,7 @@
 
     <div class="cell small-12 medium-12">
         <a href="{{ path('app_admin_user_delete', {id: app.request.attributes.get('id')}) }}"><i class="fa fa-trash"></i> Delete User</a>
-{# {{ form_widget(userForm.delete) }}#}
+        {# {{ form_widget(userForm.delete) }}#}
     </div>
 
 </div>

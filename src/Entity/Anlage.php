@@ -503,6 +503,9 @@ class Anlage
     #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $excludeFromExpCalc = false;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $useAcGroupsAsSection = null;
+
     public function __construct()
     {
         $this->acGroups = new ArrayCollection();
@@ -1007,22 +1010,22 @@ class Anlage
         return $this;
     }
 
-    public function getDbNameIst()
+    public function getDbNameIst(): string
     {
         return $this->dbAnlagenData.'.db__pv_ist_'.$this->getAnlIntnr();
     }
 
-    public function getDbNameAcIst()
+    public function getDbNameAcIst(): string
     {
         return $this->dbAnlagenData.'.db__pv_ist_'.$this->getAnlIntnr();
     }
 
-    public function getDbNameIstDc()
+    public function getDbNameIstDc(): string
     {
         return $this->dbAnlagenData.'.db__pv_dcist_'.$this->getAnlIntnr();
     }
 
-    public function getDbNameDCIst()
+    public function getDbNameDCIst(): string
     {
         return $this->dbAnlagenData.'.db__pv_dcist_'.$this->getAnlIntnr();
     }
@@ -1043,9 +1046,14 @@ class Anlage
         return $this->dbAnlagenData.'.db__pv_dcsoll_'.$this->getAnlIntnr();
     }
 
-    public function getDbNamePPC()
+    public function getDbNamePPC(): string
     {
         return $this->dbAnlagenData.'.db__pv_ppc_'.$this->getAnlIntnr();
+    }
+
+    public function getDbNameSection(): string
+    {
+        return $this->dbAnlagenData.'.db__pv_section_'.$this->getAnlIntnr();
     }
 
     // get Weather Database
@@ -3119,6 +3127,18 @@ class Anlage
     public function setExcludeFromExpCalc(?bool $excludeFromExpCalc): self
     {
         $this->excludeFromExpCalc = $excludeFromExpCalc;
+
+        return $this;
+    }
+
+    public function isUseAcGroupsAsSection(): ?bool
+    {
+        return $this->useAcGroupsAsSection;
+    }
+
+    public function setUseAcGroupsAsSection(?bool $useAcGroupsAsSection): self
+    {
+        $this->useAcGroupsAsSection = $useAcGroupsAsSection;
 
         return $this;
     }
