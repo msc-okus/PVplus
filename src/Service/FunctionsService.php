@@ -794,12 +794,12 @@ class FunctionsService
         return $evu;
     }
 
-    public function getSumAcPowerByGroup(Anlage $anlage, $from, $to, $acGroup): array
+    public function getSumAcPowerBySection(Anlage $anlage, $from, $to, $section): array
     {
         $conn = self::getPdoConnection();
         $result = [];
         $powerEvu = $powerAct = $powerTheo = $powerTheoFt = 0;
-        $powerExp = $powerExpEvu = 0;
+        $powerExp = $powerExpEvu = $powerTheoPpc = $powerTheoFtPpc = 0;
 
         // ############ für den angeforderten Zeitraum #############
 
@@ -828,7 +828,7 @@ class FunctionsService
         unset($res);
 
         // Expected Leistung ermitteln
-        $sql = 'SELECT sum(ac_exp_power) as sum_power_ac, sum(ac_exp_power_evu) as sum_power_ac_evu FROM '.$anlage->getDbNameDcSoll()." WHERE stamp >= '$from' AND stamp <= '$to' AND group_ac = $acGroup";
+        $sql = 'SELECT sum(ac_exp_power) as sum_power_ac, sum(ac_exp_power_evu) as sum_power_ac_evu FROM '.$anlage->getDbNameDcSoll()." WHERE stamp >= '$from' AND stamp <= '$to' AND group_ac = $section";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -838,18 +838,15 @@ class FunctionsService
         unset($res);
 
         // Actual (Inverter Out) Leistung ermitteln
-        $sql = 'SELECT sum(wr_pac) as sum_power_ac FROM '.$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to'  AND group_ac = $acGroup AND wr_pac > 0";
+        $sql = 'SELECT sum(wr_pac) as sum_power_ac FROM '.$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to'  AND group_ac = $section AND wr_pac > 0";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
             $powerAct = round($row['sum_power_ac'], 4);
         }
-        if($anlage->isUseAcGroupsAsSection()) {
-            $sql = 'SELECT sum(theo_power) as theo_power, sum(theo_power_ft) as theo_power_ft FROM '.$anlage->getDbNameSection()." WHERE stamp >= '$from' AND stamp <= '$to'  AND section = $acGroup AND theo_power_ft > 0";
-        } else {
-            $sql = 'SELECT sum(theo_power) as theo_power_ft FROM '.$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to'  AND group_ac = $acGroup AND theo_power > 0";
-        }
 
+        // Theo Power without PPC
+        $sql = "SELECT sum(theo_power) as theo_power, sum(theo_power_ft) as theo_power_ft FROM ".$anlage->getDbNameSection()." WHERE stamp >= '$from' AND stamp <= '$to'  AND section = $section AND theo_power_ft > 0";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -858,6 +855,22 @@ class FunctionsService
         }
         unset($res);
 
+        // Theo Power WITH PPC
+        if ($anlage->getHasPPC()) {
+            $sql = "SELECT sum(theo_power) as theo_power, sum(theo_power_ft) as theo_power_ft 
+                FROM " . $anlage->getDbNameSection() . " s
+                RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
+                WHERE s.stamp >= '$from' AND s.stamp <= '$to' AND s.section = $section AND s.theo_power_ft > 0 AND ppc.p_set_gridop_rel = 100 and ppc.p_set_rpc_rel = 100";
+            #dd($sql);
+            $res = $conn->query($sql);
+            if ($res->rowCount() == 1) {
+                $row = $res->fetch(PDO::FETCH_ASSOC);
+                $powerTheoPpc = round($row['theo_power'], 4);
+                $powerTheoFtPpc = round($row['theo_power_ft'], 4);
+            }
+            unset($res);
+        }
+
         $result['powerEvu'] = $powerEvu;
         $result['powerAct'] = $powerAct;
         $result['powerExp'] = $powerExp;
@@ -865,6 +878,8 @@ class FunctionsService
         $result['powerEGridExt'] = $powerEGridExt;
         $result['powerTheo'] = $powerTheo;
         $result['powerTheoFt'] = $powerTheoFt;
+        $result['powerTheoPpc'] = $powerTheoPpc;
+        $result['powerTheoFtPpc'] = $powerTheoFtPpc;
 
         return $result;
     }

@@ -49,7 +49,7 @@ class ExportService
             // für jede AC Gruppe ermittele Wetterstation, lese Tageswert und gewichte diesen
             foreach ($anlage->getAcGroups() as $groupAC) {
                 $weather = $this->functions->getWeather($groupAC->getWeatherStation(), date('Y-m-d 00:00', $stamp), date('Y-m-d 23:59', $stamp), null, null);
-                $acPower = $this->functions->getSumAcPowerByGroup($anlage, date('Y-m-d 00:00', $stamp), date('Y-m-d 23:59', $stamp), $groupAC->getAcGroup());
+                $acPower = $this->functions->getSumAcPowerBySection($anlage, date('Y-m-d 00:00', $stamp), date('Y-m-d 23:59', $stamp), $groupAC->getAcGroup());
                 $tempArray[] = $weather['airTemp'];
                 if ($groupAC->getIsEastWestGroup()) {
                     if ($weather['upperIrr'] > 0 && $weather['lowerIrr'] > 0) {
@@ -63,10 +63,10 @@ class ExportService
                     $irradiation = $weather['upperIrr'];
                 }
                 // TheoPower gewichtet berechnen
-                $output .= '<td><small>'.round($weather['upperIrr'] / 1000 / 4, 2).'</small></td><td><small>'.round($weather['lowerIrr'] / 1000 / 4, 2).'</small></td><td><small>'.round($acPower['powerTheoFt'], 2).'</small></td>';
+                $output .= '<td><small>'.round($weather['upperIrr'] / 1000 / 4, 2).'</small></td><td><small>'.round($weather['lowerIrr'] / 1000 / 4, 2).'</small></td><td><small>'.round($acPower['powerTheoFtPpc'], 2).'</small></td>';
 
                 // Aufsummieren der gewichteten Werte zum Gesamtwert
-                $gewichteteTheoPower += $acPower['powerTheoFt'];
+                $gewichteteTheoPower += $acPower['powerTheoFtPpc'];
                 $gewichteteStrahlung += $groupAC->getGewichtungAnlagenPR() * $irradiation;
                 $availability = $this->availabilityRepo->sumAvailabilityPerDay($anlage->getAnlId(), date('Y-m-d', $stamp));
             }
