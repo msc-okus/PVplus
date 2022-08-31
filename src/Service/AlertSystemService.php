@@ -187,11 +187,11 @@ class AlertSystemService
             if ($plant_status['istdata'] == 'Plant Control by PPC') {
                 $ppc = true;
                 $message = $this->analyzePlant($plant_status, $anlage);
-                dump($message);
+
             // self::messagingFunction($message, $anlage);
             } else {
                 $message = $this->analyzePlant($plant_status, $anlage);
-                dump($message);
+
                 // self::messagingFunction($message, $anlage);
                 unset($inverter_status);
             }
@@ -308,7 +308,6 @@ class AlertSystemService
                 else{
 
                 }
-                dump($result);
             }
         }
         return $message;
@@ -450,7 +449,7 @@ class AlertSystemService
                 $ticketDate->setAlertType($errorCategorie);
                 $ticket->setErrorType($errorType); // type = errorType (Bsp:  SOR, EFOR, OMC)
                 $ticketDate->setErrorType($errorType);
-                $timetemp = date('Y-m-d H:i:s', strtotime($time));
+                $timetemp = date('Y-m-d H:i:s', strtotime($time) - 900);
                 $begin = date_create_from_format('Y-m-d H:i:s', $timetemp);
                 $begin->getTimestamp();
                 $ticket->setBegin($begin);
@@ -732,8 +731,7 @@ class AlertSystemService
      * @return array
      */
     private function analyzeError($inverter, $inverterNr,  $anlage): array{
-        dump($inverter);
-        $nameArray = $this->functions->getInverterArray($anlage);
+        $nameArray = $this->functions->getInverterArray($anlage)[$inverterNr];
         $message = '';
         $errorType = '';
         $errorCategorie = '';
