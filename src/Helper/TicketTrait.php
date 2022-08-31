@@ -127,7 +127,9 @@ trait TicketTrait
 
         return $this;
     }
-
+    /**
+     * @Deprecated
+     */
     public function getInverter(): string
     {
         return $this->inverter;
@@ -139,7 +141,10 @@ trait TicketTrait
 
         return $this;
     }
-    //we will use this to provide an array and turn it into a string to save it
+
+    /**
+     * we will use this to provide an array and turn it into a string to save it
+     */
     public function setInverterArray(Array $inverterArray): self
     {
         $inverterString = $inverterArray[0];
@@ -150,8 +155,11 @@ trait TicketTrait
 
         return $this;
     }
-
-    public function getInverterArray():ArrayCollection{
+    /**
+     * This will translate the string with commas from the db field into an array and return it
+     */
+    public function getInverterArray(): array
+    {
         return explode(",", $this->inverter);
     }
 
