@@ -23,8 +23,10 @@ class TicketController extends BaseController
     use PVPNameArraysTrait;
 
     #[Route(path: '/ticket/create', name: 'app_ticket_create')]
-    public function create(EntityManagerInterface $em, Request $request): Response
+    public function create(EntityManagerInterface $em, Request $request, AnlagenRepository $anlRepo, functionsService $functions): Response
     {
+        $anlage = $anlRepo->findIdLike((int)$request->query->get('anlage'))[0];
+        $nameArray = $functions->getInverterArray($anlage);
         $form = $this->createForm(TicketFormType::class);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -46,8 +48,9 @@ class TicketController extends BaseController
         return $this->renderForm('ticket/_inc/_edit.html.twig', [
             'ticketForm' => $form,
             'ticket' => false,
+            'anlage' => $anlage,
             'edited' => false,
-            'invArray' => null,
+            'invArray' => $nameArray,
         ]);
     }
 
@@ -100,6 +103,7 @@ class TicketController extends BaseController
         return $this->renderForm('ticket/_inc/_edit.html.twig', [
             'ticketForm' => $form,
             'ticket' => $ticket,
+            'anlage' => $anlage,
             'edited' => true,
             'invArray' => $nameArray
         ]);
@@ -172,6 +176,7 @@ class TicketController extends BaseController
         return $this->render('ticket/list.html.twig', [
             'pagination'    => $pagination,
             'anlage'        => $anlage,
+            'anlagen'       =>$anlagenRepo->findAllActiveAndAllowed(),
             'user'          => $editor,
             'id'            => $id,
             'inverter'      => $inverter,
