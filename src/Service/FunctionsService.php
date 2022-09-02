@@ -397,15 +397,13 @@ class FunctionsService
     }
 
     /**
-     * @param Anlage $anlage
+     * @deprecated
+     *
      * @param $from
      * @param $to
      * @param $pacDateStart
      * @param $pacDateEnd
      * @param string $select ('all', 'date, 'month', 'year', 'pac')
-     * @return array
-     * @deprecated
-     *
      */
     public function getSumPowerEGridExt(Anlage $anlage, $from, $to, $pacDateStart, $pacDateEnd, string $select = 'all'): array
     {
@@ -434,16 +432,12 @@ class FunctionsService
     }
 
     /**
-     * @param Anlage $anlage
-     * @param WeatherStation $weatherStation
      * @param $from
      * @param $to
      * @param $pacDateStart
      * @param $pacDateEnd
-     * @return array
-     * @deprecated
      */
-    public function getWeather(Anlage $anlage, WeatherStation $weatherStation, $from, $to, $pacDateStart, $pacDateEnd): array
+    public function getWeather(WeatherStation $weatherStation, $from, $to, $pacDateStart, $pacDateEnd): array
     {
         $conn = self::getPdoConnection();
         $jahresanfang = date('Y-01-01 00:00', strtotime($from)); // für das ganze Jahr - Zeitraum
@@ -459,30 +453,6 @@ class FunctionsService
         unset($res);
 
         // from - to
-        if ($anlage->getHasPPC()){
-            $sql = "SELECT sum(g_lower) as irr_lower, sum(g_upper) as irr_upper, sum(g_horizontal) as irr_horizontal, avg(g_horizontal) as irr_horizontal_avg, AVG(at_avg) AS air_temp, AVG(pt_avg) AS panel_temp, AVG(wind_speed) as wind_speed 
-                    FROM ".$weatherStation->getDbNameWeather()." w  
-                    RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON w.stamp = ppc.stamp 
-                    WHERE stamp BETWEEN '$from' AND '$to' AND ppc.p_set_gridop_rel = 100 and ppc.p_set_rpc_rel = 100";
-            $res = $conn->query($sql);
-            if ($res->rowCount() == 1) {
-                $row = $res->fetch(PDO::FETCH_ASSOC);
-                $weather['airTempPpc'] = round($row['air_temp'], 2);
-                $weather['panelTempPpc'] = round($row['panel_temp'], 2);
-                $weather['windSpeedPpc'] = round($row['wind_speed']);
-                $weather['horizontalIrrPpc'] = round($row['irr_horizontal']);
-                $weather['horizontalIrrAvgPpc'] = round($row['irr_horizontal_avg']);
-                if ($weatherStation->getChangeSensor() == 'Yes') {
-                    $weather['upperIrrPpc'] = round($row['irr_lower'], 2);
-                    $weather['lowerIrrPpc'] = round($row['irr_upper'], 2);
-                } else {
-                    $weather['upperIrrPpc'] = round($row['irr_upper'], 2);
-                    $weather['lowerIrrPpc'] = round($row['irr_lower'], 2);
-                }
-            }
-            unset($res);
-        }
-
         $sql = "SELECT sum(g_lower) as irr_lower, sum(g_upper) as irr_upper, sum(g_horizontal) as irr_horizontal, avg(g_horizontal) as irr_horizontal_avg, AVG(at_avg) AS air_temp, AVG(pt_avg) AS panel_temp, AVG(wind_speed) as wind_speed FROM $dbTable WHERE stamp BETWEEN '$from' and '$to'";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
@@ -568,91 +538,8 @@ class FunctionsService
     }
 
     /**
-     * @param Anlage $anlage
-     * @param WeatherStation $weatherStation
-     * @param $from
-     * @param $to
-     * @return array
-     */
-    public function getWeatherNew(Anlage $anlage, WeatherStation $weatherStation, $from, $to): array
-    {
-        $conn = self::getPdoConnection();
-        $weather = [];
-        $dbTable = $weatherStation->getDbNameWeather();
-
-
-        // from -> to | with PPC
-        if ($anlage->getHasPPC()){
-            $sql = "SELECT COUNT(w.db_id) AS anzahl 
-                    FROM ". $weatherStation->getDbNameWeather(). " w  
-                    RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON w.stamp = ppc.stamp 
-                    WHERE w.stamp BETWEEN '$from' and '$to' AND ppc.p_set_gridop_rel = 100 and ppc.p_set_rpc_rel = 100";
-            $res = $conn->query($sql);
-            if ($res->rowCount() == 1) {
-                $row = $res->fetch(PDO::FETCH_ASSOC);
-                $weather['anzahlPpc'] = $row['anzahl'];
-            }
-            unset($res);
-
-            $sql = "SELECT sum(g_lower) as irr_lower, sum(g_upper) as irr_upper, sum(g_horizontal) as irr_horizontal, avg(g_horizontal) as irr_horizontal_avg, AVG(at_avg) AS air_temp, AVG(pt_avg) AS panel_temp, AVG(wind_speed) as wind_speed 
-                    FROM ".$weatherStation->getDbNameWeather()." w  
-                    RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON w.stamp = ppc.stamp 
-                    WHERE w.stamp BETWEEN '$from' AND '$to' AND ppc.p_set_gridop_rel = 100 and ppc.p_set_rpc_rel = 100";
-            $res = $conn->query($sql);
-            if ($res->rowCount() == 1) {
-                $row = $res->fetch(PDO::FETCH_ASSOC);
-                $weather['airTempPpc'] = round($row['air_temp'], 4);
-                $weather['panelTempPpc'] = round($row['panel_temp'], 4);
-                $weather['windSpeedPpc'] = round($row['wind_speed'],4);
-                $weather['horizontalIrrPpc'] = round($row['irr_horizontal'],4);
-                $weather['horizontalIrrAvgPpc'] = round($row['irr_horizontal_avg'],4);
-                if ($weatherStation->getChangeSensor() == 'Yes') {
-                    $weather['upperIrrPpc'] = round($row['irr_lower'], 4);
-                    $weather['lowerIrrPpc'] = round($row['irr_upper'], 4);
-                } else {
-                    $weather['upperIrrPpc'] = round($row['irr_upper'], 4);
-                    $weather['lowerIrrPpc'] = round($row['irr_lower'], 4);
-                }
-            }
-            unset($res);
-        }
-
-        // from -> to | without PPC
-        $sql = "SELECT COUNT(db_id) AS anzahl FROM $dbTable WHERE stamp BETWEEN '$from' and '$to'";
-        $res = $conn->query($sql);
-        if ($res->rowCount() == 1) {
-            $row = $res->fetch(PDO::FETCH_ASSOC);
-            $weather['anzahl'] = $row['anzahl'];
-        }
-        unset($res);
-
-        $sql = "SELECT sum(g_lower) as irr_lower, sum(g_upper) as irr_upper, sum(g_horizontal) as irr_horizontal, avg(g_horizontal) as irr_horizontal_avg, AVG(at_avg) AS air_temp, AVG(pt_avg) AS panel_temp, AVG(wind_speed) as wind_speed FROM $dbTable WHERE stamp BETWEEN '$from' and '$to'";
-        $res = $conn->query($sql);
-        if ($res->rowCount() == 1) {
-            $row = $res->fetch(PDO::FETCH_ASSOC);
-            $weather['airTemp'] = round($row['air_temp'], 4);
-            $weather['panelTemp'] = round($row['panel_temp'], 4);
-            $weather['windSpeed'] = round($row['wind_speed'],4);
-            $weather['horizontalIrr'] = round($row['irr_horizontal'],4);
-            $weather['horizontalIrrAvg'] = round($row['irr_horizontal_avg'],4);
-            if ($weatherStation->getChangeSensor() == 'Yes') {
-                $weather['upperIrr'] = round($row['irr_lower'], 4);
-                $weather['lowerIrr'] = round($row['irr_upper'], 4);
-            } else {
-                $weather['upperIrr'] = round($row['irr_upper'], 4);
-                $weather['lowerIrr'] = round($row['irr_lower'], 4);
-            }
-        }
-        unset($res);
-        $conn = null;
-
-        return $weather;
-    }
-
-    /**
      * @param $array
      * @param int $umrechnung = Faktor zum Umrechenen auf Wh (4) oder kWh (4000) etc
-     * @return array
      */
     public function buildSumFromArray($array, int $umrechnung = 1): array
     {
@@ -906,12 +793,12 @@ class FunctionsService
         return $evu;
     }
 
-    public function getSumAcPowerBySection(Anlage $anlage, $from, $to, $section): array
+    public function getSumAcPowerByGroup(Anlage $anlage, $from, $to, $acGroup): array
     {
         $conn = self::getPdoConnection();
         $result = [];
-        $powerEvu = $powerAct = $powerTheo = $powerTheoFt = 0;
-        $powerExp = $powerExpEvu = $powerTheoPpc = $powerTheoFtPpc = 0;
+        $powerEvu = $powerAct = $powerTheo = 0;
+        $powerExp = $powerExpEvu = 0;
 
         // ############ für den angeforderten Zeitraum #############
 
@@ -940,7 +827,7 @@ class FunctionsService
         unset($res);
 
         // Expected Leistung ermitteln
-        $sql = 'SELECT sum(ac_exp_power) as sum_power_ac, sum(ac_exp_power_evu) as sum_power_ac_evu FROM '.$anlage->getDbNameDcSoll()." WHERE stamp >= '$from' AND stamp <= '$to' AND group_ac = $section";
+        $sql = 'SELECT sum(ac_exp_power) as sum_power_ac, sum(ac_exp_power_evu) as sum_power_ac_evu FROM '.$anlage->getDbNameDcSoll()." WHERE stamp >= '$from' AND stamp <= '$to' AND group_ac = $acGroup";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -950,37 +837,19 @@ class FunctionsService
         unset($res);
 
         // Actual (Inverter Out) Leistung ermitteln
-        $sql = 'SELECT sum(wr_pac) as sum_power_ac FROM '.$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to'  AND group_ac = $section AND wr_pac > 0";
+        $sql = 'SELECT sum(wr_pac) as sum_power_ac FROM '.$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to'  AND group_ac = $acGroup AND wr_pac > 0";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
             $powerAct = round($row['sum_power_ac'], 4);
         }
-
-        // Theo Power without PPC
-        $sql = "SELECT sum(theo_power) as theo_power, sum(theo_power_ft) as theo_power_ft FROM ".$anlage->getDbNameSection()." WHERE stamp >= '$from' AND stamp <= '$to'  AND section = $section AND theo_power_ft > 0";
+        $sql = 'SELECT sum(theo_power) as theo_power FROM '.$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to'  AND group_ac = $acGroup AND theo_power > 0";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
             $powerTheo = round($row['theo_power'], 4);
-            $powerTheoFt = round($row['theo_power_ft'], 4);
         }
         unset($res);
-
-        // Theo Power WITH PPC
-        if ($anlage->getHasPPC()) {
-            $sql = "SELECT sum(theo_power) as theo_power, sum(theo_power_ft) as theo_power_ft 
-                FROM " . $anlage->getDbNameSection() . " s
-                RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
-                WHERE s.stamp >= '$from' AND s.stamp <= '$to' AND s.section = $section AND s.theo_power_ft > 0 AND ppc.p_set_gridop_rel = 100 and ppc.p_set_rpc_rel = 100";
-            $res = $conn->query($sql);
-            if ($res->rowCount() == 1) {
-                $row = $res->fetch(PDO::FETCH_ASSOC);
-                $powerTheoPpc = round($row['theo_power'], 4);
-                $powerTheoFtPpc = round($row['theo_power_ft'], 4);
-            }
-            unset($res);
-        }
 
         $result['powerEvu'] = $powerEvu;
         $result['powerAct'] = $powerAct;
@@ -988,9 +857,6 @@ class FunctionsService
         $result['powerExpEvu'] = $powerExpEvu;
         $result['powerEGridExt'] = $powerEGridExt;
         $result['powerTheo'] = $powerTheo;
-        $result['powerTheoFt'] = $powerTheoFt;
-        $result['powerTheoPpc'] = $powerTheoPpc;
-        $result['powerTheoFtPpc'] = $powerTheoFtPpc;
 
         return $result;
     }

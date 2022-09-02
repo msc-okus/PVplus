@@ -53,18 +53,6 @@ class AnlageAcGroups
     #[ORM\Column(type: 'string', length: 20)]
     private $tCellAvg;
 
-    #[ORM\Column(length: 20, nullable: true)]
-    private ?string $powerEast = null;
-
-    #[ORM\Column(length: 20, nullable: true)]
-    private ?string $powerWest = null;
-
-    #[ORM\Column(length: 10, nullable: true)]
-    private ?string $pyro1 = null;
-
-    #[ORM\Column(length: 10, nullable: true)]
-    private ?string $pyro2 = null;
-
     public function getId(): ?string
     {
         return $this->id;
@@ -190,7 +178,7 @@ class AnlageAcGroups
 
     public function setGewichtungAnlagenPR(string $gewichtungAnlagenPR): self
     {
-        $this->gewichtungAnlagenPR = str_replace(',', '.', $gewichtungAnlagenPR);
+        $this->gewichtungAnlagenPR = $gewichtungAnlagenPR;
 
         return $this;
     }
@@ -202,55 +190,7 @@ class AnlageAcGroups
 
     public function setTCellAvg(string $tCellAvg): self
     {
-        $this->tCellAvg = str_replace(',', '.', $tCellAvg);
-
-        return $this;
-    }
-
-    public function getPowerEast(): ?string
-    {
-        return $this->powerEast;
-    }
-
-    public function setPowerEast(?string $powerEast): self
-    {
-        $this->powerEast = str_replace(',', '.', $powerEast);
-
-        return $this;
-    }
-
-    public function getPowerWest(): ?string
-    {
-        return $this->powerWest;
-    }
-
-    public function setPowerWest(?string $powerWest): self
-    {
-        $this->powerWest = str_replace(',', '.', $powerWest);
-
-        return $this;
-    }
-
-    public function getPyro1(): ?string
-    {
-        return $this->pyro1;
-    }
-
-    public function setPyro1(?string $pyro1): self
-    {
-        $this->pyro1 = $pyro1;
-
-        return $this;
-    }
-
-    public function getPyro2(): ?string
-    {
-        return $this->pyro2;
-    }
-
-    public function setPyro2(?string $pyro2): self
-    {
-        $this->pyro2 = $pyro2;
+        $this->tCellAvg = $tCellAvg;
 
         return $this;
     }

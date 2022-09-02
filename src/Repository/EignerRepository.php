@@ -36,19 +36,6 @@ class EignerRepository extends ServiceEntityRepository
     /**
      * @return Eigner[]
      */
-    public function findAllaktivEigner(): array
-    {
-        return $this->createQueryBuilder('eigner')
-            ->andWhere('eigner.active = 1')
-            ->orderBy('eigner.firma', 'ASC')
-            ->getQuery()
-            ->getResult()
-            ;
-    }
-
-    /**
-     * @return Eigner[]
-     */
     public function findAllDashboard(): array
     {
         return $this->createQueryBuilder('eigner')

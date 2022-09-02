@@ -503,9 +503,6 @@ class Anlage
     #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $excludeFromExpCalc = false;
 
-    #[ORM\Column(nullable: true)]
-    private ?bool $useAcGroupsAsSection = null;
-
     public function __construct()
     {
         $this->acGroups = new ArrayCollection();
@@ -1010,22 +1007,22 @@ class Anlage
         return $this;
     }
 
-    public function getDbNameIst(): string
+    public function getDbNameIst()
     {
         return $this->dbAnlagenData.'.db__pv_ist_'.$this->getAnlIntnr();
     }
 
-    public function getDbNameAcIst(): string
+    public function getDbNameAcIst()
     {
         return $this->dbAnlagenData.'.db__pv_ist_'.$this->getAnlIntnr();
     }
 
-    public function getDbNameIstDc(): string
+    public function getDbNameIstDc()
     {
         return $this->dbAnlagenData.'.db__pv_dcist_'.$this->getAnlIntnr();
     }
 
-    public function getDbNameDCIst(): string
+    public function getDbNameDCIst()
     {
         return $this->dbAnlagenData.'.db__pv_dcist_'.$this->getAnlIntnr();
     }
@@ -1046,19 +1043,9 @@ class Anlage
         return $this->dbAnlagenData.'.db__pv_dcsoll_'.$this->getAnlIntnr();
     }
 
-    public function getDbNamePPC(): string
+    public function getDbNamePPC()
     {
         return $this->dbAnlagenData.'.db__pv_ppc_'.$this->getAnlIntnr();
-    }
-
-    public function getDbNameMeters(): string
-    {
-        return $this->dbAnlagenData.'.db__pv_meters_'.$this->getAnlIntnr();
-    }
-
-    public function getDbNameSection(): string
-    {
-        return $this->dbAnlagenData.'.db__pv_section_'.$this->getAnlIntnr();
     }
 
     // get Weather Database
@@ -3133,18 +3120,6 @@ class Anlage
     public function setExcludeFromExpCalc(?bool $excludeFromExpCalc): self
     {
         $this->excludeFromExpCalc = $excludeFromExpCalc;
-
-        return $this;
-    }
-
-    public function isUseAcGroupsAsSection(): ?bool
-    {
-        return $this->useAcGroupsAsSection;
-    }
-
-    public function setUseAcGroupsAsSection(?bool $useAcGroupsAsSection): self
-    {
-        $this->useAcGroupsAsSection = $useAcGroupsAsSection;
 
         return $this;
     }
