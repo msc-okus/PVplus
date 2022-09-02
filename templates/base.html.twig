@@ -29,11 +29,9 @@
                 <button type="button" class="button-hamburger" data-toggle="offCanvas"><i class="fa fa-bars"></i></button>
             </div>
             {%  if is_granted('ROLE_ADMIN') %}
-            <div class="helper-messages">
-                <p> {# {{ check_process("supervisord") }}
-                    <br> #}{{ app.user.rolesAsString }}
-                </p>
-            </div>
+                <div class="helper-messages">
+                    <p>{{ app.user.rolesAsString }}</p>
+                </div>
             {% endif %}
         </div>
         <div class="top-bar-right">
