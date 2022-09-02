@@ -73,44 +73,31 @@
             {% endfor %}
             </tbody>
         </table>
-        {# Create new Ticket - START #}
-        <div id="modal-form0" {{ stimulus_controller('ticket-edit', {formUrl: path('app_ticket_create'),}) }}>
-            <button name="new-ticket" class="button" data-action="ticket-edit#openModal">New Ticket</button>
-            {{ include('ticket/_inc/_modalTicket.html.twig', {
-                modalId: 0,
-                modalTitel: 'New Ticket',
-                class: 'large',
-                dataVOffset: '10',
-            }) }}
-        </div>
-        {# Create new Ticket - END #}
+    </div>
 
+    {% if (is_granted('ROLE_DEV')) %}
+        <button data-request-target="join" data-action="request#submit" name="join" type="button" class="button" value="yes">Join</button>
 
-        {% if (is_granted('ROLE_DEV')) %}
-            {# Joining Stuff - START #}
-            <button data-request-target="join" data-action="request#submit" name="join" type="button" class="button" value="yes">Join</button>
-            <div class="reveal text-left " id="modal"
-                 data-request-target="modal"
-                 data-append-to="form#tableForm"
-                 data-reveal
-            >
-                <h1>Joining Tickets</h1>
-                <div class="grid-x grid-padding-y">
-                    <div class="cell modal-body" data-request-target="modalBody">
+        <div class="reveal text-left " id="modal"
+             data-request-target="modal"
+             data-append-to="form#tableForm"
+             data-reveal
+        >
+            <h1>Joining Tickets</h1>
+            <div class="grid-x grid-padding-y">
+                <div class="cell modal-body" data-request-target="modalBody">
 
-                    </div>
-                </div>
-                <div class="grid-x grid-padding-y">
-                    <div class="cell text-right">
-                        <button type="button" class="button secondary small" data-close>Cancel</button>
-                        <button type="button" class="button small" {# data-action="modal-form#submitForm" #} >Save</button>
-                    </div>
                 </div>
             </div>
-
-            {# Joining Stuff - END #}
-        {% endif %}
-
-    </div>
+            <div class="grid-x grid-padding-y">
+                <div class="cell text-right">
+                    <button type="button" class="button secondary small" data-close>Cancel</button>
+                    <button type="button" class="button small" {# data-action="modal-form#submitForm" #} >Save</button>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 </div>
+
+
 {{ knp_pagination_render(pagination, false, {}, {'controllerNameStimulus': 'ticket-list'}) }}

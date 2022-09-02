@@ -21,8 +21,8 @@ class TicketDateEmbeddedFormType extends AbstractType
                 'required'  => false,
                 'placeholder'   => 'please Choose ...',
                 'choices'       => [
-                    'outage'        => 10,
-                    'comm. issue'   => 20,
+                    'outage'        => 'outage',
+                    'comm. issue'   => 'comm. issue',
                 ],
             ])
             ->add('errorType', ChoiceType::class, [

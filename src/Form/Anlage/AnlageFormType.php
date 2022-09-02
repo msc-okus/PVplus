@@ -58,25 +58,6 @@ class AnlageFormType extends AbstractType
             'Guaranteed Expected Energy' => 'guaranteedExpected',
         ];
 
-        $tooltipTextPlantType = "
-                                    <ul>
-                                        <li>1: Fall 'Andjik, …' <br>
-                                            AC Gruppen = Trafostationen o.ä.<br>
-                                            DC Gruppen = Inverter
-                                        </li>
-                                        <li>2: Fall 'Lelystad 1 & 2, …' <br>
-                                            AC Gruppen = DC Gruppen – beides Inverter
-                                        </li>
-                                        <li>3: Fall 'Groningen, …' <br>
-                                            AC Gruppen = Inverter<br>
-                                            DC Gruppen = SCB Gruppen
-                                        </li>
-                                        <li>4: Fall 'Guben, Forst, Subzin …' <br>
-                                            AC Gruppen = Inverter<br>
-                                            DC Gruppen = SCBs
-                                        </li>
-                                    </ul>";
-
         $builder
             // ###############################################
             // ###                General                 ####
@@ -195,7 +176,7 @@ class AnlageFormType extends AbstractType
             ])
             ->add('configType', ChoiceType::class, [
                 'label' => 'Configuration der Anlage',
-                'help' => '[configType]<br>'.$tooltipTextPlantType,
+                'help' => '[configType]',
                 'choices' => ['1' => 1, '2' => 2, '3' => 3, '4' => 4],
                 'placeholder' => 'Please Choose',
                 'empty_data' => 1,

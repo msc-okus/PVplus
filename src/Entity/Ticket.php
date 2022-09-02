@@ -78,8 +78,6 @@ class Ticket
     public function __construct()
     {
         $this->dates = new ArrayCollection();
-        $this->priority = 10; // Low
-        $this->status = 30; // Work in Progress
     }
 
     public function getId(): ?int

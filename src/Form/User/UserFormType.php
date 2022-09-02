@@ -6,7 +6,6 @@ use App\Controller\SecurityController;
 use App\Entity\Eigner;
 use App\Entity\User;
 use App\Repository\AnlagenRepository;
-use App\Repository\EignerRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -24,71 +23,50 @@ use Symfony\Component\Security\Core\Security;
 
 class UserFormType extends AbstractType
 {
+    private AnlagenRepository $repo;
 
+    public function __construct(AnlagenRepository $repo,private Security $security)
+    {
+        $this->repo = $repo;
 
-    public function __construct(private AnlagenRepository $anlagenRepo, private EignerRepository $ownerRepo, private Security $security)
-    {}
+    }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         /** @var User $user */
         /** @var Eigner $eigner */
 
-        $isDeveloper = $this->security->isGranted('ROLE_DEV');
-        $isAdmin     = $this->security->isGranted('ROLE_ADMIN');
-        $isG4N       = $this->security->isGranted('ROLE_G4N');
-
         $user = $options['data'] ?? null;
         $isEdit = $user && $user->getUserId();
+        $anlagen = [];
 
-        $anlagen = $ownerArray = [];
-
-        //Find Lsit of all Owners (Eigners)
-        if ($this->security->isGranted('ROLE_G4N')) {
-            foreach ($this->ownerRepo->findAll() as $eigner) {
-                $ownerArray[$eigner->getFirma()] = $eigner->getId();
-            }
-        } else {
-            $ownerArray[$this->security->getUser()->getEigners()[0]->getFirma()] = $this->security->getUser()->getEigners()[0]->getId();
-        }
-        // Find current Owner ID (Eigners ID)
-        if ($isEdit) {
-            if ($user->getEigners()->count() > 0) {
-                $userId = $user->getEigners()[0]->getId();
-            } else {
-                $userId = 1; //User ID = 1 == G4N
-            }
-
-        } else {
-            if ($this->security->isGranted('ROLE_G4N')) {
-                $userId = 0;
-            } else {
-                $userId = $this->security->getUser()->getEigners()[0]->getId();
-            }
-        }
-        // Find Owner related Plants
-        $anlagen = $this->anlagenRepo->findAllIDByEigner($userId);
-
+        $eigner = $this?->security?->getUser()?->getEigners()[0];
+        $anlagen = $this?->repo?->findAllIDByEigner($eigner);
 
         if ($user != null) {
-            $GrantedArray = $user->getGrantedArray();
+            $GrantedArray = $user?->getGrantedArray();
          }
-        if (isset($GrantedArray)) {
+
+        if ($GrantedArray) {
             foreach ($GrantedArray as $Gkey) {
                 $fixGrantedArray[] = preg_replace('/\s+/', '', $Gkey);
             }
         }
+
         if ($anlagen){
-            foreach ($anlagen as $key => $anlage){
-                $anlagenid[] = [$anlage['anlName'] => $anlage['anlId']];
+            foreach ($anlagen as $key => $val){
+                $anlagenid[] = [$anlagen[$key]['anlName'] => $anlagen[$key]['anlId']];
             }
         }
 
-        if ($this->security->isGranted('ROLE_ADMIN_USER') and $this->security->getUser()->getUsername() != "admin"){
+       if ($this->security->isGranted('ROLE_ADMIN_USER') and $this->security->getUser()->getUsername() != "admin"){
            $choicesRolesArray = User::ARRAY_OF_ROLES_USER;
-        } else {
+       } else {
            $choicesRolesArray = User::ARRAY_OF_ROLES;
-        }
+       }
+
+           $singlechoince = [$eigner?->getFirma() => $eigner?->getId()];
+
 
 
         $builder
@@ -119,12 +97,22 @@ class UserFormType extends AbstractType
                 'multiple' => true,
                 'expanded' => true,
             ])
-            ->add('eigners', ChoiceType::class, [
-                'label' => 'Owner',
-                'choices' => $ownerArray,
-                'disabled' => (!$isAdmin) || ($isEdit),
-                'data'  => $userId,
+            ->add('eigners', EntityType::class, [
+                'class' => Eigner::class,
+                'multiple' => true,
+                'expanded' => true,
+                'choice_label' => 'firma',
+                'by_reference' => false,
+            ])
+
+            ->add('singleeigners', ChoiceType::class, [
+                'multiple' => true,
+                'expanded' => true,
                 'mapped' => false,
+                'required' => true,
+                'choices' => $singlechoince,
+                'data' => $singlechoince,
+                'disabled' => true,
             ])
 
             ->add('grantedList', TextType::class, [

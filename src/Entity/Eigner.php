@@ -589,9 +589,9 @@ class Eigner
     /**
      * @param bool $role
      *
-     * @return Collection
+     * @return Collection|Anlage[]
      */
-    public function getActiveAnlage(bool $role): Collection
+    public function getActiveAnlage($role = false): Collection
     {
         $criteria = EignerRepository::activeAnlagenCriteria($role);
 

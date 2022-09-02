@@ -91,9 +91,9 @@ class PRCalulationService
             $powerEGridExtYear = $this->functions->getSumeGridMeter($anlage, date('Y-01-01 00:00', strtotime($from)), $to);
 
             if ($anlage->getUsePac()) {
-                $weather = $this->functions->getWeather($anlage, $anlage->getWeatherStation(), $from, $to, $pacDate, $pacDateEnd); // Strahlung und andere Wetter Daten als Array
+                $weather = $this->functions->getWeather($anlage->getWeatherStation(), $from, $to, $pacDate, $pacDateEnd); // Strahlung und andere Wetter Daten als Array
             } else {
-                $weather = $this->functions->getWeather($anlage, $anlage->getWeatherStation(), $from, $to, false, false); // Strahlung und andere Wetter Daten als Array
+                $weather = $this->functions->getWeather($anlage->getWeatherStation(), $from, $to, false, false); // Strahlung und andere Wetter Daten als Array
             }
 
             // Berechne Summe und Mittelwert der JSON Arrays

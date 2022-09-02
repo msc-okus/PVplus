@@ -83,33 +83,19 @@
             {% endif %}
 
         {% if aktAnlage.HasPPC %}
-            // Wirkleistungs-Sollwert Direktvermarketer
-            let series14 = chart.series.push(new am4charts.LineSeries());
-            series14.name = "PPC by RPC (Direktvermarkter) %"
-            series14.dataFields.dateX = "date";
-            series14.dataFields.valueY = "p_set_rpc_rel";
-            series14.tooltipText = "PPC by RPC (Direktvermarkter) : {valueY} % [/]";
-            series14.fill = am4core.color("#1e1e1e");
-            series14.stroke = am4core.color("#1e1e1e");
-            //series14.strokeWidth = 1;
-            //series14.tensionX = 0.8;
-            series14.hidden = false;
-            series14.yAxis = valueAxisPPC;
-            series14.connect = false;
-
-            // Wirkleistungs-Sollwert Direktvermarketer
-            let series15 = chart.series.push(new am4charts.LineSeries());
-            series15.name = "PPC by Grid Operator %"
-            series15.dataFields.dateX = "date";
-            series15.dataFields.valueY = "p_set_gridop_rel";
-            series15.tooltipText = "PPC by Grid Operator : {valueY} % [/]";
-            series15.fill = am4core.color("#95018e");
-            series15.stroke = am4core.color("#95018e");
-            //series15.strokeWidth = 1;
-            //series15.tensionX = 0.8;
-            series15.hidden = false;
-            series15.yAxis = valueAxisPPC;
-            series15.connect = false;
+        // Wirkleistungs-Sollwert
+        let series14 = chart.series.push(new am4charts.LineSeries());
+        series14.name = "Active Power Sollvalue %"
+        series14.dataFields.dateX = "date";
+        series14.dataFields.valueY = "psetrel";
+        series14.tooltipText = "Active Power Sollvalue : {valueY} % [/]";
+        series14.fill = am4core.color("#fd5900");
+        series14.stroke = am4core.color("#fd5900");
+        //series14.strokeWidth = 1;
+        //series14.tensionX = 0.8;
+        series14.hidden = false;
+        series14.yAxis = valueAxisPPC;
+        series14.connect = false;
         {% endif %}
 
             // Expected ohne Limits

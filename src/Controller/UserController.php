@@ -13,11 +13,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Question\ConfirmationQuestion;
-
 
 class UserController extends BaseController
 {
@@ -72,10 +67,11 @@ class UserController extends BaseController
 
     #[Route(path: '/admin/user/list', name: 'app_admin_user_list')]
     #[IsGranted(['ROLE_ADMIN_OWNER'])]
-    public function list(Request $request, PaginatorInterface $paginator, UserRepository $userRepository): Response
+    public function list(Request $request, PaginatorInterface $paginator, UserRepository $userRepository, SecurityController $security): Response
     {
         /** @var User $user */
         /** @var Eigner $eigner */
+
 
         $q = $request->query->get('qu');
         if ($request->query->get('search') == 'yes' && $q == '') {
@@ -88,8 +84,20 @@ class UserController extends BaseController
             $q = $request->getSession()->get('qu');
             $request->query->set('qu', $q);
         }
+        if ($q) {
+            $term = $q;
+        } else {
+          if (!$this->isGranted('ROLE_G4N')  ) { //&& $security->getUser()->getUsername() != "admin"
+              $eigner = $security->getUser()->getEigners()[0];
+              #dd($security->getUser()->getUsername());
+              $eignerID = $eigner->getId();
+              $term = $eignerID;
+          } else {
+              $term = $q;
+          }
+        }
 
-        $queryBuilder = $userRepository->getWithSearchQueryBuilderbyID($q);
+        $queryBuilder = $userRepository->getWithSearchQueryBuilderbyID($term);
 
         $pagination = $paginator->paginate(
             $queryBuilder, /* query NOT result */
@@ -136,9 +144,8 @@ class UserController extends BaseController
             return $this->redirectToRoute('app_admin_user_list');
         }
 
-        return $this->renderForm('user/edit.html.twig', [
-            'userForm' => $form,
-            ''
+        return $this->render('user/edit.html.twig', [
+            'userForm' => $form->createView(),
         ]);
     }
 
@@ -153,7 +160,7 @@ class UserController extends BaseController
     }
 
 
-    #[Route(path: 'admin/user/delete/{id}', name: 'app_admin_user_delete')]
+    #[Route(path: 'admin/user/delete/{id}', name: 'app_admin_user_delete', methods: 'DELETE')]
     #[IsGranted(['ROLE_G4N'])]
     public function delete($id, EntityManagerInterface $em, Request $request,  UserRepository $userRepository, SecurityController $security)
     {
@@ -168,21 +175,12 @@ class UserController extends BaseController
 
         if($rmoves != null)
         {
-            #$helper = $command->getHelper('question');
-            #$question = new ConfirmationQuestion('Continue with this action?', false);
-
-            #if (!$helper->ask($input, $output, $question)) {
-            #    return Command::SUCCESS;
-            #}
-
            // $em->remove($rmoves);
            // $em->flush();
             // To do Abfrage Yes No
         }
 
-        $this->addFlash('warning', 'Canceled. No data was saved.');
-
-       return $this->redirectToRoute('app_admin_user_list');
+        return $this->redirectToRoute('app_admin_user_list');
     }
 
 }
