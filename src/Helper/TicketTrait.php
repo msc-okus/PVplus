@@ -128,7 +128,7 @@ trait TicketTrait
         return $this;
     }
     /**
-     * @Deprecated
+     *
      */
     public function getInverter(): string
     {
