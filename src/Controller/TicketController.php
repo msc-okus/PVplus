@@ -145,7 +145,7 @@ class TicketController extends BaseController
             $anlage = null;
         }
 
-        $status = $request->query->get('status');
+        $status = $request->query->get('status', default: 10);
         $editor = $request->query->get('editor');
         $id = $request->query->get('id');
         $inverter = $request->query->get('inverter');

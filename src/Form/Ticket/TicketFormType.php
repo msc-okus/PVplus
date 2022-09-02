@@ -121,14 +121,16 @@ class TicketFormType extends AbstractType
                 'label' => 'Status',
                 'choices' => self::ticketStati(),
                 'required' => true,
-                'empty_data' => 30, // Work in Progress
+                'placeholder' => 'please Choose ...',
+                'empty_data' => 20,
                 'invalid_message' => 'Please select a Status.',
             ])
             ->add('priority', ChoiceType::class, [
                 'label' => 'Priority',
                 'choices' => self::ticketPriority(),
                 'required' => true,
-                'empty_data' => 10, // Low
+                'placeholder' => 'please Choose ...',
+                'empty_data' => 20,
                 'invalid_message' => 'Please select a Priority.',
             ])
             ->add('alertType', ChoiceType::class, [
@@ -142,7 +144,7 @@ class TicketFormType extends AbstractType
             ])
             ->add('errorType', ChoiceType::class, [
                 'label' => 'Type of error',
-                'help' => 'OMC: Out of Management Control<br>EFOR: Equivalent Forced Outage Rate<br>SOR: Scheduled Uutage Rate',
+                'help' => 'SOR, EFOR, OMC',
                 'choices' => self::errorType(),
                 'placeholder' => 'Please select ...',
                 'disabled' => false,

@@ -21,9 +21,6 @@ class TicketDateRepository extends ServiceEntityRepository
         parent::__construct($registry, TicketDate::class);
     }
 
-/*
- * ToDo: could thios be removed ??
- *
     public function add(TicketDate $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);
@@ -41,8 +38,21 @@ class TicketDateRepository extends ServiceEntityRepository
             $this->getEntityManager()->flush();
         }
     }
-*/
 
+//    /**
+//     * @return TicketDate[] Returns an array of TicketDate objects
+//     */
+//    public function findByExampleField($value): array
+//    {
+//        return $this->createQueryBuilder('t')
+//            ->andWhere('t.exampleField = :val')
+//            ->setParameter('val', $value)
+//            ->orderBy('t.id', 'ASC')
+//            ->setMaxResults(10)
+//            ->getQuery()
+//            ->getResult()
+//        ;
+//    }
 
     public function findOneById($id): ?TicketDate
     {
@@ -141,31 +151,5 @@ class TicketDateRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult()
             ;
-    }
-
-    /**
-     * Search for all DataGap Tickets wich are outage
-     * means search for all Ticketdates wich are datagabs (alertType = 10) and NOT defined as comm. issue (
-     *
-     * @param $anlage
-     * @param $begin
-     * @param $end
-     * @return mixed
-     */
-    public function findDataGapOutage($anlage, $begin, $end): mixed
-    {
-        $q = $this->createQueryBuilder('t')
-            ->andWhere('t.begin BETWEEN :begin AND :end')
-            ->andWhere('t.Anlage = :anlage')
-            ->andWhere('t.alertType = 10')
-            ->andWhere('t.dataGapEvaluation <> 20 OR t.dataGapEvaluation IS NULL')
-            ->setParameter('begin', $begin)
-            ->setParameter('end', $end)
-            ->setParameter('anlage', $anlage)
-            ->getQuery()
-            ->getResult()
-            ;
-
-        return $q;
     }
 }
