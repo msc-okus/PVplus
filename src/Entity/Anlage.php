@@ -1051,6 +1051,11 @@ class Anlage
         return $this->dbAnlagenData.'.db__pv_ppc_'.$this->getAnlIntnr();
     }
 
+    public function getDbNameMeters(): string
+    {
+        return $this->dbAnlagenData.'.db__pv_meters_'.$this->getAnlIntnr();
+    }
+
     public function getDbNameSection(): string
     {
         return $this->dbAnlagenData.'.db__pv_section_'.$this->getAnlIntnr();
