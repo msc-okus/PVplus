@@ -1,8 +1,6 @@
-
 <?php
 namespace App\Repository;
 
-use App\Entity\Anlage;
 use App\Entity\Ticket;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
