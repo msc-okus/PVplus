@@ -13,6 +13,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Question\ConfirmationQuestion;
+
 
 class UserController extends BaseController
 {
@@ -148,7 +153,7 @@ class UserController extends BaseController
     }
 
 
-    #[Route(path: 'admin/user/delete/{id}', name: 'app_admin_user_delete', methods: 'DELETE')]
+    #[Route(path: 'admin/user/delete/{id}', name: 'app_admin_user_delete')]
     #[IsGranted(['ROLE_G4N'])]
     public function delete($id, EntityManagerInterface $em, Request $request,  UserRepository $userRepository, SecurityController $security)
     {
@@ -163,12 +168,21 @@ class UserController extends BaseController
 
         if($rmoves != null)
         {
+            #$helper = $command->getHelper('question');
+            #$question = new ConfirmationQuestion('Continue with this action?', false);
+
+            #if (!$helper->ask($input, $output, $question)) {
+            #    return Command::SUCCESS;
+            #}
+
            // $em->remove($rmoves);
            // $em->flush();
             // To do Abfrage Yes No
         }
 
-        return $this->redirectToRoute('app_admin_user_list');
+        $this->addFlash('warning', 'Canceled. No data was saved.');
+
+       return $this->redirectToRoute('app_admin_user_list');
     }
 
 }

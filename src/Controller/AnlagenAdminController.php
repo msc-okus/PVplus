@@ -385,6 +385,18 @@ class AnlagenAdminController extends BaseController
                       KEY `stamp` (`stamp`)
                 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;";
 
+            $databaseMeters = 'CREATE TABLE IF NOT EXISTS '.$anlage->getDbNameMeters()." (
+                      `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
+                      `anl_id` int(11) NOT NULL,
+                      `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+                      `group` int(11) NOT NULL DEFAULT '1',
+                      `power_evu` varchar(20) NOT NULL,
+                      `unit` varchar(20) NOT NULL,                      
+                      PRIMARY KEY (`db_id`),
+                      UNIQUE KEY `stamp_inverter` (`stamp`),
+                      KEY `stamp` (`stamp`)
+                      ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;";
+
             $databasePPC = "CREATE TABLE IF NOT EXISTS ".$anlage->getDbNamePPC()." (
                            `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
                            `anl_id` bigint(11) NOT NULL,
@@ -424,6 +436,9 @@ class AnlagenAdminController extends BaseController
             $conn->exec($databaseAcIst);
             $conn->exec($databaseDcIst);
             // $conn->exec($databaseAcSoll);
+            if ($anlage->getUseGridMeterDayData() === 1) {
+                $conn->exec($databaseMeters);
+            }
             $conn->exec($databaseDcSoll);
             $conn->exec($databasePPC);
             if (false) $conn->exec($databaseSections);
