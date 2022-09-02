@@ -22,9 +22,24 @@ trait TicketTrait
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $description = '';
 
+    /**
+     * could be:
+     *     10: New
+     *     20: Open
+     *     30: Work in Progress
+     *     40: Wait external
+     *     90: Closed
+     */
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $systemStatus = 0;
 
+    /**
+     * could be:
+     *     10: Low
+     *     20: Normal
+     *     30: High
+     *     40: Urgent
+     */
     #[ORM\Column(type: 'integer', nullable: true)]
     private int $priority = 0;
 
