@@ -7,6 +7,7 @@ use App\Helper\G4NTrait;
 use App\Repository\AnlageAvailabilityRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\Case5Repository;
+use App\Service\AvailabilityByTicketService;
 use App\Service\AvailabilityService;
 use App\Service\CheckSystemStatusService;
 use App\Service\ExportService;
@@ -55,12 +56,12 @@ class DefaultMREController extends BaseController
         ]);
     }
 
-    #[Route(path: '/mr/pa/{id}')]
-    public function pa($id, AvailabilityService $availability, AnlagenRepository $anlagenRepository): Response
+    #[Route(path: '/mr/pa/test')]
+    public function pa(AvailabilityByTicketService $availability, AnlagenRepository $anlagenRepository): Response
     {
-        $anlage = $anlagenRepository->find($id);
-        $date = '2020-12-07';
-        $output = $availability->checkAvailability($anlage, strtotime($date), false);
+        $anlage = $anlagenRepository->find('112');
+        $date = '2022-08-30';
+        $output = $availability->checkAvailability($anlage, strtotime($date), 1);
 
         return $this->render('cron/showResult.html.twig', [
             'headline' => "PA $date",
