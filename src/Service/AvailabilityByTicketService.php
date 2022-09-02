@@ -4,12 +4,15 @@ namespace App\Service;
 
 use App\Entity\Anlage;
 use App\Entity\AnlageAvailability;
+use App\Entity\TicketDate;
 use App\Entity\TimesConfig;
 use App\Helper\G4NTrait;
 use App\Repository\AnlageAvailabilityRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\Case5Repository;
 use App\Repository\Case6Repository;
+use App\Repository\TicketDateRepository;
+use App\Repository\TicketRepository;
 use App\Repository\TimesConfigRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
@@ -19,38 +22,22 @@ class AvailabilityByTicketService
 {
     use G4NTrait;
 
-    private EntityManagerInterface $em;
-
-    private AnlageAvailabilityRepository $availabilityRepository;
-
-    private Case5Repository $case5Repository;
-
-    private Case6Repository $case6Repository;
-
-    private TimesConfig $timesConfig;
-
-    private TimesConfigRepository $timesConfigRepo;
-
-    private FunctionsService $functions;
-
-    private AnlagenRepository $anlagenRepository;
-
-    public function __construct(EntityManagerInterface $em, AnlageAvailabilityRepository $availabilityRepository,
-        Case5Repository $case5Repository, Case6Repository $case6Repository,
-        TimesConfigRepository $timesConfigRepo, FunctionsService $functions, AnlagenRepository $anlagenRepository)
-    {
-        $this->em = $em;
-        $this->availabilityRepository = $availabilityRepository;
-        $this->case5Repository = $case5Repository;
-        $this->case6Repository = $case6Repository;
-        $this->timesConfigRepo = $timesConfigRepo;
-        $this->functions = $functions;
-        $this->anlagenRepository = $anlagenRepository;
-    }
+    public function __construct(
+        private EntityManagerInterface $em,
+        private AnlageAvailabilityRepository $availabilityRepository,
+        private Case5Repository $case5Repository,
+        private Case6Repository $case6Repository,
+        private TimesConfigRepository $timesConfigRepo,
+        private FunctionsService $functions,
+        private AnlagenRepository $anlagenRepository,
+        private TicketRepository $ticketRepo,
+        private TicketDateRepository $ticketDateRepo
+    )
+    {}
 
     /**
      * @param $date
-     * @param int $department (for witch department (1 = EPC, 2 = O&M, 3 = AM)
+     * @param int $department (for witch department (1 = O&M, 2 = EPC, 3 = AM)
      */
     public function checkAvailability(Anlage|int $anlage, $date, int $department = 1): string
     {
@@ -134,9 +121,21 @@ class AvailabilityByTicketService
                 }
 
                 switch ($department) {
-                    // case 1:
-                    // PA Department 1
-                    // break;
+                    case 1:
+                        // PA Department 1
+                        $anlagenAvailability->setcase0($availability['case0']);
+                        $anlagenAvailability->setCase1($availability['case1']);
+                        $anlagenAvailability->setCase2($availability['case2']);
+                        $anlagenAvailability->setCase3($availability['case3']);
+                        $anlagenAvailability->setCase4($availability['case4']);
+                        $anlagenAvailability->setCase5($availability['case5']);
+                        $anlagenAvailability->setCase6($availability['case6']);
+                        $anlagenAvailability->setControl($availability['control']);
+                        $anlagenAvailability->setInvAPart1($invAPart1);
+                        $anlagenAvailability->setInvAPart2($invAPart2);
+                        $anlagenAvailability->setInvA($invAPart1 * $invAPart2);
+                        $anlagenAvailability->setRemarks('');
+                        break;
                     case 2:
                         // PA Department 2
                         $anlagenAvailability->setcase0Second($availability['case0']);
@@ -186,10 +185,14 @@ class AvailabilityByTicketService
      * CASE 3 = wenn Gmod >= 50 && PowerAc inverter <= 0<br>
      * CASE 4 = wenn Gmod >= 50 && PowerAc inverter > 0 && cosPhi = 0<br>
      * CASE 5 = Manuel, durch Operator herausgenommen (z.B.: wegen Wartung)<br>
-     * CASE 6 = Manuel, durch Operator koriegierte Datenlücke (Datenlücke ist Ausfall des Inverters) <br>
+     * CASE 6 = Manuel, durch Operator korriegierte Datenlücke (Datenlücke ist Ausfall des Inverters) <br>
      * CONTROL = wenn Gmod > 0<br>.
      *
+     * @param Anlage $anlage
      * @param $timestampModulo
+     * @param TimesConfig $timesConfig
+     * @param int $department
+     * @return array
      */
     public function checkAvailabilityInverter(Anlage $anlage, $timestampModulo, TimesConfig $timesConfig, int $department = 1): array
     {
@@ -231,12 +234,27 @@ class AvailabilityByTicketService
                 $c6From = strtotime($case['stampFrom']);
                 $c6To = strtotime($case['stampTo']);
                 for ($c6Stamp = $c6From; $c6Stamp < $c6To; $c6Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
-                    foreach (explode(',', $case['inverter'], 999) as $inverter) {
+                    foreach ($this->functions->readInverters($case['inverter'], $anlage) as $inverter) {
                         $inverter = trim($inverter, ' ');
                         $case6Array[$inverter][date('Y-m-d H:i:00', $c6Stamp)] = true;
                     }
                 }
             }
+
+            /** @var TicketDate $case6Ticket */
+            foreach ($this->ticketDateRepo->findDataGapOutage($anlage, $from, $to) as $case6Ticket){
+
+                $c6From = $case6Ticket->getBegin()->getTimestamp();
+                $c6To = $case6Ticket->getEnd()->getTimestamp();
+                for ($c6Stamp = $c6From; $c6Stamp < $c6To; $c6Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
+                    foreach ($this->functions->readInverters($case6Ticket->getInverter(), $anlage) as $inverter) {
+                        $inverter = trim($inverter, ' ');
+                        $case6Array[$inverter][date('Y-m-d H:i:00', $c6Stamp)] = true;
+                    }
+                }
+
+            }
+            dump($case6Array);
 
             foreach ($einstrahlungen as $einstrahlung) {
                 $stamp = $einstrahlung['stamp'];

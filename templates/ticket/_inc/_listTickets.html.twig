@@ -75,6 +75,38 @@
         </table>
     </div>
 
+    {# create New Ticket – Begin #}
+    <div id="modal-form0" {{ stimulus_controller('ticket-edit', {
+        formUrl: path('app_ticket_create'),
+    }) }}
+    >
+        <div class="cell medium-2">
+            <select name="anlage-id"
+                    data-ticket-edit-target="anlage"
+                    data-action="ticket-edit#toggle">
+                <option value="" disabled selected hidden>Please choose a Plant</option>
+                {% for anlage in anlagen %}
+                    <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlId }} - {{ anlage.anlName }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button name="new-ticket" class="button"
+                disabled
+                data-ticket-edit-target="deactivable"
+                data-action="ticket-edit#openModal"
+        >
+            New Ticket
+        </button>
+        {{ include('ticket/_inc/_modalTicket.html.twig', {
+            modalId: 0,
+            modalTitel: 'New Ticket',
+            class: 'large',
+            dataVOffset: '10',
+        }) }}
+    </div>
+    {# create New Ticket – End #}
+
+    {# join Tickets – Begin #}
     {% if (is_granted('ROLE_DEV')) %}
         <button data-request-target="join" data-action="request#submit" name="join" type="button" class="button" value="yes">Join</button>
 
@@ -97,6 +129,8 @@
             </div>
         </div>
     {% endif %}
+    {# join Tickets – Begin #}
+
 </div>
 
 
