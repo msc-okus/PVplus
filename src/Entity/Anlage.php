@@ -1380,6 +1380,7 @@ class Anlage
     {
         $this->showCosPhiPowerDiag = $showCosPhiPowerDiag;
 
+
         return $this;
     }
 

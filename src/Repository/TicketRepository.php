@@ -159,7 +159,7 @@ class TicketRepository extends ServiceEntityRepository
         $description = 'Error with the Data of the Weather station';
         $result = $this->createQueryBuilder('t')
             ->andWhere('t.end < :today')
-            ->andWhere('t.end > :yesterday')
+            ->andWhere('t.end >= :yesterday')
             ->andWhere('t.anlage = :anl')
             ->andWhere('t.inverter = :inv')
             ->andWhere('t.description != :description')

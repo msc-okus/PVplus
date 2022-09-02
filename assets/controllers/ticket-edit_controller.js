@@ -4,7 +4,7 @@ import { Reveal } from 'foundation-sites';
 import $ from 'jquery';
 
 export default class extends Controller {
-    static targets = ['modal', 'modalBody', 'splitModal', 'splitForm'];
+    static targets = ['modal', 'modalBody', 'splitModal', 'splitForm', 'switch', 'deactivable', 'anlage'];
     static values = {
         formUrl: String,
         splitUrl: String,
@@ -20,7 +20,18 @@ export default class extends Controller {
         this.modalBodyTarget.innerHTML = 'Loading ...';
         this.modal = new Reveal($(this.modalTarget));
         this.modal.open();
-        this.modalBodyTarget.innerHTML = await $.ajax(this.formUrlValue);
+        console.log(this.formUrlValue);
+        if (this.formUrlValue == '/ticket/create') {
+            this.modalBodyTarget.innerHTML = await $.ajax({
+                url: this.formUrlValue,
+                data: {'anlage': $(this.anlageTarget).val()},
+            });
+        }
+        else{
+            this.modalBodyTarget.innerHTML = await $.ajax({
+                url: this.formUrlValue,
+            });
+        }
         $(this.modalBodyTarget).foundation();
     }
 
@@ -33,24 +44,58 @@ export default class extends Controller {
         this.modal.destroy();
     }
 
-    async saveTicket(event) {
+    async saveTicket({params: {id}}) {
         event.preventDefault();
         const  $form = $(this.modalBodyTarget).find('form');
+
+        console.log($form.find('ticket_form_anlage'));
+        console.log(id, 'hola');
+        /*
         try {
             await $.ajax({
                 url: this.formUrlValue,
                 method: $form.prop('method'),
-                data: $form.serialize(),
+                data: {'form':$form.serialize(),
+                },
+            });
+            await $.ajax({
+                url: this.formUrlValue,
+                data:{'anlage':$(this.anlageTarget).val()},
             });
             this.dispatch('success');
             this.modal.destroy();
         } catch(e) {
             this.modalBodyTarget.innerHTML = e.responseText;
         }
+
+         */
     }
 
     async reload(event){
         this.modalBodyTarget.innerHTML = await $.ajax(this.formUrlValue);
     }
 
+    check(){
+
+        //const  $form = $(this.modalBodyTarget).find('form');
+        console.log($('#ticket_form_inverter'));
+
+        if($(this.switchTarget).prop('checked')) {
+            $('input:checkbox[class=js-checkbox]').each(function () {
+                $(this).prop('checked', true);
+            });
+        }
+        else {
+            $('input:checkbox[class=js-checkbox]').each(function(){
+                $(this).prop('checked', false);
+            });
+        }
+    }
+    toggle(){
+        const $button = $(this.deactivableTargets);
+        if ($button.attr('disabled')) {
+            $button.removeAttr('disabled');
+        }
+
+    }
 }

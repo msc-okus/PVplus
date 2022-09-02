@@ -3,6 +3,7 @@
 namespace App\Helper;
 
 use DateTimeInterface;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 trait TicketTrait
@@ -154,7 +155,9 @@ trait TicketTrait
 
         return $this;
     }
-
+    /**
+     * @Deprecated
+     */
     public function getInverter(): string
     {
         return $this->inverter;
@@ -165,6 +168,27 @@ trait TicketTrait
         $this->inverter = $Inverter;
 
         return $this;
+    }
+
+    /**
+     * we will use this to provide an array and turn it into a string to save it
+     */
+    public function setInverterArray(Array $inverterArray): self
+    {
+        $inverterString = $inverterArray[0];
+        for($index = 1; $index < sizeof($inverterArray); $index ++){
+            $inverterString = $inverterString.",".$inverterArray[$index];
+        }
+        $this->inverter = $inverterString;
+
+        return $this;
+    }
+    /**
+     * This will translate the string with commas from the db field into an array and return it
+     */
+    public function getInverterArray(): array
+    {
+        return explode(",", $this->inverter);
     }
 
     public function getAlertType(): ?string

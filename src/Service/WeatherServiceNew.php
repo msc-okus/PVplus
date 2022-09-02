@@ -182,16 +182,10 @@ class WeatherServiceNew
      */
     public function getSunrise(Anlage $anlage, ?string $time = null): array
     {
-        if ($time === null) {
-            $current_date = date('Y-m-d');
-            $sunrisedata = date_sun_info(time(), (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon());
-        } else {
-            $current_date = date('Y-m-d', strtotime($time));
-            $sunrisedata = date_sun_info(strtotime($time), (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon());
-        }
+        $sunrisedata = date_sun_info(strtotime($time), (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon());
 
-        $returnArray['sunrise'] = $current_date.' '.date('H:i', $sunrisedata['sunrise']);
-        $returnArray['sunset'] = $current_date.' '.date('H:i', $sunrisedata['sunset']);
+        $returnArray['sunrise'] = $time.' '.date('H:i', $sunrisedata['sunrise']);
+        $returnArray['sunset'] = $time.' '.date('H:i', $sunrisedata['sunset']);
 
         return $returnArray;
     }

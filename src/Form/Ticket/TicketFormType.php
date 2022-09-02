@@ -46,15 +46,11 @@ class TicketFormType extends AbstractType
 
         if (!$isNewTicket) {
             $builder
-                ->add('anlage', EntityType::class, [
-                    'label' => 'Plant',
-                    'placeholder' => 'please select …',
-                    'empty_data' => 0,
-                    'class' => Anlage::class,
-                    'choices' => $this->anlagenRepository->findAllActiveAndAllowed(),
-                    'choice_label' => 'anlName',
-                    'required' => true,
-                    'invalid_message' => 'Please select a Plant.',
+                ->add('anlage', AnlageTextType::class, [
+                    'label' => 'Plant name ',
+                    'attr' => [
+                        'readonly' => true,
+                    ],
                 ])
                 ->add('begin', DateTimeType::class, [
                     'label' => 'Begin',

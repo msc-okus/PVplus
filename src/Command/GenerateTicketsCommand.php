@@ -88,9 +88,7 @@ class GenerateTicketsCommand extends Command
                     sleep(30);
                 }
                 */
-                dump($anlage);
                 for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-                    dump( date('Y-m-d H:i:00', $stamp));
                     $this->alertService->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
                     /*
                     if (((int) date('i') >= 28 && (int) date('i') < 35) || (int) date('i') >= 58 || (int) date('i') < 5) {

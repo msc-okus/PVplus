@@ -10,6 +10,7 @@ use App\Helper\PVPNameArraysTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
+use App\Service\FunctionsService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -22,8 +23,10 @@ class TicketController extends BaseController
     use PVPNameArraysTrait;
 
     #[Route(path: '/ticket/create', name: 'app_ticket_create')]
-    public function create(EntityManagerInterface $em, Request $request): Response
+    public function create(EntityManagerInterface $em, Request $request, AnlagenRepository $anlRepo, functionsService $functions): Response
     {
+        $anlage = $anlRepo->findIdLike((int)$request->query->get('anlage'))[0];
+        $nameArray = $functions->getInverterArray($anlage);
         $form = $this->createForm(TicketFormType::class);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -45,15 +48,19 @@ class TicketController extends BaseController
         return $this->renderForm('ticket/_inc/_edit.html.twig', [
             'ticketForm' => $form,
             'ticket' => false,
+            'anlage' => $anlage,
             'edited' => false,
+            'invArray' => $nameArray,
         ]);
     }
 
     #[Route(path: '/ticket/edit/{id}', name: 'app_ticket_edit')]
-    public function edit($id, TicketRepository $ticketRepo, EntityManagerInterface $em, Request $request): Response
+    public function edit($id, TicketRepository $ticketRepo, EntityManagerInterface $em, Request $request, functionsService $functions ): Response
     {
         $ticket = $ticketRepo->find($id);
         $ticketDates = $ticket->getDates();
+        $anlage = $ticket->getAnlage();
+        $nameArray = $functions->getInverterArray($anlage);
         if ($ticketDates->isEmpty()) {
             $ticketDates = null;
         }
@@ -96,7 +103,9 @@ class TicketController extends BaseController
         return $this->renderForm('ticket/_inc/_edit.html.twig', [
             'ticketForm' => $form,
             'ticket' => $ticket,
+            'anlage' => $anlage,
             'edited' => true,
+            'invArray' => $nameArray
         ]);
     }
 
@@ -167,6 +176,7 @@ class TicketController extends BaseController
         return $this->render('ticket/list.html.twig', [
             'pagination'    => $pagination,
             'anlage'        => $anlage,
+            'anlagen'       =>$anlagenRepo->findAllActiveAndAllowed(),
             'user'          => $editor,
             'id'            => $id,
             'inverter'      => $inverter,
@@ -175,14 +185,17 @@ class TicketController extends BaseController
     }
 
     #[Route(path: '/ticket/split/{id}', name: 'app_ticket_split', methods: ['GET', 'POST'])]
-    public function split($id, TicketDateRepository $ticketDateRepo, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
+    public function split($id, TicketDateRepository $ticketDateRepo, TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em, functionsService $functions): Response
     {
         $page = $request->query->getInt('page', 1);
 
         $ticketDate = $ticketDateRepo->findOneById($id);
 
+
         $ticket = $ticketRepo->findOneById($ticketDate->getTicket());
         $splitTime = date_create($request->query->get('begin-time'));
+        $anlage = $ticket->getAnlage();
+        $nameArray = $functions->getInverterArray($anlage);
 
         if ($splitTime && $ticket) {
             $mainDate = new TicketDate();
@@ -209,16 +222,20 @@ class TicketController extends BaseController
             'edited' => true,
             'dates' => $ticketDates,
             'page' => $page,
+            'invArray' => $nameArray
         ]);
     }
 
     #[Route(path: '/ticket/delete/{id}', name: 'app_ticket_delete')]
-    public function delete($id, TicketRepository $ticketRepo, TicketDateRepository $ticketDateRepo, Request $request, EntityManagerInterface $em): Response
+    public function delete($id, TicketRepository $ticketRepo, TicketDateRepository $ticketDateRepo, Request $request, EntityManagerInterface $em, functionsService $functions): Response
     {
         $option = $request->query->get('value');
         $page = $request->query->getInt('page', 1);
         $ticketDate = $ticketDateRepo->findOneById($id);
         $ticket = $ticketRepo->findOneById($ticketDate->getTicket());
+        $anlage = $ticket->getAnlage();
+        $nameArray = $functions->getInverterArray($anlage);
+
         if ($ticket) {
             switch ($option) {
                 case 'Previous':
@@ -257,6 +274,7 @@ class TicketController extends BaseController
             'edited' => true,
             'dates' => $ticketDates,
             'page' => $page,
+            'invArray' => $nameArray
         ]);
     }
 
