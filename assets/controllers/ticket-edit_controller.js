@@ -21,6 +21,7 @@ export default class extends Controller {
         this.modal = new Reveal($(this.modalTarget));
         this.modal.open();
         console.log(this.formUrlValue);
+
         if (this.formUrlValue == '/ticket/create') {
             this.modalBodyTarget.innerHTML = await $.ajax({
                 url: this.formUrlValue,
@@ -44,23 +45,19 @@ export default class extends Controller {
         this.modal.destroy();
     }
 
-    async saveTicket({params: {id}}) {
+    async saveTicket(event) {
         event.preventDefault();
-        const  $form = $(this.modalBodyTarget).find('form');
 
-        console.log($form.find('ticket_form_anlage'));
-        console.log(id, 'hola');
-        /*
+
+
+        const  $form = $(this.modalBodyTarget).find('form');
+        console.log($form.prop('method'));
+
         try {
             await $.ajax({
                 url: this.formUrlValue,
                 method: $form.prop('method'),
-                data: {'form':$form.serialize(),
-                },
-            });
-            await $.ajax({
-                url: this.formUrlValue,
-                data:{'anlage':$(this.anlageTarget).val()},
+                data: $form.serialize(),
             });
             this.dispatch('success');
             this.modal.destroy();
@@ -68,7 +65,7 @@ export default class extends Controller {
             this.modalBodyTarget.innerHTML = e.responseText;
         }
 
-         */
+
     }
 
     async reload(event){

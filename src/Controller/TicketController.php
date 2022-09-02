@@ -25,20 +25,29 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/create', name: 'app_ticket_create')]
     public function create(EntityManagerInterface $em, Request $request, AnlagenRepository $anlRepo, functionsService $functions): Response
     {
-        $anlage = $anlRepo->findIdLike((int)$request->query->get('anlage'))[0];
-        $nameArray = $functions->getInverterArray($anlage);
+        if($request->query->get('anlage') !== null)
+        {
+            $anlage = $anlRepo->findIdLike((int)$request->query->get('anlage'))[0];
+            $nameArray = $functions->getInverterArray($anlage);
+        }
+        else
+        {
+            $anlage = null;
+            $nameArray = [];
+        }
+
         $form = $this->createForm(TicketFormType::class);
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
+
             $ticket = $form->getData();
 
             $ticket->setEditor($this->getUser()->getUsername());
-            // $ticket->setInverter("*");
             $date = new TicketDate();
             $date->copyTicket($ticket);
             $ticket->addDate($date);
 
-            // dd($ticket);
             $em->persist($ticket);
             $em->flush();
 
