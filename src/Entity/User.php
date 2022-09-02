@@ -84,7 +84,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private string $grantedList;
 
     #[ORM\ManyToMany(targetEntity: Eigner::class, mappedBy: 'user')]
-    private $eigners;
+    private Collection $eigners;
 
     public function __construct()
     {
