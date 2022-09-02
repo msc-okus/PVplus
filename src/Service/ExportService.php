@@ -29,51 +29,66 @@ class ExportService
     {
         $tempArray = [];
         $availability = 0;
-        $help = '<tr><th></th>';
+        $help = '<tr><th>&nbsp;</th>';
         $output = '<b>'.$anlage->getAnlName().'</b><br>';
         $output .= "<div class='table-scroll'><table><thead><tr><th>Datum</th>";
         foreach ($anlage->getAcGroups() as $groupAC) {
-            $output .= '<th>'.$groupAC->getAcGroupName().'</th><th></th><th></th>';
-            $help .= '<th><small>Irr [kWh/qm]</small></th><th></th><th><small>gewichtete TheoPower mit TempCorr [kWh]</small></th>';
+            $output .= '<th>'.$groupAC->getAcGroupName().'</th><th></th><th></th><th></th><th></th><th></th>';
+            $help .= '<th><small>Irr [kWh/qm]</small></th><th></th><th><small>Irr PPC [kWh/qm]</small></th><th></th><th><small>gewichtete TheoPower mit TempCorr [kWh]</small></th><th><small>gewichtete TheoPower mit TempCorr PPC [kWh]</small></th>'; // part of second row Headline
         }
-        $output .= '<td>Mittelwert Luft Temp.</td><td>Verfügbarkeit</td><td>gewichtete Strahlung</td><td>gewichtete TheoPower mit TempCorr</td></tr>';
-        $help .= '<td>°C</td><td>[%]</td><td>[kWh/qm]</td><td>[kWh]</td><td>eGrid</td></tr>';
+        $output .= '<td>Mittelwert Luft Temp.</td><td>Verfügbarkeit</td><td>gewichtete Strahlung</td><td>gewichtete Strahlung PPC</td><td>gewichtete TheoPower mit TempCorr</td><td>gewichtete TheoPower mit TempCorr PPC</td><td></td></tr>';
+        $help .= '<td>°C</td><td>[%]</td><td>[kWh/qm]</td><td>[kWh/qm]</td><td>[kWh]</td><td>[kWh]</td><td>eGrid</td></tr>'; // part of second row Headline
         $output .= $help.'</thead><tbody>';
 
         /* @var AnlageAcGroups $groupAC */
         for ($stamp = (int)$from->format('U') + (5*3600); $stamp <= (int)$to->format('U'); $stamp += 86400) {
-            $gewichteteStrahlung = $gewichteteTheoPower = $gewichteteTheoPower2 = 0;
+            $gewichteteStrahlung = $gewichteteStrahlungPpc = $gewichteteTheoPower = $gewichteteTheoPowerPpc = 0;
             $output .= '<tr>';
             $output .= '<td><small>'.date('Y-m-d', $stamp).'</small></td>';
 
             // für jede AC Gruppe ermittele Wetterstation, lese Tageswert und gewichte diesen
             foreach ($anlage->getAcGroups() as $groupAC) {
-                $weather = $this->functions->getWeather($groupAC->getWeatherStation(), date('Y-m-d 00:00', $stamp), date('Y-m-d 23:59', $stamp), null, null);
-                $acPower = $this->functions->getSumAcPowerByGroup($anlage, date('Y-m-d 00:00', $stamp), date('Y-m-d 23:59', $stamp), $groupAC->getAcGroup());
+                $weather = $this->functions->getWeatherNew($anlage, $groupAC->getWeatherStation(), date('Y-m-d 00:00', $stamp), date('Y-m-d 23:59', $stamp));
+                $acPower = $this->functions->getSumAcPowerBySection($anlage, date('Y-m-d 00:00', $stamp), date('Y-m-d 23:59', $stamp), $groupAC->getAcGroup());
                 $tempArray[] = $weather['airTemp'];
                 if ($groupAC->getIsEastWestGroup()) {
                     if ($weather['upperIrr'] > 0 && $weather['lowerIrr'] > 0) {
-                        $irradiation = ($weather['upperIrr'] + $weather['lowerIrr']) / 2;
+                        $factorEast = $groupAC->getPowerEast() / $groupAC->getDcPowerInverter();
+                        $factorWest = $groupAC->getPowerWest() / $groupAC->getDcPowerInverter();
+                        $irradiation = $weather['upperIrr'] * $factorEast + $weather['lowerIrr'] * $factorWest;
+                        $irradiationPpc = ($weather['upperIrrPpc'] + $weather['lowerIrrPpc']) / 2;
                     } elseif ($weather['upperIrr'] > 0) {
                         $irradiation = $weather['upperIrr'];
+                        $irradiationPpc = $weather['upperIrrPpc'];
                     } else {
                         $irradiation = $weather['lowerIrr'];
+                        $irradiationPpc = $weather['lowerIrrPpc'];
                     }
                 } else {
                     $irradiation = $weather['upperIrr'];
+                    $irradiationPpc = $weather['upperIrrPpc'];
                 }
                 // TheoPower gewichtet berechnen
-                $output .= '<td><small>'.round($weather['upperIrr'] / 1000 / 4, 2).'</small></td><td><small>'.round($weather['lowerIrr'] / 1000 / 4, 2).'</small></td><td><small>'.round($acPower['powerTheo'], 2).'</small></td>';
+                $output .= '<td><small>'.round($weather['upperIrr'] / 1000 / 4, 2).'</small></td>
+                            <td><small>'.round($weather['lowerIrr'] / 1000 / 4, 2).'</small></td>
+                            <td><small>'.round($weather['upperIrrPpc'] / 1000 / 4, 2).'</small></td>
+                            <td><small>'.round($weather['lowerIrrPpc'] / 1000 / 4, 2).'</small></td>
+                            <td><small>'.round($acPower['powerTheoFt'], 2).'</small></td>
+                            <td><small>'.round($acPower['powerTheoFtPpc'], 2).'</small></td>';
 
                 // Aufsummieren der gewichteten Werte zum Gesamtwert
-                $gewichteteTheoPower += $acPower['powerTheo'];
+                $gewichteteTheoPower += $acPower['powerTheoFt'];
+                $gewichteteTheoPowerPpc += $acPower['powerTheoFtPpc'];
                 $gewichteteStrahlung += $groupAC->getGewichtungAnlagenPR() * $irradiation;
+                $gewichteteStrahlungPpc += $groupAC->getGewichtungAnlagenPR() * $irradiationPpc;
                 $availability = $this->availabilityRepo->sumAvailabilityPerDay($anlage->getAnlId(), date('Y-m-d', $stamp));
             }
             $output .= '<td>'.round(self::mittelwert($tempArray), 3).'</td>';
             $output .= '<td>'.round($availability, 2).'</td>';
-            $output .= '<td>'.round($gewichteteStrahlung / 1000 / 4, 2).'</td>';
+            $output .= '<td>'.round($gewichteteStrahlung / 1000 / 4, 4).'</td>';
+            $output .= '<td>'.round($gewichteteStrahlungPpc / 1000 / 4, 4).'</td>';
             $output .= '<td>'.round($gewichteteTheoPower, 2).'</td>';
+            $output .= '<td>'.round($gewichteteTheoPowerPpc, 2).'</td>';
             $output .= '<td>'.round($this->gridRepo->sumByDate($anlage, date('Y-m-d', $stamp))).'</td>';
             $output .= '</tr>';
         }

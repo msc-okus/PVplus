@@ -61,7 +61,7 @@ class ACPowerChartsService
                         c.p_ac_inv,c.pf_set,c.p_set_gridop_rel,c.p_set_rel,c.p_set_rpc_rel,c.q_set_rel,c.p_set_ctrl_rel,c.p_set_ctrl_rel_mean
                         FROM db_dummysoll a 
                         LEFT JOIN '.$anlage->getDbNameDcSoll().' b ON a.stamp = b.stamp
-                        LEFT JOIN '.$anlage->getDbNamePPC()." c ON b.stamp = c.stamp
+                        LEFT JOIN '.$anlage->getDbNamePPC()." c ON a.stamp = c.stamp
                         WHERE a.stamp >= '$from' AND a.stamp < '$to' 
                         GROUP by date_format(a.stamp, '$formExp')";
         } else {
@@ -132,7 +132,8 @@ class ACPowerChartsService
                 $expNoLimitSum += $expectedNoLimit;
                 $dataArray['chart'][$counter]['date'] = $stamp;
                 if ($anlage->getHasPPC()) {
-                    $dataArray['chart'][$counter]['psetrel'] = $rowExp['p_set_rel'];
+                    $dataArray['chart'][$counter]['p_set_rpc_rel'] = $rowExp['p_set_rpc_rel'];
+                    $dataArray['chart'][$counter]['p_set_gridop_rel'] = $rowExp['p_set_gridop_rel'];
                 }
 
                 if (!($expectedInvOut == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
