@@ -2,8 +2,6 @@
 
 namespace App\Repository;
 
-use App\Controller\SecurityController;
-use App\Entity\Eigner;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
@@ -11,7 +9,6 @@ use Doctrine\ORM\ORMException;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
-use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -23,29 +20,20 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
 {
-    public function __construct(ManagerRegistry $registry, private Security $security)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, User::class);
     }
 
     public function getWithSearchQueryBuilderbyID(?string $term): QueryBuilder
     {
-        $qb = $this->createQueryBuilder('user');
-        $qb->leftJoin('user.eigners', 'eigner')
-            ->addSelect('eigner')
-            ->orderBy('user.name', 'ASC');
+        $qb = $this->createQueryBuilder('c');
 
-        if ($this->security->isGranted('ROLE_G4N')) {
-
-        } else {
-            /** @var Eigner $eigner */
-            $eigner = $this->security->getUser()->getEigners()[0];
-            $qb->andWhere('eigner.id LIKE :eignerId')
-                ->setParameter('eignerId', $eigner->getId());
-        }
-
+        $qb->leftJoin('c.eigners', 'u')
+            ->addSelect('u')
+            ->orderBy('c.name', 'ASC');
         if ($term) {
-            $qb->andWhere('user.name LIKE :term OR user.email LIKE :term OR eigner.id LIKE :pureterm')
+            $qb->andWhere('c.name LIKE :term OR c.email LIKE :term OR u.id LIKE :pureterm')
                 ->setParameter('term', '%'.$term.'%')
                 ->setParameter('pureterm', $term)
             ;
@@ -88,7 +76,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      * @param int $limit
      * @return array
      */
-    public function findByAllMatching(string $query, int $limit = 100): array
+    public function findByAllMatching(string $query, int $limit = 100)
     {
         $qb = $this->createQueryBuilder('u')
             ->andWhere('u.name LIKE :query')

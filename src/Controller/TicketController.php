@@ -145,7 +145,7 @@ class TicketController extends BaseController
             $anlage = null;
         }
 
-        $status = $request->query->get('status');
+        $status = $request->query->get('status', default: 10);
         $editor = $request->query->get('editor');
         $id = $request->query->get('id');
         $inverter = $request->query->get('inverter');
@@ -165,6 +165,7 @@ class TicketController extends BaseController
         $filter['type']['array'] = self::errorType();
 
         $order['begin'] = 'DESC'; // null, ASC, DESC
+        $order['updatedAt'] = 'DESC';
 
         $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlageName, $editor, $id, $prio, $status, $category, $type, $inverter, $order);
         $pagination = $paginator->paginate($queryBuilder, $page,25 );

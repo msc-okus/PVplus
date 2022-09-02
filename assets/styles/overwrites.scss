@@ -94,10 +94,6 @@
         }
     }
 
-    label {
-        height:  ($input-font-size * unitless-calc($input-line-height)) + (get-side($input-padding, 'top') + get-side($input-padding, 'bottom')) - rem-calc(1);
-    }
-
     .red {color: $g4n-red;}
     .algolia-autocomplete {
         width: 100%;
@@ -546,7 +542,7 @@
 
             .add-case-5 {
                 .button {
-                    height: ($input-font-size * unitless-calc($input-line-height)) + (get-side($input-padding, 'top') + get-side($input-padding, 'bottom')) - rem-calc(1);
+                    //height: 2.25rem;
                     padding: 0.6rem 1rem 0.65rem;
                     //box-shadow: inset -3px -3px 5px rgba(0, 0, 0, 0.125);
                     //background-color: $g4n-gray;
