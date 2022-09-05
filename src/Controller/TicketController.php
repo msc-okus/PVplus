@@ -180,13 +180,14 @@ class TicketController extends BaseController
         if ($request->query->get('ajax')) {
             return $this->render('ticket/_inc/_listTickets.html.twig', [
                 'pagination' => $pagination,
+                'anlagen'       => $anlagenRepo->findAllActiveAndAllowed(),
             ]);
         }
 
         return $this->render('ticket/list.html.twig', [
             'pagination'    => $pagination,
             'anlage'        => $anlage,
-            'anlagen'       =>$anlagenRepo->findAllActiveAndAllowed(),
+            'anlagen'       => $anlagenRepo->findAllActiveAndAllowed(),
             'user'          => $editor,
             'id'            => $id,
             'inverter'      => $inverter,

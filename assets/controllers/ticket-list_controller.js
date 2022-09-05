@@ -16,6 +16,9 @@ export default class extends Controller {
 
     async search(event){
         event.preventDefault();
+        console.log(
+            'Ja'
+        );
         const $searchListform = $(this.searchBarTarget).find('form');
         this.listTarget.innerHTML = await $.ajax({
             url: this.urlSearchValue,
