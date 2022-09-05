@@ -70,12 +70,6 @@ class TicketFormType extends AbstractType
                     'data' => new \DateTime(date('Y-m-d H:i', 900 + time() - time() % 900)),
                     'attr' => ['step' => 900, 'data-action' => 'change->ticket-list#check', 'data-ticket-list-target' => 'formEnd'],
                 ])
-                ->add('inverter', TextType::class, [
-                    'label' => 'Inverter',
-                    'required' => true,
-                    'data' => '*',
-                    'help' => '* = all Invertres, 1-3 = Inverter 1 to 3, ...',
-                ])
             ;
         } else {
             $builder
@@ -105,6 +99,13 @@ class TicketFormType extends AbstractType
             ;
         }
         $builder
+            ->add('inverter', TextType::class, [
+                'label' => 'Inverter',
+                'required' => true,
+                'disabled' => true,
+                'data' => '*',
+                'help' => '* = all Invertres, 1-3 = Inverter 1 to 3, ...',
+            ])
             ->add('dates', UXCollectionType::class, [
                 'required' => false,
                 'entry_type' => TicketDateEmbeddedFormType::class,

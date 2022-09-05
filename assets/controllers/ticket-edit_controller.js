@@ -48,12 +48,14 @@ export default class extends Controller {
 
     async saveTicket(event) {
         event.preventDefault();
-
-
-
+        var string = "";
+        $('input:checkbox[class=js-checkbox]:checked').each(function (){
+            if (string == "") string = string + $(this).prop('name');
+            else string = string + ", " + $(this).prop('name');
+        });
+        $('#ticket_form_inverter').val(string);
+        console.log($('#ticket_form_inverter').val());
         const  $form = $(this.modalBodyTarget).find('form');
-        console.log($form.prop('method'));
-
         try {
             await $.ajax({
                 url: this.formUrlValue,
@@ -66,7 +68,6 @@ export default class extends Controller {
             this.modalBodyTarget.innerHTML = e.responseText;
         }
 
-
     }
 
     async reload(event){
@@ -74,20 +75,32 @@ export default class extends Controller {
     }
 
     check(){
-
         //const  $form = $(this.modalBodyTarget).find('form');
-        console.log($('#ticket_form_inverter'));
-
+        let string = "";
         if($(this.switchTarget).prop('checked')) {
             $('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', true);
+                if (string == "") string = string + $(this).prop('name');
+                else string = string + ", " + $(this).prop('name');
             });
+
+            $('#ticket_form_inverter').val(string);
         }
         else {
             $('input:checkbox[class=js-checkbox]').each(function(){
                 $(this).prop('checked', false);
+                $('#ticket_form_inverter').val('');
             });
         }
+    }
+    checkInverter(){
+        var string = "";
+        console.log('wtf');
+        $('input:checkbox[class=js-checkbox]:checked').each(function (){
+            if (string == "") string = string + $(this).prop('name');
+            else string = string + ", " + $(this).prop('name');
+        });
+        $('#ticket_form_inverter').val(string);
     }
     toggle(){
         const $button = $(this.deactivableTargets);
