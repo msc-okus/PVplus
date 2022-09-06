@@ -40,14 +40,12 @@ class TicketController extends BaseController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             $ticket = $form->getData();
 
             $ticket->setEditor($this->getUser()->getUsername());
             $date = new TicketDate();
             $date->copyTicket($ticket);
             $ticket->addDate($date);
-
             $em->persist($ticket);
             $em->flush();
 
@@ -180,6 +178,7 @@ class TicketController extends BaseController
         if ($request->query->get('ajax')) {
             return $this->render('ticket/_inc/_listTickets.html.twig', [
                 'pagination' => $pagination,
+                'anlagen'       =>$anlagenRepo->findAllActiveAndAllowed(),
             ]);
         }
 

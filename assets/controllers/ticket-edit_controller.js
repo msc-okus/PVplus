@@ -54,7 +54,7 @@ export default class extends Controller {
             else string = string + ", " + $(this).prop('name');
         });
         $('#ticket_form_inverter').val(string);
-        console.log($('#ticket_form_inverter').val());
+
         const  $form = $(this.modalBodyTarget).find('form');
         try {
             await $.ajax({
@@ -95,7 +95,6 @@ export default class extends Controller {
     }
     checkInverter(){
         var string = "";
-        console.log('wtf');
         $('input:checkbox[class=js-checkbox]:checked').each(function (){
             if (string == "") string = string + $(this).prop('name');
             else string = string + ", " + $(this).prop('name');
