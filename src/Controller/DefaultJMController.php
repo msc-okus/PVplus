@@ -39,7 +39,7 @@ class DefaultJMController extends AbstractController
     public function check(AnlagenRepository $anlagenRepository, AlertSystemService $service)
     {
         $anlage = $anlagenRepository->findIdLike("111")[0];
-        $service->generateTicketsInterval($anlage, "2022-01-01", "2022-03-01");
+        $service->checkSystemTest($anlage, "2022-01-08 11:45");
         dd("hello");
     }
 
