@@ -55,7 +55,7 @@
                                                     {% for inverter in invArray %}
                                                         <div class="cell">
                                                             <label > {{ inverter }} </label>
-                                                            <input type="checkbox" class="js-checkbox" name="{{ inverter }}" data-action="click->ticket-edit#checkInverter" >
+                                                            <input type="checkbox" class="js-checkbox" name="{{ loop.index }}" data-action="click->ticket-edit#checkInverter" >
                                                         </div>
                                                     {% endfor %}
 
