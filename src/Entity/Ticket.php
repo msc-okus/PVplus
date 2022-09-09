@@ -76,6 +76,9 @@ class Ticket
     #[ORM\OrderBy(['begin' => 'ASC'])]
     private Collection $dates;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $needsProof = null;
+
     public function __construct()
     {
         $this->dates = new ArrayCollection();
@@ -326,6 +329,18 @@ class Ticket
     public function removeAllDates(): self
     {
         $this->dates->clear();
+
+        return $this;
+    }
+
+    public function isNeedsProof(): ?bool
+    {
+        return $this->needsProof;
+    }
+
+    public function setNeedsProof(?bool $needsProof): self
+    {
+        $this->needsProof = $needsProof;
 
         return $this;
     }

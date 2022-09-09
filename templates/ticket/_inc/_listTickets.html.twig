@@ -14,8 +14,9 @@
                 <th>End</th>
                 <th>Last Update</th>
                 <th>Error Category{% if is_granted('ROLE_G4N') %} <br><small>alertType</small> {% endif %}</th>
-                <th>Error Type</th>
+                {# <th>Error Type</th>  #}
                 <th>Inverter</th>
+                <th><small>needs<br>Proof</small></th>
                 <th>Join</th>
                 <th></th>
             </tr>
@@ -42,13 +43,14 @@
                         {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}
                         {{ errcat|trans }}{% if is_granted('ROLE_DEV') %} | {{ ticket.alertType }}{% endif %}
                     </td>
-                    <td>
+                    {# <td>
                         {% if ticket.errorType %}
                             {% set errtyp %}ticket.error.type.{{ ticket.errorType }}{% endset %}
                             {{ errtyp|trans }}{% if is_granted('ROLE_DEV') %} | {{ ticket.errorType }}{% endif %}
                         {% endif %}
-                    </td>
+                    </td> #}
                     <td>{{ ticket.inverter }}</td>
+                    <td>{{ ticket.needsProof }}</td>
                     <td><input data-request-target="box" data-action="click->request#check" type="checkbox" value="{{ ticket.id }}" class="generated-checkbox" form="tableForm"></td>
                     <td class="text-right">
                         <div id="modal-form{{ ticket.id }}" {{ stimulus_controller('ticket-edit', {

@@ -153,6 +153,10 @@ class TicketFormType extends AbstractType
                 'empty_data' => '',
                 'required' => false,
             ])
+            ->add('needsProof', SwitchType::class, [
+                'label'         => 'Needs proof by TAM',
+                'empty_data'    => 0
+            ])
 
             // ### List of Ticket Dates
             ->add('dates', UXCollectionType::class, [

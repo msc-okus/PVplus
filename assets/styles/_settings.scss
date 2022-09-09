@@ -94,6 +94,7 @@ $foundation-palette: (
         warning: #ffae00,
         alert: #cc4b37,
 );
+$extra-light-gray: #f9f9f9;
 $light-gray: #e6e6e6;
 $medium-gray: #cacaca;
 
@@ -128,8 +129,8 @@ $print-hrefs: true;
 $breakpoints: (
         small: 0,
         medium: 640px,
-        large: 1200px,
-        xlarge: 1570px,
+        large: 1000px,
+        xlarge: 1250px,
         xxlarge: 1600px,
 );
 $breakpoints-hidpi: (
@@ -414,15 +415,15 @@ $drilldown-arrow-size: 6px;
 // ------------
 
 $dropdown-padding: 0.2rem;
-$dropdown-background: $g4n-white;
+$dropdown-background: $extra-light-gray;
 $dropdown-border: 1px solid $medium-gray;
 $dropdown-font-size: rem-calc(14);
-$dropdown-width: 200px;
+$dropdown-width: 70vw;
 $dropdown-radius: $global-radius;
 $dropdown-sizes: (
-        tiny: 100px,
-        small: 150px,
-        large: 300px,
+        tiny: 200px,
+        small: 400px,
+        large: 800px,
 );
 
 // 18. Dropdown Menu
@@ -912,4 +913,4 @@ $grid-margin-gutters: (
 $grid-padding-gutters: $grid-margin-gutters;
 $grid-container-padding: $grid-padding-gutters;
 $grid-container-max: $global-width;
-$xy-block-grid-max: 8;
+$xy-block-grid-max: 12;
