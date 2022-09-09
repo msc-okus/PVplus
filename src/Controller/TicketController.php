@@ -65,9 +65,19 @@ class TicketController extends BaseController
         $ticketDates = $ticket->getDates();
         $anlage = $ticket->getAnlage();
         $nameArray = $functions->getInverterArray($anlage);
+        foreach ($nameArray as $key => $value){
+            $inverterArray[$key]["inv"] = $value;
+            $inverterArray[$key]["select"] = "";
+        }
+
+        foreach ($ticket->getInverterArray() as $inverter){
+        $inverterArray[$inverter]["select"] = "checked";
+        }
+        dump($inverterArray, $nameArray, $ticket->getInverterArray());
         if ($ticketDates->isEmpty()) {
             $ticketDates = null;
         }
+
         $form = $this->createForm(TicketFormType::class, $ticket);
         $page = $request->query->getInt('page', 1);
         $form->handleRequest($request);
@@ -109,7 +119,7 @@ class TicketController extends BaseController
             'ticket' => $ticket,
             'anlage' => $anlage,
             'edited' => true,
-            'invArray' => $nameArray
+            'invArray' => $inverterArray
         ]);
     }
 

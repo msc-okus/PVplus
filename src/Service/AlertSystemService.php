@@ -706,7 +706,7 @@ class AlertSystemService
         $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
         $sunrise = self::getLastQuarter($this->weather->getSunrise($anlage, $today)['sunrise']); // the first quarter of today
         $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
-        $quarter = date('Y-m-d H:i', strtotime($time) - 900); // the quarter before the actual
+        $quarter = date('Y-m-d H:i', strtotime($time)); // the quarter before the actual
         if (!$isWeather) {
             // Inverter Tickets
             if ($quarter <= $sunrise) {

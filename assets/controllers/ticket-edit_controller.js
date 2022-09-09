@@ -48,13 +48,6 @@ export default class extends Controller {
 
     async saveTicket(event) {
         event.preventDefault();
-        var string = "";
-        $('input:checkbox[class=js-checkbox]:checked').each(function (){
-            if (string === "") string = string + $(this).prop('name');
-            else string = string + ", " + $(this).prop('name');
-        });
-        $('#ticket_form_inverter').val(string);
-
         const  $form = $(this.modalBodyTarget).find('form');
         try {
             await $.ajax({
