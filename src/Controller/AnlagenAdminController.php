@@ -385,31 +385,63 @@ class AnlagenAdminController extends BaseController
                       KEY `stamp` (`stamp`)
                 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;";
 
-            $databasePPC = 'CREATE TABLE IF NOT EXISTS '.$anlage->getDbNamePPC()." (
+            $databaseMeters = 'CREATE TABLE IF NOT EXISTS '.$anlage->getDbNameMeters()." (
+                      `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
+                      `anl_id` int(11) NOT NULL,
+                      `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
+                      `group` int(11) NOT NULL DEFAULT '1',                      
+                      `prod_power` varchar(20) NOT NULL,
+                      `unit` varchar(20) NOT NULL,                      
+                      PRIMARY KEY (`db_id`),
+                      UNIQUE KEY `stamp_inverter` (`stamp`),
+                      KEY `stamp` (`stamp`)
+                ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;";
+
+            $databasePPC = "CREATE TABLE IF NOT EXISTS ".$anlage->getDbNamePPC()." (
                            `db_id` bigint(11) NOT NULL AUTO_INCREMENT,
                            `anl_id` bigint(11) NOT NULL,
                            `anl_intnr` varchar(50),
                            `stamp` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00',
-                           `p_ac_inv` varchar(20) DEFAULT NULL,
-                           `q_ac_inv` varchar(20) DEFAULT NULL,
-                           `pf_set` int(3) DEFAULT NULL,
-                           `p_set_gridop_rel` int(3) DEFAULT NULL,
-                           `p_set_rel` int(3) DEFAULT NULL,
-                           `p_set_rpc_rel` int(3) DEFAULT NULL,
-                           `q_set_rel` int(3) DEFAULT NULL,
-                           `p_set_ctrl_rel` int(3) DEFAULT NULL,
-                           `p_set_ctrl_rel_mean` int(3) DEFAULT NULL,
+                           `p_ac_inv` varchar(20) NOT NULL,
+                           `q_ac_inv` varchar(20) NOT NULL,
+                           `pf_set` int(3) NOT NULL ,
+                           `p_set_gridop_rel` int(3) NOT NULL,
+                           `p_set_rel` int(3) NOT NULL,
+                           `p_set_rpc_rel` int(3) NOT NULL,
+                           `q_set_rel` int(3) NOT NULL,
+                           `p_set_ctrl_rel` int(3) NOT NULL,
+                           `p_set_ctrl_rel_mean` int(3) NOT NULL,
                             PRIMARY KEY (`db_id`),
                             UNIQUE KEY `unique_stamp` (`stamp`),
                             KEY `stamp` (`stamp`)
                         ) ENGINE=InnoDB DEFAULT CHARSET=utf8;";
 
+            $databaseSections = "CREATE TABLE IF NOT EXISTS `pvp_data`.`db__pv_section_".$anlage->getAnlIntnr()."BX107` (
+                                  `id` BIGINT(11) NOT NULL AUTO_INCREMENT,
+                                  `stamp` VARCHAR(45) NOT NULL DEFAULT '0000-00-00 00:00:00',
+                                  `section` VARCHAR(45) NOT NULL,
+                                  `ac_power` VARCHAR(20) NOT NULL,
+                                  `dc_power` VARCHAR(20) NOT NULL,
+                                  `grid_power` VARCHAR(20) NULL,
+                                  `theo_power` VARCHAR(20) NULL,
+                                  `theo_power_ft` VARCHAR(20) NULL,
+                                  `ft_cor_factor` VARCHAR(20) NULL,
+                                  `temp_module` VARCHAR(20) NULL,
+                                  `temp_module_nrel` VARCHAR(20) NULL,
+                                  PRIMARY KEY (`id`),
+                                  UNIQUE INDEX `stamp_section` (`stamp` ASC, `section` ASC));
+                                ";
+
             $conn = self::getPdoConnection();
             $conn->exec($databaseAcIst);
             $conn->exec($databaseDcIst);
             // $conn->exec($databaseAcSoll);
+            if ($anlage->getUseGridMeterDayData() == 1){
+                $conn->exec($databaseMeters);
+            }
             $conn->exec($databaseDcSoll);
             $conn->exec($databasePPC);
+            if (false) $conn->exec($databaseSections);
             $conn = null;
 
             return true;
