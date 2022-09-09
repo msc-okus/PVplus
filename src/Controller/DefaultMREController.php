@@ -70,14 +70,14 @@ class DefaultMREController extends BaseController
         ]);
     }
 
-    #[Route(path: '/mr/bavelse/export')]
-    public function bavelseExport(ExportService $bavelseExport, AnlagenRepository $anlagenRepository): Response
+    #[Route(path: '/mr/bavelse/export/{year}/{month}')]
+    public function bavelseExport($year, $month, ExportService $bavelseExport, AnlagenRepository $anlagenRepository): Response
     {
         $output = '';
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => '97']);
-        $from = date_create('2022-07-01');
-        $to = date_create('2022-08-1');
+        $from = date_create($year.'-'.$month.'-01');
+        $to = date_create($year.'-'.($month+1).'-01');
         $output = $bavelseExport->gewichtetTagesstrahlung($anlage, $from, $to);
 
         return $this->render('cron/showResult.html.twig', [
