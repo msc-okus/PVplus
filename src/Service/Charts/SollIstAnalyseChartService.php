@@ -57,60 +57,44 @@ class SollIstAnalyseChartService
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $dataArray = [];
         $anlagename = $anlage->getAnlName();
-
-        if ($hour) {
-            $form = '%y%m%d%H';
-        } else {
-            $form = '%y%m%d%H%i';
-        }
-
         $conn = self::getPdoConnection();
         $dataArray = [];
-
         switch ($anlage->getConfigType()) {
             case 3:
             case 4:
                 $nameArray = $this->functions->getNameArray($anlage, 'ac');
-                $group = 'wr_group';
                 break;
             default:
                 $nameArray = $this->functions->getNameArray($anlage, 'dc');
-                $group = 'group_dc';
         }
+        $sql = "SELECT 
+                date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts, 
+                sum(c.wr_pac) as actPower,sum(b.ac_exp_power) as expected,
+                CASE 
+                WHEN ROUND((sum(c.wr_pac) / sum(b.ac_exp_power) * 100),0) IS NULL THEN '0'
+                WHEN ROUND((sum(c.wr_pac) / sum(b.ac_exp_power) * 100),0) > 100 THEN '100'
+                ELSE ROUND((sum(c.wr_pac) / sum(b.ac_exp_power) * 100),0)
+                END AS prz
+                FROM pvp_data.db_dummysoll a 
+                LEFT JOIN ".$anlage->getDbNameDcSoll().' b ON a.stamp = b.stamp 
+                LEFT JOIN '.$anlage->getDbNameACIst()." c ON a.stamp = c.stamp 
+                WHERE a.stamp BETWEEN '$from' AND ' $to' 
+                GROUP BY a.stamp ORDER BY NULL";
 
-        if ($anlage->getUseNewDcSchema()) {
-            $sql = "SELECT date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts, sum(c.wr_pac) as actPower,sum(b.ac_exp_power) as expected,ROUND((sum(c.wr_pac) / sum(b.ac_exp_power) * 100),0) as prz FROM db_dummysoll a 
-                    LEFT JOIN ".$anlage->getDbNameDcSoll().' b ON a.stamp = b.stamp 
-                    LEFT JOIN '.$anlage->getDbNameACIst()." c ON a.stamp = c.stamp 
-                    WHERE a.stamp BETWEEN '$from' AND '$to'
-                    GROUP BY a.stamp";
-        } else {
-            $sql = "SELECT date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts, sum(c.wr_pac) as actPower,sum(b.ac_exp_power) as expected,ROUND((sum(c.wr_pac) / sum(b.ac_exp_power) * 100),0) as prz FROM db_dummysoll a 
-                    LEFT JOIN ".$anlage->getDbNameDcSoll().' b ON a.stamp = b.stamp 
-                    LEFT JOIN '.$anlage->getDbNameACIst()." c ON a.stamp = c.stamp 
-                    WHERE a.stamp BETWEEN '$from' AND '$to'
-                    GROUP BY a.stamp";
-        }
         $resultActual = $conn->query($sql);
 
         $dataArray['inverterArray'] = $nameArray;
         $maxInverter = $resultActual->rowCount();
 
         if ($resultActual->rowCount() > 0) {
-
             $dataArray['maxSeries'] = 0;
             $counter = 0;
-
             while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
                 $time = date('H:i', strtotime($rowActual['ts']));
                 $stamp = date('Y-m-d', strtotime($rowActual['ts']));
-                $stampAd = date('H:i', strtotime(self::timeAjustment($stamp, $anlage->getAnlZeitzoneWs())));
-                $e = explode(' ', $stamp);
                 $actPower = $rowActual['actPower'];
                 $actPower = $actPower > 0 ? round(self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()), 2) : 0; // neagtive Werte auschließen
-
-                ($rowActual['prz'] == null) ? $prz = 0 : $prz = $rowActual['prz'];
-                ($prz > 100) ? $prz = 100 : $prz = $prz;
+                $prz = $rowActual['prz'];
 
                 switch (TRUE){
                     case ($prz >= 95 and $prz <= 100);
