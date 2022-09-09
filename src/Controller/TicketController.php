@@ -147,6 +147,8 @@ class TicketController extends BaseController
         $prio = $request->query->get('prio');
         $category = $request->query->get('category');
         $type = $request->query->get('type');
+        $prooftam = $request->query->get('prooftam', 0);
+
 
         $filter['anlagen']['value'] = $anlage;
         $filter['anlagen']['array'] = $anlagenRepo->findAllActiveAndAllowed();
@@ -162,7 +164,7 @@ class TicketController extends BaseController
         $order['begin'] = 'DESC'; // null, ASC, DESC
         $order['updatedAt'] = 'DESC';
 
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlageName, $editor, $id, $prio, $status, $category, $type, $inverter, $order);
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlageName, $editor, $id, $prio, $status, $category, $type, $inverter, $order, $prooftam);
         $pagination = $paginator->paginate($queryBuilder, $page,25 );
 
         // check if we get no result
@@ -187,6 +189,7 @@ class TicketController extends BaseController
             'id'            => $id,
             'inverter'      => $inverter,
             'filter'        => $filter,
+            'prooftam'      => $prooftam,
         ]);
     }
 
