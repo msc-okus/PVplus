@@ -28,9 +28,14 @@ class TicketController extends BaseController
         if ($request->query->get('anlage') !== null) {
             $anlage = $anlRepo->findIdLike((int)$request->query->get('anlage'))[0];
             $nameArray = $functions->getInverterArray($anlage);
+            foreach ($nameArray as $key => $value){
+                $inverterArray[$key]["inv"] = $value;
+                $inverterArray[$key]["select"] = "";
+            }
         } else {
             $anlage = null;
             $nameArray = [];
+            $inverterArray = [];
         }
 
         $form = $this->createForm(TicketFormType::class);
@@ -54,7 +59,7 @@ class TicketController extends BaseController
             'ticket' => false,
             'anlage' => $anlage,
             'edited' => false,
-            'invArray' => $nameArray,
+            'invArray' => $inverterArray,
         ]);
     }
 
@@ -71,7 +76,7 @@ class TicketController extends BaseController
         }
 
         foreach ($ticket->getInverterArray() as $inverter){
-        $inverterArray[$inverter]["select"] = "checked";
+            $inverterArray[$inverter]["select"] = "checked";
         }
         dump($inverterArray, $nameArray, $ticket->getInverterArray());
         if ($ticketDates->isEmpty()) {
