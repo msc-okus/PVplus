@@ -18,43 +18,16 @@ class AlertSystemService
 {
     use G4NTrait;
 
-    private AnlagenRepository $anlagenRepository;
-
-    private WeatherServiceNew $weather;
-
-    private AnlagenRepository $AnlRepo;
-
-    private EntityManagerInterface $em;
-
-    private MessageService $mailservice;
-
-    private functionsService $functions;
-
-    private StatusRepository $statusRepo;
-
-    private TicketRepository $ticketRepo;
-
-    private Array $Tickets;
-
-
-    public function __construct(AnlagenRepository $anlagenRepository,
-        WeatherServiceNew $weather,
-        AnlagenRepository $AnlRepo,
-        EntityManagerInterface $em,
-        MessageService $mailservice,
-        FunctionsService $functions,
-        StatusRepository $statusRepo,
-        TicketRepository $ticketRepo)
+    public function __construct(
+        private AnlagenRepository $anlagenRepository,
+        private WeatherServiceNew $weather,
+        private AnlagenRepository $AnlRepo,
+        private EntityManagerInterface $em,
+        private MessageService $mailservice,
+        private FunctionsService $functions,
+        private StatusRepository $statusRepo,
+        private TicketRepository $ticketRepo)
     {
-        $this->anlagenRepository = $anlagenRepository;
-        $this->weather = $weather;
-        $this->AnlRepo = $AnlRepo;
-        $this->em = $em;
-        $this->mailservice = $mailservice;
-        $this->functions = $functions;
-        $this->statusRepo = $statusRepo;
-        $this->ticketRepo = $ticketRepo;
-
         define('SOR', '10');
         define('EFOR', '20');
         define('OMC', '30');

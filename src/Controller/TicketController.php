@@ -25,13 +25,10 @@ class TicketController extends BaseController
     #[Route(path: '/ticket/create', name: 'app_ticket_create')]
     public function create(EntityManagerInterface $em, Request $request, AnlagenRepository $anlRepo, functionsService $functions): Response
     {
-        if($request->query->get('anlage') !== null)
-        {
+        if ($request->query->get('anlage') !== null) {
             $anlage = $anlRepo->findIdLike((int)$request->query->get('anlage'))[0];
             $nameArray = $functions->getInverterArray($anlage);
-        }
-        else
-        {
+        } else {
             $anlage = null;
             $nameArray = [];
         }
