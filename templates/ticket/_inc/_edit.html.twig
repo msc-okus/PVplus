@@ -44,8 +44,8 @@
                                                     <div class="grid-x small-up-3 medium-up-6 large-up-9 xlarge-up-12">
                                                         {% for inverter in invArray %}
                                                             <div class="cell">
-                                                                <label for="{{ inverter }}" class="">{{ inverter }}
-                                                                    <input id="{{ inverter }}" type="checkbox" class="js-checkbox" name="{{ loop.index }}" data-action="click->ticket-edit#checkInverter">
+                                                                <label for="{{ inverter['inv'] }}" class="">{{ inverter['inv'] }}
+                                                                    <input id="{{ inverter['inv'] }}" type="checkbox" class="js-checkbox" name="{{ loop.index }}" {{ inverter['select'] }} data-action="click->ticket-edit#checkInverter">
                                                                 </label>
                                                             </div>
                                                         {% endfor %}

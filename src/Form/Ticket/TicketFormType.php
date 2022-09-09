@@ -155,7 +155,6 @@ class TicketFormType extends AbstractType
             ])
             ->add('needsProof', SwitchType::class, [
                 'label'         => 'Needs proof by TAM',
-                'empty_data'    => 0
             ])
 
             // ### List of Ticket Dates
