@@ -160,7 +160,7 @@ trait TicketTrait
      */
     public function getInverterArray(): array
     {
-        return explode(",", $this->inverter);
+        return explode(", ", $this->inverter);
     }
 
     public function getAlertType(): ?string
