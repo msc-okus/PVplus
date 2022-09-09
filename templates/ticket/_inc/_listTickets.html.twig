@@ -37,7 +37,7 @@
                     <td>{{ ticket.editor }}</td>
                     <td>{{ ticket.begin|date("d.m.y H:i")}}</td>
                     <td>{{ ticket.end|date("d.m.y H:i") }}</td>
-                    <td>{{ ticket.updatedAt|date("d.m.y H:i")  }}</td>
+                    <td>{{ ticket.updatedAt|date("d.m.y H:i")  }}{% if is_granted('ROLE_DEV') %}<small>{{ ticket.createdAt|date("d.m.y H:i") }}</small>{% endif %}</td>
                     <td>
                         {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}
                         {{ errcat|trans }}{% if is_granted('ROLE_DEV') %} | {{ ticket.alertType }}{% endif %}

@@ -82,7 +82,7 @@ class AlertSystemService
                     if ($inverter_status['istdata'] == 'Plant Control by PPC') {
                         $ppc = true;
                         $message = $this->analyzeIst($inverter_status, $time, $anlage, $inverterNo);
-                    // self::messagingFunction($message, $anlage);
+                        // self::messagingFunction($message, $anlage);
                     } else {
                         $message = $this->analyzeIst($inverter_status, $time, $anlage, $inverterNo);
                         // self::messagingFunction($message, $anlage);
@@ -455,8 +455,7 @@ class AlertSystemService
                 $ticketDate->setAlertType($errorCategorie);
                 $ticket->setErrorType($errorType); // type = errorType (Bsp:  SOR, EFOR, OMC)
                 $ticketDate->setErrorType($errorType);
-                $timetemp = date('Y-m-d H:i:s', strtotime($time) - 900);
-                $begin = date_create_from_format('Y-m-d H:i:s', $timetemp);
+                $begin = date_create(date('Y-m-d H:i:s', strtotime($time)));
                 $begin->getTimestamp();
                 $ticket->setBegin($begin);
                 $ticketDate->setBegin($begin);
@@ -464,8 +463,7 @@ class AlertSystemService
             } else {
                 $ticketDate = $ticket->getDates()->last();
             }
-            $timetemp = date('Y-m-d H:i:s', strtotime($time));
-            $end = date_create_from_format('Y-m-d H:i:s', $timetemp);
+            $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
             $end->getTimestamp();
             $ticketDate->setEnd($end);
             $ticket->setEnd($end);
@@ -733,10 +731,11 @@ class AlertSystemService
      *
      * @param $inverter
      * @param $inverterNr
-     * @param $anlage
+     * @param Anlage $anlage
      * @return array
      */
-    private function analyzeError($inverter, $inverterNr,  $anlage): array{
+    private function analyzeError($inverter, $inverterNr, Anlage $anlage): array
+    {
         $message = '';
         $errorType = '';
         $errorCategorie = '';
