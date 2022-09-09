@@ -21,51 +21,59 @@
                     <fieldset class="fieldset">
                         <legend>Base Info</legend>
                         <div class="grid-x grid-margin-x grid-padding-x">
-                            <div class="cell small-12 medium-3">
-                                    {{ form_row(ticketForm.anlage, {'attr': {'value':  anlage.anlName } }) }}
+                            <div class="cell small-12 medium-3 large-2">
+                                {{ form_row(ticketForm.anlage, {'attr': {'value':  anlage.anlName } }) }}
                             </div>
-                            <div class="cell small-12 medium-3">
+                            <div class="cell small-6 medium-3 large-2">
+                                {% if (is_granted('ROLE_G4N')) %}
+                                    <div class="grid-x">
+                                        <div class="cell">
+                                            <label>&nbsp;</label>
+                                            <button class="button small no-margin hollow expanded" type="button" data-toggle="inverter-dropdown">Select Inverters</button>
+
+                                            <div class="dropdown-pane shadow" id="inverter-dropdown" data-dropdown data-auto-focus="true" data-alignment="center">
+                                                {% if (invArray != null) %}
+                                                    <div class="grid-x">
+                                                        <div class="cell">
+                                                            <h3>Inverter List</h3>
+                                                            <label for="check-all" class="">Select All
+                                                                <input id="check-all" type="checkbox" data-action="click->ticket-edit#check" data-ticket-edit-target="switch">
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <div class="grid-x small-up-3 medium-up-6 large-up-9 xlarge-up-12">
+                                                        {% for inverter in invArray %}
+                                                            <div class="cell">
+                                                                <label for="{{ inverter }}" class="">{{ inverter }}
+                                                                    <input id="{{ inverter }}" type="checkbox" class="js-checkbox" name="{{ loop.index }}" data-action="click->ticket-edit#checkInverter">
+                                                                </label>
+                                                            </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% else %}
+                                                    No Inverters found to select
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="cell small-6 medium-3 large-2">
                                 {{ form_row(ticketForm.inverter) }}
                             </div>
-
-                            <div class="cell small-6 medium-3">
+                            <div class="cell small-6 medium-3 large-2">
+                                {{ form_row(ticketForm.needsProof) }}
+                            </div>
+                            <div class="cell small-6 medium-3 large-2">
                                 {{ form_row(ticketForm.begin) }}
                             </div>
-                            <div class="cell small-6 medium-3">
+                            <div class="cell small-6 medium-3 large-2">
                                 {{ form_row(ticketForm.end) }}
                             </div>
                         </div>
                         <div class="grid-x grid-margin-x grid-padding-x">
                             <div class="cell small-3">
                                 {{ form_row(ticketForm.status) }}
-                            </div>
-                            <div class="cell small-3">
-                                    {% if (is_granted('ROLE_G4N')) %}
-                                        <button class="button" type="button" data-toggle="example-dropdown">Select Inverters</button>
-                                        <div class="dropdown-pane" id="example-dropdown" data-dropdown data-auto-focus="true">
-                                            {% if (invArray != null) %}
-                                                Inverter List
-                                                <label> Select All</label>
-                                                <input  type="checkbox"
-                                                        data-action="click->ticket-edit#check" data-ticket-edit-target="switch">
-
-
-                                                <div style="margin-top: 40px" class="grid-x grid-padding-x small-up-2 medium-up-3 large-up-4">
-
-                                                    {% for inverter in invArray %}
-                                                        <div class="cell">
-                                                            <label > {{ inverter['inv'] }} </label>
-                                                            <input type="checkbox" class="js-checkbox" name="{{ loop.index }}" {{ inverter['select'] }} data-action="click->ticket-edit#checkInverter" >
-                                                        </div>
-                                                    {% endfor %}
-
-                                                </div>
-                                            {% else %}
-                                                No Inverters found to select
-                                            {% endif %}
-                                        </div>
-
-                                    {% endif %}
                             </div>
                             <div class="cell small-3">
                                 {{ form_row(ticketForm.priority) }}
@@ -76,6 +84,9 @@
                             <div class="cell small-3"> {# type = errorType (Bsp:  SFOR, EFOR, OMC) #}
                                 {{ form_row(ticketForm.errorType) }}
                             </div>
+                        </div>
+                        <div class="grid-x grid-margin-x grid-padding-x">
+
                         </div>
                         {% include 'ticket/_inc/_ticketDatesList.html.twig' %}
                     </fieldset>

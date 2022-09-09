@@ -70,7 +70,7 @@ class TicketRepository extends ServiceEntityRepository
      *
      * @param array $orders Array Key defines the 'order field', value defines order direction (ASC, DESC) or order should not used (null)
      */
-    public function getWithSearchQueryBuilderNew(?string $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, array $orders = []): QueryBuilder
+    public function getWithSearchQueryBuilderNew(?string $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, array $orders = [], int $prooftam = 0): QueryBuilder
     {
         /** @var User $user */
         $user = $this->security->getUser();
@@ -112,6 +112,9 @@ class TicketRepository extends ServiceEntityRepository
         } // SFOR, EFOR, OMC
         if ((int) $category > 0) {
             $qb->andWhere("ticket.alertType = $category");
+        }
+        if ($prooftam == 1){
+            $qb->andWhere("ticket.needsProof = 1");
         }
 
         foreach ($orders as $field => $order) {
