@@ -1676,63 +1676,66 @@ class AssetManagementService
         foreach ($this->ticketDateRepo->getAllByInterval($report['reportYear'].'-01-01', $end,$anlage) as $date){
             $intervalBegin = date("Y-m-d H:i",$date->getBegin()->getTimestamp());
             $intervalEnd = date("Y-m-d H:i",$date->getEnd()->getTimestamp());
-            $inverter = $date->getInverter();
-            switch ($anlage->getConfigType()) { // we need this to query for the inverter in the SOR and EFOR cases, in the OMC case the whole plant is down
 
-                case 1 :
-                    $inverterQuery = "group_dc = '$inverter'";
-                    break;
-                default:
-                    $inverterQuery = "group_ac = '$inverter'";
-            }
-            if ($date->getErrorType() == 10) {
-                $sqlActual = "SELECT sum(wr_pac) as power
+            //$inverter = $date->getInverter();
+            foreach($date->getInverterArray() as $inverter) {
+                switch ($anlage->getConfigType()) { // we need this to query for the inverter in the SOR and EFOR cases, in the OMC case the whole plant is down
+
+                    case 1 :
+                        $inverterQuery = "group_dc = $inverter";
+                        break;
+                    default:
+                        $inverterQuery = "group_ac = $inverter";
+                }
+                dump($inverterQuery);
+                if ($date->getErrorType() == 10) {
+                    $sqlActual = "SELECT sum(wr_pac) as power
                             FROM " . $anlage->getDbNameIst() . " 
-                            WHERE wr_pac >= 0 AND WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
+                            WHERE wr_pac >= 0 AND stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND ". $inverterQuery;
 
-                $sqlExpected = "SELECT sum(ac_exp_power) as expected
+                    $sqlExpected = "SELECT sum(ac_exp_power) as expected
+                            FROM " . $anlage->getDbNameDcSoll() . "                      
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND ". $inverterQuery;
+                    dump($sqlActual);
+                    $resAct = $this->conn->query($sqlActual);
+                    $resExp = $this->conn->query($sqlExpected);
+
+                    if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
+                    else $exp = 0;
+                    if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
+                    else $actual = 0;
+                    $sumLossesYearSOR = $sumLossesYearSOR - ($actual - $exp);
+                } else if ($date->getErrorType() == 20) {
+                    $sqlActual = "SELECT sum(wr_pac) as power
+                            FROM " . $anlage->getDbNameIst() . " 
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
+                    $sqlExpected = "SELECT sum(ac_exp_power) as expected
                             FROM " . $anlage->getDbNameDcSoll() . "                      
                             WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
-                $resAct = $this->conn->query($sqlActual);
-                $resExp = $this->conn->query($sqlExpected);
+                    $resAct = $this->conn->query($sqlActual);
+                    $resExp = $this->conn->query($sqlExpected);
 
-                if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
-                else $exp = 0;
-                if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
-                else $actual = 0;
-                $sumLossesYearSOR = $sumLossesYearSOR - ($actual - $exp);
-            }
-            else if ($date->getErrorType() == 20) {
-                $sqlActual = "SELECT sum(wr_pac) as power
-                            FROM " . $anlage->getDbNameIst() . " 
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
-                $sqlExpected = "SELECT sum(ac_exp_power) as expected
-                            FROM " . $anlage->getDbNameDcSoll() . "                      
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
-                $resAct = $this->conn->query($sqlActual);
-                $resExp = $this->conn->query($sqlExpected);
-
-                if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
-                else $exp = 0;
-                if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
-                else $actual = 0;
-                $sumLossesYearEFOR = $sumLossesYearEFOR - ($actual - $exp);
-            }
-            else if ($date->getErrorType() == 30) {
-                $sqlActual = "SELECT sum(wr_pac) as power
+                    if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
+                    else $exp = 0;
+                    if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
+                    else $actual = 0;
+                    $sumLossesYearEFOR = $sumLossesYearEFOR - ($actual - $exp);
+                } else if ($date->getErrorType() == 30) {
+                    $sqlActual = "SELECT sum(wr_pac) as power
                             FROM " . $anlage->getDbNameIst() . " 
                             WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'";
-                $sqlExpected = "SELECT sum(ac_exp_power) as expected
+                    $sqlExpected = "SELECT sum(ac_exp_power) as expected
                             FROM " . $anlage->getDbNameDcSoll() . "                      
                             WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'";
-                $resAct = $this->conn->query($sqlActual);
-                $resExp = $this->conn->query($sqlExpected);
+                    $resAct = $this->conn->query($sqlActual);
+                    $resExp = $this->conn->query($sqlExpected);
 
-                if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
-                else $exp = 0;
-                if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
-                else $actual = 0;
-                $sumLossesYearOMC = $sumLossesYearEFOR - ($actual - $exp);
+                    if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
+                    else $exp = 0;
+                    if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
+                    else $actual = 0;
+                    $sumLossesYearOMC = $sumLossesYearEFOR - ($actual - $exp);
+                }
             }
         }
 
@@ -1931,62 +1934,62 @@ class AssetManagementService
             $intervalBegin = date("Y-m-d H:i",$date->getBegin()->getTimestamp());
             $intervalEnd = date("Y-m-d H:i",$date->getEnd()->getTimestamp());
             $inverter = $date->getInverter();
-            switch ($anlage->getConfigType()) { // we need this to query for the inverter in the SOR and EFOR cases, in the OMC case the whole plant is down
+            foreach($date->getInverterArray() as $inverter) {
+                switch ($anlage->getConfigType()) { // we need this to query for the inverter in the SOR and EFOR cases, in the OMC case the whole plant is down
 
-                case 1 :
-                    $inverterQuery = "group_dc = '$inverter'";
-                    break;
-                default:
-                    $inverterQuery = "group_ac = '$inverter'";
-            }
-            if ($date->getErrorType() == 10) {
-                $sqlActual = "SELECT sum(wr_pac) as power
+                    case 1 :
+                        $inverterQuery = "group_dc = '$inverter'";
+                        break;
+                    default:
+                        $inverterQuery = "group_ac = '$inverter'";
+                }
+                if ($date->getErrorType() == 10) {
+                    $sqlActual = "SELECT sum(wr_pac) as power
                             FROM " . $anlage->getDbNameIst() . " 
-                            WHERE wr_pac >= 0 AND WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
+                            WHERE wr_pac >= 0 AND stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
 
-                $sqlExpected = "SELECT sum(ac_exp_power) as expected
+                    $sqlExpected = "SELECT sum(ac_exp_power) as expected
                             FROM " . $anlage->getDbNameDcSoll() . "                      
                             WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
-                $resAct = $this->conn->query($sqlActual);
-                $resExp = $this->conn->query($sqlExpected);
+                    $resAct = $this->conn->query($sqlActual);
+                    $resExp = $this->conn->query($sqlExpected);
 
-                if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
-                else $exp = 0;
-                if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
-                else $actual = 0;
-                $sumLossesMonthSOR = $sumLossesMonthSOR - ($actual - $exp);
-            }
-            else if ($date->getErrorType() == 20) {
-                $sqlActual = "SELECT sum(wr_pac) as power
+                    if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
+                    else $exp = 0;
+                    if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
+                    else $actual = 0;
+                    $sumLossesMonthSOR = $sumLossesMonthSOR - ($actual - $exp);
+                } else if ($date->getErrorType() == 20) {
+                    $sqlActual = "SELECT sum(wr_pac) as power
                             FROM " . $anlage->getDbNameIst() . " 
                             WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
-                $sqlExpected = "SELECT sum(ac_exp_power) as expected
+                    $sqlExpected = "SELECT sum(ac_exp_power) as expected
                             FROM " . $anlage->getDbNameDcSoll() . "                      
                             WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
-                $resAct = $this->conn->query($sqlActual);
-                $resExp = $this->conn->query($sqlExpected);
+                    $resAct = $this->conn->query($sqlActual);
+                    $resExp = $this->conn->query($sqlExpected);
 
-                if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
-                else $exp = 0;
-                if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
-                else $actual = 0;
-                $sumLossesMonthEFOR = $sumLossesMonthEFOR - ($actual - $exp);
-            }
-            else if ($date->getErrorType() == 30) {
-                $sqlActual = "SELECT sum(wr_pac) as power
+                    if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
+                    else $exp = 0;
+                    if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
+                    else $actual = 0;
+                    $sumLossesMonthEFOR = $sumLossesMonthEFOR - ($actual - $exp);
+                } else if ($date->getErrorType() == 30) {
+                    $sqlActual = "SELECT sum(wr_pac) as power
                             FROM " . $anlage->getDbNameIst() . " 
                             WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'";
-                $sqlExpected = "SELECT sum(ac_exp_power) as expected
+                    $sqlExpected = "SELECT sum(ac_exp_power) as expected
                             FROM " . $anlage->getDbNameDcSoll() . "                      
                             WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'";
-                $resAct = $this->conn->query($sqlActual);
-                $resExp = $this->conn->query($sqlExpected);
+                    $resAct = $this->conn->query($sqlActual);
+                    $resExp = $this->conn->query($sqlExpected);
 
-                if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
-                else $exp = 0;
-                if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
-                else $actual = 0;
-                $sumLossesMonthOMC = $sumLossesMonthEFOR - ($actual - $exp);
+                    if ($resExp->rowCount() > 0) $exp = $resExp->fetch(PDO::FETCH_ASSOC)['expected'];
+                    else $exp = 0;
+                    if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
+                    else $actual = 0;
+                    $sumLossesMonthOMC = $sumLossesMonthEFOR - ($actual - $exp);
+                }
             }
         }
 

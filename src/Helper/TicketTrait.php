@@ -32,7 +32,7 @@ trait TicketTrait
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $answer = '';
 
-    #[ORM\Column(type: 'string', length: 100, nullable: false)]
+    #[ORM\Column(type: 'text', nullable: false)]
     private string $inverter;
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]

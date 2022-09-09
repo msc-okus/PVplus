@@ -18,43 +18,16 @@ class AlertSystemService
 {
     use G4NTrait;
 
-    private AnlagenRepository $anlagenRepository;
-
-    private WeatherServiceNew $weather;
-
-    private AnlagenRepository $AnlRepo;
-
-    private EntityManagerInterface $em;
-
-    private MessageService $mailservice;
-
-    private functionsService $functions;
-
-    private StatusRepository $statusRepo;
-
-    private TicketRepository $ticketRepo;
-
-    private Array $Tickets;
-
-
-    public function __construct(AnlagenRepository $anlagenRepository,
-        WeatherServiceNew $weather,
-        AnlagenRepository $AnlRepo,
-        EntityManagerInterface $em,
-        MessageService $mailservice,
-        FunctionsService $functions,
-        StatusRepository $statusRepo,
-        TicketRepository $ticketRepo)
+    public function __construct(
+        private AnlagenRepository $anlagenRepository,
+        private WeatherServiceNew $weather,
+        private AnlagenRepository $AnlRepo,
+        private EntityManagerInterface $em,
+        private MessageService $mailservice,
+        private FunctionsService $functions,
+        private StatusRepository $statusRepo,
+        private TicketRepository $ticketRepo)
     {
-        $this->anlagenRepository = $anlagenRepository;
-        $this->weather = $weather;
-        $this->AnlRepo = $AnlRepo;
-        $this->em = $em;
-        $this->mailservice = $mailservice;
-        $this->functions = $functions;
-        $this->statusRepo = $statusRepo;
-        $this->ticketRepo = $ticketRepo;
-
         define('SOR', '10');
         define('EFOR', '20');
         define('OMC', '30');
@@ -100,6 +73,7 @@ class AlertSystemService
         $time = G4NTrait::timeAjustment($time, -2);
         if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
             $nameArray = $this->functions->getInverterArray($anlage);
+
             foreach ($nameArray as $inverterNo => $inverterName) {
                 // We do this to avoid checking further inverters if we have a PPC control shut
                 if ($ppc === false) {
@@ -107,22 +81,60 @@ class AlertSystemService
 
                     if ($inverter_status['istdata'] == 'Plant Control by PPC') {
                         $ppc = true;
-                        $message = $this->analyzeIst($inverter_status, $time, $anlage, $inverterName, $inverterNo);
+                        $message = $this->analyzeIst($inverter_status, $time, $anlage, $inverterNo);
                     // self::messagingFunction($message, $anlage);
                     } else {
-                        $message = $this->analyzeIst($inverter_status, $time, $anlage, $inverterName, $inverterNo);
+                        $message = $this->analyzeIst($inverter_status, $time, $anlage, $inverterNo);
                         // self::messagingFunction($message, $anlage);
-                        $system_status[$inverterName] = $inverter_status;
                         unset($inverter_status);
                     }
+
                 }
             }
-            unset($system_status);
+
         }
 
         return 'success';
     }
 
+    /**
+     * TEST METHOD TO IMPLEMENT MULTI INVERTER TICKET GENERATION
+     */
+    public function checkSystemTest(Anlage $anlage, ?string $time = null): string
+    {
+        if ($time === null) {
+            $time = $this->getLastQuarter(date('Y-m-d H:i:s'));
+        }
+        $ppc = false;
+        // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
+        $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
+        $time = G4NTrait::timeAjustment($time, -2);
+        if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
+            $nameArray = $this->functions->getInverterArray($anlage);
+            $plant_status = self::RetrievePlant($anlage, $sungap);
+            dd($plant_status);
+            foreach ($nameArray as $inverterNo => $inverterName) {
+                // We do this to avoid checking further inverters if we have a PPC control shut
+                if ($ppc === false) {
+                    $inverter_status = $this->RetrieveQuarterIst($time, $inverterNo, $anlage); // IstData($anlage, $time, $counter);
+
+                    if ($inverter_status['istdata'] == 'Plant Control by PPC') {
+                        $ppc = true;
+                        $message = $this->analyzeIst($inverter_status, $time, $anlage, $inverterNo);
+                        // self::messagingFunction($message, $anlage);
+                    } else {
+                        $message = $this->analyzeIst($inverter_status, $time, $anlage, $inverterNo);
+                        // self::messagingFunction($message, $anlage);
+                        unset($inverter_status);
+                    }
+
+                }
+            }
+
+        }
+
+        return 'success';
+    }
     public function checkWeatherStation(Anlage $anlage, ?string $time = null)
     {
         if ($time === null) {
@@ -247,12 +259,6 @@ class AlertSystemService
             if ($isPPC) {
                 $return[$result[$iterator]['stamp']]['istdata'] = 'Plant Control by PPC';
             } else {
-
-                //$return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['istdata'] = $result[$iterator]['ac_power'];
-                //$return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['dcp'] = $result[$iterator]['dc_power'];
-                //$return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['freq'] = $result[$iterator]['freq'];
-                //$return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['voltage'] = $result[$iterator]['vol'];
-                //$expectedData = $resulte[$iterator]['exp'];
 
                     if ($result[$iterator]['ac_power'] !== null) {
                         if ($result[$iterator]['ac_power'] <= 0 && $irradiation > $irrLimit) {
@@ -409,7 +415,7 @@ class AlertSystemService
      * @param $inverterNo
      * @return string
      */
-    private function analyzeIst($inverter, $time, Anlage $anlage, $nameArray, $inverterNo): string
+    private function analyzeIst($inverter, $time, Anlage $anlage, $inverterNo): string
     {
         $message = '';
         $errorType = '';
@@ -731,23 +737,22 @@ class AlertSystemService
      * @return array
      */
     private function analyzeError($inverter, $inverterNr,  $anlage): array{
-        $nameArray = $this->functions->getInverterArray($anlage)[$inverterNr];
         $message = '';
         $errorType = '';
         $errorCategorie = '';
         if ($inverter['istdata'] === 'No Data') {
             // data gap
-            $message .= 'Data gap at inverter (Power) '.$nameArray.'<br>';
+            $message .= 'Data gap at inverter (Power) <br>';
             $errorType = '';
             $errorCategorie = DATA_GAP;
         } elseif ($inverter['istdata'] === 'Power is 0') {
             // inverter error
-            $message .= 'No power at inverter '.$nameArray.'<br>';
+            $message .= 'No power at inverter <br>';
             $errorType = EFOR;
             $errorCategorie = INVERTER_ERROR;
         } elseif ($inverter['istdata'] === 'Power to low') {
             // check if inverter power make sense, to detect ppc
-            $message .= 'Power too low at inverter '.$nameArray.' (could be external plant control)<br>';
+            $message .= 'Power too low at inverter (could be external plant control)<br>';
             $errorType = '';
             $errorCategorie = EXTERNAL_CONTROL;
         } elseif ($inverter['istdata'] === 'Plant Control by PPC') {
@@ -764,7 +769,7 @@ class AlertSystemService
                         $errorCategorie = GRID_ERROR;
                     }
                     $errorType = OMC;
-                    $message .= 'Error with the frequency in inverter '.$nameArray.'<br>';
+                    $message .= 'Error with the frequency in inverter <br>';
                 }
             }
             if ($inverter['voltage'] != 'All is ok') {// grid error
@@ -772,7 +777,7 @@ class AlertSystemService
                     $errorCategorie = GRID_ERROR;
                 }
                 $errorType = OMC;
-                $message .= 'Error with the voltage in inverter '.$nameArray.'<br>';
+                $message .= 'Error with the voltage in inverter <br>';
             }
         }
         return [

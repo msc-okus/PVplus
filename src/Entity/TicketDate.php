@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Helper\TicketTrait;
 use App\Repository\TicketDateRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Serializer;
 
 #[ORM\Entity(repositoryClass: TicketDateRepository::class)]
 #[ORM\Table(name: 'ticket_date')]
