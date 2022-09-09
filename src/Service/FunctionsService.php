@@ -909,7 +909,7 @@ class FunctionsService
     {
         $conn = self::getPdoConnection();
         $result = [];
-        $powerEvu = $powerAct = $powerTheo = $powerTheoFt = 0;
+        $powerEvu = $powerEvuPpc = $powerAct = $powerTheo = $powerTheoFt = 0;
         $powerExp = $powerExpEvu = $powerTheoPpc = $powerTheoFtPpc = 0;
 
         // ############ für den angeforderten Zeitraum #############
@@ -934,35 +934,49 @@ class FunctionsService
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
-            $powerEvu = round($row['power_evu'], 4);
+            $powerEvu = $row['power_evu'];
+        }
+        unset($res);
+
+        // EVU Leistung ermitteln – nur EVU aber PPC bereinigt
+        $sql = "SELECT sum(e_z_evu) as power_evu_ppc
+                FROM " . $anlage->getDbNameAcIst() . " s
+                RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
+                WHERE s.stamp >= '$from' AND s.stamp <= '$to' AND s.unit = $section AND s.e_z_evu > 0 AND ppc.p_set_gridop_rel = 100 and ppc.p_set_rpc_rel = 100";
+
+
+        $res = $conn->query($sql);
+        if ($res->rowCount() === 1) {
+            $row = $res->fetch(PDO::FETCH_ASSOC);
+            $powerEvu = $row['power_evu_ppc'];
         }
         unset($res);
 
         // Expected Leistung ermitteln
         $sql = 'SELECT sum(ac_exp_power) as sum_power_ac, sum(ac_exp_power_evu) as sum_power_ac_evu FROM '.$anlage->getDbNameDcSoll()." WHERE stamp >= '$from' AND stamp <= '$to' AND group_ac = $section";
         $res = $conn->query($sql);
-        if ($res->rowCount() == 1) {
+        if ($res->rowCount() === 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
-            $powerExp = round($row['sum_power_ac'], 4);
-            $powerExpEvu = round($row['sum_power_ac_evu'], 4);
+            $powerExp = $row['sum_power_ac'];
+            $powerExpEvu = $row['sum_power_ac_evu'];
         }
         unset($res);
 
         // Actual (Inverter Out) Leistung ermitteln
-        $sql = 'SELECT sum(wr_pac) as sum_power_ac FROM '.$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to'  AND group_ac = $section AND wr_pac > 0";
+        $sql = 'SELECT sum(wr_pac) as sum_power_ac FROM '.$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to' AND group_ac = $section AND wr_pac > 0";
         $res = $conn->query($sql);
-        if ($res->rowCount() == 1) {
+        if ($res->rowCount() === 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
-            $powerAct = round($row['sum_power_ac'], 4);
+            $powerAct = $row['sum_power_ac'];
         }
 
         // Theo Power without PPC
-        $sql = "SELECT sum(theo_power) as theo_power, sum(theo_power_ft) as theo_power_ft FROM ".$anlage->getDbNameSection()." WHERE stamp >= '$from' AND stamp <= '$to'  AND section = $section AND theo_power_ft > 0";
+        $sql = "SELECT sum(theo_power) as theo_power, sum(theo_power_ft) as theo_power_ft FROM ".$anlage->getDbNameSection()." WHERE stamp >= '$from' AND stamp <= '$to' AND `section` = $section AND theo_power_ft > 0";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
-            $powerTheo = round($row['theo_power'], 4);
-            $powerTheoFt = round($row['theo_power_ft'], 4);
+            $powerTheo = $row['theo_power'];
+            $powerTheoFt = $row['theo_power_ft'];
         }
         unset($res);
 
@@ -973,15 +987,16 @@ class FunctionsService
                 RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
                 WHERE s.stamp >= '$from' AND s.stamp <= '$to' AND s.section = $section AND s.theo_power_ft > 0 AND ppc.p_set_gridop_rel = 100 and ppc.p_set_rpc_rel = 100";
             $res = $conn->query($sql);
-            if ($res->rowCount() == 1) {
+            if ($res->rowCount() === 1) {
                 $row = $res->fetch(PDO::FETCH_ASSOC);
-                $powerTheoPpc = round($row['theo_power'], 4);
-                $powerTheoFtPpc = round($row['theo_power_ft'], 4);
+                $powerTheoPpc = $row['theo_power'];
+                $powerTheoFtPpc = $row['theo_power_ft'];
             }
             unset($res);
         }
 
         $result['powerEvu'] = $powerEvu;
+        $result['powerEvuPpc'] = $powerEvuPpc;
         $result['powerAct'] = $powerAct;
         $result['powerExp'] = $powerExp;
         $result['powerExpEvu'] = $powerExpEvu;
