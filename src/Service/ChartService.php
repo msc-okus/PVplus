@@ -19,6 +19,7 @@ use App\Service\Charts\HeatmapChartService;
 use App\Service\Charts\IrradiationChartService;
 use App\Service\Charts\SollIstAnalyseChartService;
 use App\Service\Charts\SollIstHeatmapChartService;
+use App\Service\Charts\SollIstTempAnalyseChartService;
 use App\Service\Charts\TempHeatmapChartService;
 use App\Service\Charts\VoltageChartService;
 use DateTime;
@@ -64,6 +65,7 @@ class ChartService
     private SollIstHeatmapChartService $sollistheatmapChartService;
 
     private SollIstAnalyseChartService $sollistAnalyseChartService;
+    private SollIstTempAnalyseChartService $sollisttempAnalyseChartService;
 
 
     public function __construct(Security $security,
@@ -83,6 +85,7 @@ class ChartService
         HeatmapChartService $heatmapChartService,
         TempHeatmapChartService $tempheatmapChartService,
         SollIstAnalyseChartService $sollistAnalyseChartService,
+        SollIstTempAnalyseChartService $sollisttempAnalyseChartService,
         SollIstHeatmapChartService $sollistheatmapChartService)
     {
         $this->security = $security;
@@ -103,6 +106,7 @@ class ChartService
         $this->tempheatmapChartService = $tempheatmapChartService;
         $this->sollistheatmapChartService = $sollistheatmapChartService;
         $this->sollistAnalyseChartService = $sollistAnalyseChartService;
+        $this->sollisttempAnalyseChartService = $sollisttempAnalyseChartService;
     }
 
     /**
@@ -525,6 +529,11 @@ class ChartService
                     $dataArray = $this->sollistAnalyseChartService->getSollIstDeviationAnalyse($anlage, $from, $to);
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'AC differnce between actual and expected power';
+                    break;
+                case 'sollisttempanalyse':
+                    $dataArray = $this->sollisttempAnalyseChartService->getSollIstTempDeviationAnalyse($anlage, $from, $to);
+                    $resultArray['data'] = json_encode($dataArray['chart']);
+                    $resultArray['headline'] = 'Performance Categories vs. Module Temperatures';
                     break;
                 default:
                     $resultArray['headline'] = 'Something was wrong '.$form['selectedChart'];

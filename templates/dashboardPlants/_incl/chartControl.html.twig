@@ -1,4 +1,4 @@
-{% from "dashboardPlants/_incl/macrosMenuSelectBox.html.twig" import showHeatmap ,showTempHeatmap ,showSollIstAnalyse, showSollIstHeatmap, acActOverview, acActGroup, dcActGroup, dcGroupPowerDiff, irradiation, inverterPerformance,
+{% from "dashboardPlants/_incl/macrosMenuSelectBox.html.twig" import showHeatmap ,showTempHeatmap ,showSollIstAnalyse,showSollIstTempAnalyse, showSollIstHeatmap, acActOverview, acActGroup, dcActGroup, dcGroupPowerDiff, irradiation, inverterPerformance,
     currentDcOverview, currentDcInverter, currentDcGroup, dcActPlant, dcActOverview, currentDcString, acActPlant, acVoltage, acCurrent, acFrequency, acReactive, voltageDcString %}
 {% from "dashboardPlants/_incl/macrosGroupeMenuSelectBox.html.twig" import groupMenu, groupMenuNew %}
 <div class="fluid grid-x grid-padding-x box text-center">
@@ -17,6 +17,7 @@
                 {{ showSollIstHeatmap(form, aktAnlage) }}     {# Headmap #}
                 {% if is_granted('ROLE_G4N') %}
                     {{ showSollIstAnalyse(form, aktAnlage) }}     {# Bubblechart #}
+                    {{ showSollIstTempAnalyse(form, aktAnlage) }}     {# Bubblechart #}
                 {% endif %}
             </optgroup>
             <!-- ab hier AC -->
@@ -100,7 +101,7 @@
         </div>
     </div>
 
-    {% if (form.selectedChart != 'availability') and (form.selectedChart != 'pr_and_av') and (form.selectedChart != 'forecast') and (form.selectedChart != 'status_log') and (form.selectedChart != 'pvsyst') and (form.selectedChart != 'heatmap') and (form.selectedChart != 'tempheatmap') and (form.selectedChart != 'sollistanalyse') and (form.selectedChart != 'sollistheatmap') and (form.selectedChart != 'grid')%}
+    {% if (form.selectedChart != 'availability') and (form.selectedChart != 'pr_and_av') and (form.selectedChart != 'forecast') and (form.selectedChart != 'status_log') and (form.selectedChart != 'pvsyst') and (form.selectedChart != 'heatmap') and (form.selectedChart != 'tempheatmap') and (form.selectedChart != 'sollistanalyse') and (form.selectedChart != 'sollisttempanalyse') and (form.selectedChart != 'sollistheatmap') and (form.selectedChart != 'grid')%}
         <div class="cell medium-1 large-1 xlarge-1">
             <div class="switch tiny align-center-middle">
                 <label class="" style="line-height: 1;"><small>Interval min.</small></label>
@@ -116,16 +117,16 @@
 
     <div class="cell medium-6 large-8 xlarge-4">
         <div class="small button-group round toggle" {% if form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap'%}style="display: none"{% endif %}>
-            <label class="button js-submit-onchange {% if form.optionDate == 1 or not form.optionDate %}active{% endif %} {% if form.selectedChart == 'pr_and_av' or form.selectedChart == 'sollistanalyse' %}disabled{% endif %}">
+            <label class="button js-submit-onchange {% if form.optionDate == 1 or not form.optionDate %}active{% endif %} {% if form.selectedChart == 'pr_and_av' or form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse'%}disabled{% endif %}">
                 <input type="radio" name="optionDate" value="1" {% if form.optionDate == 1 or not form.optionDate %}checked="checked"{% endif %}>one day
             </label>
-            <label class="button js-submit-onchange {% if form.optionDate == 3 %}active{% endif %} {% if form.selectedChart == 'pr_and_av' or form.selectedChart == 'availability' or form.selectedChart == 'sollistanalyse' %}disabled{% endif %}">
+            <label class="button js-submit-onchange {% if form.optionDate == 3 %}active{% endif %} {% if form.selectedChart == 'pr_and_av' or form.selectedChart == 'availability' or form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse'%}disabled{% endif %}">
                 <input type="radio" name="optionDate" value="3" {% if form.optionDate == 3 %}checked{% endif %}>last 3 days
             </label>
-            <label class="button js-submit-onchange {% if form.optionDate == 7 %}active{% endif %} {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'availability' %}disabled{% endif %}">
+            <label class="button js-submit-onchange {% if form.optionDate == 7 %}active{% endif %} {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'availability' %}disabled{% endif %}">
                 <input type="radio" name="optionDate" value="7" {% if form.optionDate == 7 %}checked{% endif %}>last 7 days
             </label>
-            <label class="button js-submit-onchange {% if form.optionDate == 14 %}active{% endif %} {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'availability' %}disabled{% endif %}">
+            <label class="button js-submit-onchange {% if form.optionDate == 14 %}active{% endif %} {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'availability' %}disabled{% endif %}">
                 <input type="radio" name="optionDate" value="14" {% if form.optionDate == 14 %}checked{% endif %}>last 14 days
             </label>
             <!--
@@ -136,7 +137,7 @@
             <label class="button js-submit-onchange {% if form.optionDate == 100000 %}active{% endif %} {% if form.selectedChart == 'availability' and not is_granted('ROLE_ADMIN') %}disabled{% endif %}">
                 <input type="radio" name="optionDate" value="100000" {% if form.optionDate == 100000 %}checked{% endif %}>month
             </label>
-            {% if form.selectedChart == 'sollistanalyse' %}
+            {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' %}
             <label class="button js-submit-onchange {% if form.optionDate == 300000 %}active{% endif %} {% if form.selectedChart == 'availability' and not is_granted('ROLE_ADMIN') %}disabled{% endif %}">
                 <input type="radio" name="optionDate" value="300000" {% if form.optionDate == 300000 %}checked{% endif %}>3 months
             </label>

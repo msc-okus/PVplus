@@ -23,21 +23,21 @@
         title2.marginBottom = 10;
 
         // Create 2 Axes
-        let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+        let tempAxis = chart.xAxes.push(new am4charts.ValueAxis());
         let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-         dateAxis.title.text = "Time";
+         tempAxis.title.text = "°C";
          valueAxis.title.text = "kWh";
-         dateAxis.markUnitChange = false // Disable Month Name
-         dateAxis.renderer.ticks.template.disabled = true;
-         dateAxis.renderer.axisFills.template.disabled = true;
+         tempAxis.markUnitChange = false // Disable Month Name
+         tempAxis.renderer.ticks.template.disabled = true;
+         tempAxis.renderer.axisFills.template.disabled = true;
          valueAxis.renderer.ticks.template.disabled = true;
          valueAxis.renderer.axisFills.template.disabled = true;
-         dateAxis.dataFields.category = "date";
+         tempAxis.dataFields.category = "temp";
          valueAxis.dataFields.category = "kwh";
-         dateAxis.renderer.grid.template.disabled = true;
+         tempAxis.renderer.grid.template.disabled = true;
          valueAxis.renderer.grid.template.disabled = true;
          valueAxis.renderer.labels.template.fontSize = 12;
-         dateAxis.renderer.labels.template.fontSize = 12;
+         tempAxis.renderer.labels.template.fontSize = 12;
 
          //  xAxis.renderer.minGridDistance = 5;
          //  yAxis.renderer.minGridDistance = 5;
@@ -47,7 +47,7 @@
 
         // Create Series
         let series = chart.series.push(new am4charts.LineSeries());
-        series.dataFields.dateX = "time";
+        series.dataFields.valueX = "temp";
         series.dataFields.valueY = "kwh";
         series.dataFields.value = "value";
         series.strokeOpacity = 0;
@@ -84,7 +84,6 @@
          chart.scrollbarX.visible = false;
          chart.scrollbarY = new am4core.Scrollbar();
 
-         chart.dateFormatter.inputDateFormat = "HH:mm";
          // Export
          chart.exporting.menu = new am4core.ExportMenu();
          chart.exporting.menu.items[0].label = "Download";

@@ -87,6 +87,7 @@ class SollIstTempAnalyseChartService
         $dataArray['inverterArray'] = $nameArray;
         $maxInverter = $resultActual->rowCount();
 
+
         if ($resultActual->rowCount() > 0) {
             $dataArray['maxSeries'] = 0;
             $counter = 0;
