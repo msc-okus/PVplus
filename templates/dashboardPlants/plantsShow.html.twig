@@ -20,21 +20,10 @@
             <h4>Sorry your database are not not available !</h4>
         </div>
     {% else %}
-       {#<div id="plants" class="grid-x grid-margin-x grid-margin-y grid-padding-x grid-padding-y"> #}
         <div id="plants">
-        {% include 'dashboardPlants/_incl/plantListTop.html.twig' %}
+            {% include 'dashboardPlants/_incl/plantListTop.html.twig' %}
         </div>
-
-        {% if aktAnlage %}
-            <div id="chart" class="grid-x grid-padding-x grid-padding-y box shadow text-center" >
-                <div class="cell">
-                    <form id="chart-control" class="chart-control" method="post" name="chart_control_form" action="#chart">
-                        {% include 'dashboardPlants/_incl/chartControl.html.twig' %}
-                        {% include 'dashboardPlants/_incl/chart.html.twig' %}
-                    </form>
-                </div>
-            </div>
-        {% endif %}
+        {% include 'dashboardPlants/_incl/plantChart.html.twig' %}
     {% endif %}
 {% endblock %}
 
