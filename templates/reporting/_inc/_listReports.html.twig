@@ -49,16 +49,23 @@
                             <div id="modal-form{{ report.id }}" {{ stimulus_controller('modal-form', {
                                     formUrl: path('app_reporting_edit', { id: report.id, page: pagination.currentPageNumber }),
                             }) }}>
-                                {% if is_granted('ROLE_G4N') or report.reportStatus <= 1 %}
+                                {% if is_granted('ROLE_G4N') or report.reportStatus <= 3 %}
+                                    {% set visibility = 'enabled' %}
+                                {% else %}
+                                    {% set visibility = 'disabled' %}
+                                {% endif %}
                                     <a href="{{ path('app_reporting_excel', { id: report.id}) }}" target="_blank" title="load Excel file" class="hollow button tiny action-icon shadow
                                         {% if report.reportType == 'am-report' or (report.reportType == 'epc-report' and report.anlage.epcReportType == 'yieldGuarantee') %}
                                             disabled
+                                            {% else %}
+                                            {{ visibility }}
                                         {% endif %}
                                     "><span class="fa fa-file-excel"></span></a>
                                     {% if report.reportType != 'am-report' or is_granted('ROLE_AM') %} {# Zeige Download Butten wenn es keine AM Bericht ist, oder wenn die Berichtigung für AM Bericht ausreicht #}
-                                        <a href="{{ path('app_reporting_pdf', { id: report.id}) }}"   target="_blank" title="load PDF file" class="hollow button tiny action-icon shadow"><span class="fa fa-file-pdf"></span></a>
+                                        <a href="{{ path('app_reporting_pdf', { id: report.id}) }}"   target="_blank" title="load PDF file" class="hollow button tiny action-icon shadow
+                                            {{ visibility }}
+                                        "><span class="fa fa-file-pdf"></span></a>
                                     {% endif %}
-                                {% endif %}
 
                                 {# edit report #}
                                 {% if is_granted('ROLE_G4N') %}
