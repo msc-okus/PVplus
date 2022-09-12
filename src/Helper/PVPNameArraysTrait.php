@@ -58,6 +58,7 @@ trait PVPNameArraysTrait
     {
         // Values for Report Status
         $reportStati[0] = 'final';
+        $reportStati[3] = 'under observation';
         $reportStati[5] = 'proof reading';
         $reportStati[9] = 'archive (g4n only)';
         $reportStati[10] = 'draft (g4n only)';

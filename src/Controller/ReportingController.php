@@ -250,7 +250,7 @@ class ReportingController extends AbstractController
                                 'anlage'        => $anlage->getAnlName(),
                                 'eigner'        => $anlage->getEigner()->getFirma(),
                                 'date'          => $currentDate,
-                                'kwpeak'        => $anlage->getKwPeak(),
+                                'kwpeak'        => $anlage->getPnom(),
                                 'reportCreationDate' => $reportCreationDate,
                                 'epcNote'       => $anlage->getEpcReportNote(),
                             ],

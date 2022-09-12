@@ -81,7 +81,6 @@ class TicketController extends BaseController
                 $inverterArray[$key]["select"] = "";
             }
         }
-        dd($inverterArray, $nameArray, $ticket->getInverterArray());
         if ($ticketDates->isEmpty()) {
             $ticketDates = null;
         }
