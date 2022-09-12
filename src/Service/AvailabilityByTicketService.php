@@ -214,7 +214,6 @@ class AvailabilityByTicketService
             $anzInverter = $anlage->getAnzInverter();
             $case5Array = $case6Array = [];
 
-            // ToDo: Die 'case5' Fälle sollen aus dem Ticket erzeugt werden (FM Fälle – abhänig vom departement)
             // suche Case 5 Fälle und schreibe diese in case5Array[inverter][stamp] = true|false
             foreach ($this->case5Repository->findAllCase5($anlage, $from, $to) as $case) {
                 $c5From = strtotime($case['stampFrom']);
@@ -228,7 +227,22 @@ class AvailabilityByTicketService
                 }
             }
 
-            // ToDo: Die 'case6' Fälle sollen aus dem Ticket erzeugt werden (is DataGap = outage or comm issue)
+            // Handele case5 by ticket
+            /** @var TicketDate $case5Ticket */
+            foreach ($this->ticketDateRepo->findDataGapOutage($anlage, $from, $to) as $case5Ticket){
+
+                $c5From = $case5Ticket->getBegin()->getTimestamp();
+                $c5To = $case5Ticket->getEnd()->getTimestamp();
+                for ($c5Stamp = $c5From; $c5Stamp < $c5To; $c5Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
+                    foreach ($this->functions->readInverters($case5Ticket->getInverter(), $anlage) as $inverter) {
+                        $inverter = trim($inverter, ' ');
+                        $case5Array[$inverter][date('Y-m-d H:i:00', $c5Stamp)] = true;
+                    }
+                }
+
+            }
+            dump($case5Array);
+
             // suche Case 6 Fälle und schreibe diese in case6Array[inverter][stamp] = true|false
             foreach ($this->case6Repository->findAllCase6($anlage, $from, $to) as $case) {
                 $c6From = strtotime($case['stampFrom']);
@@ -241,6 +255,7 @@ class AvailabilityByTicketService
                 }
             }
 
+            // Handel case6 by ticket
             /** @var TicketDate $case6Ticket */
             foreach ($this->ticketDateRepo->findDataGapOutage($anlage, $from, $to) as $case6Ticket){
 
@@ -254,7 +269,8 @@ class AvailabilityByTicketService
                 }
 
             }
-            dump($case6Array);
+
+
 
             foreach ($einstrahlungen as $einstrahlung) {
                 $stamp = $einstrahlung['stamp'];

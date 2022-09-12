@@ -294,7 +294,7 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
                 $excludedColumns = [];
             }
             match ($array['algorithmus']) {
-                'Lelystad'  => $excludedColumns[] = 'availability',
+                'Lelystad'  => $excludedColumns[] = '',//'availability',
                 default => $excludedColumns[] = ''
             };
             Table::create([
