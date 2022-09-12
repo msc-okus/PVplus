@@ -34,7 +34,6 @@ class TicketController extends BaseController
             }
         } else {
             $anlage = null;
-            $nameArray = [];
             $inverterArray = [];
         }
 
@@ -70,15 +69,18 @@ class TicketController extends BaseController
         $ticketDates = $ticket->getDates();
         $anlage = $ticket->getAnlage();
         $nameArray = $functions->getInverterArray($anlage);
+        $selected = $ticket->getInverterArray();
+        $indexSelect = 0;
         foreach ($nameArray as $key => $value){
             $inverterArray[$key]["inv"] = $value;
-            $inverterArray[$key]["select"] = "";
+            if($key === (int)$selected[$indexSelect]){
+                $inverterArray[$key]["select"] = "checked";
+                $indexSelect ++;
+            }
+            else{
+                $inverterArray[$key]["select"] = "";
+            }
         }
-
-        foreach ($ticket->getInverterArray() as $inverter){
-            $inverterArray[$inverter]["select"] = "checked";
-        }
-        dump($inverterArray, $nameArray, $ticket->getInverterArray());
         if ($ticketDates->isEmpty()) {
             $ticketDates = null;
         }
