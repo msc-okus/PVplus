@@ -4,6 +4,7 @@ namespace App\Service;
 
 use App\Entity\Anlage;
 use App\Entity\AnlageAvailability;
+use App\Entity\AnlageGroups;
 use App\Entity\TimesConfig;
 use App\Helper\G4NTrait;
 use App\Repository\AnlageAvailabilityRepository;
@@ -19,37 +20,23 @@ class AvailabilityService
 {
     use G4NTrait;
 
-    private EntityManagerInterface $em;
-
-    private AnlageAvailabilityRepository $availabilityRepository;
-
-    private Case5Repository $case5Repository;
-
-    private Case6Repository $case6Repository;
-
-    private TimesConfig $timesConfig;
-
-    private TimesConfigRepository $timesConfigRepo;
-
-    private FunctionsService $functions;
-
-    private AnlagenRepository $anlagenRepository;
-
-    public function __construct(EntityManagerInterface $em, AnlageAvailabilityRepository $availabilityRepository,
-        Case5Repository $case5Repository, Case6Repository $case6Repository,
-        TimesConfigRepository $timesConfigRepo, FunctionsService $functions, AnlagenRepository $anlagenRepository)
+    public function __construct(
+        private EntityManagerInterface $em,
+        private AnlageAvailabilityRepository $availabilityRepository,
+        private Case5Repository $case5Repository,
+        private Case6Repository $case6Repository,
+        private TimesConfigRepository $timesConfigRepo,
+        private FunctionsService $functions,
+        private AnlagenRepository $anlagenRepository)
     {
-        $this->em = $em;
-        $this->availabilityRepository = $availabilityRepository;
-        $this->case5Repository = $case5Repository;
-        $this->case6Repository = $case6Repository;
-        $this->timesConfigRepo = $timesConfigRepo;
-        $this->functions = $functions;
-        $this->anlagenRepository = $anlagenRepository;
     }
 
     /**
+     * @param Anlage|int $anlage
      * @param $date
+     * @param bool $second
+     * @return string
+     * @throws \Exception
      */
     public function checkAvailability(Anlage|int $anlage, $date, bool $second = false): string
     {
@@ -86,6 +73,7 @@ class AvailabilityService
 
             // DC Leistung der Inverter laden (aus AC Gruppen)
             // TODO: Anpassung der Berechnung der Inverter Pnom je nach Analgen Typ (Berechnen aus DC Gruppen config??)
+            /** @var AnlageGroups $group */
             switch ($anlage->getConfigType()) {
                 case 1:
                 case 2:
