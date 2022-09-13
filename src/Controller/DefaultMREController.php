@@ -32,17 +32,18 @@ class DefaultMREController extends BaseController
     #[Route(path: '/mr/sun')]
     public function testSunRise(WeatherServiceNew $weatherService, AnlagenRepository $anlagenRepository): Response
     {
-        $anlage = $anlagenRepository->find('106');
-        $output = $weatherService->getSunrise($anlage);
-        $sunrisedatas = date_sun_info(time(), (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon());
-        foreach ($sunrisedatas as $key => $value) {
-            $sunrisedatas[$key] = date('Y-m-d H:i', $value);
-        }
+        $anlage = $anlagenRepository->find('112');
+        $time = time();
+        $time = strtotime('2022-08-03');
 
+        $sunrisedatas = date_sun_info($time, (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon());
+        foreach ($sunrisedatas as $key => $value) {
+            $sunriseArray[] = ['Key' => $key, "Stamp" => date('Y-m-d H:i', $value)];
+        }
         return $this->render('cron/showResult.html.twig', [
             'headline' => 'Sunrise / Sunset',
             'availabilitys' => '',
-            'output' => self::printArrayAsTable($output),
+            'output' => self::printArrayAsTable($sunriseArray),
         ]);
     }
 

@@ -27,43 +27,18 @@ class FunctionsService
 {
     use G4NTrait;
 
-    private PVSystDatenRepository $pvSystRepo;
-
-    private GroupMonthsRepository $groupMonthsRepo;
-
-    private GroupModulesRepository $groupModulesRepo;
-
-    private GroupsRepository $groupsRepo;
-
-    private GridMeterDayRepository $gridMeterDayRepo;
-
-    private ForcastRepository $forcastRepo;
-
-    private MonthlyDataRepository $monthlyDataRepo;
-
-    private AcGroupsRepository $acGroupsRepo;
-
-    private InvertersRepository $inverterRepo;
-
-    private ForcastDayRepository $forcastDayRepo;
-
-    public function __construct(PVSystDatenRepository $pvSystRepo,
-        GroupMonthsRepository $groupMonthsRepo,
-        GroupModulesRepository $groupModulesRepo,
-        GroupsRepository $groupsRepo, AcGroupsRepository $acGroupsRepo, InvertersRepository $inverterRepo,
-        GridMeterDayRepository $gridMeterDayRepo, ForcastRepository $forcastRepo, ForcastDayRepository $forcastDayRepo,
-        MonthlyDataRepository $monthlyDataRepo)
+    public function __construct(
+        private PVSystDatenRepository $pvSystRepo,
+        private GroupMonthsRepository $groupMonthsRepo,
+        private GroupModulesRepository $groupModulesRepo,
+        private GroupsRepository $groupsRepo,
+        private AcGroupsRepository $acGroupsRepo,
+        private InvertersRepository $inverterRepo,
+        private GridMeterDayRepository $gridMeterDayRepo,
+        private ForcastRepository $forcastRepo,
+        private ForcastDayRepository $forcastDayRepo,
+        private MonthlyDataRepository $monthlyDataRepo)
     {
-        $this->pvSystRepo = $pvSystRepo;
-        $this->groupMonthsRepo = $groupMonthsRepo;
-        $this->groupModulesRepo = $groupModulesRepo;
-        $this->groupsRepo = $groupsRepo;
-        $this->gridMeterDayRepo = $gridMeterDayRepo;
-        $this->forcastRepo = $forcastRepo;
-        $this->monthlyDataRepo = $monthlyDataRepo;
-        $this->acGroupsRepo = $acGroupsRepo;
-        $this->inverterRepo = $inverterRepo;
-        $this->forcastDayRepo = $forcastDayRepo;
     }
 
     /**
@@ -705,7 +680,15 @@ class FunctionsService
     }
 
     /**
+     * @param float $irrUpper
+     * @param float $irrLower
      * @param $date
+     * @param Anlage $anlage
+     * @param AnlageGroups $group
+     * @param WeatherStation $weatherStation
+     * @param AnlageGroupMonths|null $groupMonth
+     * @return float
+     * @deprecated
      */
     public function calcIrr(float $irrUpper, float $irrLower, $date, Anlage $anlage, AnlageGroups $group, WeatherStation $weatherStation, ?AnlageGroupMonths $groupMonth): float
     {

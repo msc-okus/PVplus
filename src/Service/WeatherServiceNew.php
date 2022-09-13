@@ -14,17 +14,11 @@ class WeatherServiceNew
 {
     use G4NTrait;
 
-    private DayLightDataRepository $dayrepo;
-
-    private EntityManagerInterface $em;
-
-    private AnlagenRepository $anlRepo;
-
-    public function __construct(DayLightDataRepository $dayrepo, EntityManagerInterface $em, AnlagenRepository $anlRepo)
+    public function __construct(
+        private DayLightDataRepository $dayrepo,
+        private EntityManagerInterface $em,
+        private AnlagenRepository $anlRepo)
     {
-        $this->dayrepo = $dayrepo;
-        $this->em = $em;
-        $this->anlRepo = $anlRepo;
     }
 
     public function loadWeatherDataUP(WeatherStation $weatherStation, $date = 0): string

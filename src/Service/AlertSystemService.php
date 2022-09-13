@@ -21,6 +21,7 @@ class AlertSystemService
     public function __construct(
         private AnlagenRepository $anlagenRepository,
         private WeatherServiceNew $weather,
+        private WeatherFunctionsService $weatherFunctions,
         private AnlagenRepository $AnlRepo,
         private EntityManagerInterface $em,
         private MessageService $mailservice,
@@ -53,7 +54,6 @@ class AlertSystemService
         $fromStamp = strtotime($from);
         $toStamp = strtotime($to);
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-
             $this->checkSystem($anlage, $from = date('Y-m-d H:i:00', $stamp));
         }
     }
@@ -160,12 +160,14 @@ class AlertSystemService
     }
 
     // quick fix to send messages
+
     /**
      * here we analyze the data from the weather station and generate the status.
      *
+     * @param Anlage $anlage
      * @param $time
      *
-     * @return array
+     * @return int
      */
     private static function WDataFix(Anlage $anlage, $time): int
     {
@@ -576,21 +578,13 @@ class AlertSystemService
     /**
      * We use this to query for a concrete quarter in an inverter.
      */
-    private static function RetrieveQuarterIst(string $stamp, ?string $inverter, Anlage $anlage): array
+    private function RetrieveQuarterIst(string $stamp, ?string $inverter, Anlage $anlage): array
     {
         $conn = self::getPdoConnection();
-        $irrLimit = 30;
+        $irrLimit = 20;
 
-        $sqlw = 'SELECT g_lower, g_upper FROM '.$anlage->getDbNameWeather()." WHERE stamp = '$stamp' ";
-        $respirr = $conn->query($sqlw);
+        $irradiation = $this->weatherFunctions->getIrrByStampForTicket($anlage, date_create($stamp));
 
-        if ($respirr->rowCount() > 0) {
-            $pdataw = $respirr->fetch(PDO::FETCH_ASSOC);
-            /* TODO: Irradiation depends on config of plant (could east/west with wight of sensors by Pnom or only one sensore) */
-            $irradiation = (float) $pdataw['g_lower'] + (float) $pdataw['g_upper'];
-        } else {
-            $irradiation = 0;
-        }
         $sqlExp = 'SELECT b.ac_exp_power, a.stamp
                     FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameDcSoll()."  b ON a.stamp = b.stamp)  
                     WHERE a.stamp = '$stamp' 

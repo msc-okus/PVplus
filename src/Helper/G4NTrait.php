@@ -429,7 +429,7 @@ trait G4NTrait
     /**
      * Ermittelt aus dem übergebenen ARray den Mittelwert, wobei 0 Werte nicht in die Berechnung einfließen.
      */
-    public function mittelwert(array $werte): ?float
+    public static function mittelwert(array $werte): ?float
     {
         $divisor = $divident = 0;
         foreach ($werte as $wert) {

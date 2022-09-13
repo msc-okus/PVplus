@@ -2,6 +2,9 @@
 
 namespace App\Service;
 
+use App\Entity\Anlage;
+use App\Entity\AnlageGroupMonths;
+use App\Entity\AnlageGroups;
 use App\Entity\WeatherStation;
 use App\Helper\G4NTrait;
 use App\Repository\ForcastRepository;
@@ -11,37 +14,20 @@ use App\Repository\GroupMonthsRepository;
 use App\Repository\GroupsRepository;
 use App\Repository\PVSystDatenRepository;
 use PDO;
+use DateTime;
 
 class WeatherFunctionsService
 {
     use G4NTrait;
 
-    private PVSystDatenRepository $pvSystRepo;
-
-    private GroupMonthsRepository $groupMonthsRepo;
-
-    private GroupModulesRepository $groupModulesRepo;
-
-    private GroupsRepository $groupsRepo;
-
-    private GridMeterDayRepository $gridMeterDayRepo;
-
-    private ForcastRepository $forecastRepo;
-
     public function __construct(
-        PVSystDatenRepository $pvSystRepo,
-        GroupMonthsRepository $groupMonthsRepo,
-        GroupModulesRepository $groupModulesRepo,
-        GroupsRepository $groupsRepo,
-        GridMeterDayRepository $gridMeterDayRepo,
-        ForcastRepository $forecastRepo)
+        private PVSystDatenRepository  $pvSystRepo,
+        private GroupMonthsRepository  $groupMonthsRepo,
+        private GroupModulesRepository $groupModulesRepo,
+        private GroupsRepository       $groupsRepo,
+        private GridMeterDayRepository $gridMeterDayRepo,
+        private ForcastRepository      $forecastRepo)
     {
-        $this->pvSystRepo = $pvSystRepo;
-        $this->groupMonthsRepo = $groupMonthsRepo;
-        $this->groupModulesRepo = $groupModulesRepo;
-        $this->groupsRepo = $groupsRepo;
-        $this->gridMeterDayRepo = $gridMeterDayRepo;
-        $this->forecastRepo = $forecastRepo;
     }
 
     /**
@@ -113,5 +99,59 @@ class WeatherFunctionsService
         $conn = null;
 
         return $weather;
+    }
+
+    /**
+     * Function to retrieve weighted irradiation – NOT ready – DON'T USE
+     * definition is optimized for ticket generation, have a look into ducumentation
+     *
+     * @param Anlage $anlage
+     * @param DateTime $stamp
+     * @return float
+     */
+    public function getIrrByStampForTicket(Anlage $anlage, DateTime $stamp): float
+    {
+        $conn = self::getPdoConnection();
+        $irr = 0;
+        // Rückfallwert sollte nichts anderes gefunden werden
+        $gwoben = 0.5;
+        $gwunten = 0.5;
+        $month = $stamp->format('m');
+
+        $sqlw = 'SELECT g_lower, g_upper FROM ' . $anlage->getDbNameWeather() . " WHERE stamp = '" . $stamp->format('Y-m-d H:i') . "' ";
+        $respirr = $conn->query($sqlw);
+
+        if ($respirr->rowCount() > 0) {
+            $pdataw = $respirr->fetch(PDO::FETCH_ASSOC);
+            $irrUpper = (float)$pdataw['g_upper'];
+            $irrLower = (float)$pdataw['g_lower'];
+            if ($irrUpper < 0) $irrUpper = 0;
+            if ($irrLower < 0) $irrLower = 0;
+
+            // Sensoren sind vertauscht, Werte tauschen
+            if ($anlage->getWeatherStation()->getChangeSensor()) {
+                $irrHelp = $irrLower;
+                $irrLower = $irrUpper;
+                $irrUpper = $irrHelp;
+            }
+            if ($anlage->getIsOstWestAnlage() && $anlage->getPowerEast() > 0 && $anlage->getPowerWest() > 0) {
+                $gwoben = $anlage->getPowerEast() / ($anlage->getPowerWest() + $anlage->getPowerEast());
+                $gwunten = $anlage->getPowerWest() / ($anlage->getPowerWest() + $anlage->getPowerEast());
+
+                $irr = $irrUpper * $gwoben + $irrLower * $gwunten;
+            } else {
+                if ($anlage->getWeatherStation()->getHasUpper() && !$anlage->getWeatherStation()->getHasLower()) {
+                    $irr = $irrUpper;
+                } elseif (!$anlage->getWeatherStation()->getHasUpper() && $anlage->getWeatherStation()->getHasLower()) {
+                    // Station hat nur unteren Sensor => Die Strahlung OHNE Gewichtung zurückgeben, Verluste werden dann über die Verschattung berechnet
+                    $irr = $irrLower;
+                }
+            }
+        }
+        $conn = false;
+
+        #dump("Upper: $irrUpper | Lower: $irrLower | GewOben: $gwoben | GewUnten: $gwunten | Irr: $irr");
+
+        return $irr;
     }
 }
