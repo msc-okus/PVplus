@@ -13,15 +13,24 @@ export default class extends Controller {
 
     connect() {
         useDispatch(this);
-        if (this.errorTypeValue == '10'){
+
+        console.log($(this.dataGapEvTarget).prop('value'));
+        if ($(this.dataGapEvTarget).prop('value') != 10){
+
             $(this.aktDep1Target).prop('disabled', true);
             $(this.aktDep2Target).prop('disabled', true);
             $(this.aktDep3Target).prop('disabled', true);
+            $(this.aktDep1Target).prop('value', '');
+            $(this.aktDep2Target).prop('value', '');
+            $(this.aktDep3Target).prop('value', '');
         }
-        else{
+        else {
             $(this.aktDep1Target).prop('disabled', false);
             $(this.aktDep2Target).prop('disabled', false);
             $(this.aktDep3Target).prop('disabled', false);
+            $(this.aktDep1Target).prop('value', 10);
+            $(this.aktDep2Target).prop('value', 10);
+            $(this.aktDep3Target).prop('value', 10);
         }
     }
 

@@ -5,7 +5,7 @@
      data-reveal
      data-append-to="div#modal-form{{ modalId }}"
 >
-    <h1>{{ modalTitel }} - {{ modalId }}</h1>
+    <h1>{{ modalTitel }}{% if (modalId != 0)%} - {{ modalId }}{% endif %}</h1>
     <div class="grid-x grid-padding-y" data-action="async:submitted->ticket-edit#reload">
         <div
                 class="cell modal-body"
