@@ -14,27 +14,13 @@ class ACPowerChartsService
 {
     use G4NTrait;
 
-    private Security $security;
-
-    private AnlagenStatusRepository $statusRepository;
-
-    private InvertersRepository $invertersRepo;
-
-    public functionsService $functions;
-
-    private IrradiationChartService $irradiationChart;
-
-    public function __construct(Security $security,
-        AnlagenStatusRepository $statusRepository,
-        InvertersRepository $invertersRepo,
-        IrradiationChartService $irradiationChart,
-        FunctionsService $functions)
+    public function __construct(
+        private Security $security,
+        private AnlagenStatusRepository $statusRepository,
+        private InvertersRepository $invertersRepo,
+        private IrradiationChartService $irradiationChart,
+        private FunctionsService $functions)
     {
-        $this->security = $security;
-        $this->statusRepository = $statusRepository;
-        $this->invertersRepo = $invertersRepo;
-        $this->functions = $functions;
-        $this->irradiationChart = $irradiationChart;
     }
 
     /**
@@ -92,11 +78,11 @@ class ACPowerChartsService
                 $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone());
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
 
-                $rowExp['soll'] > 0 ? $expectedInvOut = round($rowExp['soll'], 2) : $expectedInvOut = 0; // neagtive Werte auschließen
-                $rowExp['soll_evu'] == null || $rowExp['soll_evu'] < 0 ? $expectedEvu = 0 : $expectedEvu = round($rowExp['soll_evu'], 2);
-                $rowExp['soll_nolimit'] == null || $rowExp['soll_nolimit'] < 0 ? $expectedNoLimit = 0 : $expectedNoLimit = round($rowExp['soll_nolimit'], 2);
-                $expDiffInvOut = round($expectedInvOut - $expectedInvOut * 10 / 100, 2);   // Minus 10 % Toleranz Invberter Out.
-                $expDiffEvu = round($expectedEvu - $expectedEvu * 10 / 100, 2);         // Minus 10 % Toleranz Grid (EVU).
+                $expectedInvOut     = $rowExp['soll'] > 0 ? round($rowExp['soll'], 2) : 0; // neagtive Werte auschließen
+                $expectedEvu        = $rowExp['soll_evu'] == null || $rowExp['soll_evu'] < 0 ? 0 : round($rowExp['soll_evu'], 2);
+                $expectedNoLimit    = $rowExp['soll_nolimit'] == null || $rowExp['soll_nolimit'] < 0 ? 0 : round($rowExp['soll_nolimit'], 2);
+                $expDiffInvOut      = round($expectedInvOut - $expectedInvOut * 10 / 100, 2);   // Minus 10 % Toleranz Invberter Out.
+                $expDiffEvu         = round($expectedEvu - $expectedEvu * 10 / 100, 2);         // Minus 10 % Toleranz Grid (EVU).
 
                 $whereQueryPart1 = $hour ? "stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'" : "stamp = '$stampAdjust'";
                 $sqlActual = 'SELECT sum(wr_pac) as acIst, wr_cos_phi_korrektur as cosPhi, sum(theo_power) as theoPower FROM '.$anlage->getDbNameIst()." 
@@ -132,8 +118,16 @@ class ACPowerChartsService
                 $expNoLimitSum += $expectedNoLimit;
                 $dataArray['chart'][$counter]['date'] = $stamp;
                 if ($anlage->getHasPPC()) {
-                    $dataArray['chart'][$counter]['p_set_rpc_rel'] = $rowExp['p_set_rpc_rel'];
-                    $dataArray['chart'][$counter]['p_set_gridop_rel'] = $rowExp['p_set_gridop_rel'];
+
+                    // Hack für Olli um Duerrenried richtig anzuzeigen, muss durch generiche PPC Lösung erstetzt werden
+                    // 'else Zweig' funktioniert für Bavelse
+                    if ($anlage->getAnlId() == 111) {
+                        $dataArray['chart'][$counter]['p_set_rpc_rel'] = $rowExp['p_set_rel'];
+                        $dataArray['chart'][$counter]['p_set_gridop_rel'] = null;
+                    } else {
+                        $dataArray['chart'][$counter]['p_set_rpc_rel'] = $rowExp['p_set_rpc_rel'];
+                        $dataArray['chart'][$counter]['p_set_gridop_rel'] = $rowExp['p_set_gridop_rel'];
+                    }
                 }
 
                 if (!($expectedInvOut == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {

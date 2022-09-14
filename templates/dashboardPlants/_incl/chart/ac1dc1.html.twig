@@ -85,7 +85,7 @@
             {% if aktAnlage.HasPPC %}
                 // Wirkleistungs-Sollwert Direktvermarketer
                 let series14 = chart.series.push(new am4charts.LineSeries());
-                series14.name = "PPC by RPC (Direktvermarkter) %"
+                series14.name = "Controled by PPC"//"PPC by RPC (Direktvermarkter) %"
                 series14.dataFields.dateX = "date";
                 series14.dataFields.valueY = "p_set_rpc_rel";
                 series14.tooltipText = "PPC by RPC (Direktvermarkter) : {valueY} % [/]";
