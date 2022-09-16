@@ -996,31 +996,12 @@ class FunctionsService
      * Function to retrieve a array with inverter no and inverter name<br>
      * Key of array = inverter
      * value of array = inverter name.
+     * @Deprecated
      */
     public function getInverterArray(Anlage $anlage): array
     {
-        $nameArray = [];
 
-        switch ($anlage->getConfigType()) {
-            case 1:
-                // In diesem Fall gibt es keine SCBs; AC Gruppen = Trafo oder ähnliches; DC Gruppen = Inverter
-                foreach ($this->groupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
-                    $nameArray[$inverter->getDcGroup()] = $inverter->getDcGroupName();
-                }
-                break;
-            case 2: // Lelystad
-                // In diesem Fall gibt es keine SCBs; AC Gruppen = DC Gruppen = Inverter
-            case 3: // Groningen
-                // AC Gruppen = Inverter; DC Gruppen = SCB Gruppen
-            case 4: // Guben
-            // AC Gruppen = Inverter; DC Gruppen = SCBs
-                foreach ($this->acGroupsRepo->findBy(['anlage' => $anlage->getAnlId()]) as $inverter) {
-                    $nameArray[$inverter->getAcGroup()] = $inverter->getAcGroupName();
-                }
-                break;
-        }
-
-        return $nameArray;
+        return $anlage->getInverterFromAnlage();
     }
 
     /**

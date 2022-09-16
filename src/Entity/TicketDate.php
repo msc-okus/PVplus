@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Helper\TicketTrait;
 use App\Repository\TicketDateRepository;
+use App\Service\FunctionsService;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Serializer;
 

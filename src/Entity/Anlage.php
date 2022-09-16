@@ -1131,6 +1131,32 @@ class Anlage
         return $gruppe;
     }
 
+    public function getInverterFromAnlage(): array
+    {
+        $nameArray = [];
+
+        switch ($this->getConfigType()) {
+            case 1:
+                // In diesem Fall gibt es keine SCBs; AC Gruppen = Trafo oder ähnliches; DC Gruppen = Inverter
+
+                foreach ($this->getGroups() as $inverter) {
+                    $nameArray[$inverter->getDcGroup()] = $inverter->getDcGroupName();
+                }
+                break;
+            case 2: // Lelystad
+                // In diesem Fall gibt es keine SCBs; AC Gruppen = DC Gruppen = Inverter
+            case 3: // Groningen
+                // AC Gruppen = Inverter; DC Gruppen = SCB Gruppen
+            case 4: // Guben
+                // AC Gruppen = Inverter; DC Gruppen = SCBs
+                foreach ( $this->getAcGroups() as $inverter) {
+                    $nameArray[$inverter->getAcGroup()] = $inverter->getAcGroupName();
+                }
+                break;
+        }
+
+        return $nameArray;
+    }
     public function getAnzInverter(): int
     {
         $anzInverter = 0;

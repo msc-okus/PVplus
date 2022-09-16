@@ -34,7 +34,7 @@ class DefaultMREController extends BaseController
     {
         $anlage = $anlagenRepository->find('112');
         $time = time();
-        $time = strtotime('2022-08-03');
+        $time = strtotime('2022-05-23');
 
         $sunrisedatas = date_sun_info($time, (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon());
         foreach ($sunrisedatas as $key => $value) {

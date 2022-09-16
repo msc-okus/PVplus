@@ -2,9 +2,13 @@
 
 namespace App\Helper;
 
+use App\Entity\Anlage;
+use App\Repository\AcGroupsRepository;
+use App\Repository\GroupsRepository;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Persistence\ManagerRegistry;
 
 trait TicketTrait
 {
@@ -160,7 +164,9 @@ trait TicketTrait
      */
     public function getInverterArray(): array
     {
-        return explode(", ", $this->inverter);
+
+        if ($this->inverter !== "*") return explode(", ", $this->inverter);
+        else return $this->getAnlage()->getInverterFromAnlage();
     }
 
     public function getAlertType(): ?string
@@ -279,5 +285,7 @@ trait TicketTrait
         $this->kpiPaDep3 = $kpiPaDep3;
         return $this;
     }
+
+
 
 }

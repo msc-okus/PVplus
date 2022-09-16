@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Helper\TicketTrait;
 use App\Repository\TicketRepository;
+use App\Service\FunctionsService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -78,6 +79,9 @@ class Ticket
 
     #[ORM\Column(nullable: true)]
     private ?bool $needsProof = null;
+
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private $openTicket;
 
     public function __construct()
     {
@@ -341,6 +345,18 @@ class Ticket
     public function setNeedsProof(?bool $needsProof): self
     {
         $this->needsProof = $needsProof;
+
+        return $this;
+    }
+
+    public function isOpenTicket(): ?bool
+    {
+        return $this->openTicket;
+    }
+
+    public function setOpenTicket(?bool $openTicket): self
+    {
+        $this->openTicket = $openTicket;
 
         return $this;
     }

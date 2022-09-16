@@ -68,7 +68,7 @@ class TicketController extends BaseController
         $ticket = $ticketRepo->find($id);
         $ticketDates = $ticket->getDates();
         $anlage = $ticket->getAnlage();
-        $nameArray = $functions->getInverterArray($anlage);
+        $nameArray = $anlage->getInverterFromAnlage();
         $selected = $ticket->getInverterArray();
         $indexSelect = 0;
         foreach ($nameArray as $key => $value){
@@ -99,20 +99,20 @@ class TicketController extends BaseController
             }
             // Adjust, if neccesary, the start ean end Date of the master Ticket, depending on the TicketDates
             // TODO: Check what hapend if the last ticket is not the 'last' ticket, means if the order of the ticketDates are not respected
+
             if ($ticketDates) {
-                if ($ticketDates->first()->getBegin < $ticket->getBegin()) {
+                if ($ticketDates->first()->getBegin() <= $ticket->getBegin()) {
                     $ticket->setBegin($ticketDates->first()->getBegin());
-                    #$this->addFlash('warning', 'Inconsistent date, the date was not saved');
                 } else {
                     $ticketDates->first()->setBegin($ticket->getBegin());
                 }
-                if ($ticketDates->last()->getEnd() > $ticket->getEnd()) {
+                if ($ticketDates->last()->getEnd() >= $ticket->getEnd()) {
                     $ticket->setEnd($ticketDates->last()->getEnd());
-                    #$this->addFlash('warning', 'Inconsistent date, the date was not saved');
                 } else {
                     $ticketDates->last()->setEnd($ticket->getEnd());
                 }
             }
+
             if ($ticket->getStatus() == '10') $ticket->setStatus(30); // If 'New' Ticket change to work in Progress
 
             $em->persist($ticket);
@@ -220,8 +220,22 @@ class TicketController extends BaseController
 
         $ticket = $ticketRepo->findOneById($ticketDate->getTicket());
         $splitTime = date_create($request->query->get('begin-time'));
-        $anlage = $ticket->getAnlage();
-        $nameArray = $functions->getInverterArray($anlage);
+        $anlage = $ticket->getAnlage();        $nameArray = $functions->getInverterArray($anlage);
+        $selected = $ticket->getInverterArray();
+
+        $indexSelect = 0;
+
+        foreach ($nameArray as $key => $value){
+            $inverterArray[$key]["inv"] = $value;
+            if($key === (int)$selected[$indexSelect]){
+                $inverterArray[$key]["select"] = "checked";
+                $indexSelect ++;
+            }
+            else{
+                $inverterArray[$key]["select"] = "";
+            }
+        }
+
 
         if ($splitTime && $ticket) {
             $mainDate = new TicketDate();
@@ -246,9 +260,10 @@ class TicketController extends BaseController
             'ticketForm' => $form,
             'ticket' => $ticket,
             'edited' => true,
+            'anlage' => $anlage,
             'dates' => $ticketDates,
             'page' => $page,
-            'invArray' => $nameArray
+            'invArray' => $inverterArray
         ]);
     }
 
@@ -261,6 +276,20 @@ class TicketController extends BaseController
         $ticket = $ticketRepo->findOneById($ticketDate->getTicket());
         $anlage = $ticket->getAnlage();
         $nameArray = $functions->getInverterArray($anlage);
+        $selected = $ticket->getInverterArray();
+
+        $indexSelect = 0;
+
+        foreach ($nameArray as $key => $value){
+            $inverterArray[$key]["inv"] = $value;
+            if($key === (int)$selected[$indexSelect]){
+                $inverterArray[$key]["select"] = "checked";
+                $indexSelect ++;
+            }
+            else{
+                $inverterArray[$key]["select"] = "";
+            }
+        }
 
         if ($ticket) {
             switch ($option) {
@@ -298,9 +327,10 @@ class TicketController extends BaseController
             'ticketForm' => $form,
             'ticket' => $ticket,
             'edited' => true,
+            'anlage' => $anlage,
             'dates' => $ticketDates,
             'page' => $page,
-            'invArray' => $nameArray
+            'invArray' => $inverterArray
         ]);
     }
 

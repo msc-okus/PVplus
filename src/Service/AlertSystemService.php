@@ -81,7 +81,7 @@ class AlertSystemService
 
                     if ($inverter_status['istdata'] == 'Plant Control by PPC') {
                         $ppc = true;
-                        $message = $this->analyzeIst($inverter_status, $time, $anlage, $inverterNo);
+                        $message = $this->analyzeIst($inverter_status, $time, $anlage, '*');
                         // self::messagingFunction($message, $anlage);
                     } else {
                         $message = $this->analyzeIst($inverter_status, $time, $anlage, $inverterNo);
@@ -183,143 +183,6 @@ class AlertSystemService
         return $resw->rowCount();
     }
 
-    // TEST FOR OPTIMIZED VERSION
-    // Notes: Maybe we could make 2 separate functions, the one to create old tickets will do only one super big query to the db (depending on which is the max amount of records we can take from the db)
-    public function checkSystem2(Anlage $anlage, ?string $time = null): string
-    {
-        if ($time === null) {
-            $time = $this->getLastQuarter(date('Y-m-d H:i:s'));
-        }
-        /** Todo: $ppc read from Plant ??? */
-        $ppc = false;
-        // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
-
-        $sungap = $this->weather->getSunrise($anlage, $time);
-        $plant_status = self::RetrievePlant($anlage, $sungap);
-        // We do this to avoid checking further inverters if we have a PPC control shut
-        if ($ppc === false) {
-            if ($plant_status['istdata'] == 'Plant Control by PPC') {
-                $ppc = true;
-                $message = $this->analyzePlant($plant_status, $anlage);
-
-            // self::messagingFunction($message, $anlage);
-            } else {
-                $message = $this->analyzePlant($plant_status, $anlage);
-
-                // self::messagingFunction($message, $anlage);
-                unset($inverter_status);
-            }
-        }
-        unset($system_status);
-
-        $this->em->flush();
-
-        return 'success';
-    }
-
-    private static function RetrievePlant(Anlage $anlage, $sungap): array
-    {
-        $conn = self::getPdoConnection();
-        $irrLimit = $anlage->getIrrLimitAvailability();
-        $sunrise = $sungap['sunrise'];
-        $sunset = $sungap['sunset'];
-        $sqlw = 'SELECT b.g_lower as lower, b.g_upper as upper, a.stamp
-                    FROM (db_dummysoll a left JOIN '.$anlage->getDbNameWeather()." b on a.stamp = b.stamp)
-                    WHERE a.stamp >= '$sunrise' AND  a.stamp < '$sunset' 
-                    GROUP BY a.stamp";
-        $respirr = $conn->query($sqlw);
-
-        $sqlAct = 'SELECT b.wr_pac as ac_power, b.wr_pdc as dc_power, b.frequency as freq, b.u_ac as voltage, a.stamp, b.unit as unit
-                    FROM (db_dummysoll a left JOIN '.$anlage->getDbNameIst()." b on a.stamp = b.stamp)
-                    WHERE a.stamp >= '$sunrise' AND  a.stamp < '$sunset' 
-                    GROUP BY a.stamp, b.unit";
-        $resp = $conn->query($sqlAct);
-
-        $result = $resp->fetchAll(PDO::FETCH_ASSOC);
-        $resulti = $respirr->fetchAll(PDO::FETCH_ASSOC);
-        $stamp = $result[0]['stamp'];
-        $irraditerator = 0;
-        for ($iterator = 0; $iterator < count($result); ++$iterator) {
-            if ($stamp == $result[$iterator]['stamp']) {
-                if ($anlage->getHasPPC()) {
-                    $sqlPpc = 'SELECT * 
-                        FROM ' . $anlage->getDbNamePPC() . " 
-                        WHERE stamp = '$stamp' ";
-                    $respPpc = $conn->query($sqlPpc);
-
-                    if ($respPpc->rowCount() === 1) {
-                        $ppdData = $respPpc->fetch(PDO::FETCH_ASSOC);
-                        $isPPC = (($ppdData['p_set_rel'] < 100 || $ppdData['p_set_gridop_rel'] < 100) && $anlage->getHasPPC());
-                    }
-                }
-                if (!$isPPC) {
-                    $irradiation = (float) $resulti[$irraditerator]['lower'] + (float) $resulti[$irraditerator]['upper'];
-                    ++$irraditerator;
-                    $stamp = date('Y-m-d H:i:s', strtotime($stamp) + 900);
-                }
-            }
-            if ($isPPC) {
-                $return[$result[$iterator]['stamp']]['istdata'] = 'Plant Control by PPC';
-            } else {
-
-                    if ($result[$iterator]['ac_power'] !== null) {
-                        if ($result[$iterator]['ac_power'] <= 0 && $irradiation > $irrLimit) {
-                            $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['istdata'] = 'Power is 0';
-                        } elseif ($result[$iterator]['ac_power'] > 0 && $result[$iterator]['dc_power'] <= 1 && $irradiation > $irrLimit && !$anlage->getHasPPC()) {
-                            $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['istdata'] = 'Power too low';
-                        } else {
-                            $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['istdata'] = 'All is ok';
-                        }
-                    } else {
-                        $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['istdata'] = 'No Data';
-                    }
-                    // check frequency
-                    if ($result[$iterator]['freq'] !== null) {
-                        if (($result[$iterator]['freq'] <= $anlage->getFreqBase() + $anlage->getFreqTolerance()) && ($result[$iterator]['freq'] >= $anlage->getFreqBase() - $anlage->getFreqTolerance())) {
-                            $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['freq'] = 'All is ok';
-                        } else {
-                            $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['freq'] = 'Error with the frequency';
-                        }
-                    } else {
-                        $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['freq'] = 'No Data';
-                    }
-                    // check voltage
-                    if (date('Y-m-d', strtotime($stamp)) > '2022-06-13') { // new definition of database field 'uac'
-                        if ($result[$iterator]['vol'] !== null) {
-                            if ($result[$iterator]['vol'] <= 0) {
-                                $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['voltage'] = 'Voltage is 0';
-                            } else {
-                                $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['voltage'] = 'All is ok';
-                            }
-                        } else {
-                            $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['voltage'] = 'No Data';
-                        }
-                    } else {
-                        $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['voltage'] = 'All is ok';
-                    }
-            }
-        }
-        return $return;
-    }
-
-    private function analyzePlant($plantStatus, Anlage $anlage): string
-    {
-        unset($this->Tickets);
-        $message = "";
-        foreach ($plantStatus as $value){
-
-            for ($inverterNr = 1; $inverterNr <= sizeof($value); $inverterNr++) {
-                $result = self::analyzeError($value[$inverterNr], $inverterNr, $anlage);
-                if ($result['errorCategorie'] == 50){
-
-                }
-                else{
-
-                }
-            }
-        }
-        return $message;
-    }
 
     // ----------------Analyzing functions----------------
 
@@ -422,16 +285,15 @@ class AlertSystemService
         $message = '';
         $errorType = '';
         $errorCategorie = '';
-        $resultArray = self::analyzeError($inverter, $inverterNo, $anlage);
+        $resultArray = self::analyzeError($inverter, $anlage);
 
         $errorType = $resultArray['errorType'];
         $errorCategorie = $resultArray['errorCategorie'];
-        $inverterNo = $resultArray['inverterNr'];
         $message = $resultArray['message'];
 
-
+        $ticket = self::getLastTicket($anlage, $inverterNo, $time, false);
         if ($message != '') {
-            $ticket = self::getLastTicket($anlage, $inverterNo, $time, false);
+            //dump($ticket);
             if ($ticket === null) {
                 $ticket = new Ticket();
                 $ticketDate = new TicketDate();
@@ -446,6 +308,7 @@ class AlertSystemService
                 $ticket->setDescription($message);
                 $ticket->setSystemStatus(10);
                 $ticket->setPriority(10);
+                $ticket->setOpenTicket(true);
                 if ($inverter['istdata'] === 'Plant Control by PPC') {
                     $ticket->setInverter('*');
                     $ticketDate->setInverter('*');
@@ -482,13 +345,16 @@ class AlertSystemService
 
             if (date_diff($end, $ticket->getBegin(), true)->i != 30) {
                 $message = '';
+            }else {
+                $message = $message.' at '.$ticket->getBegin()->format('Y-m-d H:i').'<br>';
             }
 
+        }
+        else if ($ticket != null){
+            $ticket->setOpenTicket(false);
+            $this->em->persist($ticket);
+        }
 
-        }
-        if ($message != '' && $ticket != null) {
-            $message = $message.' at '.$ticket->getBegin()->format('Y-m-d H:i').'<br>';
-        }
 
         unset($ticket);
         unset($ticketDate);
@@ -609,60 +475,65 @@ class AlertSystemService
         }
 
         if ($anlage->getHasPPC() && $respPpc->rowCount() == 1 && $ppdData['p_set_rel'] < 100) {
-            // Power Plant Controller aktiv !!?? Regelung durch Direktvermarkter ??!!
             $return['istdata'] = 'Plant Control by PPC';
         } else {
-            if ($resp->rowCount() > 0) {
-                $pdata = $resp->fetch(PDO::FETCH_ASSOC);
-                if ($resultExp->rowCount() == 1) {
-                    $expectedData = $resultExp->fetch(PDO::FETCH_ASSOC)['ac_exp_power'];
-                } else {
-                    $expectedData = false;
-                }
-
-                // check power
-                if ($pdata['ac_power'] !== null) {
-                    if ($pdata['ac_power'] <= 0 && $irradiation > $irrLimit) {
-                        $return['istdata'] = 'Power is 0';
-                    } elseif ($pdata['dc_power'] > 0 && $pdata['dc_power'] <= 1 && $irradiation > $irrLimit && !$anlage->getHasPPC()) {
-                        $return['istdata'] = 'Power too low';
+            if ($irradiation > $irrLimit) {
+                if ($resp->rowCount() > 0) {
+                    $pdata = $resp->fetch(PDO::FETCH_ASSOC);
+                    if ($resultExp->rowCount() == 1) {
+                        $expectedData = $resultExp->fetch(PDO::FETCH_ASSOC)['ac_exp_power'];
                     } else {
-                        $return['istdata'] = 'All is ok';
+                        $expectedData = false;
                     }
-                } else {
-                    $return['istdata'] = 'No Data';
-                }
 
-                // check frequency
-                if ($pdata['freq'] !== null) {
-                    if (($pdata['freq'] <= $anlage->getFreqBase() + $anlage->getFreqTolerance()) && ($pdata['freq'] >= $anlage->getFreqBase() - $anlage->getFreqTolerance())) {
-                        $return['freq'] = 'All is ok';
-                    } else {
-                        $return['freq'] = 'Error with the frequency';
-                    }
-                } else {
-                    $return['freq'] = 'No Data';
-                }
-
-                // check voltage
-                if (date('Y-m-d', strtotime($stamp)) > '2022-06-13') { // new definition of database field 'uac'
-                    if ($pdata['voltage'] !== null) {
-                        if ($pdata['voltage'] <= 0) {
-                            $return['voltage'] = 'Voltage is 0';
+                    // check power
+                    if ($pdata['ac_power'] !== null) {
+                        if ($pdata['ac_power'] <= 0) {
+                            $return['istdata'] = 'Power is 0';
+                        } elseif ($pdata['dc_power'] > 0 && $pdata['dc_power'] <= 1 && $irradiation > $irrLimit && !$anlage->getHasPPC()) {
+                            $return['istdata'] = 'Power too low';
                         } else {
-                            $return['voltage'] = 'All is ok';
+                            $return['istdata'] = 'All is ok';
                         }
                     } else {
-                        $return['voltage'] = 'No Data';
+                        $return['istdata'] = 'No Data';
+                    }
+
+                    // check frequency
+                    if ($pdata['freq'] !== null) {
+                        if (($pdata['freq'] <= $anlage->getFreqBase() + $anlage->getFreqTolerance()) && ($pdata['freq'] >= $anlage->getFreqBase() - $anlage->getFreqTolerance())) {
+                            $return['freq'] = 'All is ok';
+                        } else {
+                            $return['freq'] = 'Error with the frequency';
+                        }
+                    } else {
+                        $return['freq'] = 'No Data';
+                    }
+
+                    // check voltage
+                    if (date('Y-m-d', strtotime($stamp)) > '2022-06-13') { // new definition of database field 'uac'
+                        if ($pdata['voltage'] !== null) {
+                            if ($pdata['voltage'] <= 0) {
+                                $return['voltage'] = 'Voltage is 0';
+                            } else {
+                                $return['voltage'] = 'All is ok';
+                            }
+                        } else {
+                            $return['voltage'] = 'No Data';
+                        }
+                    } else {
+                        $return['voltage'] = 'All is ok';
                     }
                 } else {
-                    $return['voltage'] = 'All is ok';
+                    $return['istdata'] = 'No data';
+                    $return['freq'] = 'No Data';
+                    $return['voltage'] = 'No Data';
                 }
-            } else {
-                // no records could be found
-                $return['istdata'] = 'No data';
-                $return['freq'] = 'No Data';
-                $return['voltage'] = 'No Data';
+            }
+            else {
+                $return['istdata'] = 'All is ok';
+                $return['freq'] = 'All is ok';
+                $return['voltage'] = 'All is ok';
             }
         }
         $conn = null;
@@ -700,6 +571,7 @@ class AlertSystemService
         $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
         $sunrise = self::getLastQuarter($this->weather->getSunrise($anlage, $today)['sunrise']); // the first quarter of today
         $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
+
         $quarter = date('Y-m-d H:i', strtotime($time)); // the quarter before the actual
         if (!$isWeather) {
             // Inverter Tickets
@@ -724,11 +596,10 @@ class AlertSystemService
      * We use this to unify the analysis of the errors and get the data to generate the tickets.
      *
      * @param $inverter
-     * @param $inverterNr
      * @param Anlage $anlage
      * @return array
      */
-    private function analyzeError($inverter, $inverterNr, Anlage $anlage): array
+    private function analyzeError($inverter, Anlage $anlage): array
     {
         $message = '';
         $errorType = '';
@@ -753,7 +624,6 @@ class AlertSystemService
             $message .= 'Plant is controlled by PPC <br>';
             $errorType = OMC;
             $errorCategorie = EXTERNAL_CONTROL;
-            $inverterNr = '*';
         }
         if ($errorCategorie != DATA_GAP && $errorCategorie != EXTERNAL_CONTROL) {
             if ($anlage->getHasFrequency()) {
@@ -776,11 +646,148 @@ class AlertSystemService
         return [
             'errorType'         => $errorType,
             'errorCategorie'    => $errorCategorie,
-            'inverterNr'        => $inverterNr,
             'message'           => $message
         ];
     }
     private function updateTicketList(){
 
     }
+    // TEST FOR OPTIMIZED VERSION
+    // Notes: Maybe we could make 2 separate functions, the one to create old tickets will do only one super big query to the db (depending on which is the max amount of records we can take from the db)
+    public function checkSystem2(Anlage $anlage, ?string $time = null): string
+    {
+        if ($time === null) {
+            $time = $this->getLastQuarter(date('Y-m-d H:i:s'));
+        }
+        /** Todo: $ppc read from Plant ??? */
+        $ppc = false;
+        // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
+
+        $sungap = $this->weather->getSunrise($anlage, $time);
+        $plant_status = self::RetrievePlant($anlage, $sungap);
+        // We do this to avoid checking further inverters if we have a PPC control shut
+        if ($ppc === false) {
+            if ($plant_status['istdata'] == 'Plant Control by PPC') {
+                $ppc = true;
+                $message = $this->analyzePlant($plant_status, $anlage);
+
+                // self::messagingFunction($message, $anlage);
+            } else {
+                $message = $this->analyzePlant($plant_status, $anlage);
+
+                // self::messagingFunction($message, $anlage);
+                unset($inverter_status);
+            }
+        }
+        unset($system_status);
+
+        $this->em->flush();
+
+        return 'success';
+    }
+
+    private static function RetrievePlant(Anlage $anlage, $sungap): array
+    {
+        $conn = self::getPdoConnection();
+        $irrLimit = $anlage->getIrrLimitAvailability();
+        $sunrise = $sungap['sunrise'];
+        $sunset = $sungap['sunset'];
+        $sqlw = 'SELECT b.g_lower as lower, b.g_upper as upper, a.stamp
+                    FROM (db_dummysoll a left JOIN '.$anlage->getDbNameWeather()." b on a.stamp = b.stamp)
+                    WHERE a.stamp >= '$sunrise' AND  a.stamp < '$sunset' 
+                    GROUP BY a.stamp";
+        $respirr = $conn->query($sqlw);
+
+        $sqlAct = 'SELECT b.wr_pac as ac_power, b.wr_pdc as dc_power, b.frequency as freq, b.u_ac as voltage, a.stamp, b.unit as unit
+                    FROM (db_dummysoll a left JOIN '.$anlage->getDbNameIst()." b on a.stamp = b.stamp)
+                    WHERE a.stamp >= '$sunrise' AND  a.stamp < '$sunset' 
+                    GROUP BY a.stamp, b.unit";
+        $resp = $conn->query($sqlAct);
+
+        $result = $resp->fetchAll(PDO::FETCH_ASSOC);
+        $resulti = $respirr->fetchAll(PDO::FETCH_ASSOC);
+        $stamp = $result[0]['stamp'];
+        $irraditerator = 0;
+        for ($iterator = 0; $iterator < count($result); ++$iterator) {
+            if ($stamp == $result[$iterator]['stamp']) {
+                if ($anlage->getHasPPC()) {
+                    $sqlPpc = 'SELECT * 
+                        FROM ' . $anlage->getDbNamePPC() . " 
+                        WHERE stamp = '$stamp' ";
+                    $respPpc = $conn->query($sqlPpc);
+
+                    if ($respPpc->rowCount() === 1) {
+                        $ppdData = $respPpc->fetch(PDO::FETCH_ASSOC);
+                        $isPPC = (($ppdData['p_set_rel'] < 100 || $ppdData['p_set_gridop_rel'] < 100) && $anlage->getHasPPC());
+                    }
+                }
+                if (!$isPPC) {
+                    $irradiation = (float) $resulti[$irraditerator]['lower'] + (float) $resulti[$irraditerator]['upper'];
+                    ++$irraditerator;
+                    $stamp = date('Y-m-d H:i:s', strtotime($stamp) + 900);
+                }
+            }
+            if ($isPPC) {
+                $return[$result[$iterator]['stamp']]['istdata'] = 'Plant Control by PPC';
+            } else {
+
+                if ($result[$iterator]['ac_power'] !== null) {
+                    if ($result[$iterator]['ac_power'] <= 0 && $irradiation > $irrLimit) {
+                        $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['istdata'] = 'Power is 0';
+                    } elseif ($result[$iterator]['ac_power'] > 0 && $result[$iterator]['dc_power'] <= 1 && $irradiation > $irrLimit && !$anlage->getHasPPC()) {
+                        $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['istdata'] = 'Power too low';
+                    } else {
+                        $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['istdata'] = 'All is ok';
+                    }
+                } else {
+                    $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['istdata'] = 'No Data';
+                }
+                // check frequency
+                if ($result[$iterator]['freq'] !== null) {
+                    if (($result[$iterator]['freq'] <= $anlage->getFreqBase() + $anlage->getFreqTolerance()) && ($result[$iterator]['freq'] >= $anlage->getFreqBase() - $anlage->getFreqTolerance())) {
+                        $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['freq'] = 'All is ok';
+                    } else {
+                        $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['freq'] = 'Error with the frequency';
+                    }
+                } else {
+                    $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['freq'] = 'No Data';
+                }
+                // check voltage
+                if (date('Y-m-d', strtotime($stamp)) > '2022-06-13') { // new definition of database field 'uac'
+                    if ($result[$iterator]['vol'] !== null) {
+                        if ($result[$iterator]['vol'] <= 0) {
+                            $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['voltage'] = 'Voltage is 0';
+                        } else {
+                            $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['voltage'] = 'All is ok';
+                        }
+                    } else {
+                        $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['voltage'] = 'No Data';
+                    }
+                } else {
+                    $return[$result[$iterator]['stamp']][$result[$iterator]['unit']]['voltage'] = 'All is ok';
+                }
+            }
+        }
+        return $return;
+    }
+
+    private function analyzePlant($plantStatus, Anlage $anlage): string
+    {
+        unset($this->Tickets);
+        $message = "";
+        foreach ($plantStatus as $value){
+
+            for ($inverterNr = 1; $inverterNr <= sizeof($value); $inverterNr++) {
+                $result = self::analyzeError($value[$inverterNr], $inverterNr, $anlage);
+                if ($result['errorCategorie'] == 50){
+
+                }
+                else{
+
+                }
+            }
+        }
+        return $message;
+    }
+
 }
