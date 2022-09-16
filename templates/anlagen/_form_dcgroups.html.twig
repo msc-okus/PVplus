@@ -133,42 +133,7 @@
             </ul>
 
             <div class="tabs-content" data-tabs-content="anlage-tabs">
-                {# General
-                <div class="tabs-panel" id="plant-data">
 
-                    <fieldset class="fieldset">
-                        <legend>Standort</legend>
-                        <div class="grid-x grid-margin-x grid-padding-x">
-                            <div class="cell medium-6">
-                                {{ form_row(anlageForm.eigner) }}
-                                {{ form_row(anlageForm.anlName) }}
-                                {{ form_row(anlageForm.projektNr) }}
-                            </div>
-                            <div class="cell medium-6">
-                                {{ form_row(anlageForm.anlStrasse) }}
-                                {{ form_row(anlageForm.anlPlz) }}
-                                {{ form_row(anlageForm.anlOrt) }}
-                                {{ form_row(anlageForm.country) }}
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="grid-x grid-margin-x grid-padding-x">
-                            <div class="cell medium-6">
-                                {{ form_row(anlageForm.anlGeoLat) }}
-                            </div>
-                            <div class="cell medium-6">
-                                {{ form_row(anlageForm.anlGeoLon) }}
-                            </div>
-                        </div>
-                        <hr>
-                        <div class="grid-x grid-margin-x grid-padding-x">
-                            <div class="cell">
-                                {{ form_row(anlageForm.notes)}}
-                            </div>
-                        </div>
-                    </fieldset>
-                </div>
-                #}
                 {# Groups #}
                 <div class="tabs-panel is-active" id="groups">
                     <fieldset class="fieldset js-group-wrapper"
@@ -267,7 +232,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        {% if is_granted('ROLE_DEV') %}
+                                        {% if is_granted('ROLE_ADMIN') %}
                                             <div class="grid-x grid-padding-x">
                                                 <div class="cell medium-1"><a href="#" class="js-remove-group"><span class="fa fa-minus-circle"></span></a></div>
                                             </div>
