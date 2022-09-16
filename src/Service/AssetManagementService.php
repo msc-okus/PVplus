@@ -1678,6 +1678,7 @@ class AssetManagementService
             $intervalEnd = date("Y-m-d H:i",$date->getEnd()->getTimestamp());
 
             //$inverter = $date->getInverter();
+            dump($date);
             foreach($date->getInverterArray() as $inverter) {
                 switch ($anlage->getConfigType()) { // we need this to query for the inverter in the SOR and EFOR cases, in the OMC case the whole plant is down
 
@@ -1687,7 +1688,7 @@ class AssetManagementService
                     default:
                         $inverterQuery = "group_ac = $inverter";
                 }
-                dump($inverterQuery);
+
                 if ($date->getErrorType() == 10) {
                     $sqlActual = "SELECT sum(wr_pac) as power
                             FROM " . $anlage->getDbNameIst() . " 
@@ -2026,7 +2027,7 @@ class AssetManagementService
             'EFORQuarters' => $EFORErrorsMonth,
             'OMCQuarters' => $OMCErrorsMonth,
         ];
-        if ($totalErrors != 0) {
+        if ($totalErrorsMonth != 0) {
             $failRelativeSOFPorcentMonth = 100 - (($totalErrorsMonth - $SOFErrorsMonth) / $totalErrorsMonth) * 100;
             $failRelativeEFORPorcentMonth = 100 - (($totalErrorsMonth - $EFORErrorsMonth) / $totalErrorsMonth) * 100;
             $failRelativeOMCPorcentMonth = 100 - (($totalErrorsMonth - $OMCErrorsMonth) / $totalErrorsMonth) * 100;

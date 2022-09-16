@@ -164,8 +164,9 @@ trait TicketTrait
      */
     public function getInverterArray(): array
     {
+
         if ($this->inverter !== "*") return explode(", ", $this->inverter);
-        else return $this->anlage->getInverterFromAnlage();
+        else return $this->getAnlage()->getInverterFromAnlage();
     }
 
     public function getAlertType(): ?string

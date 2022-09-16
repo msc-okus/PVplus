@@ -99,18 +99,20 @@ class TicketController extends BaseController
             }
             // Adjust, if neccesary, the start ean end Date of the master Ticket, depending on the TicketDates
             // TODO: Check what hapend if the last ticket is not the 'last' ticket, means if the order of the ticketDates are not respected
+
             if ($ticketDates) {
-                if ($ticketDates->first()->getBegin < $ticket->getBegin()) {
+                if ($ticketDates->first()->getBegin() <= $ticket->getBegin()) {
                     $ticket->setBegin($ticketDates->first()->getBegin());
                 } else {
                     $ticketDates->first()->setBegin($ticket->getBegin());
                 }
-                if ($ticketDates->last()->getEnd() > $ticket->getEnd()) {
+                if ($ticketDates->last()->getEnd() >= $ticket->getEnd()) {
                     $ticket->setEnd($ticketDates->last()->getEnd());
                 } else {
                     $ticketDates->last()->setEnd($ticket->getEnd());
                 }
             }
+
             if ($ticket->getStatus() == '10') $ticket->setStatus(30); // If 'New' Ticket change to work in Progress
 
             $em->persist($ticket);

@@ -49,6 +49,7 @@ export default class extends Controller {
     async saveTicket(event) {
         event.preventDefault();
         const  $form = $(this.modalBodyTarget).find('form');
+        console.log($form.serialize());
         try {
             await $.ajax({
                 url: this.formUrlValue,
