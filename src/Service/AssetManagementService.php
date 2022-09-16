@@ -1678,7 +1678,7 @@ class AssetManagementService
             $intervalEnd = date("Y-m-d H:i",$date->getEnd()->getTimestamp());
 
             //$inverter = $date->getInverter();
-            dump($date);
+            #dump($date);
             foreach($date->getInverterArray() as $inverter) {
                 switch ($anlage->getConfigType()) { // we need this to query for the inverter in the SOR and EFOR cases, in the OMC case the whole plant is down
 
@@ -1697,7 +1697,7 @@ class AssetManagementService
                     $sqlExpected = "SELECT sum(ac_exp_power) as expected
                             FROM " . $anlage->getDbNameDcSoll() . "                      
                             WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND ". $inverterQuery;
-                    dump($sqlActual);
+                    #dump($sqlActual);
                     $resAct = $this->conn->query($sqlActual);
                     $resExp = $this->conn->query($sqlExpected);
 
