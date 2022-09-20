@@ -18,6 +18,8 @@ class ChartControlModel
 
     public $optionStep;
 
+    public $fromdate;
+
     public $case5from;
 
     public $case5to;
