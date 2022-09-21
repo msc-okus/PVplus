@@ -1650,7 +1650,7 @@ class AssetManagementService
 
         // we have to generate the overall values of errors for the year
         $daysInThisMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
-        $endate = $report['reportYear'].'-'.$report['reportMonth'].'-'.$daysInThisMonth;
+        $endate = $report['reportYear'].'-'.$report['reportMonth'].'-'.$daysInThisMonth." 23:59:00";
         $SOFErrors = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 10, $anlage)[0][1];
         $EFORErrors = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 20, $anlage)[0][1];
         $OMCErrors = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 30, $anlage)[0][1];
@@ -1677,8 +1677,6 @@ class AssetManagementService
             $intervalBegin = date("Y-m-d H:i",$date->getBegin()->getTimestamp());
             $intervalEnd = date("Y-m-d H:i",$date->getEnd()->getTimestamp());
 
-            //$inverter = $date->getInverter();
-            dump($date);
             foreach($date->getInverterArray() as $inverter) {
                 switch ($anlage->getConfigType()) { // we need this to query for the inverter in the SOR and EFOR cases, in the OMC case the whole plant is down
 
@@ -1697,7 +1695,6 @@ class AssetManagementService
                     $sqlExpected = "SELECT sum(ac_exp_power) as expected
                             FROM " . $anlage->getDbNameDcSoll() . "                      
                             WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND ". $inverterQuery;
-                    dump($sqlActual);
                     $resAct = $this->conn->query($sqlActual);
                     $resExp = $this->conn->query($sqlExpected);
 
@@ -1914,7 +1911,6 @@ class AssetManagementService
         $EFORErrorsMonth = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 20, $anlage)[0][1];
         $OMCErrorsMonth = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, 30, $anlage)[0][1];
         $dataGapsMonth = (int) $this->ticketDateRepo->countByIntervalNullPlant($report['reportYear'].'-'.$report['reportMonth'].'-01', $endate, $anlage)[0][1];
-
         $totalErrorsMonth = $SOFErrorsMonth + $EFORErrorsMonth + $OMCErrorsMonth;
 
         $begin = $report['reportYear'].'-'.$report['reportMonth'].'-'.'01 00:00:00';

@@ -111,6 +111,9 @@ class TicketController extends BaseController
                 } else {
                     $ticketDates->last()->setEnd($ticket->getEnd());
                 }
+                foreach ($ticketDates as $date){
+                    $date->setInverter($ticket->getInverter());
+                }
             }
 
             if ($ticket->getStatus() == '10') $ticket->setStatus(30); // If 'New' Ticket change to work in Progress
