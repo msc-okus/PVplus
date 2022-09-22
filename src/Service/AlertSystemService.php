@@ -106,7 +106,7 @@ class AlertSystemService
         if ($time === null) {
             $time = $this->getLastQuarter(date('Y-m-d H:i:s'));
         }
-        // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
+        // we look 2 hours in the past to make sure the data we are using is stable
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
         $time = G4NTrait::timeAjustment($time, -2);
         if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
@@ -139,14 +139,23 @@ class AlertSystemService
         return 'success';
     }
 
-    private static function RetrievePlantTest(Anlage $anlage, $time): array
+    public function RetrievePlantTest(Anlage $anlage, $time): array
     {
+        $irrLimit = 20; //in the future this will come from a field in anlage
         $freqLimitTop = $anlage->getFreqBase() + $anlage->getFreqTolerance();
         $freqLimitBot = $anlage->getFreqBase() - $anlage->getFreqTolerance();
         $voltLimit = 0;
         $freqLimit = $anlage->getFreqBase();
         $conn = self::getPdoConnection();
-        $sqlAct = 'SELECT b.unit 
+        $isPPC = false;
+        $return['ppc'] = $isPPC;
+        $return['Power0'] = "";
+        $return['Gap'] = "";
+        $return['Vol'] = "";
+        $irradiation = $this->weatherFunctions->getIrrByStampForTicket($anlage, date_create($time));
+
+        if ($irradiation > $irrLimit){
+            $sqlAct = 'SELECT b.unit 
                     FROM (db_dummysoll a left JOIN '.$anlage->getDbNameIst()." b on a.stamp = b.stamp)
                     WHERE a.stamp = '$time' AND  b.wr_pac <= 0 ";
         $resp = $conn->query($sqlAct);
@@ -174,11 +183,6 @@ class AlertSystemService
                 $isPPC = (($ppdData['p_set_rel'] < 100 || $ppdData['p_set_gridop_rel'] < 100) && $anlage->getHasPPC());
             }
         }
-        $isPPC = false;
-        $return['ppc'] = $isPPC;
-        $return['Power0'] = "";
-        $return['Gap'] = "";
-        $return['Vol'] = "";
         $resultVol = $resp->fetchAll(PDO::FETCH_ASSOC);
 
         foreach ($resultNull as $value){
@@ -192,7 +196,8 @@ class AlertSystemService
         foreach ($resultVol as $value){
             if ($return['Vol'] !== "")$return['Vol'] = $return['Vol'].", ".$value['unit'];
             else $return['Vol'] = $value['unit'];
-        }
+        }}
+
         return $return;
 
     }
@@ -269,71 +274,6 @@ class AlertSystemService
         $message = $resultArray['message'];
 
         $this->generateTickets($resultArray['errorType'], $resultArray['errorCategorie'], $anlage, $inverterNo, $time);
-/*
-        $ticket = self::getLastTicket($anlage, $inverterNo, $time, false, $errorCategorie);
-        if ($message != '') {
-            //dump($ticket);
-            if ($ticket === null) {
-                $ticket = new Ticket();
-                $ticketDate = new TicketDate();
-                $ticketDate->setAnlage($anlage);
-                $ticketDate->setStatus('10');
-                $ticketDate->setDescription($message);
-                $ticketDate->setSystemStatus(10);
-                $ticketDate->setPriority(10);
-                $ticket->setAnlage($anlage);
-                $ticket->setStatus('10'); // Status 10 = open
-                $ticket->setEditor('Alert system');
-                $ticket->setDescription($message);
-                $ticket->setSystemStatus(10);
-                $ticket->setPriority(10);
-                $ticket->setOpenTicket(true);
-                if ($inverter['istdata'] === 'Plant Control by PPC') {
-                    $ticket->setInverter('*');
-                    $ticketDate->setInverter('*');
-                } else {
-                    $ticket->setInverter($inverterNo);
-                    $ticketDate->setInverter($inverterNo);
-                }
-                $ticket->setAlertType($errorCategorie); //  category = alertType (bsp: datagap, inverter power, etc.)
-                $ticketDate->setAlertType($errorCategorie);
-                $ticket->setErrorType($errorType); // type = errorType (Bsp:  SOR, EFOR, OMC)
-                $ticketDate->setErrorType($errorType);
-                $begin = date_create(date('Y-m-d H:i:s', strtotime($time)));
-                $begin->getTimestamp();
-                $ticket->setBegin($begin);
-                $ticketDate->setBegin($begin);
-                $ticket->addDate($ticketDate);
-            } else {
-                $ticketDate = $ticket->getDates()->last();
-            }
-            $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
-            $end->getTimestamp();
-            $ticketDate->setEnd($end);
-            $ticket->setEnd($end);
-            if ($errorType == EFOR){
-                $ticketDate->setKpiPaDep1(10);
-                $ticketDate->setKpiPaDep2(10);
-                $ticketDate->setKpiPaDep3(20);
-            }
-
-            $this->em->persist($ticket);
-            $this->em->persist($ticketDate);
-            $this->em->flush();
-            // this is to send a message after and only after 30 mins
-
-            if (date_diff($end, $ticket->getBegin(), true)->i != 30) {
-                $message = '';
-            }else {
-                $message = $message.' at '.$ticket->getBegin()->format('Y-m-d H:i').'<br>';
-            }
-
-        }
-        else if ($ticket != null){
-            $ticket->setOpenTicket(false);
-            $this->em->persist($ticket);
-        }
-*/
 
         unset($ticket);
         unset($ticketDate);
