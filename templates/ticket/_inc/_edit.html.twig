@@ -25,7 +25,7 @@
                                 {{ form_row(ticketForm.anlage, {'attr': {'value':  anlage.anlName } }) }}
                             </div>
                             <div class="cell small-6 medium-3 large-2">
-                                {% if (is_granted('ROLE_G4N')) %}
+                                {% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA')) %}
                                     <div class="grid-x">
                                         <div class="cell">
                                             <label>&nbsp;</label>

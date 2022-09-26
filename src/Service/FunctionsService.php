@@ -931,7 +931,7 @@ class FunctionsService
         $res = $conn->query($sql);
         if ($res->rowCount() === 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
-            $powerEvu = $row['power_evu_ppc'];
+            $powerEvuPpc = $row['power_evu_ppc'];
         }
         unset($res);
 
