@@ -1676,7 +1676,6 @@ class AssetManagementService
         foreach ($this->ticketDateRepo->getAllByInterval($report['reportYear'].'-01-01', $end,$anlage) as $date){
             $intervalBegin = date("Y-m-d H:i",$date->getBegin()->getTimestamp());
             $intervalEnd = date("Y-m-d H:i",$date->getEnd()->getTimestamp());
-
             foreach($date->getInverterArray() as $inverter) {
                 switch ($anlage->getConfigType()) { // we need this to query for the inverter in the SOR and EFOR cases, in the OMC case the whole plant is down
 

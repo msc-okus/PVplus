@@ -241,7 +241,7 @@ class AvailabilityByTicketService
                 }
 
             }
-            dump($case5Array);
+            #dump($case5Array);
 
             // suche Case 6 Fälle und schreibe diese in case6Array[inverter][stamp] = true|false
             foreach ($this->case6Repository->findAllCase6($anlage, $from, $to) as $case) {

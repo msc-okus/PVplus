@@ -39,7 +39,7 @@ class ExportService
             $help .= '<th><small>Irr [kWh/qm]</small></th><th></th><th><small>Irr PPC [kWh/qm]</small></th><th></th><th><small>gewichtete TheoPower mit TempCorr [kWh]</small></th><th><small>gewichtete TheoPower mit TempCorr PPC [kWh]</small></th>'; // part of second row Headline
         }
         $output .= '<td>Mittelwert Luft Temp.</td><td>Verfügbarkeit</td><td>gewichtete Strahlung</td><td>gewichtete Strahlung PPC</td><td>gewichtete TheoPower mit TempCorr</td><td>gewichtete TheoPower mit TempCorr PPC</td><td></td><td></td><td></td><td></td></tr>';
-        $help .= '<td>°C</td><td>[%]</td><td>[kWh/qm]</td><td>[kWh/qm]</td><td>[kWh]</td><td>[kWh]</td><td>Janitza</td><td>Janitza PPC</td><td>eGrid</td><td>eGrid PPC</td></tr>'; // part of second row Headline
+        $help .= '<td>°C</td><td>[%]</td><td>[kWh/qm]</td><td>[kWh/qm]</td><td>[kWh]</td><td>[kWh]</td><td>eGrid</td><td>eGrid PPC</td><td>Janitza</td><td>Janitza PPC</td></tr>'; // part of second row Headline
         $output .= $help.'</thead><tbody>';
 
         /* @var AnlageAcGroups $groupAC */
@@ -81,8 +81,8 @@ class ExportService
                 // Aufsummieren der gewichteten Werte zum Gesamtwert
                 $gewichteteTheoPower += $acPower['powerTheoFt'];
                 $gewichteteTheoPowerPpc += $acPower['powerTheoFtPpc'];
-                $sumEvuPower += $acPower['powerEvu'];
-                $sumEvuPowerPpc += $acPower['powerEvuPpc'];
+                $sumEvuPower = $acPower['powerEvu'];
+                $sumEvuPowerPpc = $acPower['powerEvuPpc'];
                 $gewichteteStrahlung += $groupAC->getGewichtungAnlagenPR() * $irradiation;
                 $gewichteteStrahlungPpc += $groupAC->getGewichtungAnlagenPR() * $irradiationPpc;
                 $availability = $this->availabilityRepo->sumAvailabilityPerDay($anlage->getAnlId(), date('Y-m-d', $stamp));
@@ -93,10 +93,10 @@ class ExportService
             $output .= '<td>'.round($gewichteteStrahlungPpc / 1000 / 4, 4).'</td>';
             $output .= '<td>'.round($gewichteteTheoPower, 2).'</td>';
             $output .= '<td>'.round($gewichteteTheoPowerPpc, 2).'</td>';
-            $output .= '<td>'.round($sumEvuPower,2).'</td>';
-            $output .= '<td>'.round($sumEvuPowerPpc,2).'</td>';
             $output .= '<td>'.round($this->gridService->getGridSum($anlage, date_create(date('Y-m-d 00:00', $stamp)), date_create(date('Y-m-d 23:59', $stamp))),2).'</td>';
             $output .= '<td>'.round($this->gridService->getGridSumPpc($anlage, date_create(date('Y-m-d 00:00', $stamp)), date_create(date('Y-m-d 23:59', $stamp))),2).'</td>';
+            $output .= '<td>'.round($sumEvuPower,2).'</td>';
+            $output .= '<td>'.round($sumEvuPowerPpc,2).'</td>';
             $output .= '</tr>';
         }
         $output .= '</tbody></table></div>';
