@@ -88,13 +88,14 @@ class TicketFormType extends AbstractType
                         'step' => '600',
                     ],
                     'widget' => 'single_text',
+                    'attr' => ['step' => 900, 'data-action' => 'change->ticket-list#check', 'data-ticket-list-target' => 'formBegin'],
                 ])
                 ->add('end', DateTimeType::class, [
                     'label' => 'End',
                     'label_html' => true,
                     'required' => true,
                     'widget' => 'single_text',
-                    'attr' => ['min' => $ticket->getEnd()->format("Y-m-d\TH:i")],
+                    'attr' => ['min' => $ticket->getEnd()->format("Y-m-d\TH:i"), 'step' => 900, 'data-action' => 'change->ticket-list#check', 'data-ticket-list-target' => 'formEnd'],
                 ])
             ;
         }
