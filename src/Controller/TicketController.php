@@ -84,7 +84,7 @@ class TicketController extends BaseController
             }
         }
         if ($ticketDates->isEmpty()) {
-            $ticketDates = null;
+            $inverterArray = null;
         }
 
         $form = $this->createForm(TicketFormType::class, $ticket);
