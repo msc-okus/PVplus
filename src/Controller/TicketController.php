@@ -27,14 +27,8 @@ class TicketController extends BaseController
     {
         if ($request->query->get('anlage') !== null) {
             $anlage = $anlRepo->findIdLike((int)$request->query->get('anlage'))[0];
-            $nameArray = $functions->getInverterArray($anlage);
-            foreach ($nameArray as $key => $value){
-                $inverterArray[$key]["inv"] = $value;
-                $inverterArray[$key]["select"] = "";
-            }
         } else {
             $anlage = null;
-            $inverterArray = [];
         }
 
         $form = $this->createForm(TicketFormType::class);
@@ -51,14 +45,23 @@ class TicketController extends BaseController
             $em->flush();
 
             return new Response(null, 204);
+        } elseif ($form->isSubmitted() && !$form->isValid()) {
+            $anlage = $form->getData()->getAnlage();
+        }
+
+        $nameArray = $functions->getInverterArray($anlage);
+        $inverterArray = [];
+        foreach ($nameArray as $key => $value){
+            $inverterArray[$key]["inv"] = $value;
+            $inverterArray[$key]["select"] = "";
         }
 
         return $this->renderForm('ticket/_inc/_edit.html.twig', [
-            'ticketForm' => $form,
-            'ticket' => false,
-            'anlage' => $anlage,
-            'edited' => false,
-            'invArray' => $inverterArray,
+            'ticketForm'    => $form,
+            'ticket'        => false,
+            'anlage'        => $anlage,
+            'edited'        => false,
+            'invArray'      => $inverterArray,
         ]);
     }
 
@@ -73,11 +76,10 @@ class TicketController extends BaseController
         $indexSelect = 0;
         foreach ($nameArray as $key => $value){
             $inverterArray[$key]["inv"] = $value;
-            if($key === (int)$selected[$indexSelect]){
+            if ($key === (int)$selected[$indexSelect]){
                 $inverterArray[$key]["select"] = "checked";
-                $indexSelect ++;
-            }
-            else{
+                $indexSelect++;
+            } else {
                 $inverterArray[$key]["select"] = "";
             }
         }
