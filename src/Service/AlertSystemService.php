@@ -152,51 +152,62 @@ class AlertSystemService
         $return['Power0'] = "";
         $return['Gap'] = "";
         $return['Vol'] = "";
+        $invCount = cout($anlage->getInverterFromAnlage());
         $irradiation = $this->weatherFunctions->getIrrByStampForTicket($anlage, date_create($time));
 
-        if ($irradiation > $irrLimit){
+        if ($irradiation > $irrLimit) {
             $sqlAct = 'SELECT b.unit 
-                    FROM (db_dummysoll a left JOIN '.$anlage->getDbNameIst()." b on a.stamp = b.stamp)
+                    FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
                     WHERE a.stamp = '$time' AND  b.wr_pac <= 0 ";
-        $resp = $conn->query($sqlAct);
-        $result0 = $resp->fetchAll(PDO::FETCH_ASSOC);
+            $resp = $conn->query($sqlAct);
+            $result0 = $resp->fetchAll(PDO::FETCH_ASSOC);
 
-        $sqlNull = 'SELECT b.unit 
-                    FROM (db_dummysoll a left JOIN '.$anlage->getDbNameIst()." b on a.stamp = b.stamp)
+            $sqlNull = 'SELECT b.unit 
+                    FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
                     WHERE a.stamp = '$time' AND  b.wr_pac is null ";
-        $resp = $conn->query($sqlNull);
-        $resultNull = $resp->fetchAll(PDO::FETCH_ASSOC);
+            $resp = $conn->query($sqlNull);
+            $resultNull = $resp->fetchAll(PDO::FETCH_ASSOC);
 
-        $sqlVol = "SELECT b.unit 
-                    FROM (db_dummysoll a left JOIN ".$anlage->getDbNameIst()." b on a.stamp = b.stamp)
-                    WHERE a.stamp = '$time' AND  (b.u_ac < ".$voltLimit." OR b.frequency < ".$freqLimitBot." OR b.frequency > ".$freqLimitTop.")";
-        $resp = $conn->query($sqlVol);
+            $sqlVol = "SELECT b.unit 
+                    FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
+                    WHERE a.stamp = '$time' AND  (b.u_ac < " . $voltLimit . " OR b.frequency < " . $freqLimitBot . " OR b.frequency > " . $freqLimitTop . ")";
+            $resp = $conn->query($sqlVol);
 
-        if ($anlage->getHasPPC()) {
-            $sqlPpc = 'SELECT * 
+            if ($anlage->getHasPPC()) {
+                $sqlPpc = 'SELECT * 
                         FROM ' . $anlage->getDbNamePPC() . " 
                         WHERE stamp = '$time' ";
-            $respPpc = $conn->query($sqlPpc);
+                $respPpc = $conn->query($sqlPpc);
 
-            if ($respPpc->rowCount() === 1) {
-                $ppdData = $respPpc->fetch(PDO::FETCH_ASSOC);
-                $isPPC = (($ppdData['p_set_rel'] < 100 || $ppdData['p_set_gridop_rel'] < 100) && $anlage->getHasPPC());
+                if ($respPpc->rowCount() === 1) {
+                    $ppdData = $respPpc->fetch(PDO::FETCH_ASSOC);
+                    $isPPC = (($ppdData['p_set_rel'] < 100 || $ppdData['p_set_gridop_rel'] < 100) && $anlage->getHasPPC());
+                }
             }
-        }
-        $resultVol = $resp->fetchAll(PDO::FETCH_ASSOC);
+            $resultVol = $resp->fetchAll(PDO::FETCH_ASSOC);
+            if (count($resultNull) == $invCount) $return['Gap'] = '*';
+            else {
+                foreach ($resultNull as $value) {
+                    if ($return['Gap'] !== "") $return['Gap'] = $return['Gap'] . ", " . $value['unit'];
+                    else $return['Gap'] = $value['unit'];
+                }
+            }
+            if (count($result0) == $invCount) $return['Power0'] = '*';
+            else {
+                foreach ($result0 as $value) {
+                    if ($return['Power0'] !== "") $return['Power0'] = $return['Power0'] . ", " . $value['unit'];
+                    else $return['Power0'] = $value['unit'];
+                }
+            }
+            if (count($resultVol) == $invCount) $return['Vol'] = '*';
+            else {
+                foreach ($resultVol as $value) {
+                    if ($return['Vol'] !== "") $return['Vol'] = $return['Vol'] . ", " . $value['unit'];
+                    else $return['Vol'] = $value['unit'];
+                }
+            }
 
-        foreach ($resultNull as $value){
-            if ($return['Gap'] !== "")$return['Gap'] = $return['Gap'].", ".$value['unit'];
-            else $return['Gap'] = $value['unit'];
         }
-        foreach ($result0 as $value){
-            if ($return['Power0'] !== "") $return['Power0'] = $return['Power0'].", ".$value['unit'];
-            else $return['Power0'] = $value['unit'];
-        }
-        foreach ($resultVol as $value){
-            if ($return['Vol'] !== "")$return['Vol'] = $return['Vol'].", ".$value['unit'];
-            else $return['Vol'] = $value['unit'];
-        }}
 
         return $return;
 

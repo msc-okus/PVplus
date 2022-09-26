@@ -36,13 +36,10 @@
                     <td>{{ loop.index }} ({{ date.vars.value.intervals }})</td>
                     <td>{{ date.vars.value.begin|format_datetime(pattern="yyyy-MM-dd HH:mm") }}</td>
                     <td>{{ date.vars.value.end|format_datetime(pattern="yyyy-MM-dd HH:mm") }}</td>
-                    {% if (ticket.alertType == 10) %}
-                        <td>{{ form_widget(date.dataGapEvaluation, { 'attr': {'class': 'no-margin', 'data-ticket-split-target':'dataGapEv', 'data-action':'change->ticket-split#checkEv'} }) }}</td>
 
-                    {% elseif (ticket.alertType == 20)%}
-                        {% do date.dataGapEvaluation.setRendered() %}
+                    <td {% if (ticket.alertType == 10) %}{% else%}hidden{% endif %}>{{ form_widget(date.dataGapEvaluation, { 'attr': {'class': 'no-margin', 'data-ticket-split-target':'dataGapEv', 'data-action':'change->ticket-split#checkEv'} }) }}</td>
 
-                    {% endif %}
+
                     {% if (features and features.aktDep1) %}<td>{{ form_widget(date.kpiPaDep1, { 'attr': {'class': 'no-margin',  'data-ticket-split-target':'aktDep1' } }) }}</td>
                     {% else %}
                         <td hidden >{{ form_widget(date.kpiPaDep1, { 'attr': {'class': 'no-margin',  'data-ticket-split-target':'aktDep1' } }) }}</td>
