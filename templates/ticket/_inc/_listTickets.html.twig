@@ -44,7 +44,8 @@
                         {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}
                         {{ errcat|trans }}{% if is_granted('ROLE_DEV') %} | {{ ticket.alertType }}{% endif %}
                     </td>
-                    <td>{{ ticket.inverter }}</td>
+                    {% set maxCharInverter = 16 %}
+                    <td {% if ticket.inverter|length > maxCharInverter %}data-tooltip data-click-open="false" title="{{ ticket.inverter }}"{% endif %}><span>{{ ticket.inverter|u.truncate(maxCharInverter, ' ...', false) }}</span></td>
                     <td>{% if (ticket.openTicket == false) %}No{% else %} Yes {% endif %}</td>
                     <td>{{ ticket.needsProof }}</td>
                     <td><input data-request-target="box" data-action="click->request#check" type="checkbox" value="{{ ticket.id }}" class="generated-checkbox" form="tableForm"></td>
