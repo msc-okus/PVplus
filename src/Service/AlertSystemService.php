@@ -115,24 +115,27 @@ class AlertSystemService
             if ($plant_status['ppc'] === false) {
                 if ($plant_status['Gap'] !== ""){
                     $errorType = '';
+                    $message = "Data gap in Inverter(s): ".$plant_status['Gap'];
                     $errorCategorie = DATA_GAP;
-                    $this->generateTickets($errorType, $errorCategorie, $anlage, $plant_status['Gap'] , $time);
+                    $this->generateTickets($errorType, $errorCategorie, $anlage, $plant_status['Gap'] , $time, $message);
                 }
                 if ($plant_status['Power0'] !== ""){
                     $errorType = EFOR;
+                    $message = "Power Error in Inverter(s): ".$plant_status['Power0'];
                     $errorCategorie = INVERTER_ERROR;
-                    $this->generateTickets($errorType, $errorCategorie, $anlage, $plant_status['Power0'] , $time);
+                    $this->generateTickets($errorType, $errorCategorie, $anlage, $plant_status['Power0'] , $time, $message);
                 }
                 if ($plant_status['Vol']){
                     $errorType = '';
+                    $message = "Grid Error in Inverter(s): ".$plant_status['Vol'];
                     $errorCategorie = GRID_ERROR;
-                    $this->generateTickets($errorType, $errorCategorie, $anlage, $plant_status['Vol'] , $time);
+                    $this->generateTickets($errorType, $errorCategorie, $anlage, $plant_status['Vol'] , $time, $message);
                 }
             }
             else {
                 $errorType = OMC;
                 $errorCategorie = EXTERNAL_CONTROL;
-                $this->generateTickets($errorType, $errorCategorie, $anlage, '*' , $time);
+                $this->generateTickets($errorType, $errorCategorie, $anlage, '*' , $time, "");
             }
         }
 
@@ -152,7 +155,7 @@ class AlertSystemService
         $return['Power0'] = "";
         $return['Gap'] = "";
         $return['Vol'] = "";
-        $invCount = cout($anlage->getInverterFromAnlage());
+        $invCount = count($anlage->getInverterFromAnlage());
         $irradiation = $this->weatherFunctions->getIrrByStampForTicket($anlage, date_create($time));
 
         if ($irradiation > $irrLimit) {
@@ -213,7 +216,7 @@ class AlertSystemService
 
     }
 
-    private function generateTickets($errorType, $errorCategorie, $anlage, $inverter, $time){
+    private function generateTickets($errorType, $errorCategorie, $anlage, $inverter, $time, $message){
         $ticket = self::getLastTicket($anlage, $inverter, $time, false, $errorCategorie);
         if ($inverter != "" && $errorCategorie != "") {
             if ($ticket === null) {
@@ -223,12 +226,18 @@ class AlertSystemService
                 $ticketDate->setStatus('10');
                 $ticketDate->setSystemStatus(10);
                 $ticketDate->setPriority(10);
+                $ticketDate->setDescription($message);
+                $ticketDate->setCreatedBy("AlertSystem");
+                $ticketDate->setUpdatedBy("AlertSystem");
                 $ticket->setAnlage($anlage);
                 $ticket->setStatus('10'); // Status 10 = open
                 $ticket->setEditor('Alert system');
                 $ticket->setSystemStatus(10);
                 $ticket->setPriority(10);
                 $ticket->setOpenTicket(false);
+                $ticket->setDescription($message);
+                $ticket->setCreatedBy("AlertSystem");
+                $ticket->setUpdatedBy("AlertSystem");
                 if ($errorCategorie == EXTERNAL_CONTROL) {
                     $ticket->setInverter('*');
                     $ticketDate->setInverter('*');
@@ -284,7 +293,7 @@ class AlertSystemService
 
         $message = $resultArray['message'];
 
-        $this->generateTickets($resultArray['errorType'], $resultArray['errorCategorie'], $anlage, $inverterNo, $time);
+        $this->generateTickets($resultArray['errorType'], $resultArray['errorCategorie'], $anlage, $inverterNo, $time, $message);
 
         unset($ticket);
         unset($ticketDate);
