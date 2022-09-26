@@ -68,7 +68,7 @@ export default class extends Controller {
     check(){
         //const  $form = $(this.modalBodyTarget).find('form');
         let string = "";
-        if($(this.switchTarget).prop('checked')) {
+        if ($(this.switchTarget).prop('checked')) {
             $('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', true);
                 if (string === "") string = string + $(this).prop('name');
@@ -76,8 +76,7 @@ export default class extends Controller {
             });
 
             $('#ticket_form_inverter').val(string);
-        }
-        else {
+        } else {
             $('input:checkbox[class=js-checkbox]').each(function(){
                 $(this).prop('checked', false);
                 $('#ticket_form_inverter').val('');
@@ -88,7 +87,7 @@ export default class extends Controller {
     checkInverter(){
         let string = "";
         $('input:checkbox[class=js-checkbox]:checked').each(function (){
-            if (string == "") string = string + $(this).prop('name');
+            if (string === "") string = string + $(this).prop('name');
             else string = string + ", " + $(this).prop('name');
         });
         $('#ticket_form_inverter').val(string);

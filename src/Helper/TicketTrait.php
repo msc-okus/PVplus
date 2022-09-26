@@ -131,9 +131,7 @@ trait TicketTrait
 
         return $this;
     }
-    /**
-     *
-     */
+
     public function getInverter(): string
     {
         return $this->inverter;
@@ -159,12 +157,12 @@ trait TicketTrait
 
         return $this;
     }
+
     /**
      * This will translate the string with commas from the db field into an array and return it
      */
     public function getInverterArray(): array
     {
-
         if ($this->inverter !== "*") return explode(", ", $this->inverter);
         else return $this->getAnlage()->getInverterFromAnlage();
     }

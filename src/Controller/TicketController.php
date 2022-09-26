@@ -36,7 +36,6 @@ class TicketController extends BaseController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $ticket = $form->getData();
-
             $ticket->setEditor($this->getUser()->getUsername());
             $date = new TicketDate();
             $date->copyTicket($ticket);
@@ -49,7 +48,7 @@ class TicketController extends BaseController
             $anlage = $form->getData()->getAnlage();
         }
 
-        $nameArray = $functions->getInverterArray($anlage);
+        $nameArray = $anlage->getInverterFromAnlage();
         $inverterArray = [];
         foreach ($nameArray as $key => $value){
             $inverterArray[$key]["inv"] = $value;

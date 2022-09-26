@@ -35,17 +35,17 @@ export default class extends Controller {
             url: this.urlSearchValue,
             data: $queryParams,
         });
+        $(document).foundation();
     }
 
     async sort(event) {
         event.preventDefault();
         const $queryParams = $(event.currentTarget).data("query-value");
         this.listTarget.innerHTML = await $.ajax({});
+        $(document).foundation();
     }
 
     check() {
-        console.log( $(this.saveButtonTarget),  $(this.splitAlertFormatTarget)
-        );
         const valueBegin = $(this.formBeginTarget).prop('value');
         const valueEnd = $(this.formEndTarget).prop('value');
         console.log(valueBegin, valueEnd)
@@ -74,10 +74,5 @@ export default class extends Controller {
             $(this.AlertFormatTarget).removeClass('is-hidden');
             $(this.saveButtonTarget).attr('disabled', 'disabled')
         }
-        console.log($(this.AlertFormatTarget), $(this.AlertDatesTarget), $(this.saveButtonTarget))
-
-
     }
-
-
 }
