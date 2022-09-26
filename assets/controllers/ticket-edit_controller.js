@@ -1,7 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import { useDispatch } from 'stimulus-use';
 import { Reveal } from 'foundation-sites';
-import { Foundation } from 'foundation-sites';
 import $ from 'jquery';
 
 export default class extends Controller {
@@ -21,9 +20,8 @@ export default class extends Controller {
         this.modalBodyTarget.innerHTML = 'Loading ...';
         this.modal = new Reveal($(this.modalTarget));
         this.modal.open();
-        console.log(this.formUrlValue);
 
-        if (this.formUrlValue == '/ticket/create') {
+        if (this.formUrlValue === '/ticket/create') {
             this.modalBodyTarget.innerHTML = await $.ajax({
                 url: this.formUrlValue,
                 data: {'anlage': $(this.anlageTarget).val()},
@@ -49,7 +47,6 @@ export default class extends Controller {
     async saveTicket(event) {
         event.preventDefault();
         const  $form = $(this.modalBodyTarget).find('form');
-        console.log($form.serialize());
         try {
             await $.ajax({
                 url: this.formUrlValue,
@@ -74,7 +71,7 @@ export default class extends Controller {
         if($(this.switchTarget).prop('checked')) {
             $('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', true);
-                if (string == "") string = string + $(this).prop('name');
+                if (string === "") string = string + $(this).prop('name');
                 else string = string + ", " + $(this).prop('name');
             });
 
@@ -87,14 +84,16 @@ export default class extends Controller {
             });
         }
     }
+
     checkInverter(){
-        var string = "";
+        let string = "";
         $('input:checkbox[class=js-checkbox]:checked').each(function (){
             if (string == "") string = string + $(this).prop('name');
             else string = string + ", " + $(this).prop('name');
         });
         $('#ticket_form_inverter').val(string);
     }
+
     toggle(){
         const $button = $(this.deactivableTargets);
         if ($button.attr('disabled')) {
