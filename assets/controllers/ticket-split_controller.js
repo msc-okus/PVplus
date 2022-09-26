@@ -15,7 +15,7 @@ export default class extends Controller {
         useDispatch(this);
 
         console.log($(this.dataGapEvTarget).prop('value'));
-        if ($(this.dataGapEvTarget).prop('value') != 10){
+        if ($(this.dataGapEvTarget).prop('value') !== '10'){
 
             $(this.aktDep1Target).prop('disabled', true);
             $(this.aktDep2Target).prop('disabled', true);
@@ -30,7 +30,7 @@ export default class extends Controller {
             $(this.aktDep3Target).prop('disabled', false);
             $(this.aktDep1Target).prop('value', 10);
             $(this.aktDep2Target).prop('value', 10);
-            $(this.aktDep3Target).prop('value', 10);
+            $(this.aktDep3Target).prop('value', 20);
         }
     }
 
@@ -116,7 +116,7 @@ export default class extends Controller {
     }
     checkEv(){
         console.log($(this.dataGapEvTarget).prop('value'));
-        if ($(this.dataGapEvTarget).prop('value') != 10){
+        if ($(this.dataGapEvTarget).prop('value') !== '10'){
 
             $(this.aktDep1Target).prop('disabled', true);
             $(this.aktDep2Target).prop('disabled', true);
@@ -131,7 +131,7 @@ export default class extends Controller {
             $(this.aktDep3Target).prop('disabled', false);
             $(this.aktDep1Target).prop('value', 10);
             $(this.aktDep2Target).prop('value', 10);
-            $(this.aktDep3Target).prop('value', 10);
+            $(this.aktDep3Target).prop('value', 20);
         }
     }
 }
