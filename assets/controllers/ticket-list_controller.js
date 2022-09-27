@@ -44,7 +44,7 @@ export default class extends Controller {
         this.listTarget.innerHTML = await $.ajax({});
         $(document).foundation();
     }
-
+/*
     check() { // What do you check ????
         const valueBegin = $(this.formBeginTarget).prop('value');
         const valueEnd = $(this.formEndTarget).prop('value');
@@ -66,7 +66,7 @@ export default class extends Controller {
             $(this.saveButtonTarget).attr('disabled', 'disabled')
         }
 
-        if ((timestamp1 % 900000 === 0) && (timestamp2 % 9000000 === 0)){
+        if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
             $(this.AlertFormatTarget).addClass('is-hidden');
             $(this.saveButtonTarget).removeAttr('disabled');
         } else {
@@ -74,4 +74,6 @@ export default class extends Controller {
             $(this.saveButtonTarget).attr('disabled', 'disabled')
         }
     }
+
+ */
 }
