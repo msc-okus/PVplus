@@ -6,6 +6,8 @@ use App\Helper\TicketTrait;
 use App\Repository\TicketDateRepository;
 use App\Service\FunctionsService;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Blameable\Traits\BlameableEntity;
+use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Serializer\Serializer;
 
 #[ORM\Entity(repositoryClass: TicketDateRepository::class)]
@@ -14,6 +16,8 @@ use Symfony\Component\Serializer\Serializer;
 class TicketDate
 {
     use TicketTrait;
+    use TimestampableEntity;
+    use BlameableEntity;
 
     #[ORM\Id]
     #[ORM\GeneratedValue]

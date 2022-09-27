@@ -4,7 +4,7 @@ import { Reveal } from 'foundation-sites';
 import $ from 'jquery';
 
 export default class extends Controller {
-    static targets = ['modal', 'modalBody', 'splitModal', 'splitForm', 'switch', 'deactivable', 'anlage'];
+    static targets = ['modal', 'modalBody', 'splitModal', 'splitForm', 'switch', 'deactivable', 'anlage', 'saveButton'];
     static values = {
         formUrl: String,
         splitUrl: String,
@@ -26,6 +26,7 @@ export default class extends Controller {
                 url: this.formUrlValue,
                 data: {'anlage': $(this.anlageTarget).val()},
             });
+                $(this.saveButtonTarget).attr('disabled', 'disabled');
         }
         else{
             this.modalBodyTarget.innerHTML = await $.ajax({
@@ -33,6 +34,7 @@ export default class extends Controller {
             });
         }
         $(this.modalBodyTarget).foundation();
+
     }
 
     setBody(html){
@@ -68,28 +70,46 @@ export default class extends Controller {
     check(){
         let inverterString = "";
         if ($(this.switchTarget).prop('checked')) {
-            $('input:checkbox[class=js-checkbox]').each(function () {
+            $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', true);
                 if (inverterString == '') inverterString = inverterString + $(this).prop('name');
                 else inverterString = inverterString + ', ' + $(this).prop('name');
             });
 
-            $('#ticket_form_inverter').val(inverterString);
+            $(this.modalBodyTarget).find('#ticket_form_inverter').val(inverterString);
         } else {
-            $('input:checkbox[class=js-checkbox]').each(function(){
+            $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox]').each(function(){
                 $(this).prop('checked', false);
-                $('#ticket_form_inverter').val('');
+                $(this.modalBodyTarget).find('#ticket_form_inverter').val('');
             });
+        }
+        console.log(inverterString);
+
+        if (inverterString == '') {
+            $(this.saveButtonTarget).attr('disabled', 'disabled');
+        }
+        else {
+            $(this.saveButtonTarget).removeAttr('disabled');
         }
     }
 
     checkInverter(){
+
         let inverterString = '';
-        $('input:checkbox[class=js-checkbox]:checked').each(function (){
+        /*$('input:checkbox[class=js-checkbox]:checked')*/
+        $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox]:checked').each(function (){
             if (inverterString == '') inverterString = inverterString + $(this).prop('name');
             else inverterString = inverterString + ', ' + $(this).prop('name');
         });
-        $('#ticket_form_inverter').val(inverterString);
+        console.log(inverterString);
+        if (inverterString == '') {
+            $(this.saveButtonTarget).attr('disabled', 'disabled');
+        }
+        else {
+            $(this.saveButtonTarget).removeAttr('disabled');
+        }
+        $(this.modalBodyTarget).find('#ticket_form_inverter').val(inverterString);
+
     }
 
     toggle(){
