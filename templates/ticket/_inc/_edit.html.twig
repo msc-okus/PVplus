@@ -18,8 +18,8 @@
             <div class="cell">
                 <div class="content">
                     {% if (edited) %}
-                        {% set dropdownId = ticketForm.vars.value.id %}
-                        {% set openTicket = ticketForm.vars.value.openTicket %}
+                        {% set dropdownId = ticketForm.vars.value.id %} #}
+                        {% set openTicket = ticketForm.vars.value.openTicket %} #}
                     {% else %}
                         {% set dropdownId = '00' %}
                         {% set openTicket = '' %}
@@ -28,10 +28,10 @@
                         <legend>Base Info {% if (openTicket) %} (Ticket open) {% endif %}</legend>
                         <div class="grid-x grid-margin-x grid-padding-x">
                             <div class="cell small-12 medium-3 large-2">
-                                {{ form_row(ticketForm.anlage, {'attr': {'value':  anlage.anlName } }) }}
+                                {{ form_row(ticketForm.anlage, {'attr': {'value': anlage.anlName } }) }}
                             </div>
                             <div class="cell small-6 medium-3 large-2">
-                                {% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA')) %}
+                                {% if (is_granted('ROLE_G4N')) %}
                                     <div class="grid-x">
                                         <div class="cell">
                                             <label>&nbsp;</label>
@@ -103,7 +103,7 @@
                         <legend>Descriptions</legend>
                         <div class="grid-x grid-margin-x grid-padding-x">
                             <div class="cell medium-12 small-12">
-                                {% if (edited == true) %}
+                                {% if (edited) %}
                                     <div class="callout warning">{{ ticket.description|default('')|raw }}</div>
                                 {% endif %}
                                 {{ form_row(ticketForm.freeText) }}
