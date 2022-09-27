@@ -103,8 +103,9 @@ class TicketFormType extends AbstractType
             ->add('inverter', TextType::class, [
                 'label' => 'Inverter',
                 'required' => true,
-                #'disabled' => true,
-                'help' => '* = all Invertres',
+                'attr' => [
+                    'readonly' => true,
+                ],
             ])
             ->add('dates', UXCollectionType::class, [
                 'required' => false,
