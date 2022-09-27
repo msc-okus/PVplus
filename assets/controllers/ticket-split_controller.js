@@ -13,25 +13,7 @@ export default class extends Controller {
 
     connect() {
         useDispatch(this);
-
-        console.log($(this.dataGapEvTarget).prop('value'));
-        if ($(this.dataGapEvTarget).prop('value') !== '10'){
-
-            $(this.aktDep1Target).prop('disabled', true);
-            $(this.aktDep2Target).prop('disabled', true);
-            $(this.aktDep3Target).prop('disabled', true);
-            $(this.aktDep1Target).prop('value', '');
-            $(this.aktDep2Target).prop('value', '');
-            $(this.aktDep3Target).prop('value', '');
-        }
-        else {
-            $(this.aktDep1Target).prop('disabled', false);
-            $(this.aktDep2Target).prop('disabled', false);
-            $(this.aktDep3Target).prop('disabled', false);
-            $(this.aktDep1Target).prop('value', 10);
-            $(this.aktDep2Target).prop('value', 10);
-            $(this.aktDep3Target).prop('value', 20);
-        }
+        this.checkKpiSelectBoxes();
     }
 
     openSplitTicket(event){
@@ -56,7 +38,7 @@ export default class extends Controller {
         const max = $(this.splitFormTarget).find('.' + id).prop('max');
         const value = $(this.splitFormTarget).find('.' + id).prop('value');
 
-        if(value < max && value > min) {
+        if (value < max && value > min) {
             if ($(this.splitFormTarget).find('.' + id).serialize() !== "") {
                 try {
                     await $.ajax({
@@ -70,9 +52,7 @@ export default class extends Controller {
             }
         } else {
             $(this.splitAlertTarget).removeClass('is-hidden');
-
         }
-
     }
 
     async delete({params: {id}}){
@@ -96,9 +76,8 @@ export default class extends Controller {
         const value = $(this.splitFormTarget).find('.' + id).prop('value');
 
         const date1 = new Date(value);
-
         const timestamp = date1.getTime();
-        //console.log();
+
         if (value < max && value > min) {
             $(this.splitAlertTarget).addClass('is-hidden');
             $(this.splitButtonTarget).removeAttr('disabled');
@@ -106,7 +85,7 @@ export default class extends Controller {
             $(this.splitAlertTarget).removeClass('is-hidden');
             $(this.splitButtonTarget).attr('disabled', 'disabled')
         }
-        if (timestamp % 900 === 0){
+        if (timestamp % 900000 === 0){
             $(this.splitAlertFormatTarget).addClass('is-hidden');
             $(this.splitButtonTarget).removeAttr('disabled');
         } else {
@@ -114,24 +93,25 @@ export default class extends Controller {
             $(this.splitButtonTarget).attr('disabled', 'disabled')
         }
     }
-    checkEv(){
-        console.log($(this.dataGapEvTarget).prop('value'));
-        if ($(this.dataGapEvTarget).prop('value') !== '10'){
 
+    checkKpiSelectBoxes(){
+        const $dataGapEvaluation = $(this.dataGapEvTarget);
+        const dataGabEvaluationDisabled = $dataGapEvaluation.attr('disabled') === 'disabled'
+
+        if ($dataGapEvaluation.val() === '10' || (dataGabEvaluationDisabled)) {
+            $(this.aktDep1Target).prop('disabled', false);
+            $(this.aktDep2Target).prop('disabled', false);
+            $(this.aktDep3Target).prop('disabled', false);
+            if ($(this.aktDep1Target).val() === '') $(this.aktDep1Target).prop('value', '10');
+            if ($(this.aktDep2Target).val() === '') $(this.aktDep2Target).prop('value', '10');
+            if ($(this.aktDep3Target).val() === '') $(this.aktDep3Target).prop('value', '20');
+        } else {
             $(this.aktDep1Target).prop('disabled', true);
             $(this.aktDep2Target).prop('disabled', true);
             $(this.aktDep3Target).prop('disabled', true);
             $(this.aktDep1Target).prop('value', '');
             $(this.aktDep2Target).prop('value', '');
             $(this.aktDep3Target).prop('value', '');
-        }
-        else {
-            $(this.aktDep1Target).prop('disabled', false);
-            $(this.aktDep2Target).prop('disabled', false);
-            $(this.aktDep3Target).prop('disabled', false);
-            $(this.aktDep1Target).prop('value', 10);
-            $(this.aktDep2Target).prop('value', 10);
-            $(this.aktDep3Target).prop('value', 20);
         }
     }
 }

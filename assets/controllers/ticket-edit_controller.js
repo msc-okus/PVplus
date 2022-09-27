@@ -66,16 +66,15 @@ export default class extends Controller {
     }
 
     check(){
-        //const  $form = $(this.modalBodyTarget).find('form');
-        let string = "";
+        let inverterString = "";
         if ($(this.switchTarget).prop('checked')) {
             $('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', true);
-                if (string === "") string = string + $(this).prop('name');
-                else string = string + ", " + $(this).prop('name');
+                if (inverterString == '') inverterString = inverterString + $(this).prop('name');
+                else inverterString = inverterString + ', ' + $(this).prop('name');
             });
 
-            $('#ticket_form_inverter').val(string);
+            $('#ticket_form_inverter').val(inverterString);
         } else {
             $('input:checkbox[class=js-checkbox]').each(function(){
                 $(this).prop('checked', false);
@@ -85,12 +84,12 @@ export default class extends Controller {
     }
 
     checkInverter(){
-        let string = "";
+        let inverterString = '';
         $('input:checkbox[class=js-checkbox]:checked').each(function (){
-            if (string === "") string = string + $(this).prop('name');
-            else string = string + ", " + $(this).prop('name');
+            if (inverterString == '') inverterString = inverterString + $(this).prop('name');
+            else inverterString = inverterString + ', ' + $(this).prop('name');
         });
-        $('#ticket_form_inverter').val(string);
+        $('#ticket_form_inverter').val(inverterString);
     }
 
     toggle(){
@@ -98,6 +97,7 @@ export default class extends Controller {
         if ($button.attr('disabled')) {
             $button.removeAttr('disabled');
         }
-
     }
+
+
 }

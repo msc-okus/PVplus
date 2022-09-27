@@ -17,8 +17,15 @@
         <div id="ticket-edit" class="grid-x">
             <div class="cell">
                 <div class="content">
+                    {% if (edited) %}
+                        {% set dropdownId = ticketForm.vars.value.id %}
+                        {% set openTicket = ticketForm.vars.value.openTicket %}
+                    {% else %}
+                        {% set dropdownId = '00' %}
+                        {% set openTicket = '' %}
+                    {% endif %}
                     <fieldset class="fieldset">
-                        <legend>Base Info {% if (ticketForm.vars.value.openTicket|default('')) %} (Ticket open) {% endif %}</legend>
+                        <legend>Base Info {% if (openTicket) %} (Ticket open) {% endif %}</legend>
                         <div class="grid-x grid-margin-x grid-padding-x">
                             <div class="cell small-12 medium-3 large-2">
                                 {{ form_row(ticketForm.anlage, {'attr': {'value':  anlage.anlName } }) }}
@@ -28,11 +35,7 @@
                                     <div class="grid-x">
                                         <div class="cell">
                                             <label>&nbsp;</label>
-                                            {% if (edited) %}
-                                                {% set dropdownId = ticketForm.vars.value.id %}
-                                            {% else %}
-                                                {% set dropdownId = '00' %}
-                                            {% endif %}
+
                                             <button class="button small no-margin hollow expanded" type="button" data-toggle="inverter-dropdown-{{ dropdownId }}">Select Inverters</button>
 
                                             <div class="dropdown-pane shadow" id="inverter-dropdown-{{ dropdownId }}" data-dropdown data-auto-focus="true" data-alignment="center" data-close-on-click="true">
