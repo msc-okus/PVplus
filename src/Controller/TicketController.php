@@ -73,10 +73,9 @@ class TicketController extends BaseController
         $nameArray = $anlage->getInverterFromAnlage();
         $selected = $ticket->getInverterArray();
         $indexSelect = 0;
-        for($index = 1; $index <sizeof($nameArray); $index++){
+        for($index = 1; $index <= sizeof($nameArray); $index++){
             $value = $nameArray[$index];
             $inverterArray[$index]["inv"] = $value;
-            //dump((int)$selected[$indexSelect], $index, $value);
             if ($index === (int)$selected[$indexSelect]){
                 $inverterArray[$index]["select"] = "checked";
                 $indexSelect++;
@@ -88,7 +87,6 @@ class TicketController extends BaseController
         if ($ticketDates->isEmpty()) {
             $inverterArray = null;
         }
-        //dd($inverterArray);
         $form = $this->createForm(TicketFormType::class, $ticket);
         $page = $request->query->getInt('page', 1);
         $form->handleRequest($request);

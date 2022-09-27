@@ -75,15 +75,13 @@ export default class extends Controller {
                 if (inverterString == '') inverterString = inverterString + $(this).prop('name');
                 else inverterString = inverterString + ', ' + $(this).prop('name');
             });
-
-            $(this.modalBodyTarget).find('#ticket_form_inverter').val(inverterString);
         } else {
             $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox]').each(function(){
                 $(this).prop('checked', false);
-                $(this.modalBodyTarget).find('#ticket_form_inverter').val('');
             });
         }
-        console.log(inverterString);
+        $(this.modalBodyTarget).find('#ticket_form_inverter').val(inverterString);
+        console.log(inverterString,   $(this.modalBodyTarget).find('#ticket_form_inverter').val());
 
         if (inverterString == '') {
             $(this.saveButtonTarget).attr('disabled', 'disabled');
