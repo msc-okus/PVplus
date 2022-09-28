@@ -83,12 +83,13 @@ class TicketFormType extends AbstractType
                     'label' => 'Begin',
                     'label_html' => true,
                     'required' => false,
-                    'attr' => [
-                        'max' => $ticket->getBegin()->format("Y-m-d\TH:i"),
-                        'step' => '600',
-                    ],
                     'widget' => 'single_text',
-                    'attr' => ['step' => 900,'data-action' => 'change->ticket-edit#checkDates', 'data-ticket-edit-target' => 'formBegin'],
+                    'attr' => [
+                        'step' => 900,
+                        'data-action' => 'change->ticket-edit#checkDates',
+                        'data-ticket-edit-target' => 'formBegin',
+                        'max' => $ticket->getBegin()->format("Y-m-d\TH:i")
+                    ],
                 ])
                 ->add('end', DateTimeType::class, [
                     'label' => 'End',
@@ -103,9 +104,8 @@ class TicketFormType extends AbstractType
             ->add('inverter', TextType::class, [
                 'label' => 'Inverter',
                 'required' => true,
-                'attr' => [
-                    'readonly' => true,
-                ],
+                'attr' => ['readonly' => 'true'],
+                'help' => '* = all Invertres',
             ])
             ->add('dates', UXCollectionType::class, [
                 'required' => false,
