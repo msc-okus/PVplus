@@ -23,7 +23,7 @@ import $ from 'jquery';
 
 $(document).foundation();
 
-$('.my-alert-box').closest('[data-alert]').fadeOut(3000);
+$('.my-alert-box').closest('[data-alert]').fadeOut(8000);
 
 if ($('#uhr').length > 0) {
     window.onload = ticken();

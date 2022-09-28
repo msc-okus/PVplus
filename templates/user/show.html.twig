@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="grid-x grid-margin-x grid-padding-x">
+        <div class="cell">
+            <h1>Edit User</h1>
+        </div>
+    </div>
+    {% import _self as formMacros %}
+
+    {% macro addAccess(eigner) %}
+        <td>{{ form_widget(eigner.eigner) }}</td>
+        <td></td>
+    {% endmacro %}
+
+    {{ form_start(userForm, {'attr': {'novalidate': 'no', 'autocomplete': 'off'}}) }}
+    <div class="grid-x grid-margin-x grid-padding-x">
+        <div class="cell small-6 medium-3">
+            <fieldset class="fieldset">
+                <legend>User
+                    <span data-tooltip tabindex="1" title="Please enter the user data !"><i class="fa fa-info-circle"></i></span>
+                </legend>
+                {{ form_row(userForm.username) }}
+                {{ form_row(userForm.plainPassword) }}
+                {{ form_row(userForm.email) }}
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="grid-x grid-padding-y action-menu">
+        <div class="cell">
+            {{ form_widget(userForm.save) }}
+            {{ form_widget(userForm.saveclose) }}
+            {{ form_widget(userForm.close) }}
+        </div>
+    </div>
+  <div style="visibility: hidden"> {{ form_rest(userForm) }}</div>
+    {% do userForm.grantedList.setRendered() %}
+    {% do userForm.eignersPlantList.setRendered() %}
+    {% do userForm.roles.setRendered() %}
+    {{ form_end(userForm) }}
+{% endblock %}
+
+{% block title %}
+    {{  parent() }}edit User
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    {{ encore_entry_script_tags('user_edit') }}
+{% endblock %}
