@@ -4,7 +4,7 @@ import {Reveal} from "foundation-sites";
 import {useDispatch} from "stimulus-use";
 
 export default class extends Controller {
-    static targets = ['list', 'searchBar', 'modalCreate', 'modalCreateBody', 'AlertFormat','AlertDates', 'saveButton', 'formBegin', 'formEnd'];
+    static targets = ['list', 'searchBar', 'modalCreate', 'modalCreateBody', 'AlertFormat', 'AlertDates', 'saveButton', 'formBegin', 'formEnd'];
     static values = {
         urlCreate: String,
         urlSearch: String,
@@ -14,7 +14,7 @@ export default class extends Controller {
         useDispatch(this);
     }
 
-    async search(event){
+    async search(event) {
         event.preventDefault();
         console.log(
             'Ja'
@@ -44,36 +44,4 @@ export default class extends Controller {
         this.listTarget.innerHTML = await $.ajax({});
         $(document).foundation();
     }
-/*
-    check() { // What do you check ????
-        const valueBegin = $(this.formBeginTarget).prop('value');
-        const valueEnd = $(this.formEndTarget).prop('value');
-        console.log(valueBegin, valueEnd)
-
-        const date1 = new Date(valueBegin);
-        const date2 = new Date(valueEnd);
-        date1.setSeconds(0);
-        date2.setSeconds(0);
-        const timestamp1 = date1.getTime();
-        const timestamp2 = date2.getTime();
-        console.log(timestamp1 % 900000, timestamp2 % 900000)
-
-        if (timestamp2 >= timestamp1){
-            $(this.AlertDatesTarget).addClass('is-hidden');
-            $(this.saveButtonTarget).removeAttr('disabled');
-        } else {
-            $(this.AlertDatesTarget).removeClass('is-hidden');
-            $(this.saveButtonTarget).attr('disabled', 'disabled')
-        }
-
-        if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
-            $(this.AlertFormatTarget).addClass('is-hidden');
-            $(this.saveButtonTarget).removeAttr('disabled');
-        } else {
-            $(this.AlertFormatTarget).removeClass('is-hidden');
-            $(this.saveButtonTarget).attr('disabled', 'disabled')
-        }
-    }
-
- */
 }
