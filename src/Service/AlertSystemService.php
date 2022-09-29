@@ -49,6 +49,13 @@ class AlertSystemService
             $this->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
         }
     }
+    public function generateTicketMulti(Anlage $anlage, string $from, string $to){
+        $fromStamp = strtotime($from);
+        $toStamp = strtotime($to);
+        for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
+            $this->checkSystemTest($anlage, date('Y-m-d H:i:00', $stamp));
+        }
+    }
 
     public function generateTicketsIntervalWeather(Anlage $anlage, string $from, string $to)
     {
@@ -229,13 +236,14 @@ class AlertSystemService
                     $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
                     $end->getTimestamp();
                     $ticketDate->setEnd($end);
-                    $ticketOld->setEnd($end);
                     $this->em->persist($ticketDate);
+                    $this->em->persist($ticketOld);
                 } else {
                     $ticketOld->setOpenTicket(false);
+                    $this->em->persist($ticketOld);
                     $ticketOld = null;
                 }
-                $this->em->persist($ticketOld);
+
 
             }
 
@@ -283,6 +291,7 @@ class AlertSystemService
                     $ticketDate->setKpiPaDep2(10);
                     $ticketDate->setKpiPaDep3(20);
                 }
+
                 $this->em->persist($ticket);
                 $this->em->persist($ticketDate);
             }

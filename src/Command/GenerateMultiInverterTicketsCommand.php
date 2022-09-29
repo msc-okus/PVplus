@@ -2,6 +2,9 @@
 
 namespace App\Command;
 
+use App\Repository\AnlagenRepository;
+use App\Service\AlertSystemService;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -11,11 +14,18 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
-    name: 'GenerateMultiInverterTickets',
+    name: 'pvp:GenerateMultiInverterTickets',
     description: 'Add a short description for your command',
 )]
 class GenerateMultiInverterTicketsCommand extends Command
 {
+    public function __construct(AnlagenRepository $anlagenRepository, AlertSystemService $alertService, EntityManagerInterface $em)
+    {
+        parent::__construct();
+        $this->alertService = $alertService;
+        $this->em = $em;
+        $this->anlagenRepository = $anlagenRepository;
+    }
     protected function configure(): void
     {
         $this
@@ -53,12 +63,10 @@ class GenerateMultiInverterTicketsCommand extends Command
             if (strtoupper($plantid) == 'ALL') {
                 $io->comment("Generate Tickets: $from - $to | All Plants");
                 $anlagen = $this->anlagenRepository->findBy(['anlHidePlant' => 'No', 'calcPR' => true]);
-            } elseif (is_numeric($plantid)) {
-                $io->comment("Generate Tickets: $from - $to | Plant ID: $plantid");
-                $anlagen = $this->anlagenRepository->findIdLike([$plantid]);
-            } else {
-                $io->comment("Generate Tickets: $from - $to | Test Plants (93, 94, 111, 112, 113)");
-                $anlagen = $this->anlagenRepository->findIdLike([93, 94, 96, 111, 112, 113]);
+            }
+             else {
+                $io->comment("Generate Tickets: $from - $to | Test Plants (112, 113, 182)");
+                $anlagen = $this->anlagenRepository->findIdLike([112, 113, 182]);
             }
 
             $counter = (($toStamp - $fromStamp) / 3600) * count($anlagen);
@@ -73,7 +81,7 @@ class GenerateMultiInverterTicketsCommand extends Command
                 }
                 */
                 for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-                    $this->alertService->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
+                    $this->alertService->checkSystemTest($anlage, date('Y-m-d H:i:00', $stamp));
                     /*
                     if (((int) date('i') >= 28 && (int) date('i') < 35) || (int) date('i') >= 58 || (int) date('i') < 5) {
                         sleep(1);
