@@ -92,7 +92,6 @@
         <div class="cell medium-8 large-8 xlarge-8">
             <div class="input-group">
                 <input id="startDate" name="to" class="input-group-field js-submit-onchange" size="16" type="text" value="{{ form.to|date('Y-m-d') }}" data-date-format="yyyy-mm-dd" style="max-width: 158px;">
-                <input id="fromdate" name="fromdate" type="hidden" value="{{ form.from|date('Y-m-d') }}">
                 <span class="input-group-label"><i class="fa fa-calendar"></i></span>
             </div>
         </div>
@@ -140,9 +139,9 @@
                 <input type="radio" name="optionDate" value="100000" {% if form.optionDate == 100000 %}checked{% endif %}>month
             </label>
             {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse'%}
-            <label class="button js-submit-onchange {% if form.optionDate == 300000 %}active{% endif %} {% if form.selectedChart == 'availability' and not is_granted('ROLE_ADMIN') %}disabled{% endif %}">
-                <input type="radio" name="optionDate" value="300000" {% if form.optionDate == 300000 %}checked{% endif %}>3 months
-            </label>
+                <label class="button js-submit-onchange {% if form.optionDate == 300000 %}active{% endif %} {% if form.selectedChart == 'availability' and not is_granted('ROLE_ADMIN') %}disabled{% endif %}">
+                    <input type="radio" name="optionDate" value="300000" {% if form.optionDate == 300000 %}checked{% endif %}>3 months
+                </label>
             {% endif %}
 
         </div>

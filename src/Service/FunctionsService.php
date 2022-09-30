@@ -438,7 +438,7 @@ class FunctionsService
             $sql = "SELECT sum(g_lower) as irr_lower, sum(g_upper) as irr_upper, sum(g_horizontal) as irr_horizontal, avg(g_horizontal) as irr_horizontal_avg, AVG(at_avg) AS air_temp, AVG(pt_avg) AS panel_temp, AVG(wind_speed) as wind_speed 
                     FROM ".$weatherStation->getDbNameWeather()." w  
                     RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON w.stamp = ppc.stamp 
-                    WHERE stamp BETWEEN '$from' AND '$to' AND ppc.p_set_gridop_rel = 100 and ppc.p_set_rpc_rel = 100";
+                    WHERE w.stamp BETWEEN '$from' AND '$to' AND ppc.p_set_gridop_rel = 100 and ppc.p_set_rpc_rel = 100";
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {
                 $row = $res->fetch(PDO::FETCH_ASSOC);
