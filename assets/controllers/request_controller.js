@@ -1,19 +1,22 @@
 import { Controller } from '@hotwired/stimulus';
-import $ from 'jquery';
+import { useDispatch } from 'stimulus-use';
 import { Reveal } from 'foundation-sites';
+import $ from 'jquery';
 
 export default class extends Controller {
 
     static targets = ['box', 'modal', 'modalBody'];
 
-    connect() {}
+    connect() {
+        useDispatch(this);
+    }
 
     async submit() {
-        var array = [];
+        let array = [];
         const checkboxes = $(this.boxTargets);
 
-        for (var i = 0; i < checkboxes.length; i++) {
-            var checkbox = checkboxes[i];
+        for (let i = 0; i < checkboxes.length; i++) {
+            let checkbox = checkboxes[i];
             if (checkbox.checked){
                 array.push(checkbox.value);
             }
@@ -26,7 +29,7 @@ export default class extends Controller {
         });
         //console.log(response);
 
-       var modal = new Reveal($(this.modalTargets));
+        let modal = new Reveal($(this.modalTargets));
         modal.open();
        //$(this.modalBodyTargets).innerHTML = response;
 

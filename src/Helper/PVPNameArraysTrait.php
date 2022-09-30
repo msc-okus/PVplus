@@ -127,10 +127,6 @@ trait PVPNameArraysTrait
 
     public function kpiPaDep3(): array
     {
-        $kpi['normal outage'] = 10;
-        $kpi['force majeure'] = 20;
-        $kpi['tbd'] = 30;
-
-        return $kpi;
+        return $this->errorType();
     }
 }

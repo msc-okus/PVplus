@@ -1,11 +1,10 @@
 import { Controller } from '@hotwired/stimulus';
 import { useDispatch } from 'stimulus-use';
 import { Reveal } from 'foundation-sites';
-import { Foundation } from 'foundation-sites';
 import $ from 'jquery';
 
 export default class extends Controller {
-    static targets = ['modal', 'modalBody', 'splitModal', 'splitForm', 'switch', 'deactivable', 'anlage'];
+    static targets = ['modal', 'modalBody', 'splitModal', 'splitForm', 'switch', 'deactivable', 'anlage', 'saveButton', 'AlertFormat', 'AlertDates', 'formBegin', 'formEnd'];
     static values = {
         formUrl: String,
         splitUrl: String,
@@ -21,13 +20,13 @@ export default class extends Controller {
         this.modalBodyTarget.innerHTML = 'Loading ...';
         this.modal = new Reveal($(this.modalTarget));
         this.modal.open();
-        console.log(this.formUrlValue);
 
-        if (this.formUrlValue == '/ticket/create') {
+        if (this.formUrlValue === '/ticket/create') {
             this.modalBodyTarget.innerHTML = await $.ajax({
                 url: this.formUrlValue,
                 data: {'anlage': $(this.anlageTarget).val()},
             });
+                $(this.saveButtonTarget).attr('disabled', 'disabled');
         }
         else{
             this.modalBodyTarget.innerHTML = await $.ajax({
@@ -35,6 +34,7 @@ export default class extends Controller {
             });
         }
         $(this.modalBodyTarget).foundation();
+
     }
 
     setBody(html){
@@ -49,7 +49,6 @@ export default class extends Controller {
     async saveTicket(event) {
         event.preventDefault();
         const  $form = $(this.modalBodyTarget).find('form');
-        console.log($form.serialize());
         try {
             await $.ajax({
                 url: this.formUrlValue,
@@ -68,38 +67,85 @@ export default class extends Controller {
         this.modalBodyTarget.innerHTML = await $.ajax(this.formUrlValue);
     }
 
-    check(){
-        //const  $form = $(this.modalBodyTarget).find('form');
-        let string = "";
-        if($(this.switchTarget).prop('checked')) {
-            $('input:checkbox[class=js-checkbox]').each(function () {
+    checkSelect(){
+        let inverterString = "";
+        if ($(this.switchTarget).prop('checked')) {
+            $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', true);
-                if (string == "") string = string + $(this).prop('name');
-                else string = string + ", " + $(this).prop('name');
+                if (inverterString == '') inverterString = inverterString + $(this).prop('name');
+                else inverterString = inverterString + ', ' + $(this).prop('name');
             });
+        } else {
+            $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox]').each(function(){
+                $(this).prop('checked', false);
+            });
+        }
+        $(this.modalBodyTarget).find('#ticket_form_inverter').val(inverterString);
+        console.log(inverterString,   $(this.modalBodyTarget).find('#ticket_form_inverter').val());
 
-            $('#ticket_form_inverter').val(string);
+        if (inverterString == '') {
+            $(this.saveButtonTarget).attr('disabled', 'disabled');
         }
         else {
-            $('input:checkbox[class=js-checkbox]').each(function(){
-                $(this).prop('checked', false);
-                $('#ticket_form_inverter').val('');
-            });
+            $(this.saveButtonTarget).removeAttr('disabled');
         }
     }
+
     checkInverter(){
-        var string = "";
-        $('input:checkbox[class=js-checkbox]:checked').each(function (){
-            if (string == "") string = string + $(this).prop('name');
-            else string = string + ", " + $(this).prop('name');
+
+        let inverterString = '';
+        /*$('input:checkbox[class=js-checkbox]:checked')*/
+        $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox]:checked').each(function (){
+            if (inverterString == '') inverterString = inverterString + $(this).prop('name');
+            else inverterString = inverterString + ', ' + $(this).prop('name');
         });
-        $('#ticket_form_inverter').val(string);
+        console.log(inverterString);
+        if (inverterString == '') {
+            $(this.saveButtonTarget).attr('disabled', 'disabled');
+        }
+        else {
+            $(this.saveButtonTarget).removeAttr('disabled');
+        }
+        $(this.modalBodyTarget).find('#ticket_form_inverter').val(inverterString);
+
     }
+
+    checkDates() { // What do you check ????
+        const valueBegin = $(this.formBeginTarget).prop('value');
+        const valueEnd = $(this.formEndTarget).prop('value');
+        console.log(valueBegin, valueEnd)
+
+        const date1 = new Date(valueBegin);
+        const date2 = new Date(valueEnd);
+        date1.setSeconds(0);
+        date2.setSeconds(0);
+        const timestamp1 = date1.getTime();
+        const timestamp2 = date2.getTime();
+        console.log(timestamp1 % 900000, timestamp2 % 900000)
+
+        if (timestamp2 >= timestamp1){
+            $(this.AlertDatesTarget).addClass('is-hidden');
+            $(this.saveButtonTarget).removeAttr('disabled');
+        } else {
+            $(this.AlertDatesTarget).removeClass('is-hidden');
+            $(this.saveButtonTarget).attr('disabled', 'disabled')
+        }
+
+        if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+            $(this.AlertFormatTarget).addClass('is-hidden');
+            $(this.saveButtonTarget).removeAttr('disabled');
+        } else {
+            $(this.AlertFormatTarget).removeClass('is-hidden');
+            $(this.saveButtonTarget).attr('disabled', 'disabled')
+        }
+    }
+
     toggle(){
         const $button = $(this.deactivableTargets);
         if ($button.attr('disabled')) {
             $button.removeAttr('disabled');
         }
-
     }
+
+
 }

@@ -81,7 +81,7 @@ class Ticket
     private ?bool $needsProof = null;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
-    private $openTicket;
+    private ?bool $openTicket;
 
     public function __construct()
     {

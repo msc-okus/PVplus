@@ -21,6 +21,7 @@ class ChartControlFormType extends AbstractType
             ])
             ->add('optionDate')
             ->add('optionStep')
+            ->add('fromdate')
 
         ;
     }

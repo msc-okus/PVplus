@@ -40,7 +40,6 @@ class DashboardPlantsController extends BaseController
             } else {
                 /* @var User $user */
                 $user = $this->getUser();
-                // $granted = explode(',', $user->getGrantedList());
                 $granted = $user->getGrantedArray();
                 $anlagen = $anlagenRepository->findGrantedActive($eignerId, $anlageId, $granted);
             }
@@ -52,6 +51,7 @@ class DashboardPlantsController extends BaseController
             $form['selectedSet'] = 1;
             $form['to'] = (new \DateTime())->format('Y-m-d 23:59');
             $form['from'] = (new \DateTime())->format('Y-m-d');
+            $form['fromdate'] = (new \DateTime())->format('Y-m-d');
             $form['optionDate'] = 1;
             $form['hour'] = false;
         }
@@ -76,63 +76,136 @@ class DashboardPlantsController extends BaseController
             $form['selectedSet'] = $request->request->get('selectedSet');
             $form['optionDate'] = $request->request->get('optionDate');
             $form['optionStep'] = $request->request->get('optionStep');
+            $form['fromdate'] = $request->request->get('fromdate');
             $form['backFromMonth'] = false;
             $form['hour'] = $request->request->get('hour');
+            // Abfangen des Zeitintervalls und setzt ['optionDate'] neu
+            switch ($form['selectedChart']){
+                case 'pr_and_av':
+                    if ($form['optionDate'] < 7) { $form['optionDate'] = 7; }
+                    if ($form['optionDate'] == 300000) { $form['optionDate'] = 7; }
+                break;
+                case 'sollistanalyse':
+                    if ($form['optionDate'] <= 14 ) { $form['optionDate'] = 100000; }
+                break;
+                case 'sollisttempanalyse':
+                    if ($form['optionDate'] <= 14 ) { $form['optionDate'] = 100000; }
+                break;
+                default:
+                    if ($form['selectedChart'] != 'sollistanalyse' or $form['selectedChart'] != 'sollisttempanalyse') {
+                        $form['optionDate'] = 1;
+                    }
+                break;
+            }
 
-            if ($form['selectedChart'] == 'pr_and_av' && $form['optionDate'] < 7) {
-                $form['optionDate'] = 7;
-            }
-            if ($form['selectedChart'] == 'sollistanalyse' && $form['optionDate'] < 7) {
-                $form['optionDate'] = 100000;
-            }
             // bei Verfügbarkeit Anzeige kann nur ein Tag angezeigt werden
             // if ($form['selectedChart'] == 'availability' && $form['optionDate'] > 1) { $form['optionDate'] = 1; }
+
+            /* Bei Verfügbarkeit des Cahrts in der Anzeige wird zuerst nur ein Tag angezeigt
+               optionStep == Single Step des Zeitintervalls der Anzeige im Chart
+               optionDate == 1 → Zeige Daten für 1 Tage, also vom ausgewählten Tag zurück 1 Tage
+               optionDate == 3 → Zeige Daten für 3 Tage, also vom ausgewählten Tag zurück 3 Tage
+               optionDate == 7 → Zeige Daten für 7 Tage, also vom ausgewählten Tag zurück 7 Tage
+               optionDate == 14 → Zeige Daten für 14 Monat, also vom ausgewählten Tag zurück 14 Monate
+               optionDate == 100000 → Zeige Daten für den ganzen Monat, also vom ersten bis zum letzten Tages eines ausgewähten Monats
+               optionDate == 300000 → Zeige Daten für 3 Monat, also vom ausgewählten Tag zurück 3 Monate
+            */
+
             if ($form['optionStep'] == 'lastday' or $form['optionStep'] == 'nextday') {
                 switch ($form['optionStep']) {
                     case 'lastday':
-                        $date = ($request->request->get('to')) ? $request->request->get('to') : date('Y-m-d');
-                        $from = date('Y-m-d 00:00', strtotime($date.' -1 day'));
-                        $to = date('Y-m-d 23:59', strtotime($date.' -1 day'));
-
-                        if ($form['optionDate']) {
-                            $from = date('Y-m-d 00:00', strtotime($from) - (86400 * ($form['optionDate'] - 1)));
+                        $getTo = ($request->request->get('to')) ? $request->request->get('to') : date('Y-m-d');
+                        switch ($form['optionDate']){
+                            case 1 :
+                                $from = date('Y-m-d 00:00', strtotime($getTo.'-1 day'));
+                                $to = date('Y-m-d 23:59', strtotime($from));
+                                break;
+                            case 3 :
+                                $from = date('Y-m-d 00:00', strtotime($form['fromdate'].'-2 day'));
+                                $to = date('Y-m-d 23:59', strtotime($form['fromdate']));
+                                break;
+                            case 7 :
+                                $from = date('Y-m-d 00:00', strtotime($form['fromdate'].'-6 day'));
+                                $to = date('Y-m-d 23:59', strtotime($form['fromdate']));
+                                break;
+                            case 14 :
+                                $from = date('Y-m-d 00:00', strtotime($form['fromdate'].'-13 day'));
+                                $to = date('Y-m-d 23:59', strtotime($form['fromdate']));
+                                break;
+                            case 100000 :
+                                $from = date('Y-m-d 00:00', strtotime($form['fromdate'].'-1 months'));
+                                $to = date("Y-m-t 23:59", strtotime($from));
+                                break;
+                            case 300000 :
+                                $from = date('Y-m-d 00:00', strtotime($form['fromdate'].'-3 months'));
+                                $to = date("Y-m-t 23:59", strtotime($from.'+2 months'));
+                                break;
                         }
                         $form['from'] = $from;
-                        (strtotime($to) > strtotime('now')) ? $form['to'] = date('Y-m-d H:i') : $form['to'] = $to;
+                        (strtotime($from) > strtotime('now')) ? $form['from'] = date('Y-m-d 00:00') : $form['from'] = $from;
+                        (strtotime($to) > strtotime('now')) ? $form['to'] = date('Y-m-d 23:59') : $form['to'] = $to;
                         break;
-
                     case 'nextday':
-                        $date = ($request->request->get('to')) ? $request->request->get('to') : date('Y-m-d');
-                        $from = date('Y-m-d 00:00', strtotime($date.' +1 day'));
-                        $to = date('Y-m-d 23:59', strtotime($date.' +1 day'));
-
-                        if ($form['optionDate']) {
-                            $from = date('Y-m-d 00:00', strtotime($from) - (86400 * ($form['optionDate'] - 1)));
+                        $getTo = ($request->request->get('to')) ? $request->request->get('to') : date('Y-m-d');
+                        switch ($form['optionDate']){
+                            case 1 :
+                                $to = date('Y-m-d 23:59', strtotime($getTo.'+1 day'));
+                                $from = date('Y-m-d 00:00', strtotime($to));
+                                break;
+                            case 3 :
+                                $from = date('Y-m-d 00:00', strtotime($getTo));
+                                $to = date('Y-m-d 23:59', strtotime($getTo.'+2 day'));
+                                break;
+                            case 7 :
+                                $from = date('Y-m-d 00:00', strtotime($getTo));
+                                $to = date('Y-m-d 23:59', strtotime($getTo.'+6 day'));
+                                break;
+                            case 14 :
+                                $from = date('Y-m-d 00:00', strtotime($getTo));
+                                $to = date('Y-m-d 23:59', strtotime($getTo.'+13 day'));
+                                break;
+                            case 100000 :
+                                $from = date('Y-m-01 00:00', strtotime($form['fromdate'].'+1 months'));
+                                $to = date("Y-m-t 23:59", strtotime($from));
+                                break;
+                            case 300000 :
+                                $from = date('Y-m-01 00:00', strtotime($getTo.'+1 months'));
+                                $to = date("Y-m-t 23:59", strtotime($from.'+2 months'));
+                                break;
                         }
                         $form['from'] = $from;
-                        (strtotime($to) > strtotime('now')) ? $form['to'] = date('Y-m-d H:i') : $form['to'] = $to;
+                        (strtotime($from) > strtotime('now')) ? $form['from'] = date('Y-m-d 00:00') : $form['from'] = $from;
+                        (strtotime($to) > strtotime('now')) ? $form['to'] = date('Y-m-d 23:59') : $form['to'] = $to;
                         break;
                 }
             } else {
-                // optionDate == 100000 → Zeige Daten für den ganzen Monat, also vom ersten bis zum letzten Tages des ausgewäten Monats
                 if ($form['optionDate'] == 100000) {
-                    $daysInMonth = date('t', strtotime($request->request->get('to')));
-                    $form['to'] = date("Y-m-$daysInMonth 23:59", strtotime($request->request->get('to')));
                     $form['from'] = date('Y-m-01 00:00', strtotime($request->request->get('to')));
-                } elseif ($form['optionDate'] == 300000) {
-                    $current_quarter = ceil(date('n',strtotime($request->request->get('to'))) / 3);
-                    $form['from'] = date('Y-m-d 23:59', strtotime(date('Y') . '-' . (($current_quarter * 3) - 2) . '-1'));
-                    $form['to'] = date('Y-m-t 00:00', strtotime(date('Y') . '-' . (($current_quarter * 3)) . '-1'));
-
-                 } else {
-                    $form['to'] = $request->request->get('to');
-                    if ($form['to'] > date('Y-m-d')) {
+                    $form['to'] = date("Y-m-t 23:59", strtotime($request->request->get('to')));
+                    if (strtotime($form['to']) > strtotime(date('Y-m-d'))) {
                         $form['to'] = date('Y-m-d H:i');
-                    } // Korriegiert Datum, wenn diese in der Zukunft liegt
+                    }
+                } elseif ($form['optionDate'] == 300000) {
+                    $date = ($request->request->get('to')) ? $request->request->get('to') : date('Y-m-d');
+                    $form['from'] = date('Y-m-01 00:00', strtotime($date.' -3 months'));
+                    $form['to'] = date("Y-m-t 23:59", strtotime($date));
+                    /* Formel für Quartalsberechnung
+                       $current_quarter = ceil(date('n',strtotime($request->request->get('to'))) / 3);
+                       $form['from'] = date('Y-m-d 23:59', strtotime(date('Y') . '-' . (($current_quarter * 3) - 2) . '-1'));
+                       $form['to'] = date('Y-m-t 00:00', strtotime(date('Y') . '-' . (($current_quarter * 3)) . '-1'));
+                    */
+                    if (strtotime($form['to']) > strtotime(date('Y-m-d'))) {
+                          $form['to'] = date('Y-m-d H:i');
+                    }
+                } else {
+                    $form['to'] = $request->request->get('to');
+                    if (strtotime($form['to']) > strtotime(date('Y-m-d'))) {
+                        $form['to'] = date('Y-m-d H:i');
+                    }
+                    // Korriegiertes Datum, wenn diese in der Zukunft liegt
                     $form['from'] = date('Y-m-d 00:00', strtotime($form['to']) - (86400 * ($form['optionDate'] - 1)));
                 }
             }
-
             // ergänze um Uhrzeit
             if (strlen($form['to']) <= 10) {
                 $form['to'] = $form['to'].' 23:59';
@@ -144,6 +217,7 @@ class DashboardPlantsController extends BaseController
         if ($aktAnlage) {
             $content = $chartService->getGraphsAndControl($form, $aktAnlage, $hour);
         }
+
         $isInTimeRange = self::isInTimeRange();
 
         return $this->render('dashboardPlants/plantsShow.html.twig', [

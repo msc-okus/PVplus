@@ -124,6 +124,9 @@ class ChartService
         $resultArray['actSum'] = 0;
         $resultArray['expSum'] = 0;
         $resultArray['evuSum'] = 0;
+        $resultArray['expEvuSum'] = 0;
+        $resultArray['expNoLimitSum'] = 0;
+        $resultArray['irrSum'] = 0;
         $resultArray['cosPhiSum'] = 0;
         $resultArray['headline'] = '';
         $resultArray['series1']['name'] = '';

@@ -1,7 +1,6 @@
 <div {{ stimulus_controller('request') }}>
     <form id="tableForm"></form>
-    <div
-        data-action="ticket-edit:success->ticket-list#search">
+    <div data-action="ticket-edit:success->ticket-list#search">
         <table class="table sortable">
             <thead>
             <tr>
@@ -16,6 +15,7 @@
                 <th>Error Category{% if is_granted('ROLE_G4N') %} <br><small>alertType</small> {% endif %}</th>
                 {# <th>Error Type</th>  #}
                 <th>Inverter</th>
+                <th></th>
                 <th><small>needs<br>Proof</small></th>
                 <th>Join</th>
                 <th></th>
@@ -41,15 +41,11 @@
                     <td>{{ ticket.updatedAt|date("d.m.y H:i")  }}{# {% if is_granted('ROLE_DEV') %}<small>{{ ticket.createdAt|date("d.m.y H:i") }}</small>{% endif %} #}</td>
                     <td>
                         {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}
-                        {{ errcat|trans }}{% if is_granted('ROLE_DEV') %} | {{ ticket.alertType }}{% endif %}
+                        {{ errcat|trans }}{% if is_granted('ROLE_DEV') %}{{ ticket.alertType }}{% endif %}
                     </td>
-                    {# <td>
-                        {% if ticket.errorType %}
-                            {% set errtyp %}ticket.error.type.{{ ticket.errorType }}{% endset %}
-                            {{ errtyp|trans }}{% if is_granted('ROLE_DEV') %} | {{ ticket.errorType }}{% endif %}
-                        {% endif %}
-                    </td> #}
-                    <td>{{ ticket.inverter }}</td>
+                    {% set maxCharInverter = 16 %}
+                    <td {% if ticket.inverter|length > maxCharInverter %}data-tooltip data-click-open="false" title="{{ ticket.inverter }}"{% endif %}><span>{{ ticket.inverter|u.truncate(maxCharInverter, ' ...', false) }}</span></td>
+                    <td>{% if (ticket.openTicket) %} open {% endif %}</td>
                     <td>{{ ticket.needsProof }}</td>
                     <td><input data-request-target="box" data-action="click->request#check" type="checkbox" value="{{ ticket.id }}" class="generated-checkbox" form="tableForm"></td>
                     <td class="text-right">
@@ -75,71 +71,70 @@
             {% endfor %}
             </tbody>
         </table>
-    </div>
 
-    <div id="modal-form0" {{ stimulus_controller('ticket-edit', {
-        formUrl: path('app_ticket_create'),
-    }) }}
-    >
-        <div class="grid-x grid-margin-x align-middle">
-        {# create New Ticket – Begin #}
-            <div class="cell small-12 medium-2">
-                <select name="anlage-id"
-                        data-ticket-edit-target="anlage"
-                        data-action="ticket-edit#toggle">
-                    <option value="" disabled selected hidden>Please choose a Plant</option>
-                    {% for anlage in anlagen %}
-                        <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlId }} - {{ anlage.anlName }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="cell small-12 medium-2">
-                <button name="new-ticket" class="button secondary expanded no-margins"
-                        disabled
-                        data-ticket-edit-target="deactivable"
-                        data-action="ticket-edit#openModal"
-                >
-                    New Ticket
-                </button>
-            </div>
-
-            {{ include('ticket/_inc/_modalTicket.html.twig', {
-                modalId: 0,
-                modalTitel: 'New Ticket',
-                class: 'large',
-                dataVOffset: '10',
-            }) }}
-        </div>
-    </div>
-    {# create New Ticket – End #}
-
-
-    {# join Tickets – Begin #}
-    {% if (is_granted('ROLE_DEV')) %}
-        <button data-request-target="join" data-action="request#submit" name="join" type="button" class="button secondary " value="yes">Join</button>
-
-        <div class="reveal text-left " id="modal"
-             data-request-target="modal"
-             data-append-to="form#tableForm"
-             data-reveal
+        <div id="modal-form0" {{ stimulus_controller('ticket-edit', {
+            formUrl: path('app_ticket_create'),
+        }) }}
         >
-            <h1>Joining Tickets</h1>
-            <div class="grid-x grid-padding-y">
-                <div class="cell modal-body" data-request-target="modalBody">
+            <div class="grid-x grid-margin-x align-middle">
+            {# create New Ticket – Begin #}
+                <div class="cell small-12 medium-2">
+                    <select name="anlage-id"
+                            data-ticket-edit-target="anlage"
+                            data-action="ticket-edit#toggle">
+                        <option value="" disabled selected hidden>Please choose a Plant</option>
+                        {% for anlage in anlagen %}
+                            <option value="{{ anlage.anlId }}"{% if app.request.query.get('anlage-id') == anlage.anlId %} selected {% endif %}>{{ anlage.anlId }} - {{ anlage.anlName }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="cell small-12 medium-2">
+                    <button name="new-ticket" class="button secondary expanded no-margins"
+                            disabled
+                            data-ticket-edit-target="deactivable"
+                            data-action="ticket-edit#openModal"
+                    >
+                        New Ticket
+                    </button>
+                </div>
 
-                </div>
-            </div>
-            <div class="grid-x grid-padding-y">
-                <div class="cell text-right">
-                    <button type="button" class="button secondary small" data-close>Cancel</button>
-                    <button type="button" class="button small" {# data-action="modal-form#submitForm" #} >Save</button>
-                </div>
+                {{ include('ticket/_inc/_modalTicket.html.twig', {
+                    modalId: 0,
+                    modalTitel: 'New Ticket',
+                    class: 'large',
+                    dataVOffset: '10',
+                }) }}
             </div>
         </div>
-    {% endif %}
-    {# join Tickets – Begin #}
+        {# create New Ticket – End #}
 
+        {# join Tickets – Begin #}
+        {% if (is_granted('ROLE_DEV')) %}
+            <button data-request-target="join" data-action="request#submit" name="join" type="button" class="button secondary " value="yes">Join</button>
+
+            <div class="reveal text-left " id="modal"
+                 data-request-target="modal"
+                 data-append-to="form#tableForm"
+                 data-reveal
+            >
+                <h1>Joining Tickets</h1>
+                <div class="grid-x grid-padding-y">
+                    <div class="cell modal-body" data-request-target="modalBody">
+
+                    </div>
+                </div>
+                <div class="grid-x grid-padding-y">
+                    <div class="cell text-right">
+                        <button type="button" class="button secondary small" data-close>Cancel</button>
+                        <button type="button" class="button small" {# data-action="modal-form#submitForm" #} >Save</button>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {# join Tickets – Begin #}
+
+        {{ knp_pagination_render(pagination, false, {}, {'controllerNameStimulus': 'ticket-list'}) }}
+    </div>
 </div>
 
 
-{{ knp_pagination_render(pagination, false, {}, {'controllerNameStimulus': 'ticket-list'}) }}
