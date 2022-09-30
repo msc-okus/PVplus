@@ -207,6 +207,16 @@ class AnlagenRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function findAllAnlage(): array
+    {
+        return $this->createQueryBuilder('a')
+            ->select('a.anlName','a.anlId')
+            ->andWhere("a.anlHidePlant = 'No'")
+            ->orderBy('a.eigner', 'ASC')
+            ->addOrderBy('a.anlName', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
     public function findAllByEigner($eigner): array
     {
         return $this->createQueryBuilder('a')

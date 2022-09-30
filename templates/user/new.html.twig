@@ -1,9 +1,18 @@
 {% extends 'base.html.twig' %}
-
 {% block body %}
+    <style>
+        label.required {
+            font-weight: bold;
+        }
+        label.required:after {
+            color: #e32;
+            content: ' *';
+            display:inline;
+        }
+    </style>
     <div class="grid-x grid-margin-x grid-padding-x">
         <div class="cell">
-            <h1>New User</h1>
+            <h1>User account</h1>
         </div>
     </div>
     {{ include('user/_form.html.twig') }}

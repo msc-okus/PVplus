@@ -47,7 +47,7 @@
                         {% else %}
                             <li><a href="{{ path('app_logout') }}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
                         {% endif %}
-                        <li><a href="#"><i class="fa fa-user"></i> {{ app.user.name }} </a></li>
+                        <li><a href="{{ path('app_admin_user_show', {id: app.user.id}) }}"><i class="fa fa-user"></i> {{ app.user.name }} </a></li>
                     {% endif %}
                 </ul>
             </div>
