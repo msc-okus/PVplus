@@ -27,6 +27,31 @@
                     <fieldset class="fieldset">
                         <legend>Base Info {% if (openTicket) %} (Ticket open) {% endif %}</legend>
                         <div class="grid-x grid-margin-x grid-padding-x">
+                            <button class="button small no-margin hollow expanded" type="button" data-toggle="split-dropdown-{{ dropdownId }}">Split by Inverter</button>
+
+                            <div class="dropdown-pane shadow" id="split-dropdown-{{ dropdownId }}" data-dropdown data-auto-focus="true" data-alignment="center" data-close-on-click="true">
+                                {% if (invArray != null) %}
+                                    <div class="grid-x">
+                                        <div class="cell">
+                                            <h3>Inverter List</h3>
+                                            <label for="check-all" class="">Select All
+                                                <input id="check-all" type="checkbox" data-action="click->ticket-edit#checkSelect" data-ticket-edit-target="switch">
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="grid-x small-up-3 medium-up-6 large-up-9 xlarge-up-12">
+                                        {% for inverter in invArray %}
+                                            <div class="cell">
+                                                <label for="{{ inverter['inv'] }}" class="">{{ inverter['inv'] }}
+                                                    <input id="{{ inverter['inv'] }}" type="checkbox" class="js-checkbox" name="{{ loop.index }}" {{ inverter['select'] }} data-action="click->ticket-edit#checkInverter">
+                                                </label>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    No Inverters found to select
+                                {% endif %}
+                            </div>
                             <div class="cell small-12 medium-3 large-2">
                                 {{ form_row(ticketForm.anlage, {'attr': {'value': anlage.anlName } }) }}
                             </div>
@@ -167,6 +192,8 @@
 
                 </div>
             </div>
+
+
         </div>
         <div style="display: none">{{ form_rest(ticketForm) }}</div>
         {{ form_end(ticketForm) }}

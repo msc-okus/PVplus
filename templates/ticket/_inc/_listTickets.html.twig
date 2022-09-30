@@ -41,7 +41,7 @@
                     <td>{{ ticket.updatedAt|date("d.m.y H:i")  }}{# {% if is_granted('ROLE_DEV') %}<small>{{ ticket.createdAt|date("d.m.y H:i") }}</small>{% endif %} #}</td>
                     <td>
                         {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}
-                        {{ errcat|trans }}{% if is_granted('ROLE_DEV') %} | {{ ticket.alertType }}{% endif %}
+                        {{ errcat|trans }}{% if is_granted('ROLE_DEV') %}{{ ticket.alertType }}{% endif %}
                     </td>
                     {% set maxCharInverter = 16 %}
                     <td {% if ticket.inverter|length > maxCharInverter %}data-tooltip data-click-open="false" title="{{ ticket.inverter }}"{% endif %}><span>{{ ticket.inverter|u.truncate(maxCharInverter, ' ...', false) }}</span></td>
