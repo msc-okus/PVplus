@@ -59,7 +59,7 @@ class TicketFormType extends AbstractType
                     'input' => 'datetime',
                     'widget' => 'single_text',
                     'data' => new \DateTime(date('Y-m-d H:i', time() - time() % 900)),
-                    'attr' => ['step' => 900, 'data-action' => 'change->ticket-list#check', 'data-ticket-list-target' => 'formBegin'],
+                    'attr' => ['step' => 900, 'data-action' => 'change->ticket-edit#checkDates', 'data-ticket-edit-target' => 'formBegin'],
                 ])
                 ->add('end', DateTimeType::class, [
                     'label' => 'End',
@@ -68,7 +68,7 @@ class TicketFormType extends AbstractType
                     'input' => 'datetime',
                     'widget' => 'single_text',
                     'data' => new \DateTime(date('Y-m-d H:i', 900 + time() - time() % 900)),
-                    'attr' => ['step' => 900, 'data-action' => 'change->ticket-list#check', 'data-ticket-list-target' => 'formEnd'],
+                    'attr' => ['step' => 900, 'data-action' => 'change->ticket-edit#checkDates', 'data-ticket-edit-target' => 'formEnd'],
                 ])
             ;
         } else {
@@ -83,18 +83,20 @@ class TicketFormType extends AbstractType
                     'label' => 'Begin',
                     'label_html' => true,
                     'required' => false,
-                    'attr' => [
-                        'max' => $ticket->getBegin()->format("Y-m-d\TH:i"),
-                        'step' => '600',
-                    ],
                     'widget' => 'single_text',
+                    'attr' => [
+                        'step' => 900,
+                        'data-action' => 'change->ticket-edit#checkDates',
+                        'data-ticket-edit-target' => 'formBegin',
+                        'max' => $ticket->getBegin()->format("Y-m-d\TH:i")
+                    ],
                 ])
                 ->add('end', DateTimeType::class, [
                     'label' => 'End',
                     'label_html' => true,
                     'required' => true,
                     'widget' => 'single_text',
-                    'attr' => ['min' => $ticket->getEnd()->format("Y-m-d\TH:i")],
+                    'attr' => ['min' => $ticket->getEnd()->format("Y-m-d\TH:i"), 'step' => 900, 'data-action' => 'change->ticket-edit#checkDates', 'data-ticket-edit-target' => 'formEnd'],
                 ])
             ;
         }
@@ -102,11 +104,7 @@ class TicketFormType extends AbstractType
             ->add('inverter', TextType::class, [
                 'label' => 'Inverter',
                 'required' => true,
-                /*
-                'attr' => [
-                    'readonly' => true,
-                ],
-                */
+                'attr' => ['readonly' => 'true'],
                 'help' => '* = all Invertres',
             ])
             ->add('dates', UXCollectionType::class, [

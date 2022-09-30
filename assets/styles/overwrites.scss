@@ -149,6 +149,16 @@
     }
 
     .has-tip {color: $g4n-blue;}
+    td.has-tip {
+        color: inherit;
+        position: revert;
+        font-weight: inherit;
+        display: revert;
+
+        span {
+            border-bottom: black 1px dotted;
+        }
+    }
     @import "includes/off-canvas";
     @import 'includes/tooltip';
 

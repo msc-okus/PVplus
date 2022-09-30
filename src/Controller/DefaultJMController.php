@@ -38,8 +38,8 @@ class DefaultJMController extends AbstractController
     #[Route(path: '/test/createticket', name: 'default_check')]
     public function check(AnlagenRepository $anlagenRepository, AlertSystemService $service)
     {
-        $anlage = $anlagenRepository->findIdLike("111")[0];
-        $service->generateTicketsInterval($anlage, "2022-01-21 07:00:00", "2022-01-21 18:00:00");
+        $anlage = $anlagenRepository->findIdLike("182")[0];
+        $service->generateTicketsInterval($anlage, "2022-01-01", "2022-09-20");
         dd("hello");
     }
 

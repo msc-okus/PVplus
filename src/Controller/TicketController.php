@@ -27,14 +27,8 @@ class TicketController extends BaseController
     {
         if ($request->query->get('anlage') !== null) {
             $anlage = $anlRepo->findIdLike((int)$request->query->get('anlage'))[0];
-            $nameArray = $functions->getInverterArray($anlage);
-            foreach ($nameArray as $key => $value){
-                $inverterArray[$key]["inv"] = $value;
-                $inverterArray[$key]["select"] = "";
-            }
         } else {
             $anlage = null;
-            $inverterArray = [];
         }
 
         $form = $this->createForm(TicketFormType::class);
@@ -42,7 +36,6 @@ class TicketController extends BaseController
 
         if ($form->isSubmitted() && $form->isValid()) {
             $ticket = $form->getData();
-
             $ticket->setEditor($this->getUser()->getUsername());
             $date = new TicketDate();
             $date->copyTicket($ticket);
@@ -51,14 +44,23 @@ class TicketController extends BaseController
             $em->flush();
 
             return new Response(null, 204);
+        } elseif ($form->isSubmitted() && !$form->isValid()) {
+            $anlage = $form->getData()->getAnlage();
+        }
+
+        $nameArray = $anlage->getInverterFromAnlage();
+        $inverterArray = [];
+        foreach ($nameArray as $key => $value){
+            $inverterArray[$key]["inv"] = $value;
+            $inverterArray[$key]["select"] = "";
         }
 
         return $this->renderForm('ticket/_inc/_edit.html.twig', [
-            'ticketForm' => $form,
-            'ticket' => false,
-            'anlage' => $anlage,
-            'edited' => false,
-            'invArray' => $inverterArray,
+            'ticketForm'    => $form,
+            'ticket'        => false,
+            'anlage'        => $anlage,
+            'edited'        => false,
+            'invArray'      => $inverterArray,
         ]);
     }
 
@@ -71,20 +73,20 @@ class TicketController extends BaseController
         $nameArray = $anlage->getInverterFromAnlage();
         $selected = $ticket->getInverterArray();
         $indexSelect = 0;
-        foreach ($nameArray as $key => $value){
-            $inverterArray[$key]["inv"] = $value;
-            if($key === (int)$selected[$indexSelect]){
-                $inverterArray[$key]["select"] = "checked";
-                $indexSelect ++;
+        for($index = 1; $index <= sizeof($nameArray); $index++){
+            $value = $nameArray[$index];
+            $inverterArray[$index]["inv"] = $value;
+            if ($index === (int)$selected[$indexSelect]){
+                $inverterArray[$index]["select"] = "checked";
+                $indexSelect++;
             }
             else{
-                $inverterArray[$key]["select"] = "";
+                $inverterArray[$index]["select"] = "";
             }
         }
         if ($ticketDates->isEmpty()) {
-            $ticketDates = null;
+            $inverterArray = null;
         }
-
         $form = $this->createForm(TicketFormType::class, $ticket);
         $page = $request->query->getInt('page', 1);
         $form->handleRequest($request);
@@ -110,6 +112,9 @@ class TicketController extends BaseController
                     $ticket->setEnd($ticketDates->last()->getEnd());
                 } else {
                     $ticketDates->last()->setEnd($ticket->getEnd());
+                }
+                foreach ($ticketDates as $date){
+                    $date->setInverter($ticket->getInverter());
                 }
             }
 

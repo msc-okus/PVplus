@@ -12,6 +12,7 @@ use App\Repository\StatusRepository;
 use App\Repository\TicketRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
+use JetBrains\PhpStorm\ArrayShape;
 use PDO;
 
 class AlertSystemService
@@ -45,7 +46,7 @@ class AlertSystemService
         $fromStamp = strtotime($from);
         $toStamp = strtotime($to);
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-            $this->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
+            $this->checkSystemTest($anlage, date('Y-m-d H:i:00', $stamp));
         }
     }
 
@@ -105,216 +106,144 @@ class AlertSystemService
         if ($time === null) {
             $time = $this->getLastQuarter(date('Y-m-d H:i:s'));
         }
-        $ppc = false;
-        // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
+        // we look 2 hours in the past to make sure the data we are using is stable
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
         $time = G4NTrait::timeAjustment($time, -2);
         if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
-            $nameArray = $this->functions->getInverterArray($anlage);
-            $plant_status = self::RetrievePlant($anlage, $sungap);
-            dd($plant_status);
-            foreach ($nameArray as $inverterNo => $inverterName) {
-                // We do this to avoid checking further inverters if we have a PPC control shut
-                if ($ppc === false) {
-                    $inverter_status = $this->RetrieveQuarterIst($time, $inverterNo, $anlage); // IstData($anlage, $time, $counter);
+            $plant_status = self::RetrievePlantTest($anlage, $time);
 
-                    if ($inverter_status['istdata'] == 'Plant Control by PPC') {
-                        $ppc = true;
-                        $message = $this->analyzeIst($inverter_status, $time, $anlage, $inverterNo);
-                        // self::messagingFunction($message, $anlage);
-                    } else {
-                        $message = $this->analyzeIst($inverter_status, $time, $anlage, $inverterNo);
-                        // self::messagingFunction($message, $anlage);
-                        unset($inverter_status);
-                    }
-
+            if ($plant_status['ppc'] === false) {
+                if ($plant_status['Gap'] !== ""){
+                    $errorType = '';
+                    $message = "Data gap in Inverter(s): ".$plant_status['Gap'];
+                    $errorCategorie = DATA_GAP;
+                    $this->generateTickets($errorType, $errorCategorie, $anlage, $plant_status['Gap'] , $time, $message);
+                }
+                if ($plant_status['Power0'] !== ""){
+                    $errorType = EFOR;
+                    $message = "Power Error in Inverter(s): ".$plant_status['Power0'];
+                    $errorCategorie = INVERTER_ERROR;
+                    $this->generateTickets($errorType, $errorCategorie, $anlage, $plant_status['Power0'] , $time, $message);
+                }
+                if ($plant_status['Vol']){
+                    $errorType = '';
+                    $message = "Grid Error in Inverter(s): ".$plant_status['Vol'];
+                    $errorCategorie = GRID_ERROR;
+                    $this->generateTickets($errorType, $errorCategorie, $anlage, $plant_status['Vol'] , $time, $message);
                 }
             }
-
+            else {
+                $errorType = OMC;
+                $errorCategorie = EXTERNAL_CONTROL;
+                $this->generateTickets($errorType, $errorCategorie, $anlage, '*' , $time, "");
+            }
         }
 
         return 'success';
     }
-    public function checkWeatherStation(Anlage $anlage, ?string $time = null)
+
+    public function RetrievePlantTest(Anlage $anlage, $time): array
     {
-        if ($time === null) {
-            $time = $this->getLastQuarter(date('Y-m-d H:i:s'));
-            $time = G4NTrait::timeAjustment($time, -2);
-        }
-        $sungap = $this->weather->getSunrise($anlage, $time);
-
-        $weatherStation = $anlage->getWeatherStation();
-        if ($weatherStation->getType() !== 'custom') {
-            if (($anlage->getAnlType() != 'masterslave') && ($anlage->getCalcPR() == true) && (($time > $sungap['sunrise']) && ($time < $sungap['sunset']))) {
-                // $status_report = $this->WData($anlage, $time);
-                $status_report = $this->WDataFix($anlage, $time);
-
-                // $message = self::AnalyzeWeather($status_report, $time, $anlage, $sungap['sunrise']);
-                // $message = self::AnalyzeWeatherFix($status_report, $time, $anlage, $sungap['sunrise']);
-                if ($status_report === 0) {
-                    self::messagingFunction('No Data received from the weather station in the last four hours.', $anlage);
-                }
-                unset($status_report);
-            }
-        }
-    }
-
-    // quick fix to send messages
-
-    /**
-     * here we analyze the data from the weather station and generate the status.
-     *
-     * @param Anlage $anlage
-     * @param $time
-     *
-     * @return int
-     */
-    private static function WDataFix(Anlage $anlage, $time): int
-    {
+        $irrLimit = 20; //in the future this will come from a field in anlage
+        $freqLimitTop = $anlage->getFreqBase() + $anlage->getFreqTolerance();
+        $freqLimitBot = $anlage->getFreqBase() - $anlage->getFreqTolerance();
+        $voltLimit = 0;
+        $freqLimit = $anlage->getFreqBase();
         $conn = self::getPdoConnection();
-        $begin = G4NTrait::timeAjustment($time, -4);
+        $isPPC = false;
+        $return['ppc'] = $isPPC;
+        $return['Power0'] = "";
+        $return['Gap'] = "";
+        $return['Vol'] = "";
+        $invCount = count($anlage->getInverterFromAnlage());
+        $irradiation = $this->weatherFunctions->getIrrByStampForTicket($anlage, date_create($time));
 
-        $sqlw = 'SELECT count(db_id)
-                    FROM '.$anlage->getDbNameWeather()." 
-                    WHERE stamp >= '$begin' AND stamp <= '$time' ";
+        if ($irradiation > $irrLimit) {
+            $sqlAct = 'SELECT b.unit 
+                    FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
+                    WHERE a.stamp = '$time' AND  b.wr_pac <= 0 ";
+            $resp = $conn->query($sqlAct);
+            $result0 = $resp->fetchAll(PDO::FETCH_ASSOC);
 
-        $resw = $conn->query($sqlw);
+            $sqlNull = 'SELECT b.unit 
+                    FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
+                    WHERE a.stamp = '$time' AND  b.wr_pac is null ";
+            $resp = $conn->query($sqlNull);
+            $resultNull = $resp->fetchAll(PDO::FETCH_ASSOC);
 
-        return $resw->rowCount();
-    }
+            $sqlVol = "SELECT b.unit 
+                    FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
+                    WHERE a.stamp = '$time' AND  (b.u_ac < " . $voltLimit . " OR b.frequency < " . $freqLimitBot . " OR b.frequency > " . $freqLimitTop . ")";
+            $resp = $conn->query($sqlVol);
 
+            if ($anlage->getHasPPC()) {
+                $sqlPpc = 'SELECT * 
+                        FROM ' . $anlage->getDbNamePPC() . " 
+                        WHERE stamp = '$time' ";
+                $respPpc = $conn->query($sqlPpc);
 
-    // ----------------Analyzing functions----------------
-
-    /**
-     * We use this to make an error message of the status array from the weather station and to generate/update Tickets.
-     *
-     * @param $status_report
-     * @param $time
-     * @param $anlage
-     * @param $sunrise
-     * @return string
-     */
-    private function AnalyzeWeather($status_report, $time, $anlage, $sunrise): string
-    {
-        $message = '';
-
-        $ticket = self::getLastTicket($anlage, null, $time, true);
-
-        if ($ticket != null && $status_report['Irradiation'] == 'No data' || $status_report['Irradiation'] == 'Irradiation is 0') {
-            $ticket = new Ticket();
-            $ticket->setAnlage($anlage);
-            $ticket->setStatus(10);
-            $ticket->setErrorType('');
-            $ticket->setEditor('Alert system');
-            $ticket->setDescription('Error with the Data of the Weather station');
-            $ticket->setSystemStatus(10);
-            $ticket->setPriority(10);
-            $ticket->setAlertType('40'); // 40 = Weather Station Error
-            $timetempbeg = date('Y-m-d H:i:s', strtotime($time));
-            $begin = date_create_from_format('Y-m-d H:i:s', $timetempbeg);
-            $begin->getTimestamp();
-            $ticket->setBegin($begin);
-        }
-        if ($status_report['Irradiation'] == 'No data') {
-            $timetempend = date('Y-m-d H:i:s', strtotime($time));
-            $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
-            $end->getTimestamp();
-            $ticket->setEnd($end);
-            $messaging = (date_diff($end, $ticket->getBegin(), true)->i == 30);
-            if ($messaging) {
-                $timeq2 = date('Y-m-d H:i:s', strtotime($time) - 1800);
-                $status_q2 = $this->statusRepo->findOneByanlageDate($anlage, $timeq2, true);
-                $temp = $status_q2->getStatus()['temperature'];
-                $wind = $status_q2->getStatus()['wspeed'];
-                $dateString = $ticket->getBegin()->format('Y-m-d H:i:s');
-                $message .= 'There is no Irradiation Data since '.$dateString.'<br>';
-                if ($temp == 'No data') {
-                    $message .= 'There was no temperature data at '.$dateString.'<br>';
-                }
-                if ($wind == 'No data') {
-                    $message .= 'There was no wind data at '.$dateString.'<br>';
+                if ($respPpc->rowCount() === 1) {
+                    $ppdData = $respPpc->fetch(PDO::FETCH_ASSOC);
+                    $isPPC = (($ppdData['p_set_rel'] < 100 || $ppdData['p_set_gridop_rel'] < 100) && $anlage->getHasPPC());
                 }
             }
-        } elseif ($status_report['Irradiation'] == 'Irradiation is 0') {
-            $timetempend = date('Y-m-d H:i:s', strtotime($time));
-            $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
-            $end->getTimestamp();
-            $ticket->setEnd($end);
-            $messaging = (date_diff($end, $ticket->getBegin(), true)->i == 30);
-            if ($messaging) {
-                $timeq2 = date('Y-m-d H:i:s', strtotime($time) - 1800);
-                $status_q2 = $this->statusRepo->findOneByanlageDate($anlage, $timeq2, true)[0];
-                $temp = $status_q2->getStatus()['temperature'];
-                $wind = $status_q2->getStatus()['wspeed'];
-                $dateString = $ticket->getBegin()->format('Y-m-d H:i:s');
-                $message .= 'Irradiation is 0 since '.$dateString.'<br>';
-                if ($temp == 'No data') {
-                    $message .= 'There was no temperature data at '.$dateString.'<br>';
-                }
-                if ($wind == 'No data') {
-                    $message .= 'There was no wind data at '.$dateString.'<br>';
+            $resultVol = $resp->fetchAll(PDO::FETCH_ASSOC);
+            if (count($resultNull) == $invCount) $return['Gap'] = '*';
+            else {
+                foreach ($resultNull as $value) {
+                    if ($return['Gap'] !== "") $return['Gap'] = $return['Gap'] . ", " . $value['unit'];
+                    else $return['Gap'] = $value['unit'];
                 }
             }
-        } elseif ($ticket != null) {
-            $timetempend = date('Y-m-d H:i:s', strtotime($time) - 900);
-            $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
-            $end->getTimestamp();
-            $ticket->setEnd($end);
-        }
-        if ($ticket != null) {
-            $this->em->persist($ticket);
-        }
-        $this->em->flush();
+            if (count($result0) == $invCount) $return['Power0'] = '*';
+            else {
+                foreach ($result0 as $value) {
+                    if ($return['Power0'] !== "") $return['Power0'] = $return['Power0'] . ", " . $value['unit'];
+                    else $return['Power0'] = $value['unit'];
+                }
+            }
+            if (count($resultVol) == $invCount) $return['Vol'] = '*';
+            else {
+                foreach ($resultVol as $value) {
+                    if ($return['Vol'] !== "") $return['Vol'] = $return['Vol'] . ", " . $value['unit'];
+                    else $return['Vol'] = $value['unit'];
+                }
+            }
 
-        return $message;
+        }
+
+        return $return;
+
     }
 
-    /**
-     * We use this to make an error message of the status array from the inverter and to generate/update Tickets.
-     *
-     * @param $inverter
-     * @param $time
-     * @param Anlage $anlage
-     * @param $nameArray
-     * @param $inverterNo
-     * @return string
-     */
-    private function analyzeIst($inverter, $time, Anlage $anlage, $inverterNo): string
-    {
-        $message = '';
-        $errorType = '';
-        $errorCategorie = '';
-        $resultArray = self::analyzeError($inverter, $anlage);
-
-        $errorType = $resultArray['errorType'];
-        $errorCategorie = $resultArray['errorCategorie'];
-        $message = $resultArray['message'];
-
-        $ticket = self::getLastTicket($anlage, $inverterNo, $time, false);
-        if ($message != '') {
-            //dump($ticket);
+    private function generateTickets($errorType, $errorCategorie, $anlage, $inverter, $time, $message){
+        $ticket = self::getLastTicket($anlage, $inverter, $time, false, $errorCategorie);
+        if ($inverter != "" && $errorCategorie != "") {
             if ($ticket === null) {
                 $ticket = new Ticket();
                 $ticketDate = new TicketDate();
                 $ticketDate->setAnlage($anlage);
                 $ticketDate->setStatus('10');
-                $ticketDate->setDescription($message);
                 $ticketDate->setSystemStatus(10);
                 $ticketDate->setPriority(10);
+                $ticketDate->setDescription($message);
+                $ticketDate->setCreatedBy("AlertSystem");
+                $ticketDate->setUpdatedBy("AlertSystem");
                 $ticket->setAnlage($anlage);
                 $ticket->setStatus('10'); // Status 10 = open
                 $ticket->setEditor('Alert system');
-                $ticket->setDescription($message);
                 $ticket->setSystemStatus(10);
                 $ticket->setPriority(10);
-                $ticket->setOpenTicket(true);
-                if ($inverter['istdata'] === 'Plant Control by PPC') {
+                $ticket->setOpenTicket(false);
+                $ticket->setDescription($message);
+                $ticket->setCreatedBy("AlertSystem");
+                $ticket->setUpdatedBy("AlertSystem");
+                if ($errorCategorie == EXTERNAL_CONTROL) {
                     $ticket->setInverter('*');
                     $ticketDate->setInverter('*');
                 } else {
-                    $ticket->setInverter($inverterNo);
-                    $ticketDate->setInverter($inverterNo);
+                    $ticket->setInverter($inverter);
+                    $ticketDate->setInverter($inverter);
                 }
                 $ticket->setAlertType($errorCategorie); //  category = alertType (bsp: datagap, inverter power, etc.)
                 $ticketDate->setAlertType($errorCategorie);
@@ -325,7 +254,8 @@ class AlertSystemService
                 $ticket->setBegin($begin);
                 $ticketDate->setBegin($begin);
                 $ticket->addDate($ticketDate);
-            } else {
+            }
+            else {
                 $ticketDate = $ticket->getDates()->last();
             }
             $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
@@ -341,105 +271,36 @@ class AlertSystemService
             $this->em->persist($ticket);
             $this->em->persist($ticketDate);
             $this->em->flush();
-            // this is to send a message after and only after 30 mins
-
-            if (date_diff($end, $ticket->getBegin(), true)->i != 30) {
-                $message = '';
-            }else {
-                $message = $message.' at '.$ticket->getBegin()->format('Y-m-d H:i').'<br>';
-            }
-
         }
         else if ($ticket != null){
             $ticket->setOpenTicket(false);
             $this->em->persist($ticket);
         }
+    }
 
+    /**
+     * We use this to make an error message of the status array from the inverter and to generate/update Tickets.
+     *
+     * @param $inverter
+     * @param $time
+     * @param Anlage $anlage
+     * @param $inverterNo
+     * @return string
+     */
+    private function analyzeIst($inverter, $time, Anlage $anlage, $inverterNo): string
+    {
+        $resultArray = self::analyzeError($inverter);
+
+        $message = $resultArray['message'];
+
+        $this->generateTickets($resultArray['errorType'], $resultArray['errorCategorie'], $anlage, $inverterNo, $time, $message);
 
         unset($ticket);
         unset($ticketDate);
         return $message;
     }
 
-    // ---------------Checking Functions-----------------
 
-    /**
-     * here we analyze the data from the weather station and generate the status.
-     *
-     * @param $time
-     */
-    private static function WData(Anlage $anlage, $time): array
-    {
-        $status_report = [];
-        $conn = self::getPdoConnection();
-        $sqlw = 'SELECT b.g_lower as gi , b.g_upper as gmod, b.temp_ambient as temp, b.wind_speed as wspeed 
-                    FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) 
-                    WHERE a.stamp = '$time' ";
-
-        $resw = $conn->query($sqlw);
-
-        if ($resw->rowCount() > 0) {
-            $wdata = $resw->fetch(PDO::FETCH_ASSOC);
-            if ($wdata['gi'] != null && $wdata['gmod'] != null) {
-                if ($wdata['gi'] <= 0 && $wdata['gmod'] <= 0) {
-                    $status_report['Irradiation'] = 'Irradiation is 0';
-                } else {
-                    $status_report['Irradiation'] = 'All good';
-                }
-            } else {
-                $status_report['Irradiation'] = 'No data';
-            }
-
-            if ($wdata['temp'] != null) {
-                $status_report['temperature'] = 'All good';
-            } else {
-                $status_report['temperature'] = 'No data';
-            }
-
-            if ($anlage->getHasWindSpeed()) {
-                if ($wdata['wspeed'] != null) {
-                    if ($wdata['wspeed'] == 0) {
-                        $status_report['wspeed'] = 'Wind Speed is 0';
-                    } else {
-                        $status_report['wspeed'] = 'All good';
-                    }
-                } else {
-                    $status_report['wspeed'] = 'No data';
-                }
-            } else {
-                $status_report['wspeed'] = 'there is no wind measurer in the plant';
-            }
-        }
-        $conn = null;
-
-        return $status_report;
-    }
-
-    // ----------------Extra Functions--------------------
-
-    /**
-     * We use this to retrieve the last quarter of a time given pe: 3:42 will return 3:30.
-     *
-     * @param $stamp
-     */
-    private function getLastQuarter($stamp): string
-    {
-        // we split the minutes from the rest of the stamp
-        $mins = date('i', strtotime($stamp));
-        $rest = date('Y-m-d H', strtotime($stamp));
-        // we work on the minutes to "round" to the lower quarter
-        if ($mins >= '00' && $mins < '15') {
-            $quarter = '00';
-        } elseif ($mins >= '15' && $mins < '30') {
-            $quarter = '15';
-        } elseif ($mins >= '30' && $mins < '45') {
-            $quarter = '30';
-        } else {
-            $quarter = '45';
-        }
-
-        return $rest.':'.$quarter;
-    }
 
     /**
      * We use this to query for a concrete quarter in an inverter.
@@ -541,101 +402,55 @@ class AlertSystemService
         return $return;
     }
 
-    /**
-     * This is the function we use to send the messages we previously generated.
-     *
-     * @param $message
-     * @param $anlage
-     */
-    private function messagingFunction($message, $anlage)
-    {
-        if ($message != '') {
-            sleep(2);
-            $subject = 'There was an error in '.$anlage->getAnlName();
-            $this->mailservice->sendMessage($anlage, 'alert', 3, $subject, $message, false, true, true, true);
-        }
-    }
 
     /**
-     * In this function we retrieve the previous ticket if it exists
-     *
-     * @param $anlage
-     * @param $inverter
-     * @param $time
-     * @param $isWeather
-     * @return mixed|null
-     */
-    public function getLastTicket($anlage, $inverter, $time, $isWeather)
-    {
-        $today = date('Y-m-d', strtotime($time));
-        $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
-        $sunrise = self::getLastQuarter($this->weather->getSunrise($anlage, $today)['sunrise']); // the first quarter of today
-        $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
-
-        $quarter = date('Y-m-d H:i', strtotime($time)); // the quarter before the actual
-        if (!$isWeather) {
-            // Inverter Tickets
-            if ($quarter <= $sunrise) {
-                $ticket = $this->ticketRepo->findLastByAITNoWeather($anlage, $inverter, $today, $lastQuarterYesterday); // we try to retrieve the last quarter of yesterday
-            } else {
-                $ticket = $this->ticketRepo->findByAITNoWeather($anlage, $inverter, $quarter); // we try to retrieve the ticket in the previous quarter
-            }
-        } else {
-            // Weather Tickets
-            if ($quarter <= $sunrise) {
-                $ticket = $this->ticketRepo->findLastByAITWeather($anlage, $today, $lastQuarterYesterday); // the same as above but for weather station
-            } else {
-                $ticket = $this->ticketRepo->findByAITWeather($anlage, $quarter);
-            }
-        }
-
-        return $ticket ? $ticket[0] : null;
-    }
+    Aux functions
+    */
 
     /**
      * We use this to unify the analysis of the errors and get the data to generate the tickets.
      *
-     * @param $inverter
-     * @param Anlage $anlage
+     * @param $data
      * @return array
      */
-    private function analyzeError($inverter, Anlage $anlage): array
+    #[ArrayShape(['errorType' => "string", 'errorCategorie' => "int|string", 'message' => "string"])]
+    private function analyzeError($data): array
     {
         $message = '';
         $errorType = '';
         $errorCategorie = '';
-        if ($inverter['istdata'] === 'No Data') {
+        if ($data['istdata'] === 'No Data') {
             // data gap
             $message .= 'Data gap at inverter (Power) <br>';
             $errorType = '';
             $errorCategorie = DATA_GAP;
-        } elseif ($inverter['istdata'] === 'Power is 0') {
+        } elseif ($data['istdata'] === 'Power is 0') {
             // inverter error
             $message .= 'No power at inverter <br>';
             $errorType = EFOR;
             $errorCategorie = INVERTER_ERROR;
-        } elseif ($inverter['istdata'] === 'Power to low') {
+        } elseif ($data['istdata'] === 'Power to low') {
             // check if inverter power make sense, to detect ppc
             $message .= 'Power too low at inverter (could be external plant control)<br>';
             $errorType = '';
             $errorCategorie = EXTERNAL_CONTROL;
-        } elseif ($inverter['istdata'] === 'Plant Control by PPC') {
+        } elseif ($data['istdata'] === 'Plant Control by PPC') {
             // PPC Control
             $message .= 'Plant is controlled by PPC <br>';
             $errorType = OMC;
             $errorCategorie = EXTERNAL_CONTROL;
         }
         if ($errorCategorie != DATA_GAP && $errorCategorie != EXTERNAL_CONTROL) {
-            if ($anlage->getHasFrequency()) {
-                if ($inverter['freq'] !== 'All is ok') {
+
+                if ($data['freq'] !== 'All is ok') {
                     if ($errorCategorie == '') {
                         $errorCategorie = GRID_ERROR;
                     }
                     $errorType = OMC;
                     $message .= 'Error with the frequency in inverter <br>';
                 }
-            }
-            if ($inverter['voltage'] != 'All is ok') {// grid error
+
+            if ($data['voltage'] != 'All is ok') {// grid error
                 if ($errorCategorie == '') {
                     $errorCategorie = GRID_ERROR;
                 }
@@ -649,43 +464,13 @@ class AlertSystemService
             'message'           => $message
         ];
     }
-    private function updateTicketList(){
 
-    }
-    // TEST FOR OPTIMIZED VERSION
-    // Notes: Maybe we could make 2 separate functions, the one to create old tickets will do only one super big query to the db (depending on which is the max amount of records we can take from the db)
-    public function checkSystem2(Anlage $anlage, ?string $time = null): string
-    {
-        if ($time === null) {
-            $time = $this->getLastQuarter(date('Y-m-d H:i:s'));
-        }
-        /** Todo: $ppc read from Plant ??? */
-        $ppc = false;
-        // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
-
-        $sungap = $this->weather->getSunrise($anlage, $time);
-        $plant_status = self::RetrievePlant($anlage, $sungap);
-        // We do this to avoid checking further inverters if we have a PPC control shut
-        if ($ppc === false) {
-            if ($plant_status['istdata'] == 'Plant Control by PPC') {
-                $ppc = true;
-                $message = $this->analyzePlant($plant_status, $anlage);
-
-                // self::messagingFunction($message, $anlage);
-            } else {
-                $message = $this->analyzePlant($plant_status, $anlage);
-
-                // self::messagingFunction($message, $anlage);
-                unset($inverter_status);
-            }
-        }
-        unset($system_status);
-
-        $this->em->flush();
-
-        return 'success';
-    }
-
+    /**
+     * We use this to unify the analysis of the errors and get the data to generate the tickets.
+     * @param Anlage $anlage
+     * @param $sungap
+     * @return array
+     */
     private static function RetrievePlant(Anlage $anlage, $sungap): array
     {
         $conn = self::getPdoConnection();
@@ -771,14 +556,140 @@ class AlertSystemService
         return $return;
     }
 
-    private function analyzePlant($plantStatus, Anlage $anlage): string
+    /**
+     * In this function we retrieve the previous ticket if it exists
+     *
+     * @param $anlage
+     * @param $inverter
+     * @param $time
+     * @param $isWeather
+     * @param $errorCategory
+     * @return mixed
+     */
+    public function getLastTicket($anlage, $inverter, $time, $isWeather, $errorCategory): mixed
+    {
+        $today = date('Y-m-d', strtotime($time));
+        $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
+        $sunrise = self::getLastQuarter($this->weather->getSunrise($anlage, $today)['sunrise']); // the first quarter of today
+        $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
+        $quarter = date('Y-m-d H:i', strtotime($time)); // the quarter before the actual
+
+        if (!$isWeather) {
+            // Inverter Tickets
+            if ($inverter == "" ){
+                if ($quarter <= $sunrise) {
+                    $ticket = $this->ticketRepo->findLastByATNoWeather($anlage,  $today, $lastQuarterYesterday, $errorCategory); // we try to retrieve the last quarter of yesterday
+                }
+                else {
+                    $ticket = $this->ticketRepo->findByATNoWeather($anlage,  $time, $errorCategory); // we try to retrieve the ticket in the previous quarter
+                }
+            }
+            else {
+                if ($quarter <= $sunrise) {
+                    $ticket = $this->ticketRepo->findLastByAITNoWeather($anlage, $inverter,  $today, $lastQuarterYesterday, $errorCategory); // we try to retrieve the last quarter of yesterday
+                }
+                else {
+                    $ticket = $this->ticketRepo->findByAITNoWeather($anlage,  $time,$inverter, $errorCategory); // we try to retrieve the ticket in the previous quarter
+                }
+            }
+
+        } else {
+            // Weather Tickets
+            if ($quarter <= $sunrise) {
+                $ticket = $this->ticketRepo->findLastByAITWeather($anlage, $today, $lastQuarterYesterday); // the same as above but for weather station
+            } else {
+                $ticket = $this->ticketRepo->findByAITWeather($anlage, $time);
+            }
+        }
+        return $ticket ? $ticket[0] : null;
+    }
+
+
+    /**
+     * This is the function we use to send the messages we previously generated.
+     *
+     * @param $message
+     * @param $anlage
+     */
+    private function messagingFunction($message, $anlage)
+    {
+        if ($message != '') {
+            sleep(2);
+            $subject = 'There was an error in '.$anlage->getAnlName();
+            $this->mailservice->sendMessage($anlage, 'alert', 3, $subject, $message, false, true, true, true);
+        }
+    }
+
+    /**
+     * We use this to retrieve the last quarter of a time given pe: 3:42 will return 3:30.
+     *
+     * @param $stamp
+     * @return string
+     */
+    private function getLastQuarter($stamp): string
+    {
+        // we split the minutes from the rest of the stamp
+        $mins = date('i', strtotime($stamp));
+        $rest = date('Y-m-d H', strtotime($stamp));
+        // we work on the minutes to "round" to the lower quarter
+        if ($mins >= '00' && $mins < '15') {
+            $quarter = '00';
+        } elseif ($mins >= '15' && $mins < '30') {
+            $quarter = '15';
+        } elseif ($mins >= '30' && $mins < '45') {
+            $quarter = '30';
+        } else {
+            $quarter = '45';
+        }
+
+        return $rest.':'.$quarter;
+    }
+
+
+    /**
+     * Test function for optimized script
+     */
+
+    public function checkSystem2(Anlage $anlage, ?string $time = null): string
+    {
+        if ($time === null) {
+            $time = $this->getLastQuarter(date('Y-m-d H:i:s'));
+        }
+        /** Todo: $ppc read from Plant ??? */
+        $ppc = false;
+        // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
+
+        $sungap = $this->weather->getSunrise($anlage, $time);
+        $plant_status = self::RetrievePlant($anlage, $sungap);
+        // We do this to avoid checking further inverters if we have a PPC control shut
+        if ($ppc === false) {
+            if ($plant_status['istdata'] == 'Plant Control by PPC') {
+                $ppc = true;
+                $message = $this->analyzePlantTest($plant_status, $anlage);
+
+                // self::messagingFunction($message, $anlage);
+            } else {
+                $message = $this->analyzePlantTest($plant_status, $anlage);
+
+                // self::messagingFunction($message, $anlage);
+                unset($inverter_status);
+            }
+        }
+        unset($system_status);
+
+        $this->em->flush();
+
+        return 'success';
+    }
+
+    private function analyzePlantTest($plantStatus, Anlage $anlage): string
     {
         unset($this->Tickets);
         $message = "";
         foreach ($plantStatus as $value){
 
             for ($inverterNr = 1; $inverterNr <= sizeof($value); $inverterNr++) {
-                $result = self::analyzeError($value[$inverterNr], $inverterNr, $anlage);
+                $result = self::analyzeError($value[$inverterNr]);
                 if ($result['errorCategorie'] == 50){
 
                 }
@@ -788,6 +699,194 @@ class AlertSystemService
             }
         }
         return $message;
+    }
+
+    /**
+     * Weather functions
+     */
+
+    /**
+     * here we analyze the data from the weather station and generate the status.
+     *
+     * @param Anlage $anlage
+     * @param $time
+     * @return array
+     */
+    private static function WData(Anlage $anlage, $time): array
+    {
+        $status_report = [];
+        $conn = self::getPdoConnection();
+        $sqlw = 'SELECT b.g_lower as gi , b.g_upper as gmod, b.temp_ambient as temp, b.wind_speed as wspeed 
+                    FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) 
+                    WHERE a.stamp = '$time' ";
+
+        $resw = $conn->query($sqlw);
+
+        if ($resw->rowCount() > 0) {
+            $wdata = $resw->fetch(PDO::FETCH_ASSOC);
+            if ($wdata['gi'] != null && $wdata['gmod'] != null) {
+                if ($wdata['gi'] <= 0 && $wdata['gmod'] <= 0) {
+                    $status_report['Irradiation'] = 'Irradiation is 0';
+                } else {
+                    $status_report['Irradiation'] = 'All good';
+                }
+            } else {
+                $status_report['Irradiation'] = 'No data';
+            }
+
+            if ($wdata['temp'] != null) {
+                $status_report['temperature'] = 'All good';
+            } else {
+                $status_report['temperature'] = 'No data';
+            }
+
+            if ($anlage->getHasWindSpeed()) {
+                if ($wdata['wspeed'] != null) {
+                    if ($wdata['wspeed'] == 0) {
+                        $status_report['wspeed'] = 'Wind Speed is 0';
+                    } else {
+                        $status_report['wspeed'] = 'All good';
+                    }
+                } else {
+                    $status_report['wspeed'] = 'No data';
+                }
+            } else {
+                $status_report['wspeed'] = 'there is no wind measurer in the plant';
+            }
+        }
+        $conn = null;
+
+        return $status_report;
+    }
+    /**
+     * We use this to make an error message of the status array from the weather station and to generate/update Tickets.
+     *
+     * @param $status_report
+     * @param $time
+     * @param $anlage
+     * @param $sunrise
+     * @return string
+     */
+    private function AnalyzeWeather($status_report, $time, $anlage, $sunrise): string
+    {
+        $message = '';
+
+        $ticket = self::getLastTicket($anlage, null, $time, true);
+
+        if ($ticket != null && $status_report['Irradiation'] == 'No data' || $status_report['Irradiation'] == 'Irradiation is 0') {
+            $ticket = new Ticket();
+            $ticket->setAnlage($anlage);
+            $ticket->setStatus(10);
+            $ticket->setErrorType('');
+            $ticket->setEditor('Alert system');
+            $ticket->setDescription('Error with the Data of the Weather station');
+            $ticket->setSystemStatus(10);
+            $ticket->setPriority(10);
+            $ticket->setAlertType('40'); // 40 = Weather Station Error
+            $timetempbeg = date('Y-m-d H:i:s', strtotime($time));
+            $begin = date_create_from_format('Y-m-d H:i:s', $timetempbeg);
+            $begin->getTimestamp();
+            $ticket->setBegin($begin);
+        }
+        if ($status_report['Irradiation'] == 'No data') {
+            $timetempend = date('Y-m-d H:i:s', strtotime($time));
+            $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
+            $end->getTimestamp();
+            $ticket->setEnd($end);
+            $messaging = (date_diff($end, $ticket->getBegin(), true)->i == 30);
+            if ($messaging) {
+                $timeq2 = date('Y-m-d H:i:s', strtotime($time) - 1800);
+                $status_q2 = $this->statusRepo->findOneByanlageDate($anlage, $timeq2, true);
+                $temp = $status_q2->getStatus()['temperature'];
+                $wind = $status_q2->getStatus()['wspeed'];
+                $dateString = $ticket->getBegin()->format('Y-m-d H:i:s');
+                $message .= 'There is no Irradiation Data since '.$dateString.'<br>';
+                if ($temp == 'No data') {
+                    $message .= 'There was no temperature data at '.$dateString.'<br>';
+                }
+                if ($wind == 'No data') {
+                    $message .= 'There was no wind data at '.$dateString.'<br>';
+                }
+            }
+        } elseif ($status_report['Irradiation'] == 'Irradiation is 0') {
+            $timetempend = date('Y-m-d H:i:s', strtotime($time));
+            $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
+            $end->getTimestamp();
+            $ticket->setEnd($end);
+            $messaging = (date_diff($end, $ticket->getBegin(), true)->i == 30);
+            if ($messaging) {
+                $timeq2 = date('Y-m-d H:i:s', strtotime($time) - 1800);
+                $status_q2 = $this->statusRepo->findOneByanlageDate($anlage, $timeq2, true)[0];
+                $temp = $status_q2->getStatus()['temperature'];
+                $wind = $status_q2->getStatus()['wspeed'];
+                $dateString = $ticket->getBegin()->format('Y-m-d H:i:s');
+                $message .= 'Irradiation is 0 since '.$dateString.'<br>';
+                if ($temp == 'No data') {
+                    $message .= 'There was no temperature data at '.$dateString.'<br>';
+                }
+                if ($wind == 'No data') {
+                    $message .= 'There was no wind data at '.$dateString.'<br>';
+                }
+            }
+        } elseif ($ticket != null) {
+            $timetempend = date('Y-m-d H:i:s', strtotime($time) - 900);
+            $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
+            $end->getTimestamp();
+            $ticket->setEnd($end);
+        }
+        if ($ticket != null) {
+            $this->em->persist($ticket);
+        }
+        $this->em->flush();
+
+        return $message;
+    }
+
+
+    public function checkWeatherStation(Anlage $anlage, ?string $time = null)
+    {
+        if ($time === null) {
+            $time = $this->getLastQuarter(date('Y-m-d H:i:s'));
+            $time = G4NTrait::timeAjustment($time, -2);
+        }
+        $sungap = $this->weather->getSunrise($anlage, $time);
+
+        $weatherStation = $anlage->getWeatherStation();
+        if ($weatherStation->getType() !== 'custom') {
+            if (($anlage->getAnlType() != 'masterslave') && ($anlage->getCalcPR() == true) && (($time > $sungap['sunrise']) && ($time < $sungap['sunset']))) {
+                // $status_report = $this->WData($anlage, $time);
+                $status_report = $this->WDataFix($anlage, $time);
+
+                // $message = self::AnalyzeWeather($status_report, $time, $anlage, $sungap['sunrise']);
+                // $message = self::AnalyzeWeatherFix($status_report, $time, $anlage, $sungap['sunrise']);
+                if ($status_report === 0) {
+                    self::messagingFunction('No Data received from the weather station in the last four hours.', $anlage);
+                }
+                unset($status_report);
+            }
+        }
+    }
+
+    /**
+     * here we analyze the data from the weather station and generate the status.
+     *
+     * @param Anlage $anlage
+     * @param $time
+     *
+     * @return int
+     */
+    private static function WDataFix(Anlage $anlage, $time): int
+    {
+        $conn = self::getPdoConnection();
+        $begin = G4NTrait::timeAjustment($time, -4);
+
+        $sqlw = 'SELECT count(db_id)
+                    FROM '.$anlage->getDbNameWeather()." 
+                    WHERE stamp >= '$begin' AND stamp <= '$time' ";
+
+        $resw = $conn->query($sqlw);
+
+        return $resw->rowCount();
     }
 
 }
