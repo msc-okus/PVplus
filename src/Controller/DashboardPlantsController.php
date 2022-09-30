@@ -87,7 +87,6 @@ class DashboardPlantsController extends BaseController
             }
             // bei Verfügbarkeit Anzeige kann nur ein Tag angezeigt werden
             // if ($form['selectedChart'] == 'availability' && $form['optionDate'] > 1) { $form['optionDate'] = 1; }
-
             if ($form['optionStep'] == 'lastday' or $form['optionStep'] == 'nextday') {
                 switch ($form['optionStep']) {
                     case 'lastday':
