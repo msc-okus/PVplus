@@ -2,8 +2,14 @@
 {% from "dashboardPlants/_incl/macrosStatus.html.twig" import pvSystTable as pvSystTable %}
 {% from "dashboardPlants/_incl/macrosStatus.html.twig" import gridTable as gridTable %}
 
-{% if form.selectedChart != 'status_log' and form.selectedChart != 'availability' and form.selectedChart != 'pvsyst' and form.selectedChart != 'grid'%}
+{% if form.selectedChart != 'status_log' and form.selectedChart != 'availability' and form.selectedChart != 'pvsyst' and form.selectedChart != 'grid'
+and form.selectedChart != 'sollistirranalyse'%}
     <div id="amchart-holder"></div>
+{% endif %}
+
+{% if form.selectedChart == 'sollistirranalyse' %}
+    <div id="amchart-holder-left"></div>
+    <div id="amchart-holder-right"></div>
 {% endif %}
 
 {% if form.selectedChart == 'ac_single' %}

@@ -97,6 +97,10 @@ class DashboardPlantsController extends BaseController
                     }
                 break;
             }
+
+            // bei Verfügbarkeit Anzeige kann nur ein Tag angezeigt werden
+            // if ($form['selectedChart'] == 'availability' && $form['optionDate'] > 1) { $form['optionDate'] = 1; }
+
             /* Bei Verfügbarkeit des Cahrts in der Anzeige wird zuerst nur ein Tag angezeigt
                optionStep == Single Step des Zeitintervalls der Anzeige im Chart
                optionDate == 1 → Zeige Daten für 1 Tage, also vom ausgewählten Tag zurück 1 Tage
@@ -106,6 +110,7 @@ class DashboardPlantsController extends BaseController
                optionDate == 100000 → Zeige Daten für den ganzen Monat, also vom ersten bis zum letzten Tages eines ausgewähten Monats
                optionDate == 300000 → Zeige Daten für 3 Monat, also vom ausgewählten Tag zurück 3 Monate
             */
+
             if ($form['optionStep'] == 'lastday' or $form['optionStep'] == 'nextday') {
                 switch ($form['optionStep']) {
                     case 'lastday':
