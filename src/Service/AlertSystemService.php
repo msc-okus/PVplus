@@ -227,23 +227,22 @@ class AlertSystemService
 
     private function generateTickets($errorType, $errorCategorie, $anlage, $inverter, $time, $message)
     {
-        dump($time);
         if ($errorType != "") {
             $ticketOld = self::getLastTicket($anlage, $time, false, $errorCategorie);
-            dump($ticketOld);
+
             if ($ticketOld !== null) {
                 if ($ticketOld->getInverter() == $inverter) {
-                    dump("link");
+
                     $ticketDate = $ticketOld->getDates()->last();
                     $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
                     $end->getTimestamp();
                     $ticketOld->setEnd($end);
                     $ticketDate->setEnd($end);
-                    dump($ticketOld);
+
                     $this->em->persist($ticketDate);
                     $this->em->persist($ticketOld);
                 } else {
-                    dump("close");
+
                     $ticketOld->setOpenTicket(false);
                     $this->em->persist($ticketOld);
                     $ticketOld = null;
@@ -251,7 +250,6 @@ class AlertSystemService
             }
 
             if ($ticketOld == null) {
-                dump("new");
                 $ticket = new Ticket();
                 $ticketDate = new TicketDate();
                 $ticketDate->setAnlage($anlage);

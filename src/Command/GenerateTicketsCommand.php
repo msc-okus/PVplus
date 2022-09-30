@@ -74,7 +74,7 @@ class GenerateTicketsCommand extends Command
                 $anlagen = $this->anlagenRepository->findIdLike([$plantid]);
             } else {
                 $io->comment("Generate Tickets: $from - $to | Test Plants (93, 94, 111, 112, 113)");
-                $anlagen = $this->anlagenRepository->findIdLike([93, 94, 96, 111, 112, 113]);
+                $anlagen = $this->anlagenRepository->findIdLike([93, 94, 96, 113]);
             }
 
             $counter = (($toStamp - $fromStamp) / 3600) * count($anlagen);
