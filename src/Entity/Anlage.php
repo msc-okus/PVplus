@@ -506,6 +506,9 @@ class Anlage
     #[ORM\Column(nullable: true)]
     private ?bool $useAcGroupsAsSection = null;
 
+    #[ORM\Column]
+    private ?bool $ignoreNegativEvu = true;
+
     public function __construct()
     {
         $this->acGroups = new ArrayCollection();
@@ -3171,6 +3174,23 @@ class Anlage
     public function setUseAcGroupsAsSection(?bool $useAcGroupsAsSection): self
     {
         $this->useAcGroupsAsSection = $useAcGroupsAsSection;
+
+        return $this;
+    }
+
+    public function isIgnoreNegativEvu(): ?bool
+    {
+        return $this->ignoreNegativEvu;
+    }
+
+    public function getIgnoreNegativEvu(): ?bool
+    {
+        return $this->ignoreNegativEvu;
+    }
+
+    public function setIgnoreNegativEvu(bool $ignoreNegativEvu): self
+    {
+        $this->ignoreNegativEvu = $ignoreNegativEvu;
 
         return $this;
     }

@@ -80,7 +80,11 @@ class FunctionsService
         // ############ für das ganze Jahr #############
         $jahresanfang = date('Y-01-01 00:00', strtotime($from)); // für das ganze Jahr - Zeitraum
         // LIMIT 1 muss sein, da der evu Wert in jedem Datensatz gespeichert ist (Wert entspricht summe aller Gruppen), er darf aber nur einaml pro Zeiteinheit abgefragt werden.
-        $sql_year = "SELECT sum(e_z_evu) as power_evu_year FROM $dbTable where stamp between '$jahresanfang' and '$to' AND e_z_evu > 0 group by unit LIMIT 1";
+        if ($anlage->isIgnoreNegativEvu()) {
+            $sql_year = "SELECT sum(e_z_evu) as power_evu_year FROM $dbTable where stamp between '$jahresanfang' and '$to' AND e_z_evu > 0 group by unit LIMIT 1";
+        } else {
+            $sql_year = "SELECT sum(e_z_evu) as power_evu_year FROM $dbTable where stamp between '$jahresanfang' and '$to' group by unit LIMIT 1";
+        }
         $res = $conn->query($sql_year);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -109,7 +113,11 @@ class FunctionsService
         if ($anlage->getUsePac()) {
             // beginnend bei PAC Date
             // group_ac = 1 muss sein, da der evu Wert in jedem Datensatz gespeichert ist (Wert entspricht summe aller Gruppen), er darf aber nur einaml pro Zeiteinheit abgefragt werden.
-            $sql_pac = "SELECT sum(e_z_evu) as power_evu FROM $dbTable where stamp between '$pacDateStart' and '$to' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
+            if ($anlage->isIgnoreNegativEvu()) {
+                $sql_pac = "SELECT sum(e_z_evu) as power_evu FROM $dbTable where stamp between '$pacDateStart' and '$to' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
+            } else {
+                $sql_pac = "SELECT sum(e_z_evu) as power_evu FROM $dbTable where stamp between '$pacDateStart' and '$to' GROUP BY unit LIMIT 1";
+            }
             $res = $conn->query($sql_pac);
             if ($res->rowCount() == 1) {
                 $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -137,14 +145,17 @@ class FunctionsService
 
         // ################# Month ################
         $startMonth = date('Y-m-01 00:00', strtotime($from));
-        $sql = "SELECT sum(e_z_evu) as power_evu FROM $dbTable WHERE stamp BETWEEN '$startMonth' AND '$to' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
+        if ($anlage->isIgnoreNegativEvu()) {
+            $sql = "SELECT sum(e_z_evu) as power_evu FROM $dbTable WHERE stamp BETWEEN '$startMonth' AND '$to' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
+        } else {
+            $sql = "SELECT sum(e_z_evu) as power_evu FROM $dbTable WHERE stamp BETWEEN '$startMonth' AND '$to' GROUP BY unit LIMIT 1";
+        }
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
             $powerEvuMonth = round($row['power_evu'], 4);
         }
         unset($res);
-
         $powerEvuMonth = $this->checkAndIncludeMonthlyCorrectionEVU($anlage, $powerEvuMonth, $startMonth, $to);
 
         $sql = "SELECT sum(wr_pac) as power_act FROM $dbTable WHERE stamp BETWEEN '$startMonth' AND '$to' AND wr_pac > 0";
@@ -811,7 +822,11 @@ class FunctionsService
 
         // EVU Leistung ermitteln –
         // dieser Wert kann der offiziele Grid Zähler wert sein, kann aber auch nur ein interner Wert sein. Siehe Konfiguration $anlage->getUseGridMeterDayData()
-        $sql = 'SELECT sum(e_z_evu) as power_evu FROM '.$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
+        if ($anlage->isIgnoreNegativEvu()) {
+            $sql = 'SELECT sum(e_z_evu) as power_evu FROM '.$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
+        } else {
+            $sql = 'SELECT sum(e_z_evu) as power_evu FROM '.$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to' GROUP BY unit LIMIT 1";
+        }
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -874,7 +889,11 @@ class FunctionsService
                 // if (strtotime($from) > $tempFrom->getTimestamp() && $monthlyData->getMonth() == (int)$tempFrom->format("m")) $tempFrom = new DateTime($from);
                 // if (strtotime($to) > $tempTo->getTimestamp() && $monthlyData->getMonth() == (int)$tempTo->format("m")) $tempTo = new DateTime($to);
 
-                $sql = 'SELECT sum(e_z_evu) as power_evu FROM '.$anlage->getDbNameAcIst()." WHERE stamp BETWEEN '".$tempFrom->format('Y-m-d H:i')."' AND '".$tempTo->format('Y-m-d H:i')."' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
+                if ($anlage->isIgnoreNegativEvu()) {
+                    $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '" . $tempFrom->format('Y-m-d H:i') . "' AND '" . $tempTo->format('Y-m-d H:i') . "' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
+                } else {
+                    $sql = 'SELECT sum(e_z_evu) as power_evu FROM '.$anlage->getDbNameAcIst()." WHERE stamp BETWEEN '".$tempFrom->format('Y-m-d H:i')."' AND '".$tempTo->format('Y-m-d H:i')."' GROUP BY unit LIMIT 1";
+                }
                 $res = $conn->query($sql);
                 if ($res->rowCount() == 1) {
                     $row = $res->fetch(PDO::FETCH_ASSOC);

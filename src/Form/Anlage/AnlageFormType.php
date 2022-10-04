@@ -43,6 +43,7 @@ class AnlageFormType extends AbstractType
             'Groningen' => 'Groningen',
             'Veendam' => 'Veendam',
             'Lelystad (Temp Korrektur)' => 'Lelystad',
+            'Ladenburg' => 'Ladenburg',
         ];
         $pldAlgorithmArray = [
             'Lelystad' => 'Lelystad',
@@ -489,6 +490,10 @@ class AnlageFormType extends AbstractType
             ->add('hasPPC', SwitchType::class, [
                 'label' => 'Anlage hat Power Plant Controller Daten',
                 'help' => '[hasPPC]',
+            ])
+            ->add('ignoreNegativEvu', SwitchType::class, [
+                'label'     => 'Ignore negative EVU values on reporting',
+                'help'      => '[ignoreNegativEvu]',
             ])
             ->add('hasPannelTemp', SwitchType::class, [
                 'label' => 'Anlage hat Pannel Temperatur',
