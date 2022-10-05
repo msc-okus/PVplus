@@ -57,8 +57,9 @@ export default class extends Controller {
         const $queryParams = $(event.currentTarget).data("query-value");
         this.listTarget.innerHTML = await $.ajax({
             url: this.urlSearchValue,
-            data: $queryParams,
+            data: event.currentTarget.attributes.href.value,
         });
+        $(document).foundation();
     }
 
     async create(event) {

@@ -4,14 +4,18 @@
         <table class="table sortable">
             <thead>
             <tr>
-                <th>Ticket ID</th>
+                <th {% if pagination.isSorted('ticket.id') %} class="sorted"{% endif %}>
+                    {{ knp_pagination_sortable(pagination, 'Ticket ID', ['ticket.id'], {'data-action': 'ticket-list#sort'}) }}</th>
                 <th>Plant</th>
                 <th class="text-center">Status</th>
                 <th class="text-center">Priority</th>
                 <th>Editor</th>
-                <th>Begin</th>
-                <th>End</th>
-                <th>Last Update</th>
+                <th {% if pagination.isSorted('ticket.begin') %} class="sorted"{% endif %}>
+                    {{ knp_pagination_sortable(pagination, 'Begin', ['ticket.begin'], {'data-action': 'ticket-list#sort'}) }}</th>
+                <th {% if pagination.isSorted('ticket.end') %} class="sorted"{% endif %}>
+                    {{ knp_pagination_sortable(pagination, 'End', ['ticket.end'], {'data-action': 'ticket-list#sort'}) }}</th>
+                <th {% if pagination.isSorted('ticket.updatedAt') %} class="sorted"{% endif %}>
+                    {{ knp_pagination_sortable(pagination, 'Last Update', ['ticket.updatedAt'], {'data-action': 'ticket-list#sort'}) }}</th>
                 <th>Error Category{% if is_granted('ROLE_G4N') %} <br><small>alertType</small> {% endif %}</th>
                 {# <th>Error Type</th>  #}
                 <th>Inverter</th>
@@ -41,7 +45,7 @@
                     <td>{{ ticket.updatedAt|date("d.m.y H:i")  }}{# {% if is_granted('ROLE_DEV') %}<small>{{ ticket.createdAt|date("d.m.y H:i") }}</small>{% endif %} #}</td>
                     <td>
                         {% set errcat %}ticket.error.category.{{ ticket.alertType }}{% endset %}
-                        {{ errcat|trans }}{% if is_granted('ROLE_DEV') %}{{ ticket.alertType }}{% endif %}
+                        {{ errcat|trans }}{# {% if is_granted('ROLE_DEV') %}<small>|{{ ticket.alertType }}</small>{% endif %} #}
                     </td>
                     {% set maxCharInverter = 16 %}
                     <td {% if ticket.inverter|length > maxCharInverter %}data-tooltip data-click-open="false" title="{{ ticket.inverter }}"{% endif %}><span>{{ ticket.inverter|u.truncate(maxCharInverter, ' ...', false) }}</span></td>
