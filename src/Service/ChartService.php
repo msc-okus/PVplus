@@ -538,8 +538,9 @@ class ChartService
                     $resultArray['headline'] = 'Performance Categories vs. Module Temperatures';
                     break;
                 case 'sollistirranalyse':
-                    $dataArray = $this->sollistirrAnalyseChartService->getSollIstIrrDeviationAnalyse($anlage, $from, $to);
-                    $resultArray['data'] = json_encode($dataArray['chart']);
+                    $dataArray = $this->sollistirrAnalyseChartService->getSollIstIrrDeviationAnalyse($anlage, $from, $to, $form['optionIrrVal']);
+                    $resultArray['data'] = json_encode($dataArray['0']['chart']);
+                    $resultArray['tabel'] = $dataArray['1']['tabel'];
                     $resultArray['headline'] = 'Performance Categories vs. Irradiation';
                     break;
                 default:

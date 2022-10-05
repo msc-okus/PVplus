@@ -53,6 +53,7 @@ class DashboardPlantsController extends BaseController
             $form['to'] = (new \DateTime())->format('Y-m-d 23:59');
             $form['from'] = (new \DateTime())->format('Y-m-d');
             $form['optionDate'] = 1;
+            $form['optionIrrVal'] = 400;
             $form['hour'] = false;
         }
         // Verarbeitung der Case 5 Ereignisse
@@ -76,14 +77,22 @@ class DashboardPlantsController extends BaseController
             $form['selectedSet'] = $request->request->get('selectedSet');
             $form['optionDate'] = $request->request->get('optionDate');
             $form['optionStep'] = $request->request->get('optionStep');
+            $form['optionIrrVal'] = $request->request->get('optionIrrVal');
             $form['backFromMonth'] = false;
             $form['hour'] = $request->request->get('hour');
-
+            // Predefine Optiondate
             if ($form['selectedChart'] == 'pr_and_av' && $form['optionDate'] < 7) {
                 $form['optionDate'] = 7;
             }
             if ($form['selectedChart'] == 'sollistanalyse' && $form['optionDate'] < 7) {
                 $form['optionDate'] = 100000;
+            }
+            if ($form['selectedChart'] == 'sollisttempanalyse' && $form['optionDate'] < 7) {
+                $form['optionDate'] = 100000;
+            }
+            if ($form['selectedChart'] == 'sollistirranalyse' && $form['optionDate'] < 7) {
+                $form['optionDate'] = 100000;
+                $form['optionIrrVal'] = 400;
             }
             // bei Verfügbarkeit Anzeige kann nur ein Tag angezeigt werden
             // if ($form['selectedChart'] == 'availability' && $form['optionDate'] > 1) { $form['optionDate'] = 1; }
@@ -91,11 +100,25 @@ class DashboardPlantsController extends BaseController
                 switch ($form['optionStep']) {
                     case 'lastday':
                         $date = ($request->request->get('to')) ? $request->request->get('to') : date('Y-m-d');
-                        $from = date('Y-m-d 00:00', strtotime($date.' -1 day'));
-                        $to = date('Y-m-d 23:59', strtotime($date.' -1 day'));
+                      #  $from = date('Y-m-d 00:00', strtotime($date.' -1 day'));
+                      #  $to = date('Y-m-d 23:59', strtotime($date.' -1 day'));
 
-                        if ($form['optionDate']) {
-                            $from = date('Y-m-d 00:00', strtotime($from) - (86400 * ($form['optionDate'] - 1)));
+                        if ($form['optionDate'] <= 14) {
+                            $from = date('Y-m-d 00:00', strtotime($date) - (86400 * ($form['optionDate'] - 1)));
+                            $to = date('Y-m-d 00:00', strtotime($from) - (86400 * ($form['optionDate'] - 1)));
+                        }
+                        if ($form['optionDate'] == 100000) {
+                            $from = date('Y-m-d 00:00', strtotime($date.'-1 month'));
+                            $from = date('Y-m-d 00:00', strtotime($from.'first day of this month'));
+                            $to = date('Y-m-d 23:59', strtotime($from.'last day of this month'));
+
+                        }
+                        if ($form['optionDate'] == 300000) {
+                            $from = date('Y-m-d 00:00', strtotime($date.'-3 month'));
+                            $from = date('Y-m-d 00:00', strtotime($from.'first day of this month'));
+                            $ddate = date('Y-m-d 00:00', strtotime($from.'+3 month'));
+                            $to = date('Y-m-d 23:59', strtotime($ddate.'last day of this month'));
+                           # dd($date,$from,$to);
                         }
                         $form['from'] = $from;
                         (strtotime($to) > strtotime('now')) ? $form['to'] = date('Y-m-d H:i') : $form['to'] = $to;
@@ -103,11 +126,22 @@ class DashboardPlantsController extends BaseController
 
                     case 'nextday':
                         $date = ($request->request->get('to')) ? $request->request->get('to') : date('Y-m-d');
-                        $from = date('Y-m-d 00:00', strtotime($date.' +1 day'));
-                        $to = date('Y-m-d 23:59', strtotime($date.' +1 day'));
+                       # $from = date('Y-m-d 00:00', strtotime($date.' +1 day'));
+                       # $to = date('Y-m-d 23:59', strtotime($date.' +1 day'));
 
-                        if ($form['optionDate']) {
-                            $from = date('Y-m-d 00:00', strtotime($from) - (86400 * ($form['optionDate'] - 1)));
+                        if ($form['optionDate'] <= 14) {
+                            $from = date('Y-m-d 00:00', strtotime($date) - (86400 * ($form['optionDate'] - 1)));
+                            $to = date('Y-m-d 00:00', strtotime($from) + (86400 * ($form['optionDate'] - 1)));
+                        }
+                        if ($form['optionDate'] == 100000) {
+                            $from = date('Y-m-d 00:00', strtotime($date.'+1 month'));
+                            $from = date('Y-m-d 00:00', strtotime($from.'first day of this month'));
+                            $to = date('Y-m-d 00:00', strtotime($from.'last day of this month'));
+                        }
+                        if ($form['optionDate'] == 300000) {
+                            $ndate = date('Y-m-d 00:00', strtotime($date.'+3 month'));
+                            $from = date('Y-m-d 00:00', strtotime($date.'first day of this month'));
+                            $to = date('Y-m-d 00:00', strtotime($ndate.'last day of this month'));
                         }
                         $form['from'] = $from;
                         (strtotime($to) > strtotime('now')) ? $form['to'] = date('Y-m-d H:i') : $form['to'] = $to;
