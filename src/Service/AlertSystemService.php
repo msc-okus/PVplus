@@ -119,32 +119,25 @@ class AlertSystemService
             $plant_status = self::RetrievePlantTest($anlage, $time);
 
             if ($plant_status['ppc'] === false) {
-                if ($plant_status['Gap'] !== ""){
-                    $errorType = '';
+
+
                     $message = "Data gap in Inverter(s): ".$plant_status['Gap'];
-                    $errorCategorie = DATA_GAP;
-                    $this->generateTickets($errorType, $errorCategorie, $anlage, $plant_status['Gap'] , $time, $message);
-                }
-                if ($plant_status['Power0'] !== ""){
-                    $errorType = EFOR;
+                    $this->generateTickets('', DATA_GAP, $anlage, $plant_status['Gap'] , $time, $message);
+
                     $message = "Power Error in Inverter(s): ".$plant_status['Power0'];
-                    $errorCategorie = INVERTER_ERROR;
-                    $this->generateTickets($errorType, $errorCategorie, $anlage, $plant_status['Power0'] , $time, $message);
-                }
-                if ($plant_status['Vol']){
-                    $errorType = '';
+                    $this->generateTickets(EFOR, INVERTER_ERROR, $anlage, $plant_status['Power0'] , $time, $message);
+
                     $message = "Grid Error in Inverter(s): ".$plant_status['Vol'];
-                    $errorCategorie = GRID_ERROR;
-                    $this->generateTickets($errorType, $errorCategorie, $anlage, $plant_status['Vol'] , $time, $message);
-                }
+                    $this->generateTickets('', GRID_ERROR, $anlage, $plant_status['Vol'] , $time, $message);
+
             }
             else {
                 $errorType = OMC;
                 $errorCategorie = EXTERNAL_CONTROL;
-                $this->generateTickets($errorType, $errorCategorie, $anlage, '*' , $time, "");
-                $this->generateTickets($errorType, DATA_GAP, $anlage, '' , $time, "");
-                $this->generateTickets($errorType, INVERTER_ERROR, $anlage, '' , $time, "");
-                $this->generateTickets($errorType, GRID_ERROR, $anlage, '' , $time, "");
+                $this->generateTickets(OMC, $errorCategorie, $anlage, '*' , $time, "");
+                $this->generateTickets('', DATA_GAP, $anlage, '' , $time, "");
+                $this->generateTickets(EFOR, INVERTER_ERROR, $anlage, '' , $time, "");
+                $this->generateTickets('', GRID_ERROR, $anlage, '' , $time, "");
             }
         }
 
@@ -227,28 +220,25 @@ class AlertSystemService
 
     private function generateTickets($errorType, $errorCategorie, $anlage, $inverter, $time, $message)
     {
-        if ($errorType != "") {
+
             $ticketOld = self::getLastTicket($anlage, $time, false, $errorCategorie);
 
             if ($ticketOld !== null) {
                 if ($ticketOld->getInverter() == $inverter) {
-
                     $ticketDate = $ticketOld->getDates()->last();
                     $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
                     $end->getTimestamp();
                     $ticketOld->setEnd($end);
                     $ticketDate->setEnd($end);
-
                     $this->em->persist($ticketDate);
                     $this->em->persist($ticketOld);
                 } else {
-
                     $ticketOld->setOpenTicket(false);
                     $this->em->persist($ticketOld);
                     $ticketOld = null;
                 }
             }
-
+        if ($inverter != "") {
             if ($ticketOld == null) {
                 $ticket = new Ticket();
                 $ticketDate = new TicketDate();
@@ -390,7 +380,7 @@ class AlertSystemService
     {
         $resultArray = self::analyzeError($inverter);
         $message = $resultArray['message'];
-        $this->generateTickets($resultArray['errorType'], $resultArray['errorCategorie'], $anlage, $inverterNo, $time, $message);
+        $this->generateTicketsTest($resultArray['errorType'], $resultArray['errorCategorie'], $anlage, $inverterNo, $time, $message);
         unset($ticket);
         unset($ticketDate);
         return $message;

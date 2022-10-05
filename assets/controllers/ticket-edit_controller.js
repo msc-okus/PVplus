@@ -68,6 +68,7 @@ export default class extends Controller {
     }
 
     checkSelect(){
+
         let inverterString = "";
         if ($(this.switchTarget).prop('checked')) {
             $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox]').each(function () {
@@ -81,7 +82,7 @@ export default class extends Controller {
             });
         }
         $(this.modalBodyTarget).find('#ticket_form_inverter').val(inverterString);
-        console.log(inverterString,   $(this.modalBodyTarget).find('#ticket_form_inverter').val());
+
 
         if (inverterString == '') {
             $(this.saveButtonTarget).attr('disabled', 'disabled');
@@ -89,17 +90,22 @@ export default class extends Controller {
         else {
             $(this.saveButtonTarget).removeAttr('disabled');
         }
+        console.log(inverterString);
     }
 
     checkInverter(){
-
         let inverterString = '';
-        /*$('input:checkbox[class=js-checkbox]:checked')*/
-        $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox]:checked').each(function (){
+        const body = $(this.modalBodyTarget);
+        body.find('input:checkbox[class=js-checkbox-split]').each(function(){
+            $(this).addClass('is-hidden');
+        });
+        body.find('input:checkbox[class=js-checkbox]:checked').each(function (){
             if (inverterString == '') inverterString = inverterString + $(this).prop('name');
             else inverterString = inverterString + ', ' + $(this).prop('name');
+            body.find($('#split-'+$(this).prop('name')+'')).removeClass('is-hidden');
+            console.log(body.find($('#split-'+$(this).prop('name')+'')));
         });
-        console.log(inverterString);
+
         if (inverterString == '') {
             $(this.saveButtonTarget).attr('disabled', 'disabled');
         }
@@ -107,7 +113,7 @@ export default class extends Controller {
             $(this.saveButtonTarget).removeAttr('disabled');
         }
         $(this.modalBodyTarget).find('#ticket_form_inverter').val(inverterString);
-
+        
     }
 
     checkDates() { // What do you check ????
