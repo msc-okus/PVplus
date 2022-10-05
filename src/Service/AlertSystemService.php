@@ -227,23 +227,22 @@ class AlertSystemService
 
     private function generateTickets($errorType, $errorCategorie, $anlage, $inverter, $time, $message)
     {
-        dump($time);
         if ($errorType != "") {
             $ticketOld = self::getLastTicket($anlage, $time, false, $errorCategorie);
-            dump($ticketOld);
+
             if ($ticketOld !== null) {
                 if ($ticketOld->getInverter() == $inverter) {
-                    dump("link");
+
                     $ticketDate = $ticketOld->getDates()->last();
                     $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
                     $end->getTimestamp();
                     $ticketOld->setEnd($end);
                     $ticketDate->setEnd($end);
-                    dump($ticketOld);
+
                     $this->em->persist($ticketDate);
                     $this->em->persist($ticketOld);
                 } else {
-                    dump("close");
+
                     $ticketOld->setOpenTicket(false);
                     $this->em->persist($ticketOld);
                     $ticketOld = null;
@@ -251,7 +250,6 @@ class AlertSystemService
             }
 
             if ($ticketOld == null) {
-                dump("new");
                 $ticket = new Ticket();
                 $ticketDate = new TicketDate();
                 $ticketDate->setAnlage($anlage);
@@ -299,6 +297,82 @@ class AlertSystemService
                 $this->em->persist($ticketDate);
             }
                 $this->em->flush();
+        }
+
+    }
+
+    private function generateTicketsTest($errorType, $errorCategorie, $anlage, $inverter, $time, $message)
+    {
+        if ($errorType != "") {
+            $ticketOld = self::getLastTicket($anlage, $time, false, $errorCategorie);
+
+            if ($ticketOld !== null) {
+                if ($ticketOld->getInverter() == $inverter) {
+
+                    $ticketDate = $ticketOld->getDates()->last();
+                    $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
+                    $end->getTimestamp();
+                    $ticketOld->setEnd($end);
+                    $ticketDate->setEnd($end);
+
+                    $this->em->persist($ticketDate);
+                    $this->em->persist($ticketOld);
+                } else {
+
+                    $ticketOld->setOpenTicket(false);
+                    $this->em->persist($ticketOld);
+                    $ticketOld = null;
+                }
+            }
+
+            if ($ticketOld == null) {
+                $ticket = new Ticket();
+                $ticketDate = new TicketDate();
+                $ticketDate->setAnlage($anlage);
+                $ticketDate->setStatus('10');
+                $ticketDate->setSystemStatus(10);
+                $ticketDate->setPriority(10);
+                $ticketDate->setDescription($message);
+                $ticketDate->setCreatedBy("AlertSystem");
+                $ticketDate->setUpdatedBy("AlertSystem");
+                $ticket->setAnlage($anlage);
+                $ticket->setStatus('10'); // Status 10 = open
+                $ticket->setEditor('Alert system');
+                $ticket->setSystemStatus(10);
+                $ticket->setPriority(10);
+                $ticket->setOpenTicket(true);
+                $ticket->setDescription($message);
+                $ticket->setCreatedBy("AlertSystem");
+                $ticket->setUpdatedBy("AlertSystem");
+                if ($errorCategorie == EXTERNAL_CONTROL) {
+                    $ticket->setInverter('*');
+                    $ticketDate->setInverter('*');
+                } else {
+                    $ticket->setInverter($inverter);
+                    $ticketDate->setInverter($inverter);
+                }
+                $ticket->setAlertType($errorCategorie); //  category = alertType (bsp: datagap, inverter power, etc.)
+                $ticketDate->setAlertType($errorCategorie);
+                $ticket->setErrorType($errorType); // type = errorType (Bsp:  SOR, EFOR, OMC)
+                $ticketDate->setErrorType($errorType);
+                $begin = date_create(date('Y-m-d H:i:s', strtotime($time)));
+                $begin->getTimestamp();
+                $ticket->setBegin($begin);
+                $ticketDate->setBegin($begin);
+                $ticket->addDate($ticketDate);
+                $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
+                $end->getTimestamp();
+                $ticketDate->setEnd($end);
+                $ticket->setEnd($end);
+                if ($errorType == EFOR) {
+                    $ticketDate->setKpiPaDep1(10);
+                    $ticketDate->setKpiPaDep2(10);
+                    $ticketDate->setKpiPaDep3(20);
+                }
+                $this->em->persist($ticket);
+                $this->em->persist($ticketDate);
+            }
+            $this->em->flush();
         }
 
     }

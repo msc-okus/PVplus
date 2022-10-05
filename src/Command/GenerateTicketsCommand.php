@@ -73,8 +73,8 @@ class GenerateTicketsCommand extends Command
                 $io->comment("Generate Tickets: $from - $to | Plant ID: $plantid");
                 $anlagen = $this->anlagenRepository->findIdLike([$plantid]);
             } else {
-                $io->comment("Generate Tickets: $from - $to | Test Plants (93, 94, 111, 112, 113)");
-                $anlagen = $this->anlagenRepository->findIdLike([93, 94, 96, 111, 112, 113]);
+                $io->comment("Generate Tickets: $from - $to | Test Plants (93, 94, 96)");
+                $anlagen = $this->anlagenRepository->findIdLike([93, 94, 96]);
             }
 
             $counter = (($toStamp - $fromStamp) / 3600) * count($anlagen);
@@ -82,12 +82,12 @@ class GenerateTicketsCommand extends Command
             $counter = ($counter * 4) - 1;
 
             foreach ($anlagen as $anlage) {
-                /*
+
                 while (((int) date('i') >= 26 && (int) date('i') < 35) || (int) date('i') >= 56 || (int) date('i') < 5) {
                     $io->comment('Wait...');
                     sleep(30);
                 }
-                */
+
                 for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
                     $this->alertService->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
                     /*

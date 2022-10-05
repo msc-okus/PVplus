@@ -74,12 +74,12 @@ class GenerateMultiInverterTicketsCommand extends Command
             $counter = ($counter * 4) - 1;
 
             foreach ($anlagen as $anlage) {
-                /*
-                while (((int) date('i') >= 26 && (int) date('i') < 35) || (int) date('i') >= 56 || (int) date('i') < 5) {
-                    $io->comment('Wait...');
+
+                while (((int) date('i') >= 28 && (int) date('i') < 34) || (int) date('i') >= 58 || (int) date('i') < 4) {
+                    $io->comment('Waiting...');
                     sleep(30);
                 }
-                */
+
                 for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
                     $this->alertService->checkSystemTest($anlage, date('Y-m-d H:i:00', $stamp));
                     /*
