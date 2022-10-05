@@ -17,6 +17,7 @@
             <option value="" disabled selected hidden>Please choose a Report Type</option>
             <option value="monthly"{% if app.request.query.get('report-typ') == 'monthly' %} selected {% endif %}>Monthly Report (O&M)</option>
             <option value="epc"{% if app.request.query.get('report-typ') == 'epc' %} selected {% endif %}>EPC Report</option>
+            <option value="epc-new-pr"{% if app.request.query.get('report-typ') == 'epc-new-pr' %} selected {% endif %}>New EPC PR Report</option>
             <option value="am"{% if app.request.query.get('report-typ') == 'am' %} selected {% endif %}>Asset Management Report</option>
         </select>
     </div>

@@ -65,7 +65,7 @@ class FunctionsService
         if ($resIrr->rowCount() > 0) {
             while ($row = $resIrr->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = $row['stamp'];
-                $irrAnlage[$stamp] = json_decode($row['irr_anlage']);
+                $irrAnlage[$stamp]  = json_decode($row['irr_anlage']);
                 $tempAnlage[$stamp] = json_decode($row['temp_anlage'], true);
                 $windAnlage[$stamp] = json_decode($row['wind_anlage'], true);
             }
@@ -805,10 +805,11 @@ class FunctionsService
     }
 
     /**
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      *
-     * @throws \Exception
+     * @return array
      */
     public function getSumAcPower(Anlage $anlage, $from, $to): array
     {
@@ -830,7 +831,7 @@ class FunctionsService
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
-            $powerEvu = round($row['power_evu'], 4);
+            $powerEvu = $row['power_evu'];
         }
         unset($res);
         $powerEvu = $this->checkAndIncludeMonthlyCorrectionEVU($anlage, $powerEvu, $from, $to);
@@ -840,8 +841,8 @@ class FunctionsService
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
-            $powerExp = round($row['sum_power_ac'], 4);
-            $powerExpEvu = round($row['sum_power_ac_evu'], 4);
+            $powerExp = $row['sum_power_ac'];
+            $powerExpEvu = $row['sum_power_ac_evu'];
         }
         unset($res);
 
@@ -850,7 +851,7 @@ class FunctionsService
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
-            $powerTheo = round($row['theo_power'], 4);
+            $powerTheo = $row['theo_power'];
         }
         unset($res);
 
@@ -860,7 +861,7 @@ class FunctionsService
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
             $result['powerEvu'] = $powerEvu;
-            $result['powerAct'] = round($row['sum_power_ac'], 4);
+            $result['powerAct'] = $row['sum_power_ac'];
             $result['powerExp'] = $powerExp;
             $result['powerExpEvu'] = $powerExpEvu;
             $result['powerEGridExt'] = $powerEGridExt;
@@ -885,19 +886,15 @@ class FunctionsService
                 $tempDaysInMonth = $tempFrom->format('t');
                 $tempTo = new DateTime($monthlyData->getYear().'-'.$monthlyData->getMonth().'-'.$tempDaysInMonth.' 23:59');
 
-                // NOT SURE if this works. Soll vor Überschneidungen mit Datum die nicht am Anfang bzw am Ende des Monats liegen schützen.
-                // if (strtotime($from) > $tempFrom->getTimestamp() && $monthlyData->getMonth() == (int)$tempFrom->format("m")) $tempFrom = new DateTime($from);
-                // if (strtotime($to) > $tempTo->getTimestamp() && $monthlyData->getMonth() == (int)$tempTo->format("m")) $tempTo = new DateTime($to);
-
                 if ($anlage->isIgnoreNegativEvu()) {
                     $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '" . $tempFrom->format('Y-m-d H:i') . "' AND '" . $tempTo->format('Y-m-d H:i') . "' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
                 } else {
-                    $sql = 'SELECT sum(e_z_evu) as power_evu FROM '.$anlage->getDbNameAcIst()." WHERE stamp BETWEEN '".$tempFrom->format('Y-m-d H:i')."' AND '".$tempTo->format('Y-m-d H:i')."' GROUP BY unit LIMIT 1";
+                    $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '" . $tempFrom->format('Y-m-d H:i') . "' AND '" . $tempTo->format('Y-m-d H:i') . "' GROUP BY unit LIMIT 1";
                 }
                 $res = $conn->query($sql);
                 if ($res->rowCount() == 1) {
                     $row = $res->fetch(PDO::FETCH_ASSOC);
-                    $evu -= round($row['power_evu'], 4);
+                    $evu -= $row['power_evu'];
                     $evu += $monthlyData->getExternMeterDataMonth();
                 }
                 unset($res);
