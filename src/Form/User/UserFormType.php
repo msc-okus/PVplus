@@ -4,8 +4,11 @@ namespace App\Form\User;
 
 use App\Controller\SecurityController;
 use App\Entity\Eigner;
+use App\Entity\Anlage;
 use App\Entity\User;
 use App\Repository\AnlagenRepository;
+use App\Repository\EignerRepository;
+use App\Repository\UserRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -16,35 +19,48 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Form\FormEvent;
-use Symfony\Component\Form\FormEvents;
 use Symfony\Component\Security\Core\Security;
 
 
 class UserFormType extends AbstractType
 {
     private AnlagenRepository $repo;
+    private UserRepository $urepo;
+    private EignerRepository $erepo;
 
-    public function __construct(AnlagenRepository $repo,private Security $security)
+    public function __construct(AnlagenRepository $repo,EignerRepository $erepo,UserRepository $urepo,private Security $security)
     {
         $this->repo = $repo;
-
+        $this->urepo = $urepo;
+        $this->erepo = $erepo;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         /** @var User $user */
-        /** @var Eigner $eigner */
+        /** @var Eigner $eigner_l */
 
         $user = $options['data'] ?? null;
         $isEdit = $user && $user->getUserId();
         $anlagen = [];
+        //the logged eigner id
+        if ($this->security->isGranted('ROLE_G4N')){
+            $eigner = null;
+        }else {
+            $eigner = $this?->security->getUser()?->getEigners()[0];
+        }
+        //find selected eigner id
+        $sel_eigner = $user?->getEigners()[0];
 
-        $eigner = $this?->security?->getUser()?->getEigners()[0];
-        $anlagen = $this?->repo?->findAllIDByEigner($eigner);
+         if (!$sel_eigner) {
+            # $anlagen = $this->repo->findAllAnlage();
+             $anlagen = $this->repo->findAllIDByEigner($eigner);
+         } else {
+             $anlagen = $this->repo->findAllIDByEigner($sel_eigner);
+         }
 
         if ($user != null) {
-            $GrantedArray = $user?->getGrantedArray();
+            $GrantedArray = $user->getGrantedArray();
          }
 
         if ($GrantedArray) {
@@ -61,13 +77,11 @@ class UserFormType extends AbstractType
 
        if ($this->security->isGranted('ROLE_ADMIN_USER') and $this->security->getUser()->getUsername() != "admin"){
            $choicesRolesArray = User::ARRAY_OF_ROLES_USER;
-       } else {
+          } else {
            $choicesRolesArray = User::ARRAY_OF_ROLES;
        }
 
-           $singlechoince = [$eigner?->getFirma() => $eigner?->getId()];
-
-
+       $singlechoince = [$eigner?->getFirma() => $eigner?->getId()];
 
         $builder
             ->add('username', TextType::class, [
@@ -87,10 +101,7 @@ class UserFormType extends AbstractType
             ->add('email', EmailType::class, [
                 'label' => 'eMail address',
                 'empty_data' => '',
-            ])
-            ->add('level', TextType::class, [
-                'label' => 'User Level',
-                'empty_data' => 1,
+                'required' => true,
             ])
             ->add('roles', ChoiceType::class, [
                 'choices' => $choicesRolesArray,
@@ -99,12 +110,13 @@ class UserFormType extends AbstractType
             ])
             ->add('eigners', EntityType::class, [
                 'class' => Eigner::class,
+                'attr' => array('class' =>'type_label'),
                 'multiple' => true,
                 'expanded' => true,
+                'required' => true,
                 'choice_label' => 'firma',
                 'by_reference' => false,
             ])
-
             ->add('singleeigners', ChoiceType::class, [
                 'multiple' => true,
                 'expanded' => true,
@@ -114,7 +126,6 @@ class UserFormType extends AbstractType
                 'data' => $singlechoince,
                 'disabled' => true,
             ])
-
             ->add('grantedList', TextType::class, [
                 'label' => '',
                 'compound' => true,
@@ -126,9 +137,11 @@ class UserFormType extends AbstractType
                 'multiple' => true,
                 'required' => true,
                 'data' => $fixGrantedArray,
-                'mapped' => false
+                'mapped' => false,
+                'choice_attr' => function($choice, $key, $value) {
+                    return ['class' => 'plant_'.strtolower($value)];
+                },
             ])
-
             // #############################################
             // ###          STEUERELEMENTE              ####
             // #############################################
@@ -143,14 +156,8 @@ class UserFormType extends AbstractType
             ->add('close', SubmitType::class, [
                 'label' => 'Close without save',
                 'attr' => ['class' => 'secondary close', 'formnovalidate' => 'formnovalidate'],
-            ])
-            ->add('delete', SubmitType::class, [
-                'label' => 'Delete User',
-                'attr' => ['class' => 'primary delete'],
-            ])
-           ;
+            ]) ;
     }
-
 
     public function configureOptions(OptionsResolver $resolver)
     {

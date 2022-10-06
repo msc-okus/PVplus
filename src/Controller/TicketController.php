@@ -196,9 +196,10 @@ class TicketController extends BaseController
         }
         $session->set('page', "$page");
 
-        if ($request->query->get('ajax')) {
+        if ($request->query->get('ajax') || $request->isXmlHttpRequest()) {
+            dump('With ajax');
             return $this->render('ticket/_inc/_listTickets.html.twig', [
-                'pagination' => $pagination,
+                'pagination'    => $pagination,
                 'anlagen'       => $anlagenRepo->findAllActiveAndAllowed(),
             ]);
         }

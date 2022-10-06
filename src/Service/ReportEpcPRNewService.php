@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Anlage;
+use App\Entity\AnlagenReports;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\GridMeterDayRepository;
@@ -47,6 +48,36 @@ class ReportEpcPRNewService
         $this->functions = $functions;
         $this->PRCalulation = $PRCalulation;
         $this->availabilityService = $availabilityService;
+    }
+
+    public function createEpcReportNew(Anlage $anlage, DateTime $date): string
+    {
+        $output = "";
+        $reportArray = [];
+        $monthTable = $this->monthTable($anlage, $date)->table;
+        $pldTable =
+        $forcastTable =
+        $reportArray['monthTable'] = $monthTable;
+        $reportArray['pldTable'] = $this->pldTable($anlage, $monthTable, $date);
+        $reportArray['forcastTable'] = $this->forcastTable($anlage, $monthTable, $pldTable, $date);
+
+        // Speichere Report als 'epc-reprt' in die Report Entity
+        $reportEntity = new AnlagenReports();
+        $reportEntity
+            ->setCreatedAt(new DateTime())
+            ->setAnlage($anlage)
+            ->setEigner($anlage->getEigner())
+            ->setReportType('epc-new-pr')
+            ->setStartDate(self::getCetTime('object'))
+            ->setEndDate($anlage->getFacDate())
+            ->setRawReport('')
+            ->setContentArray($reportArray)
+            ->setMonth($date->format('n'))
+            ->setYear($date->format('Y'));
+        $this->em->persist($reportEntity);
+        $this->em->flush();
+
+        return $output;
     }
 
     public function monthTable(Anlage $anlage, ?DateTime $date = null): array|object

@@ -16,9 +16,6 @@ export default class extends Controller {
 
     async search(event) {
         event.preventDefault();
-        console.log(
-            'Ja'
-        );
         const $searchListform = $(this.searchBarTarget).find('form');
         this.listTarget.innerHTML = await $.ajax({
             url: this.urlSearchValue,
@@ -40,8 +37,10 @@ export default class extends Controller {
 
     async sort(event) {
         event.preventDefault();
-        const $queryParams = $(event.currentTarget).data("query-value");
-        this.listTarget.innerHTML = await $.ajax({});
+        this.listTarget.innerHTML = await $.ajax({
+            url: this.urlSearchValue,
+            data: event.currentTarget.attributes.href.value,
+        });
         $(document).foundation();
     }
 }

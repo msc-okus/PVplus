@@ -2,8 +2,14 @@
 {% from "dashboardPlants/_incl/macrosStatus.html.twig" import pvSystTable as pvSystTable %}
 {% from "dashboardPlants/_incl/macrosStatus.html.twig" import gridTable as gridTable %}
 
-{% if form.selectedChart != 'status_log' and form.selectedChart != 'availability' and form.selectedChart != 'pvsyst' and form.selectedChart != 'grid'%}
+{% if form.selectedChart != 'status_log' and form.selectedChart != 'availability' and form.selectedChart != 'pvsyst' and form.selectedChart != 'grid'
+and form.selectedChart != 'sollistirranalyse'%}
     <div id="amchart-holder"></div>
+{% endif %}
+
+{% if form.selectedChart == 'sollistirranalyse' %}
+    <div id="amchart-holder-left"></div>
+    <div id="amchart-holder-right"></div>
 {% endif %}
 
 {% if form.selectedChart == 'ac_single' %}
@@ -1400,6 +1406,8 @@
     {% include 'dashboardPlants/_incl/chart/sollistanalyse.html.twig' %}
 {% elseif form.selectedChart == 'sollisttempanalyse' %}
     {% include 'dashboardPlants/_incl/chart/sollisttempanalyse.html.twig' %}
+{% elseif form.selectedChart == 'sollistirranalyse' %}
+    {% include 'dashboardPlants/_incl/chart/sollistirranalyse.html.twig' %}
 {% elseif form.selectedChart == 'ppcontrollerchart' %}
     {% include 'dashboardPlants/_incl/chart/Ppcontroller1.html.twig' %}
 {% endif %}

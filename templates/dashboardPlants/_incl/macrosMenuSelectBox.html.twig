@@ -18,7 +18,10 @@
 {% macro showSollIstTempAnalyse(form, aktAnlage) %}
     <option value="sollisttempanalyse" {% if form.selectedChart == 'sollisttempanalyse' %}selected{% endif %}>Analysis actual - expected to TEMP (BETA)</option>
 {% endmacro %}
-
+{# INV SollIst AC Irr Analyse #}
+{% macro showSollIstIrrAnalyse(form, aktAnlage) %}
+    <option value="sollistirranalyse" {% if form.selectedChart == 'sollistirranalyse' %}selected{% endif %}>Analysis actual - expected to IRR (BETA)</option>
+{% endmacro %}
 {# AC Power Diagramme #}
 {# AC1 #}
 {% macro acActPlant(form, aktAnlage) %}

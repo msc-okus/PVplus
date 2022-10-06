@@ -117,12 +117,13 @@ class TicketRepository extends ServiceEntityRepository
             $qb->andWhere("ticket.needsProof = 1");
         }
 
+        /*
         foreach ($orders as $field => $order) {
             if ($order !== null) {
                 $qb->orderBy('ticket.'.$field, $order);
             }
         }
-
+        */
         return $qb;
     }
 

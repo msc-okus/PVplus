@@ -15,6 +15,7 @@ use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
 use App\Service\AssetManagementService;
 use App\Service\PdfService;
+use App\Service\ReportEpcPRNewService;
 use App\Service\ReportEpcService;
 use App\Service\ReportsEpcNewService;
 use App\Service\ReportService;
@@ -46,7 +47,7 @@ class ReportingController extends AbstractController
     #[Route(path: '/reporting/create', name: 'app_reporting_create', methods: ['GET', 'POST'])]
     public function createReport(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo,
         ReportService $report, ReportEpcService $reportEpc, ReportsMonthlyService $reportsMonthly, EntityManagerInterface $em,
-        AssetManagementService $assetManagement, ReportsRepository $reportRepo): Response
+        AssetManagementService $assetManagement, ReportsRepository $reportRepo, ReportEpcPRNewService $reportEpcNew): Response
     {
         $anlage = $request->query->get('anlage');
         $searchstatus = $request->query->get('searchstatus');
@@ -68,10 +69,10 @@ class ReportingController extends AbstractController
             case 'epc':
                 $output = $reportEpc->createEpcReport($aktAnlagen[0], $reportDate);
                 break;
+            case 'epc-new-pr':
+                $output = $reportEpcNew->createEpcReportNew($aktAnlagen[0], $reportDate);
+                break;
             case 'am':
-                // return $this->redirectToRoute('report_asset_management', ['id' => $anlageId, 'month' => $reportMonth, 'year' => $reportYear, 'export' => 1, 'pages' => 0]);
-                // $output = $this->assetReport($anlageId, $reportMonth, $reportYear, 0);
-
                 // we try to find and delete a previous report from this month/year
                 $report = $reportRepo->findOneByAMY($aktAnlagen[0], $reportMonth, $reportYear)[0];
                 $comment = '';
@@ -100,7 +101,8 @@ class ReportingController extends AbstractController
                     'Economics' => true, ];
                 $output['data'] = $data;
                 $report = new AnlagenReports();
-                $report->setAnlage($aktAnlagen[0])
+                $report
+                    ->setAnlage($aktAnlagen[0])
                     ->setEigner($aktAnlagen[0]->getEigner())
                     ->setMonth($reportMonth)
                     ->setYear($reportYear)
@@ -225,20 +227,20 @@ class ReportingController extends AbstractController
         /** @var AnlagenReports|null $report */
         $session = $this->container->get('session');
         $pdf = new PdfService($tempPathBaseUrl);
-        $searchstatus   = $session->get('search');
-        $searchtype     = $session->get('type');
-        $anlageq        = $session->get('anlage');
-        $searchmonth    = $session->get('month');
-        $searchyear     = $session->get('search_year');
-        $route          = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
-        $route          = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&searchyear=".$searchyear."&search=yes";
-        $report = $reportsRepository->find($id);
-        $month = $report->getMonth();
-        $year = $report->getYear();
+        $searchstatus       = $session->get('search');
+        $searchtype         = $session->get('type');
+        $anlageq            = $session->get('anlage');
+        $searchmonth        = $session->get('month');
+        $searchyear         = $session->get('search_year');
+        $route              = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
+        $route              = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&searchyear=".$searchyear."&search=yes";
+        $report             = $reportsRepository->find($id);
+        $month              = $report->getMonth();
+        $year               = $report->getYear();
         $reportCreationDate = $report->getCreatedAt()->format('Y-m-d H:i:s');
-        $anlage = $report->getAnlage();
-        $currentDate = date('Y-m-d H-i');
-        $reportArray = $report->getContentArray();
+        $anlage             = $report->getAnlage();
+        $currentDate        = date('Y-m-d H-i');
+        $reportArray        = $report->getContentArray();
         switch ($report->getReportType()) {
             case 'epc-report':
                 $pdfFilename = 'EPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
@@ -305,6 +307,26 @@ class ReportingController extends AbstractController
 
                         return $response;
                 }
+                break;
+            case 'epc-new-pr':
+                $pdfFilename = 'EPC Report ' . $anlage->getAnlName() . ' - ' . $currentDate . '.pdf';
+                $result = $this->renderView('report/epcReportPR.html.twig', [
+                    'anlage'        => $anlage,
+                    'monthsTable'   => $reportArray['monthTable'],
+                    'forcast'       => $reportArray['forcastTable'],
+                    'pldTable'      => $reportArray['pldTable'],
+                    'legend'        => $anlage->getLegendEpcReports(),
+                    // 'chart1'            => $chartYieldPercenDiff,
+                    // 'chart2'            => $chartYieldCumulativ,
+                ]);
+
+                $response = new BinaryFileResponse($pdf->createPdfTemp($anlage, $result, 'string'));
+                $response->headers->set('Content-Type', 'application/pdf');
+                $response->deleteFileAfterSend(true);
+                $response->setContentDisposition(
+                    ResponseHeaderBag::DISPOSITION_ATTACHMENT,
+                    $anlage->getAnlName().'_EPC-Report_'.$month.'_'.$year.'.pdf'
+                );
                 break;
             case 'monthly-report':
                 //standard G4N Report (an O&M Goldbeck angelehnt)
@@ -663,7 +685,19 @@ class ReportingController extends AbstractController
                             ]);
                             break;
                     }
+                    break;
+                case 'epc-new-pr':
 
+                    $result = $this->renderView('report/epcReportPR.html.twig', [
+                        'anlage'        => $anlage,
+                        'monthsTable'   => $reportArray['monthTable'],
+                        'forcast'       => $reportArray['forcastTable'],
+                        'pldTable'      => $reportArray['pldTable'],
+                        'legend'        => $anlage->getLegendEpcReports(),
+                        // 'chart1'            => $chartYieldPercenDiff,
+                        // 'chart2'            => $chartYieldCumulativ,
+                    ]);
+                    break;
             }
         }
         return $this->render('reporting/showHtml.html.twig', [

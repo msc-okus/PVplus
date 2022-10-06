@@ -522,7 +522,7 @@ class PRCalulationService
      *
      * @throws \Exception
      */
-    public function calcPR(Anlage $anlage, DateTime $startDate, DateTime $endDate = null, string $type = 'day'): array
+    public function calcPR(Anlage $anlage, DateTime $startDate, DateTime $endDate = null, string $type = 'day', int $years = 1): array
     {
         $type = strtolower($type); // sicherstellen das type immer in Kleinbuchstaben
         $result = [];
@@ -583,13 +583,13 @@ class PRCalulationService
             $irr = $weather['upperIrr'] / 4 / 1000; // Umrechnug zu kWh
         }
         // if theoretic Power ist corrected by temperature (NREL) (PR Algoritm = Lelystad) then use 'powerTheo' from array $power, if not calc by Pnom and Irr.
-        $powerTheo = round($anlage->getUseCustPRAlgorithm() == 'Lelystad' ? $power['powerTheo'] : $anlage->getPnom() * $irr, 4);
+        $powerTheo = $anlage->getUseCustPRAlgorithm() == 'Lelystad' ? $power['powerTheo'] : $anlage->getPnom() * $irr;
         $result['powerTheo'] = $powerTheo;
         $tempCorrection = 0; // not used at the Moment
 
         // PR Calculation
         // Standard PR, wird NICHT mit Temp-Koriegierten Theoretischen berechnet sondern mit Pnom * Irradiation
-        $tempTheoPower = $anlage->getPnom() * round($irr, 4);
+        $tempTheoPower = $anlage->getPnom() * $irr;
 
         if ($tempTheoPower > 0) { // Verhindere Divison by zero
             $result['prDefaultEvu'] = ($power['powerEvu'] / $tempTheoPower) * 100;
@@ -620,6 +620,16 @@ class PRCalulationService
             case 'Lelystad':
                 // mit Temperatur korriegierten theoretischen Enerie ($powerTheo)
                 if ($powerTheo > 0) { // Verhinder Divison by zero
+                    $result['prEvu'] = ($power['powerEvu'] / $powerTheo) * 100;
+                    $result['prAct'] = ($power['powerAct'] / $powerTheo) * 100;
+                    $result['prExp'] = ($result['powerExp'] / $powerTheo) * 100;
+                    $result['prEGridExt'] = ($power['powerEGridExt'] / $powerTheo) * 100;
+                }
+                break;
+            case 'Ladenburg' :
+                // entspricht Standard PR plus degradation (Faktor = $years int)
+                $powerTheo = ($anlage->getPnom() / 1000) * pow(1 - 0.25, $years) * $irr;
+                if ($powerTheo > 0) { // Verhindere Divison by zero
                     $result['prEvu'] = ($power['powerEvu'] / $powerTheo) * 100;
                     $result['prAct'] = ($power['powerAct'] / $powerTheo) * 100;
                     $result['prExp'] = ($result['powerExp'] / $powerTheo) * 100;

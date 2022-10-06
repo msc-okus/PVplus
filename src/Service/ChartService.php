@@ -20,6 +20,7 @@ use App\Service\Charts\IrradiationChartService;
 use App\Service\Charts\SollIstAnalyseChartService;
 use App\Service\Charts\SollIstHeatmapChartService;
 use App\Service\Charts\SollIstTempAnalyseChartService;
+use App\Service\Charts\SollIstIrrAnalyseChartService;
 use App\Service\Charts\TempHeatmapChartService;
 use App\Service\Charts\VoltageChartService;
 use DateTime;
@@ -61,11 +62,10 @@ class ChartService
     private HeatmapChartService $heatmapChartService;
 
     private TempHeatmapChartService $tempheatmapChartService;
-
     private SollIstHeatmapChartService $sollistheatmapChartService;
-
     private SollIstAnalyseChartService $sollistAnalyseChartService;
     private SollIstTempAnalyseChartService $sollisttempAnalyseChartService;
+    private SollIstIrrAnalyseChartService $sollistirrAnalyseChartService;
 
 
     public function __construct(Security $security,
@@ -86,6 +86,7 @@ class ChartService
         TempHeatmapChartService $tempheatmapChartService,
         SollIstAnalyseChartService $sollistAnalyseChartService,
         SollIstTempAnalyseChartService $sollisttempAnalyseChartService,
+        SollIstIrrAnalyseChartService $sollistirrAnalyseChartService,
         SollIstHeatmapChartService $sollistheatmapChartService)
     {
         $this->security = $security;
@@ -107,6 +108,7 @@ class ChartService
         $this->sollistheatmapChartService = $sollistheatmapChartService;
         $this->sollistAnalyseChartService = $sollistAnalyseChartService;
         $this->sollisttempAnalyseChartService = $sollisttempAnalyseChartService;
+        $this->sollistirrAnalyseChartService = $sollistirrAnalyseChartService;
     }
 
     /**
@@ -537,6 +539,12 @@ class ChartService
                     $dataArray = $this->sollisttempAnalyseChartService->getSollIstTempDeviationAnalyse($anlage, $from, $to);
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'Performance Categories vs. Module Temperatures';
+                    break;
+                case 'sollistirranalyse':
+                    $dataArray = $this->sollistirrAnalyseChartService->getSollIstIrrDeviationAnalyse($anlage, $from, $to, $form['optionIrrVal']);
+                    $resultArray['data'] = json_encode($dataArray['0']['chart']);
+                    $resultArray['tabel'] = $dataArray['1']['tabel'];
+                    $resultArray['headline'] = 'Performance Categories vs. Irradiation';
                     break;
                 default:
                     $resultArray['headline'] = 'Something was wrong '.$form['selectedChart'];
