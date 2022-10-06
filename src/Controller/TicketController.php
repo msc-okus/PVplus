@@ -339,6 +339,55 @@ class TicketController extends BaseController
             'invArray' => $inverterArray
         ]);
     }
+    #[Route(path: '/ticket/splitbyinverter', name: 'app_ticket_split_inverter')]
+    public function splitByInverter(TicketRepository $ticketRepo, TicketDateRepository $ticketDateRepo, Request $request, EntityManagerInterface $em): Response
+    {
+        $ticket = $ticketRepo->findOneById($request->query->get('id'));
+        $newTicket = new Ticket();
+        $newTicket->setInverter($request->query->get('inverterb'));
+        $ticket->setInverter($request->query->get('invertera'));
+        $newTicket->copyTicket($ticket);
+        $newTicket->setInverter($request->query->get('inverterb'));
+        $ticket->setInverter($request->query->get('invertera'));
+
+        $ticket->setEditor($this->getUser()->getUsername());
+        $newTicket->setEditor($this->getUser()->getUsername());
+
+        if ($ticket->getStatus() == '10') $ticket->setStatus(30);
+        if ($newTicket->getStatus() == '10') $newTicket->setStatus(30);
+
+        $em->persist($ticket);
+        $em->persist($newTicket);
+        $em->flush();
+
+        $form = $this->createForm(TicketFormType::class, $ticket);
+
+        $anlage = $ticket->getAnlage();
+        $nameArray = $anlage->getInverterFromAnlage();
+        $selected = $ticket->getInverterArray();
+        $indexSelect = 0;
+        for($index = 1; $index <= sizeof($nameArray); $index++){
+            $value = $nameArray[$index];
+            $inverterArray[$index]["inv"] = $value;
+            if ($index === (int)$selected[$indexSelect]){
+                $inverterArray[$index]["select"] = "checked";
+                $indexSelect++;
+            }
+            else{
+                $inverterArray[$index]["select"] = "";
+            }
+        }
+        if ($ticket->getDates()->isEmpty()) {
+            $inverterArray = null;
+        }
+        return $this->renderForm('ticket/_inc/_edit.html.twig', [
+            'ticketForm' => $form,
+            'ticket' => $ticket,
+            'anlage' => $anlage,
+            'edited' => true,
+            'invArray' => $inverterArray
+        ]);
+    }
 
     #[Route(path: '/ticket/join', name: 'app_ticket_join', methods: ['GET', 'POST'])]
     public function join(TicketRepository $ticketRepo, Request $request, EntityManagerInterface $em): Response
@@ -408,4 +457,6 @@ class TicketController extends BaseController
         */
         return $ticketDate;
     }
+
+
 }

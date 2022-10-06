@@ -31,7 +31,6 @@ export default class extends Controller {
         try {
             await $.ajax({
                 url: this.formUrlValue,
-                method: $form.prop('method'),
                 data: $form.serialize(),
             });
             this.dispatch('success');

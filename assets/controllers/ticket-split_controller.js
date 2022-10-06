@@ -83,7 +83,7 @@ export default class extends Controller {
             $(this.splitButtonTarget).removeAttr('disabled');
         } else {
             $(this.splitAlertTarget).removeClass('is-hidden');
-            $(this.splitButtonTarget).attr('disabled', 'disabled')
+            $(this.splitButtonTarget).attr('disabled', 'disabled');
         }
         if (timestamp % 900000 === 0){
             $(this.splitAlertFormatTarget).addClass('is-hidden');

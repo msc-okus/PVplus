@@ -258,6 +258,10 @@ class AlertSystemService
                 $ticket->setDescription($message);
                 $ticket->setCreatedBy("AlertSystem");
                 $ticket->setUpdatedBy("AlertSystem");
+                $ticket->setAlertType($errorCategorie); //  category = alertType (bsp: datagap, inverter power, etc.)
+                $ticketDate->setAlertType($errorCategorie);
+                $ticket->setErrorType($errorType); // type = errorType (Bsp:  SOR, EFOR, OMC)
+                $ticketDate->setErrorType($errorType);
                 if ($errorCategorie == EXTERNAL_CONTROL) {
                     $ticket->setInverter('*');
                     $ticketDate->setInverter('*');
@@ -265,10 +269,7 @@ class AlertSystemService
                     $ticket->setInverter($inverter);
                     $ticketDate->setInverter($inverter);
                 }
-                $ticket->setAlertType($errorCategorie); //  category = alertType (bsp: datagap, inverter power, etc.)
-                $ticketDate->setAlertType($errorCategorie);
-                $ticket->setErrorType($errorType); // type = errorType (Bsp:  SOR, EFOR, OMC)
-                $ticketDate->setErrorType($errorType);
+
                 $begin = date_create(date('Y-m-d H:i:s', strtotime($time)));
                 $begin->getTimestamp();
                 $ticket->setBegin($begin);
