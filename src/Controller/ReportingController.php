@@ -164,6 +164,14 @@ class ReportingController extends AbstractController
             $request->query->getInt('page', 1),
             20
         );
+
+        if ($request->query->get('ajax') || $request->isXmlHttpRequest()) {
+            return $this->render('reporting/_inc/_listReports.html.twig', [
+                'pagination' => $pagination,
+                'stati' => self::reportStati(),
+            ]);
+        }
+
         $anlagen = $anlagenRepo->findAllActiveAndAllowed();
 
         return $this->render('reporting/list.html.twig', [

@@ -38,8 +38,7 @@ export default class extends Controller {
     async sort(event) {
         event.preventDefault();
         this.listTarget.innerHTML = await $.ajax({
-            url: this.urlSearchValue,
-            data: event.currentTarget.attributes.href.value,
+            url: event.currentTarget.href,
         });
         $(document).foundation();
     }
