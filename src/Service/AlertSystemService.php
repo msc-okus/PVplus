@@ -70,6 +70,7 @@ class AlertSystemService
      * Generate tickets for the given time, check if there is an older ticket for same inverter with same error.
      * Write new ticket to database or extend existing ticket with new end time.
      */
+    /*
     public function checkSystem(Anlage $anlage, ?string $time = null): string
     {
         if ($time === null) {
@@ -103,7 +104,56 @@ class AlertSystemService
 
         return 'success';
     }
+    */
+    public function checkSystem(Anlage $anlage, ?string $time = null): string
+    {
+        if ($time === null) {
+            $time = $this->getLastQuarter(date('Y-m-d H:i:s'));
+        }
+        $ppc = false;
+        // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
+        $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
+        $time = G4NTrait::timeAjustment($time, -2);
+        if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
+            $plant_status = self::RetrievePlantTest($anlage, $time);
+                // We do this to avoid checking further inverters if we have a PPC control shut
+            $array_gap = explode(", ", $plant_status['Gap']);
+            $array_zero = explode(", ", $plant_status['Power0']);
+            $array_vol = explode(", ", $plant_status['Vol']);
+            if ($plant_status['ppc'] === false) {
 
+                foreach($array_gap as $inverter) {
+                    if($inverter !== ""){
+                        $message = "Data gap in Inverter(s): " . $inverter;
+                        $this->generateTicketsTest('', DATA_GAP, $anlage, $inverter, $time, $message);
+                    }
+                }
+                foreach($array_zero as $inverter){
+
+                    if($inverter !== ""){
+                        $message = "Power Error in Inverter(s): ".$inverter;
+                        $this->generateTicketsTest(EFOR, INVERTER_ERROR, $anlage, $inverter , $time, $message);
+                    }
+                }
+
+                foreach($array_vol as $inverter){
+
+                    if($inverter !== "") {
+                        $message = "Grid Error in Inverter(s): " . $inverter;
+                        $this->generateTicketsTest('', GRID_ERROR, $anlage, $inverter, $time, $message);
+                    }
+                }
+
+
+            }
+            else {
+                $errorCategorie = EXTERNAL_CONTROL;
+                $this->generateTicketsTest(OMC, $errorCategorie, $anlage, '*' , $time, "");
+            }
+        }
+
+        return 'success';
+    }
     /**
      * TEST METHOD TO IMPLEMENT MULTI INVERTER TICKET GENERATION
      */
@@ -294,8 +344,9 @@ class AlertSystemService
 
     private function generateTicketsTest($errorType, $errorCategorie, $anlage, $inverter, $time, $message)
     {
-        if ($errorType != "") {
-            $ticketOld = self::getLastTicket($anlage, $time, false, $errorCategorie);
+        if ($errorCategorie != "") {
+
+            $ticketOld = self::getLastTicketInverter($anlage, $time, false, $errorCategorie, $inverter);
 
             if ($ticketOld !== null) {
                 if ($ticketOld->getInverter() == $inverter) {
@@ -579,6 +630,34 @@ class AlertSystemService
                 else {
                     $ticket = $this->ticketRepo->findByATNoWeather($anlage,  $time, $errorCategory); // we try to retrieve the ticket in the previous quarter
                 }
+
+        } else {
+
+            if ($quarter <= $sunrise) {
+                $ticket = $this->ticketRepo->findLastByAITWeather($anlage, $today, $lastQuarterYesterday); // the same as above but for weather station
+            } else {
+                $ticket = $this->ticketRepo->findByAITWeather($anlage, $time);
+            }
+        }
+        return $ticket ? $ticket[0] : null;
+    }
+
+    public function getLastTicketInverter($anlage, $time, $isWeather, $errorCategory, $inverter): mixed
+    {
+        $today = date('Y-m-d', strtotime($time));
+        $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
+        $sunrise = self::getLastQuarter($this->weather->getSunrise($anlage, $today)['sunrise']); // the first quarter of today
+        $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
+        $quarter = date('Y-m-d H:i', strtotime($time)); // the quarter before the actual
+
+        if (!$isWeather) {
+            // Inverter Tickets
+            if ($quarter <= $sunrise) {
+                $ticket = $this->ticketRepo->findLastByAITNoWeather($anlage,  $today, $lastQuarterYesterday, $errorCategory, $inverter); // we try to retrieve the last quarter of yesterday
+            }
+            else {
+                $ticket = $this->ticketRepo->findByAITNoWeather($anlage,  $time, $errorCategory, $inverter); // we try to retrieve the ticket in the previous quarter
+            }
 
         } else {
 

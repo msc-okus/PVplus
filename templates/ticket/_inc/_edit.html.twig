@@ -54,15 +54,15 @@
 
                                             {% for inverter in invArray %}
                                                 {% if (inverter['select'] == "checked") %}
-                                                    <div class="cell">
+                                                    <div class="cell js-div-split-a" id="div-split-{{ loop.index  }}a">
                                                         <label for="split-{{ loop.index }}a" class="">{{ inverter['inv'] }}
                                                             <input id="split-{{ loop.index }}a" type="checkbox" class="js-checkbox-split-a" name="{{ loop.index }}" {{ inverter['select'] }}  data-ticket-edit-id-param="{{ loop.index }}"data-action="click->ticket-edit#checkInverterSplit1">
                                                         </label>
                                                     </div>
                                                 {% else  %}
-                                                    <div class="cell">
+                                                    <div class="cell js-div-split-a is-hidden" id="div-split-{{ loop.index  }}a">
                                                         <label for="split-{{ loop.index }}a" class="">{{ inverter['inv'] }}
-                                                            <input id="split-{{ loop.index  }}a" type="checkbox" class="js-checkbox-split-a is-hidden" name="{{ loop.index }}"  {{ inverter['select'] }} data-ticket-edit-id-param="{{ loop.index }}" data-action="click->ticket-edit#checkInverterSplit1">
+                                                            <input id="split-{{ loop.index  }}a" type="checkbox" class="js-checkbox-split-a" name="{{ loop.index }}"  {{ inverter['select'] }} data-ticket-edit-id-param="{{ loop.index }}" data-action="click->ticket-edit#checkInverterSplit1">
                                                         </label>
                                                     </div>
                                                 {% endif %}
@@ -74,15 +74,15 @@
 
                                             {% for inverter in invArray %}
                                                 {% if (inverter['select'] == "checked") %}
-                                                    <div class="cell">
+                                                    <div class="cell js-div-split-b" id="div-split-{{ loop.index}}b">
                                                         <label for="split-{{ loop.index }}b" class="">{{ inverter['inv'] }}
                                                             <input id="split-{{ loop.index }}b" type="checkbox" class="js-checkbox-split-b" name="{{ loop.index }}" data-ticket-edit-id-param="{{ loop.index }}" data-action="click->ticket-edit#checkInverterSplit2">
                                                         </label>
                                                     </div>
                                                 {% else  %}
-                                                    <div class="cell">
+                                                    <div class="cell js-div-split-b is-hidden" id="div-split-{{ loop.index}}b">
                                                         <label for="split-{{ loop.index }}b" class="">{{ inverter['inv'] }}
-                                                            <input id="split-{{ loop.index}}b" type="checkbox" class="js-checkbox-split-b is-hidden" name="{{ loop.index }}" data-ticket-edit-id-param="{{ loop.index }}" data-action="click->ticket-edit#checkInverterSplit2">
+                                                            <input id="split-{{ loop.index}}b" type="checkbox" class="js-checkbox-split-b" name="{{ loop.index }}" data-ticket-edit-id-param="{{ loop.index }}" data-action="click->ticket-edit#checkInverterSplit2">
                                                         </label>
                                                     </div>
                                                 {% endif %}
