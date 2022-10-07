@@ -85,7 +85,7 @@ class GenerateMultiInverterTicketsCommand extends Command
                 }
 
                 for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-                    $this->alertService->checkSystemTest($anlage, date('Y-m-d H:i:00', $stamp));
+                    $this->alertService->checkSystemMulti($anlage, date('Y-m-d H:i:00', $stamp));
                     /*
                     if (((int) date('i') >= 28 && (int) date('i') < 35) || (int) date('i') >= 58 || (int) date('i') < 5) {
                         sleep(1);
