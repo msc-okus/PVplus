@@ -140,7 +140,20 @@ trait TicketTrait
     public function setInverter(string $Inverter): self
     {
         $this->inverter = $Inverter;
+        if ($this->description == "") {
+            switch ($this->getAlertType()) {
+                case 10:
+                    break;
+                    $this->description = "Data gap in Inverter(s): " . $Inverter;
+                case 20:
+                    $this->description = "Power Error in Inverter(s): " . $Inverter;
+                    break;
+                case 30:
+                    $this->description = "Grid Error in Inverter(s): " . $Inverter;
+                    break;
 
+            }
+        }
         return $this;
     }
 

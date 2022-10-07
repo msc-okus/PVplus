@@ -4,7 +4,7 @@ import { Reveal } from 'foundation-sites';
 import $ from 'jquery';
 
 export default class extends Controller {
-    static targets = ['modal', 'modalBody', 'splitModal', 'splitForm', 'switch', 'deactivable', 'anlage', 'saveButton', 'AlertFormat', 'AlertDates', 'formBegin', 'formEnd'];
+    static targets = ['modal', 'modalBody', 'splitModal', 'splitForm', 'switch', 'deactivable', 'anlage', 'saveButton', 'AlertFormat', 'AlertDates', 'formBegin', 'formEnd', 'splitButton','splitDeploy'];
     static values = {
         formUrl: String,
         splitUrl: String,
@@ -43,6 +43,7 @@ export default class extends Controller {
 
     closeTicket(event) {
         event.preventDefault();
+        this.dispatch('success');
         this.modal.destroy();
     }
 
@@ -68,20 +69,37 @@ export default class extends Controller {
     }
 
     checkSelect(){
-        let inverterString = "";
+        let body = $(this.modalBodyTarget);
+
+        body.find('input:checkbox[class=js-checkbox-split-a]').each(function(){
+            $(this).addClass('is-hidden');
+            $(this).prop('checked', false);
+        });
+        body.find('input:checkbox[class=js-checkbox-split-b]').each(function(){
+            $(this).addClass('is-hidden');
+            $(this).prop('checked', false);
+        });
+        let inverterString = '';
+
         if ($(this.switchTarget).prop('checked')) {
-            $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox]').each(function () {
+            body.find('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', true);
-                if (inverterString == '') inverterString = inverterString + $(this).prop('name');
-                else inverterString = inverterString + ', ' + $(this).prop('name');
+                if (inverterString == '') {inverterString = inverterString + $(this).prop('name');}
+                else {inverterString = inverterString + ', ' + $(this).prop('name');}
+                body.find($('#split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
+                body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
+                body.find($('#split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
             });
+            $(this.splitDeployTarget).removeAttr('disabled');
         } else {
             $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox]').each(function(){
                 $(this).prop('checked', false);
             });
+            $(this.splitDeployTarget).attr('disabled', 'disabled');
+
         }
         $(this.modalBodyTarget).find('#ticket_form_inverter').val(inverterString);
-        console.log(inverterString,   $(this.modalBodyTarget).find('#ticket_form_inverter').val());
+
 
         if (inverterString == '') {
             $(this.saveButtonTarget).attr('disabled', 'disabled');
@@ -92,14 +110,32 @@ export default class extends Controller {
     }
 
     checkInverter(){
-
         let inverterString = '';
-        /*$('input:checkbox[class=js-checkbox]:checked')*/
-        $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox]:checked').each(function (){
-            if (inverterString == '') inverterString = inverterString + $(this).prop('name');
-            else inverterString = inverterString + ', ' + $(this).prop('name');
+        let body = $(this.modalBodyTarget);
+        let counter = 0;
+        body.find('input:checkbox[class=js-checkbox-split-a]').each(function(){
+            $(this).addClass('is-hidden');
+            $(this).prop('checked', false);
         });
-        console.log(inverterString);
+        body.find('input:checkbox[class=js-checkbox-split-b]').each(function(){
+            $(this).addClass('is-hidden');
+            $(this).prop('checked', false);
+        });
+        body.find('input:checkbox[class=js-checkbox]:checked').each(function (){
+            counter ++;
+            if (inverterString == '') {inverterString = inverterString + $(this).prop('name');}
+            else {inverterString = inverterString + ', ' + $(this).prop('name');}
+            body.find($('#split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
+            body.find($('#split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
+            body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
+        });
+
+        if (counter <= 1 ) {
+            $(this.splitDeployTarget).attr('disabled', 'disabled');
+        }
+        else {
+            $(this.splitDeployTarget).removeAttr('disabled');
+        }
         if (inverterString == '') {
             $(this.saveButtonTarget).attr('disabled', 'disabled');
         }
@@ -107,13 +143,13 @@ export default class extends Controller {
             $(this.saveButtonTarget).removeAttr('disabled');
         }
         $(this.modalBodyTarget).find('#ticket_form_inverter').val(inverterString);
-
+        
     }
 
     checkDates() { // What do you check ????
         const valueBegin = $(this.formBeginTarget).prop('value');
         const valueEnd = $(this.formEndTarget).prop('value');
-        console.log(valueBegin, valueEnd)
+
 
         const date1 = new Date(valueBegin);
         const date2 = new Date(valueEnd);
@@ -121,14 +157,14 @@ export default class extends Controller {
         date2.setSeconds(0);
         const timestamp1 = date1.getTime();
         const timestamp2 = date2.getTime();
-        console.log(timestamp1 % 900000, timestamp2 % 900000)
+
 
         if (timestamp2 >= timestamp1){
             $(this.AlertDatesTarget).addClass('is-hidden');
             $(this.saveButtonTarget).removeAttr('disabled');
         } else {
             $(this.AlertDatesTarget).removeClass('is-hidden');
-            $(this.saveButtonTarget).attr('disabled', 'disabled')
+            $(this.saveButtonTarget).attr('disabled', 'disabled');
         }
 
         if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
@@ -136,16 +172,103 @@ export default class extends Controller {
             $(this.saveButtonTarget).removeAttr('disabled');
         } else {
             $(this.AlertFormatTarget).removeClass('is-hidden');
-            $(this.saveButtonTarget).attr('disabled', 'disabled')
+            $(this.saveButtonTarget).attr('disabled', 'disabled');
         }
     }
 
     toggle(){
-        const $button = $(this.deactivableTargets);
+        let $button = $(this.deactivableTargets);
         if ($button.attr('disabled')) {
             $button.removeAttr('disabled');
         }
     }
 
+    checkInverterSplit1({ params: { id }}){
+        let body = $(this.modalBodyTarget);
+        let inverterStringa = '';
+        let inverterStringb = '';
+        if (body.find($('#split-'+id+'a')).prop('checked'))
+        {
+            body.find($('#split-'+id+'b')).prop('checked', false);
+        }
+        else
+        {
+            body.find($('#split-'+id+'b')).prop('checked', true);
+        }
+
+        $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox-split-a]:checked').each(function (){
+            if (inverterStringa == '') {inverterStringa = inverterStringa + $(this).prop('name');}
+            else {inverterStringa = inverterStringa + ', ' + $(this).prop('name');}
+        });
+
+        $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox-split-b]:checked').each(function (){
+            if (inverterStringb == '') {inverterStringb = inverterStringb + $(this).prop('name');}
+            else {inverterStringb = inverterStringb + ', ' + $(this).prop('name');}
+        });
+        if (inverterStringa == '' || inverterStringb == ''){
+            $(this.splitButtonTarget).attr('disabled', 'disabled');
+        }
+        else{
+            $(this.splitButtonTarget).removeAttr('disabled');
+        }
+    }
+    checkInverterSplit2({ params: { id }}){
+        let body = $(this.modalBodyTarget);
+        let inverterStringa = '';
+        let inverterStringb = '';
+        if (body.find($('#split-'+id+'b')).prop('checked'))
+        {
+            body.find($('#split-'+id+'a')).prop('checked', false);
+        }
+        else
+        {
+            body.find($('#split-'+id+'a')).prop('checked', true);
+        }
+
+        $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox-split-a]:checked').each(function (){
+            if (inverterStringa == '') {inverterStringa = inverterStringa + $(this).prop('name');}
+            else {inverterStringa = inverterStringa + ', ' + $(this).prop('name');}
+        });
+
+        $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox-split-b]:checked').each(function (){
+            if (inverterStringb == '') {inverterStringb = inverterStringb + $(this).prop('name');}
+            else {inverterStringb = inverterStringb + ', ' + $(this).prop('name');}
+        });
+        if (inverterStringa == '' || inverterStringb == ''){
+            $(this.splitButtonTarget).attr('disabled', 'disabled');
+        }
+        else{
+            $(this.splitButtonTarget).removeAttr('disabled');
+        }
+    }
+
+    async splitTicketByInverter({ params: { ticketid }}){
+        let inverterStringa = '';
+        let inverterStringb = '';
+
+        $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox-split-a]:checked').each(function (){
+            if (inverterStringa == '') {inverterStringa = inverterStringa + $(this).prop('name');}
+            else {inverterStringa = inverterStringa + ', ' + $(this).prop('name');}
+        });
+
+        $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox-split-b]:checked').each(function (){
+            if (inverterStringb == '') {inverterStringb = inverterStringb + $(this).prop('name');}
+            else {inverterStringb = inverterStringb + ', ' + $(this).prop('name');}
+        });
+
+        try {
+            this.modalBodyTarget.innerHTML = await $.ajax({
+                url: '/ticket/splitbyinverter',
+                data: {'id': ticketid,
+                       'invertera' : inverterStringa,
+                       'inverterb' : inverterStringb
+                }
+            });
+            $(this.modalBodyTarget).foundation();
+
+        } catch (e) {
+             console.log('error');
+        }
+    }
 
 }

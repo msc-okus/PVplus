@@ -64,6 +64,10 @@ class GenerateMultiInverterTicketsCommand extends Command
                 $io->comment("Generate Tickets: $from - $to | All Plants");
                 $anlagen = $this->anlagenRepository->findBy(['anlHidePlant' => 'No', 'calcPR' => true]);
             }
+            elseif (is_numeric($plantid)) {
+                $io->comment("Generate Tickets: $from - $to | Plant ID: $plantid");
+                $anlagen = $this->anlagenRepository->findIdLike([$plantid]);
+            }
              else {
                 $io->comment("Generate Tickets: $from - $to | Test Plants (112, 113, 182)");
                 $anlagen = $this->anlagenRepository->findIdLike([112, 113, 182]);

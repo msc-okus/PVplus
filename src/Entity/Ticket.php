@@ -82,6 +82,10 @@ class Ticket
 
     #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $openTicket;
+    /*
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    private ?string $generatedFrom = '';
+*/
 
     public function __construct()
     {
@@ -361,4 +365,40 @@ class Ticket
         return $this;
     }
 
+    public function getGeneratedFrom(){
+        return $this->generatedFrom;
+    }
+    public function setGeneratedFrom(String $generated){
+        $this->generatedFrom = $generated;
+    }
+    public function copyTicket(Ticket $ticket)
+    {
+        $this->begin = $ticket->getBegin();
+        $this->end = $ticket->getEnd();
+        $this->anlage = $ticket->getAnlage();
+        if ($this->inverter == "")$this->inverter = $ticket->getInverter();
+        $this->status = $ticket->getStatus();
+        // from here on allow to edit inside the table inside edit Ticket
+        $this->errorType = $ticket->getErrorType();
+        $this->freeText = '';
+        $this->description = "Ticket created from Ticket ".  $ticket->getId();
+        $this->systemStatus = $ticket->getSystemStatus();
+        $this->priority = $ticket->getPriority();
+        $this->answer = $ticket->getAnswer();
+        $this->alertType = $ticket->getAlertType();
+        $this->kpiPaDep1 = $ticket->getKpiPaDep1();
+        $this->kpiPaDep2 = $ticket->getKpiPaDep2();
+        $this->kpiPaDep3 = $ticket->getKpiPaDep3();
+        $endstamp = $this->getEnd()->getTimestamp();
+        $beginstamp = $this->getBegin()->getTimestamp();
+        $this->intervals = ($endstamp - $beginstamp) / 900;
+        $this->editor = $ticket->getEditor();
+        foreach($ticket->getDates() as $date){
+            $dateNew = new TicketDate();
+            $dateNew->copyTicketDate($date);
+            $dateNew->setInverter($this->inverter);
+            $dateNew->setDescription($this->description);
+            $this->addDate($dateNew);
+        }
+    }
 }
