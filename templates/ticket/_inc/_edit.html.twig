@@ -39,6 +39,12 @@
                                 <div class="dropdown-pane shadow" id="split-dropdown-{{ dropdownId }}" data-dropdown data-auto-focus="true" data-alignment="center" data-close-on-click="true">
                                     {% if (invArray != null) %}
                                         <div class="grid-x">
+                                            <div class="cell small-12 "
+                                                 style="background-color: red"
+                                                 data-ticket-edit-target="splitAlert"
+                                            >
+                                                No inverters in one of the Tickets
+                                            </div>
                                             <div class="cell">
                                                 <h3>Inverter List</h3>
                                             </div>

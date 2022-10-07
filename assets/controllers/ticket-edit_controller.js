@@ -4,7 +4,7 @@ import { Reveal } from 'foundation-sites';
 import $ from 'jquery';
 
 export default class extends Controller {
-    static targets = ['modal', 'modalBody', 'splitModal', 'splitForm', 'switch', 'deactivable', 'anlage', 'saveButton', 'AlertFormat', 'AlertDates', 'formBegin', 'formEnd', 'splitButton','splitDeploy'];
+    static targets = ['splitAlert', 'modal', 'modalBody', 'splitModal', 'splitForm', 'switch', 'deactivable', 'anlage', 'saveButton', 'AlertFormat', 'AlertDates', 'formBegin', 'formEnd', 'splitButton','splitDeploy'];
     static values = {
         formUrl: String,
         splitUrl: String,
@@ -207,9 +207,11 @@ export default class extends Controller {
         });
         if (inverterStringa == '' || inverterStringb == ''){
             $(this.splitButtonTarget).attr('disabled', 'disabled');
+            $(this.splitAlertTarget).removeClass('is-hidden');
         }
         else{
             $(this.splitButtonTarget).removeAttr('disabled');
+            $(this.splitAlertTarget).addClass('is-hidden');
         }
     }
     checkInverterSplit2({ params: { id }}){
@@ -236,9 +238,12 @@ export default class extends Controller {
         });
         if (inverterStringa == '' || inverterStringb == ''){
             $(this.splitButtonTarget).attr('disabled', 'disabled');
+            $(this.splitAlertTarget).removeClass('is-hidden');
+
         }
         else{
             $(this.splitButtonTarget).removeAttr('disabled');
+            $(this.splitAlertTarget).addClass('is-hidden');
         }
     }
 
@@ -257,6 +262,17 @@ export default class extends Controller {
         });
 
         try {
+            event.preventDefault();
+            const  $form = $(this.modalBodyTarget).find('form');
+            try {
+                await $.ajax({
+                    url: this.formUrlValue,
+                    method: $form.prop('method'),
+                    data: $form.serialize(),
+                });
+            } catch(e) {
+                this.modalBodyTarget.innerHTML = e.responseText;
+            }
             this.modalBodyTarget.innerHTML = await $.ajax({
                 url: '/ticket/splitbyinverter',
                 data: {'id': ticketid,
