@@ -49,6 +49,13 @@ class AlertSystemService
             $this->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
         }
     }
+    public function joinTicketsInterval(Anlage $anlage, string $from, string $to){
+        $fromStamp = strtotime(date("Y-m-d", strtotime($from)));
+        $toStamp =  strtotime(date("Y-m-d", strtotime($to)));
+        for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 86400) {
+            $this->joinTicketsForTheDay($anlage,  date('Y-m-d H:i:00', $stamp));
+        }
+    }
     public function generateTicketMulti(Anlage $anlage, string $from, string $to){
         $fromStamp = strtotime($from);
         $toStamp = strtotime($to);
@@ -62,7 +69,7 @@ class AlertSystemService
         $fromStamp = strtotime($from);
         $toStamp = strtotime($to);
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-            $this->checkSystem($anlage, $from = date('Y-m-d H:i:00', $stamp));
+            $this->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
         }
     }
 
@@ -72,18 +79,63 @@ class AlertSystemService
             $time = $this->getLastQuarter(date('Y-m-d'));
         }
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
-        dump($sungap);
         $fromStamp = strtotime($this->getLastQuarter(date('Y-m-d H:i', strtotime($sungap['sunrise']))));
         $toStamp = strtotime($this->getLastQuarter(date('Y-m-d H:i', strtotime($sungap['sunset']))));
-        dump($fromStamp);
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-
             //here we have to join the tickets
             $ticketGap = $this->ticketRepo->findMultipleByBeginErrorAnlage($anlage, date('Y-m-d H:i', ($stamp)), DATA_GAP);
             $ticketZero = $this->ticketRepo->findMultipleByBeginErrorAnlage($anlage, date('Y-m-d H:i', ($stamp)), INVERTER_ERROR);
             $ticketGrid = $this->ticketRepo->findMultipleByBeginErrorAnlage($anlage, date('Y-m-d H:i', ($stamp)), GRID_ERROR);
+            //this for loop will iterate over the DataGaps Tickets to join them if they share begin-end date and the editor is AlertSystem
+            for($mainTicketGapIndex = 0; $mainTicketGapIndex < count($ticketGap); $mainTicketGapIndex++){
+                $mainTicketGap = $ticketGap[$mainTicketGapIndex];
+                if ($mainTicketGap->getEditor() == "Alert system"){
+                    for($secondTicketGapIndex = $mainTicketGapIndex + 1; $secondTicketGapIndex < count($ticketGap); $secondTicketGapIndex++){
+                        $secondTicketGap = $ticketGap[$secondTicketGapIndex];
 
-            dump($anlage->getAnlName(),date('Y-m-d H:i', ($stamp)), $ticketGap, $ticketZero, $ticketGrid);
+                            if (($secondTicketGap->getEnd() == $mainTicketGap->getEnd())&&($secondTicketGap->getEditor() == "Alert system")) {//if we find a ticket we want to link
+                                $this->em->remove($secondTicketGap);
+                                array_splice($ticketGap, $secondTicketGapIndex, 1);//we remove the ticket we are linking with the main
+                                $secondTicketGapIndex--; //we do this because when we remove an element the index is moved to the left
+                                $mainTicketGap->setInverter($mainTicketGap->getInverter() . ", " . $secondTicketGap->getInverter());
+                            }
+                    }
+                    $this->em->persist($mainTicketGap);
+                }
+            }
+            for($mainTicket0Index = 0; $mainTicket0Index < count($ticketZero); $mainTicket0Index++){
+                $mainTicket0 = $ticketZero[$mainTicket0Index];
+                if ($mainTicket0->getEditor() == "Alert system"){
+                    for($secondTicket0Index = $mainTicket0Index + 1; $secondTicket0Index < count($ticketZero); $secondTicket0Index++){
+                        $secondTicket0 = $ticketZero[$secondTicket0Index];
+
+                        if (($secondTicket0->getEnd() == $mainTicket0->getEnd())&&($secondTicket0->getEditor() == "Alert system")) {//if we find a ticket we want to link
+                            $this->em->remove($secondTicket0);
+                            array_splice($ticketZero, $secondTicket0Index, 1);//we remove the ticket we are linking with the main
+                            $secondTicket0Index--; //we do this because when we remove an element the index is moved to the left
+                            $mainTicket0->setInverter($mainTicket0->getInverter() . ", " . $secondTicket0->getInverter());
+                        }
+                    }
+                    $this->em->persist($mainTicket0);
+                }
+            }
+            for($mainTicketGridIndex = 0; $mainTicketGridIndex < count($ticketGrid); $mainTicketGridIndex++){
+                $mainTicketGrid = $ticketGrid[$mainTicketGridIndex];
+                if ($mainTicketGrid->getEditor() == "Alert system"){
+                    for($secondTicketGridIndex = $mainTicketGridIndex + 1; $secondTicketGridIndex < count($ticketGrid); $secondTicketGridIndex++){
+                        $secondTicketGrid = $ticketGrid[$secondTicketGridIndex];
+
+                        if (($secondTicketGrid->getEnd() == $mainTicketGrid->getEnd())&&($secondTicketGrid->getEditor() == "Alert system")) {//if we find a ticket we want to link
+                            $this->em->remove($secondTicketGrid);
+                            array_splice($ticketGrid, $secondTicketGridIndex, 1);//we remove the ticket we are linking with the main
+                            $secondTicketGridIndex--; //we do this because when we remove an element the index is moved to the left
+                            $mainTicketGrid->setInverter($mainTicketGrid->getInverter() . ", " . $secondTicketGrid->getInverter());
+                        }
+                    }
+                    $this->em->persist($mainTicketGrid);
+                }
+            }
+            $this->em->flush();
         }
     }
     /**
@@ -105,29 +157,36 @@ class AlertSystemService
             $array_gap = explode(", ", $plant_status['Gap']);
             $array_zero = explode(", ", $plant_status['Power0']);
             $array_vol = explode(", ", $plant_status['Vol']);
+            $ticketOld = $this->getAllTickets($anlage, $time);
+            if ( $ticketOld !== null){
+                    foreach ($ticketOld as $ticket){
+                        $ticket->setOpenTicket(false);
+                        $this->em->persist($ticket);
+                    }
+                $this->em->flush();
+            }
             if ($plant_status['ppc'] === false) {
-
                 foreach($array_gap as $inverter) {
-                    if($inverter !== ""){
+                    if($inverter != "") {
                         $message = "Data gap in Inverter(s): " . $inverter;
                         $this->generateTickets('', DATA_GAP, $anlage, $inverter, $time, $message);
                     }
                 }
-                foreach($array_zero as $inverter){
 
-                    if($inverter !== ""){
-                        $message = "Power Error in Inverter(s): ".$inverter;
-                        $this->generateTickets(EFOR, INVERTER_ERROR, $anlage, $inverter , $time, $message);
+                foreach($array_zero as $inverter){
+                    if ($inverter != "") {
+                        $message = "Power Error in Inverter(s): " . $inverter;
+                        $this->generateTickets(EFOR, INVERTER_ERROR, $anlage, $inverter, $time, $message);
                     }
                 }
 
                 foreach($array_vol as $inverter){
-
-                    if($inverter !== "") {
+                    if ($inverter != "") {
                         $message = "Grid Error in Inverter(s): " . $inverter;
                         $this->generateTickets('', GRID_ERROR, $anlage, $inverter, $time, $message);
                     }
                 }
+
             }
             else {
                 $errorCategorie = EXTERNAL_CONTROL;
@@ -251,86 +310,72 @@ class AlertSystemService
 
     private function generateTickets($errorType, $errorCategorie, $anlage, $inverter, $time, $message)
     {
-        if ($errorCategorie != "") {
-
-            $ticketOld = self::getLastTicketInverter($anlage, $time, false, $errorCategorie, $inverter);
-
-            if ($ticketOld !== null) {
-                if ($ticketOld->getInverter() == $inverter) {
-
+                $ticketOld = $this->getLastTicketInverter($anlage, $time, $errorCategorie, $inverter)[0];
+                if ($ticketOld !== null) {
                     $ticketDate = $ticketOld->getDates()->last();
                     $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
                     $end->getTimestamp();
                     $ticketOld->setEnd($end);
+                    $ticketOld->setOpenTicket(true);
                     $ticketDate->setEnd($end);
-
                     $this->em->persist($ticketDate);
                     $this->em->persist($ticketOld);
-                } else {
-
-                    $ticketOld->setOpenTicket(false);
-                    $this->em->persist($ticketOld);
-                    $ticketOld = null;
                 }
-            }
-
-            if ($ticketOld == null) {
-                $ticket = new Ticket();
-                $ticketDate = new TicketDate();
-                $ticketDate->setAnlage($anlage);
-                $ticketDate->setStatus('10');
-                $ticketDate->setSystemStatus(10);
-                $ticketDate->setPriority(10);
-                $ticketDate->setDescription($message);
-                $ticketDate->setCreatedBy("AlertSystem");
-                $ticketDate->setUpdatedBy("AlertSystem");
-                $ticket->setAnlage($anlage);
-                $ticket->setStatus('10'); // Status 10 = open
-                $ticket->setEditor('Alert system');
-                $ticket->setSystemStatus(10);
-                $ticket->setPriority(10);
-                $ticket->setOpenTicket(true);
-                $ticket->setDescription($message);
-                $ticket->setCreatedBy("AlertSystem");
-                $ticket->setUpdatedBy("AlertSystem");
-                if ($errorCategorie == EXTERNAL_CONTROL) {
-                    $ticket->setInverter('*');
-                    $ticketDate->setInverter('*');
-                } else {
-                    $ticket->setInverter($inverter);
-                    $ticketDate->setInverter($inverter);
+                else {
+                    $ticket = new Ticket();
+                    $ticketDate = new TicketDate();
+                    $ticketDate->setAnlage($anlage);
+                    $ticketDate->setStatus('10');
+                    $ticketDate->setSystemStatus(10);
+                    $ticketDate->setPriority(10);
+                    $ticketDate->setDescription($message);
+                    $ticketDate->setCreatedBy("AlertSystem");
+                    $ticketDate->setUpdatedBy("AlertSystem");
+                    $ticket->setAnlage($anlage);
+                    $ticket->setStatus('10'); // Status 10 = open
+                    $ticket->setEditor('Alert system');
+                    $ticket->setSystemStatus(10);
+                    $ticket->setPriority(10);
+                    $ticket->setOpenTicket(true);
+                    $ticket->setDescription($message);
+                    $ticket->setCreatedBy("AlertSystem");
+                    $ticket->setUpdatedBy("AlertSystem");
+                    if ($errorCategorie == EXTERNAL_CONTROL) {
+                        $ticket->setInverter('*');
+                        $ticketDate->setInverter('*');
+                    } else {
+                        $ticket->setInverter($inverter);
+                        $ticketDate->setInverter($inverter);
+                    }
+                    $ticket->setAlertType($errorCategorie); //  category = alertType (bsp: datagap, inverter power, etc.)
+                    $ticketDate->setAlertType($errorCategorie);
+                    $ticket->setErrorType($errorType); // type = errorType (Bsp:  SOR, EFOR, OMC)
+                    $ticketDate->setErrorType($errorType);
+                    $begin = date_create(date('Y-m-d H:i:s', strtotime($time)));
+                    $begin->getTimestamp();
+                    $ticket->setBegin($begin);
+                    $ticketDate->setBegin($begin);
+                    $ticket->addDate($ticketDate);
+                    $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
+                    $end->getTimestamp();
+                    $ticketDate->setEnd($end);
+                    $ticket->setEnd($end);
+                    if ($errorType == EFOR) {
+                        $ticketDate->setKpiPaDep1(10);
+                        $ticketDate->setKpiPaDep2(10);
+                        $ticketDate->setKpiPaDep3(20);
+                    }
+                    $this->em->persist($ticket);
+                    $this->em->persist($ticketDate);
                 }
-                $ticket->setAlertType($errorCategorie); //  category = alertType (bsp: datagap, inverter power, etc.)
-                $ticketDate->setAlertType($errorCategorie);
-                $ticket->setErrorType($errorType); // type = errorType (Bsp:  SOR, EFOR, OMC)
-                $ticketDate->setErrorType($errorType);
-                $begin = date_create(date('Y-m-d H:i:s', strtotime($time)));
-                $begin->getTimestamp();
-                $ticket->setBegin($begin);
-                $ticketDate->setBegin($begin);
-                $ticket->addDate($ticketDate);
-                $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
-                $end->getTimestamp();
-                $ticketDate->setEnd($end);
-                $ticket->setEnd($end);
-                if ($errorType == EFOR) {
-                    $ticketDate->setKpiPaDep1(10);
-                    $ticketDate->setKpiPaDep2(10);
-                    $ticketDate->setKpiPaDep3(20);
-                }
-                $this->em->persist($ticket);
-                $this->em->persist($ticketDate);
-            }
             $this->em->flush();
-        }
-
     }
 
 
     private function generateTicketsMulti($errorType, $errorCategorie, $anlage, $inverter, $time, $message)
     {
 
-            $ticketOld = self::getLastTicket($anlage, $time, false, $errorCategorie);
+            $ticketOld = $this->getLastTicket($anlage, $time, $errorCategorie);
 
             if ($ticketOld !== null) {
                 if ($ticketOld->getInverter() == $inverter) {
@@ -416,7 +461,7 @@ class AlertSystemService
      * @param $errorCategory
      * @return mixed
      */
-    public function getLastTicket($anlage, $time, $isWeather, $errorCategory): mixed
+    public function getLastTicket($anlage, $time, $errorCategory): mixed
     {
         $today = date('Y-m-d', strtotime($time));
         $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
@@ -424,7 +469,6 @@ class AlertSystemService
         $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
         $quarter = date('Y-m-d H:i', strtotime($time)); // the quarter before the actual
 
-        if (!$isWeather) {
             // Inverter Tickets
                 if ($quarter <= $sunrise) {
                     $ticket = $this->ticketRepo->findLastByATNoWeather($anlage,  $today, $lastQuarterYesterday, $errorCategory); // we try to retrieve the last quarter of yesterday
@@ -433,26 +477,37 @@ class AlertSystemService
                     $ticket = $this->ticketRepo->findByATNoWeather($anlage,  $time, $errorCategory); // we try to retrieve the ticket in the previous quarter
                 }
 
-        } else {
 
+        return $ticket;
+    }
+    public function getAllTickets($anlage, $time): mixed{
+        {
+            $today = date('Y-m-d', strtotime($time));
+            $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
+            $sunrise = self::getLastQuarter($this->weather->getSunrise($anlage, $today)['sunrise']); // the first quarter of today
+            $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
+            $quarter = date('Y-m-d H:i', strtotime($time)); // the quarter before the actual
+
+            // Inverter Tickets
             if ($quarter <= $sunrise) {
-                $ticket = $this->ticketRepo->findLastByAITWeather($anlage, $today, $lastQuarterYesterday); // the same as above but for weather station
-            } else {
-                $ticket = $this->ticketRepo->findByAITWeather($anlage, $time);
+                //$ticket = $this->ticketRepo->findLastByATNoWeather($anlage,  $today, $lastQuarterYesterday); // we try to retrieve the last quarter of yesterday
             }
+            else {
+                $ticket = $this->ticketRepo->findAllByTime($anlage,  $time); // we try to retrieve the ticket in the previous quarter
+            }
+
+
+            return $ticket;
         }
-        return $ticket ? $ticket[0] : null;
     }
 
-    public function getLastTicketInverter($anlage, $time, $isWeather, $errorCategory, $inverter): mixed
+    public function getLastTicketInverter($anlage, $time, $errorCategory, $inverter): mixed
     {
         $today = date('Y-m-d', strtotime($time));
         $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
         $sunrise = self::getLastQuarter($this->weather->getSunrise($anlage, $today)['sunrise']); // the first quarter of today
         $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
         $quarter = date('Y-m-d H:i', strtotime($time)); // the quarter before the actual
-
-        if (!$isWeather) {
             // Inverter Tickets
             if ($quarter <= $sunrise) {
                 $ticket = $this->ticketRepo->findLastByAITNoWeather($anlage,  $today, $lastQuarterYesterday, $errorCategory, $inverter); // we try to retrieve the last quarter of yesterday
@@ -461,15 +516,8 @@ class AlertSystemService
                 $ticket = $this->ticketRepo->findByAITNoWeather($anlage,  $time, $errorCategory, $inverter); // we try to retrieve the ticket in the previous quarter
             }
 
-        } else {
 
-            if ($quarter <= $sunrise) {
-                $ticket = $this->ticketRepo->findLastByAITWeather($anlage, $today, $lastQuarterYesterday); // the same as above but for weather station
-            } else {
-                $ticket = $this->ticketRepo->findByAITWeather($anlage, $time);
-            }
-        }
-        return $ticket ? $ticket[0] : null;
+        return $ticket;
     }
 
 
@@ -499,7 +547,7 @@ class AlertSystemService
         // we split the minutes from the rest of the stamp
         $mins = date('i', strtotime($stamp));
         $rest = date('Y-m-d H', strtotime($stamp));
-        dump($rest, $mins);
+
         // we work on the minutes to "round" to the lower quarter
         if ($mins >= '00' && $mins < '15') {
             $quarter = '00';
@@ -585,7 +633,7 @@ class AlertSystemService
     {
         $message = '';
 
-        $ticket = self::getLastTicket($anlage, null, $time, true);
+        $ticket = self::getLastTicketWeather($anlage, $time);
 
         if ($ticket != null && $status_report['Irradiation'] == 'No data' || $status_report['Irradiation'] == 'Irradiation is 0') {
             $ticket = new Ticket();
@@ -698,7 +746,19 @@ class AlertSystemService
 
         return $resw->rowCount();
     }
+    public function getLastTicketWeather($anlage, $time){
+        $today = date('Y-m-d', strtotime($time));
+        $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
+        $sunrise = self::getLastQuarter($this->weather->getSunrise($anlage, $today)['sunrise']); // the first quarter of today
+        $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
+        $quarter = date('Y-m-d H:i', strtotime($time)); // the quarter before the actual
 
+        if ($quarter <= $sunrise) {
+            $ticket = $this->ticketRepo->findLastByAITWeather($anlage, $today, $lastQuarterYesterday); // the same as above but for weather station
+        } else {
+            $ticket = $this->ticketRepo->findByAITWeather($anlage, $time);
+        }
+    }
     //DEPRACATED
     /*
   public function checkSystem(Anlage $anlage, ?string $time = null): string

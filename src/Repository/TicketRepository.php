@@ -159,7 +159,18 @@ class TicketRepository extends ServiceEntityRepository
             ->setParameter('cat', $errorCategory)
             ->setParameter('description', $description)
             ->getQuery();
-
+        return $result->getResult();
+    }
+    public function findAllByTime($anlage, $time){
+        $description = 'Error with the Data of the Weather station';
+        $result = $this->createQueryBuilder('t')
+            ->andWhere('t.end = :end')
+            ->andWhere('t.anlage = :anl')
+            ->andWhere('t.description != :description')
+            ->setParameter('end', $time)
+            ->setParameter('anl', $anlage)
+            ->setParameter('description', $description)
+            ->getQuery();
         return $result->getResult();
     }
 
