@@ -222,21 +222,20 @@ class TicketController extends BaseController
 
         $ticketDate = $ticketDateRepo->findOneById($id);
 
-
         $ticket = $ticketRepo->findOneById($ticketDate->getTicket());
         $splitTime = date_create($request->query->get('begin-time'));
-        $anlage = $ticket->getAnlage();        $nameArray = $functions->getInverterArray($anlage);
+        $anlage = $ticket->getAnlage();
+        $nameArray = $functions->getInverterArray($anlage);
         $selected = $ticket->getInverterArray();
 
         $indexSelect = 0;
 
         foreach ($nameArray as $key => $value){
             $inverterArray[$key]["inv"] = $value;
-            if($key === (int)$selected[$indexSelect]){
+            if ($key === (int)$selected[$indexSelect]){
                 $inverterArray[$key]["select"] = "checked";
                 $indexSelect ++;
-            }
-            else{
+            } else {
                 $inverterArray[$key]["select"] = "";
             }
         }
@@ -338,6 +337,7 @@ class TicketController extends BaseController
             'invArray' => $inverterArray
         ]);
     }
+
     #[Route(path: '/ticket/splitbyinverter', name: 'app_ticket_split_inverter')]
     public function splitByInverter(TicketRepository $ticketRepo, TicketDateRepository $ticketDateRepo, Request $request, EntityManagerInterface $em): Response
     {

@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 
 /**
  * DbAnlPrw.
@@ -28,9 +29,7 @@ class AnlagenPR
     #[ORM\Column(name: 'stamp', type: 'date', nullable: false)]
     private DateTime $stamp;
 
-    /**
-     * @deprecated
-     */
+    #[Deprecated]
     #[ORM\Column(name: 'stamp_ist', type: 'datetime', nullable: false)]
     private DateTime $stampIst;
 
