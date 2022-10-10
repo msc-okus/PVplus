@@ -117,13 +117,6 @@ class TicketRepository extends ServiceEntityRepository
             $qb->andWhere("ticket.needsProof = 1");
         }
 
-        /*
-        foreach ($orders as $field => $order) {
-            if ($order !== null) {
-                $qb->orderBy('ticket.'.$field, $order);
-            }
-        }
-        */
         return $qb;
     }
 
@@ -137,8 +130,21 @@ class TicketRepository extends ServiceEntityRepository
         ;
     }
 
+    public function findMultipleByBeginErrorAnlage($anlage, $time, $errorCategory){
+        $description = 'Error with the Data of the Weather station';
+        $result = $this->createQueryBuilder('t')
+        ->andWhere('t.begin = :begin')
+            ->andWhere('t.anlage = :anl')
+            ->andWhere('t.description != :description')
+            ->andWhere('t.alertType = :cat')
+            ->setParameter('begin', $time)
+            ->setParameter('anl', $anlage)
+            ->setParameter('cat', $errorCategory)
+            ->setParameter('description', $description)
+            ->getQuery();
 
-
+        return $result->getResult();
+    }
 
     public function findByATNoWeather($anlage, $time, $errorCategory)
     {
@@ -153,7 +159,18 @@ class TicketRepository extends ServiceEntityRepository
             ->setParameter('cat', $errorCategory)
             ->setParameter('description', $description)
             ->getQuery();
-
+        return $result->getResult();
+    }
+    public function findAllByTime($anlage, $time){
+        $description = 'Error with the Data of the Weather station';
+        $result = $this->createQueryBuilder('t')
+            ->andWhere('t.end = :end')
+            ->andWhere('t.anlage = :anl')
+            ->andWhere('t.description != :description')
+            ->setParameter('end', $time)
+            ->setParameter('anl', $anlage)
+            ->setParameter('description', $description)
+            ->getQuery();
         return $result->getResult();
     }
 
@@ -173,6 +190,47 @@ class TicketRepository extends ServiceEntityRepository
             ->setParameter('description', $description)
             ->orderBy('t.end', 'DESC')
             ->setMaxResults(1)
+            ->getQuery();
+
+        return $result->getResult();
+    }
+    public function findLastByAITNoWeather($anlage, $today, $yesterday, $errorCategory, $inverter)
+    {
+        $description = 'Error with the Data of the Weather station';
+        $result = $this->createQueryBuilder('t')
+            ->andWhere('t.end < :today')
+            ->andWhere('t.end >= :yesterday')
+            ->andWhere('t.anlage = :anl')
+            ->andWhere('t.alertType = :error')
+            ->andWhere('t.inverter = :inverter')
+            ->andWhere('t.description != :description')
+            ->setParameter('today', $today)
+            ->setParameter('yesterday', $yesterday)
+            ->setParameter('anl', $anlage)
+            ->setParameter('error', $errorCategory)
+            ->setParameter('description', $description)
+            ->setParameter('inverter', $inverter)
+            ->orderBy('t.end', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery();
+
+        return $result->getResult();
+    }
+
+    public function findByAITNoWeather($anlage, $time, $errorCategory, $inverter)
+    {
+        $description = 'Error with the Data of the Weather station';
+        $result = $this->createQueryBuilder('t')
+            ->andWhere('t.end = :end')
+            ->andWhere('t.anlage = :anl')
+            ->andWhere('t.description != :description')
+            ->andWhere('t.alertType = :cat')
+            ->andWhere('t.inverter = :inverter')
+            ->setParameter('end', $time)
+            ->setParameter('anl', $anlage)
+            ->setParameter('cat', $errorCategory)
+            ->setParameter('inverter', $inverter)
+            ->setParameter('description', $description)
             ->getQuery();
 
         return $result->getResult();

@@ -4,7 +4,7 @@ import { Reveal } from 'foundation-sites';
 import $ from 'jquery';
 
 export default class extends Controller {
-    static targets = ['modal', 'modalBody', 'splitModal', 'splitForm', 'switch', 'deactivable', 'anlage', 'saveButton', 'AlertFormat', 'AlertDates', 'formBegin', 'formEnd', 'splitButton','splitDeploy'];
+    static targets = ['splitAlert', 'modal', 'modalBody', 'splitModal', 'splitForm', 'switch', 'deactivable', 'anlage', 'saveButton', 'AlertFormat', 'AlertDates', 'formBegin', 'formEnd', 'splitButton','splitDeploy'];
     static values = {
         formUrl: String,
         splitUrl: String,
@@ -71,13 +71,14 @@ export default class extends Controller {
     checkSelect(){
         let body = $(this.modalBodyTarget);
 
-        body.find('input:checkbox[class=js-checkbox-split-a]').each(function(){
+        body.find('.js-div-split-a').each(function(){
             $(this).addClass('is-hidden');
-            $(this).prop('checked', false);
+            $(this).find('.js-checkbox-split-a').prop('checked', false);
+            console.log($(this).find('.js-checkbox-split-a'));
         });
-        body.find('input:checkbox[class=js-checkbox-split-b]').each(function(){
+        body.find('.js-div-split-b').each(function(){
             $(this).addClass('is-hidden');
-            $(this).prop('checked', false);
+            $(this).find('.js-checkbox-split-b').prop('checked', false);
         });
         let inverterString = '';
 
@@ -86,9 +87,9 @@ export default class extends Controller {
                 $(this).prop('checked', true);
                 if (inverterString == '') {inverterString = inverterString + $(this).prop('name');}
                 else {inverterString = inverterString + ', ' + $(this).prop('name');}
-                body.find($('#split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
+                body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
                 body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
-                body.find($('#split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
+                body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
             });
             $(this.splitDeployTarget).removeAttr('disabled');
         } else {
@@ -113,21 +114,23 @@ export default class extends Controller {
         let inverterString = '';
         let body = $(this.modalBodyTarget);
         let counter = 0;
-        body.find('input:checkbox[class=js-checkbox-split-a]').each(function(){
+        body.find('.js-div-split-a').each(function(){
             $(this).addClass('is-hidden');
-            $(this).prop('checked', false);
+            $(this).find('.js-checkbox-split-a').prop('checked', false);
+            console.log('hi');
         });
-        body.find('input:checkbox[class=js-checkbox-split-b]').each(function(){
+        body.find('.js-div-split-b').each(function(){
             $(this).addClass('is-hidden');
-            $(this).prop('checked', false);
+            $(this).find('.js-checkbox-split-b').prop('checked', false);
         });
         body.find('input:checkbox[class=js-checkbox]:checked').each(function (){
             counter ++;
             if (inverterString == '') {inverterString = inverterString + $(this).prop('name');}
             else {inverterString = inverterString + ', ' + $(this).prop('name');}
-            body.find($('#split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
-            body.find($('#split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
+            body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
+            body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
             body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
+            console.log(body.find($('#split-'+$(this).prop('name')+'a')).prop('checked'));
         });
 
         if (counter <= 1 ) {
@@ -207,9 +210,11 @@ export default class extends Controller {
         });
         if (inverterStringa == '' || inverterStringb == ''){
             $(this.splitButtonTarget).attr('disabled', 'disabled');
+            $(this.splitAlertTarget).removeClass('is-hidden');
         }
         else{
             $(this.splitButtonTarget).removeAttr('disabled');
+            $(this.splitAlertTarget).addClass('is-hidden');
         }
     }
     checkInverterSplit2({ params: { id }}){
@@ -236,10 +241,14 @@ export default class extends Controller {
         });
         if (inverterStringa == '' || inverterStringb == ''){
             $(this.splitButtonTarget).attr('disabled', 'disabled');
+            $(this.splitAlertTarget).removeClass('is-hidden');
+
         }
         else{
             $(this.splitButtonTarget).removeAttr('disabled');
+            $(this.splitAlertTarget).addClass('is-hidden');
         }
+        console.log(inverterStringa, inverterStringb);
     }
 
     async splitTicketByInverter({ params: { ticketid }}){
@@ -257,6 +266,17 @@ export default class extends Controller {
         });
 
         try {
+            event.preventDefault();
+            const  $form = $(this.modalBodyTarget).find('form');
+            try {
+                await $.ajax({
+                    url: this.formUrlValue,
+                    method: $form.prop('method'),
+                    data: $form.serialize(),
+                });
+            } catch(e) {
+                this.modalBodyTarget.innerHTML = e.responseText;
+            }
             this.modalBodyTarget.innerHTML = await $.ajax({
                 url: '/ticket/splitbyinverter',
                 data: {'id': ticketid,
