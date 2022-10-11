@@ -68,13 +68,12 @@ export default class extends Controller {
         this.modalBodyTarget.innerHTML = await $.ajax(this.formUrlValue);
     }
 
-    checkSelect(){
+    checkSelect({ params: { edited }}){
         let body = $(this.modalBodyTarget);
 
         body.find('.js-div-split-a').each(function(){
             $(this).addClass('is-hidden');
             $(this).find('.js-checkbox-split-a').prop('checked', false);
-            console.log($(this).find('.js-checkbox-split-a'));
         });
         body.find('.js-div-split-b').each(function(){
             $(this).addClass('is-hidden');
@@ -91,7 +90,9 @@ export default class extends Controller {
                 body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
                 body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
             });
-            $(this.splitDeployTarget).removeAttr('disabled');
+            if (edited == true) {
+                $(this.splitDeployTarget).removeAttr('disabled');
+            }
         } else {
             $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox]').each(function(){
                 $(this).prop('checked', false);
@@ -110,14 +111,14 @@ export default class extends Controller {
         }
     }
 
-    checkInverter(){
+    checkInverter({ params: { edited }}){
+
         let inverterString = '';
         let body = $(this.modalBodyTarget);
         let counter = 0;
         body.find('.js-div-split-a').each(function(){
             $(this).addClass('is-hidden');
             $(this).find('.js-checkbox-split-a').prop('checked', false);
-            console.log('hi');
         });
         body.find('.js-div-split-b').each(function(){
             $(this).addClass('is-hidden');
@@ -130,14 +131,16 @@ export default class extends Controller {
             body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
             body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
             body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
-            console.log(body.find($('#split-'+$(this).prop('name')+'a')).prop('checked'));
+
         });
 
         if (counter <= 1 ) {
             $(this.splitDeployTarget).attr('disabled', 'disabled');
         }
         else {
-            $(this.splitDeployTarget).removeAttr('disabled');
+            if (edited == true) {
+                $(this.splitDeployTarget).removeAttr('disabled');
+            }
         }
         if (inverterString == '') {
             $(this.saveButtonTarget).attr('disabled', 'disabled');
@@ -146,7 +149,6 @@ export default class extends Controller {
             $(this.saveButtonTarget).removeAttr('disabled');
         }
         $(this.modalBodyTarget).find('#ticket_form_inverter').val(inverterString);
-        
     }
 
     checkDates() { // What do you check ????

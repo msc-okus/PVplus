@@ -158,7 +158,7 @@ class AlertSystemService
             $array_zero = explode(", ", $plant_status['Power0']);
             $array_vol = explode(", ", $plant_status['Vol']);
             $ticketOld = $this->getAllTickets($anlage, $time);
-            if (( $ticketOld !== null) && (sizeof($ticketOld) === 0)){
+            if (( $ticketOld !== null) && (sizeof($ticketOld) > 0)){
                     foreach ($ticketOld as $ticket){
                         $ticket->setOpenTicket(false);
                         $this->em->persist($ticket);
