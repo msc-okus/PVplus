@@ -94,15 +94,15 @@ class DashboardPlantsController extends BaseController
                 $form['optionDate'] = 100000;
                 $form['optionIrrVal'] = 400;
             }
-            // bei Verfügbarkeit Anzeige kann nur ein Tag angezeigt werden
+            if ($form['selectedChart'] == 'sollistirranalyse' && !$form['optionIrrVal']) {
+                $form['optionIrrVal'] = 400;
+            }
+            // bei Verfügbarkeit der Anzeige kann nur ein Tag gezeigt werden
             // if ($form['selectedChart'] == 'availability' && $form['optionDate'] > 1) { $form['optionDate'] = 1; }
             if ($form['optionStep'] == 'lastday' or $form['optionStep'] == 'nextday') {
                 switch ($form['optionStep']) {
                     case 'lastday':
                         $date = ($request->request->get('to')) ? $request->request->get('to') : date('Y-m-d');
-                      #  $from = date('Y-m-d 00:00', strtotime($date.' -1 day'));
-                      #  $to = date('Y-m-d 23:59', strtotime($date.' -1 day'));
-
                         if ($form['optionDate'] <= 14) {
                             $from = date('Y-m-d 00:00', strtotime($date) - (86400 * ($form['optionDate'] - 1)));
                             $to = date('Y-m-d 00:00', strtotime($from) - (86400 * ($form['optionDate'] - 1)));
@@ -111,7 +111,6 @@ class DashboardPlantsController extends BaseController
                             $from = date('Y-m-d 00:00', strtotime($date.'-1 month'));
                             $from = date('Y-m-d 00:00', strtotime($from.'first day of this month'));
                             $to = date('Y-m-d 23:59', strtotime($from.'last day of this month'));
-
                         }
                         if ($form['optionDate'] == 300000) {
                             $from = date('Y-m-d 00:00', strtotime($date.'-3 month'));
@@ -125,11 +124,8 @@ class DashboardPlantsController extends BaseController
                         break;
 
                     case 'nextday':
-                        $date = ($request->request->get('to')) ? $request->request->get('to') : date('Y-m-d');
-                       # $from = date('Y-m-d 00:00', strtotime($date.' +1 day'));
-                       # $to = date('Y-m-d 23:59', strtotime($date.' +1 day'));
-
-                        if ($form['optionDate'] <= 14) {
+                       $date = ($request->request->get('to')) ? $request->request->get('to') : date('Y-m-d');
+                       if ($form['optionDate'] <= 14) {
                             $from = date('Y-m-d 00:00', strtotime($date) - (86400 * ($form['optionDate'] - 1)));
                             $to = date('Y-m-d 00:00', strtotime($from) + (86400 * ($form['optionDate'] - 1)));
                         }
@@ -148,16 +144,20 @@ class DashboardPlantsController extends BaseController
                         break;
                 }
             } else {
-                // optionDate == 100000 → Zeige Daten für den ganzen Monat, also vom ersten bis zum letzten Tages des ausgewäten Monats
+                    // optionDate == 100000 → Zeige Daten für den ganzen Monat, also vom ersten bis zum letzten Tages des ausgewäten Monats
                 if ($form['optionDate'] == 100000) {
                     $daysInMonth = date('t', strtotime($request->request->get('to')));
                     $form['to'] = date("Y-m-$daysInMonth 23:59", strtotime($request->request->get('to')));
                     $form['from'] = date('Y-m-01 00:00', strtotime($request->request->get('to')));
                 } elseif ($form['optionDate'] == 300000) {
+                    $ndate = date('Y-m-d 00:00', strtotime($request->request->get('to').'-3 month'));
+                    $form['from'] = date('Y-m-d 00:00', strtotime($ndate.'first day of this month'));
+                    $form['to'] = date('Y-m-d 00:00', strtotime($request->request->get('to').'first day of this month'));
+                    /* quartals berechnung php mit ceil()
                     $current_quarter = ceil(date('n',strtotime($request->request->get('to'))) / 3);
                     $form['from'] = date('Y-m-d 23:59', strtotime(date('Y') . '-' . (($current_quarter * 3) - 2) . '-1'));
                     $form['to'] = date('Y-m-t 00:00', strtotime(date('Y') . '-' . (($current_quarter * 3)) . '-1'));
-
+                    */
                 } else {
                     $form['to'] = $request->request->get('to');
                     if ($form['to'] > date('Y-m-d')) {

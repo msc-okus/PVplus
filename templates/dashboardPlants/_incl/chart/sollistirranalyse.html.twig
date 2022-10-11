@@ -12,16 +12,16 @@
     .tg .tg-fd62{background-color:#32cb00;text-align:left;vertical-align:top}
     .tg .tg-r50r{background-color:#cb0000;text-align:left;vertical-align:top}
 </style>
-<div class="grid-x">
+<div class="grid-x tb-inchart-0">
 <div class="cell small-6">
 <table class="tg tg-dc">
     {% for data in content.tabel %}
     <thead>
     <tr>
-        <th class="tg-vj3a" rowspan="2">DC&nbsp;>&nbsp;{{ data.Label }}&nbsp;W/m²</th>
-        <th class="tg-0lax">DC more than</th>
+        <th class="tg-vj3a" rowspan="2">DC&nbsp;<&nbsp;{{ data.Label }}&nbsp;W/m²</th>
+        <th class="tg-0lax">DC higher than</th>
         <th class="tg-0lax">DC between</th>
-        <th class="tg-0lax">DC smaller than</th>
+        <th class="tg-0lax">DC lower than</th>
         <th class="tg-0lax" rowspan="2">total</th>
     </tr>
     <tr>
@@ -32,7 +32,7 @@
     </thead>
     <tbody>
         <tr>
-            <td class="tg-0lax">[Kwh]</td>
+            <td class="tg-0lax">[kWh]</td>
             <td class="tg-0lax">{{ data.DCsum100|number_format(0, ',', '.')  }}</td>
             <td class="tg-0lax">{{ data.DCsum95|number_format(0, ',', '.')  }}</td>
             <td class="tg-0lax">{{ data.DCsum90|number_format(0, ',', '.')  }}</td>
@@ -43,7 +43,7 @@
             <td class="tg-fd62">{{ data.DCp100 }}</td>
             <td class="tg-glna">{{ data.DCp95 }}</td>
             <td class="tg-r50r">{{ data.DCp90 }}</td>
-            <td class="tg-0qe0">100.00</td>
+            <td class="tg-0qe0">100</td>
         </tr>
     {% endfor %}
     </tbody>
@@ -54,10 +54,10 @@
         {% for data in content.tabel %}
         <thead>
         <tr>
-            <th class="tg-vj3a" rowspan="2">AC&nbsp;>&nbsp;{{ data.Label }}&nbsp;W/m²</th>
-            <th class="tg-0lax">AC more than</th>
+            <th class="tg-vj3a" rowspan="2">AC&nbsp;<&nbsp;{{ data.Label }}&nbsp;W/m²</th>
+            <th class="tg-0lax">AC higher than</th>
             <th class="tg-0lax">AC between</th>
-            <th class="tg-0lax">AC smaller than</th>
+            <th class="tg-0lax">AC lower than</th>
             <th class="tg-0lax" rowspan="2">total</th>
         </tr>
         <tr>
@@ -68,7 +68,7 @@
         </thead>
         <tbody>
             <tr>
-                <td class="tg-0lax">[Kwh]</td>
+                <td class="tg-0lax">[kWh]</td>
                 <td class="tg-0lax">{{ data.ACsum100|number_format(0, ',', '.')  }}</td>
                 <td class="tg-0lax">{{ data.ACsum95|number_format(0, ',', '.')  }}</td>
                 <td class="tg-0lax">{{ data.ACsum90|number_format(0, ',', '.')  }}</td>
@@ -79,7 +79,7 @@
                 <td class="tg-fd62">{{ data.ACp100 }}</td>
                 <td class="tg-glna">{{ data.ACp95 }}</td>
                 <td class="tg-r50r">{{ data.ACp90 }}</td>
-                <td class="tg-0qe0">100.00</td>
+                <td class="tg-0qe0">100</td>
             </tr>
         {% endfor %}
         </tbody>
@@ -91,16 +91,18 @@
         // Create chart instance for Left and Right box
         let chartleft = am4core.create("amchart-holder-left", am4charts.XYChart);
         let chartright = am4core.create("amchart-holder-right", am4charts.XYChart);
-            //
+            // Build the Chart
             chartleft.data = {{ content.data|raw }};
             chartleft.preloader.disabled = false;
             chartleft.preloader.transitionDuration = 0;
             chartleft.preloader.progress = 5;
-            //
+            chartleft.numberFormatter.numberFormat = "#";
+            // Build the Chart
             chartright.data = {{ content.data|raw }};
             chartright.preloader.disabled = false;
             chartright.preloader.transitionDuration = 0;
             chartright.preloader.progress = 5;
+            chartright.numberFormatter.numberFormat = "#";
             // Title Right
             let titleright = chartright.titles.create();
             titleright.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
@@ -126,20 +128,20 @@
             // Create 2 Axes Left
             let irrAxisLeft = chartleft.xAxes.push(new am4charts.ValueAxis());
             let valueAxisLeft = chartleft.yAxes.push(new am4charts.ValueAxis());
-             irrAxisLeft.title.text = "Incident irradiation W/m²";
-             valueAxisLeft.title.text = "AC kWh";
-             irrAxisLeft.markUnitChange = false // Disable Month Name
-             irrAxisLeft.renderer.ticks.template.disabled = true;
-             irrAxisLeft.renderer.axisFills.template.disabled = true;
-             valueAxisLeft.renderer.ticks.template.disabled = true;
-             valueAxisLeft.renderer.axisFills.template.disabled = true;
-             irrAxisLeft.dataFields.category = "irr";
-             valueAxisLeft.dataFields.category = "AC_kwh";
-             irrAxisLeft.renderer.grid.template.disabled = true;
-             valueAxisLeft.renderer.grid.template.disabled = true;
-             valueAxisLeft.renderer.labels.template.fontSize = 12;
-             irrAxisLeft.renderer.labels.template.fontSize = 12;
-             // Create 2 Axes Right
+            irrAxisLeft.title.text = "Incident irradiation W/m²";
+            valueAxisLeft.title.text = "AC kWh";
+            irrAxisLeft.markUnitChange = false // Disable Month Name
+            irrAxisLeft.renderer.ticks.template.disabled = true;
+            irrAxisLeft.renderer.axisFills.template.disabled = true;
+            valueAxisLeft.renderer.ticks.template.disabled = true;
+            valueAxisLeft.renderer.axisFills.template.disabled = true;
+            irrAxisLeft.dataFields.category = "irr";
+            valueAxisLeft.dataFields.category = "AC_kwh";
+            irrAxisLeft.renderer.grid.template.disabled = true;
+            valueAxisLeft.renderer.grid.template.disabled = true;
+            valueAxisLeft.renderer.labels.template.fontSize = 12;
+            irrAxisLeft.renderer.labels.template.fontSize = 12;
+            // Create 2 Axes Right
             let irrAxisRight = chartright.xAxes.push(new am4charts.ValueAxis());
             let valueAxisRight = chartright.yAxes.push(new am4charts.ValueAxis());
             irrAxisRight.title.text = "Incident irradiation W/m²";
@@ -224,14 +226,14 @@
             chartleft.scrollbarX = new am4core.Scrollbar();
             chartleft.scrollbarX.visible = false;
             chartleft.scrollbarY = new am4core.Scrollbar();
-            // Export
+            // Export Menue Left
             chartleft.exporting.menu = new am4core.ExportMenu();
             chartleft.exporting.menu.items[0].label = "Download";
             chartleft.exporting.formatOptions.getKey("json").disabled = true;
             chartleft.exporting.formatOptions.getKey("html").disabled = true;
             chartleft.exporting.formatOptions.getKey("pdfdata").disabled = true;
             chartleft.exporting.formatOptions.getKey("print").disabled = true;
-            chartleft.exporting.formatOptions.getKey("pdf").disabled = true;
+            chartleft.exporting.formatOptions.getKey("pdf").disabled = false;
             chartleft.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
             //
             chartright.cursor = new am4charts.XYCursor();
@@ -240,14 +242,14 @@
             chartright.scrollbarX = new am4core.Scrollbar();
             chartright.scrollbarX.visible = false;
             chartright.scrollbarY = new am4core.Scrollbar();
-            // Export
+            // Export Menue Right
             chartright.exporting.menu = new am4core.ExportMenu();
             chartright.exporting.menu.items[0].label = "Download";
             chartright.exporting.formatOptions.getKey("json").disabled = true;
             chartright.exporting.formatOptions.getKey("html").disabled = true;
             chartright.exporting.formatOptions.getKey("pdfdata").disabled = true;
             chartright.exporting.formatOptions.getKey("print").disabled = true;
-            chartright.exporting.formatOptions.getKey("pdf").disabled = true;
+            chartright.exporting.formatOptions.getKey("pdf").disabled = false;
             chartright.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
             // Create Legende Left
             var legendleft = new am4charts.Legend();
@@ -265,19 +267,19 @@
             legendright.labels.template.truncate = true;
             legendright.labels.template.fontSize = 10;
             legendright.useDefaultMarker = true;
-            //
+            // Create Round Maker
             var markerleft = legendleft.markers.template.children.getIndex(0);
-            markerleft.cornerRadius(12, 12, 12, 12);
+            markerleft.cornerRadius(11, 11, 11, 11);
             markerleft.strokeWidth = 0;
             markerleft.strokeOpacity = 0;
             markerleft.stroke = am4core.color("#ccc");
-            //
+            // Create Round Maker
             var markerright = legendright.markers.template.children.getIndex(0);
-            markerright.cornerRadius(12, 12, 12, 12);
+            markerright.cornerRadius(11, 11, 11, 11);
             markerright.strokeWidth = 0;
             markerright.strokeOpacity = 0;
             markerright.stroke = am4core.color("#ccc");
-            //
+            // define Legende Left and Right
             legendleft.data = [{
                  "name": "Deviation between ",
                  "fill": am4core.color("#ffffff")
@@ -311,7 +313,6 @@
                 "name": "missing data",
                 "fill": am4core.color("#000000")
             }];
-
     });
     // end am4core.ready()
 </script>

@@ -11,14 +11,26 @@
         {{ encore_entry_script_tags('app') }}
     {% endblock %}
 </head>
-<body class="">
+<body>
+<script>
+        document.addEventListener("DOMContentLoaded", () => {
+        var url = window.location.href;
+        var urlParams = url.split('#')[1];
+        if (urlParams == 'chart') {
+            const elementchart = document.getElementById('headbar');
+            const positionChart = elementchart.getBoundingClientRect();
+            const elementplants = document.getElementById('plants');
+            const positionPlants = elementplants.getBoundingClientRect();
+            const height = positionChart.height + positionPlants.height - 80;
+            const hightpx = height + "px";
+            window.scrollTo(0, height);
+        }
+    });
+</script>
 <div class="ajax-loader">
     <img src="{{ asset('/images/loader.gif') }}" class="img-responsive" alt="loader" />
 </div>
-<header class="grid-container fluid"
-    {# if impersonation is active #}
-    {{ is_granted('IS_IMPERSONATOR') ? 'style="border-top: red solid 5px;"' }}
->
+<header id="headbar" class="grid-container fluid" {{ is_granted('IS_IMPERSONATOR') ? 'style="border-top: red solid 5px;"' }}>
     <div class="top-bar">
         <div class="top-bar-left">
             <div class="logo">
