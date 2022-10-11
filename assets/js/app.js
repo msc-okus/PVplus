@@ -15,8 +15,7 @@ import '../styles/app.scss';
 
 import 'foundation-sites';
 import 'foundation-datepicker';
-import ticken from './components/tick_tack'
-global.ticken = ticken;
+
 
 import $ from 'jquery';
 //global.$ = $;
@@ -24,8 +23,3 @@ import $ from 'jquery';
 $(document).foundation();
 
 $('.my-alert-box').closest('[data-alert]').fadeOut(8000);
-
-if ($('#uhr').length > 0) {
-    window.onload = ticken();
-    window.setTimeout("ticken();", 10000);
-}
