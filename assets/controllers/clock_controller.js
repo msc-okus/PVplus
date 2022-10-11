@@ -1,7 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 
 export default class extends Controller {
-
     static targets = [
         'clock'
     ];
@@ -23,17 +22,13 @@ export default class extends Controller {
         let heute;
         let zeit;
 
-        console.log('yes');
         heute = new Date();
-
         StundenZahl = heute.getHours();
         MinutenZahl = heute.getMinutes();
-
         stunden = StundenZahl + ":";
         if (MinutenZahl < 10) {minuten = "0" + MinutenZahl;}
         else {minuten = MinutenZahl;}
         zeit = stunden + minuten;
         this.clockTarget.innerHTML = zeit;
-
     }
 }
