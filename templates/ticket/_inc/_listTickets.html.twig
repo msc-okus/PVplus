@@ -10,6 +10,7 @@
                 <th class="text-center">Status</th>
                 <th class="text-center">Priority</th>
                 <th>Editor</th>
+
                 <th {% if pagination.isSorted('ticket.begin') %} class="sorted"{% endif %}>
                     {{ knp_pagination_sortable(pagination, 'Begin', ['ticket.begin'], {'data-action': 'ticket-list#sort'}) }}</th>
                 <th {% if pagination.isSorted('ticket.end') %} class="sorted"{% endif %}>

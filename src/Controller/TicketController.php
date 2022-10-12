@@ -169,6 +169,8 @@ class TicketController extends BaseController
         $prio = $request->query->get('prio');
         $category = $request->query->get('category');
         $type = $request->query->get('type');
+        $sort = $request->query->get('sort', "");
+        $direction = $request->query->get('direction', "");
         $prooftam = $request->query->get('prooftam', 0);
 
 
@@ -186,8 +188,9 @@ class TicketController extends BaseController
         $order['begin'] = 'DESC'; // null, ASC, DESC
         $order['updatedAt'] = 'DESC';
 
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlageName, $editor, $id, $prio, $status, $category, $type, $inverter, $order, $prooftam);
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlageName, $editor, $id, $prio, $status, $category, $type, $inverter, $order, $prooftam, $sort, $direction);
         $pagination = $paginator->paginate($queryBuilder, $page,25 );
+        dd($pagination);
 
         // check if we get no result
         if ($pagination->count() == 0){
