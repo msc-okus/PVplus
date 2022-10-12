@@ -18,18 +18,12 @@ class UpdateAvailabilityCommand extends Command
 
     protected static $defaultName = 'pvp:updatePA';
 
-    private AnlagenRepository $anlagenRepository;
-
-    private AvailabilityService $availability;
-
-    private AvailabilityByTicketService $availabilityByTicket;
-
-    public function __construct(AnlagenRepository $anlagenRepository, AvailabilityService $availability, AvailabilityByTicketService $availabilityByTicket)
+    public function __construct(
+        private AnlagenRepository $anlagenRepository,
+        private AvailabilityService $availability,
+        private AvailabilityByTicketService $availabilityByTicket)
     {
         parent::__construct();
-        $this->anlagenRepository = $anlagenRepository;
-        $this->availability = $availability;
-        $this->availabilityByTicket = $availabilityByTicket;
     }
 
     protected function configure()

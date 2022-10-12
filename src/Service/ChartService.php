@@ -31,84 +31,28 @@ class ChartService
 {
     use G4NTrait;
 
-    private Security $security;
-
-    private AnlagenStatusRepository $statusRepository;
-
-    private AnlageAvailabilityRepository $availabilityRepository;
-
-    private PRRepository $prRepository;
-
-    private GridMeterDayRepository $gridMeterDayRepository;
-
-    private PVSystDatenRepository $pvSystRepository;
-
-    private InvertersRepository $invertersRepo;
-
-    private FunctionsService $functions;
-
-    private ForecastChartService $forecastChart;
-
-    private ACPowerChartsService $acCharts;
-
-    private DCPowerChartService $dcChart;
-
-    private IrradiationChartService $irradiationChart;
-
-    private DCCurrentChartService $currentChart;
-
-    private VoltageChartService $voltageChart;
-
-    private HeatmapChartService $heatmapChartService;
-
-    private TempHeatmapChartService $tempheatmapChartService;
-    private SollIstHeatmapChartService $sollistheatmapChartService;
-    private SollIstAnalyseChartService $sollistAnalyseChartService;
-    private SollIstTempAnalyseChartService $sollisttempAnalyseChartService;
-    private SollIstIrrAnalyseChartService $sollistirrAnalyseChartService;
-
-
-    public function __construct(Security $security,
-        AnlagenStatusRepository $statusRepository,
-        AnlageAvailabilityRepository $availabilityRepository,
-        PRRepository $prRepository,
-        PVSystDatenRepository $pvSystRepository,
-        InvertersRepository $invertersRepo,
-        FunctionsService $functions,
-        ForecastChartService $forecastChart,
-        ACPowerChartsService $acCharts,
-        DCPowerChartService $dcChart,
-        DCCurrentChartService $currentChart,
-        VoltageChartService $voltageChart,
-        IrradiationChartService $irradiationChart,
-        GridMeterDayRepository $gridMeterDayRepository,
-        HeatmapChartService $heatmapChartService,
-        TempHeatmapChartService $tempheatmapChartService,
-        SollIstAnalyseChartService $sollistAnalyseChartService,
-        SollIstTempAnalyseChartService $sollisttempAnalyseChartService,
-        SollIstIrrAnalyseChartService $sollistirrAnalyseChartService,
-        SollIstHeatmapChartService $sollistheatmapChartService)
+    public function __construct(
+        private Security $security,
+        private AnlagenStatusRepository $statusRepository,
+        private AnlageAvailabilityRepository $availabilityRepository,
+        private PRRepository $prRepository,
+        private PVSystDatenRepository $pvSystRepository,
+        private InvertersRepository $invertersRepo,
+        private FunctionsService $functions,
+        private ForecastChartService $forecastChart,
+        private ACPowerChartsService $acCharts,
+        private DCPowerChartService $dcChart,
+        private DCCurrentChartService $currentChart,
+        private VoltageChartService $voltageChart,
+        private IrradiationChartService $irradiationChart,
+        private GridMeterDayRepository $gridMeterDayRepository,
+        private HeatmapChartService $heatmapChartService,
+        private TempHeatmapChartService $tempheatmapChartService,
+        private SollIstAnalyseChartService $sollistAnalyseChartService,
+        private SollIstTempAnalyseChartService $sollisttempAnalyseChartService,
+        private SollIstIrrAnalyseChartService $sollistirrAnalyseChartService,
+        private SollIstHeatmapChartService $sollistheatmapChartService)
     {
-        $this->security = $security;
-        $this->statusRepository = $statusRepository;
-        $this->availabilityRepository = $availabilityRepository;
-        $this->prRepository = $prRepository;
-        $this->pvSystRepository = $pvSystRepository;
-        $this->invertersRepo = $invertersRepo;
-        $this->functions = $functions;
-        $this->forecastChart = $forecastChart;
-        $this->acCharts = $acCharts;
-        $this->irradiationChart = $irradiationChart;
-        $this->dcChart = $dcChart;
-        $this->currentChart = $currentChart;
-        $this->voltageChart = $voltageChart;
-        $this->gridMeterDayRepository = $gridMeterDayRepository;
-        $this->heatmapChartService = $heatmapChartService;
-        $this->tempheatmapChartService = $tempheatmapChartService;
-        $this->sollistheatmapChartService = $sollistheatmapChartService;
-        $this->sollistAnalyseChartService = $sollistAnalyseChartService;
-        $this->sollisttempAnalyseChartService = $sollisttempAnalyseChartService;
-        $this->sollistirrAnalyseChartService = $sollistirrAnalyseChartService;
     }
 
     /**
@@ -568,10 +512,12 @@ class ChartService
      * erzeugt Daten für Inverter Performance Diagramm (DC vs AC Leistung der Inverter)
      * darf nur für Anlagen mit 'configType' 2 angezeigt werden.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param $group
      *
+     * @return array
      * @deprecated
      *  // inverter_performance
      */
@@ -674,7 +620,7 @@ class ChartService
                 $dataArray['chart'][$counter]['pr_default'] = $pr->getPrDefaultAct();
             }
             $av = $this->availabilityRepository->sumAvailabilityPerDay($anlage->getAnlId(), $stamp);
-            $dataArray['chart'][$counter]['av'] = round($av, 2);
+            $dataArray['chart'][$counter]['av'] = round($av, 3);
             ++$counter;
         }
 

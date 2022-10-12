@@ -93,7 +93,7 @@ class AvailabilityService
                 // Berechnung der protzentualen Verfügbarkeit Part 1 und Part 2
                 if ($availability['control'] - $availability['case4'] != 0) {
                     $invAPart1 = $this->calcInvAPart1($availability);
-                    ($anlage->getPnom() > 0 && $inverterPowerDc[$inverter] > 0) ? $invAPart2 = $inverterPowerDc[$inverter] / $anlage->getPnom() : $invAPart2 = 1;
+                    $invAPart2 = ($anlage->getPnom() > 0 && $inverterPowerDc[$inverter] > 0) ? $inverterPowerDc[$inverter] / $anlage->getPnom() : 1;
                 } else {
                     $invAPart1 = 0;
                     $invAPart2 = 0;
@@ -148,6 +148,9 @@ class AvailabilityService
     }
 
     /**
+     * Funktion um anhand der Anlagen Daten die cases für die Verfügbarkeit ermittelt.
+     * Dabei wird für jeden Inverter die Zahlen (der cases) pro Tag ermittelt.
+     *
      * CASE 0 = Datenlücke wenn nicht von CASE 5 abgefangen <b>(per devinition ist der Inverter bei Datenlücke verfügbar, kann durch CASE 6 korrigiert werden.)</b><br>
      * CASE 1 = wenn Gmod > 0 && Gmod < 50<br>
      * CASE 2 = wenn Gmod >= 50 && PowerAc inverter > 0<br>
@@ -157,7 +160,10 @@ class AvailabilityService
      * CASE 6 = Manuel, durch Operator koriegierte Datenlücke (Datenlücke ist Ausfall des Inverters) <br>
      * CONTROL = wenn Gmod > 0<br>.
      *
+     * @param Anlage $anlage
      * @param $timestampModulo
+     * @param TimesConfig $timesConfig
+     * @return array
      */
     public function checkAvailabilityInverter(Anlage $anlage, $timestampModulo, TimesConfig $timesConfig): array
     {
@@ -332,6 +338,8 @@ class AvailabilityService
             $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);
         }
 
+        return round((float)$this->availabilityRepository->getPaByDate($anlage, $from, $to, $inverter) * 100, 4);
+    /*
         $sumPart1 = $sumPart2 = $pa = 0;
         $inverterPowerDc = [];
 
@@ -350,33 +358,23 @@ class AvailabilityService
                     }
                 }
             }
-        } else {
-            // ToDo: nachdenken ob wir die Berechnung des Pnom je Inverter überhaupt brauchen,
-            // ToDo: wenn ich nur für einen Inverter Daten berechne, wird eh nicht ausgegeben ??????
-            /*
-            $inverter--;
-            if ($anlage->getConfigType() == 1) {
-
-            } else {
-                $acGroups = $anlage->getAcGroups();
-                if ($anlage->getUseNewDcSchema()) {
-                    $inverterPowerDc[$acGroups[$inverter]->getAcGroup()] = $acGroups[$inverter]->getDcPowerInverter();
-                } else {
-                    ($acGroups[$inverter]->getDcPowerInverter() > 0) ? $powerPerInverter = $acGroups[$inverter]->getDcPowerInverter() / ($acGroups[$inverter]->getUnitLast() - $acGroups[$inverter]->getUnitFirst() + 1) : $powerPerInverter = 0;
-                    $inverterPowerDc[$inverter] = $powerPerInverter;
-                }
-            }*/
         }
         // END: calulate pNom for each inverter
 
-        $availabilitys = $this->availabilityRepository->sumAllCasesByDate($anlage, $from, $to, $inverter);
+        $pa = (float)$this->availabilityRepository->getPaByDate($anlage, $from, $to, $inverter);
+        dump($pa);
+
         foreach ($availabilitys as $row) {
             $inverterNr = $row['inverter'];
             // Berechnung der prozentualen Verfügbarkeit Part 1 und Part 2
             if ($row['control'] - $row['case4'] !== 0) {
                 $invAPart1 = $this->calcInvAPart1($row);
-                ($anlage->getPnom() > 0 && $inverterPowerDc[$inverterNr] > 0) ? $invAPart2 = $inverterPowerDc[$inverterNr] / $anlage->getPnom() : $invAPart2 = 1;
+                $invAPart2 = ($anlage->getPnom() > 0 && $inverterPowerDc[$inverterNr] > 0) ?  $inverterPowerDc[$inverterNr] / $anlage->getPnom() : 1;
                 $invAPart3 = $invAPart1 * $invAPart2;
+            } elseif ($row['control'] == 0) { // Wenn keine Daten vorliegen, wird der Inverter als Verfügbar gezählt
+                $invAPart1 = 1;
+                $invAPart2 = 1;
+                $invAPart3 = 0;
             } else {
                 $invAPart1 = 0;
                 $invAPart2 = 0;
@@ -386,8 +384,8 @@ class AvailabilityService
             $sumPart2 += $invAPart2;
             $pa += $invAPart3;
         }
-
-        return $inverter === null ? $pa : $sumPart1;
+        dump($pa, $sumPart1, $sumPart2, ($sumPart1 / $sumPart2));
+        */
     }
 
     private function getIstData(Anlage $anlage, $from, $to): array
