@@ -359,6 +359,11 @@ class TicketController extends BaseController
         $em->persist($ticket);
         $em->persist($newTicket);
         $em->flush();
+        $ticket->setDescription($ticket->getDescription()." Ticket splited into Ticket: ". $newTicket->getId());
+        $em->persist($ticket);
+
+        $em->flush();
+
 
         $form = $this->createForm(TicketFormType::class, $ticket);
 
