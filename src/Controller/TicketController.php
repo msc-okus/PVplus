@@ -73,14 +73,15 @@ class TicketController extends BaseController
         $nameArray = $anlage->getInverterFromAnlage();
         $selected = $ticket->getInverterArray();
         $indexSelect = 0;
-        for($index = 1; $index <= sizeof($nameArray); $index++){
+
+        // ToDo JM: whats happening here
+        for ($index = 1; $index <= sizeof($nameArray); $index++){
             $value = $nameArray[$index];
             $inverterArray[$index]["inv"] = $value;
             if ($index === (int)$selected[$indexSelect]){
                 $inverterArray[$index]["select"] = "checked";
                 $indexSelect++;
-            }
-            else{
+            } else {
                 $inverterArray[$index]["select"] = "";
             }
         }
@@ -100,7 +101,6 @@ class TicketController extends BaseController
                 $ticket->setEnd(new \DateTime('now'));
             }
             // Adjust, if neccesary, the start ean end Date of the master Ticket, depending on the TicketDates
-            // TODO: Check what hapend if the last ticket is not the 'last' ticket, means if the order of the ticketDates are not respected
 
             if ($ticketDates) {
                 if ($ticketDates->first()->getBegin() <= $ticket->getBegin()) {
