@@ -209,8 +209,6 @@ class SollIstIrrAnalyseChartService
         $tabelArray['tabel'][0]['DCsum95'] =  "$DCsum95";
         $tabelArray['tabel'][0]['DCsum100'] =  "$DCsum100";
 
-        #dd( array($dataArray,$tabelArray));
-
         return array($dataArray,$tabelArray);
     }
 }

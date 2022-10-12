@@ -28,10 +28,12 @@ export default class extends Controller {
     async submitForm(event) {
         event.preventDefault();
         const  $form = $(this.modalBodyTarget).find('form');
+        console.log($form);
         try {
             await $.ajax({
                 url: this.formUrlValue,
                 data: $form.serialize(),
+                method: 'POST'
             });
             this.dispatch('success');
             this.modal.destroy();

@@ -17,37 +17,10 @@ class ReportsEpcNewService
 {
     use G4NTrait;
 
-    private AnlagenRepository $anlageRepo;
-
-    private GridMeterDayRepository $gridMeterRepo;
-
-    private PRRepository $prRepository;
-
-    private MonthlyDataRepository $monthlyDataRepo;
-
-    private EntityManagerInterface $em;
-
-    private NormalizerInterface $serializer;
-
-    private FunctionsService $functions;
-
-    private PRCalulationService $PRCalulation;
-
-    private AvailabilityService $availabilityService;
-
-    public function __construct(AnlagenRepository $anlageRepo, GridMeterDayRepository $gridMeterRepo, PRRepository $prRepository,
-        MonthlyDataRepository $monthlyDataRepo, EntityManagerInterface $em, NormalizerInterface $serializer,
-        FunctionsService $functions, PRCalulationService $PRCalulation, AvailabilityService $availabilityService)
+    public function __construct(private AnlagenRepository $anlageRepo, private GridMeterDayRepository $gridMeterRepo, private PRRepository $prRepository,
+                                private MonthlyDataRepository $monthlyDataRepo, private EntityManagerInterface $em, private NormalizerInterface $serializer,
+                                private FunctionsService $functions, private PRCalulationService $PRCalulation, private AvailabilityService $availabilityService)
     {
-        $this->anlageRepo = $anlageRepo;
-        $this->gridMeterRepo = $gridMeterRepo;
-        $this->prRepository = $prRepository;
-        $this->monthlyDataRepo = $monthlyDataRepo;
-        $this->em = $em;
-        $this->serializer = $serializer;
-        $this->functions = $functions;
-        $this->PRCalulation = $PRCalulation;
-        $this->availabilityService = $availabilityService;
     }
 
     public function monthTable(Anlage $anlage, ?DateTime $date = null): array

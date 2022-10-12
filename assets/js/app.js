@@ -15,8 +15,7 @@ import '../styles/app.scss';
 
 import 'foundation-sites';
 import 'foundation-datepicker';
-import ticken from './components/tick_tack'
-global.ticken = ticken;
+
 
 import $ from 'jquery';
 //global.$ = $;
@@ -25,7 +24,17 @@ $(document).foundation();
 
 $('.my-alert-box').closest('[data-alert]').fadeOut(8000);
 
-if ($('#uhr').length > 0) {
-    window.onload = ticken();
-    window.setTimeout("ticken();", 10000);
-}
+document.addEventListener("DOMContentLoaded", () => {
+
+    var url = window.location.href;
+    var urlParams = url.split('#')[1];
+    if (urlParams === 'chart') {
+        const elementchart = document.getElementById('headbar');
+        const positionChart = elementchart.getBoundingClientRect();
+        const elementplants = document.getElementById('plants');
+        const positionPlants = elementplants.getBoundingClientRect();
+        const height = positionChart.height + positionPlants.height - 80;
+        const hightpx = height + "px";
+        setTimeout(function() {window.scrollTo(0, height);},1)
+    }
+});

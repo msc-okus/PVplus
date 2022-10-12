@@ -18,6 +18,9 @@
         <td>{{ form_widget(monthlyYield.pvSystPR) }}</td>
         <td>{{ form_widget(monthlyYield.pvSystErtrag) }}</td>
         <td>{{ form_widget(monthlyYield.externMeterDataMonth) }}</td>
+        {% if is_granted('ROLE_G4N') %}
+            <td>{{ form_widget(monthlyYield.irrCorrectedValuMonth) }}</td>
+        {% endif %}
         <td></td>
     </tr>
 {% endmacro %}
@@ -295,6 +298,7 @@
                                         <th>PVSYST PR [%] (recalc)</th>
                                         <th>PVSYST Yield [kW/h] (recalc)</th>
                                         <th>External Meter [kWh]</th>
+                                        <th>manual corrected Irr [kWh/qm]</th>
                                         <th></th>
                                     </tr>
                                     </thead>
@@ -306,7 +310,9 @@
                                             <td>{{ form_widget(monthlyYield.pvSystPR) }}</td>
                                             <td>{{ form_widget(monthlyYield.pvSystErtrag) }}</td>
                                             <td>{{ form_widget(monthlyYield.externMeterDataMonth) }}</td>
-
+                                            {% if is_granted('ROLE_G4N') %}
+                                                <td>{{ form_widget(monthlyYield.irrCorrectedValuMonth) }}</td>
+                                            {% endif %}
                                             <td>{% if is_granted('ROLE_DEV') %}<a href="#" class="js-remove-monthly-yield"><span class="fa fa-minus-circle"></span></a>{% endif %}</td>
                                         </tr>
                                     {% endfor %}

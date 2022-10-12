@@ -582,6 +582,9 @@ class PRCalulationService
         } else {
             $irr = $weather['upperIrr'] / 4 / 1000; // Umrechnug zu kWh
         }
+
+        $irr = $this->functions->checkAndIncludeMonthlyCorrectionIrr($anlage, $irr, $localStartDate, $localEndDate);
+
         // if theoretic Power ist corrected by temperature (NREL) (PR Algoritm = Lelystad) then use 'powerTheo' from array $power, if not calc by Pnom and Irr.
         $powerTheo = $anlage->getUseCustPRAlgorithm() == 'Lelystad' ? $power['powerTheo'] : $anlage->getPnom() * $irr;
         $result['powerTheo'] = $powerTheo;

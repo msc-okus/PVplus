@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Green4Net PVplus 4.0 - {% block title %}{% endblock %}</title>
-    {# <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>"> #}
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% block styles %}
         {{ encore_entry_link_tags('app') }}
@@ -12,14 +11,11 @@
         {{ encore_entry_script_tags('app') }}
     {% endblock %}
 </head>
-<body class="">
+<body>
 <div class="ajax-loader">
     <img src="{{ asset('/images/loader.gif') }}" class="img-responsive" alt="loader" />
 </div>
-<header class="grid-container fluid"
-    {# if impersonation is active #}
-    {{ is_granted('IS_IMPERSONATOR') ? 'style="border-top: red solid 5px;"' }}
->
+<header id="headbar" class="grid-container fluid" {{ is_granted('IS_IMPERSONATOR') ? 'style="border-top: red solid 5px;"' }}>
     <div class="top-bar">
         <div class="top-bar-left">
             <div class="logo">
@@ -41,7 +37,8 @@
             <div class="header-menu">
                 <ul class="menu vertical" style="font-size: 90%;">
                     {% if (app.user) %}
-                        <li><a href=""><i class="far fa-clock"></i> <span id="uhr"></span></a></li>
+
+                        <li {{ stimulus_controller('clock') }}><a href=""><i class="far fa-clock"></i> <span id="uhr" {{ stimulus_target('clock','clock') }}></span></a></li>
                         {% if is_granted('IS_IMPERSONATOR') %}
                             <li><a class="dropdown-item" href="{{ path('app_dashboard', {'_switch_user': '_exit'}) }}"><i class="fas fa-random"></i> Exit Impersonation</a></li>
                         {% else %}

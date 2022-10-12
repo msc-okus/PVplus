@@ -164,6 +164,14 @@ class ReportingController extends AbstractController
             $request->query->getInt('page', 1),
             20
         );
+
+        if ($request->query->get('ajax') || $request->isXmlHttpRequest()) {
+            return $this->render('reporting/_inc/_listReports.html.twig', [
+                'pagination' => $pagination,
+                'stati' => self::reportStati(),
+            ]);
+        }
+
         $anlagen = $anlagenRepo->findAllActiveAndAllowed();
 
         return $this->render('reporting/list.html.twig', [
@@ -179,14 +187,13 @@ class ReportingController extends AbstractController
     }
 
     #[Route(path: '/reporting/edit/{id}/{page}', name: 'app_reporting_edit', defaults: ['page' => 1])]
-    public function edit($id, $page, ReportsRepository $reportsRepository, Request $request, Security $security, EntityManagerInterface $em): Response
+    public function edit($id, $page, ReportsRepository $reportsRepository, Request $request, EntityManagerInterface $em): Response
     {
         $report = $reportsRepository->find($id);
         $form = $this->createForm(ReportsFormType::class, $report);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $successMessage = 'Plant data saved!';
             $em->persist($report);
             $em->flush();
 
@@ -195,7 +202,7 @@ class ReportingController extends AbstractController
             }
         }
 
-        $template = $request->isXmlHttpRequest() ? '_inc/_editForm.html.twig' : 'edit.html.twig';
+        $template = '_inc/_editForm.html.twig';
 
         return $this->renderForm('reporting/'.$template, [
             'reportForm'    => $form,//->createView(),

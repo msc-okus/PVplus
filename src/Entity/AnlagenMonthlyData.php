@@ -38,6 +38,9 @@ class AnlagenMonthlyData
     #[ORM\Column(type: 'string', length: 20)]
     private string $externMeterDataMonth;
 
+    #[ORM\Column(type: 'string', length: 20)]
+    private string $irrCorrectedValuMonth;
+
     #[ORM\Column(type: 'integer', length: 255)]
     private int $month;
 
@@ -68,7 +71,7 @@ class AnlagenMonthlyData
 
     public function setPvSystErtrag(string $pvSystErtrag): self
     {
-        $this->pvSystErtrag = $pvSystErtrag;
+        $this->pvSystErtrag = str_replace(',', '.', $pvSystErtrag);
 
         return $this;
     }
@@ -80,7 +83,7 @@ class AnlagenMonthlyData
 
     public function setPvSystPR(string $pvSystPR): self
     {
-        $this->pvSystPR = $pvSystPR;
+        $this->pvSystPR = str_replace(',', '.', $pvSystPR);
 
         return $this;
     }
@@ -92,7 +95,7 @@ class AnlagenMonthlyData
 
     public function setPvSystIrr(string $pvSystIrr): self
     {
-        $this->pvSystIrr = $pvSystIrr;
+        $this->pvSystIrr = str_replace(',', '.', $pvSystIrr);
 
         return $this;
     }
@@ -104,7 +107,19 @@ class AnlagenMonthlyData
 
     public function setExternMeterDataMonth(string $externMeterDataMonth): self
     {
-        $this->externMeterDataMonth = $externMeterDataMonth;
+        $this->externMeterDataMonth = str_replace(',', '.', $externMeterDataMonth);
+
+        return $this;
+    }
+
+    public function getIrrCorrectedValuMonth(): ?float
+    {
+        return (float) $this->irrCorrectedValuMonth;
+    }
+
+    public function setIrrCorrectedValuMonth(string $irrCorrectedValuMonth): self
+    {
+        $this->irrCorrectedValuMonth = str_replace(',', '.', $irrCorrectedValuMonth);
 
         return $this;
     }
