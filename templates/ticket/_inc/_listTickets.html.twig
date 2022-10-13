@@ -5,18 +5,18 @@
             <thead>
             <tr>
                 <th {% if pagination.isSorted('ticket.id') %} class="sorted"{% endif %}>
-                    {{ knp_pagination_sortable(pagination, 'Ticket ID', ['ticket.id'], {'data-action': 'ticket-list#sort'}) }}</th>
+                    {{ knp_pagination_sortable(pagination, 'Ticket ID', ['ticket.id'], {'data-action': 'ticket-list#sortId'}) }}</th>
                 <th>Plant</th>
                 <th class="text-center">Status</th>
                 <th class="text-center">Priority</th>
                 <th>Editor</th>
 
                 <th {% if pagination.isSorted('ticket.begin') %} class="sorted"{% endif %}>
-                    {{ knp_pagination_sortable(pagination, 'Begin', ['ticket.begin'], {'data-action': 'ticket-list#sort'}) }}</th>
+                    {{ knp_pagination_sortable(pagination, 'Begin', ['ticket.begin'], {'data-action': 'ticket-list#sortBegin'}) }}</th>
                 <th {% if pagination.isSorted('ticket.end') %} class="sorted"{% endif %}>
-                    {{ knp_pagination_sortable(pagination, 'End', ['ticket.end'], {'data-action': 'ticket-list#sort'}) }}</th>
+                    {{ knp_pagination_sortable(pagination, 'End', ['ticket.end'], {'data-action': 'ticket-list#sortEnd'}) }}</th>
                 <th {% if pagination.isSorted('ticket.updatedAt') %} class="sorted"{% endif %}>
-                    {{ knp_pagination_sortable(pagination, 'Last Update', ['ticket.updatedAt'], {'data-action': 'ticket-list#sort'}) }}</th>
+                    {{ knp_pagination_sortable(pagination, 'Last Update', ['ticket.updatedAt'], {'data-action': 'ticket-list#sortUpdate'}) }}</th>
                 <th>Error Category{% if is_granted('ROLE_G4N') %} <br><small>alertType</small> {% endif %}</th>
                 {# <th>Error Type</th>  #}
                 <th>Inverter</th>

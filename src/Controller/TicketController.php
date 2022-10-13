@@ -141,6 +141,7 @@ class TicketController extends BaseController
         $filter = [];
         $session = $requestStack->getSession();
 
+
         $pageSession = $session->get('page');
         $page = $request->query->getInt('page');
         if ($page == 0) {
@@ -187,10 +188,8 @@ class TicketController extends BaseController
 
         $order['begin'] = 'DESC'; // null, ASC, DESC
         $order['updatedAt'] = 'DESC';
-
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlageName, $editor, $id, $prio, $status, $category, $type, $inverter, $order, $prooftam, $sort, $direction);
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlageName, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $sort, $direction);
         $pagination = $paginator->paginate($queryBuilder, $page,25 );
-        dd($pagination);
 
         // check if we get no result
         if ($pagination->count() == 0){
@@ -204,8 +203,8 @@ class TicketController extends BaseController
                 'pagination'    => $pagination,
                 'anlagen'       => $anlagenRepo->findAllActiveAndAllowed(),
             ]);
-        }
 
+        }
         return $this->render('ticket/list.html.twig', [
             'pagination'    => $pagination,
             'anlage'        => $anlage,
@@ -215,6 +214,8 @@ class TicketController extends BaseController
             'inverter'      => $inverter,
             'filter'        => $filter,
             'prooftam'      => $prooftam,
+            'sort'          => $sort,
+            'direction'     => $direction
         ]);
     }
 
@@ -439,29 +440,29 @@ class TicketController extends BaseController
 
     public function findNextDate($stamp, $ticket, $ticketDateRepo): ?TicketDate
     {
-        $ticketDate = $ticketDateRepo->findOneByBeginTicket($stamp, $ticket);
-        /*
+        //$ticketDate = $ticketDateRepo->findOneByBeginTicket($stamp, $ticket);
+
         $found = false;
         while (($found != true) && (strtotime($stamp) < $ticket->getEnd()->getTimestamp())) {
             $ticketDate = $ticketDateRepo->findOneByBeginTicket($stamp, $ticket);
             if ($ticketDate) $found == true;
             else  $stamp = date('Y-m-d H:i', strtotime($stamp) + 900);
         }
-        */
+
         return $ticketDate;
     }
 
     public function findPreviousDate($stamp, $ticket, $ticketDateRepo): ?TicketDate
     {
-        $ticketDate = $ticketDateRepo->findOneByEndTicket($stamp, $ticket);
-        /*
+        //$ticketDate = $ticketDateRepo->findOneByEndTicket($stamp, $ticket); we cannot do this because if there is a gap between the intervals we will not be able to find the next interval to link with
+
         $found = false;
         while (($found != true) && (strtotime($stamp) < $ticket->getBegin()->getTimestamp())) {
             $ticketDate = $ticketDateRepo->findOneByEndTicket($stamp, $ticket);
             if ($ticketDate) $found == true;
             else  $stamp = date('Y-m-d H:i', strtotime($stamp) - 900);
         }
-        */
+
         return $ticketDate;
     }
 
