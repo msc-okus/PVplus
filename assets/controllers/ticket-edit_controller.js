@@ -27,8 +27,7 @@ export default class extends Controller {
                 data: {'anlage': $(this.anlageTarget).val()},
             });
                 $(this.saveButtonTarget).attr('disabled', 'disabled');
-        }
-        else{
+        } else {
             this.modalBodyTarget.innerHTML = await $.ajax({
                 url: this.formUrlValue,
             });
@@ -66,6 +65,7 @@ export default class extends Controller {
 
     async reload(event){
         this.modalBodyTarget.innerHTML = await $.ajax(this.formUrlValue);
+        $(document).foundation();
     }
 
     checkSelect({ params: { edited }}){
