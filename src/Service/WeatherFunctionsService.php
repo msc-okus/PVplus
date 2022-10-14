@@ -150,8 +150,6 @@ class WeatherFunctionsService
         }
         $conn = false;
 
-        #dump("Upper: $irrUpper | Lower: $irrLower | GewOben: $gwoben | GewUnten: $gwunten | Irr: $irr");
-
         return $irr;
     }
 }

@@ -58,7 +58,6 @@
               {{ form_widget(userForm.eignersPlantList) }}
             {% endif %}#}
 
-            {# {{ dump(userForm.eigners.vars.data) }} #}
             {# {% if userForm.eigners.vars.data is not null %} #}
 
              {{ form_widget(userForm.eignersPlantList) }}
@@ -95,9 +94,8 @@
         {{ form_widget(userForm.save) }}
         {{ form_widget(userForm.saveclose) }}
         {{ form_widget(userForm.close) }}
-       {# {{ dump(app.request.requestUri|split('/')) }}#}
         {% if app.request.requesturi != "/admin/user/new" %}
-        <a href="{{ path('app_admin_user_delete', {id: app.request.attributes.get('id')}) }}" onclick="return confirm('WARNING! Are you sure to delete this User?')" class="button button" style="background-color: red;"><i class="fa fa-trash"></i> Delete User</a>
+            <a href="{{ path('app_admin_user_delete', {id: app.request.attributes.get('id')}) }}" onclick="return confirm('WARNING! Are you sure to delete this User?')" class="button alert"><i class="fa fa-trash"></i> Delete User</a>
         {% endif %}
     </div>
 </div>

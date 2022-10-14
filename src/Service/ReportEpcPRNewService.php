@@ -88,7 +88,6 @@ class ReportEpcPRNewService
 
         $tableArray = [];
         $anzahlMonate = ((int) $anlage->getEpcReportEnd()->format('Y') - (int) $anlage->getEpcReportStart()->format('Y')) * 12 + ((int) $anlage->getEpcReportEnd()->format('m') - (int) $anlage->getEpcReportStart()->format('m'));
-        // dd($anzahlMonate, (int)(($anzahlMonate / 12) + 0.9));
         $anzahlMonate = $anzahlMonate + (int) (($anzahlMonate / 12) + 0.9);
         $rollingPeriodMonthsStart = ((int) $date->format('Y') - (int) $anlage->getEpcReportStart()->format('Y')) * 12 + ((int) $date->format('m') - (int) $anlage->getEpcReportStart()->format('m')) - 11;
         $rollingPeriodMonthsEnd = ((int) $date->format('Y') - (int) $anlage->getEpcReportStart()->format('Y')) * 12 + ((int) $date->format('m') - (int) $anlage->getEpcReportStart()->format('m')) + 2;
