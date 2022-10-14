@@ -440,12 +440,12 @@ class TicketController extends BaseController
 
     public function findNextDate($stamp, $ticket, $ticketDateRepo): ?TicketDate
     {
-        //$ticketDate = $ticketDateRepo->findOneByBeginTicket($stamp, $ticket);
+        $ticketDate = null; // = $ticketDateRepo->findOneByBeginTicket($stamp, $ticket);
 
         $found = false;
-        while (($found != true) && (strtotime($stamp) < $ticket->getEnd()->getTimestamp())) {
+        while (($found !== true) && (strtotime($stamp) < $ticket->getEnd()->getTimestamp())) {
             $ticketDate = $ticketDateRepo->findOneByBeginTicket($stamp, $ticket);
-            if ($ticketDate) $found == true;
+            if ($ticketDate) $found = true;
             else  $stamp = date('Y-m-d H:i', strtotime($stamp) + 900);
         }
 
@@ -454,12 +454,12 @@ class TicketController extends BaseController
 
     public function findPreviousDate($stamp, $ticket, $ticketDateRepo): ?TicketDate
     {
-        //$ticketDate = $ticketDateRepo->findOneByEndTicket($stamp, $ticket); we cannot do this because if there is a gap between the intervals we will not be able to find the next interval to link with
+        $ticketDate = null; //$ticketDateRepo->findOneByEndTicket($stamp, $ticket); we cannot do this because if there is a gap between the intervals we will not be able to find the next interval to link with
 
         $found = false;
-        while (($found != true) && (strtotime($stamp) < $ticket->getBegin()->getTimestamp())) {
+        while (($found !== true) && (strtotime($stamp) < $ticket->getBegin()->getTimestamp())) {
             $ticketDate = $ticketDateRepo->findOneByEndTicket($stamp, $ticket);
-            if ($ticketDate) $found == true;
+            if ($ticketDate) $found = true;
             else  $stamp = date('Y-m-d H:i', strtotime($stamp) - 900);
         }
 

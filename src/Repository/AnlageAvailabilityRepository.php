@@ -25,24 +25,34 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
 
     public function sumAvailabilityPerDay($anlagenId, $day)
     {
-        return $this->createQueryBuilder('pa')
+        $result =  $this->createQueryBuilder('pa')
             ->andWhere('pa.anlage = :anlageId and pa.stamp = :day')
             ->setParameter('anlageId', $anlagenId)
             ->setParameter('day', $day)
             ->select('SUM(pa.invA)')
-            ->getQuery()
-            ->getSingleScalarResult();
+            ->getQuery();
+
+        try {
+            return $result->getSingleScalarResult();
+        } catch (NoResultException | NonUniqueResultException) {
+            return 0;
+        }
     }
 
     public function sumAvailabilitySecondPerDay($anlagenId, $day)
     {
-        return $this->createQueryBuilder('pa')
+        $result = $this->createQueryBuilder('pa')
             ->andWhere('pa.anlage = :anlageId and pa.stamp = :day')
             ->setParameter('anlageId', $anlagenId)
             ->setParameter('day', $day)
             ->select('SUM(pa.invASecond)')
-            ->getQuery()
-            ->getSingleScalarResult();
+            ->getQuery();
+
+         try {
+             return $result->getSingleScalarResult();
+         } catch (NoResultException | NonUniqueResultException) {
+             return 0;
+         }
     }
 
     public function findAvailabilityAnlageDate($anlage, $from, $to)
@@ -64,6 +74,9 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
         ;
     }
 
+    /**
+     * @throws NonUniqueResultException
+     */
     public function findAvailabilityForCase5($anlageID, $day, $inverter)
     {
         return $this->createQueryBuilder('c5') // c5 = case5
@@ -78,7 +91,6 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
         ;
     }
 
-    #return (($row['case1'] + $row['case2'] + $row['case5']) / $row['control']) * 100;
     public function getPaByDate(Anlage $anlage, DateTime $from, DateTime $to, ?int $inverter = null)
     {
         if ($inverter === null) {
@@ -88,11 +100,7 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
                 ->setParameter('anlage', $anlage)
                 ->setParameter('from', $from->format('Y-m-d H:i'))
                 ->setParameter('to', $to->format('Y-m-d H:i'))
-                #->groupBy('a.inverter')
-                #->orderBy('a.inverter*1')
-                //->select('a.inverter, sum(a.case_0 * a.invAPart2) as case0, sum(a.case_1 * a.invAPart2) as case1, sum(a.case_2 * a.invAPart2) as case2, sum(a.case_3 * a.invAPart2) as case3, sum(a.case_4 * a.invAPart2) as case4, sum(a.case_5 * a.invAPart2) as case5, sum(a.case_6 * a.invAPart2) as case6, sum(a.control * a.invAPart2) as control')
                 ->select('sum((a.case_1 + a.case_2 + a.case_5) * a.invAPart2) / sum(a.control * a.invAPart2) as pa')
-                //, sum(a.case_0 * a.invAPart2) as case0, sum(a.case_1 * a.invAPart2) as case1, sum(a.case_2 * a.invAPart2) as case2, sum(a.case_3 * a.invAPart2) as case3, sum(a.case_4 * a.invAPart2) as case4, sum(a.case_5 * a.invAPart2) as case5, sum(a.case_6 * a.invAPart2) as case6, sum(a.control * a.invAPart2) as control')
                 ->getQuery()
             ;
         } else {
@@ -103,8 +111,6 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
                 ->setParameter('from', $from->format('Y-m-d H:i'))
                 ->setParameter('to', $to->format('Y-m-d H:i'))
                 ->setParameter('inverter', $inverter)
-                #->groupBy('a.inverter')
-                #->orderBy('a.inverter*1')
                 ->select('sum((a.case_1 + a.case_2 + a.case_5) * a.invAPart2) / sum(a.control * a.invAPart2) as pa')
                 ->getQuery()
             ;
@@ -112,7 +118,7 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
 
         try {
             return $result->getSingleScalarResult();
-        } catch (NoResultException) {
+        } catch (NoResultException | NonUniqueResultException) {
             return 0;
         }
 
