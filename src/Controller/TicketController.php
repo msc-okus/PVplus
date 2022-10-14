@@ -172,8 +172,8 @@ class TicketController extends BaseController
         $sort = $request->query->get('sort', "");
         $direction = $request->query->get('direction', "");
         $prooftam = $request->query->get('prooftam', 0);
-
-
+        if ($sort === "") $sort = "ticket.begin";
+        if ($direction === "") $direction ="ASC";
         $filter['anlagen']['value'] = $anlage;
         $filter['anlagen']['array'] = $anlagenRepo->findAllActiveAndAllowed();
         $filter['status']['value'] = $status;
@@ -190,7 +190,7 @@ class TicketController extends BaseController
 
         $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlageName, $editor, $id, $prio, $status, $category, $type, $inverter, $order, $prooftam, $sort, $direction);
         $pagination = $paginator->paginate($queryBuilder, $page,25 );
-        dd($pagination);
+
 
         // check if we get no result
         if ($pagination->count() == 0){
