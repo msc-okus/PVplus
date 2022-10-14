@@ -35,6 +35,7 @@
         </div>
         <div class="cell medium-1">
             <select name="category" >{# category = alertType (bsp: datagap, inverter power, etc.) #}
+                {{ filter.category.value }}
                 <option value="00">{% trans %}ticket.error.category.name{% endtrans %}</option>
                 {% for key, value in filter.category.array %}
                     <option value="{{ value }}" {% if filter.category.value == value %} selected {% endif %}>{{ key }}</option>
@@ -57,6 +58,7 @@
                 <input type="checkbox" name="prooftam" class="input-group-field" value="1">
             </label>
         </div>
+
         <div class="cell medium-1">
             <div class="input-group-button" style="height:35px !important; width:35px !important; padding:0; margin-top:-15px;">
                 <button type="submit" name="search" class="button" value="yes"
@@ -64,5 +66,12 @@
                 ><span class="fa fa-search"></span></button>
             </div>
         </div>
+        <div class="cell medium-1" style="visibility: hidden">
+            <input type="text" name="sort" class="input-group-field" value="" data-ticket-list-target="sort">
+        </div>
+        <div class="cell medium-1 hidden" style="visibility: hidden">
+            <input type="text" name="direction" class="input-group-field" value="" data-ticket-list-target="direction">
+        </div>
+
     </div>
 </form>

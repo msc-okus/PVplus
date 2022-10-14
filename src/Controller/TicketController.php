@@ -141,6 +141,7 @@ class TicketController extends BaseController
         $filter = [];
         $session = $requestStack->getSession();
 
+
         $pageSession = $session->get('page');
         $page = $request->query->getInt('page');
         if ($page == 0) {
@@ -169,6 +170,8 @@ class TicketController extends BaseController
         $prio = $request->query->get('prio');
         $category = $request->query->get('category');
         $type = $request->query->get('type');
+        $sort = $request->query->get('sort', "");
+        $direction = $request->query->get('direction', "");
         $prooftam = $request->query->get('prooftam', 0);
 
 
@@ -185,8 +188,7 @@ class TicketController extends BaseController
 
         $order['begin'] = 'DESC'; // null, ASC, DESC
         $order['updatedAt'] = 'DESC';
-
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlageName, $editor, $id, $prio, $status, $category, $type, $inverter, $order, $prooftam);
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlageName, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $sort, $direction);
         $pagination = $paginator->paginate($queryBuilder, $page,25 );
 
         // check if we get no result
@@ -201,8 +203,8 @@ class TicketController extends BaseController
                 'pagination'    => $pagination,
                 'anlagen'       => $anlagenRepo->findAllActiveAndAllowed(),
             ]);
-        }
 
+        }
         return $this->render('ticket/list.html.twig', [
             'pagination'    => $pagination,
             'anlage'        => $anlage,
@@ -212,6 +214,8 @@ class TicketController extends BaseController
             'inverter'      => $inverter,
             'filter'        => $filter,
             'prooftam'      => $prooftam,
+            'sort'          => $sort,
+            'direction'     => $direction
         ]);
     }
 
@@ -358,6 +362,11 @@ class TicketController extends BaseController
         $em->persist($ticket);
         $em->persist($newTicket);
         $em->flush();
+        $ticket->setDescription($ticket->getDescription()." Ticket splited into Ticket: ". $newTicket->getId());
+        $em->persist($ticket);
+
+        $em->flush();
+
 
         $form = $this->createForm(TicketFormType::class, $ticket);
 
@@ -431,29 +440,29 @@ class TicketController extends BaseController
 
     public function findNextDate($stamp, $ticket, $ticketDateRepo): ?TicketDate
     {
-        $ticketDate = $ticketDateRepo->findOneByBeginTicket($stamp, $ticket);
-        /*
+        //$ticketDate = $ticketDateRepo->findOneByBeginTicket($stamp, $ticket);
+
         $found = false;
         while (($found != true) && (strtotime($stamp) < $ticket->getEnd()->getTimestamp())) {
             $ticketDate = $ticketDateRepo->findOneByBeginTicket($stamp, $ticket);
             if ($ticketDate) $found == true;
             else  $stamp = date('Y-m-d H:i', strtotime($stamp) + 900);
         }
-        */
+
         return $ticketDate;
     }
 
     public function findPreviousDate($stamp, $ticket, $ticketDateRepo): ?TicketDate
     {
-        $ticketDate = $ticketDateRepo->findOneByEndTicket($stamp, $ticket);
-        /*
+        //$ticketDate = $ticketDateRepo->findOneByEndTicket($stamp, $ticket); we cannot do this because if there is a gap between the intervals we will not be able to find the next interval to link with
+
         $found = false;
         while (($found != true) && (strtotime($stamp) < $ticket->getBegin()->getTimestamp())) {
             $ticketDate = $ticketDateRepo->findOneByEndTicket($stamp, $ticket);
             if ($ticketDate) $found == true;
             else  $stamp = date('Y-m-d H:i', strtotime($stamp) - 900);
         }
-        */
+
         return $ticketDate;
     }
 

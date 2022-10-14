@@ -98,6 +98,7 @@ class AlertSystemService
                                 array_splice($ticketGap, $secondTicketGapIndex, 1);//we remove the ticket we are linking with the main
                                 $secondTicketGapIndex--; //we do this because when we remove an element the index is moved to the left
                                 $mainTicketGap->setInverter($mainTicketGap->getInverter() . ", " . $secondTicketGap->getInverter());
+                                $mainTicketGap->setDescription($mainTicketGap->getDescription() . ", ". $secondTicketGap->getInverter());
                             }
                     }
                     $this->em->persist($mainTicketGap);
@@ -163,7 +164,6 @@ class AlertSystemService
                         $ticket->setOpenTicket(false);
                         $this->em->persist($ticket);
                     }
-                $this->em->flush();
             }
             if ($plant_status['ppc'] === false) {
                 foreach($array_gap as $inverter) {
@@ -193,6 +193,7 @@ class AlertSystemService
                 $this->generateTickets(OMC, $errorCategorie, $anlage, '*' , $time, "");
             }
         }
+        $this->em->flush();
 
         return 'success';
     }
@@ -368,7 +369,6 @@ class AlertSystemService
                     $this->em->persist($ticket);
                     $this->em->persist($ticketDate);
                 }
-            $this->em->flush();
     }
 
 

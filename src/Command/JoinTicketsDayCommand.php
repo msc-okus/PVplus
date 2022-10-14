@@ -75,7 +75,7 @@ class JoinTicketsDayCommand extends Command
                 $anlagen = $this->anlagenRepository->findIdLike([93, 94, 96, 112, 113]);
             }
 
-            $counter = (($toStamp - $fromStamp) / 3600) * count($anlagen);
+            $counter = (($toStamp - $fromStamp) / 86400) * count($anlagen);
             $io->progressStart($counter);
             $counter = ($counter * 4) - 1;
 
@@ -88,9 +88,8 @@ class JoinTicketsDayCommand extends Command
 
                 for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 86400) {
                     $this->alertService->joinTicketsForTheDay($anlage, date('Y-m-d', $stamp));
-                    if ($counter % 4 == 0) {
                         $io->progressAdvance();
-                    }
+
                     --$counter;
                 }
                 $io->comment($anlage->getAnlName());
