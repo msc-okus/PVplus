@@ -2,6 +2,13 @@
 
 {% macro availabilityTable(availability, second) %}
     {% set pa = 0 %}
+    {% set case0 = 0 %}
+    {% set case1 = 0 %}
+    {% set case2 = 0 %}
+    {% set case3 = 0 %}
+    {% set case4 = 0 %}
+    {% set case5 = 0 %}
+    {% set case6 = 0 %}
     <div class="status-log" style="margin: 0 25px 0 10px;">
         <table id="statusTable" style="width: 100%;">
             <thead>
@@ -35,22 +42,29 @@
                     <td>{{ stati.case5 }} / {{ stati.case5 / 4 }}{% if second %}<br><span class="topline">{{ stati.case5second }}</span>{% endif %}</td>
                     <td>{{ stati.case6 }} / {{ stati.case6 / 4 }}{% if second %}<br><span class="topline">{{ stati.case6second }}</span>{% endif %}</td>
                     <td>{{ stati.control}} / {{ stati.control / 4}}{% if second %}<br><span class="topline">{{ stati.controlSecond }}</span>{% endif %}</td>
-                    <td>{{ stati.invApart1|number_format(0, ',', '.') }}{% if second %}<br><span class="topline">{{ stati.invApart1Second|number_format(0, ',', '.') }}</span>{% endif %}</td>
+                    <td>{{ stati.invApart1|number_format(2, ',', '.') }}{% if second %}<br><span class="topline">{{ stati.invApart1Second|number_format(0, ',', '.') }}</span>{% endif %}</td>
                     <td>{{ stati.invA|number_format(4, ',', '.') }}{% if second %}<br><span class="topline">{{ stati.invASecond|number_format(4, ',', '.') }}</span>{% endif %}</td>
                     {% set pa = pa + stati.invA %}
+                    {% set case0 = case0 + stati.case0 %}
+                    {% set case1 = case1 + stati.case1 %}
+                    {% set case2 = case2 + stati.case2 %}
+                    {% set case3 = case3 + stati.case3 %}
+                    {% set case4 = case4 + stati.case4 %}
+                    {% set case5 = case5 + stati.case5 %}
+                    {% set case6 = case6 + stati.case6 %}
                 </tr>
             {% endfor %}
             <tr>
                 <td> </td>
                 <td></td>
                 {% if second %}<td></td>{% endif %}
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td>{{ case0 }} / {{ case0 / 4 }}</td>
+                <td>{{ case1 }} / {{ case1 / 4 }}</td>
+                <td>{{ case2 }} / {{ case2 / 4 }}</td>
+                <td>{{ case3 }} / {{ case3 / 4 }}</td>
+                <td>{{ case4 }} / {{ case4 / 4 }}</td>
+                <td>{{ case5 }} / {{ case5 / 4 }}</td>
+                <td>{{ case6 }} / {{ case6 / 4 }}</td>
                 <td></td>
                 <td></td>
                 <td>{{ pa|number_format(4, ',', '.') }}</td>
@@ -134,7 +148,7 @@
                 <dd>irradiation below limit value<br>
                     <small>G [W/qm] > {{ aktAnlage.threshold1PA }} && G [W/qm] <= {{ aktAnlage.threshold2PA }}</small></dd>
 
-                <dt>Case 2</dt>
+                <dt>Case 2 (t<sub>i</sub>)</dt>
                 <dd>inverter available under operating conditions<br>
                     <small>G [W/qm] > {{ aktAnlage.threshold2PA }}</small></dd>
 
@@ -146,7 +160,7 @@
                 <dd>inverter not available because of curtailment<br>
                     <small>G [W/qm] > {{ aktAnlage.threshold2PA }} && Pac [kWh] > 0 && CosPhi = 0</small></dd>
 
-                <dt>Case 5</dt>
+                <dt>Case 5 (t<sub>iFM</sub>)</dt>
                 <dd>inverter not available because of maintenance<br>
                     <small></small></dd>
 
@@ -154,8 +168,8 @@
                 <dd>data gap are defined to unavialability<br>
                     <small></small></dd>
 
-                <dt>Control</dt>
-                <dd>control field case 1 + case 2<br>
+                <dt>Control (t<sub>i,theo</sub>)</dt>
+                <dd>control field case 1 + case 2 + case 5 + case 6<br>
                     <small>G [W/qm] > 0</small></dd>
 
                 <dt>Availability cases</dt>

@@ -17,13 +17,11 @@ export default class extends Controller {
     async search(event) {
         event.preventDefault();
         const $searchListform = $(this.searchBarTarget).find('form');
-        console.log($(this.directionTarget).val());
-        let param = await $.ajax({
+        this.listTarget.innerHTML = await $.ajax({
             url: this.urlSearchValue,
             method: $searchListform.prop('method'),
             data: $searchListform.serialize(),
         });
-        this.listTarget.innerHTML = param;
         $(document).foundation();
     }
 
