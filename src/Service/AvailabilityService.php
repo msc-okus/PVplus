@@ -362,7 +362,6 @@ class AvailabilityService
         // END: calulate pNom for each inverter
 
         $pa = (float)$this->availabilityRepository->getPaByDate($anlage, $from, $to, $inverter);
-        dump($pa);
 
         foreach ($availabilitys as $row) {
             $inverterNr = $row['inverter'];
@@ -384,7 +383,6 @@ class AvailabilityService
             $sumPart2 += $invAPart2;
             $pa += $invAPart3;
         }
-        dump($pa, $sumPart1, $sumPart2, ($sumPart1 / $sumPart2));
         */
     }
 
