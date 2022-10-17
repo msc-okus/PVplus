@@ -33,7 +33,6 @@
                             {% endif %}
                         {% endfor %}
                         <div class="grid-x grid-margin-x grid-padding-x">
-                                {% if (is_granted('ROLE_G4N')) %}
                                     <button class="button small no-margin hollow expanded" type="button"  {% if (edited) %}data-toggle="split-dropdown-{{ dropdownId }}"{% else %} disabled{% endif %}{% if (counter <= 1)%} disabled {% endif%} data-ticket-edit-target="splitDeploy">Split by Inverter</button>
                                     <div class="dropdown-pane shadow"   {% if (edited) %}id="split-dropdown-{{ dropdownId }}" {% else%} disabled {% endif %}data-dropdown data-auto-focus="true" data-alignment="center" data-close-on-click="true">
                                         {% if (invArray != null) %}
@@ -92,9 +91,6 @@
                                             No Inverters found to select
                                         {% endif %}
                                     </div>
-
-                                {% endif %}
-
                             <div class="cell small-12 medium-3 large-2">
                                 {{ form_row(ticketForm.anlage, {'attr': {'value': anlage.anlName } }) }}
                             </div>
