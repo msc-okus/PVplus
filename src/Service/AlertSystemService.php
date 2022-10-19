@@ -91,7 +91,7 @@ class AlertSystemService
                                 array_splice($ticketGap, $secondTicketGapIndex, 1);//we remove the ticket we are linking with the main
                                 $secondTicketGapIndex--; //we do this because when we remove an element the index is moved to the left
                                 $mainTicketGap->setInverter($mainTicketGap->getInverter() . ", " . $secondTicketGap->getInverter());
-                                $mainTicketGap->setDescription($mainTicketGap->getDescription() . ", ". $secondTicketGap->getInverter());
+                                $mainTicketGap->setDescription($mainTicketGap->getDescription() . ", ".  $anlage->getInverterFromAnlage()[(int)$secondTicketGap->getInverter()]);
                             }
                     }
                     $this->em->persist($mainTicketGap);
@@ -107,7 +107,8 @@ class AlertSystemService
                             $this->em->remove($secondTicket0);
                             array_splice($ticketZero, $secondTicket0Index, 1);//we remove the ticket we are linking with the main
                             $secondTicket0Index--; //we do this because when we remove an element the index is moved to the left
-                            $mainTicket0->setInverter($mainTicket0->getInverter() . ", " . $secondTicket0->getInverter());
+                            $mainTicket0->setInverter($mainTicket0->getInverter() . ", " .  $secondTicket0->getInverter());
+                            $mainTicket0->setDescription($mainTicket0->getDescription() . ", ".  $anlage->getInverterFromAnlage()[(int)$secondTicket0->getInverter()]);
                         }
                     }
                     $this->em->persist($mainTicket0);
@@ -124,6 +125,7 @@ class AlertSystemService
                             array_splice($ticketGrid, $secondTicketGridIndex, 1);//we remove the ticket we are linking with the main
                             $secondTicketGridIndex--; //we do this because when we remove an element the index is moved to the left
                             $mainTicketGrid->setInverter($mainTicketGrid->getInverter() . ", " . $secondTicketGrid->getInverter());
+                            $mainTicketGrid->setDescription($mainTicketGrid->getDescription() . ", ".  $anlage->getInverterFromAnlage()[(int)$secondTicketGrid->getInverter()]);
                         }
                     }
                     $this->em->persist($mainTicketGrid);
@@ -161,21 +163,21 @@ class AlertSystemService
             if ($plant_status['ppc'] === false) {
                 foreach($array_gap as $inverter) {
                     if($inverter != "") {
-                        $message = "Data gap in Inverter(s): " . $inverter;
+                        $message = "Data gap in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter];
                         $this->generateTickets('', DATA_GAP, $anlage, $inverter, $time, $message);
                     }
                 }
 
                 foreach($array_zero as $inverter){
                     if ($inverter != "") {
-                        $message = "Power Error in Inverter(s): " . $inverter;
+                        $message = "Power Error in Inverter(s): " .  $anlage->getInverterFromAnlage()[(int)$inverter];
                         $this->generateTickets(EFOR, INVERTER_ERROR, $anlage, $inverter, $time, $message);
                     }
                 }
 
                 foreach($array_vol as $inverter){
                     if ($inverter != "") {
-                        $message = "Grid Error in Inverter(s): " . $inverter;
+                        $message = "Grid Error in Inverter(s): " .  $anlage->getInverterFromAnlage()[(int)$inverter];
                         $this->generateTickets('', GRID_ERROR, $anlage, $inverter, $time, $message);
                     }
                 }

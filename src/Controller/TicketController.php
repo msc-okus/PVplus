@@ -50,6 +50,9 @@ class TicketController extends BaseController
 
         $nameArray = $anlage->getInverterFromAnlage();
         $inverterArray = [];
+        // I loop over the array with the real names and the array of selected inverters
+        // of the inverter to create a 2-dimension array with the real name and the inverters that are selected
+        //In this case there will  be none selected
         foreach ($nameArray as $key => $value){
             $inverterArray[$key]["inv"] = $value;
             $inverterArray[$key]["select"] = "";
@@ -74,7 +77,8 @@ class TicketController extends BaseController
         $selected = $ticket->getInverterArray();
         $indexSelect = 0;
 
-        // ToDo JM: whats happening here
+        // I loop over the array with the real names and the array of selected inverters
+        // of the inverter to create a 2-dimension array with the real name and the inverters that are selected
         for ($index = 1; $index <= sizeof($nameArray); $index++){
             $value = $nameArray[$index];
             $inverterArray[$index]["inv"] = $value;

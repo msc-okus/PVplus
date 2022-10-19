@@ -102,10 +102,13 @@ export default class extends Controller {
             $(this.aktDep1Target).prop('disabled', false);
             $(this.aktDep2Target).prop('disabled', false);
             $(this.aktDep3Target).prop('disabled', false);
-            if ($(this.aktDep1Target).val() === '') $(this.aktDep1Target).prop('value', '10');
-            if ($(this.aktDep2Target).val() === '') $(this.aktDep2Target).prop('value', '10');
-            if ($(this.aktDep3Target).val() === '') $(this.aktDep3Target).prop('value', '20');
-        } else {
+            if ($dataGapEvaluation.val() === '10') {
+                if ($(this.aktDep1Target).val() === '') $(this.aktDep1Target).prop('value', '10');
+                if ($(this.aktDep2Target).val() === '') $(this.aktDep2Target).prop('value', '10');
+                if ($(this.aktDep3Target).val() === '') $(this.aktDep3Target).prop('value', '10');
+            }
+        }
+        else {
             $(this.aktDep1Target).prop('disabled', true);
             $(this.aktDep2Target).prop('disabled', true);
             $(this.aktDep3Target).prop('disabled', true);
