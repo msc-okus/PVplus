@@ -47,7 +47,6 @@ export default class extends Controller {
                     });
                     this.dispatch('async:submitted');
                 } catch (e) {
-                    //console.log(e);
                 }
             }
         } else {
@@ -57,7 +56,7 @@ export default class extends Controller {
 
     async delete({params: {id}}){
         const data = {'value': $(this.splitDeleteTarget).find('.select-' + id).val()};
-        if (data !== "") {
+        if (data !== '') {
             try {
                 await $.ajax({
                     url: this.urlDeleteValue,
@@ -65,7 +64,6 @@ export default class extends Controller {
                 });
                 this.dispatch('async:submitted');
             } catch (e) {
-                //console.log(e);
             }
         }
     }
@@ -93,7 +91,6 @@ export default class extends Controller {
             $(this.splitButtonTarget).attr('disabled', 'disabled')
         }
     }
-
     checkKpiSelectBoxes(){
         const $dataGapEvaluation = $(this.dataGapEvTarget);
         const dataGabEvaluationDisabled = $dataGapEvaluation.attr('disabled') === 'disabled'

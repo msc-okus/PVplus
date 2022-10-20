@@ -144,8 +144,6 @@ class TicketController extends BaseController
     {
         $filter = [];
         $session = $requestStack->getSession();
-
-
         $pageSession = $session->get('page');
         $page = $request->query->getInt('page');
         if ($page == 0) {
@@ -155,9 +153,6 @@ class TicketController extends BaseController
                 $page = $pageSession;
             }
         }
-
-        // Reading data from request
-        /** @var Anlage|string $anlage */
         $anlageId = $request->query->get('anlage');
         if ($anlageId != '') {
             $anlage = $anlagenRepo->findOneBy(['anlId' => $anlageId]);

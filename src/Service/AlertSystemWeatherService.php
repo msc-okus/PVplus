@@ -249,4 +249,19 @@ class AlertSystemWeatherService
         }
     }
 
+    /**
+     * This is the function we use to send the messages we previously generated.
+     *
+     * @param $message
+     * @param $anlage
+     */
+    private function messagingFunction($message, $anlage)
+    {
+        if ($message != '') {
+            sleep(2);
+            $subject = 'There was an error in ' . $anlage->getAnlName();
+            $this->mailservice->sendMessage($anlage, 'alert', 3, $subject, $message, false, true, true, true);
+        }
+    }
+
 }
