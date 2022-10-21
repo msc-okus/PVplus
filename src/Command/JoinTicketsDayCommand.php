@@ -95,7 +95,7 @@ class JoinTicketsDayCommand extends Command
                 $io->comment($anlage->getAnlName());
             }
             $io->progressFinish();
-            $io->success('Generating tickets finished');
+            $io->success('Joining Tickets successful');
         }
 
         return Command::SUCCESS;

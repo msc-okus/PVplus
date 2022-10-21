@@ -148,7 +148,7 @@ class TicketRepository extends ServiceEntityRepository
         return $result->getResult();
     }
 
-    public function findByATNoWeather($anlage, $time, $errorCategory)
+    public function findByAT($anlage, $time, $errorCategory)
     {
         $description = 'Error with the Data of the Weather station';
         $result = $this->createQueryBuilder('t')
@@ -175,9 +175,27 @@ class TicketRepository extends ServiceEntityRepository
             ->getQuery();
         return $result->getResult();
     }
+    public function findAllYesterday($anlage, $today, $yesterday){
+        $description = 'Error with the Data of the Weather station';
+        $result = $this->createQueryBuilder('t')
+            ->andWhere('t.end < :today')
+            ->andWhere('t.end >= :yesterday')
+            ->andWhere('t.anlage = :anl')
+            ->andWhere('t.description != :description')
+            ->andWhere('t.openTicket = true')
+            ->setParameter('today', $today)
+            ->setParameter('yesterday', $yesterday)
+            ->setParameter('anl', $anlage)
+            ->setParameter('description', $description)
+            ->orderBy('t.end', 'DESC')
+            ->getQuery();
 
-    public function findLastByATNoWeather($anlage, $today, $yesterday, $errorCategory)
+        return $result->getResult();
+    }
+
+    public function findLastByAT($anlage, $today, $yesterday, $errorCategory)
     {
+
         $description = 'Error with the Data of the Weather station';
         $result = $this->createQueryBuilder('t')
             ->andWhere('t.end < :today')
@@ -196,7 +214,7 @@ class TicketRepository extends ServiceEntityRepository
 
         return $result->getResult();
     }
-    public function findLastByAITNoWeather($anlage, $today, $yesterday, $errorCategory, $inverter)
+    public function findLastByAIT($anlage, $today, $yesterday, $errorCategory, $inverter)
     {
         $description = 'Error with the Data of the Weather station';
         $result = $this->createQueryBuilder('t')
@@ -219,7 +237,7 @@ class TicketRepository extends ServiceEntityRepository
         return $result->getResult();
     }
 
-    public function findByAITNoWeather($anlage, $time, $errorCategory, $inverter)
+    public function findByAIT($anlage, $time, $errorCategory, $inverter)
     {
         $description = 'Error with the Data of the Weather station';
         $result = $this->createQueryBuilder('t')

@@ -47,7 +47,6 @@ export default class extends Controller {
                     });
                     this.dispatch('async:submitted');
                 } catch (e) {
-                    //console.log(e);
                 }
             }
         } else {
@@ -57,7 +56,7 @@ export default class extends Controller {
 
     async delete({params: {id}}){
         const data = {'value': $(this.splitDeleteTarget).find('.select-' + id).val()};
-        if (data !== "") {
+        if (data !== '') {
             try {
                 await $.ajax({
                     url: this.urlDeleteValue,
@@ -65,7 +64,6 @@ export default class extends Controller {
                 });
                 this.dispatch('async:submitted');
             } catch (e) {
-                //console.log(e);
             }
         }
     }
@@ -93,7 +91,6 @@ export default class extends Controller {
             $(this.splitButtonTarget).attr('disabled', 'disabled')
         }
     }
-
     checkKpiSelectBoxes(){
         const $dataGapEvaluation = $(this.dataGapEvTarget);
         const dataGabEvaluationDisabled = $dataGapEvaluation.attr('disabled') === 'disabled'
@@ -102,10 +99,13 @@ export default class extends Controller {
             $(this.aktDep1Target).prop('disabled', false);
             $(this.aktDep2Target).prop('disabled', false);
             $(this.aktDep3Target).prop('disabled', false);
-            if ($(this.aktDep1Target).val() === '') $(this.aktDep1Target).prop('value', '10');
-            if ($(this.aktDep2Target).val() === '') $(this.aktDep2Target).prop('value', '10');
-            if ($(this.aktDep3Target).val() === '') $(this.aktDep3Target).prop('value', '10');
-        } else {
+            if ($dataGapEvaluation.val() === '10') {
+                if ($(this.aktDep1Target).val() === '') $(this.aktDep1Target).prop('value', '10');
+                if ($(this.aktDep2Target).val() === '') $(this.aktDep2Target).prop('value', '10');
+                if ($(this.aktDep3Target).val() === '') $(this.aktDep3Target).prop('value', '10');
+            }
+        }
+        else {
             $(this.aktDep1Target).prop('disabled', true);
             $(this.aktDep2Target).prop('disabled', true);
             $(this.aktDep3Target).prop('disabled', true);
