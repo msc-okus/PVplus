@@ -5,7 +5,9 @@
             <thead>
             <tr>
                 <th {% if pagination.isSorted('ticket.id') %} class="sorted"{% endif %}>
-                    {{ knp_pagination_sortable(pagination, 'Ticket ID', ['ticket.id'], {'data-action': 'ticket-list#sortId'}) }}</th>
+                    {{ knp_pagination_sortable(pagination, 'Ticket ID', ['ticket.id'], {'data-action': 'ticket-list#sortId'}) }}
+                    <span data-tooltip tabindex="1" title="With '•' means: is created by 'AlertSystem'"><i class="fa fa-info-circle"></i></span>
+                </th>
                 <th>Plant</th>
                 <th class="text-center">Status</th>
                 <th class="text-center">Priority</th>
@@ -30,7 +32,7 @@
             <tbody>
             {% for ticket in pagination %}
                 <tr>
-                    <td>{{ ticket.id }}</td>
+                    <td>{{ ticket.id }}{% if ticket.createdBy == 'AlertSystem' %} •{% endif %}</td>
                     <td>{{ ticket.anlage.anlName }} {% if is_granted('ROLE_G4N') %} ({{ ticket.anlage.anlId }}) {% endif %}</td>
                     <td class="text-center">
                         {% set status %}ticket.status.{{ ticket.status }}{% endset %}
