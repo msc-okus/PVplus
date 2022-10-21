@@ -282,12 +282,59 @@ class TicketController extends BaseController
         $page = $request->query->getInt('page', 1);
         $ticketDate = $ticketDateRepo->findOneById($id);
         $ticket = $ticketRepo->findOneById($ticketDate->getTicket());
+
+
+        if ($ticket) {
+            switch ($option) {
+                case 'Previous':
+                    $previousDate = $this->findPreviousDate($ticketDate->getBegin()->format('Y-m-d H:i'), $ticket, $ticketDateRepo);
+                    if ($previousDate) {
+                        $previousDate->setEnd($ticketDate->getEnd());
+                        $ticket->removeDate($ticketDate);
+                        $em->persist($previousDate);
+                    }
+                    break;
+                case 'Next':
+                    $nextDate = $this::findNextDate($ticketDate->getEnd()->format('Y-m-d H:i'), $ticket, $ticketDateRepo);
+                    if ($nextDate) {
+                        $nextDate->setBegin($ticketDate->getBegin());
+                        $ticket->removeDate($ticketDate);
+                        $em->persist($nextDate);
+                    }
+                    break;
+                case 'None':
+                    $ticket->removeDate($ticketDate);
+                    break;
+            }
+            $ticketDates = $ticket->getDates();
+            if ($ticketDates->isEmpty()) {
+                $ticketDates = null;
+            }
+            else{
+
+                if ($ticketDates->last()->getEnd() < $ticket->getEnd()) {
+                    $ticket->setEnd($ticketDates->last()->getEnd());
+
+                }
+                if ($ticketDates->first()->getBegin() > $ticket->getBegin()) {
+                    $ticket->setBegin($ticketDates->first()->getBegin());
+
+                }
+            }
+            $em->persist($ticket);
+            $em->flush();
+
+
+
+            return new Response(null, 204);
+        }
         $anlage = $ticket->getAnlage();
+
         $nameArray = $functions->getInverterArray($anlage);
         $selected = $ticket->getInverterArray();
-
         $indexSelect = 0;
-
+        // I loop over the array with the real names and the array of selected inverters
+        // of the inverter to create a 2-dimension array with the real name and the inverters that are selected
         foreach ($nameArray as $key => $value){
             $inverterArray[$key]["inv"] = $value;
             if($key === (int)$selected[$indexSelect]){
@@ -298,37 +345,19 @@ class TicketController extends BaseController
                 $inverterArray[$key]["select"] = "";
             }
         }
-
-        if ($ticket) {
-            switch ($option) {
-                case 'Previous':
-                    $previousDate = $this->findPreviousDate($ticketDate->getBegin()->format('Y-m-d H:i'), $ticket, $ticketDateRepo);
-                    if ($previousDate) {
-                        $previousDate->setEnd($ticketDate->getEnd());
-                        $ticket->removeDate($ticketDate);
-                    }
-                    break;
-                case 'Next':
-                    $nextDate = $this::findNextDate($ticketDate->getEnd()->format('Y-m-d H:i'), $ticket, $ticketDateRepo);
-                    if ($nextDate) {
-                        $nextDate->setBegin($ticketDate->getBegin());
-                        $ticket->removeDate($ticketDate);
-                    }
-                    break;
-                case 'None':
-                    $ticket->removeDate($ticketDate);
-                    break;
-            }
-            $em->persist($ticket);
-            $em->flush();
-
-            return new Response(null, 204);
-        }
         $ticketDates = $ticket->getDates();
         if ($ticketDates->isEmpty()) {
             $ticketDates = null;
         }
+        else{
 
+            if ($ticketDates->last()->getEnd() < $ticket->getEnd()) {
+                $ticket->setEnd($ticketDates->last()->getEnd());
+            }
+            if ($ticketDates->first()->getBegin() < $ticket->getBegin()) {
+                $ticket->setBegin($ticketDates->first()->getBegin());
+            }
+        }
         $form = $this->createForm(TicketFormType::class, $ticket);
 
         return $this->renderForm('ticket/_inc/_edit.html.twig', [
@@ -455,9 +484,8 @@ class TicketController extends BaseController
     public function findPreviousDate($stamp, $ticket, $ticketDateRepo): ?TicketDate
     {
         $ticketDate = null; //$ticketDateRepo->findOneByEndTicket($stamp, $ticket); we cannot do this because if there is a gap between the intervals we will not be able to find the next interval to link with
-
         $found = false;
-        while (($found !== true) && (strtotime($stamp) < $ticket->getBegin()->getTimestamp())) {
+        while (($found !== true) && (strtotime($stamp) > $ticket->getBegin()->getTimestamp())) {
             $ticketDate = $ticketDateRepo->findOneByEndTicket($stamp, $ticket);
             if ($ticketDate) $found = true;
             else  $stamp = date('Y-m-d H:i', strtotime($stamp) - 900);
