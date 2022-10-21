@@ -107,6 +107,36 @@ class TicketController extends BaseController
             // Adjust, if neccesary, the start ean end Date of the master Ticket, depending on the TicketDates
 
             if ($ticketDates) {
+                $found = false;
+                while(!$found){
+                    $firstTicketDate = $ticket->getDates()->first();
+                    if ($firstTicketDate->getEnd() < $ticket->getBegin()) $ticket->removeDate($firstTicketDate);
+                    elseif($firstTicketDate->getEnd() == $ticket->getBegin()){
+                        $ticket->removeDate($firstTicketDate);
+                        $found = true;
+                    }
+                    else{
+                        $firstTicketDate->setBegin($ticket->getBegin());
+                        $found = true;
+                        $em->persist($firstTicketDate);
+                    }
+                }
+
+                $found = false;
+                while(!$found){
+                    $lastTicketDate = $ticket->getDates()->last();
+                    if ($lastTicketDate->getBegin() > $ticket->getEnd()) $ticket->removeDate($lastTicketDate);
+                    elseif($lastTicketDate->getBegin() == $ticket->getEnd()){
+                        $ticket->removeDate($lastTicketDate);
+                        $found = true;
+                    }
+                    else{
+                        $lastTicketDate->setEnd($ticket->getEnd());
+                        $found=true;
+                        $em->persist($lastTicketDate);
+                    }
+                }
+                /*
                 if ($ticketDates->first()->getBegin() <= $ticket->getBegin()) {
                     $ticket->setBegin($ticketDates->first()->getBegin());
                 } else {
@@ -117,6 +147,7 @@ class TicketController extends BaseController
                 } else {
                     $ticketDates->last()->setEnd($ticket->getEnd());
                 }
+                */
                 foreach ($ticketDates as $date){
                     $date->setInverter($ticket->getInverter());
                 }
