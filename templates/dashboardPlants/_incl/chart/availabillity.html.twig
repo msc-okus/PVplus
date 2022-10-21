@@ -31,7 +31,7 @@
             <tbody>
             {% for stati in availability %}
                 <tr>
-                    <td>{{ stati.stamp|date("y-m-d") }} </td>
+                    <td>{{ stati.stamp|date("Y-m-d") }} </td>
                     <td>{{ stati.inverter }}</td>
                     {% if second %}<td>PA.1<br><span class="topline">PA.2</span></td>{% endif %}
                     <td>{{ stati.case0 }} / {{ stati.case0 / 4 }}{% if second %}<br><span class="topline">{{ stati.case0second }}</span>{% endif %}</td>

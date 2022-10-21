@@ -100,7 +100,7 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
                 ->setParameter('anlage', $anlage)
                 ->setParameter('from', $from->format('Y-m-d H:i'))
                 ->setParameter('to', $to->format('Y-m-d H:i'))
-                ->select('sum((a.case_1 + a.case_2 + a.case_5) * a.invAPart2) / sum(a.control * a.invAPart2) as pa')
+                ->select('sum((a.case_1 + a.case_2 + a.case_5) * a.invAPart2) / sum(a.control) as pa')
                 ->getQuery()
             ;
         } else {
@@ -111,7 +111,7 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
                 ->setParameter('from', $from->format('Y-m-d H:i'))
                 ->setParameter('to', $to->format('Y-m-d H:i'))
                 ->setParameter('inverter', $inverter)
-                ->select('sum((a.case_1 + a.case_2 + a.case_5) * a.invAPart2) / sum(a.control * a.invAPart2) as pa')
+                ->select('sum((a.case_1 + a.case_2 + a.case_5) * a.invAPart2) / sum(a.control) as pa')
                 ->getQuery()
             ;
         }
