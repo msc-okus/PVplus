@@ -101,7 +101,7 @@ class DashboardPlantsController extends BaseController
                     $date = ($request->request->get('to')) ? $request->request->get('to') : date('Y-m-d');
                     if ($form['optionDate'] <= 14) {
                         $to     = date('Y-m-d 23:59', strtotime($date) - (86400 * $form['optionDate']));
-                        $from   = date('Y-m-d 00:00', strtotime($to) - (86400 * $form['optionDate']));
+                        $from   = date('Y-m-d 00:00', strtotime($to) - (86400 * ($form['optionDate'] -1)));
                     }
                     if ($form['optionDate'] == 100000) {
                         $from   = date('Y-m-d 00:00', strtotime($date.'-1 month'));
@@ -122,7 +122,7 @@ class DashboardPlantsController extends BaseController
                    $date = ($request->request->get('to')) ? $request->request->get('to') : date('Y-m-d');
                    if ($form['optionDate'] <= 14) {
                         $to     = date('Y-m-d 23:59', strtotime($date) + (86400 * $form['optionDate']));
-                        $from   = date('Y-m-d 00:00', strtotime($to) - (86400 * $form['optionDate']));
+                        $from   = date('Y-m-d 00:00', strtotime($to) - (86400 * ($form['optionDate'] - 1)));
                     }
                     if ($form['optionDate'] == 100000) {
                         $from   = date('Y-m-d 00:00', strtotime($date.'+1 month'));
