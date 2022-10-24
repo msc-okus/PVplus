@@ -61,8 +61,8 @@ class DefaultMREController extends BaseController
     public function pa(AvailabilityService $availability, AvailabilityByTicketService $availabilityByTicket, AnlagenRepository $anlagenRepository): Response
     {
         $anlage = $anlagenRepository->find('95');
-        $from   = date_create('2022-07-01 00:00');
-        $to     = date_create('2022-07-31 23:00');
+        $from   = date_create('2022-06-01 00:00');
+        $to     = date_create('2022-06-30 23:00');
         $output = $availability->calcAvailability($anlage, $from, $to);
 
         return $this->render('cron/showResult.html.twig', [
