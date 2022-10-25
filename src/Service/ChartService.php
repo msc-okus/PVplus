@@ -113,7 +113,8 @@ class ChartService
                         $resultArray['actSum'] = $dataArray['actSum'];
                         $resultArray['expSum'] = $dataArray['expSum'];
                         $resultArray['evuSum'] = $dataArray['evuSum'];
-                        $resultArray['irrSum'] = $dataArray['irrSum'] / 1000; // Einstrahlung in kW/m²
+                        $resultArray['irrSum'] = $dataArray['irrSum']; // Einstrahlung in kWh/m²
+                        dump($resultArray['irrSum']);
                         $resultArray['expEvuSum'] = $dataArray['expEvuSum'];
                         $resultArray['theoPowerSum'] = $dataArray['theoPowerSum'];
                         $resultArray['expNoLimitSum'] = $dataArray['expNoLimitSum'];

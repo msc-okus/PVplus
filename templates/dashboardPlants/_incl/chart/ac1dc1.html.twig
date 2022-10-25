@@ -214,7 +214,7 @@
         seriesIrr.dataFields.valueY = "irradiation";
        // seriesIrr.legendSettings.labelText = "Irradiation W/m²";
        // seriesIrr.legendSettings.valueText = "{valueY.total}";
-        seriesIrr.name = "Irradiation {{ (content.irrSum)|number_format(0, ',', '.') }} kW/m²";
+        seriesIrr.name = "Irradiation {{ (content.irrSum / 1000)|number_format(2, ',', '.') }} kW/m²";
         seriesIrr.tooltipText = "Irradiation : {valueY} W/m² [/]";
         seriesIrr.fill = am4core.color("#95018e");
         seriesIrr.stroke = am4core.color("#95018e");
