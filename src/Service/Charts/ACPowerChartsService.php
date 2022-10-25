@@ -159,9 +159,8 @@ class ACPowerChartsService
                 if (isset($dataArrayIrradiation['chart'][$counter]['val1'])) {
                     if ($anlage->getIsOstWestAnlage()) {
                         $dataArray['chart'][$counter]['irradiation'] = ($dataArrayIrradiation['chart'][$counter]['val1'] * $anlage->getPowerEast() + $dataArrayIrradiation['chart'][$counter]['val2'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
-                        dump($dataArray['chart'][$counter]['irradiation'], $dataArrayIrradiation['chart'][$counter]['val1'], $dataArrayIrradiation['chart'][$counter]['val2'] );
                     } else {
-                        if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
+                        if ($anlage->getShowOnlyUpperIrr() || !$anlage->getWeatherStation()->getHasLower()) {
                             $dataArray['chart'][$counter]['irradiation'] = $dataArrayIrradiation['chart'][$counter]['val1'];
                         } else {
                             $dataArray['chart'][$counter]['irradiation'] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;

@@ -30,7 +30,7 @@ class IrradiationChartService
      * @param $to
      *
      * @return array
-     *               // irradiation
+     * irradiation
      */
     public function getIrradiation(Anlage $anlage, $from, $to, ?string $mode = 'all', ?bool $hour = false): array
     {
@@ -49,17 +49,11 @@ class IrradiationChartService
             while ($ro = $res->fetch(PDO::FETCH_ASSOC)) {
                 // upper pannel
                 $irr_upper = (float) str_replace(',', '.', $ro['gmod']);
-                if ($hour) {
-                    $irr_upper = $irr_upper / 4;
-                }
                 if (!$irr_upper) {
                     $irr_upper = 0;
                 }
                 // lower pannel
                 $irr_lower = (float) str_replace(',', '.', $ro['gi']);
-                if ($hour) {
-                    $irr_lower = $irr_lower / 4;
-                }
                 if (!$irr_lower) {
                     $irr_lower = 0;
                 }
