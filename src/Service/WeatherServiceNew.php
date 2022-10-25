@@ -160,7 +160,7 @@ class WeatherServiceNew
     }
 
     // Prüfen ob ARRAY LEER IST
-    private function array_empty($arr)
+    private function array_empty($arr): bool
     {
         foreach ($arr as $val) {
             if ($val != '') {
