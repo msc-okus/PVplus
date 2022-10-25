@@ -3120,6 +3120,8 @@ class Anlage
 
     /**
      * Function to calculate the Pnom for every inverter, returns a Array with the Pnom for all inverters.
+     *
+     * return array: Index = Inverter, value = Pnom of this Inverter
      */
     public function getPnomInverterArray(): array
     {
@@ -3131,7 +3133,7 @@ class Anlage
                 foreach ($this->getGroups() as $inverter) {
                     $sumPNom = 0;
                     foreach ($inverter->getModules() as $module) {
-                        $sumPNom += $module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower();
+                        $sumPNom += $module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower() / 1000;
                     }
                     $dcPNomPerInvereter[$inverter->getDcGroup()] = $sumPNom;
                 }
@@ -3144,14 +3146,14 @@ class Anlage
                 foreach ($this->getGroups() as $groups) {
                     $sumPNom = 0;
                     foreach ($groups->getModules() as $module) {
-                        $sumPNom += $module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower();
+                        $sumPNom += $module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower() / 1000;
                     }
                     $dcPNomPerInvereter[$groups->getAcGroup()] += $sumPNom * ($groups->getUnitLast() - $groups->getUnitFirst() + 1);
                 }
                 break;
         }
 
-        return $dcPNomPerInvereter;
+        return $dcPNomPerInvereter ;
     }
 
     public function isExcludeFromExpCalc(): ?bool
