@@ -169,31 +169,35 @@ class AlertSystemService
             $array_zero = explode(", ", $plant_status['Power0']);
             $array_vol = explode(", ", $plant_status['Vol']);
             $ticketOld = $this->getAllTickets($anlage, $time);
-            if (($ticketOld !== null) && (sizeof($ticketOld) > 0)) {
+            if (($ticketOld !== null)) {
                 foreach ($ticketOld as $ticket) {
                     $ticket->setOpenTicket(false);
                     $this->em->persist($ticket);
                 }
             }
             if ($plant_status['ppc'] === false) {
-                foreach ($array_gap as $inverter) {
-                    if ($inverter != "") {
-                        $message = "Data gap in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter];
-                        $this->generateTickets('', DATA_GAP, $anlage, $inverter, $time, $message);
+                if (count($array_gap) > 0) {
+                    foreach ($array_gap as $inverter) {
+                        if ($inverter != "") {
+                            $message = "Data gap in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter];
+                            $this->generateTickets('', DATA_GAP, $anlage, $inverter, $time, $message);
+                        }
                     }
                 }
-
-                foreach ($array_zero as $inverter) {
-                    if ($inverter != "") {
-                        $message = "Power Error in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter];
-                        $this->generateTickets(EFOR, INVERTER_ERROR, $anlage, $inverter, $time, $message);
+                if (count($array_zero) > 0) {
+                    foreach ($array_zero as $inverter) {
+                        if ($inverter != "") {
+                            $message = "Power Error in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter];
+                            $this->generateTickets(EFOR, INVERTER_ERROR, $anlage, $inverter, $time, $message);
+                        }
                     }
                 }
-
-                foreach ($array_vol as $inverter) {
-                    if ($inverter != "") {
-                        $message = "Grid Error in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter];
-                        $this->generateTickets('', GRID_ERROR, $anlage, $inverter, $time, $message);
+                if((count($array_vol) === count($anlage->getInverterFromAnlage()))){
+                    foreach ($array_vol as $inverter) {
+                        if (($inverter != "")) {
+                            $message = "Grid Error in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter];
+                            $this->generateTickets('', GRID_ERROR, $anlage, $inverter, $time, $message);
+                        }
                     }
                 }
 
@@ -219,7 +223,6 @@ class AlertSystemService
         $freqLimitTop = $anlage->getFreqBase() + $anlage->getFreqTolerance();
         $freqLimitBot = $anlage->getFreqBase() - $anlage->getFreqTolerance();
         $voltLimit = 0;
-        $freqLimit = $anlage->getFreqBase();
         $conn = self::getPdoConnection();
         $isPPC = false;
         $return['ppc'] = $isPPC;
@@ -381,10 +384,12 @@ class AlertSystemService
         } else {
             $ticket = $this->ticketRepo->findByAIT($anlage, $time, $errorCategory, $inverter); // we try to retrieve the ticket in the previous quarter
         }
-        if (sizeof($ticket) != 0) $ticket = $ticket[0];
-        else $ticket = null;
+        if (sizeof($ticket) > 0) {
+            $ticketReturn = $ticket[0];
+        }
+        else $ticketReturn = null;
 
-        return $ticket;
+        return $ticketReturn;
     }
 
     /**
@@ -396,7 +401,6 @@ class AlertSystemService
     public function getAllTickets($anlage, $time): mixed
     {
         {
-            $ticket = null;
             $today = date('Y-m-d', strtotime($time));
             $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
             $sunrise = self::getLastQuarter($this->weather->getSunrise($anlage, $today)['sunrise']); // the first quarter of today
@@ -409,7 +413,6 @@ class AlertSystemService
             } else {
                 $ticket = $this->ticketRepo->findAllByTime($anlage, $time); // we try to retrieve the ticket in the previous quarter
             }
-
 
             return $ticket;
         }

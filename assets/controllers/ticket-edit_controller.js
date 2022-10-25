@@ -164,7 +164,7 @@ export default class extends Controller {
         const timestamp2 = date2.getTime();
 
 
-        if (timestamp2 >= timestamp1){
+        if (timestamp2 > timestamp1){
             $(this.AlertDatesTarget).addClass('is-hidden');
             $(this.saveButtonTarget).removeAttr('disabled');
         } else {

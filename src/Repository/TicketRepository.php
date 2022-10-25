@@ -231,7 +231,6 @@ class TicketRepository extends ServiceEntityRepository
             ->setParameter('description', $description)
             ->setParameter('inverter', $inverter)
             ->orderBy('t.end', 'DESC')
-            ->setMaxResults(1)
             ->getQuery();
 
         return $result->getResult();
