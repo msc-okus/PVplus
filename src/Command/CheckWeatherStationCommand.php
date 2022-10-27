@@ -40,13 +40,10 @@ class CheckWeatherStationCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-
-        $anlagen = $this->anlRepo->findAllActiveAndAllowed();
+        $anlagen = $this->anlRepo->findIdLike([93, 94, 96, 112, 113]);
         foreach ($anlagen as $anlage) {
             $this->alertService->checkWeatherStation($anlage);
-
         }
-
         return Command::SUCCESS;
     }
 }
