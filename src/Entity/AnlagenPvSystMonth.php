@@ -28,6 +28,9 @@ class AnlagenPvSystMonth
     #[ORM\Column(type: 'string', length: 20)]
     private string $stamp = '';
 
+    #[ORM\Column(type: 'integer')]
+    private int $month;
+
     #[ORM\Column(type: 'string', length: 20)]
     private string $prDesign;
 
@@ -42,9 +45,6 @@ class AnlagenPvSystMonth
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $tempArrayAvgDesign;
-
-    #[ORM\Column(type: 'integer')]
-    private int $month;
 
     public function getId(): ?int
     {
@@ -75,6 +75,18 @@ class AnlagenPvSystMonth
         return $this;
     }
 
+    public function getMonth(): ?int
+    {
+        return $this->month;
+    }
+
+    public function setMonth(string $month): self
+    {
+        $this->month = $month;
+
+        return $this;
+    }
+
     public function getPrDesign(): ?float
     {
         return (float) $this->prDesign;
@@ -82,7 +94,7 @@ class AnlagenPvSystMonth
 
     public function setPrDesign(string $prDesign): self
     {
-        $this->prDesign = $prDesign;
+        $this->prDesign = str_replace(',', '.',$prDesign);
 
         return $this;
     }
@@ -94,7 +106,7 @@ class AnlagenPvSystMonth
 
     public function setErtragDesign(string $ertragDesign): self
     {
-        $this->ertragDesign = $ertragDesign;
+        $this->ertragDesign = str_replace(',', '.',$ertragDesign);
 
         return $this;
     }
@@ -106,7 +118,7 @@ class AnlagenPvSystMonth
 
     public function setIrrDesign(?string $irrDesign): self
     {
-        $this->irrDesign = $irrDesign;
+        $this->irrDesign = str_replace(',', '.',$irrDesign);
 
         return $this;
     }
@@ -118,7 +130,7 @@ class AnlagenPvSystMonth
 
     public function setTempAmbientDesign(string $tempAmbientDesign): self
     {
-        $this->tempAmbientDesign = $tempAmbientDesign;
+        $this->tempAmbientDesign = str_replace(',', '.',$tempAmbientDesign);
 
         return $this;
     }
@@ -130,19 +142,7 @@ class AnlagenPvSystMonth
 
     public function setTempArrayAvgDesign(string $tempArrayAvgDesign): self
     {
-        $this->tempArrayAvgDesign = $tempArrayAvgDesign;
-
-        return $this;
-    }
-
-    public function getMonth(): ?int
-    {
-        return $this->month;
-    }
-
-    public function setMonth(string $month): self
-    {
-        $this->month = $month;
+        $this->tempArrayAvgDesign = str_replace(',', '.',$tempArrayAvgDesign);
 
         return $this;
     }

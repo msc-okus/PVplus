@@ -35,7 +35,9 @@
                         <td>{{ report.anlage.anlName }} {% if is_granted('ROLE_G4N') %} ({{ report.anlage.anlId}}) {% endif %}</td>
                         {% if is_granted('ROLE_G4N') %}
                             <td>{{ report.eigner.firma }}</td>
-                            <td>{{ report.createdAt|date }}</td>
+                        {% endif %}
+                        <td>{{ report.createdAt|date }}</td>
+                        {% if is_granted('ROLE_G4N') %}s
                             <td>{{ report.createdBy }}</td>
                         {% endif %}
                         <td>{{ report.month }}</td>
