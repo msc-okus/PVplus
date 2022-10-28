@@ -355,7 +355,7 @@ class AlertSystemService
             if ($errorType == EFOR) {
                 $ticketDate->setKpiPaDep1(10);
                 $ticketDate->setKpiPaDep2(10);
-                $ticketDate->setKpiPaDep3(20);
+                $ticketDate->setKpiPaDep3(10);
             }
             $this->em->persist($ticket);
             $this->em->persist($ticketDate);
@@ -535,7 +535,7 @@ class AlertSystemService
                 if ($errorType == EFOR) {
                     $ticketDate->setKpiPaDep1(10);
                     $ticketDate->setKpiPaDep2(10);
-                    $ticketDate->setKpiPaDep3(20);
+                    $ticketDate->setKpiPaDep3(10);
                 }
                 $this->em->persist($ticket);
                 $this->em->persist($ticketDate);
