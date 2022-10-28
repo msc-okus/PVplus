@@ -263,5 +263,26 @@ class AlertSystemWeatherService
             $this->mailservice->sendMessage($anlage, 'alert', 3, $subject, $message, false, true, true, true);
         }
     }
+    /**
+     * We use this to retrieve the last quarter of a time given pe: 3:42 will return 3:30.
+     *
+     * @param $stamp
+     * @return string
+     */
+    private function getLastQuarter($stamp): string
+    {
+        $mins = date('i', strtotime($stamp));
+        $rest = date('Y-m-d H', strtotime($stamp));
+        if ($mins >= '00' && $mins < '15') {
+            $quarter = '00';
+        } elseif ($mins >= '15' && $mins < '30') {
+            $quarter = '15';
+        } elseif ($mins >= '30' && $mins < '45') {
+            $quarter = '30';
+        } else {
+            $quarter = '45';
+        }
+        return $rest . ':' . $quarter;
+    }
 
 }

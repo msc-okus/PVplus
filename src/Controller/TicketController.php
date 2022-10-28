@@ -39,6 +39,11 @@ class TicketController extends BaseController
             $ticket->setEditor($this->getUser()->getUsername());
             $date = new TicketDate();
             $date->copyTicket($ticket);
+            if ($date->getAlertType() == 20){
+                $date->setKpiPaDep1(10);
+                $date->setKpiPaDep2(10);
+                $date->setKpiPaDep3(10);
+            }
             $ticket->addDate($date);
             $em->persist($ticket);
             $em->flush();
