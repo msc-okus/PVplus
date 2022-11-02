@@ -101,7 +101,7 @@ class DashboardPlantsController extends BaseController
                     $date = ($request->request->get('to')) ? $request->request->get('to') : date('Y-m-d');
                     if ($form['optionDate'] <= 14) {
                         $to     = date('Y-m-d 23:59', strtotime($date) - (86400 * $form['optionDate']));
-                        $from   = date('Y-m-d 00:00', strtotime($to) - (86400 * ($form['optionDate'] -1)));
+                        $from   = date('Y-m-d 00:00', strtotime($to) - (86400 * ($form['optionDate'] - 1)));
                     }
                     if ($form['optionDate'] == 100000) {
                         $from   = date('Y-m-d 00:00', strtotime($date.'-1 month'));
@@ -120,6 +120,7 @@ class DashboardPlantsController extends BaseController
 
                 case 'nextday':
                    $date = ($request->request->get('to')) ? $request->request->get('to') : date('Y-m-d');
+
                    if ($form['optionDate'] <= 14) {
                         $to     = date('Y-m-d 23:59', strtotime($date) + (86400 * $form['optionDate']));
                         $from   = date('Y-m-d 00:00', strtotime($to) - (86400 * ($form['optionDate'] - 1)));
@@ -189,13 +190,15 @@ class DashboardPlantsController extends BaseController
     /**
      * Speicher bzw Updaten der Case 5 Einträge.
      *
+     * @param Anlage $anlage
      * @param $case5id
      * @param $date
      * @param $from
      * @param $to
      * @param $inverter
      * @param $reason
-     *
+     * @param EntityManagerInterface $em
+     * @param AvailabilityService $availabilityService
      * @throws Exception
      */
     private function updateCase5Availability(Anlage $anlage, $case5id, $date, $from, $to, $inverter, $reason, EntityManagerInterface $em, AvailabilityService $availabilityService)
