@@ -60,10 +60,10 @@ class DefaultMREController extends BaseController
     #[Route(path: '/mr/pa/test')]
     public function pa(AvailabilityService $availability, AvailabilityByTicketService $availabilityByTicket, AnlagenRepository $anlagenRepository): Response
     {
-        $anlage = $anlagenRepository->find('94');
-        $from   = date_create('2022-10-01 00:00');
-        $to     = date_create('2022-10-31 23:00');
-        $output = $availability->calcAvailability($anlage, $from, $to);
+        $anlage = $anlagenRepository->find('111');
+        $from   = date_create('2022-05-01 00:00');
+        $to     = date_create('2022-05-01 23:00');
+        $output = $availability->calcAvailability($anlage, $from, $to, 1);
 
         return $this->render('cron/showResult.html.twig', [
             'headline' => "PA",
