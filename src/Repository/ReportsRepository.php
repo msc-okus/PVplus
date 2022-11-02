@@ -72,7 +72,7 @@ class ReportsRepository extends ServiceEntityRepository
             $qb->andWhere("report.reportStatus = $searchstatus");
         }
         if ($searchtype != '') {
-            $qb->andWhere("report.reportType like '$searchtype'");
+            $qb->andWhere("report.reportType like '%$searchtype%'");
         }
         if ($searchmonth != '') {
             $qb->andWhere("report.month = $searchmonth");

@@ -2,7 +2,7 @@
         data-report-target="list"
         data-action="modal-form:success->report#search submit-confirm:async:submitted->report#search"
 >
-    <div data-reload-content-target="content" >
+    <div data-reload-content-target="content">
         <table class="table sortable">
             <thead>
             <tr>
@@ -35,7 +35,9 @@
                         <td>{{ report.anlage.anlName }} {% if is_granted('ROLE_G4N') %} ({{ report.anlage.anlId}}) {% endif %}</td>
                         {% if is_granted('ROLE_G4N') %}
                             <td>{{ report.eigner.firma }}</td>
-                            <td>{{ report.createdAt|date }}</td>
+                        {% endif %}
+                        <td>{{ report.createdAt|date }}</td>
+                        {% if is_granted('ROLE_G4N') %}
                             <td>{{ report.createdBy }}</td>
                         {% endif %}
                         <td>{{ report.month }}</td>

@@ -875,30 +875,32 @@ class FunctionsService
         return $result;
     }
 
-    public function checkAndIncludeMonthlyCorrectionEVU(Anlage $anlage, float $evu, $from, $to): float
+    public function checkAndIncludeMonthlyCorrectionEVU(Anlage $anlage, ?float $evu, $from, $to): ?float
     {
         $conn = self::getPdoConnection();
 
-        if ($anlage->getUseGridMeterDayData() === false) {
-            // $monthlyDatas = $this->monthlyDataRepo->findBy(['anlage' => $anlage], ['year' => 'asc', 'month' => 'asc']);
-            $monthlyDatas = $this->monthlyDataRepo->findByDateRange($anlage, date_create($from), date_create($to));
-            foreach ($monthlyDatas as $monthlyData) {
-                $tempFrom = new DateTime($monthlyData->getYear().'-'.$monthlyData->getMonth().'-01 00:00');
-                $tempDaysInMonth = $tempFrom->format('t');
-                $tempTo = new DateTime($monthlyData->getYear().'-'.$monthlyData->getMonth().'-'.$tempDaysInMonth.' 23:59');
+        if ($evu) {
+            if ($anlage->getUseGridMeterDayData() === false) {
+                // $monthlyDatas = $this->monthlyDataRepo->findBy(['anlage' => $anlage], ['year' => 'asc', 'month' => 'asc']);
+                $monthlyDatas = $this->monthlyDataRepo->findByDateRange($anlage, date_create($from), date_create($to));
+                foreach ($monthlyDatas as $monthlyData) {
+                    $tempFrom = new DateTime($monthlyData->getYear() . '-' . $monthlyData->getMonth() . '-01 00:00');
+                    $tempDaysInMonth = $tempFrom->format('t');
+                    $tempTo = new DateTime($monthlyData->getYear() . '-' . $monthlyData->getMonth() . '-' . $tempDaysInMonth . ' 23:59');
 
-                if ($anlage->isIgnoreNegativEvu()) {
-                    $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '" . $tempFrom->format('Y-m-d H:i') . "' AND '" . $tempTo->format('Y-m-d H:i') . "' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
-                } else {
-                    $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '" . $tempFrom->format('Y-m-d H:i') . "' AND '" . $tempTo->format('Y-m-d H:i') . "' GROUP BY unit LIMIT 1";
+                    if ($anlage->isIgnoreNegativEvu()) {
+                        $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '" . $tempFrom->format('Y-m-d H:i') . "' AND '" . $tempTo->format('Y-m-d H:i') . "' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
+                    } else {
+                        $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '" . $tempFrom->format('Y-m-d H:i') . "' AND '" . $tempTo->format('Y-m-d H:i') . "' GROUP BY unit LIMIT 1";
+                    }
+                    $res = $conn->query($sql);
+                    if ($res->rowCount() == 1) {
+                        $row = $res->fetch(PDO::FETCH_ASSOC);
+                        $evu -= $row['power_evu'];
+                        $evu += $monthlyData->getExternMeterDataMonth();
+                    }
+                    unset($res);
                 }
-                $res = $conn->query($sql);
-                if ($res->rowCount() == 1) {
-                    $row = $res->fetch(PDO::FETCH_ASSOC);
-                    $evu -= $row['power_evu'];
-                    $evu += $monthlyData->getExternMeterDataMonth();
-                }
-                unset($res);
             }
         }
 

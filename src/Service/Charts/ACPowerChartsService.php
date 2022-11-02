@@ -166,7 +166,7 @@ class ACPowerChartsService
                             $dataArray['chart'][$counter]['irradiation'] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;
                         }
                     }
-                    $irrSum += $dataArray['chart'][$counter]['irradiation'];
+                    $irrSum += $hour ? $dataArray['chart'][$counter]['irradiation'] * 4 : $dataArray['chart'][$counter]['irradiation'];
                 }
                 ++$counter;
             }

@@ -79,7 +79,7 @@ class AnlagePVSystDaten
 
     public function setIrrGlobalHor(string $irrGlobalHor): self
     {
-        $this->irrGlobalHor = $irrGlobalHor;
+        $this->irrGlobalHor = str_replace(',', '.',$irrGlobalHor);
 
         return $this;
     }
@@ -91,7 +91,7 @@ class AnlagePVSystDaten
 
     public function setIrrGlobalInc(string $irrGlobalInc): self
     {
-        $this->irrGlobalInc = $irrGlobalInc;
+        $this->irrGlobalInc = str_replace(',', '.',$irrGlobalInc);
 
         return $this;
     }
@@ -103,7 +103,7 @@ class AnlagePVSystDaten
 
     public function setTempAmbiant(string $tempAmbiant): self
     {
-        $this->tempAmbiant = $tempAmbiant;
+        $this->tempAmbiant = str_replace(',', '.',$tempAmbiant);
 
         return $this;
     }
@@ -115,7 +115,7 @@ class AnlagePVSystDaten
 
     public function setElectricityGrid(string $electricityGrid): self
     {
-        $this->electricityGrid = $electricityGrid;
+        $this->electricityGrid = str_replace(',', '.',$electricityGrid);
 
         return $this;
     }
@@ -127,7 +127,7 @@ class AnlagePVSystDaten
 
     public function setElectricityInverterOut(string $electricityInverterOut): self
     {
-        $this->electricityInverterOut = $electricityInverterOut;
+        $this->electricityInverterOut = str_replace(',', '.',$electricityInverterOut);
 
         return $this;
     }

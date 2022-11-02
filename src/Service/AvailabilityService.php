@@ -348,8 +348,9 @@ class AvailabilityService
         $currentInverter = null;
         foreach ($availabilitys as $availability) {
             if ($currentInverter != (int)$availability->getInverter() && $currentInverter !== null) {
+                // Berechne PA für den aktuellen Inverter
                 $invWeight = ($anlage->getPnom() > 0 && $inverterPowerDc[$currentInverter] > 0) ? $inverterPowerDc[$currentInverter] / $anlage->getPnom() : 1;
-                $pa = $ti * $invWeight / $titheo;
+                $pa = $titheo > 0 ? $ti * $invWeight / $titheo : 0;
                 $paSum += $pa;
                 $ti = $titheo = 0;
             }
@@ -357,6 +358,9 @@ class AvailabilityService
             $ti     += $availability->getCase1() + $availability->getCase2() + $availability->getCase5();
             $titheo += $availability->getControl();
         }
+        // Berechne PA für den letzten Inverter
+        $invWeight = ($anlage->getPnom() > 0 && $inverterPowerDc[$currentInverter] > 0) ? $inverterPowerDc[$currentInverter] / $anlage->getPnom() : 1;
+        $pa = $titheo > 0 ? $ti * $invWeight / $titheo : 0;
         $paSum += $pa;
 
         return $paSum * 100;
