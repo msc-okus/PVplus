@@ -19,12 +19,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class GenerateMultiInverterTicketsCommand extends Command
 {
-    public function __construct(AnlagenRepository $anlagenRepository, AlertSystemService $alertService, EntityManagerInterface $em)
+    public function __construct(
+        private AnlagenRepository $anlagenRepository,
+        private AlertSystemService $alertService
+    )
     {
         parent::__construct();
-        $this->alertService = $alertService;
-        $this->em = $em;
-        $this->anlagenRepository = $anlagenRepository;
     }
     protected function configure(): void
     {

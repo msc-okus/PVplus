@@ -16,12 +16,11 @@ class DummySollCommand extends Command
 
     protected static $defaultName = 'pvp:dummysoll';
 
-    private DummySollService $dummySoll;
-
-    public function __construct(DummySollService $dummySoll)
+    public function __construct(
+        private DummySollService $dummySoll
+    )
     {
         parent::__construct();
-        $this->dummySoll = $dummySoll;
     }
 
     protected function configure()

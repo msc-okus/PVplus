@@ -18,18 +18,13 @@ class GenerateTicketsCommand extends Command
 
     protected static $defaultName = 'pvp:generateTickets';
 
-    private EntityManagerInterface $em;
-
-    private AlertSystemService $alertService;
-
-    private AnlagenRepository $anlagenRepository;
-
-    public function __construct(AnlagenRepository $anlagenRepository, AlertSystemService $alertService, EntityManagerInterface $em)
+    public function __construct(
+        private AnlagenRepository $anlagenRepository,
+        private AlertSystemService $alertService,
+        private EntityManagerInterface $em
+    )
     {
         parent::__construct();
-        $this->alertService = $alertService;
-        $this->em = $em;
-        $this->anlagenRepository = $anlagenRepository;
     }
 
     protected function configure(): void

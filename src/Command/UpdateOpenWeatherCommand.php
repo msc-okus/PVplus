@@ -16,15 +16,12 @@ class UpdateOpenWeatherCommand extends Command
 
     protected static $defaultName = 'pvp:updateOpenWeather';
 
-    private AnlagenRepository $anlagenRepository;
-
-    private OpenWeatherService $openWeatherService;
-
-    public function __construct(AnlagenRepository $anlagenRepository, OpenWeatherService $openWeatherService)
+    public function __construct(
+        private AnlagenRepository $anlagenRepository,
+        private OpenWeatherService $openWeatherService
+    )
     {
         parent::__construct();
-        $this->anlagenRepository = $anlagenRepository;
-        $this->openWeatherService = $openWeatherService;
     }
 
     protected function configure()

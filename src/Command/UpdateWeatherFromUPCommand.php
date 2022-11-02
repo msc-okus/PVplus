@@ -18,18 +18,13 @@ class UpdateWeatherFromUPCommand extends Command
 
     protected static $defaultName = 'pvp:UpdateWeatherUP';
 
-    private WeatherServiceNew $weatherService;
-
-    private DummySollService $dummySollService;
-
-    private WeatherStationRepository $weatherStationRepo;
-
-    public function __construct(WeatherStationRepository $weatherStationRepo, WeatherServiceNew $weatherService, DummySollService $dummySollService)
+    public function __construct(
+        private WeatherStationRepository $weatherStationRepo,
+        private WeatherServiceNew $weatherService,
+        private DummySollService $dummySollService
+    )
     {
         parent::__construct();
-        $this->weatherService = $weatherService;
-        $this->dummySollService = $dummySollService;
-        $this->weatherStationRepo = $weatherStationRepo;
     }
 
     protected function configure()

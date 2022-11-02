@@ -19,18 +19,12 @@ class UpdatePlantsWithDailyInputCommand extends Command
 
     protected static $defaultName = 'pvp:UpdatePlantsWithDailyInput';
 
-    private $anlagenRepository;
-
-    private $prCalulation;
-
-    private $availability;
-
-    public function __construct(AnlagenRepository $anlagenRepository, PRCalulationService $prCalulation, AvailabilityService $availability)
+    public function __construct(
+        private AnlagenRepository $anlagenRepository,
+        private PRCalulationService $prCalulation,
+        private AvailabilityService $availability)
     {
         parent::__construct();
-        $this->anlagenRepository = $anlagenRepository;
-        $this->prCalulation = $prCalulation;
-        $this->availability = $availability;
     }
 
     protected function configure()

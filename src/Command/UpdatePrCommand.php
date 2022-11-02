@@ -18,15 +18,12 @@ class UpdatePrCommand extends Command
 
     protected static $defaultName = 'pvp:updatePr';
 
-    private AnlagenRepository $anlagenRepository;
-
-    private PRCalulationService $prCalulation;
-
-    public function __construct(AnlagenRepository $anlagenRepository, PRCalulationService $prCalulation)
+    public function __construct(
+        private AnlagenRepository $anlagenRepository,
+        private PRCalulationService $prCalulation
+    )
     {
         parent::__construct();
-        $this->anlagenRepository = $anlagenRepository;
-        $this->prCalulation = $prCalulation;
     }
 
     protected function configure()

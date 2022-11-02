@@ -19,16 +19,12 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 )]
 class JoinTicketsDayCommand extends Command
 {
-
-    private AlertSystemService $alertService;
-
-    private AnlagenRepository $anlagenRepository;
-
-    public function __construct(AnlagenRepository $anlagenRepository, AlertSystemService $alertService)
+    public function __construct(
+        private AnlagenRepository $anlagenRepository,
+        private AlertSystemService $alertService
+    )
     {
         parent::__construct();
-        $this->alertService = $alertService;
-        $this->anlagenRepository = $anlagenRepository;
     }
     protected function configure(): void
     {

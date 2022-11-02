@@ -18,15 +18,12 @@ class UpdateExpectedDbsCommand extends Command
 
     protected static $defaultName = 'pvp:updateExpected';
 
-    private AnlagenRepository $anlagenRepository;
-
-    private ExpectedService $expected;
-
-    public function __construct(AnlagenRepository $anlagenRepository, ExpectedService $expected)
+    public function __construct(
+        private AnlagenRepository $anlagenRepository,
+        private ExpectedService $expected
+    )
     {
         parent::__construct();
-        $this->anlagenRepository = $anlagenRepository;
-        $this->expected = $expected;
     }
 
     protected function configure()

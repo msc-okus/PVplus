@@ -17,15 +17,11 @@ class ExportPvIstCommand extends Command
 
     protected static $defaultName = 'pvp:exportPvIst';
 
-    private AnlagenRepository $anlagenRepository;
-
-    private ExportService $exportService;
-
-    public function __construct(AnlagenRepository $anlagenRepository, ExportService $exportService)
+    public function __construct(
+        private AnlagenRepository $anlagenRepository,
+        private ExportService $exportService)
     {
         parent::__construct();
-        $this->anlagenRepository = $anlagenRepository;
-        $this->exportService = $exportService;
     }
 
     protected function configure()

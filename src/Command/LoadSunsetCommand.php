@@ -14,12 +14,11 @@ class LoadSunsetCommand extends Command
 
     protected static $defaultName = 'pvp:loadSunset';
 
-    private WeatherServiceNew $weatherService;
-
-    public function __construct(WeatherServiceNew $weatherService)
+    public function __construct(
+        private WeatherServiceNew $weatherService
+    )
     {
         parent::__construct();
-        $this->weatherService = $weatherService;
     }
 
     protected function configure(): void

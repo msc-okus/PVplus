@@ -15,12 +15,9 @@ class UpdateSystemStatusCommand extends Command
 
     protected static $defaultName = 'pvp:updateSystemStatus';
 
-    private CheckSystemStatusService $checkSystemStatus;
-
-    public function __construct(CheckSystemStatusService $checkSystemStatus)
+    public function __construct(private CheckSystemStatusService $checkSystemStatus)
     {
         parent::__construct();
-        $this->checkSystemStatus = $checkSystemStatus;
     }
 
     protected function configure()
