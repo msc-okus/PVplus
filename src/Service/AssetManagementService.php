@@ -1632,7 +1632,7 @@ class AssetManagementService
             // use acGroups as Inverter
             $inverters = $anlage->getAcGroups()->count();
         }
-        for ($inverter = 0; $inverter < $inverters; ++$inverter) {
+        for ($inverter = 1; $inverter <= $inverters; ++$inverter) {
             $pa = [];
             for ($tempMonth = 1; $tempMonth <= $report['reportMonth']; ++$tempMonth) {
                 $daysInThisMonth = cal_days_in_month(CAL_GREGORIAN, $tempMonth, $report['reportYear']);
@@ -1674,10 +1674,8 @@ class AssetManagementService
         $sumLossesYearEFOR = 0;
         $sumLossesYearOMC = 0;
         foreach ($this->ticketDateRepo->getAllByInterval($report['reportYear'].'-01-01', $end,$anlage) as $date){
-            dump($date);
             $intervalBegin = date("Y-m-d H:i",$date->getBegin()->getTimestamp());
             $intervalEnd = date("Y-m-d H:i",$date->getEnd()->getTimestamp());
-            //dd($date->getInverterArray());
             foreach($date->getInverterArray() as $inverter) {
                 if ($inverter != "*") {
                     switch ($anlage->getConfigType()) { // we need this to query for the inverter in the SOR and EFOR cases, in the OMC case the whole plant is down
@@ -2173,7 +2171,7 @@ class AssetManagementService
             // use acGroups as Inverter
             $inverters = $anlage->getAcGroups()->count();
         }
-        for ($inverter = 0; $inverter < $inverters; ++$inverter) {
+        for ($inverter = 1; $inverter <= $inverters; ++$inverter) {
             $pa = [];
             for ($day = 1; $day <= $daysInReportMonth; ++$day) {
                 $tempFrom = new \DateTime($report['reportYear'].'-'.$report['reportMonth']."-$day 00:00");
@@ -2185,6 +2183,7 @@ class AssetManagementService
                 ];
             }
             $outPa[] = $pa;
+            //dd($pa);
             unset($pa);
         }
         // End PA
