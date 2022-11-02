@@ -1674,26 +1674,30 @@ class AssetManagementService
         $sumLossesYearEFOR = 0;
         $sumLossesYearOMC = 0;
         foreach ($this->ticketDateRepo->getAllByInterval($report['reportYear'].'-01-01', $end,$anlage) as $date){
+            dump($date);
             $intervalBegin = date("Y-m-d H:i",$date->getBegin()->getTimestamp());
             $intervalEnd = date("Y-m-d H:i",$date->getEnd()->getTimestamp());
+            //dd($date->getInverterArray());
             foreach($date->getInverterArray() as $inverter) {
-                switch ($anlage->getConfigType()) { // we need this to query for the inverter in the SOR and EFOR cases, in the OMC case the whole plant is down
+                if ($inverter != "*") {
+                    switch ($anlage->getConfigType()) { // we need this to query for the inverter in the SOR and EFOR cases, in the OMC case the whole plant is down
 
-                    case 1 :
-                        $inverterQuery = "group_dc = $inverter";
-                        break;
-                    default:
-                        $inverterQuery = "group_ac = $inverter";
-                }
+                        case 1 :
+                            $inverterQuery = " AND group_dc = $inverter";
+                            break;
+                        default:
+                            $inverterQuery = " AND group_ac = $inverter";
+                    }
+                }else $inverterQuery = "";
 
                 if ($date->getErrorType() == 10) {
                     $sqlActual = "SELECT sum(wr_pac) as power
                             FROM " . $anlage->getDbNameIst() . " 
-                            WHERE wr_pac >= 0 AND stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND ". $inverterQuery;
+                            WHERE wr_pac >= 0 AND stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  ". $inverterQuery;
 
                     $sqlExpected = "SELECT sum(ac_exp_power) as expected
                             FROM " . $anlage->getDbNameDcSoll() . "                      
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND ". $inverterQuery;
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  ". $inverterQuery;
                     $resAct = $this->conn->query($sqlActual);
                     $resExp = $this->conn->query($sqlExpected);
 
@@ -1705,10 +1709,10 @@ class AssetManagementService
                 } else if ($date->getErrorType() == 20) {
                     $sqlActual = "SELECT sum(wr_pac) as power
                             FROM " . $anlage->getDbNameIst() . " 
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' ". $inverterQuery;
                     $sqlExpected = "SELECT sum(ac_exp_power) as expected
                             FROM " . $anlage->getDbNameDcSoll() . "                      
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' ".$inverterQuery;
                     $resAct = $this->conn->query($sqlActual);
                     $resExp = $this->conn->query($sqlExpected);
 
@@ -1931,22 +1935,25 @@ class AssetManagementService
             $intervalEnd = date("Y-m-d H:i",$date->getEnd()->getTimestamp());
             $inverter = $date->getInverter();
             foreach($date->getInverterArray() as $inverter) {
-                switch ($anlage->getConfigType()) { // we need this to query for the inverter in the SOR and EFOR cases, in the OMC case the whole plant is down
+                if($inverter != "*") {
+                    switch ($anlage->getConfigType()) { // we need this to query for the inverter in the SOR and EFOR cases, in the OMC case the whole plant is down
 
-                    case 1 :
-                        $inverterQuery = "group_dc = '$inverter'";
-                        break;
-                    default:
-                        $inverterQuery = "group_ac = '$inverter'";
+                        case 1 :
+                            $inverterQuery = " AND group_dc = '$inverter'";
+                            break;
+                        default:
+                            $inverterQuery = " AND group_ac = '$inverter'";
+                    }
                 }
+                else $inverterQuery = "";
                 if ($date->getErrorType() == 10) {
                     $sqlActual = "SELECT sum(wr_pac) as power
                             FROM " . $anlage->getDbNameIst() . " 
-                            WHERE wr_pac >= 0 AND stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
+                            WHERE wr_pac >= 0 AND stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  $inverterQuery";
 
                     $sqlExpected = "SELECT sum(ac_exp_power) as expected
                             FROM " . $anlage->getDbNameDcSoll() . "                      
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  $inverterQuery";
                     $resAct = $this->conn->query($sqlActual);
                     $resExp = $this->conn->query($sqlExpected);
 
@@ -1958,10 +1965,10 @@ class AssetManagementService
                 } else if ($date->getErrorType() == 20) {
                     $sqlActual = "SELECT sum(wr_pac) as power
                             FROM " . $anlage->getDbNameIst() . " 
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  $inverterQuery";
                     $sqlExpected = "SELECT sum(ac_exp_power) as expected
                             FROM " . $anlage->getDbNameDcSoll() . "                      
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  $inverterQuery";
                     $resAct = $this->conn->query($sqlActual);
                     $resExp = $this->conn->query($sqlExpected);
 
