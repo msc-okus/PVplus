@@ -84,16 +84,26 @@ class TicketController extends BaseController
 
         // I loop over the array with the real names and the array of selected inverters
         // of the inverter to create a 2-dimension array with the real name and the inverters that are selected
-        for ($index = 1; $index <= sizeof($nameArray); $index++){
-            $value = $nameArray[$index];
-            $inverterArray[$index]["inv"] = $value;
-            if ($index === (int)$selected[$indexSelect]){
+        if ($selected[0] == "*"){
+            for ($index = 1; $index <= sizeof($nameArray); $index++){
+                $value = $nameArray[$index];
+                $inverterArray[$index]["inv"] = $value;
                 $inverterArray[$index]["select"] = "checked";
-                $indexSelect++;
-            } else {
-                $inverterArray[$index]["select"] = "";
             }
         }
+        else {
+            for ($index = 1; $index <= sizeof($nameArray); $index++){
+                $value = $nameArray[$index];
+                $inverterArray[$index]["inv"] = $value;
+                if ($index === (int)$selected[$indexSelect]){
+                    $inverterArray[$index]["select"] = "checked";
+                    $indexSelect++;
+                } else {
+                    $inverterArray[$index]["select"] = "";
+                }
+            }
+        }
+
         if ($ticketDates->isEmpty()) {
             $inverterArray = null;
         }
@@ -141,18 +151,6 @@ class TicketController extends BaseController
                         $em->persist($lastTicketDate);
                     }
                 }
-                /*
-                if ($ticketDates->first()->getBegin() <= $ticket->getBegin()) {
-                    $ticket->setBegin($ticketDates->first()->getBegin());
-                } else {
-                    $ticketDates->first()->setBegin($ticket->getBegin());
-                }
-                if ($ticketDates->last()->getEnd() >= $ticket->getEnd()) {
-                    $ticket->setEnd($ticketDates->last()->getEnd());
-                } else {
-                    $ticketDates->last()->setEnd($ticket->getEnd());
-                }
-                */
                 foreach ($ticketDates as $date){
                     $date->setInverter($ticket->getInverter());
                 }

@@ -1632,7 +1632,7 @@ class AssetManagementService
             // use acGroups as Inverter
             $inverters = $anlage->getAcGroups()->count();
         }
-        for ($inverter = 0; $inverter < $inverters; ++$inverter) {
+        for ($inverter = 1; $inverter <= $inverters; ++$inverter) {
             $pa = [];
             for ($tempMonth = 1; $tempMonth <= $report['reportMonth']; ++$tempMonth) {
                 $daysInThisMonth = cal_days_in_month(CAL_GREGORIAN, $tempMonth, $report['reportYear']);
@@ -1677,23 +1677,25 @@ class AssetManagementService
             $intervalBegin = date("Y-m-d H:i",$date->getBegin()->getTimestamp());
             $intervalEnd = date("Y-m-d H:i",$date->getEnd()->getTimestamp());
             foreach($date->getInverterArray() as $inverter) {
-                switch ($anlage->getConfigType()) { // we need this to query for the inverter in the SOR and EFOR cases, in the OMC case the whole plant is down
+                if ($inverter != "*") {
+                    switch ($anlage->getConfigType()) { // we need this to query for the inverter in the SOR and EFOR cases, in the OMC case the whole plant is down
 
-                    case 1 :
-                        $inverterQuery = "group_dc = $inverter";
-                        break;
-                    default:
-                        $inverterQuery = "group_ac = $inverter";
-                }
+                        case 1 :
+                            $inverterQuery = " AND group_dc = $inverter";
+                            break;
+                        default:
+                            $inverterQuery = " AND group_ac = $inverter";
+                    }
+                }else $inverterQuery = "";
 
                 if ($date->getErrorType() == 10) {
                     $sqlActual = "SELECT sum(wr_pac) as power
                             FROM " . $anlage->getDbNameIst() . " 
-                            WHERE wr_pac >= 0 AND stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND ". $inverterQuery;
+                            WHERE wr_pac >= 0 AND stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  ". $inverterQuery;
 
                     $sqlExpected = "SELECT sum(ac_exp_power) as expected
                             FROM " . $anlage->getDbNameDcSoll() . "                      
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND ". $inverterQuery;
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  ". $inverterQuery;
                     $resAct = $this->conn->query($sqlActual);
                     $resExp = $this->conn->query($sqlExpected);
 
@@ -1705,10 +1707,10 @@ class AssetManagementService
                 } else if ($date->getErrorType() == 20) {
                     $sqlActual = "SELECT sum(wr_pac) as power
                             FROM " . $anlage->getDbNameIst() . " 
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' ". $inverterQuery;
                     $sqlExpected = "SELECT sum(ac_exp_power) as expected
                             FROM " . $anlage->getDbNameDcSoll() . "                      
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' ".$inverterQuery;
                     $resAct = $this->conn->query($sqlActual);
                     $resExp = $this->conn->query($sqlExpected);
 
@@ -1931,22 +1933,25 @@ class AssetManagementService
             $intervalEnd = date("Y-m-d H:i",$date->getEnd()->getTimestamp());
             $inverter = $date->getInverter();
             foreach($date->getInverterArray() as $inverter) {
-                switch ($anlage->getConfigType()) { // we need this to query for the inverter in the SOR and EFOR cases, in the OMC case the whole plant is down
+                if($inverter != "*") {
+                    switch ($anlage->getConfigType()) { // we need this to query for the inverter in the SOR and EFOR cases, in the OMC case the whole plant is down
 
-                    case 1 :
-                        $inverterQuery = "group_dc = '$inverter'";
-                        break;
-                    default:
-                        $inverterQuery = "group_ac = '$inverter'";
+                        case 1 :
+                            $inverterQuery = " AND group_dc = '$inverter'";
+                            break;
+                        default:
+                            $inverterQuery = " AND group_ac = '$inverter'";
+                    }
                 }
+                else $inverterQuery = "";
                 if ($date->getErrorType() == 10) {
                     $sqlActual = "SELECT sum(wr_pac) as power
                             FROM " . $anlage->getDbNameIst() . " 
-                            WHERE wr_pac >= 0 AND stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
+                            WHERE wr_pac >= 0 AND stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  $inverterQuery";
 
                     $sqlExpected = "SELECT sum(ac_exp_power) as expected
                             FROM " . $anlage->getDbNameDcSoll() . "                      
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  $inverterQuery";
                     $resAct = $this->conn->query($sqlActual);
                     $resExp = $this->conn->query($sqlExpected);
 
@@ -1958,10 +1963,10 @@ class AssetManagementService
                 } else if ($date->getErrorType() == 20) {
                     $sqlActual = "SELECT sum(wr_pac) as power
                             FROM " . $anlage->getDbNameIst() . " 
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  $inverterQuery";
                     $sqlExpected = "SELECT sum(ac_exp_power) as expected
                             FROM " . $anlage->getDbNameDcSoll() . "                      
-                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' AND $inverterQuery";
+                            WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  $inverterQuery";
                     $resAct = $this->conn->query($sqlActual);
                     $resExp = $this->conn->query($sqlExpected);
 
@@ -2166,7 +2171,7 @@ class AssetManagementService
             // use acGroups as Inverter
             $inverters = $anlage->getAcGroups()->count();
         }
-        for ($inverter = 0; $inverter < $inverters; ++$inverter) {
+        for ($inverter = 1; $inverter <= $inverters; ++$inverter) {
             $pa = [];
             for ($day = 1; $day <= $daysInReportMonth; ++$day) {
                 $tempFrom = new \DateTime($report['reportYear'].'-'.$report['reportMonth']."-$day 00:00");
@@ -2178,6 +2183,7 @@ class AssetManagementService
                 ];
             }
             $outPa[] = $pa;
+            //dd($pa);
             unset($pa);
         }
         // End PA
@@ -2202,6 +2208,16 @@ class AssetManagementService
                         GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
                 $sqlc = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.wr_idc) AS act_current_dc
                     FROM (db_dummysoll a left JOIN ".$anlage->getDbNameIst()." b ON a.stamp = b.stamp) 
+                    WHERE a.stamp BETWEEN '".$report['reportYear'].'-'.$report['reportMonth']."-1 00:00' and '".$report['reportYear'].'-'.$report['reportMonth'].'-'.$daysInReportMonth." 23:59' and b.group_ac > 0 
+                    GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
+            case 3:
+            case 4:
+                $sql = "SELECT DATE_FORMAT( a.stamp,'%d.%m.%Y') AS form_date, sum(b.wr_pdc) AS act_power_dc, b.group_ac as invgroup
+                        FROM (db_dummysoll a left JOIN ".$anlage->getDbNameIst()." b ON a.stamp = b.stamp) 
+                        WHERE a.stamp BETWEEN '".$report['reportYear'].'-'.$report['reportMonth']."-1 00:00' and '".$report['reportYear'].'-'.$report['reportMonth'].'-'.$daysInReportMonth." 23:59' and b.group_ac > 0
+                        GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
+                $sqlc = "SELECT DATE_FORMAT( a.stamp, '%d.%m.%Y') AS form_date, sum(b.wr_idc) AS act_current_dc
+                    FROM (db_dummysoll a left JOIN ".$anlage->getDbNameDcIst()." b ON a.stamp = b.stamp) 
                     WHERE a.stamp BETWEEN '".$report['reportYear'].'-'.$report['reportMonth']."-1 00:00' and '".$report['reportYear'].'-'.$report['reportMonth'].'-'.$daysInReportMonth." 23:59' and b.group_ac > 0 
                     GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
                 break;
@@ -2422,8 +2438,8 @@ class AssetManagementService
                             'exp_current_dc' => $value[$i]['exp_current_dc'],
                             'act_power_dc' => $dcIst[$j]['act_power_dc'],
                             'act_current_dc' => $dcIst[$j]['act_current_dc'],
-                            'diff_current_dc' => ($dcIst[$j]['act_current_dc'] != 0) ? (($dcIst[$j]['act_current_dc'] - $value[$i]['exp_current_dc']) / $value[$i]['exp_current_dc']) * 100 : 0,
-                            'diff_power_dc' => ($dcIst[$j]['act_power_dc'] != 0) ? (($dcIst[$j]['act_power_dc'] - $value[$i]['exp_power_dc']) / $value[$i]['exp_power_dc']) * 100 : 0,
+                            'diff_current_dc' => (($dcIst[$j]['act_current_dc'] - $value[$i]['exp_current_dc']) / $value[$i]['exp_current_dc']) * 100 ,
+                            'diff_power_dc' =>  (($dcIst[$j]['act_power_dc'] - $value[$i]['exp_power_dc']) / $value[$i]['exp_power_dc']) * 100 ,
                             // 'diff_current_dc' => ($dcIst[$j]['act_current_dc'] != 0) ? (1 - $value[$i]['exp_current_dc'] / $dcIst[$j]['act_current_dc']) * 100 : 0,
                             // 'diff_power_dc' => ($dcIst[$j]['act_power_dc'] != 0) ? (1 - $value[$i]['exp_power_dc'] / $dcIst[$j]['act_power_dc']) * 100 : 0,
                         ];
@@ -2467,8 +2483,10 @@ class AssetManagementService
             }
         }
         if ($dcExpDcIst) {
+            dump($dcExpDcIst);
             $outTableCurrentsPower[] = $dcExpDcIst;
         }
+
         $resultEconomicsNames = $this->ecoVarNameRepo->findOneByAnlage($anlage);
 
         if ($resultEconomicsNames) {

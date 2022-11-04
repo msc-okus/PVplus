@@ -40,10 +40,6 @@ class ReportingController extends AbstractController
     use G4NTrait;
     use PVPNameArraysTrait;
 
-    public function __construct(private string $kernelProjectDir)
-    {
-    }
-
     #[Route(path: '/reporting/create', name: 'app_reporting_create', methods: ['GET', 'POST'])]
     public function createReport(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo,
         ReportService $report, ReportEpcService $reportEpc, ReportsMonthlyService $reportsMonthly, EntityManagerInterface $em,
@@ -61,7 +57,7 @@ class ReportingController extends AbstractController
         $reportDate = new \DateTime("$reportYear-$reportMonth-$daysOfMonth");
         $anlageId = $request->query->get('anlage-id');
         $aktAnlagen = $anlagenRepo->findIdLike([$anlageId]);
-        // create Reports
+
         switch ($reportType) {
             case 'monthly':
                 $output = $reportsMonthly->createMonthlyReport($aktAnlagen[0], $reportMonth, $reportYear);
@@ -122,7 +118,6 @@ class ReportingController extends AbstractController
             $request->query->getInt('page', 1),
             20
         );
-
         return $this->render('reporting/_inc/_listReports.html.twig', [
             'pagination' => $pagination,
             'stati' => self::reportStati(),
@@ -430,30 +425,36 @@ class ReportingController extends AbstractController
                             'kwhLossesMonthTable' => $output['kwhLossesMonthTable'],
                             'kwhLossesYearTable' => $output['kwhLossesYearTable']
                         ]);
+
                         $pdf = new ChromePdf('/usr/bin/chromium');
                         $pos = $this->substr_Index($this->kernelProjectDir, '/', 5);
                         $pathpart = substr($this->kernelProjectDir, $pos);
+
                         $pdf->output('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf');
+
                         $reportfile = fopen('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.html', "w") or die("Unable to open file!");
                         //cleanup html
                         $pos = strpos($result, '<html>');
                         fwrite($reportfile, substr($result, $pos));
                         fclose($reportfile);
-
                         $pdf->generateFromHtml(substr($result, $pos));
                         $pdf->generateFromFile('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.html');
                         $filename = $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf';
+
                         $pdf->output($filename);
 
                         // Header content type
+                        /*
                         header("Content-type: application/pdf");
                         header("Content-Length: " . filesize($filename));
                         header("Content-type: application/pdf");
+                        */
+                        header("Content-type: application/pdf");
+                        header("Content-Length: " . filesize('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf'));
+                        header("Content-type: application/pdf");
                         // Send the file to the browser.
-                        readfile($filename);
-
+                        readfile('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf');
                     }
-
                     return $this->render('report/_form.html.twig', [
                         'assetForm' => $form->createView(),
                         'anlage' => $anlage,
@@ -543,7 +544,7 @@ class ReportingController extends AbstractController
     #[Route(path: '/reporting/html/{id}', name: 'app_reporting_html')]
     public function showReportAsHtml($id, ReportsRepository $reportsRepository, Request $request, ReportService $reportService, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly) : Response
     {
-        $result = "<h2>Somthing is wrong !!! (perhaps no Report ?)</h2>";
+        $result = "<h2>Something is wrong !!! (perhaps no Report ?)</h2>";
         $report = $reportsRepository->find($id);
         if ($report) {
             /** @var AnlagenReports|null $report */

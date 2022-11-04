@@ -174,10 +174,11 @@ trait TicketTrait
     /**
      * This will translate the string with commas from the db field into an array and return it
      */
-    public function getInverterArray(): array
+    public function getInverterArray(): array|string
     {
         if ($this->inverter !== "*") return explode(", ", $this->inverter);
-        else return $this->getAnlage()->getInverterFromAnlage();
+        else  return ["*"];
+
     }
 
     public function getAlertType(): ?string

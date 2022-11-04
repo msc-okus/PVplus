@@ -302,7 +302,6 @@ class AlertSystemService
      */
     private function generateTickets($errorType, $errorCategorie, $anlage, $inverter, $time, $message)
     {
-
         $ticketOld = $this->getLastTicketInverter($anlage, $time, $errorCategorie, $inverter);
         if ($ticketOld !== null) {
             $ticketDate = $ticketOld->getDates()->last();
