@@ -274,7 +274,7 @@ class ReportingController extends AbstractController
                             'forecast_real' => $reportArray['prForecast'],
                             'formel'        => $reportArray['formel'],
                         ]);
-                        $secretToken = '2bf7e9e8c86aa136b2e0e7a34d5c9bc2f4a5f83291a5c79f5a8c63a3c1227da9';
+                        $secretToken = '550725b81db78b424fbaf4b88d05efdfececf25c6ff81d8bcd0cbcb496c1e6a8';
                         $settings = [
                             // 'useLocalTempFolder' => true,
                             'pageWaiting' => 'networkidle2', //load, domcontentloaded, networkidle0, networkidle2
@@ -292,6 +292,7 @@ class ReportingController extends AbstractController
                             ->settings($settings)
                             ->pdf($pdfOptions)
                             ->toBrowser($pdfFilename);
+
                         exit; // Ohne exit führt es unter manchen Systemen (Browser) zu fehlerhaften Downloads
                         break;
                     case 'yieldGuarantee':
