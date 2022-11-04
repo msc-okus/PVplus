@@ -443,14 +443,17 @@ class ReportingController extends AbstractController
                         $pdf->output($filename);
 
                         // Header content type
+                        /*
                         header("Content-type: application/pdf");
                         header("Content-Length: " . filesize($filename));
                         header("Content-type: application/pdf");
+                        */
+                        header("Content-type: application/pdf");
+                        header("Content-Length: " . filesize('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf'));
+                        header("Content-type: application/pdf");
                         // Send the file to the browser.
-                        readfile($filename);
-
+                        readfile('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf');
                     }
-
                     return $this->render('report/_form.html.twig', [
                         'assetForm' => $form->createView(),
                         'anlage' => $anlage,
