@@ -4,7 +4,7 @@ import { Reveal } from 'foundation-sites';
 import $ from 'jquery';
 
 export default class extends Controller {
-    static targets = ['splitAlert', 'modal', 'modalBody', 'splitModal', 'splitForm', 'switch', 'deactivable', 'anlage', 'saveButton', 'AlertFormat', 'AlertDates', 'formBegin', 'formEnd', 'splitButton','splitDeploy'];
+    static targets = ['splitAlert', 'modal', 'modalBody', 'splitModal', 'splitForm', 'switch', 'deactivable', 'anlage', 'saveButton', 'AlertFormat', 'AlertDates', 'formBegin', 'formEnd', 'splitButton','splitDeploy','AlertInverter'];
     static values = {
         formUrl: String,
         splitUrl: String,
@@ -151,7 +151,7 @@ export default class extends Controller {
         $(this.modalBodyTarget).find('#ticket_form_inverter').val(inverterString);
     }
 
-    checkDates() { // What do you check ????
+    checkDates() {
         const valueBegin = $(this.formBeginTarget).prop('value');
         const valueEnd = $(this.formEndTarget).prop('value');
 
@@ -180,6 +180,104 @@ export default class extends Controller {
             $(this.saveButtonTarget).attr('disabled', 'disabled');
         }
     }
+
+    saveCheck({ params: { edited }}){
+        console.log('hey');
+        //getting a string with the inverters so later we can check if there is any or none
+        let inverterString = '';
+        let body = $(this.modalBodyTarget);
+        let counter = 0;
+        body.find('.js-div-split-a').each(function(){
+            $(this).addClass('is-hidden');
+            $(this).find('.js-checkbox-split-a').prop('checked', false);
+        });
+        body.find('.js-div-split-b').each(function(){
+            $(this).addClass('is-hidden');
+            $(this).find('.js-checkbox-split-b').prop('checked', false);
+        });
+        body.find('input:checkbox[class=js-checkbox]:checked').each(function (){
+            counter ++;
+            if (inverterString == '') {inverterString = inverterString + $(this).prop('name');}
+            else {inverterString = inverterString + ', ' + $(this).prop('name');}
+            body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
+            body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
+            body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
+
+        });
+        //here we get the values of the date forms to check if they are valid
+        const valueBegin = $(this.formBeginTarget).prop('value');
+        const valueEnd = $(this.formEndTarget).prop('value');
+
+
+        const date1 = new Date(valueBegin);
+        const date2 = new Date(valueEnd);
+        date1.setSeconds(0);
+        date2.setSeconds(0);
+        const timestamp1 = date1.getTime();
+        const timestamp2 = date2.getTime();
+
+        //allowing split check
+        if (counter <= 1 ) {
+            $(this.splitDeployTarget).attr('disabled', 'disabled');
+        }
+        else {
+            if (edited == true) {
+                $(this.splitDeployTarget).removeAttr('disabled');
+            }
+        }
+
+
+        if (inverterString == '') {
+            $(this.AlertInverterTarget).removeClass('is-hidden')
+            $(this.saveButtonTarget).attr('disabled', 'disabled');
+            if (timestamp2 > timestamp1){
+                $(this.AlertDatesTarget).addClass('is-hidden');
+                if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+                    $(this.AlertFormatTarget).addClass('is-hidden');
+                    $(this.saveButtonTarget).removeAttr('disabled');
+                } else {
+                    $(this.AlertFormatTarget).removeClass('is-hidden');
+                    $(this.saveButtonTarget).attr('disabled', 'disabled');
+                }
+            } else {
+                $(this.AlertDatesTarget).removeClass('is-hidden');
+                $(this.saveButtonTarget).attr('disabled', 'disabled');
+                if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+                    $(this.AlertFormatTarget).addClass('is-hidden');
+                    $(this.saveButtonTarget).removeAttr('disabled');
+                } else {
+                    $(this.AlertFormatTarget).removeClass('is-hidden');
+                    $(this.saveButtonTarget).attr('disabled', 'disabled');
+                }
+            }
+        }
+        else {
+            $(this.AlertInverterTarget).addClass('is-hidden');
+            if (timestamp2 > timestamp1){
+                $(this.AlertDatesTarget).addClass('is-hidden');
+                if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+                    $(this.AlertFormatTarget).addClass('is-hidden');
+                    $(this.saveButtonTarget).removeAttr('disabled');
+                } else {
+                    $(this.AlertFormatTarget).removeClass('is-hidden');
+                    $(this.saveButtonTarget).attr('disabled', 'disabled');
+                }
+            } else {
+                $(this.AlertDatesTarget).removeClass('is-hidden');
+                $(this.saveButtonTarget).attr('disabled', 'disabled');
+                    if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+                        $(this.AlertFormatTarget).addClass('is-hidden');
+                        $(this.saveButtonTarget).removeAttr('disabled');
+                    } else {
+                        $(this.AlertFormatTarget).removeClass('is-hidden');
+                        $(this.saveButtonTarget).attr('disabled', 'disabled');
+                    }
+            }
+        }
+
+        $(this.modalBodyTarget).find('#ticket_form_inverter').val(inverterString);
+    }
+
 
     toggle(){
         let $button = $(this.deactivableTargets);
