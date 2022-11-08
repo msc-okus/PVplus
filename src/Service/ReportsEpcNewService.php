@@ -23,6 +23,9 @@ class ReportsEpcNewService
     {
     }
 
+    /**
+     * @throws \Exception
+     */
     public function monthTable(Anlage $anlage, ?DateTime $date = null): array
     {
         if ($date === null) {
@@ -34,7 +37,7 @@ class ReportsEpcNewService
         $zeileSumme1 = $anzahlMonate + 1;
         $zeileSumme2 = $anzahlMonate + 2;
         $zeileSumme3 = $anzahlMonate + 3;
-        /*
+
         $tableArray[$zeileSumme1]['C_days']                      = 0;
         $tableArray[$zeileSumme1]['D_irrDesign']                 = 0;
         $tableArray[$zeileSumme1]['E_yieldDesign']               = 0;
@@ -71,7 +74,6 @@ class ReportsEpcNewService
         $tableArray[$zeileSumme3]['W_yield_guaranteed_exp']      = 0;
         $tableArray[$zeileSumme3]['AA_yieldEGridMinusGuranteed'] = 0;
         $tableArray[$zeileSumme3]['current_month']               = 0;
-*/
 
         $startYear = $anlage->getEpcReportStart()->format('Y');
         $endYear = $anlage->getEpcReportEnd()->format('Y');
@@ -143,6 +145,7 @@ class ReportsEpcNewService
                     $days = $daysInMonth;
                     $factor = 1;
             }
+
             $prArray = $this->PRCalulation->calcPR($anlage, $from_local, $to_local);
 
             if ($anlage->getUseGridMeterDayData()) {

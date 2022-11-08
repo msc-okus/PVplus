@@ -5,6 +5,8 @@ namespace App\Repository;
 use App\Entity\Anlage;
 use App\Entity\AnlageGridMeterDay;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -23,15 +25,19 @@ class GridMeterDayRepository extends ServiceEntityRepository
     public function sumByDate(Anlage $anlage, $from)
     {
         $from = date('Y-m-d', strtotime($from));
-        $result = $this->createQueryBuilder('a')
-            ->andWhere('a.anlage = :anlage')
-            ->andWhere('a.stamp = :from')
-            ->andWhere('a.gridMeterValue > 0')
-            ->setParameter('anlage', $anlage)
-            ->setParameter('from', $from)
-            ->select('SUM(a.gridMeterValue) AS eGrid')
-            ->getQuery()
-            ->getSingleScalarResult();
+        try {
+            $result = $this->createQueryBuilder('a')
+                ->andWhere('a.anlage = :anlage')
+                ->andWhere('a.stamp = :from')
+                ->andWhere('a.gridMeterValue > 0')
+                ->setParameter('anlage', $anlage)
+                ->setParameter('from', $from)
+                ->select('SUM(a.gridMeterValue) AS eGrid')
+                ->getQuery()
+                ->getSingleScalarResult();
+        } catch (NoResultException|NonUniqueResultException $e) {
+            $result = 0;
+        }
 
         return $result;
     }
@@ -40,16 +46,20 @@ class GridMeterDayRepository extends ServiceEntityRepository
     {
         $from = date('Y-m-d', strtotime($from));
         $to = date('Y-m-d', strtotime($to));
-        $result = $this->createQueryBuilder('a')
-            ->andWhere('a.anlage = :anlage')
-            ->andWhere('a.stamp >= :from AND a.stamp <= :to')
-            ->andWhere('a.gridMeterValue > 0')
-            ->setParameter('anlage', $anlage)
-            ->setParameter('from', $from)
-            ->setParameter('to', $to)
-            ->select('SUM(a.gridMeterValue) AS eGrid')
-            ->getQuery()
-            ->getSingleScalarResult();
+        try {
+            $result = $this->createQueryBuilder('a')
+                ->andWhere('a.anlage = :anlage')
+                ->andWhere('a.stamp >= :from AND a.stamp <= :to')
+                ->andWhere('a.gridMeterValue > 0')
+                ->setParameter('anlage', $anlage)
+                ->setParameter('from', $from)
+                ->setParameter('to', $to)
+                ->select('SUM(a.gridMeterValue) AS eGrid')
+                ->getQuery()
+                ->getSingleScalarResult();
+        } catch (NoResultException|NonUniqueResultException $e) {
+            $result = 0;
+        }
 
         return $result;
     }

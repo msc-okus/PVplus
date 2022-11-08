@@ -30,6 +30,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
@@ -40,6 +41,9 @@ class ReportingController extends AbstractController
     use G4NTrait;
     use PVPNameArraysTrait;
 
+    /**
+     * @throws ExceptionInterface
+     */
     #[Route(path: '/reporting/create', name: 'app_reporting_create', methods: ['GET', 'POST'])]
     public function createReport(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo,
         ReportService $report, ReportEpcService $reportEpc, ReportsMonthlyService $reportsMonthly, EntityManagerInterface $em,
