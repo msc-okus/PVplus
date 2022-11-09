@@ -4,7 +4,9 @@ import { Reveal } from 'foundation-sites';
 import $ from 'jquery';
 
 export default class extends Controller {
-    static targets = ['splitAlert', 'modal', 'modalBody', 'splitModal', 'splitForm', 'switch', 'deactivable', 'anlage', 'saveButton', 'AlertFormat', 'AlertDates', 'formBegin', 'formEnd', 'splitButton','splitDeploy','AlertInverter'];
+    static targets = ['splitAlert', 'modal', 'modalBody', 'splitModal', 'splitForm', 'switch', 'deactivable',
+                        'anlage', 'saveButton', 'AlertFormat', 'AlertDates', 'formBegin', 'formEnd', 'splitButton',
+                        'splitDeploy','AlertInverter', 'Callout', 'AlertCategory'];
     static values = {
         formUrl: String,
         splitUrl: String,
@@ -104,13 +106,59 @@ export default class extends Controller {
 
 
         if (inverterString == '') {
+            $(this.CalloutTarget).removeClass('is-hidden');
+            $(this.AlertInverterTarget).removeClass('is-hidden');
             $(this.saveButtonTarget).attr('disabled', 'disabled');
+            if (timestamp2 > timestamp1){
+                $(this.AlertDatesTarget).addClass('is-hidden');
+                if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+                    $(this.AlertFormatTarget).addClass('is-hidden');
+                    $(this.saveButtonTarget).removeAttr('disabled');
+                } else {
+                    $(this.AlertFormatTarget).removeClass('is-hidden');
+                    $(this.saveButtonTarget).attr('disabled', 'disabled');
+                }
+            } else {
+                $(this.AlertDatesTarget).removeClass('is-hidden');
+                $(this.saveButtonTarget).attr('disabled', 'disabled');
+                if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+                    $(this.AlertFormatTarget).addClass('is-hidden');
+                    $(this.saveButtonTarget).removeAttr('disabled');
+                } else {
+                    $(this.AlertFormatTarget).removeClass('is-hidden');
+                    $(this.saveButtonTarget).attr('disabled', 'disabled');
+                }
+            }
         }
         else {
-            $(this.saveButtonTarget).removeAttr('disabled');
+            $(this.AlertInverterTarget).addClass('is-hidden');
+            $(this.CalloutTarget).addClass('is-hidden');
+            if (timestamp2 > timestamp1){
+                $(this.AlertDatesTarget).addClass('is-hidden');
+                if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+                    $(this.AlertFormatTarget).addClass('is-hidden');
+                    $(this.saveButtonTarget).removeAttr('disabled');
+                } else {
+                    $(this.CalloutTarget).removeClass('is-hidden');
+                    $(this.AlertFormatTarget).removeClass('is-hidden');
+                    $(this.saveButtonTarget).attr('disabled', 'disabled');
+                }
+            } else {
+                $(this.CalloutTarget).removeClass('is-hidden')
+                $(this.AlertDatesTarget).removeClass('is-hidden');
+                $(this.saveButtonTarget).attr('disabled', 'disabled');
+                if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+                    $(this.AlertFormatTarget).addClass('is-hidden');
+                    $(this.saveButtonTarget).removeAttr('disabled');
+                } else {
+                    $(this.CalloutTarget).removeClass('is-hidden');
+                    $(this.AlertFormatTarget).removeClass('is-hidden');
+                    $(this.saveButtonTarget).attr('disabled', 'disabled');
+                }
+            }
         }
     }
-
+/*
     checkInverter({ params: { edited }}){
 
         let inverterString = '';
@@ -180,7 +228,7 @@ export default class extends Controller {
             $(this.saveButtonTarget).attr('disabled', 'disabled');
         }
     }
-
+*/
     saveCheck({ params: { edited }}){
         console.log('hey');
         //getting a string with the inverters so later we can check if there is any or none
@@ -216,6 +264,9 @@ export default class extends Controller {
         const timestamp1 = date1.getTime();
         const timestamp2 = date2.getTime();
 
+        const cat = $(this.formCategoryTarget);
+        console.log(cat);
+
         //allowing split check
         if (counter <= 1 ) {
             $(this.splitDeployTarget).attr('disabled', 'disabled');
@@ -228,7 +279,8 @@ export default class extends Controller {
 
 
         if (inverterString == '') {
-            $(this.AlertInverterTarget).removeClass('is-hidden')
+            $(this.CalloutTarget).removeClass('is-hidden');
+            $(this.AlertInverterTarget).removeClass('is-hidden');
             $(this.saveButtonTarget).attr('disabled', 'disabled');
             if (timestamp2 > timestamp1){
                 $(this.AlertDatesTarget).addClass('is-hidden');
@@ -253,22 +305,26 @@ export default class extends Controller {
         }
         else {
             $(this.AlertInverterTarget).addClass('is-hidden');
+            $(this.CalloutTarget).addClass('is-hidden');
             if (timestamp2 > timestamp1){
                 $(this.AlertDatesTarget).addClass('is-hidden');
                 if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
                     $(this.AlertFormatTarget).addClass('is-hidden');
                     $(this.saveButtonTarget).removeAttr('disabled');
                 } else {
+                    $(this.CalloutTarget).removeClass('is-hidden');
                     $(this.AlertFormatTarget).removeClass('is-hidden');
                     $(this.saveButtonTarget).attr('disabled', 'disabled');
                 }
             } else {
+                $(this.CalloutTarget).removeClass('is-hidden')
                 $(this.AlertDatesTarget).removeClass('is-hidden');
                 $(this.saveButtonTarget).attr('disabled', 'disabled');
                     if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
                         $(this.AlertFormatTarget).addClass('is-hidden');
                         $(this.saveButtonTarget).removeAttr('disabled');
                     } else {
+                        $(this.CalloutTarget).removeClass('is-hidden');
                         $(this.AlertFormatTarget).removeClass('is-hidden');
                         $(this.saveButtonTarget).attr('disabled', 'disabled');
                     }

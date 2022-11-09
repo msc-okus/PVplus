@@ -145,6 +145,8 @@ class TicketFormType extends AbstractType
                 'placeholder' => 'Please select ...',
                 'invalid_message' => 'Please select a Error Category.',
                 'empty_data' => 0,
+                'attr' => ['data-action' => 'change->ticket-edit#saveCheck',
+                    'data-ticket-edit-target' => 'formCategory'],
             ])
             ->add('errorType', ChoiceType::class, [
                 'label' => 'Type of error',

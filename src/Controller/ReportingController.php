@@ -483,6 +483,7 @@ class ReportingController extends AbstractController
         $route = $route.'?anlage='.$anlageq.'&searchstatus='.$searchstatus.'&searchtype='.$searchtype.'&searchmonth='.$searchmonth.'&searchyear='.$searchyear.'&search=yes';
         /** @var AnlagenReports|null $report */
         $report = $reportsRepository->find($id);
+        dd($report->getContentArray());
         $reportCreationDate = $report->getCreatedAt()->format('Y-m-d h:i:s');
         $anlage = $report->getAnlage();
         $currentDate = date('y-m-d');
