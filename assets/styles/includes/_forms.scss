@@ -10,3 +10,9 @@
     display: inline-block;
     margin-right: 5px;
 }
+
+.small-form {
+    label, input {
+        font-size: 90%;
+    }
+}
