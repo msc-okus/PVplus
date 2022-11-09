@@ -78,6 +78,7 @@
                 <li class="tabs-title is-active"><a data-tabs-target="plant-data" href="#plant-data" aria-selected="true" >General</a></li>
                 {% if is_granted('ROLE_G4N') %}
                     <li class="tabs-title"><a data-tabs-target="plant-data-2" href="#plant-data-2">Plant configuration</a></li>
+                    <li class="tabs-title"><a data-tabs-target="availability" href="#availability">Plant configuration</a></li>
                     {% if is_granted('ROLE_ADMIN') %}
                         <li class="tabs-title"><a data-tabs-target="modules" href="#modules">Modules</a></li>
                     {% endif %}
@@ -298,7 +299,12 @@
                         </div>
                     </div>
                 </div>
+                {# Availability #}
+                <div class="tabs-panel" id="availability">
+                    <div class="grid-x grid-padding-x">
 
+                    </div>
+                </div>
                 {# Modules #}
                 <div class="tabs-panel" id="modules">
                     <fieldset class="fieldset js-module-wrapper"

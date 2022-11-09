@@ -31,15 +31,19 @@ class AvailabilityByTicketService
         private FunctionsService $functions,
         private AnlagenRepository $anlagenRepository,
         private TicketRepository $ticketRepo,
-        private TicketDateRepository $ticketDateRepo
+        private TicketDateRepository $ticketDateRepo,
+        private AvailabilityService $availabilityService
     )
     {}
 
     /**
+     * @param Anlage|int $anlage
      * @param $date
-     * @param int $department (for witch department (1 = O&M, 2 = EPC, 3 = AM)
+     * @param int $department (for wich department (0 = Technische PA, 1 = O&M, 2 = EPC, 3 = AM)
+     * @return string
+     * @throws \Exception
      */
-    public function checkAvailability(Anlage|int $anlage, $date, int $department = 1): string
+    public function checkAvailability(Anlage|int $anlage, $date, int $department = 0): string
     {
         if (is_int($anlage)) {
             $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);
@@ -48,14 +52,17 @@ class AvailabilityByTicketService
         // Suche pasende Zeitkonfiguration für diese Anlage und dieses Datum
         /* @var TimesConfig $timesConfig */
         switch ($department) {
+            case 1:
+                $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'availability_1', date_create(date('Y-m-d H:m', $date)));
+                break;
             case 2:
-                $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'availability_second', date_create(date('Y-m-d H:m', $date)));
+                $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'availability_2', date_create(date('Y-m-d H:m', $date)));
                 break;
             case 3:
-                // $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'availability_second', date_create(date('Y-m-d H:m', $date)));
+                // $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'availability_3', date_create(date('Y-m-d H:m', $date)));
                 break;
             default:
-                $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'availability_first', date_create(date('Y-m-d H:m', $date)));
+                $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'fallback', date_create(date('Y-m-d H:m', $date)));
                 break;
         }
 
@@ -75,32 +82,12 @@ class AvailabilityByTicketService
             // Verfügbarkeit Berechnen und in Hilfsarray speichern
             $availabilitysHelper = $this->checkAvailabilityInverter($anlage, $timestampModulo, $timesConfig, $department);
 
-            // DC Leistung der Inverter laden (aus AC Gruppen)
-
-            /* Todo: OLD code could be removed after testing
-            Anpassung der Berechnung der Inverter Pnom je nach Analgen Typ (Berechnen aus DC Gruppen config)
-            switch ($anlage->getConfigType()) {
-                case 1:
-                case 2:
-                    foreach ($anlage->getGroups() as $group) {
-                        $inverterPowerDc[$group->getDcGroup()] = $group->getPnomPerGroup();
-                    }
-                    break;
-                case 3:
-                case 4:
-                    foreach ($anlage->getAcGroups() as $acGroup) {
-                        $inverterPowerDc[$acGroup->getAcGroup()] = $acGroup->getDcPowerInverter();
-                    }
-                    break;
-
-            }
-            */
             // Pnom für Inverter laden
             $inverterPowerDc = $anlage->getPnomInverterArray();
 
             // Speichern der ermittelten Werte
             foreach ($availabilitysHelper as $inverter => $availability) {
-                // Berechnung der protzentualen Verfügbarkeit Part 1 und Part 2
+                // Berechnung der prozentualen Verfügbarkeit Part 1 und Part 2
                 if ($availability['control'] - $availability['case4'] != 0) {
                     $invAPart1 = $this->calcInvAPart1($availability);
                     ($anlage->getPnom() > 0 && $inverterPowerDc[$inverter] > 0) ? $invAPart2 = $inverterPowerDc[$inverter] / $anlage->getPnom() : $invAPart2 = 1;
@@ -123,51 +110,63 @@ class AvailabilityByTicketService
                 switch ($department) {
                     case 1:
                         // PA Department 1
-                        $anlagenAvailability->setcase0($availability['case0']);
-                        $anlagenAvailability->setCase1($availability['case1']);
-                        $anlagenAvailability->setCase2($availability['case2']);
-                        $anlagenAvailability->setCase3($availability['case3']);
-                        $anlagenAvailability->setCase4($availability['case4']);
-                        $anlagenAvailability->setCase5($availability['case5']);
-                        $anlagenAvailability->setCase6($availability['case6']);
-                        $anlagenAvailability->setControl($availability['control']);
-                        $anlagenAvailability->setInvAPart1($invAPart1);
-                        $anlagenAvailability->setInvAPart2($invAPart2);
-                        $anlagenAvailability->setInvA($invAPart1 * $invAPart2);
-                        $anlagenAvailability->setRemarks('');
+                        $anlagenAvailability->setCase01($availability['case0']);
+                        $anlagenAvailability->setCase11($availability['case1']);
+                        $anlagenAvailability->setCase21($availability['case2']);
+                        $anlagenAvailability->setCase31($availability['case3']);
+                        $anlagenAvailability->setCase41($availability['case4']);
+                        $anlagenAvailability->setCase51($availability['case5']);
+                        $anlagenAvailability->setCase61($availability['case6']);
+                        $anlagenAvailability->setControl1($availability['control']);
+                        $anlagenAvailability->setInvAPart11($invAPart1);
+                        $anlagenAvailability->setInvAPart21($invAPart2);
+                        $anlagenAvailability->setInvA1($invAPart1 * $invAPart2);
+                        $anlagenAvailability->setRemarks1('');
                         break;
                     case 2:
                         // PA Department 2
-                        $anlagenAvailability->setcase0Second($availability['case0']);
-                        $anlagenAvailability->setCase1Second($availability['case1']);
-                        $anlagenAvailability->setCase2Second($availability['case2']);
-                        $anlagenAvailability->setCase3Second($availability['case3']);
-                        $anlagenAvailability->setCase4Second($availability['case4']);
-                        $anlagenAvailability->setCase5Second($availability['case5']);
-                        $anlagenAvailability->setCase6Second($availability['case6']);
-                        $anlagenAvailability->setControlSecond($availability['control']);
-                        $anlagenAvailability->setInvAPart1Second($invAPart1);
-                        $anlagenAvailability->setInvAPart2Second($invAPart2);
-                        $anlagenAvailability->setInvASecond($invAPart1 * $invAPart2);
-                        $anlagenAvailability->setRemarksSecond('');
+                        $anlagenAvailability->setCase02($availability['case0']);
+                        $anlagenAvailability->setCase12($availability['case1']);
+                        $anlagenAvailability->setCase22($availability['case2']);
+                        $anlagenAvailability->setCase32($availability['case3']);
+                        $anlagenAvailability->setCase42($availability['case4']);
+                        $anlagenAvailability->setCase52($availability['case5']);
+                        $anlagenAvailability->setCase62($availability['case6']);
+                        $anlagenAvailability->setControl2($availability['control']);
+                        $anlagenAvailability->setInvAPart12($invAPart1);
+                        $anlagenAvailability->setInvAPart22($invAPart2);
+                        $anlagenAvailability->setInvA2($invAPart1 * $invAPart2);
+                        $anlagenAvailability->setRemarks2('');
                         break;
                     case 3:
                         // PA Department 3
+                        $anlagenAvailability->setcase03($availability['case0']);
+                        $anlagenAvailability->setCase13($availability['case1']);
+                        $anlagenAvailability->setCase23($availability['case2']);
+                        $anlagenAvailability->setCase33($availability['case3']);
+                        $anlagenAvailability->setCase43($availability['case4']);
+                        $anlagenAvailability->setCase53($availability['case5']);
+                        $anlagenAvailability->setCase63($availability['case6']);
+                        $anlagenAvailability->setControl3($availability['control']);
+                        $anlagenAvailability->setInvAPart13($invAPart1);
+                        $anlagenAvailability->setInvAPart23($invAPart2);
+                        $anlagenAvailability->setInvA3($invAPart1 * $invAPart2);
+                        $anlagenAvailability->setRemarks3('');
                         break;
                     default:
                         // PA (Standard Berechneung)
-                        $anlagenAvailability->setcase0($availability['case0']);
-                        $anlagenAvailability->setCase1($availability['case1']);
-                        $anlagenAvailability->setCase2($availability['case2']);
-                        $anlagenAvailability->setCase3($availability['case3']);
-                        $anlagenAvailability->setCase4($availability['case4']);
-                        $anlagenAvailability->setCase5($availability['case5']);
-                        $anlagenAvailability->setCase6($availability['case6']);
-                        $anlagenAvailability->setControl($availability['control']);
-                        $anlagenAvailability->setInvAPart1($invAPart1);
-                        $anlagenAvailability->setInvAPart2($invAPart2);
-                        $anlagenAvailability->setInvA($invAPart1 * $invAPart2);
-                        $anlagenAvailability->setRemarks('');
+                        $anlagenAvailability->setcase00($availability['case0']);
+                        $anlagenAvailability->setCase10($availability['case1']);
+                        $anlagenAvailability->setCase20($availability['case2']);
+                        $anlagenAvailability->setCase30($availability['case3']);
+                        $anlagenAvailability->setCase40($availability['case4']);
+                        $anlagenAvailability->setCase50($availability['case5']);
+                        $anlagenAvailability->setCase60($availability['case6']);
+                        $anlagenAvailability->setControl0($availability['control']);
+                        $anlagenAvailability->setInvAPart10($invAPart1);
+                        $anlagenAvailability->setInvAPart20($invAPart2);
+                        $anlagenAvailability->setInvA0($invAPart1 * $invAPart2);
+                        $anlagenAvailability->setRemarks0('');
                         break;
                 }
                 $this->em->persist($anlagenAvailability);
@@ -194,7 +193,7 @@ class AvailabilityByTicketService
      * @param int $department
      * @return array
      */
-    public function checkAvailabilityInverter(Anlage $anlage, $timestampModulo, TimesConfig $timesConfig, int $department = 1): array
+    public function checkAvailabilityInverter(Anlage $anlage, $timestampModulo, TimesConfig $timesConfig, int $department = 0): array
     {
         $case3Helper = [];
         $availability = [];
@@ -378,77 +377,6 @@ class AvailabilityByTicketService
         return $availability;
     }
 
-    /**
-     * Calculate the Availability (PA) for the given plant and the given time range. Base on the folowing formular:<br>
-     * ti / ti,(theo - tFM)<br>
-     * wobei:<br>
-     * ti = case1 + case2<br>
-     * ti,theo = control<br>
-     * tFM = case5<br>.
-     */
-    public function calcAvailability(Anlage|int $anlage, DateTime $from, DateTime $to, ?int $inverter = null): float
-    {
-        if (is_int($anlage)) {
-            $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);
-        }
-
-        $sumPart1 = $sumPart2 = $pa = 0;
-        $inverterPowerDc = [];
-
-        // START: calulate pNom for each inverter
-        if ($inverter === null) {
-            // ToDo: muss auf Anlagen Typ angepasst werden
-            if ($anlage->getUseNewDcSchema()) {
-                foreach ($anlage->getAcGroups() as $acGroup) {
-                    $inverterPowerDc[$acGroup->getAcGroup()] = $acGroup->getDcPowerInverter();
-                }
-            } else {
-                foreach ($anlage->getAcGroups() as $acGroup) {
-                    ($acGroup->getDcPowerInverter() > 0) ? $powerPerInverter = $acGroup->getDcPowerInverter() / ($acGroup->getUnitLast() - $acGroup->getUnitFirst() + 1) : $powerPerInverter = 0;
-                    for ($inv = $acGroup->getUnitFirst(); $inv <= $acGroup->getUnitLast(); ++$inv) {
-                        $inverterPowerDc[$inv] = $powerPerInverter;
-                    }
-                }
-            }
-        } else {
-            // ToDo: nachdenken ob wir die Berechnung des Pnom je Inverter überhaupt brauchen,
-            // ToDo: wenn ich nur für einen Inverter Daten berechne, wird eh nicht ausgegeben ??????
-            /*
-            $inverter--;
-            if ($anlage->getConfigType() == 1) {
-
-            } else {
-                $acGroups = $anlage->getAcGroups();
-                if ($anlage->getUseNewDcSchema()) {
-                    $inverterPowerDc[$acGroups[$inverter]->getAcGroup()] = $acGroups[$inverter]->getDcPowerInverter();
-                } else {
-                    ($acGroups[$inverter]->getDcPowerInverter() > 0) ? $powerPerInverter = $acGroups[$inverter]->getDcPowerInverter() / ($acGroups[$inverter]->getUnitLast() - $acGroups[$inverter]->getUnitFirst() + 1) : $powerPerInverter = 0;
-                    $inverterPowerDc[$inverter] = $powerPerInverter;
-                }
-            }*/
-        }
-        // END: calulate pNom for each inverter
-
-        $availabilitys = $this->availabilityRepository->sumAllCasesByDate($anlage, $from, $to, $inverter);
-        foreach ($availabilitys as $row) {
-            $inverterNr = $row['inverter'];
-            // Berechnung der prozentualen Verfügbarkeit Part 1 und Part 2
-            if ($row['control'] - $row['case4'] !== 0) {
-                $invAPart1 = $this->calcInvAPart1($row);
-                ($anlage->getPnom() > 0 && $inverterPowerDc[$inverterNr] > 0) ? $invAPart2 = $inverterPowerDc[$inverterNr] / $anlage->getPnom() : $invAPart2 = 1;
-                $invAPart3 = $invAPart1 * $invAPart2;
-            } else {
-                $invAPart1 = 0;
-                $invAPart2 = 0;
-                $invAPart3 = 0;
-            }
-            $sumPart1 += $invAPart1;
-            $sumPart2 += $invAPart2;
-            $pa += $invAPart3;
-        }
-
-        return $inverter === null ? $pa : $sumPart1;
-    }
 
     private function getIstData(Anlage $anlage, $from, $to): array
     {

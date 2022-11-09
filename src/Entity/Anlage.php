@@ -304,10 +304,22 @@ class Anlage
     private bool $isOstWestAnlage = false;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $threshold1PA = '0';
+    private ?string $threshold1PA0 = '0';
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $threshold1PA1 = '0';
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $threshold1PA2 = '0';
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $threshold1PA3 = '0';
 
-    #[ORM\Column(name: 'min_irradiation_availability', type: 'string', length: 20, nullable: true)]
-    private ?string $threshold2PA = '50';
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $threshold2PA0 = '0';
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $threshold2PA1 = '50';
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $threshold2PA2 = '50';
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $threshold2PA3 = '50';
 
     #[ORM\OneToMany(targetEntity: TimesConfig::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
     private $timesConfigs;
@@ -1984,39 +1996,125 @@ class Anlage
         return $this;
     }
 
+    #[Deprecated]
     public function getMinIrradiationAvailability(): ?string
     {
-        return $this->threshold2PA;
+        return $this->threshold2PA2;
     }
-
+    #[Deprecated]
     public function setMinIrradiationAvailability(?string $minIrradiationAvailability): self
     {
-        $this->threshold2PA = str_replace(',', '.', $minIrradiationAvailability);
-
+        $this->threshold2PA2 = str_replace(',', '.', $minIrradiationAvailability);
         return $this;
     }
-
+    #[Deprecated]
     public function getThreshold1PA(): ?string
     {
-        return $this->threshold1PA;
+        return $this->threshold1PA2;
     }
-
+    #[Deprecated]
     public function setThreshold1PA(?string $threshold1PA): self
     {
-        $this->threshold1PA = str_replace(',', '.', $threshold1PA);
-
+        $this->threshold1PA2 = str_replace(',', '.', $threshold1PA);
+        return $this;
+    }
+    #[Deprecated]
+    public function getThreshold2PA(): ?string
+    {
+        return $this->threshold2PA2;
+    }
+    #[Deprecated]
+    public function setThreshold2PA(?string $threshold2PA): self
+    {
+        $this->threshold2PA2 = str_replace(',', '.', $threshold2PA);
         return $this;
     }
 
-    public function getThreshold2PA(): ?string
+    public function getThreshold1PA0(): ?string
     {
-        return $this->threshold2PA;
+        return $this->threshold1PA0;
     }
 
-    public function setThreshold2PA(?string $threshold2PA): self
+    public function setThreshold1PA0(?string $threshold1PA0): self
     {
-        $this->threshold2PA = str_replace(',', '.', $threshold2PA);
+        $this->threshold1PA0 = str_replace(',', '.',$threshold1PA0);
+        return $this;
+    }
 
+    public function getThreshold1PA1(): ?string
+    {
+        return $this->threshold1PA1;
+    }
+
+    public function setThreshold1PA1(?string $threshold1PA1): self
+    {
+        $this->threshold1PA1 = str_replace(',', '.',$threshold1PA1);
+        return $this;
+    }
+
+    public function getThreshold1PA2(): ?string
+    {
+        return $this->threshold1PA2;
+    }
+
+    public function setThreshold1PA2(?string $threshold1PA2): self
+    {
+        $this->threshold1PA2 = str_replace(',', '.',$threshold1PA2);
+        return $this;
+    }
+
+    public function getThreshold1PA3(): ?string
+    {
+        return $this->threshold1PA3;
+    }
+
+    public function setThreshold1PA3(?string $threshold1PA3): self
+    {
+        $this->threshold1PA3 = str_replace(',', '.',$threshold1PA3);
+        return $this;
+    }
+
+    public function getThreshold2PA0(): ?string
+    {
+        return $this->threshold2PA0;
+    }
+
+    public function setThreshold2PA0(?string $threshold2PA0): self
+    {
+        $this->threshold2PA0 = str_replace(',', '.',$threshold2PA0);
+        return $this;
+    }
+
+    public function getThreshold2PA1(): ?string
+    {
+        return $this->threshold2PA1;
+    }
+
+    public function setThreshold2PA1(?string $threshold2PA1): self
+    {
+        $this->threshold2PA1 = str_replace(',', '.',$threshold2PA1);
+        return $this;
+    }
+
+    public function getThreshold2PA2(): ?string
+    {
+        return $this->threshold2PA2;
+    }
+
+    public function setThreshold2PA2(?string $threshold2PA2): self
+    {
+        $this->threshold2PA2 = str_replace(',', '.',$threshold2PA2);
+        return $this;
+    }
+
+    public function getThreshold2PA3(): ?string
+    {
+        return $this->threshold2PA3;
+    }
+
+    public function setThreshold2PA3(?string $threshold2PA3): self
+    {
+        $this->threshold2PA3 = str_replace(',', '.',$threshold2PA3);
         return $this;
     }
 
@@ -2183,7 +2281,7 @@ class Anlage
         return (float) $this->kwPeakPLDCalculation;
     }
 
-    public function setKwPeakPLDCalculation(?string $kwPeakPLDCalculation): void
+    public function setKwPeakPLDCalculation(?string $kwPeakPLDCalculation): self
     {
         $this->kwPeakPLDCalculation = $kwPeakPLDCalculation;
     }
@@ -2399,7 +2497,7 @@ class Anlage
         return $this->usePnomForPld;
     }
 
-    public function setUsePnomForPld(bool $usePnomForPld): void
+    public function setUsePnomForPld(bool $usePnomForPld): self
     {
         $this->usePnomForPld = $usePnomForPld;
     }

@@ -23,7 +23,7 @@ class TimesConfigRepository extends ServiceEntityRepository
     /**
      * @return TimesConfig Returns an array of TimesConfig objects
      */
-    public function findValidConfig(Anlage $anlage, $type, \DateTime $date)
+    public function findValidConfig(Anlage $anlage, $type, \DateTime $date): TimesConfig
     {
         $qb = $this->createQueryBuilder('t')
             ->andWhere('t.anlage = :anlage')
