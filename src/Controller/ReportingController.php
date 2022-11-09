@@ -22,6 +22,7 @@ use App\Service\ReportService;
 use App\Service\ReportsMonthlyService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use Knp\Snappy\Pdf;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -35,6 +36,7 @@ use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Nuzkito\ChromePdf\ChromePdf;
+use Twig\Environment;
 
 class ReportingController extends AbstractController
 {
@@ -228,7 +230,7 @@ class ReportingController extends AbstractController
     }
 
     #[Route(path: '/reporting/pdf/{id}', name: 'app_reporting_pdf')]
-    public function showReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly, $tempPathBaseUrl)
+    public function showReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly, $tempPathBaseUrl, Environment $environment, Pdf $pdf)
     {
         /** @var AnlagenReports|null $report */
         $session = $this->container->get('session');
