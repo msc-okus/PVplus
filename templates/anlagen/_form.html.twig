@@ -78,7 +78,7 @@
                 <li class="tabs-title is-active"><a data-tabs-target="plant-data" href="#plant-data" aria-selected="true" >General</a></li>
                 {% if is_granted('ROLE_G4N') %}
                     <li class="tabs-title"><a data-tabs-target="plant-data-2" href="#plant-data-2">Plant configuration</a></li>
-                    <li class="tabs-title"><a data-tabs-target="availability" href="#availability">Plant configuration</a></li>
+                    <li class="tabs-title"><a data-tabs-target="availability" href="#availability">Availability Settup</a></li>
                     {% if is_granted('ROLE_ADMIN') %}
                         <li class="tabs-title"><a data-tabs-target="modules" href="#modules">Modules</a></li>
                     {% endif %}
@@ -178,13 +178,7 @@
                                     <div class="cell medium-3">{{ form_row(anlageForm.tempCorrDeltaTCnd) }}</div>
                                 </div>
                             </fieldset>
-                            <fieldset class="fieldset">
-                                <legend>PA Berechnung</legend>
-                                <div class="grid-x grid-padding-x">
-                                    <div class="cell medium-6">{{ form_row(anlageForm.threshold1PA) }}</div>
-                                    <div class="cell medium-6">{{ form_row(anlageForm.threshold2PA) }}</div>
-                                </div>
-                            </fieldset>
+
                             <fieldset class="fieldset">
                                 <legend>Config</legend>
                                 <div class="grid-x">
@@ -302,7 +296,41 @@
                 {# Availability #}
                 <div class="tabs-panel" id="availability">
                     <div class="grid-x grid-padding-x">
-
+                        <div class="cell">
+                            <fieldset class="fieldset">
+                                <legend>PA Berechnung</legend>
+                                <div class="grid-x grid-padding-x">
+                                    <div class="cell medium-3">
+                                        <fieldset class="fieldset">
+                                            <legend>Technical</legend>
+                                            {{ form_row(anlageForm.threshold1PA0) }}
+                                            {{ form_row(anlageForm.threshold2PA0) }}
+                                        </fieldset>
+                                    </div>
+                                    <div class="cell medium-3">
+                                        <fieldset class="fieldset">
+                                            <legend>Department 1 (O&M)</legend>
+                                            {{ form_row(anlageForm.threshold1PA1) }}
+                                            {{ form_row(anlageForm.threshold2PA1) }}
+                                        </fieldset>
+                                    </div>
+                                    <div class="cell medium-3">
+                                        <fieldset class="fieldset">
+                                            <legend>Department 1 (EPC)</legend>
+                                            {{ form_row(anlageForm.threshold1PA2) }}
+                                            {{ form_row(anlageForm.threshold2PA2) }}
+                                        </fieldset>
+                                    </div>
+                                    <div class="cell medium-3">
+                                        <fieldset class="fieldset">
+                                            <legend>Department 1 (AM)</legend>
+                                            {{ form_row(anlageForm.threshold1PA3) }}
+                                            {{ form_row(anlageForm.threshold2PA3) }}
+                                        </fieldset>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
                     </div>
                 </div>
                 {# Modules #}

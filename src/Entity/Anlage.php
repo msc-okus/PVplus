@@ -145,9 +145,6 @@ class Anlage
     #[ORM\Column(name: 'anl_wind_unit', type: 'string', length: 10, nullable: false, options: ['default' => 'km/h'])]
     private string $anlWindUnit = 'km/h';
 
-    /**
-     * @deprecated
-     */
     #[ORM\Column(name: 'anl_view', type: 'string', length: 10, nullable: false, options: ['default' => 'No'])]
     private string $anlView = 'No';
 
@@ -364,7 +361,7 @@ class Anlage
     private string $lid;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private $annualDegradation;
+    private ?float $annualDegradation;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $pldPR;
@@ -467,11 +464,11 @@ class Anlage
     #[ORM\OneToOne(targetEntity: EconomicVarNames::class, mappedBy: 'anlage', orphanRemoval: true, cascade: ['persist', 'remove'])]
     private $economicVarNames;
 
-    #[ORM\OneToMany(targetEntity: EconomicVarValues::class, mappedBy: 'anlage', orphanRemoval: true, cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: EconomicVarValues::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
     private $economicVarValues;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
-    private $useDayForecast = false;
+    private bool $useDayForecast = false;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $degradationForecast = '0';
@@ -486,9 +483,9 @@ class Anlage
     private AnlageSettings $settings;
 
     #[ORM\Column(type: 'string', length: 150, nullable: true)]
-    private $picture = '';
+    private ?string $picture = '';
 
-    #[ORM\OneToMany(targetEntity: Status::class, mappedBy: 'Anlage', orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'Anlage', targetEntity: Status::class, orphanRemoval: true)]
     private $statuses;
 
     #[ORM\Column(type: 'boolean')]
@@ -500,7 +497,7 @@ class Anlage
     #[ORM\Column(type: 'boolean')]
     private bool $RetrieveAllData = false;
 
-    #[ORM\OneToMany(targetEntity: DayLightData::class, mappedBy: 'anlage')]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: DayLightData::class)]
     private Collection $dayLightData;
 
     #[ORM\Column(type: 'string', length: 20)]
@@ -836,7 +833,7 @@ class Anlage
 
         return $this;
     }
-
+/*
     public function getAnlGruppe(): ?string
     {
         return $this->anlGruppe;
@@ -865,7 +862,7 @@ class Anlage
 
         return $this;
     }
-
+*/
     public function getAnlZeitzone(): ?float
     {
         return (float) $this->anlZeitzone;
@@ -928,7 +925,7 @@ class Anlage
 
         return $this;
     }
-
+/*
     public function getAnlWindUnit(): ?string
     {
         return $this->anlWindUnit;
@@ -941,6 +938,7 @@ class Anlage
         return $this;
     }
 
+*/
     public function getAnlView(): ?string
     {
         return $this->anlView;
@@ -952,7 +950,6 @@ class Anlage
 
         return $this;
     }
-
     public function getAnlHidePlant(): ?string
     {
         return $this->anlHidePlant;
@@ -2032,7 +2029,7 @@ class Anlage
 
     public function getThreshold1PA0(): ?string
     {
-        return $this->threshold1PA0;
+        return $this->threshold1PA0 === null ? 0 : $this->threshold1PA0;
     }
 
     public function setThreshold1PA0(?string $threshold1PA0): self
@@ -2043,7 +2040,7 @@ class Anlage
 
     public function getThreshold1PA1(): ?string
     {
-        return $this->threshold1PA1;
+        return $this->threshold1PA1 === null ? 0 : $this->threshold1PA1;
     }
 
     public function setThreshold1PA1(?string $threshold1PA1): self
@@ -2054,7 +2051,7 @@ class Anlage
 
     public function getThreshold1PA2(): ?string
     {
-        return $this->threshold1PA2;
+        return $this->threshold1PA2 === null ? 0 : $this->threshold1PA2;
     }
 
     public function setThreshold1PA2(?string $threshold1PA2): self
@@ -2065,7 +2062,7 @@ class Anlage
 
     public function getThreshold1PA3(): ?string
     {
-        return $this->threshold1PA3;
+        return $this->threshold1PA3 === null ? 0 : $this->threshold1PA3;
     }
 
     public function setThreshold1PA3(?string $threshold1PA3): self
@@ -2076,7 +2073,7 @@ class Anlage
 
     public function getThreshold2PA0(): ?string
     {
-        return $this->threshold2PA0;
+        return $this->threshold2PA0 === null ? 50 : $this->threshold2PA0;
     }
 
     public function setThreshold2PA0(?string $threshold2PA0): self
@@ -2087,7 +2084,7 @@ class Anlage
 
     public function getThreshold2PA1(): ?string
     {
-        return $this->threshold2PA1;
+        return $this->threshold2PA1 === null ? 50 : $this->threshold2PA1;
     }
 
     public function setThreshold2PA1(?string $threshold2PA1): self
@@ -2098,7 +2095,7 @@ class Anlage
 
     public function getThreshold2PA2(): ?string
     {
-        return $this->threshold2PA2;
+        return $this->threshold2PA2 === null ? 50 : $this->threshold2PA2;
     }
 
     public function setThreshold2PA2(?string $threshold2PA2): self
@@ -2109,7 +2106,7 @@ class Anlage
 
     public function getThreshold2PA3(): ?string
     {
-        return $this->threshold2PA3;
+        return $this->threshold2PA3 === null ? 50 : $this->threshold2PA3;
     }
 
     public function setThreshold2PA3(?string $threshold2PA3): self
@@ -2284,6 +2281,7 @@ class Anlage
     public function setKwPeakPLDCalculation(?string $kwPeakPLDCalculation): self
     {
         $this->kwPeakPLDCalculation = $kwPeakPLDCalculation;
+        return $this;
     }
 
     public function getDesignPR(): ?float
