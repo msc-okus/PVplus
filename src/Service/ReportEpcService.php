@@ -14,6 +14,7 @@ use App\Repository\MonthlyDataRepository;
 use App\Repository\PRRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 class ReportEpcService
@@ -34,6 +35,10 @@ class ReportEpcService
     )
     {}
 
+    /**
+     * @throws ExceptionInterface
+     * @throws \Exception
+     */
     public function createEpcReport(Anlage $anlage, DateTime $date): string
     {
         $currentDate = date('Y-m-d H-i');
@@ -103,6 +108,9 @@ class ReportEpcService
         return $output;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function reportPRGuarantee(Anlage $anlage, DateTime $date): array
     {
         $anzahlMonate = ((int) $anlage->getEpcReportEnd()->format('Y') - (int) $anlage->getEpcReportStart()->format('Y')) * 12 + ((int) $anlage->getEpcReportEnd()->format('m') - (int) $anlage->getEpcReportStart()->format('m')) + 1;
@@ -136,127 +144,131 @@ class ReportEpcService
                     ++$year;
                 }
 
-                $daysInMonth = date('t', strtotime("$year-$month-01")) * 1;
-                $from = date('Y-m-d', strtotime("$year-$month-01 00:00"));
-                $to = date('Y-m-d', strtotime("$year-$month-$daysInMonth 23:59"));
+                $daysInMonth    = date('t', strtotime("$year-$month-01")) * 1;
+                $from           = date('Y-m-d', strtotime("$year-$month-01 00:00"));
+                $to             = date('Y-m-d', strtotime("$year-$month-$daysInMonth 23:59"));
 
                 switch ($n) {
                     case 1:
                         $from = date('Y-m-d', strtotime("$year-$month-$facStartDay 00:00"));
-                        $prArray = $this->PRCalulation->calcPR($anlage, date_create($from), date_create($to));
-
-                        $days = $daysInMonth - $daysInStartMonth + 1;
-                        $ertragPvSyst = $anlage->getOneMonthPvSyst($month)->getErtragDesign() / $daysInMonth * $days;
-                        $prDesignPvSyst = $anlage->getOneMonthPvSyst($month)->getPrDesign();
-                        $forecastDateText = date('My', strtotime("$year-$month-1")).' - ';
-                        $realDateText = date('My', strtotime("$year-$month-1")).' - ';
+                        $prArray            = $this->PRCalulation->calcPR($anlage, date_create($from), date_create($to));
+                        $days               = $daysInMonth - $daysInStartMonth + 1;
+                        $ertragPvSyst       = $anlage->getOneMonthPvSyst($month)->getErtragDesign() / $daysInMonth * $days;
+                        $prDesignPvSyst     = $anlage->getOneMonthPvSyst($month)->getPrDesign();
+                        $forecastDateText   = date('My', strtotime("$year-$month-1")).' - ';
+                        $realDateText       = date('My', strtotime("$year-$month-1")).' - ';
                         break;
                     case $anzahlMonate:
-                        $days = $daysInEndMonth;
-                        $to = date('Y-m-d', strtotime("$year-$month-$facEndDay 23:59"));
-                        $prArray = $this->PRCalulation->calcPR($anlage, date_create($from), date_create($to));
-                        $ertragPvSyst = $anlage->getOneMonthPvSyst($month)->getErtragDesign() / $daysInMonth * $days;
-                        $prDesignPvSyst = $anlage->getOneMonthPvSyst($month)->getPrDesign();
-                        $forecastDateText .= date('My', strtotime("$year-$month-1"));
+                        $days               = $daysInEndMonth;
+                        $to                 = date('Y-m-d', strtotime("$year-$month-$facEndDay 23:59"));
+                        $prArray            = $this->PRCalulation->calcPR($anlage, date_create($from), date_create($to));
+                        $ertragPvSyst       = $anlage->getOneMonthPvSyst($month)->getErtragDesign() / $daysInMonth * $days;
+                        $prDesignPvSyst     = $anlage->getOneMonthPvSyst($month)->getPrDesign();
+                        $forecastDateText   .= date('My', strtotime("$year-$month-1"));
                         break;
                     default:
-                        $days = $daysInMonth;
-                        $prDesignPvSyst = $anlage->getOneMonthPvSyst($month)->getPrDesign();
-                        $ertragPvSyst = $anlage->getOneMonthPvSyst($month)->getErtragDesign();
+                        $days               = $daysInMonth;
+                        $prArray            = $this->PRCalulation->calcPR($anlage, date_create($from), date_create($to));
+                        $prDesignPvSyst     = $anlage->getOneMonthPvSyst($month)->getPrDesign();
+                        $ertragPvSyst       = $anlage->getOneMonthPvSyst($month)->getErtragDesign();
                 }
-                $prGuarantie = $prDesignPvSyst - ($anlage->getDesignPR() - $anlage->getContractualPR());
-                $spezErtragDesign = $ertragPvSyst / $anlage->getKwPeakPvSyst();
+                $prGuarantie        = $prDesignPvSyst - ($anlage->getDesignPR() - $anlage->getContractualPR());
+                $spezErtragDesign   = $ertragPvSyst / $anlage->getKwPeakPvSyst();
 
                 /** @var AnlagenPR $pr */
                 $pr = $this->prRepository->findOneBy(['anlage' => $anlage, 'stamp' => date_create(date('Y-m-d', strtotime("$year-$month-$daysInMonth")))]);
-                /** @var AnlagenMonthlyData $monthlyData */
+                /*
+                /** @var AnlagenMonthlyData $monthlyData
                 $monthlyData = $this->monthlyDataRepo->findOneBy(['anlage' => $anlage, 'year' => $year, 'month' => $month]);
-
+                */
                 $currentMonthClass = '';
                 if ($pr && $pr->getstamp() <= $date) {
-                    $prReal = $this->format($pr->getPrEvuMonth());
-                    $prStandard = $this->format($pr->getPrDefaultMonthEvu());
+                    $prReal         = $prArray['prEvu']; // $this->format($pr->getPrEvuMonth());
+                    $prStandard     = $prArray['prDefaultEvu']; // $this->format($pr->getPrDefaultMonthEvu());
                     switch ($n) {
                         case 1:
                         case $anzahlMonate:
-                            $prReal = $prArray['prEvu'];
-                            $eGridReal = $prArray['powerEvu'];
-                            $irrMonth = $prArray['irradiation'];
+                            $eGridReal      = $prArray['powerEvu'];
+                            $irrMonth       = $prArray['irradiation'];
                             $prAvailability = $prArray['availability'];
                             if ($anlage->getUseGridMeterDayData()) {
-                                $eGridReal = $prArray['powerEGridExt'];
-                                $prReal = $prArray['prEGridExt'];
+                                $eGridReal  = $prArray['powerEGridExt'];
+                                $prReal     = $prArray['prEGridExt'];
                                 $prStandard = $prArray['prDefaultEGridExt'];
                             }
+                            /*
                             if ($monthlyData != null && $monthlyData->getExternMeterDataMonth() > 0) {
                                 $eGridReal = $monthlyData->getExternMeterDataMonth();
                             }
+                            */
                             break;
                         default:
-                            $eGridReal = $pr->getPowerEvuMonth();
-                            $irrMonth = $pr->getIrrMonth();
-                            $prAvailability = $this->availabilityService->calcAvailability($anlage, date_create("$year-$month-01 00:00"), date_create("$year-$month-$days 23:59"));
+                            $eGridReal      = $prArray['powerEvu']; // $pr->getPowerEvuMonth();
+                            $irrMonth       = $prArray['irradiation']; // $pr->getIrrMonth();
+                            $prAvailability = $prArray['availability']; // $this->availabilityService->calcAvailability($anlage, date_create("$year-$month-01 00:00"), date_create("$year-$month-$days 23:59"));
                             if ($anlage->getUseGridMeterDayData()) {
-                                $eGridReal = $this->gridMeterRepo->sumByDateRange($anlage, $from, $to);
-                                $prReal = $pr->getPrEGridExtMonth();
-                                $prStandard = $this->format($pr->getPrDefaultMonthEGridExt());
+                                $eGridReal  = $prArray['powerEGridExt']; // $this->gridMeterRepo->sumByDateRange($anlage, $from, $to);
+                                $prReal     = $prArray['prEGridExt']; // $pr->getPrEGridExtMonth();
+                                $prStandard = $prArray['prDefaultEGridExt']; // $this->format($pr->getPrDefaultMonthEGridExt());
                             }
+                            /*
                             if ($monthlyData != null && $monthlyData->getExternMeterDataMonth() > 0) {
-                                $eGridReal = $monthlyData->getExternMeterDataMonth(); // / $daysInMonth * $days;
+                                $eGridReal  = $monthlyData->getExternMeterDataMonth(); // / $daysInMonth * $days;
                             }
+                            */
                     }
 
                     $prRealprProg = $prReal;
                     $realDateTextEnd = date('My', strtotime("$year-$month-1"));
                     if (($month == $currentMonth && $year == $currentYear) && $run === 2) {
                         // für das Einfärben der Zeile des aktuellen Monats
-                        $currentMonthClass = 'current-month';
+                        $currentMonthClass  = 'current-month';
                         $prArrayFormel = $this->PRCalulation->calcPR($anlage, $anlage->getEpcReportStart(), date_create($to));
                         if ($anlage->getUseGridMeterDayData()) {
-                            $formelEnergy = $prArrayFormel['powerEGridExt'];
-                            $formelPR = $prArrayFormel['prEGridExt'];
-                            $prStandard = $prArrayFormel['prDefaultEGridExt'];
+                            $formelEnergy   = $prArrayFormel['powerEGridExt'];
+                            $formelPR       = $prArrayFormel['prEGridExt'];
+                            $prStandard     = $prArrayFormel['prDefaultEGridExt'];
                         } else {
-                            $formelEnergy = $prArrayFormel['powerEvu'];
-                            $formelPR = $prArrayFormel['prEvu'];
-                            $prStandard = $prArrayFormel['prDefaultEvu'];
+                            $formelEnergy   = $prArrayFormel['powerEvu'];
+                            $formelPR       = $prArrayFormel['prEvu'];
+                            $prStandard     = $prArrayFormel['prDefaultEvu'];
                         }
-                        $formelIrr = $prArrayFormel['irradiation'];
-                        $formelPowerTheo = $prArrayFormel['powerTheo'];
+                        $formelIrr          = $prArrayFormel['irradiation'];
+                        $formelPowerTheo    = $prArrayFormel['powerTheo'];
                         $formelAvailability = $prArrayFormel['availability'];
-                        $formelAlgorithmus = $prArrayFormel['algorithmus'];
-                        $tempCorrection = $prArrayFormel['tempCorrection'];
+                        $formelAlgorithmus  = $prArrayFormel['algorithmus'];
+                        $tempCorrection     = $prArrayFormel['tempCorrection'];
                     }
                     if ($run === 1) {
                         ++$monateReal;
-                        $sumDaysReal += $days;
-                        $sumErtragDesignReal += $ertragPvSyst;
-                        $sumEGridRealReal += $eGridReal;
-                        $sumPrRealReal += $prReal;
-                        $sumEGridRealDesignReal += $eGridReal - $ertragPvSyst;
-                        $sumSpecPowerGuarReal += $spezErtragDesign * (1 - ((float) $anlage->getDesignPR() - (float) $anlage->getContractualPR()) / 100);
-                        $sumSpecPowerRealProgReal += $eGridReal / $anlage->getPnom();
+                        $sumDaysReal                += $days;
+                        $sumErtragDesignReal        += $ertragPvSyst;
+                        $sumEGridRealReal           += $eGridReal;
+                        $sumPrRealReal              += $prReal;
+                        $sumEGridRealDesignReal     += $eGridReal - $ertragPvSyst;
+                        $sumSpecPowerGuarReal       += $spezErtragDesign * (1 - ((float) $anlage->getDesignPR() - (float) $anlage->getContractualPR()) / 100);
+                        $sumSpecPowerRealProgReal   += $eGridReal / $anlage->getPnom();
                         ++$counterReal;
                     }
                 } else {
                     $prStandard = 0;
-                    $eGridReal = $ertragPvSyst;
-                    $prReal = $prDesignPvSyst;
-                    $prRealprProg = $prGuarantie;
-                    $irrMonth = 0;
+                    $eGridReal      = $ertragPvSyst;
+                    $prReal         = $prDesignPvSyst;
+                    $prRealprProg   = $prGuarantie;
+                    $irrMonth       = 0;
                     $prAvailability = 0;
                 }
 
                 if ($run === 1) { // Vorberechnung einiger Werte für den zweiten Lauf (run === 2)
-                    $sumDays += $days;
-                    $sumErtragDesign += $ertragPvSyst;
-                    $sumEGridReal += $eGridReal;
-                    $sumPrDesign += $prDesignPvSyst;
-                    $sumPrReal += $prReal;
-                    $sumSpecPowerGuar += $spezErtragDesign * (1 - ((float) $anlage->getDesignPR() - (float) $anlage->getContractualPR()) / 100);
-                    $sumSpecPowerRealProg += $eGridReal / $anlage->getPnom();
-                    $sumIrrMonth += $irrMonth;
-                    $sumEGridRealDesign += $eGridReal - $ertragPvSyst;
+                    $sumDays                += $days;
+                    $sumErtragDesign        += $ertragPvSyst;
+                    $sumEGridReal           += $eGridReal;
+                    $sumPrDesign            += $prDesignPvSyst;
+                    $sumPrReal              += $prReal;
+                    $sumSpecPowerGuar       += $spezErtragDesign * (1 - ((float) $anlage->getDesignPR() - (float) $anlage->getContractualPR()) / 100);
+                    $sumSpecPowerRealProg   += $eGridReal / $anlage->getPnom();
+                    $sumIrrMonth            += $irrMonth;
+                    $sumEGridRealDesign     += $eGridReal - $ertragPvSyst;
                     ++$counter;
                     if ($counter > 24) {
                         $counter = 24;
@@ -275,24 +287,24 @@ class ReportEpcService
                     }
 
                     $report[0][] = [
-                        'month' => date('m / y', strtotime("$year-$month-1")),
-                        'days' => $days,
-                        'irradiation' => $this->format($irrMonth),
-                        'prDesign' => $this->format($prDesignPvSyst),
-                        'ertragDesign' => $this->format($ertragPvSyst),
-                        'spezErtragDesign' => $this->format($spezErtragDesign),
-                        'prGuar' => $this->format($prGuarantie),
-                        'eGridReal' => $this->format($eGridReal),
-                        'eGridReal-Design' => $this->format($eGridReal - $ertragPvSyst),
-                        'spezErtrag' => $this->format($eGridReal / $anlage->getPnom(), 2),
-                        'prReal' => $this->format($prReal),
-                        'prReal_prDesign' => $this->format($prReal - $prDesignPvSyst),
-                        'availability' => $this->format($prAvailability),
-                        'dummy' => '',
-                        'prReal_prGuar' => $this->format($prReal - $prGuarantie),
-                        'prReal_prProg' => $this->format($prRealprProg),
-                        'anteil' => $this->format($anteil * 100),
-                        'specPowerGuar' => $this->format($spezErtragDesign * (1 - ($anlage->getDesignPR() - $anlage->getContractualPR()) / 100)),
+                        'month'             => date('m / y', strtotime("$year-$month-1")),
+                        'days'              => $days,
+                        'irradiation'       => $this->format($irrMonth),
+                        'prDesign'          => $this->format($prDesignPvSyst),
+                        'ertragDesign'      => $this->format($ertragPvSyst),
+                        'spezErtragDesign'  => $this->format($spezErtragDesign),
+                        'prGuar'            => $this->format($prGuarantie),
+                        'eGridReal'         => $this->format($eGridReal),
+                        'eGridReal-Design'  => $this->format($eGridReal - $ertragPvSyst),
+                        'spezErtrag'        => $this->format($eGridReal / $anlage->getPnom(), 2),
+                        'prReal'            => $this->format($prReal),
+                        'prReal_prDesign'   => $this->format($prReal - $prDesignPvSyst),
+                        'availability'      => $this->format($prAvailability),
+                        'dummy'             => '',
+                        'prReal_prGuar'     => $this->format($prReal - $prGuarantie),
+                        'prReal_prProg'     => $this->format($prRealprProg),
+                        'anteil'            => $this->format($anteil * 100),
+                        'specPowerGuar'     => $this->format($spezErtragDesign * (1 - ($anlage->getDesignPR() - $anlage->getContractualPR()) / 100)),
                         'specPowerRealProg' => $this->format($eGridReal / $anlage->getPnom()),
                         'currentMonthClass' => $currentMonthClass,
                     ];
@@ -304,50 +316,50 @@ class ReportEpcService
         // Forecast (ganzes Jahr, Bsp Sep20 bis Sep21)
         if (!$finalReport) {
             $report[0][] = [
-                'month' => 'Forecast<br>' . $forecastDateText,
-                'days' => 'months: ' . $anzahlMonate,
-                'irradiation' => $this->format($sumIrrMonth),
-                'prDesign' => $this->format($anlage->getDesignPR()),
-                'ertragDesign' => $this->format($sumErtragDesign),
-                'spezErtragDesign' => $this->format($sumErtragDesign / $anlage->getKwPeakPvSyst()),
-                'prGuar' => $this->format($anlage->getContractualPR()),
-                'eGridReal' => $this->format($sumEGridReal),
-                'eGridReal-Design' => $this->format($sumEGridRealDesign),
-                'spezErtrag' => $this->format($sumEGridReal / $anlage->getPnom()),
-                'prReal' => $this->format($sumPrReal / $counter),
-                'prReal_prDesign' => $this->format(($sumPrReal / $counter) - $anlage->getDesignPR()), // PR Real minus PR Design
-                'availability' => '',
-                'dummy' => '',
-                'prReal_prGuar' => $this->format(($sumPrReal / $counter) - $anlage->getContractualPR()), // PR Real minus PR Garantiert
-                'prReal_prProg' => $this->format($sumPrRealPrProg),  // PR Real oder wenn kein PR Real dann PR Prognostiziert
-                'anteil' => $this->format($sumAnteil * 100),
-                'specPowerGuar' => $this->format($sumSpecPowerGuar),
-                'specPowerRealProg' => $this->format($sumSpecPowerRealProg),
-                'currentMonthClass' => 'sum-forcast',
+                'month'                 => 'Forecast<br>' . $forecastDateText,
+                'days'                  => 'months: ' . $anzahlMonate,
+                'irradiation'           => $this->format($sumIrrMonth),
+                'prDesign'              => $this->format($anlage->getDesignPR()),
+                'ertragDesign'          => $this->format($sumErtragDesign),
+                'spezErtragDesign'      => $this->format($sumErtragDesign / $anlage->getKwPeakPvSyst()),
+                'prGuar'                => $this->format($anlage->getContractualPR()),
+                'eGridReal'             => $this->format($sumEGridReal),
+                'eGridReal-Design'      => $this->format($sumEGridRealDesign),
+                'spezErtrag'            => $this->format($sumEGridReal / $anlage->getPnom()),
+                'prReal'                => $this->format($sumPrReal / $counter),
+                'prReal_prDesign'       => $this->format(($sumPrReal / $counter) - $anlage->getDesignPR()), // PR Real minus PR Design
+                'availability'          => '',
+                'dummy'                 => '',
+                'prReal_prGuar'         => $this->format(($sumPrReal / $counter) - $anlage->getContractualPR()), // PR Real minus PR Garantiert
+                'prReal_prProg'         => $this->format($sumPrRealPrProg),  // PR Real oder wenn kein PR Real dann PR Prognostiziert
+                'anteil'                => $this->format($sumAnteil * 100),
+                'specPowerGuar'         => $this->format($sumSpecPowerGuar),
+                'specPowerRealProg'     => $this->format($sumSpecPowerRealProg),
+                'currentMonthClass'     => 'sum-forcast',
             ];
         }
         // Real / Aktuell (nur bis zum aktuellen Monat, Bsp Sep20 bis Jan 20
         $report[0][] = [
-            'month' => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Real&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>'.$realDateText,
-            'days' => 'months: '.$monateReal,
-            'irradiation' => $this->format($sumIrrMonth),
-            'prDesign' => $this->format($anlage->getDesignPR()),
-            'ertragDesign' => $this->format($sumErtragDesignReal),
-            'spezErtragDesign' => $this->format($sumErtragDesignReal / $anlage->getKwPeakPvSyst()),
-            'prGuar' => $this->format($anlage->getContractualPR()),
-            'eGridReal' => $this->format($sumEGridRealReal),
-            'eGridReal-Design' => $this->format($sumEGridRealDesignReal),
-            'spezErtrag' => $this->format($sumEGridRealReal / $anlage->getPnom()),
-            'prReal' => $this->format($formelPR),
-            'prReal_prDesign' => $this->format($formelPR - $anlage->getDesignPR()),
-            'availability' => $this->format($formelAvailability),
-            'dummy' => '',
-            'prReal_prGuar' => $this->format($formelPR - $anlage->getContractualPR()),
-            'prReal_prProg' => $this->format($formelPR),
-            'anteil' => $this->format($sumAnteil * 100),
-            'specPowerGuar' => $this->format($sumSpecPowerGuarReal),
-            'specPowerRealProg' => $this->format($sumSpecPowerRealProgReal),
-            'currentMonthClass' => 'sum-real',
+            'month'                 => '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Real&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br>'.$realDateText,
+            'days'                  => 'months: '.$monateReal,
+            'irradiation'           => $this->format($sumIrrMonth),
+            'prDesign'              => $this->format($anlage->getDesignPR()),
+            'ertragDesign'          => $this->format($sumErtragDesignReal),
+            'spezErtragDesign'      => $this->format($sumErtragDesignReal / $anlage->getKwPeakPvSyst()),
+            'prGuar'                => $this->format($anlage->getContractualPR()),
+            'eGridReal'             => $this->format($sumEGridRealReal),
+            'eGridReal-Design'      => $this->format($sumEGridRealDesignReal),
+            'spezErtrag'            => $this->format($sumEGridRealReal / $anlage->getPnom()),
+            'prReal'                => $this->format($formelPR),
+            'prReal_prDesign'       => $this->format($formelPR - $anlage->getDesignPR()),
+            'availability'          => $this->format($formelAvailability),
+            'dummy'                 => '',
+            'prReal_prGuar'         => $this->format($formelPR - $anlage->getContractualPR()),
+            'prReal_prProg'         => $this->format($formelPR),
+            'anteil'                => $this->format($sumAnteil * 100),
+            'specPowerGuar'         => $this->format($sumSpecPowerGuarReal),
+            'specPowerRealProg'     => $this->format($sumSpecPowerRealProgReal),
+            'currentMonthClass'     => 'sum-real',
         ];
 
         // PLD Berechnung
