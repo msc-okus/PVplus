@@ -14,43 +14,32 @@ class DCPowerChartService
 {
     use G4NTrait;
 
-    private Security $security;
-
-    private AnlagenStatusRepository $statusRepository;
-
-    private InvertersRepository $invertersRepo;
-
-    public functionsService $functions;
-
-    private IrradiationChartService $irradiationChart;
-
-    public function __construct(Security $security,
-        AnlagenStatusRepository $statusRepository,
-        InvertersRepository $invertersRepo,
-        IrradiationChartService $irradiationChart,
-        FunctionsService $functions)
+    public function __construct(
+        private Security $security,
+        private AnlagenStatusRepository $statusRepository,
+        private InvertersRepository $invertersRepo,
+        private IrradiationChartService $irradiationChart,
+        private FunctionsService $functions)
     {
-        $this->security = $security;
-        $this->statusRepository = $statusRepository;
-        $this->invertersRepo = $invertersRepo;
-        $this->functions = $functions;
-        $this->irradiationChart = $irradiationChart;
     }
 
     /**
      * DC Diagramme
      * Erzeugt Daten für das normale Soll/Ist DC Diagramm.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
-     *
+     * @param bool $hour
      * @return array|null
-     *                    [DC1]
+     * @throws \Exception
+     *
+     * [DC1]
      */
     public function getDC1(Anlage $anlage, $from, $to, bool $hour = false): ?array
     {
-        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $conn = self::getPdoConnection();
+        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $dataArray = [];
         $sqlDcSoll = 'SELECT a.stamp as stamp, sum(b.soll_pdcwr) as soll
                   FROM (db_dummysoll a left JOIN '.$anlage->getDbNameDcSoll()." b ON a.stamp = b.stamp) 
@@ -58,14 +47,15 @@ class DCPowerChartService
                   GROUP by date_format(a.stamp, '$form')";
 
         $resultExpected = $conn->query($sqlDcSoll);
-        $actSum = $expSum = 0;
+        $actSum = $expSum = $irrSum = 0;
 
         // add Irradiation
         if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == 'Groningen') {
-            $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
+            #$dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
         } else {
-            $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
+            #$dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
         }
+        $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
 
         if ($resultExpected->rowCount() > 0) {
             $counter = 0;
@@ -74,7 +64,7 @@ class DCPowerChartService
                 $stampAdjust = self::timeAjustment($rowExp['stamp'], $anlage->getAnlZeitzone());
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
                 $soll = round($rowExp['soll'], 2);
-                if ($soll !== null) {
+                if ($rowExp['soll'] !== null) {
                     $soll = $soll > 0 ? $soll : 0;
                     $expdiff = round($soll - $soll * 10 / 100, 2); // -10% good
                 } else {
@@ -111,12 +101,17 @@ class DCPowerChartService
                     $dataArray['chart'][$counter]['InvOut'] = $dcIst;
                 }
                 // Irradiation
-                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
-                    $dataArray['chart'][$counter]['irradiation'] = $dataArrayIrradiation['chart'][$counter]['val1'];
-                    $irrSum += $dataArray['chart'][$counter]['irradiation'];
-                } else {
-                    $dataArray['chart'][$counter]['irradiation'] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;
-                    $irrSum += $dataArray['chart'][$counter]['irradiation'];
+                if (isset($dataArrayIrradiation['chart'][$counter]['val1'])) {
+                    if ($anlage->getIsOstWestAnlage()) {
+                        $dataArray['chart'][$counter]['irradiation'] = ($dataArrayIrradiation['chart'][$counter]['val1'] * $anlage->getPowerEast() + $dataArrayIrradiation['chart'][$counter]['val2'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+                    } else {
+                        if ($anlage->getShowOnlyUpperIrr() || !$anlage->getWeatherStation()->getHasLower()) {
+                            $dataArray['chart'][$counter]['irradiation'] = $dataArrayIrradiation['chart'][$counter]['val1'];
+                        } else {
+                            $dataArray['chart'][$counter]['irradiation'] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;
+                        }
+                    }
+                    $irrSum += $hour ? $dataArray['chart'][$counter]['irradiation'] * 4 : $dataArray['chart'][$counter]['irradiation'];
                 }
                 ++$counter;
             }
