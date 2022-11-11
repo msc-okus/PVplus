@@ -511,7 +511,7 @@ class ReportingController extends AbstractController
                         //looks like a problem to get the html temporal file from .temp in the main folder from the server
                         $pdfFile = $pdf1->generateFromHtml($html, '/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf', [], true);
 
-                        dd('hi');
+                        dd($pdfFile);
                         /*
                         $pdf = new ChromePdf('/usr/bin/chromium');
 
