@@ -82,6 +82,9 @@ class Ticket
 
     #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $openTicket;
+
+    #[ORM\Column]
+    private ?bool $ignoreTicket = false;
     /*
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $generatedFrom = '';
@@ -400,5 +403,17 @@ class Ticket
             $dateNew->setDescription($this->description);
             $this->addDate($dateNew);
         }
+    }
+
+    public function isIgnoreTicket(): ?bool
+    {
+        return $this->ignoreTicket;
+    }
+
+    public function setIgnoreTicket(bool $ignoreTicket): self
+    {
+        $this->ignoreTicket = $ignoreTicket;
+
+        return $this;
     }
 }

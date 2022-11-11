@@ -206,6 +206,9 @@ class TicketController extends BaseController
         $sort = $request->query->get('sort', "");
         $direction = $request->query->get('direction', "");
         $prooftam = $request->query->get('prooftam', 0);
+        $ignored = $request->query->get('ignored', 0);
+        if ($ignored == 0) $ignoredBool = false;
+        else $ignoredBool = true;
         if ($sort === "") $sort = "ticket.begin";
         if ($direction === "") $direction ="desc";
         $filter['anlagen']['value'] = $anlage;
@@ -219,7 +222,7 @@ class TicketController extends BaseController
         $filter['type']['value'] = $type;
         $filter['type']['array'] = self::errorType();
 
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlageName, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $sort, $direction);
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlageName, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $sort, $direction, $ignoredBool);
         $pagination = $paginator->paginate($queryBuilder, $page,25 );
         $pagination->setParam('sort', $sort);
         $pagination->setParam('direction', $direction);

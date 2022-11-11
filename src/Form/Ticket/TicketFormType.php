@@ -158,7 +158,10 @@ class TicketFormType extends AbstractType
                 'required' => false,
             ])
             ->add('needsProof', SwitchType::class, [
-                'label'         => 'Needs proof by TAM',
+                'label'         => 'Needs proof',
+            ])
+            ->add('ignoreTicket', SwitchType::class, [
+                'label'         => 'Ignore Ticket',
             ])
 
             // ### List of Ticket Dates
