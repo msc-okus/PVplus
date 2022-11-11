@@ -66,7 +66,7 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
             ->setParameter('from', $from)
             ->setParameter('to', $to)
             ->select('s.stamp, s.inverter, SUM(s.case_0_1) as case0, SUM(s.case_1_1) as case1, SUM(s.case_2_1) as case2, SUM(s.case_3_1) as case3, SUM(s.case_4_1) as case4, SUM(s.case_5_1) as case5, SUM(s.case_6_1) as case6, SUM(s.control_1) as control, SUM(s.invAPart1_1) as invApart1, SUM(s.invAPart2_1) as invApart2, SUM(s.invA_1) as invA, 
-            SUM(s.case_0_2) as case0second, SUM(s.case_1_2) as case1second, SUM(s.case_2_2) as case2second, SUM(s.case_3_2) as case3second, SUM(s.case_4_2) as case4second, SUM(s.case_5_2) as case5second, SUM(s.case_6_2) as case6second, SUM(s.control_2) as control_second, SUM(s.invAPart1_2) as invAPart1Second, SUM(s.invAPart2_2) as invAPart2Second, SUM(s.invA2) as invASecond')
+            SUM(s.case_0_2) as case0second, SUM(s.case_1_2) as case1second, SUM(s.case_2_2) as case2second, SUM(s.case_3_2) as case3second, SUM(s.case_4_2) as case4second, SUM(s.case_5_2) as case5second, SUM(s.case_6_2) as case6second, SUM(s.control_2) as control_second, SUM(s.invAPart1_2) as invAPart1Second, SUM(s.invAPart2_2) as invAPart2Second, SUM(s.invA_2) as invASecond')
 
             ->groupBy('s.inverter')
             ->getQuery()

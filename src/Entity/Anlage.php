@@ -468,7 +468,7 @@ class Anlage
     private $economicVarValues;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
-    private bool $useDayForecast = false;
+    private ?bool $useDayForecast = false;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $degradationForecast = '0';
