@@ -121,7 +121,7 @@
                                                     <div class="grid-x small-up-3 medium-up-6 large-up-9 xlarge-up-12">
                                                         {% for inverter in invArray %}
                                                             <div class="cell small-form">
-                                                                <input id="{{ inverter['inv'] }}" type="checkbox" class="js-checkbox" name="{{ loop.index }}" {{ inverter['select'] }} {% if (edited) %}data-ticket-edit-edited-param="true" {% else %} data-ticket-edit-edited-param="false" {% endif %} data-action="click->ticket-edit#checkSave">
+                                                                <input id="{{ inverter['inv'] }}" type="checkbox" class="js-checkbox" name="{{ loop.index }}" {{ inverter['select'] }} {% if (edited) %}data-ticket-edit-edited-param="true" {% else %} data-ticket-edit-edited-param="false" {% endif %} data-action="click->ticket-edit#saveCheck">
                                                                 <label for="{{ inverter['inv'] }}" class="">{{ inverter['inv'] }}</label>
                                                             </div>
                                                         {% endfor %}

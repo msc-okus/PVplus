@@ -6,7 +6,7 @@ import $ from 'jquery';
 export default class extends Controller {
     static targets = ['splitAlert', 'modal', 'modalBody', 'splitModal', 'splitForm', 'switch', 'deactivable',
                         'anlage', 'saveButton', 'AlertFormat', 'AlertDates', 'formBegin', 'formEnd', 'splitButton',
-                        'splitDeploy','AlertInverter', 'Callout', 'AlertCategory'];
+                        'splitDeploy','AlertInverter', 'Callout', 'formCategory', 'AlertCategory'];
     static values = {
         formUrl: String,
         splitUrl: String,
@@ -264,9 +264,7 @@ export default class extends Controller {
         const timestamp1 = date1.getTime();
         const timestamp2 = date2.getTime();
 
-        const cat = $(this.formCategoryTarget);
-        console.log(cat);
-
+        const cat = $(this.formCategoryTarget).val();
         //allowing split check
         if (counter <= 1 ) {
             $(this.splitDeployTarget).attr('disabled', 'disabled');
@@ -276,7 +274,7 @@ export default class extends Controller {
                 $(this.splitDeployTarget).removeAttr('disabled');
             }
         }
-
+        console.log(cat);
 
         if (inverterString == '') {
             $(this.CalloutTarget).removeClass('is-hidden');
@@ -286,47 +284,90 @@ export default class extends Controller {
                 $(this.AlertDatesTarget).addClass('is-hidden');
                 if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
                     $(this.AlertFormatTarget).addClass('is-hidden');
-                    $(this.saveButtonTarget).removeAttr('disabled');
+                    if (cat == ""){
+                        $(this.AlertCategoryTarget).removeClass('is-hidden');
+                    }
+                    else{
+                        $(this.AlertCategoryTarget).addClass('is-hidden');
+                    }
                 } else {
                     $(this.AlertFormatTarget).removeClass('is-hidden');
-                    $(this.saveButtonTarget).attr('disabled', 'disabled');
+                    if (cat == ""){
+                        $(this.AlertCategoryTarget).removeClass('is-hidden');
+                    }
+                    else{
+                        $(this.AlertCategoryTarget).addClass('is-hidden');
+                    }
                 }
             } else {
                 $(this.AlertDatesTarget).removeClass('is-hidden');
-                $(this.saveButtonTarget).attr('disabled', 'disabled');
                 if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
                     $(this.AlertFormatTarget).addClass('is-hidden');
-                    $(this.saveButtonTarget).removeAttr('disabled');
+                    if (cat == ""){
+                        $(this.AlertCategoryTarget).removeClass('is-hidden');
+                    }
+                    else{
+                        $(this.AlertCategoryTarget).addClass('is-hidden');
+                    }
                 } else {
                     $(this.AlertFormatTarget).removeClass('is-hidden');
-                    $(this.saveButtonTarget).attr('disabled', 'disabled');
+                    if (cat == ""){
+                        $(this.AlertCategoryTarget).removeClass('is-hidden');
+                    }
+                    else{
+                        $(this.AlertCategoryTarget).addClass('is-hidden');
+                    }
                 }
             }
         }
         else {
             $(this.AlertInverterTarget).addClass('is-hidden');
             $(this.CalloutTarget).addClass('is-hidden');
+            $(this.saveButtonTarget).removeAttr('disabled');
             if (timestamp2 > timestamp1){
                 $(this.AlertDatesTarget).addClass('is-hidden');
                 if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
                     $(this.AlertFormatTarget).addClass('is-hidden');
-                    $(this.saveButtonTarget).removeAttr('disabled');
+                    if (cat == ""){
+                        $(this.CalloutTarget).removeClass('is-hidden');
+                        $(this.AlertCategoryTarget).removeClass('is-hidden');
+                        $(this.saveButtonTarget).attr('disabled', 'disabled');
+                    }
+                    else{
+                        $(this.AlertCategoryTarget).addClass('is-hidden');
+                    }
                 } else {
                     $(this.CalloutTarget).removeClass('is-hidden');
                     $(this.AlertFormatTarget).removeClass('is-hidden');
                     $(this.saveButtonTarget).attr('disabled', 'disabled');
+                    if (cat == ""){
+                        $(this.AlertCategoryTarget).removeClass('is-hidden');
+                    }
+                    else{
+                        $(this.AlertCategoryTarget).addClass('is-hidden');
+                    }
                 }
             } else {
                 $(this.CalloutTarget).removeClass('is-hidden')
                 $(this.AlertDatesTarget).removeClass('is-hidden');
                 $(this.saveButtonTarget).attr('disabled', 'disabled');
+
                     if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
                         $(this.AlertFormatTarget).addClass('is-hidden');
-                        $(this.saveButtonTarget).removeAttr('disabled');
+                        if (cat == ""){
+                            $(this.AlertCategoryTarget).removeClass('is-hidden');
+                        }
+                        else{
+                            $(this.AlertCategoryTarget).addClass('is-hidden');
+                        }
                     } else {
-                        $(this.CalloutTarget).removeClass('is-hidden');
                         $(this.AlertFormatTarget).removeClass('is-hidden');
-                        $(this.saveButtonTarget).attr('disabled', 'disabled');
+                        if (cat == ""){
+                            $(this.AlertCategoryTarget).removeClass('is-hidden');
+                        }
+                        else{
+                            $(this.AlertCategoryTarget).addClass('is-hidden');
+                        }
                     }
             }
         }
@@ -404,7 +445,6 @@ export default class extends Controller {
             $(this.splitButtonTarget).removeAttr('disabled');
             $(this.splitAlertTarget).addClass('is-hidden');
         }
-        console.log(inverterStringa, inverterStringb);
     }
 
     async splitTicketByInverter({ params: { ticketid }}){
