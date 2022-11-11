@@ -138,9 +138,14 @@
                             <div class="cell small-6 medium-3 large-2">
                                 {{ form_row(ticketForm.inverter) }}
                             </div>
-                            <div class="cell small-6 medium-3 large-2">
+                            <div class="cell small-6 medium-3 large-1">
                                 {{ form_row(ticketForm.needsProof) }}
                             </div>
+                            {% if (is_granted('ROLE_G4N')) %}
+                                <div class="cell small-6 medium-3 large-1">
+                                    {{ form_row(ticketForm.ignoreTicket) }}
+                                </div>
+                            {% endif %}
                             <div class="cell small-6 medium-3 large-2">
                                 {{ form_row(ticketForm.begin) }}
                             </div>
