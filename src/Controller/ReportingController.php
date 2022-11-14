@@ -509,6 +509,7 @@ class ReportingController extends AbstractController
                         $pos = $this->substr_Index($this->kernelProjectDir, '/', 5);
                         $pathpart = substr($this->kernelProjectDir, $pos);
                         //looks like a problem to get the html temporal file from .temp in the main folder from the server
+
                         $pdfFile = $pdf1->generateFromHtml($html, '/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf', [], true);
 
                         dd($pdfFile);
