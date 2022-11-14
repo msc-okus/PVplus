@@ -272,8 +272,8 @@ class AssetManagementService
         // chart building, skip to line 950
         // begin chart
         $chart = new ECharts(); // We must use AMCharts
-        $chart->tooltip->show = true;
-        $chart->tooltip->trigger = 'item';
+        //$chart->tooltip->show = false;
+        //$chart->tooltip->trigger = 'item';
 
         $chart->xAxis = [
             'type' => 'category',

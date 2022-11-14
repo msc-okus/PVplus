@@ -506,13 +506,27 @@ class ReportingController extends AbstractController
                             'kwhLossesMonthTable' => $output['kwhLossesMonthTable'],
                             'kwhLossesYearTable' => $output['kwhLossesYearTable']
                         ]);
+
                         $pos = $this->substr_Index($this->kernelProjectDir, '/', 5);
                         $pathpart = substr($this->kernelProjectDir, $pos);
                         //looks like a problem to get the html temporal file from .temp in the main folder from the server
+                        //readfile('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf');
+                        $filename = '/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf';
+                        //$html = str_replace('<script type="text/javascript" src="//fastly.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>', " ", $html);
+                        $pdfFile = $pdf1->generateFromHtml($html
+                            , $filename,
+                            [ "enable-local-file-access" => true, "orientation" => "landscape", "enable-external-links" => true],
+                            true);
 
-                        $pdfFile = $pdf1->generateFromHtml($html, '/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf', [], true);
+                        header("Content-type: application/pdf");
+                        header("Content-Length: " . filesize($filename));
+                        header("Content-type: application/pdf");
 
-                        dd($pdfFile);
+                        header("Content-type: application/pdf");
+                        header("Content-Length: " . filesize($filename));
+                        header("Content-type: application/pdf");
+                        readfile('/usr/home/pvpluy/public_html/public/Saran_AssetReport_1_2022.pdf');
+
                         /*
                         $pdf = new ChromePdf('/usr/bin/chromium');
 
