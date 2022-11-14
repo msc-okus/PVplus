@@ -99,7 +99,7 @@ class UpdateAvailabilityCommand extends Command
                 $io->progressAdvance();
             }
             $io->comment($anlage->getAnlName());
-            sleep(2);
+            sleep(5);
         }
         $io->progressFinish();
         $io->success('Berechnung der Verfügbarkeit abgeschlossen!');

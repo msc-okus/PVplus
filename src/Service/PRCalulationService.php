@@ -147,7 +147,7 @@ class PRCalulationService
 
             // auf Basis des PAC (Productions Start Datum)
             // FIRST und SECOND
-            if ($anlage->getPacDate()) { // Nur, wenn pacDate gesetzt ist
+            if ($anlage->getUsePac()) { // Nur, wenn pacDate benutzt werden soll
                 $anzPRRecordsPerPac = $this->PRRepository->anzRecordsPRPerPac($anlage->getAnlId(), $pacDate, $pacDateEnd);
                 if ($anzPRRecordsPerPac == 0) {
                     $anzPRRecordsPerPac = 1;
