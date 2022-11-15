@@ -523,12 +523,12 @@ class ChartService
      */
     public function getInverterPerformance(Anlage $anlage, $from, $to, $group): array
     {
-        $conn = self::connectToDatabase();
+        $conn = self::getPdoConnection();
         $dataArray = [];
         $sql = 'SELECT stamp, sum(wr_pac) AS power_ac, sum(wr_pdc) AS power_dc, unit AS inverter  FROM '.$anlage->getDbNameIst()." WHERE stamp BETWEEN '$from' AND '$to' AND group_ac = '$group' GROUP by unit";
         $result = $conn->query($sql);
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
+        if ($result->rowCount() > 0) {
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                 $inverter = $row['inverter'];
                 $powerDc = self::checkUnitAndConvert($row['power_dc'], $anlage->getAnlDbUnit());
                 $powerAc = self::checkUnitAndConvert($row['power_ac'], $anlage->getAnlDbUnit());
@@ -541,7 +541,7 @@ class ChartService
             $dataArray['maxSeries'] = 0;
             $dataArray['startCounterInverter'] = 10;
         }
-        $conn->close();
+        $conn = null;
 
         return $dataArray;
     }
