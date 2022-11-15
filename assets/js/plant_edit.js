@@ -115,8 +115,8 @@ $wrapper_yield.on('click', '.js-add-monthly-yield', function(e) {
 });
 
 // Economics
-let $wrapper_economic = $('.js-economicsetValues-wrapper');
-$wrapper_economic.on('click', '.js-economic-let-value-add',function(e){
+let $wrapper_economic = $('.js-economicVarValues-wrapper');
+$wrapper_economic.on('click', '.js-economic-var-value-add',function(e){
     e.preventDefault();
     let prototype = $wrapper_economic.data('prototype');
     let index = $wrapper_economic.data('index');

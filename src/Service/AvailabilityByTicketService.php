@@ -58,7 +58,7 @@ class AvailabilityByTicketService
             1 => $this->timesConfigRepo->findValidConfig($anlage, 'availability_1', $date),
             2 => $this->timesConfigRepo->findValidConfig($anlage, 'availability_2', $date),
             3 => $this->timesConfigRepo->findValidConfig($anlage, 'availability_3', $date),
-            default => $this->timesConfigRepo->findValidConfig($anlage, 'fallback', $date),
+            default => $this->timesConfigRepo->findValidConfig($anlage, 'availability_0', $date),
         };
 
         $timestampModulo = $date->format('Y-m-d 04:00');

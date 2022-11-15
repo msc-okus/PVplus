@@ -69,7 +69,11 @@ class DefaultMREController extends BaseController
         $from   = date_create('2022-11-13 00:00');
         $to     = date_create('2022-05-28 23:00');
         #$output = $availability->calcAvailability($anlage, $from, $to, 2);
-        $output = $this->availabilityByTicket->checkAvailability($anlage, $from, 1);
+        $output  = $this->availabilityByTicket->checkAvailability($anlage, $from, 0);
+        $output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 1);
+        $output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 2);
+        $output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 3);
+        dump('3');
 
         return $this->render('cron/showResult.html.twig', [
             'headline' => " PA Dep 1",

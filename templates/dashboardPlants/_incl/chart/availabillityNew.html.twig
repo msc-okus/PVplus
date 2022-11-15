@@ -1,14 +1,6 @@
 {% import _self as macros %}
 
-{% macro availabilityTable(availability, second) %}
-    {% set pa = 0 %}
-    {% set case0 = 0 %}
-    {% set case1 = 0 %}
-    {% set case2 = 0 %}
-    {% set case3 = 0 %}
-    {% set case4 = 0 %}
-    {% set case5 = 0 %}
-    {% set case6 = 0 %}
+{% macro availabilityTable(availability, aktAnlage) %}
     <div class="status-log" style="margin: 0 25px 0 10px;">
         <table id="statusTable" style="width: 100%;">
             <thead>
@@ -34,10 +26,10 @@
                     <td>{{ stati.stamp|date("Y-m-d") }} </td>
                     <td>{{ stati.inverter }}</td>
                     <td>
-                        <span class="topline">PA.0</span>
-                        <span class="topline">PA.1</span>
-                        <span class="topline">PA.2</span>
-                        <span class="topline">PA.3</span>
+                        <span class="topline" style="text-align: left;">PA.0 (Open Book)</span>
+                        <span class="topline" style="text-align: left;">PA.1 (O&M)</span>
+                        <span class="topline" style="text-align: left;">PA.2 (EPC)</span>
+                        <span class="topline" style="text-align: left;">PA.3 (AM)</span>
                     </td>
                     <td>
                         <span class="topline">{{ stati.case00 }} / {{ stati.case00 / 4 }}</span>
@@ -110,7 +102,7 @@
 
 <div class="grid-x">
     <div class="cell medium-9">
-        {{ macros.availabilityTable(content.availability, aktAnlage.showAvailabilitySecond) }}
+        {{ macros.availabilityTable(content.availability, aktAnlage) }}
     </div>
     <div class="cell medium-3">
         <div class="callout secondary text-left" >
