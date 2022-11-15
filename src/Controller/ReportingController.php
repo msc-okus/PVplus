@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use ApiPlatform\Core\Api\UrlGeneratorInterface;
+
 use App\Entity\AnlagenReports;
 
 use App\Form\AssetManagement\AssetManagementeReportFormType;
@@ -21,14 +21,27 @@ use App\Service\ReportsEpcNewService;
 use App\Service\ReportService;
 use App\Service\ReportsMonthlyService;
 use Doctrine\ORM\EntityManagerInterface;
+use JetBrains\PhpStorm\NoReturn;
 use Knp\Component\Pager\PaginatorInterface;
-use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
+
+use PhpOffice\PhpSpreadsheet\Exception;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Color;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\RedirectResponse;
+
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -238,7 +251,7 @@ class ReportingController extends AbstractController
         $anlageq            = $session->get('anlage');
         $searchmonth        = $session->get('month');
         $searchyear         = $session->get('search_year');
-        $route              = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
+        $route              = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABSOLUTE_PATH);
         $route              = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&searchyear=".$searchyear."&search=yes";
         $report             = $reportsRepository->find($id);
         $month              = $report->getMonth();
@@ -479,10 +492,12 @@ class ReportingController extends AbstractController
         $anlageq = $session->get('anlage');
         $searchmonth = $session->get('month');
         $searchyear = $session->get('search_year');
-        $route = $this->generateUrl('app_reporting_list', [], UrlGeneratorInterface::ABS_PATH);
+       $route = $this->generateUrl('app_reporting_list', [], UrlGeneratorInterface::ABSOLUTE_PATH);
+
         $route = $route.'?anlage='.$anlageq.'&searchstatus='.$searchstatus.'&searchtype='.$searchtype.'&searchmonth='.$searchmonth.'&searchyear='.$searchyear.'&search=yes';
         /** @var AnlagenReports|null $report */
         $report = $reportsRepository->find($id);
+
         $reportCreationDate = $report->getCreatedAt()->format('Y-m-d h:i:s');
         $anlage = $report->getAnlage();
         $currentDate = date('y-m-d');
@@ -557,7 +572,7 @@ class ReportingController extends AbstractController
             $searchtype     = $session->get('type');
             $anlageq        = $session->get('anlage');
             $searchmonth    = $session->get('month');
-            $route          = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
+            $route          = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABSOLUTE_PATH);
             $route          = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&search=yes";
 
             $report = $reportsRepository->find($id);
@@ -735,4 +750,471 @@ class ReportingController extends AbstractController
         }
         return $posTotal-1;
     }
+
+
+
+
+// generate an Excel table based on the report data
+
+
+    #[Route(path: '/reporting/newExcel/{id}', name: 'app_reporting_new_excel')]
+    public function showReportAsNewExcel($id, ReportEpcService $reportEpcService, ReportService $reportService, ReportsRepository $reportsRepository, ReportsMonthlyService $reportsMonthly)
+    {
+        $session = $this->container->get('session');
+        $searchstatus = $session->get('search');
+        $searchtype = $session->get('type');
+        $anlageq = $session->get('anlage');
+        $searchmonth = $session->get('month');
+        $searchyear = $session->get('search_year');
+        $route = $this->generateUrl('app_reporting_list', [], UrlGeneratorInterface::ABSOLUTE_PATH);
+
+         //reporting list path
+        $route = $route.'?anlage='.$anlageq.'&searchstatus='.$searchstatus.'&searchtype='.$searchtype.'&searchmonth='.$searchmonth.'&searchyear='.$searchyear.'&search=yes';
+
+
+
+        /** @var AnlagenReports|null $report */
+        $report = $reportsRepository->find($id);  //list of reports (monthly, epc and am -reports)
+
+
+          if($report){
+              if(strcmp($report->getReportType(),"monthly-report") ===0){
+                  return $this->redirect($route);
+
+
+              }elseif (strcmp($report->getReportType(),"epc-report") ===0){
+                  $recordContent=$report->getContentArrayForExcel();
+                  if(array_key_exists('monthTable',$recordContent) && array_key_exists('forcastTable',$recordContent) && count($recordContent)===2){
+
+                      $reports= $report->getContentArrayForExcel();
+
+                      $this->exportAsExcelTable($reports);
+
+
+                  }else{
+                      return $this->redirect($route);
+                  }
+
+              }else{
+                  return $this->redirect($route);
+              }
+          }else{
+              return $this->redirect($route);
+          }
+
+
+
+        return $this->redirect($route);
+    }
+
+
+    public function exportAsExcelTable($all_reports):void
+    {
+        // Generating SpreadSheet
+        $spreadsheet = new Spreadsheet();
+
+        // Set default font
+        try {
+            $spreadsheet->getDefaultStyle()
+                ->getFont()
+                ->setName('Arial')
+                ->setSize(10);
+        } catch (Exception $e) {
+
+        }
+
+        //help to check if new worksheets are needed
+        $loop_counter=0;
+
+        foreach ($all_reports as $reportType => $reports) {
+
+            if ($loop_counter > 0) {
+
+                //create new Worksheet
+                $spreadsheet->createSheet();
+
+                //set the new Worksheet as active sheet
+                try {
+                    $spreadsheet->setActiveSheetIndex($loop_counter);
+                } catch (Exception $e) {
+                }
+            }
+            // get the active sheet
+            $sheet = $spreadsheet->getActiveSheet();
+
+            //set the active sheet Title
+            $sheet->setTitle($reportType);
+
+            //check if the array is multidimensional
+            if (is_array($reports[array_key_first($reports)])) {
+                $report = (array)$reports[array_key_first($reports)];
+
+                //set columm dimension to auto size
+
+                $arraySize=count($report);
+
+                $alphabets=[];
+                $first='A';
+
+                for ($i=0 ; $i< $arraySize;$i++){
+                    $alphabets[]=$first++;
+                }
+
+                //heading
+                $sheet->setCellValue('A1',$reportType);
+
+
+
+                //merge heading
+                $lastCell=$alphabets[$arraySize-1];
+
+                $lastCell1=$lastCell.'1';
+
+                try {
+                    $sheet->mergeCells("A1:{$lastCell1}");
+                } catch (Exception $e) {
+                }
+
+                //set heading font style
+
+                $sheet->getStyle('A1')
+                    ->getFont()
+                    ->setBold(true)
+                    ->setSize(12)
+                    ->setColor( new Color( Color::COLOR_BLACK ) );
+
+
+                //set heading text Alignment
+                $sheet->getStyle('A1')
+                    ->getAlignment()
+                    ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+                //set columm dimension to auto size
+                foreach ($alphabets as $letter){
+
+                    $sheet->getColumnDimension($letter)
+                        ->setAutoSize(true);
+                }
+
+                //header text
+                $keys=[];
+                foreach ($alphabets as $letter){
+
+                    $cell=$letter.'2';
+
+                    $key=key($report);
+                    $keys[]=$key;
+
+                    $sheet->setCellValue($cell,$key);
+                    next($report);
+
+
+                }
+
+                //set header background color and fond using styling array
+                //styling arrays
+                //table head style
+
+                $tableHead =[
+                    'font'=>[
+                        'color'=>[
+                            'rgb'=> '000000'
+                        ],
+                        'bold'=>true,
+                        'size'=>11
+                    ],
+                    'alignment'=>[
+                        'horizontal'=>Alignment::HORIZONTAL_CENTER
+                    ]
+                ];
+
+                $lastCell2=$lastCell.'2';
+                $sheet->getStyle("A2:{$lastCell2}")->applyFromArray($tableHead);
+
+
+                //The content
+                //current row
+                $row=3;
+
+
+                foreach ($reports as $data ) {
+                    $col=0;
+                    foreach ($keys as $key){
+                        $sheet->setCellValue($alphabets[$col] . $row, $data[$key]);
+                        $col++;
+                    }
+
+                    //increment row
+                    $row++;
+                }
+
+                $loop_counter++;
+
+
+
+            }
+            else {
+                $report = $reports;
+
+                //set columm dimension to auto size
+
+                $alphabets=[ 'A','B'];
+                //heading
+                $sheet->setCellValue('A1',$reportType);
+
+                //merge heading
+
+                try {
+                    $sheet->mergeCells("A1:B1");
+                } catch (Exception $e) {
+                }
+
+                //set heading font style
+
+                $sheet->getStyle('A1')
+                    ->getFont()
+                    ->setBold(true)
+                    ->setSize(12)
+                    ->setColor( new Color( Color::COLOR_BLACK ) );
+
+
+                //set heading text Alignment
+                $sheet->getStyle('A1')
+                    ->getAlignment()
+                    ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+                //set columm dimension to auto size
+                foreach ($alphabets as $letter){
+
+                    $sheet->getColumnDimension($letter)
+                        ->setAutoSize(true);
+                }
+
+                //set header background color and fond using styling array
+                //styling arrays
+                //table head style
+
+                $tableHead =[
+                    'font'=>[
+                        'color'=>[
+                            'rgb'=> '000000'
+                        ],
+                        'bold'=>true,
+                        'size'=>11
+                    ]
+                ];
+
+                //The content
+                //current row
+                $row=2;
+
+                foreach ($reports as $key => $value ) {
+                    $sheet->setCellValue('A' . $row, $key);
+                    $sheet->setCellValue('B' . $row, $value);
+                    $row++;
+                }
+                $sheet->getStyle("A2:A{$row}")->applyFromArray($tableHead);
+                $loop_counter++;
+
+            }
+
+        }
+
+
+
+        // Set the header first , so the result will be treated as a xlsx file
+        header('Content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+        //make it an attachment so we can define filename
+        header('Content-Disposition: attachment;filename="report2.xlsx"');
+
+
+        // Write and send created spreadsheet
+        $writer = new Xlsx($spreadsheet);
+        try {
+            $writer->save('php://output');
+        } catch (\PhpOffice\PhpSpreadsheet\Writer\Exception $e) {
+        }
+
+        // This exit(); is required to prevent errors while opening the generated .xlsx
+        exit();
+
+
+    }
+    public function exportAsExcelTableOption2($all_reports):void
+    {
+        // Generating SpreadSheet
+        $spreadsheet = new Spreadsheet();
+
+        // Set default font
+        try {
+            $spreadsheet->getDefaultStyle()
+                ->getFont()
+                ->setName('Arial')
+                ->setSize(10);
+        } catch (Exception $e) {
+
+        }
+
+        //help to check if new worksheets are needed
+        $loop_counter=0;
+
+        foreach ($all_reports as $reportType => $reports){
+
+            if($loop_counter>0){
+
+                //create new Worksheet
+                $spreadsheet->createSheet();
+
+                //set the new Worksheet as active sheet
+                try {
+                    $spreadsheet->setActiveSheetIndex($loop_counter);
+                } catch (Exception $e) {
+                }
+            }
+            // get the active sheet
+            $sheet = $spreadsheet->getActiveSheet();
+
+            //set the active sheet Title
+            $sheet->setTitle($reportType);
+
+            //check if the array is multidimensional
+            if(is_array($reports[array_key_first($reports)])){
+                $report=(array)$reports[array_key_first($reports)];
+            }else{
+                $report=$reports;
+            }
+
+
+            //set columm dimension to auto size
+
+            $arraySize=count($report);
+
+            $alphabets=[];
+            $first='A';
+
+            for ($i=0 ; $i< $arraySize;$i++){
+                $alphabets[]=$first++;
+            }
+
+            //heading
+            $sheet->setCellValue('A1',$reportType);
+
+
+
+            //merge heading
+            $lastCell=$alphabets[$arraySize-1];
+
+            $lastCell1=$lastCell.'1';
+
+            try {
+                $sheet->mergeCells("A1:{$lastCell1}");
+            } catch (Exception $e) {
+            }
+
+            //set heading font style
+
+            $sheet->getStyle('A1')
+                ->getFont()
+                ->setBold(true)
+                ->setSize(12)
+                ->setColor( new Color( Color::COLOR_BLACK ) );
+
+
+            //set heading text Alignment
+            $sheet->getStyle('A1')
+                ->getAlignment()
+                ->setHorizontal(Alignment::HORIZONTAL_CENTER);
+
+
+            foreach ($alphabets as $letter){
+                //set columm dimension to auto size
+                $sheet->getColumnDimension($letter)
+                    ->setAutoSize(true);
+            }
+
+            //header text
+            $keys=[];
+            foreach ($alphabets as $letter){
+
+                $cell=$letter.'2';
+
+                $key=key($report);
+                $keys[]=$key;
+
+                $sheet->setCellValue($cell,$key);
+                next($report);
+
+
+            }
+
+            //set header background color and fond using styling array
+            //styling arrays
+            //table head style
+
+            $tableHead =[
+                'font'=>[
+                    'color'=>[
+                        'rgb'=> '000000'
+                    ],
+                    'bold'=>true,
+                    'size'=>11
+                ],
+                'alignment'=>[
+                    'horizontal'=>Alignment::HORIZONTAL_CENTER
+                ]
+            ];
+
+            $lastCell2=$lastCell.'2';
+            $sheet->getStyle("A2:{$lastCell2}")->applyFromArray($tableHead);
+
+
+            //The content
+            //current row
+            $row=3;
+
+            if(is_array($reports[array_key_first($reports)])){
+                foreach ($reports as $data ) {
+                    $col=0;
+                    foreach ($keys as $key){
+                        $sheet->setCellValue($alphabets[$col] . $row, $data[$key]);
+                        $col++;
+                    }
+
+                    //increment row
+                    $row++;
+                }
+            }else{
+                $col=0;
+                foreach ($reports as $value ) {
+                    $sheet->setCellValue($alphabets[$col] . $row, $value);
+                    $col++;
+                }
+            }
+            $loop_counter++;
+
+        }
+
+
+            // Set the header first , so the result will be treated as a xlsx file
+            header('Content-type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+
+            //make it an attachment so we can define filename
+            header('Content-Disposition: attachment;filename="report.xlsx"');
+
+
+            // Write and send created spreadsheet
+            $writer = new Xlsx($spreadsheet);
+        try {
+            $writer->save('php://output');
+        } catch (\PhpOffice\PhpSpreadsheet\Writer\Exception $e) {
+        }
+
+        // This exit(); is required to prevent errors while opening the generated .xlsx
+            exit();
+
+
+    }
+
+
 }
