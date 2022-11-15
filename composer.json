@@ -25,7 +25,7 @@
         "hisune/echarts-php": "^1.0",
         "jblond/twig-trans": "^1.0",
         "knplabs/knp-paginator-bundle": "^5.2",
-        "knplabs/knp-snappy-bundle": "^1.6",
+        "knplabs/knp-snappy-bundle": "^1.9",
         "koolreport/blade": "*",
         "koolreport/export": "*",
         "koolreport/pro": "*",

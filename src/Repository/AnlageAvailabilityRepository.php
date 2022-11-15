@@ -29,7 +29,7 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
             ->andWhere('pa.anlage = :anlageId and pa.stamp = :day')
             ->setParameter('anlageId', $anlagenId)
             ->setParameter('day', $day)
-            ->select('SUM(pa.invA)')
+            ->select('SUM(pa.invA_1)')
             ->getQuery();
 
         try {
@@ -45,7 +45,7 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
             ->andWhere('pa.anlage = :anlageId and pa.stamp = :day')
             ->setParameter('anlageId', $anlagenId)
             ->setParameter('day', $day)
-            ->select('SUM(pa.invASecond)')
+            ->select('SUM(pa.invA_2)')
             ->getQuery();
 
          try {
@@ -65,8 +65,8 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
             ->setParameter('anlage', $anlage)
             ->setParameter('from', $from)
             ->setParameter('to', $to)
-            ->select('s.stamp, s.inverter, SUM(s.case_0) as case0, SUM(s.case_1) as case1, SUM(s.case_2) as case2, SUM(s.case_3) as case3, SUM(s.case_4) as case4, SUM(s.case_5) as case5, SUM(s.case_6) as case6, SUM(s.control) as control, SUM(s.invAPart1) as invApart1, SUM(s.invAPart2) as invApart2, SUM(s.invA) as invA, 
-            SUM(s.case_0_second) as case0second, SUM(s.case_1_second) as case1second, SUM(s.case_2_second) as case2second, SUM(s.case_3_second) as case3second, SUM(s.case_4_second) as case4second, SUM(s.case_5_second) as case5second, SUM(s.case_6_second) as case6second, SUM(s.control_second) as control_second, SUM(s.invAPart1_second) as invAPart1Second, SUM(s.invAPart2_second) as invAPart2Second, SUM(s.invASecond) as invASecond')
+            ->select('s.stamp, s.inverter, SUM(s.case_0_1) as case0, SUM(s.case_1_1) as case1, SUM(s.case_2_1) as case2, SUM(s.case_3_1) as case3, SUM(s.case_4_1) as case4, SUM(s.case_5_1) as case5, SUM(s.case_6_1) as case6, SUM(s.control_1) as control, SUM(s.invAPart1_1) as invApart1, SUM(s.invAPart2_1) as invApart2, SUM(s.invA_1) as invA, 
+            SUM(s.case_0_2) as case0second, SUM(s.case_1_2) as case1second, SUM(s.case_2_2) as case2second, SUM(s.case_3_2) as case3second, SUM(s.case_4_2) as case4second, SUM(s.case_5_2) as case5second, SUM(s.case_6_2) as case6second, SUM(s.control_2) as control_second, SUM(s.invAPart1_2) as invAPart1Second, SUM(s.invAPart2_2) as invAPart2Second, SUM(s.invA_2) as invASecond')
 
             ->groupBy('s.inverter')
             ->getQuery()

@@ -59,7 +59,7 @@ class TicketFormType extends AbstractType
                     'input' => 'datetime',
                     'widget' => 'single_text',
                     'data' => new \DateTime(date('Y-m-d H:i', time() - time() % 900)),
-                    'attr' => ['step' => 900, 'data-action' => 'change->ticket-edit#checkDates', 'data-ticket-edit-target' => 'formBegin'],
+                    'attr' => ['step' => 900, 'data-action' => 'change->ticket-edit#saveCheck', 'data-ticket-edit-target' => 'formBegin'],
                 ])
                 ->add('end', DateTimeType::class, [
                     'label' => 'End',
@@ -68,7 +68,7 @@ class TicketFormType extends AbstractType
                     'input' => 'datetime',
                     'widget' => 'single_text',
                     'data' => new \DateTime(date('Y-m-d H:i', 900 + time() - time() % 900)),
-                    'attr' => ['step' => 900, 'data-action' => 'change->ticket-edit#checkDates', 'data-ticket-edit-target' => 'formEnd'],
+                    'attr' => ['step' => 900, 'data-action' => 'change->ticket-edit#saveCheck', 'data-ticket-edit-target' => 'formEnd'],
                 ])
             ;
         } else {
@@ -86,7 +86,7 @@ class TicketFormType extends AbstractType
                     'widget' => 'single_text',
                     'attr' => [
                         'step' => 900,
-                        'data-action' => 'change->ticket-edit#checkDates',
+                        'data-action' => 'change->ticket-edit#saveCheck',
                         'data-ticket-edit-target' => 'formBegin',
                         'max' => $ticket->getBegin()->format("Y-m-d\TH:i")
                     ],
@@ -96,7 +96,11 @@ class TicketFormType extends AbstractType
                     'label_html' => true,
                     'required' => true,
                     'widget' => 'single_text',
-                    'attr' => ['min' => $ticket->getEnd()->format("Y-m-d\TH:i"), 'step' => 900, 'data-action' => 'change->ticket-edit#checkDates', 'data-ticket-edit-target' => 'formEnd'],
+                    'attr' => [
+                        'min' => $ticket->getEnd()->format("Y-m-d\TH:i"),
+                        'step' => 900,
+                        'data-action' => 'change->ticket-edit#saveCheck',
+                        'data-ticket-edit-target' => 'formEnd'],
                 ])
             ;
         }
@@ -141,6 +145,8 @@ class TicketFormType extends AbstractType
                 'placeholder' => 'Please select ...',
                 'invalid_message' => 'Please select a Error Category.',
                 'empty_data' => 0,
+                'attr' => ['data-action' => 'change->ticket-edit#saveCheck',
+                    'data-ticket-edit-target' => 'formCategory'],
             ])
             ->add('errorType', ChoiceType::class, [
                 'label' => 'Type of error',
@@ -152,7 +158,10 @@ class TicketFormType extends AbstractType
                 'required' => false,
             ])
             ->add('needsProof', SwitchType::class, [
-                'label'         => 'Needs proof by TAM',
+                'label'         => 'Needs proof',
+            ])
+            ->add('ignoreTicket', SwitchType::class, [
+                'label'         => 'Ignore Ticket',
             ])
 
             // ### List of Ticket Dates

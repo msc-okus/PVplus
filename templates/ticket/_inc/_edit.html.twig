@@ -1,16 +1,26 @@
 <div class="grid-x" data-action="ticket-split:async:submitted->ticket-edit#reload" >
-    <div class="cell small-12 is-hidden"
-         style="background-color: red"
-         data-ticket-edit-target="AlertFormat"
-    >
-        Error with the format of the date, it is
-        quarter based.
-    </div>
-    <div class="cell small-12 is-hidden"
-         style="background-color: red"
-         data-ticket-edit-target="AlertDates"
-    >
-        Error, end date can not be before or equal the beginning
+    <div {% if edited %}class="cell small-12 callout warning is-hidden"{% else %}class="cell small-12 callout warning"{% endif %}
+         data-ticket-edit-target="Callout">
+        <p class="is-hidden"
+             data-ticket-edit-target="AlertFormat"
+        >
+            Error with the format of the date, it is
+            quarter based.
+        </p>
+        <p class="is-hidden"
+             data-ticket-edit-target="AlertDates"
+        >
+            Error, end date can not be before or equal the beginning
+        </p>
+        <p {% if edited %}class="is-hidden"{% endif %}
+             data-ticket-edit-target="AlertInverter"
+        >
+            Error, at least one inverter must be selected
+        </p>
+        <p {% if edited %}class="is-hidden"{% endif %}
+           data-ticket-edit-target="AlertCategory">
+            Error, a category must be selected
+        </p>
     </div>
     <div class="cell">
         {{ form_start(ticketForm) }}
@@ -111,7 +121,7 @@
                                                     <div class="grid-x small-up-3 medium-up-6 large-up-9 xlarge-up-12">
                                                         {% for inverter in invArray %}
                                                             <div class="cell small-form">
-                                                                <input id="{{ inverter['inv'] }}" type="checkbox" class="js-checkbox" name="{{ loop.index }}" {{ inverter['select'] }} {% if (edited) %}data-ticket-edit-edited-param="true" {% else %} data-ticket-edit-edited-param="false" {% endif %} data-action="click->ticket-edit#checkInverter">
+                                                                <input id="{{ inverter['inv'] }}" type="checkbox" class="js-checkbox" name="{{ loop.index }}" {{ inverter['select'] }} {% if (edited) %}data-ticket-edit-edited-param="true" {% else %} data-ticket-edit-edited-param="false" {% endif %} data-action="click->ticket-edit#saveCheck">
                                                                 <label for="{{ inverter['inv'] }}" class="">{{ inverter['inv'] }}</label>
                                                             </div>
                                                         {% endfor %}
@@ -128,9 +138,14 @@
                             <div class="cell small-6 medium-3 large-2">
                                 {{ form_row(ticketForm.inverter) }}
                             </div>
-                            <div class="cell small-6 medium-3 large-2">
+                            <div class="cell small-6 medium-3 large-1">
                                 {{ form_row(ticketForm.needsProof) }}
                             </div>
+                            {% if (is_granted('ROLE_G4N')) %}
+                                <div class="cell small-6 medium-3 large-1">
+                                    {{ form_row(ticketForm.ignoreTicket) }}
+                                </div>
+                            {% endif %}
                             <div class="cell small-6 medium-3 large-2">
                                 {{ form_row(ticketForm.begin) }}
                             </div>
