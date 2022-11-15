@@ -25,7 +25,8 @@ class DefaultMREController extends BaseController
 
     public function __construct(
         private UrlGeneratorInterface $urlGenerator,
-        private PRCalulationService $prCalulation
+        private PRCalulationService $prCalulation,
+        private AvailabilityByTicketService $availabilityByTicket
     )
     {
     }
@@ -58,18 +59,22 @@ class DefaultMREController extends BaseController
         ]);
     }
 
+    /**
+     * @throws \Exception
+     */
     #[Route(path: '/mr/pa/test')]
     public function pa(AvailabilityService $availability, AvailabilityByTicketService $availabilityByTicket, AnlagenRepository $anlagenRepository): Response
     {
-        $anlage = $anlagenRepository->find('111');
-        $from   = date_create('2022-05-28 00:00');
+        $anlage = $anlagenRepository->find('93');
+        $from   = date_create('2022-11-13 00:00');
         $to     = date_create('2022-05-28 23:00');
-        $output = $availability->calcAvailability($anlage, $from, $to, 2);
+        #$output = $availability->calcAvailability($anlage, $from, $to, 2);
+        $output = $this->availabilityByTicket->checkAvailability($anlage, $from, 1);
 
         return $this->render('cron/showResult.html.twig', [
-            'headline' => "PA",
+            'headline' => " PA Dep 1",
             'availabilitys' => '',
-            'output' => $output,
+            'output' => "<hr>".$output,
         ]);
     }
 

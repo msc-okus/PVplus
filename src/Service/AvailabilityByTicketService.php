@@ -43,44 +43,38 @@ class AvailabilityByTicketService
      * @return string
      * @throws \Exception
      */
-    public function checkAvailability(Anlage|int $anlage, $date, int $department = 0): string
+    public function checkAvailability(Anlage|int $anlage, string|DateTime $date, int $department = 0): string
     {
         if (is_int($anlage)) {
             $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);
         }
+        if (is_string($date)) {
+            $date = date_create($date);
+        }
 
         // Suche pasende Zeitkonfiguration für diese Anlage und dieses Datum
         /* @var TimesConfig $timesConfig */
-        switch ($department) {
-            case 1:
-                $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'availability_1', date_create(date('Y-m-d H:m', $date)));
-                break;
-            case 2:
-                $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'availability_2', date_create(date('Y-m-d H:m', $date)));
-                break;
-            case 3:
-                // $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'availability_3', date_create(date('Y-m-d H:m', $date)));
-                break;
-            default:
-                $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'fallback', date_create(date('Y-m-d H:m', $date)));
-                break;
-        }
+        $timesConfig = match ($department) {
+            1 => $this->timesConfigRepo->findValidConfig($anlage, 'availability_1', $date),
+            2 => $this->timesConfigRepo->findValidConfig($anlage, 'availability_2', $date),
+            3 => $this->timesConfigRepo->findValidConfig($anlage, 'availability_3', $date),
+            default => $this->timesConfigRepo->findValidConfig($anlage, 'fallback', $date),
+        };
 
-        $timestampModulo = $date;
+        $timestampModulo = $date->format('Y-m-d 04:00');
 
-        $from = date('Y-m-d 04:00', $timestampModulo);
+        $from = $timestampModulo;
         $dayStamp = new DateTime($from);
 
         $inverterPowerDc = [];
         $output = '';
 
         /* Verfügbarkeit der Anlage ermitteln */
-
         if (isset($anlage)) {
-            $output .= 'Anlage: '.$anlage->getAnlId().' / '.$anlage->getAnlName().' - '.date('Y-m-d', $timestampModulo)."Department: $department<br>";
+            $output .= 'Anlage: '.$anlage->getAnlId().' / '.$anlage->getAnlName().' - '.$date->format('Y-m-d')."Department: $department<br>";
 
             // Verfügbarkeit Berechnen und in Hilfsarray speichern
-            $availabilitysHelper = $this->checkAvailabilityInverter($anlage, $timestampModulo, $timesConfig, $department);
+            $availabilitysHelper = $this->checkAvailabilityInverter($anlage, $date->getTimestamp(), $timesConfig, $department);
 
             // Pnom für Inverter laden
             $inverterPowerDc = $anlage->getPnomInverterArray();
@@ -197,8 +191,24 @@ class AvailabilityByTicketService
     {
         $case3Helper = [];
         $availability = [];
-        $threshold1PA = $anlage->getThreshold1PA();
-        $threshold2PA = $anlage->getThreshold2PA();
+        switch ($department){
+            case 1:
+                $threshold1PA = $anlage->getThreshold1PA1();
+                $threshold2PA = $anlage->getThreshold2PA1();
+                break;
+            case 2:
+                $threshold1PA = $anlage->getThreshold1PA2();
+                $threshold2PA = $anlage->getThreshold2PA2();
+                break;
+            case 3 :
+                $threshold1PA = $anlage->getThreshold1PA3();
+                $threshold2PA = $anlage->getThreshold2PA3();
+                break;
+            default:
+                $threshold1PA = $anlage->getThreshold1PA0();
+                $threshold2PA = $anlage->getThreshold2PA0();
+        }
+
 
         $from = date('Y-m-d '.$timesConfig->getStartTime()->format('H:i'), $timestampModulo);
         $to = date('Y-m-d '.$timesConfig->getEndTime()->format('H:i'), $timestampModulo);
@@ -238,7 +248,6 @@ class AvailabilityByTicketService
                         $case5Array[$inverter][date('Y-m-d H:i:00', $c5Stamp)] = true;
                     }
                 }
-
             }
 
             // suche Case 6 Fälle und schreibe diese in case6Array[inverter][stamp] = true|false
@@ -267,7 +276,6 @@ class AvailabilityByTicketService
                 }
 
             }
-
 
 
             foreach ($einstrahlungen as $einstrahlung) {

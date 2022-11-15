@@ -47,9 +47,9 @@ class AvailabilityService
         // Suche pasende Zeitkonfiguration für diese Anlage und dieses Datum
         /* @var TimesConfig $timesConfig */
         if ($second) {
-            $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'availability_second', date_create(date('Y-m-d H:m', $date)));
+            $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'availability_2', date_create(date('Y-m-d H:m', $date)));
         } else {
-            $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'availability_first', date_create(date('Y-m-d H:m', $date)));
+            $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'availability_1', date_create(date('Y-m-d H:m', $date)));
         }
         $timestampModulo = $date;
 

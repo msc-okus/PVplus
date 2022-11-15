@@ -579,12 +579,13 @@
                 }
             }
             #statusTable {
-                th, td {white-space: nowrap; vertical-align: top; padding-left: 0; padding-right: 0; text-align: center;}
+                th, td {white-space: nowrap; vertical-align: top; padding: 0; text-align: center;}
 
                 .topline {
-                    border-top: #d6d6d6 1px solid;
+                    border-bottom: #d6d6d6 1px solid;
                     display: block;
                     padding-top: 3px;
+                    padding-bottom: 3px;
                 }
             }
 

@@ -13,6 +13,7 @@ use App\Repository\PvSystMonthRepository;
 use App\Repository\ReportsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use JetBrains\PhpStorm\NoReturn;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
 class ReportsMonthlyService
@@ -92,6 +93,10 @@ class ReportsMonthlyService
         return $output;
     }
 
+    /**
+     * @throws ExceptionInterface
+     * @throws \Exception
+     */
     public function buildMonthlyReport(Anlage $anlage, int $reportMonth = 0, int $reportYear = 0): array
     {
         // create Array for Day Values Table

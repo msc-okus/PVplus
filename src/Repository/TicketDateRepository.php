@@ -169,7 +169,6 @@ class TicketDateRepository extends ServiceEntityRepository
     /**
      * Search for all tiFM Cases
      *
-     *
      * @param $anlage
      * @param $begin
      * @param $end
@@ -177,8 +176,7 @@ class TicketDateRepository extends ServiceEntityRepository
      */
     public function findTiFm($anlage, $begin, $end): mixed
     {
-        dd('not ready');
-        return $this->createQueryBuilder('t')
+        $q = $this->createQueryBuilder('t')
             ->andWhere('t.begin BETWEEN :begin AND :end')
             ->andWhere('t.Anlage = :anlage')
             ->andWhere('t.alertType = 10')
@@ -186,7 +184,10 @@ class TicketDateRepository extends ServiceEntityRepository
             ->setParameter('begin', $begin)
             ->setParameter('end', $end)
             ->setParameter('anlage', $anlage)
-            ->getQuery()
-            ->getResult();
+            ->getQuery();
+
+
+
+        return $q->getResult();
     }
 }
