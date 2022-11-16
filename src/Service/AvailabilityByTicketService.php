@@ -38,7 +38,7 @@ class AvailabilityByTicketService
 
     /**
      * @param Anlage|int $anlage
-     * @param $date
+     * @param string|DateTime $date
      * @param int $department (for wich department (0 = Technische PA, 1 = O&M, 2 = EPC, 3 = AM)
      * @return string
      * @throws \Exception
@@ -163,6 +163,7 @@ class AvailabilityByTicketService
                         $anlagenAvailability->setRemarks0('');
                         break;
                 }
+                if ($inverter == 3) dd($anlagenAvailability, $department);
                 $this->em->persist($anlagenAvailability);
             }
             $this->em->flush();
@@ -238,7 +239,8 @@ class AvailabilityByTicketService
 
             // Handele case5 by ticket
             /** @var TicketDate $case5Ticket */
-            foreach ($this->ticketDateRepo->findDataGapOutage($anlage, $from, $to) as $case5Ticket){
+            $case5Tickets = $this->ticketDateRepo->findTiFm($anlage, $from, $to, $department);
+            foreach ($case5Tickets as $case5Ticket){
 
                 $c5From = $case5Ticket->getBegin()->getTimestamp();
                 $c5To = $case5Ticket->getEnd()->getTimestamp();
@@ -264,7 +266,7 @@ class AvailabilityByTicketService
 
             // Handel case6 by ticket
             /** @var TicketDate $case6Ticket */
-            foreach ($this->ticketDateRepo->findDataGapOutage($anlage, $from, $to) as $case6Ticket){
+            foreach ($this->ticketDateRepo->findDataGapOutage($anlage, $from, $to, $department) as $case6Ticket){
 
                 $c6From = $case6Ticket->getBegin()->getTimestamp();
                 $c6To = $case6Ticket->getEnd()->getTimestamp();
@@ -276,7 +278,6 @@ class AvailabilityByTicketService
                 }
 
             }
-
 
             foreach ($einstrahlungen as $einstrahlung) {
                 $stamp = $einstrahlung['stamp'];
@@ -380,7 +381,6 @@ class AvailabilityByTicketService
             }
         }
         unset($resultEinstrahlung);
-        $conn = null;
 
         return $availability;
     }
@@ -441,6 +441,15 @@ class AvailabilityByTicketService
 
     private function calcInvAPart1(array $row): float
     {
-        return (($row['case1'] + $row['case2'] + $row['case5']) / $row['control']) * 100;
+        #return (($row['case1'] + $row['case2'] + $row['case5']) / $row['control']) * 100;
+        if ($row['case1'] + $row['case2'] === 0 && $row['control'] - $row['case5'] === 0) {
+            $paInvPart1 = 100;
+        } else {
+
+            $paInvPart1 = (($row['case1'] + $row['case2']) / ($row['control'] - $row['case5'])) * 100;
+            dump("((".$row['case1']." + ".$row['case2'].") / (".$row['control']." - ".$row['case5'].")) = $paInvPart1");
+        }
+
+        return $paInvPart1;
     }
 }

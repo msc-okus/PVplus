@@ -336,7 +336,7 @@ class AvailabilityService
      * ti,theo = control<br>
      * tFM = case5<br>.
      */
-    public function calcAvailability(Anlage|int $anlage, DateTime $from, DateTime $to, ?int $inverter = null): float
+    public function calcAvailability(Anlage|int $anlage, DateTime $from, DateTime $to, ?int $inverter = null, int $department = 0): float
     {
         if (is_int($anlage)) $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);
 
@@ -358,8 +358,24 @@ class AvailabilityService
                 $ti = $titheo = 0;
             }
             $currentInverter = (int)$availability->getInverter();
-            $ti += $availability->getCase1() + $availability->getCase2() + $availability->getCase5();
-            $titheo += $availability->getControl();
+            switch ($department) {
+                case 1:
+                    $ti += $availability->getCase11() + $availability->getCase21() + $availability->getCase51();
+                    $titheo += $availability->getControl1();
+                    break;
+                case 2:
+                    $ti += $availability->getCase12() + $availability->getCase22() + $availability->getCase52();
+                    $titheo += $availability->getControl2();
+                    break;
+                case 3:
+                    $ti += $availability->getCase13() + $availability->getCase23() + $availability->getCase53();
+                    $titheo += $availability->getControl3();
+                    break;
+                default:
+                    $ti += $availability->getCase10() + $availability->getCase20() + $availability->getCase50();
+                    $titheo += $availability->getControl0();
+            }
+
         }
         // Berechne PA für den letzten Inverter
         $invWeight = ($anlage->getPnom() > 0 && $inverterPowerDc[$currentInverter] > 0) ? $inverterPowerDc[$currentInverter] / $anlage->getPnom() : 1;
@@ -431,6 +447,15 @@ class AvailabilityService
 
     private function calcInvAPart1(array $row): float
     {
-        return (($row['case1'] + $row['case2'] + $row['case5']) / $row['control']) * 100;
+        #return (($row['case1'] + $row['case2'] + $row['case5']) / $row['control']) * 100;
+
+
+            if ($row['case1'] + $row['case2'] === 0 && $row['control'] - $row['case5'] === 0) {
+                $paInvPart1 = 100;
+            } else {
+                $paInvPart1 = (($row['case1'] + $row['case2']) / $row['control'] - $row['case5']) * 100;
+            }
+
+            return $paInvPart1;
     }
 }

@@ -549,9 +549,13 @@ class ChartService
     /**
      * Erzeugt Daten für Temperatur Diagramm.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      *  //
+     * @param bool $hour
+     * @return array
+     * @throws \Exception
      */
     public function getAirAndPanelTemp(Anlage $anlage, $from, $to, bool $hour): array
     {
@@ -596,11 +600,14 @@ class ChartService
     /**
      * Erzeuge Daten für PR und AV.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      *
      * @return array
-     *               // pr_and_av
+     * @throws \Exception
+     *
+     * pr_and_av
      */
     public function getPRandAV(Anlage $anlage, $from, $to): array
     {

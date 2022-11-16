@@ -1,6 +1,15 @@
 {% import _self as macros %}
 
 {% macro availabilityTable(availability, aktAnlage) %}
+    {% set pa = 0 %}
+    {% set case0 = 0 %}
+    {% set case1 = 0 %}
+    {% set case2 = 0 %}
+    {% set case3 = 0 %}
+    {% set case4 = 0 %}
+    {% set case5 = 0 %}
+    {% set case6 = 0 %}
+    {% set control = 0 %}
     <div class="status-log" style="margin: 0 25px 0 10px;">
         <table id="statusTable" style="width: 100%;">
             <thead>
@@ -26,73 +35,97 @@
                     <td>{{ stati.stamp|date("Y-m-d") }} </td>
                     <td>{{ stati.inverter }}</td>
                     <td>
-                        <span class="topline" style="text-align: left;">PA.0 (Open Book)</span>
-                        <span class="topline" style="text-align: left;">PA.1 (O&M)</span>
-                        <span class="topline" style="text-align: left;">PA.2 (EPC)</span>
-                        <span class="topline" style="text-align: left;">PA.3 (AM)</span>
+                        <span class="topline js-pa-0" style="text-align: left;">PA.0 (Open Book)</span>
+                        <span class="topline js-pa-1" style="text-align: left;">PA.1 ({{ aktAnlage.eigner.settings.nameDep1 }}}</span>
+                        <span class="topline js-pa-2" style="text-align: left;">PA.2 ({{ aktAnlage.eigner.settings.nameDep2 }}}</span>
+                        <span class="topline js-pa-3" style="text-align: left;">PA.3 ({{ aktAnlage.eigner.settings.nameDep3 }}}</span>
                     </td>
                     <td>
-                        <span class="topline">{{ stati.case00 }} / {{ stati.case00 / 4 }}</span>
-                        <span class="topline">{{ stati.case01 }} / {{ stati.case01 / 4 }}</span>
-                        <span class="topline">{{ stati.case02 }} / {{ stati.case02 / 4 }}</span>
-                        <span class="topline">{{ stati.case03 }} / {{ stati.case03 / 4 }}</span>
+                        <span class="topline js-pa-0">{{ stati.case00 }} / {{ stati.case00 / 4 }}</span>
+                        <span class="topline js-pa-1">{{ stati.case01 }} / {{ stati.case01 / 4 }}</span>
+                        <span class="topline js-pa-2">{{ stati.case02 }} / {{ stati.case02 / 4 }}</span>
+                        <span class="topline js-pa-3">{{ stati.case03 }} / {{ stati.case03 / 4 }}</span>
                     </td>
                     <td>
-                        <span class="topline">{{ stati.case10 }} / {{ stati.case10 / 4 }}</span>
-                        <span class="topline">{{ stati.case11 }} / {{ stati.case11 / 4 }}</span>
-                        <span class="topline">{{ stati.case12 }} / {{ stati.case12 / 4 }}</span>
-                        <span class="topline">{{ stati.case13 }} / {{ stati.case13 / 4 }}</span>
+                        <span class="topline js-pa-0">{{ stati.case10 }} / {{ stati.case10 / 4 }}</span>
+                        <span class="topline js-pa-1">{{ stati.case11 }} / {{ stati.case11 / 4 }}</span>
+                        <span class="topline js-pa-2">{{ stati.case12 }} / {{ stati.case12 / 4 }}</span>
+                        <span class="topline js-pa-3">{{ stati.case13 }} / {{ stati.case13 / 4 }}</span>
                     </td>
                     <td>
-                        <span class="topline">{{ stati.case20 }} / {{ stati.case20 / 4 }}</span>
-                        <span class="topline">{{ stati.case21 }} / {{ stati.case21 / 4 }}</span>
-                        <span class="topline">{{ stati.case22 }} / {{ stati.case22 / 4 }}</span>
-                        <span class="topline">{{ stati.case23 }} / {{ stati.case23 / 4 }}</span>
+                        <span class="topline js-pa-0">{{ stati.case20 }} / {{ stati.case20 / 4 }}</span>
+                        <span class="topline js-pa-1">{{ stati.case21 }} / {{ stati.case21 / 4 }}</span>
+                        <span class="topline js-pa-2">{{ stati.case22 }} / {{ stati.case22 / 4 }}</span>
+                        <span class="topline js-pa-3">{{ stati.case23 }} / {{ stati.case23 / 4 }}</span>
                     </td>
                     <td>
-                        <span class="topline">{{ stati.case30 }} / {{ stati.case30 / 4 }}</span>
-                        <span class="topline">{{ stati.case31 }} / {{ stati.case31 / 4 }}</span>
-                        <span class="topline">{{ stati.case32 }} / {{ stati.case32 / 4 }}</span>
-                        <span class="topline">{{ stati.case33 }} / {{ stati.case33 / 4 }}</span>
+                        <span class="topline js-pa-0">{{ stati.case30 }} / {{ stati.case30 / 4 }}</span>
+                        <span class="topline js-pa-1">{{ stati.case31 }} / {{ stati.case31 / 4 }}</span>
+                        <span class="topline js-pa-2">{{ stati.case32 }} / {{ stati.case32 / 4 }}</span>
+                        <span class="topline js-pa-3">{{ stati.case33 }} / {{ stati.case33 / 4 }}</span>
                     </td>
                     <td>
-                        <span class="topline">{{ stati.case40 }} / {{ stati.case40 / 4 }}</span>
-                        <span class="topline">{{ stati.case41 }} / {{ stati.case41 / 4 }}</span>
-                        <span class="topline">{{ stati.case42 }} / {{ stati.case42 / 4 }}</span>
-                        <span class="topline">{{ stati.case43 }} / {{ stati.case43 / 4 }}</span>
+                        <span class="topline js-pa-0">{{ stati.case40 }} / {{ stati.case40 / 4 }}</span>
+                        <span class="topline js-pa-1">{{ stati.case41 }} / {{ stati.case41 / 4 }}</span>
+                        <span class="topline js-pa-2">{{ stati.case42 }} / {{ stati.case42 / 4 }}</span>
+                        <span class="topline js-pa-3">{{ stati.case43 }} / {{ stati.case43 / 4 }}</span>
                     </td>
                     <td>
-                        <span class="topline">{{ stati.case50 }} / {{ stati.case50 / 4 }}</span>
-                        <span class="topline">{{ stati.case51 }} / {{ stati.case51 / 4 }}</span>
-                        <span class="topline">{{ stati.case52 }} / {{ stati.case52 / 4 }}</span>
-                        <span class="topline">{{ stati.case53 }} / {{ stati.case53 / 4 }}</span>
+                        <span class="topline js-pa-0">{{ stati.case50 }} / {{ stati.case50 / 4 }}</span>
+                        <span class="topline js-pa-1">{{ stati.case51 }} / {{ stati.case51 / 4 }}</span>
+                        <span class="topline js-pa-2">{{ stati.case52 }} / {{ stati.case52 / 4 }}</span>
+                        <span class="topline js-pa-3">{{ stati.case53 }} / {{ stati.case53 / 4 }}</span>
                     </td>
                     <td>
-                        <span class="topline">{{ stati.case60 }} / {{ stati.case60 / 4 }}</span>
-                        <span class="topline">{{ stati.case61 }} / {{ stati.case61 / 4 }}</span>
-                        <span class="topline">{{ stati.case62 }} / {{ stati.case62 / 4 }}</span>
-                        <span class="topline">{{ stati.case63 }} / {{ stati.case63 / 4 }}</span>
+                        <span class="topline js-pa-0">{{ stati.case60 }} / {{ stati.case60 / 4 }}</span>
+                        <span class="topline js-pa-1">{{ stati.case61 }} / {{ stati.case61 / 4 }}</span>
+                        <span class="topline js-pa-2">{{ stati.case62 }} / {{ stati.case62 / 4 }}</span>
+                        <span class="topline js-pa-3">{{ stati.case63 }} / {{ stati.case63 / 4 }}</span>
                     </td>
                     <td>
-                        <span class="topline">{{ stati.control0}} / {{ stati.control0 / 4}}</span>
-                        <span class="topline">{{ stati.control1 }} / {{ stati.control1 / 4}}</span>
-                        <span class="topline">{{ stati.control2 }} / {{ stati.control2 / 4}}</span>
-                        <span class="topline">{{ stati.control3 }} / {{ stati.control3 / 4}}</span>
+                        <span class="topline js-pa-0">{{ stati.control0}} / {{ stati.control0 / 4}}</span>
+                        <span class="topline js-pa-1">{{ stati.control1 }} / {{ stati.control1 / 4}}</span>
+                        <span class="topline js-pa-2">{{ stati.control2 }} / {{ stati.control2 / 4}}</span>
+                        <span class="topline js-pa-3">{{ stati.control3 }} / {{ stati.control3 / 4}}</span>
                     </td>
                     <td>
-                        <span class="topline">{{ stati.invAPart10|number_format(2, ',', '.') }}</span>
-                        <span class="topline">{{ stati.invAPart11|number_format(2, ',', '.') }}</span>
-                        <span class="topline">{{ stati.invAPart12|number_format(2, ',', '.') }}</span>
-                        <span class="topline">{{ stati.invAPart13|number_format(2, ',', '.') }}</span>
+                        <span class="topline js-pa-0">{{ stati.invAPart10|number_format(2, ',', '.') }}</span>
+                        <span class="topline js-pa-1">{{ stati.invAPart11|number_format(2, ',', '.') }}</span>
+                        <span class="topline js-pa-2">{{ stati.invAPart12|number_format(2, ',', '.') }}</span>
+                        <span class="topline js-pa-3">{{ stati.invAPart13|number_format(2, ',', '.') }}</span>
                     </td>
                     <td>
-                        <span class="topline">{{ stati.invA0|number_format(4, ',', '.') }}</span>
-                        <span class="topline">{{ stati.invA1|number_format(4, ',', '.') }}</span>
-                        <span class="topline">{{ stati.invA2|number_format(4, ',', '.') }}</span>
-                        <span class="topline">{{ stati.invA3|number_format(4, ',', '.') }}</span>
+                        <span class="topline js-pa-0">{{ stati.invA0|number_format(4, ',', '.') }}</span>
+                        <span class="topline js-pa-1">{{ stati.invA1|number_format(4, ',', '.') }}</span>
+                        <span class="topline js-pa-2">{{ stati.invA2|number_format(4, ',', '.') }}</span>
+                        <span class="topline js-pa-3">{{ stati.invA3|number_format(4, ',', '.') }}</span>
                     </td>
                 </tr>
+                {% set pa = pa + stati.invA2 %}
+                {% set case0 = case0 + stati.case02 %}
+                {% set case1 = case1 + stati.case12 %}
+                {% set case2 = case2 + stati.case22 %}
+                {% set case3 = case3 + stati.case32 %}
+                {% set case4 = case4 + stati.case42 %}
+                {% set case5 = case5 + stati.case52 %}
+                {% set case6 = case6 + stati.case62 %}
+                {% set control = control + stati.control2 %}
             {% endfor %}
+            <tr>
+                <td> </td>
+                <td></td>
+                <td></td>
+                <td>{{ case0 }} / {{ case0 / 4 }}</td>
+                <td>{{ case1 }} / {{ case1 / 4 }}</td>
+                <td>{{ case2 }} / {{ case2 / 4 }}</td>
+                <td>{{ case3 }} / {{ case3 / 4 }}</td>
+                <td>{{ case4 }} / {{ case4 / 4 }}</td>
+                <td>{{ case5 }} / {{ case5 / 4 }}</td>
+                <td>{{ case6 }} / {{ case6 / 4 }}</td>
+                <td>{{ control }} / {{ control / 4 }}</td>
+                <td></td>
+                <td>{{ pa|number_format(4, ',', '.') }}</td>
+            </tr>
             </tbody>
         </table>
     </div>

@@ -40,7 +40,7 @@ trait TicketTrait
     private string $inverter;
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
-    private ?string $alertType = '';
+    private ?string $alertType = ''; // Fehler Typ: Data Gap (10), Inverter Error (20), Grid error (30), ....
 
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $status;
@@ -143,8 +143,8 @@ trait TicketTrait
         if ($this->description == "") {
             switch ($this->getAlertType()) {
                 case 10:
-                    break;
                     $this->description = "Data gap in Inverter(s): " . $Inverter;
+                    break;
                 case 20:
                     $this->description = "Power Error in Inverter(s): " . $Inverter;
                     break;
