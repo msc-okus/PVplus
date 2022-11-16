@@ -85,6 +85,7 @@ class ReportingController extends AbstractController
                 }
                 $report = new AnlagenReports();
                 // then we generate our own report and try to persist it
+
                 $output = $assetManagement->assetReport($aktAnlagen[0], $reportMonth, $reportYear, 0);
                 $data = [
                     'Production' => true,
@@ -507,6 +508,7 @@ class ReportingController extends AbstractController
                             'kwhLossesYearTable' => $output['kwhLossesYearTable']
                         ]);
 
+                        /*
                         $pos = $this->substr_Index($this->kernelProjectDir, '/', 5);
                         $pathpart = substr($this->kernelProjectDir, $pos);
                         //looks like a problem to get the html temporal file from .temp in the main folder from the server
@@ -525,38 +527,33 @@ class ReportingController extends AbstractController
                         header("Content-type: application/pdf");
                         header("Content-Length: " . filesize($filename));
                         header("Content-type: application/pdf");
-                        readfile('/usr/home/pvpluy/public_html/public/Saran_AssetReport_1_2022.pdf');
 
-                        /*
+                        readfile($filename);
+
+                      */
                         $pdf = new ChromePdf('/usr/bin/chromium');
+                        $pos = $this->substr_Index($this->kernelProjectDir, '/', 5);
+                        $pathpart = substr($this->kernelProjectDir, $pos);
+                        $pdf->output('/usr/home/pvpluy/public_html/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf');
+                        $reportfile = fopen('/usr/home/pvpluy/public_html/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.html', "w") or die("Unable to open file!");
 
-
-                        $pdf->output('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf');
-
-                        $reportfile = fopen('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.html', "w") or die("Unable to open file!");
-                        //cleanup html
                         $pos = strpos($result, '<html>');
                         fwrite($reportfile, substr($result, $pos));
                         fclose($reportfile);
+
                         $pdf->generateFromHtml(substr($result, $pos));
                         $pdf->generateFromFile('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.html');
-                        $filename = $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf';
-
+                        $filename = '/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf';
                         $pdf->output($filename);
-
                         // Header content type
-                        /*
                         header("Content-type: application/pdf");
                         header("Content-Length: " . filesize($filename));
                         header("Content-type: application/pdf");
-
-                        header("Content-type: application/pdf");
-                        header("Content-Length: " . filesize('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf'));
-                        header("Content-type: application/pdf");
                         // Send the file to the browser.
-                        readfile('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf');
-                        */
+                        readfile($filename);
+
                     }
+
                     return $this->render('report/_form.html.twig', [
                         'assetForm' => $form->createView(),
                         'anlage' => $anlage,

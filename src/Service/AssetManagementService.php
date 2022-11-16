@@ -272,8 +272,8 @@ class AssetManagementService
         // chart building, skip to line 950
         // begin chart
         $chart = new ECharts(); // We must use AMCharts
-        //$chart->tooltip->show = false;
-        //$chart->tooltip->trigger = 'item';
+        $chart->tooltip->show = false;
+        $chart->tooltip->trigger = 'item';
 
         $chart->xAxis = [
             'type' => 'category',
@@ -2183,7 +2183,7 @@ class AssetManagementService
                 ];
             }
             $outPa[] = $pa;
-            //dd($pa);
+
             unset($pa);
         }
         // End PA
@@ -2494,8 +2494,18 @@ class AssetManagementService
             and make all the calculations in the twig template
               */
 
-            $ecoVarValues = $this->ecoVarValueRepo->findByAnlage($anlage);
-
+            $ecoVarValues = $this->ecoVarValueRepo->findByAnlageYear($anlage, $report['reportYear']);
+            $var1['name'] = $resultEconomicsNames->getVar1();
+            $var2['name'] = $resultEconomicsNames->getVar2();
+            $var3['name'] = $resultEconomicsNames->getVar3();
+            $var4['name'] = $resultEconomicsNames->getVar4();
+            $var5['name'] = $resultEconomicsNames->getVar5();
+            $var6['name'] = $resultEconomicsNames->getVar6();
+            $var7['name'] = $resultEconomicsNames->getVar7();
+            $var8['name'] = $resultEconomicsNames->getVar8();
+            $var9['name'] = $resultEconomicsNames->getVar9();
+            $var10['name'] = $resultEconomicsNames->getVar10();
+            for ($i = 1; $i < 13; $i++){}
             for ($i = 0; $i < count($ecoVarValues) - 1; ++$i) {
                 (float) $oum[] = $ecoVarValues[$i]->getVar1();
                 $oumTotal = $oumTotal + $oum[$i];
@@ -2568,7 +2578,18 @@ class AssetManagementService
             'kwhPrice' => $kwhPrice,
             'monthTotal' => $monthTotal,
         ];
-
+        $economicsMandy2 = [
+            'var1'  => $var1,
+            'var2'  => $var2,
+            'var3'  => $var3,
+            'var4'  => $var4,
+            'var5'  => $var5,
+            'var6'  => $var6,
+            'var7'  => $var7,
+            'var8'  => $var8,
+            'var9'  => $var9,
+            'var10' => $var10
+        ];
         // beginn Operating statement
         for ($i = 0; $i < 12; ++$i) {
             $monthleyFeedInTarif = $kwhPrice[$i];
@@ -3261,6 +3282,7 @@ class AssetManagementService
         $chart->series = [];
         unset($option);
         // end Chart Losses compared cummulated
+        dd($resultEconomicsNames, $economicsMandy, $economicsMandy2);
         $output = [
             'plantId' => $plantId,
             'owner' => $owner,

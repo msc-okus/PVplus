@@ -42,6 +42,18 @@ class EconomicVarValuesRepository extends ServiceEntityRepository
             ->getResult()
         ;
     }
+    public function findByAnlageYear(Anlage $anlage, string $year)
+    {
+        return $this->createQueryBuilder('e')
+            ->andWhere('e.anlage = :anlage')
+            ->andWhere('e.year = :year')
+            ->setParameter('anlage', $anlage)
+            ->setParameter('year', $year)
+            ->orderBy('month', 'ASC')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
     // /**
     //  * @return EconomicVarValues[] Returns an array of EconomicVarValues objects
     //  */
