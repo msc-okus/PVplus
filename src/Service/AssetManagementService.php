@@ -260,6 +260,7 @@ class AssetManagementService
             'powerExt' => $powerExternal,
         ];
 
+
         // fuer die Tabelle Capacity Factor
 
         for ($i = 0; $i < count($monthExtendetArray); ++$i) {
@@ -2505,79 +2506,85 @@ class AssetManagementService
             $var8['name'] = $resultEconomicsNames->getVar8();
             $var9['name'] = $resultEconomicsNames->getVar9();
             $var10['name'] = $resultEconomicsNames->getVar10();
-            for ($i = 1; $i < 13; $i++){}
-            for ($i = 0; $i < count($ecoVarValues) - 1; ++$i) {
-                (float) $oum[] = $ecoVarValues[$i]->getVar1();
-                $oumTotal = $oumTotal + $oum[$i];
-                (float) $electricity[] = $ecoVarValues[$i]->getVar2();
-                $electricityTotal = $electricityTotal + $electricity[$i];
-                (float) $technicalDispatch[] = $ecoVarValues[$i]->getVar3();
-                $technicalDispatchTotal = $technicalDispatchTotal + $technicalDispatch[$i];
-                (float) $transTeleCom[] = $ecoVarValues[$i]->getVar4();
-                $transTeleComTotal = $transTeleComTotal + $transTeleCom[$i];
-                (float) $security[] = $ecoVarValues[$i]->getVar5();
-                $securityTotal = $securityTotal + $security[$i];
-                (float) $networkServiceFee[] = $ecoVarValues[$i]->getVar6();
-                $networkServiceFeeToatal = $networkServiceFeeToatal + $networkServiceFee[$i];
-                (float) $legalServices[] = $ecoVarValues[$i]->getVar7();
-                $legalServicesTotal = $legalServicesTotal + $legalServices[$i];
-                (float) $accountancyAndAdministrationCosts[] = $ecoVarValues[$i]->getVar8();
-                $accountancyAndAdministrationCostsTotal = $accountancyAndAdministrationCostsTotal + $accountancyAndAdministrationCosts[$i];
-                (float) $Iinsurance[] = $ecoVarValues[$i]->getVar9();
-                $IinsuranceTotal = $IinsuranceTotal + $Iinsurance[$i];
-                (float) $other[] = $ecoVarValues[$i]->getVar10();
-                $otherTotal = $otherTotal + $other[$i];
-                $fixesTotal[$i] = $oum[$i] +
-                $electricity[$i] +
-                $technicalDispatch[$i] +
-                $transTeleCom[$i] +
-                $security[$i] +
-                $networkServiceFee[$i] +
-                $legalServices[$i] +
-                $legalServices[$i] +
-                $accountancyAndAdministrationCosts[$i] +
-                $Iinsurance[$i] +
-                $other[$i];
-                (float) $variable1[] = $ecoVarValues[$i]->getVar11();
-                $variable1Total = $variable1Total + $variable1[$i];
-                (float) $variable2[] = $ecoVarValues[$i]->getVar12();
-                $variable2Total = $variable2Total + $variable2[$i];
-                (float) $variable3[] = $ecoVarValues[$i]->getVar13();
-                $variable3Total = $variable3Total + $variable3[$i];
-                (float) $variable4[] = $ecoVarValues[$i]->getVar14();
-                $variable4Total = $variable4Total + $variable4[$i];
-                (float) $variable5[] = $ecoVarValues[$i]->getVar15();
-                $variable5Total = $variable5Total + $variable5[$i];
-                $variablesTotal[$i] = $variable1[$i] +
-                $variable2[$i] +
-                $variable3[$i] +
-                $variable4[$i] +
-                $variable5[$i];
-                (float) $kwhPrice[] = $ecoVarValues[$i]->getKwHPrice();
-                $monthTotal[] = $fixesTotal[$i] + $variablesTotal[$i];
+            $counter = 0;
+            $sumvar1 = 0;
+            $sumvar2 = 0;
+            $sumvar3 = 0;
+            $sumvar4 = 0;
+            $sumvar5 = 0;
+            $sumvar6 = 0;
+            $sumvar7 = 0;
+            $sumvar8 = 0;
+            $sumvar9 = 0;
+            $sumvar10 = 0;
+
+            for ($i = 1; $i < 13; $i++){
+
+                if ($ecoVarValues[$counter]->getMonth() == $i){
+                    $var1[$i] = $ecoVarValues[$counter]->getVar1();
+                    $var2[$i] = $ecoVarValues[$counter]->getVar2();
+                    $var3[$i] = $ecoVarValues[$counter]->getVar3();
+                    $var4[$i] = $ecoVarValues[$counter]->getVar4();
+                    $var5[$i] = $ecoVarValues[$counter]->getVar5();
+                    $var6[$i] = $ecoVarValues[$counter]->getVar6();
+                    $var7[$i] = $ecoVarValues[$counter]->getVar7();
+                    $var8[$i] = $ecoVarValues[$counter]->getVar8();
+                    $var9[$i] = $ecoVarValues[$counter]->getVar9();
+                    $var10[$i] = $ecoVarValues[$counter]->getVar10();
+                    $sumvar1 = $sumvar1 + $var1[$i];
+                    $sumvar2 = $sumvar2 + $var2[$i];
+                    $sumvar3 = $sumvar3 + $var3[$i];
+                    $sumvar4 = $sumvar4 + $var4[$i];
+                    $sumvar5 = $sumvar5 + $var5[$i];
+                    $sumvar6 =  $sumvar6 + $var6[$i];
+                    $sumvar7 =  $sumvar7 + $var7[$i];
+                    $sumvar8 =  $sumvar8 + $var8[$i];
+                    $sumvar9 =  $sumvar9 + $var9[$i];
+                    $sumvar10 =  $sumvar10 + $var10[$i];
+                    $economicsMandy [$i] =
+                    $var1[$i] +
+                    $var2[$i] +
+                    $var3[$i] +
+                    $var4[$i] +
+                    $var5[$i] +
+                    $var6[$i] +
+                    $var7[$i] +
+                    $var8[$i] +
+                    $var9[$i] +
+                    $var10[$i];
+                    (float) $kwhPrice[$i] = $ecoVarValues[$counter]->getKwHPrice();
+                    if ($counter < count($ecoVarValues) - 1)$counter ++;
+                }
+                else{
+                    $economicsMandy [$i] = 0;
+                    $var1[$i] = "";
+                    $var2[$i] = "";
+                    $var3[$i] = "";
+                    $var4[$i] = "";
+                    $var5[$i] = "";
+                    $var6[$i] = "";
+                    $var7[$i] = "";
+                    $var8[$i] = "";
+                    $var9[$i] = "";
+                    $var10[$i] = "";
+                    //what should we do when the kwh pricev is not set, by now = 0
+                    (float) $kwhPrice[$i] = 0;
+                }
+
             }
         }
-        $economicsMandy = [
-            'oum' => $oum,
-            'electricity' => $electricity,
-            'technicalDispatch' => $technicalDispatch,
-            'transTeleCom' => $transTeleCom,
-            'security' => $security,
-            'networkServiceFee' => $networkServiceFee,
-            'legalServices' => $legalServices,
-            'accountancyAndAdministrationCosts' => $accountancyAndAdministrationCosts,
-            'Iinsurance' => $Iinsurance,
-            'other' => $other,
-            'fixesTotal' => $fixesTotal,
-            'variable1' => $variable1,
-            'variable2' => $variable2,
-            'variable3' => $variable3,
-            'variable4' => $variable4,
-            'variable5' => $variable5,
-            'variablesTotal' => $variablesTotal,
-            'kwhPrice' => $kwhPrice,
-            'monthTotal' => $monthTotal,
-        ];
+
+        if ($var1['name'] != "") $graphData[$var1['name']] = $sumvar1;
+        if ($var2['name'] != "") $graphData[$var2['name']] = $sumvar2;
+        if ($var3['name'] != "") $graphData[$var3['name']] = $sumvar3;
+        if ($var4['name'] != "") $graphData[$var4['name']] = $sumvar4;
+        if ($var5['name'] != "") $graphData[$var5['name']] = $sumvar5;
+        if ($var6['name'] != "") $graphData[$var6['name']] = $sumvar6;
+        if ($var7['name'] != "") $graphData[$var7['name']] = $sumvar7;
+        if ($var8['name'] != "") $graphData[$var8['name']] = $sumvar8;
+        if ($var9['name'] != "") $graphData[$var9['name']] = $sumvar9;
+        if ($var10['name'] != "") $graphData[$var10['name']] = $sumvar10;
+        dd($graphData);
         $economicsMandy2 = [
             'var1'  => $var1,
             'var2'  => $var2,
@@ -2591,15 +2598,16 @@ class AssetManagementService
             'var10' => $var10
         ];
         // beginn Operating statement
-        for ($i = 0; $i < 12; ++$i) {
+        for ($i = 1; $i < 13; ++$i) {
             $monthleyFeedInTarif = $kwhPrice[$i];
-            $incomePerMonth['revenues_act'][$i] = $tbody_a_production['powerEvu'][$i] * $monthleyFeedInTarif;
-            $incomePerMonth['PVSYST_plan_proceeds_EXP'][$i] = $tbody_a_production['expectedPvSyst'][$i] * $monthleyFeedInTarif;
-            $incomePerMonth['gvn_plan_proceeds_EXP'][$i] = $tbody_a_production['powerExpEvu'][$i] * $monthleyFeedInTarif;
+
+            $incomePerMonth['revenues_act'][$i] = $tbody_a_production['powerEvu'][$i - 1] * $monthleyFeedInTarif;
+            $incomePerMonth['PVSYST_plan_proceeds_EXP'][$i] = $tbody_a_production['expectedPvSyst'][$i - 1] * $monthleyFeedInTarif;
+            $incomePerMonth['gvn_plan_proceeds_EXP'][$i] = $tbody_a_production['powerExpEvu'][$i - 1] * $monthleyFeedInTarif;
             // -Total costs
-            $incomePerMonth['revenues_act_minus_totals'][$i] = round($incomePerMonth['revenues_act'][$i] - $monthTotal[$i], 0);
-            $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][$i] = round($incomePerMonth['PVSYST_plan_proceeds_EXP'][$i] - $monthTotal[$i], 0);
-            $incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'][$i] = round($incomePerMonth['gvn_plan_proceeds_EXP'][$i] - $monthTotal[$i], 0);
+            $incomePerMonth['revenues_act_minus_totals'][$i] = round($incomePerMonth['revenues_act'][$i - 1] - $economicsMandy[$i], 0);
+            $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][$i] = round($incomePerMonth['PVSYST_plan_proceeds_EXP'][$i - 1] - $economicsMandy[$i], 0);
+            $incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'][$i] = round($incomePerMonth['gvn_plan_proceeds_EXP'][$i - 1 ] - $economicsMandy[$i], 0);
 
             $incomePerMonth['monthley_feed_in_tarif'][$i] = $monthleyFeedInTarif;
         }
@@ -2607,22 +2615,22 @@ class AssetManagementService
 
         // beginn economics Cumulated Forecast
         // ohne Kosten(Hilfstabelle)
-        for ($i = 0; $i < count($dataMonthArrayFullYear); ++$i) {
+        for ($i = 1; $i < count($dataMonthArrayFullYear) + 1; ++$i) {
             $ohneKostenForecastPVSYST[$i] = $tbody_a_production['expectedPvSyst'][$i] * $incomePerMonth['monthley_feed_in_tarif'][$i];
             $ohneKostenForecastG4N[$i] = $forecast[$i + 1] * $kwhPrice[$i];
         }
 
         // mit Kosten(Hilfstabelle)
-        for ($i = 0; $i < count($dataMonthArrayFullYear); ++$i) {
+        for ($i =1; $i < count($dataMonthArrayFullYear) + 1; ++$i) {
             $mitKostenForecastPVSYST[$i] = $ohneKostenForecastPVSYST[$i] - $economicsMandy['monthTotal'][$i];
             $mitKostenForecastG4N[$i] = $ohneKostenForecastG4N[$i] - $economicsMandy['monthTotal'][$i];
         }
 
-        $kumsum1[0] = $economicsMandy['monthTotal'][0];
-        $kumsum2[0] = $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][0];
-        $kumsum3[0] = $incomePerMonth['PVSYST_plan_proceeds_EXP'][0];
-        $kumsum4[0] = $incomePerMonth['gvn_plan_proceeds_EXP'][0];
-        for ($i = 0; $i < 12; ++$i) {
+        $kumsum1[1] = $economicsMandy['monthTotal'][1];
+        $kumsum2[1] = $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][1];
+        $kumsum3[1] = $incomePerMonth['PVSYST_plan_proceeds_EXP'][1];
+        $kumsum4[1] = $incomePerMonth['gvn_plan_proceeds_EXP'][1];
+        for ($i = 2; $i < 13; ++$i) {
             $kumsum1[$i] = $economicsMandy['monthTotal'][$i] + $kumsum1[$i - 1];
             if ($i < $report['reportMonth']) {
                 $kumsum2[$i] = $kumsum1[$i];
@@ -2631,19 +2639,14 @@ class AssetManagementService
             }
             $kumsum3[$i] = $incomePerMonth['PVSYST_plan_proceeds_EXP'][$i] + $kumsum3[$i - 1];
             $kumsum4[$i] = $incomePerMonth['gvn_plan_proceeds_EXP'][$i] + $kumsum4[$i - 1];
-            $result1[] = $kumsum1[$i];
-            $result2[] = $kumsum2[$i];
-            $result3[] = $kumsum3[$i];
-            $result4[] = $kumsum4[$i];
         }
 
         $economicsCumulatedForecast = [
-            'revenues_ACT_and_Revenues_Plan_PVSYT' => $result1,
-            'revenues_ACT_and_Revenues_Plan_G4N' => $result2,
-            'PVSYST_plan_proceeds_P50' => $result3,
-            'g4n_plan_proceeds_EXP_P50' => $result4,
+            'revenues_ACT_and_Revenues_Plan_PVSYT' => $kumsum1,
+            'revenues_ACT_and_Revenues_Plan_G4N' => $kumsum2,
+            'PVSYST_plan_proceeds_P50' => $kumsum3,
+            'g4n_plan_proceeds_EXP_P50' => $kumsum4,
         ];
-
         $chart->xAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -2915,72 +2918,12 @@ class AssetManagementService
         $chart->yAxis = [];
         $chart->series = [];
         unset($option);
-
+        //check here something is wrong
         $chart->series =
             [
                 [
                     'type' => 'pie',
-                    'data' => [
-                        [
-                            'value' => $oumTotal,
-                            'name' => 'O&M',
-                        ],
-                        [
-                            'value' => $electricityTotal,
-                            'name' => 'Electricity',
-                        ],
-                        [
-                            'value' => $technicalDispatchTotal,
-                            'name' => 'Technical dispatch (KEGOC)',
-                        ],
-                        [
-                            'value' => $transTeleComTotal,
-                            'name' => 'TransTeleCom (cell equipment maintenance)',
-                        ],
-                        [
-                            'value' => $securityTotal,
-                            'name' => 'Security',
-                        ],
-                        [
-                            'value' => $networkServiceFeeToatal,
-                            'name' => 'Network service fee (ASTEL)',
-                        ],
-                        [
-                            'value' => $legalServicesTotal,
-                            'name' => 'legal services',
-                        ],
-                        [
-                            'value' => $accountancyAndAdministrationCostsTotal,
-                            'name' => 'Accountancy and administration costs',
-                        ],
-                        [
-                            'value' => $IinsuranceTotal,
-                            'name' => 'Insurance',
-                        ],
-                        [
-                            'value' => $otherTotal,
-                            'name' => 'Other',
-                        ],
-                        [
-                            'value' => $variable1Total,
-                            'name' => 'Variable 1',
-                        ],                        [
-                            'value' => $variable2Total,
-                            'name' => 'Variable 2)',
-                        ],
-                        [
-                            'value' => $variable3Total,
-                            'name' => 'Variable 3',
-                        ],
-                        [
-                            'value' => $variable4Total,
-                            'name' => 'Variable 4',
-                        ],
-                        [
-                            'value' => $variable5Total,
-                            'name' => 'Variable 5',
-                        ],
-                    ],
+                    'data' =>$graphData,
                     'visualMap' => 'false',
                     'label' => [
                         'show' => false,
@@ -3282,7 +3225,6 @@ class AssetManagementService
         $chart->series = [];
         unset($option);
         // end Chart Losses compared cummulated
-        dd($resultEconomicsNames, $economicsMandy, $economicsMandy2);
         $output = [
             'plantId' => $plantId,
             'owner' => $owner,
@@ -3360,7 +3302,8 @@ class AssetManagementService
             'ticketCountTable' => $ticketCountTable,
             'ticketCountTableMonth' => $ticketCountTableMonth,
             'kwhLossesYearTable' =>$kwhLossesYearTable,
-            'kwhLossesMonthTable' =>$kwhLossesMonthTable
+            'kwhLossesMonthTable' =>$kwhLossesMonthTable,
+            'economicsMandy2' => $economicsMandy2,
         ];
 
         return $output;

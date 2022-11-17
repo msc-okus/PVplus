@@ -28,7 +28,7 @@
                                 {% if (counter > reportmonth) %}
                                     <td class="tr_next_columns">-</td>
                                 {% else %}
-                                    <td class="tr_next_columns">{{ (data - economicsMandy.monthTotal[counter-1])|number_format(0, ',', '.') }}</td>
+                                    <td class="tr_next_columns">{{ (data - economicsMandy[counter])|number_format(0, ',', '.') }}</td>
                                 {% endif %}
                               {% endif %}
                             {% set counter = counter+1 %}
@@ -44,7 +44,7 @@
                                 {% if (counter > reportmonth) %}
                                     <td class="tr_next_columns">-</td>
                                 {% else %}
-                                    <td class="tr_next_columns">{{ (data - economicsMandy.monthTotal[counter-1])|number_format(0, ',', '.') }}</td>
+                                    <td class="tr_next_columns">{{ (data - economicsMandy[counter])|number_format(0, ',', '.') }}</td>
                                 {% endif %}
                             {% endif %}
                             {% set counter = counter+1 %}
@@ -60,7 +60,7 @@
                                 {% if (counter > reportmonth) %}
                                     <td class="tr_next_columns">-</td>
                                 {% else %}
-                                    <td class="tr_next_columns">{{ (data - economicsMandy.monthTotal[counter-1])|number_format(0, ',', '.') }}</td>
+                                    <td class="tr_next_columns">{{ (data - economicsMandy[counter])|number_format(0, ',', '.') }}</td>
                                 {% endif %}
                             {% endif %}
                             {% set counter = counter+1 %}

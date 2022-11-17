@@ -13,7 +13,7 @@
                         {% set counter = 1 %}
                         {% for data in dataMonthArrayFullYear %}
                             {% if (counter < 7) %}
-                                <td class="tr_next_columns">{{ income_per_month.monthley_feed_in_tarif[counter-1] }}</td>
+                                <td class="tr_next_columns">{{ income_per_month.monthley_feed_in_tarif[counter] }}</td>
                             {% endif %}
                             {% set counter = counter+1 %}
                         {% endfor %}
@@ -80,7 +80,7 @@
                         {% set counter = 1 %}
                         {% for data in dataMonthArrayFullYear %}
                             {% if (counter > 6) %}
-                                <td class="tr_next_columns">{{ income_per_month.monthley_feed_in_tarif[counter-1] }}</td>
+                                <td class="tr_next_columns">{{ income_per_month.monthley_feed_in_tarif[counter] }}</td>
                             {% endif %}
                             {% set counter = counter+1 %}
                         {% endfor %}

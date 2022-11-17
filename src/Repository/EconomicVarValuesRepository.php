@@ -49,7 +49,7 @@ class EconomicVarValuesRepository extends ServiceEntityRepository
             ->andWhere('e.year = :year')
             ->setParameter('anlage', $anlage)
             ->setParameter('year', $year)
-            ->orderBy('month', 'ASC')
+            ->orderBy('e.Month', 'ASC')
             ->getQuery()
             ->getResult()
             ;

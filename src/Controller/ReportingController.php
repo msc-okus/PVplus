@@ -430,7 +430,8 @@ class ReportingController extends AbstractController
                             'ticketCountTable' => $output['ticketCountTable'],
                             'ticketCountTableMonth' => $output['ticketCountTableMonth'],
                             'kwhLossesMonthTable' => $output['kwhLossesMonthTable'],
-                            'kwhLossesYearTable' => $output['kwhLossesYearTable']
+                            'kwhLossesYearTable' => $output['kwhLossesYearTable'],
+                            'economicsMandy2' => $output['economicsMandy2'],
                         ]);
                         $html = $environment->render('report/assetreport.html.twig', [
                             'invNr' => count($output['plantAvailabilityMonth']),
@@ -505,7 +506,8 @@ class ReportingController extends AbstractController
                             'ticketCountTable' => $output['ticketCountTable'],
                             'ticketCountTableMonth' => $output['ticketCountTableMonth'],
                             'kwhLossesMonthTable' => $output['kwhLossesMonthTable'],
-                            'kwhLossesYearTable' => $output['kwhLossesYearTable']
+                            'kwhLossesYearTable' => $output['kwhLossesYearTable'],
+                             'economicsMandy2' => $output['economicsMandy2'],
                         ]);
 
                         /*
