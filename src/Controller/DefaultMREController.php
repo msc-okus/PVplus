@@ -12,6 +12,7 @@ use App\Service\AvailabilityService;
 use App\Service\CheckSystemStatusService;
 use App\Service\ExportService;
 use App\Service\FunctionsService;
+use App\Service\PRCalulationService;
 use App\Service\ReportEpcPRNewService;
 use App\Service\WeatherServiceNew;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,11 +23,11 @@ class DefaultMREController extends BaseController
 {
     use G4NTrait;
 
-    private UrlGeneratorInterface $urlGenerator;
-
-    public function __construct(UrlGeneratorInterface $urlGenerator)
+    public function __construct(
+        private UrlGeneratorInterface $urlGenerator,
+        private PRCalulationService $prCalulation
+    )
     {
-        $this->urlGenerator = $urlGenerator;
     }
 
     #[Route(path: '/mr/sun')]
@@ -79,7 +80,11 @@ class DefaultMREController extends BaseController
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => '97']);
         $from = date_create($year.'-'.$month.'-01');
-        $to = date_create($year.'-'.($month+1).'-01');
+        if ($month == 12) {
+            $to = date_create(($year+1).'-01-01');
+        } else {
+            $to = date_create($year.'-'.($month+1).'-01');
+        }
         $output = $bavelseExport->gewichtetTagesstrahlung($anlage, $from, $to);
 
         return $this->render('cron/showResult.html.twig', [
@@ -147,6 +152,22 @@ class DefaultMREController extends BaseController
             'legend' => $anlage->getLegendEpcReports(),
             // 'chart1'            => $chartYieldPercenDiff,
             // 'chart2'            => $chartYieldCumulativ,
+        ]);
+    }
+
+    #[Route(path: '/test/pr/{id}', defaults: ['id' => 83])]
+    public function testPr($id, AnlagenRepository $anlagenRepository, FunctionsService $functions, ReportEpcPRNewService $epcNew): Response
+    {
+        /** @var Anlage $anlage */
+        $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
+        $date = '2022-11-13 00:00';
+
+        $output = $this->prCalulation->calcPRAll($anlage, $date);
+
+        return $this->render('cron/showResult.html.twig', [
+            'headline' => $anlage->getAnlName().' FacData Export',
+            'availabilitys' => '',
+            'output' => $output,
         ]);
     }
 }

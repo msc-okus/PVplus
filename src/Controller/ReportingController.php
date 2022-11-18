@@ -24,6 +24,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Knp\Snappy\Pdf;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -526,13 +528,6 @@ class ReportingController extends AbstractController
                         header("Content-Length: " . filesize($filename));
                         header("Content-type: application/pdf");
 
-                        header("Content-type: application/pdf");
-                        header("Content-Length: " . filesize($filename));
-                        header("Content-type: application/pdf");
-
-                        readfile($filename);
-
-                      */
                         $pdf = new ChromePdf('/usr/bin/chromium');
                         $pos = $this->substr_Index($this->kernelProjectDir, '/', 5);
                         $pathpart = substr($this->kernelProjectDir, $pos);
@@ -567,6 +562,11 @@ class ReportingController extends AbstractController
         return $this->redirect($route);
     }
 
+    /**
+     * @throws NotFoundExceptionInterface
+     * @throws ExceptionInterface
+     * @throws ContainerExceptionInterface
+     */
     #[Route(path: '/reporting/excel/{id}', name: 'app_reporting_excel')]
     public function showReportAsExcel($id, ReportEpcService $reportEpcService, ReportService $reportService, ReportsRepository $reportsRepository, ReportsMonthlyService $reportsMonthly)
     {
@@ -576,11 +576,10 @@ class ReportingController extends AbstractController
         $anlageq = $session->get('anlage');
         $searchmonth = $session->get('month');
         $searchyear = $session->get('search_year');
-        $route = $this->generateUrl('app_reporting_list', [], UrlGeneratorInterface::ABS_PATH);
+        $route = $this->generateUrl('app_reporting_list', [], \ApiPlatform\Api\UrlGeneratorInterface::ABS_PATH);
         $route = $route.'?anlage='.$anlageq.'&searchstatus='.$searchstatus.'&searchtype='.$searchtype.'&searchmonth='.$searchmonth.'&searchyear='.$searchyear.'&search=yes';
         /** @var AnlagenReports|null $report */
         $report = $reportsRepository->find($id);
-        dd($report->getContentArray());
         $reportCreationDate = $report->getCreatedAt()->format('Y-m-d h:i:s');
         $anlage = $report->getAnlage();
         $currentDate = date('y-m-d');

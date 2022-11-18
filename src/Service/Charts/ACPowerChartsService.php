@@ -156,6 +156,7 @@ class ACPowerChartsService
                     }
                 }
 
+                // Irradiation
                 if (isset($dataArrayIrradiation['chart'][$counter]['val1'])) {
                     if ($anlage->getIsOstWestAnlage()) {
                         $dataArray['chart'][$counter]['irradiation'] = ($dataArrayIrradiation['chart'][$counter]['val1'] * $anlage->getPowerEast() + $dataArrayIrradiation['chart'][$counter]['val2'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());

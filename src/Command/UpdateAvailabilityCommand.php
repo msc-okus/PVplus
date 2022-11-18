@@ -37,6 +37,9 @@ class UpdateAvailabilityCommand extends Command
         ;
     }
 
+    /**
+     * @throws \Exception
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $ergebniss = '';
@@ -86,17 +89,17 @@ class UpdateAvailabilityCommand extends Command
                     $from = ($from - (24 * 3600)); // gestern, da Anlage heute keine Daten bekommt
                 }
                 if ($anlage->getAnlId() == 112 || $anlage->getAnlId() == 113) {
-                    $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, strtotime($from), 1);
+                    #$ergebniss = $this->availabilityByTicket->checkAvailability($anlage, strtotime($from), 1);
                 } else {
                     $ergebniss = $this->availability->checkAvailability($anlage, strtotime($from));
                     if ($anlage->getShowAvailabilitySecond()) {
                         $ergebniss .= $this->availability->checkAvailability($anlage, strtotime($from), true); // Second
                     }
                 }
-
                 $io->progressAdvance();
             }
-            sleep(2);
+            $io->comment($anlage->getAnlName());
+            sleep(5);
         }
         $io->progressFinish();
         $io->success('Berechnung der Verfügbarkeit abgeschlossen!');
