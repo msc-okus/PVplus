@@ -87,6 +87,7 @@ class ReportingController extends AbstractController
                 }
                 $report = new AnlagenReports();
                 // then we generate our own report and try to persist it
+
                 $output = $assetManagement->assetReport($aktAnlagen[0], $reportMonth, $reportYear, 0);
                 $data = [
                     'Production' => true,
@@ -431,7 +432,8 @@ class ReportingController extends AbstractController
                             'ticketCountTable' => $output['ticketCountTable'],
                             'ticketCountTableMonth' => $output['ticketCountTableMonth'],
                             'kwhLossesMonthTable' => $output['kwhLossesMonthTable'],
-                            'kwhLossesYearTable' => $output['kwhLossesYearTable']
+                            'kwhLossesYearTable' => $output['kwhLossesYearTable'],
+                            'economicsMandy2' => $output['economicsMandy2'],
                         ]);
                         $html = $environment->render('report/assetreport.html.twig', [
                             'invNr' => count($output['plantAvailabilityMonth']),
@@ -506,44 +508,49 @@ class ReportingController extends AbstractController
                             'ticketCountTable' => $output['ticketCountTable'],
                             'ticketCountTableMonth' => $output['ticketCountTableMonth'],
                             'kwhLossesMonthTable' => $output['kwhLossesMonthTable'],
-                            'kwhLossesYearTable' => $output['kwhLossesYearTable']
+                            'kwhLossesYearTable' => $output['kwhLossesYearTable'],
+                             'economicsMandy2' => $output['economicsMandy2'],
                         ]);
+
+                        /*
                         $pos = $this->substr_Index($this->kernelProjectDir, '/', 5);
                         $pathpart = substr($this->kernelProjectDir, $pos);
                         //looks like a problem to get the html temporal file from .temp in the main folder from the server
+                        //readfile('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf');
+                        $filename = '/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf';
+                        //$html = str_replace('<script type="text/javascript" src="//fastly.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>', " ", $html);
+                        $pdfFile = $pdf1->generateFromHtml($html
+                            , $filename,
+                            [ "enable-local-file-access" => true, "orientation" => "landscape", "enable-external-links" => true],
+                            true);
 
-                        $pdfFile = $pdf1->generateFromHtml($html, '/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf', [], true);
-
-                        /*
-                        $pdf = new ChromePdf('/usr/bin/chromium');
-
-
-                        $pdf->output('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf');
-
-                        $reportfile = fopen('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.html', "w") or die("Unable to open file!");
-                        //cleanup html
-                        $pos = strpos($result, '<html>');
-                        fwrite($reportfile, substr($result, $pos));
-                        fclose($reportfile);
-                        $pdf->generateFromHtml(substr($result, $pos));
-                        $pdf->generateFromFile('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.html');
-                        $filename = $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf';
-
-                        $pdf->output($filename);
-
-                        // Header content type
-                        /*
                         header("Content-type: application/pdf");
                         header("Content-Length: " . filesize($filename));
                         header("Content-type: application/pdf");
 
+                        $pdf = new ChromePdf('/usr/bin/chromium');
+                        $pos = $this->substr_Index($this->kernelProjectDir, '/', 5);
+                        $pathpart = substr($this->kernelProjectDir, $pos);
+                        $pdf->output('/usr/home/pvpluy/public_html/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf');
+                        $reportfile = fopen('/usr/home/pvpluy/public_html/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.html', "w") or die("Unable to open file!");
+
+                        $pos = strpos($result, '<html>');
+                        fwrite($reportfile, substr($result, $pos));
+                        fclose($reportfile);
+
+                        $pdf->generateFromHtml(substr($result, $pos));
+                        $pdf->generateFromFile('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.html');
+                        $filename = '/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf';
+                        $pdf->output($filename);
+                        // Header content type
                         header("Content-type: application/pdf");
-                        header("Content-Length: " . filesize('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf'));
+                        header("Content-Length: " . filesize($filename));
                         header("Content-type: application/pdf");
                         // Send the file to the browser.
-                        readfile('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf');
-                        */
+                        readfile($filename);
+
                     }
+
                     return $this->render('report/_form.html.twig', [
                         'assetForm' => $form->createView(),
                         'anlage' => $anlage,
@@ -763,7 +770,8 @@ class ReportingController extends AbstractController
                             'ticketCountTable' => $output['ticketCountTable'],
                             'ticketCountTableMonth' => $output['ticketCountTableMonth'],
                             'kwhLossesMonthTable' => $output['kwhLossesMonthTable'],
-                            'kwhLossesYearTable' => $output['kwhLossesYearTable']
+                            'kwhLossesYearTable' => $output['kwhLossesYearTable'],
+                            'economicsMandy2' => $output['economicsMandy2'],
                         ]);
                         break;
                     }
