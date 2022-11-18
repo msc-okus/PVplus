@@ -178,7 +178,7 @@ class AssetManagementService
         $daysInReportMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
 
         $monthArray = [
-            'Jan', 'Feb', 'Mar', 'April', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dez',
+            'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
         ];
         for ($i = 0; $i < count($monthArray); ++$i) {
             $monthExtendetArray[$i]['month'] = $monthArray[$i];
@@ -2518,19 +2518,18 @@ class AssetManagementService
             $sumvar9 = 0;
             $sumvar10 = 0;
 
-            for ($i = 1; $i < 13; $i++){
-
-                if ($ecoVarValues[$counter]->getMonth() == $i){
-                    $var1[$i] = $ecoVarValues[$counter]->getVar1();
-                    $var2[$i] = $ecoVarValues[$counter]->getVar2();
-                    $var3[$i] = $ecoVarValues[$counter]->getVar3();
-                    $var4[$i] = $ecoVarValues[$counter]->getVar4();
-                    $var5[$i] = $ecoVarValues[$counter]->getVar5();
-                    $var6[$i] = $ecoVarValues[$counter]->getVar6();
-                    $var7[$i] = $ecoVarValues[$counter]->getVar7();
-                    $var8[$i] = $ecoVarValues[$counter]->getVar8();
-                    $var9[$i] = $ecoVarValues[$counter]->getVar9();
-                    $var10[$i] = $ecoVarValues[$counter]->getVar10();
+            for ($i = 0; $i < 12; $i++){
+                if (($ecoVarValues[$counter]->getMonth() == $i + 1) && ($i <= $month - 1)){
+                    $var1[$i] = (float)$ecoVarValues[$counter]->getVar1();
+                    $var2[$i] = (float)$ecoVarValues[$counter]->getVar2();
+                    $var3[$i] = (float)$ecoVarValues[$counter]->getVar3();
+                    $var4[$i] = (float)$ecoVarValues[$counter]->getVar4();
+                    $var5[$i] = (float)$ecoVarValues[$counter]->getVar5();
+                    $var6[$i] = (float)$ecoVarValues[$counter]->getVar6();
+                    $var7[$i] = (float)$ecoVarValues[$counter]->getVar7();
+                    $var8[$i] = (float)$ecoVarValues[$counter]->getVar8();
+                    $var9[$i] = (float)$ecoVarValues[$counter]->getVar9();
+                    $var10[$i] = (float)$ecoVarValues[$counter]->getVar10();
                     $sumvar1 = $sumvar1 + $var1[$i];
                     $sumvar2 = $sumvar2 + $var2[$i];
                     $sumvar3 = $sumvar3 + $var3[$i];
@@ -2557,16 +2556,16 @@ class AssetManagementService
                 }
                 else{
                     $economicsMandy [$i] = 0;
-                    $var1[$i] = "";
-                    $var2[$i] = "";
-                    $var3[$i] = "";
-                    $var4[$i] = "";
-                    $var5[$i] = "";
-                    $var6[$i] = "";
-                    $var7[$i] = "";
-                    $var8[$i] = "";
-                    $var9[$i] = "";
-                    $var10[$i] = "";
+                    $var1[$i] = 0.0;
+                    $var2[$i] = 0.0;
+                    $var3[$i] = 0.0;
+                    $var4[$i] = 0.0;
+                    $var5[$i] = 0.0;
+                    $var6[$i] = 0.0;
+                    $var7[$i] = 0.0;
+                    $var8[$i] = 0.0;
+                    $var9[$i] = 0.0;
+                    $var10[$i] = 0.0;
                     //what should we do when the kwh pricev is not set, by now = 0
                     (float) $kwhPrice[$i] = 0;
                 }
@@ -2574,17 +2573,47 @@ class AssetManagementService
             }
         }
 
-        if ($var1['name'] != "") $graphData[$var1['name']] = $sumvar1;
-        if ($var2['name'] != "") $graphData[$var2['name']] = $sumvar2;
-        if ($var3['name'] != "") $graphData[$var3['name']] = $sumvar3;
-        if ($var4['name'] != "") $graphData[$var4['name']] = $sumvar4;
-        if ($var5['name'] != "") $graphData[$var5['name']] = $sumvar5;
-        if ($var6['name'] != "") $graphData[$var6['name']] = $sumvar6;
-        if ($var7['name'] != "") $graphData[$var7['name']] = $sumvar7;
-        if ($var8['name'] != "") $graphData[$var8['name']] = $sumvar8;
-        if ($var9['name'] != "") $graphData[$var9['name']] = $sumvar9;
-        if ($var10['name'] != "") $graphData[$var10['name']] = $sumvar10;
-        dd($graphData);
+        if ($var1['name'] != "") {
+            $graphData[0]['value'] = $sumvar1;
+            $graphData[0]['name'] = $var1['name'];
+        }
+        if ($var2['name'] != "")  {
+            $graphData[1]['value'] = $sumvar2;
+            $graphData[1]['name'] = $var2['name'];
+        }
+        if ($var3['name'] != "")  {
+            $graphData[2]['value'] = $sumvar3;
+            $graphData[2]['name'] = $var3['name'];
+        }
+        if ($var4['name'] != "")  {
+            $graphData[3]['value'] = $sumvar4;
+            $graphData[3]['name'] = $var4['name'];
+        }
+        if ($var5['name'] != "")  {
+            $graphData[4]['value'] = $sumvar5;
+            $graphData[4]['name'] = $var5['name'];
+        }
+        if ($var6['name'] != "")  {
+            $graphData[5]['value'] = $sumvar6;
+            $graphData[5]['name'] = $var6['name'];
+        }
+        if ($var7['name'] != "")  {
+            $graphData[6]['value'] = $sumvar7;
+            $graphData[6]['name'] = $var7['name'];
+        }
+        if ($var8['name'] != "")  {
+            $graphData[7]['value'] = $sumvar8;
+            $graphData[7]['name'] = $var8['name'];
+        };
+        if ($var9['name'] != "")  {
+            $graphData[8]['value'] = $sumvar9;
+            $graphData[8]['name'] = $var9['name'];
+        }
+        if ($var10['name'] != "")  {
+            $graphData[9]['value'] = $sumvar10;
+            $graphData[9]['name'] = $var10['name'];
+        }
+
         $economicsMandy2 = [
             'var1'  => $var1,
             'var2'  => $var2,
@@ -2598,16 +2627,16 @@ class AssetManagementService
             'var10' => $var10
         ];
         // beginn Operating statement
-        for ($i = 1; $i < 13; ++$i) {
+        for ($i = 0; $i < 12; ++$i) {
             $monthleyFeedInTarif = $kwhPrice[$i];
 
-            $incomePerMonth['revenues_act'][$i] = $tbody_a_production['powerEvu'][$i - 1] * $monthleyFeedInTarif;
-            $incomePerMonth['PVSYST_plan_proceeds_EXP'][$i] = $tbody_a_production['expectedPvSyst'][$i - 1] * $monthleyFeedInTarif;
-            $incomePerMonth['gvn_plan_proceeds_EXP'][$i] = $tbody_a_production['powerExpEvu'][$i - 1] * $monthleyFeedInTarif;
+            $incomePerMonth['revenues_act'][$i] = $tbody_a_production['powerEvu'][$i] * $monthleyFeedInTarif;
+            $incomePerMonth['PVSYST_plan_proceeds_EXP'][$i] = $tbody_a_production['expectedPvSyst'][$i] * $monthleyFeedInTarif;
+            $incomePerMonth['gvn_plan_proceeds_EXP'][$i] = $tbody_a_production['powerExpEvu'][$i] * $monthleyFeedInTarif;
             // -Total costs
-            $incomePerMonth['revenues_act_minus_totals'][$i] = round($incomePerMonth['revenues_act'][$i - 1] - $economicsMandy[$i], 0);
-            $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][$i] = round($incomePerMonth['PVSYST_plan_proceeds_EXP'][$i - 1] - $economicsMandy[$i], 0);
-            $incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'][$i] = round($incomePerMonth['gvn_plan_proceeds_EXP'][$i - 1 ] - $economicsMandy[$i], 0);
+            $incomePerMonth['revenues_act_minus_totals'][$i] = round($incomePerMonth['revenues_act'][$i] - $economicsMandy[$i], 0);
+            $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][$i] = round($incomePerMonth['PVSYST_plan_proceeds_EXP'][$i] - $economicsMandy[$i], 0);
+            $incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'][$i] = round($incomePerMonth['gvn_plan_proceeds_EXP'][$i] - $economicsMandy[$i], 0);
 
             $incomePerMonth['monthley_feed_in_tarif'][$i] = $monthleyFeedInTarif;
         }
@@ -2615,28 +2644,24 @@ class AssetManagementService
 
         // beginn economics Cumulated Forecast
         // ohne Kosten(Hilfstabelle)
-        for ($i = 1; $i < count($dataMonthArrayFullYear) + 1; ++$i) {
+        for ($i = 0; $i < 12; ++$i) {
             $ohneKostenForecastPVSYST[$i] = $tbody_a_production['expectedPvSyst'][$i] * $incomePerMonth['monthley_feed_in_tarif'][$i];
             $ohneKostenForecastG4N[$i] = $forecast[$i + 1] * $kwhPrice[$i];
         }
 
         // mit Kosten(Hilfstabelle)
-        for ($i =1; $i < count($dataMonthArrayFullYear) + 1; ++$i) {
-            $mitKostenForecastPVSYST[$i] = $ohneKostenForecastPVSYST[$i] - $economicsMandy['monthTotal'][$i];
-            $mitKostenForecastG4N[$i] = $ohneKostenForecastG4N[$i] - $economicsMandy['monthTotal'][$i];
+        for ($i =0; $i < 12; ++$i) {
+            $mitKostenForecastPVSYST[$i] = $ohneKostenForecastPVSYST[$i] - $economicsMandy[$i];
+            $mitKostenForecastG4N[$i] = $ohneKostenForecastG4N[$i] - $economicsMandy[$i];
         }
 
-        $kumsum1[1] = $economicsMandy['monthTotal'][1];
-        $kumsum2[1] = $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][1];
-        $kumsum3[1] = $incomePerMonth['PVSYST_plan_proceeds_EXP'][1];
-        $kumsum4[1] = $incomePerMonth['gvn_plan_proceeds_EXP'][1];
-        for ($i = 2; $i < 13; ++$i) {
-            $kumsum1[$i] = $economicsMandy['monthTotal'][$i] + $kumsum1[$i - 1];
-            if ($i < $report['reportMonth']) {
-                $kumsum2[$i] = $kumsum1[$i];
-            } else {
-                $kumsum2[$i] = $kumsum1[$i] + $mitKostenForecastG4N[$i];
-            }
+        $kumsum1[0] = $economicsMandy[0];
+        $kumsum2[0] = $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][0];
+        $kumsum3[0] = $incomePerMonth['PVSYST_plan_proceeds_EXP'][0];
+        $kumsum4[0] = $incomePerMonth['gvn_plan_proceeds_EXP'][0];
+        for ($i = 1; $i < 12; ++$i) {
+            $kumsum1[$i] = $economicsMandy[$i] + $kumsum1[$i - 1];
+            $kumsum2[$i] = $mitKostenForecastG4N[$i] + $kumsum2[$i - 1];
             $kumsum3[$i] = $incomePerMonth['PVSYST_plan_proceeds_EXP'][$i] + $kumsum3[$i - 1];
             $kumsum4[$i] = $incomePerMonth['gvn_plan_proceeds_EXP'][$i] + $kumsum4[$i - 1];
         }
@@ -2647,6 +2672,8 @@ class AssetManagementService
             'PVSYST_plan_proceeds_P50' => $kumsum3,
             'g4n_plan_proceeds_EXP_P50' => $kumsum4,
         ];
+        dd(  $economicsCumulatedForecast);
+
         $chart->xAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -2866,6 +2893,7 @@ class AssetManagementService
             'nameLocation' => 'middle',
             'nameGap' => 70,
         ];
+
         $chart->series =
             [
                 [
@@ -2919,6 +2947,65 @@ class AssetManagementService
         $chart->series = [];
         unset($option);
         //check here something is wrong
+        dump($graphData,      [
+            'value' => 25,
+            'name' => 'O&M',
+        ],
+            [
+                'value' => 25,
+                'name' => 'Electricity',
+            ],
+            [
+                'value' => 25,
+                'name' => 'Technical dispatch (KEGOC)',
+            ],
+            [
+                'value' => 25,
+                'name' => 'TransTeleCom (cell equipment maintenance)',
+            ],
+            [
+                'value' => 14,
+                'name' => 'Security',
+            ],
+            [
+                'value' => 12,
+                'name' => 'Network service fee (ASTEL)',
+            ],
+            [
+                'value' => 25,
+                'name' => 'legal services',
+            ],
+            [
+                'value' => 900,
+                'name' => 'Accountancy and administration costs',
+            ],
+            [
+                'value' => 100,
+                'name' => 'Insurance',
+            ],
+            [
+                'value' => 60,
+                'name' => 'Other',
+            ],
+            [
+                'value' => 40,
+                'name' => 'Variable 1',
+            ],                        [
+                'value' => 50,
+                'name' => 'Variable 2)',
+            ],
+            [
+                'value' => 30,
+                'name' => 'Variable 3',
+            ],
+            [
+                'value' => 20,
+                'name' => 'Variable 4',
+            ],
+            [
+                'value' => 10,
+                'name' => 'Variable 5',
+            ]);
         $chart->series =
             [
                 [

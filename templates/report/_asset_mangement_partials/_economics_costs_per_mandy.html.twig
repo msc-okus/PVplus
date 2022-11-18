@@ -4,11 +4,10 @@
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Economics</h3>
     <span class="subheadline">Costs per month and year</span>
 
-    <table  style="margin-top: -10px">
-        <tr>
-            <td colspan="2" style="text-align: left">
-                {% set totalsfix = [] %}
-                <table class="asset_report_table_operations_data_small" style="width: 95%!important;">
+    <table  style="margin-top: -10px; height: 100%">
+        <tr style="vertical-align: top">
+            <td  style="text-align: left">
+                <table class="asset_report_table_operations_data_small" style="width: 95%!important; vertical-align: top!important">
                     <tbody>
                     <tr style="font-weight: bold">
                         <td class="tr_next_columns" style="background-color: #ededed;">costs per month and year [EUR]</td>
@@ -30,7 +29,7 @@
                                             <td class="tr_next_columns">-</td>
                                         {% else %}
                                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                                            {% set total = total + data|number_format(0, ',', '.') %}
+                                            {% set total = total + data %}
                                         {% endif %}
                                     {% endif %}
                                 {% endfor %}
@@ -64,7 +63,7 @@
                 </table>
             </td>
         </tr>
-        <tr>
+        <tr style="vertical-align: top">
             <td style="text-align: center!important;">
                 {{ total_Costs_Per_Date|raw }}
             </td>
