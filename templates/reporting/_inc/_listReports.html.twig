@@ -59,6 +59,12 @@
                                    {# Steve Excel #}
                                     <a href="{{ path('app_reporting_new_excel', { id: report.id}) }}"  title="load Excel file" class="hollow button tiny action-icon shadow">
                                         <span class="fa fa-file-excel" style="color:darkgreen"></span></a>
+
+
+                                    <a href="{{ path('app_reporting_new_pdf', { id: report.id}) }}"    title="load PDF file" class="hollow button tiny action-icon shadow
+                                            {{ visibility }}
+                                        "><span class="fa fa-file-pdf" style="color:darkgreen"></span></a>
+
                                 {# Steve Excel #}
 
                                     <a href="{{ path('app_reporting_excel', { id: report.id}) }}" target="_blank" title="load Excel file" class="hollow button tiny action-icon shadow
