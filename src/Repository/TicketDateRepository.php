@@ -2,13 +2,13 @@
 
 namespace App\Repository;
 
+use App\Entity\Anlage;
 use App\Entity\TicketDate;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
+
 /**
- * @extends ServiceEntityRepository<TicketDate>
- *
  * @method TicketDate|null find($id, $lockMode = null, $lockVersion = null)
  * @method TicketDate|null findOneBy(array $criteria, array $orderBy = null)
  * @method TicketDate[]    findAll()
@@ -20,28 +20,6 @@ class TicketDateRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, TicketDate::class);
     }
-
-/*
- * ToDo: could this be removed ??
- *
-    public function add(TicketDate $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->persist($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-    }
-
-    public function remove(TicketDate $entity, bool $flush = false): void
-    {
-        $this->getEntityManager()->remove($entity);
-
-        if ($flush) {
-            $this->getEntityManager()->flush();
-        }
-    }
-*/
 
 
     public function findOneById($id): ?TicketDate
@@ -129,6 +107,7 @@ class TicketDateRepository extends ServiceEntityRepository
             ->getResult()
         ;
     }
+
     public function getAllByInterval($begin, $end, $anlage)
     {
         return $this->createQueryBuilder('t')
@@ -144,49 +123,71 @@ class TicketDateRepository extends ServiceEntityRepository
     }
 
     /**
-     * Search for all DataGap Tickets wich are outage
+     * Search for all DataGap Tickets wich are outage and not evaluated data gaps (case 6)
      * means search for all Ticketdates wich are datagabs (alertType = 10) and NOT defined as comm. issue (
      *
-     * @param $anlage
+     * @param Anlage $anlage
      * @param $begin
      * @param $end
+     * @param int $department
      * @return mixed
      */
-    public function findDataGapOutage($anlage, $begin, $end): mixed
+    public function findDataGapOutage(Anlage $anlage, $begin, $end, int $department): mixed
     {
-        return $this->createQueryBuilder('t')
+        $q = $this->createQueryBuilder('t')
             ->andWhere('t.begin BETWEEN :begin AND :end')
             ->andWhere('t.Anlage = :anlage')
             ->andWhere('t.alertType = 10')
-            ->andWhere('t.dataGapEvaluation <> 20 OR t.dataGapEvaluation IS NULL')
-            ->setParameter('begin', $begin)
+            ->andWhere('t.dataGapEvaluation = 10');
+        switch ($department){
+            case 1:
+                $q->andWhere('t.kpiPaDep1 = 10');
+                break;
+            case 2:
+                $q->andWhere('t.kpiPaDep2 = 10');
+                break;
+            case 3:
+                $q->andWhere('t.kpiPaDep3 = 10');
+                break;
+        }
+        $q->setParameter('begin', $begin)
             ->setParameter('end', $end)
-            ->setParameter('anlage', $anlage)
-            ->getQuery()
-            ->getResult();
+            ->setParameter('anlage', $anlage);
+
+        return $q->getQuery()->getResult();
     }
 
     /**
-     * Search for all tiFM Cases
+     * Search for all tiFM Cases (case 5)
      *
-     *
-     * @param $anlage
+     * @param Anlage $anlage
      * @param $begin
      * @param $end
+     * @param int $department
      * @return mixed
      */
-    public function findTiFm($anlage, $begin, $end): mixed
+    public function findTiFm(Anlage $anlage, $begin, $end, int $department): mixed
     {
-        dd('not ready');
-        return $this->createQueryBuilder('t')
+        dump($begin, $end, $department);
+        $q = $this->createQueryBuilder('t')
             ->andWhere('t.begin BETWEEN :begin AND :end')
             ->andWhere('t.Anlage = :anlage')
-            ->andWhere('t.alertType = 10')
-            ->andWhere('t.dataGapEvaluation <> 20 OR t.dataGapEvaluation IS NULL')
+            ->andWhere('t.alertType = 20 or (t.alertType = 10 and t.dataGapEvaluation = 10)')
             ->setParameter('begin', $begin)
             ->setParameter('end', $end)
-            ->setParameter('anlage', $anlage)
-            ->getQuery()
-            ->getResult();
+            ->setParameter('anlage', $anlage);
+        switch ($department){
+            case 1:
+                $q->andWhere('t.kpiPaDep1 = 20');
+                break;
+            case 2:
+                $q->andWhere('t.kpiPaDep2 = 20');
+                break;
+            case 3:
+                $q->andWhere('t.kpiPaDep3 = 20');
+                break;
+        };
+
+        return $q->getQuery()->getResult();
     }
 }

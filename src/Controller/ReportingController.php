@@ -28,7 +28,6 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -816,6 +815,7 @@ class ReportingController extends AbstractController
         ]);
     }
 
+    #[Deprecated]
     private function substr_Index($str, $needle, $nth): bool|int
     {
         $str2 = '';

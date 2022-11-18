@@ -46,6 +46,7 @@ class ToolsFormType extends AbstractType
                     // 'Write weather data to database'    => 'weather',
                     'Expected (New)' => 'expected',
                     'Update availability' => 'availability',
+                    'Update availability New' => 'availability-new',
                     'Update PR' => 'pr',
                 ],
                 'placeholder' => 'please Choose ...',

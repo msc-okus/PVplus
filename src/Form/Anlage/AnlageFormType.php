@@ -535,42 +535,42 @@ class AnlageFormType extends AbstractType
 
             ->add('threshold1PA0', TextType::class, [
                 'label' => 'lower threshold [Watt] ',
-                'help' => '[threshold1PA] (ti,theo / Schwellwert 1)',
+                'help' => '[threshold1PA0] (ti,theo / Schwellwert 1)',
                 'label_html' => true,
             ])
             ->add('threshold2PA0', TextType::class, [
                 'label' => 'upper threshold (min Irr.) [Watt] ',
-                'help' => '[threshold2PA] (ti / Schwellwert 2)',
+                'help' => '[threshold2PA0] (ti / Schwellwert 2)',
                 'label_html' => true,
             ])
             ->add('threshold1PA1', TextType::class, [
                 'label' => 'lower threshold [Watt] ',
-                'help' => '[threshold1PA] (ti,theo / Schwellwert 1)',
+                'help' => '[threshold1PA1] (ti,theo / Schwellwert 1)',
                 'label_html' => true,
             ])
             ->add('threshold2PA1', TextType::class, [
                 'label' => 'upper threshold (min Irr.) [Watt] ',
-                'help' => '[threshold2PA] (ti / Schwellwert 2)',
+                'help' => '[threshold2PA1] (ti / Schwellwert 2)',
                 'label_html' => true,
             ])
             ->add('threshold1PA2', TextType::class, [
                 'label' => 'lower threshold [Watt] ',
-                'help' => '[threshold1PA] (ti,theo / Schwellwert 1)',
+                'help' => '[threshold1PA2] (ti,theo / Schwellwert 1)',
                 'label_html' => true,
             ])
             ->add('threshold2PA2', TextType::class, [
                 'label' => 'upper threshold (min Irr.) [Watt] ',
-                'help' => '[threshold2PA] (ti / Schwellwert 2)',
+                'help' => '[threshold2PA2] (ti / Schwellwert 2)',
                 'label_html' => true,
             ])
             ->add('threshold1PA3', TextType::class, [
                 'label' => 'lower threshold [Watt] ',
-                'help' => '[threshold1PA] (ti,theo / Schwellwert 1)',
+                'help' => '[threshold1PA3] (ti,theo / Schwellwert 1)',
                 'label_html' => true,
             ])
             ->add('threshold2PA3', TextType::class, [
                 'label' => 'upper threshold (min Irr.) [Watt] ',
-                'help' => '[threshold2PA] (ti / Schwellwert 2)',
+                'help' => '[threshold2PA3] (ti / Schwellwert 2)',
                 'label_html' => true,
             ])
 

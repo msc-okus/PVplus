@@ -25,7 +25,9 @@ class DefaultMREController extends BaseController
 
     public function __construct(
         private UrlGeneratorInterface $urlGenerator,
-        private PRCalulationService $prCalulation
+        private PRCalulationService $prCalulation,
+        private AvailabilityByTicketService $availabilityByTicket,
+        private AvailabilityService $availabilityService
     )
     {
     }
@@ -58,18 +60,34 @@ class DefaultMREController extends BaseController
         ]);
     }
 
+    /**
+     * @throws \Exception
+     */
     #[Route(path: '/mr/pa/test')]
     public function pa(AvailabilityService $availability, AvailabilityByTicketService $availabilityByTicket, AnlagenRepository $anlagenRepository): Response
     {
-        $anlage = $anlagenRepository->find('111');
-        $from   = date_create('2022-05-28 00:00');
-        $to     = date_create('2022-05-28 23:00');
-        $output = $availability->calcAvailability($anlage, $from, $to, 2);
+        $anlage = $anlagenRepository->find('93');
+        $output = "";
+        $year = "2022";
+        $month = "10";
+        $date = date_create("$year-$month-01 12:00");
+        $daysInMonth = $date->format("t");
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $from = date_create("$year-$month-$day 12:00");
+            #$output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 0);
+            #$output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 1);
+            $output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 2);
+            $output .= "PA: " . round($this->availabilityByTicket->calcAvailability($anlage, date_create("$year-$month-$day"), date_create("$year-$month-$day"), null, 2), 3) . "<br>";
+
+            #$output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 3);
+        }
+
+        $availability = $this->availabilityByTicket->calcAvailability($anlage, date_create("$year-$month-01"), date_create("$year-$month-$daysInMonth"), null, 2);
 
         return $this->render('cron/showResult.html.twig', [
-            'headline' => "PA",
+            'headline' => " PA Dep 2 – Year: $year Month: $month Days in month: $daysInMonth",
             'availabilitys' => '',
-            'output' => $output,
+            'output' => "<hr>".$output."<hr>PA: $availability",
         ]);
     }
 
@@ -155,19 +173,4 @@ class DefaultMREController extends BaseController
         ]);
     }
 
-    #[Route(path: '/test/pr/{id}', defaults: ['id' => 83])]
-    public function testPr($id, AnlagenRepository $anlagenRepository, FunctionsService $functions, ReportEpcPRNewService $epcNew): Response
-    {
-        /** @var Anlage $anlage */
-        $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
-        $date = '2022-11-13 00:00';
-
-        $output = $this->prCalulation->calcPRAll($anlage, $date);
-
-        return $this->render('cron/showResult.html.twig', [
-            'headline' => $anlage->getAnlName().' FacData Export',
-            'availabilitys' => '',
-            'output' => $output,
-        ]);
-    }
 }

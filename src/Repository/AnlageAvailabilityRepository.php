@@ -65,8 +65,11 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
             ->setParameter('anlage', $anlage)
             ->setParameter('from', $from)
             ->setParameter('to', $to)
-            ->select('s.stamp, s.inverter, SUM(s.case_0_1) as case0, SUM(s.case_1_1) as case1, SUM(s.case_2_1) as case2, SUM(s.case_3_1) as case3, SUM(s.case_4_1) as case4, SUM(s.case_5_1) as case5, SUM(s.case_6_1) as case6, SUM(s.control_1) as control, SUM(s.invAPart1_1) as invApart1, SUM(s.invAPart2_1) as invApart2, SUM(s.invA_1) as invA, 
-            SUM(s.case_0_2) as case0second, SUM(s.case_1_2) as case1second, SUM(s.case_2_2) as case2second, SUM(s.case_3_2) as case3second, SUM(s.case_4_2) as case4second, SUM(s.case_5_2) as case5second, SUM(s.case_6_2) as case6second, SUM(s.control_2) as control_second, SUM(s.invAPart1_2) as invAPart1Second, SUM(s.invAPart2_2) as invAPart2Second, SUM(s.invA_2) as invASecond')
+            ->select('s.stamp, s.inverter, 
+                SUM(s.case_0_0) as case00, SUM(s.case_1_0) as case10, SUM(s.case_2_0) as case20, SUM(s.case_3_0) as case30, SUM(s.case_4_0) as case40, SUM(s.case_5_0) as case50, SUM(s.case_6_0) as case60, SUM(s.control_0) as control0, SUM(s.invAPart1_0) as invAPart10, SUM(s.invAPart2_0) as invAPart20, SUM(s.invA_0) as invA0, 
+                SUM(s.case_0_1) as case01, SUM(s.case_1_1) as case11, SUM(s.case_2_1) as case21, SUM(s.case_3_1) as case31, SUM(s.case_4_1) as case41, SUM(s.case_5_1) as case51, SUM(s.case_6_1) as case61, SUM(s.control_1) as control1, SUM(s.invAPart1_1) as invAPart11, SUM(s.invAPart2_1) as invAPart21, SUM(s.invA_1) as invA1,
+                SUM(s.case_0_2) as case02, SUM(s.case_1_2) as case12, SUM(s.case_2_2) as case22, SUM(s.case_3_2) as case32, SUM(s.case_4_2) as case42, SUM(s.case_5_2) as case52, SUM(s.case_6_2) as case62, SUM(s.control_2) as control2, SUM(s.invAPart1_2) as invAPart12, SUM(s.invAPart2_2) as invAPart22, SUM(s.invA_2) as invA2, 
+                SUM(s.case_0_3) as case03, SUM(s.case_1_3) as case13, SUM(s.case_2_3) as case23, SUM(s.case_3_3) as case33, SUM(s.case_4_3) as case43, SUM(s.case_5_3) as case53, SUM(s.case_6_3) as case63, SUM(s.control_3) as control3, SUM(s.invAPart1_3) as invAPart13, SUM(s.invAPart2_3) as invAPart23, SUM(s.invA_3) as invA3')
 
             ->groupBy('s.inverter')
             ->getQuery()
@@ -101,7 +104,6 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
                 ->setParameter('from', $from->format('Y-m-d H:i'))
                 ->setParameter('to', $to->format('Y-m-d H:i'))
                 ->orderBy("a.inverter * 1, a.stamp")
-                ->getQuery()
             ;
         } else {
             $result = $this->createQueryBuilder('a')
@@ -112,10 +114,9 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
                 ->setParameter('to', $to->format('Y-m-d H:i'))
                 ->setParameter('inverter', $inverter)
                 ->orderBy("a.inverter * 1, a.stamp")
-                ->getQuery()
             ;
         }
 
-        return $result->getResult();
+        return $result->getQuery()->getResult();
     }
 }
