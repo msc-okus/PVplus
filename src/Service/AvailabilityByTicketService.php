@@ -240,7 +240,6 @@ class AvailabilityByTicketService
             // Handele case5 by ticket
             /** @var TicketDate $case5Ticket */
             $case5Tickets = $this->ticketDateRepo->findTiFm($anlage, $from, $to, $department);
-            dump($case5Tickets);
             foreach ($case5Tickets as $case5Ticket){
 
                 $c5From = $case5Ticket->getBegin()->getTimestamp();

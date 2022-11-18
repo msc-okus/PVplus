@@ -2484,7 +2484,6 @@ class AssetManagementService
             }
         }
         if ($dcExpDcIst) {
-            dump($dcExpDcIst);
             $outTableCurrentsPower[] = $dcExpDcIst;
         }
 
@@ -2672,7 +2671,6 @@ class AssetManagementService
             'PVSYST_plan_proceeds_P50' => $kumsum3,
             'g4n_plan_proceeds_EXP_P50' => $kumsum4,
         ];
-        dd(  $economicsCumulatedForecast);
 
         $chart->xAxis = [
             'type' => 'category',
