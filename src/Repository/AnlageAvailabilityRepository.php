@@ -104,7 +104,6 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
                 ->setParameter('from', $from->format('Y-m-d H:i'))
                 ->setParameter('to', $to->format('Y-m-d H:i'))
                 ->orderBy("a.inverter * 1, a.stamp")
-                ->getQuery()
             ;
         } else {
             $result = $this->createQueryBuilder('a')
@@ -115,10 +114,9 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
                 ->setParameter('to', $to->format('Y-m-d H:i'))
                 ->setParameter('inverter', $inverter)
                 ->orderBy("a.inverter * 1, a.stamp")
-                ->getQuery()
             ;
         }
 
-        return $result->getResult();
+        return $result->getQuery()->getResult();
     }
 }

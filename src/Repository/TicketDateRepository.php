@@ -168,10 +168,11 @@ class TicketDateRepository extends ServiceEntityRepository
      */
     public function findTiFm(Anlage $anlage, $begin, $end, int $department): mixed
     {
+        dump($begin, $end, $department);
         $q = $this->createQueryBuilder('t')
             ->andWhere('t.begin BETWEEN :begin AND :end')
             ->andWhere('t.Anlage = :anlage')
-            ->andWhere('t.alertType = 20')
+            ->andWhere('t.alertType = 20 or (t.alertType = 10 and t.dataGapEvaluation = 10)')
             ->setParameter('begin', $begin)
             ->setParameter('end', $end)
             ->setParameter('anlage', $anlage);

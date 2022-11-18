@@ -17,9 +17,17 @@ class ReportsEpcNewService
 {
     use G4NTrait;
 
-    public function __construct(private AnlagenRepository $anlageRepo, private GridMeterDayRepository $gridMeterRepo, private PRRepository $prRepository,
-                                private MonthlyDataRepository $monthlyDataRepo, private EntityManagerInterface $em, private NormalizerInterface $serializer,
-                                private FunctionsService $functions, private PRCalulationService $PRCalulation, private AvailabilityService $availabilityService)
+    public function __construct(
+        private AnlagenRepository $anlageRepo,
+        private GridMeterDayRepository $gridMeterRepo,
+        private PRRepository $prRepository,
+        private MonthlyDataRepository $monthlyDataRepo,
+        private EntityManagerInterface $em,
+        private NormalizerInterface $serializer,
+        private FunctionsService $functions,
+        private PRCalulationService $PRCalulation,
+        private AvailabilityService $availabilityService,
+        private AvailabilityByTicketService $availabilityByTicket)
     {
     }
 
@@ -109,7 +117,7 @@ class ReportsEpcNewService
             $pvSystData = $anlage->getPvSystMonthsArray();
         }
 
-        $availabilitySummeZeil2 = $this->availabilityService->calcAvailability($anlage, $anlage->getFacDateStart(), $endDateCurrentReportMonth);
+        $availabilitySummeZeil2 = $this->availabilityByTicket->calcAvailability($anlage, $anlage->getFacDateStart(), $endDateCurrentReportMonth, null, 2);
 
         // ///////////////////////////
         // / Runde 1

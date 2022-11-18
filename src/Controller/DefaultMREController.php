@@ -68,18 +68,24 @@ class DefaultMREController extends BaseController
     {
         $anlage = $anlagenRepository->find('93');
         $output = "";
-        for ($day = 3; $day <= 3; $day++) {
-            $from = date_create("2022-08-$day 12:00");
+        $year = "2022";
+        $month = "10";
+        $date = date_create("$year-$month-01 12:00");
+        $daysInMonth = $date->format("t");
+        for ($day = 1; $day <= $daysInMonth; $day++) {
+            $from = date_create("$year-$month-$day 12:00");
             #$output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 0);
             #$output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 1);
-            #$output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 2);
+            $output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 2);
+            $output .= "PA: " . round($this->availabilityByTicket->calcAvailability($anlage, date_create("$year-$month-$day"), date_create("$year-$month-$day"), null, 2), 3) . "<br>";
+
             #$output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 3);
         }
 
-        $availability = $this->availabilityService->calcAvailability($anlage, date_create("2022-08-01 12:00"), date_create("2022-08-31 12:00"), null, 2);
+        $availability = $this->availabilityByTicket->calcAvailability($anlage, date_create("$year-$month-01"), date_create("$year-$month-$daysInMonth"), null, 2);
 
         return $this->render('cron/showResult.html.twig', [
-            'headline' => " PA Dep 1",
+            'headline' => " PA Dep 2 – Year: $year Month: $month Days in month: $daysInMonth",
             'availabilitys' => '',
             'output' => "<hr>".$output."<hr>PA: $availability",
         ]);

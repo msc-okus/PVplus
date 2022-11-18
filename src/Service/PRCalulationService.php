@@ -30,7 +30,8 @@ class PRCalulationService
         private MonthlyDataRepository $monthlyDataRepo,
         private WeatherFunctionsService $weatherFunctions,
         private GridMeterDayRepository $gridMeterDayRepo,
-        private AvailabilityService $availabilityService
+        private AvailabilityService $availabilityService,
+        private AvailabilityByTicketService $availabilityByTicket
     )
     {
     }
@@ -573,7 +574,7 @@ class PRCalulationService
         if ($anzTage === 0) {
             $anzTage = 1;
         } // verhindert diffision by zero
-        $availability = $this->availabilityService->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 2);
+        $availability = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 2);
         $availability2 = 0; // $this->PRRepository->sumAvailabilitySecondPerPac($anlage->getAnlId(), $localStartDate, $localEndDate, null, 1);
 
         // Strahlungen berechnen – (upper = Ost / lower = West)
