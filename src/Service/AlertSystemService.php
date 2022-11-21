@@ -342,6 +342,7 @@ class AlertSystemService
             $ticketDate->setAlertType($errorCategorie);
             $ticket->setErrorType($errorType); // type = errorType (Bsp:  SOR, EFOR, OMC)
             $ticketDate->setErrorType($errorType);
+            if ($ticket->getAlertType() == "20") $ticketDate->setDataGapEvaluation(10);
             $begin = date_create(date('Y-m-d H:i:s', strtotime($time)));
             $begin->getTimestamp();
             $ticket->setBegin($begin);

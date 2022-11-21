@@ -13,8 +13,8 @@
                 <th>Interval (Cases)</th>
                 <th>Begin</th>
                 <th>End</th>
-                {% if (edited == true and ticket.alertType == 10) %}
-                    <th>Gap Evaluation</th>
+                {% if (edited == true and (ticket.alertType == 10 or ticket.alertType == 20)) %}
+                    <th>Evaluation</th>
                 {% endif %}
                 {# <th>Reason</th> #}
                 {% if (features and features.aktDep1) %}<td>PA {{ settings.nameDep1 }}</td>{% endif %}
@@ -36,7 +36,7 @@
                     <td>{{ date.vars.value.begin|format_datetime(pattern="yyyy-MM-dd HH:mm") }}</td>
                     <td>{{ date.vars.value.end|format_datetime(pattern="yyyy-MM-dd HH:mm") }}</td>
 
-                    {% if (ticket.alertType != '10') %}
+                    {% if (ticket.alertType != 10 and ticket.alertType != 20) %}
                         <td hidden>{{ form_widget(date.dataGapEvaluation, { 'attr':{'class': 'no-margin', 'data-ticket-split-target':'dataGapEv', 'data-action':'change->ticket-split#checkKpiSelectBoxes', 'disabled':'true'} }) }}</td>
                     {% else %}
                         <td>{{ form_widget(date.dataGapEvaluation, { 'attr':{'class': 'no-margin', 'data-ticket-split-target':'dataGapEv', 'data-action':'change->ticket-split#checkKpiSelectBoxes'} }) }}</td>
