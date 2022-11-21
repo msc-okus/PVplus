@@ -48,7 +48,7 @@ class AvailabilityByTicketService
         if (is_int($anlage)) {
             $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);
         }
-        if (is_string($date)) {
+        if (! is_a($date, 'DateTime')) {
             $date = date_create($date);
         }
 
@@ -163,7 +163,6 @@ class AvailabilityByTicketService
                         $anlagenAvailability->setRemarks0('');
                         break;
                 }
-                #if ($inverter == 3) dd($anlagenAvailability, $department);
                 $this->em->persist($anlagenAvailability);
             }
             $this->em->flush();
@@ -401,7 +400,6 @@ class AvailabilityByTicketService
 
         /** @var AnlageAvailability $availability */
         $availabilitys = $this->availabilityRepository->getPaByDate($anlage, $from, $to, $inverter);
-        #dd($availabilitys);
         $ti = $titheo = $pa = $paSum = $paSingle = $paSingleSum = 0;
         $cases['case0'] = $cases['case1'] = $cases['case2'] = $cases['case3'] = $cases['case4'] = $cases['case5'] = $cases['case6'] = $cases['control'] = 0;
         $currentInverter = null;
@@ -478,7 +476,6 @@ class AvailabilityByTicketService
         $conn = self::getPdoConnection();
         $istData = [];
         $dbNameIst = $anlage->getDbNameIst();
-        // $sql = "SELECT a.stamp as stamp, wr_cos_phi_korrektur as cos_phi, b.unit as inverter, b.wr_pac as power_ac FROM (db_dummysoll a left JOIN $dbNameIst b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' AND '$to' ORDER BY a.stamp, b.unit";
         $sql = "SELECT stamp, wr_cos_phi_korrektur as cos_phi, unit as inverter, wr_pac as power_ac FROM $dbNameIst WHERE stamp BETWEEN '$from' AND '$to' ORDER BY stamp, unit";
 
         $result = $conn->query($sql);

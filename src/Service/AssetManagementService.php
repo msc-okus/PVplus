@@ -2942,68 +2942,7 @@ class AssetManagementService
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
-        $chart->series = [];
         unset($option);
-        //check here something is wrong
-        dump($graphData,      [
-            'value' => 25,
-            'name' => 'O&M',
-        ],
-            [
-                'value' => 25,
-                'name' => 'Electricity',
-            ],
-            [
-                'value' => 25,
-                'name' => 'Technical dispatch (KEGOC)',
-            ],
-            [
-                'value' => 25,
-                'name' => 'TransTeleCom (cell equipment maintenance)',
-            ],
-            [
-                'value' => 14,
-                'name' => 'Security',
-            ],
-            [
-                'value' => 12,
-                'name' => 'Network service fee (ASTEL)',
-            ],
-            [
-                'value' => 25,
-                'name' => 'legal services',
-            ],
-            [
-                'value' => 900,
-                'name' => 'Accountancy and administration costs',
-            ],
-            [
-                'value' => 100,
-                'name' => 'Insurance',
-            ],
-            [
-                'value' => 60,
-                'name' => 'Other',
-            ],
-            [
-                'value' => 40,
-                'name' => 'Variable 1',
-            ],                        [
-                'value' => 50,
-                'name' => 'Variable 2)',
-            ],
-            [
-                'value' => 30,
-                'name' => 'Variable 3',
-            ],
-            [
-                'value' => 20,
-                'name' => 'Variable 4',
-            ],
-            [
-                'value' => 10,
-                'name' => 'Variable 5',
-            ]);
         $chart->series =
             [
                 [
