@@ -48,9 +48,18 @@ class ReportingController extends AbstractController
      * @throws ExceptionInterface
      */
     #[Route(path: '/reporting/create', name: 'app_reporting_create', methods: ['GET', 'POST'])]
-    public function createReport(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo,
-        ReportService $report, ReportEpcService $reportEpc, ReportsMonthlyService $reportsMonthly, EntityManagerInterface $em,
-        AssetManagementService $assetManagement, ReportsRepository $reportRepo, ReportEpcPRNewService $reportEpcNew): Response
+    public function createReport(
+        Request $request,
+        PaginatorInterface $paginator,
+        ReportsRepository $reportsRepository,
+        AnlagenRepository $anlagenRepo,
+        ReportEpcService $reportEpc,
+        ReportsMonthlyService $reportsMonthly,
+        EntityManagerInterface $em,
+        AssetManagementService $assetManagement,
+        ReportsRepository $reportRepo,
+        ReportEpcPRNewService $reportEpcNew,
+        string $kernelProjectDir): Response
     {
         $anlage = $request->query->get('anlage');
         $searchstatus = $request->query->get('searchstatus');
@@ -526,7 +535,7 @@ class ReportingController extends AbstractController
                         header("Content-type: application/pdf");
                         header("Content-Length: " . filesize($filename));
                         header("Content-type: application/pdf");
-
+*/
                         $pdf = new ChromePdf('/usr/bin/chromium');
                         $pos = $this->substr_Index($this->kernelProjectDir, '/', 5);
                         $pathpart = substr($this->kernelProjectDir, $pos);

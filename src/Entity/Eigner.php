@@ -31,90 +31,28 @@ class Eigner
     #[ORM\Column(name: 'firma', type: 'string', length: 100, nullable: false)]
     private string $firma;
 
-    #[ORM\Column(name: 'zusatz', type: 'string', length: 100, nullable: false)]
+    #[ORM\Column(name: 'zusatz', type: 'string', length: 100, nullable: true)]
     private string $zusatz;
 
-    #[ORM\Column(name: 'anrede', type: 'string', length: 100, nullable: false)]
+    #[ORM\Column(name: 'anrede', type: 'string', length: 100, nullable: true)]
     private string $anrede;
 
-    #[ORM\Column(name: 'vorname', type: 'string', length: 100, nullable: false)]
+    #[ORM\Column(name: 'vorname', type: 'string', length: 100, nullable: true)]
     private string $vorname;
 
-    #[ORM\Column(name: 'nachname', type: 'string', length: 100, nullable: false)]
+    #[ORM\Column(name: 'nachname', type: 'string', length: 100, nullable: true)]
     private string $nachname;
 
-    #[ORM\Column(name: 'strasse', type: 'string', length: 100, nullable: false)]
+    #[ORM\Column(name: 'strasse', type: 'string', length: 100, nullable: true)]
     private string $strasse;
 
-    #[ORM\Column(name: 'plz', type: 'string', length: 10, nullable: false)]
+    #[ORM\Column(name: 'plz', type: 'string', length: 10, nullable: true)]
     private string $plz;
 
-    #[ORM\Column(name: 'ort', type: 'string', length: 100, nullable: false)]
+    #[ORM\Column(name: 'ort', type: 'string', length: 100, nullable: true)]
     private string $ort;
 
-    #[ORM\Column(name: 'nachricht', type: 'text', length: 65535, nullable: true)]
-    #[Deprecated]
-    private string $nachricht;
 
-    #[ORM\Column(name: 'telefon1', type: 'string', length: 100, nullable: false)]
-    #[Deprecated]
-    private string $telefon1;
-
-    #[ORM\Column(name: 'telefon2', type: 'string', length: 100, nullable: false)]
-    #[Deprecated]
-    private string $telefon2;
-
-    #[ORM\Column(name: 'mobil', type: 'string', length: 100, nullable: false)]
-    #[Deprecated]
-    private string $mobil;
-
-    #[ORM\Column(name: 'fax', type: 'string', length: 100, nullable: false)]
-    #[Deprecated]
-    private string $fax;
-
-    #[ORM\Column(name: 'home_dir', type: 'string', length: 100, nullable: false, options: ['default' => 'user/home/'])]
-    #[Deprecated]
-    private string $homeDir = 'user/home/';
-
-    #[ORM\Column(name: 'home_folder', type: 'text', length: 65535, nullable: true)]
-    #[Deprecated]
-    private ?string $homeFolder;
-
-    #[ORM\Column(name: 'email', type: 'text', length: 65535, nullable: false)]
-    #[Deprecated]
-    private ?string $email;
-
-    #[ORM\Column(name: 'web', type: 'text', length: 65535, nullable: true)]
-    #[Deprecated]
-    private ?string $web;
-
-    #[ORM\Column(name: 'bv_anrede', type: 'string', length: 100, nullable: false)]
-    #[Deprecated]
-    private string $bvAnrede;
-
-    #[ORM\Column(name: 'bv_vorname', type: 'string', length: 100, nullable: false)]
-    #[Deprecated]
-    private string $bvVorname;
-
-    #[ORM\Column(name: 'bv_nachname', type: 'string', length: 100, nullable: false)]
-    #[Deprecated]
-    private ?string $bvNachname;
-
-    #[ORM\Column(name: 'bv_email', type: 'text', length: 65535, nullable: false)]
-    #[Deprecated]
-    private ?string $bvEmail;
-
-    #[ORM\Column(name: 'bv_telefon1', type: 'string', length: 100, nullable: false)]
-    #[Deprecated]
-    private ?string $bvTelefon1;
-
-    #[ORM\Column(name: 'bv_telefon2', type: 'string', length: 100, nullable: false)]
-    #[Deprecated]
-    private ?string $bvTelefon2;
-
-    #[ORM\Column(name: 'bv_mobil', type: 'string', length: 100, nullable: false)]
-    #[Deprecated]
-    private ?string $bvMobil;
 
     #[ORM\Column(name: 'active', type: 'bigint', nullable: false)]
     private string|int $active = '0';
@@ -127,10 +65,6 @@ class Eigner
 
     #[ORM\Column(name: 'language', type: 'string', length: 10, nullable: false, options: ['default' => 'EN'])]
     private string $language = 'EN';
-
-    #[ORM\Column(name: 'level', type: 'string', length: 5, nullable: false, options: ['default' => 1])]
-    #[Deprecated]
-    private string $level = '1';
 
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'eigners')]
     #[ORM\JoinTable(name: 'eigner_user')]
@@ -155,7 +89,7 @@ class Eigner
     private string $fontColor3 = '#36639c';
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private $Logo;
+    private string $logo;
 
     #[ORM\OneToOne(mappedBy: 'owner', cascade: ['persist', 'remove'])]
     private ?OwnerFeatures $features = null;
@@ -288,198 +222,6 @@ class Eigner
         return $this;
     }
 
-    public function getNachricht(): ?string
-    {
-        return $this->nachricht;
-    }
-
-    public function setNachricht(string $nachricht): self
-    {
-        $this->nachricht = $nachricht;
-
-        return $this;
-    }
-
-    public function getTelefon1(): ?string
-    {
-        return $this->telefon1;
-    }
-
-    public function setTelefon1(string $telefon1): self
-    {
-        $this->telefon1 = $telefon1;
-
-        return $this;
-    }
-
-    public function getTelefon2(): ?string
-    {
-        return $this->telefon2;
-    }
-
-    public function setTelefon2(string $telefon2): self
-    {
-        $this->telefon2 = $telefon2;
-
-        return $this;
-    }
-
-    public function getMobil(): ?string
-    {
-        return $this->mobil;
-    }
-
-    public function setMobil(string $mobil): self
-    {
-        $this->mobil = $mobil;
-
-        return $this;
-    }
-
-    public function getFax(): ?string
-    {
-        return $this->fax;
-    }
-
-    public function setFax(string $fax): self
-    {
-        $this->fax = $fax;
-
-        return $this;
-    }
-
-    public function getHomeDir(): ?string
-    {
-        return $this->homeDir;
-    }
-
-    public function setHomeDir(string $homeDir): self
-    {
-        $this->homeDir = $homeDir;
-
-        return $this;
-    }
-
-    public function getHomeFolder(): ?string
-    {
-        return $this->homeFolder;
-    }
-
-    public function setHomeFolder(string $homeFolder): self
-    {
-        $this->homeFolder = $homeFolder;
-
-        return $this;
-    }
-
-    public function getEmail(): ?string
-    {
-        return $this->email;
-    }
-
-    public function setEmail(string $email): self
-    {
-        $this->email = $email;
-
-        return $this;
-    }
-
-    public function getWeb(): ?string
-    {
-        return $this->web;
-    }
-
-    public function setWeb(string $web): self
-    {
-        $this->web = $web;
-
-        return $this;
-    }
-
-    public function getBvAnrede(): ?string
-    {
-        return $this->bvAnrede;
-    }
-
-    public function setBvAnrede(string $bvAnrede): self
-    {
-        $this->bvAnrede = $bvAnrede;
-
-        return $this;
-    }
-
-    public function getBvVorname(): ?string
-    {
-        return $this->bvVorname;
-    }
-
-    public function setBvVorname(string $bvVorname): self
-    {
-        $this->bvVorname = $bvVorname;
-
-        return $this;
-    }
-
-    public function getBvNachname(): ?string
-    {
-        return $this->bvNachname;
-    }
-
-    public function setBvNachname(string $bvNachname): self
-    {
-        $this->bvNachname = $bvNachname;
-
-        return $this;
-    }
-
-    public function getBvEmail(): ?string
-    {
-        return $this->bvEmail;
-    }
-
-    public function setBvEmail(string $bvEmail): self
-    {
-        $this->bvEmail = $bvEmail;
-
-        return $this;
-    }
-
-    public function getBvTelefon1(): ?string
-    {
-        return $this->bvTelefon1;
-    }
-
-    public function setBvTelefon1(string $bvTelefon1): self
-    {
-        $this->bvTelefon1 = $bvTelefon1;
-
-        return $this;
-    }
-
-    public function getBvTelefon2(): ?string
-    {
-        return $this->bvTelefon2;
-    }
-
-    public function setBvTelefon2(string $bvTelefon2): self
-    {
-        $this->bvTelefon2 = $bvTelefon2;
-
-        return $this;
-    }
-
-    public function getBvMobil(): ?string
-    {
-        return $this->bvMobil;
-    }
-
-    public function setBvMobil(string $bvMobil): self
-    {
-        $this->bvMobil = $bvMobil;
-
-        return $this;
-    }
-
     public function getActive(): ?string
     {
         return $this->active;
@@ -524,18 +266,6 @@ class Eigner
     public function setLanguage(string $language): self
     {
         $this->language = $language;
-
-        return $this;
-    }
-
-    public function getLevel(): ?string
-    {
-        return $this->level;
-    }
-
-    public function setLevel(string $level): self
-    {
-        $this->level = $level;
 
         return $this;
     }
@@ -591,7 +321,7 @@ class Eigner
      *
      * @return Collection|Anlage[]
      */
-    public function getActiveAnlage($role = false): Collection
+    public function getActiveAnlage(bool $role = false): Collection
     {
         $criteria = EignerRepository::activeAnlagenCriteria($role);
 
@@ -654,7 +384,7 @@ class Eigner
 
     public function getCustomerLogo(): string
     {
-        return $this->Logo;
+        return $this->logo;
     }
 
     public function getFontColor(): ?string
@@ -695,12 +425,12 @@ class Eigner
 
     public function getLogo(): ?string
     {
-        return $this->Logo;
+        return $this->logo;
     }
 
     public function setLogo(?string $Logo): self
     {
-        $this->Logo = $Logo;
+        $this->logo = $Logo;
 
         return $this;
     }

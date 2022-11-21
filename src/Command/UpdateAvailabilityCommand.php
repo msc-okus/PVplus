@@ -86,10 +86,10 @@ class UpdateAvailabilityCommand extends Command
             for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp = $stamp + (24 * 3600)) {
                 $from = date('Y-m-d 00:00', $stamp);
                 if ($anlage->getAnlInputDaily() == 'Yes') {
-                    $from = ($from - (24 * 3600)); // gestern, da Anlage heute keine Daten bekommt
+                    $from = date('Y-m-d 00:00', $stamp - (24 * 3600)); // gestern, da Anlage heute keine Daten bekommt
                 }
                 if ($anlage->getAnlId() == 112 || $anlage->getAnlId() == 113 || $anlage->getAnlId() == 93) {
-                    $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, strtotime($from), 1);
+                    $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, $from, 1);
                 } else {
                     $ergebniss = $this->availability->checkAvailability($anlage, strtotime($from));
                     if ($anlage->getShowAvailabilitySecond()) {
