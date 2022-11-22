@@ -104,6 +104,7 @@ class UpdatePrCommand extends Command
                 $io->progressAdvance();
             }
             $io->comment($anlage->getAnlName());
+            sleep(5);
         }
         $io->progressFinish();
         $io->success('Berechnung des PR abgeschlossen!');

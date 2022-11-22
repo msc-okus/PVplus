@@ -973,8 +973,6 @@ class FunctionsService
                 FROM " . $anlage->getDbNameAcIst() . " s
                 RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
                 WHERE s.stamp >= '$from' AND s.stamp <= '$to' AND s.unit = $section AND s.e_z_evu > 0 AND ppc.p_set_gridop_rel = 100 and ppc.p_set_rpc_rel = 100";
-
-
         $res = $conn->query($sql);
         if ($res->rowCount() === 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);

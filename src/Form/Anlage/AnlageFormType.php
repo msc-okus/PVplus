@@ -293,16 +293,6 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '3.0',
                 'disabled' => !$isDeveloper,
             ])
-            ->add('threshold1PA', TextType::class, [
-                'label' => 'unterer Schwellwert (normal 0) [Watt] ',
-                'help' => '[threshold1PA] (ti,theo / Schwellwert 1)',
-                'label_html' => true,
-            ])
-            ->add('threshold2PA', TextType::class, [
-                'label' => 'min Irr. ab der PA berechnet werden soll [Watt] ',
-                'help' => '[threshold2PA] (ti / Schwellwert 2)',
-                'label_html' => true,
-            ])
             ->add('useGridMeterDayData', SwitchType::class, [
                 'label' => 'Nutze externe GridMeter Daten',
                 'help' => '[useGridMeterDayData]',
@@ -539,6 +529,51 @@ class AnlageFormType extends AbstractType
                 'label' => 'Has Frequency',
                 'help' => '[hasFrequency]',
             ])
+            // ###############################################
+            // ###            Availability                ####
+            // ###############################################
+
+            ->add('threshold1PA0', TextType::class, [
+                'label' => 'lower threshold [Watt] ',
+                'help' => '[threshold1PA] (ti,theo / Schwellwert 1)',
+                'label_html' => true,
+            ])
+            ->add('threshold2PA0', TextType::class, [
+                'label' => 'upper threshold (min Irr.) [Watt] ',
+                'help' => '[threshold2PA] (ti / Schwellwert 2)',
+                'label_html' => true,
+            ])
+            ->add('threshold1PA1', TextType::class, [
+                'label' => 'lower threshold [Watt] ',
+                'help' => '[threshold1PA] (ti,theo / Schwellwert 1)',
+                'label_html' => true,
+            ])
+            ->add('threshold2PA1', TextType::class, [
+                'label' => 'upper threshold (min Irr.) [Watt] ',
+                'help' => '[threshold2PA] (ti / Schwellwert 2)',
+                'label_html' => true,
+            ])
+            ->add('threshold1PA2', TextType::class, [
+                'label' => 'lower threshold [Watt] ',
+                'help' => '[threshold1PA] (ti,theo / Schwellwert 1)',
+                'label_html' => true,
+            ])
+            ->add('threshold2PA2', TextType::class, [
+                'label' => 'upper threshold (min Irr.) [Watt] ',
+                'help' => '[threshold2PA] (ti / Schwellwert 2)',
+                'label_html' => true,
+            ])
+            ->add('threshold1PA3', TextType::class, [
+                'label' => 'lower threshold [Watt] ',
+                'help' => '[threshold1PA] (ti,theo / Schwellwert 1)',
+                'label_html' => true,
+            ])
+            ->add('threshold2PA3', TextType::class, [
+                'label' => 'upper threshold (min Irr.) [Watt] ',
+                'help' => '[threshold2PA] (ti / Schwellwert 2)',
+                'label_html' => true,
+            ])
+
             // ###############################################
             // ###               Reports                  ####
             // ###############################################

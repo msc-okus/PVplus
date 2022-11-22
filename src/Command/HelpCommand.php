@@ -11,6 +11,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 
 class HelpCommand extends Command
 {
@@ -33,19 +34,22 @@ class HelpCommand extends Command
         ;
     }
 
+    /**
+     * @throws ExceptionInterface
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $ergebniss = '';
         $io = new SymfonyStyle($input, $output);
 
-        $anlage = $this->anlagenRepository->find(95);
+        $anlage = $this->anlagenRepository->find(94);
         $reportDate = new \DateTime("2022-10-31");
 
         $io->comment("Starte Hilfs Command: ");
 
         $ergebniss .= $this->reportEpc->createEpcReport($anlage, $reportDate);
 
-        $io->success($ergebniss);
+        $io->success("Fertig");
 
         return Command::SUCCESS;
     }
