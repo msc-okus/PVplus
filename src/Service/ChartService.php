@@ -99,6 +99,8 @@ class ChartService
         }
         $from = self::timeShift($anlage, $form['from'], true);
         $to = self::timeShift($anlage, $form['to'], true);
+        $from =  $form['from'];
+        $to =  $form['to'];
         if ($anlage) {
             switch ($form['selectedChart']) {
                 // AC Charts //

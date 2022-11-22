@@ -117,6 +117,8 @@ class AnlageAvailabilityRepository extends ServiceEntityRepository
             ;
         }
 
+        $result->select();
+
         return $result->getQuery()->getResult();
     }
 }

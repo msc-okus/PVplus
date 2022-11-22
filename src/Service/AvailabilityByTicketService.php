@@ -240,7 +240,6 @@ class AvailabilityByTicketService
             /** @var TicketDate $case5Ticket */
             $case5Tickets = $this->ticketDateRepo->findTiFm($anlage, $from, $to, $department);
             foreach ($case5Tickets as $case5Ticket){
-
                 $c5From = $case5Ticket->getBegin()->getTimestamp();
                 $c5To = $case5Ticket->getEnd()->getTimestamp();
                 for ($c5Stamp = $c5From; $c5Stamp < $c5To; $c5Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
@@ -265,8 +264,9 @@ class AvailabilityByTicketService
 
             // Handel case6 by ticket
             /** @var TicketDate $case6Ticket */
-            foreach ($this->ticketDateRepo->findDataGapOutage($anlage, $from, $to, $department) as $case6Ticket){
-
+            $case6Tickets = $this->ticketDateRepo->findDataGapOutage($anlage, $from, $to, $department);
+            #dd($case6Tickets, $from, $to);
+            foreach ($case6Tickets as $case6Ticket){
                 $c6From = $case6Ticket->getBegin()->getTimestamp();
                 $c6To = $case6Ticket->getEnd()->getTimestamp();
                 for ($c6Stamp = $c6From; $c6Stamp < $c6To; $c6Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
@@ -275,7 +275,6 @@ class AvailabilityByTicketService
                         $case6Array[$inverter][date('Y-m-d H:i:00', $c6Stamp)] = true;
                     }
                 }
-
             }
 
             foreach ($einstrahlungen as $einstrahlung) {
@@ -285,32 +284,15 @@ class AvailabilityByTicketService
 
                 for ($inverter = $startInverter; $inverter <= $anzInverter; ++$inverter) {
                     // Nur beim ersten durchlauf, Werte setzen, damit nicht 'undifined'
-                    if (!isset($availability[$inverter]['case0'])) {
-                        $availability[$inverter]['case0'] = 0;
-                    }
-                    if (!isset($availability[$inverter]['case1'])) {
-                        $availability[$inverter]['case1'] = 0;
-                    }
-                    if (!isset($availability[$inverter]['case2'])) {
-                        $availability[$inverter]['case2'] = 0;
-                    }
-                    if (!isset($availability[$inverter]['case3'])) {
-                        $availability[$inverter]['case3'] = 0;
-                        $case3Helper[$inverter] = 0;
-                    }
-                    if (!isset($availability[$inverter]['case4'])) {
-                        $availability[$inverter]['case4'] = 0;
-                    }
-                    if (!isset($availability[$inverter]['case5'])) {
-                        $availability[$inverter]['case5'] = 0;
-                    }
-                    if (!isset($availability[$inverter]['case6'])) {
-                        $availability[$inverter]['case6'] = 0;
-                    }
-                    if (!isset($availability[$inverter]['control'])) {
-                        $availability[$inverter]['control'] = 0;
-                    }
-
+                    if (!isset($availability[$inverter]['case0']))      $availability[$inverter]['case0'] = 0;
+                    if (!isset($availability[$inverter]['case1']))      $availability[$inverter]['case1'] = 0;
+                    if (!isset($availability[$inverter]['case2']))      $availability[$inverter]['case2'] = 0;
+                    if (!isset($availability[$inverter]['case3']))      $availability[$inverter]['case3'] = 0;
+                    if (!isset($availability[$inverter]['case3']))      $case3Helper[$inverter] = 0;
+                    if (!isset($availability[$inverter]['case4']))      $availability[$inverter]['case4'] = 0;
+                    if (!isset($availability[$inverter]['case5']))      $availability[$inverter]['case5'] = 0;
+                    if (!isset($availability[$inverter]['case6']))      $availability[$inverter]['case6'] = 0;
+                    if (!isset($availability[$inverter]['control']))    $availability[$inverter]['control'] = 0;
                     isset($istData[$stamp][$inverter]['power_ac']) ? $powerAc = (float) $istData[$stamp][$inverter]['power_ac'] : $powerAc = null;
                     isset($istData[$stamp][$inverter]['cos_phi']) ? $cosPhi = $istData[$stamp][$inverter]['cos_phi'] : $cosPhi = null;
 
@@ -318,8 +300,9 @@ class AvailabilityByTicketService
                     if ($strahlung !== null) {
                         $case0 = $case1 = $case2 = $case3 = $case4 = false;
                         // Schaue in case5Array nach, ob ein Eintrag für diesen Inverter und diesen Timestamp vorhanden ist
-                        (($strahlung > $threshold1PA) && isset($case5Array[$inverter][$stamp])) ? $case5 = true : $case5 = false;
-                        (($strahlung > $threshold1PA) && isset($case6Array[$inverter][$stamp])) ? $case6 = true : $case6 = false;
+
+                        ($strahlung > $threshold1PA) && isset($case5Array[$inverter][$stamp]) ? $case5 = true : $case5 = false;
+                        ($strahlung > $threshold1PA) && isset($case6Array[$inverter][$stamp]) ? $case6 = true : $case6 = false;
 
                         // Case 0 (Datenlücken Inverter Daten | keine Datenlücken für Strahlung)
                         if ($powerAc === null && $case5 === false && $strahlung > $threshold1PA) { // Nur Hochzählen, wenn Datenlücke nicht durch Case 5 abgefangen
@@ -337,6 +320,7 @@ class AvailabilityByTicketService
                             $case3Helper[$inverter] = 0;
                         }
                         // Case 2 (second part of ti - means case1 + case2 = ti)
+                        //if ($strahlung > $threshold2PA && ($powerAc > 0 || $powerAc === null) && $case5 === false && $case6 === false) {
                         if ($strahlung > $threshold2PA && ($powerAc > 0 || $powerAc === null) && $case5 === false && $case6 === false) {
                             $case2 = true;
                             ++$availability[$inverter]['case2'];
@@ -368,7 +352,7 @@ class AvailabilityByTicketService
                             ++$availability[$inverter]['case5'];
                         }
                         // Case 6
-                        if ($case6 === true && $case3 === false && $case0 === true) {
+                        if ($case6 === true && $case3 === false && $case0 === true) { //  && $case3 === false && $case0 === true
                             ++$availability[$inverter]['case6'];
                         }
                         // Control ti,theo
@@ -553,8 +537,12 @@ class AvailabilityByTicketService
                 $paInvPart1 = (($row['case1'] + $row['case2']) / $row['control']) * 100;
                 break;
             case 2: // PA = ti / (ti,theo - tiFM)
-                if ($row['case1'] + $row['case2'] != 0 && $row['control'] != 0) {
-                    $paInvPart1 = (($row['case1'] + $row['case2']) / ($row['control'] - $row['case5'])) * 100;
+                if ($row['case1'] + $row['case2']  + $row['case5'] != 0 && $row['control'] != 0) {
+                    if ($row['case1'] + $row['case2'] === 0 && $row['control'] - $row['case5'] === 0) { // Sonderfall wenn Dividend und Divisor = 0
+                        $paInvPart1 = 100;
+                    } else {
+                        $paInvPart1 = (($row['case1'] + $row['case2']) / ($row['control'] - $row['case5'])) * 100;
+                    }
                 }
                 break;
             case 3: // PA = (ti + tiFM) / ti,theo

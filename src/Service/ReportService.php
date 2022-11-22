@@ -20,44 +20,17 @@ class ReportService
 {
     use G4NTrait;
 
-    private AnlagenRepository $anlagenRepository;
-
-    private PRRepository $PRRepository;
-
-    private ReportsRepository $reportsRepository;
-
-    private EntityManagerInterface $em;
-
-    private PvSystMonthRepository $pvSystMonthRepo;
-
-    private Case5Repository $case5Repo;
-
-    private FunctionsService $functions;
-
-    private NormalizerInterface $serializer;
-
-    private PRCalulationService $PRCalulation;
-
     public function __construct(
-        AnlagenRepository $anlagenRepository,
-        PRRepository $PRRepository,
-        ReportsRepository $reportsRepository,
-        EntityManagerInterface $em,
-        PvSystMonthRepository $pvSystMonthRepo,
-        Case5Repository $case5Repo,
-        FunctionsService $functions,
-        NormalizerInterface $serializer,
-        PRCalulationService $PRCalulation)
+        private AnlagenRepository $anlagenRepository,
+        private PRRepository $PRRepository,
+        private ReportsRepository $reportsRepository,
+        private EntityManagerInterface $em,
+        private PvSystMonthRepository $pvSystMonthRepo,
+        private Case5Repository $case5Repo,
+        private FunctionsService $functions,
+        private NormalizerInterface $serializer,
+        private PRCalulationService $PRCalulation)
     {
-        $this->anlagenRepository = $anlagenRepository;
-        $this->PRRepository = $PRRepository;
-        $this->reportsRepository = $reportsRepository;
-        $this->functions = $functions;
-        $this->em = $em;
-        $this->pvSystMonthRepo = $pvSystMonthRepo;
-        $this->case5Repo = $case5Repo;
-        $this->serializer = $serializer;
-        $this->PRCalulation = $PRCalulation;
     }
 
     /**
@@ -200,7 +173,7 @@ class ReportService
 
         // die Totalzeile
         $dayValues['datum'] = $total;
-        if ($anlage->getUseGridMeterDayData() == true) {
+        if ($anlage->getUseGridMeterDayData()) {
             $dayValues['powerEGridExt'] = (float) $report['lastPR']->getpowerEGridExtMonth();
         }
         $dayValues['PowerEvuMonth'] = ($anlage->getShowEvuDiag()) ? (float) $report['lastPR']->getPowerEvuMonth() : (float) $report['lastPR']->getPowerActMonth();
