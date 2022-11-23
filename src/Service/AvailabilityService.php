@@ -343,7 +343,7 @@ class AvailabilityService
         $inverterPowerDc = $anlage->getPnomInverterArray();  // Pnom for every inverter
 
         /** @var AnlageAvailability $availability */
-        $availabilitys = $this->availabilityRepository->getPaByDate($anlage, $from, $to, $inverter);
+        $availabilitys = $this->availabilityRepository->getPaByDate($anlage, $from, $to, $inverter, null);
 
         $ti = $titheo = $pa = $paSum = $paSingle = $paSingleSum = 0;
         $currentInverter = null;

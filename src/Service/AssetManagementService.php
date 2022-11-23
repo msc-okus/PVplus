@@ -20,44 +20,20 @@ class AssetManagementService
 {
     use G4NTrait;
 
-    private PDO $conn;
-
-    private PvSystMonthRepository $pvSystMonthRepo;
-
-    private EconomicVarValuesRepository $ecoVarValueRepo;
-
-    private EconomicVarNamesRepository $ecoVarNameRepo;
-
-    private FunctionsService $functions;
-
-    private DownloadAnalyseService $DownloadAnalyseService;
-
-    private PRCalulationService $PRCalulation;
-
-    private AvailabilityService $availability;
-
-    private TicketDateRepository $ticketDateRepo;
 
     public function __construct(
-
-        PvSystMonthRepository $pvSystMonthRepo,
-        FunctionsService $functions,
-        DownloadAnalyseService $analyseService,
-        EconomicVarValuesRepository $ecoVarValueRep,
-        PRCalulationService $PRCalulation,
-        EconomicVarNamesRepository $ecoVarNameRep,
-        AvailabilityService $availability,
-        TicketDateRepository $ticketDateRepo
-    ) {
-        $this->functions = $functions;
-        $this->pvSystMonthRepo = $pvSystMonthRepo;
-        $this->ecoVarValueRepo = $ecoVarValueRep;
-        $this->ecoVarNameRepo = $ecoVarNameRep;
-        $this->conn = self::getPdoConnection();
-        $this->DownloadAnalyseService = $analyseService;
-        $this->PRCalulation = $PRCalulation;
-        $this->availability = $availability;
-        $this->ticketDateRepo = $ticketDateRepo;
+        private EntityManagerInterface $em,
+        private PvSystMonthRepository $pvSystMonthRepo,
+        private FunctionsService $functions,
+        private NormalizerInterface $serializer,
+        private DownloadAnalyseService $DownloadAnalyseService,
+        private EconomicVarValuesRepository $ecoVarValueRepo,
+        private PRCalulationService $PRCalulation,
+        private EconomicVarNamesRepository $ecoVarNameRepo,
+        private AvailabilityByTicketService $availability,
+        private TicketDateRepository $ticketDateRepo
+    ) 
+    {
     }
 
     /**
@@ -1867,7 +1843,6 @@ class AssetManagementService
             foreach($date->getInverterArray() as $inverter) {
                 if($inverter != "*") {
                     switch ($anlage->getConfigType()) { // we need this to query for the inverter in the SOR and EFOR cases, in the OMC case the whole plant is down
-
                         case 1 :
                             $inverterQuery = " AND group_dc = '$inverter'";
                             break;

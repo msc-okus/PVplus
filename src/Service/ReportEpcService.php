@@ -14,6 +14,7 @@ use App\Repository\MonthlyDataRepository;
 use App\Repository\PRRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
@@ -37,7 +38,7 @@ class ReportEpcService
 
     /**
      * @throws ExceptionInterface
-     * @throws \Exception
+     * @throws Exception
      */
     public function createEpcReport(Anlage $anlage, DateTime $date): string
     {
@@ -109,7 +110,7 @@ class ReportEpcService
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public function reportPRGuarantee(Anlage $anlage, DateTime $date): array
     {

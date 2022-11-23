@@ -137,7 +137,7 @@ class TicketDateRepository extends ServiceEntityRepository
         $q = $this->createQueryBuilder('t')
             ->andWhere('t.begin BETWEEN :begin AND :end')
             ->andWhere('t.Anlage = :anlage')
-            ->andWhere('t.alertType = 10')
+            #->andWhere('t.alertType = 10')
             ->andWhere('t.dataGapEvaluation = 10');
         switch ($department){
             case 1:

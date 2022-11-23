@@ -574,8 +574,12 @@ class PRCalulationService
         if ($anzTage === 0) {
             $anzTage = 1;
         } // verhindert diffision by zero
-        $availability = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 2);
-        $availability2 = 0; // $this->PRRepository->sumAvailabilitySecondPerPac($anlage->getAnlId(), $localStartDate, $localEndDate, null, 1);
+        $pa0 = 0;#$this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 0);
+        $pa1 = 0;#$this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 1);
+        $pa2 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 2);
+        $pa3 = 0;#$this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 3);
+
+        $availability = $pa2;
 
         // Strahlungen berechnen – (upper = Ost / lower = West)
         if ($anlage->getIsOstWestAnlage()) {
@@ -657,7 +661,11 @@ class PRCalulationService
         $result['tempCorrection'] = (float) $tempCorrection;
         $result['irradiation'] = (float) $irr;
         $result['availability'] = $availability;
-        $result['availability2'] = $availability2; // NOT Ready
+        $result['availability2'] = $pa2; // NOT Ready
+        $result['pa0'] = $pa0;
+        $result['pa1'] = $pa1;
+        $result['pa2'] = $pa2;
+        $result['pa3'] = $pa3;
         $result['anzCase5'] = $anzCase5PerDay;
         $result['tCellAvgMeasured'] = (float) $weather['panelTempAvg'];
         $result['tCellAvgNrel'] = (float) $weather['temp_cell_corr'];
