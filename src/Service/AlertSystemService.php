@@ -200,11 +200,13 @@ class AlertSystemService
                         }
                     }
                 }
-
             } else {
                 $errorCategorie = EXTERNAL_CONTROL;
                 $this->generateTickets(OMC, $errorCategorie, $anlage, '*', $time, "");
             }
+        }
+        if ((date('Y-m-d H:i', strtotime($time) + 900) >= $sungap['sunset']) && (date('Y-m-d H:i', strtotime($time) + 900) <= date('Y-m-d H:i', strtotime($sungap['sunset']) +1800))){
+            $this->joinTicketsForTheDay($anlage, date('Y-m-d', strtotime($time)));
         }
         $this->em->flush();
 
