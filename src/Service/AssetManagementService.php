@@ -9,6 +9,7 @@ use App\Repository\EconomicVarNamesRepository;
 use App\Repository\EconomicVarValuesRepository;
 use App\Repository\PvSystMonthRepository;
 use App\Repository\TicketDateRepository;
+use Doctrine\Instantiator\Exception\ExceptionInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
@@ -20,6 +21,8 @@ class AssetManagementService
 {
     use G4NTrait;
 
+
+    private PDO $conn;
 
     public function __construct(
         private EntityManagerInterface $em,
@@ -34,6 +37,7 @@ class AssetManagementService
         private TicketDateRepository $ticketDateRepo
     ) 
     {
+        $this->conn = self::getPdoConnection();
     }
 
     /**
@@ -1544,26 +1548,25 @@ class AssetManagementService
         for ($inverter = 1; $inverter <= $inverters; ++$inverter) {
             $pa = [];
             for ($tempMonth = 1; $tempMonth <= $report['reportMonth']; ++$tempMonth) {
-                $daysInThisMonth = cal_days_in_month(CAL_GREGORIAN, $tempMonth, $report['reportYear']);
                 $startDate = new \DateTime($report['reportYear']."-$tempMonth-01 00:00");
+                $daysInThisMonth = $startDate->format("t");
                 $endDate = new \DateTime($report['reportYear']."-$tempMonth-$daysInThisMonth 00:00");
                 $pa[] = [
                     'form_date' => $tempMonth,
-                    'pa' => $this->availability->calcAvailability($anlage, $startDate, $endDate, $inverter),
+                    'pa' => $this->availability->calcAvailability($anlage, $startDate, $endDate, $inverter, 0),
                     'unit' => $inverter,
                 ];
             }
             $outPaCY[] = $pa;
             unset($pa);
         }
-
         // we have to generate the overall values of errors for the year
         $daysInThisMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
         $endate = $report['reportYear'].'-'.$report['reportMonth'].'-'.$daysInThisMonth." 23:59:00";
-        $SOFErrors = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 10, $anlage)[0][1];
+        $SOFErrors  = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 10, $anlage)[0][1];
         $EFORErrors = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 20, $anlage)[0][1];
-        $OMCErrors = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 30, $anlage)[0][1];
-        $dataGaps = (int) $this->ticketDateRepo->countByIntervalNullPlant($report['reportYear'].'-01-01', $endate, $anlage)[0][1];
+        $OMCErrors  = (int) $this->ticketDateRepo->countByIntervalErrorPlant($report['reportYear'].'-01-01', $endate, 30, $anlage)[0][1];
+        $dataGaps   = (int) $this->ticketDateRepo->countByIntervalNullPlant($report['reportYear'].'-01-01', $endate, $anlage)[0][1];
         $totalErrors = $SOFErrors + $EFORErrors + $OMCErrors;
         // here we calculate the ammount of quarters to calculate the relative percentages
         $sumquarters = 0;
@@ -1576,6 +1579,7 @@ class AssetManagementService
                     WHERE stamp BETWEEN '$begin' AND '$end' AND (g_lower + g_upper)/2 > '$anlage->getThreshold2PA()'";// hay que cambiar aqui para que la radiacion sea mayor que un valor
 
             $resw = $this->conn->query($sqlw);
+            
             $quartersInMonth = $resw->fetch(PDO::FETCH_ASSOC)['quarters'] * $anlage->getAnzInverter();
             $sumquarters = $sumquarters + $quartersInMonth;
         }
@@ -2085,7 +2089,7 @@ class AssetManagementService
                 $tempTo = new \DateTime($report['reportYear'].'-'.$report['reportMonth']."-$day 23:59");
                 $pa[] = [
                     'form_date' => $day,
-                    'pa' => $this->availability->calcAvailability($anlage, $tempFrom, $tempTo, $inverter),
+                    'pa' => $this->availability->calcAvailability($anlage, $tempFrom, $tempTo, $inverter, 0),
                     'unit' => $inverter,
                 ];
             }
