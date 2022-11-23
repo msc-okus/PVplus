@@ -318,6 +318,24 @@ class Anlage
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $threshold2PA3 = '50';
 
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $paFormular0 = '2'; // 2 = ti / titheo
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $paFormular1 = '1'; // 1 = ti / (titheo - tiFM)
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $paFormular2 = '1'; // 1 = ti / (titheo - tiFM)
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $paFormular3 = '1'; // 1 = ti / (titheo - tiFM)
+
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $prFormular0 = null;
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $prFormular1 = null;
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $prFormular2 = null;
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $prFormular3 = null;
+
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: TimesConfig::class, cascade: ['persist', 'remove'])]
     private Collection $timesConfigs;
 
@@ -369,9 +387,9 @@ class Anlage
     #[ORM\Column(type: 'string', length: 20)]
     private string $epcReportType = '';
 
-    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlagenPvSystMonth::class, cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(targetEntity: AnlagenPvSystMonth::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
     #[ORM\OrderBy(['month' => 'ASC'])]
-    private Collection $anlagenPvSystMonths;
+    private $anlagenPvSystMonths;
 
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlagenMonthlyData::class, cascade: ['persist', 'remove'])]
     #[ORM\OrderBy(['year' => 'ASC', 'month' => 'ASC'])]
@@ -662,13 +680,18 @@ class Anlage
         return $this;
     }
 
-    /** @deprecated  */
+    /**
+     * Replaced by getPnom
+     * @deprecated  */
     public function getPower(): ?string
     {
         return $this->power;
     }
 
-    /** @deprecated  */
+    /**
+     * Replaced by setPnom
+     * @deprecated
+     */
     public function setPower(string $power): self
     {
         $this->power = str_replace(',', '.', $power);
@@ -688,13 +711,18 @@ class Anlage
         return $this;
     }
 
-    /** @deprecated  */
+    /**
+     * Replaced by getPnom
+     * @deprecated
+     */
     public function getKwPeak(): ?float
     {
         return (float) $this->power;
     }
 
-    /** @deprecated  */
+    /**
+     * Replaced by setPnom
+     * @deprecated  */
     public function setKwPeak(string $power): self
     {
         $this->power = str_replace(',', '.', $power);
@@ -2115,6 +2143,96 @@ class Anlage
         return $this;
     }
 
+    public function getPaFormular0(): ?string
+    {
+        return $this->paFormular0;
+    }
+
+    public function setPaFormular0(?string $paFormular0): self
+    {
+        $this->paFormular0 = $paFormular0;
+        return $this;
+    }
+
+    public function getPaFormular1(): ?string
+    {
+        return $this->paFormular1;
+    }
+
+    public function setPaFormular1(?string $paFormular1): self
+    {
+        $this->paFormular1 = $paFormular1;
+        return $this;
+    }
+
+    public function getPaFormular2(): ?string
+    {
+        return $this->paFormular2;
+    }
+
+    public function setPaFormular2(?string $paFormular2): self
+    {
+        $this->paFormular2 = $paFormular2;
+        return $this;
+    }
+
+    public function getPaFormular3(): ?string
+    {
+        return $this->paFormular3;
+    }
+
+    public function setPaFormular3(?string $paFormular3): self
+    {
+        $this->paFormular3 = $paFormular3;
+        return $this;
+    }
+
+    public function getPrFormular0(): ?string
+    {
+        return $this->prFormular0;
+    }
+
+    public function setPrFormular0(?string $prFormular0): self
+    {
+        $this->prFormular0 = $prFormular0;
+        return $this;
+    }
+
+    public function getPrFormular1(): ?string
+    {
+        return $this->prFormular1;
+    }
+
+    public function setPrFormular1(?string $prFormular1): self
+    {
+        $this->prFormular1 = $prFormular1;
+        return $this;
+    }
+
+    public function getPrFormular2(): ?string
+    {
+        return $this->prFormular2;
+    }
+
+    public function setPrFormular2(?string $prFormular2): self
+    {
+        $this->prFormular2 = $prFormular2;
+        return $this;
+    }
+
+    public function getPrFormular3(): ?string
+    {
+        return $this->prFormular3;
+    }
+
+    public function setPrFormular3(?string $prFormular3): self
+    {
+        $this->prFormular3 = $prFormular3;
+        return $this;
+    }
+
+
+
     public function getTimesConfigs(): Collection
     {
         return $this->timesConfigs;
@@ -2424,7 +2542,7 @@ class Anlage
     }
 
     /**
-     * @return Collection|AnlagenMonthlyData[]
+     * @return Collection
      */
     public function getMonthlyYields(): Collection
     {
@@ -2432,7 +2550,7 @@ class Anlage
     }
 
     /**
-     * @return Collection|AnlagenMonthlyData[]
+     * @return Collection
      */
     public function getAnlagenMonthlyData(): Collection
     {
@@ -2525,7 +2643,7 @@ class Anlage
     }
 
     /**
-     * @return Collection|AnlageLegendReport[]
+     * @return Collection
      */
     public function getLegendEpcReports(): Collection
     {
@@ -2545,7 +2663,7 @@ class Anlage
     }
 
     /**
-     * @return Collection|AnlageLegendReport[]
+     * @return Collection
      */
     public function getLegendMonthlyReports(): Collection
     {
@@ -2565,7 +2683,7 @@ class Anlage
     }
 
     /**
-     * @return Collection|AnlageLegendReport[]
+     * @return Collection
      */
     public function getAnlageLegendReports(): Collection
     {
@@ -2607,7 +2725,7 @@ class Anlage
     }
 
     /**
-     * @return Collection|AnlageMonth[]
+     * @return Collection
      */
     public function getAnlageMonth(): Collection
     {
@@ -2637,7 +2755,7 @@ class Anlage
     }
 
     /**
-     * @return Collection|AnlageInverters[]
+     * @return Collection
      */
     public function getInverters(): Collection
     {

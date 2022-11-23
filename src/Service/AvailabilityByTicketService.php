@@ -487,31 +487,38 @@ class AvailabilityByTicketService
      * @param int $department
      * @return float
      */
-    private function calcInvAPart1(Anlage $anlage, array $row, int $department = 2): float
+    private function calcInvAPart1(Anlage $anlage, array $row, int $department = 0): float
     {
         $paInvPart1 = 0.0;
         $formel = match ($department) {
-            1 => 3,
-            2 => 2,
-            3 => 1,
-            default => 0,
+            1 => $anlage->getPaFormular1(),
+            2 => $anlage->getPaFormular2(),
+            3 => $anlage->getPaFormular3(),
+            default => $anlage->getPaFormular0(),
         };
-        $formel = 2;
+
         switch ($formel) {
-            case 1: // PA = ti / ti,theo
-                $paInvPart1 = (($row['case1'] + $row['case2']) / $row['control']) * 100;
-                break;
-            case 2: // PA = ti / (ti,theo - tiFM)
-                if ($row['case1'] + $row['case2']  + $row['case5'] != 0 && $row['control'] != 0) {
-                    if ($row['case1'] + $row['case2'] === 0 && $row['control'] - $row['case5'] === 0) { // Sonderfall wenn Dividend und Divisor = 0
+            case 1: // PA = ti / (ti,theo - tiFM)
+                if ($row['case1'] + $row['case2'] + $row['case5'] != 0 && $row['control'] != 0) {
+                    if ($row['case1'] + $row['case2'] === 0 && $row['control'] - $row['case5'] === 0) {
+                        // Sonderfall wenn Dividend und Divisor = 0 => dann ist PA per definition 100%
                         $paInvPart1 = 100;
                     } else {
                         $paInvPart1 = (($row['case1'] + $row['case2']) / ($row['control'] - $row['case5'])) * 100;
                     }
                 }
                 break;
+
+                ## Formulars from case 2 and 3 are not Testes yet
+            case 2: // PA = ti / ti,theo
+                if ($row['case1'] + $row['case2'] != 0 && $row['control'] != 0) {
+                    $paInvPart1 = (($row['case1'] + $row['case2']) / $row['control']) * 100;
+                }
+                break;
             case 3: // PA = (ti + tiFM) / ti,theo
-                $paInvPart1 = (($row['case1'] + $row['case2'] + $row['case5']) / $row['control']) * 100;
+                if ($row['case1'] + $row['case2']  + $row['case5'] != 0 && $row['control'] != 0) {
+                    $paInvPart1 = (($row['case1'] + $row['case2'] + $row['case5']) / $row['control']) * 100;
+                }
                 break;
         }
 
