@@ -11,7 +11,7 @@
                     <tbody>
                     <tr style="font-weight: bold;">
                         <td class="tr_next_columns" style="background-color: #ededed; width: 180px;">Operating statement [EUR]</td>
-                        {% set counter = 1 %}
+                        {% set counter = 0 %}
                         {% for data in dataMonthArrayFullYear %}
                             {% if (counter < 7) %}
                                 <td class="tr_next_columns" style="background-color: #ededed; text-align: center!important;">{{ data }} {{ year }}</td>
@@ -21,14 +21,14 @@
                     </tr>
                     <tr>
                         <td class="tr_next_columns" style="background-color: #ededed; "><b>Profit ACT</b></td>
-                        {% set counter = 1 %}
+                        {% set counter = 0 %}
                         {% set total = 0 %}
-                        {% for data in income_per_month.revenues_act %}
+                        {% for data in income_per_month.revenues_act_minus_totals %}
                             {% if (counter < 7) %}
                                 {% if (data == 0) %}
                                     <td class="tr_next_columns">-</td>
                                 {% else %}
-                                    <td class="tr_next_columns">{{ (data - economicsMandy[counter])|number_format(0, ',', '.') }}</td>
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                                 {% endif %}
                               {% endif %}
                             {% set counter = counter+1 %}
@@ -37,14 +37,14 @@
                     </tr>
                     <tr>
                         <td class="tr_next_columns" style="background-color: #ededed;"><b>PVSYST plan proceeds </b></td>
-                        {% set counter = 1 %}
+                        {% set counter = 0 %}
                         {% set total = 0 %}
-                        {% for data in income_per_month.PVSYST_plan_proceeds_EXP %}
+                        {% for data in income_per_month.PVSYST_plan_proceeds_EXP_minus_totals %}
                             {% if (counter < 7) %}
                                 {% if (data == 0) %}
                                     <td class="tr_next_columns">-</td>
                                 {% else %}
-                                    <td class="tr_next_columns">{{ (data - economicsMandy[counter])|number_format(0, ',', '.') }}</td>
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                                 {% endif %}
                             {% endif %}
                             {% set counter = counter+1 %}
@@ -53,14 +53,14 @@
                     </tr>
                     <tr>
                         <td class="tr_next_columns" style="background-color: #ededed; "><b>g4nplan proceeds - EXP</b></td>
-                        {% set counter = 1 %}
+                        {% set counter = 0 %}
                         {% set total = 0 %}
-                        {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                        {% for data in income_per_month.gvn_plan_proceeds_EXP_minus_totals %}
                             {% if (counter < 7) %}
                                 {% if (data == 0) %}
                                     <td class="tr_next_columns">-</td>
                                 {% else %}
-                                    <td class="tr_next_columns">{{ (data - economicsMandy[counter])|number_format(0, ',', '.') }}</td>
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                                 {% endif %}
                             {% endif %}
                             {% set counter = counter+1 %}
@@ -77,7 +77,7 @@
                     <tbody>
                     <tr style="font-weight: bold;">
                         <td class="tr_next_columns" style="background-color: #ededed; width: 180px;">Operating statement [EUR]</td>
-                        {% set counter = 1 %}
+                        {% set counter = 0 %}
                         {% for data in dataMonthArrayFullYear %}
                             {% if (counter > 6) %}
                                 <td class="tr_next_columns" style="background-color: #ededed; text-align: center!important;">{{ data }} {{ year }}</td>
@@ -88,14 +88,14 @@
                     </tr>
                     <tr>
                         <td class="tr_next_columns" style="background-color: #ededed; "><b>Profit ACT</b></td>
-                        {% set counter = 1 %}
+                        {% set counter = 0 %}
                         {% set total = 0 %}
-                        {% for data in income_per_month.revenues_act %}
+                        {% for data in income_per_month.revenues_act_minus_totals %}
                             {% if (counter > 6) %}
                                 {% if (data == 0) %}
                                     <td class="tr_next_columns">-</td>
                                 {% else %}
-                                    <td class="tr_next_columns">{{ (data - economicsMandy[counter])|number_format(0, ',', '.') }}</td>
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                                 {% endif %}
                             {% endif %}
                             {% set counter = counter+1 %}
@@ -105,14 +105,14 @@
                     </tr>
                     <tr>
                         <td class="tr_next_columns" style="background-color: #ededed;"><b>PVSYST plan proceeds</b></td>
-                        {% set counter = 1 %}
+                        {% set counter = 0 %}
                         {% set total = 0 %}
-                        {% for data in income_per_month.PVSYST_plan_proceeds_EXP %}
+                        {% for data in income_per_month.PVSYST_plan_proceeds_EXP_minus_totals %}
                             {% if (counter > 6) %}
                                 {% if (data == 0) %}
                                     <td class="tr_next_columns">-</td>
                                 {% else %}
-                                    <td class="tr_next_columns">{{ (data - economicsMandy[counter])|number_format(0, ',', '.') }}</td>
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                                 {% endif %}
                             {% endif %}
                             {% set counter = counter+1 %}
@@ -122,14 +122,14 @@
                     </tr>
                     <tr>
                         <td class="tr_next_columns" style="background-color: #ededed; "><b>g4n plan proceeds - EXP</b></td>
-                        {% set counter = 1 %}
+                        {% set counter = 0 %}
                         {% set total = 0 %}
-                        {% for data in income_per_month.gvn_plan_proceeds_EXP %}
+                        {% for data in income_per_month.gvn_plan_proceeds_EXP_minus_totals %}
                             {% if (counter > 6) %}
                                 {% if (data == 0) %}
                                     <td class="tr_next_columns">-</td>
                                 {% else %}
-                                    <td class="tr_next_columns">{{ (data - economicsMandy[counter])|number_format(0, ',', '.') }}</td>
+                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                                 {% endif %}
                             {% endif %}
                             {% set counter = counter+1 %}

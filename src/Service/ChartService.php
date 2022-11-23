@@ -57,6 +57,10 @@ class ChartService
 
     /**
      * @param $form
+     * @param Anlage|null $anlage
+     * @param bool|null $hour
+     * @return array
+     * @throws \Exception
      */
     public function getGraphsAndControl($form, ?Anlage $anlage, ?bool $hour): array
     {
@@ -97,10 +101,12 @@ class ChartService
         if ($form['selectedGroup'] == '-1') {
             $form['selectedGroup'] = -1;
         }
+
         $from = self::timeShift($anlage, $form['from'], true);
         $to = self::timeShift($anlage, $form['to'], true);
         $from =  $form['from'];
         $to =  $form['to'];
+
         if ($anlage) {
             switch ($form['selectedChart']) {
                 // AC Charts //
