@@ -574,10 +574,10 @@ class PRCalulationService
         if ($anzTage === 0) {
             $anzTage = 1;
         } // verhindert diffision by zero
-        $pa0 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 0);
-        $pa1 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 1);
+        $pa0 = 0;#$this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 0);
+        $pa1 = 0;#$this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 1);
         $pa2 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 2);
-        $pa3 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 3);
+        $pa3 = 0;#$this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 3);
 
         $availability = $pa2;
 

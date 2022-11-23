@@ -17,7 +17,7 @@
 {% block body %}
     <h1>List Reports</h1>
     <div {{ stimulus_controller('report', {
-            urlCreate: path('app_reporting_new_create'),
+            urlCreate: path('app_reporting_create'),
             urlSearch: path('app_reporting_search'),
         }) }}
         data-report-target="reportForm"

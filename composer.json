@@ -38,7 +38,7 @@
         "oneup/flysystem-bundle": "^3.0",
         "php-http/guzzle6-adapter": "^2.0",
         "phpdocumentor/reflection-docblock": "^5.2",
-        "phpoffice/phpspreadsheet": "^1.25",
+        "phpoffice/phpspreadsheet": "^1.20",
         "sensio/framework-extra-bundle": "^5.5",
         "stakovicz/ux-collection": "^0.0.4",
         "stof/doctrine-extensions-bundle": "^1.7",

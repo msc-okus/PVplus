@@ -56,17 +56,6 @@
                                 {% else %}
                                     {% set visibility = 'disabled' %}
                                 {% endif %}
-                                   {# Steve Excel #}
-                                    <a href="{{ path('app_reporting_new_excel', { id: report.id}) }}"  title="load Excel file" class="hollow button tiny action-icon shadow">
-                                        <span class="fa fa-file-excel" style="color:darkgreen"></span></a>
-
-
-                                    <a href="{{ path('app_reporting_new_pdf', { id: report.id}) }}"    title="load PDF file" class="hollow button tiny action-icon shadow
-                                            {{ visibility }}
-                                        "><span class="fa fa-file-pdf" style="color:darkgreen"></span></a>
-
-                                {# Steve Excel #}
-
                                     <a href="{{ path('app_reporting_excel', { id: report.id}) }}" target="_blank" title="load Excel file" class="hollow button tiny action-icon shadow
                                         {% if report.reportType == 'am-report' or (report.reportType == 'epc-report' and report.anlage.epcReportType == 'yieldGuarantee') %}
                                             disabled
@@ -74,7 +63,6 @@
                                             {{ visibility }}
                                         {% endif %}
                                     "><span class="fa fa-file-excel"></span></a>
-
                                     {% if report.reportType != 'am-report' or is_granted('ROLE_AM') %} {# Zeige Download Butten wenn es keine AM Bericht ist, oder wenn die Berichtigung für AM Bericht ausreicht #}
                                         <a href="{{ path('app_reporting_pdf', { id: report.id}) }}"   target="_blank" title="load PDF file" class="hollow button tiny action-icon shadow
                                             {{ visibility }}
