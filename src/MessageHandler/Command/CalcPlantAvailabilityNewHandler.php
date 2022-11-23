@@ -2,31 +2,25 @@
 
 namespace App\MessageHandler\Command;
 
-use App\Message\Command\CalcPlantAvailability;
+use App\Message\Command\CalcPlantAvailabilityNew;
 use App\Repository\AnlagenRepository;
-use App\Service\AvailabilityService;
+use App\Service\AvailabilityByTicketService;
 use App\Service\LogMessagesService;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
-class CalcPlantAvailabilityHandler implements MessageHandlerInterface
+class CalcPlantAvailabilityNewHandler implements MessageHandlerInterface
 {
-    private LogMessagesService $logMessages;
-
-    private AvailabilityService $availabilityService;
-
-    private AnlagenRepository $anlagenRepository;
-
-    public function __construct(AvailabilityService $availabilityService, LogMessagesService $logMessages, AnlagenRepository $anlagenRepository)
+    public function __construct(
+        private AvailabilityByTicketService $availabilityByTicket,
+        private LogMessagesService $logMessages,
+        private AnlagenRepository $anlagenRepository)
     {
-        $this->logMessages = $logMessages;
-        $this->availabilityService = $availabilityService;
-        $this->anlagenRepository = $anlagenRepository;
     }
 
     /**
      * @throws \Exception
      */
-    public function __invoke(CalcPlantAvailability $calc)
+    public function __invoke(CalcPlantAvailabilityNew $calc)
     {
         $anlageId = $calc->getAnlageId();
         $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlageId]);
@@ -38,10 +32,11 @@ class CalcPlantAvailabilityHandler implements MessageHandlerInterface
         for ($stamp = $calc->getStartDate()->getTimestamp(); $stamp <= $calc->getEndDate()->getTimestamp(); $stamp += (24 * 3600)) {
             $this->logMessages->updateEntry($logId, 'working', ($timeCounter / $timeRange) * 100);
             $timeCounter += (24 * 3600);
-            $this->availabilityService->checkAvailability($anlageId, $stamp);
-            if ($anlage->getShowAvailabilitySecond()) {
-                $this->availabilityService->checkAvailability($anlageId, $stamp, true);
-            }
+            $day = date_create(date("Y-m-d 12:00", $stamp));
+            $this->availabilityByTicket->checkAvailability($anlage, $day, 0);
+            $this->availabilityByTicket->checkAvailability($anlage, $day, 1);
+            $this->availabilityByTicket->checkAvailability($anlage, $day, 2);
+            $this->availabilityByTicket->checkAvailability($anlage, $day, 3);
         }
         $this->logMessages->updateEntry($logId, 'done');
     }

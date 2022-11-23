@@ -28,7 +28,6 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -49,9 +48,18 @@ class ReportingController extends AbstractController
      * @throws ExceptionInterface
      */
     #[Route(path: '/reporting/create', name: 'app_reporting_create', methods: ['GET', 'POST'])]
-    public function createReport(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo,
-        ReportService $report, ReportEpcService $reportEpc, ReportsMonthlyService $reportsMonthly, EntityManagerInterface $em,
-        AssetManagementService $assetManagement, ReportsRepository $reportRepo, ReportEpcPRNewService $reportEpcNew): Response
+    public function createReport(
+        Request $request,
+        PaginatorInterface $paginator,
+        ReportsRepository $reportsRepository,
+        AnlagenRepository $anlagenRepo,
+        ReportEpcService $reportEpc,
+        ReportsMonthlyService $reportsMonthly,
+        EntityManagerInterface $em,
+        AssetManagementService $assetManagement,
+        ReportsRepository $reportRepo,
+        ReportEpcPRNewService $reportEpcNew,
+        string $kernelProjectDir): Response
     {
         $anlage = $request->query->get('anlage');
         $searchstatus = $request->query->get('searchstatus');
@@ -816,6 +824,7 @@ class ReportingController extends AbstractController
         ]);
     }
 
+    #[Deprecated]
     private function substr_Index($str, $needle, $nth): bool|int
     {
         $str2 = '';

@@ -4,7 +4,7 @@ namespace App\Message\Command;
 
 use DateTime;
 
-class CalcPlantAvailability
+class CalcPlantAvailabilityNew
 {
     public function __construct(
         private int $anlageId,

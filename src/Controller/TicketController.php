@@ -44,6 +44,7 @@ class TicketController extends BaseController
                 $date->setKpiPaDep2(10);
                 $date->setKpiPaDep3(10);
             }
+            if ($ticket->getAlertType() == 20) $date->setDataGapEvaluation(10);
             $ticket->addDate($date);
             $em->persist($ticket);
             $em->flush();

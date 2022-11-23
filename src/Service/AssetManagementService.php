@@ -2892,9 +2892,7 @@ class AssetManagementService
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
-        $chart->series = [];
         unset($option);
-
         $chart->series =
             [
                 [
