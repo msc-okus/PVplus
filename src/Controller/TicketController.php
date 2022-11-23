@@ -208,6 +208,7 @@ class TicketController extends BaseController
         $direction = $request->query->get('direction', "");
         $prooftam = $request->query->get('prooftam', 0);
         $ignored = $request->query->get('ignored', 0);
+
         if ($ignored == 0) $ignoredBool = false;
         else $ignoredBool = true;
         if ($sort === "") $sort = "ticket.begin";
@@ -283,7 +284,7 @@ class TicketController extends BaseController
         }
 
 
-        if ($splitTime && $ticket) {
+        if ($splitTime) {
             $mainDate = new TicketDate();
             $mainDate->copyTicketDate($ticketDate);
             $mainDate->setBegin($splitTime);
