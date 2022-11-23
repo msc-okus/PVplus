@@ -396,7 +396,7 @@ class AvailabilityByTicketService
                 $paSingleSum += $paSingle;
                 $cases['case0'] = $cases['case1'] = $cases['case2'] = $cases['case3'] = $cases['case4'] = $cases['case5'] = $cases['case6'] = $cases['control'] = 0;
             }
-            $currentInverter = (int)$availability['inverter'];
+            $currentInverter = $availability['inverter'];
             $cases['case0'] += $availability['case_0'];
             $cases['case1'] += $availability['case_1'];
             $cases['case2'] += $availability['case_2'];
@@ -496,7 +496,7 @@ class AvailabilityByTicketService
             3 => 1,
             default => 0,
         };
-
+        $formel = 2;
         switch ($formel) {
             case 1: // PA = ti / ti,theo
                 $paInvPart1 = (($row['case1'] + $row['case2']) / $row['control']) * 100;
