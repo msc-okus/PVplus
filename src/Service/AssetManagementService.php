@@ -2413,10 +2413,8 @@ class AssetManagementService
             }
         }
         if ($dcExpDcIst) {
-            dump($dcExpDcIst);
             $outTableCurrentsPower[] = $dcExpDcIst;
         }
-
         $resultEconomicsNames = $this->ecoVarNameRepo->findOneByAnlage($anlage);
 
         if ($resultEconomicsNames) {
@@ -2582,13 +2580,14 @@ class AssetManagementService
             else $Ertrag_design = 0;
             $monthleyFeedInTarif = $kwhPrice[$i];
 
-            if ((float)$data1_grid_meter['powerEvu'] > 0) $incomePerMonth['revenues_act'][$i] = (float)$data1_grid_meter['powerEvu'] * $monthleyFeedInTarif;
+            if (((float)$data1_grid_meter['powerAct'] > 0 ) && ($i < $month -1)) $incomePerMonth['revenues_act'][$i] = (float)$data1_grid_meter['powerAct'] * $monthleyFeedInTarif;
             else $incomePerMonth['revenues_act'][$i] = 0;
 
             if ((float)$Ertrag_design > 0) $incomePerMonth['PVSYST_plan_proceeds_EXP'][$i] = (float)$Ertrag_design * $monthleyFeedInTarif;
             else $incomePerMonth['PVSYST_plan_proceeds_EXP'][$i] = 0;
 
-            if ((float)$data1_grid_meter['powerExp'] > 0) $incomePerMonth['gvn_plan_proceeds_EXP'][$i] = (float)$data1_grid_meter['powerExp'] * $monthleyFeedInTarif;
+            //PARA ESTO USAR FORECAST EN VEZ DE G4N EXPECTED
+            if ((float)$forecast[$i] > 0) $incomePerMonth['gvn_plan_proceeds_EXP'][$i] = (float)$forecast[$i] * $monthleyFeedInTarif;
             else $incomePerMonth['gvn_plan_proceeds_EXP'][$i] = 0;
 
             if ($incomePerMonth['revenues_act'][$i] == 0) $incomePerMonth['revenues_act_minus_totals'][$i] = 0;
@@ -2603,6 +2602,7 @@ class AssetManagementService
             $incomePerMonth['monthley_feed_in_tarif'][$i] = $monthleyFeedInTarif;
 
         }
+
         $revenuesSumPVSYST[0] = $incomePerMonth['revenues_act'][0];
         $revenuesSumG4N[0] = $incomePerMonth['revenues_act'][0];
         $P50SumPVSYS[0] = $incomePerMonth['PVSYST_plan_proceeds_EXP'][0];
@@ -2612,7 +2612,7 @@ class AssetManagementService
             $costSum[$i] = $costSum[$i - 1] + $economicsMandy[$i];
 
             //$revenuesSumPVSYST[$i] = $economicsMandy[$i] + $revenuesSumPVSYST[$i - 1];
-            if ($incomePerMonth['revenues_act'][$i] > 0) {
+            if (($incomePerMonth['revenues_act'][$i] > 0) && ($i < $month - 1)) {
                 $revenuesSumG4N[$i] = ($revenuesSumG4N[$i-1] + $incomePerMonth['revenues_act'][$i]) - $costSum[$i];
                 $revenuesSumPVSYST[$i] = ($revenuesSumPVSYST[$i-1] + $incomePerMonth['revenues_act'][$i]) - $costSum[$i];
 
@@ -2651,25 +2651,25 @@ class AssetManagementService
         $chart->series =
             [
                 [
-                    'name' => 'Revenues ACT and Revenues Plan PVSYST',
+                    'name' => 'Revenues ACT/Revenues-PVSYST',
                     'type' => 'line',
                     'data' => $economicsCumulatedForecast['revenues_ACT_and_Revenues_Plan_PVSYT'],
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Revenues ACT and Revenues Plan g4n',
+                    'name' => 'Revenues ACT/Revenues-g4n',
                     'type' => 'line',
                     'data' => $economicsCumulatedForecast['revenues_ACT_and_Revenues_Plan_G4N'],
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'PVSYST plan proceeds - P50',
+                    'name' => 'PVSYST plan - P50',
                     'type' => 'line',
                     'data' => $economicsCumulatedForecast['PVSYST_plan_proceeds_P50'],
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'g4n plan proceeds - EXP - P50',
+                    'name' => 'g4n plan - P50',
                     'type' => 'line',
                     'data' => $economicsCumulatedForecast['g4n_plan_proceeds_EXP_P50'],
                     'visualMap' => 'false',
@@ -3027,15 +3027,23 @@ class AssetManagementService
         // end Operating Statement
 
         // beginn Losses compared
+
         for ($i = 0; $i < 12; ++$i) {
-            $Difference_Profit_ACT_to_PVSYST_plan[] = $incomePerMonth['revenues_act_minus_totals'][$i] - $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][$i];
-            $Difference_Profit_ACT_to_g4n_plan[] = $incomePerMonth['revenues_act_minus_totals'][$i] - $incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'][$i];
+            if ($i < $month - 1) {
+                $Difference_Profit_ACT_to_PVSYST_plan[] = $incomePerMonth['revenues_act_minus_totals'][$i] - $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][$i];
+                $Difference_Profit_ACT_to_g4n_plan[] = $incomePerMonth['revenues_act_minus_totals'][$i] - $incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'][$i];
+            }
+            else{
+                $Difference_Profit_ACT_to_PVSYST_plan[] = 0;
+                $Difference_Profit_ACT_to_g4n_plan[] =  0;
+            }
         }
 
         $lossesComparedTable = [
             'Difference_Profit_ACT_to_PVSYST_plan' => $Difference_Profit_ACT_to_PVSYST_plan,
             'Difference_Profit_ACT_to_g4n_plan' => $Difference_Profit_ACT_to_g4n_plan,
         ];
+
 
         // end Losses compared
 
@@ -3110,21 +3118,23 @@ class AssetManagementService
         // end Chart Losses compared
 
         // beginn Table Losses compared cummulated
-
-        unset($result1);
-        unset($result2);
-        $kumsum1[0] = $lossesComparedTable['Difference_Profit_ACT_to_PVSYST_plan'][0];
-        $kumsum2[0] = $lossesComparedTable['Difference_Profit_ACT_to_g4n_plan'][0];
+        $PVSYSDiffSum[0] = $lossesComparedTable['Difference_Profit_ACT_to_PVSYST_plan'][0];
+        $G4NDiffSum[0] = $lossesComparedTable['Difference_Profit_ACT_to_g4n_plan'][0];
         for ($i = 0; $i < 12; ++$i) {
-            $kumsum1[$i] = $lossesComparedTable['Difference_Profit_ACT_to_PVSYST_plan'][$i] + $kumsum1[$i - 1];
-            $kumsum2[$i] = $lossesComparedTable['Difference_Profit_ACT_to_g4n_plan'][$i] + $kumsum2[$i - 1];
-            $result1[] = $kumsum1[$i];
-            $result2[] = $kumsum2[$i];
+
+            if ($i < $month - 1) {
+                $PVSYSDiffSum[$i] = $lossesComparedTable['Difference_Profit_ACT_to_PVSYST_plan'][$i] + $PVSYSDiffSum[$i - 1];
+                $G4NDiffSum[$i] = $lossesComparedTable['Difference_Profit_ACT_to_g4n_plan'][$i] + $G4NDiffSum[$i - 1];
+            }
+            else{
+                $PVSYSDiffSum[$i] = 0;
+                $G4NDiffSum[$i] = 0;
+            }
         }
 
         $lossesComparedTableCumulated = [
-            'Difference_Profit_ACT_to_PVSYST_plan_cum' => $result1,
-            'Difference_Profit_ACT_to_g4n_plan_cum' => $result2,
+            'Difference_Profit_ACT_to_PVSYST_plan_cum' => $PVSYSDiffSum,
+            'Difference_Profit_ACT_to_g4n_plan_cum' => $G4NDiffSum,
             ];
 
         // end Table Losses compared cummulated
