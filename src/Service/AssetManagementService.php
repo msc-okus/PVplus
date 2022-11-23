@@ -18,54 +18,18 @@ class AssetManagementService
 {
     use G4NTrait;
 
-    private PDO $conn;
-
-    private \mysqli $connAnlage;
-
-    private EntityManagerInterface $em;
-
-    private PvSystMonthRepository $pvSystMonthRepo;
-
-    private EconomicVarValuesRepository $ecoVarValueRepo;
-
-    private EconomicVarNamesRepository $ecoVarNameRepo;
-
-    private FunctionsService $functions;
-
-    private NormalizerInterface $serializer;
-
-    private DownloadAnalyseService $DownloadAnalyseService;
-
-    private PRCalulationService $PRCalulation;
-
-    private AvailabilityService $availability;
-
-    private TicketDateRepository $ticketDateRepo;
-
     public function __construct(
-        EntityManagerInterface $em,
-        PvSystMonthRepository $pvSystMonthRepo,
-        FunctionsService $functions,
-        NormalizerInterface $serializer,
-        DownloadAnalyseService $analyseService,
-        EconomicVarValuesRepository $ecoVarValueRep,
-        PRCalulationService $PRCalulation,
-        EconomicVarNamesRepository $ecoVarNameRep,
-        AvailabilityService $availability,
-        TicketDateRepository $ticketDateRepo
+        private EntityManagerInterface $em,
+        private PvSystMonthRepository $pvSystMonthRepo,
+        private FunctionsService $functions,
+        private NormalizerInterface $serializer,
+        private DownloadAnalyseService $DownloadAnalyseService,
+        private EconomicVarValuesRepository $ecoVarValueRepo,
+        private PRCalulationService $PRCalulation,
+        private EconomicVarNamesRepository $ecoVarNameRepo,
+        private AvailabilityByTicketService $availability,
+        private TicketDateRepository $ticketDateRepo
     ) {
-        $this->functions = $functions;
-        $this->em = $em;
-        $this->pvSystMonthRepo = $pvSystMonthRepo;
-        $this->ecoVarValueRepo = $ecoVarValueRep;
-        $this->ecoVarNameRepo = $ecoVarNameRep;
-        $this->serializer = $serializer;
-        $this->conn = self::getPdoConnection();
-        $this->connAnlage = self::connectToDatabaseAnlage();
-        $this->DownloadAnalyseService = $analyseService;
-        $this->PRCalulation = $PRCalulation;
-        $this->availability = $availability;
-        $this->ticketDateRepo = $ticketDateRepo;
     }
 
     public function assetReport($anlage, $month = 0, $year = 0, $pages = 0): array
@@ -1936,7 +1900,6 @@ class AssetManagementService
             foreach($date->getInverterArray() as $inverter) {
                 if($inverter != "*") {
                     switch ($anlage->getConfigType()) { // we need this to query for the inverter in the SOR and EFOR cases, in the OMC case the whole plant is down
-
                         case 1 :
                             $inverterQuery = " AND group_dc = '$inverter'";
                             break;

@@ -861,14 +861,14 @@ class FunctionsService
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
-            $result['powerEvu'] = $powerEvu;
-            $result['powerAct'] = $row['sum_power_ac'];
-            $result['powerExp'] = $powerExp;
-            $result['powerExpEvu'] = $powerExpEvu;
-            $result['powerEGridExt'] = $powerEGridExt;
-            $result['powerTheo'] = $powerTheo;
-            $result['tCellAvg'] = $tCellAvg;
-            $result['tCellAvgMultiIrr'] = $tCellAvgMultiIrr;
+            $result['powerEvu']         = (float)$powerEvu;
+            $result['powerAct']         = (float)$row['sum_power_ac'];
+            $result['powerExp']         = (float)$powerExp;
+            $result['powerExpEvu']      = (float)$powerExpEvu;
+            $result['powerEGridExt']    = (float)$powerEGridExt;
+            $result['powerTheo']        = (float)$powerTheo;
+            $result['tCellAvg']         = (float)$tCellAvg;
+            $result['tCellAvgMultiIrr'] = (float)$tCellAvgMultiIrr;
         }
         unset($res);
 

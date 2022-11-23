@@ -155,7 +155,6 @@ class ReportsEpcNewService
             }
 
             $prArray = $this->PRCalulation->calcPR($anlage, $from_local, $to_local);
-
             if ($anlage->getUseGridMeterDayData()) {
                 if ($monthlyRecalculatedData != null && $monthlyRecalculatedData->getExternMeterDataMonth() > 0) {
                     $eGridReal = $monthlyRecalculatedData->getExternMeterDataMonth();

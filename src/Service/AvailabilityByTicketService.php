@@ -382,13 +382,12 @@ class AvailabilityByTicketService
 
         $inverterPowerDc = $anlage->getPnomInverterArray();  // Pnom for every inverter
 
-        /** @var AnlageAvailability $availability */
-        $availabilitys = $this->availabilityRepository->getPaByDate($anlage, $from, $to, $inverter);
+        $availabilitys = $this->availabilityRepository->getPaByDate($anlage, $from, $to, $inverter, $department);
         $ti = $titheo = $pa = $paSum = $paSingle = $paSingleSum = 0;
         $cases['case0'] = $cases['case1'] = $cases['case2'] = $cases['case3'] = $cases['case4'] = $cases['case5'] = $cases['case6'] = $cases['control'] = 0;
         $currentInverter = null;
         foreach ($availabilitys as $availability) {
-            if ($currentInverter != (int)$availability->getInverter() && $currentInverter !== null) {
+            if ($currentInverter != (int)$availability['inverter'] && $currentInverter !== null) {
                 // Berechne PA für den aktuellen Inverter
                 $invWeight = ($anlage->getPnom() > 0 && $inverterPowerDc[$currentInverter] > 0) ? $inverterPowerDc[$currentInverter] / $anlage->getPnom() : 1;
                 $paSingle = $this->calcInvAPart1($anlage, $cases, $department);
@@ -397,49 +396,15 @@ class AvailabilityByTicketService
                 $paSingleSum += $paSingle;
                 $cases['case0'] = $cases['case1'] = $cases['case2'] = $cases['case3'] = $cases['case4'] = $cases['case5'] = $cases['case6'] = $cases['control'] = 0;
             }
-            $currentInverter = (int)$availability->getInverter();
-            switch ($department) {
-                case 1:
-                    $cases['case0'] += $availability->getCase01();
-                    $cases['case1'] += $availability->getCase11();
-                    $cases['case2'] += $availability->getCase21();
-                    $cases['case3'] += $availability->getCase31();
-                    $cases['case4'] += $availability->getCase41();
-                    $cases['case5'] += $availability->getCase51();
-                    $cases['case6'] += $availability->getCase61();
-                    $cases['control'] += $availability->getControl1();
-                    break;
-                case 2:
-                    $cases['case0'] += $availability->getCase02();
-                    $cases['case1'] += $availability->getCase12();
-                    $cases['case2'] += $availability->getCase22();
-                    $cases['case3'] += $availability->getCase32();
-                    $cases['case4'] += $availability->getCase42();
-                    $cases['case5'] += $availability->getCase52();
-                    $cases['case6'] += $availability->getCase62();
-                    $cases['control'] += $availability->getControl2();
-                    break;
-                case 3:
-                    $cases['case0'] += $availability->getCase03();
-                    $cases['case1'] += $availability->getCase13();
-                    $cases['case2'] += $availability->getCase23();
-                    $cases['case3'] += $availability->getCase33();
-                    $cases['case4'] += $availability->getCase43();
-                    $cases['case5'] += $availability->getCase53();
-                    $cases['case6'] += $availability->getCase63();
-                    $cases['control'] += $availability->getControl3();
-                    break;
-                default:
-                    $cases['case0'] += $availability->getCase00();
-                    $cases['case1'] += $availability->getCase10();
-                    $cases['case2'] += $availability->getCase20();
-                    $cases['case3'] += $availability->getCase30();
-                    $cases['case4'] += $availability->getCase40();
-                    $cases['case5'] += $availability->getCase50();
-                    $cases['case6'] += $availability->getCase60();
-                    $cases['control'] += $availability->getControl0();
-            }
-
+            $currentInverter = (int)$availability['inverter'];
+            $cases['case0'] += $availability['case_0'];
+            $cases['case1'] += $availability['case_1'];
+            $cases['case2'] += $availability['case_2'];
+            $cases['case3'] += $availability['case_3'];
+            $cases['case4'] += $availability['case_4'];
+            $cases['case5'] += $availability['case_5'];
+            $cases['case6'] += $availability['case_6'];
+            $cases['control'] += $availability['control'];
         }
         // Berechne PA für den letzten Inverter
         $invWeight = ($anlage->getPnom() > 0 && $inverterPowerDc[$currentInverter] > 0) ? $inverterPowerDc[$currentInverter] / $anlage->getPnom() : 1;
