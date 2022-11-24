@@ -98,8 +98,7 @@ class TicketRepository extends ServiceEntityRepository
         }
 
         if ($inverter != '') {
-            $qb->andWhere('ticket.inverter LIKE %:inverter%')
-                ->setParameter('inverter', $inverter);
+            $qb->andWhere("ticket.inverter = $inverter");
         }
         if ((int) $prio > 0) {
             $qb->andWhere("ticket.priority = $prio");
