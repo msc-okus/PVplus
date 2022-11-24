@@ -462,15 +462,15 @@ class AssetManagementService
 
             $tbody_forcast_G4NP90[] = $PowerEvuSum[$i] - ($PowerEvuSum[$i] * $degradation / 100);
         }
-        // Forecast / G4N
 
-        $kumsum[0] = $powerExpEvu[0];
-        for ($i = 0; $i < 12; ++$i) {
-            if ($powerExpEvu[$i]) {
-                $kumsum[$i] = $powerExpEvu[$i] + $kumsum[$i - 1];
-            } else {
-                $kumsum[$i] = $forecast[$i] + $kumsum[$i - 1];
-            }
+        // Forecast / G4N
+        $kumsum[0] =  $forecast[0] ;
+        $tbody_forcast_plan_G4NP50[0] = $kumsum[0];
+        $tbody_forcast_plan_G4NP90[0] = $kumsum[0] - ($kumsum[0] * $degradation / 100);
+        dump($forecast);
+        for ($i = 1; $i < 12; ++$i) {
+            $kumsum[$i] = $forecast[$i] + $kumsum[$i-1];
+            dump($kumsum[$i], "+",$forecast[$i]);
             $tbody_forcast_plan_G4NP50[] = $kumsum[$i];
             $tbody_forcast_plan_G4NP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
         }

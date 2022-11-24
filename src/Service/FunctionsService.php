@@ -302,21 +302,26 @@ class FunctionsService
      */
     public function getForcastByMonth(Anlage $anlage, int $month, ?int $betriebsJahre = null): float
     {
+
         $sum = (float) 0;
         if ($betriebsJahre === null || $betriebsJahre < 0) {
             $betriebsJahre = (int) date('Y') - (int) $anlage->getAnlBetrieb()->format('Y');
         } // betriebsjahre
-        /** @var AnlageForcastDay $forcast */
-        $forcasts = $this->forcastDayRepo->findForcastDayByMonth($anlage, $month);
+        /** @var AnlageForcastDay $forcast*/
+        $forcasts = $this->forcastDayRepo->findForcastDayByMonth($anlage, $month + 1 );
+
         foreach ($forcasts as $forcast) {
-            $sum += $anlage->getContractualPower() * $forcast->getFactorDay();
+
+            $sum +=$forcast->getExpectedDay();
         }
+/*
         if ($anlage->getDegradationForecast() > 0 && $betriebsJahre > 0) {
             $sum -= $sum / (100 * $anlage->getDegradationForecast() * $betriebsJahre);
         }
         if ($anlage->getLossesForecast() > 0) {
             $sum -= $sum / (100 * $anlage->getLossesForecast());
         }
+*/
 
         return $sum;
     }
