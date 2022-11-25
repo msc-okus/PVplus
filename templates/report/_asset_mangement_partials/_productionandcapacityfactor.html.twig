@@ -4,7 +4,7 @@
 {% macro grid(table_overview_monthly, anlage) %}
     {% set gridsum = 0 %}
     <tr>
-        <td class="tr_first_column" style="text-align: right;">Yield (Grid meter)</td>
+        <td class="tr_first_column" style="text-align: right;">Actual (Yield) <sup>*</sup></td>
         {% for data in table_overview_monthly.powerEvu %}
             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
             {% set gridsum = gridsum + data %}
@@ -15,13 +15,25 @@
 {% macro expectedPvSyst(table_overview_monthly, anlage) %}
     {% set pvsystsum = 0 %}
     <tr>
-        <td class="tr_first_column" style="text-align: right;">Expected PV SYST</td>
+        <td class="tr_first_column" style="text-align: right;">Plant Simulation <sup>**</sup></td>
         {% for data in table_overview_monthly.expectedPvSyst %}
             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
             {% set pvsystsum = pvsystsum + data %}
         {% endfor %}
 
         <td class="tr_next_columns">{{ pvsystsum|number_format(0, ',', '.') }}</td>
+    </tr>
+{% endmacro %}
+{% macro forecast(table_overview_monthly, anlage) %}
+    {% set forecastsum = 0 %}
+    <tr>
+        <td class="tr_first_column" style="text-align: right;">Forecast g4n</td>
+        {% for data in table_overview_monthly.forecast %}
+            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+            {% set forecastsum = forecastsum + data %}
+        {% endfor %}
+
+        <td class="tr_next_columns">{{ forecastsum|number_format(0, ',', '.') }}</td>
     </tr>
 {% endmacro %}
 {% macro expectedG4N(table_overview_monthly, anlage) %}
@@ -35,6 +47,7 @@
         <td class="tr_next_columns">{{ g4nsum|number_format(0, ',', '.') }}</td>
     </tr>
 {% endmacro %}
+
 {% macro inverterOut(table_overview_monthly, anlage) %}
     {%  set invsum = 0 %}
     <tr>
@@ -89,15 +102,19 @@
                         {% for data in table_overview_monthly.powerAct %}
                             {% set powerEvuTotal = powerEvuTotal+data %}
                         {% endfor %}
-                        {{ Macros.inverterOut(table_overview_monthly, anlage) }}
+
+                        {{ Macros.expectedG4N(table_overview_monthly, anlage) }}
+                        {{ Macros.forecast(table_overview_monthly, anlage) }}
+
                         {% if (anlage.hasPVSYST == true) %}
                             {{ Macros.expectedPvSyst(table_overview_monthly, anlage) }}
                         {% endif %}
-                        {{ Macros.expectedG4N(table_overview_monthly, anlage) }}
                     {% endif %}
 
                     </tbody>
                 </table>
+                <p><sup>*</sup>Grid Meter/Inverter Out. Depending on What data is available</p>
+                <p><sup>**</sup>Simulation (PS); is a yield simulation program for photovoltaic systems, e.g.: PVSyst, PVSol, etc.</p>
 
             </td>
         </tr>

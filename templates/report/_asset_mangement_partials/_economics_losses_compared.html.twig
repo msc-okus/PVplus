@@ -2,7 +2,7 @@
 
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Economics</h3>
-    <span class="subheadline">Losses compared</span>
+    <span class="subheadline">Monthly losses compared</span>
 
     <table >
         <tr>
@@ -28,7 +28,11 @@
                                 {% if data == 0 or counter > reportmonth %}
                                     <td class="tr_next_columns">-</td>
                                 {% else %}
-                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% if data > 0 %}
+                                        <td class="tr_next_columns" style="color: green">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% else %}
+                                        <td class="tr_next_columns" style="color: red">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% endif %}
                                 {% endif %}
                             {% endif %}
                             {% set counter = counter+1 %}
@@ -44,7 +48,11 @@
                                 {% if data == 0 or counter > reportmonth %}
                                     <td class="tr_next_columns">-</td>
                                 {% else %}
-                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% if data > 0 %}
+                                        <td class="tr_next_columns" style="color: green">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% else %}
+                                        <td class="tr_next_columns" style="color: red">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% endif %}
                                 {% endif %}
                             {% endif %}
                             {% set counter = counter+1 %}
@@ -78,7 +86,11 @@
                                 {% if data == 0 or counter > reportmonth %}
                                     <td class="tr_next_columns">-</td>
                                 {% else %}
-                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% if data > 0 %}
+                                        <td class="tr_next_columns" style="color: green">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% else %}
+                                        <td class="tr_next_columns" style="color: red">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% endif %}
                                 {% endif %}
                             {% endif %}
                             {% set counter = counter+1 %}
@@ -94,7 +106,11 @@
                                 {% if data == 0 or counter > reportmonth %}
                                     <td class="tr_next_columns">-</td>
                                 {% else %}
-                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% if data > 0 %}
+                                        <td class="tr_next_columns" style="color: green">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% else %}
+                                        <td class="tr_next_columns" style="color: red">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% endif %}
                                 {% endif %}
                             {% endif %}
                             {% set counter = counter+1 %}

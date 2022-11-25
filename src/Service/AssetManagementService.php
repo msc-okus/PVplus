@@ -68,10 +68,12 @@ class AssetManagementService
      */
     public function buildAssetReport(Anlage $anlage, array $report): array
     {
+        for ($i = 0; $i < 12; ++$i) {
+            $forecast[$i] = $this->functions->getForcastByMonth($anlage, $i);
+        }
         $plantSize = $anlage->getPnom();
         $plantId = $anlage->getAnlId();
         $monthName = date('F', mktime(0, 0, 0, $report['reportMonth'], 10));
-        $currentYear = date('Y');
         $currentMonth = date('m');
 
         if ($report['reportMonth'] < 10) {
@@ -156,6 +158,7 @@ class AssetManagementService
             'expectedPvSyst' => $expectedPvSyst,
             'powerExpEvu' => $powerExpEvu,
             'powerExt' => $powerExternal,
+            'forecast' => $forecast,
         ];
         for ($i = 0; $i < 12; ++$i) {
             $dataCfArray[$i]['month'] = $monthExtendedArray[$i]['month'];
@@ -320,9 +323,7 @@ class AssetManagementService
         // Begin Cumulative Forecast with PVSYST
 
         // Forecast / degradation
-        for ($i = 0; $i < 12; ++$i) {
-            $forecast[$i] = $this->functions->getForcastByMonth($anlage, $i);
-        }
+
         $degradation = $anlage->getLossesForecast();
         // Cumulative Forecast
         $powerSum[0] = $powerEvu[0];
@@ -447,32 +448,30 @@ class AssetManagementService
 
         // End Cumulative Forecast with PVSYST
 
-        $PowerEvuSum[0] = $powerEvu[0];
+        $PowerSum[0] = $powerExp[0];
         for ($i = 0; $i < 12; ++$i) {
             if ($i + 1 > $report['reportMonth']) {
-                if ($powerExpEvu[$i]) {
-                    $PowerEvuSum[$i] = $powerExpEvu[$i] + $PowerEvuSum[$i - 1];
+                if ($powerExp[$i]) {
+                    $PowerSum[$i] = $powerExp[$i] + $PowerSum[$i - 1];
                 } else {
-                    $PowerEvuSum[$i] = $forecast[$i] + $PowerEvuSum[$i - 1];
+                    $PowerSum[$i] = $forecast[$i] + $PowerSum[$i - 1];
                 }
             } else {
-                $PowerEvuSum[$i] = $powerEvu[$i] + $PowerEvuSum[$i - 1];
+                $PowerSum[$i] = $forecast[$i] + $PowerSum[$i - 1];
             }
-            $tbody_forcast_G4NP50[] = $PowerEvuSum[$i];
+            $tbody_forcast_G4NP50[] = $PowerSum[$i];
 
-            $tbody_forcast_G4NP90[] = $PowerEvuSum[$i] - ($PowerEvuSum[$i] * $degradation / 100);
+            $tbody_forcast_G4NP90[] = $PowerSum[$i] - ($PowerSum[$i] * $degradation / 100);
         }
 
         // Forecast / G4N
-        $kumsum[0] =  $forecast[0] ;
-        $tbody_forcast_plan_G4NP50[0] = $kumsum[0];
-        $tbody_forcast_plan_G4NP90[0] = $kumsum[0] - ($kumsum[0] * $degradation / 100);
-        dump($forecast);
+        $forecastSum[0] =  $forecast[0] ;
+        $tbody_forcast_plan_G4NP50[0] = $forecastSum[0];
+        $tbody_forcast_plan_G4NP90[0] = $forecastSum[0] - ($forecastSum[0] * $degradation / 100);
         for ($i = 1; $i < 12; ++$i) {
-            $kumsum[$i] = $forecast[$i] + $kumsum[$i-1];
-            dump($kumsum[$i], "+",$forecast[$i]);
-            $tbody_forcast_plan_G4NP50[] = $kumsum[$i];
-            $tbody_forcast_plan_G4NP90[] = $kumsum[$i] - ($kumsum[$i] * $degradation / 100);
+            $forecastSum[$i] = $forecast[$i] + $forecastSum[$i-1];
+            $tbody_forcast_plan_G4NP50[] = $forecastSum[$i];
+            $tbody_forcast_plan_G4NP90[] = $forecastSum[$i] - ($forecastSum[$i] * $degradation / 100);
         }
 
         $forecast_G4N_table = [
@@ -692,26 +691,32 @@ class AssetManagementService
         $chart->yAxis = [];
         $chart->series = [];
         unset($option);
+        $diffProdPVSYSSum[0] = $diefference_prod_to_pvsyst[0];
+        $diffProdG4NSum[0] = $diefference_prod_to_expected_g4n[0];
+        $diffProdEgridSum[0] = $diefference_prod_to_egrid[0];
+        $diffActForecastSum[0] =  $tbody_a_production['powerAct'][0] - $forecast[0];
+        $difference_Egrid_to_PVSYST[0] = $diffProdPVSYSSum[0];
+        $difference_Egrid_to_Expected_G4n[0] = $diffProdG4NSum[0];
+        $difference_Inverter_to_Egrid[0] = $diffProdEgridSum[0];
+        $difference_actual_forecast[0] = $diffActForecastSum[0];
+        for ($i = 1; $i < 12; ++$i) {
 
-        for ($i = 0; $i < count($diefference_prod_to_pvsyst); ++$i) {
-            if ($i == 0) {
-                $diffProdPVSYSSum[0] = $diefference_prod_to_pvsyst[0];
-                $diffProdG4NSum[0] = $diefference_prod_to_expected_g4n[0];
-                $diffProdEgridSum[0] = $diefference_prod_to_egrid[0];
-            } else {
                 $diffProdPVSYSSum[$i] = $diefference_prod_to_pvsyst[$i] + $diffProdPVSYSSum[$i - 1];
                 $diffProdG4NSum[$i] = $diefference_prod_to_expected_g4n[$i] + $diffProdG4NSum[$i - 1];
-                $diffProdEgridSum[$i] = $diefference_prod_to_egrid[$i] + $diffProdEgridSum[$i - 1];
-            }
+                $diffProdEgridSum[$i] = $diefference_prod_to_egrid[$i ] + $diffProdEgridSum[$i - 1];
+                $diffActForecastSum[$i] = $diffActForecastSum[$i - 1]+($tbody_a_production['powerAct'][$i] - $forecast[$i]);
 
-            if ($i + 1 > $report['reportMonth']) {
+
+            if ($i +1  > $report['reportMonth']) {
                 $difference_Egrid_to_PVSYST[$i] = 0;
                 $difference_Egrid_to_Expected_G4n[$i] = 0;
                 $difference_Inverter_to_Egrid[$i] = 0;
+                $difference_actual_forecast[$i] = 0;
             } else {
-                $difference_Egrid_to_PVSYST[] = $diffProdPVSYSSum[$i];
-                $difference_Egrid_to_Expected_G4n[] = $diffProdG4NSum[$i];
-                $difference_Inverter_to_Egrid[] = $diffProdEgridSum[$i];
+                $difference_Egrid_to_PVSYST[$i] = $diffProdPVSYSSum[$i];
+                $difference_Egrid_to_Expected_G4n[$i] = $diffProdG4NSum[$i];
+                $difference_Inverter_to_Egrid[$i] = $diffProdEgridSum[$i];
+                $difference_actual_forecast[$i] = $diffActForecastSum[$i];
             }
         }
 
@@ -719,6 +724,7 @@ class AssetManagementService
             'difference_Egrid_to_PVSYST' => $difference_Egrid_to_PVSYST,
             'difference_Egrid_to_Expected_G4n' => $difference_Egrid_to_Expected_G4n,
             'difference_Inverter_to_Egrid' => $difference_Inverter_to_Egrid,
+            'difference_act_forecast' => $difference_actual_forecast,
         ];
 
         $chart->xAxis = [
@@ -2539,6 +2545,13 @@ class AssetManagementService
             if ((float)$forecast[$i] > 0) $incomePerMonth['gvn_plan_proceeds_EXP'][$i] = (float)$forecast[$i] * $monthleyFeedInTarif;
             else $incomePerMonth['gvn_plan_proceeds_EXP'][$i] = 0;
 
+            if ((float)$data1_grid_meter['powerExp'] > 0 ) {
+                (float)$incomePerMonth['powerExp'] = $data1_grid_meter['powerExp'] * $monthleyFeedInTarif;
+            }
+            else{
+                $incomePerMonth['powerExp'] = 0;
+            }
+
             if ($incomePerMonth['revenues_act'][$i] == 0) $incomePerMonth['revenues_act_minus_totals'][$i] = 0;
             else $incomePerMonth['revenues_act_minus_totals'][$i] = $incomePerMonth['revenues_act'][$i] - $economicsMandy[$i];
 
@@ -2548,6 +2561,8 @@ class AssetManagementService
             if ($incomePerMonth['gvn_plan_proceeds_EXP'][$i] == 0) $incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'][$i] = 0;
             else $incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'][$i] = $incomePerMonth['gvn_plan_proceeds_EXP'][$i] - $economicsMandy[$i];
 
+            if ($incomePerMonth['powerExp'] == 0) $incomePerMonth['powerExpTotal'][$i] = 0;
+            else $incomePerMonth['powerExpTotal'][$i] = $incomePerMonth['powerExp'][$i] - $economicsMandy[$i];
             $incomePerMonth['monthley_feed_in_tarif'][$i] = $monthleyFeedInTarif;
 
         }
