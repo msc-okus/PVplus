@@ -88,33 +88,30 @@
                     </thead>
                     <tbody>
                     {% set powerEvuTotal = 0 %}
-                    {% if (anlage.hasGrid ) %}
+
                             {% for data in table_overview_monthly.powerEvu %}
                                 {% set powerEvuTotal = powerEvuTotal+data %}
                             {% endfor %}
-                            {{ Macros.grid(table_overview_monthly, anlage)}}
-                            {% if (anlage.hasPVSYST == true) %}
-                                {{ Macros.expectedPvSyst(table_overview_monthly, anlage) }}
-                            {% endif %}
-                            {{ Macros.expectedG4N(table_overview_monthly, anlage) }}
-                            {{ Macros.inverterOut(table_overview_monthly, anlage, powerEvuTotal) }}
-                    {% else %}
+
+                    {{ Macros.grid(table_overview_monthly, anlage)}}
+                    {{ Macros.expectedG4N(table_overview_monthly, anlage) }}
+                    {{ Macros.forecast(table_overview_monthly, anlage, powerEvuTotal) }}
+                    {% if (anlage.hasPVSYST == true) %}
+                        {{ Macros.expectedPvSyst(table_overview_monthly, anlage) }}
+                    {% endif %}
                         {% for data in table_overview_monthly.powerAct %}
                             {% set powerEvuTotal = powerEvuTotal+data %}
                         {% endfor %}
 
-                        {{ Macros.expectedG4N(table_overview_monthly, anlage) }}
-                        {{ Macros.forecast(table_overview_monthly, anlage) }}
-
-                        {% if (anlage.hasPVSYST == true) %}
-                            {{ Macros.expectedPvSyst(table_overview_monthly, anlage) }}
-                        {% endif %}
-                    {% endif %}
-
+                    <tr>
+                        <td style="text-align: left;" colspan="7">
+                            <sup>*</sup>Grid Meter/Inverter Out. Depending on What data is available <br>
+                            <sup>**</sup>Simulation (PS); is a yield simulation program for photovoltaic systems, e.g.: PVSyst, PVSol, etc.
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
-                <p><sup>*</sup>Grid Meter/Inverter Out. Depending on What data is available</p>
-                <p><sup>**</sup>Simulation (PS); is a yield simulation program for photovoltaic systems, e.g.: PVSyst, PVSol, etc.</p>
+
 
             </td>
         </tr>

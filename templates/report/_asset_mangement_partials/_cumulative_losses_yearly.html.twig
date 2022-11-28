@@ -22,7 +22,7 @@
                     <tbody>
 
                         <tr>
-                            <td class="tr_first_column" style="text-align: right;width:150px">Diff ACT to Exp g4n</td>
+                            <td class="tr_first_column" style="text-align: right;width:150px">Diff ACT<sup>*</sup> to EXP g4n<sup>**</sup></td>
                             {% for data in losses_t1.difference_Egrid_to_Expected_G4n %}
                                 <td class="tr_next_columns" >{{ data|number_format(0, ',', '.') }}</td>
                             {% endfor %}
@@ -41,12 +41,16 @@
                         {% endfor %}
                     </tr>
                     {% endif %}
-
+                    <tr>
+                        <td style="text-align: left" colspan="6">
+                            <sup>*</sup> ACT; Production actual <br>
+                            <sup>**</sup> Expected g4n production <br>
+                            <sup>***</sup> Plan Simulation (PS); is a yield simulation program for photovoltaic systems, e.g.: PVSyst, PVSol, etc.
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
-                <sup>*</sup> ACT; Production actual <br>
-                <sup>**</sup> Expected g4n production <br>
-                <sup>***</sup> Plan Simulation (PS); is a yield simulation program for photovoltaic systems, e.g.: PVSyst, PVSol, etc.
+
             </td>
         </tr>
         <td style="text-align: left">

@@ -605,24 +605,38 @@ class AssetManagementService
             if ($i < count($tbody_a_production['powerEvu'])) {
                 if ($anlage->getShowEvuDiag()) {
                     if ($anlage->getUseGridMeterDayData()) {
-                        $diefference_prod_to_egrid[] = $tbody_a_production['powerExt'][$i] - $tbody_a_production['powerAct'][$i];
+                        $diefference_prod_to_egrid[$i] = $tbody_a_production['powerExt'][$i] - $tbody_a_production['powerAct'][$i];
                     } else {
-                        $diefference_prod_to_egrid[] = $tbody_a_production['powerEvu'][$i] - $tbody_a_production['powerAct'][$i];
+                        $diefference_prod_to_egrid[$i] = $tbody_a_production['powerEvu'][$i] - $tbody_a_production['powerAct'][$i];
                     }
                 } else {
-                    $diefference_prod_to_egrid[] = $tbody_a_production['powerAct'][$i] - $tbody_a_production['powerAct'][$i];
+                    $diefference_prod_to_egrid[$i] = 0;
                 }
             } else {
-                $diefference_prod_to_egrid[] = 0;
+                $diefference_prod_to_egrid[$i] = 0;
             }
         }
-
+        for ($i = 0; $i < 12; ++$i) {
+            if ($i < $report['reportMonth'] ) {
+                if ($anlage->getShowEvuDiag()) {
+                    if ($anlage->getUseGridMeterDayData()) {
+                        $difference_prod_to_forecast[$i] = $tbody_a_production['powerExt'][$i] - $forecast[$i];
+                    } else {
+                        $difference_prod_to_forecast[$i] = $tbody_a_production['powerEvu'][$i] - $forecast[$i];
+                    }
+                } else {
+                    $difference_prod_to_forecast[$i] = 0;
+                }
+            } else {
+                $difference_prod_to_forecast[$i] = 0;
+            }
+        }
         $losses_t2 = [
             'diefference_prod_to_pvsyst' => $diefference_prod_to_pvsyst,
             'diefference_prod_to_expected_g4n' => $diefference_prod_to_expected_g4n,
             'diefference_prod_to_egrid' => $diefference_prod_to_egrid,
+            'difference_prod_to_forecast' => $difference_prod_to_forecast
         ];
-
         $chart->xAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -2534,7 +2548,6 @@ class AssetManagementService
             }else{
                 (float) $power = $data1_grid_meter['powerAct']; // Inv out
             }
-            
             if (((float)$data1_grid_meter['powerAct'] > 0 ) && ($i < $month -1)) $incomePerMonth['revenues_act'][$i] = $power * $monthleyFeedInTarif;
             else $incomePerMonth['revenues_act'][$i] = 0;
 
@@ -2546,10 +2559,10 @@ class AssetManagementService
             else $incomePerMonth['gvn_plan_proceeds_EXP'][$i] = 0;
 
             if ((float)$data1_grid_meter['powerExp'] > 0 ) {
-                (float)$incomePerMonth['powerExp'] = $data1_grid_meter['powerExp'] * $monthleyFeedInTarif;
+                (float)$incomePerMonth['powerExp'][$i] = (float)$data1_grid_meter['powerExp'] * $monthleyFeedInTarif;
             }
             else{
-                $incomePerMonth['powerExp'] = 0;
+                $incomePerMonth['powerExp'][$i] = 0;
             }
 
             if ($incomePerMonth['revenues_act'][$i] == 0) $incomePerMonth['revenues_act_minus_totals'][$i] = 0;
@@ -2564,7 +2577,6 @@ class AssetManagementService
             if ($incomePerMonth['powerExp'] == 0) $incomePerMonth['powerExpTotal'][$i] = 0;
             else $incomePerMonth['powerExpTotal'][$i] = $incomePerMonth['powerExp'][$i] - $economicsMandy[$i];
             $incomePerMonth['monthley_feed_in_tarif'][$i] = $monthleyFeedInTarif;
-
         }
 
         $revenuesSumPVSYST[0] = $incomePerMonth['revenues_act'][0];
@@ -2810,21 +2822,27 @@ class AssetManagementService
         $chart->series =
             [
                 [
-                    'name' => 'Revenues ACT',
+                    'name' => 'Actual',
                     'type' => 'bar',
-                    'data' => $incomePerMonth['revenues_act_minus_totals'],
+                    'data' => $incomePerMonth['revenues_act'],
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'PVSYST plan proceeds - EXP',
+                    'name' => 'Plan simulation',
                     'type' => 'bar',
                     'data' => $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'],
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'g4n plan proceeds - EXP',
+                    'name' => 'Expected g4n',
                     'type' => 'bar',
-                    'data' => $incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'],
+                    'data' => $incomePerMonth['powerExp'],
+                    'visualMap' => 'false',
+                ],
+                [
+                    'name' => 'Forecast g4n',
+                    'type' => 'bar',
+                    'data' => $incomePerMonth['gvn_plan_proceeds_EXP'],
                     'visualMap' => 'false',
                 ],
             ];
@@ -2936,21 +2954,27 @@ class AssetManagementService
         $chart->series =
             [
                 [
-                    'name' => 'Profit ACT',
+                    'name' => 'Actual - Profit',
                     'type' => 'bar',
                     'data' => $incomePerMonth['revenues_act_minus_totals'],
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'PVSYST plan proceeds',
+                    'name' => 'Plan simulation - proceeds',
                     'type' => 'bar',
                     'data' => $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'],
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'g4n plan proceeds - EXP ',
+                    'name' => 'Forecast g4n - proceeds',
                     'type' => 'bar',
                     'data' => $incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'],
+                    'visualMap' => 'false',
+                ],
+                [
+                    'name' => 'Expected g4n - proceeds',
+                    'type' => 'bar',
+                    'data' => $incomePerMonth['powerExpTotal'],
                     'visualMap' => 'false',
                 ],
             ];
