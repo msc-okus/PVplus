@@ -86,10 +86,13 @@ class UpdateAvailabilityCommand extends Command
             for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp = $stamp + (24 * 3600)) {
                 $from = date('Y-m-d 00:00', $stamp);
                 if ($anlage->getAnlInputDaily() == 'Yes') {
-                    $from = ($from - (24 * 3600)); // gestern, da Anlage heute keine Daten bekommt
+                    $from = date('Y-m-d 00:00', $stamp - (24 * 3600)); // gestern, da Anlage heute keine Daten bekommt
                 }
-                if ($anlage->getAnlId() == 112 || $anlage->getAnlId() == 113) {
-                    #$ergebniss = $this->availabilityByTicket->checkAvailability($anlage, strtotime($from), 1);
+                if ($anlage->getAnlId() == 93 || $anlage->getAnlId() == 95) {
+                    $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, $from, 0);
+                    $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, $from, 1);
+                    $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, $from, 2);
+                    $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, $from, 3);
                 } else {
                     $ergebniss = $this->availability->checkAvailability($anlage, strtotime($from));
                     if ($anlage->getShowAvailabilitySecond()) {
@@ -99,7 +102,7 @@ class UpdateAvailabilityCommand extends Command
                 $io->progressAdvance();
             }
             $io->comment($anlage->getAnlName());
-            sleep(2);
+            sleep(5);
         }
         $io->progressFinish();
         $io->success('Berechnung der Verfügbarkeit abgeschlossen!');

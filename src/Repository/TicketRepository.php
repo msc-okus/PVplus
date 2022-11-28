@@ -120,6 +120,7 @@ class TicketRepository extends ServiceEntityRepository
         else $qb->andWhere("ticket.ignoreTicket = false");
 
         if ($sort !== "") $qb->addOrderBy($sort, $direction);
+        $qb->addOrderBy("ticket.id", "ASC"); // second order by ID
 
         return $qb;
     }

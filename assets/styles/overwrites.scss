@@ -577,15 +577,21 @@
                     &.alert>td,
                     &>td.alert {background-color: $danger; border-radius: 0;}
                 }
+
             }
             #statusTable {
-                th, td {white-space: nowrap; vertical-align: top; padding-left: 0; padding-right: 0; text-align: center;}
+                th, td {white-space: nowrap; vertical-align: top; padding: 0; text-align: center;}
 
                 .topline {
-                    border-top: #d6d6d6 1px solid;
+                    border-bottom: #d6d6d6 1px solid;
                     display: block;
                     padding-top: 3px;
+                    padding-bottom: 3px;
                 }
+                .js-pa-0 {display: block;}
+                .js-pa-1 {display: block;}
+                .js-pa-2 {display: block;}
+                .js-pa-3 {display: block;}
             }
 
             #amchart-holder {

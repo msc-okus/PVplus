@@ -83,6 +83,7 @@ class UpdateExpectedDbsCommand extends Command
                 $output = $this->expected->storeExpectedToDatabase($anlage, $from, $to);
             }
             $io->comment($anlage->getAnlName().' - '.$anlage->getAnlId());
+            sleep(5);
         }
         $io->progressFinish();
         $io->success('Berechnung der Soll Werte abgeschlossen!');

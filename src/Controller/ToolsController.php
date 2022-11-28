@@ -7,6 +7,7 @@ use App\Form\Tools\ToolsFormType;
 use App\Helper\G4NTrait;
 use App\Message\Command\CalcExpected;
 use App\Message\Command\CalcPlantAvailability;
+use App\Message\Command\CalcPlantAvailabilityNew;
 use App\Message\Command\CalcPR;
 use App\Service\LogMessagesService;
 use Symfony\Component\HttpFoundation\Request;
@@ -43,16 +44,23 @@ class ToolsController extends BaseController
                     break;
                 case 'pr':
                     $output = '<h3>PR:</h3>';
-                    $job = 'Update PR Table – from '.$toolsModel->startDate->format('Y-m-d 00:00').' until '.$toolsModel->endDate->format('Y-m-d 00:00');
+                    $job = 'Update PR – from '.$toolsModel->startDate->format('Y-m-d 00:00').' until '.$toolsModel->endDate->format('Y-m-d 00:00');
                     $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'PR', $job);
                     $message = new CalcPR($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
                     $messageBus->dispatch($message);
                     break;
                 case 'availability':
                     $output = '<h3>Availability:</h3>';
-                    $job = 'Update Plant Availability Table – from '.$toolsModel->startDate->format('Y-m-d 00:00').' until '.$toolsModel->endDate->format('Y-m-d 00:00');
+                    $job = 'Update Plant Availability – from '.$toolsModel->startDate->format('Y-m-d 00:00').' until '.$toolsModel->endDate->format('Y-m-d 00:00');
                     $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'PA', $job);
                     $message = new CalcPlantAvailability($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
+                    $messageBus->dispatch($message);
+                    break;
+                case 'availability-new':
+                    $output = '<h3>Availability New:</h3>';
+                    $job = 'Update Plant Availability (new) – from '.$toolsModel->startDate->format('Y-m-d 00:00').' until '.$toolsModel->endDate->format('Y-m-d 00:00');
+                    $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'PA', $job);
+                    $message = new CalcPlantAvailabilityNew($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
                     $messageBus->dispatch($message);
                     break;
                 default:

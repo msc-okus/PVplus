@@ -1389,7 +1389,7 @@ and form.selectedChart != 'sollistirranalyse'%}
 {% elseif form.selectedChart == 'availability' %}
     <h3>{{ content.headline }} - {{ aktAnlage.anlName }}</h3>
     <h4>from: {{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to: {{ form.to|date("Y-m-d") }}{% endif %}</h4>
-    {% include 'dashboardPlants/_incl/chart/availabillity.html.twig' %}
+    {% include 'dashboardPlants/_incl/chart/availabillityNew.html.twig' %}
 {% elseif form.selectedChart == 'pvsyst' %}
     {{ pvSystTable(content.pvSysts) }}
 {% elseif form.selectedChart == 'grid' %}

@@ -200,11 +200,13 @@ class AlertSystemService
                         }
                     }
                 }
-
             } else {
                 $errorCategorie = EXTERNAL_CONTROL;
                 $this->generateTickets(OMC, $errorCategorie, $anlage, '*', $time, "");
             }
+        }
+        if ((date('Y-m-d H:i', strtotime($time) + 900) >= $sungap['sunset']) && (date('Y-m-d H:i', strtotime($time) + 900) <= date('Y-m-d H:i', strtotime($sungap['sunset']) +1800))){
+            $this->joinTicketsForTheDay($anlage, date('Y-m-d', strtotime($time)));
         }
         $this->em->flush();
 
@@ -342,6 +344,7 @@ class AlertSystemService
             $ticketDate->setAlertType($errorCategorie);
             $ticket->setErrorType($errorType); // type = errorType (Bsp:  SOR, EFOR, OMC)
             $ticketDate->setErrorType($errorType);
+            if ($ticket->getAlertType() == "20") $ticketDate->setDataGapEvaluation(10);
             $begin = date_create(date('Y-m-d H:i:s', strtotime($time)));
             $begin->getTimestamp();
             $ticket->setBegin($begin);

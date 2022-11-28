@@ -1,27 +1,24 @@
 {% apply inline_css(source('@pdf/report.css'))  %}
 
-
-
 {% set sumSpecYield = 0 %}
 {% set sumIrradiation = 0 %}
 {% set count = 1 %}
 
 {% for pr in report.prs %}
     {% if anlage.useGridMeterDayData %}
-        {% set sumSpecYield                 = sumSpecYield + (pr.powerEGridExt / anlage.power) %}
+        {% set sumSpecYield = sumSpecYield + (pr.powerEGridExt / anlage.power) %}
     {% else %}
-        {% set sumSpecYield                 = sumSpecYield + (pr.powerEvu / anlage.power) %}
+        {% set sumSpecYield = sumSpecYield + (pr.powerEvu / anlage.power) %}
     {% endif %}
-    {% set sumIrradiation               = sumIrradiation + pr.irradiation %}
-
+    {% set sumIrradiation = sumIrradiation + pr.irradiation %}
 {% endfor %}
-
-
-
 
 <html>
 <header>
-
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
 </header>
 <body>
 <div class="container">

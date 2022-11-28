@@ -40,3 +40,4 @@ framework:
             'App\Message\Command\CalcExpected': async
             'App\Message\Command\CalcPR': async
             'App\Message\Command\CalcPlantAvailability': async
+            'App\Message\Command\CalcPlantAvailabilityNew': async
