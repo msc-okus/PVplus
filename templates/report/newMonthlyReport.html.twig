@@ -31,7 +31,7 @@
                           {% set firstItem= report|first %}
                           {% if firstItem is iterable  %}
                               {% for w, z in firstItem %}
-                                  {% if dictionary[w] is same as('') %}
+                                  {% if dictionary[w] is not defined %}
                                   <th>{{ w|humanize }}</th>
                                   {% else %}
                                   <th>{{ dictionary[w] }}</th>
@@ -39,7 +39,7 @@
                               {% endfor %}
                           {% else%}
                               {% for w, z in report %}
-                                  {% if dictionary[w] is same as('') %}
+                                  {% if dictionary[w] is not defined %}
                                       <th>{{ w|humanize }}</th>
                                   {% else %}
                                       <th>{{ dictionary[w] }}</th>

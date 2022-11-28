@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use ApiPlatform\Core\Api\UrlGeneratorInterface;
 use App\Entity\AnlagenReports;
 
 use App\Form\AssetManagement\AssetManagementeReportFormType;
@@ -13,7 +12,6 @@ use App\Reports\Goldbeck\EPCMonthlyPRGuaranteeReport;
 use App\Reports\ReportMonthly\ReportMonthly;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
-use App\Service\AssetManagementService;
 use App\Service\PdfService;
 use App\Service\ReportEpcPRNewService;
 use App\Service\ReportEpcService;
@@ -41,6 +39,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -260,7 +259,7 @@ class ReportingController extends AbstractController
         $anlageq            = $session->get('anlage');
         $searchmonth        = $session->get('month');
         $searchyear         = $session->get('search_year');
-        $route              = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABS_PATH);
+        $route              = $this->generateUrl('app_reporting_list',[], UrlGeneratorInterface::ABSOLUTE_PATH);
         $route              = $route."?anlage=".$anlageq."&searchstatus=".$searchstatus."&searchtype=".$searchtype."&searchmonth=".$searchmonth."&searchyear=".$searchyear."&search=yes";
         $report             = $reportsRepository->find($id);
         $month              = $report->getMonth();
