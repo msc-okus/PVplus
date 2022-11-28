@@ -20,10 +20,10 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_next_columns" style="background-color: #ededed; "><b>Difference Income ACT to PVSYST plan</b></td>
+                        <td class="tr_next_columns" style="background-color: #ededed;"><b>Diff ACT - Profit to EXP g4n</b></td>
                         {% set counter = 1 %}
                         {% set total = 0 %}
-                        {% for data in lossesComparedTable.Difference_Profit_ACT_to_PVSYST_plan %}
+                        {% for data in lossesComparedTable.Difference_Profit_to_expected %}
                             {% if (counter < 7) %}
                                 {% if data == 0 or counter > reportmonth %}
                                     <td class="tr_next_columns">-</td>
@@ -40,10 +40,30 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_next_columns" style="background-color: #ededed;"><b>Difference Income ACT to g4n plan</b></td>
+                        <td class="tr_next_columns" style="background-color: #ededed;"><b>Diff ACT - Profit to g4n forecast</b></td>
                         {% set counter = 1 %}
                         {% set total = 0 %}
                         {% for data in lossesComparedTable.Difference_Profit_ACT_to_g4n_plan %}
+                            {% if (counter < 7) %}
+                                {% if data == 0 or counter > reportmonth %}
+                                    <td class="tr_next_columns">-</td>
+                                {% else %}
+                                    {% if data > 0 %}
+                                        <td class="tr_next_columns" style="color: green">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% else %}
+                                        <td class="tr_next_columns" style="color: red">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                            {% set counter = counter+1 %}
+                            {% set total = total + data %}
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns" style="background-color: #ededed; "><b>Diff ACT - Profit to simulation</b></td>
+                        {% set counter = 1 %}
+                        {% set total = 0 %}
+                        {% for data in lossesComparedTable.Difference_Profit_ACT_to_PVSYST_plan %}
                             {% if (counter < 7) %}
                                 {% if data == 0 or counter > reportmonth %}
                                     <td class="tr_next_columns">-</td>
@@ -78,10 +98,10 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_next_columns" style="background-color: #ededed; "><b>Difference Income ACT to PVSYST plan</b></td>
+                        <td class="tr_next_columns" style="background-color: #ededed;"><b>Diff ACT - Profit to EXP g4n</b></td>
                         {% set counter = 1 %}
                         {% set total = 0 %}
-                        {% for data in lossesComparedTable.Difference_Profit_ACT_to_PVSYST_plan %}
+                        {% for data in lossesComparedTable.Difference_Profit_to_expected %}
                             {% if (counter > 6) %}
                                 {% if data == 0 or counter > reportmonth %}
                                     <td class="tr_next_columns">-</td>
@@ -98,10 +118,30 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_next_columns" style="background-color: #ededed;"><b>Difference Income ACT to g4n plan</b></td>
+                        <td class="tr_next_columns" style="background-color: #ededed;"><b>Diff ACT - Profit to g4n forecast</b></td>
                         {% set counter = 1 %}
                         {% set total = 0 %}
                         {% for data in lossesComparedTable.Difference_Profit_ACT_to_g4n_plan %}
+                            {% if (counter > 6) %}
+                                {% if data == 0 or counter > reportmonth %}
+                                    <td class="tr_next_columns">-</td>
+                                {% else %}
+                                    {% if data > 0 %}
+                                        <td class="tr_next_columns" style="color: green">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% else %}
+                                        <td class="tr_next_columns" style="color: red">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                            {% set counter = counter+1 %}
+                            {% set total = total + data %}
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns" style="background-color: #ededed; "><b>Diff. ACT - Profit to plan simulation</b></td>
+                        {% set counter = 1 %}
+                        {% set total = 0 %}
+                        {% for data in lossesComparedTable.Difference_Profit_ACT_to_PVSYST_plan %}
                             {% if (counter > 6) %}
                                 {% if data == 0 or counter > reportmonth %}
                                     <td class="tr_next_columns">-</td>

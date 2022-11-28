@@ -68,6 +68,7 @@ class AssetManagementService
      */
     public function buildAssetReport(Anlage $anlage, array $report): array
     {
+        $month = $report['reportMonth'];
         for ($i = 0; $i < 12; ++$i) {
             $forecast[$i] = $this->functions->getForcastByMonth($anlage, $i);
         }
@@ -2581,6 +2582,7 @@ class AssetManagementService
 
         $revenuesSumPVSYST[0] = $incomePerMonth['revenues_act'][0];
         $revenuesSumG4N[0] = $incomePerMonth['revenues_act'][0];
+        $revenuesSumForecast[0] = $incomePerMonth['powerExp'][0];
         $P50SumPVSYS[0] = $incomePerMonth['PVSYST_plan_proceeds_EXP'][0];
         $P50SumG4N[0] = $incomePerMonth['gvn_plan_proceeds_EXP'][0];
         $costSum[0] = $economicsMandy[0];
@@ -2591,11 +2593,12 @@ class AssetManagementService
             if (($incomePerMonth['revenues_act'][$i] > 0) && ($i < $month - 1)) {
                 $revenuesSumG4N[$i] = ($revenuesSumG4N[$i-1] + $incomePerMonth['revenues_act'][$i]) - $costSum[$i];
                 $revenuesSumPVSYST[$i] = ($revenuesSumPVSYST[$i-1] + $incomePerMonth['revenues_act'][$i]) - $costSum[$i];
-
+                $revenuesSumForecast[$i] = $revenuesSumForecast[$i - 1] + $incomePerMonth['powerExp'][$i] - $costSum[$i];
             }
             else{
                 $revenuesSumG4N[$i] = ($revenuesSumG4N[$i-1] + $incomePerMonth['gvn_plan_proceeds_EXP'][$i]) - $costSum[$i];
                 $revenuesSumPVSYST[$i] = ($revenuesSumPVSYST[$i-1] + $incomePerMonth['PVSYST_plan_proceeds_EXP'][$i]) - $costSum[$i];
+                $revenuesSumForecast[$i] = $revenuesSumForecast[$i - 1] + $incomePerMonth['gvn_plan_proceeds_EXP'][$i] - $costSum[$i];
             }
             $P50SumPVSYS[$i] = $incomePerMonth['PVSYST_plan_proceeds_EXP'][$i] + $P50SumPVSYS[$i - 1];
             $P50SumG4N[$i] = $incomePerMonth['gvn_plan_proceeds_EXP'][$i] + $P50SumG4N[$i - 1];
@@ -2604,6 +2607,7 @@ class AssetManagementService
         $economicsCumulatedForecast = [
             'revenues_ACT_and_Revenues_Plan_PVSYT' => $revenuesSumPVSYST,
             'revenues_ACT_and_Revenues_Plan_G4N' => $revenuesSumG4N,
+            'revenues_EXP_and_Revenues_Plan_Forecast' =>  $revenuesSumForecast,
             'PVSYST_plan_proceeds_P50' => $P50SumPVSYS,
             'g4n_plan_proceeds_EXP_P50' => $P50SumG4N,
         ];
@@ -2627,29 +2631,36 @@ class AssetManagementService
         $chart->series =
             [
                 [
-                    'name' => 'Revenues ACT/Revenues-PVSYST',
-                    'type' => 'line',
-                    'data' => $economicsCumulatedForecast['revenues_ACT_and_Revenues_Plan_PVSYT'],
-                    'visualMap' => 'false',
-                ],
-                [
-                    'name' => 'Revenues ACT/Revenues-g4n',
+                    'name' => 'Actual plus Forecast g4n',
                     'type' => 'line',
                     'data' => $economicsCumulatedForecast['revenues_ACT_and_Revenues_Plan_G4N'],
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'PVSYST plan - P50',
+                    'name' => 'Actual plus Plan Simulation',
                     'type' => 'line',
-                    'data' => $economicsCumulatedForecast['PVSYST_plan_proceeds_P50'],
+                    'data' => $economicsCumulatedForecast['revenues_ACT_and_Revenues_Plan_PVSYT'],
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'g4n plan - P50',
+                    'name' => 'Expected g4n plus Forecast g4n',
+                    'type' => 'line',
+                    'data' => $economicsCumulatedForecast['revenues_ACT_and_Revenues_Plan_Forecast'],
+                    'visualMap' => 'false',
+                ],
+                [
+                    'name' => 'Forecast g4n P50',
                     'type' => 'line',
                     'data' => $economicsCumulatedForecast['g4n_plan_proceeds_EXP_P50'],
                     'visualMap' => 'false',
                 ],
+                [
+                    'name' => 'Plan Simulation P50',
+                    'type' => 'line',
+                    'data' => $economicsCumulatedForecast['PVSYST_plan_proceeds_P50'],
+                    'visualMap' => 'false',
+                ],
+
             ];
 
         $option = [
@@ -3018,18 +3029,20 @@ class AssetManagementService
             if ($i < $month - 1) {
                 $Difference_Profit_ACT_to_PVSYST_plan[] = $incomePerMonth['revenues_act_minus_totals'][$i] - $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][$i];
                 $Difference_Profit_ACT_to_g4n_plan[] = $incomePerMonth['revenues_act_minus_totals'][$i] - $incomePerMonth['gvn_plan_proceeds_EXP_minus_totals'][$i];
+                $Difference_Profit_to_EXP[] = $incomePerMonth['revenues_act_minus_totals'][$i] - $incomePerMonth['powerExpTotal'][$i];
             }
             else{
                 $Difference_Profit_ACT_to_PVSYST_plan[] = 0;
                 $Difference_Profit_ACT_to_g4n_plan[] =  0;
+                $Difference_Profit_to_EXP[] = 0;
             }
         }
 
         $lossesComparedTable = [
             'Difference_Profit_ACT_to_PVSYST_plan' => $Difference_Profit_ACT_to_PVSYST_plan,
             'Difference_Profit_ACT_to_g4n_plan' => $Difference_Profit_ACT_to_g4n_plan,
+            'Difference_Profit_to_expected' => $Difference_Profit_to_EXP
         ];
-
 
         // end Losses compared
 
@@ -3057,15 +3070,21 @@ class AssetManagementService
         $chart->series =
             [
                 [
-                    'name' => 'Difference Income ACT to PVSYST plan',
+                    'name' => 'Diff ACT - Profit to plan simulation',
                     'type' => 'bar',
                     'data' => $lossesComparedTable['Difference_Profit_ACT_to_PVSYST_plan'],
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'PVSYST plan proceeds',
+                    'name' => 'Diff. ACT - Profit to g4n forecast',
                     'type' => 'bar',
                     'data' => $lossesComparedTable['Difference_Profit_ACT_to_g4n_plan'],
+                    'visualMap' => 'false',
+                ],
+                [
+                    'name' => 'Diff. ACT- Profit to EXP g4n',
+                    'type' => 'bar',
+                    'data' => $lossesComparedTable['Difference_Profit_to_expected'],
                     'visualMap' => 'false',
                 ],
             ];
@@ -3106,21 +3125,24 @@ class AssetManagementService
         // beginn Table Losses compared cummulated
         $PVSYSDiffSum[0] = $lossesComparedTable['Difference_Profit_ACT_to_PVSYST_plan'][0];
         $G4NDiffSum[0] = $lossesComparedTable['Difference_Profit_ACT_to_g4n_plan'][0];
+        $G4NEXPDiffSum[0] = $lossesComparedTable['Difference_Profit_to_expected'][0];
         for ($i = 0; $i < 12; ++$i) {
-
             if ($i < $month - 1) {
                 $PVSYSDiffSum[$i] = $lossesComparedTable['Difference_Profit_ACT_to_PVSYST_plan'][$i] + $PVSYSDiffSum[$i - 1];
                 $G4NDiffSum[$i] = $lossesComparedTable['Difference_Profit_ACT_to_g4n_plan'][$i] + $G4NDiffSum[$i - 1];
+                $G4NEXPDiffSum[$i] = $lossesComparedTable['Difference_Profit_to_expected'][$i] + $G4NEXPDiffSum[$i - 1];
             }
             else{
                 $PVSYSDiffSum[$i] = 0;
                 $G4NDiffSum[$i] = 0;
+                $G4NEXPDiffSum[$i] = 0;
             }
         }
 
         $lossesComparedTableCumulated = [
             'Difference_Profit_ACT_to_PVSYST_plan_cum' => $PVSYSDiffSum,
             'Difference_Profit_ACT_to_g4n_plan_cum' => $G4NDiffSum,
+            'Difference_Profit_to_expected' => $G4NEXPDiffSum
             ];
 
         // end Table Losses compared cummulated
@@ -3151,15 +3173,21 @@ class AssetManagementService
         $chart->series =
             [
                 [
-                    'name' => 'Difference Income ACT to PVSYST plan',
+                    'name' => 'Diff. ACT - Profit to plan simulation',
                     'type' => 'line',
                     'data' => $lossesComparedTableCumulated['Difference_Profit_ACT_to_PVSYST_plan_cum'],
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'PVSYST plan proceeds',
+                    'name' => 'Diff. ACT - Profit to g4n forecast',
                     'type' => 'line',
                     'data' => $lossesComparedTableCumulated['Difference_Profit_ACT_to_g4n_plan_cum'],
+                    'visualMap' => 'false',
+                ],
+                [
+                    'name' => 'Diff. ACT- Profit to EXP g4n',
+                    'type' => 'line',
+                    'data' => $lossesComparedTableCumulated['Difference_Profit_to_expected'],
                     'visualMap' => 'false',
                 ],
             ];
