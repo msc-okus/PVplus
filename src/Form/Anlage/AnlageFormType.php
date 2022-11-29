@@ -11,6 +11,7 @@ use App\Helper\PVPNameArraysTrait;
 use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
@@ -57,6 +58,11 @@ class AnlageFormType extends AbstractType
         $pldDiviorArray = [
             'Expected Energy' => 'expected',
             'Guaranteed Expected Energy' => 'guaranteedExpected',
+        ];
+
+        $paFormulars = [
+            'ti / (titheo - tiFM)'  => 1,
+            'ti / titheo'           => 2,
         ];
 
         $tooltipTextPlantType = "
@@ -534,44 +540,116 @@ class AnlageFormType extends AbstractType
             // ###############################################
 
             ->add('threshold1PA0', TextType::class, [
-                'label' => 'lower threshold [Watt] ',
+                'label' => 'lower threshold [W/qm] ',
                 'help' => '[threshold1PA0] (ti,theo / Schwellwert 1)',
                 'label_html' => true,
             ])
             ->add('threshold2PA0', TextType::class, [
-                'label' => 'upper threshold (min Irr.) [Watt] ',
+                'label' => 'upper threshold (min Irr.) [W/qm] ',
                 'help' => '[threshold2PA0] (ti / Schwellwert 2)',
                 'label_html' => true,
             ])
             ->add('threshold1PA1', TextType::class, [
-                'label' => 'lower threshold [Watt] ',
+                'label' => 'lower threshold [W/qm] ',
                 'help' => '[threshold1PA1] (ti,theo / Schwellwert 1)',
                 'label_html' => true,
             ])
             ->add('threshold2PA1', TextType::class, [
-                'label' => 'upper threshold (min Irr.) [Watt] ',
+                'label' => 'upper threshold (min Irr.) [W/qm] ',
                 'help' => '[threshold2PA1] (ti / Schwellwert 2)',
                 'label_html' => true,
             ])
             ->add('threshold1PA2', TextType::class, [
-                'label' => 'lower threshold [Watt] ',
+                'label' => 'lower threshold [WaW/qmtt] ',
                 'help' => '[threshold1PA2] (ti,theo / Schwellwert 1)',
                 'label_html' => true,
             ])
             ->add('threshold2PA2', TextType::class, [
-                'label' => 'upper threshold (min Irr.) [Watt] ',
+                'label' => 'upper threshold (min Irr.) [W/qm] ',
                 'help' => '[threshold2PA2] (ti / Schwellwert 2)',
                 'label_html' => true,
             ])
             ->add('threshold1PA3', TextType::class, [
-                'label' => 'lower threshold [Watt] ',
+                'label' => 'lower threshold [W/qm] ',
                 'help' => '[threshold1PA3] (ti,theo / Schwellwert 1)',
                 'label_html' => true,
             ])
             ->add('threshold2PA3', TextType::class, [
-                'label' => 'upper threshold (min Irr.) [Watt] ',
+                'label' => 'upper threshold (min Irr.) [W/qm] ',
                 'help' => '[threshold2PA3] (ti / Schwellwert 2)',
                 'label_html' => true,
+            ])
+            ->add('paFormular0', ChoiceType::class, [
+                'label'         => 'PA Formular',
+                'help'          => '[paFormular0]',
+                'label_html'    => true,
+                'choices'       => $paFormulars,
+                'empty_data'    => 'expected',
+                'expanded'      => false,
+                'multiple'      => false,
+            ])
+            ->add('paFormular1', ChoiceType::class, [
+                'label'         => 'PA Formular',
+                'help'          => '[paFormular1]',
+                'label_html'    => true,
+                'choices'       => $paFormulars,
+                'empty_data'    => 'expected',
+                'expanded'      => false,
+                'multiple'      => false,
+            ])
+            ->add('paFormular2', ChoiceType::class, [
+                'label'         => 'PA Formular',
+                'help'          => '[paFormular2]',
+                'label_html'    => true,
+                'choices'       => $paFormulars,
+                'empty_data'    => 'expected',
+                'expanded'      => false,
+                'multiple'      => false,
+            ])
+            ->add('paFormular3', ChoiceType::class, [
+                'label'         => 'PA Formular',
+                'help'          => '[paFormular3]',
+                'label_html'    => true,
+                'choices'       => $paFormulars,
+                'empty_data'    => 'expected',
+                'expanded'      => false,
+                'multiple'      => false,
+            ])
+            ->add('prFormular0', ChoiceType::class, [
+                'label'         => 'PR Formular',
+                'help'          => '[paFormular0]',
+                'label_html'    => true,
+                'choices'       => $prArray,
+                'empty_data'    => 'expected',
+                'expanded'      => false,
+                'multiple'      => false,
+            ])
+            ->add('prFormular1', ChoiceType::class, [
+                'label'         => 'PR Formular',
+                'help'          => '[paFormular1]',
+                'label_html'    => true,
+                'choices'       => $prArray,
+                'empty_data'    => 'expected',
+                'expanded'      => false,
+                'multiple'      => false,
+            ])
+            ->add('prFormular2', ChoiceType::class, [
+                'label'         => 'PR Formular',
+                'help'          => '[prFormular2]',
+                'label_html'    => true,
+                'choices'       => $prArray,
+                'empty_data'    => 'expected',
+                'expanded'      => false,
+                'multiple'      => false,
+            ])
+            ->add('prFormular3', ChoiceType::class, [
+                'label'         => 'PR Formular',
+                'help'          => '[prFormular3]',
+                'label_html'    => true,
+                'choices'       => $prArray,
+                'empty_data'    => 'expected',
+                'expanded'      => false,
+                'multiple'      => false,
             ])
 
             // ###############################################
