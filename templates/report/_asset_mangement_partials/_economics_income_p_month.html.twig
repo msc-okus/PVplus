@@ -2,13 +2,14 @@
 
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Economics</h3>
+    <span class="subheadline">Income per month</span>
     <table >
         <tr>
             <td colspan="2" style="text-align: left">
                 <table class="asset_report_table_operations_data" style="width: 100%!important;">
                     <tbody>
                     <tr style="background-color: #ededed; font-weight: bold;">
-                        <td class="tr_next_columns">Revenues per month [EUR] </td>
+                        <td class="tr_next_columns">Proceeds per month [EUR] </td>
                         {% set counter = 1 %}
                         {% for data in dataMonthArrayFullYear %}
                             {% if (counter < 7) %}

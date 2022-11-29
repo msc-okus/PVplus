@@ -2,7 +2,7 @@
 
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Economics</h3>
-    <span class="subheadline">Cumulated Losses compared</span>
+    <span class="subheadline">Cumulative comparison of looses</span>
 
     <table >
         <tr>
@@ -10,7 +10,7 @@
                 <table class="asset_report_table_operations_data" style="width: 100%!important;">
                     <tbody>
                     <tr style="font-weight: bold;">
-                        <td class="tr_next_columns" style="background-color: #ededed; width: 300px;">Cumulated losses compared</td>
+                        <td class="tr_next_columns" style="background-color: #ededed; width: 300px;">Cumulated losses compared[EUR]</td>
                         {% set counter = 1 %}
                         {% for data in dataMonthArrayFullYear %}
                             {% if (counter < 7) %}
@@ -40,7 +40,7 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_next_columns" style="background-color: #ededed;">Diff. ACT - Profit to plan simulation</td>
+                        <td class="tr_next_columns" style="background-color: #ededed;"><b>Diff. ACT - Profit to g4n forecast</b></td></td>
                         {% set counter = 1 %}
                         {% set total = 0 %}
                         {% for data in lossesComparedTableCumulated.Difference_Profit_ACT_to_g4n_plan_cum %}
@@ -60,7 +60,7 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_next_columns" style="background-color: #ededed; "><b>Diff. ACT - Profit to plan simulation</b></td>
+                        <td class="tr_next_columns" style="background-color: #ededed; "><b>Diff. ACT - Profit to Plan Simulation</b></td>
                         {% set counter = 1 %}
                         {% set total = 0 %}
                         {% for data in lossesComparedTableCumulated.Difference_Profit_ACT_to_PVSYST_plan_cum %}
@@ -88,7 +88,7 @@
                 <table class="asset_report_table_operations_data" style="width: 100%!important;">
                     <tbody>
                     <tr style="font-weight: bold;">
-                        <td class="tr_next_columns" style="background-color: #ededed; width: 300px;">Losses Operating statement [EUR]</td>
+                        <td class="tr_next_columns" style="background-color: #ededed; width: 300px;">Cumulated losses compared[EUR]</td>
                         {% set counter = 1 %}
                         {% for data in dataMonthArrayFullYear %}
                             {% if (counter > 6) %}
@@ -118,7 +118,7 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_next_columns" style="background-color: #ededed;">Diff. ACT - Profit to g4n forecast</td>
+                        <td class="tr_next_columns" style="background-color: #ededed;"><b>Diff. ACT - Profit to g4n forecast</b></td>
                         {% set counter = 1 %}
                         {% set total = 0 %}
                         {% for data in lossesComparedTableCumulated.Difference_Profit_ACT_to_g4n_plan_cum %}
@@ -138,7 +138,7 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_next_columns" style="background-color: #ededed; "><b>Diff. ACT - Profit to plan simulation</b></td>
+                        <td class="tr_next_columns" style="background-color: #ededed; "><b>Diff. ACT - Profit to Plan Simulation</b></td>
                         {% set counter = 1 %}
                         {% set total = 0 %}
                         {% for data in lossesComparedTableCumulated.Difference_Profit_ACT_to_PVSYST_plan_cum %}

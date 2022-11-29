@@ -2,7 +2,7 @@
 
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Economics</h3>
-    <span class="subheadline">Monthly losses compared</span>
+    <span class="subheadline">Comparison of monthly looses</span>
 
     <table >
         <tr>
@@ -60,7 +60,7 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_next_columns" style="background-color: #ededed; "><b>Diff ACT - Profit to simulation</b></td>
+                        <td class="tr_next_columns" style="background-color: #ededed; "><b>Diff ACT - Profit to Plan Simulation</b></td>
                         {% set counter = 1 %}
                         {% set total = 0 %}
                         {% for data in lossesComparedTable.Difference_Profit_ACT_to_PVSYST_plan %}
@@ -138,7 +138,7 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_next_columns" style="background-color: #ededed; "><b>Diff. ACT - Profit to plan simulation</b></td>
+                        <td class="tr_next_columns" style="background-color: #ededed; "><b>Diff. ACT - Profit to Plan Simulation</b></td>
                         {% set counter = 1 %}
                         {% set total = 0 %}
                         {% for data in lossesComparedTable.Difference_Profit_ACT_to_PVSYST_plan %}

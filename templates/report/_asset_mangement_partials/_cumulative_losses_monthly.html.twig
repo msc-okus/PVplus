@@ -39,7 +39,7 @@
 
                     {% if (anlage.hasPVSYST) %}
                         <tr>
-                            <td  class="tr_first_column" style="text-align: right">Diff. ACT to plan Simulation <sup>***</sup></td>
+                            <td  class="tr_first_column" style="text-align: right">Diff. ACT to Plan Simulation <sup>***</sup></td>
                             {% for data in losses_t2.diefference_prod_to_pvsyst %}
                                 <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                             {% endfor %}
