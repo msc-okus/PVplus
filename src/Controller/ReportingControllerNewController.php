@@ -32,8 +32,8 @@ class ReportingControllerNewController extends AbstractController
      */
     #[Route(path: '/reportingNew/create', name: 'app_reportingnew_create', methods: ['GET', 'POST'])]
     public function createReport(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo,
-                                 ReportService $report, EntityManagerInterface $em,
-                                  ReportsRepository $reportRepo): Response
+                                 ReportService $report, EntityManagerInterface $em, ReportsMonthlyService $reportsMonthly, ReportEpcService $reportEpc, ReportEpcPRNewService $reportEpcNew,
+                                  AssetManagementService $assetManagement, ReportsRepository $reportRepo): Response
     {
         $anlage = $request->query->get('anlage');
         $searchstatus = $request->query->get('searchstatus');
