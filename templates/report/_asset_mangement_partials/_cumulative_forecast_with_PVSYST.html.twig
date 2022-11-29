@@ -2,7 +2,7 @@
 
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Cumulative Forecast - PVSYST</h3>
-    <span class="subheadline">Yearly expected PVSYST vs. actuals</span>
+    <span class="subheadline">Yearly planned simulation values vs. Actuals</span>
     {% for data in table_overview_monthly.powerEvu %}
     {% endfor %}
     <table >
@@ -24,40 +24,42 @@
                     </thead>
                     <tbody>
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Prod.* ACT / PVSYST - P50</td>
+                        <td class="tr_first_column" style="text-align: right">Prod.* ACT / SP - P50</td>
                         {% for data in forecast_PVSYST_table.forcast_PVSYSTP50 %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Prod.* ACT /  PVSYST - P90</td>
+                        <td class="tr_first_column" style="text-align: right">Prod.* ACT /  SP - P90</td>
                         {% for data in forecast_PVSYST_table.forcast_PVSYSTP90 %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Plan PVSYST - P50</td>
+                        <td class="tr_first_column" style="text-align: right">Plan Simulation<sup>**</sup> - P50</td>
                         {% for data in forecast_PVSYST_table.forcast_plan_PVSYSTP50 %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
 
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Plan PVSYST - P90</td>
+                        <td class="tr_first_column" style="text-align: right">Plan Simulation - P90</td>
                         {% for data in forecast_PVSYST_table.forcast_plan_PVSYSTP90 %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
-
+                    <tr>
+                        <td style="text-align: left" colspan="8">
+                            <sup>*</sup> Production actual <br>
+                            <sup>**</sup>Plant Simulation (PS); is a yield simulation program for photovoltaic systems, e.g.: PVSyst, PVSol, etc.<br>
+                            P90:      {{ anlage.LossesForecast }} %
+                        </td>
+                    </tr>
 
                     </tbody>
-                    <tr>
-                        <td class="td_texthint_2" style="vertical-align: top">* Production</td>
-                    </tr>
-                    <tr>
-                        <td class="td_texthint_2" style="vertical-align: top">P90: {{ anlage.LossesForecast }}   %</td>
-                    </tr>
+
                 </table>
+
 
             </td>
 
