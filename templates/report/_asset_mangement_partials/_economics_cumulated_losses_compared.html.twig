@@ -2,7 +2,7 @@
 
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Economics</h3>
-    <span class="subheadline">Cumulated Losses compared</span>
+    <span class="subheadline">Cumulative comparison of looses</span>
 
     <table >
         <tr>
@@ -10,7 +10,7 @@
                 <table class="asset_report_table_operations_data" style="width: 100%!important;">
                     <tbody>
                     <tr style="font-weight: bold;">
-                        <td class="tr_next_columns" style="background-color: #ededed; width: 300px;">Cumulated losses compared</td>
+                        <td class="tr_next_columns" style="background-color: #ededed; width: 300px;">Cumulated losses compared[EUR]</td>
                         {% set counter = 1 %}
                         {% for data in dataMonthArrayFullYear %}
                             {% if (counter < 7) %}
@@ -20,24 +20,60 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_next_columns" style="background-color: #ededed; "><b>Difference Income ACT to PVSYST plan  </b></td>
+                        <td class="tr_next_columns" style="background-color: #ededed; "><b>Diff. ACT- Profit to EXP g4n</b></td>
                         {% set counter = 1 %}
                         {% set total = 0 %}
-                        {% for data in lossesComparedTableCumulated.Difference_Profit_ACT_to_PVSYST_plan_cum %}
+                        {% for data in lossesComparedTableCumulated.Difference_Profit_to_expected %}
                             {% if (counter < 7) %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% if data == 0 %}
+                                    <td class="tr_next_columns">-</td>
+                                {% else %}
+                                    {% if data > 0 %}
+                                        <td class="tr_next_columns" style="color: green">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% else %}
+                                        <td class="tr_next_columns" style="color: red">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% endif %}
+                                {% endif %}
                             {% endif %}
                             {% set counter = counter+1 %}
                             {% set total = total + data %}
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_next_columns" style="background-color: #ededed;">Difference Income ACT to g4n plan</td>
+                        <td class="tr_next_columns" style="background-color: #ededed;"><b>Diff. ACT - Profit to g4n forecast</b></td></td>
                         {% set counter = 1 %}
                         {% set total = 0 %}
                         {% for data in lossesComparedTableCumulated.Difference_Profit_ACT_to_g4n_plan_cum %}
                             {% if (counter < 7) %}
-                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                {% if data == 0 %}
+                                    <td class="tr_next_columns">-</td>
+                                {% else %}
+                                    {% if data > 0 %}
+                                        <td class="tr_next_columns" style="color: green">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% else %}
+                                        <td class="tr_next_columns" style="color: red">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                            {% set counter = counter+1 %}
+                            {% set total = total + data %}
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns" style="background-color: #ededed; "><b>Diff. ACT - Profit to Plan Simulation</b></td>
+                        {% set counter = 1 %}
+                        {% set total = 0 %}
+                        {% for data in lossesComparedTableCumulated.Difference_Profit_ACT_to_PVSYST_plan_cum %}
+                            {% if (counter < 7) %}
+                                {% if data == 0 %}
+                                    <td class="tr_next_columns">-</td>
+                                {% else %}
+                                    {% if data > 0 %}
+                                        <td class="tr_next_columns" style="color: green">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% else %}
+                                        <td class="tr_next_columns" style="color: red">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% endif %}
+                                {% endif %}
                             {% endif %}
                             {% set counter = counter+1 %}
                             {% set total = total + data %}
@@ -52,7 +88,7 @@
                 <table class="asset_report_table_operations_data" style="width: 100%!important;">
                     <tbody>
                     <tr style="font-weight: bold;">
-                        <td class="tr_next_columns" style="background-color: #ededed; width: 300px;">Losses Operating statement [EUR]</td>
+                        <td class="tr_next_columns" style="background-color: #ededed; width: 300px;">Cumulated losses compared[EUR]</td>
                         {% set counter = 1 %}
                         {% for data in dataMonthArrayFullYear %}
                             {% if (counter > 6) %}
@@ -62,15 +98,19 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_next_columns" style="background-color: #ededed; "><b>Difference Income ACT to PVSYST plan</b></td>
+                        <td class="tr_next_columns" style="background-color: #ededed; "><b>Diff. ACT- Profit to EXP g4n</b></td>
                         {% set counter = 1 %}
                         {% set total = 0 %}
-                        {% for data in lossesComparedTableCumulated.Difference_Profit_ACT_to_PVSYST_plan_cum %}
+                        {% for data in lossesComparedTableCumulated.Difference_Profit_to_expected %}
                             {% if (counter > 6) %}
                                 {% if data == 0 %}
                                     <td class="tr_next_columns">-</td>
                                 {% else %}
-                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% if data > 0 %}
+                                        <td class="tr_next_columns" style="color: green">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% else %}
+                                        <td class="tr_next_columns" style="color: red">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% endif %}
                                 {% endif %}
                             {% endif %}
                             {% set counter = counter+1 %}
@@ -78,7 +118,7 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_next_columns" style="background-color: #ededed;">Difference Income ACT to g4n plan</td>
+                        <td class="tr_next_columns" style="background-color: #ededed;"><b>Diff. ACT - Profit to g4n forecast</b></td>
                         {% set counter = 1 %}
                         {% set total = 0 %}
                         {% for data in lossesComparedTableCumulated.Difference_Profit_ACT_to_g4n_plan_cum %}
@@ -86,7 +126,31 @@
                                 {% if data == 0 %}
                                     <td class="tr_next_columns">-</td>
                                 {% else %}
-                                    <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% if data > 0 %}
+                                        <td class="tr_next_columns" style="color: green">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% else %}
+                                        <td class="tr_next_columns" style="color: red">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                            {% set counter = counter+1 %}
+                            {% set total = total + data %}
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns" style="background-color: #ededed; "><b>Diff. ACT - Profit to Plan Simulation</b></td>
+                        {% set counter = 1 %}
+                        {% set total = 0 %}
+                        {% for data in lossesComparedTableCumulated.Difference_Profit_ACT_to_PVSYST_plan_cum %}
+                            {% if (counter > 6) %}
+                                {% if data == 0 %}
+                                    <td class="tr_next_columns">-</td>
+                                {% else %}
+                                    {% if data > 0 %}
+                                        <td class="tr_next_columns" style="color: green">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% else %}
+                                        <td class="tr_next_columns" style="color: red">{{ data|number_format(0, ',', '.') }}</td>
+                                    {% endif %}
                                 {% endif %}
                             {% endif %}
                             {% set counter = counter+1 %}

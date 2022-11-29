@@ -2,7 +2,6 @@
 
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Monthly Production - Losses</h3>
-    <span class="subheadline">Monthly expected vs. actuals</span>
     <table >
         <tr>
             <td colspan="2" style="text-align: left">
@@ -21,48 +20,43 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% if (anlage.hasPVSYST) %}
-                    <tr>
-                        <td  class="tr_first_column" style="text-align: right">Diff. Grid to PVSYST*</td>
-                        {% for data in losses_t2.diefference_prod_to_pvsyst %}
-                            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                        {% endfor %}
-                    </tr>
 
 
-                    {% endif %}
-                    {% if (anlage.hasGrid) %}
-                    <tr>
-                        <td class="tr_first_column" style="text-align: right">Diff. Grid to expected g4n</td>
-                        {% for data in losses_t2.diefference_prod_to_expected_g4n %}
-                            <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
-                        {% endfor %}
-                    </tr>
-                    {% else %}
                         <tr>
-                            <td class="tr_first_column" style="text-align: right">Diff. Inverter to expected g4n</td>
+                            <td class="tr_first_column" style="text-align: right">Diff. ACT <sup>*</sup> to EXP g4n<sup>**</sup></td>
                             {% for data in losses_t2.diefference_prod_to_expected_g4n %}
                                 <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                             {% endfor %}
                         </tr>
-                    {% endif %}
-                    {% if (anlage.hasGrid) %}
+
+
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Diff. inverter to Egrid</td>
-                        {% for data in losses_t2.diefference_prod_to_egrid %}
+                        <td class="tr_first_column" style="text-align: right">Diff. ACT to g4n forecast</td>
+                        {% for data in losses_t2.difference_prod_to_forecast %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
+
+                    {% if (anlage.hasPVSYST) %}
+                        <tr>
+                            <td  class="tr_first_column" style="text-align: right">Diff. ACT to Plan Simulation <sup>***</sup></td>
+                            {% for data in losses_t2.diefference_prod_to_pvsyst %}
+                                <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
+                            {% endfor %}
+                        </tr>
                     {% endif %}
                     </tbody>
                     {%  if (anlage.hasPVSYST) %}
                     <tr>
-                        <td class="td_texthint_2" style="vertical-align: top">* Plan value PVSYST P50</td>
+                        <td  style="text-align: left" colspan="6">
+                            <sup>*</sup>ACT; Prod actual. <br>
+                            <sup>**</sup>Expected g4n production. <br>
+                            <sup>***</sup> Plan Simulation (PS); is a yield simulation program for photovoltaic systems, e.g.: PVSyst, PVSol, etc.
+                        </td>
                     </tr>
                     {% endif %}
                 </table>
                 <table style="width:100%!important">
-
                     <tr>
                         <td style="text-align: left">{{ losses_monthly|raw }}</td>
                     </tr>

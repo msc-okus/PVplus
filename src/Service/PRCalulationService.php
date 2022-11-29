@@ -660,8 +660,8 @@ class PRCalulationService
         $result['powerTheoTempCorr'] = (float) $power['powerTheo'];
         $result['tempCorrection'] = (float) $tempCorrection;
         $result['irradiation'] = (float) $irr;
-        $result['availability'] = $availability;
-        $result['availability2'] = $pa2; // NOT Ready
+        $result['availability'] = $pa2; // old EPC
+        $result['availability2'] = $pa1; // old O&M
         $result['pa0'] = $pa0;
         $result['pa1'] = $pa1;
         $result['pa2'] = $pa2;

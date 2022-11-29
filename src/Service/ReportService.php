@@ -124,17 +124,17 @@ class ReportService
         $countCase5 = 0;
         $output = '';
 
-        ($docType === 1) ? $total = 'Total' : $total = '<b>Total</b>';
+        ($docType == 1) ? $total = 'Total' : $total = '<b>Total</b>';
         $case5Values = [];
         // beginn case5
         // die Daten nur im korrekten Monat ausgeben
-        foreach ($case5 as $iValue) {
-            if (date('m', strtotime($iValue['stampFrom'])) === $month || date('m', strtotime($iValue['stampTo'])) === $month) {
+        for ($i = 0; $i < count($case5); ++$i) {
+            if (date('m', strtotime($case5[$i]['stampFrom'])) == $month || date('m', strtotime($case5[$i]['stampTo'])) == $month) {
                 $case5Values[] = [
-                    'stampFrom' => $iValue['stampFrom'],
-                    'stampTo' => $iValue['stampTo'],
-                    'inverter' => $iValue['inverter'],
-                    'reason' => $iValue['reason'],
+                    'stampFrom' => $case5[$i]['stampFrom'],
+                    'stampTo' => $case5[$i]['stampTo'],
+                    'inverter' => $case5[$i]['inverter'],
+                    'reason' => $case5[$i]['reason'],
                 ];
             }
         }
@@ -143,30 +143,30 @@ class ReportService
         // beginn create Array for Day Values Table
         $dayValuesFinal = [];
         // die Daten dem Array hinzufuegen
-        foreach ($report['prs'] as $iValue) {
-            $dayValues['datum'] = $iValue->getstamp()->format('m-d');
-            $dayValues['PowerEvuMonth'] = ($anlage->getShowEvuDiag()) ? (float) $iValue->getPowerEvu() : (float) $iValue->getPowerAct();
+        for ($i = 0; $i < count($report['prs']); ++$i) {
+            $dayValues['datum'] = $report['prs'][$i]->getstamp()->format('m-d');
+            $dayValues['PowerEvuMonth'] = ($anlage->getShowEvuDiag()) ? (float) $report['prs'][$i]->getPowerEvu() : (float) $report['prs'][$i]->getPowerAct();
             if ($anlage->getUseGridMeterDayData()) {
-                $dayValues['powerEGridExt'] = (float) $iValue->getpowerEGridExt();
-                $dayValues['spezYield'] = (float) $iValue->getpowerEGridExt() / $anlage->getPnom();
-                $dayValues['prEvuEpc'] = (float) $iValue->getPrEGridExt();
-                $dayValues['prEvuDefault'] = (float) $iValue->getPrDefaultEGridExt();
+                $dayValues['powerEGridExt'] = (float) $report['prs'][$i]->getpowerEGridExt();
+                $dayValues['spezYield'] = (float) $report['prs'][$i]->getpowerEGridExt() / $anlage->getKwPeak();
+                $dayValues['prEvuEpc'] = (float) $report['prs'][$i]->getPrEGridExt();
+                $dayValues['prEvuDefault'] = (float) $report['prs'][$i]->getPrDefaultEGridExt();
             } else {
                 $dayValues['powerEGridExt'] = 0;
-                $dayValues['spezYield'] = ($anlage->getShowEvuDiag()) ? (float) $iValue->getPowerEvu() / $anlage->getKwPeak() : (float) $iValue->getPowerAct() / $anlage->getKwPeak();
-                $dayValues['prEvuEpc'] = ($anlage->getShowEvuDiag()) ? (float) $iValue->getPrEvu() : (float) $iValue->getPrAct();
-                $dayValues['prEvuDefault'] = ($anlage->getShowEvuDiag()) ? (float) $iValue->getPrDefaultEvu() : (float) $iValue->getPrDefaultAct();
+                $dayValues['spezYield'] = ($anlage->getShowEvuDiag()) ? (float) $report['prs'][$i]->getPowerEvu() / $anlage->getKwPeak() : (float) $report['prs'][$i]->getPowerAct() / $anlage->getKwPeak();
+                $dayValues['prEvuEpc'] = ($anlage->getShowEvuDiag()) ? (float) $report['prs'][$i]->getPrEvu() : (float) $report['prs'][$i]->getPrAct();
+                $dayValues['prEvuDefault'] = ($anlage->getShowEvuDiag()) ? (float) $report['prs'][$i]->getPrDefaultEvu() : (float) $report['prs'][$i]->getPrDefaultAct();
             }
-            $dayValues['irradiation'] = (float) $iValue->getirradiation();
+            $dayValues['irradiation'] = (float) $report['prs'][$i]->getirradiation();
             if ($showAvailability === true) {
-                $dayValues['plantAvailability'] = (float) $iValue->getplantAvailability();
+                $dayValues['plantAvailability'] = (float) $report['prs'][$i]->getplantAvailability();
             }
             if ($showAvailabilitySecond === true) {
-                $dayValues['plantAvailabilitySecond'] = (float) $iValue->getplantAvailabilitySecond();
+                $dayValues['plantAvailabilitySecond'] = (float) $report['prs'][$i]->getplantAvailabilitySecond();
             }
-            $dayValues['powerTheo'] = (float) $iValue->getpowerTheo();
-            $dayValues['powerExp'] = (float) $iValue->getpowerExp();
-            $dayValues['case5perDay'] = $iValue->getcase5perDay();
+            $dayValues['powerTheo'] = (float) $report['prs'][$i]->getpowerTheo();
+            $dayValues['powerExp'] = (float) $report['prs'][$i]->getpowerExp();
+            $dayValues['case5perDay'] = $report['prs'][$i]->getcase5perDay();
 
             $dayValuesFinal[] = $dayValues;
         }
@@ -201,14 +201,14 @@ class ReportService
 
         // beginn create Array for Energy Production Chart
         // die Daten dem Array hinzufuegen
-        foreach ($report['prs'] as $iValue) {
+        for ($i = 0; $i < count($report['prs']); ++$i) {
             $dayChartValues[] =
                 [
-                    'datum' => $iValue->getstamp()->format('d'),
-                    'powerEGridExt' => (float) $iValue->getpowerEGridExt(),
-                    'PowerEvuMonth' => ($anlage->getShowEvuDiag()) ? (float) $iValue->getPowerEvu() : (float) $iValue->getPowerAct(),
-                    'irradiation' => (float) $iValue->getirradiation(),
-                    'prEvuProz' => ($anlage->getShowEvuDiag()) ? (float) $iValue->getPrEvu() : (float) $iValue->getPrAct(),
+                    'datum' => $report['prs'][$i]->getstamp()->format('d'),
+                    'powerEGridExt' => (float) $report['prs'][$i]->getpowerEGridExt(),
+                    'PowerEvuMonth' => ($anlage->getShowEvuDiag()) ? (float) $report['prs'][$i]->getPowerEvu() : (float) $report['prs'][$i]->getPowerAct(),
+                    'irradiation' => (float) $report['prs'][$i]->getirradiation(),
+                    'prEvuProz' => ($anlage->getShowEvuDiag()) ? (float) $report['prs'][$i]->getPrEvu() : (float) $report['prs'][$i]->getPrAct(),
                 ];
         }
         // end create Array for Energy Production Chart
@@ -216,17 +216,17 @@ class ReportService
         // beginn create Array for Heat and Temperatur Table
         // die Daten dem Array hinzufuegen
         $heatAndTempValues = [];
-        foreach ($report['prs'] as $iValue) {
+        for ($i = 0; $i < count($report['prs']); ++$i) {
             $heatValues = [];
-            $heatValues['datum'] = $iValue->getstamp()->format('m-d');
-            foreach ($iValue->getirradiationJson() as $key => $value) {
+            $heatValues['datum'] = $report['prs'][$i]->getstamp()->format('m-d');
+            foreach ($report['prs'][$i]->getirradiationJson() as $key => $value) {
                 $heatValues[$key] = (float) $value;
             }
 
             $j = 1;
             $sum = 0;
             $tempValues = [];
-            foreach ($iValue->getTemperaturJson() as $key => $value) {
+            foreach ($report['prs'][$i]->getTemperaturJson() as $key => $value) {
                 $tempValues[$key] = (float) $value;
                 ++$j;
                 $sum += (float) $value;
@@ -250,7 +250,7 @@ class ReportService
             'kwPeakPvSyst' => (float) $report['pvSyst']['powerMonth'],
             'G4NExpected' => (float) $report['lastPR']->getpowerExpMonth(),
         ];
-        if ($usePac === true) {
+        if ($usePac == true) {
             $energypPoduction[1] = [
                 'PD' => 'PAC ('.$report['anlage']->getPacDate()->format('Y-m-d').')',
                 'GMNB' => (float) $report['lastPR']->getpowerEGridExtPac(),
@@ -288,7 +288,7 @@ class ReportService
             'Availability1' => (float) $report['lastPR']->getplantAvailabilityPerMonth(),
             'Availability2' => (float) $report['lastPR']->getplantAvailabilityPerMonthSecond(),
         ];
-        if ($usePac === true) {
+        if ($usePac == true) {
             $performanceRatioAndAvailability[1] = [
                 'PD' => 'PAC ('.$report['anlage']->getPacDate()->format('Y-m-d').')',
                 'GMNB' => (float) $report['lastPR']->getprEGridExtPac(),

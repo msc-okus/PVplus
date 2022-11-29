@@ -34,6 +34,7 @@ export default class extends Controller {
                 url: this.formUrlValue,
             });
         }
+        console.log("hey");
         $(this.modalBodyTarget).foundation();
 
     }
