@@ -109,6 +109,7 @@ class ACPowerChartsService
                 if ($resEvu->rowCount() == 1) {
                     $rowEvu = $resEvu->fetch(PDO::FETCH_ASSOC);
                     $eZEvu = $rowEvu['eZEvu'] / $anlage->getAnzInverterFromGroupsAC();
+                    $eZEvu = max($eZEvu, 0);
                     $evuSum += $eZEvu;
                 } else {
                     $eZEvu = null;
