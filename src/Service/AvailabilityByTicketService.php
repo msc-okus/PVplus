@@ -37,6 +37,9 @@ class AvailabilityByTicketService
     {}
 
     /**
+     * Calculate the availability cases depending on tickets and settings in plant
+     * Stores for every day a record with the case values, this are the base to generate the PA
+     *
      * @param Anlage|int $anlage
      * @param string|DateTime $date
      * @param int $department (for wich department (0 = Technische PA, 1 = O&M, 2 = EPC, 3 = AM)
@@ -71,7 +74,7 @@ class AvailabilityByTicketService
 
         /* Verfügbarkeit der Anlage ermitteln */
         if (isset($anlage)) {
-            $output .= 'Anlage: '.$anlage->getAnlId().' / '.$anlage->getAnlName().' - '.$date->format('Y-m-d')." – Department: $department – ";
+            $output .= 'Anlage: '.$anlage->getAnlId().' / '.$anlage->getAnlName().' ; '.$date->format('Y-m-d')." ; Department: $department ; ";
 
             // Verfügbarkeit Berechnen und in Hilfsarray speichern
             $availabilitysHelper = $this->checkAvailabilityInverter($anlage, $date->getTimestamp(), $timesConfig, $department);
@@ -490,6 +493,8 @@ class AvailabilityByTicketService
     private function calcInvAPart1(Anlage $anlage, array $row, int $department = 0): float
     {
         $paInvPart1 = 0.0;
+
+        // Get needed formular, depending on settings for this department
         $formel = match ($department) {
             1 => $anlage->getPaFormular1(),
             2 => $anlage->getPaFormular2(),
@@ -497,6 +502,7 @@ class AvailabilityByTicketService
             default => $anlage->getPaFormular0(),
         };
 
+        // calculate pa depending on the chose formular
         switch ($formel) {
             case 1: // PA = ti / (ti,theo - tiFM)
                 if ($row['case1'] + $row['case2'] + $row['case5'] != 0 && $row['control'] != 0) {

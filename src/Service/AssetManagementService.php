@@ -3,11 +3,12 @@
 namespace App\Service;
 
 use App\Entity\Anlage;
-use App\Entity\AnlagenPvSystMonth;
+use App\Entity\AnlagenReports;
 use App\Helper\G4NTrait;
 use App\Repository\EconomicVarNamesRepository;
 use App\Repository\EconomicVarValuesRepository;
 use App\Repository\PvSystMonthRepository;
+use App\Repository\ReportsRepository;
 use App\Repository\TicketDateRepository;
 use Doctrine\Instantiator\Exception\ExceptionInterface;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,7 +22,6 @@ class AssetManagementService
 {
     use G4NTrait;
 
-
     private PDO $conn;
 
     public function __construct(
@@ -34,10 +34,56 @@ class AssetManagementService
         private PRCalulationService $PRCalulation,
         private EconomicVarNamesRepository $ecoVarNameRepo,
         private AvailabilityByTicketService $availability,
-        private TicketDateRepository $ticketDateRepo
+        private TicketDateRepository $ticketDateRepo,
+        private ReportsRepository $reportRepo,
     ) 
     {
         $this->conn = self::getPdoConnection();
+    }
+
+    public function createAmReport(Anlage $anlage, $reportMonth, $reportYear): array
+    {
+        $report = $this->reportRepo->findOneByAMY($anlage, $reportMonth, $reportYear)[0];
+        $comment = '';
+        if ($report) {
+            $comment = $report->getComments();
+            $this->em->remove($report);
+            $this->em->flush();
+        }
+        // then we generate our own report and try to persist it
+        $output = $this->assetReport($anlage, $reportMonth, $reportYear, 0);
+        $data = [
+            'Production' => true,
+            'ProdCap' => true,
+            'CumulatForecastPVSYS' => true,
+            'CumulatForecastG4N' => true,
+            'CumulatLosses' => true,
+            'MonthlyProd' => true,
+            'DailyProd' => true,
+            'Availability' => true,
+            'AvYearlyOverview' => true,
+            'AvMonthlyOverview' => true,
+            'AvInv' => true,
+            'StringCurr' => true,
+            'InvPow' => true,
+            'Economics' => true, ];
+        $output['data'] = $data;
+        $report = new AnlagenReports();
+        $report
+            ->setAnlage($anlage)
+            ->setEigner($anlage->getEigner())
+            ->setMonth($reportMonth)
+            ->setYear($reportYear)
+            ->setStartDate(date_create_from_format('d.m.y', date('d.m.y', strtotime('01.'.$reportMonth.'.'.$reportYear))))
+            ->setEndDate(date_create_from_format('d.m.y', date('d.m.y', strtotime('30.'.$reportMonth.'.'.$reportYear))))
+            ->setReportType('am-report')
+            ->setContentArray($output)
+            ->setRawReport('')
+            ->setComments($comment);
+        $this->em->persist($report);
+        $this->em->flush();
+
+        return $output;
     }
 
     /**

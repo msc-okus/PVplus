@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\AnlagenReports;
-
 use App\Form\AssetManagement\AssetManagementeReportFormType;
 use App\Form\Reports\ReportsFormType;
 use App\Helper\G4NTrait;
@@ -12,27 +11,22 @@ use App\Reports\Goldbeck\EPCMonthlyPRGuaranteeReport;
 use App\Reports\ReportMonthly\ReportMonthly;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
+use App\Service\ReportEpcService;
+use App\Service\AssetManagementService;
 use App\Service\PdfService;
 use App\Service\ReportEpcPRNewService;
-use App\Service\ReportEpcService;
 use App\Service\Reports\MonthlyService;
 use App\Service\ReportsEpcNewService;
 use App\Service\ReportService;
 use App\Service\ReportsMonthlyService;
 use Doctrine\ORM\EntityManagerInterface;
-use JetBrains\PhpStorm\NoReturn;
 use Knp\Component\Pager\PaginatorInterface;
 use Knp\Snappy\Pdf;
 use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Color;
-use PhpOffice\PhpSpreadsheet\Style\Fill;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -64,9 +58,7 @@ class ReportingController extends AbstractController
         AnlagenRepository $anlagenRepo,
         ReportEpcService $reportEpc,
         ReportsMonthlyService $reportsMonthly,
-        EntityManagerInterface $em,
         AssetManagementService $assetManagement,
-        ReportsRepository $reportRepo,
         ReportEpcPRNewService $reportEpcNew,
         string $kernelProjectDir): Response
     {
@@ -95,46 +87,7 @@ class ReportingController extends AbstractController
                 break;
             case 'am':
                 // we try to find and delete a previous report from this month/year
-                $report = $reportRepo->findOneByAMY($aktAnlagen[0], $reportMonth, $reportYear)[0];
-                $comment = '';
-                if ($report) {
-                    $comment = $report->getComments();
-                    $em->remove($report);
-                    $em->flush();
-                }
-                $report = new AnlagenReports();
-                // then we generate our own report and try to persist it
-                $output = $assetManagement->assetReport($aktAnlagen[0], $reportMonth, $reportYear, 0);
-                $data = [
-                    'Production' => true,
-                    'ProdCap' => true,
-                    'CumulatForecastPVSYS' => true,
-                    'CumulatForecastG4N' => true,
-                    'CumulatLosses' => true,
-                    'MonthlyProd' => true,
-                    'DailyProd' => true,
-                    'Availability' => true,
-                    'AvYearlyOverview' => true,
-                    'AvMonthlyOverview' => true,
-                    'AvInv' => true,
-                    'StringCurr' => true,
-                    'InvPow' => true,
-                    'Economics' => true, ];
-                $output['data'] = $data;
-                $report = new AnlagenReports();
-                $report
-                    ->setAnlage($aktAnlagen[0])
-                    ->setEigner($aktAnlagen[0]->getEigner())
-                    ->setMonth($reportMonth)
-                    ->setYear($reportYear)
-                    ->setStartDate(date_create_from_format('d.m.y', date('d.m.y', strtotime('01.'.$reportMonth.'.'.$reportYear))))
-                    ->setEndDate(date_create_from_format('d.m.y', date('d.m.y', strtotime('30.'.$reportMonth.'.'.$reportYear))))
-                    ->setReportType('am-report')
-                    ->setContentArray($output)
-                    ->setRawReport('')
-                    ->setComments($comment);
-                $em->persist($report);
-                $em->flush();
+                $output = $assetManagement->createAmReport($aktAnlagen[0], $reportMonth, $reportYear);
                 break;
         }
         $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($anlage, $searchstatus, $searchtype, $searchmonth, $searchyear);
@@ -151,7 +104,7 @@ class ReportingController extends AbstractController
     }
 
     #[Route(path: '/reporting/search', name: 'app_reporting_search', methods: ['GET', 'POST'])]
-    public function searchReports(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo, ReportService $report, ReportEpcService $reportEpc, ReportsMonthlyService $reportsMonthly): Response
+    public function searchReports(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository): Response
     {
         $anlage = $request->query->get('anlage');
         $searchstatus = $request->query->get('searchstatus');
@@ -234,7 +187,7 @@ class ReportingController extends AbstractController
 
     #[Route(path: '/reporting/delete/{id}', name: 'app_reporting_delete')]
     #[IsGranted(['ROLE_DEV'])]
-    public function deleteReport($id, ReportsRepository $reportsRepository, Security $security, EntityManagerInterface $em): Response
+    public function deleteReport($id, ReportsRepository $reportsRepository, EntityManagerInterface $em): Response
     {
         if ($this->isGranted('ROLE_DEV')) {
             /** @var AnlagenReports|null $report */
@@ -587,9 +540,8 @@ class ReportingController extends AbstractController
         $anlageq = $session->get('anlage');
         $searchmonth = $session->get('month');
         $searchyear = $session->get('search_year');
-       $route = $this->generateUrl('app_reporting_list', [], UrlGeneratorInterface::ABSOLUTE_PATH);
-
-        $route = $route.'?anlage='.$anlageq.'&searchstatus='.$searchstatus.'&searchtype='.$searchtype.'&searchmonth='.$searchmonth.'&searchyear='.$searchyear.'&search=yes';
+        $route = $this->generateUrl('app_reporting_list', [], UrlGeneratorInterface::ABSOLUTE_PATH);
+        $route .= '?anlage='.$anlageq.'&searchstatus='.$searchstatus.'&searchtype='.$searchtype.'&searchmonth='.$searchmonth.'&searchyear='.$searchyear.'&search=yes';
         /** @var AnlagenReports|null $report */
         $report = $reportsRepository->find($id);
         $reportCreationDate = $report->getCreatedAt()->format('Y-m-d h:i:s');
@@ -828,33 +780,11 @@ class ReportingController extends AbstractController
         ]);
     }
 
-    #[Deprecated]
-    private function substr_Index($str, $needle, $nth): bool|int
-    {
-        $str2 = '';
-        $posTotal = 0;
-        for($i=0; $i < $nth; $i++){
-
-            if($str2 != ''){
-                $str = $str2;
-            }
-
-            $pos   = strpos($str, $needle);
-            $str2  = substr($str, $pos+1);
-            $posTotal += $pos+1;
-
-        }
-        return $posTotal-1;
-    }
-
-
-
-
-// generate an Excel table based on the report data
-
-
+    /**
+     * generate an Excel table based on the report data
+     */
     #[Route(path: '/reporting/newExcel/{id}', name: 'app_reporting_new_excel')]
-    public function showReportAsNewExcel($id, ReportEpcService $reportEpcService, ReportService $reportService, ReportsRepository $reportsRepository, ReportsMonthlyService $reportsMonthly)
+    public function showReportAsNewExcel($id, ReportEpcService $reportEpcService, ReportService $reportService, ReportsRepository $reportsRepository, ReportsMonthlyService $reportsMonthly): RedirectResponse
     {
         $session = $this->container->get('session');
         $searchstatus = $session->get('search');
@@ -862,49 +792,37 @@ class ReportingController extends AbstractController
         $anlageq = $session->get('anlage');
         $searchmonth = $session->get('month');
         $searchyear = $session->get('search_year');
+        //reporting list path
         $route = $this->generateUrl('app_reporting_list', [], UrlGeneratorInterface::ABSOLUTE_PATH);
-
-         //reporting list path
-        $route = $route.'?anlage='.$anlageq.'&searchstatus='.$searchstatus.'&searchtype='.$searchtype.'&searchmonth='.$searchmonth.'&searchyear='.$searchyear.'&search=yes';
-
+        $route .= '?anlage='.$anlageq.'&searchstatus='.$searchstatus.'&searchtype='.$searchtype.'&searchmonth='.$searchmonth.'&searchyear='.$searchyear.'&search=yes';
 
 
         /** @var AnlagenReports|null $report */
         $report = $reportsRepository->find($id);  //list of reports (monthly, epc and am -reports)
-
-
-          if($report){
-              if(strcmp($report->getReportType(),"monthly-report") ===0){
-                  return $this->redirect($route);
-
-
-              }elseif (strcmp($report->getReportType(),"epc-report") ===0){
-                  $recordContent=$report->getContentArrayForExcel();
-                  if(array_key_exists('monthTable',$recordContent) && array_key_exists('forcastTable',$recordContent) && count($recordContent)===2){
-
-                      $reports= $report->getContentArrayForExcel();
-
-                      $this->exportAsExcelTable($reports);
-
-
-                  }else{
-                      return $this->redirect($route);
-                  }
-
-              }else{
-                  return $this->redirect($route);
-              }
-          }else{
-              return $this->redirect($route);
-          }
-
-
+        if ($report){
+            if (strcmp($report->getReportType(),"monthly-report") === 0){
+                    return $this->redirect($route);
+            } elseif (strcmp($report->getReportType(),"epc-report") === 0){
+                $recordContent=$report->getContentArrayForExcel();
+                if (array_key_exists('monthTable',$recordContent) && array_key_exists('forcastTable',$recordContent) && count($recordContent)===2){
+                    $reports= $report->getContentArrayForExcel();
+                    $this->exportAsExcelTable($reports);
+                } else {
+                    return $this->redirect($route);
+                }
+            } else {
+                return $this->redirect($route);
+            }
+        } else {
+            return $this->redirect($route);
+        }
 
         return $this->redirect($route);
     }
 
 
-    public function exportAsExcelTable($all_reports):void
+   //ToDo: have to be moved to a service
+    private function exportAsExcelTable($all_reports):void
     {
         // Generating SpreadSheet
         $spreadsheet = new Spreadsheet();
@@ -1137,7 +1055,7 @@ class ReportingController extends AbstractController
 
 
     }
-    public function exportAsExcelTableOption2($all_reports):void
+    private function exportAsExcelTableOption2($all_reports):void
     {
         // Generating SpreadSheet
         $spreadsheet = new Spreadsheet();
@@ -1310,92 +1228,6 @@ class ReportingController extends AbstractController
             exit();
 
 
-    }
-
-//create new Report
-    #[Route(path: '/reporting/new_create', name: 'app_reporting_new_create', methods: ['GET', 'POST'])]
-    public function createNewReport(Request $request, PaginatorInterface $paginator, ReportsRepository $reportsRepository, AnlagenRepository $anlagenRepo,
-                                    ReportService $report, ReportEpcService $reportEpc, MonthlyService $reportsMonthly, EntityManagerInterface $em,
-                                    AssetManagementService $assetManagement, ReportsRepository $reportRepo, ReportEpcPRNewService $reportEpcNew): Response
-    {
-        $anlage = $request->query->get('anlage');
-        $searchstatus = $request->query->get('searchstatus');
-        $searchtype = $request->query->get('searchtype');
-        $searchmonth = $request->query->get('searchmonth');
-        $searchyear = $request->query->get('searchyear');
-        $reportType = $request->query->get('report-typ');
-        $reportMonth = $request->query->get('month');
-        $reportYear = $request->query->get('year');
-        $daysOfMonth = date('t', strtotime("$reportYear-$reportMonth-01"));
-        $reportDate = new \DateTime("$reportYear-$reportMonth-$daysOfMonth");
-        $anlageId = $request->query->get('anlage-id');
-        $aktAnlagen = $anlagenRepo->findIdLike([$anlageId]);
-
-        switch ($reportType) {
-            case 'monthly':
-                $output = $reportsMonthly->createMonthlyReport($aktAnlagen[0], $reportMonth, $reportYear);
-                break;
-            case 'epc':
-                $output = $reportEpc->createEpcReport($aktAnlagen[0], $reportDate);
-                break;
-            case 'epc-new-pr':
-                $output = $reportEpcNew->createEpcReportNew($aktAnlagen[0], $reportDate);
-                break;
-            case 'am':
-                // we try to find and delete a previous report from this month/year
-                $report = $reportRepo->findOneByAMY($aktAnlagen[0], $reportMonth, $reportYear)[0];
-                $comment = '';
-                if ($report) {
-                    $comment = $report->getComments();
-                    $em->remove($report);
-                    $em->flush();
-                }
-                $report = new AnlagenReports();
-                // then we generate our own report and try to persist it
-                $output = $assetManagement->assetReport($aktAnlagen[0], $reportMonth, $reportYear, 0);
-                $data = [
-                    'Production' => true,
-                    'ProdCap' => true,
-                    'CumulatForecastPVSYS' => true,
-                    'CumulatForecastG4N' => true,
-                    'CumulatLosses' => true,
-                    'MonthlyProd' => true,
-                    'DailyProd' => true,
-                    'Availability' => true,
-                    'AvYearlyOverview' => true,
-                    'AvMonthlyOverview' => true,
-                    'AvInv' => true,
-                    'StringCurr' => true,
-                    'InvPow' => true,
-                    'Economics' => true, ];
-                $output['data'] = $data;
-                $report = new AnlagenReports();
-                $report
-                    ->setAnlage($aktAnlagen[0])
-                    ->setEigner($aktAnlagen[0]->getEigner())
-                    ->setMonth($reportMonth)
-                    ->setYear($reportYear)
-                    ->setStartDate(date_create_from_format('d.m.y', date('d.m.y', strtotime('01.'.$reportMonth.'.'.$reportYear))))
-                    ->setEndDate(date_create_from_format('d.m.y', date('d.m.y', strtotime('30.'.$reportMonth.'.'.$reportYear))))
-                    ->setReportType('am-report')
-                    ->setContentArray($output)
-                    ->setRawReport('')
-                    ->setComments($comment);
-                $em->persist($report);
-                $em->flush();
-                break;
-        }
-        $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($anlage, $searchstatus, $searchtype, $searchmonth, $searchyear);
-        $pagination = $paginator->paginate(
-            $queryBuilder,
-            $request->query->getInt('page', 1),
-            20
-        );
-        return $this->render('reporting/_inc/_listReports.html.twig', [
-            'pagination' => $pagination,
-            'stati' => self::reportStati(),
-            'anlage' => $aktAnlagen[0],
-        ]);
     }
 
 
@@ -1744,12 +1576,14 @@ class ReportingController extends AbstractController
         return $this->redirect($route);
     }
 
-    public function convertToarray($data){
+    //ToDo: have to be moved to a service
+    private function convertToarray($data): array
+    {
         $it = new \RecursiveIteratorIterator(new \RecursiveArrayIterator($data));
         return iterator_to_array($it,true);
     }
-
-    public function arrayEqualizer($inputs){
+    private function arrayEqualizer($inputs): array
+    {
         $max_size=0;
         $index=0;
        foreach ($inputs as $key=> $value){
@@ -1778,5 +1612,26 @@ class ReportingController extends AbstractController
 
         return $tmp;
     }
+
+    #[Deprecated]
+    private function substr_Index($str, $needle, $nth): bool|int
+    {
+        $str2 = '';
+        $posTotal = 0;
+        for($i=0; $i < $nth; $i++){
+
+            if($str2 != ''){
+                $str = $str2;
+            }
+
+            $pos   = strpos($str, $needle);
+            $str2  = substr($str, $pos+1);
+            $posTotal += $pos+1;
+
+        }
+        return $posTotal-1;
+    }
+
+
 }
 

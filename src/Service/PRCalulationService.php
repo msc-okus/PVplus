@@ -514,8 +514,12 @@ class PRCalulationService
      *  $result['powerTheoTempCorr']<br>
      *  $result['tempCorrection']<br>
      *  $result['irradiation']<br>
-     *  $result['availability']<br>
-     *  $result['availability2'] (not Ready)<br>
+     *  $result['availability'] deprecated<br>
+     *  $result['availability2'] deprecated<br>
+     *  $result['pa0'] (proof)<br>
+     *  $result['pa1'] (proof)<br>
+     *  $result['pa2'] (proof)<br>
+     *  $result['pa3'] (proof)<br>
      *  $result['anzCase5'] (proof)<br>
      *  $result['tCellAvgMeasured'] (proof)<br>
      *  $result['tCellAvgNrel'] (proof)<br>

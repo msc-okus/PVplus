@@ -35,7 +35,14 @@ class ReportService
 
     /**
      * @param $anlagen
-     *
+     * @param int $month
+     * @param int $year
+     * @param int $docType
+     * @param int $chartTypeToExport
+     * @param bool $storeDocument
+     * @param bool $exit
+     * @param bool $export
+     * @return string
      * @throws ExceptionInterface
      */
     public function monthlyReport($anlagen, int $month = 0, int $year = 0, int $docType = 0, int $chartTypeToExport = 0, bool $storeDocument = true, bool $exit = true, bool $export = true): string
