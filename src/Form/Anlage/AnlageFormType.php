@@ -27,11 +27,10 @@ class AnlageFormType extends AbstractType
     use G4NTrait;
     use PVPNameArraysTrait;
 
-    private Security $security;
-
-    public function __construct(Security $security)
+    public function __construct(
+        private Security $security
+    )
     {
-        $this->security = $security;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)

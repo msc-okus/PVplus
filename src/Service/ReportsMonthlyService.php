@@ -106,10 +106,11 @@ class ReportsMonthlyService
             $day = new \DateTime("$year-$month-$i 12:00");
             $prArray = $this->PRCalulation->calcPR($anlage, $day);
             $dayValues['datum'] = $day->format('m-d');
-            foreach ($prArray as $prKey => $value) {
-                $dayValues[$prKey] = $value;
-            }
             if ( false ) {
+                foreach ($prArray as $prKey => $value) {
+                    $dayValues[$prKey] = $value;
+                }
+            } else {
                 $dayValues['datum'] = $day->format('m-d');
                 $dayValues['PowerEvuMonth'] = $anlage->getShowEvuDiag() ? $prArray['powerEvu'] : $prArray['powerAct'];
                 if ($anlage->getUseGridMeterDayData()) {
@@ -124,11 +125,17 @@ class ReportsMonthlyService
                     $dayValues['prEvuDefault'] = $anlage->getShowEvuDiag() ? $prArray['prDefaultEvu'] : $prArray['prDefaultAct'];
                 }
                 $dayValues['irradiation'] = $prArray['irradiation'];
+
+                $dayValues['pa0'] = $prArray['pa0'];
+                $dayValues['pa1'] = $prArray['pa1'];
+                $dayValues['pa2'] = $prArray['pa2'];
+                $dayValues['pa3'] = $prArray['pa3'];
+
                 if ($anlage->getShowAvailability()) {
-                    $dayValues['plantAvailability'] = $prArray['availability'];
+                    #$dayValues['plantAvailability'] = $prArray['availability'];
                 }
                 if ($anlage->getShowAvailabilitySecond()) {
-                    $dayValues['plantAvailabilitySecond'] = -111;
+                    #$dayValues['plantAvailabilitySecond'] = -111;
                 }
                 $dayValues['powerTheo'] = $prArray['powerTheo'];
                 $dayValues['powerExp'] = $prArray['powerExp'];
@@ -155,12 +162,12 @@ class ReportsMonthlyService
         $prSumArray = $this->PRCalulation->calcPR($anlage, $fromDay, $toDay);
         // Summe / Total Row
         $sumValues['datum'] = $total;
-        foreach ($prSumArray as $prKey => $value) {
-            $sumValues[$prKey] = $value;
-        }
         if ( false ) {
+            foreach ($prSumArray as $prKey => $value) {
+                $sumValues[$prKey] = $value;
+            }
+        } else {
             $sumValues['PowerEvuMonth'] = $anlage->getShowEvuDiag() ? $prSumArray['powerEvu'] : $prSumArray['powerAct'];
-            $sumValues['irradiation'] = $prSumArray['irradiation'];
             if ($anlage->getUseGridMeterDayData()) {
                 $sumValues['powerEGridExt'] = $prSumArray['powerEGridExt'];
                 $sumValues['spezYield'] = $sumValues['powerEGridExt'] / $anlage->getPnom();
@@ -171,6 +178,7 @@ class ReportsMonthlyService
                 $sumValues['prEvuEpc'] = $anlage->getShowEvuDiag() ? $prSumArray['prEvu'] : $prSumArray['prAct'];
                 $sumValues['prEvuDefault'] = $anlage->getShowEvuDiag() ? $prSumArray['prDefaultEvu'] : $prSumArray['prDefaultAct'];
             }
+            $sumValues['irradiation'] = $prSumArray['irradiation'];
             $sumValues['pa0'] = $prSumArray['pa0'];
             $sumValues['pa1'] = $prSumArray['pa1'];
             $sumValues['pa2'] = $prSumArray['pa2'];
