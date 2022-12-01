@@ -133,7 +133,13 @@ class AssetManagementService
                 $data1_grid_meter['powerEGridExt'] = 0;
                 $Ertrag_design = 0;
             }
-            (float) $powerEvu[] = $data1_grid_meter['powerEvu'];
+            if ($data1_grid_meter['powerEvu'] > 0){
+                (float) $powerEvu[] = $data1_grid_meter['powerEvu'];
+            }
+            else{
+                (float) $powerEvu[] = $data1_grid_meter['powerAct'];
+            }
+
             (float) $powerAct[] = $data1_grid_meter['powerAct']; // Inv out
             if ($anlage->getShowEvuDiag()) {
                 (float) $powerExpEvu[] = $data1_grid_meter['powerExpEvu'];
@@ -250,7 +256,7 @@ class AssetManagementService
                 $chart->series =
                     [
                         [
-                            'name' => 'Yield (Grid meter)',
+                            'name' => 'Actual(Yield)',
                             'type' => 'bar',
                             'data' => $powerEvu,
                             'visualMap' => 'false',
@@ -262,13 +268,14 @@ class AssetManagementService
                             'data' => $powerExp,
                             'visualMap' => 'false',
                         ],
+/*
                         [
-                            'name' => 'Inverter out',
+                            'name' => 'forecast g4n',
                             'type' => 'bar',
-                            'data' => $powerAct,
+                            'data' => $forecast,
                             'visualMap' => 'false',
                         ],
-                    ];
+  */                  ];
             } else {
                 $chart->series =
                     [
@@ -279,11 +286,19 @@ class AssetManagementService
                             'visualMap' => 'false',
                         ],
                         [
-                            'name' => 'Inverter out',
+                            'name' => 'Actual(Yield)',
                             'type' => 'bar',
                             'data' => $powerAct,
                             'visualMap' => 'false',
                         ],
+                        /*
+                        [
+                            'name' => 'forecast g4n',
+                            'type' => 'bar',
+                            'data' => $forecast,
+                            'visualMap' => 'false',
+                        ],
+                        */
                     ];
             }
         }
@@ -449,10 +464,12 @@ class AssetManagementService
 
         // End Cumulative Forecast with PVSYST
 
-        $PowerSum[0] = $powerExp[0];
+        $PowerSum[0] = 0;
         for ($i = 0; $i < 12; ++$i) {
-            if ($i + 1 > $report['reportMonth']) {
-                if ($powerExp[$i]) {
+            if ($i + 1 <= $report['reportMonth']) {
+
+                if ($powerExp[$i] > 0) {
+
                     $PowerSum[$i] = $powerExp[$i] + $PowerSum[$i - 1];
                 } else {
                     $PowerSum[$i] = $forecast[$i] + $PowerSum[$i - 1];
@@ -626,7 +643,7 @@ class AssetManagementService
                         $difference_prod_to_forecast[$i] = $tbody_a_production['powerEvu'][$i] - $forecast[$i];
                     }
                 } else {
-                    $difference_prod_to_forecast[$i] = 0;
+                    $difference_prod_to_forecast[$i] = $tbody_a_production['powerAct'][$i] - $forecast[$i];
                 }
             } else {
                 $difference_prod_to_forecast[$i] = 0;
@@ -658,21 +675,15 @@ class AssetManagementService
         $chart->series =
             [
                 [
-                    'name' => 'Difference Egrid to PVSYST',
+                    'name' => 'Difference ACT to PVSYST',
                     'type' => 'line',
                     'data' => $diefference_prod_to_pvsyst,
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Difference Egrid to expected g4n',
+                    'name' => 'Difference ACT to expected g4n',
                     'type' => 'line',
                     'data' => $diefference_prod_to_expected_g4n,
-                    'visualMap' => 'false',
-                ],
-                [
-                    'name' => 'Difference inverter to Egrid',
-                    'type' => 'line',
-                    'data' => $diefference_prod_to_egrid,
                     'visualMap' => 'false',
                 ],
             ];
@@ -764,39 +775,51 @@ class AssetManagementService
                 $chart->series =
                     [
                         [
-                            'name' => 'Difference Grid to PVSYST',
+                            'name' => 'Difference ACT to PVSYST',
                             'type' => 'line',
                             'data' => $difference_Egrid_to_PVSYST,
                             'visualMap' => 'false',
                         ],
                         [
-                            'name' => 'Difference Grid to expected g4n',
+                            'name' => 'Difference ACT to expected g4n',
                             'type' => 'line',
                             'data' => $difference_Egrid_to_Expected_G4n,
                             'visualMap' => 'false',
                         ],
                         [
-                            'name' => 'Difference inverter to Grid',
+                            'name' => 'Difference ACT to Grid',
                             'type' => 'line',
                             'data' => $difference_Inverter_to_Egrid,
                             'visualMap' => 'false',
                         ],
+                        [
+                            'name' => 'Difference ACT to forecast',
+                            'type' => 'line',
+                            'data' => $difference_actual_forecast,
+                            'visualMap' => 'false',
+                        ]
                     ];
             } else {
                 $chart->series =
                     [
                         [
-                            'name' => 'Difference Inverter to PVSYST',
+                            'name' => 'Difference ACT to PVSYST',
                             'type' => 'line',
                             'data' => $difference_Egrid_to_PVSYST,
                             'visualMap' => 'false',
                         ],
                         [
-                            'name' => 'Difference Inverter to expected g4n',
+                            'name' => 'Difference ACT to expected g4n',
                             'type' => 'line',
                             'data' => $difference_Egrid_to_Expected_G4n,
                             'visualMap' => 'false',
                         ],
+                        [
+                            'name' => 'Difference ACT to forecast',
+                            'type' => 'line',
+                            'data' => $difference_actual_forecast,
+                            'visualMap' => 'false',
+                        ]
                     ];
             }
         } else {
@@ -804,27 +827,39 @@ class AssetManagementService
                 $chart->series =
                     [
                         [
-                            'name' => 'Difference Grid to expected g4n',
+                            'name' => 'Difference ACT to expected g4n',
                             'type' => 'line',
                             'data' => $difference_Egrid_to_Expected_G4n,
                             'visualMap' => 'false',
                         ],
                         [
-                            'name' => 'Difference inverter to Grid',
+                            'name' => 'Difference ACT to Grid',
                             'type' => 'line',
                             'data' => $difference_Inverter_to_Egrid,
                             'visualMap' => 'false',
                         ],
+                        [
+                            'name' => 'Difference ACT to forecast',
+                            'type' => 'line',
+                            'data' => $difference_actual_forecast,
+                            'visualMap' => 'false',
+                        ]
                     ];
             } else {
                 $chart->series =
                     [
                         [
-                            'name' => 'Difference Inverter to expected g4n',
+                            'name' => 'Difference ACT to expected g4n',
                             'type' => 'line',
                             'data' => $difference_Egrid_to_Expected_G4n,
                             'visualMap' => 'false',
                         ],
+                        [
+                            'name' => 'Difference ACT to forecast',
+                            'type' => 'line',
+                            'data' => $difference_actual_forecast,
+                            'visualMap' => 'false',
+                        ]
                     ];
             }
         }
@@ -1040,12 +1075,18 @@ class AssetManagementService
         $chart->series = [];
         unset($option);
 
+        if ($powerEvu[$report['reportMonth'] - 1] < 1){
+            $var = 0;
+        }
+        else {
+            $var = round((1 - $expectedPvSyst[$report['reportMonth'] - 1] / $powerEvu[$report['reportMonth'] - 1]) * 100, 2);
+        }
         $operations_monthly_right_pvsyst_tr1 = [
             $monthName.' '.$report['reportYear'],
             $powerEvu[$report['reportMonth'] - 1],
             $expectedPvSyst[$report['reportMonth'] - 1],
             $powerEvu[$report['reportMonth'] - 1] - $expectedPvSyst[$report['reportMonth'] - 1],
-            round((1 - $expectedPvSyst[$report['reportMonth'] - 1] / $powerEvu[$report['reportMonth'] - 1]) * 100, 2),
+            $var,
         ];
 
         $start = $report['reportYear'].'-01-01 00:00';
@@ -1183,9 +1224,15 @@ class AssetManagementService
         }
 
         // Year to date
-
-        $monthPacDate = $anlage->getPacDate()->format('m');
-        $yearPacDate = $anlage->getPacDate()->format('Y');
+        $pacDate =  $anlage->getPacDate();
+        if ($anlage->getUsePac() && $pacDate != null){
+        $monthPacDate = $pacDate->format('m');
+        $yearPacDate = $pacDate->format('Y');
+        }
+        else{
+            $monthPacDate = $anlage->getAnlBetrieb()->format('m');
+            $yearPacDate = $anlage->getAnlBetrieb()->format('y');
+        }
 
         $start = $report['reportYear'].'-01-01 00:00';
         $end = $report['reportYear'].'-'.$report['reportMonth'].'-'.$daysInReportMonth.' 23:59';
@@ -1229,14 +1276,16 @@ class AssetManagementService
             0.00,
         ];
         // Ende Tabelle rechts oben
-
-
+        if ($powerEvu[$report['reportMonth'] - 1] > 0) {
+            $var = (1 - $powerExpEvu[$report['reportMonth'] - 1] / $powerEvu[$report['reportMonth'] - 1]) * 100;
+        }
+        else $var = 0;
         $operations_monthly_right_g4n_tr1 = [
             $monthName.' '.$report['reportYear'],
             $powerEvu[$report['reportMonth'] - 1],
             $powerExpEvu[$report['reportMonth'] - 1],
             $powerEvu[$report['reportMonth'] - 1] - $powerExpEvu[$report['reportMonth'] - 1],
-            (1 - $powerExpEvu[$report['reportMonth'] - 1] / $powerEvu[$report['reportMonth'] - 1]) * 100,
+           $var,
         ];
 
         // Parameter fuer die Berechnung Q1
@@ -1348,14 +1397,17 @@ class AssetManagementService
                 '0',
             ];
         }
-
+        if ($powerEvu[$report['reportMonth'] - 1] > 0) {
+            $var = (1 - $powerExpEvu[$report['reportMonth'] - 1] / $powerEvu[$report['reportMonth'] - 1]) * 100;
+        }
+        else $var = 0;
         // Tabelle rechts unten
         $operations_monthly_right_iout_tr1 = [
             $monthName.' '.$report['reportYear'],
             $powerEvu[$report['reportMonth'] - 1],
             $powerAct[$report['reportMonth'] - 1],
             $powerEvu[$report['reportMonth'] - 1] - $powerAct[$report['reportMonth'] - 1],
-            (1 - $powerAct[$report['reportMonth'] - 1] / $powerEvu[$report['reportMonth'] - 1]) * 100,
+            $var,
         ];
 
         // Parameter fuer die Berechnung Q1
@@ -1618,12 +1670,20 @@ class AssetManagementService
                 }
             }
         }
+        if ($sumquarters = 0) {
+            $actualAvailabilityPorcent = (($sumquarters - $totalErrors) / $sumquarters) * 100;
+            $actualSOFPorcent = 100 - (($sumquarters - $SOFErrors) / $sumquarters) * 100;
+            $actualEFORPorcent = 100 - (($sumquarters - $EFORErrors) / $sumquarters) * 100;
+            $actualOMCPorcent = 100 - (($sumquarters - $OMCErrors) / $sumquarters) * 100;
 
-        $actualAvailabilityPorcent = (($sumquarters - $totalErrors) / $sumquarters) * 100;
-        $actualSOFPorcent = 100 - (($sumquarters - $SOFErrors) / $sumquarters) * 100;
-        $actualEFORPorcent = 100 - (($sumquarters - $EFORErrors) / $sumquarters) * 100;
-        $actualOMCPorcent = 100 - (($sumquarters - $OMCErrors) / $sumquarters) * 100;
+        }
+        else{
+            $actualAvailabilityPorcent = 0;
+            $actualSOFPorcent = 0;
+            $actualEFORPorcent = 0;
+            $actualOMCPorcent = 0;
 
+        }
         if ($EFORErrors > 0)$actualGapPorcent = 100 - (($EFORErrors - $dataGaps) / $EFORErrors) * 100;
         else $actualGapPorcent = 0;
 
@@ -1874,10 +1934,18 @@ class AssetManagementService
         }
 
         $quartersInMonth = $resw->fetch(PDO::FETCH_ASSOC)['quarters'] * $anlage->getAnzInverter();
-        $actualAvailabilityPorcentMonth = (($quartersInMonth - $totalErrorsMonth) / $quartersInMonth) * 100;
-        $actualSOFPorcentMonth = 100 - (($quartersInMonth - $SOFErrorsMonth) / $quartersInMonth) * 100;
-        $actualEFORPorcentMonth = 100 - (($quartersInMonth - $EFORErrorsMonth) / $quartersInMonth) * 100;
-        $actualOMCPorcentMonth = 100 - (($quartersInMonth - $OMCErrorsMonth) / $quartersInMonth) * 100;
+        if ($quartersInMonth > 0) {
+            $actualAvailabilityPorcentMonth = (($quartersInMonth - $totalErrorsMonth) / $quartersInMonth) * 100;
+            $actualSOFPorcentMonth = 100 - (($quartersInMonth - $SOFErrorsMonth) / $quartersInMonth) * 100;
+            $actualEFORPorcentMonth = 100 - (($quartersInMonth - $EFORErrorsMonth) / $quartersInMonth) * 100;
+            $actualOMCPorcentMonth = 100 - (($quartersInMonth - $OMCErrorsMonth) / $quartersInMonth) * 100;
+        }
+        else{
+            $actualAvailabilityPorcentMonth = 0;
+            $actualSOFPorcentMonth = 0;
+            $actualEFORPorcentMonth = 0;
+            $actualOMCPorcentMonth = 0;
+        }
         if ($EFORErrorsMonth > 0)$actualGapPorcentMonth = 100 - (($EFORErrorsMonth - $dataGapsMonth) / $EFORErrorsMonth) * 100;
         else $actualGapPorcentMonth = 0;
 
@@ -2712,73 +2780,48 @@ class AssetManagementService
             'nameGap' => 70,
         ];
         if ($anlage->hasPVSYST()) {
-            if ($anlage->hasGrid()) {
+
                 $chart->series =
                     [
                         [
-                            'name' => 'Difference Grid to PVSYST',
+                            'name' => 'Difference ACT to PVSYST',
                             'type' => 'line',
                             'data' => $diefference_prod_to_pvsyst,
                             'visualMap' => 'false',
                         ],
                         [
-                            'name' => 'Difference Grid to expected g4n',
+                            'name' => 'Difference ACT to expected g4n',
                             'type' => 'line',
                             'data' => $diefference_prod_to_expected_g4n,
                             'visualMap' => 'false',
                         ],
                         [
-                            'name' => 'Difference inverter to Grid',
+                            'name' => 'Difference ACT to forecast g4n',
                             'type' => 'line',
-                            'data' => $diefference_prod_to_egrid,
+                            'data' => $difference_prod_to_forecast,
                             'visualMap' => 'false',
                         ],
                     ];
-            } else {
-                $chart->series =
-                    [
-                        [
-                            'name' => 'Difference Inverter to PVSYST',
-                            'type' => 'line',
-                            'data' => $diefference_prod_to_pvsyst,
-                            'visualMap' => 'false',
-                        ],
-                        [
-                            'name' => 'Difference Inverter to expected g4n',
-                            'type' => 'line',
-                            'data' => $diefference_prod_to_expected_g4n,
-                            'visualMap' => 'false',
-                        ],
-                    ];
-            }
+
         } else {
-            if ($anlage->hasGrid()) {
+
                 $chart->series =
                     [
                         [
-                            'name' => 'Difference Grid to expected g4n',
+                            'name' => 'Difference ACT to expected g4n',
                             'type' => 'line',
                             'data' => $diefference_prod_to_expected_g4n,
                             'visualMap' => 'false',
                         ],
                         [
-                            'name' => 'Difference inverter to Grid',
+                            'name' => 'Difference ACT to forecast g4n',
                             'type' => 'line',
-                            'data' => $diefference_prod_to_egrid,
+                            'data' => $difference_prod_to_forecast,
                             'visualMap' => 'false',
                         ],
                     ];
-            } else {
-                $chart->series =
-                    [
-                        [
-                            'name' => 'Difference Inverter to expected g4n',
-                            'type' => 'line',
-                            'data' => $diefference_prod_to_expected_g4n,
-                            'visualMap' => 'false',
-                        ],
-                    ];
-            }
+
+
         }
 
         $option = [
