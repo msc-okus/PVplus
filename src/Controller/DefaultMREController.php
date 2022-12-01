@@ -66,10 +66,10 @@ class DefaultMREController extends BaseController
     #[Route(path: '/mr/pa/test')]
     public function pa(AvailabilityService $availability, AvailabilityByTicketService $availabilityByTicket, AnlagenRepository $anlagenRepository): Response
     {
-        $anlage = $anlagenRepository->find('93');
+        $anlage = $anlagenRepository->find('95');
         $output = "";
         $year = "2022";
-        $month = "10";
+        $month = "5";
         $date = date_create("$year-$month-01 12:00");
         $daysInMonth = $date->format("t");
         for ($day = 1; $day <= $daysInMonth; $day++) {

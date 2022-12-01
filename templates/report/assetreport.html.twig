@@ -4,6 +4,7 @@
             {# WE COULD USE PARAMETERS HERE TO DECIDE WICH PARTS TO INCLUDE BUT WE WILL NEED A MORE COMPLEX FORM DEDICATED FOR THE AM REPORT#}
             {% include 'report/_asset_mangement_partials/_header.html.twig'%}
 
+                {% include 'report/_asset_mangement_partials/_comments.html.twig' %}
             {% if (data.Production == true) %}
 
                 {% if (data.ProdCap) == true %}
@@ -82,10 +83,6 @@
                 {% include 'report/_asset_mangement_partials/_economics_cumulated_losses_compared.html.twig'%}
 
             {% endif %}
-
-
-            {% include 'report/_asset_mangement_partials/_comments.html.twig' %}
-
 
         </div>
 {% endblock %}

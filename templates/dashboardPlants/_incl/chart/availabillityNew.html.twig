@@ -33,12 +33,12 @@
             {% for stati in availability %}
                 <tr>
                     <td>{{ stati.stamp|date("Y-m-d") }} </td>
-                    <td>{{ stati.inverter }}</td>
+                    <td style="text-align: left;">{{ aktAnlage.inverterFromAnlage[stati.inverter] }} <br> ({{ stati.inverter }})</td>
                     <td>
                         <span class="topline js-pa-0" style="text-align: left;">PA.0 (Open Book)</span>
-                        <span class="topline js-pa-1" style="text-align: left;">PA.1 ({{ aktAnlage.eigner.settings.nameDep1 }}}</span>
-                        <span class="topline js-pa-2" style="text-align: left;">PA.2 ({{ aktAnlage.eigner.settings.nameDep2 }}}</span>
-                        <span class="topline js-pa-3" style="text-align: left;">PA.3 ({{ aktAnlage.eigner.settings.nameDep3 }}}</span>
+                        <span class="topline js-pa-1" style="text-align: left;">PA.1 ({{ aktAnlage.eigner.settings.nameDep1 }})</span>
+                        <span class="topline js-pa-2" style="text-align: left;">PA.2 ({{ aktAnlage.eigner.settings.nameDep2 }})</span>
+                        <span class="topline js-pa-3" style="text-align: left;">PA.3 ({{ aktAnlage.eigner.settings.nameDep3 }})</span>
                     </td>
                     <td>
                         <span class="topline js-pa-0">{{ stati.case00 }} / {{ stati.case00 / 4 }}</span>

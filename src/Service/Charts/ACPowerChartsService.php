@@ -57,10 +57,9 @@ class ACPowerChartsService
                         sum(b.ac_exp_power_no_limit) as soll_nolimit
                         FROM db_dummysoll a 
                         LEFT JOIN '.$anlage->getDbNameDcSoll()." b ON a.stamp = b.stamp                     
-                        WHERE a.stamp >= '$from' AND a.stamp < '$to' 
+                        WHERE a.stamp >= '$from' AND a.stamp <= '$to' 
                         GROUP by date_format(a.stamp, '$formExp')";
         }
-
         $resExp = $conn->query($sqlExp);
         $actSum = $expSum = $expEvuSum = $expNoLimitSum = $evuSum = $cosPhiSum = $theoPowerSum = $irrSum = 0;
         $dataArray = [];
