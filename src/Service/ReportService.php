@@ -35,7 +35,14 @@ class ReportService
 
     /**
      * @param $anlagen
-     *
+     * @param int $month
+     * @param int $year
+     * @param int $docType
+     * @param int $chartTypeToExport
+     * @param bool $storeDocument
+     * @param bool $exit
+     * @param bool $export
+     * @return string
      * @throws ExceptionInterface
      */
     public function monthlyReport($anlagen, int $month = 0, int $year = 0, int $docType = 0, int $chartTypeToExport = 0, bool $storeDocument = true, bool $exit = true, bool $export = true): string
@@ -99,12 +106,14 @@ class ReportService
     }
 
     /**
+     * @param Anlage $anlage
+     * @param array $report
      * @param $reportCreationDate
-     * @param int $docType           (0 = PDF, 1 = Excel, 2 = PNG (Grafiken))
+     * @param int $docType (0 = PDF, 1 = Excel, 2 = PNG (Grafiken))
      * @param int $chartTypeToExport (0 = , 1 = )
-     *
+     * @param bool $exit
+     * @return string
      * @throws ExceptionInterface
-     *
      * @deprecated
      */
     public function buildMonthlyReport(Anlage $anlage, array $report, $reportCreationDate, int $docType = 0, int $chartTypeToExport = 0, bool $exit = true): string
@@ -424,8 +433,10 @@ class ReportService
     }
 
     /**
+     * @param Anlage $anlage
      * @param $month
      * @param $year
+     * @return array
      */
     public function getPvSystMonthData(Anlage $anlage, $month, $year): array
     {

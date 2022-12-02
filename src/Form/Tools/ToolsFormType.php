@@ -12,18 +12,31 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Security\Core\Security;
 
 class ToolsFormType extends AbstractType
 {
-    private $anlagenRepository;
-
-    public function __construct(AnlagenRepository $anlagenRepository)
+    public function __construct(
+        private AnlagenRepository $anlagenRepository,
+        private Security $security
+    )
     {
-        $this->anlagenRepository = $anlagenRepository;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
+        $isDeveloper = $this->security->isGranted('ROLE_DEV');
+        $isAdmin     = $this->security->isGranted('ROLE_ADMIN');
+
+        $choisesFuction = [
+            'Expected (New)' => 'expected',
+            'Update availability' => 'availability',
+            'Update availability New' => 'availability-new',
+            'Update PR' => 'pr',
+        ];
+        if ($isDeveloper) $choisesFuction['Generate Tickets (NOT Update)'] = 'generate-tickets';
+
+
         $builder
             ->add('anlage', EntityType::class, [
                 'label' => 'please select a Plant',
@@ -42,13 +55,7 @@ class ToolsFormType extends AbstractType
                 'data' => new \DateTime('now'),
             ])
             ->add('function', ChoiceType::class, [
-                'choices' => [
-                    // 'Write weather data to database'    => 'weather',
-                    'Expected (New)' => 'expected',
-                    'Update availability' => 'availability',
-                    'Update availability New' => 'availability-new',
-                    'Update PR' => 'pr',
-                ],
+                'choices' => $choisesFuction,
                 'placeholder' => 'please Choose ...',
             ])
 

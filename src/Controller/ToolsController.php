@@ -9,6 +9,7 @@ use App\Message\Command\CalcExpected;
 use App\Message\Command\CalcPlantAvailability;
 use App\Message\Command\CalcPlantAvailabilityNew;
 use App\Message\Command\CalcPR;
+use App\Message\Command\GenerateTickets;
 use App\Service\LogMessagesService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -61,6 +62,13 @@ class ToolsController extends BaseController
                     $job = 'Update Plant Availability (new) – from '.$toolsModel->startDate->format('Y-m-d 00:00').' until '.$toolsModel->endDate->format('Y-m-d 00:00');
                     $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'PA', $job);
                     $message = new CalcPlantAvailabilityNew($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
+                    $messageBus->dispatch($message);
+                    break;
+                case 'generate-tickets':
+                    $output = '<h3>Generate Tickets:</h3>';
+                    $job = 'Generate Tickets – from '.$toolsModel->startDate->format('Y-m-d 00:00').' until '.$toolsModel->endDate->format('Y-m-d 00:00');
+                    $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'GenerateTickets', $job);
+                    $message = new GenerateTickets($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
                     $messageBus->dispatch($message);
                     break;
                 default:

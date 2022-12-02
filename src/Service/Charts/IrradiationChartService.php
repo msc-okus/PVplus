@@ -26,10 +26,14 @@ class IrradiationChartService
     /**
      * Erzeugt Daten für das Strahlungsdiagramm Diagramm.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
-     *
+     * @param string|null $mode
+     * @param bool|null $hour
      * @return array
+     * @throws \Exception
+     *
      * irradiation
      */
     public function getIrradiation(Anlage $anlage, $from, $to, ?string $mode = 'all', ?bool $hour = false): array
@@ -42,7 +46,7 @@ class IrradiationChartService
         } else {
             $sql2 = 'SELECT a.stamp, b.gi_avg as gi , b.gmod_avg as gmod FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
         }
-
+        dump($sql2);
         $res = $conn->query($sql2);
         if ($res->rowCount() > 0) {
             $counter = 0;
@@ -53,7 +57,7 @@ class IrradiationChartService
                     $irr_upper = $irr_upper / 4;
                 }
                 if (!$irr_upper) {
-                    $irr_upper = 0;
+                    $irr_upper = null;
                 }
                 // lower pannel
                 $irr_lower = (float) str_replace(',', '.', $ro['gi']);
@@ -61,7 +65,7 @@ class IrradiationChartService
                     $irr_lower = $irr_lower / 4;
                 }
                 if (!$irr_lower) {
-                    $irr_lower = 0;
+                    $irr_lower = null;
                 }
                 $stamp = self::timeAjustment(strtotime($ro['stamp']), $anlage->getWeatherStation()->gettimeZoneWeatherStation());
                 if ($anlage->getAnlIrChange() == 'Yes') {

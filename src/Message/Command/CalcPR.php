@@ -6,20 +6,12 @@ use DateTime;
 
 class CalcPR
 {
-    private Int $anlageId;
-
-    private DateTime $startDate;
-
-    private DateTime $endDate;
-
-    private int $logId;
-
-    public function __construct(int $anlageId, DateTime $startDate, DateTime $endDate, int $logId)
+    public function __construct(
+        private int $anlageId,
+        private DateTime $startDate,
+        private DateTime $endDate,
+        private int $logId)
     {
-        $this->anlageId = $anlageId;
-        $this->startDate = $startDate;
-        $this->endDate = $endDate;
-        $this->logId = $logId;
     }
 
     public function getAnlageId(): int

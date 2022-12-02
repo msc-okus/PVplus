@@ -37,6 +37,9 @@ class AvailabilityByTicketService
     {}
 
     /**
+     * Calculate the availability cases depending on tickets and settings in plant
+     * Stores for every day a record with the case values, this are the base to generate the PA
+     *
      * @param Anlage|int $anlage
      * @param string|DateTime $date
      * @param int $department (for wich department (0 = Technische PA, 1 = O&M, 2 = EPC, 3 = AM)
@@ -71,7 +74,7 @@ class AvailabilityByTicketService
 
         /* Verfügbarkeit der Anlage ermitteln */
         if (isset($anlage)) {
-            $output .= 'Anlage: '.$anlage->getAnlId().' / '.$anlage->getAnlName().' - '.$date->format('Y-m-d')." – Department: $department – ";
+            $output .= 'Anlage: '.$anlage->getAnlId().' / '.$anlage->getAnlName().' ; '.$date->format('Y-m-d')." ; Department: $department ; ";
 
             // Verfügbarkeit Berechnen und in Hilfsarray speichern
             $availabilitysHelper = $this->checkAvailabilityInverter($anlage, $date->getTimestamp(), $timesConfig, $department);
@@ -487,31 +490,41 @@ class AvailabilityByTicketService
      * @param int $department
      * @return float
      */
-    private function calcInvAPart1(Anlage $anlage, array $row, int $department = 2): float
+    private function calcInvAPart1(Anlage $anlage, array $row, int $department = 0): float
     {
         $paInvPart1 = 0.0;
+
+        // Get needed formular, depending on settings for this department
         $formel = match ($department) {
-            1 => 3,
-            2 => 2,
-            3 => 1,
-            default => 0,
+            1 => $anlage->getPaFormular1(),
+            2 => $anlage->getPaFormular2(),
+            3 => $anlage->getPaFormular3(),
+            default => $anlage->getPaFormular0(),
         };
-        $formel = 2;
+
+        // calculate pa depending on the chose formular
         switch ($formel) {
-            case 1: // PA = ti / ti,theo
-                $paInvPart1 = (($row['case1'] + $row['case2']) / $row['control']) * 100;
-                break;
-            case 2: // PA = ti / (ti,theo - tiFM)
-                if ($row['case1'] + $row['case2']  + $row['case5'] != 0 && $row['control'] != 0) {
-                    if ($row['case1'] + $row['case2'] === 0 && $row['control'] - $row['case5'] === 0) { // Sonderfall wenn Dividend und Divisor = 0
+            case 1: // PA = ti / (ti,theo - tiFM)
+                if ($row['case1'] + $row['case2'] + $row['case5'] != 0 && $row['control'] != 0) {
+                    if ($row['case1'] + $row['case2'] === 0 && $row['control'] - $row['case5'] === 0) {
+                        // Sonderfall wenn Dividend und Divisor = 0 => dann ist PA per definition 100%
                         $paInvPart1 = 100;
                     } else {
                         $paInvPart1 = (($row['case1'] + $row['case2']) / ($row['control'] - $row['case5'])) * 100;
                     }
                 }
                 break;
+
+                ## Formulars from case 2 and 3 are not Testes yet
+            case 2: // PA = ti / ti,theo
+                if ($row['case1'] + $row['case2'] != 0 && $row['control'] != 0) {
+                    $paInvPart1 = (($row['case1'] + $row['case2']) / $row['control']) * 100;
+                }
+                break;
             case 3: // PA = (ti + tiFM) / ti,theo
-                $paInvPart1 = (($row['case1'] + $row['case2'] + $row['case5']) / $row['control']) * 100;
+                if ($row['case1'] + $row['case2']  + $row['case5'] != 0 && $row['control'] != 0) {
+                    $paInvPart1 = (($row['case1'] + $row['case2'] + $row['case5']) / $row['control']) * 100;
+                }
                 break;
         }
 
