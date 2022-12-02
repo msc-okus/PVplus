@@ -20,7 +20,7 @@ class AlertSystemService
 {
     use G4NTrait;
 
-    private $irr = false;
+    private bool $irr = false;
 
     public function __construct(
         private AnlagenRepository       $anlagenRepository,
@@ -44,7 +44,7 @@ class AlertSystemService
         define('EXTERNAL_CONTROL', 50); // Regelung vom Direktvermarketr oder Netztbetreiber
     }
 
-    public function generateTicketsInterval(Anlage $anlage, string $from, string $to)
+    public function generateTicketsInterval(Anlage $anlage, string $from, string $to): void
     {
         $fromStamp = strtotime($from);
         $toStamp = strtotime($to);
@@ -53,7 +53,7 @@ class AlertSystemService
         }
     }
 
-    public function joinTicketsInterval(Anlage $anlage, string $from, string $to)
+    public function joinTicketsInterval(Anlage $anlage, string $from, string $to): void
     {
         $fromStamp = strtotime(date("Y-m-d", strtotime($from)));
         $toStamp = strtotime(date("Y-m-d", strtotime($to)));
@@ -78,7 +78,7 @@ class AlertSystemService
      * @param string|null $time
      * @return void
      */
-    public function joinTicketsForTheDay(Anlage $anlage, ?string $time = null)
+    public function joinTicketsForTheDay(Anlage $anlage, ?string $time = null): void
     {
         if ($time === null) {
             $time = $this->getLastQuarter(date('Y-m-d'));

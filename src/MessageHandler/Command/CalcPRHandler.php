@@ -9,14 +9,10 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 class CalcPRHandler implements MessageHandlerInterface
 {
-    private LogMessagesService $logMessages;
-
-    private PRCalulationService $PRCalulation;
-
-    public function __construct(PRCalulationService $PRCalulation, LogMessagesService $logMessages)
+    public function __construct(
+        private PRCalulationService $PRCalulation,
+        private LogMessagesService $logMessages)
     {
-        $this->logMessages = $logMessages;
-        $this->PRCalulation = $PRCalulation;
     }
 
     public function __invoke(CalcPR $calc)

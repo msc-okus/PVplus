@@ -497,25 +497,29 @@ class PRCalulationService
 
     /**
      * Returns Array with all Information for given Date (Daterange)<br>
+     *  $result['powerEGridExt']<br>
      *  $result['powerEvu']<br>
      *  $result['powerAct']<br>
      *  $result['powerExp']<br>
-     *  $result['powerEGridExt']<br>
      *  $result['powerTheo']<br>
+     *  $result['powerTheoTempCorr']<br>
+     *  $result['prDefaultEGridExt']<br>
      *  $result['prDefaultEvu']<br>
      *  $result['prDefaultAct']<br>
      *  $result['prDefaultExp']<br>
-     *  $result['prDefaultEGridExt']<br>
+     *  $result['prEGridExt']<br>
      *  $result['prEvu']<br>
      *  $result['prAct']<br>
      *  $result['prExp']<br>
-     *  $result['prEGridExt']<br>
      *  $result['algorithmus']<br>
-     *  $result['powerTheoTempCorr']<br>
      *  $result['tempCorrection']<br>
      *  $result['irradiation']<br>
-     *  $result['availability']<br>
-     *  $result['availability2'] (not Ready)<br>
+     *  $result['availability'] deprecated<br>
+     *  $result['availability2'] deprecated<br>
+     *  $result['pa0'] (proof)<br>
+     *  $result['pa1'] (proof)<br>
+     *  $result['pa2'] (proof)<br>
+     *  $result['pa3'] (proof)<br>
      *  $result['anzCase5'] (proof)<br>
      *  $result['tCellAvgMeasured'] (proof)<br>
      *  $result['tCellAvgNrel'] (proof)<br>
@@ -570,14 +574,10 @@ class PRCalulationService
         $result['powerEGridExt'] = $power['powerEGridExt'];
 
         // Verfügbarkeit ermitteln
-        $anzTage = date_diff(date_create($localStartDate), date_create($localEndDate))->days + 1;
-        if ($anzTage === 0) {
-            $anzTage = 1;
-        } // verhindert diffision by zero
-        $pa0 = 0;#$this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 0);
-        $pa1 = 0;#$this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 1);
+        $pa0 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 0);
+        $pa1 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 1);
         $pa2 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 2);
-        $pa3 = 0;#$this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 3);
+        $pa3 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 3);
 
         $availability = $pa2;
 
