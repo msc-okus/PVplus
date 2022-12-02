@@ -620,7 +620,7 @@ class Anlage
         return $this;
     }
 
-    public function getAnlName(): ?string
+    public function getAnlName($replace = false): ?string
     {
         return $this->anlName;
     }
