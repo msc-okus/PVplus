@@ -51,7 +51,7 @@
 {% macro inverterOut(table_overview_monthly, anlage) %}
     {%  set invsum = 0 %}
     <tr>
-        <td class="tr_first_column" style="text-align: right;">Inverter out</td>
+        <td class="tr_first_column" style="text-align: right;">Actual(Yields)<sup>*</sup></td>
         {% for data in table_overview_monthly.powerAct %}
             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
             {%  set invsum = invsum + data %}
@@ -93,7 +93,7 @@
                                 {% set powerEvuTotal = powerEvuTotal+data %}
                             {% endfor %}
 
-                    {{ Macros.grid(table_overview_monthly, anlage)}}
+                    {{ Macros.inverterOut(table_overview_monthly, anlage)}}
                     {{ Macros.expectedG4N(table_overview_monthly, anlage) }}
                     {{ Macros.forecast(table_overview_monthly, anlage, powerEvuTotal) }}
                     {% if (anlage.hasPVSYST == true) %}
