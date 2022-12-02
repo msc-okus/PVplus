@@ -183,7 +183,10 @@ export default class extends Controller {
             body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
 
         });
-        console.log(body.find('input:checkbox[class=js-checkbox]'));
+        if (counter == body.find('input:checkbox[class=js-checkbox]').length){
+            inverterString = '*';
+        }
+
         //here we get the values of the date forms to check if they are valid
         const valueBegin = $(this.formBeginTarget).prop('value');
         const valueEnd = $(this.formEndTarget).prop('value');
