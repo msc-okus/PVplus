@@ -88,16 +88,11 @@ class UpdateAvailabilityCommand extends Command
                 if ($anlage->getAnlInputDaily() == 'Yes') {
                     $from = date('Y-m-d 00:00', $stamp - (24 * 3600)); // gestern, da Anlage heute keine Daten bekommt
                 }
-                if ($anlage->getAnlId() == 93 || $anlage->getAnlId() == 95) {
+                $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, $from, 2);
+                if ($anlage->getAnlId() == 93 || $anlage->getAnlId() == 95 || $anlage->getAnlId() == 94) {
                     $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, $from, 0);
                     $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, $from, 1);
-                    $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, $from, 2);
                     $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, $from, 3);
-                } else {
-                    $ergebniss = $this->availability->checkAvailability($anlage, strtotime($from));
-                    if ($anlage->getShowAvailabilitySecond()) {
-                        $ergebniss .= $this->availability->checkAvailability($anlage, strtotime($from), true); // Second
-                    }
                 }
                 $io->progressAdvance();
             }

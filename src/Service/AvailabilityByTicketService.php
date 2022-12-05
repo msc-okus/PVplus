@@ -268,7 +268,6 @@ class AvailabilityByTicketService
             // Handel case6 by ticket
             /** @var TicketDate $case6Ticket */
             $case6Tickets = $this->ticketDateRepo->findDataGapOutage($anlage, $from, $to, $department);
-            #dd($case6Tickets, $from, $to);
             foreach ($case6Tickets as $case6Ticket){
                 $c6From = $case6Ticket->getBegin()->getTimestamp();
                 $c6To = $case6Ticket->getEnd()->getTimestamp();
@@ -286,16 +285,16 @@ class AvailabilityByTicketService
                 $startInverter = 1;
 
                 for ($inverter = $startInverter; $inverter <= $anzInverter; ++$inverter) {
-                    // Nur beim ersten durchlauf, Werte setzen, damit nicht 'undifined'
+                    // Nur beim ersten durchlauf, Werte setzen, damit nicht 'undefined'
                     if (!isset($availability[$inverter]['case0']))      $availability[$inverter]['case0'] = 0;
                     if (!isset($availability[$inverter]['case1']))      $availability[$inverter]['case1'] = 0;
                     if (!isset($availability[$inverter]['case2']))      $availability[$inverter]['case2'] = 0;
                     if (!isset($availability[$inverter]['case3']))      $availability[$inverter]['case3'] = 0;
-                    if (!isset($availability[$inverter]['case3']))      $case3Helper[$inverter] = 0;
                     if (!isset($availability[$inverter]['case4']))      $availability[$inverter]['case4'] = 0;
                     if (!isset($availability[$inverter]['case5']))      $availability[$inverter]['case5'] = 0;
                     if (!isset($availability[$inverter]['case6']))      $availability[$inverter]['case6'] = 0;
                     if (!isset($availability[$inverter]['control']))    $availability[$inverter]['control'] = 0;
+                    if (!isset($case3Helper[$inverter]))      $case3Helper[$inverter] = 0;
                     isset($istData[$stamp][$inverter]['power_ac']) ? $powerAc = (float) $istData[$stamp][$inverter]['power_ac'] : $powerAc = null;
                     isset($istData[$stamp][$inverter]['cos_phi']) ? $cosPhi = $istData[$stamp][$inverter]['cos_phi'] : $cosPhi = null;
 
@@ -323,7 +322,6 @@ class AvailabilityByTicketService
                             $case3Helper[$inverter] = 0;
                         }
                         // Case 2 (second part of ti - means case1 + case2 = ti)
-                        //if ($strahlung > $threshold2PA && ($powerAc > 0 || $powerAc === null) && $case5 === false && $case6 === false) {
                         if ($strahlung > $threshold2PA && ($powerAc > 0 || $powerAc === null) && $case5 === false && $case6 === false) {
                             $case2 = true;
                             ++$availability[$inverter]['case2'];
@@ -384,6 +382,7 @@ class AvailabilityByTicketService
         if (is_int($anlage)) $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);
 
         $inverterPowerDc = $anlage->getPnomInverterArray();  // Pnom for every inverter
+        dump($inverterPowerDc);
 
         $availabilitys = $this->availabilityRepository->getPaByDate($anlage, $from, $to, $inverter, $department);
         $ti = $titheo = $pa = $paSum = $paSingle = $paSingleSum = 0;
@@ -527,7 +526,6 @@ class AvailabilityByTicketService
                 }
                 break;
         }
-
         return $paInvPart1;
     }
 }
