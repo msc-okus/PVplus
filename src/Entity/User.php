@@ -29,21 +29,26 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     public const ARRAY_OF_ROLES = [
-        'Developer' => 'ROLE_DEV',
-        'Admin' => 'ROLE_ADMIN',
-        'Green4Net User' => 'ROLE_G4N',
-        'AdminUser' => 'ROLE_ADMIN_USER',
-        'Owner (full)' => 'ROLE_OWNER_FULL',
-        'Owner' => 'ROLE_OWNER',
-        'AssetManagement' => 'ROLE_AM',
-        'Beta Tester' => 'ROLE_BETA',
+        'Developer'         => 'ROLE_DEV',
+        'Admin'             => 'ROLE_ADMIN',
+        'Green4Net User'    => 'ROLE_G4N',
+        'AdminUser'         => 'ROLE_ADMIN_USER',
+        'Owner (full)'      => 'ROLE_OWNER_FULL',
+        'Owner'             => 'ROLE_OWNER',
+
     ];
 
     public const ARRAY_OF_ROLES_USER = [
-        'Admin Owner' => 'ROLE_ADMIN_OWNER',
-        'Owner (full)' => 'ROLE_OWNER_FULL',
-        'Owner' => 'ROLE_OWNER',
-        'AssetManagement' => 'ROLE_AM',
+        'Admin Owner'       => 'ROLE_ADMIN_OWNER',
+        'Owner (full)'      => 'ROLE_OWNER_FULL',
+        'Owner'             => 'ROLE_OWNER',
+
+    ];
+
+    public const ARRAY_OF_FUNCTIONS_BY_ROLE = [
+        'AssetManagement'   => 'ROLE_AM',
+        'Beta Tester'       => 'ROLE_BETA',
+        'Allow Analyse'     => 'ROLE_ANALYSE',
     ];
 
     #[Groups(['user:read'])]

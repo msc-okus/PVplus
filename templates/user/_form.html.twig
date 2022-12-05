@@ -12,9 +12,9 @@
             <legend>User
                 <span data-tooltip tabindex="1" title="Please enter the user data !"><i class="fa fa-info-circle"></i></span>
             </legend>
-        {{ form_row(userForm.username) }}
-        {{ form_row(userForm.plainPassword) }}
-        {{ form_row(userForm.email) }}
+            {{ form_row(userForm.username) }}
+            {{ form_row(userForm.plainPassword) }}
+            {{ form_row(userForm.email) }}
         </fieldset>
     </div>
 
@@ -24,7 +24,7 @@
             <legend>List Eigner
                 <span data-tooltip tabindex="1" title="Please assign the eigner from user !"><i class="fa fa-info-circle"></i></span>
             </legend>
-                   {{ form_widget(userForm.eigners) }}
+            {{ form_widget(userForm.eigners) }}
         </fieldset>
     </div>
     {% endif %}
