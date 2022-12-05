@@ -35,20 +35,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'AdminUser'         => 'ROLE_ADMIN_USER',
         'Owner (full)'      => 'ROLE_OWNER_FULL',
         'Owner'             => 'ROLE_OWNER',
-
+        'Beta Tester'       => 'ROLE_BETA',
+        'Allow Analyse'     => 'ROLE_ANALYSE',
     ];
 
     public const ARRAY_OF_ROLES_USER = [
         'Admin Owner'       => 'ROLE_ADMIN_OWNER',
         'Owner (full)'      => 'ROLE_OWNER_FULL',
         'Owner'             => 'ROLE_OWNER',
-
     ];
 
     public const ARRAY_OF_FUNCTIONS_BY_ROLE = [
         'AssetManagement'   => 'ROLE_AM',
-        'Beta Tester'       => 'ROLE_BETA',
-        'Allow Analyse'     => 'ROLE_ANALYSE',
     ];
 
     #[Groups(['user:read'])]
