@@ -342,13 +342,12 @@ class AvailabilityService
 
         $inverterPowerDc = $anlage->getPnomInverterArray();  // Pnom for every inverter
 
-        /** @var AnlageAvailability $availability */
         $availabilitys = $this->availabilityRepository->getPaByDate($anlage, $from, $to, $inverter, null);
 
         $ti = $titheo = $pa = $paSum = $paSingle = $paSingleSum = 0;
         $currentInverter = null;
         foreach ($availabilitys as $availability) {
-            if ($currentInverter != (int)$availability->getInverter() && $currentInverter !== null) {
+            if ($currentInverter != (int)$availability['inverter'] && $currentInverter !== null) {
                 // Berechne PA für den aktuellen Inverter
                 $invWeight = ($anlage->getPnom() > 0 && $inverterPowerDc[$currentInverter] > 0) ? $inverterPowerDc[$currentInverter] / $anlage->getPnom() : 1;
                 $pa = $titheo > 0 ? $ti * $invWeight / $titheo : 0;
@@ -357,25 +356,9 @@ class AvailabilityService
                 $paSingleSum += $paSingle;
                 $ti = $titheo = 0;
             }
-            $currentInverter = (int)$availability->getInverter();
-            switch ($department) {
-                case 1:
-                    $ti += $availability->getCase11() + $availability->getCase21() + $availability->getCase51();
-                    $titheo += $availability->getControl1();
-                    break;
-                case 2:
-                    $ti += $availability->getCase12() + $availability->getCase22() + $availability->getCase52();
-                    $titheo += $availability->getControl2();
-                    break;
-                case 3:
-                    $ti += $availability->getCase13() + $availability->getCase23() + $availability->getCase53();
-                    $titheo += $availability->getControl3();
-                    break;
-                default:
-                    $ti += $availability->getCase10() + $availability->getCase20() + $availability->getCase50();
-                    $titheo += $availability->getControl0();
-            }
-
+            $currentInverter = (int)$availability['inverter'];
+            $ti += $availability['case_1'] + $availability['case_2'] + $availability['case_5'];
+            $titheo += $availability['control'];
         }
         // Berechne PA für den letzten Inverter
         $invWeight = ($anlage->getPnom() > 0 && $inverterPowerDc[$currentInverter] > 0) ? $inverterPowerDc[$currentInverter] / $anlage->getPnom() : 1;
