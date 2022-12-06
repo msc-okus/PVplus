@@ -238,7 +238,6 @@ class AvailabilityByTicketService
                     }
                 }
             }
-
             // Handele case5 by ticket
             /** @var TicketDate $case5Ticket */
             $case5Tickets = $this->ticketDateRepo->findTiFm($anlage, $from, $to, $department);
@@ -382,7 +381,6 @@ class AvailabilityByTicketService
         if (is_int($anlage)) $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);
 
         $inverterPowerDc = $anlage->getPnomInverterArray();  // Pnom for every inverter
-        dump($inverterPowerDc);
 
         $availabilitys = $this->availabilityRepository->getPaByDate($anlage, $from, $to, $inverter, $department);
         $ti = $titheo = $pa = $paSum = $paSingle = $paSingleSum = 0;

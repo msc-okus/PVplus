@@ -15,24 +15,13 @@ class ForecastChartService
 {
     use G4NTrait;
 
-    private ForcastRepository $forcastRepo;
-
-    private InvertersRepository $invertersRepo;
-
-    private FunctionsService $functions;
-
-    private ForcastDayRepository $forcastDayRepo;
-
     public function __construct(
-        ForcastRepository $forcastRepo,
-        ForcastDayRepository $forcastDayRepo,
-        InvertersRepository $invertersRepo,
-        FunctionsService $functions)
+        private ForcastRepository $forcastRepo,
+        private ForcastDayRepository $forcastDayRepo,
+        private InvertersRepository $invertersRepo,
+        private FunctionsService $functions)
     {
-        $this->forcastRepo = $forcastRepo;
-        $this->invertersRepo = $invertersRepo;
-        $this->functions = $functions;
-        $this->forcastDayRepo = $forcastDayRepo;
+
     }
 
     public function getForecastFac(Anlage $anlage, $to): array
