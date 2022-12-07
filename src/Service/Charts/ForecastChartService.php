@@ -201,7 +201,6 @@ class ForecastChartService
         }
         $result = $conn->prepare($sql);
         $result->execute();
-
         foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
             if ($anlage->getShowEvuDiag()) {
                 if ($value['startDay'] < date('z', strtotime($to))) {
@@ -224,9 +223,9 @@ class ForecastChartService
         $divPlus = 0;
         foreach ($forecasts as $count => $forecast) {
             $year = date('Y', strtotime($to));
-            $stamp = DateTime::createFromFormat('Y z', $year.' '.$forecast->getDay());
-
+            $stamp = DateTime::createFromFormat('Y z', $year.' '.$forecast->getDay()-1);
             $dataArray['chart'][$counter]['date'] = $stamp->format('Y-m-d');
+
             if (isset($actPerDay[$forecast->getDay()])) {
                 $expectedDay += $actPerDay[$forecast->getDay()];
                 $divMinus += $actPerDay[$forecast->getDay()];
@@ -243,7 +242,6 @@ class ForecastChartService
             $dataArray['chart'][$counter]['divPlus'] = round($divPlus);
             ++$counter;
         }
-
         return $dataArray;
     }
 }

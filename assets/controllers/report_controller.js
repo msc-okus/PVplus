@@ -18,7 +18,7 @@ export default class extends Controller {
         if ($button.attr('disabled')) {
             $button.removeAttr('disabled');
         } else {
-           $button.attr('disabled', 'disabled');
+            $button.attr('disabled', 'disabled');
         }
     }
 
@@ -77,5 +77,5 @@ export default class extends Controller {
         });
         this.dispatch('success');
     }
-
 }
+
