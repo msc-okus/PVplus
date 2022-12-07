@@ -143,6 +143,7 @@ class AlertSystemService
                     $this->em->persist($mainTicketGrid);
                 }
             }
+            $this->getTicketYesterday($anlage, $time);
             $this->em->flush();
         }
     }
@@ -395,6 +396,26 @@ class AlertSystemService
     }
 
     /**
+     * We will use this function to retrieve all the tickets from yesterday
+     * @param $anlage
+     * @param $time
+     * @param $errorCategory
+     * @param $inverter
+     * @return mixed
+     */
+    public function getTicketYesterday($anlage, $time): mixed
+    {
+        $today = date('Y-m-d', strtotime($time));
+        $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
+        $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
+
+        $ticket = $this->ticketRepo->findAllLastByAT($anlage, $today, $lastQuarterYesterday); // we try to retrieve the last quarter of yesterday
+        dd($ticket);
+
+        return $ticket;
+    }
+
+    /**
      * We retrieve all the tickets
      * @param $anlage
      * @param $time
@@ -573,6 +594,7 @@ class AlertSystemService
         }
         return $ticket;
     }
+
 
 
     //AUXILIAR FUNCTIONS

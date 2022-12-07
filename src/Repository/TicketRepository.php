@@ -216,6 +216,24 @@ class TicketRepository extends ServiceEntityRepository
 
         return $result->getResult();
     }
+    public function findAllLastByAT($anlage, $today, $yesterday){
+        $description = 'Error with the Data of the Weather station';
+        $result = $this->createQueryBuilder('t')
+            ->andWhere('t.end < :today')
+            ->andWhere('t.end >= :yesterday')
+            ->andWhere('t.anlage = :anl')
+            ->andWhere('t.alertType = :error')
+            ->andWhere('t.description != :description')
+            ->setParameter('today', $today)
+            ->setParameter('yesterday', $yesterday)
+            ->setParameter('anl', $anlage)
+            ->setParameter('description', $description)
+            ->orderBy('t.end', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery();
+
+        return $result->getResult();
+    }
     public function findLastByAIT($anlage, $today, $yesterday, $errorCategory, $inverter)
     {
         $description = 'Error with the Data of the Weather station';
