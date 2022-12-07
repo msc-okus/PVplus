@@ -422,18 +422,16 @@ class ReportingController extends AbstractController
                         $pdf = new ChromePdf('/usr/bin/chromium');
                         $pos = $this->substr_Index($this->kernelProjectDir, '/', 5);
                         $pathpart = substr($this->kernelProjectDir, $pos);
-                        if ($anlage->getAnlId() == 44) $anlName = "Monte_Solar";
-                        else $anlName = $anlage->getAnlName();
-                        $pdf->output('/usr/home/pvpluy/public_html/public/' . $anlName . '_AssetReport_' . $month . '_' . $year . '.pdf');
-                        $reportfile = fopen('/usr/home/pvpluy/public_html/public/' . $anlName . '_AssetReport_' . $month . '_' . $year . '.html', "w") or die("Unable to open file!");
+                        $pdf->output('/usr/home/pvpluy/public_html/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf');
+                        $reportfile = fopen('/usr/home/pvpluy/public_html/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.html', "w") or die("Unable to open file!");
 
                         $pos = strpos($result, '<html>');
                         fwrite($reportfile, substr($result, $pos));
                         fclose($reportfile);
 
                         $pdf->generateFromHtml(substr($result, $pos));
-                        $pdf->generateFromFile('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlName . '_AssetReport_' . $month . '_' . $year . '.html');
-                        $filename = '/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlName . '_AssetReport_' . $month . '_' . $year . '.pdf';
+                        $pdf->generateFromFile('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.html');
+                        $filename = '/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf';
 
                         $pdf->output($filename);
                         // Header content type

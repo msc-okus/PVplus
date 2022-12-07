@@ -34,7 +34,6 @@ export default class extends Controller {
                 url: this.formUrlValue,
             });
         }
-        console.log("hey");
         $(this.modalBodyTarget).foundation();
 
     }
@@ -96,6 +95,7 @@ export default class extends Controller {
             if (edited == true) {
                 $(this.splitDeployTarget).removeAttr('disabled');
             }
+            inverterString = '*';
         } else {
             $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox]').each(function(){
                 $(this).prop('checked', false);
@@ -159,77 +159,7 @@ export default class extends Controller {
             }
         }
     }
-/*
-    checkInverter({ params: { edited }}){
 
-        let inverterString = '';
-        let body = $(this.modalBodyTarget);
-        let counter = 0;
-        body.find('.js-div-split-a').each(function(){
-            $(this).addClass('is-hidden');
-            $(this).find('.js-checkbox-split-a').prop('checked', false);
-        });
-        body.find('.js-div-split-b').each(function(){
-            $(this).addClass('is-hidden');
-            $(this).find('.js-checkbox-split-b').prop('checked', false);
-        });
-        body.find('input:checkbox[class=js-checkbox]:checked').each(function (){
-            counter ++;
-            if (inverterString == '') {inverterString = inverterString + $(this).prop('name');}
-            else {inverterString = inverterString + ', ' + $(this).prop('name');}
-            body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
-            body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
-            body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
-
-        });
-
-        if (counter <= 1 ) {
-            $(this.splitDeployTarget).attr('disabled', 'disabled');
-        }
-        else {
-            if (edited == true) {
-                $(this.splitDeployTarget).removeAttr('disabled');
-            }
-        }
-        if (inverterString == '') {
-            $(this.saveButtonTarget).attr('disabled', 'disabled');
-        }
-        else {
-            $(this.saveButtonTarget).removeAttr('disabled');
-        }
-        $(this.modalBodyTarget).find('#ticket_form_inverter').val(inverterString);
-    }
-
-    checkDates() {
-        const valueBegin = $(this.formBeginTarget).prop('value');
-        const valueEnd = $(this.formEndTarget).prop('value');
-
-
-        const date1 = new Date(valueBegin);
-        const date2 = new Date(valueEnd);
-        date1.setSeconds(0);
-        date2.setSeconds(0);
-        const timestamp1 = date1.getTime();
-        const timestamp2 = date2.getTime();
-
-
-        if (timestamp2 > timestamp1){
-            $(this.AlertDatesTarget).addClass('is-hidden');
-            $(this.saveButtonTarget).removeAttr('disabled');
-        } else {
-            $(this.AlertDatesTarget).removeClass('is-hidden');
-            $(this.saveButtonTarget).attr('disabled', 'disabled');
-        }
-
-        if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
-            $(this.AlertFormatTarget).addClass('is-hidden');
-            $(this.saveButtonTarget).removeAttr('disabled');
-        } else {
-            $(this.AlertFormatTarget).removeClass('is-hidden');
-            $(this.saveButtonTarget).attr('disabled', 'disabled');
-        }
-    }
-*/
     saveCheck({ params: { edited }}){
         console.log('hey');
         //getting a string with the inverters so later we can check if there is any or none
@@ -253,6 +183,10 @@ export default class extends Controller {
             body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
 
         });
+        if (counter == body.find('input:checkbox[class=js-checkbox]').length){
+            inverterString = '*';
+        }
+
         //here we get the values of the date forms to check if they are valid
         const valueBegin = $(this.formBeginTarget).prop('value');
         const valueEnd = $(this.formEndTarget).prop('value');
@@ -275,7 +209,6 @@ export default class extends Controller {
                 $(this.splitDeployTarget).removeAttr('disabled');
             }
         }
-        console.log(cat);
 
         if (inverterString == '') {
             $(this.CalloutTarget).removeClass('is-hidden');
