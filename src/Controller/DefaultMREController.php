@@ -69,12 +69,13 @@ class DefaultMREController extends BaseController
         $anlage = $anlagenRepository->find($plant);
         $output = "";
         $date = date_create("$year-$month-01 12:00");
-        $daysInMonth = 23;
+        #$daysInMonth = 5;
         $daysInMonth = $date->format("t");
         for ($day = 1; $day <= $daysInMonth; $day++) {
             $from = date_create("$year-$month-$day 12:00");
             #$output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 0);
             #$output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 1);
+
             $output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 2);
             $output .= "PA: " . number_format(round($this->availabilityByTicket->calcAvailability($anlage, date_create("$year-$month-$day"), date_create("$year-$month-$day"), null, 2), 3),'3') . "<br>";
 
