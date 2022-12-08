@@ -65,11 +65,11 @@
                     {% endif %}
 
 
-                    {% if (features and features.SplitGap) %}
+
                         <td class="text-right">
-                            <button {% if (ticketForm.dates|length) <= 1 %}disabled{% endif %}
+                            <button class="{% if (features == null or features.SplitGap != true) %} is-hidden {% endif%} button action-icon tiny no-margin hollow shadow"
+                                    {% if (ticketForm.dates|length) <= 1 %}disabled{% endif %}
                                     type="button"
-                                    class="button action-icon tiny no-margin hollow shadow"
                                     data-action="ticket-split#openDelete"
                                     data-ticket-edit-id-param="{{ date.vars.value.id }}"
                             >
@@ -110,9 +110,11 @@
                         </td> {# delete Button #}
                         <td id="{{ date.vars.value.id }}">
                             <button
+
                                     {% if (date.vars.value.end|date("U") - date.vars.value.begin|date("U") <= 900) %} disabled {% endif %}
+                                    {% if (features == null or features.SplitGap != true) %} hidden {% endif%}
                                     type="button"
-                                    class="button action-icon tiny no-margin hollow shadow"
+                                    class="button action-icon tiny no-margin hollow shadow {% if (features == null or features.SplitGap != true) %} is-hidden {% endif%}"
                                     data-action="ticket-split#openSplitTicket"
                                     data-ticket-edit-id-param="{{ date.vars.value.id }}"
                             >
@@ -200,7 +202,7 @@
                                 </div>
                             </div>
                         </td>
-                    {% endif %}
+
                 </tr>
             {% endfor %}
             {% else %}
