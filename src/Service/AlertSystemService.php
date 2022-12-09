@@ -223,6 +223,7 @@ class AlertSystemService
     public function RetrievePlant(Anlage $anlage, $time): array
     {
         $irrLimit = 20; //in the future this will come from a field in anlage
+        if ($anlage->getThreshold1PA0() > $irrLimit) $irrLimit = $anlage->getThreshold1PA0();
         $freqLimitTop = $anlage->getFreqBase() + $anlage->getFreqTolerance();
         $freqLimitBot = $anlage->getFreqBase() - $anlage->getFreqTolerance();
         $voltLimit = 0;
