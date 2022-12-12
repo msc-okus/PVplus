@@ -98,11 +98,13 @@ class EignerController extends BaseController
             $em->persist($owner);
             $em->flush();
             $imageuploaded = $RepositoryUpload->findOneBy(['path' => $owner->getLogo()]);
+            if ($imageuploaded) $path = $imageuploaded->getPath();
+            else $path = "";
             if ($form->get('save')->isClicked()) {
                 return $this->render('owner/edit.html.twig', [
                     'ownerForm' => $form->createView(),
                     'isupload' => $isupload,
-                    'imageuploadet' => $imageuploaded->getPath(),
+                    'imageuploadet' => $path,
                 ]);
             }
             if ($form->get('saveclose')->isClicked()) {

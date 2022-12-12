@@ -177,7 +177,7 @@ class WeatherServiceNew
     public function getSunrise(Anlage $anlage, ?string $time = null): array
     {
         $sunrisedata = date_sun_info(strtotime($time), (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon());
-
+        $irrLimit = $anlage->getIrrLimitAvailability();
         $returnArray['sunrise'] = $time.' '.date('H:i', $sunrisedata['sunrise']);
         $returnArray['sunset'] = $time.' '.date('H:i', $sunrisedata['sunset']);
 

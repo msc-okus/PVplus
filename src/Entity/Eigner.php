@@ -425,7 +425,8 @@ class Eigner
 
     public function getLogo(): ?string
     {
-        return $this->logo;
+        if (isset($this->logo)) return $this->logo;
+        else return "";
     }
 
     public function setLogo(?string $Logo): self
