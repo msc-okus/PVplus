@@ -110,6 +110,7 @@
 
 {# DC4 #}
 {% macro dcGroupPowerDiff(form, aktAnlage) %}
+
     <option value="dc_grp_power_diff" {% if form.selectedChart == 'dc_grp_power_diff' %}selected{% endif %}>
         {% if aktAnlage.configType == 1 %}
             DC - Inverter (BarChart)
@@ -121,6 +122,7 @@
             DC - SCBs (BarChart)
         {% endif %}
         &nbsp;[kWh]{% if is_granted('ROLE_DEV') %}[DC 4]{% endif %}</option>
+
 {% endmacro %}
 
 {# Current Diagramme DC #}
