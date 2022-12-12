@@ -367,7 +367,7 @@ class AlertSystemService
     }
 
     /**
-     *
+     * this is normal function for retrieval of tickets
      * @param $anlage
      * @param $time
      * @param $errorCategory
@@ -376,28 +376,12 @@ class AlertSystemService
      */
     public function getLastTicketInverter($anlage, $time, $errorCategory, $inverter): mixed
     {
-        $ticket = null;
-        $today = date('Y-m-d', strtotime($time));
-        $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
-        $sunrise = self::getLastQuarter($this->weather->getSunrise($anlage, $today)['sunrise']); // the first quarter of today
-        $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
-        $quarter = date('Y-m-d H:i', strtotime($time) - 900); // the quarter before the actual
-        // Inverter Tickets
-        if ($quarter <= $sunrise) {
-            $ticket = $this->ticketRepo->findLastByAIT($anlage, $today, $lastQuarterYesterday, $errorCategory, $inverter); // we try to retrieve the last quarter of yesterday
-        } else {
-            $ticket = $this->ticketRepo->findByAIT($anlage, $time, $errorCategory, $inverter); // we try to retrieve the ticket in the previous quarter
-        }
-        if (sizeof($ticket) > 0) {
-            $ticketReturn = $ticket[0];
-        }
-        else $ticketReturn = null;
-
-        return $ticketReturn;
+        $ticket = $this->ticketRepo->findByAnlageInverterTime($anlage, $time, $errorCategory, $inverter); // we try to retrieve the ticket in the previous quarter
+        return $ticket != null ? $ticket[0] : null;
     }
 
     /**
-     * We will use this function to retrieve all the tickets from yesterday
+     * We will use this function to retrieve all the tickets from yesterday (work in progress to link tickets)
      * @param $anlage
      * @param $time
      * @param $errorCategory
@@ -410,7 +394,7 @@ class AlertSystemService
         $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
         $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
 
-        $ticket = $this->ticketRepo->findAllLastByAT($anlage, $today, $lastQuarterYesterday); // we try to retrieve the last quarter of yesterday
+        $ticket = $this->ticketRepo->findAllLastByAnlageTime($anlage, $today, $lastQuarterYesterday); // we try to retrieve the last quarter of yesterday
         dd($ticket);
 
         return $ticket;
@@ -430,18 +414,16 @@ class AlertSystemService
             $sunrise = self::getLastQuarter($this->weather->getSunrise($anlage, $today)['sunrise']); // the first quarter of today
             $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
             $quarter = date('Y-m-d H:i', strtotime($time) - 900); // the quarter before the actual
-
             // Inverter Tickets
             if ($quarter <= $sunrise) {
                 $ticket = $this->ticketRepo->findAllYesterday($anlage, $today, $lastQuarterYesterday); // we try to retrieve the last quarter of yesterday
             } else {
                 $ticket = $this->ticketRepo->findAllByTime($anlage, $time); // we try to retrieve the ticket in the previous quarter
             }
-
             return $ticket;
         }
     }
-
+// *************************************** MULTI TICKET GENERATION (NOT IN USE AT THE TIME) ***********************************************************
 
     /**
      * main function to generate tickets with multi inverter
@@ -581,7 +563,6 @@ class AlertSystemService
      */
     public function getLastTicket($anlage, $time, $errorCategory): mixed
     {
-        $ticket = null;
         $today = date('Y-m-d', strtotime($time));
         $sunrise = self::getLastQuarter($this->weather->getSunrise($anlage, $today)['sunrise']); // the first quarter of today
         $previousQuarter = date('Y-m-d H:i', strtotime($time) - 900);
@@ -589,9 +570,9 @@ class AlertSystemService
         if ($previousQuarter <= $sunrise) {
             $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
             $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
-            $ticket = $this->ticketRepo->findLastByAT($anlage, $today, $lastQuarterYesterday, $errorCategory); // we try to retrieve the last quarter of yesterday
+            $ticket = $this->ticketRepo->findLastByAnlageTime($anlage, $today, $lastQuarterYesterday, $errorCategory); // we try to retrieve the last quarter of yesterday
         } else {
-            $ticket = $this->ticketRepo->findByAT($anlage, $time, $errorCategory); // we try to retrieve the ticket in the previous quarter
+            $ticket = $this->ticketRepo->findByAnlageTime($anlage, $time, $errorCategory); // we try to retrieve the ticket in the previous quarter
         }
         return $ticket;
     }
