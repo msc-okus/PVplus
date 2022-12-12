@@ -148,7 +148,7 @@
                             <div class="cell small-6 medium-3 large-1">
                                 {{ form_row(ticketForm.needsProof) }}
                             </div>
-                            {% if (is_granted('ROLE_G4N')) %}
+                            {% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA')) %}
                                 <div class="cell small-6 medium-3 large-1">
                                     {{ form_row(ticketForm.ignoreTicket) }}
                                 </div>

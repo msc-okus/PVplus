@@ -57,7 +57,7 @@
             <label> Proof by TAM
                 <input type="checkbox" name="prooftam" class="input-group-field" value="1">
             </label>
-            {% if (is_granted('ROLE_G4N')) %}
+            {% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA')) %}
                 <label> Ignored Tickets
                     <input type="checkbox" name="ignored" class="input-group-field" value="1">
                 </label>

@@ -651,15 +651,19 @@ class CheckSystemStatusService
                 $anzStringsVoltage = 0;
                 if (isset($rowAnlage['wr_mpp_current'])) {
                     $stringCurrent = json_decode($rowAnlage['wr_mpp_current'], true);
-                    $anzStringsCurrent = count($stringCurrent);
-                    $sumStringCurrent = array_sum($stringCurrent);
-                    ($anzStringsCurrent > 0) ? $avgStringCurrent = $sumStringCurrent / $anzStringsCurrent : $avgStringCurrent = 0;
+                    if (is_array($stringCurrent)) {
+                        $anzStringsCurrent = count($stringCurrent);
+                        $sumStringCurrent = array_sum($stringCurrent);
+                        ($anzStringsCurrent > 0) ? $avgStringCurrent = $sumStringCurrent / $anzStringsCurrent : $avgStringCurrent = 0;
+                    }
                 }
                 if (isset($rowAnlage['wr_mpp_current'])) {
                     $stringVoltage = json_decode($rowAnlage['wr_mpp_voltage'], true);
-                    $anzStringsVoltage = count($stringVoltage);
-                    $sumStringVoltage = array_sum($stringVoltage);
-                    ($anzStringsVoltage > 0) ? $avgStringVoltage = $sumStringVoltage / $anzStringsVoltage : $avgStringVoltage = 0;
+                    if (is_array($stringVoltage)) {
+                        $anzStringsVoltage = count($stringVoltage);
+                        $sumStringVoltage = array_sum($stringVoltage);
+                        ($anzStringsVoltage > 0) ? $avgStringVoltage = $sumStringVoltage / $anzStringsVoltage : $avgStringVoltage = 0;
+                    }
                 }
 
                 // In diesem 2dimensionalen Arrays werden alle Strings gespeichert bei denn ein Fehler aufgetreten ist,

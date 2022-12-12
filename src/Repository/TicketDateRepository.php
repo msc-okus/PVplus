@@ -135,10 +135,12 @@ class TicketDateRepository extends ServiceEntityRepository
     public function findDataGapOutage(Anlage $anlage, $begin, $end, int $department): mixed
     {
         $q = $this->createQueryBuilder('t')
-            ->andWhere('t.begin BETWEEN :begin AND :end')
+            ->join('t.ticket', 'ticket')
+            ->andWhere('t.begin BETWEEN :begin AND :end OR t.end BETWEEN :begin AND :end OR (:end <= t.end and :begin >= t.end)')
             ->andWhere('t.Anlage = :anlage')
             #->andWhere('t.alertType = 10')
-            ->andWhere('t.dataGapEvaluation = 10');
+            ->andWhere('t.dataGapEvaluation = 10')
+            ->andWhere('ticket.ignoreTicket = false');
         switch ($department){
             case 1:
                 $q->andWhere('t.kpiPaDep1 = 10');
@@ -169,9 +171,11 @@ class TicketDateRepository extends ServiceEntityRepository
     public function findTiFm(Anlage $anlage, $begin, $end, int $department): mixed
     {
         $q = $this->createQueryBuilder('t')
-            ->andWhere('t.begin BETWEEN :begin AND :end')
+            ->join('t.ticket', 'ticket')
+            ->andWhere('t.begin BETWEEN :begin AND :end OR t.end BETWEEN :begin AND :end OR (:end <= t.end and :begin >= t.end)')
             ->andWhere('t.Anlage = :anlage')
             ->andWhere('t.alertType = 20 or (t.alertType = 10 and t.dataGapEvaluation = 10)')
+            ->andWhere('ticket.ignoreTicket = false')
             ->setParameter('begin', $begin)
             ->setParameter('end', $end)
             ->setParameter('anlage', $anlage);
