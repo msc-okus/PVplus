@@ -2620,6 +2620,7 @@ class Anlage
     public function setUsePnomForPld(bool $usePnomForPld): self
     {
         $this->usePnomForPld = $usePnomForPld;
+        return $this;
     }
 
     public function getPldYield(): ?float

@@ -170,7 +170,7 @@ class AlertSystemService
             $array_zero = explode(", ", $plant_status['Power0']);
             $array_vol = explode(", ", $plant_status['Vol']);
             $ticketOld = $this->getAllTickets($anlage, $time);
-            if (($ticketOld !== null)) {
+            if ((isset($ticketOld))) {
                 foreach ($ticketOld as $ticket) {
                     $ticket->setOpenTicket(false);
                     $this->em->persist($ticket);
@@ -222,8 +222,8 @@ class AlertSystemService
      */
     public function RetrievePlant(Anlage $anlage, $time): array
     {
-        $irrLimit = 20; //in the future this will come from a field in anlage
-        if ($anlage->getThreshold1PA0() > $irrLimit) $irrLimit = $anlage->getThreshold1PA0();
+        $irrLimit = $anlage->getThreshold1PA0() == 0 ? $anlage->getThreshold1PA0() : 20;
+
         $freqLimitTop = $anlage->getFreqBase() + $anlage->getFreqTolerance();
         $freqLimitBot = $anlage->getFreqBase() - $anlage->getFreqTolerance();
         $voltLimit = 0;

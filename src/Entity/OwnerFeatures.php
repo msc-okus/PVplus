@@ -25,6 +25,12 @@ class OwnerFeatures
     #[ORM\Column(nullable: true, options: ['default' => '1'])]
     private ?bool $aktDep3 = true;
 
+    #[ORM\Column(nullable: true, options: ['default' => '0'])]
+    private ?bool $SplitInverter = false;
+
+    #[ORM\Column(nullable: true, options: ['default' => '0'])]
+    private ?bool $SplitGap = false;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -74,6 +80,30 @@ class OwnerFeatures
     public function setAktDep3(?bool $aktDep3): self
     {
         $this->aktDep3 = $aktDep3;
+
+        return $this;
+    }
+
+    public function isSplitInverter(): ?bool
+    {
+        return $this->SplitInverter;
+    }
+
+    public function setSplitInverter(bool $SplitInverter): self
+    {
+        $this->SplitInverter = $SplitInverter;
+
+        return $this;
+    }
+
+    public function isSplitGap(): ?bool
+    {
+        return $this->SplitGap;
+    }
+
+    public function setSplitGap(bool $SplitGap): self
+    {
+        $this->SplitGap = $SplitGap;
 
         return $this;
     }
