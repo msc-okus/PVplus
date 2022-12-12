@@ -168,7 +168,10 @@
     .off-canvas-content {padding-top: 92px;}
 
     tbody th, tbody td, thead th, thead td, tfoot th, tfoot td {font-size: rem-calc(14);}
-    tbody th, thead th, tfoot th { border-right: #eee 1px solid;}
+    tbody th, thead th, tfoot th {
+        border-right: #eee 1px solid;
+        &:last-child {border-right: none;}
+    }
 
     header {
         position: fixed;

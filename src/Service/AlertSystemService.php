@@ -411,7 +411,7 @@ class AlertSystemService
         $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
 
         $ticket = $this->ticketRepo->findAllLastByAT($anlage, $today, $lastQuarterYesterday); // we try to retrieve the last quarter of yesterday
-        dd($ticket);
+        #dd($ticket);
 
         return $ticket;
     }
