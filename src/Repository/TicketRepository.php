@@ -222,7 +222,6 @@ class TicketRepository extends ServiceEntityRepository
             ->andWhere('t.end < :today')
             ->andWhere('t.end >= :yesterday')
             ->andWhere('t.anlage = :anl')
-            ->andWhere('t.alertType = :error')
             ->andWhere('t.description != :description')
             ->setParameter('today', $today)
             ->setParameter('yesterday', $yesterday)
