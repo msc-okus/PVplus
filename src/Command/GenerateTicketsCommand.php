@@ -84,7 +84,7 @@ class GenerateTicketsCommand extends Command
                 }
 
                 for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-                    $this->alertService->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
+                    $this->alertService->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
 
                     if ($counter % 4 == 0) {
                         $io->progressAdvance();

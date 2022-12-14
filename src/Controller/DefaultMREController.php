@@ -35,9 +35,9 @@ class DefaultMREController extends BaseController
     #[Route(path: '/mr/sun')]
     public function testSunRise(WeatherServiceNew $weatherService, AnlagenRepository $anlagenRepository): Response
     {
-        $anlage = $anlagenRepository->find('112');
+        $anlage = $anlagenRepository->find('183');
         $time = time();
-        $time = strtotime('2022-05-23');
+        $time = strtotime('2022-12-14');
 
         $sunrisedatas = date_sun_info($time, (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon());
         foreach ($sunrisedatas as $key => $value) {
