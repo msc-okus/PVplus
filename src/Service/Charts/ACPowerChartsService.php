@@ -391,14 +391,16 @@ class ACPowerChartsService
                     }
                 } else {
                     while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                        ($row['soll'] == null) ? $expected = 0 : $expected = $row['soll'];
+                        ($row['soll'] == null || $row['soll'] < 0) ? $expected = 0 : $expected = $row['soll'];
                     }
                 }
 
                 $dataArray['maxSeries'] = 1;
                 $dataArray['chart'][$counter]['temperature'] = $rowIst['temp'] == null ? null : $rowIst['temp'];
                 $actPower = $rowIst['actPower'];
-                $actPower = $actPower > 0 ? round(self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()), 2) : 0; // neagtive Werte auschließen
+                if ($actPower !== null) {
+                    $actPower = $actPower > 0 ? round($actPower, 2) : 0; // neagtive Werte auschließen
+                }
 
                 switch ($anlage->getConfigType()) {
                     case 2:

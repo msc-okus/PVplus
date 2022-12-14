@@ -131,13 +131,13 @@ class TicketRepository extends ServiceEntityRepository
             ->setParameter('id', $id)
             ->getQuery()
             ->getOneOrNullResult()
-        ;
+            ;
     }
 
     public function findMultipleByBeginErrorAnlage($anlage, $time, $errorCategory){
         $description = 'Error with the Data of the Weather station';
         $result = $this->createQueryBuilder('t')
-        ->andWhere('t.begin = :begin')
+            ->andWhere('t.begin = :begin')
             ->andWhere('t.anlage = :anl')
             ->andWhere('t.description != :description')
             ->andWhere('t.alertType = :cat')

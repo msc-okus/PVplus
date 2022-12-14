@@ -431,9 +431,7 @@ class AlertSystemService
         $today = date('Y-m-d', strtotime($time));
         $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
         $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
-
         $ticket = $this->ticketRepo->findAllLastByAnlageTime($anlage, $today, $lastQuarterYesterday); // we try to retrieve the last quarter of yesterday
-        dd($ticket);
 
         return $ticket;
     }

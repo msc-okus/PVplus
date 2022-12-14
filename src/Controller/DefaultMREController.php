@@ -125,6 +125,8 @@ class DefaultMREController extends BaseController
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
         $from = date_create('2021-01-01');
         $to = date_create('2021-10-31');
+        $from = $anlage->getEpcReportStart();
+        $to = $anlage->getEpcReportEnd();
         $output = $bavelseExport->getRawData($anlage, $from, $to);
 
         return $this->render('cron/showResult.html.twig', [

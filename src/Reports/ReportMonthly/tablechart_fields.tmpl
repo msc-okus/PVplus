@@ -148,14 +148,15 @@ function getPandRChartFields($lineBreake, $doubleLineBreake, $auml, $useGridMete
     return $tableFields;
 }
 
-function getEandPChartFields($lineBreake,$doubleLineBreake,$auml,$useGridMeterDayData){
+function getEandPChartFields($lineBreake,$doubleLineBreake,$auml,$useGridMeterDayData): array
+{
     $tableFields = [
         'datum'  => [
             'label'         => 'Date',
             'type'          => 'string',
         ],
     ];
-    if($useGridMeterDayData == false) {
+    if(!$useGridMeterDayData) {
         $tableFields['PowerEvuMonth'] = [
             "label"=>"Grid Meter",
             'type'          => 'number',
@@ -186,7 +187,7 @@ function getDayValuesields($lineBreake, $doubleLineBreake, $auml, $showAvailabil
             'cssStyle'      => $cssStyleStd,
         ],
     ];
-    if($useGridMeterDayData == true){
+    if($useGridMeterDayData){
         $tableFields['powerEGridExt'] = [
             'label'         => 'Energy Production'.$lineBreake.'Grid meter'.$lineBreake.'[kWh]',
             'type'          => 'number',
@@ -212,19 +213,48 @@ function getDayValuesields($lineBreake, $doubleLineBreake, $auml, $showAvailabil
         "cssStyle"      => $cssStyleStd,
         'formatValue'   => function($value) {return number_format($value, 4, ',', '.');},
     ];
+    $tableFields['prEvuDefault'] = [
+        'label'         => 'PR O&M'.$lineBreake.'[%]',
+        'type'          => 'number',
+        "cssStyle"      => $cssStyleStd,
+        'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+    ];
     $tableFields['prEvuEpc'] = [
         'label'         => 'PR EPC'.$lineBreake.'[%]',
         'type'          => 'number',
         "cssStyle"      => $cssStyleStd,
         'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
     ];
-    $tableFields['prEvuDefault'] = [
-        'label'         => 'PR Std.'.$lineBreake.'[%]',
+    /*
+    $tableFields['pa0'] = [
+        'label'         => 'PA 0'.$lineBreake.'[%]',
         'type'          => 'number',
         "cssStyle"      => $cssStyleStd,
         'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
     ];
-    if($showAvailability == true) {
+    */
+    $tableFields['pa1'] = [
+        'label'         => 'PA O&M'.$lineBreake.'[%]',
+        'type'          => 'number',
+        "cssStyle"      => $cssStyleStd,
+        'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+    ];
+    $tableFields['pa2'] = [
+        'label'         => 'PA EPC'.$lineBreake.'[%]',
+        'type'          => 'number',
+        "cssStyle"      => $cssStyleStd,
+        'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+    ];
+    /*
+    $tableFields['pa3'] = [
+        'label'         => 'AM'.$lineBreake.'[%]',
+        'type'          => 'number',
+        "cssStyle"      => $cssStyleStd,
+        'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+    ];
+    */
+    /*
+    if($showAvailability) {
         $tableFields['plantAvailability'] = [
             'label'         => 'PA 1'.$lineBreake.'[%]',
             'type'          => 'number',
@@ -232,7 +262,7 @@ function getDayValuesields($lineBreake, $doubleLineBreake, $auml, $showAvailabil
             'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
         ];
     }
-    if($showAvailabilitySecond == true) {
+    if($showAvailabilitySecond) {
         $tableFields['plantAvailabilitySecond'] = [
             'label'         => 'PA 2'.$lineBreake.'[%]',
             'type'          => 'number',
@@ -240,8 +270,15 @@ function getDayValuesields($lineBreake, $doubleLineBreake, $auml, $showAvailabil
             'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
         ];
     }
+    */
     $tableFields['powerTheo'] = [
         'label'         => 'Theoretical'.$lineBreake.'[kWh]',
+        'type'          => 'number',
+        "cssStyle"      => $cssStyleStd,
+        'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
+    ];
+    $tableFields['powerTheoFT'] = [
+        'label'         => 'Theoretical<br>(temp. corr.)'.$lineBreake.'[kWh]',
         'type'          => 'number',
         "cssStyle"      => $cssStyleStd,
         'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
@@ -252,12 +289,14 @@ function getDayValuesields($lineBreake, $doubleLineBreake, $auml, $showAvailabil
         "cssStyle"      => $cssStyleStd,
         'formatValue'   => function($value) {return number_format($value, 3, ',', '.');},
     ];
+    /*
     $tableFields['case5perDay'] = [
         'label'         => 'Case 5',
         'type'          => 'number',
         "cssStyle"      => $cssStyleStd,
         'formatValue'   => function($value) {return number_format($value, 0, ',', '.');},
     ];
+    */
 
     return $tableFields;
 }

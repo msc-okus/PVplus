@@ -138,7 +138,7 @@ class ExportService
                     // Strahlung (upper = Ost / lower = West)
                     $export[$stamp]['irr_mod'] = ($row->upper * $anlage->getPowerEast() + $row->lower * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 4 / 1000; // Umrechnug zu kWh
                 } else {
-                    $export[$stamp]['irr_mod'] = $row->upper() / 4 / 1000; // Umrechnug zu kWh
+                    $export[$stamp]['irr_mod'] = $row->upper / 4 / 1000; // Umrechnug zu kWh
                 }
             } else {
                 $export[$stamp]['irr_mod'] = null;
