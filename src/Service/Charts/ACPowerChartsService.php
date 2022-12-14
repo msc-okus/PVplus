@@ -321,6 +321,7 @@ class ACPowerChartsService
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
 
         $conn = self::getPdoConnection();
+        $groupID = 1;
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
         switch ($anlage->getConfigType()) {
@@ -421,7 +422,7 @@ class ACPowerChartsService
                 $dataArray['chart'][$counter]['expected'] = (float) $expected;
 
                 // add Irradiation
-                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
+                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() === false) {
                     $dataArray['chart'][$counter]['irradiation'] = $dataArrayIrradiation['chart'][$counter]['val1'];
                 } else {
                     $dataArray['chart'][$counter]['irradiation'] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;

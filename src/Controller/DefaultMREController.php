@@ -108,11 +108,13 @@ class DefaultMREController extends BaseController
         } else {
             $to = date_create($year.'-'.($month+1).'-01');
         }
+        $daysInMonth = $to->format('t');
         $output = $bavelseExport->gewichtetTagesstrahlung($anlage, $from, $to);
+        $availability = $this->availabilityByTicket->calcAvailability($anlage, date_create("$year-$month-01"), date_create("$year-$month-$daysInMonth"), null, 2);
 
         return $this->render('cron/showResult.html.twig', [
             'headline' => 'Systemstatus',
-            'availabilitys' => '',
+            'availability' => $availability,
             'output' => $output,
         ]);
     }
