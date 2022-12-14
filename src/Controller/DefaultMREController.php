@@ -35,9 +35,9 @@ class DefaultMREController extends BaseController
     #[Route(path: '/mr/sun')]
     public function testSunRise(WeatherServiceNew $weatherService, AnlagenRepository $anlagenRepository): Response
     {
-        $anlage = $anlagenRepository->find('112');
+        $anlage = $anlagenRepository->find('183');
         $time = time();
-        $time = strtotime('2022-05-23');
+        $time = strtotime('2022-12-11');
 
         $sunrisedatas = date_sun_info($time, (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon());
         foreach ($sunrisedatas as $key => $value) {
@@ -97,7 +97,7 @@ class DefaultMREController extends BaseController
     }
 
     #[Route(path: '/mr/bavelse/export/{year}/{month}')]
-    public function bavelseExport($year, $month, ExportService $bavelseExport, AnlagenRepository $anlagenRepository): Response
+    public function bavelseExport($year, $month, ExportService $bavelseExport, AnlagenRepository $anlagenRepository, AvailabilityByTicketService $availabilityByTicket): Response
     {
         $output = '';
         /** @var Anlage $anlage */
@@ -110,11 +110,11 @@ class DefaultMREController extends BaseController
         }
         $daysInMonth = $to->format('t');
         $output = $bavelseExport->gewichtetTagesstrahlung($anlage, $from, $to);
-        $availability = $this->availabilityByTicket->calcAvailability($anlage, date_create("$year-$month-01"), date_create("$year-$month-$daysInMonth"), null, 2);
+        $availability = $availabilityByTicket->calcAvailability($anlage, date_create("$year-$month-01"), date_create("$year-$month-$daysInMonth"), null, 2);
 
         return $this->render('cron/showResult.html.twig', [
-            'headline' => 'Systemstatus',
-            'availability' => $availability,
+            'headline' => 'Bavelse Berg Monats Bericht',
+            'availabilitys' => $availability,
             'output' => $output,
         ]);
     }
