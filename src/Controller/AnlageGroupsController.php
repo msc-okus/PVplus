@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Anlage;
 use App\Entity\AnlageGroups;
 use App\Form\Anlage\AnlageGroupsType;
+use App\Form\Groups\DcGroupsSearchFormType;
 use App\Repository\AnlagenRepository;
 use App\Repository\GroupsRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -21,34 +22,7 @@ class AnlageGroupsController extends AbstractController
     #[Route('/', name: 'app_anlage_groups_index', methods: ['GET','POST'])]
     public function index(GroupsRepository $groupsRepository, Request $request): Response
     {
-        $form = $this->createFormBuilder()
-                     ->add('anlage',EntityType::class, [
-                         'placeholder'=> 'choose a Plant',
-                         'label'=>false,
-                         'required'=>false,
-                         'class'=> Anlage::class,
-                         'choice_label'=>function(Anlage $anlage){
-                         return $anlage->getAnlName();
-                         },
-                         'query_builder' => fn(AnlagenRepository $anlagenRepository)
-                         => $anlagenRepository-> findAllOrderedByAscNameQueryBuilder()
-                     ])
-                    ->add('dcGroup',EntityType::class, [
-                        'placeholder'=> 'choose a DcGroup',
-                        'label'=>false,
-                        'class'=> AnlageGroups::class,
-                        'choice_label'=>function(AnlageGroups $anlageGroups){
-                            return $anlageGroups->getAnlage()?'DcGrp->'.$anlageGroups->getDcGroupName().'- Anlage->'.$anlageGroups->getAnlage()->getAnlName():'DcGrp->'.$anlageGroups->getDcGroupName().'- Anlage->UNDEFINED ';
-                        },
-                        'query_builder' => fn(GroupsRepository $groupsRepository)
-                        => $groupsRepository-> findAllOrderedByAscNameQueryBuilder(),
-                        'constraints'=> new NotBlank(['message' => 'Please choose a DcGroup'])
-                    ])
-
-
-
-                   ->getForm()
-        ;
+        $form = $this->createForm(DcGroupsSearchFormType::class);
 
         $form->handleRequest($request);
 
