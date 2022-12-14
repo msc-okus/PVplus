@@ -694,31 +694,34 @@
         },
         {
             "name": "doctrine/annotations",
-            "version": "1.13.3",
+            "version": "1.14.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/annotations.git",
-                "reference": "648b0343343565c4a056bfc8392201385e8d89f0"
+                "reference": "9e034d7a70032d422169f27d8759e8d84abb4f51"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/annotations/zipball/648b0343343565c4a056bfc8392201385e8d89f0",
-                "reference": "648b0343343565c4a056bfc8392201385e8d89f0",
+                "url": "https://api.github.com/repos/doctrine/annotations/zipball/9e034d7a70032d422169f27d8759e8d84abb4f51",
+                "reference": "9e034d7a70032d422169f27d8759e8d84abb4f51",
                 "shasum": ""
             },
             "require": {
-                "doctrine/lexer": "1.*",
+                "doctrine/lexer": "^1 || ^2",
                 "ext-tokenizer": "*",
                 "php": "^7.1 || ^8.0",
                 "psr/cache": "^1 || ^2 || ^3"
             },
             "require-dev": {
                 "doctrine/cache": "^1.11 || ^2.0",
-                "doctrine/coding-standard": "^6.0 || ^8.1",
-                "phpstan/phpstan": "^1.4.10 || ^1.8.0",
-                "phpunit/phpunit": "^7.5 || ^8.0 || ^9.1.5",
-                "symfony/cache": "^4.4 || ^5.2",
+                "doctrine/coding-standard": "^9 || ^10",
+                "phpstan/phpstan": "~1.4.10 || ^1.8.0",
+                "phpunit/phpunit": "^7.5 || ^8.5 || ^9.5",
+                "symfony/cache": "^4.4 || ^5.4 || ^6",
                 "vimeo/psalm": "^4.10"
+            },
+            "suggest": {
+                "php": "PHP 8.0 or higher comes with attributes, a native replacement for annotations"
             },
             "type": "library",
             "autoload": {
@@ -761,9 +764,9 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/annotations/issues",
-                "source": "https://github.com/doctrine/annotations/tree/1.13.3"
+                "source": "https://github.com/doctrine/annotations/tree/1.14.1"
             },
-            "time": "2022-07-02T10:48:51+00:00"
+            "time": "2022-12-12T12:46:12+00:00"
         },
         {
             "name": "doctrine/cache",
@@ -1912,16 +1915,16 @@
         },
         {
             "name": "doctrine/persistence",
-            "version": "3.1.0",
+            "version": "3.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/persistence.git",
-                "reference": "2a9c70a5e21f8968c5a46b79f819ea52f322080b"
+                "reference": "d87426f07dd66f97cfdcf5210925e483b6c993b5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/persistence/zipball/2a9c70a5e21f8968c5a46b79f819ea52f322080b",
-                "reference": "2a9c70a5e21f8968c5a46b79f819ea52f322080b",
+                "url": "https://api.github.com/repos/doctrine/persistence/zipball/d87426f07dd66f97cfdcf5210925e483b6c993b5",
+                "reference": "d87426f07dd66f97cfdcf5210925e483b6c993b5",
                 "shasum": ""
             },
             "require": {
@@ -1992,7 +1995,7 @@
             ],
             "support": {
                 "issues": "https://github.com/doctrine/persistence/issues",
-                "source": "https://github.com/doctrine/persistence/tree/3.1.0"
+                "source": "https://github.com/doctrine/persistence/tree/3.1.1"
             },
             "funding": [
                 {
@@ -2008,7 +2011,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-11-18T14:10:19+00:00"
+            "time": "2022-12-13T21:21:05+00:00"
         },
         {
             "name": "doctrine/sql-formatter",
@@ -2847,16 +2850,16 @@
         },
         {
             "name": "hisune/echarts-php",
-            "version": "1.1.2",
+            "version": "1.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hisune/Echarts-PHP.git",
-                "reference": "b14ebe37736c08353b956eca66cde6a5a2a801c5"
+                "reference": "9a62d82a710088ec774a761cd5f5ad87a043ff08"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hisune/Echarts-PHP/zipball/b14ebe37736c08353b956eca66cde6a5a2a801c5",
-                "reference": "b14ebe37736c08353b956eca66cde6a5a2a801c5",
+                "url": "https://api.github.com/repos/hisune/Echarts-PHP/zipball/9a62d82a710088ec774a761cd5f5ad87a043ff08",
+                "reference": "9a62d82a710088ec774a761cd5f5ad87a043ff08",
                 "shasum": ""
             },
             "require": {
@@ -2894,7 +2897,7 @@
                 "issues": "https://github.com/hisune/Echarts-PHP/issues",
                 "source": "https://github.com/hisune/Echarts-PHP"
             },
-            "time": "2022-05-20T02:41:03+00:00"
+            "time": "2022-11-23T01:38:38+00:00"
         },
         {
             "name": "illuminate/bus",
@@ -13866,16 +13869,16 @@
         },
         {
             "name": "tecnickcom/tc-lib-barcode",
-            "version": "1.17.14",
+            "version": "1.17.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tecnickcom/tc-lib-barcode.git",
-                "reference": "4907ef1e384dbb7d3100c897925e7dc071a419a3"
+                "reference": "bc9153c2f9e27de5915d008b4fc3943d48ab6869"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tecnickcom/tc-lib-barcode/zipball/4907ef1e384dbb7d3100c897925e7dc071a419a3",
-                "reference": "4907ef1e384dbb7d3100c897925e7dc071a419a3",
+                "url": "https://api.github.com/repos/tecnickcom/tc-lib-barcode/zipball/bc9153c2f9e27de5915d008b4fc3943d48ab6869",
+                "reference": "bc9153c2f9e27de5915d008b4fc3943d48ab6869",
                 "shasum": ""
             },
             "require": {
@@ -13952,7 +13955,7 @@
             ],
             "support": {
                 "issues": "https://github.com/tecnickcom/tc-lib-barcode/issues",
-                "source": "https://github.com/tecnickcom/tc-lib-barcode/tree/1.17.14"
+                "source": "https://github.com/tecnickcom/tc-lib-barcode/tree/1.17.15"
             },
             "funding": [
                 {
@@ -13960,7 +13963,7 @@
                     "type": "custom"
                 }
             ],
-            "time": "2022-06-14T09:12:04+00:00"
+            "time": "2022-12-12T16:44:28+00:00"
         },
         {
             "name": "tecnickcom/tc-lib-color",
@@ -15331,16 +15334,16 @@
     "packages-dev": [
         {
             "name": "phpstan/phpstan",
-            "version": "1.9.2",
+            "version": "1.9.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpstan/phpstan.git",
-                "reference": "d6fdf01c53978b6429f1393ba4afeca39cc68afa"
+                "reference": "709999b91448d4f2bb07daffffedc889b33e461c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/d6fdf01c53978b6429f1393ba4afeca39cc68afa",
-                "reference": "d6fdf01c53978b6429f1393ba4afeca39cc68afa",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/709999b91448d4f2bb07daffffedc889b33e461c",
+                "reference": "709999b91448d4f2bb07daffffedc889b33e461c",
                 "shasum": ""
             },
             "require": {
@@ -15370,7 +15373,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phpstan/phpstan/issues",
-                "source": "https://github.com/phpstan/phpstan/tree/1.9.2"
+                "source": "https://github.com/phpstan/phpstan/tree/1.9.3"
             },
             "funding": [
                 {
@@ -15386,7 +15389,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2022-11-10T09:56:11+00:00"
+            "time": "2022-12-13T10:28:10+00:00"
         },
         {
             "name": "rector/rector",
