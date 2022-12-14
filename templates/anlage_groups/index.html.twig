@@ -1,0 +1,80 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}AnlageGroups index{% endblock %}
+
+{% block body %}
+    <h1>AnlageDcGroups</h1>
+    {{ form_start(form) }}
+    <div class="grid-x grid-margin-x align-middle" >
+
+        <div class="cell medium-2 " >
+            {{ form_row(form.anlage) }}
+        </div>
+        <div class="cell medium-2" >
+            {{ form_row(form.dcGroup) }}
+        </div>
+        <div class="grid-x " >
+            <button type="submit" class="button align-self-middle"  formnovalidate>
+
+                <span class="fa fa-search"></span></button>
+        </div>
+    </div>
+        {{ form_end(form) }}
+
+ {% if anlage_groups is defined %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>AnlageName</th>
+                <th>DcGroup</th>
+                <th>DcGroupName</th>
+                <th>AcGroup</th>
+                <th>UnitFirst</th>
+                <th>UnitLast</th>
+                <th>IrrUpper</th>
+                <th>IrrLower</th>
+                <th>ShadowLoss</th>
+                <th>CabelLoss</th>
+                <th>SecureLoss</th>
+                <th>FactorAC</th>
+                <th>GridLoss</th>
+                <th>LimitAc</th>
+                <th>GridLimitAc</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for anlage_group in anlage_groups %}
+            <tr>
+                <td>{{ anlage_group.id }}</td>
+                <td>{% if anlage_group.anlage %}{{ anlage_group.anlage.anlName }} {% else %} not found {% endif %}</td>
+                <td>{{ anlage_group.dcGroup }}</td>
+                <td>{{ anlage_group.dcGroupName }}</td>
+                <td>{{ anlage_group.acGroup }}</td>
+                <td>{{ anlage_group.unitFirst }}</td>
+                <td>{{ anlage_group.unitLast }}</td>
+                <td>{{ anlage_group.irrUpper }}</td>
+                <td>{{ anlage_group.irrLower }}</td>
+                <td>{{ anlage_group.shadowLoss }}</td>
+                <td>{{ anlage_group.cabelLoss }}</td>
+                <td>{{ anlage_group.secureLoss }}</td>
+                <td>{{ anlage_group.factorAC }}</td>
+                <td>{{ anlage_group.gridLoss }}</td>
+                <td>{{ anlage_group.limitAc }}</td>
+                <td>{{ anlage_group.gridLimitAc }}</td>
+                <td>
+
+                    <a href="{{ path('app_anlage_groups_edit', {'id': anlage_group.id}) }}" class="hollow button tiny action-icon shadow"><span class="fa fa-edit"></span></a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="16">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+ {% endif %}
+
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit AnlageGroups{% endblock %}
+
+{% block body %}
+    <h1>Edit AnlageGroups</h1>
+
+    {{ include('anlage_groups/_form.html.twig', {'button_label': 'Update'}) }}
+
+
+        <a href="{{ path('app_anlage_groups_index') }}" class="button">back to list</a>
+
+
+
+
+{% endblock %}

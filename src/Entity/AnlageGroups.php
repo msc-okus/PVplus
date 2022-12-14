@@ -98,7 +98,7 @@ class AnlageGroups
 
     public function getDcGroupName(): ?string
     {
-        return self::removeControlChar($this->dcGroupName);
+        return $this->removeControlChar($this->dcGroupName);
     }
 
     public function setDcGroupName(string $dcGroupName): self

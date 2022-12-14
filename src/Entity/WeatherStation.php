@@ -299,4 +299,6 @@ class WeatherStation
 
         return $this;
     }
+
+
 }

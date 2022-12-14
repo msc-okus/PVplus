@@ -19,7 +19,6 @@ class GroupsRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, AnlageGroups::class);
     }
-
     /**
      * @return AnlageGroups[]
      */
@@ -39,4 +38,11 @@ class GroupsRepository extends ServiceEntityRepository
 
         return $qb->getQuery()->getResult();
     }
+
+    public function findAllOrderedByAscNameQueryBuilder()
+    {
+        return $this->createQueryBuilder('g')->orderBy('g.dcGroupName', 'ASC');
+    }
+
+
 }
