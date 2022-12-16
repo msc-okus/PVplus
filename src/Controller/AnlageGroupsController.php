@@ -46,7 +46,7 @@ class AnlageGroupsController extends AbstractController
     #[Route('/anlage/{anlage}', name: 'app_anlage_groups_anlage_index', methods: ['GET','POST'])]
     public function index2(GroupsRepository $groupsRepository ,Request $request, Anlage $anlage, PaginatorInterface $paginator ): Response
     {
-        $form = $this->createForm(DcGroupsSearchFormType::class);
+        $form = $this->createForm(DcGroupsSearchFormType::class,['anlage'=>$anlage]);
         $form2 = $this->createForm(DcGroupsSFGUpdateFormType::class);
 
         $form->handleRequest($request);
