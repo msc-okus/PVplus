@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Anlage;
 use App\Entity\AnlageGroups;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -19,6 +20,17 @@ class GroupsRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, AnlageGroups::class);
     }
+
+    public function save(AnlageGroups $entity, bool $flush = false): void
+    {
+        $this->getEntityManager()->persist($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+
     /**
      * @return AnlageGroups[]
      */
@@ -42,6 +54,16 @@ class GroupsRepository extends ServiceEntityRepository
     public function findAllOrderedByAscNameQueryBuilder()
     {
         return $this->createQueryBuilder('g')->orderBy('g.dcGroupName', 'ASC');
+    }
+
+    public  function findByAnlageQueryBuilder(?Anlage $anlage = null):QueryBuilder
+    {
+
+        return $this->createQueryBuilder('g')
+                ->andWhere('g.anlage =:anlage')
+                ->setParameter('anlage', $anlage)
+                ->orderBy('g.dcGroupName','ASC')
+            ;
     }
 
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form\Anlage;
+namespace App\Form\Groups;
 
 use App\Entity\Anlage;
 use App\Entity\AnlageGroups;
@@ -12,7 +12,7 @@ use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-class AnlageGroupsType extends AbstractType
+class AnlageGroupsTypeForm extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

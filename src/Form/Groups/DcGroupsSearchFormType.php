@@ -28,12 +28,8 @@ class DcGroupsSearchFormType extends AbstractType
         $builder
             ->add('anlage',EntityType::class, [
                 'placeholder'=> 'choose a Plant',
-                'attr'=>[
-                    'data-groups-target'=>"anlage",
-                    'data-action'=>"change->groups#sortedByAnlage"
-                ],
+                'empty_data'=>'',
                 'label'=>false,
-                'required'=>false,
                 'class'=> Anlage::class,
                 'choice_label'=>function(Anlage $anlage){
                     return $anlage->getAnlName();
@@ -41,50 +37,20 @@ class DcGroupsSearchFormType extends AbstractType
                 'query_builder' => fn(AnlagenRepository $anlagenRepository)
                 => $anlagenRepository-> findAllOrderedByAscNameQueryBuilder()
             ])
-            ->add('dcGroup',EntityType::class, [
-                'placeholder'=> 'choose a DcGroup',
 
-                'attr'=>[
-                    'data-groups-target'=>"dcgroup"
 
-                ],
-                'label'=>false,
-                'class'=> AnlageGroups::class,
-                'choice_label'=>function(AnlageGroups $anlageGroups){
-                    return $anlageGroups->getAnlage()?'DcGrp->'.$anlageGroups->getDcGroupName().'- Anlage->'.$anlageGroups->getAnlage()->getAnlName():'DcGrp->'.$anlageGroups->getDcGroupName().'- Anlage->UNDEFINED ';
-                },
-                'query_builder' => fn(GroupsRepository $groupsRepository)
-                => $groupsRepository-> findAllOrderedByAscNameQueryBuilder(),
-                'constraints'=> new NotBlank(['message' => 'Please choose a DcGroup'])
-            ])
+
+
+
+
+
+
+
+
+
         ;
 
-        $formModifier = function(FormInterface $form, Anlage $anlage=null){
-            $dcGroups=$anlage === null? $this->groupsRepository->findAll():$anlage->getGroups();
 
-            $form->add('dcGroup',EntityType::class, [
-                'placeholder'=> 'choose a DcGroup',
-                'attr'=>[
-                    'data-groups-target'=>"dcgroup"
-
-                ],
-                'label'=>false,
-                'class'=> AnlageGroups::class,
-                'choice_label'=>function(AnlageGroups $anlageGroups){
-                    return $anlageGroups->getAnlage()?'DcGrp->'.$anlageGroups->getDcGroupName().'- Anlage->'.$anlageGroups->getAnlage()->getAnlName():'DcGrp->'.$anlageGroups->getDcGroupName().'- Anlage->UNDEFINED ';
-                },
-                'choices'=>$dcGroups,
-                'constraints'=> new NotBlank(['message' => 'Please choose a DcGroup'])
-            ]);
-        };
-
-        $builder->get('anlage')->addEventListener(
-            FormEvents::POST_SUBMIT,
-            function (FormEvent $event) use($formModifier){
-               $anlage=$event->getForm()->getData();
-               $formModifier($event->getForm()->getParent(),$anlage);
-            }
-        );
     }
 
     public function configureOptions(OptionsResolver $resolver): void

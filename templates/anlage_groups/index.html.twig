@@ -4,29 +4,41 @@
 
 {% block body %}
     <h1>AnlageDcGroups</h1>
-    <div {{ stimulus_controller('groups', {
-    }) }}>
-        {{ form_start(form) }}
-        <div class="grid-x grid-margin-x align-middle" >
+    <div class="grid-x">
+            {{ form_start(form, {'attr':{'class':'cell medium-6'}}) }}
+            <div class="grid-x grid-margin-x align-middle" >
 
-            <div class="cell medium-2 " >
-                {{ form_row(form.anlage) }}
-            </div>
-            <div class="cell medium-2" >
-                {{ form_row(form.dcGroup) }}
-            </div>
-            <div class="grid-x " >
-                <button type="submit" class="button align-self-middle"  formnovalidate>
+                <div class="cell medium-2 " >
+                    {{ form_row(form.anlage) }}
+                </div>
 
-                    <span class="fa fa-search"></span></button>
+                <div class="grid-x " >
+                    <button type="submit" class="button align-self-middle"  formnovalidate>
+
+                        <span class="fa fa-search"></span></button>
+                </div>
             </div>
-        </div>
-        {{ form_end(form) }}
+            {{ form_end(form) }}
+        {% if show_form2 == true %}
+            {{ form_start(form2, {'attr':{'class':'cell medium-6'}}) }}
+            <div class="grid-x grid-margin-x">
+                {{ form_widget(form2, {'attr':{'class':'cell medium-10 grid-x grid-margin-x'}}) }}
+                  <div class="button-group align-center-middle">
+                      <button type="submit" class="button " formnovalidate>update</button>
+                  </div>
+
+
+            </div>
+
+            {{ form_end(form2) }}
+        {% endif %}
 
     </div>
 
+<div>
 
- {% if anlage_groups is defined %}
+
+
     <table class="table">
         <thead>
             <tr>
@@ -80,6 +92,7 @@
         {% endfor %}
         </tbody>
     </table>
- {% endif %}
+    {{ knp_pagination_render(anlage_groups) }}
 
+</div>
 {% endblock %}
