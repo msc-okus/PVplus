@@ -44,11 +44,12 @@ class AlertSystemService
         define('EXTERNAL_CONTROL', 50); // Regelung vom Direktvermarketr oder Netztbetreiber
     }
 
-    /** this method should be called to generate the tickets
-     *  no other method from this class should be called manually
+    /**
+     * this method should be called to generate the tickets
+     * no other method from this class should be called manually
      * @param Anlage $anlage
      * @param string $from
-     * @param string $to
+     * @param string|null $to
      */
     public function generateTicketsInterval(Anlage $anlage, string $from, ?string $to = null): void
     {
@@ -59,7 +60,7 @@ class AlertSystemService
                 $this->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
             }
         }
-        else $this->checkSystem($anlage, date('Y-m-d H:i:00', $from));
+        else $this->checkSystem($anlage, date('Y-m-d H:i:00', $fromStamp));
     }
 
     /**
@@ -79,7 +80,8 @@ class AlertSystemService
         }
     }
 
-    /** this method should be called to generate the multi inverter tickets
+    /**
+     * this method should be called to generate the multi inverter tickets
      * not in use now
      *  no other method from this class should be called manually
      * @param Anlage $anlage

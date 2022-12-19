@@ -29,8 +29,8 @@ class ToolsFormType extends AbstractType
         $isAdmin     = $this->security->isGranted('ROLE_ADMIN');
 
         $choisesFuction = [
-            'Expected (New)' => 'expected',
-            'Update availability' => 'availability',
+            'Expected' => 'expected',
+            #'Update availability' => 'availability',
             'Update availability New' => 'availability-new',
             'Update PR' => 'pr',
         ];
