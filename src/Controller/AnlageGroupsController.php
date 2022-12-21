@@ -39,7 +39,8 @@ class AnlageGroupsController extends AbstractController
         return $this->render('anlage_groups/index.html.twig', [
             'form' => $form->createView(),
             'anlage_groups'=>$pagination,
-            'show_form2'=>false
+            'show_form2'=>false,
+            'anlage'=>null
         ]);
     }
 
@@ -94,9 +95,16 @@ class AnlageGroupsController extends AbstractController
             25
         );
 
-        if($request->query->get('preview')){
+        if($request->query->get('search')){
+            $querybuilder=$groupsRepository->searchGroupByAnlageQueryBuilder($anlage, $searchTerm);
+            $pagination=$paginator->paginate(
+                $querybuilder,
+                $request->query->getInt('page',1),
+                25
+            );
                 return $this->render('anlage_groups/_searchPreview.html.twig', [
-                    'anlage_groups' => $groupsRepository->searchGroupByAnlage($anlage, $searchTerm)
+                    'anlage_groups' => $pagination,
+
                 ]);
 
         }
@@ -105,7 +113,9 @@ class AnlageGroupsController extends AbstractController
             'form' => $form->createView(),
             'anlage_groups'=>$pagination,
             'form2'=>$form2->createView(),
-            'show_form2'=>true
+            'show_form2'=>true,
+            'searchTerm'=>$searchTerm,
+            'anlage'=>$anlage
         ]);
     }
 

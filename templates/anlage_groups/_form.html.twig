@@ -1,6 +1,10 @@
-{{ form_start(form) }}
-
-{{ form_start(form) }}
+{{ form_start(form, {'attr':{
+    'data-controller':'submit-confirm',
+    'data-action':'submit-confirm#onSubmit',
+    'data-submit-confirm-title-value':'This action will change these settings for this group. ',
+    'data-submit-confirm-text-value':"Are you sure you want to continue!",
+    'data-submit-confirm-icon-value':'warning',
+}}) }}
 <div class="grid-x grid-margin-x align-middle" >
 
     <div class="cell medium-2" >
@@ -53,7 +57,7 @@
     </div>
 </div>
 <div class="button-group align-right">
-    <button class="button  ">{{ button_label|default('Save') }}</button>
+    <button class="button  ">{{ button_label|default('Update') }}</button>
 </div>
 
 

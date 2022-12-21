@@ -3,7 +3,7 @@
 {% block title %}Edit AnlageGroups{% endblock %}
 
 {% block body %}
-    <h1>Edit AnlageGroups</h1>
+    <h1>{{ anlage_group.anlage.anlName }}  {{ anlage_group.dcGroupName }}</h1>
 
     {{ include('anlage_groups/_form.html.twig', {'button_label': 'Update'}) }}
 

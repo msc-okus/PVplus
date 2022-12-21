@@ -67,7 +67,7 @@ class GroupsRepository extends ServiceEntityRepository
     }
 
 
-    public  function searchGroupByAnlage(Anlage $anlage , ?string $term):array
+    public  function searchGroupByAnlageQueryBuilder(Anlage $anlage , ?string $term):QueryBuilder
     {
 
         $qb= $this->createQueryBuilder('g')
@@ -76,14 +76,12 @@ class GroupsRepository extends ServiceEntityRepository
 
             ;
 
-        if ($term) {
+        if ($term && $term !=='') {
             $qb->andWhere('g.dcGroupName LIKE :term')
-                ->setParameter('term', '%'.$term.'%')
-                ->orderBy('g.dcGroupName','ASC')
-            ;
+                ->setParameter('term', '%'.$term.'%');
+
         }
-        return $qb->getQuery()
-                  ->getResult();
+        return $qb->orderBy('g.dcGroupName','ASC');
     }
 
 

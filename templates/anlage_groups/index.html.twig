@@ -3,61 +3,65 @@
 {% block title %}AnlageGroups index{% endblock %}
 
 {% block body %}
-    <h1>AnlageDcGroups </h1>
-    <div class="grid-x">
-            {{ form_start(form, {'attr':{'class':'cell medium-4'}}) }}
-            <div class="grid-x grid-margin-x align-middle" >
+    <h1>AnlageGroups {% if anlage is not null %} {{ anlage.anlName}} {% endif%} </h1>
+    <div {{ stimulus_controller('search-group', {
+        url:path('app_anlage_groups_anlage_index',{'anlage':anlage})
+    }) }}>
+    <div class="grid-x grid-margin-x">
+        <div class="cell medium-3">
+            {{ form_start(form) }}
+            <div class="grid-x  align-middle" >
 
-                <div class="cell medium-4 " >
+                <div class="cell medium-10">
                     {{ form_row(form.anlage) }}
                 </div>
 
-                <div class="grid-x " >
+                <div class="grid-x cell medium-2 " >
                     <button type="submit" class="button align-self-middle"  formnovalidate>
 
                         <span class="fa fa-search"></span></button>
                 </div>
             </div>
             {{ form_end(form) }}
+        </div>
+        <div class=" grid-x  grid-margin-x cell medium-9">
         {% if show_form2 == true %}
-            <div class="cell medium-8">
-                <form class="cell medium-2">
-                    <input
-                            name="q"
-                           {# value="{{ searchTerm }}"#}
-                            placeholder="Search plants group..."
-                            type="search"
-                            {#data-action="search#onSearchInput"#}
-                    >
-                </form>
-                {{ form_start(form2, {'attr':{
-                    'class':'cell medium-4',
-                    'data-controller':'submit-confirm',
-                    'data-action':'submit-confirm#onSubmit',
-                    'data-submit-confirm-title-value':'changes in the  database',
-                    'data-submit-confirm-text-value':"You won't be able to revert this!",
-                    'data-submit-confirm-icon-value':'warning',
-                }}) }}
-                <div class="grid-x grid-margin-x">
-                    {{ form_widget(form2, {'attr':{'class':'cell medium-10 grid-x grid-margin-x'}}) }}
-                    <div class="button-group align-center-middle">
-                        <button type="submit" class="button " formnovalidate>update</button>
-                    </div>
 
-
+                <div class="cell medium-4">
+                    <form >
+                        <input
+                                name="q"
+                                value="{{ searchTerm }}"
+                                placeholder="Search specifics {{ anlage.anlName}} groups..."
+                                type="search"
+                                data-action="search-group#onSearchGroup"
+                        >
+                    </form>
                 </div>
+                <div class="cell medium-8">
+                   {{ form_start(form2, {'attr':{
+                       'data-controller':'submit-confirm',
+                       'data-action':'submit-confirm#onSubmit',
+                       'data-submit-confirm-title-value':'This action will change these settings for all groups in this Plant. ',
+                       'data-submit-confirm-text-value':"Are you sure you want to continue!",
+                       'data-submit-confirm-icon-value':'warning',
+                   }}) }}
+                   <div class="grid-x grid-margin-x">
+                       {{ form_widget(form2, {'attr':{'class':'cell medium-9 grid-x grid-margin-x'}}) }}
+                       <div class="button-group align-center-middle cell medium-3">
+                           <button type="submit" class="button " formnovalidate>update</button>
+                       </div>
 
-                {{ form_end(form2) }}
-            </div>
 
+                   </div>
+
+                   {{ form_end(form2) }}
+               </div>
         {% endif %}
-
+        </div>
     </div>
 
-<div>
-
-
-
+<div data-search-group-target="bodytab">
     <table class="table">
         <thead>
             <tr>
@@ -112,6 +116,6 @@
         </tbody>
     </table>
     {{ knp_pagination_render(anlage_groups) }}
-
+</div>
 </div>
 {% endblock %}

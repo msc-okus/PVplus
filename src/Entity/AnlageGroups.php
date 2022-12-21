@@ -349,4 +349,8 @@ class AnlageGroups
 
         return $pNom;
     }
+
+
+
+
 }
