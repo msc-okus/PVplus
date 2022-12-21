@@ -3,12 +3,12 @@
 {% block title %}AnlageGroups index{% endblock %}
 
 {% block body %}
-    <h1>AnlageDcGroups</h1>
+    <h1>AnlageDcGroups </h1>
     <div class="grid-x">
-            {{ form_start(form, {'attr':{'class':'cell medium-6'}}) }}
+            {{ form_start(form, {'attr':{'class':'cell medium-4'}}) }}
             <div class="grid-x grid-margin-x align-middle" >
 
-                <div class="cell medium-2 " >
+                <div class="cell medium-4 " >
                     {{ form_row(form.anlage) }}
                 </div>
 
@@ -20,17 +20,36 @@
             </div>
             {{ form_end(form) }}
         {% if show_form2 == true %}
-            {{ form_start(form2, {'attr':{'class':'cell medium-6'}}) }}
-            <div class="grid-x grid-margin-x">
-                {{ form_widget(form2, {'attr':{'class':'cell medium-10 grid-x grid-margin-x'}}) }}
-                  <div class="button-group align-center-middle">
-                      <button type="submit" class="button " formnovalidate>update</button>
-                  </div>
+            <div class="cell medium-8">
+                <form class="cell medium-2">
+                    <input
+                            name="q"
+                           {# value="{{ searchTerm }}"#}
+                            placeholder="Search plants group..."
+                            type="search"
+                            {#data-action="search#onSearchInput"#}
+                    >
+                </form>
+                {{ form_start(form2, {'attr':{
+                    'class':'cell medium-4',
+                    'data-controller':'submit-confirm',
+                    'data-action':'submit-confirm#onSubmit',
+                    'data-submit-confirm-title-value':'changes in the  database',
+                    'data-submit-confirm-text-value':"You won't be able to revert this!",
+                    'data-submit-confirm-icon-value':'warning',
+                }}) }}
+                <div class="grid-x grid-margin-x">
+                    {{ form_widget(form2, {'attr':{'class':'cell medium-10 grid-x grid-margin-x'}}) }}
+                    <div class="button-group align-center-middle">
+                        <button type="submit" class="button " formnovalidate>update</button>
+                    </div>
 
 
+                </div>
+
+                {{ form_end(form2) }}
             </div>
 
-            {{ form_end(form2) }}
         {% endif %}
 
     </div>

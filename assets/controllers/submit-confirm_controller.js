@@ -15,6 +15,7 @@ export default class extends Controller {
 
     connect() {
         useDispatch(this);
+
     }
 
     onSubmit(event) {

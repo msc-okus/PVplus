@@ -46,6 +46,8 @@ class AnlageGroupsController extends AbstractController
     #[Route('/anlage/{anlage}', name: 'app_anlage_groups_anlage_index', methods: ['GET','POST'])]
     public function index2(GroupsRepository $groupsRepository ,Request $request, Anlage $anlage, PaginatorInterface $paginator ): Response
     {
+        $searchTerm = $request->query->get('q');
+
         $form = $this->createForm(DcGroupsSearchFormType::class,['anlage'=>$anlage]);
         $form2 = $this->createForm(DcGroupsSFGUpdateFormType::class);
 
@@ -84,12 +86,21 @@ class AnlageGroupsController extends AbstractController
 
         }
 
+
         $querybuilder=$groupsRepository->findByAnlageQueryBuilder($anlage);
         $pagination=$paginator->paginate(
             $querybuilder,
             $request->query->getInt('page',1),
             25
         );
+
+        if($request->query->get('preview')){
+                return $this->render('anlage_groups/_searchPreview.html.twig', [
+                    'anlage_groups' => $groupsRepository->searchGroupByAnlage($anlage, $searchTerm)
+                ]);
+
+        }
+
         return $this->render('anlage_groups/index.html.twig', [
             'form' => $form->createView(),
             'anlage_groups'=>$pagination,
