@@ -51,11 +51,11 @@ class SollIstTempAnalyseChartService
      *
      * @return array
      */
-     // MS 08 / 2022
-    public function getSollIstTempDeviationAnalyse(Anlage $anlage, $from, $to, bool $hour = false): ?array
+    // MS first development 08 / 2022
+    //  - Update Select 12 / 2022
+    public function getSollIstTempDeviationAnalyse(Anlage $anlage, $from, $to, ?int $inverter = 0, bool $hour = false): ?array
     {
-        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-        $dataArray = [];
+        ini_set('memory_limit', '3G');
         $anlagename = $anlage->getAnlName();
         $conn = self::getPdoConnection();
         $dataArray = [];
@@ -67,8 +67,14 @@ class SollIstTempAnalyseChartService
             default:
                 $nameArray = $this->functions->getNameArray($anlage, 'dc');
         }
+        if ($inverter >= 0) {
+            $sql_add_where = "AND b.wr_num = '$inverter' AND c.unit = '$inverter'";
+        } else {
+            $maxinvert = $anlage->getAnzInverter();
+            $sql_add_where = "AND b.wr_num BETWEEN '1' and '$maxinvert' AND c.unit BETWEEN '1' and '$maxinvert'";
+        }
         $sql = "SELECT 
-                date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts, 
+                a.stamp as ts, 
                 sum(c.wr_pac) as actPower,sum(b.ac_exp_power) as expected,
                 c.wr_temp as wr_temp,
                 CASE 
@@ -80,6 +86,7 @@ class SollIstTempAnalyseChartService
                 LEFT JOIN ".$anlage->getDbNameDcSoll().' b ON a.stamp = b.stamp 
                 LEFT JOIN '.$anlage->getDbNameACIst()." c ON a.stamp = c.stamp 
                 WHERE a.stamp BETWEEN '$from' AND ' $to' 
+                $sql_add_where
                 GROUP BY a.stamp ORDER BY NULL";
 
         $resultActual = $conn->query($sql);
@@ -87,13 +94,13 @@ class SollIstTempAnalyseChartService
         $dataArray['inverterArray'] = $nameArray;
         $maxInverter = $resultActual->rowCount();
 
-
         if ($resultActual->rowCount() > 0) {
             $dataArray['maxSeries'] = 0;
             $counter = 0;
             while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
-                $time = date('H:i', strtotime($rowActual['ts']));
-                $stamp = date('Y-m-d', strtotime($rowActual['ts']));
+                //$time = date('H:i', strtotime($rowActual['ts']));
+                //$stamp = date('Y-m-d', strtotime($rowActual['ts']));
+                $time = date('H:i', strtotime(self::timeShift($anlage,$rowActual['ts'])));
                 $actPower = $rowActual['actPower'];
                 $actPower = $actPower > 0 ? round(self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()), 2) : 0; // neagtive Werte auschließen
                 $prz = $rowActual['prz'];
@@ -114,7 +121,6 @@ class SollIstTempAnalyseChartService
                     default:
                     $color = "#0DD00";
                 }
-
                 $dataArray['maxSeries'] = $maxInverter;
                 $dataArray['chart'][$counter]['title'] = $anlagename;
                 $dataArray['chart'][$counter]['temp'] = round($temp,2);
@@ -125,7 +131,9 @@ class SollIstTempAnalyseChartService
                 ++$counter;
             }
             $dataArray['offsetLegend'] = 0;
+            return $dataArray;
+        } else {
+            return $dataArray;
         }
-        return $dataArray;
     }
 }

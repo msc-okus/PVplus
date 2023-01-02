@@ -104,6 +104,7 @@ class ChartService
 
         $from = self::timeShift($anlage, $form['from'], true);
         $to = self::timeShift($anlage, $form['to'], true);
+
         $from =  $form['from'];
         $to =  $form['to'];
 
@@ -483,17 +484,17 @@ class ChartService
                     $resultArray['headline'] = 'DC Current Heatmap';
                     break;
                 case 'sollistanalyse':
-                    $dataArray = $this->sollistAnalyseChartService->getSollIstDeviationAnalyse($anlage, $from, $to);
+                    $dataArray = $this->sollistAnalyseChartService->getSollIstDeviationAnalyse($anlage, $from, $to ,$form['selectedGroup']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'AC differnce between actual and expected power';
                     break;
                 case 'sollisttempanalyse':
-                    $dataArray = $this->sollisttempAnalyseChartService->getSollIstTempDeviationAnalyse($anlage, $from, $to);
+                    $dataArray = $this->sollisttempAnalyseChartService->getSollIstTempDeviationAnalyse($anlage, $from, $to, $form['selectedGroup']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'Performance Categories vs. Module Temperatures';
                     break;
                 case 'sollistirranalyse':
-                    $dataArray = $this->sollistirrAnalyseChartService->getSollIstIrrDeviationAnalyse($anlage, $from, $to, $form['optionIrrVal']);
+                    $dataArray = $this->sollistirrAnalyseChartService->getSollIstIrrDeviationAnalyse($anlage, $from, $to, $form['selectedGroup'], $form['optionIrrVal']);
                     $resultArray['data'] = json_encode($dataArray['0']['chart']);
                     $resultArray['tabel'] = $dataArray['1']['tabel'];
                     $resultArray['headline'] = 'Performance Categories vs. Irradiation';

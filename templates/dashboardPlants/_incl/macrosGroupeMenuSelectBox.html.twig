@@ -56,12 +56,11 @@
         or form.selectedChart == 'availability' or form.selectedChart == 'pr_and_av' or form.selectedChart == 'forecast' or form.selectedChart == 'heatmap'
         or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap' or form.selectedChart == 'ac_grp_power_diff'
         or form.selectedChart == 'dc_grp_power_diff' or form.selectedChart == 'status_log' or form.selectedChart == 'pvsyst' or form.selectedChart == 'grid'
-        or form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse'
     %}
         <input type="hidden" name="selectedGroup" value="1">
     {% else %}
         <select class="form-control js-submit-onchange" title="Select a Group" data-toggle="tooltip" name="selectedGroup">
-            {% if ((form.selectedChart == 'dc_act_overview' or form.selectedChart == 'dc_act_group') and is_granted('ROLE_G4N')) %}
+            {% if ((form.selectedChart == 'dc_act_overview' or form.selectedChart == 'dc_act_group' or form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse') and is_granted('ROLE_G4N')) %}
                 <option value="-1" >All</option>
             {% endif %}
             {% if     aktAnlage.configType == 1 %}
