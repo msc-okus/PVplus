@@ -30,7 +30,7 @@
 
 {# AC2 #}
 {% macro acActOverview(form, aktAnlage) %}
-    {% if aktAnlage.configType == 1 %}
+    {% if aktAnlage.configType == 1 and aktAnlage.anlType != 'masterslave' %}
         <option value="ac_act_overview" {% if form.selectedChart == 'ac_act_overview' %}selected{% endif %}>
             AC Power - Actual & Expected, Overview&nbsp;[kWh] {% if is_granted('ROLE_DEV') %}[AC 2]{% endif %}
         </option>
@@ -39,17 +39,20 @@
 
 {# AC3 #}
 {% macro acActGroup(form, aktAnlage) %}
-    <option value="ac_act_group" {% if form.selectedChart == 'ac_act_group' %}selected{% endif %}>
-        {% if aktAnlage.configType == 1 %}
-            AC Power - Actual & Expected, Inverters
-        {% elseif aktAnlage.configType == 2 %}
-            AC Power - Actual & Expected, Inverters
-        {% elseif aktAnlage.configType == 3 %}
-            AC Power - Actual & Expected, Inverters
-        {% elseif aktAnlage.configType == 4 %}
-            AC Power - Actual & Expected, Inverters
-        {% endif %}
-        &nbsp;[kWh] {% if is_granted('ROLE_DEV') %}[AC 3]{% endif %}</option>
+    {% if aktAnlage.anlType != 'masterslave' %}
+        <option value="ac_act_group" {% if form.selectedChart == 'ac_act_group' %}selected{% endif %}>
+            {% if aktAnlage.configType == 1 %}
+                AC Power - Actual & Expected, Inverters
+            {% elseif aktAnlage.configType == 2 %}
+                AC Power - Actual & Expected, Inverters
+            {% elseif aktAnlage.configType == 3 %}
+                AC Power - Actual & Expected, Inverters
+            {% elseif aktAnlage.configType == 4 %}
+                AC Power - Actual & Expected, Inverters
+            {% endif %}
+            &nbsp;[kWh] {% if is_granted('ROLE_DEV') %}[AC 3]{% endif %}
+        </option>
+    {% endif %}
 {% endmacro %}
 
 {# AC5 #}
@@ -82,30 +85,35 @@
 
 {# DC2 #}
 {% macro dcActOverview(form, aktAnlage) %}
-    {% if aktAnlage.configType == 1 %}
-        <option value="dc_act_overview" {% if form.selectedChart == 'dc_act_overview' %}selected{% endif %}>DC - Actual & Expected, Overview&nbsp;[kWh]{% if is_granted('ROLE_DEV') %}[DC 2]{% endif %}</option>
-    {% elseif aktAnlage.configType == 2 %}
+    {% if aktAnlage.anlType != 'masterslave' %}
+        {% if aktAnlage.configType == 1 %}
+            <option value="dc_act_overview" {% if form.selectedChart == 'dc_act_overview' %}selected{% endif %}>DC - Actual & Expected, Overview&nbsp;[kWh]{% if is_granted('ROLE_DEV') %}[DC 2]{% endif %}</option>
+        {% elseif aktAnlage.configType == 2 %}
 
-    {% elseif aktAnlage.configType == 3 %}
+        {% elseif aktAnlage.configType == 3 %}
 
-    {% elseif aktAnlage.configType == 4 %}
+        {% elseif aktAnlage.configType == 4 %}
 
+        {% endif %}
     {% endif %}
 {% endmacro %}
 
 {# DC3 #}
 {% macro dcActGroup(form, aktAnlage) %}
-    <option value="dc_act_group" {% if form.selectedChart == 'dc_act_group' %}selected{% endif %}>
-        {% if aktAnlage.configType == 1 %}
-            DC - Actual & Expected, Inverters
-        {% elseif aktAnlage.configType == 2 %}
-            DC - Actual & Expected, Inverters
-        {% elseif aktAnlage.configType == 3 %}
-            DC - Actual & Expected, Inverters
-        {% elseif aktAnlage.configType == 4 %}
-            DC - Actual & Expected, SCBs
-        {% endif %}
-        &nbsp;[kWh]{% if is_granted('ROLE_DEV') %}[DC 3]{% endif %}</option>
+    {% if aktAnlage.anlType != 'masterslave' %}
+        <option value="dc_act_group" {% if form.selectedChart == 'dc_act_group' %}selected{% endif %}>
+            {% if aktAnlage.configType == 1 %}
+                DC - Actual & Expected, Inverters
+            {% elseif aktAnlage.configType == 2 %}
+                DC - Actual & Expected, Inverters
+            {% elseif aktAnlage.configType == 3 %}
+                DC - Actual & Expected, Inverters
+            {% elseif aktAnlage.configType == 4 %}
+                DC - Actual & Expected, SCBs
+            {% endif %}
+            &nbsp;[kWh]{% if is_granted('ROLE_DEV') %}[DC 3]{% endif %}
+        </option>
+    {% endif %}
 {% endmacro %}
 
 {# DC4 #}

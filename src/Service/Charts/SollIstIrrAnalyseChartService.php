@@ -44,15 +44,16 @@ class SollIstIrrAnalyseChartService
     }
 
     /**
+     * @param Anlage $anlage
      * @param $from
      * @param $to
-     * @param $filter
-     * @param int $group
-     *
-     * @return array
+     * @param int|null $inverter
+     * @param int $filter
+     * @param bool $hour
+     * @return array|null
      */
      // MS 10 / 2022
-    public function getSollIstIrrDeviationAnalyse(Anlage $anlage, $from, $to, ?int $inverter = 0, $filter, bool $hour = false): ?array
+    public function getSollIstIrrDeviationAnalyse(Anlage $anlage, $from, $to, ?int $inverter = 0, int $filter = 400, bool $hour = false): ?array
     {
         ini_set('memory_limit', '3G');
         $dataArray = [];
@@ -73,10 +74,6 @@ class SollIstIrrAnalyseChartService
                 $irr_from = '800';
                 $irr_to =  '1200';
                 break;
-            default:
-                $irr_from = '0';
-                $irr_to =  '400';
-                $filter = '400';
         }
 
         switch ($anlage->getConfigType()) {
