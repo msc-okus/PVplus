@@ -91,7 +91,8 @@ class SollIstIrrAnalyseChartService
         if ($inverter >= 0) {
             $sql_add_where = "AND b.wr_num = '$inverter' AND c.unit = '$inverter'";
         } else {
-            $sql_add_where = "";
+            $maxinvert = $anlage->getAnzInverter();
+            $sql_add_where = "AND b.wr_num BETWEEN '1' and '$maxinvert' AND c.unit BETWEEN '1' and '$maxinvert'";
         }
 
         $sql = "SELECT 

@@ -70,10 +70,11 @@ class SollIstTempAnalyseChartService
         if ($inverter >= 0) {
             $sql_add_where = "AND b.wr_num = '$inverter' AND c.unit = '$inverter'";
         } else {
-            $sql_add_where = "";
+            $maxinvert = $anlage->getAnzInverter();
+            $sql_add_where = "AND b.wr_num BETWEEN '1' and '$maxinvert' AND c.unit BETWEEN '1' and '$maxinvert'";
         }
         $sql = "SELECT 
-                date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts, 
+                a.stamp as ts, 
                 sum(c.wr_pac) as actPower,sum(b.ac_exp_power) as expected,
                 c.wr_temp as wr_temp,
                 CASE 
@@ -97,8 +98,9 @@ class SollIstTempAnalyseChartService
             $dataArray['maxSeries'] = 0;
             $counter = 0;
             while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
-                $time = date('H:i', strtotime($rowActual['ts']));
+                //$time = date('H:i', strtotime($rowActual['ts']));
                 //$stamp = date('Y-m-d', strtotime($rowActual['ts']));
+                $time = date('H:i', strtotime(self::timeShift($anlage,$rowActual['ts'])));
                 $actPower = $rowActual['actPower'];
                 $actPower = $actPower > 0 ? round(self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()), 2) : 0; // neagtive Werte auschließen
                 $prz = $rowActual['prz'];
