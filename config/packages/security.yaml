@@ -23,6 +23,7 @@ security:
 
         ROLE_BETA: []
         ROLE_AM: []
+        ROLE_ANALYSE: []
 
     firewalls:
         dev:

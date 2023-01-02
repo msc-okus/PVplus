@@ -35,9 +35,9 @@ class DefaultMREController extends BaseController
     #[Route(path: '/mr/sun')]
     public function testSunRise(WeatherServiceNew $weatherService, AnlagenRepository $anlagenRepository): Response
     {
-        $anlage = $anlagenRepository->find('112');
+        $anlage = $anlagenRepository->find('183');
         $time = time();
-        $time = strtotime('2022-05-23');
+        $time = strtotime('2022-12-11');
 
         $sunrisedatas = date_sun_info($time, (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon());
         foreach ($sunrisedatas as $key => $value) {
@@ -63,18 +63,25 @@ class DefaultMREController extends BaseController
     /**
      * @throws \Exception
      */
-    #[Route(path: '/mr/pa/test/{plant}/{year}/{month}', defaults: ['plant' => '95', 'year' => '2022', 'month' => '5'])]
-    public function pa(string $plant, string $year, string $month, AvailabilityService $availability, AvailabilityByTicketService $availabilityByTicket, AnlagenRepository $anlagenRepository): Response
+    #[Route(path: '/mr/pa/test/{plant}/{year}/{month}/{day}', defaults: ['plant' => 44, 'year' => 2022, 'month' => 7, 'day' => 1])]
+    public function pa(int $plant, int $year, int $month, int $day, AvailabilityService $availability, AvailabilityByTicketService $availabilityByTicket, AnlagenRepository $anlagenRepository): Response
     {
         $anlage = $anlagenRepository->find($plant);
         $output = "";
         $date = date_create("$year-$month-01 12:00");
-        $daysInMonth = $date->format("t");
-        for ($day = 1; $day <= $daysInMonth; $day++) {
+        if ($day === 0) {
+            $daysInMonth = 23;
+            $daysInMonth = $date->format("t");
+            $startday = 1;
+        } else {
+            $startday = $daysInMonth = $day;
+        }
+        for ($day = $startday; $day <= $daysInMonth; $day++) {
             $from = date_create("$year-$month-$day 12:00");
             #$output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 0);
             #$output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 1);
-            $output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 2);
+
+            $output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 0);
             $output .= "PA: " . number_format(round($this->availabilityByTicket->calcAvailability($anlage, date_create("$year-$month-$day"), date_create("$year-$month-$day"), null, 2), 3),'3') . "<br>";
 
             #$output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 3);
@@ -90,7 +97,7 @@ class DefaultMREController extends BaseController
     }
 
     #[Route(path: '/mr/bavelse/export/{year}/{month}')]
-    public function bavelseExport($year, $month, ExportService $bavelseExport, AnlagenRepository $anlagenRepository): Response
+    public function bavelseExport($year, $month, ExportService $bavelseExport, AnlagenRepository $anlagenRepository, AvailabilityByTicketService $availabilityByTicket): Response
     {
         $output = '';
         /** @var Anlage $anlage */
@@ -101,24 +108,26 @@ class DefaultMREController extends BaseController
         } else {
             $to = date_create($year.'-'.($month+1).'-01');
         }
+        $daysInMonth = $to->format('t');
         $output = $bavelseExport->gewichtetTagesstrahlung($anlage, $from, $to);
+        $availability = $availabilityByTicket->calcAvailability($anlage, date_create("$year-$month-01"), date_create("$year-$month-$daysInMonth"), null, 2);
 
         return $this->render('cron/showResult.html.twig', [
-            'headline' => 'Systemstatus',
-            'availabilitys' => '',
+            'headline' => 'Bavelse Berg Monats Bericht',
+            'availabilitys' => $availability,
             'output' => $output,
         ]);
     }
 
     #[Route(path: '/mr/export/rawdata/{id}')]
-    public function exportRawDataExport($id, ExportService $bavelseExport, AnlagenRepository $anlagenRepository): Response
+    public function exportRawDataExport($id, ExportService $exportService, AnlagenRepository $anlagenRepository): Response
     {
         $output = '';
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
-        $from = date_create('2021-01-01');
-        $to = date_create('2021-10-31');
-        $output = $bavelseExport->getRawData($anlage, $from, $to);
+        $from = $anlage->getEpcReportStart();
+        $to = $anlage->getEpcReportEnd();
+        $output = $exportService->getRawData($anlage, $from, $to);
 
         return $this->render('cron/showResult.html.twig', [
             'headline' => $anlage->getAnlName().' RawData Export',

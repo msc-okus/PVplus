@@ -7,6 +7,8 @@ use App\Entity\WeatherStation;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\DayLightDataRepository;
+use DateTime;
+use DateTimeImmutable;
 use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -177,10 +179,11 @@ class WeatherServiceNew
     public function getSunrise(Anlage $anlage, ?string $time = null): array
     {
         $sunrisedata = date_sun_info(strtotime($time), (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon());
-
-        $returnArray['sunrise'] = $time.' '.date('H:i', $sunrisedata['sunrise']);
-        $returnArray['sunset'] = $time.' '.date('H:i', $sunrisedata['sunset']);
-
+        $offsetServer = new DateTimeZone("Europe/Luxembourg");
+        $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon()));
+        $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
+        $returnArray['sunrise'] = $time.' '.date('H:i', $sunrisedata['sunrise'] + (int)$totalOffset);
+        $returnArray['sunset'] = $time.' '.date('H:i', $sunrisedata['sunset'] + (int)$totalOffset);
         return $returnArray;
     }
 

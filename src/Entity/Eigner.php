@@ -52,8 +52,6 @@ class Eigner
     #[ORM\Column(name: 'ort', type: 'string', length: 100, nullable: true)]
     private string $ort;
 
-
-
     #[ORM\Column(name: 'active', type: 'bigint', nullable: false)]
     private string|int $active = '0';
 
@@ -89,7 +87,7 @@ class Eigner
     private string $fontColor3 = '#36639c';
 
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private string $logo;
+    private ?string $logo = "";
 
     #[ORM\OneToOne(mappedBy: 'owner', cascade: ['persist', 'remove'])]
     private ?OwnerFeatures $features = null;
@@ -425,7 +423,8 @@ class Eigner
 
     public function getLogo(): ?string
     {
-        return $this->logo;
+        if (isset($this->logo)) return $this->logo;
+        else return "";
     }
 
     public function setLogo(?string $Logo): self

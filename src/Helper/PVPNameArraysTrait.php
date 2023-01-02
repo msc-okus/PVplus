@@ -13,6 +13,17 @@ trait PVPNameArraysTrait
         $this->translator = $translator;
     }
 
+    public static function yearsArray(): array
+    {
+        return [
+            2020 => 2020,
+            2021 => 2021,
+            2022 => 2022,
+            2023 => 2023,
+            2024 => 2024
+        ];
+    }
+
     public static function timeArray(): array
     {
         return [

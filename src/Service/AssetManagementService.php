@@ -177,7 +177,7 @@ class AssetManagementService
                 $data1_grid_meter['powerExp'] = 0;
                 $data1_grid_meter['powerExpEvu'] = 0;
                 $data1_grid_meter['powerEGridExt'] = 0;
-                $Ertrag_design = 0;
+
             }
             if ($data1_grid_meter['powerEvu'] > 0){
                 (float) $powerEvu[] = $data1_grid_meter['powerEvu'];
@@ -401,7 +401,11 @@ class AssetManagementService
             }
 
             $tbody_forecast_PVSYSTP50[] = $powerSum[$i];
-            $tbody_forecast_PVSYSTP90[] = $powerSum[$i] - ($powerSum[$i] * $degradation / 100);
+            if ($i > (int)$month - 1) {
+                $tbody_forecast_PVSYSTP90[] = $powerSum[$i] - ($powerSum[$i] * $degradation / 100);
+            }else{
+                $tbody_forecast_PVSYSTP90[] = $powerSum[$i];
+            }
         }
         // Forecast / PVSYST - P90
         $PVSYSExpSum[0] = $expectedPvSyst[0];
@@ -515,7 +519,6 @@ class AssetManagementService
             if ($i + 1 <= $report['reportMonth']) {
 
                 if ($powerExp[$i] > 0) {
-
                     $PowerSum[$i] = $powerExp[$i] + $PowerSum[$i - 1];
                 } else {
                     $PowerSum[$i] = $forecast[$i] + $PowerSum[$i - 1];
@@ -524,8 +527,8 @@ class AssetManagementService
                 $PowerSum[$i] = $forecast[$i] + $PowerSum[$i - 1];
             }
             $tbody_forcast_G4NP50[] = $PowerSum[$i];
-
-            $tbody_forcast_G4NP90[] = $PowerSum[$i] - ($PowerSum[$i] * $degradation / 100);
+            if ($i > (int)$month - 1) $tbody_forcast_G4NP90[] = $PowerSum[$i] - ($PowerSum[$i] * $degradation / 100);
+            else $tbody_forcast_G4NP90[] = $PowerSum[$i];
         }
 
         // Forecast / G4N
@@ -544,6 +547,7 @@ class AssetManagementService
             'forcast_plan_G4NP50' => $tbody_forcast_plan_G4NP50,
             'forcast_plan_G4NP90' => $tbody_forcast_plan_G4NP90,
         ];
+
 
         $chart->xAxis = [
             'type' => 'category',
@@ -2203,6 +2207,7 @@ class AssetManagementService
                     FROM (db_dummysoll a left JOIN ".$anlage->getDbNameIst()." b ON a.stamp = b.stamp) 
                     WHERE a.stamp BETWEEN '".$report['reportYear'].'-'.$report['reportMonth']."-1 00:00' and '".$report['reportYear'].'-'.$report['reportMonth'].'-'.$daysInReportMonth." 23:59' and b.group_ac > 0 
                     GROUP BY form_date,b.group_ac ORDER BY b.group_ac,form_date";
+                break;
             case 3:
             case 4:
                 $sql = "SELECT DATE_FORMAT( a.stamp,'%d.%m.%Y') AS form_date, sum(b.wr_pdc) AS act_power_dc, b.group_ac as invgroup
@@ -2476,6 +2481,9 @@ class AssetManagementService
         if ($dcExpDcIst) {
             $outTableCurrentsPower[] = $dcExpDcIst;
         }
+
+
+
         $resultEconomicsNames = $this->ecoVarNameRepo->findOneByAnlage($anlage);
 
         if ($resultEconomicsNames) {

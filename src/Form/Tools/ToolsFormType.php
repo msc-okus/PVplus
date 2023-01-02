@@ -30,22 +30,13 @@ class ToolsFormType extends AbstractType
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin = $this->security->isGranted('ROLE_ADMIN');
 
-        # $choisesFuction = [
-        #     'Expected (New)' => 'expected',
-        #     'Update availability' => 'availability',
-        #     'Update availability New' => 'availability-new',
-        #     'Update PR' => 'pr',
-        # ];
-
-        #if ($isDeveloper) $choisesFuction['Generate Tickets (NOT Update)'] = 'generate-tickets';
-        #if ($isDeveloper) $choisesFuctionDB['Load API Data'] = 'api-load-data';
-        $choisesFuction1 = [
-            'Expected (New)' => 'expected',
-            'Update availability' => 'availability',
+        $choisesFuction = [
+            'Expected' => 'expected',
+            #'Update availability' => 'availability',
             'Update availability New' => 'availability-new',
             'Update PR' => 'pr',
         ];
-        if ($isDeveloper) $choisesFuction1['Generate Tickets (NOT Update)'] = 'generate-tickets';
+        if ($isDeveloper) $choisesFuction['Generate Tickets (NOT Update)'] = 'generate-tickets';
         $choisesFuction2 = [
             'Load API Data' => 'load-api-data',
         ];

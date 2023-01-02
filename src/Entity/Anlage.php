@@ -620,7 +620,7 @@ class Anlage
         return $this;
     }
 
-    public function getAnlName(): ?string
+    public function getAnlName($replace = false): ?string
     {
         return $this->anlName;
     }
@@ -2145,6 +2145,7 @@ class Anlage
 
     public function getPaFormular0(): ?string
     {
+        if ($this->paFormular0 === null) return 1;
         return $this->paFormular0;
     }
 
@@ -2156,6 +2157,7 @@ class Anlage
 
     public function getPaFormular1(): ?string
     {
+        if ($this->paFormular1 === null) return 1;
         return $this->paFormular1;
     }
 
@@ -2167,6 +2169,7 @@ class Anlage
 
     public function getPaFormular2(): ?string
     {
+        if ($this->paFormular2 === null) return 1;
         return $this->paFormular2;
     }
 
@@ -2178,6 +2181,7 @@ class Anlage
 
     public function getPaFormular3(): ?string
     {
+        if ($this->paFormular3 === null) return 1;
         return $this->paFormular3;
     }
 
@@ -2616,6 +2620,7 @@ class Anlage
     public function setUsePnomForPld(bool $usePnomForPld): self
     {
         $this->usePnomForPld = $usePnomForPld;
+        return $this;
     }
 
     public function getPldYield(): ?float
