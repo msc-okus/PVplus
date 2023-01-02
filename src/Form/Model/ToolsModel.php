@@ -12,5 +12,9 @@ class ToolsModel
 
     public \DateTime $endDate;
 
-    public string $function;
+    public string $preselect;
+
+    public string $function1;
+
+    public string $function2;
 }

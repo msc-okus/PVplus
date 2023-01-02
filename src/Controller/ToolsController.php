@@ -10,6 +10,7 @@ use App\Message\Command\CalcPlantAvailability;
 use App\Message\Command\CalcPlantAvailabilityNew;
 use App\Message\Command\CalcPR;
 use App\Message\Command\GenerateTickets;
+use App\Message\Command\LoadAPIData;
 use App\Service\LogMessagesService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -24,7 +25,13 @@ class ToolsController extends BaseController
     public function tools(Request $request, MessageBusInterface $messageBus, LogMessagesService $logMessages): Response
     {
         $form = $this->createForm(ToolsFormType::class);
-        $form->handleRequest($request);
+       # $form->add('startDate',  'disabled');
+      #  $form->handleRequest($request);
+     #   $request = $form->getData();
+
+
+     #  dump( $request->preselect);
+
         $output = '';
         // Wenn Calc gelickt wird mache dies:
         if ($form->isSubmitted() && $form->isValid() && $form->get('calc')->isClicked() && $request->getMethod() == 'POST') {
@@ -69,6 +76,13 @@ class ToolsController extends BaseController
                     $job = 'Generate Tickets – from '.$toolsModel->startDate->format('Y-m-d 00:00').' until '.$toolsModel->endDate->format('Y-m-d 00:00');
                     $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'GenerateTickets', $job);
                     $message = new GenerateTickets($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
+                    $messageBus->dispatch($message);
+                    break;
+                case 'api-load-data':
+                    $output = '<h3>Load API Data:</h3>';
+                    $job = 'Load API Data – from '.$toolsModel->startDate->format('Y-m-d 00:00').' until '.$toolsModel->endDate->format('Y-m-d 00:00');
+                    $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'Load API Data', $job);
+                    $message = new LoadAPIData($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
                     $messageBus->dispatch($message);
                     break;
                 default:
