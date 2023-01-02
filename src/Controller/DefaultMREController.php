@@ -120,16 +120,14 @@ class DefaultMREController extends BaseController
     }
 
     #[Route(path: '/mr/export/rawdata/{id}')]
-    public function exportRawDataExport($id, ExportService $bavelseExport, AnlagenRepository $anlagenRepository): Response
+    public function exportRawDataExport($id, ExportService $exportService, AnlagenRepository $anlagenRepository): Response
     {
         $output = '';
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
-        $from = date_create('2021-01-01');
-        $to = date_create('2021-10-31');
         $from = $anlage->getEpcReportStart();
         $to = $anlage->getEpcReportEnd();
-        $output = $bavelseExport->getRawData($anlage, $from, $to);
+        $output = $exportService->getRawData($anlage, $from, $to);
 
         return $this->render('cron/showResult.html.twig', [
             'headline' => $anlage->getAnlName().' RawData Export',

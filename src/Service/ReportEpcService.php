@@ -115,6 +115,7 @@ class ReportEpcService
     public function reportPRGuarantee(Anlage $anlage, DateTime $date): array
     {
         $anzahlMonate = ((int) $anlage->getEpcReportEnd()->format('Y') - (int) $anlage->getEpcReportStart()->format('Y')) * 12 + ((int) $anlage->getEpcReportEnd()->format('m') - (int) $anlage->getEpcReportStart()->format('m')) + 1;
+        dump("AnzahlMonate: $anzahlMonate");
         $startYear = $anlage->getEpcReportStart()->format('Y');
         $currentMonth = (int) $date->format('m');
         $currentYear = (int) $date->format('Y');
@@ -138,7 +139,7 @@ class ReportEpcService
             $month = (int) $anlage->getEpcReportStart()->format('m');
             $daysInStartMonth = (int) $anlage->getEpcReportStart()->format('j');
             $daysInEndMonth = (int) $anlage->getEpcReportEnd()->format('j');
-
+            dump("AnzahlMonate: $anzahlMonate");
             for ($n = 1; $n <= $anzahlMonate; ++$n) {
                 if ($month >= 13) {
                     $month = 1;
@@ -183,7 +184,7 @@ class ReportEpcService
                 $monthlyData = $this->monthlyDataRepo->findOneBy(['anlage' => $anlage, 'year' => $year, 'month' => $month]);
                 */
                 $currentMonthClass = '';
-                if ($pr && $pr->getstamp() <= $date) {
+                if (true) {#($pr && $pr->getstamp() <= $date) {
                     $prReal         = $prArray['prEvu']; // $this->format($pr->getPrEvuMonth());
                     $prStandard     = $prArray['prDefaultEvu']; // $this->format($pr->getPrDefaultMonthEvu());
                     switch ($n) {
@@ -276,7 +277,7 @@ class ReportEpcService
                     }
                 }
                 if ($run === 2) {// Monatswerte berechnen
-                    if ($n == $anzahlMonate) {
+                    if ($n === $anzahlMonate) {
                         $realDateText .= $realDateTextEnd;
                     }
                     $sumSpezErtragDesign = $sumErtragDesign / (float) $anlage->getKwPeakPvSyst();
@@ -471,7 +472,7 @@ class ReportEpcService
             'Risikoabschlag' => $anlage->getLid(),
             'AnnualDegradation' => $anlage->getAnnualDegradation(),
             'PRgarantiert' => $anlage->getContractualPR(),
-            'kwPeak' => $anlage->getKwPeak(),
+            'kwPeak' => $anlage->getPnom(),
             'kwPeakPvSyst' => $anlage->getKwPeakPvSyst(),
             'startFac' => $anlage->getFacDateStart()->format('d.m.Y'),
             'endeFac' => $anlage->getFacDate()->format('d.m.Y'),
