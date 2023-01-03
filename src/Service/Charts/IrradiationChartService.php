@@ -20,7 +20,7 @@ class IrradiationChartService
     }
 
     /**
-     * Erzeugt Daten für das Strahlungsdiagramm Diagramm.
+     * Erzeugt Daten für das Strahlungs Diagramm.
      *
      * @param Anlage $anlage
      * @param $from
@@ -85,7 +85,7 @@ class IrradiationChartService
     }
 
     /**
-     * Erzeuge Daten für die Stralung die direlt von der Anlage geliefert wir.
+     * Erzeuge Daten für die Strahlung die direkt von der Anlage geliefert wir.
      *
      * @param Anlage $anlage
      * @param $from
