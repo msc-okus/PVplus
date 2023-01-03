@@ -47,6 +47,11 @@ class ReportingController extends AbstractController
     use G4NTrait;
     use PVPNameArraysTrait;
 
+    public function __construct(private $kernelProjectDir)
+    {
+
+    }
+
     /**
      * @throws ExceptionInterface
      */
@@ -202,7 +207,7 @@ class ReportingController extends AbstractController
     }
 
     #[Route(path: '/reporting/pdf/{id}', name: 'app_reporting_pdf')]
-    public function showReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly, $tempPathBaseUrl, Environment $environment, Pdf $pdf1)
+    public function showReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly, $tempPathBaseUrl)
     {
         /** @var AnlagenReports|null $report */
         $session = $this->container->get('session');
@@ -327,7 +332,7 @@ class ReportingController extends AbstractController
                     $form->handleRequest($request);
                     if ($form->isSubmitted() && $form->isValid()) {
                         $data = $form->getData();
-                        $output['data'] = $data;
+                        #$output['data'] = $data;
                         $result = $this->renderView('report/assetreport.html.twig', [
                             'invNr' => count($output['plantAvailabilityMonth']),
                             'comments' => $report->getComments(),
@@ -419,28 +424,9 @@ class ReportingController extends AbstractController
                         header("Content-Length: " . filesize($filename));
                         header("Content-type: application/pdf");
 */
-                        $pdf = new ChromePdf('/usr/bin/chromium');
-                        $pos = $this->substr_Index($this->kernelProjectDir, '/', 5);
-                        $pathpart = substr($this->kernelProjectDir, $pos);
-                        $pdf->output('/usr/home/pvpluy/public_html/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf');
-                        $reportfile = fopen('/usr/home/pvpluy/public_html/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.html', "w") or die("Unable to open file!");
+                        $response = new BinaryFileResponse($pdf->createPdfTemp($anlage, $result, null, $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year));
 
-                        $pos = strpos($result, '<html>');
-                        fwrite($reportfile, substr($result, $pos));
-                        fclose($reportfile);
-
-                        $pdf->generateFromHtml(substr($result, $pos));
-                        $pdf->generateFromFile('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.html');
-                        $filename = '/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf';
-
-                        $pdf->output($filename);
-                        // Header content type
-                        header("Content-type: application/pdf");
-                        header("Content-Length: " . filesize($filename));
-                        header("Content-type: application/pdf");
-                        // Send the file to the browser.
-                        readfile($filename);
-
+                        return $this->redirect($route);
                     }
 
                     return $this->render('report/_form.html.twig', [

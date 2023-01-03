@@ -3415,4 +3415,26 @@ class Anlage
 
         return $this;
     }
+
+    public function isDay(?DateTime $stamp = null): bool
+    {
+        if (!$stamp) $stamp = new DateTime();
+        $sunrisedata = date_sun_info(strtotime($stamp), (float) $this->getAnlGeoLat(), (float) $this->getAnlGeoLon());
+        /*
+        $offsetServer = new \DateTimeZone("Europe/Luxembourg");
+        $plantoffset = new \DateTimeZone($this->getNearestTimezone($this->getAnlGeoLat(), $$this->getAnlGeoLon()));
+        $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
+        $returnArray['sunrise'] = $time.' '.date('H:i', $sunrisedata['sunrise'] + (int)$totalOffset);
+        $returnArray['sunset'] = $time.' '.date('H:i', $sunrisedata['sunset'] + (int)$totalOffset);
+        */
+
+
+
+        return true;
+    }
+
+    public function isNight(?DateTime $stamp = null): bool
+    {
+        return !$this->isDay($stamp);
+    }
 }

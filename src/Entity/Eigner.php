@@ -380,9 +380,12 @@ class Eigner
         return $this;
     }
 
-    public function getCustomerLogo(): string
+    public function getCustomerLogo(): ?string
     {
-        return $this->logo;
+        if (isset($this->logo)) {
+            return $this->logo;
+        }
+        return 'images/pixi.png';
     }
 
     public function getFontColor(): ?string

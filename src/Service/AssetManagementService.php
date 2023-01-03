@@ -41,7 +41,7 @@ class AssetManagementService
         $this->conn = self::getPdoConnection();
     }
 
-    public function createAmReport(Anlage $anlage, $reportMonth, $reportYear): array
+    public function createAmReport(Anlage $anlage, $reportMonth, $reportYear): string
     {
         $report = $this->reportRepo->findOneByAMY($anlage, $reportMonth, $reportYear)[0];
         $comment = '';
@@ -83,7 +83,7 @@ class AssetManagementService
         $this->em->persist($report);
         $this->em->flush();
 
-        return $output;
+        return 'Asset Report generated'; //$output;
     }
 
     /**
