@@ -29,8 +29,6 @@ class IrradiationChartService
      * @param bool|null $hour
      * @return array
      * @throws \Exception
-     *
-     * irradiation
      */
     public function getIrradiation(Anlage $anlage, $from, $to, ?string $mode = 'all', ?bool $hour = false): array
     {
@@ -82,7 +80,7 @@ class IrradiationChartService
             }
         }
         $conn = null;
-        dump($dataArray);
+
         return $dataArray;
     }
 
@@ -94,7 +92,6 @@ class IrradiationChartService
      * @param $to
      * @param bool $hour
      * @return array
-     *               // irradiation_plant
      * @throws \Exception
      */
     public function getIrradiationPlant(Anlage $anlage, $from, $to, bool $hour): array
