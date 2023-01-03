@@ -36,7 +36,7 @@ class PRCalulationService
     {
     }
 
-    public function execFile(Anlage|int $anlage, string $day): string
+    public function calcPRAll(Anlage|int $anlage, string $day): string
     {
         if (is_int($anlage)) {
             $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);

@@ -7,6 +7,7 @@ use App\Helper\G4NTrait;
 use App\Repository\AnlageAvailabilityRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\Case5Repository;
+use App\Repository\WeatherStationRepository;
 use App\Service\AvailabilityByTicketService;
 use App\Service\AvailabilityService;
 use App\Service\CheckSystemStatusService;
@@ -33,19 +34,21 @@ class DefaultMREController extends BaseController
     }
 
     #[Route(path: '/mr/sun')]
-    public function testSunRise(WeatherServiceNew $weatherService, AnlagenRepository $anlagenRepository): Response
+    public function testSunRise(WeatherServiceNew $weatherService, AnlagenRepository $anlagenRepository, WeatherStationRepository $weatherStationRepository): Response
     {
         $anlage = $anlagenRepository->find('183');
-        $time = time();
-        $time = strtotime('2022-12-11');
+        $weatherStation = $weatherStationRepository->find('47');
 
+        $time = time();
+        #$time = strtotime('2022-12-11');
+        $sunrisedata = date_sun_info($time, (float)$weatherStation->getGeoLat(), (float)$weatherStation->getGeoLon());
         $sunrisedatas = date_sun_info($time, (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon());
         foreach ($sunrisedatas as $key => $value) {
             $sunriseArray[] = ['Key' => $key, "Stamp" => date('Y-m-d H:i', $value)];
         }
         return $this->render('cron/showResult.html.twig', [
             'headline' => 'Sunrise / Sunset',
-            'availabilitys' => '',
+            'availabilitys' => 'IS DAY ?: '. ($anlage->isDay()?'yes':'No') . ' or is Night?' . ($anlage->isNight()?'Yes':'No'),
             'output' => self::printArrayAsTable($sunriseArray),
         ]);
     }
