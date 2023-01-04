@@ -198,7 +198,7 @@ class AlertSystemService
         if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
             //here we retrieve the values from the plant and set soma flags to generate tickets
             $plant_status = self::RetrievePlant($anlage, $time);
-            dump($plant_status);
+
             // We do this to avoid checking further inverters if we have a PPC control shut
             $array_gap = explode(", ", $plant_status['Gap']);
             $array_zero = explode(", ", $plant_status['Power0']);
@@ -332,7 +332,8 @@ class AlertSystemService
                 }
             }
             if ($anlage->isExpectedTicket()){
-                switch ($anlage->getAnlType()) {
+
+                switch ($anlage->getConfigType()) {
                     case 1:
                     case 2:
                         $actQuery = 'SELECT b.unit as inverter, b.wr_pac as power 
@@ -363,12 +364,12 @@ class AlertSystemService
                         $resp = $conn->query($actQuery);
                         $power = $resp->fetchAll(PDO::FETCH_ASSOC);
                         foreach ($power as $value) {
-                            $expQuery = 'SELECT sum(b.ac_exp_power) as exp
+                            $expQuery = 'SELECT sum(b.ac_exp_power) as exp, wr_num as inverter
                             FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameDcSoll() . " b on a.stamp = b.stamp)
-                            WHERE a.stamp = '$time' AND  b.group_dc = " . $value['group'] . " ";
-                            $respE xp = $conn->query($expQuery);
+                            WHERE a.stamp = '$time' AND  b.group_dc = " . $value['groupe'] . " ";
+                            $respExp = $conn->query($expQuery);
                             $expected = $respExp->fetch(PDO::FETCH_ASSOC);
-                            dump(((abs($expected['exp'] - $value['power']) * 100) / (($value['power'] + $expected['exp']) / 2)), $value['power'], $expected['exp']);
+                            dump(((abs($expected['exp'] - $value['power']) * 100) / (($value['power'] + $expected['exp']))), $value['power'], $expected['exp']);
                             if ((abs($expected['exp'] - $value['power']) * 100 / (($value['power'] + $expected['exp']) / 2) > $percentajeDiff) && ($value['power'] > 0)) {
 
                                 if ($return['PowerDiff'] == "")
