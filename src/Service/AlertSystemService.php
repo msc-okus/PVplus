@@ -204,6 +204,7 @@ class AlertSystemService
             $array_zero = explode(", ", $plant_status['Power0']);
             $array_vol = explode(", ", $plant_status['Vol']);
             //we close all the previous tickets and we will re-open them if needed.
+
             $ticketOld = $this->getAllTickets($anlage, $time);
             if ((isset($ticketOld))) {
                 foreach ($ticketOld as $ticket) {
@@ -211,12 +212,13 @@ class AlertSystemService
                     $this->em->persist($ticket);
                 }
             }
+
             if ($plant_status['ppc'] === false) {
                 if (count($array_gap) > 0) {
                     foreach ($array_gap as $inverter) {
                         if ($inverter != "") {
                             $message = "Data gap in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter];
-                            //$this->generateTickets('', DATA_GAP, $anlage, $inverter, $time, $message);
+                            $this->generateTickets('', DATA_GAP, $anlage, $inverter, $time, $message);
                         }
                     }
                 }
@@ -224,7 +226,7 @@ class AlertSystemService
                     foreach ($array_zero as $inverter) {
                         if ($inverter != "") {
                             $message = "Power Error in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter];
-                            //$this->generateTickets(EFOR, INVERTER_ERROR, $anlage, $inverter, $time, $message);
+                            $this->generateTickets(EFOR, INVERTER_ERROR, $anlage, $inverter, $time, $message);
                         }
                     }
                 }
@@ -232,13 +234,13 @@ class AlertSystemService
                     foreach ($array_vol as $inverter) {
                         if (($inverter != "")) {
                             $message = "Grid Error in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter];
-                            //$this->generateTickets('', GRID_ERROR, $anlage, $inverter, $time, $message);
+                            $this->generateTickets('', GRID_ERROR, $anlage, $inverter, $time, $message);
                         }
                     }
                 }
             } else {
                 $errorCategorie = EXTERNAL_CONTROL;
-                //$this->generateTickets(OMC, $errorCategorie, $anlage, '*', $time, "");
+                $this->generateTickets(OMC, $errorCategorie, $anlage, '*', $time, "");
             }
         }
         if ((date('Y-m-d H:i', strtotime($time) + 900) >= $sungap['sunset']) && (date('Y-m-d H:i', strtotime($time) + 900) <= date('Y-m-d H:i', strtotime($sungap['sunset']) +1800))){
@@ -330,25 +332,54 @@ class AlertSystemService
                 }
             }
             if ($anlage->isExpectedTicket()){
-                $actQuery = 'SELECT b.unit as inverter, b.wr_pac as power 
+                switch ($anlage->getAnlType()) {
+                    case 1:
+                    case 2:
+                        $actQuery = 'SELECT b.unit as inverter, b.wr_pac as power 
                     FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
                     WHERE a.stamp = '$time' AND  b.wr_pac > 0 ";
-                $resp = $conn->query($actQuery);
-                $power = $resp->fetchAll(PDO::FETCH_ASSOC);
-                foreach($power as $value){
-                    dump($value);
-                    $expQuery = 'SELECT b.p_ac_inv as exp
-                    FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameSoll() . " b on a.stamp = b.stamp)
-                    WHERE a.stamp = '$time' AND  b.unit = ".$value['unit']." ";
-                    dd($expQuery);
-                    $respExp = $conn->query($expQuery);
-                    $expected = $respExp->fetch(PDO::FETCH_ASSOC);
-                    if ((abs($value['power'] - $expected['exp']) * 100) / $expected['exp'] > $percentajeDiff){
-                        if ($return['PowerDiff'] == "")
-                            $return['PowerDiff'] =  $value['unit'];
-                        else
-                            $return['PowerDiff'] =  $return['PowerDiff'] + ", " + $value['unit'];
-                    }
+                        $resp = $conn->query($actQuery);
+                        $power = $resp->fetchAll(PDO::FETCH_ASSOC);
+                        foreach ($power as $value) {
+                                    $expQuery = 'SELECT sum(b.ac_exp_power) as exp
+                            FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameDcSoll() . " b on a.stamp = b.stamp)
+                            WHERE a.stamp = '$time' AND  b.wr_num = " . $value['inverter'] . " ";
+                            $respExp = $conn->query($expQuery);
+                            $expected = $respExp->fetch(PDO::FETCH_ASSOC);
+                            dump(((abs($expected['exp'] - $value['power']) * 100) / (($value['power'] + $expected['exp']) / 2)), $value['power'], $expected['exp']);
+                            if ((abs($expected['exp'] - $value['power']) * 100 / (($value['power'] + $expected['exp']) / 2) > $percentajeDiff) && ($value['power'] > 0)) {
+
+                                if ($return['PowerDiff'] == "")
+                                    $return['PowerDiff'] = $value['inverter'];
+                                else
+                                    $return['PowerDiff'] = $return['PowerDiff'] . ", " . $value['inverter'];
+                            }
+                        }
+                    break;
+                    case 3:
+                        $actQuery = 'SELECT b.group_dc as groupe, b.wr_pac as power 
+                    FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
+                    WHERE a.stamp = '$time' AND  b.wr_pac > 0 ";
+                        $resp = $conn->query($actQuery);
+                        $power = $resp->fetchAll(PDO::FETCH_ASSOC);
+                        foreach ($power as $value) {
+                            $expQuery = 'SELECT sum(b.ac_exp_power) as exp
+                            FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameDcSoll() . " b on a.stamp = b.stamp)
+                            WHERE a.stamp = '$time' AND  b.group_dc = " . $value['group'] . " ";
+                            $respE xp = $conn->query($expQuery);
+                            $expected = $respExp->fetch(PDO::FETCH_ASSOC);
+                            dump(((abs($expected['exp'] - $value['power']) * 100) / (($value['power'] + $expected['exp']) / 2)), $value['power'], $expected['exp']);
+                            if ((abs($expected['exp'] - $value['power']) * 100 / (($value['power'] + $expected['exp']) / 2) > $percentajeDiff) && ($value['power'] > 0)) {
+
+                                if ($return['PowerDiff'] == "")
+                                    $return['PowerDiff'] = $value['inverter'];
+                                else
+                                    $return['PowerDiff'] = $return['PowerDiff'] . ", " . $value['inverter'];
+                            }
+                        }
+
+                    break;
+
                 }
             }
         }
