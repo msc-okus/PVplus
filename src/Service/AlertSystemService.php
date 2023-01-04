@@ -198,6 +198,7 @@ class AlertSystemService
         if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
             //here we retrieve the values from the plant and set soma flags to generate tickets
             $plant_status = self::RetrievePlant($anlage, $time);
+            dump($plant_status);
             // We do this to avoid checking further inverters if we have a PPC control shut
             $array_gap = explode(", ", $plant_status['Gap']);
             $array_zero = explode(", ", $plant_status['Power0']);
@@ -215,7 +216,7 @@ class AlertSystemService
                     foreach ($array_gap as $inverter) {
                         if ($inverter != "") {
                             $message = "Data gap in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter];
-                            $this->generateTickets('', DATA_GAP, $anlage, $inverter, $time, $message);
+                            //$this->generateTickets('', DATA_GAP, $anlage, $inverter, $time, $message);
                         }
                     }
                 }
@@ -223,7 +224,7 @@ class AlertSystemService
                     foreach ($array_zero as $inverter) {
                         if ($inverter != "") {
                             $message = "Power Error in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter];
-                            $this->generateTickets(EFOR, INVERTER_ERROR, $anlage, $inverter, $time, $message);
+                            //$this->generateTickets(EFOR, INVERTER_ERROR, $anlage, $inverter, $time, $message);
                         }
                     }
                 }
@@ -231,13 +232,13 @@ class AlertSystemService
                     foreach ($array_vol as $inverter) {
                         if (($inverter != "")) {
                             $message = "Grid Error in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter];
-                            $this->generateTickets('', GRID_ERROR, $anlage, $inverter, $time, $message);
+                            //$this->generateTickets('', GRID_ERROR, $anlage, $inverter, $time, $message);
                         }
                     }
                 }
             } else {
                 $errorCategorie = EXTERNAL_CONTROL;
-                $this->generateTickets(OMC, $errorCategorie, $anlage, '*', $time, "");
+                //$this->generateTickets(OMC, $errorCategorie, $anlage, '*', $time, "");
             }
         }
         if ((date('Y-m-d H:i', strtotime($time) + 900) >= $sungap['sunset']) && (date('Y-m-d H:i', strtotime($time) + 900) <= date('Y-m-d H:i', strtotime($sungap['sunset']) +1800))){
@@ -257,15 +258,16 @@ class AlertSystemService
     private function RetrievePlant(Anlage $anlage, $time): array
     {
         $irrLimit = $anlage->getThreshold1PA0() == 0 ? $anlage->getThreshold1PA0() : 20; // we get the irradiation limit from the plant config
-
         $freqLimitTop = $anlage->getFreqBase() + $anlage->getFreqTolerance();
         $freqLimitBot = $anlage->getFreqBase() - $anlage->getFreqTolerance();
+        $percentajeDiff = $anlage->getPercentageDiff();
         //we get the frequency values
         $voltLimit = 0;
 
         $conn = self::getPdoConnection();
         $isPPC = false;
         $return['ppc'] = $isPPC;
+        $return['PowerDiff'] = "";
         $return['Power0'] = "";
         $return['Gap'] = "";
         $return['Vol'] = "";
@@ -275,22 +277,7 @@ class AlertSystemService
         if ($irradiation < $irrLimit) $this->irr = true;
         else $this->irr = false;
 
-        $sqlAct = 'SELECT b.unit 
-                    FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
-                    WHERE a.stamp = '$time' AND  b.wr_pac <= 0 ";
-        $resp = $conn->query($sqlAct);
-        $result0 = $resp->fetchAll(PDO::FETCH_ASSOC);
 
-        $sqlNull = 'SELECT b.unit 
-                    FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
-                    WHERE a.stamp = '$time' AND  b.wr_pac is null ";
-        $resp = $conn->query($sqlNull);
-        $resultNull = $resp->fetchAll(PDO::FETCH_ASSOC);
-
-        $sqlVol = "SELECT b.unit 
-                    FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
-                    WHERE a.stamp = '$time' AND  (b.u_ac < " . $voltLimit . " OR b.frequency < " . $freqLimitBot . " OR b.frequency > " . $freqLimitTop . ")";
-        $resp = $conn->query($sqlVol);
 
         if ($anlage->getHasPPC()) {
             $sqlPpc = 'SELECT * 
@@ -302,7 +289,23 @@ class AlertSystemService
                 $return['ppc'] = (($ppdData['p_set_rel'] < 100 || $ppdData['p_set_gridop_rel'] < 100) && $anlage->getHasPPC());
             }
         }
-        if ($return['ppc']  != false) {
+        if ($return['ppc'] != true) {
+            $sqlAct = 'SELECT b.unit 
+                    FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
+                    WHERE a.stamp = '$time' AND  b.wr_pac <= 0 ";
+            $resp = $conn->query($sqlAct);
+            $result0 = $resp->fetchAll(PDO::FETCH_ASSOC);
+
+            $sqlNull = 'SELECT b.unit 
+                    FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
+                    WHERE a.stamp = '$time' AND  b.wr_pac is null ";
+            $resp = $conn->query($sqlNull);
+            $resultNull = $resp->fetchAll(PDO::FETCH_ASSOC);
+
+            $sqlVol = "SELECT b.unit 
+                    FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
+                    WHERE a.stamp = '$time' AND  (b.u_ac < " . $voltLimit . " OR b.frequency < " . $freqLimitBot . " OR b.frequency > " . $freqLimitTop . ")";
+            $resp = $conn->query($sqlVol);
             //here if there is no plant control we check the values and get the information to create the tickets
             $resultVol = $resp->fetchAll(PDO::FETCH_ASSOC);
             if (count($resultNull) == $invCount) $return['Gap'] = '*';
@@ -324,6 +327,28 @@ class AlertSystemService
                 foreach ($resultVol as $value) {
                     if ($return['Vol'] !== "") $return['Vol'] = $return['Vol'] . ", " . $value['unit'];
                     else $return['Vol'] = $value['unit'];
+                }
+            }
+            if ($anlage->isExpectedTicket()){
+                $actQuery = 'SELECT b.unit as inverter, b.wr_pac as power 
+                    FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
+                    WHERE a.stamp = '$time' AND  b.wr_pac > 0 ";
+                $resp = $conn->query($actQuery);
+                $power = $resp->fetchAll(PDO::FETCH_ASSOC);
+                foreach($power as $value){
+                    dump($value);
+                    $expQuery = 'SELECT b.p_ac_inv as exp
+                    FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameSoll() . " b on a.stamp = b.stamp)
+                    WHERE a.stamp = '$time' AND  b.unit = ".$value['unit']." ";
+                    dd($expQuery);
+                    $respExp = $conn->query($expQuery);
+                    $expected = $respExp->fetch(PDO::FETCH_ASSOC);
+                    if ((abs($value['power'] - $expected['exp']) * 100) / $expected['exp'] > $percentajeDiff){
+                        if ($return['PowerDiff'] == "")
+                            $return['PowerDiff'] =  $value['unit'];
+                        else
+                            $return['PowerDiff'] =  $return['PowerDiff'] + ", " + $value['unit'];
+                    }
                 }
             }
         }

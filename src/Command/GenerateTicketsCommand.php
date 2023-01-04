@@ -61,15 +61,13 @@ class GenerateTicketsCommand extends Command
             $fromStamp = strtotime($from);
             $toStamp = strtotime($to);
 
-            if (strtoupper($plantid) == 'ALL') {
-                $io->comment("Generate Tickets: $from - $to | All Plants");
-                $anlagen = $this->anlagenRepository->findBy(['anlHidePlant' => 'No', 'calcPR' => true]);
-            } elseif (is_numeric($plantid)) {
+            if (is_numeric($plantid)) {
                 $io->comment("Generate Tickets: $from - $to | Plant ID: $plantid");
                 $anlagen = $this->anlagenRepository->findIdLike([$plantid]);
             } else {
                 $io->comment("Generate Tickets: $from - $to | Test Plants (93, 94, 95, 96, 112, 113, 108, 183)");
-                $anlagen = $this->anlagenRepository->findIdLike([93, 94, 95, 96, 112, 113, 108, 183]);
+                //$anlagen = $this->anlagenRepository->findIdLike([93, 94, 95, 96, 112, 113, 108, 183]);
+                $anlagen = $this->anlagenRepository->findAlertSystemActive(true);
             }
 
             $counter = (($toStamp - $fromStamp) / 3600) * count($anlagen);

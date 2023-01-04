@@ -423,9 +423,10 @@ class ReportingController extends AbstractController
                         header("Content-type: application/pdf");
                         header("Content-Length: " . filesize($filename));
                         header("Content-type: application/pdf");
-*/
-                        $response = new BinaryFileResponse($pdf->createPdfTemp($anlage, $result, null, $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year));
+                        */
 
+                        $response = new BinaryFileResponse($pdf->createPdfTemp($anlage, $result, null, $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year));
+                        dd('hey');
                         return $this->redirect($route);
                     }
 

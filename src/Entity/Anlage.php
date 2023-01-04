@@ -536,6 +536,18 @@ class Anlage
     #[ORM\Column]
     private ?bool $ignoreNegativEvu = true;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $expectedTicket = false;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $percentageDiff = "20";
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $weatherTicket = false;
+
+    #[ORM\Column]
+    private ?bool $ActivateTicketSystem = false;
+
     public function __construct()
     {
         $this->acGroups = new ArrayCollection();
@@ -3436,5 +3448,53 @@ class Anlage
     public function isNight(?DateTime $stamp = null): bool
     {
         return !$this->isDay($stamp);
+    }
+
+    public function isExpectedTicket(): ?bool
+    {
+        return $this->expectedTicket;
+    }
+
+    public function setExpectedTicket(?bool $expectedTicket): self
+    {
+        $this->expectedTicket = $expectedTicket;
+
+        return $this;
+    }
+
+    public function getPercentageDiff(): ?string
+    {
+        return $this->percentageDiff;
+    }
+
+    public function setPercentageDiff(?string $percentageDiff): self
+    {
+        $this->percentageDiff = $percentageDiff;
+
+        return $this;
+    }
+
+    public function isWeatherTicket(): ?bool
+    {
+        return $this->weatherTicket;
+    }
+
+    public function setWeatherTicket(?bool $weatherTicket): self
+    {
+        $this->weatherTicket = $weatherTicket;
+
+        return $this;
+    }
+
+    public function isActivateTicketSystem(): ?bool
+    {
+        return $this->ActivateTicketSystem;
+    }
+
+    public function setActivateTicketSystem(bool $ActivateTicketSystem): self
+    {
+        $this->ActivateTicketSystem = $ActivateTicketSystem;
+
+        return $this;
     }
 }

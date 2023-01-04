@@ -534,6 +534,22 @@ class AnlageFormType extends AbstractType
                 'label' => 'Has Frequency',
                 'help' => '[hasFrequency]',
             ])
+            ->add('expectedTicket', SwitchType::class, [
+                'label' => 'Ticket Expected',
+                'help' => '[ExpectedTicket]',
+            ])
+            ->add('percentageDiff',TextType::class, [
+                'label' => 'Ticket Expected limit',
+                'help' => '[percentageDiff]',
+            ])
+            ->add('weatherTicket', SwitchType::class, [
+                'label' => 'Ticket Weather',
+                'help' => '[WeatherTicket]',
+            ])
+            ->add('ActivateTicketSystem', SwitchType::class, [
+                'label' => 'Activate the Ticket System',
+                'help' => '[ActivateTicketSystem]',
+            ])
             // ###############################################
             // ###            Availability                ####
             // ###############################################

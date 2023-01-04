@@ -116,6 +116,15 @@ class AnlagenRepository extends ServiceEntityRepository
         ;
     }
 
+
+    public function findAlertSystemActive(bool $active){
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.ActivateTicketSystem = (:val)')
+            ->setParameter('val', $active)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
     /**
      * @return Anlage[]
      */
