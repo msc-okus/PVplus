@@ -4,7 +4,6 @@ namespace App\Form\Groups;
 
 use App\Entity\Anlage;
 use App\Entity\AnlageGroups;
-use App\Entity\Country;
 use App\Repository\AnlagenRepository;
 use App\Repository\GroupsRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
@@ -35,7 +34,10 @@ class DcGroupsSearchFormType extends AbstractType
                     return $anlage->getAnlName();
                 },
                 'query_builder' => fn(AnlagenRepository $anlagenRepository)
-                => $anlagenRepository-> findAllOrderedByAscNameQueryBuilder()
+                => $anlagenRepository-> findAllOrderedByAscNameQueryBuilder(),
+                'attr'=>[
+                    'onchange'=>'this.form.submit()'
+                ]
             ])
 
 

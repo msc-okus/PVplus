@@ -1,3 +1,33 @@
+{% import _self as formMacros %}
+
+{% macro addGroupModule(module) %}
+    <tr >
+        <td>{{ form_widget(module.moduleType) }}</td>
+        <td>{{ form_widget(module.numStringsPerUnit) }}</td>
+        <td>{{ form_widget(module.numStringsPerUnitEast) }}</td>
+        <td>{{ form_widget(module.numStringsPerUnitWest) }}</td>
+        <td>{{ form_widget(module.numModulesPerString) }}</td>
+        <td>
+            <a href="#" data-action="submit-confirm#removeFormElement">
+                <span class="fa fa-minus-circle"></span>
+            </a>
+        </td>
+    </tr>
+{% endmacro %}
+
+{% macro addMonth(month) %}
+    <tr >
+        <td>{{ form_widget(month.month) }}</td>
+        <td>{{ form_widget(month.irrUpper) }}</td>
+        <td>{{ form_widget(month.irrLower) }}</td>
+        <td>{{ form_widget(month.shadowLoss) }}</td>
+        <td><a href="#" data-action="submit-confirm#removeFormElement">
+                <span class="fa fa-minus-circle"></span>
+            </a>
+        </td>
+    </tr>
+{% endmacro %}
+
 {{ form_start(form, {'attr':{
     'data-controller':'submit-confirm',
     'data-action':'submit-confirm#onSubmit',
@@ -54,6 +84,64 @@
     </div>
     <div class="cell medium-2" >
         {{ form_row(form.anlage) }}
+    </div>
+</div>
+<div class="grid-x grid-padding-x ">
+    <div class="cell medium-6">
+        <p>Modul Settings</p>
+        <table >
+            <thead>
+            <tr>
+                <th style ="width: 30%;"><small>Type</small></th>
+                <th><small>Strings / Unit</small></th>
+                <th><small>Strings (East)</small></th>
+                <th><small>Strings (West)</small></th>
+                <th><small>Modules / String</small></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody {{stimulus_target('submit-confirm', 'modules') }}>
+            {% for module in form.modules %}
+                {{ formMacros.addGroupModule(module) }}
+            {% endfor %}
+            </tbody>
+        </table>
+        <button type="button" class="button secondary small"
+                data-action="submit-confirm#addModule"
+                data-prototype="{{ formMacros.addGroupModule(form.modules.vars.prototype)|e('html_attr') }}"
+                data-index="{{ form.modules|length }}"
+        ><span class="fa fa-plus-circle"></span>&nbsp;
+            Add
+        </button>
+</div>
+    <div class="cell medium-6">
+        <div >
+            <p>Settings per Month</p>
+            <table>
+                <thead>
+                <tr>
+                    <th><small>Month</small></th>
+                    <th><small>Irr Upper</small></th>
+                    <th><small>Irr Lower</small></th>
+                    <th><small>Shadow Loss</small></th>
+                    <th></th>
+                </tr>
+
+                </thead>
+                <tbody {{ stimulus_target('submit-confirm', 'months') }}>
+                {% for month in form.months %}
+                    {{ formMacros.addMonth(month) }}
+                {% endfor %}
+                </tbody>
+            </table>
+            <button type="button" class="button secondary small"
+                    data-action="submit-confirm#addMonth"
+                    data-prototype="{{ formMacros.addMonth(form.months.vars.prototype)|e('html_attr') }}"
+                    data-index="{{ form.months|length }}"
+            ><span class="fa fa-plus-circle"></span>&nbsp;
+                Add
+            </button>
+        </div>
     </div>
 </div>
 <div class="button-group align-right">

@@ -7,8 +7,8 @@
     <div {{ stimulus_controller('search-group', {
         url:path('app_anlage_groups_anlage_index',{'anlage':anlage})
     }) }}>
-    <div class="grid-x grid-margin-x">
-        <div class="cell medium-3">
+    <div class="grid-x">
+        <div class="cell medium-4">
             {{ form_start(form) }}
             <div class="grid-x  align-middle" >
 
@@ -16,19 +16,14 @@
                     {{ form_row(form.anlage) }}
                 </div>
 
-                <div class="grid-x cell medium-2 " >
-                    <button type="submit" class="button align-self-middle"  formnovalidate>
-
-                        <span class="fa fa-search"></span></button>
-                </div>
             </div>
             {{ form_end(form) }}
         </div>
-        <div class=" grid-x  grid-margin-x cell medium-9">
+
         {% if show_form2 == true %}
 
-                <div class="cell medium-4">
-                    <form >
+                <div class="cell grid-x medium-4">
+                    <form class="cell medium-10" >
                         <input
                                 name="q"
                                 value="{{ searchTerm }}"
@@ -38,11 +33,11 @@
                         >
                     </form>
                 </div>
-                <div class="cell medium-8">
+                <div class="cell medium-4">
                    {{ form_start(form2, {'attr':{
                        'data-controller':'submit-confirm',
                        'data-action':'submit-confirm#onSubmit',
-                       'data-submit-confirm-title-value':'This action will change these settings for all groups in this Plant. ',
+                       'data-submit-confirm-title-value':'This action will change these settings for all this groups Plant. ',
                        'data-submit-confirm-text-value':"Are you sure you want to continue!",
                        'data-submit-confirm-icon-value':'warning',
                    }}) }}
@@ -56,7 +51,7 @@
                    </div>
 
                    {{ form_end(form2) }}
-               </div>
+
         {% endif %}
         </div>
     </div>
@@ -117,5 +112,7 @@
     </table>
     {{ knp_pagination_render(anlage_groups) }}
 </div>
+
 </div>
+
 {% endblock %}

@@ -12,6 +12,7 @@ export default class extends Controller {
         confirmButtonText: String,
         redirectUrl: String,
     }
+    static targets = ['modules', 'months']
 
     connect() {
         useDispatch(this);
@@ -45,6 +46,21 @@ export default class extends Controller {
             this.element.submit();
         }
 
+    }
+
+    async removeFormElement(event){
+        event.currentTarget.closest('tr').remove();
+    }
+
+    async addMonth(event){
+        console.log('months');
+        this.monthsTarget.innerHTML += event.currentTarget.dataset.prototype.replace(/__name__/g, event.currentTarget.dataset.index);
+        event.currentTarget.dataset.index += 1;
+    }
+
+    async addModule(event){
+        this.modulesTarget.innerHTML += event.currentTarget.dataset.prototype.replace(/__name__/g, event.currentTarget.dataset.index);
+        event.currentTarget.dataset.index += 1;
     }
 
 }

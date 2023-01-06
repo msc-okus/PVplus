@@ -44,13 +44,17 @@ class AnlageGroupsController extends AbstractController
         ]);
     }
 
-    #[Route('/anlage/{anlage}', name: 'app_anlage_groups_anlage_index', methods: ['GET','POST'])]
-    public function index2(GroupsRepository $groupsRepository ,Request $request, Anlage $anlage, PaginatorInterface $paginator ): Response
+    #[Route('/anlage/{anlage}/{param}', name: 'app_anlage_groups_anlage_index', methods: ['GET','POST'])]
+    public function index2(GroupsRepository $groupsRepository ,Request $request, Anlage $anlage, PaginatorInterface $paginator, string $param=null ): Response
     {
+
         $searchTerm = $request->query->get('q');
+        if($param){
+            $searchTerm = $param;
+        }
 
         $form = $this->createForm(DcGroupsSearchFormType::class,['anlage'=>$anlage]);
-        $form2 = $this->createForm(DcGroupsSFGUpdateFormType::class);
+        $form2 = $this->createForm(DcGroupsSFGUpdateFormType::class, ['term'=>$searchTerm]);
 
         $form->handleRequest($request);
         $form2->handleRequest($request);
@@ -65,7 +69,7 @@ class AnlageGroupsController extends AbstractController
 
         if ($form2->isSubmitted() && $form2->isValid()) {
 
-            $groups=$groupsRepository->findByAnlage($anlage);
+            $groups=$groupsRepository->searchGroupByAnlageQueryBuilder($anlage,$form2->getData()['term'])->getQuery()->getResult();
 
             foreach ($groups  as $group){
                 if($form2->getData()['secureLoss'] !==null){
@@ -82,7 +86,7 @@ class AnlageGroupsController extends AbstractController
                 $groupsRepository->save($group, true);
             }
 
-            return $this->redirectToRoute('app_anlage_groups_anlage_index',['anlage'=>$anlage]);
+            return $this->redirectToRoute('app_anlage_groups_anlage_index',['anlage'=>$anlage, 'param'=>$form2->getData()['term']]);
 
 
         }
@@ -97,15 +101,46 @@ class AnlageGroupsController extends AbstractController
 
         if($request->query->get('search')){
             $querybuilder=$groupsRepository->searchGroupByAnlageQueryBuilder($anlage, $searchTerm);
+
+            if($request->query->get('page')){
+
+                $pagination=$paginator->paginate(
+                    $querybuilder,
+                    $request->query->getInt('page',$request->query->get('page')),
+                    25
+                );
+                return $this->render('anlage_groups/index.html.twig', [
+                    'form' => $form->createView(),
+                    'anlage_groups'=>$pagination,
+                    'form2'=>$form2->createView(),
+                    'show_form2'=>true,
+                    'searchTerm'=>$searchTerm,
+                    'anlage'=>$anlage
+                ]);
+            }
+
             $pagination=$paginator->paginate(
                 $querybuilder,
                 $request->query->getInt('page',1),
                 25
             );
                 return $this->render('anlage_groups/_searchPreview.html.twig', [
-                    'anlage_groups' => $pagination,
+
+                    'anlage_groups'=>$pagination,
+
 
                 ]);
+
+        }
+        if($param){
+            $querybuilder=$groupsRepository->searchGroupByAnlageQueryBuilder($anlage, $searchTerm);
+
+            $pagination=$paginator->paginate(
+                $querybuilder,
+                $request->query->getInt('page',1),
+                25
+            );
+
 
         }
 
@@ -123,15 +158,16 @@ class AnlageGroupsController extends AbstractController
 
 
     #[Route('/{id}/edit', name: 'app_anlage_groups_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, AnlageGroups $anlageGroup, EntityManagerInterface $entityManager): Response
+    public function edit(Request $request, AnlageGroups $anlageGroup,GroupsRepository $groupsRepository, EntityManagerInterface $entityManager): Response
     {
+       //dd($anlageGroup->getModules());
         $form = $this->createForm(AnlageGroupsTypeForm::class, $anlageGroup);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $entityManager->flush();
 
-            return $this->redirectToRoute('app_anlage_groups_index', [], Response::HTTP_SEE_OTHER);
+            return $this->redirectToRoute('app_anlage_groups_edit', ['id'=>$anlageGroup->getId()], Response::HTTP_SEE_OTHER);
         }
 
         return $this->renderForm('anlage_groups/edit.html.twig', [

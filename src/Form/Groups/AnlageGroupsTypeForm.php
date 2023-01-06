@@ -7,6 +7,7 @@ use App\Entity\AnlageGroups;
 use App\Entity\WeatherStation;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -89,6 +90,22 @@ class AnlageGroupsTypeForm extends AbstractType
                 'help'=>'weatherStation'
 
             ])
+            ->add('modules', CollectionType::class, [
+                'entry_type' => GroupModulFormType::class,
+                'label'=>false,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'delete_empty' => true,
+                'by_reference' => false,
+            ])
+            ->add('months', CollectionType::class, [
+                'entry_type' => MonthsListEmbeddedFormType::class,
+                'label'=>false,
+                'allow_add' => true,
+                'allow_delete' => true,
+                'delete_empty' => true,
+                'by_reference' => false,
+            ])
         ;
     }
 
@@ -96,6 +113,8 @@ class AnlageGroupsTypeForm extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => AnlageGroups::class,
+
         ]);
+
     }
 }

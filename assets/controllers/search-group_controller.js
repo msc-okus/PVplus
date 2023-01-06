@@ -8,7 +8,7 @@ export default class  extends Controller{
         url: String
     };
 
-    static targets=['bodytab'];
+    static targets=['bodytab','val'];
 
     static  debounces=['searchQuery']
 
@@ -22,6 +22,9 @@ export default class  extends Controller{
     }
 
     async searchQuery(query){
+
+        this.valTarget.value=query;
+
         const  params = new URLSearchParams({
             q:query,
             search:1
@@ -29,5 +32,7 @@ export default class  extends Controller{
 
         const response= await  fetch(`${this.urlValue}?${params.toString()}`);
         this.bodytabTarget.innerHTML=await response.text();
+
+        console.log(this.valTarget.value);
     }
 }

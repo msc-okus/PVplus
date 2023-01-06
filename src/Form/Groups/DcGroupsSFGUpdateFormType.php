@@ -3,6 +3,7 @@
 namespace App\Form\Groups;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -30,6 +31,14 @@ class DcGroupsSFGUpdateFormType extends AbstractType
                 'row_attr'=>['class'=>'cell medium-4'],
                 'empty_data'=>null
             ])
+           ->add('term', HiddenType::class,[
+              'label'=>false,
+              'row_attr'=>['class'=>'cell medium-4'],
+              'empty_data'=>null,
+               'attr'=>[
+                   'data-search-group-target'=>'val'
+               ]
+           ])
         ;
     }
 
