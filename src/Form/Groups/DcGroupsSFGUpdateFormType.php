@@ -14,26 +14,28 @@ class DcGroupsSFGUpdateFormType extends AbstractType
     {
         $builder
             ->add('secureLoss', TextType::class,[
-                'label'=>'Secure Loss',
-                'help'=>'update secureLoss for all this AnlageGrps',
-                'row_attr'=>['class'=>' cell medium-4'],
+                'label'=>false,
+                'attr'=>[
+                    'placeholder'=>'Secure Loss',
+                ],
                 'empty_data'=>null
             ])
             ->add('factorAC', TextType::class,[
-                'label'=>'DC -> AC[%]',
-                'help'=>'update factorAC for all this AnlageGrps',
-                'row_attr'=>['class'=>'cell medium-4'],
-                'empty_data'=>null
+                'label'=>false,
+                'attr'=>[
+                    'placeholder'=>'DC -> AC[%]'
+                ],
+                'empty_data'=>null,
             ])
             ->add('gridLoss', TextType::class,[
-                'label'=>'Grid Loss',
-                'help'=>'update gridLoss for all this AnlageGrps',
-                'row_attr'=>['class'=>'cell medium-4'],
+                'label'=>false,
+                'attr'=>[
+                    'placeholder'=>'Grid Loss'
+                ],
                 'empty_data'=>null
             ])
            ->add('term', HiddenType::class,[
               'label'=>false,
-              'row_attr'=>['class'=>'cell medium-4'],
               'empty_data'=>null,
                'attr'=>[
                    'data-search-group-target'=>'val'

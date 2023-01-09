@@ -4,9 +4,23 @@
     <tr >
         <td>{{ form_widget(module.moduleType) }}</td>
         <td>{{ form_widget(module.numStringsPerUnit) }}</td>
-        <td>{{ form_widget(module.numStringsPerUnitEast) }}</td>
-        <td>{{ form_widget(module.numStringsPerUnitWest) }}</td>
-        <td>{{ form_widget(module.numModulesPerString) }}</td>
+        <td>{{ form_widget(module.numStringsPerUnitEast,{'attr':{
+                'data-action':'submit-confirm#onChangeEast',
+                'class':'east'
+            }})
+            }}
+        </td>
+        <td>{{ form_widget(module.numStringsPerUnitWest,{'attr':{
+                'data-action':'submit-confirm#onChangeWest',
+                'class':'west'
+            }})
+            }}
+        </td>
+        <td >{{ form_widget(module.numModulesPerString,{'attr':{
+                'class':'module'
+            }})
+            }}
+        </td>
         <td>
             <a href="#" data-action="submit-confirm#removeFormElement">
                 <span class="fa fa-minus-circle"></span>
@@ -82,7 +96,7 @@
     <div class="cell medium-2" >
         {{ form_row(form.cabelLoss) }}
     </div>
-    <div class="cell medium-2" >
+    <div class="cell medium-2 hide" >
         {{ form_row(form.anlage) }}
     </div>
 </div>

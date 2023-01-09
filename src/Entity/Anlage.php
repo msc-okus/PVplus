@@ -549,7 +549,7 @@ class Anlage
         $this->dayLightData = new ArrayCollection();
     }
 
-    public function getAnlId(): ?string
+    public function getAnlId(): string
     {
         return $this->anlId;
     }
@@ -2949,7 +2949,8 @@ class Anlage
 
     public function __toString()
     {
-        return $this->getAnlId();
+
+        return $this->getAnlId() ;
     }
 
     public function getEconomicVarNames(): EconomicVarNames
