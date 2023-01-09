@@ -302,7 +302,7 @@ class AlertSystemService
                 $return['ppc'] = (($ppdData['p_set_rel'] < 100 || $ppdData['p_set_gridop_rel'] < 100) && $anlage->getHasPPC());
             }
         }
-        if ($return['ppc']  != false) {
+        if ($return['ppc'] != true) {
             //here if there is no plant control we check the values and get the information to create the tickets
             $resultVol = $resp->fetchAll(PDO::FETCH_ASSOC);
             if (count($resultNull) == $invCount) $return['Gap'] = '*';
