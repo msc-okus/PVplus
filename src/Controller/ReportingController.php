@@ -20,6 +20,7 @@ use App\Service\ReportsEpcNewService;
 use App\Service\ReportService;
 use App\Service\ReportsMonthlyService;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
 use Knp\Component\Pager\PaginatorInterface;
 use Knp\Snappy\Pdf;
 use PhpOffice\PhpSpreadsheet\Exception;
@@ -46,6 +47,11 @@ class ReportingController extends AbstractController
 {
     use G4NTrait;
     use PVPNameArraysTrait;
+
+    public function __construct(private $kernelProjectDir)
+    {
+
+    }
 
     /**
      * @throws ExceptionInterface
@@ -202,11 +208,10 @@ class ReportingController extends AbstractController
     }
 
     #[Route(path: '/reporting/pdf/{id}', name: 'app_reporting_pdf')]
-    public function showReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly, $tempPathBaseUrl, Environment $environment, Pdf $pdf1)
+    public function showReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly, Pdf $snappyPdf, PdfService $pdf, $tempPathBaseUrl)
     {
         /** @var AnlagenReports|null $report */
         $session = $this->container->get('session');
-        $pdf = new PdfService($tempPathBaseUrl);
         $searchstatus       = $session->get('search');
         $searchtype         = $session->get('type');
         $anlageq            = $session->get('anlage');
@@ -327,7 +332,7 @@ class ReportingController extends AbstractController
                     $form->handleRequest($request);
                     if ($form->isSubmitted() && $form->isValid()) {
                         $data = $form->getData();
-                        $output['data'] = $data;
+                        #$output['data'] = $data;
                         $result = $this->renderView('report/assetreport.html.twig', [
                             'invNr' => count($output['plantAvailabilityMonth']),
                             'comments' => $report->getComments(),
@@ -404,45 +409,21 @@ class ReportingController extends AbstractController
                             'kwhLossesYearTable' => $output['kwhLossesYearTable']
                         ]);
                         /*
-                        $pos = $this->substr_Index($this->kernelProjectDir, '/', 5);
-                        $pathpart = substr($this->kernelProjectDir, $pos);
-                        //looks like a problem to get the html temporal file from .temp in the main folder from the server
-                        //readfile('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf');
-                        $filename = '/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf';
-                        //$html = str_replace('<script type="text/javascript" src="//fastly.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>', " ", $html);
-                        $pdfFile = $pdf1->generateFromHtml($html
-                            , $filename,
-                            [ "enable-local-file-access" => true, "orientation" => "landscape", "enable-external-links" => true],
-                            true);
 
                         header("Content-type: application/pdf");
                         header("Content-Length: " . filesize($filename));
                         header("Content-type: application/pdf");
-*/
-                        $pdf = new ChromePdf('/usr/bin/chromium');
-                        $pos = $this->substr_Index($this->kernelProjectDir, '/', 5);
-                        $pathpart = substr($this->kernelProjectDir, $pos);
-                        if ($anlage->getAnlId() == 44) $anlName = "Monte_Solar";
-                        else $anlName = $anlage->getAnlName();
-                        $pdf->output('/usr/home/pvpluy/public_html/public/' . $anlName . '_AssetReport_' . $month . '_' . $year . '.pdf');
-                        $reportfile = fopen('/usr/home/pvpluy/public_html/public/' . $anlName . '_AssetReport_' . $month . '_' . $year . '.html', "w") or die("Unable to open file!");
 
-                        $pos = strpos($result, '<html>');
-                        fwrite($reportfile, substr($result, $pos));
-                        fclose($reportfile);
+                        $response = new BinaryFileResponse($pdf->createPdfTemp($anlage, $result, null, $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year));
+                        */
+                        $filename = $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf';
+                        $result = str_replace('src="//', 'src="https://', $result);
 
-                        $pdf->generateFromHtml(substr($result, $pos));
-                        $pdf->generateFromFile('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlName . '_AssetReport_' . $month . '_' . $year . '.html');
-                        $filename = '/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlName . '_AssetReport_' . $month . '_' . $year . '.pdf';
-
-                        $pdf->output($filename);
-                        // Header content type
-                        header("Content-type: application/pdf");
-                        header("Content-Length: " . filesize($filename));
-                        header("Content-type: application/pdf");
-                        // Send the file to the browser.
-                        readfile($filename);
-
+                        return new PdfResponse(
+                            $snappyPdf->getOutputFromHtml(
+                                $result, ['enable-local-file-access' => true, 'orientation' => 'landscape'])
+                            , $filename
+                        );
                     }
 
                     return $this->render('report/_form.html.twig', [
@@ -450,7 +431,6 @@ class ReportingController extends AbstractController
                         'anlage' => $anlage,
                     ]);
 
-                    break;
                 }
         }
         return $this->redirect($route);

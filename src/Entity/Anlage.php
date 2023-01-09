@@ -567,7 +567,7 @@ class Anlage
         $this->dayLightData = new ArrayCollection();
     }
 
-    public function getAnlId(): ?string
+    public function getAnlId(): string
     {
         return $this->anlId;
     }
@@ -2145,6 +2145,7 @@ class Anlage
 
     public function getPaFormular0(): ?string
     {
+        if ($this->paFormular0 === null) return 1;
         return $this->paFormular0;
     }
 
@@ -2156,6 +2157,7 @@ class Anlage
 
     public function getPaFormular1(): ?string
     {
+        if ($this->paFormular1 === null) return 1;
         return $this->paFormular1;
     }
 
@@ -2167,6 +2169,7 @@ class Anlage
 
     public function getPaFormular2(): ?string
     {
+        if ($this->paFormular2 === null) return 1;
         return $this->paFormular2;
     }
 
@@ -2178,6 +2181,7 @@ class Anlage
 
     public function getPaFormular3(): ?string
     {
+        if ($this->paFormular3 === null) return 1;
         return $this->paFormular3;
     }
 
@@ -2616,6 +2620,7 @@ class Anlage
     public function setUsePnomForPld(bool $usePnomForPld): self
     {
         $this->usePnomForPld = $usePnomForPld;
+        return $this;
     }
 
     public function getPldYield(): ?float
@@ -3067,7 +3072,8 @@ class Anlage
 
     public function __toString()
     {
-        return $this->getAnlName();
+
+        return $this->getAnlId() ;
     }
 
     public function getEconomicVarNames(): EconomicVarNames
@@ -3409,5 +3415,31 @@ class Anlage
         $this->ignoreNegativEvu = $ignoreNegativEvu;
 
         return $this;
+    }
+
+
+    public function isDay(?DateTime $stamp = null): bool
+    {
+        if (!$stamp) $stamp = new DateTime();
+        $sunrisedata = date_sun_info($stamp->getTimestamp(), (float) $this->getAnlGeoLat(), (float) $this->getAnlGeoLon());
+
+        // ToDo: add some code to respect different timezones
+        /*
+        $offsetServer = new \DateTimeZone("Europe/Luxembourg");
+        $plantoffset = new \DateTimeZone($this->getNearestTimezone($this->getAnlGeoLat(), $$this->getAnlGeoLon()));
+        $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
+        $returnArray['sunrise'] = $time.' '.date('H:i', $sunrisedata['sunrise'] + (int)$totalOffset);
+        $returnArray['sunset'] = $time.' '.date('H:i', $sunrisedata['sunset'] + (int)$totalOffset);
+        */
+
+        $sunrise = date_create(date("Y-m-d H:i:s", $sunrisedata['sunrise']));
+        $sunset = date_create(date("Y-m-d H:i:s", $sunrisedata['sunset']));
+
+        return ($sunrise < $stamp && $stamp < $sunset);
+    }
+
+    public function isNight(?DateTime $stamp = null): bool
+    {
+        return !$this->isDay($stamp);
     }
 }

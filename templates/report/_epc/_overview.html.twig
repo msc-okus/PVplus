@@ -71,7 +71,7 @@
                     </tr>
                     <tr>
                         <td>Availability [%]</td>
-                        <td class="text-right">{{ forcast.pa_forecast|number_format(2, ',', '.') }}</td>
+                        <td class="text-right">{{ forcast.pa_forecast|number_format(3, ',', '.') }}</td>
                         <td>Availability according to Annex 5.2 including downtime correction</td>
                     </tr>
                     <tr class="strong">
@@ -127,7 +127,7 @@
                     </tr>
                     <tr>
                         <td>Availability [%]</td>
-                        <td class="text-right">{{ forcast.pa_real|number_format(2, ',', '.') }}</td>
+                        <td class="text-right">{{ forcast.pa_real|number_format(3, ',', '.') }}</td>
                         <td>Availability according to Annex 5.2 including downtime correction</td>
                     </tr>
                     <tr class="strong">
@@ -195,7 +195,7 @@
             <text x="4098.0" y="402.0" class="ts2">&#8722;</text>
             <text x="4268.0" y="402.0" class="ts1"> </text>
             <text x="4700.0" y="217.0" class="ts1">{{ forcast.measured_energy_forecast|number_format(2, ',', '.') }}</text>
-            <text x="5100.0" y="535.0" class="ts1">{{ (forcast.pa_forecast / 100)|number_format(4, ',', '.') }}</text>
+            <text x="5100.0" y="535.0" class="ts1">{{ (forcast.pa_forecast / 100)|number_format(5, ',', '.') }}</text>
             <rect x="4489" y="313" width="1927" height="5" style="fill:rgb(0,0,0);stroke-width:0;"/>
             <path d="M4465.0 55.0L4465.0 45.0C4403.39990234375 108.13470458984375 4365.0 185.6599884033203 4365.0 315.5C4365.0 445.34002685546875 4403.39990234375 522.8652954101562 4465.0 586.0L4465.0 576.0C4414.48779296875 515.1992797851562 4383.0 440.5400085449219 4383.0 315.5C4383.0 190.45999145507812 4414.48779296875 115.80070495605469 4465.0 55.0L4465.0 55.0" style="fill:rgb(0,0,0);stroke-width:0;"/>
             <path d="M6440.0 55.0L6440.0 45.0C6501.60009765625 108.13470458984375 6540.0 185.6599884033203 6540.0 315.5C6540.0 445.34002685546875 6501.60009765625 522.8652954101562 6440.0 586.0L6440.0 576.0C6490.51220703125 515.1992797851562 6522.0 440.5400085449219 6522.0 315.5C6522.0 190.45999145507812 6490.51220703125 115.80070495605469 6440.0 55.0L6440.0 55.0" style="fill:rgb(0,0,0);stroke-width:0;"/>
@@ -221,7 +221,7 @@
             <text x="4098.0" y="402.0" class="ts2">&#8722; </text>
             <text x="4268.0" y="402.0" class="ts1"> </text>
             <text x="4700.0" y="217.0" class="ts1">{{ forcast.measured_energy_real|number_format(2, ',', '.') }}</text>
-            <text x="5100.0" y="535.0" class="ts1">{{ (forcast.pa_real / 100)|number_format(4, ',', '.') }}</text>
+            <text x="5100.0" y="535.0" class="ts1">{{ (forcast.pa_real / 100)|number_format(5, ',', '.') }}</text>
             <rect x="4489" y="313" width="1927" height="5" style="fill:rgb(0,0,0);stroke-width:0;"/>
             <path d="M4465.0 55.0L4465.0 45.0C4403.39990234375 108.13470458984375 4365.0 185.6599884033203 4365.0 315.5C4365.0 445.34002685546875 4403.39990234375 522.8652954101562 4465.0 586.0L4465.0 576.0C4414.48779296875 515.1992797851562 4383.0 440.5400085449219 4383.0 315.5C4383.0 190.45999145507812 4414.48779296875 115.80070495605469 4465.0 55.0L4465.0 55.0" style="fill:rgb(0,0,0);stroke-width:0;"/>
             <path d="M6440.0 55.0L6440.0 45.0C6501.60009765625 108.13470458984375 6540.0 185.6599884033203 6540.0 315.5C6540.0 445.34002685546875 6501.60009765625 522.8652954101562 6440.0 586.0L6440.0 576.0C6490.51220703125 515.1992797851562 6522.0 440.5400085449219 6522.0 315.5C6522.0 190.45999145507812 6490.51220703125 115.80070495605469 6440.0 55.0L6440.0 55.0" style="fill:rgb(0,0,0);stroke-width:0;"/>

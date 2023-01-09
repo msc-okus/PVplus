@@ -321,6 +321,7 @@ class ACPowerChartsService
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
 
         $conn = self::getPdoConnection();
+        $groupID = 1;
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
         switch ($anlage->getConfigType()) {
@@ -391,14 +392,16 @@ class ACPowerChartsService
                     }
                 } else {
                     while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-                        ($row['soll'] == null) ? $expected = 0 : $expected = $row['soll'];
+                        ($row['soll'] == null || $row['soll'] < 0) ? $expected = 0 : $expected = $row['soll'];
                     }
                 }
 
                 $dataArray['maxSeries'] = 1;
                 $dataArray['chart'][$counter]['temperature'] = $rowIst['temp'] == null ? null : $rowIst['temp'];
                 $actPower = $rowIst['actPower'];
-                $actPower = $actPower > 0 ? round(self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()), 2) : 0; // neagtive Werte auschließen
+                if ($actPower !== null) {
+                    $actPower = $actPower > 0 ? round($actPower, 2) : 0; // neagtive Werte auschließen
+                }
 
                 switch ($anlage->getConfigType()) {
                     case 2:
@@ -419,7 +422,7 @@ class ACPowerChartsService
                 $dataArray['chart'][$counter]['expected'] = (float) $expected;
 
                 // add Irradiation
-                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
+                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() === false) {
                     $dataArray['chart'][$counter]['irradiation'] = $dataArrayIrradiation['chart'][$counter]['val1'];
                 } else {
                     $dataArray['chart'][$counter]['irradiation'] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;

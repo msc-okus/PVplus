@@ -121,7 +121,7 @@ class ExportService
             $localTo = date('Y-m-d 23:59', $dayStamp);
             $stamp = date('Y-m-d', $dayStamp);
             $sumAcPower = $this->functions->getSumAcPower($anlage, $localFrom, $localTo);
-            if($anlage->getUseGridMeterDayData()){
+            if ($anlage->getUseGridMeterDayData()){
                 $export[$stamp]['eGrid'] = $sumAcPower['powerEGridExt'];
             } else {
                 $export[$stamp]['eGrid'] = $sumAcPower['powerEvu'];
@@ -138,7 +138,7 @@ class ExportService
                     // Strahlung (upper = Ost / lower = West)
                     $export[$stamp]['irr_mod'] = ($row->upper * $anlage->getPowerEast() + $row->lower * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 4 / 1000; // Umrechnug zu kWh
                 } else {
-                    $export[$stamp]['irr_mod'] = $row->upper() / 4 / 1000; // Umrechnug zu kWh
+                    $export[$stamp]['irr_mod'] = $row->upper / 4 / 1000; // Umrechnug zu kWh
                 }
             } else {
                 $export[$stamp]['irr_mod'] = null;
@@ -184,20 +184,9 @@ class ExportService
         $fromSql = $from->format('Y-m-d 00:00');
         $toSql = $to->format('Y-m-d 23:59');
         $nameArray = $this->functions->getNameArray($anlage);
+        $dcPNormPerInverter = $anlage->getPnomInverterArray();
 
-        $groups = $anlage->getGroups();
-        $i = 1;
-        $dcPNormPerInverter = [];
-        foreach ($groups as $group) {
-            $dcPNormPerInverter[$i] = 0;
-            foreach ($group->getModules() as $module) {
-                $dcPNormPerInverter[$i] += $module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower();
-            }
-            ++$i;
-        }
-
-        $sql = 'SELECT * FROM '.$anlage->getDbNameIst()." WHERE stamp >= '$fromSql' AND stamp <= '$toSql';";
-
+        $sql = 'SELECT * FROM '.$anlage->getDbNameIst()." WHERE stamp BETWEEN '$fromSql' AND '$toSql';";
         $res = $conn->prepare($sql);
         $res->execute();
         if ($res->rowCount() > 0) {

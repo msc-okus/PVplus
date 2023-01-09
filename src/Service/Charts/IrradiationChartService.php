@@ -12,19 +12,15 @@ class IrradiationChartService
 {
     use G4NTrait;
 
-    private FunctionsService $functions;
-
-    private InvertersRepository $invertersRep;
-
-    public function __construct(FunctionsService $functions,
-        InvertersRepository $invertersRep
-    ) {
-        $this->functions = $functions;
-        $this->invertersRep = $invertersRep;
+    public function __construct(
+        private FunctionsService $functions,
+        private InvertersRepository $invertersRep
+    )
+    {
     }
 
     /**
-     * Erzeugt Daten für das Strahlungsdiagramm Diagramm.
+     * Erzeugt Daten für das Strahlungs Diagramm.
      *
      * @param Anlage $anlage
      * @param $from
@@ -33,8 +29,6 @@ class IrradiationChartService
      * @param bool|null $hour
      * @return array
      * @throws \Exception
-     *
-     * irradiation
      */
     public function getIrradiation(Anlage $anlage, $from, $to, ?string $mode = 'all', ?bool $hour = false): array
     {
@@ -42,31 +36,24 @@ class IrradiationChartService
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $dataArray = [];
         if ($hour) {
-            $sql2 = 'SELECT a.stamp, sum(b.gi_avg)  as gi, sum(b.gmod_avg) as gmod FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
+            $sql2 = 'SELECT a.stamp, sum(b.g_lower) as g_lower, sum(b.g_upper) as g_upper FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
         } else {
-            $sql2 = 'SELECT a.stamp, b.gi_avg as gi , b.gmod_avg as gmod FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
+            $sql2 = 'SELECT a.stamp, b.g_lower as g_lower , b.g_upper as g_upper FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
         }
-       # dump($sql2);
         $res = $conn->query($sql2);
         if ($res->rowCount() > 0) {
             $counter = 0;
             while ($ro = $res->fetch(PDO::FETCH_ASSOC)) {
                 // upper pannel
-                $irr_upper = (float) str_replace(',', '.', $ro['gmod']);
-                if ($hour) {
-                    $irr_upper = $irr_upper / 4;
-                }
-                if (!$irr_upper) {
-                    $irr_upper = null;
-                }
+                $irr_upper = (float) str_replace(',', '.', $ro['g_upper']);
+                if ($hour) $irr_upper = $irr_upper / 4;
+                if ($ro['g_upper'] = "") $irr_upper = null;
+
                 // lower pannel
-                $irr_lower = (float) str_replace(',', '.', $ro['gi']);
-                if ($hour) {
-                    $irr_lower = $irr_lower / 4;
-                }
-                if (!$irr_lower) {
-                    $irr_lower = null;
-                }
+                $irr_lower = (float) str_replace(',', '.', $ro['g_lower']);
+                if ($hour) $irr_lower = $irr_lower / 4;
+                if ($ro['g_lower'] = "") $irr_lower = null;
+
                 $stamp = self::timeAjustment(strtotime($ro['stamp']), $anlage->getWeatherStation()->gettimeZoneWeatherStation());
                 if ($anlage->getAnlIrChange() == 'Yes') {
                     $swap = $irr_lower;
@@ -98,13 +85,14 @@ class IrradiationChartService
     }
 
     /**
-     * Erzeuge Daten für die Stralung die direlt von der Anlage geliefert wir.
+     * Erzeuge Daten für die Strahlung die direkt von der Anlage geliefert wir.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
-     *
+     * @param bool $hour
      * @return array
-     *               // irradiation_plant
+     * @throws \Exception
      */
     public function getIrradiationPlant(Anlage $anlage, $from, $to, bool $hour): array
     {
@@ -119,7 +107,7 @@ class IrradiationChartService
             $sql_irr_plant = 'SELECT a.stamp as stamp, b.irr_anlage AS irr_anlage FROM (db_dummysoll a left JOIN (SELECT * FROM '.$anlage->getDbNameIst().") b ON a.stamp = b.stamp) WHERE a.stamp >= '$from' AND a.stamp <= '$to' group by date_format(a.stamp, '$form');";
         }
         $result = $conn->query($sql_irr_plant);
-        if ($result != false) {
+        if ($result) {
             if ($result->rowCount() > 0) {
                 $counter = 0;
                 while ($row = $result->fetch(PDO::FETCH_ASSOC)) {

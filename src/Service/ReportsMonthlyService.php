@@ -111,7 +111,6 @@ class ReportsMonthlyService
                     $dayValues[$prKey] = $value;
                 }
             } else {
-                $dayValues['datum'] = $day->format('m-d');
                 $dayValues['PowerEvuMonth'] = $anlage->getShowEvuDiag() ? $prArray['powerEvu'] : $prArray['powerAct'];
                 if ($anlage->getUseGridMeterDayData()) {
                     $dayValues['powerEGridExt'] = $prArray['powerEGridExt'];
@@ -137,7 +136,8 @@ class ReportsMonthlyService
                 if ($anlage->getShowAvailabilitySecond()) {
                     #$dayValues['plantAvailabilitySecond'] = -111;
                 }
-                $dayValues['powerTheo'] = $prArray['powerTheo'];
+                $dayValues['powerTheo'] = $prArray['irradiation'] * $anlage->getPnom();
+                $dayValues['powerTheoFT'] = $prArray['powerTheo'];
                 $dayValues['powerExp'] = $prArray['powerExp'];
                 $dayValues['case5perDay'] = $prArray['case5perDay']; // $report['prs'][$i]->getcase5perDay();
 
@@ -189,7 +189,8 @@ class ReportsMonthlyService
             if ($anlage->getShowAvailabilitySecond()) {
 
             }
-            $sumValues['powerTheo'] = $prSumArray['powerTheo'];
+            $sumValues['powerTheo'] = $prSumArray['irradiation'] * $anlage->getPnom();
+            $sumValues['powerTheoFT'] = $prSumArray['powerTheo'];
             $sumValues['powerExp'] = $prSumArray['powerExp'];
             $sumValues['case5perDay'] = $prSumArray['case5perDay'];
         }
@@ -355,13 +356,13 @@ class ReportsMonthlyService
     }
 
     #[NoReturn]
-    public function exportReportToPDF(Anlage $anlage, AnlagenReports $report)
+    public function exportReportToPDF(Anlage $anlage, AnlagenReports $report): void
     {
         // übergabe der Werte an KoolReport
 
         $reportout = new ReportMonthly($report->getContentArray());
         $output = $reportout->run()->render('ReportMonthly', true);
-        $pdfFilename = $anlage->getAnlName().' '.$report->getYear().$report->getMonth().' Monthly Report.pdf';
+        $pdfFilename = $anlage->getAnlName().' '.sprintf("%04d%02d", $report->getYear(), $report->getMonth()).' Monthly Report.pdf';
         $settings = [
             // 'useLocalTempFolder' => true,
             'pageWaiting' => 'networkidle2', // load, domcontentloaded, networkidle0, networkidle2

@@ -15,7 +15,7 @@ class AnlageModules
     #[ORM\Column(type: 'integer')]
     private int $id;
 
-    #[ORM\Column(type: 'string', length: 20)]
+    #[ORM\Column(type: 'string', length: 30)]
     private string $type;
 
     #[ORM\Column(type: 'string', length: 20)]

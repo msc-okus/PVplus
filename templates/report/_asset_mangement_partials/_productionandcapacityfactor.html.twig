@@ -89,9 +89,9 @@
                     <tbody>
                     {% set powerEvuTotal = 0 %}
 
-                            {% for data in table_overview_monthly.powerEvu %}
-                                {% set powerEvuTotal = powerEvuTotal+data %}
-                            {% endfor %}
+                    {% for data in table_overview_monthly.powerEvu %}
+                        {% set powerEvuTotal = powerEvuTotal+data %}
+                    {% endfor %}
 
                     {{ Macros.inverterOut(table_overview_monthly, anlage)}}
                     {{ Macros.expectedG4N(table_overview_monthly, anlage) }}
@@ -99,14 +99,13 @@
                     {% if (anlage.hasPVSYST == true) %}
                         {{ Macros.expectedPvSyst(table_overview_monthly, anlage) }}
                     {% endif %}
-                        {% for data in table_overview_monthly.powerAct %}
-                            {% set powerEvuTotal = powerEvuTotal+data %}
-                        {% endfor %}
 
                     <tr>
                         <td style="text-align: left;" colspan="8">
                             <sup>*</sup>Grid Meter/Inverter Out. Depending on what data is available <br>
-                            <sup>**</sup>Plant Simulation (PS); is a yield simulation program for photovoltaic systems, e.g.: PVSyst, PVSol, etc.
+                            {% if (anlage.hasPVSYST == true) %}
+                                <sup>**</sup>Plant Simulation (PS); is a yield simulation program for photovoltaic systems, e.g.: PVSyst, PVSol, etc.
+                            {% endif %}
                         </td>
                     </tr>
                     </tbody>

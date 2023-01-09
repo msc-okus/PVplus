@@ -44,12 +44,13 @@ class SollIstIrrAnalyseChartService
     }
 
     /**
+     * @param Anlage $anlage
      * @param $from
      * @param $to
-     * @param $filter
-     * @param int $group
-     *
-     * @return array
+     * @param int|null $inverter
+     * @param int $filter
+     * @param bool $hour
+     * @return array|null
      */
      // MS 10 / 2022
     public function getSollIstIrrDeviationAnalyse(Anlage $anlage, $from, $to, ?int $inverter = 0, int $filter = 400, bool $hour = false): ?array
