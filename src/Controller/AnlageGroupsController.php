@@ -44,12 +44,11 @@ class AnlageGroupsController extends AbstractController
         ]);
     }
 
-    #[Route('/anlage/{anlage}/{param}', name: 'app_anlage_groups_anlage_index', methods: ['GET','POST'])]
-    public function index2(GroupsRepository $groupsRepository ,Request $request, Anlage $anlage, PaginatorInterface $paginator, string $param=null ): Response
+    #[Route('/anlage/{anlage}/{param}', name: 'app_anlage_groups_anlage_index', defaults: ['param' => ''], methods: ['GET','POST'])]
+    public function index2(GroupsRepository $groupsRepository, Request $request, Anlage $anlage, PaginatorInterface $paginator, ?string $param = null ): Response
     {
-
         $searchTerm = $request->query->get('q');
-        if($param){
+        if ($param){
             $searchTerm = $param;
         }
 
@@ -165,7 +164,6 @@ class AnlageGroupsController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             $entityManager->flush();
 
             return $this->redirectToRoute('app_anlage_groups_edit', ['id'=>$anlageGroup->getId()], Response::HTTP_SEE_OTHER);
