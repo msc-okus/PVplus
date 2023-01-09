@@ -68,25 +68,34 @@ class SollIstAnalyseChartService
                 $nameArray = $this->functions->getNameArray($anlage, 'dc');
         }
         if ($inverter >= 0) {
-            $sql_add_where = "AND b.wr_num = '$inverter' AND c.unit = '$inverter'";
+            $sql_add_where_b = "AND b.wr_num = '$inverter'";
+            $sql_add_where_a = "AND c.unit = '$inverter'";
         } else {
             $maxinvert = $anlage->getAnzInverter();
             $sql_add_where = "AND b.wr_num BETWEEN '1' and '$maxinvert' AND c.unit BETWEEN '1' and '$maxinvert'";
+            $sql_add_where_b = "";
+            $sql_add_where_a = "";
         }
-        $sql = "SELECT 
-                a.stamp as ts, 
-                sum(c.wr_pac) as actPower,sum(b.ac_exp_power) as expected,
-                CASE 
-                WHEN ROUND((sum(c.wr_pac) / sum(b.ac_exp_power) * 100),0) IS NULL THEN '0'
-                WHEN ROUND((sum(c.wr_pac) / sum(b.ac_exp_power) * 100),0) > 100 THEN '100'
-                ELSE ROUND((sum(c.wr_pac) / sum(b.ac_exp_power) * 100),0)
+//fix the sql Query with an select statement in the join this ist much faster
+// MS 01/23
+        $sql = 'SELECT as1.ts, as1.actPower, as2.expected,
+                CASE WHEN ROUND((as1.actPower / as2.expected * 100),0) IS NULL THEN "0" 
+                WHEN ROUND((as1.actPower / as2.expected * 100),0) > 100 THEN "100" 
+                ELSE ROUND((as1.actPower / as2.expected * 100),0) 
                 END AS prz
-                FROM pvp_data.db_dummysoll a 
-                LEFT JOIN ".$anlage->getDbNameDcSoll().' b ON a.stamp = b.stamp 
-                LEFT JOIN '.$anlage->getDbNameACIst()." c ON a.stamp = c.stamp 
-                WHERE a.stamp BETWEEN '$from' AND ' $to'
-                $sql_add_where 
-                GROUP BY a.stamp ORDER BY NULL";
+                FROM
+               (SELECT c.stamp as ts, sum(c.wr_pac) as actPower FROM '.$anlage->getDbNameACIst().' c 
+                WHERE c.stamp BETWEEN \''.$from.'\' AND \''.$to.'\'
+                '.$sql_add_where_a.'   
+                GROUP BY c.stamp ORDER BY NULL)
+                AS as1
+                INNER JOIN
+               (SELECT b.stamp as ts, sum(b.ac_exp_power) as expected FROM '.$anlage->getDbNameDcSoll().' b 
+                WHERE b.stamp BETWEEN \''.$from.'\' AND \''.$to.'\'  
+                '.$sql_add_where_b.'               
+                GROUP BY b.stamp ORDER BY NULL)
+                AS as2
+                on (as1.ts = as2.ts)';
 
         $resultActual = $conn->query($sql);
         $dataArray['inverterArray'] = $nameArray;
