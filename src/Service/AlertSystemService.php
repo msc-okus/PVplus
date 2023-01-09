@@ -10,6 +10,8 @@ use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\StatusRepository;
 use App\Repository\TicketRepository;
+use DateTimeZone;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use JetBrains\PhpStorm\ArrayShape;
@@ -199,6 +201,7 @@ class AlertSystemService
         if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
             //here we retrieve the values from the plant and set soma flags to generate tickets
             $plant_status = self::RetrievePlant($anlage, $time);
+            dump($plant_status);
             // We do this to avoid checking further inverters if we have a PPC control shut
             $array_gap = explode(", ", $plant_status['Gap']);
             $array_zero = explode(", ", $plant_status['Power0']);
@@ -219,7 +222,7 @@ class AlertSystemService
                     foreach ($array_PowerDiff as $inverter) {
                         if ($inverter != "") {
                             $message = "Difference between Power and Expected greater than ".$anlage->getPercentageDiff()."% in Inverter " . $anlage->getInverterFromAnlage()[(int)$inverter];
-                            //$this->generateTickets('', POWER_DIFF, $anlage, $inverter, $time, $message);
+                            $this->generateTickets('', POWER_DIFF, $anlage, $inverter, $time, $message);
                         }
                     }
                 }
@@ -268,6 +271,13 @@ class AlertSystemService
      */
     private function RetrievePlant(Anlage $anlage, $time): array
     {
+
+        $offsetServer = new DateTimeZone("Europe/Luxembourg");
+        $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon()));
+        $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
+
+        $time = date('Y-m-d H:i', strtotime($time) - (int)$totalOffset); // in the sunrise function we use + because we change from THEIR time to OURS, here we substract because we change form OURS  to THEIRS
+
         $irrLimit = $anlage->getThreshold1PA0() == 0 ? $anlage->getThreshold1PA0() : 20; // we get the irradiation limit from the plant config
         $freqLimitTop = $anlage->getFreqBase() + $anlage->getFreqTolerance();
         $freqLimitBot = $anlage->getFreqBase() - $anlage->getFreqTolerance();
@@ -301,11 +311,13 @@ class AlertSystemService
             }
         }
         if ($return['ppc'] != true) {
+
             $sqlAct = 'SELECT b.unit 
                     FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
                     WHERE a.stamp = '$time' AND  b.wr_pac <= 0 ";
             $resp = $conn->query($sqlAct);
             $result0 = $resp->fetchAll(PDO::FETCH_ASSOC);
+
 
             $sqlNull = 'SELECT b.unit 
                     FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
@@ -340,46 +352,52 @@ class AlertSystemService
                     else $return['Vol'] = $value['unit'];
                 }
             }
-            if ($anlage->isExpectedTicket()){
+            if ($anlage->isExpectedTicket() && $anlage->getAnlType() != "masterslave"){
 
+                $timeEnd = date("Y-m-d H:i",strtotime($time));
+                $timeBegin = date("Y-m-d H:i",strtotime($time)- 3600); // we start looking one hour in the past to check the power and expected
+                dump($anlage->getConfigType());
                 switch ($anlage->getConfigType()) {
                     case 1:
                     case 2:
-                        $actQuery = 'SELECT b.unit as inverter, b.wr_pac as power 
-                    FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
-                    WHERE a.stamp = '$time' AND  b.wr_pac > 0 ";
+                        $actQuery = 'SELECT b.unit as inverter, avg(b.wr_pac) as power 
+                            FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
+                            WHERE a.stamp BETWEEN '$timeBegin' AND '$timeEnd' AND  b.wr_pac > 0 ";
                         $resp = $conn->query($actQuery);
                         $power = $resp->fetchAll(PDO::FETCH_ASSOC);
                         foreach ($power as $value) {
-                                    $expQuery = 'SELECT sum(b.ac_exp_power) as exp
-                            FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameDcSoll() . " b on a.stamp = b.stamp)
-                            WHERE a.stamp = '$time' AND  b.wr_num = " . $value['inverter'] . " ";
+                            $expQuery = 'SELECT avg(b.ac_exp_power) as exp
+                                FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameDcSoll() . " b on a.stamp = b.stamp)
+                                WHERE a.stamp BETWEEN '$timeBegin' AND '$timeEnd' AND  b.wr_num = " . $value['inverter'] . " ";
+
                             $respExp = $conn->query($expQuery);
                             $expected = $respExp->fetch(PDO::FETCH_ASSOC);
                             if ((abs($expected['exp'] - $value['power']) * 100 / (($value['power'] + $expected['exp']) / 2) > $percentajeDiff) && ($value['power'] > 0)) {
-                                $counter ++;
+                                $counter++;
                                 if ($return['PowerDiff'] == "")
                                     $return['PowerDiff'] = $value['inverter'];
                                 else
                                     $return['PowerDiff'] = $return['PowerDiff'] . ", " . $value['inverter'];
                             }
                         }
-                    break;
+                        break;
                     case 3:
-                        $actQuery = 'SELECT b.group_ac as groupe, b.wr_pac as power 
+
+                        $actQuery = 'SELECT b.group_ac as groupe, sum(b.wr_pac) as power 
                             FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
-                            WHERE a.stamp = '$time' AND  b.wr_pac > 0 ";
+                            WHERE a.stamp BETWEEN '$timeBegin' AND '$timeEnd' AND  b.wr_pac > 0 
+                            GROUP by b.group_ac";
                         $resp = $conn->query($actQuery);
                         $power = $resp->fetchAll(PDO::FETCH_ASSOC);
-
                         foreach ($power as $value) {
-                            $expQuery = 'SELECT sum(b.ac_exp_power) as exp, wr_num as inverter
+                            $expQuery = 'SELECT sum(b.ac_exp_power) as exp, b.group_ac as inverter
                             FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameDcSoll() . " b on a.stamp = b.stamp)
-                            WHERE a.stamp = '$time' AND  b.group_ac = " . $value['groupe'] . " ";
+                            WHERE a.stamp BETWEEN '$timeBegin' AND '$timeEnd' AND  b.group_ac = " . $value['groupe'] . " 
+                            GROUP BY b.group_ac";
                             $respExp = $conn->query($expQuery);
                             $expected = $respExp->fetch(PDO::FETCH_ASSOC);
                             if ((abs($expected['exp'] - $value['power']) * 100 / (($value['power'] + $expected['exp']) / 2) > $percentajeDiff) && ($value['power'] > 0)) {
-                                $counter ++;
+                                $counter++;
                                 if ($return['PowerDiff'] == "")
                                     $return['PowerDiff'] = $expected['inverter'];
                                 else
@@ -387,9 +405,11 @@ class AlertSystemService
                             }
                         }
 
-                    break;
+                        break;
 
                 }
+
+
                 if ($counter == $invCount)  $return['PowerDiff'] = "*";
             }
         }
