@@ -16,9 +16,17 @@ use App\Service\FunctionsService;
 use App\Service\PRCalulationService;
 use App\Service\ReportEpcPRNewService;
 use App\Service\WeatherServiceNew;
+use JetBrains\PhpStorm\NoReturn;
+use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
+use Knp\Snappy\Pdf;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Twig\Environment;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 class DefaultMREController extends BaseController
 {
@@ -61,6 +69,26 @@ class DefaultMREController extends BaseController
             'availabilitys' => '',
             'output' => $checkSystemStatus->checkSystemStatus(),
         ]);
+    }
+
+    /**
+     * @throws SyntaxError
+     * @throws RuntimeError
+     * @throws LoaderError
+     */
+    #[Route(path: '/mr/test/pdf')]
+    public function testPdf(Environment $twig, Pdf $pdf): Response
+    {
+        $html = $twig->render('cron/showResult.html.twig', [
+            'headline' => 'Update Systemstatus',
+            'availabilitys' => '',
+            'output' => 'TEST',
+        ]);
+
+        dd($html);
+
+        $output = $pdf->getOutputFromHtml($html, ['enable-local-file-access' => true]);
+        dd($output);
     }
 
     /**
@@ -159,7 +187,7 @@ class DefaultMREController extends BaseController
 
 
     #[Route(path: '/test/epc/{id}', defaults: ['id' => 92])]
-    public function testNewEpc($id, AnlagenRepository $anlagenRepository, FunctionsService $functions, ReportEpcPRNewService $epcNew): Response
+    public function testNewEpc($id, AnlagenRepository $anlagenRepository, FunctionsService $functions, ReportEpcPRNewService $epcNew, Environment $twig, Pdf $pdf): Response
     {
         /** @var Anlage $anlage */
         $anlage = $anlagenRepository->findOneBy(['anlId' => $id]);
@@ -172,7 +200,7 @@ class DefaultMREController extends BaseController
 
         // $output = "<br>riskForecastUpToDate: ". $result->riskForecastUpToDate . "<br>riskForecastRollingPeriod: " . $result->riskForecastRollingPeriod;
 
-        return $this->render('report/epcReportPR.html.twig', [
+        $html = $twig->render('report/epcReportPR.html.twig', [
             'anlage' => $anlage,
             'monthsTable' => $result->table,
             'forcast' => $forcastTable,
@@ -181,6 +209,12 @@ class DefaultMREController extends BaseController
             // 'chart1'            => $chartYieldPercenDiff,
             // 'chart2'            => $chartYieldCumulativ,
         ]);
+
+        #$output = $pdf->getOutputFromHtml($html, ['enable-local-file-access' => true]);
+        return new PdfResponse(
+            $pdf->getOutputFromHtml($html, ['enable-local-file-access' => true]),
+            'file.pdf'
+        );
     }
 
 }

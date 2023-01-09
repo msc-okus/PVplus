@@ -4,15 +4,18 @@ namespace App\Service;
 
 use App\Entity\Anlage;
 use chromeheadlessio\Service;
+use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
+use Knp\Snappy\Pdf;
 use Nuzkito\ChromePdf\ChromePdf;
 
 class PdfService
 {
-    private string $tempPathBaseUrl;
 
-    public function __construct(string $tempPathBaseUrl)
+    public function __construct(
+        private $tempPathBaseUrl,
+        private Pdf $snappyPdf,
+    )
     {
-        $this->tempPathBaseUrl = $tempPathBaseUrl;
     }
 
     /**
@@ -21,7 +24,7 @@ class PdfService
      * @param string      $html   contains html or filename or url
      * @param string|null $source choose from wich source (given html, file or url)
      */
-    public function createPdfTemp(Anlage $anlage, string $html, ?string $source = null, $filename = 'helo'): string
+    public function createPdfTemp(Anlage $anlage, string $html, ?string $source = null, $filename = 'tempPDF.pdf'): string|PdfResponse
     {
         if ($source === null) {
             // Create ChromeHeadless service with your token key specified
@@ -39,16 +42,14 @@ class PdfService
 
             return '';
         } else {
-            $pdf = new ChromePdf('/usr/bin/chromium');
-
-            $fullfilename = $this->tempPathBaseUrl.'/'.$anlage->getAnlName().'_tempPDF';
-            $filename = $anlage->getAnlName().'_tempPDF.pdf';
-
-            $pdf->output($fullfilename.'.pdf');
             switch ($source) {
                 case 'string':
-                    $pdf->generateFromHtml($html);
-                    break;
+                    #$pdf->generateFromHtml($html);
+                    return new PdfResponse(
+                        $this->snappyPdf->getOutputFromHtml(
+                            $html, ['enable-local-file-access' => true, 'orientation' => 'landscape']),
+                        $filename
+                    );
                 case 'file':
                     // $pdf->generateFromFile($html);
                     break;
@@ -56,8 +57,6 @@ class PdfService
                     // $pdf->generateFromUrl($html);
                     break;
             }
-
-            $pdf->output($filename);
 
             return $this->tempPathBaseUrl.'/'.$filename;
         }

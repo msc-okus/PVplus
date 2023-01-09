@@ -20,6 +20,7 @@ use App\Service\ReportsEpcNewService;
 use App\Service\ReportService;
 use App\Service\ReportsMonthlyService;
 use Doctrine\ORM\EntityManagerInterface;
+use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
 use Knp\Component\Pager\PaginatorInterface;
 use Knp\Snappy\Pdf;
 use PhpOffice\PhpSpreadsheet\Exception;
@@ -207,11 +208,10 @@ class ReportingController extends AbstractController
     }
 
     #[Route(path: '/reporting/pdf/{id}', name: 'app_reporting_pdf')]
-    public function showReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly, $tempPathBaseUrl)
+    public function showReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly, Pdf $snappyPdf, PdfService $pdf, $tempPathBaseUrl)
     {
         /** @var AnlagenReports|null $report */
         $session = $this->container->get('session');
-        $pdf = new PdfService($tempPathBaseUrl);
         $searchstatus       = $session->get('search');
         $searchtype         = $session->get('type');
         $anlageq            = $session->get('anlage');
@@ -409,24 +409,21 @@ class ReportingController extends AbstractController
                             'kwhLossesYearTable' => $output['kwhLossesYearTable']
                         ]);
                         /*
-                        $pos = $this->substr_Index($this->kernelProjectDir, '/', 5);
-                        $pathpart = substr($this->kernelProjectDir, $pos);
-                        //looks like a problem to get the html temporal file from .temp in the main folder from the server
-                        //readfile('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf');
-                        $filename = '/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf';
-                        //$html = str_replace('<script type="text/javascript" src="//fastly.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>', " ", $html);
-                        $pdfFile = $pdf1->generateFromHtml($html
-                            , $filename,
-                            [ "enable-local-file-access" => true, "orientation" => "landscape", "enable-external-links" => true],
-                            true);
 
                         header("Content-type: application/pdf");
                         header("Content-Length: " . filesize($filename));
                         header("Content-type: application/pdf");
-*/
-                        $response = new BinaryFileResponse($pdf->createPdfTemp($anlage, $result, null, $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year));
 
-                        return $this->redirect($route);
+                        $response = new BinaryFileResponse($pdf->createPdfTemp($anlage, $result, null, $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year));
+                        */
+                        $filename = $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf';
+                        $result = str_replace('src="//', 'src="https://', $result);
+
+                        return new PdfResponse(
+                            $snappyPdf->getOutputFromHtml(
+                                $result, ['enable-local-file-access' => true, 'orientation' => 'landscape'])
+                            , $filename
+                        );
                     }
 
                     return $this->render('report/_form.html.twig', [
@@ -434,7 +431,6 @@ class ReportingController extends AbstractController
                         'anlage' => $anlage,
                     ]);
 
-                    break;
                 }
         }
         return $this->redirect($route);
