@@ -63,4 +63,28 @@ export default class extends Controller {
         event.currentTarget.dataset.index += 1;
     }
 
+     async onChangeEast(event){
+        var tr=event.currentTarget.closest('tr');
+        var east=tr.querySelector('.east');
+
+        east.dataset.val=  event.currentTarget.value !==''?event.currentTarget.value:'0';
+
+
+        var west=tr.querySelector('.west');
+        west.dataset.val=west.value !==''?west.value:'0';
+
+
+         tr.querySelector('.module').value=parseInt(east.dataset.val,10) + parseInt(west.dataset.val,10);
+
+     }
+    async onChangeWest(event){
+        var tr=event.currentTarget.closest('tr');
+        var west=tr.querySelector('.west');
+            west.dataset.val=event.currentTarget.value !==''?event.currentTarget.value:'0';
+
+        var east=tr.querySelector('.east');
+        east.dataset.val=east.value !==''?east.value:'0';
+        tr.querySelector('.module').value=parseInt(east.dataset.val,10) + parseInt(west.dataset.val,10);
+    }
+
 }
