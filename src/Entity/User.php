@@ -37,6 +37,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'Owner' => 'ROLE_OWNER',
         'AssetManagement' => 'ROLE_AM',
         'Beta Tester' => 'ROLE_BETA',
+        'Analyse' => 'ROLE_ANALYSE',
     ];
 
     public const ARRAY_OF_ROLES_USER = [

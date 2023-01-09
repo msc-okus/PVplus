@@ -52,7 +52,7 @@ class SollIstIrrAnalyseChartService
      * @return array
      */
      // MS 10 / 2022
-    public function getSollIstIrrDeviationAnalyse(Anlage $anlage, $from, $to, ?int $inverter = 0, $filter, bool $hour = false): ?array
+    public function getSollIstIrrDeviationAnalyse(Anlage $anlage, $from, $to, ?int $inverter = 0, int $filter = 400, bool $hour = false): ?array
     {
         ini_set('memory_limit', '3G');
         $dataArray = [];
@@ -73,10 +73,6 @@ class SollIstIrrAnalyseChartService
                 $irr_from = '800';
                 $irr_to =  '1200';
                 break;
-            default:
-                $irr_from = '0';
-                $irr_to =  '400';
-                $filter = '400';
         }
 
         switch ($anlage->getConfigType()) {
@@ -89,42 +85,63 @@ class SollIstIrrAnalyseChartService
         }
 
         if ($inverter >= 0) {
-            $sql_add_where = "AND b.wr_num = '$inverter' AND c.unit = '$inverter'";
+            $sql_add_where_b = "AND b.wr_num = '$inverter'";
+            $sql_add_where_a = "AND c.unit = '$inverter'";
         } else {
             $maxinvert = $anlage->getAnzInverter();
-            $sql_add_where = "AND b.wr_num BETWEEN '1' and '$maxinvert' AND c.unit BETWEEN '1' and '$maxinvert'";
+            $sql_add_where_b = "";
+            $sql_add_where_a = "";
         }
-
-        $sql = "SELECT 
-                date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts, 
-                sum(c.wr_pac) as act_power_ac,sum(c.wr_pdc) as act_power_dc,
-                c.wr_temp as wr_temp,w.g_upper,w.g_lower,(w.g_upper + w.g_lower) / 2 as avg_irr,
+//fix the sql Query with an select statement in the join this ist much faster
+// MS 01/23
+        $sql = 'SELECT          
+                as1.act_power_ac,
+                as1.act_power_dc, 
+                as3.avg_irr,
                 CASE
-                WHEN ROUND((sum(c.wr_pac) / sum(b.ac_exp_power) * 100),0) IS NULL THEN '0'
-                WHEN ROUND((sum(c.wr_pac) / sum(b.ac_exp_power) * 100),0) > 100 THEN '100'
-                ELSE ROUND((sum(c.wr_pac) / sum(b.ac_exp_power) * 100),0)
+                WHEN ROUND((as1.act_power_ac / as2.expected * 100),0) IS NULL THEN \'0\'
+                WHEN ROUND((as1.act_power_ac / as2.expected * 100),0) > 100 THEN \'100\'
+                ELSE ROUND((as1.act_power_ac / as2.expected * 100),0)
                 END AS przac,
-				CASE
-                WHEN ROUND((sum(c.wr_pdc) / sum(b.dc_exp_power) * 100),0) IS NULL THEN '0'
-                WHEN ROUND((sum(c.wr_pdc) / sum(b.dc_exp_power) * 100),0) > 100 THEN '100'
-                ELSE ROUND((sum(c.wr_pdc) / sum(b.dc_exp_power) * 100),0)
+                CASE
+                WHEN ROUND((as1.act_power_dc / as2.dcexpected * 100),0) IS NULL THEN \'0\'
+                WHEN ROUND((as1.act_power_dc / as2.dcexpected * 100),0) > 100 THEN \'100\'
+                ELSE ROUND((as1.act_power_dc / as2.dcexpected * 100),0)
                 END AS przdc
-                FROM pvp_data.db_dummysoll a 
-                LEFT JOIN ".$anlage->getDbNameDcSoll().' b ON a.stamp = b.stamp 
-                LEFT JOIN '.$anlage->getDbNameWeather().' w ON a.stamp = w.stamp 
-                LEFT JOIN '.$anlage->getDbNameACIst()." c ON a.stamp = c.stamp 
-                WHERE a.stamp BETWEEN '$from' AND '$to' 
-                AND (w.g_upper + w.g_lower) / 2 > '$irr_from'
-                AND (w.g_upper + w.g_lower) / 2 < '$irr_to'
-                $sql_add_where
-                GROUP BY a.stamp ORDER BY NULL";
+                FROM
+                (SELECT c.stamp as ts, sum(c.wr_pac) as act_power_ac, sum(c.wr_pdc) as act_power_dc FROM 
+                 '.$anlage->getDbNameACIst().' c WHERE c.stamp 
+                 BETWEEN \''.$from.'\' AND \''.$to.'\' '.$sql_add_where_a.'
+                 AND c.wr_pac > 0
+                 AND c.wr_pdc > 0
+                 GROUP BY c.stamp ORDER BY NULL)
+                AS as1
+             JOIN
+                (SELECT b.stamp as ts, sum(b.ac_exp_power) as expected,sum(b.dc_exp_power) as dcexpected FROM 
+                 '.$anlage->getDbNameDcSoll().' b WHERE b.stamp 
+                 BETWEEN \''.$from.'\' AND \''.$to.'\' '.$sql_add_where_b.'
+                 AND b.ac_exp_power > 0
+                 AND b.dc_exp_power > 0
+                 GROUP BY b.stamp ORDER BY NULL)
+                AS as2 
+                on (as1.ts = as2.ts)
+             JOIN
+               (SELECT w.stamp as ts, (w.g_upper + w.g_lower) / 2 as avg_irr FROM 
+                 '.$anlage->getDbNameWeather().' w WHERE w.stamp 
+                 BETWEEN \''.$from.'\' AND \''.$to.'\'
+                 AND (w.g_upper + w.g_lower) / 2 BETWEEN \''.$irr_from.'\' AND \''.$irr_to.'\'
+                 AND w.g_upper > 0 
+                 AND w.g_lower > 0
+                 GROUP BY w.stamp ORDER BY NULL)
+                AS as3
+                on (as1.ts = as3.ts)';
 
         $resultActual = $conn->query($sql);
-        $dataArray['inverterArray'] = $nameArray;
+        //$dataArray['inverterArray'] = $nameArray;
         $maxInverter = $resultActual->rowCount();
 
         if ($resultActual->rowCount() > 0) {
-            $dataArray['maxSeries'] = 0;
+            //$dataArray['maxSeries'] = 0;
             $counter = 0;
             while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
                 //$time = date('H:i', strtotime($rowActual['ts']));
@@ -136,7 +153,9 @@ class SollIstIrrAnalyseChartService
                 $actPowerDC = $actPowerDC > 0 ? round(self::checkUnitAndConvert($actPowerDC, $anlage->getAnlDbUnit()), 3) : 0; // neagtive Werte auschließen
                 $actPowerDC = substr($actPowerDC, 0, 5);
                 $przac = $rowActual['przac'];
+                $przac =  $przac > 0 ? $przac : 0;
                 $przdc = $rowActual['przdc'];
+                $przdc =  $przdc > 0 ? $przac : 0;
                 $irr = $rowActual['avg_irr'];
                 switch (TRUE) {
                     case ($przac >= 95 and $przac <= 100);
@@ -172,7 +191,7 @@ class SollIstIrrAnalyseChartService
                 }
 
                 $dataArray['maxSeries'] = $maxInverter;
-                $dataArray['chart'][$counter]['title'] = $anlagename;
+                //$dataArray['chart'][$counter]['title'] = $anlagename;
                 //$dataArray['chart'][$counter]['date'] = $stamp;
                 //$dataArray['chart'][$counter]['time'] = $time;
                 $dataArray['chart'][$counter]['irr'] = round($irr,2);
@@ -184,9 +203,9 @@ class SollIstIrrAnalyseChartService
                 $dataArray['chart'][$counter]['valuedc'] = round((float)$przdc,0);
                 ++$counter;
             }
-            $dataArray['offsetLegend'] = 0;
+          //  $dataArray['offsetLegend'] = 0;
         } else {
-            $dataArray['offsetLegend'] = 0;
+          //  $dataArray['offsetLegend'] = 0;
         }
 
         ($ACsum100 == NULL) ? $ACsum100 = '1':$ACsum100;
@@ -221,6 +240,7 @@ class SollIstIrrAnalyseChartService
         $tabelArray['tabel'][0]['DCsum90'] =  "$DCsum90";
         $tabelArray['tabel'][0]['DCsum95'] =  "$DCsum95";
         $tabelArray['tabel'][0]['DCsum100'] =  "$DCsum100";
+
         return array($dataArray,$tabelArray);
     }
 }

@@ -46,7 +46,7 @@ class IrradiationChartService
         } else {
             $sql2 = 'SELECT a.stamp, b.gi_avg as gi , b.gmod_avg as gmod FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
         }
-        dump($sql2);
+       # dump($sql2);
         $res = $conn->query($sql2);
         if ($res->rowCount() > 0) {
             $counter = 0;

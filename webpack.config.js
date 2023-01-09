@@ -31,6 +31,7 @@ Encore
     .addEntry('users_list', './assets/js/users_list.js')
     .addEntry('user_edit', './assets/js/user_edit.js')
     .addEntry('download', './assets/js/download.js')
+    .addEntry('tools', './assets/js/tools.js')
 
     // enables the Symfony UX Stimulus bridge (used in assets/bootstrap.js)
     .enableStimulusBridge('./assets/controllers.json')
