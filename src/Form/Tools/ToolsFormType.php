@@ -8,6 +8,8 @@ use App\Repository\AnlagenRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\CallbackTransformer;
+use Symfony\Component\Form\ChoiceList\ChoiceList;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -30,28 +32,35 @@ class ToolsFormType extends AbstractType
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin = $this->security->isGranted('ROLE_ADMIN');
 
-        $choisesFuction = [
-            'Expected' => 'expected',
-            #'Update availability' => 'availability',
+        if ($this->security->isGranted('ROLE_G4N')){
+            $anlagen = $this->anlagenRepository->findAllActiveAndAllowed();
+        } else {
+            $eigner = $this?->security->getUser()?->getEigners()[0];
+            $anlagen = $this->anlagenRepository->findAllIDByEigner($eigner);
+        }
+
+        #if ($isDeveloper) $choisesFuction['Generate Tickets (NOT Update)'] = 'generate-tickets';
+        #if ($isDeveloper) $choisesFuctionDB['Load API Data'] = 'api-load-data';
+
+        $choisesFuction0 = [
+        'Plant Data Tools' => [
+            'Expected (New)' => 'expected',
+            'Update availability' => 'availability',
             'Update availability New' => 'availability-new',
             'Update PR' => 'pr',
-        ];
-        if ($isDeveloper) $choisesFuction['Generate Tickets (NOT Update)'] = 'generate-tickets';
-        $choisesFuction2 = [
-            'Load API Data' => 'load-api-data',
-        ];
+         ],
+        'Database Tools' => [
+            'Reload INAX Data' => 'api-load-inax-data',
+            'Reload API Data' => 'api-load-data',
+         ]
 
-        $choisesPreselect = [
-            'please Select ' => 'null',
-            'Plant Data Tools' => 'dataload',
-            'DataBase Tools' => 'dbtools',
         ];
 
         $builder
             ->add('anlage', EntityType::class, [
-                'label' => 'please select a Plant',
+                'label' => 'Please select a Plant',
                 'class' => Anlage::class,
-                'choices' => $this->anlagenRepository->findAllActiveAndAllowed(),
+                'choices' => $anlagen,
                 'choice_label' => 'anlName',
             ])
             ->add('startDate', DateType::class, [
@@ -64,20 +73,13 @@ class ToolsFormType extends AbstractType
                 'format' => 'yyyy-MM-dd',
                 'data' => new \DateTime('now'),
             ])
-            ->add('function1', ChoiceType::class, [
-                'choices' =>  $choisesFuction1,
-                'expanded' => true,
-                'multiple' => false,
+            ->add('function', ChoiceType::class, [
+                'choices' =>  $choisesFuction0,
+                'placeholder'   => 'please Choose ...',
+                'mapped' => false,
+                'required' => true,
             ])
-            ->add('function2', ChoiceType::class, [
-                'choices' =>  $choisesFuction2,
-                'expanded' => true,
-                'multiple' => false,
-            ])
-            ->add('preselect', ChoiceType::class, [
-                'choices' => $choisesPreselect,
-                'attr' => array('onchange' => 'changeFunction()'),
-            ])
+
             // #############################################
             // ###          STEUERELEMENTE              ####
             // #############################################
@@ -90,54 +92,7 @@ class ToolsFormType extends AbstractType
             ->add('close', SubmitType::class, [
                 'label' => 'Close (do nothing)',
                 'attr' => ['class' => 'secondary close', 'formnovalidate' => 'formnovalidate'],
-            ])
-
-            ->addEventListener(FormEvents:: SUBMIT, function (FormEvent $event){
-                    $attributes = [];
-                    $form = $event->getForm();
-                   dd($form);
-                    $isDeveloper = $this->security->isGranted('ROLE_DEV');
-#
-                    if ($event->getData()['preselect'] != 'null') {
-                        $attributes = ['' => ''];
-                   }
-                    if ($event->getData()['preselect'] === 'null') {
-                        $attributes = ['disabled' => 'disabled'];
-                    }
-                    if ($event->getData()['preselect'] === 'dataload') {
-                        $choisesFuction = [
-                           'Expected (New)' => 'expected',
-                            'Update availability' => 'availability',
-                            'Update availability New' => 'availability-new',
-                            'Update PR' => 'pr',
-                        ];
-                        if ($isDeveloper) $choisesFuction['Generate Tickets (NOT Update)'] = 'generate-tickets';
-                    }
-                   if ($event->getData()['preselect'] === 'dbtools') {
-                        $choisesFuction = [
-                            'Load API Data' => 'load-api-data',
-                        ];
-                    }
-               #     dump($event->getData()['preselect']);
-                    $form = $event->getForm();
-                 #   // get the form element and its options
-                     $config = $form->get('function')->getConfig();
-                    # dd( $config->getType());
-                     $options = $config->getOptions();
-                     $data = $event->getData();
-                    # dd( $options);
-                  #  dump($attributes);
-                    $form->add(
-                        'function',
-                        ChoiceType::class,
-                        #array_replace(
-                           #  $options, [
-                        ['choices' => $choisesFuction, 'placeholder' => 'please Choose ...','attr' => $attributes]
-                     #  ]
-                    #)
-                   );
-                },
-            );
+            ]);
         }
 ##
     public function configureOptions(OptionsResolver $resolver)
