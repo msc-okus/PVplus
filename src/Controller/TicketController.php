@@ -44,6 +44,7 @@ class TicketController extends BaseController
                 $date->setKpiPaDep2(10);
                 $date->setKpiPaDep3(10);
             }
+            if ($ticket->getAlertType() == 20) $date->setDataGapEvaluation(10);
             $ticket->addDate($date);
             $em->persist($ticket);
             $em->flush();
@@ -207,6 +208,7 @@ class TicketController extends BaseController
         $direction = $request->query->get('direction', "");
         $prooftam = $request->query->get('prooftam', 0);
         $ignored = $request->query->get('ignored', 0);
+
         if ($ignored == 0) $ignoredBool = false;
         else $ignoredBool = true;
         if ($sort === "") $sort = "ticket.begin";
@@ -282,7 +284,7 @@ class TicketController extends BaseController
         }
 
 
-        if ($splitTime && $ticket) {
+        if ($splitTime) {
             $mainDate = new TicketDate();
             $mainDate->copyTicketDate($ticketDate);
             $mainDate->setBegin($splitTime);
@@ -422,8 +424,8 @@ class TicketController extends BaseController
         $ticket->setEditor($this->getUser()->getUsername());
         $newTicket->setEditor($this->getUser()->getUsername());
 
-        if ($ticket->getStatus() == '10') $ticket->setStatus(30);
-        if ($newTicket->getStatus() == '10') $newTicket->setStatus(30);
+        if ($ticket->getStatus() == '10') $ticket->setStatus(10);
+        if ($newTicket->getStatus() == '10') $newTicket->setStatus(10);
 
         $em->persist($ticket);
         $em->persist($newTicket);

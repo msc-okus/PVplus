@@ -166,23 +166,23 @@ class Anlage
     #[ORM\ManyToOne(targetEntity: Eigner::class, inversedBy: 'anlage')]
     private ?Eigner $eigner;
 
-    #[ORM\OneToMany(targetEntity: AnlageAcGroups::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageAcGroups::class, cascade: ['persist', 'remove'])]
     private Collection $acGroups;
 
-    #[ORM\OneToMany(targetEntity: AnlageEventMail::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageEventMail::class, cascade: ['persist', 'remove'])]
     private Collection $eventMails;
 
-    #[ORM\OneToMany(targetEntity: AnlagenReports::class, mappedBy: 'anlage', cascade: ['remove'])]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlagenReports::class, cascade: ['remove'])]
     private Collection $anlagenReports;
 
-    #[ORM\OneToMany(targetEntity: AnlageAvailability::class, mappedBy: 'anlage', cascade: ['remove'])]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageAvailability::class, cascade: ['remove'])]
     #[ORM\OrderBy(['inverter' => 'ASC'])]
     private Collection $availability;
 
-    #[ORM\OneToMany(targetEntity: AnlagenStatus::class, mappedBy: 'anlage', cascade: ['remove'])]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlagenStatus::class, cascade: ['remove'])]
     private Collection $status;
 
-    #[ORM\OneToMany(targetEntity: AnlagenPR::class, mappedBy: 'anlage', cascade: ['remove'])]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlagenPR::class, cascade: ['remove'])]
     private Collection $pr;
 
     #[ORM\Column(type: 'boolean')]
@@ -260,19 +260,19 @@ class Anlage
     #[ORM\Column(type: 'string', length: 20)]
     private string $contractualPower = '0';
 
-    #[ORM\OneToMany(targetEntity: AnlageCase5::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageCase5::class, cascade: ['persist', 'remove'])]
     private Collection $anlageCase5s;
 
-    #[ORM\OneToMany(targetEntity: AnlageCase6::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageCase6::class, cascade: ['persist', 'remove'])]
     private Collection $anlageCase6s;
 
-    #[ORM\OneToMany(targetEntity: AnlagePVSystDaten::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlagePVSystDaten::class, cascade: ['persist', 'remove'])]
     private Collection $anlagePVSystDatens;
 
     #[ORM\Column(type: 'boolean')]
     private bool $showPvSyst = false;
 
-    #[ORM\ManyToOne(targetEntity: WeatherStation::class, inversedBy: 'anlagen', cascade: ['persist'])]
+    #[ORM\ManyToOne(targetEntity: WeatherStation::class, cascade: ['persist'], inversedBy: 'anlagen')]
     private ?weatherStation $weatherStation;
 
     #[ORM\Column(type: 'date', nullable: true)]
@@ -284,17 +284,17 @@ class Anlage
     #[ORM\Column(type: 'boolean')]
     private bool $usePac = false;
 
-    #[ORM\OneToMany(targetEntity: AnlageForcast::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageForcast::class, cascade: ['persist', 'remove'])]
     private Collection $anlageForecasts;
 
-    #[ORM\OneToMany(targetEntity: AnlageForcastDay::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageForcastDay::class, cascade: ['persist', 'remove'])]
     private Collection $anlageForecastDays;
 
-    #[ORM\OneToMany(targetEntity: AnlageGroups::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageGroups::class, cascade: ['persist', 'remove'])]
     #[ORM\OrderBy(['dcGroup' => 'ASC'])]
     private Collection $groups;
 
-    #[ORM\OneToMany(targetEntity: AnlageModules::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageModules::class, cascade: ['persist', 'remove'])]
     private Collection $modules;
 
     #[ORM\Column(type: 'boolean')]
@@ -318,14 +318,32 @@ class Anlage
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $threshold2PA3 = '50';
 
-    #[ORM\OneToMany(targetEntity: TimesConfig::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
-    private $timesConfigs;
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $paFormular0 = '2'; // 2 = ti / titheo
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $paFormular1 = '1'; // 1 = ti / (titheo - tiFM)
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $paFormular2 = '1'; // 1 = ti / (titheo - tiFM)
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $paFormular3 = '1'; // 1 = ti / (titheo - tiFM)
+
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $prFormular0 = null;
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $prFormular1 = null;
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $prFormular2 = null;
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $prFormular3 = null;
+
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: TimesConfig::class, cascade: ['persist', 'remove'])]
+    private Collection $timesConfigs;
 
     #[ORM\Column(type: 'boolean')]
     private bool $showForecast = false;
 
-    #[ORM\OneToMany(targetEntity: AnlageGridMeterDay::class, mappedBy: 'anlage')]
-    private $anlageGridMeterDays;
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageGridMeterDay::class)]
+    private Collection $anlageGridMeterDays;
 
     #[ORM\Column(type: 'boolean')]
     private bool $useGridMeterDayData = false;
@@ -333,8 +351,8 @@ class Anlage
     #[ORM\Column(type: 'string', length: 20)]
     private string $country = '';
 
-    #[ORM\OneToMany(targetEntity: OpenWeather::class, mappedBy: 'anlage')]
-    private $openWeather;
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: OpenWeather::class)]
+    private Collection $openWeather;
 
     #[ORM\Column(type: 'boolean')]
     private bool $calcPR = false;
@@ -373,9 +391,9 @@ class Anlage
     #[ORM\OrderBy(['month' => 'ASC'])]
     private $anlagenPvSystMonths;
 
-    #[ORM\OneToMany(targetEntity: AnlagenMonthlyData::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlagenMonthlyData::class, cascade: ['persist', 'remove'])]
     #[ORM\OrderBy(['year' => 'ASC', 'month' => 'ASC'])]
-    private $anlagenMonthlyData;
+    private Collection $anlagenMonthlyData;
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $transformerTee = '';
@@ -389,17 +407,17 @@ class Anlage
     #[ORM\Column(type: 'string', length: 30)]
     private string $projektNr = '';
 
-    #[ORM\OneToMany(targetEntity: AnlageLegendReport::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
-    private $anlageLegendReports;
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageLegendReport::class, cascade: ['persist', 'remove'])]
+    private Collection $anlageLegendReports;
 
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $Notes;
 
-    #[ORM\OneToMany(targetEntity: AnlageMonth::class, mappedBy: 'anlage', orphanRemoval: true, cascade: ['persist', 'remove'])]
-    private $anlageMonth;
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageMonth::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private Collection $anlageMonth;
 
-    #[ORM\OneToMany(targetEntity: AnlageInverters::class, mappedBy: 'anlage')]
-    private $Inverters;
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageInverters::class)]
+    private Collection $Inverters;
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $tempCorrCellTypeAvg = '0';
@@ -443,7 +461,7 @@ class Anlage
     #[ORM\Column(type: 'integer')]
     private int $configType;
 
-    #[ORM\OneToMany(targetEntity: Log::class, mappedBy: 'anlage')]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: Log::class)]
     private $logs;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
@@ -458,14 +476,14 @@ class Anlage
     #[ORM\Column(type: 'boolean', nullable: true)]
     private bool $hasPannelTemp = false;
 
-    #[ORM\OneToMany(targetEntity: Ticket::class, mappedBy: 'anlage')]
-    private $tickets;
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: Ticket::class)]
+    private Collection $tickets;
 
-    #[ORM\OneToOne(targetEntity: EconomicVarNames::class, mappedBy: 'anlage', orphanRemoval: true, cascade: ['persist', 'remove'])]
-    private $economicVarNames;
+    #[ORM\OneToOne(mappedBy: 'anlage', targetEntity: EconomicVarNames::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+    private EconomicVarNames $economicVarNames;
 
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: EconomicVarValues::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
-    private $economicVarValues;
+    private Collection $economicVarValues;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $useDayForecast = false;
@@ -476,17 +494,17 @@ class Anlage
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $lossesForecast = '5';
 
-    #[ORM\OneToMany(targetEntity: AnlageFile::class, mappedBy: 'plant', orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'plant', targetEntity: AnlageFile::class, orphanRemoval: true)]
     private $anlageFiles;
 
-    #[ORM\OneToOne(targetEntity: AnlageSettings::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
+    #[ORM\OneToOne(mappedBy: 'anlage', targetEntity: AnlageSettings::class, cascade: ['persist', 'remove'])]
     private AnlageSettings $settings;
 
     #[ORM\Column(type: 'string', length: 150, nullable: true)]
     private ?string $picture = '';
 
     #[ORM\OneToMany(mappedBy: 'Anlage', targetEntity: Status::class, orphanRemoval: true)]
-    private $statuses;
+    private Collection $statuses;
 
     #[ORM\Column(type: 'boolean')]
     private bool $hasWindSpeed = true;
@@ -602,7 +620,7 @@ class Anlage
         return $this;
     }
 
-    public function getAnlName(): ?string
+    public function getAnlName($replace = false): ?string
     {
         return $this->anlName;
     }
@@ -662,13 +680,18 @@ class Anlage
         return $this;
     }
 
-    /** @deprecated  */
+    /**
+     * Replaced by getPnom
+     * @deprecated  */
     public function getPower(): ?string
     {
         return $this->power;
     }
 
-    /** @deprecated  */
+    /**
+     * Replaced by setPnom
+     * @deprecated
+     */
     public function setPower(string $power): self
     {
         $this->power = str_replace(',', '.', $power);
@@ -688,13 +711,18 @@ class Anlage
         return $this;
     }
 
-    /** @deprecated  */
+    /**
+     * Replaced by getPnom
+     * @deprecated
+     */
     public function getKwPeak(): ?float
     {
         return (float) $this->power;
     }
 
-    /** @deprecated  */
+    /**
+     * Replaced by setPnom
+     * @deprecated  */
     public function setKwPeak(string $power): self
     {
         $this->power = str_replace(',', '.', $power);
@@ -2115,6 +2143,100 @@ class Anlage
         return $this;
     }
 
+    public function getPaFormular0(): ?string
+    {
+        if ($this->paFormular0 === null) return 1;
+        return $this->paFormular0;
+    }
+
+    public function setPaFormular0(?string $paFormular0): self
+    {
+        $this->paFormular0 = $paFormular0;
+        return $this;
+    }
+
+    public function getPaFormular1(): ?string
+    {
+        if ($this->paFormular1 === null) return 1;
+        return $this->paFormular1;
+    }
+
+    public function setPaFormular1(?string $paFormular1): self
+    {
+        $this->paFormular1 = $paFormular1;
+        return $this;
+    }
+
+    public function getPaFormular2(): ?string
+    {
+        if ($this->paFormular2 === null) return 1;
+        return $this->paFormular2;
+    }
+
+    public function setPaFormular2(?string $paFormular2): self
+    {
+        $this->paFormular2 = $paFormular2;
+        return $this;
+    }
+
+    public function getPaFormular3(): ?string
+    {
+        if ($this->paFormular3 === null) return 1;
+        return $this->paFormular3;
+    }
+
+    public function setPaFormular3(?string $paFormular3): self
+    {
+        $this->paFormular3 = $paFormular3;
+        return $this;
+    }
+
+    public function getPrFormular0(): ?string
+    {
+        return $this->prFormular0;
+    }
+
+    public function setPrFormular0(?string $prFormular0): self
+    {
+        $this->prFormular0 = $prFormular0;
+        return $this;
+    }
+
+    public function getPrFormular1(): ?string
+    {
+        return $this->prFormular1;
+    }
+
+    public function setPrFormular1(?string $prFormular1): self
+    {
+        $this->prFormular1 = $prFormular1;
+        return $this;
+    }
+
+    public function getPrFormular2(): ?string
+    {
+        return $this->prFormular2;
+    }
+
+    public function setPrFormular2(?string $prFormular2): self
+    {
+        $this->prFormular2 = $prFormular2;
+        return $this;
+    }
+
+    public function getPrFormular3(): ?string
+    {
+        return $this->prFormular3;
+    }
+
+    public function setPrFormular3(?string $prFormular3): self
+    {
+        $this->prFormular3 = $prFormular3;
+        return $this;
+    }
+
+
+
     public function getTimesConfigs(): Collection
     {
         return $this->timesConfigs;
@@ -2424,7 +2546,7 @@ class Anlage
     }
 
     /**
-     * @return Collection|AnlagenMonthlyData[]
+     * @return Collection
      */
     public function getMonthlyYields(): Collection
     {
@@ -2432,7 +2554,7 @@ class Anlage
     }
 
     /**
-     * @return Collection|AnlagenMonthlyData[]
+     * @return Collection
      */
     public function getAnlagenMonthlyData(): Collection
     {
@@ -2498,6 +2620,7 @@ class Anlage
     public function setUsePnomForPld(bool $usePnomForPld): self
     {
         $this->usePnomForPld = $usePnomForPld;
+        return $this;
     }
 
     public function getPldYield(): ?float
@@ -2525,7 +2648,7 @@ class Anlage
     }
 
     /**
-     * @return Collection|AnlageLegendReport[]
+     * @return Collection
      */
     public function getLegendEpcReports(): Collection
     {
@@ -2545,7 +2668,7 @@ class Anlage
     }
 
     /**
-     * @return Collection|AnlageLegendReport[]
+     * @return Collection
      */
     public function getLegendMonthlyReports(): Collection
     {
@@ -2565,7 +2688,7 @@ class Anlage
     }
 
     /**
-     * @return Collection|AnlageLegendReport[]
+     * @return Collection
      */
     public function getAnlageLegendReports(): Collection
     {
@@ -2607,7 +2730,7 @@ class Anlage
     }
 
     /**
-     * @return Collection|AnlageMonth[]
+     * @return Collection
      */
     public function getAnlageMonth(): Collection
     {
@@ -2637,7 +2760,7 @@ class Anlage
     }
 
     /**
-     * @return Collection|AnlageInverters[]
+     * @return Collection
      */
     public function getInverters(): Collection
     {
@@ -3294,4 +3417,28 @@ class Anlage
     }
 
 
+    public function isDay(?DateTime $stamp = null): bool
+    {
+        if (!$stamp) $stamp = new DateTime();
+        $sunrisedata = date_sun_info($stamp->getTimestamp(), (float) $this->getAnlGeoLat(), (float) $this->getAnlGeoLon());
+
+        // ToDo: add some code to respect different timezones
+        /*
+        $offsetServer = new \DateTimeZone("Europe/Luxembourg");
+        $plantoffset = new \DateTimeZone($this->getNearestTimezone($this->getAnlGeoLat(), $$this->getAnlGeoLon()));
+        $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
+        $returnArray['sunrise'] = $time.' '.date('H:i', $sunrisedata['sunrise'] + (int)$totalOffset);
+        $returnArray['sunset'] = $time.' '.date('H:i', $sunrisedata['sunset'] + (int)$totalOffset);
+        */
+
+        $sunrise = date_create(date("Y-m-d H:i:s", $sunrisedata['sunrise']));
+        $sunset = date_create(date("Y-m-d H:i:s", $sunrisedata['sunset']));
+
+        return ($sunrise < $stamp && $stamp < $sunset);
+    }
+
+    public function isNight(?DateTime $stamp = null): bool
+    {
+        return !$this->isDay($stamp);
+    }
 }

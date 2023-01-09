@@ -20,49 +20,29 @@ class ReportService
 {
     use G4NTrait;
 
-    private AnlagenRepository $anlagenRepository;
-
-    private PRRepository $PRRepository;
-
-    private ReportsRepository $reportsRepository;
-
-    private EntityManagerInterface $em;
-
-    private PvSystMonthRepository $pvSystMonthRepo;
-
-    private Case5Repository $case5Repo;
-
-    private FunctionsService $functions;
-
-    private NormalizerInterface $serializer;
-
-    private PRCalulationService $PRCalulation;
-
     public function __construct(
-        AnlagenRepository $anlagenRepository,
-        PRRepository $PRRepository,
-        ReportsRepository $reportsRepository,
-        EntityManagerInterface $em,
-        PvSystMonthRepository $pvSystMonthRepo,
-        Case5Repository $case5Repo,
-        FunctionsService $functions,
-        NormalizerInterface $serializer,
-        PRCalulationService $PRCalulation)
+        private AnlagenRepository $anlagenRepository,
+        private PRRepository $PRRepository,
+        private ReportsRepository $reportsRepository,
+        private EntityManagerInterface $em,
+        private PvSystMonthRepository $pvSystMonthRepo,
+        private Case5Repository $case5Repo,
+        private FunctionsService $functions,
+        private NormalizerInterface $serializer,
+        private PRCalulationService $PRCalulation)
     {
-        $this->anlagenRepository = $anlagenRepository;
-        $this->PRRepository = $PRRepository;
-        $this->reportsRepository = $reportsRepository;
-        $this->functions = $functions;
-        $this->em = $em;
-        $this->pvSystMonthRepo = $pvSystMonthRepo;
-        $this->case5Repo = $case5Repo;
-        $this->serializer = $serializer;
-        $this->PRCalulation = $PRCalulation;
     }
 
     /**
      * @param $anlagen
-     *
+     * @param int $month
+     * @param int $year
+     * @param int $docType
+     * @param int $chartTypeToExport
+     * @param bool $storeDocument
+     * @param bool $exit
+     * @param bool $export
+     * @return string
      * @throws ExceptionInterface
      */
     public function monthlyReport($anlagen, int $month = 0, int $year = 0, int $docType = 0, int $chartTypeToExport = 0, bool $storeDocument = true, bool $exit = true, bool $export = true): string
@@ -126,12 +106,14 @@ class ReportService
     }
 
     /**
+     * @param Anlage $anlage
+     * @param array $report
      * @param $reportCreationDate
-     * @param int $docType           (0 = PDF, 1 = Excel, 2 = PNG (Grafiken))
+     * @param int $docType (0 = PDF, 1 = Excel, 2 = PNG (Grafiken))
      * @param int $chartTypeToExport (0 = , 1 = )
-     *
+     * @param bool $exit
+     * @return string
      * @throws ExceptionInterface
-     *
      * @deprecated
      */
     public function buildMonthlyReport(Anlage $anlage, array $report, $reportCreationDate, int $docType = 0, int $chartTypeToExport = 0, bool $exit = true): string
@@ -200,7 +182,7 @@ class ReportService
 
         // die Totalzeile
         $dayValues['datum'] = $total;
-        if ($anlage->getUseGridMeterDayData() == true) {
+        if ($anlage->getUseGridMeterDayData()) {
             $dayValues['powerEGridExt'] = (float) $report['lastPR']->getpowerEGridExtMonth();
         }
         $dayValues['PowerEvuMonth'] = ($anlage->getShowEvuDiag()) ? (float) $report['lastPR']->getPowerEvuMonth() : (float) $report['lastPR']->getPowerActMonth();
@@ -451,8 +433,10 @@ class ReportService
     }
 
     /**
+     * @param Anlage $anlage
      * @param $month
      * @param $year
+     * @return array
      */
     public function getPvSystMonthData(Anlage $anlage, $month, $year): array
     {

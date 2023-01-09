@@ -66,10 +66,12 @@
             {% if is_granted('ROLE_G4N') %}
                 <div class="tabs-panel" id="features">
                     <fieldset class="fieldset">
-                        <legend>Features</legend>
+                        <legend>Ticket Features</legend>
                         {{ form_row(ownerForm.features.aktDep1) }}
                         {{ form_row(ownerForm.features.aktDep2) }}
                         {{ form_row(ownerForm.features.aktDep3) }}
+                        {{ form_row(ownerForm.features.SplitInverter) }}
+                        {{ form_row(ownerForm.features.SplitGap) }}
                     </fieldset>
                 </div>
             {% endif %}

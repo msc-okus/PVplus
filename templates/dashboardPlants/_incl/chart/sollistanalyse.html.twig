@@ -7,8 +7,8 @@
         chart.data = {{ content.data|raw }};
 
         chart.preloader.disabled = false;
-        chart.preloader.transitionDuration = 0;
-        chart.preloader.progress = 5;
+        chart.preloader.transitionDuration = true;
+        chart.preloader.progress = 1;
 
         // Title
         let title = chart.titles.create();
@@ -32,7 +32,7 @@
          dateAxis.renderer.axisFills.template.disabled = true;
          valueAxis.renderer.ticks.template.disabled = true;
          valueAxis.renderer.axisFills.template.disabled = true;
-         dateAxis.dataFields.category = "date";
+         dateAxis.dataFields.category = "time";
          valueAxis.dataFields.category = "kwh";
          dateAxis.renderer.grid.template.disabled = true;
          valueAxis.renderer.grid.template.disabled = true;

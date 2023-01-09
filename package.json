@@ -4,7 +4,7 @@
         "@hotwired/stimulus": "^3.0.0",
         "@popperjs/core": "^2.11.6",
         "@symfony/stimulus-bridge": "^3.0.0",
-        "@symfony/ux-chartjs": "file:vendor/symfony/ux-chartjs/Resources/assets",
+        "@symfony/ux-chartjs": "file:vendor/symfony/ux-chartjs/assets",
         "@symfony/webpack-encore": "^1.7.0",
         "autocomplete.js": "^0.38.1",
         "bootstrap": "^5.2.3",

@@ -38,13 +38,9 @@ class CalcPlantAvailabilityHandler implements MessageHandlerInterface
         for ($stamp = $calc->getStartDate()->getTimestamp(); $stamp <= $calc->getEndDate()->getTimestamp(); $stamp += (24 * 3600)) {
             $this->logMessages->updateEntry($logId, 'working', ($timeCounter / $timeRange) * 100);
             $timeCounter += (24 * 3600);
-            if ($anlage->getAnlId() == 112 || $anlage->getAnlId() == 113) {
-                $this->availabilityByTicket->checkAvailability($anlage, strtotime($stamp), 1);
-            } else {
-                $this->availabilityService->checkAvailability($anlageId, $stamp);
-                if ($anlage->getShowAvailabilitySecond()) {
-                    $this->availabilityService->checkAvailability($anlageId, $stamp, true);
-                }
+            $this->availabilityService->checkAvailability($anlageId, $stamp);
+            if ($anlage->getShowAvailabilitySecond()) {
+                $this->availabilityService->checkAvailability($anlageId, $stamp, true);
             }
         }
         $this->logMessages->updateEntry($logId, 'done');

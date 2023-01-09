@@ -44,17 +44,18 @@ class SollIstIrrAnalyseChartService
     }
 
     /**
+     * @param Anlage $anlage
      * @param $from
      * @param $to
-     * @param $filter
-     * @param int $group
-     *
-     * @return array
+     * @param int|null $inverter
+     * @param int $filter
+     * @param bool $hour
+     * @return array|null
      */
      // MS 10 / 2022
-    public function getSollIstIrrDeviationAnalyse(Anlage $anlage, $from, $to, $filter, bool $hour = false): ?array
+    public function getSollIstIrrDeviationAnalyse(Anlage $anlage, $from, $to, ?int $inverter = 0, int $filter = 400, bool $hour = false): ?array
     {
-        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
+        ini_set('memory_limit', '3G');
         $dataArray = [];
         $anlagename = $anlage->getAnlName();
         $conn = self::getPdoConnection();
@@ -73,10 +74,6 @@ class SollIstIrrAnalyseChartService
                 $irr_from = '800';
                 $irr_to =  '1200';
                 break;
-            default:
-                $irr_from = '0';
-                $irr_to =  '400';
-                $filter = '400';
         }
 
         switch ($anlage->getConfigType()) {
@@ -87,6 +84,14 @@ class SollIstIrrAnalyseChartService
             default:
                 $nameArray = $this->functions->getNameArray($anlage, 'dc');
         }
+
+        if ($inverter >= 0) {
+            $sql_add_where = "AND b.wr_num = '$inverter' AND c.unit = '$inverter'";
+        } else {
+            $maxinvert = $anlage->getAnzInverter();
+            $sql_add_where = "AND b.wr_num BETWEEN '1' and '$maxinvert' AND c.unit BETWEEN '1' and '$maxinvert'";
+        }
+
         $sql = "SELECT 
                 date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts, 
                 sum(c.wr_pac) as act_power_ac,sum(c.wr_pdc) as act_power_dc,
@@ -108,6 +113,7 @@ class SollIstIrrAnalyseChartService
                 WHERE a.stamp BETWEEN '$from' AND '$to' 
                 AND (w.g_upper + w.g_lower) / 2 > '$irr_from'
                 AND (w.g_upper + w.g_lower) / 2 < '$irr_to'
+                $sql_add_where
                 GROUP BY a.stamp ORDER BY NULL";
 
         $resultActual = $conn->query($sql);
@@ -118,12 +124,14 @@ class SollIstIrrAnalyseChartService
             $dataArray['maxSeries'] = 0;
             $counter = 0;
             while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
-                $time = date('H:i', strtotime($rowActual['ts']));
-                $stamp = date('Y-m-d', strtotime($rowActual['ts']));
+                //$time = date('H:i', strtotime($rowActual['ts']));
+                //$stamp = date('Y-m-d', strtotime($rowActual['ts']));
                 $actPowerAC = $rowActual['act_power_ac'];
-                $actPowerAC = $actPowerAC > 0 ? round(self::checkUnitAndConvert($actPowerAC, $anlage->getAnlDbUnit()), 2) : 0; // neagtive Werte auschließen
+                $actPowerAC = $actPowerAC > 0 ? round(self::checkUnitAndConvert($actPowerAC, $anlage->getAnlDbUnit()), 3) : 0; // neagtive Werte auschließen
+                $actPowerAC = substr($actPowerAC, 0, 5);
                 $actPowerDC = $rowActual['act_power_dc'];
-                $actPowerDC = $actPowerDC > 0 ? round(self::checkUnitAndConvert($actPowerDC, $anlage->getAnlDbUnit()), 2) : 0; // neagtive Werte auschließen
+                $actPowerDC = $actPowerDC > 0 ? round(self::checkUnitAndConvert($actPowerDC, $anlage->getAnlDbUnit()), 3) : 0; // neagtive Werte auschließen
+                $actPowerDC = substr($actPowerDC, 0, 5);
                 $przac = $rowActual['przac'];
                 $przdc = $rowActual['przdc'];
                 $irr = $rowActual['avg_irr'];
@@ -162,17 +170,19 @@ class SollIstIrrAnalyseChartService
 
                 $dataArray['maxSeries'] = $maxInverter;
                 $dataArray['chart'][$counter]['title'] = $anlagename;
-                $dataArray['chart'][$counter]['date'] = $stamp;
-                $dataArray['chart'][$counter]['time'] = $time;
+                //$dataArray['chart'][$counter]['date'] = $stamp;
+                //$dataArray['chart'][$counter]['time'] = $time;
                 $dataArray['chart'][$counter]['irr'] = round($irr,2);
                 $dataArray['chart'][$counter]['colorAC'] = $colorAC;
                 $dataArray['chart'][$counter]['colorDC'] = $colorDC;
-                $dataArray['chart'][$counter]['AC_kwh'] = (float)$actPowerAC;
-                $dataArray['chart'][$counter]['DC_kwh'] = (float)$actPowerDC;
+                $dataArray['chart'][$counter]['AC_kwh'] = $actPowerAC;
+                $dataArray['chart'][$counter]['DC_kwh'] = $actPowerDC;
                 $dataArray['chart'][$counter]['valueac'] = round((float)$przac,0);
                 $dataArray['chart'][$counter]['valuedc'] = round((float)$przdc,0);
                 ++$counter;
             }
+            $dataArray['offsetLegend'] = 0;
+        } else {
             $dataArray['offsetLegend'] = 0;
         }
 
@@ -208,7 +218,6 @@ class SollIstIrrAnalyseChartService
         $tabelArray['tabel'][0]['DCsum90'] =  "$DCsum90";
         $tabelArray['tabel'][0]['DCsum95'] =  "$DCsum95";
         $tabelArray['tabel'][0]['DCsum100'] =  "$DCsum100";
-
         return array($dataArray,$tabelArray);
     }
 }
