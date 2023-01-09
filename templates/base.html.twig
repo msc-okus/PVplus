@@ -125,6 +125,7 @@
                     <ul class="vertical menu nested">
                         <li><a href="{{ path('app_admin_owner_list') }}"><i class="fa fa-users"></i> Owners</a></li>
                         <li><a href="{{ path('app_admin_anlagen_list') }}"><i class="fa fa-solar-panel"></i><span> Plants</span></a></li>
+                        <li><a href="{{ path('app_anlage_groups_index') }}"><i class="fa fa-solar-panel"></i><span>DC Groups</span></a></li>
                         {% if is_granted('ROLE_ADMIN') %}<li><a href="{{ path('app_admin_user_list') }}"><i class="fa fa-user-edit"></i> User</a></li>{% endif %}
                         {% if is_granted('ROLE_ADMIN') %}<li><a href="{{ path('app_admin_weather_list') }}"><i class="fa fa-cloud-sun-rain"></i> Weather Stations</a></li>{% endif %}
                         <li><a href="{{ path('app_admin_tools') }}"><i class="fa fa-toolbox"></i> Tools</a></li>

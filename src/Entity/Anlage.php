@@ -3072,7 +3072,7 @@ class Anlage
 
     public function __toString()
     {
-        return $this->getAnlName();
+        return $this->getAnlId();
     }
 
     public function getEconomicVarNames(): EconomicVarNames
@@ -3415,6 +3415,7 @@ class Anlage
 
         return $this;
     }
+
 
     public function isDay(?DateTime $stamp = null): bool
     {
