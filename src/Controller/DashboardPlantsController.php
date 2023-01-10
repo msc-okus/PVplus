@@ -102,7 +102,7 @@ class DashboardPlantsController extends BaseController
 if ($form['startDateNew']){
 
     $form['from'] = date('Y-m-d 00:00', strtotime($request->request->get('from')));
-    $form['to'] =   date('Y-m-d 00:00', strtotime($request->request->get('to')));
+    $form['to'] =   date('Y-m-d 23:59', strtotime($request->request->get('to')));
 
   } else {
      switch ($form['optionStep']) {

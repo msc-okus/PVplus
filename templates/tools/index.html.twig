@@ -6,22 +6,19 @@
 
 {% block javascripts %}
     {{ parent() }}
-    {{ encore_entry_script_tags('tools') }}
+
 {% endblock %}
 
 {% block body %}
     <div class="grid-x">
         <div class="cell">
             <h1 id="thechange"></h1>
-
         </div>
-
     </div>
+
     {{ form_start(toolsForm, {'attr': {'novalidate': 'no'}}) }}
-        <div class="grid-x grid-margin-x grid-padding-x">
-            <div class="cell medium-2">
-                {{ form_row(toolsForm.preselect) }}
-            </div>
+
+        <div class="grid-x grid-margin-x">
             <div class="cell medium-2">
                 {{ form_row(toolsForm.anlage) }}
             </div>
@@ -31,56 +28,31 @@
             <div class="cell medium-2">
                 {{ form_row(toolsForm.endDate) }}
             </div>
-            {{ form_label(toolsForm.function1) }}
-            <div class="col-sm-9 btn-group" data-toggle="buttons">
-                {% for key,choice in toolsForm.function1.vars.choices %}
-                <div class="switch tiny">
-                    <input class="switch-input"
-                           id="{{ toolsForm.function1.vars.id }}_{{ key }}"
-                           aria-describedby="{{ toolsForm.function1.vars.full_name }}"
-                           type="checkbox"
-                           name="{{ toolsForm.function1.vars.full_name }}_{{ key }}"
-                           value="{{ choice.value }}"
-                           {% if choice.value == toolsForm.function1.vars.value %}checked{% endif %}>
-                    {{ choice.label }}
-                    <label class="switch-paddle"
-                           id="{{ toolsForm.function1.vars.id }}_{{ key }}"
-                           aria-describedby="{{ toolsForm.function1.vars.full_name }}_{{ key }}"
-                           for="{{ toolsForm.function1.vars.id }}_{{ key }}"
-                           {% if choice.value == toolsForm.function1.vars.value %}active{% endif %}>
-                    </label>
-                </div>
-                {% endfor %}
+            <div class="cell medium-2">
+                {{ form_row(toolsForm.function) }}
+
             </div>
         </div>
-        <div class="grid-x grid-margin-x grid-padding-x" id="f_1">
-            <div class="cell medium-12 function_1">
-                {{ form_row(toolsForm.function1) }}
-            </div>
-        </div>
-        <div class="grid-x grid-margin-x grid-padding-x" id="f_2">
-            <div class="cell medium-12 function_2">
-                {{ form_row(toolsForm.function2) }}
-            </div>
-        </div>
-        <div class="grid-x grid-margin-x grid-padding-x text-right">
-            <div class="cell">
-                {{ form_widget(toolsForm.close) }}
-                {{ form_widget(toolsForm.calc) }}
-            </div>
-        </div>
+
         <div class="grid-x grid-margin-x" style="min-height: 50vh;">
             <div class="cell medium-12">
                 <div class="callout" >
                     {{ output|raw }}
                 </div>
-                <div class="" style="min-height: 50vh; max-height: 50vh; overflow: scroll;" {{ stimulus_controller('tools-message', {
+                <div class="" style="min-height: 50vh; max-height: 50vh; overflow: scroll;"
+                        {{ stimulus_controller('tools-message', {
                         url: path('app_log_messages_list'),
                         refreshIntervale: 5000,
-                    }) }}
-                >
+                        }) }}>
                 </div>
             </div>
         </div>
+
+    <div class="grid-x grid-margin-x grid-padding-x text-left">
+        <div class="cell medium-4">
+            {{ form_widget(toolsForm.calc) }}
+            {{ form_widget(toolsForm.close) }}
+        </div>
+    </div>
     {{ form_end(toolsForm) }}
 {% endblock %}

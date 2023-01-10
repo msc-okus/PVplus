@@ -32,12 +32,11 @@ class HelpCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('Hilfs Command zu testen.')
+            ->setDescription('Hilfs Command zum testen.')
         ;
     }
 
     /**
-     * @throws ExceptionInterface
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
@@ -49,7 +48,7 @@ class HelpCommand extends Command
         $reportMonth = 12;
         $reportYear = 2022;
 
-        $io->comment("Starte Hilfs Command: AM Report REGebeng");
+        $io->comment("Starte Hilfs Command: AM Report ".$anlage->getAnlName());
 
         #$ergebniss .= $this->reportEpc->createEpcReport($anlage, $reportDate);
         $ergebniss .= $this->assetManagement->createAmReport($anlage, $reportMonth, $reportYear);

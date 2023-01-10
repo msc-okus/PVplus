@@ -409,4 +409,20 @@ class AnlagenRepository extends ServiceEntityRepository
         return $qb->orderBy('eigner.firma', 'ASC')
             ->addOrderBy('a.anlName', 'ASC');
     }
+
+
+    public function getByIdQueryBuilder(int $id){
+
+        return $this->createQueryBuilder('a')
+               ->andWhere('a.anlId = :id')
+               ->setParameter('id', $id)
+               ;
+    }
+
+    public function findAllOrderedByAscNameQueryBuilder()
+    {
+        return $this->createQueryBuilder('a')->orderBy('a.anlName', 'ASC');
+    }
+
+
 }

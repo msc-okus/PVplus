@@ -29,14 +29,17 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     public const ARRAY_OF_ROLES = [
-        'Developer'         => 'ROLE_DEV',
-        'Admin'             => 'ROLE_ADMIN',
-        'Green4Net User'    => 'ROLE_G4N',
-        'AdminUser'         => 'ROLE_ADMIN_USER',
-        'Owner (full)'      => 'ROLE_OWNER_FULL',
-        'Owner'             => 'ROLE_OWNER',
-        'Beta Tester'       => 'ROLE_BETA',
-        'Allow Analyse'     => 'ROLE_ANALYSE',
+
+        'Developer' => 'ROLE_DEV',
+        'Admin' => 'ROLE_ADMIN',
+        'Green4Net User' => 'ROLE_G4N',
+        'AdminUser' => 'ROLE_ADMIN_USER',
+        'Owner (full)' => 'ROLE_OWNER_FULL',
+        'Owner' => 'ROLE_OWNER',
+        'AssetManagement' => 'ROLE_AM',
+        'Beta Tester' => 'ROLE_BETA',
+        'Analyse' => 'ROLE_ANALYSE',
+
     ];
 
     public const ARRAY_OF_ROLES_USER = [

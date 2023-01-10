@@ -579,7 +579,7 @@ class Anlage
         $this->dayLightData = new ArrayCollection();
     }
 
-    public function getAnlId(): ?string
+    public function getAnlId(): string
     {
         return $this->anlId;
     }
@@ -632,7 +632,7 @@ class Anlage
         return $this;
     }
 
-    public function getAnlName($replace = false): ?string
+    public function getAnlName(): ?string
     {
         return $this->anlName;
     }
@@ -3084,7 +3084,8 @@ class Anlage
 
     public function __toString()
     {
-        return $this->getAnlName();
+
+        return $this->getAnlId() ;
     }
 
     public function getEconomicVarNames(): EconomicVarNames
@@ -3428,10 +3429,13 @@ class Anlage
         return $this;
     }
 
+
     public function isDay(?DateTime $stamp = null): bool
     {
         if (!$stamp) $stamp = new DateTime();
-        $sunrisedata = date_sun_info(strtotime($stamp), (float) $this->getAnlGeoLat(), (float) $this->getAnlGeoLon());
+        $sunrisedata = date_sun_info($stamp->getTimestamp(), (float) $this->getAnlGeoLat(), (float) $this->getAnlGeoLon());
+
+        // ToDo: add some code to respect different timezones
         /*
         $offsetServer = new \DateTimeZone("Europe/Luxembourg");
         $plantoffset = new \DateTimeZone($this->getNearestTimezone($this->getAnlGeoLat(), $$this->getAnlGeoLon()));
@@ -3440,9 +3444,10 @@ class Anlage
         $returnArray['sunset'] = $time.' '.date('H:i', $sunrisedata['sunset'] + (int)$totalOffset);
         */
 
+        $sunrise = date_create(date("Y-m-d H:i:s", $sunrisedata['sunrise']));
+        $sunset = date_create(date("Y-m-d H:i:s", $sunrisedata['sunset']));
 
-
-        return true;
+        return ($sunrise < $stamp && $stamp < $sunset);
     }
 
     public function isNight(?DateTime $stamp = null): bool

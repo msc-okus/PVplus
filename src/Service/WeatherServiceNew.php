@@ -129,15 +129,16 @@ class WeatherServiceNew
             foreach ($sql_array as $row) {
                 $anlIntNr = $row['anl_intnr'];
                 $stamp = $row['stamp'];
+                $isNight = $this->isNight($weatherStation, $stamp);
                 $tempAmbientAvg = $row['at_avg'];
                 $tempPannleAvg = $row['pt_avg'];
                 $gLower = $row['gi_avg'];
-                if ($gLower < 0) {
-                    $gLower = 0;
+                if ($gLower < 0 || $isNight) {
+                    $gLower = '0.0';
                 }
                 $gUpper = $row['gmod_avg'];
-                if ($gUpper < 0) {
-                    $gUpper = 0;
+                if ($gUpper < 0 || $isNight) {
+                    $gUpper = '0.0';
                 }
                 $windSpeed = $row['wind_speed'];
                 $sql_insert = 'INSERT INTO '.$weatherStation->getDbNameWeather()." 
@@ -162,7 +163,7 @@ class WeatherServiceNew
     }
 
     // Prüfen ob ARRAY LEER IST
-    private function array_empty($arr)
+    private function array_empty($arr): bool
     {
         foreach ($arr as $val) {
             if ($val != '') {
@@ -171,6 +172,19 @@ class WeatherServiceNew
         }
 
         return true;
+    }
+
+    private function isNight(WeatherStation $weatherStation, string $stampString):bool
+    {
+        $stamp = date_create($stampString);
+        if ($weatherStation->getGeoLat() == "" || $weatherStation->getGeoLon() == "") return true;
+
+        $sunrisedata = date_sun_info($stamp->getTimestamp(), (float)$weatherStation->getGeoLat(), (float)$weatherStation->getGeoLon());
+
+        $sunrise = date_create(date("Y-m-d H:i:s", $sunrisedata['sunrise']));
+        $sunset = date_create(date("Y-m-d H:i:s", $sunrisedata['sunset']));
+
+        return !($sunrise < $stamp && $stamp < $sunset);
     }
 
     /** Given a plant and no date it will return the sunrise info of the given plant for the current day

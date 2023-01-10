@@ -42,7 +42,6 @@
             var rangesfr = picker.range;
             var startDate = picker.startDate;
             var endDate = picker.endDate;
-            console.log("B new date selection was made: " + label );
             $('#from').val(startDate.format('YYYY-MM-DD'));
             $('#to').val(endDate.format('YYYY-MM-DD'));
             $("#mysubmit").val('yes');
@@ -133,14 +132,16 @@
         <select class="js-submit-onchange selectedChart" title="Please select a view from the list." data-toggle="tooltip" name="selectedChart">
             <optgroup label="Analysis">
                 {% if aktAnlage.showAvailability or is_granted('ROLE_ADMIN') %}<option value="availability" {% if form.selectedChart == 'availability' %}selected{% endif %}>Show Availability [%]</option>{% endif %}
-                {% if aktAnlage.showPr or is_granted('ROLE_ADMIN') %}<option value="pr_and_av" {% if form.selectedChart == 'pr_and_av' %}selected{% endif %}>Show PR&nbsp;[%]</option>{% endif %}
-                {% if aktAnlage.showForecast %}<option value="forecast" {% if form.selectedChart == 'forecast' %}selected{% endif %}>Forecast&nbsp;[kWh]</option>{% endif %}
-                {% if is_granted('ROLE_ANALYSE') or is_granted('ROLE_G4N') %}
-                    {{ showHeatmap(form, aktAnlage) }}            {# Headmap #}
-                    {{ showTempHeatmap(form, aktAnlage) }}        {# Headmap #}
-                    {{ showSollIstHeatmap(form, aktAnlage) }}     {# Headmap #}
-                {%  endif %}
-                {% if is_granted('ROLE_G4N') %}
+                {% if aktAnlage.showPr or is_granted('ROLE_ADMIN') %}
+                <option value="pr_and_av" {% if form.selectedChart == 'pr_and_av' %}selected{% endif %}>Show PR&nbsp;[%]</option>
+                {% endif %}
+                {% if aktAnlage.showForecast %}
+                <option value="forecast" {% if form.selectedChart == 'forecast' %}selected{% endif %}>Forecast&nbsp;[kWh]</option>
+                {% endif %}
+                {{ showHeatmap(form, aktAnlage) }}            {# Headmap #}
+                {{ showTempHeatmap(form, aktAnlage) }}        {# Headmap #}
+                {{ showSollIstHeatmap(form, aktAnlage) }}     {# Headmap #}
+                {% if is_granted('ROLE_G4N') or is_granted('ROLE_ANALYSE') %}
                     {{ showSollIstAnalyse(form, aktAnlage) }}     {# Bubblechart #}
                     {{ showSollIstTempAnalyse(form, aktAnlage) }}    {# Bubblechart #}
                     {{ showSollIstIrrAnalyse(form, aktAnlage) }}     {# Bubblechart #}

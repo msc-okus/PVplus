@@ -115,7 +115,6 @@ class ReportEpcService
     public function reportPRGuarantee(Anlage $anlage, DateTime $date): array
     {
         $anzahlMonate = ((int) $anlage->getEpcReportEnd()->format('Y') - (int) $anlage->getEpcReportStart()->format('Y')) * 12 + ((int) $anlage->getEpcReportEnd()->format('m') - (int) $anlage->getEpcReportStart()->format('m')) + 1;
-        dump("AnzahlMonate: $anzahlMonate");
         $startYear = $anlage->getEpcReportStart()->format('Y');
         $currentMonth = (int) $date->format('m');
         $currentYear = (int) $date->format('Y');
@@ -139,7 +138,6 @@ class ReportEpcService
             $month = (int) $anlage->getEpcReportStart()->format('m');
             $daysInStartMonth = (int) $anlage->getEpcReportStart()->format('j');
             $daysInEndMonth = (int) $anlage->getEpcReportEnd()->format('j');
-            dump("AnzahlMonate: $anzahlMonate");
             for ($n = 1; $n <= $anzahlMonate; ++$n) {
                 if ($month >= 13) {
                     $month = 1;
