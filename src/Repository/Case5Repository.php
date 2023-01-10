@@ -45,10 +45,9 @@ class Case5Repository extends ServiceEntityRepository
             ->setParameter('from', $from)
             ->setParameter('to', $to)
             ->getQuery()
-            ->getArrayResult()
         ;
 
-        return $result;
+        return $result->getArrayResult();
     }
 
     public function countCase5DayAnlage(Anlage $anlage, $startday, $endday = null): int

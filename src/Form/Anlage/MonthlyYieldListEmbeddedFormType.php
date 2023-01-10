@@ -3,6 +3,7 @@
 namespace App\Form\Anlage;
 
 use App\Entity\AnlagenMonthlyData;
+use App\Helper\PVPNameArraysTrait;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -13,9 +14,10 @@ use Symfony\Component\Security\Core\Security;
 class MonthlyYieldListEmbeddedFormType extends AbstractType
 {
 
+    use PVPNameArraysTrait;
+
     public function __construct(private Security $security)
     {
-
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -23,9 +25,11 @@ class MonthlyYieldListEmbeddedFormType extends AbstractType
         $isDeveloper    = $this->security->isGranted('ROLE_DEV');
         $isG4N          = $this->security->isGranted('ROLE_G4N');
 
+
+
         $builder
             ->add('year', ChoiceType::class, [
-                'choices'       => [2019 => 2019, 2020 => 2020, 2021 => 2021, 2022 => 2022],
+                'choices'       => self::yearsArray(),
                 'placeholder'   => 'please choose',
             ])
             ->add('month', ChoiceType::class, [

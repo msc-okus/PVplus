@@ -16,9 +16,9 @@ export default class extends Controller {
     toggle(){
         const $button = $(this.deactivableTargets);
         if ($button.attr('disabled')) {
-            $button.removeAttr('disabled')
+            $button.removeAttr('disabled');
         } else {
-           $button.attr('disabled', 'disabled')
+            $button.attr('disabled', 'disabled');
         }
     }
 
@@ -26,9 +26,9 @@ export default class extends Controller {
         const $button = $(this.deactivableTargets);
         const isRequiredFilled = this.requiredTargets.every(el => el.value);
         if (isRequiredFilled) {
-            $button.removeAttr('disabled')
+            $button.removeAttr('disabled');
         } else {
-            $button.attr('disabled', 'disabled')
+            $button.attr('disabled', 'disabled');
         }
     }
 
@@ -45,7 +45,7 @@ export default class extends Controller {
 
     async page(event) {
         event.preventDefault();
-        const $queryParams = $(event.currentTarget).data("query-value");
+        const $queryParams = $(event.currentTarget).data('query-value');
         this.listTarget.innerHTML = await $.ajax({
             url: this.urlSearchValue,
             data: $queryParams,
@@ -69,13 +69,13 @@ export default class extends Controller {
             method: $createReportform.prop('method'),
             data: $createReportform.serialize(),
             beforeSend: function(){
-                $('.ajax-loader').css("visibility", "visible");
+                $('.ajax-loader').css('visibility', 'visible');
             },
             complete: function(){
-                $('.ajax-loader').css("visibility", "hidden");
+                $('.ajax-loader').css('visibility', 'hidden');
             }
         });
         this.dispatch('success');
     }
-
 }
+

@@ -68,6 +68,12 @@ class WeatherStation
     #[ORM\Column(type: 'string', length: 40)]
     private ?string $labelHorizontal;
 
+    #[ORM\Column(type: 'string', length: 40)]
+    private ?string $geoLat;
+
+    #[ORM\Column(type: 'string', length: 40)]
+    private ?string $geoLon;
+
     public function __construct()
     {
         $this->anlagen = new ArrayCollection();
@@ -300,5 +306,28 @@ class WeatherStation
         return $this;
     }
 
+    public function getGeoLat(): ?string
+    {
+        return $this->geoLat;
+    }
+
+    public function setGeoLat(?string $geoLat): self
+    {
+        $this->geoLat = $geoLat;
+
+        return $this;
+    }
+
+    public function getGeoLon(): ?string
+    {
+        return $this->geoLon;
+    }
+
+    public function setGeoLon(?string $geoLon): self
+    {
+        $this->geoLon = $geoLon;
+
+        return $this;
+    }
 
 }

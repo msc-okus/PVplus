@@ -7,6 +7,12 @@
         <img width="130" src="{{ absolute_url(asset('goldbeck/reports/asset_management/cf.png')) }}"></td>
         <p><sup>*2</sup> <b>Availability: </b></p>
         <p>Data gaps are evaluated as available; Pac > 0; Irradiation > <b>{{ anlage.getThreshold2PA }}</b> W/m<sup>2</sup>{% if(anlage.getUseCosPhi)%}; CosPhi <b> <span>&#8800;</span> </b> 0 {% endif %}</p>
+        <p><b>Explanation of terms:</b></p>
+        <p>
+            <b>- Plan: </b>are the simulated yield values from photovoltaic simulation programs for the planned forecast. <br>
+            <b>- g4n Forecast: </b>is the planned simulated g4n yield (forecast) from long-term weather data. <br>
+            <b>- EXP: </b>is the calculated data with the real irradiation data of the PV System.
+        </p>
         <br>{{ comments|raw }}<br>
     </div>
 

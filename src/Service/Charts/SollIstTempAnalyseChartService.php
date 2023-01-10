@@ -51,11 +51,11 @@ class SollIstTempAnalyseChartService
      *
      * @return array
      */
-     // MS 08 / 2022
-    public function getSollIstTempDeviationAnalyse(Anlage $anlage, $from, $to, bool $hour = false): ?array
+    // MS first development 08 / 2022
+    //  - Update Select 12 / 2022
+    public function getSollIstTempDeviationAnalyse(Anlage $anlage, $from, $to, ?int $inverter = 0, bool $hour = false): ?array
     {
-        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-        $dataArray = [];
+        ini_set('memory_limit', '3G');
         $anlagename = $anlage->getAnlName();
         $conn = self::getPdoConnection();
         $dataArray = [];
@@ -67,34 +67,51 @@ class SollIstTempAnalyseChartService
             default:
                 $nameArray = $this->functions->getNameArray($anlage, 'dc');
         }
-        $sql = "SELECT 
-                date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts, 
-                sum(c.wr_pac) as actPower,sum(b.ac_exp_power) as expected,
-                c.wr_temp as wr_temp,
+        if ($inverter >= 0) {
+            $sql_add_where_b = "AND b.wr_num = '$inverter'";
+            $sql_add_where_a = "AND c.unit = '$inverter'";
+        } else {
+            $maxinvert = $anlage->getAnzInverter();
+            $sql_add_where_b = "";
+            $sql_add_where_a = "";
+        }
+//fix the sql Query with an select statement in the join this ist much faster
+// MS 01/23
+        $sql = 'SELECT 
+                as1.act_power_ac,
+                as2.expected,
+                as1.wr_temp,
                 CASE 
-                WHEN ROUND((sum(c.wr_pac) / sum(b.ac_exp_power) * 100),0) IS NULL THEN '0'
-                WHEN ROUND((sum(c.wr_pac) / sum(b.ac_exp_power) * 100),0) > 100 THEN '100'
-                ELSE ROUND((sum(c.wr_pac) / sum(b.ac_exp_power) * 100),0)
+                WHEN ROUND((as1.act_power_ac / as2.dcexpected * 100),0) IS NULL THEN \'0\'
+                WHEN ROUND((as1.act_power_ac / as2.dcexpected * 100),0) > 100 THEN \'100\'
+                ELSE ROUND((as1.act_power_ac / as2.dcexpected * 100),0)
                 END AS prz
-                FROM pvp_data.db_dummysoll a 
-                LEFT JOIN ".$anlage->getDbNameDcSoll().' b ON a.stamp = b.stamp 
-                LEFT JOIN '.$anlage->getDbNameACIst()." c ON a.stamp = c.stamp 
-                WHERE a.stamp BETWEEN '$from' AND ' $to' 
-                GROUP BY a.stamp ORDER BY NULL";
+                FROM (SELECT c.stamp as ts, sum(c.wr_pac) as act_power_ac, sum(c.wr_pdc) as act_power_dc, c.wr_temp as wr_temp FROM 
+                 '.$anlage->getDbNameACIst().' c WHERE c.stamp 
+                 BETWEEN \''.$from.'\' AND \''.$to.'\' '.$sql_add_where_a.'
+                 AND c.wr_pac > 0
+                 GROUP BY c.stamp ORDER BY NULL)
+                AS as1
+             JOIN
+                (SELECT b.stamp as ts, sum(b.ac_exp_power) as expected, sum(b.dc_exp_power) as dcexpected FROM 
+                 '.$anlage->getDbNameDcSoll().' b WHERE b.stamp 
+                 BETWEEN \''.$from.'\' AND \''.$to.'\' '.$sql_add_where_b.'
+                 GROUP BY b.stamp ORDER BY NULL)
+                AS as2  
+                on (as1.ts = as2.ts)';
 
         $resultActual = $conn->query($sql);
-
         $dataArray['inverterArray'] = $nameArray;
         $maxInverter = $resultActual->rowCount();
-
 
         if ($resultActual->rowCount() > 0) {
             $dataArray['maxSeries'] = 0;
             $counter = 0;
             while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
-                $time = date('H:i', strtotime($rowActual['ts']));
-                $stamp = date('Y-m-d', strtotime($rowActual['ts']));
-                $actPower = $rowActual['actPower'];
+                //$time = date('H:i', strtotime($rowActual['ts']));
+                //$stamp = date('Y-m-d', strtotime($rowActual['ts']));
+                $time = date('H:i', strtotime(self::timeShift($anlage,$rowActual['ts'])));
+                $actPower = $rowActual['act_power_ac'];
                 $actPower = $actPower > 0 ? round(self::checkUnitAndConvert($actPower, $anlage->getAnlDbUnit()), 2) : 0; // neagtive Werte auschließen
                 $prz = $rowActual['prz'];
                 $temp = $rowActual['wr_temp'];
@@ -114,9 +131,8 @@ class SollIstTempAnalyseChartService
                     default:
                     $color = "#0DD00";
                 }
-
-                $dataArray['maxSeries'] = $maxInverter;
-                $dataArray['chart'][$counter]['title'] = $anlagename;
+                //$dataArray['maxSeries'] = $maxInverter;
+                //$dataArray['chart'][$counter]['title'] = $anlagename;
                 $dataArray['chart'][$counter]['temp'] = round($temp,2);
                 $dataArray['chart'][$counter]['time'] = $time;
                 $dataArray['chart'][$counter]['color'] = $color;
@@ -125,7 +141,9 @@ class SollIstTempAnalyseChartService
                 ++$counter;
             }
             $dataArray['offsetLegend'] = 0;
+            return $dataArray;
+        } else {
+            return $dataArray;
         }
-        return $dataArray;
     }
 }

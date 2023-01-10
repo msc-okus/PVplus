@@ -243,9 +243,9 @@ class AlertSystemWeatherService
         $quarter = date('Y-m-d H:i', strtotime($time)); // the quarter before the actual
 
         if ($quarter <= $sunrise) {
-            $ticket = $this->ticketRepo->findLastByAITWeather($anlage, $today, $lastQuarterYesterday); // the same as above but for weather station
+            $ticket = $this->ticketRepo->findLastByAnlageInverterTimeWeather($anlage, $today, $lastQuarterYesterday); // the same as above but for weather station
         } else {
-            $ticket = $this->ticketRepo->findByAITWeather($anlage, $time);
+            $ticket = $this->ticketRepo->findByAnlageIinverterTimeWeather($anlage, $time);
         }
     }
 

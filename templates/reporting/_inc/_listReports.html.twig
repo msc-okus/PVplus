@@ -56,27 +56,40 @@
                                 {% else %}
                                     {% set visibility = 'disabled' %}
                                 {% endif %}
-                                    <a href="{{ path('app_reporting_excel', { id: report.id}) }}" target="_blank" title="load Excel file" class="hollow button tiny action-icon shadow
-                                        {% if report.reportType == 'am-report' or (report.reportType == 'epc-report' and report.anlage.epcReportType == 'yieldGuarantee') %}
-                                            disabled
-                                            {% else %}
-                                            {{ visibility }}
-                                        {% endif %}
-                                    "><span class="fa fa-file-excel"></span></a>
-                                    {% if report.reportType != 'am-report' or is_granted('ROLE_AM') %} {# Zeige Download Butten wenn es keine AM Bericht ist, oder wenn die Berichtigung für AM Bericht ausreicht #}
-                                        <a href="{{ path('app_reporting_pdf', { id: report.id}) }}"   target="_blank" title="load PDF file" class="hollow button tiny action-icon shadow
-                                            {{ visibility }}
-                                        "><span class="fa fa-file-pdf"></span></a>
+                                {% if is_granted('ROLE_G4N') and report.id > 3525 %}
+                                    {# Steve Excel #}
+                                    <a href="{{ path('app_reporting_new_excel', { id: report.id}) }}" target="_blank" title="load Excel file" class="hollow button tiny action-icon shadow">
+                                        <span class="fa fa-file-excel" style="color:darkgreen"></span></a>
+
+                                    <a href="{{ path('app_reporting_new_pdf', { id: report.id}) }}"  target="_blank"  title="load PDF file" class="hollow button tiny action-icon shadow
+                                        {{ visibility }}"
+                                    ><span class="fa fa-file-pdf" style="color:darkgreen"></span></a>
+                                    {# Steve Excel #}
+                                {% endif %}
+                                <a href="{{ path('app_reporting_excel', { id: report.id}) }}" target="_blank" title="load Excel file" class="hollow button tiny action-icon shadow
+                                    {% if report.reportType == 'am-report' or (report.reportType == 'epc-report' and report.anlage.epcReportType == 'yieldGuarantee') %}
+                                        disabled
+                                        {% else %}
+                                        {{ visibility }}
                                     {% endif %}
+                                "><span class="fa fa-file-excel"></span></a>
+
+                                {% if report.reportType != 'am-report' or is_granted('ROLE_AM') %} {# Zeige Download Butten wenn es keine AM Bericht ist, oder wenn die Berichtigung für AM Bericht ausreicht #}
+                                    <a href="{{ path('app_reporting_pdf', { id: report.id}) }}"   target="_blank" title="load PDF file" class="hollow button tiny action-icon shadow
+                                        {{ visibility }}
+                                    "><span class="fa fa-file-pdf"></span></a>
+                                {% endif %}
 
                                 {# edit report #}
                                 {% if is_granted('ROLE_G4N') %}
+                                    <a href="{{ path('app_reporting_html', { id: report.id}) }}" target="_blank" title="load html code into new window" class="hollow button tiny action-icon shadow">
+                                        <span class="fas fa-code"></span>
+                                    </a>
+
                                     <button class="hollow button tiny action-icon shadow"
                                        data-action="modal-form#openModal"
                                        data-append-to="div#modal-form{{ report.id }}"
                                     ><span class="fa fa-edit"></span></button>
-
-                                    <a href="{{ path('app_reporting_html', { id: report.id}) }}" target="_blank" title="load html code into new window" class="hollow button tiny action-icon shadow"><span class="fas fa-code"></span></a>
                                 {% endif %}
 
                                 {# delete report #}

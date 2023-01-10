@@ -37,50 +37,47 @@ class AvailabilityByTicketService
     {}
 
     /**
+     * Calculate the availability cases depending on tickets and settings in plant
+     * Stores for every day a record with the case values, this are the base to generate the PA
+     *
      * @param Anlage|int $anlage
-     * @param $date
+     * @param string|DateTime $date
      * @param int $department (for wich department (0 = Technische PA, 1 = O&M, 2 = EPC, 3 = AM)
      * @return string
      * @throws \Exception
      */
-    public function checkAvailability(Anlage|int $anlage, $date, int $department = 0): string
+    public function checkAvailability(Anlage|int $anlage, string|DateTime $date, int $department = 0): string
     {
         if (is_int($anlage)) {
             $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);
         }
+        if (! is_a($date, 'DateTime')) {
+            $date = date_create($date);
+        }
 
         // Suche pasende Zeitkonfiguration für diese Anlage und dieses Datum
         /* @var TimesConfig $timesConfig */
-        switch ($department) {
-            case 1:
-                $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'availability_1', date_create(date('Y-m-d H:m', $date)));
-                break;
-            case 2:
-                $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'availability_2', date_create(date('Y-m-d H:m', $date)));
-                break;
-            case 3:
-                // $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'availability_3', date_create(date('Y-m-d H:m', $date)));
-                break;
-            default:
-                $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'fallback', date_create(date('Y-m-d H:m', $date)));
-                break;
-        }
+        $timesConfig = match ($department) {
+            1 => $this->timesConfigRepo->findValidConfig($anlage, 'availability_1', $date),
+            2 => $this->timesConfigRepo->findValidConfig($anlage, 'availability_2', $date),
+            3 => $this->timesConfigRepo->findValidConfig($anlage, 'availability_3', $date),
+            default => $this->timesConfigRepo->findValidConfig($anlage, 'availability_0', $date),
+        };
 
-        $timestampModulo = $date;
+        $timestampModulo = $date->format('Y-m-d 04:00');
 
-        $from = date('Y-m-d 04:00', $timestampModulo);
+        $from = $timestampModulo;
         $dayStamp = new DateTime($from);
 
         $inverterPowerDc = [];
         $output = '';
 
         /* Verfügbarkeit der Anlage ermitteln */
-
         if (isset($anlage)) {
-            $output .= 'Anlage: '.$anlage->getAnlId().' / '.$anlage->getAnlName().' - '.date('Y-m-d', $timestampModulo)."Department: $department<br>";
+            $output .= 'Anlage: '.$anlage->getAnlId().' / '.$anlage->getAnlName().' ; '.$date->format('Y-m-d')." ; Department: $department ; ";
 
             // Verfügbarkeit Berechnen und in Hilfsarray speichern
-            $availabilitysHelper = $this->checkAvailabilityInverter($anlage, $timestampModulo, $timesConfig, $department);
+            $availabilitysHelper = $this->checkAvailabilityInverter($anlage, $date->getTimestamp(), $timesConfig, $department);
 
             // Pnom für Inverter laden
             $inverterPowerDc = $anlage->getPnomInverterArray();
@@ -89,7 +86,7 @@ class AvailabilityByTicketService
             foreach ($availabilitysHelper as $inverter => $availability) {
                 // Berechnung der prozentualen Verfügbarkeit Part 1 und Part 2
                 if ($availability['control'] - $availability['case4'] != 0) {
-                    $invAPart1 = $this->calcInvAPart1($availability);
+                    $invAPart1 = $this->calcInvAPart1($anlage, $availability, $department);
                     ($anlage->getPnom() > 0 && $inverterPowerDc[$inverter] > 0) ? $invAPart2 = $inverterPowerDc[$inverter] / $anlage->getPnom() : $invAPart2 = 1;
                 } else {
                     $invAPart1 = 0;
@@ -197,8 +194,24 @@ class AvailabilityByTicketService
     {
         $case3Helper = [];
         $availability = [];
-        $threshold1PA = $anlage->getThreshold1PA();
-        $threshold2PA = $anlage->getThreshold2PA();
+        switch ($department){
+            case 1:
+                $threshold1PA = $anlage->getThreshold1PA1();
+                $threshold2PA = $anlage->getThreshold2PA1();
+                break;
+            case 2:
+                $threshold1PA = $anlage->getThreshold1PA2();
+                $threshold2PA = $anlage->getThreshold2PA2();
+                break;
+            case 3 :
+                $threshold1PA = $anlage->getThreshold1PA3();
+                $threshold2PA = $anlage->getThreshold2PA3();
+                break;
+            default:
+                $threshold1PA = $anlage->getThreshold1PA0();
+                $threshold2PA = $anlage->getThreshold2PA0();
+        }
+
 
         $from = date('Y-m-d '.$timesConfig->getStartTime()->format('H:i'), $timestampModulo);
         $to = date('Y-m-d '.$timesConfig->getEndTime()->format('H:i'), $timestampModulo);
@@ -225,11 +238,10 @@ class AvailabilityByTicketService
                     }
                 }
             }
-
             // Handele case5 by ticket
             /** @var TicketDate $case5Ticket */
-            foreach ($this->ticketDateRepo->findDataGapOutage($anlage, $from, $to) as $case5Ticket){
-
+            $case5Tickets = $this->ticketDateRepo->findTiFm($anlage, $from, $to, $department);
+            foreach ($case5Tickets as $case5Ticket){
                 $c5From = $case5Ticket->getBegin()->getTimestamp();
                 $c5To = $case5Ticket->getEnd()->getTimestamp();
                 for ($c5Stamp = $c5From; $c5Stamp < $c5To; $c5Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
@@ -238,7 +250,6 @@ class AvailabilityByTicketService
                         $case5Array[$inverter][date('Y-m-d H:i:00', $c5Stamp)] = true;
                     }
                 }
-
             }
 
             // suche Case 6 Fälle und schreibe diese in case6Array[inverter][stamp] = true|false
@@ -255,8 +266,8 @@ class AvailabilityByTicketService
 
             // Handel case6 by ticket
             /** @var TicketDate $case6Ticket */
-            foreach ($this->ticketDateRepo->findDataGapOutage($anlage, $from, $to) as $case6Ticket){
-
+            $case6Tickets = $this->ticketDateRepo->findDataGapOutage($anlage, $from, $to, $department);
+            foreach ($case6Tickets as $case6Ticket){
                 $c6From = $case6Ticket->getBegin()->getTimestamp();
                 $c6To = $case6Ticket->getEnd()->getTimestamp();
                 for ($c6Stamp = $c6From; $c6Stamp < $c6To; $c6Stamp += 900) { // 900 = 15 Minuten in Sekunden | $c5Stamp < $c5To um den letzten Wert nicht abzufragen (Bsp: 10:00 bis 10:15, 10:15 darf NICHT mit eingerechnet werden)
@@ -265,10 +276,7 @@ class AvailabilityByTicketService
                         $case6Array[$inverter][date('Y-m-d H:i:00', $c6Stamp)] = true;
                     }
                 }
-
             }
-
-
 
             foreach ($einstrahlungen as $einstrahlung) {
                 $stamp = $einstrahlung['stamp'];
@@ -276,33 +284,16 @@ class AvailabilityByTicketService
                 $startInverter = 1;
 
                 for ($inverter = $startInverter; $inverter <= $anzInverter; ++$inverter) {
-                    // Nur beim ersten durchlauf, Werte setzen, damit nicht 'undifined'
-                    if (!isset($availability[$inverter]['case0'])) {
-                        $availability[$inverter]['case0'] = 0;
-                    }
-                    if (!isset($availability[$inverter]['case1'])) {
-                        $availability[$inverter]['case1'] = 0;
-                    }
-                    if (!isset($availability[$inverter]['case2'])) {
-                        $availability[$inverter]['case2'] = 0;
-                    }
-                    if (!isset($availability[$inverter]['case3'])) {
-                        $availability[$inverter]['case3'] = 0;
-                        $case3Helper[$inverter] = 0;
-                    }
-                    if (!isset($availability[$inverter]['case4'])) {
-                        $availability[$inverter]['case4'] = 0;
-                    }
-                    if (!isset($availability[$inverter]['case5'])) {
-                        $availability[$inverter]['case5'] = 0;
-                    }
-                    if (!isset($availability[$inverter]['case6'])) {
-                        $availability[$inverter]['case6'] = 0;
-                    }
-                    if (!isset($availability[$inverter]['control'])) {
-                        $availability[$inverter]['control'] = 0;
-                    }
-
+                    // Nur beim ersten durchlauf, Werte setzen, damit nicht 'undefined'
+                    if (!isset($availability[$inverter]['case0']))      $availability[$inverter]['case0'] = 0;
+                    if (!isset($availability[$inverter]['case1']))      $availability[$inverter]['case1'] = 0;
+                    if (!isset($availability[$inverter]['case2']))      $availability[$inverter]['case2'] = 0;
+                    if (!isset($availability[$inverter]['case3']))      $availability[$inverter]['case3'] = 0;
+                    if (!isset($availability[$inverter]['case4']))      $availability[$inverter]['case4'] = 0;
+                    if (!isset($availability[$inverter]['case5']))      $availability[$inverter]['case5'] = 0;
+                    if (!isset($availability[$inverter]['case6']))      $availability[$inverter]['case6'] = 0;
+                    if (!isset($availability[$inverter]['control']))    $availability[$inverter]['control'] = 0;
+                    if (!isset($case3Helper[$inverter]))      $case3Helper[$inverter] = 0;
                     isset($istData[$stamp][$inverter]['power_ac']) ? $powerAc = (float) $istData[$stamp][$inverter]['power_ac'] : $powerAc = null;
                     isset($istData[$stamp][$inverter]['cos_phi']) ? $cosPhi = $istData[$stamp][$inverter]['cos_phi'] : $cosPhi = null;
 
@@ -310,8 +301,9 @@ class AvailabilityByTicketService
                     if ($strahlung !== null) {
                         $case0 = $case1 = $case2 = $case3 = $case4 = false;
                         // Schaue in case5Array nach, ob ein Eintrag für diesen Inverter und diesen Timestamp vorhanden ist
-                        (($strahlung > $threshold1PA) && isset($case5Array[$inverter][$stamp])) ? $case5 = true : $case5 = false;
-                        (($strahlung > $threshold1PA) && isset($case6Array[$inverter][$stamp])) ? $case6 = true : $case6 = false;
+
+                        ($strahlung > $threshold1PA) && isset($case5Array[$inverter][$stamp]) ? $case5 = true : $case5 = false;
+                        ($strahlung > $threshold1PA) && isset($case6Array[$inverter][$stamp]) ? $case6 = true : $case6 = false;
 
                         // Case 0 (Datenlücken Inverter Daten | keine Datenlücken für Strahlung)
                         if ($powerAc === null && $case5 === false && $strahlung > $threshold1PA) { // Nur Hochzählen, wenn Datenlücke nicht durch Case 5 abgefangen
@@ -360,7 +352,7 @@ class AvailabilityByTicketService
                             ++$availability[$inverter]['case5'];
                         }
                         // Case 6
-                        if ($case6 === true && $case3 === false && $case0 === true) {
+                        if ($case6 === true && $case3 === false && $case0 === true) { //  && $case3 === false && $case0 === true
                             ++$availability[$inverter]['case6'];
                         }
                         // Control ti,theo
@@ -372,18 +364,67 @@ class AvailabilityByTicketService
             }
         }
         unset($resultEinstrahlung);
-        $conn = null;
 
         return $availability;
     }
 
+    /**
+     * Calculate the Availability (PA) for the given plant and the given time range. Base on the folowing formular:<br>
+     * ti / ti,(theo - tFM)<br>
+     * wobei:<br>
+     * ti = case1 + case2<br>
+     * ti,theo = control<br>
+     * tFM = case5<br>.
+     */
+    public function calcAvailability(Anlage|int $anlage, DateTime $from, DateTime $to, ?int $inverter = null, int $department = 0): float
+    {
+        if (is_int($anlage)) $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);
+
+        $inverterPowerDc = $anlage->getPnomInverterArray();  // Pnom for every inverter
+
+        $availabilitys = $this->availabilityRepository->getPaByDate($anlage, $from, $to, $inverter, $department);
+        $ti = $titheo = $pa = $paSum = $paSingle = $paSingleSum = 0;
+        $cases['case0'] = $cases['case1'] = $cases['case2'] = $cases['case3'] = $cases['case4'] = $cases['case5'] = $cases['case6'] = $cases['control'] = 0;
+        $currentInverter = null;
+        foreach ($availabilitys as $availability) {
+            if ($currentInverter != (int)$availability['inverter'] && $currentInverter !== null) {
+                // Berechne PA für den aktuellen Inverter
+                $invWeight = ($anlage->getPnom() > 0 && $inverterPowerDc[$currentInverter] > 0) ? $inverterPowerDc[$currentInverter] / $anlage->getPnom() : 1;
+                $paSingle = $this->calcInvAPart1($anlage, $cases, $department);
+                $pa = $paSingle * $invWeight;
+                $paSum += $pa;
+                $paSingleSum += $paSingle;
+                $cases['case0'] = $cases['case1'] = $cases['case2'] = $cases['case3'] = $cases['case4'] = $cases['case5'] = $cases['case6'] = $cases['control'] = 0;
+            }
+            $currentInverter = $availability['inverter'];
+            $cases['case0'] += $availability['case_0'];
+            $cases['case1'] += $availability['case_1'];
+            $cases['case2'] += $availability['case_2'];
+            $cases['case3'] += $availability['case_3'];
+            $cases['case4'] += $availability['case_4'];
+            $cases['case5'] += $availability['case_5'];
+            $cases['case6'] += $availability['case_6'];
+            $cases['control'] += $availability['control'];
+        }
+        // Berechne PA für den letzten Inverter
+        $invWeight = ($anlage->getPnom() > 0 && $inverterPowerDc[$currentInverter] > 0) ? $inverterPowerDc[$currentInverter] / $anlage->getPnom() : 1;
+        $paSingle = $this->calcInvAPart1($anlage, $cases, $department);
+        $pa = $paSingle * $invWeight;
+        $paSum += $pa;
+        $paSingleSum += $paSingle;
+
+        if ($inverter) {
+            return $paSingleSum;
+        } else {
+            return $paSum;
+        }
+    }
 
     private function getIstData(Anlage $anlage, $from, $to): array
     {
         $conn = self::getPdoConnection();
         $istData = [];
         $dbNameIst = $anlage->getDbNameIst();
-        // $sql = "SELECT a.stamp as stamp, wr_cos_phi_korrektur as cos_phi, b.unit as inverter, b.wr_pac as power_ac FROM (db_dummysoll a left JOIN $dbNameIst b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' AND '$to' ORDER BY a.stamp, b.unit";
         $sql = "SELECT stamp, wr_cos_phi_korrektur as cos_phi, unit as inverter, wr_pac as power_ac FROM $dbNameIst WHERE stamp BETWEEN '$from' AND '$to' ORDER BY stamp, unit";
 
         $result = $conn->query($sql);
@@ -431,8 +472,58 @@ class AvailabilityByTicketService
         return $irrData;
     }
 
-    private function calcInvAPart1(array $row): float
+    /**
+     * Berechnet die PA TEIL 1 (OHNE GEWICHTUNG)
+     *
+     * <b>Wobei:</b><br>
+     * ti = case1 + case 2 <br>
+     * titheo = control<br>
+     * tiFM = case5 (?? + case6)<br>
+     *<br>
+     * sollte ti und titheo = 0 sein so wird PA auf 100% definiert<br>
+     *
+     * @param Anlage $anlage
+     * @param array $row
+     * @param int $department
+     * @return float
+     */
+    private function calcInvAPart1(Anlage $anlage, array $row, int $department = 0): float
     {
-        return (($row['case1'] + $row['case2'] + $row['case5']) / $row['control']) * 100;
+        $paInvPart1 = 0.0;
+
+        // Get needed formular, depending on settings for this department
+        $formel = match ($department) {
+            1 => $anlage->getPaFormular1(),
+            2 => $anlage->getPaFormular2(),
+            3 => $anlage->getPaFormular3(),
+            default => $anlage->getPaFormular0(),
+        };
+
+        // calculate pa depending on the chose formular
+        switch ($formel) {
+            case 1: // PA = ti / (ti,theo - tiFM)
+                if ($row['case1'] + $row['case2'] + $row['case5'] != 0 && $row['control'] != 0) {
+                    if ($row['case1'] + $row['case2'] === 0 && $row['control'] - $row['case5'] === 0) {
+                        // Sonderfall wenn Dividend und Divisor = 0 => dann ist PA per definition 100%
+                        $paInvPart1 = 100;
+                    } else {
+                        $paInvPart1 = (($row['case1'] + $row['case2']) / ($row['control'] - $row['case5'])) * 100;
+                    }
+                }
+                break;
+
+                ## Formulars from case 2 and 3 are not Testes yet
+            case 2: // PA = ti / ti,theo
+                if ($row['case1'] + $row['case2'] != 0 && $row['control'] != 0) {
+                    $paInvPart1 = (($row['case1'] + $row['case2']) / $row['control']) * 100;
+                }
+                break;
+            case 3: // PA = (ti + tiFM) / ti,theo
+                if ($row['case1'] + $row['case2']  + $row['case5'] != 0 && $row['control'] != 0) {
+                    $paInvPart1 = (($row['case1'] + $row['case2'] + $row['case5']) / $row['control']) * 100;
+                }
+                break;
+        }
+        return $paInvPart1;
     }
 }

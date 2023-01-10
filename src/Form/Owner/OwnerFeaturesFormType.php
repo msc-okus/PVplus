@@ -21,6 +21,12 @@ class OwnerFeaturesFormType extends AbstractType
             ->add('aktDep3', SwitchType::class, [
                 'label'     => 'aktiviere Departemnet 3 (AM)',
             ])
+            ->add('SplitInverter', SwitchType::class, [
+                'label'     => 'Split by Inverter',
+            ])
+            ->add('SplitGap', SwitchType::class, [
+                'label'     => 'Split by Time',
+            ])
         ;
     }
 

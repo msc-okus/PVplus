@@ -22,38 +22,39 @@
                     </thead>
                     <tbody>
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Prod* ACT / g4n - P50</td>
+                        <td class="tr_first_column" style="text-align: right">Prod.<sup>*</sup> ACT / g4n - P50</td>
                         {% for data in forecast_G4N_table.forcast_G4NP50 %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Prod* ACT /  g4n - P90</td>
+                        <td class="tr_first_column" style="text-align: right">Prod.<sup>*</sup> ACT /  g4n - P90</td>
                         {% for data in forecast_G4N_table.forcast_G4NP90 %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Plan g4n Forecast - P50</td>
+                        <td class="tr_first_column" style="text-align: right">g4n forecast - P50</td>
                         {% for data in forecast_G4N_table.forcast_plan_G4NP50 %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Plan g4n Forecast - P90</td>
+                        <td class="tr_first_column" style="text-align: right">g4n forecast - P90</td>
                         {% for data in forecast_G4N_table.forcast_plan_G4NP90 %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
+                    <tr>
+                        <td style="text-align: left">
+                            <sup>*</sup> Production actual <br>
+                            P90:      {{ anlage.LossesForecast }} %
+                        </td>
+                    </tr>
                     </tbody>
-                    <tr>
-                        <td class="td_texthint_2" style="vertical-align: top">* Production</td>
-
-                    </tr>
-                    <tr>
-                        <td class="td_texthint_2" style="vertical-align: top">P90:      {{ anlage.LossesForecast }} %</td>
-                    </tr>
                 </table>
+
+
             </td>
         </tr>
 

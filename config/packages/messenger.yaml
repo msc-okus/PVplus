@@ -40,3 +40,7 @@ framework:
             'App\Message\Command\CalcExpected': async
             'App\Message\Command\CalcPR': async
             'App\Message\Command\CalcPlantAvailability': async
+            'App\Message\Command\CalcPlantAvailabilityNew': async
+            'App\Message\Command\GenerateTickets': async
+            'App\Message\Command\LoadAPIData': async
+            'App\Message\Command\LoadINAXData': async

@@ -98,6 +98,12 @@ class WeatherStationFormType extends AbstractType
                 'empty_data' => 'Incident horizontal table [W/qm]',
                 'help' => 'labelHorizontal',
             ])
+            ->add('geoLat', TextType::class, [
+                'label' => 'Position Latitude',
+            ])
+            ->add('geoLon', TextType::class, [
+                'label' => 'Position Longitude',
+            ])
 
             ->add('save', SubmitType::class, [
                 'label' => 'Save Weather Station',

@@ -35,7 +35,7 @@ class ExpectedService
         }
 
         $output = '';
-        if ($anlage->getGroups()) {
+        if ($anlage->getGroups() && ! $anlage->isExcludeFromExpCalc()) {
             $conn = self::getPdoConnection();
             $arrayExpected = $this->calcExpected($anlage, $from, $to);
             if ($arrayExpected) {

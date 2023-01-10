@@ -47,9 +47,9 @@ class AvailabilityService
         // Suche pasende Zeitkonfiguration für diese Anlage und dieses Datum
         /* @var TimesConfig $timesConfig */
         if ($second) {
-            $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'availability_second', date_create(date('Y-m-d H:m', $date)));
+            $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'availability_2', date_create(date('Y-m-d H:m', $date)));
         } else {
-            $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'availability_first', date_create(date('Y-m-d H:m', $date)));
+            $timesConfig = $this->timesConfigRepo->findValidConfig($anlage, 'availability_1', date_create(date('Y-m-d H:m', $date)));
         }
         $timestampModulo = $date;
 
@@ -336,19 +336,18 @@ class AvailabilityService
      * ti,theo = control<br>
      * tFM = case5<br>.
      */
-    public function calcAvailability(Anlage|int $anlage, DateTime $from, DateTime $to, ?int $inverter = null): float
+    public function calcAvailability(Anlage|int $anlage, DateTime $from, DateTime $to, ?int $inverter = null, int $department = 0): float
     {
         if (is_int($anlage)) $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);
 
         $inverterPowerDc = $anlage->getPnomInverterArray();  // Pnom for every inverter
 
-        /** @var AnlageAvailability $availability */
-        $availabilitys = $this->availabilityRepository->getPaByDate($anlage, $from, $to, $inverter);
+        $availabilitys = $this->availabilityRepository->getPaByDate($anlage, $from, $to, $inverter, null);
 
         $ti = $titheo = $pa = $paSum = $paSingle = $paSingleSum = 0;
         $currentInverter = null;
         foreach ($availabilitys as $availability) {
-            if ($currentInverter != (int)$availability->getInverter() && $currentInverter !== null) {
+            if ($currentInverter != (int)$availability['inverter'] && $currentInverter !== null) {
                 // Berechne PA für den aktuellen Inverter
                 $invWeight = ($anlage->getPnom() > 0 && $inverterPowerDc[$currentInverter] > 0) ? $inverterPowerDc[$currentInverter] / $anlage->getPnom() : 1;
                 $pa = $titheo > 0 ? $ti * $invWeight / $titheo : 0;
@@ -357,9 +356,9 @@ class AvailabilityService
                 $paSingleSum += $paSingle;
                 $ti = $titheo = 0;
             }
-            $currentInverter = (int)$availability->getInverter();
-            $ti += $availability->getCase1() + $availability->getCase2() + $availability->getCase5();
-            $titheo += $availability->getControl();
+            $currentInverter = (int)$availability['inverter'];
+            $ti += $availability['case_1'] + $availability['case_2'] + $availability['case_5'];
+            $titheo += $availability['control'];
         }
         // Berechne PA für den letzten Inverter
         $invWeight = ($anlage->getPnom() > 0 && $inverterPowerDc[$currentInverter] > 0) ? $inverterPowerDc[$currentInverter] / $anlage->getPnom() : 1;
@@ -431,6 +430,15 @@ class AvailabilityService
 
     private function calcInvAPart1(array $row): float
     {
-        return (($row['case1'] + $row['case2'] + $row['case5']) / $row['control']) * 100;
+        #return (($row['case1'] + $row['case2'] + $row['case5']) / $row['control']) * 100;
+
+
+            if ($row['case1'] + $row['case2'] === 0 && $row['control'] - $row['case5'] === 0) {
+                $paInvPart1 = 100;
+            } else {
+                $paInvPart1 = (($row['case1'] + $row['case2']) / $row['control'] - $row['case5']) * 100;
+            }
+
+            return $paInvPart1;
     }
 }

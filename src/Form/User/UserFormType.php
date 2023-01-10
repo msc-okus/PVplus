@@ -24,15 +24,11 @@ use Symfony\Component\Security\Core\Security;
 
 class UserFormType extends AbstractType
 {
-    private AnlagenRepository $repo;
-    private UserRepository $urepo;
-    private EignerRepository $erepo;
 
-    public function __construct(AnlagenRepository $repo,EignerRepository $erepo,UserRepository $urepo,private Security $security)
+    public function __construct(
+        private AnlagenRepository $anlagenRepo,
+        private Security $security)
     {
-        $this->repo = $repo;
-        $this->urepo = $urepo;
-        $this->erepo = $erepo;
     }
 
     public function buildForm(FormBuilderInterface $builder, array $options)
@@ -53,32 +49,30 @@ class UserFormType extends AbstractType
         $sel_eigner = $user?->getEigners()[0];
 
          if (!$sel_eigner) {
-            # $anlagen = $this->repo->findAllAnlage();
-             $anlagen = $this->repo->findAllIDByEigner($eigner);
+             $anlagen = $this->anlagenRepo->findAllIDByEigner($eigner);
          } else {
-             $anlagen = $this->repo->findAllIDByEigner($sel_eigner);
+             $anlagen = $this->anlagenRepo->findAllIDByEigner($sel_eigner);
          }
 
         if ($user != null) {
-            $GrantedArray = $user->getGrantedArray();
-         }
-
-        if ($GrantedArray) {
-            foreach ($GrantedArray as $Gkey) {
-                $fixGrantedArray[] = preg_replace('/\s+/', '', $Gkey);
+            $grantedArray = $user->getGrantedArray();
+            if ($grantedArray) {
+                foreach ($grantedArray as $Gkey) {
+                    $fixGrantedArray[] = preg_replace('/\s+/', '', $Gkey);
+                }
             }
         }
 
         if ($anlagen){
-            foreach ($anlagen as $key => $val){
-                $anlagenid[] = [$anlagen[$key]['anlName'] => $anlagen[$key]['anlId']];
+            foreach ($anlagen as $key => $anlage){
+                $anlagenid[] = [$anlage['anlName'] => $anlage['anlId']];
             }
         }
 
        if ($this->security->isGranted('ROLE_ADMIN_USER') and $this->security->getUser()->getUsername() != "admin"){
-           $choicesRolesArray = User::ARRAY_OF_ROLES_USER;
+           $choicesRolesArray = array_merge(User::ARRAY_OF_ROLES_USER, User::ARRAY_OF_FUNCTIONS_BY_ROLE);
           } else {
-           $choicesRolesArray = User::ARRAY_OF_ROLES;
+           $choicesRolesArray = array_merge($choicesRolesArray = User::ARRAY_OF_ROLES, User::ARRAY_OF_FUNCTIONS_BY_ROLE);
        }
 
        $singlechoince = [$eigner?->getFirma() => $eigner?->getId()];

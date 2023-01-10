@@ -77,8 +77,9 @@
             <ul class="tabs" data-tabs id="anlage-tabs" data-deep-link="true">
                 <li class="tabs-title is-active"><a data-tabs-target="plant-data" href="#plant-data" aria-selected="true" >General</a></li>
                 {% if is_granted('ROLE_G4N') %}
-                    <li class="tabs-title"><a data-tabs-target="plant-data-2" href="#plant-data-2">Plant configuration</a></li>
+                    <li class="tabs-title"><a data-tabs-target="plant-config" href="#plant-config">Plant configuration</a></li>
                     <li class="tabs-title"><a data-tabs-target="availability" href="#availability">Availability Settup</a></li>
+                    <li class="tabs-title"><a data-tabs-target="ticket" href="#ticket">Ticket Settup</a></li>
                     {% if is_granted('ROLE_ADMIN') %}
                         <li class="tabs-title"><a data-tabs-target="modules" href="#modules">Modules</a></li>
                     {% endif %}
@@ -147,7 +148,7 @@
                 </div>
 
                 {# Plant Configuration #}
-                <div class="tabs-panel" id="plant-data-2">
+                <div class="tabs-panel" id="plant-config">
                     <div class="grid-x grid-padding-x">
                         {# Spalte 1 #}
                         <div class="cell medium-6">
@@ -293,6 +294,7 @@
                         </div>
                     </div>
                 </div>
+
                 {# Availability #}
                 <div class="tabs-panel" id="availability">
                     <div class="grid-x grid-padding-x">
@@ -305,6 +307,8 @@
                                             <legend>Technical</legend>
                                             {{ form_row(anlageForm.threshold1PA0) }}
                                             {{ form_row(anlageForm.threshold2PA0) }}
+                                            {{ form_row(anlageForm.paFormular0) }}
+                                            {{ form_row(anlageForm.prFormular0) }}
                                         </fieldset>
                                     </div>
                                     <div class="cell medium-3">
@@ -312,20 +316,26 @@
                                             <legend>Department 1 (O&M)</legend>
                                             {{ form_row(anlageForm.threshold1PA1) }}
                                             {{ form_row(anlageForm.threshold2PA1) }}
+                                            {{ form_row(anlageForm.paFormular1) }}
+                                            {{ form_row(anlageForm.prFormular1) }}
                                         </fieldset>
                                     </div>
                                     <div class="cell medium-3">
                                         <fieldset class="fieldset">
-                                            <legend>Department 1 (EPC)</legend>
+                                            <legend>Department 2 (EPC)</legend>
                                             {{ form_row(anlageForm.threshold1PA2) }}
                                             {{ form_row(anlageForm.threshold2PA2) }}
+                                            {{ form_row(anlageForm.paFormular2) }}
+                                            {{ form_row(anlageForm.prFormular2) }}
                                         </fieldset>
                                     </div>
                                     <div class="cell medium-3">
                                         <fieldset class="fieldset">
-                                            <legend>Department 1 (AM)</legend>
+                                            <legend>Department 3 (AM)</legend>
                                             {{ form_row(anlageForm.threshold1PA3) }}
                                             {{ form_row(anlageForm.threshold2PA3) }}
+                                            {{ form_row(anlageForm.paFormular3) }}
+                                            {{ form_row(anlageForm.prFormular3) }}
                                         </fieldset>
                                     </div>
                                 </div>
@@ -333,6 +343,18 @@
                         </div>
                     </div>
                 </div>
+
+                {# Ticket #}
+                <div class="tabs-panel" id="ticket">
+                    <div class="grid-x grid-padding-x">
+                        <div class="cell">
+                            <fieldset class="fieldset">
+                                <legend>Ticket</legend>
+                            </fieldset>
+                        </div>
+                    </div>
+                </div>
+
                 {# Modules #}
                 <div class="tabs-panel" id="modules">
                     <fieldset class="fieldset js-module-wrapper"
@@ -404,7 +426,6 @@
                         <button type="button" class="button secondary small js-add-module"> <span class="fa fa-plus-circle"></span>&nbsp;Add Modul</button>
                     </fieldset>
                 </div>
-
 
                 {# Settings and Config #}
                 <div class="tabs-panel" id="settings">

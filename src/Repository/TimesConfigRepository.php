@@ -5,6 +5,8 @@ namespace App\Repository;
 use App\Entity\Anlage;
 use App\Entity\TimesConfig;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -23,7 +25,7 @@ class TimesConfigRepository extends ServiceEntityRepository
     /**
      * @return TimesConfig Returns an array of TimesConfig objects
      */
-    public function findValidConfig(Anlage $anlage, $type, \DateTime $date): TimesConfig
+    public function findValidConfig(Anlage $anlage, $type, \DateTime $date): TimesConfig|null
     {
         $qb = $this->createQueryBuilder('t')
             ->andWhere('t.anlage = :anlage')
@@ -40,13 +42,16 @@ class TimesConfigRepository extends ServiceEntityRepository
 
         // Search for fallback if we can not find any other config
         if (!$qb) {
-            $qb = $this->createQueryBuilder('t')
-                ->andWhere('t.anlage IS NULL')
-                ->andWhere('t.type = :type')
-                ->setParameter('type', $type)
-                ->getQuery()
-                ->getSingleResult();
-
+            try {
+                $qb = $this->createQueryBuilder('t')
+                    ->andWhere('t.anlage IS NULL')
+                    ->andWhere('t.type = :type')
+                    ->setParameter('type', $type)
+                    ->getQuery()
+                    ->getSingleResult();
+            } catch (NoResultException | NonUniqueResultException) {
+                return null;
+            }
             return $qb;
         }
 
