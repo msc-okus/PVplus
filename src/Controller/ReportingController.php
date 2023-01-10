@@ -125,7 +125,6 @@ class ReportingController extends AbstractController
             $page,
             20
         );
-
         return $this->render('reporting/_inc/_listReports.html.twig', [
             'pagination' => $pagination,
             'stati' => self::reportStati(),
