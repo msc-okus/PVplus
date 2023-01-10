@@ -218,11 +218,13 @@ class AlertSystemService
             }
 
             if ($plant_status['ppc'] === false) {
-                if (count($array_PowerDiff) > 0){
-                    foreach ($array_PowerDiff as $inverter) {
-                        if ($inverter != "") {
-                            $message = "Difference between Power and Expected greater than ".$anlage->getPercentageDiff()."% in Inverter " . $anlage->getInverterFromAnlage()[(int)$inverter];
-                            $this->generateTickets('', POWER_DIFF, $anlage, $inverter, $time, $message);
+                if ($anlage->getAnlId() == "112") {
+                    if (count($array_PowerDiff) > 0) {
+                        foreach ($array_PowerDiff as $inverter) {
+                            if ($inverter != "") {
+                                $message = "Difference between Power and Expected greater than " . $anlage->getPercentageDiff() . "% in Inverter " . $anlage->getInverterFromAnlage()[(int)$inverter];
+                                $this->generateTickets('', POWER_DIFF, $anlage, $inverter, $time, $message);
+                            }
                         }
                     }
                 }
