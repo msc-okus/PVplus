@@ -51,6 +51,7 @@ class AvailabilityByTicketService
         if (is_int($anlage)) {
             $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);
         }
+        // If $date is a string, create a DateTime Object
         if (! is_a($date, 'DateTime')) {
             $date = date_create($date);
         }
