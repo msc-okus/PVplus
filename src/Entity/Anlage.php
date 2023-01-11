@@ -379,7 +379,7 @@ class Anlage
     private string $lid;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?float $annualDegradation;
+    private float|string|null $annualDegradation;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $pldPR;
@@ -480,10 +480,10 @@ class Anlage
     private Collection $tickets;
 
     #[ORM\OneToOne(mappedBy: 'anlage', targetEntity: EconomicVarNames::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
-    private EconomicVarNames $economicVarNames;
+    private ?EconomicVarNames $economicVarNames;
 
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: EconomicVarValues::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
-    private Collection $economicVarValues;
+    private ?Collection $economicVarValues;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $useDayForecast = false;

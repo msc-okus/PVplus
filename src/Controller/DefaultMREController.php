@@ -84,12 +84,14 @@ class DefaultMREController extends BaseController
             'availabilitys' => '',
             'output' => 'TEST',
         ]);
-
-        dd($html);
-
-        $output = $pdf->getOutputFromHtml($html, ['enable-local-file-access' => true]);
-        dd($output);
-    }
+        $tempFile = tmpfile();
+        fwrite($tempFile, $html);
+        fseek($tempFile,0);
+        $output = $pdf->getOutput(stream_get_meta_data($tempFile)['uri'], ['enable-local-file-access' => true, 'load-error-handling' => 'ignore']);
+        fclose($tempFile);
+        #$output = $pdf->getOutputFromHtml($html, ['enable-local-file-access' => true]);
+        dd(get_resource_type($output));
+     }
 
     /**
      * @throws \Exception

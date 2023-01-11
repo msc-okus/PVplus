@@ -22,35 +22,35 @@ class Eigner
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'bigint', nullable: false)]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    private int $id;
+    private $id;
 
     #[ORM\Column(name: 'created', type: 'datetime', nullable: false, options: ['default' => 'CURRENT_TIMESTAMP'])]
     #[Gedmo\Timestampable(on: 'create')]
-    private \DateTimeInterface $created;
+    private  $created;
 
     #[ORM\Column(name: 'firma', type: 'string', length: 100, nullable: false)]
-    private string $firma;
+    private ?string $firma;
 
     #[ORM\Column(name: 'zusatz', type: 'string', length: 100, nullable: true)]
-    private string $zusatz;
+    private ?string $zusatz;
 
     #[ORM\Column(name: 'anrede', type: 'string', length: 100, nullable: true)]
-    private string $anrede;
+    private ?string $anrede;
 
     #[ORM\Column(name: 'vorname', type: 'string', length: 100, nullable: true)]
-    private string $vorname;
+    private ?string $vorname;
 
     #[ORM\Column(name: 'nachname', type: 'string', length: 100, nullable: true)]
-    private string $nachname;
+    private ?string $nachname;
 
     #[ORM\Column(name: 'strasse', type: 'string', length: 100, nullable: true)]
-    private string $strasse;
+    private ?string $strasse;
 
     #[ORM\Column(name: 'plz', type: 'string', length: 10, nullable: true)]
-    private string $plz;
+    private ?string $plz;
 
     #[ORM\Column(name: 'ort', type: 'string', length: 100, nullable: true)]
-    private string $ort;
+    private ?string $ort;
 
     #[ORM\Column(name: 'active', type: 'bigint', nullable: false)]
     private string|int $active = '0';
@@ -66,16 +66,16 @@ class Eigner
 
     #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'eigners')]
     #[ORM\JoinTable(name: 'eigner_user')]
-    private Collection $user;
+    private ?Collection $user;
 
     #[ORM\Column(type: 'string', length: 15, nullable: true)]
     private ?string $activateAlertMessage;
 
     #[ORM\OneToMany(mappedBy: 'eigner', targetEntity: Anlage::class)]
-    private Collection $anlage;
+    private ?Collection $anlage;
 
     #[ORM\OneToMany(mappedBy: 'eigner', targetEntity: AnlagenReports::class)]
-    private Collection $anlagenReports;
+    private ?Collection $anlagenReports;
 
     #[ORM\Column(type: 'string', length: 10, nullable: true)]
     private string $fontColor = '#9aacc3';
