@@ -23,16 +23,16 @@ class GroupModulFormType extends AbstractType
 
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        /*$choices=[];
+        $choices=[];
         if ($options['anlage']){
             $choices = $this->modulesRepository->findByAnlage($options['anlage']);
-        }*/
+        }
 
         $builder
             ->add('moduleType', EntityType::class, [
                 'class' => AnlageModules::class,
                 'choice_label' => 'type',
-              /*  'choices'=>$choices*/
+                 'choices'=>$choices
 
             ])
             ->add('numStringsPerUnit', IntegerType::class, [
@@ -48,9 +48,7 @@ class GroupModulFormType extends AbstractType
             ])
             ->add('numModulesPerString', IntegerType::class, [
                 'empty_data' => 0,
-                'attr'=>[
-                    'readonly'=>true
-                ]
+
 
             ])
         ;
@@ -60,7 +58,7 @@ class GroupModulFormType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => AnlageGroupModules::class,
-           /* 'anlage'=>null*/
+            'anlage'=>null
         ]);
 
     }

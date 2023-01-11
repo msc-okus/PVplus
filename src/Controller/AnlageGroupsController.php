@@ -160,7 +160,7 @@ class AnlageGroupsController extends AbstractController
     public function edit(Request $request, AnlageGroups $anlageGroup,GroupsRepository $groupsRepository, EntityManagerInterface $entityManager): Response
     {
        //dd($anlageGroup->getModules());
-        $form = $this->createForm(AnlageGroupsTypeForm::class, $anlageGroup);
+        $form = $this->createForm(AnlageGroupsTypeForm::class, $anlageGroup,['anlage'=>$anlageGroup->getAnlage()]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {

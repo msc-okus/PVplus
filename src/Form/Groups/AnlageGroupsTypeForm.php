@@ -97,6 +97,7 @@ class AnlageGroupsTypeForm extends AbstractType
                 'allow_delete' => true,
                 'delete_empty' => true,
                 'by_reference' => false,
+                'entry_options' => ['anlage' => $options['anlage']],
             ])
             ->add('months', CollectionType::class, [
                 'entry_type' => MonthsListEmbeddedFormType::class,
@@ -113,7 +114,7 @@ class AnlageGroupsTypeForm extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => AnlageGroups::class,
-
+            'anlage'=>null
         ]);
 
     }
