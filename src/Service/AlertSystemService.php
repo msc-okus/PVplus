@@ -10,6 +10,8 @@ use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\StatusRepository;
 use App\Repository\TicketRepository;
+use DateTimeZone;
+use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use JetBrains\PhpStorm\ArrayShape;
@@ -42,6 +44,7 @@ class AlertSystemService
         define('GRID_ERROR', 30);
         define('WEATHER_STATION_ERROR', 40);
         define('EXTERNAL_CONTROL', 50); // Regelung vom Direktvermarketr oder Netztbetreiber
+        define('POWER_DIFF', 60);
     }
 
     /**
@@ -198,11 +201,14 @@ class AlertSystemService
         if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
             //here we retrieve the values from the plant and set soma flags to generate tickets
             $plant_status = self::RetrievePlant($anlage, $time);
+            dump($plant_status);
             // We do this to avoid checking further inverters if we have a PPC control shut
             $array_gap = explode(", ", $plant_status['Gap']);
             $array_zero = explode(", ", $plant_status['Power0']);
             $array_vol = explode(", ", $plant_status['Vol']);
+            $array_PowerDiff = explode(", ", $plant_status['PowerDiff']);
             //we close all the previous tickets and we will re-open them if needed.
+
             $ticketOld = $this->getAllTickets($anlage, $time);
             if ((isset($ticketOld))) {
                 foreach ($ticketOld as $ticket) {
@@ -210,7 +216,18 @@ class AlertSystemService
                     $this->em->persist($ticket);
                 }
             }
+
             if ($plant_status['ppc'] === false) {
+                if ($anlage->getAnlId() == "112") {
+                    if (count($array_PowerDiff) > 0) {
+                        foreach ($array_PowerDiff as $inverter) {
+                            if ($inverter != "") {
+                                $message = "Difference between Power and Expected greater than " . $anlage->getPercentageDiff() . "% in Inverter " . $anlage->getInverterFromAnlage()[(int)$inverter];
+                                $this->generateTickets('', POWER_DIFF, $anlage, $inverter, $time, $message);
+                            }
+                        }
+                    }
+                }
                 if (count($array_gap) > 0) {
                     foreach ($array_gap as $inverter) {
                         if ($inverter != "") {
@@ -256,16 +273,24 @@ class AlertSystemService
      */
     private function RetrievePlant(Anlage $anlage, $time): array
     {
-        $irrLimit = $anlage->getThreshold1PA0() == 0 ? $anlage->getThreshold1PA0() : 20; // we get the irradiation limit from the plant config
 
+        $offsetServer = new DateTimeZone("Europe/Luxembourg");
+        $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon()));
+        $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
+
+        $time = date('Y-m-d H:i', strtotime($time) - (int)$totalOffset); // in the sunrise function we use + because we change from THEIR time to OURS, here we substract because we change form OURS  to THEIRS
+
+        $irrLimit = $anlage->getThreshold1PA0() == 0 ? $anlage->getThreshold1PA0() : 20; // we get the irradiation limit from the plant config
         $freqLimitTop = $anlage->getFreqBase() + $anlage->getFreqTolerance();
         $freqLimitBot = $anlage->getFreqBase() - $anlage->getFreqTolerance();
+        $percentajeDiff = $anlage->getPercentageDiff();
         //we get the frequency values
         $voltLimit = 0;
 
         $conn = self::getPdoConnection();
         $isPPC = false;
         $return['ppc'] = $isPPC;
+        $return['PowerDiff'] = "";
         $return['Power0'] = "";
         $return['Gap'] = "";
         $return['Vol'] = "";
@@ -274,23 +299,8 @@ class AlertSystemService
 
         if ($irradiation < $irrLimit) $this->irr = true;
         else $this->irr = false;
+        $counter = 0;
 
-        $sqlAct = 'SELECT b.unit 
-                    FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
-                    WHERE a.stamp = '$time' AND  b.wr_pac <= 0 ";
-        $resp = $conn->query($sqlAct);
-        $result0 = $resp->fetchAll(PDO::FETCH_ASSOC);
-
-        $sqlNull = 'SELECT b.unit 
-                    FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
-                    WHERE a.stamp = '$time' AND  b.wr_pac is null ";
-        $resp = $conn->query($sqlNull);
-        $resultNull = $resp->fetchAll(PDO::FETCH_ASSOC);
-
-        $sqlVol = "SELECT b.unit 
-                    FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
-                    WHERE a.stamp = '$time' AND  (b.u_ac < " . $voltLimit . " OR b.frequency < " . $freqLimitBot . " OR b.frequency > " . $freqLimitTop . ")";
-        $resp = $conn->query($sqlVol);
 
         if ($anlage->getHasPPC()) {
             $sqlPpc = 'SELECT * 
@@ -303,6 +313,24 @@ class AlertSystemService
             }
         }
         if ($return['ppc'] != true) {
+
+            $sqlAct = 'SELECT b.unit 
+                    FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
+                    WHERE a.stamp = '$time' AND  b.wr_pac <= 0 ";
+            $resp = $conn->query($sqlAct);
+            $result0 = $resp->fetchAll(PDO::FETCH_ASSOC);
+
+
+            $sqlNull = 'SELECT b.unit 
+                    FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
+                    WHERE a.stamp = '$time' AND  b.wr_pac is null ";
+            $resp = $conn->query($sqlNull);
+            $resultNull = $resp->fetchAll(PDO::FETCH_ASSOC);
+
+            $sqlVol = "SELECT b.unit 
+                    FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
+                    WHERE a.stamp = '$time' AND  (b.u_ac < " . $voltLimit . " OR b.frequency < " . $freqLimitBot . " OR b.frequency > " . $freqLimitTop . ")";
+            $resp = $conn->query($sqlVol);
             //here if there is no plant control we check the values and get the information to create the tickets
             $resultVol = $resp->fetchAll(PDO::FETCH_ASSOC);
             if (count($resultNull) == $invCount) $return['Gap'] = '*';
@@ -325,6 +353,66 @@ class AlertSystemService
                     if ($return['Vol'] !== "") $return['Vol'] = $return['Vol'] . ", " . $value['unit'];
                     else $return['Vol'] = $value['unit'];
                 }
+            }
+            if ($anlage->isExpectedTicket() && $anlage->getAnlType() != "masterslave"){
+
+                $timeEnd = date("Y-m-d H:i",strtotime($time));
+                $timeBegin = date("Y-m-d H:i",strtotime($time)- 3600); // we start looking one hour in the past to check the power and expected
+                dump($anlage->getConfigType());
+                switch ($anlage->getConfigType()) {
+                    case 1:
+                    case 2:
+                        $actQuery = 'SELECT b.unit as inverter, avg(b.wr_pac) as power 
+                            FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
+                            WHERE a.stamp BETWEEN '$timeBegin' AND '$timeEnd' AND  b.wr_pac > 0 ";
+                        $resp = $conn->query($actQuery);
+                        $power = $resp->fetchAll(PDO::FETCH_ASSOC);
+                        foreach ($power as $value) {
+                            $expQuery = 'SELECT avg(b.ac_exp_power) as exp
+                                FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameDcSoll() . " b on a.stamp = b.stamp)
+                                WHERE a.stamp BETWEEN '$timeBegin' AND '$timeEnd' AND  b.wr_num = " . $value['inverter'] . " ";
+
+                            $respExp = $conn->query($expQuery);
+                            $expected = $respExp->fetch(PDO::FETCH_ASSOC);
+                            if ((abs($expected['exp'] - $value['power']) * 100 / (($value['power'] + $expected['exp']) / 2) > $percentajeDiff) && ($value['power'] > 0)) {
+                                $counter++;
+                                if ($return['PowerDiff'] == "")
+                                    $return['PowerDiff'] = $value['inverter'];
+                                else
+                                    $return['PowerDiff'] = $return['PowerDiff'] . ", " . $value['inverter'];
+                            }
+                        }
+                        break;
+                    case 3:
+
+                        $actQuery = 'SELECT b.group_ac as groupe, sum(b.wr_pac) as power 
+                            FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
+                            WHERE a.stamp BETWEEN '$timeBegin' AND '$timeEnd' AND  b.wr_pac > 0 
+                            GROUP by b.group_ac";
+                        $resp = $conn->query($actQuery);
+                        $power = $resp->fetchAll(PDO::FETCH_ASSOC);
+                        foreach ($power as $value) {
+                            $expQuery = 'SELECT sum(b.ac_exp_power) as exp, b.group_ac as inverter
+                            FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameDcSoll() . " b on a.stamp = b.stamp)
+                            WHERE a.stamp BETWEEN '$timeBegin' AND '$timeEnd' AND  b.group_ac = " . $value['groupe'] . " 
+                            GROUP BY b.group_ac";
+                            $respExp = $conn->query($expQuery);
+                            $expected = $respExp->fetch(PDO::FETCH_ASSOC);
+                            if ((abs($expected['exp'] - $value['power']) * 100 / (($value['power'] + $expected['exp']) / 2) > $percentajeDiff) && ($value['power'] > 0)) {
+                                $counter++;
+                                if ($return['PowerDiff'] == "")
+                                    $return['PowerDiff'] = $expected['inverter'];
+                                else
+                                    $return['PowerDiff'] = $return['PowerDiff'] . ", " . $expected['inverter'];
+                            }
+                        }
+
+                        break;
+
+                }
+
+
+                if ($counter == $invCount)  $return['PowerDiff'] = "*";
             }
         }
 

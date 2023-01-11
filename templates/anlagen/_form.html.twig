@@ -201,8 +201,14 @@
                             </fieldset>
                             <fieldset class="fieldset">
                                 <legend>Alert System Config</legend>
+                                {{ form_row(anlageForm.ActivateTicketSystem) }}
                                 {{ form_row(anlageForm.freqBase) }}
                                 {{ form_row(anlageForm.freqTolerance) }}
+                                {% if (anlage.anlType != "masterslave") %}
+                                {{ form_row(anlageForm.expectedTicket) }}
+                                {{ form_row(anlageForm.percentageDiff) }}
+                                {% endif %}
+                                {{ form_row(anlageForm.weatherTicket) }}
                             </fieldset>
 
                         </div>

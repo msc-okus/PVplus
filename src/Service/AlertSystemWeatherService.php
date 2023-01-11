@@ -50,6 +50,11 @@ class AlertSystemWeatherService
             $this->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
         }
     }
+
+    private static function checkSystem(Anlage $anlage, $time){
+
+    }
+
     /**
      * here we analyze the data from the weather station and generate the status.
      *
@@ -112,7 +117,7 @@ class AlertSystemWeatherService
      * @param $sunrise
      * @return string
      */
-    private function AnalyzeWeather($status_report, $time, $anlage, $sunrise): string
+    private function generateTicket($status_report, $time, $anlage, $sunrise): string
     {
         $message = '';
 
@@ -247,6 +252,7 @@ class AlertSystemWeatherService
         } else {
             $ticket = $this->ticketRepo->findByAnlageIinverterTimeWeather($anlage, $time);
         }
+        return $ticket;
     }
 
     /**
