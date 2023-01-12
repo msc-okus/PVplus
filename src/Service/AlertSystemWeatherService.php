@@ -54,14 +54,15 @@ class AlertSystemWeatherService
     }
     public function checkWeatherStation(Anlage $anlage, ?string $time = null)
     {
+
         if ($time === null) {
             $time = $this->getLastQuarter(date('Y-m-d H:i:s'));
             $time = G4NTrait::timeAjustment($time, -2);
         }
+
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
 
-        $weatherStation = $anlage->getWeatherStation();
-        if ($weatherStation->getType() !== 'custom') {
+        if ( $anlage->getWeatherStation()->getType() !== 'custom') {
             if ($time >= $sungap['sunrise'] && $time <=  $sungap['sunset']) {
                 $status_report = $this->WData($anlage, $time);
                 $ticketData = "";
@@ -69,8 +70,8 @@ class AlertSystemWeatherService
                 if ($status_report['Temperature']) $ticketData = $ticketData . "Problem with the Temperature";
                 if ($status_report['wspeed']) $ticketData = $ticketData . "Problem with the Wind Speed";
                 $this->generateTicket($ticketData, $time, $anlage);
-                $status_report = $this->WDataFix($anlage, $time);
-                if ($status_report === 0) {
+
+                if ($ticketData != "") {
                     self::messagingFunction('No Data received from the weather station in the last four hours.', $anlage);
                 }
                 unset($status_report);
@@ -169,34 +170,11 @@ class AlertSystemWeatherService
     }
 
 
-
-
-    /**
-     * here we analyze the data from the weather station and generate the status.
-     *
-     * @param Anlage $anlage
-     * @param $time
-     *
-     * @return int
-     */
-    private static function WDataFix(Anlage $anlage, $time): int
-    {
-        $conn = self::getPdoConnection();
-        $begin = G4NTrait::timeAjustment($time, -4);
-
-        $sqlw = 'SELECT count(db_id)
-                    FROM '.$anlage->getDbNameWeather()." 
-                    WHERE stamp >= '$begin' AND stamp <= '$time' ";
-
-        $resw = $conn->query($sqlw);
-
-        return $resw->rowCount();
-    }
-
     /**
      * here we retrieve the tickets to link
      * @param $anlage
      * @param $time
+     * @return mixed
      */
     public function getLastTicketWeather($anlage, $time){
         $today = date('Y-m-d', strtotime($time));
@@ -204,12 +182,10 @@ class AlertSystemWeatherService
         $sunrise = self::getLastQuarter($this->weather->getSunrise($anlage, $today)['sunrise']); // the first quarter of today
         $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
         $quarter = date('Y-m-d H:i', strtotime($time) - 900); // the quarter before the actual
-  
-
         if ($quarter <= $sunrise) {
-            $ticket = $this->ticketRepo->findLastByAnlageInverterTimeWeather($anlage, $today, $lastQuarterYesterday); // the same as above but for weather station
+            $ticket = $this->ticketRepo->findLastByAnlageInverterTime($anlage, $today, $lastQuarterYesterday, 40, "*")[0]; // the same as above but for weather station
         } else {
-            $ticket = $this->ticketRepo->findByAnlageInverterTimeWeather($anlage, $quarter);
+            $ticket = $this->ticketRepo->findByAnlageInverterTime($anlage, $quarter, 40, "*")[0];
         }
         return $ticket;
     }
