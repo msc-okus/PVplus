@@ -9,6 +9,7 @@ use App\Repository\AnlagenRepository;
 use App\Repository\StatusRepository;
 use App\Repository\TicketRepository;
 use App\Service\AlertSystemService;
+use App\Service\AlertSystemWeatherService;
 use App\Service\Charts\IrradiationChartService;
 use App\Service\FunctionsService;
 use App\Service\MessageService;
@@ -36,10 +37,10 @@ class DefaultJMController extends AbstractController
     }
 
     #[Route(path: '/test/createticket', name: 'default_check')]
-    public function check(AnlagenRepository $anlagenRepository, AlertSystemService $service)
+    public function check(AnlagenRepository $anlagenRepository, AlertSystemWeatherService $service)
     {
-        $anlage = $anlagenRepository->findIdLike("112")[0];
-        $service->generateTicketsInterval($anlage, "2022-12-06", "2022-12-16");
+        $anlage = $anlagenRepository->findIdLike("56")[0];
+        $service->generateWeatherTicketsInterval($anlage, "2022-12-06", "2022-12-31");
         dd("hello");
     }
 

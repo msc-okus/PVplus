@@ -95,6 +95,7 @@ trait PVPNameArraysTrait
         $spriority[$this->translator->trans('ticket.priority.30')] = 30;
         $spriority[$this->translator->trans('ticket.priority.40')] = 40;
 
+
         return $spriority;
     }
 
@@ -105,7 +106,7 @@ trait PVPNameArraysTrait
         $errorCategory[$this->translator->trans('ticket.error.category.30')] = 30;
         $errorCategory[$this->translator->trans('ticket.error.category.40')] = 40;
         $errorCategory[$this->translator->trans('ticket.error.category.50')] = 50;
-
+        $errorCategory[$this->translator->trans('ticket.error.category.60')] = 60;
         return $errorCategory;
     }
 
