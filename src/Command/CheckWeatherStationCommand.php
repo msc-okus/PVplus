@@ -21,20 +21,23 @@ class CheckWeatherStationCommand extends Command
 
     private AlertSystemWeatherService $alertService;
 
-    private AnlagenRepository $anlRepo;
+
+    private AnlagenRepository $anlagenRepository;
 
     public function __construct(AlertSystemWeatherService $alertService, AnlagenRepository $anlRepo)
     {
         parent::__construct();
         $this->alertService = $alertService;
-        $this->anlRepo = $anlRepo;
+        $this->anlagenRepository = $anlRepo;
     }
 
     protected function configure(): void
     {
         $this
-            ->addArgument('arg1', InputArgument::OPTIONAL, 'Argument description')
-            ->addOption('option1', null, InputOption::VALUE_NONE, 'Option description')
+            ->setDescription('Generate Tickets')
+            ->addArgument('plantid')
+            ->addOption('from', null, InputOption::VALUE_REQUIRED, 'the date we want the generation to start')
+            ->addOption('to', null, InputOption::VALUE_REQUIRED, 'the date we want the generation to end')
         ;
     }
 
