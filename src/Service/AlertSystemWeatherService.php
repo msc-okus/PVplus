@@ -41,6 +41,14 @@ class AlertSystemWeatherService
         define('WEATHER_STATION_ERROR', 40);
         define('EXTERNAL_CONTROL', 50); // Regelung vom Direktvermarketr oder Netztbetreiber
     }
+
+    /**
+     * this is the function we use to generate tickets from the command
+     * @param Anlage $anlage
+     * @param string $from
+     * @param string|null $to
+     * @return void
+     */
     public function generateWeatherTicketsInterval(Anlage $anlage, string $from, ?string $to = null): void
     {
         $fromStamp = strtotime($from);
@@ -52,16 +60,16 @@ class AlertSystemWeatherService
         }
         else $this->checkWeatherStation($anlage, date('Y-m-d H:i:00', $fromStamp));
     }
-    public function checkWeatherStation(Anlage $anlage, ?string $time = null)
+
+    /**
+     * main function from the class to work with the tickets, but should never be called from outside the class
+     * @param Anlage $anlage
+     * @param string $time
+     * @return void
+     */
+    public function checkWeatherStation(Anlage $anlage, string $time)
     {
-
-        if ($time === null) {
-            $time = $this->getLastQuarter(date('Y-m-d H:i:s'));
-            $time = G4NTrait::timeAjustment($time, -2);
-        }
-
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
-
         if ( $anlage->getWeatherStation()->getType() !== 'custom') {
             if ($time >= $sungap['sunrise'] && $time <=  $sungap['sunset']) {
                 $status_report = $this->WData($anlage, $time);
@@ -69,10 +77,10 @@ class AlertSystemWeatherService
                 if ($status_report['Irradiation']) $ticketData = $ticketData . "Problem with the Irradiation ";
                 if ($status_report['Temperature']) $ticketData = $ticketData . "Problem with the Temperature";
                 if ($status_report['wspeed']) $ticketData = $ticketData . "Problem with the Wind Speed";
-                $this->generateTicket($ticketData, $time, $anlage);
+                $this->generateTicket($time, $time, $anlage);
 
                 if ($ticketData != "") {
-                    self::messagingFunction('No Data received from the weather station in the last four hours.', $anlage);
+                    self::messagingFunction($ticketData, $anlage);
                 }
                 unset($status_report);
             }
@@ -82,7 +90,6 @@ class AlertSystemWeatherService
 
     /**
      * here we analyze the data from the weather station and generate the status.
-     *
      * @param Anlage $anlage
      * @param $time
      * @return array
@@ -134,15 +141,14 @@ class AlertSystemWeatherService
         return $status_report;
     }
     /**
-     * We use this to make an error message of the status array from the weather station and to generate/update Tickets.
+     * We use this to generate/update Tickets.
      *
      * @param $status_report
      * @param $time
      * @param $anlage
-     * @param $sunrise
-     * @return string
+     * @return void
      */
-    private function generateTicket($data, $time, $anlage)
+    private function generateTicket($status_report, $time, $anlage): void
     {
         $ticket = self::getLastTicketWeather($anlage, $time);
         dump($ticket);
@@ -154,7 +160,7 @@ class AlertSystemWeatherService
              $this->em->persist($ticket);
              $this->em->flush();
         }
-         else if ($data != ""){
+         else if ($status_report != ""){
              $ticket = new Ticket();
              $date = date_create_from_format('Y-m-d H:i:s', $time);
              $ticket->setBegin($date);
@@ -162,7 +168,7 @@ class AlertSystemWeatherService
              $ticket->setInverter('*');
              $ticket->setAnlage($anlage);
              $ticket->setAlertType(40);
-             $ticket->setDescription($data);
+             $ticket->setDescription($status_report);
              $ticket->setEditor("AlertSystem");
              $this->em->persist($ticket);
              $this->em->flush();
@@ -176,7 +182,8 @@ class AlertSystemWeatherService
      * @param $time
      * @return mixed
      */
-    public function getLastTicketWeather($anlage, $time){
+    public function getLastTicketWeather($anlage, $time): mixed
+    {
         $today = date('Y-m-d', strtotime($time));
         $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
         $sunrise = self::getLastQuarter($this->weather->getSunrise($anlage, $today)['sunrise']); // the first quarter of today

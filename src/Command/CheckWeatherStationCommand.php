@@ -69,8 +69,7 @@ class CheckWeatherStationCommand extends Command
                 $io->comment("Generate Tickets: $from - $to | Plant ID: $plantid");
                 $anlagen = $this->anlagenRepository->findIdLike([$plantid]);
             } else {
-                $io->comment("Generate Tickets: $from - $to | Test Plants (93, 94, 95, 96, 112, 113, 108, 183)");
-                //$anlagen = $this->anlagenRepository->findIdLike([93, 94, 95, 96, 112, 113, 108, 183]);
+                $io->comment("Generate Tickets: $from - $to | All active");
                 $anlagen = $this->anlagenRepository->findAlertSystemActive(true);
             }
 
