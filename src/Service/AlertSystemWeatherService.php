@@ -76,12 +76,13 @@ class AlertSystemWeatherService
                 $ticketData = "";
                 if ($status_report['Irradiation']) $ticketData = $ticketData . "Problem with the Irradiation ";
                 if ($status_report['Temperature']) $ticketData = $ticketData . "Problem with the Temperature";
-                if ($status_report['wspeed']) $ticketData = $ticketData . "Problem with the Wind Speed";
-                $this->generateTicket($time, $time, $anlage);
-
+                if ($status_report['wspeed'] != "") $ticketData = $ticketData . "Problem with the Wind Speed";
+                $this->generateTicket($ticketData, $time, $anlage);
+                /* disabled by now.
                 if ($ticketData != "") {
                     self::messagingFunction($ticketData, $anlage);
                 }
+                */
                 unset($status_report);
             }
         }
@@ -133,7 +134,7 @@ class AlertSystemWeatherService
                     $status_report['wspeed'] = 'No data';
                 }
             } else {
-                $status_report['wspeed'] = 'there is no wind measurer in the plant';
+                $status_report['wspeed'] = "";
             }
         }
         $conn = null;
@@ -151,7 +152,7 @@ class AlertSystemWeatherService
     private function generateTicket($status_report, $time, $anlage): void
     {
         $ticket = self::getLastTicketWeather($anlage, $time);
-        dump($ticket);
+
          if ($ticket != null) {
             $timetempend = date('Y-m-d H:i:s', strtotime($time));
             $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
