@@ -41,6 +41,21 @@ class DefaultMREController extends BaseController
     {
     }
 
+    #[Route(path: '/mr/test/upImport')]
+    public function testUpImport(WeatherServiceNew $weatherService, WeatherStationRepository $weatherStationRepo)
+    {
+        $weatherStation = $weatherStationRepo->findOneBy(['databaseIdent' => 'G4NET_25']);
+        $stamp = strtotime('2023-01-10 12:00');
+        $weatherService->loadWeatherDataUP($weatherStation, $stamp);
+
+        return $this->render('cron/showResult.html.twig', [
+            'headline' => 'Test UP Import',
+            'availabilitys' => '',
+            'output' => '',
+        ]);
+    }
+
+
     #[Route(path: '/mr/sun')]
     public function testSunRise(WeatherServiceNew $weatherService, AnlagenRepository $anlagenRepository, WeatherStationRepository $weatherStationRepository): Response
     {
