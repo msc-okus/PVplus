@@ -14,6 +14,7 @@ use App\Service\Charts\IrradiationChartService;
 use App\Service\FunctionsService;
 use App\Service\MessageService;
 use App\Service\WeatherServiceNew;
+use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -39,7 +40,9 @@ class DefaultJMController extends AbstractController
     #[Route(path: '/test/createticket', name: 'default_check')]
     public function check(AnlagenRepository $anlagenRepository, AlertSystemWeatherService $service)
     {
-        $anlage = $anlagenRepository->findIdLike("56")[0];
+        $anlage = $anlagenRepository->findIdLike("181")[0];
+
+
         $service->generateWeatherTicketsInterval($anlage, "2022-12-06", "2022-12-31");
         dd("hello");
     }

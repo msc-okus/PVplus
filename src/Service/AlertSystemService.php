@@ -235,6 +235,8 @@ class AlertSystemService
             }
 
             if ($plant_status['ppc'] === false) {
+
+                /*
                 if ($anlage->getAnlId() == "56" ||  $anlage->getAnlId() == "44"||  $anlage->getAnlId() == "111") {
                     if (count($array_PowerDiff) > 0) {
                         foreach ($array_PowerDiff as $inverter) {
@@ -245,6 +247,7 @@ class AlertSystemService
                         }
                     }
                 }
+                */
                 if (count($array_gap) > 0) {
                     foreach ($array_gap as $inverter) {
                         if ($inverter != "") {
@@ -294,7 +297,7 @@ class AlertSystemService
         $offsetServer = new DateTimeZone("Europe/Luxembourg");
         $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon()));
         $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
-
+        if ($anlage->getAnlId() == "181") $totalOffset = 0;
         $time = date('Y-m-d H:i', strtotime($time) - (int)$totalOffset); // in the sunrise function we use + because we change from THEIR time to OURS, here we substract because we change form OURS  to THEIRS
 
         $irrLimit = $anlage->getThreshold1PA0() == 0 ? $anlage->getThreshold1PA0() : 20; // we get the irradiation limit from the plant config
@@ -545,7 +548,8 @@ class AlertSystemService
         $today = date('Y-m-d', strtotime($time));
         $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
         $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
-        return $this->ticketRepo->findAllLastByAnlageTime($anlage, $today, $lastQuarterYesterday); // we try to retrieve the last quarter of yesterday
+        $ticket = $this->ticketRepo->findAllLastByAnlageTime($anlage, $today, $lastQuarterYesterday); // we try to retrieve the last quarter of yesterday
+        return $ticket != null ? $ticket[0] : null;
     }
 
     /**

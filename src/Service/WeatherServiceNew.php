@@ -196,6 +196,7 @@ class WeatherServiceNew
         $offsetServer = new DateTimeZone("Europe/Luxembourg");
         $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon()));
         $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
+        if ($anlage->getAnlId() == "181") $totalOffset = 0;
         $returnArray['sunrise'] = $time.' '.date('H:i', $sunrisedata['sunrise'] + (int)$totalOffset);
         $returnArray['sunset'] = $time.' '.date('H:i', $sunrisedata['sunset'] + (int)$totalOffset);
         return $returnArray;
