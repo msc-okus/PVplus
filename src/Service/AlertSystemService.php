@@ -217,6 +217,8 @@ class AlertSystemService
         $time = G4NTrait::timeAjustment($time, -2);
 
         if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
+
+
             //here we retrieve the values from the plant and set soma flags to generate tickets
             $plant_status = self::RetrievePlant($anlage, $time);
             // We do this to avoid checking further inverters if we have a PPC control shut
@@ -306,10 +308,9 @@ class AlertSystemService
         $percentajeDiff = $anlage->getPercentageDiff();
         //we get the frequency values
         $voltLimit = 0;
-
         $conn = self::getPdoConnection();
-        $isPPC = false;
-        $return['ppc'] = $isPPC;
+
+        $return['ppc'] = false;
         $return['PowerDiff'] = "";
         $return['Power0'] = "";
         $return['Gap'] = "";
@@ -332,6 +333,7 @@ class AlertSystemService
                 $return['ppc'] = (($ppdData['p_set_rel'] < 100 || $ppdData['p_set_gridop_rel'] < 100) && $anlage->getHasPPC());
             }
         }
+
         if ($return['ppc'] != true) {
 
             $sqlAct = 'SELECT b.unit 
@@ -374,6 +376,7 @@ class AlertSystemService
                     else $return['Vol'] = $value['unit'];
                 }
             }
+
             if ($anlage->isExpectedTicket() && $anlage->getAnlType() != "masterslave"){
 
                 $timeEnd = date("Y-m-d H:i",strtotime($time));
@@ -384,10 +387,10 @@ class AlertSystemService
                     case 2:
                         $actQuery = "SELECT unit as inverter, avg(wr_pac) as power 
                             FROM " . $anlage->getDbNameIst() . " 
-                            WHERE stamp BETWEEN '$timeBegin' AND '$timeEnd' AND  wr_pac > 0 ";
+                            WHERE stamp BETWEEN '$timeBegin' AND '$timeEnd' AND  wr_pac > 0 
+                            GROUP BY unit";
                         $resp = $conn->query($actQuery);
                         $power = $resp->fetchAll(PDO::FETCH_ASSOC);
-
                         foreach ($power as $value) {
                             if ($value['inverter'] != null) {
                                 $expQuery = "SELECT avg(ac_exp_power) as exp
@@ -430,9 +433,7 @@ class AlertSystemService
                                 }
                             }
                         }
-
                         break;
-
                 }
                 if ($counter == $invCount)  $return['PowerDiff'] = "*";
             }
@@ -548,8 +549,12 @@ class AlertSystemService
         $today = date('Y-m-d', strtotime($time));
         $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
         $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
+<<<<<<< HEAD
         $ticket = $this->ticketRepo->findAllLastByAnlageTime($anlage, $today, $lastQuarterYesterday); // we try to retrieve the last quarter of yesterday
         return $ticket != null ? $ticket[0] : null;
+=======
+        return $this->ticketRepo->findAllLastByAnlageTime($anlage, $today, $lastQuarterYesterday)[0]; // we try to retrieve the last quarter of yesterday
+>>>>>>> 37d2270cab67c192c0629265f6b7b2c7c2a163b8
     }
 
     /**

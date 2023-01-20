@@ -424,9 +424,7 @@ class TicketController extends BaseController
         $ticket->setEditor($this->getUser()->getUsername());
         $newTicket->setEditor($this->getUser()->getUsername());
 
-        if ($ticket->getStatus() == '10') $ticket->setStatus(10);
-        if ($newTicket->getStatus() == '10') $newTicket->setStatus(10);
-
+        $newTicket->setStatus(10);
         $em->persist($ticket);
         $em->persist($newTicket);
         $em->flush();
