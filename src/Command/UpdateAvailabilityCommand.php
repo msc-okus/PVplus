@@ -20,7 +20,6 @@ class UpdateAvailabilityCommand extends Command
 
     public function __construct(
         private AnlagenRepository $anlagenRepository,
-        private AvailabilityService $availability,
         private AvailabilityByTicketService $availabilityByTicket)
     {
         parent::__construct();
@@ -88,12 +87,12 @@ class UpdateAvailabilityCommand extends Command
                 if ($anlage->getAnlInputDaily() == 'Yes') {
                     $from = date('Y-m-d 00:00', $stamp - (24 * 3600)); // gestern, da Anlage heute keine Daten bekommt
                 }
+
+                $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, $from, 0);
                 $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, $from, 2);
-                if ($anlage->getAnlId() == 93 || $anlage->getAnlId() == 95 || $anlage->getAnlId() == 94) {
-                    $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, $from, 0);
-                    $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, $from, 1);
-                    $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, $from, 3);
-                }
+                $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, $from, 1);
+                $ergebniss = $this->availabilityByTicket->checkAvailability($anlage, $from, 3);
+
                 $io->progressAdvance();
             }
             $io->comment($anlage->getAnlName());

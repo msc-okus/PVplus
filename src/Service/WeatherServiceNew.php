@@ -184,7 +184,9 @@ class WeatherServiceNew
         $sunrise = date_create(date("Y-m-d H:i:s", $sunrisedata['sunrise']));
         $sunset = date_create(date("Y-m-d H:i:s", $sunrisedata['sunset']));
 
-        return !($sunrise < $stamp && $stamp < $sunset);
+        dump($sunrise->format("H:i")." > ".$stamp->format("H:i")." && ".$stamp->format("H:i")." > ".$sunset->format("H:i"));
+        dump(($sunrise > $stamp || $stamp > $sunset));
+        return $sunrise > $stamp || $stamp > $sunset;
     }
 
     /** Given a plant and no date it will return the sunrise info of the given plant for the current day

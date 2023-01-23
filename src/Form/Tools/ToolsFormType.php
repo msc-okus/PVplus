@@ -22,7 +22,7 @@ class ToolsFormType extends AbstractType
 {
     public function __construct(
         private AnlagenRepository $anlagenRepository,
-        private Security $security
+        private Security          $security
     )
     {
     }
@@ -32,29 +32,26 @@ class ToolsFormType extends AbstractType
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin = $this->security->isGranted('ROLE_ADMIN');
 
-        if ($this->security->isGranted('ROLE_G4N')){
+        if ($this->security->isGranted('ROLE_G4N')) {
             $anlagen = $this->anlagenRepository->findAllActiveAndAllowed();
         } else {
             $eigner = $this?->security->getUser()?->getEigners()[0];
             $anlagen = $this->anlagenRepository->findAllIDByEigner($eigner);
         }
 
-        #if ($isDeveloper) $choisesFuction['Generate Tickets (NOT Update)'] = 'generate-tickets';
-        #if ($isDeveloper) $choisesFuctionDB['Load API Data'] = 'api-load-data';
-
-        $choisesFuction0 = [
-        'Plant Data Tools' => [
-            'Expected (New)' => 'expected',
-            'Update availability' => 'availability',
-            'Update availability New' => 'availability-new',
-            'Update PR' => 'pr',
-         ],
-        'Database Tools' => [
-            'Reload INAX Data' => 'api-load-inax-data',
-            'Reload API Data' => 'api-load-data',
-         ]
-
+        $choiceFunction = [
+            'Plant Data Tools' => [
+                'Expected (New)' => 'expected',
+                'Update availability' => 'availability',
+                'Update PR' => 'pr',
+            ],
+            'Database Tools' => [
+                'Reload INAX Data' => 'api-load-inax-data',
+                'Reload API Data' => 'api-load-data',
+            ]
         ];
+
+        if ($isDeveloper) $choiceFunction['Plant Data Tools']['Generate Tickets (NOT Update)'] = 'generate-tickets';
 
         $builder
             ->add('anlage', EntityType::class, [
@@ -74,8 +71,8 @@ class ToolsFormType extends AbstractType
                 'data' => new \DateTime('now'),
             ])
             ->add('function', ChoiceType::class, [
-                'choices' =>  $choisesFuction0,
-                'placeholder'   => 'please Choose ...',
+                'choices' => $choiceFunction,
+                'placeholder' => 'please Choose ...',
                 'mapped' => false,
                 'required' => true,
             ])
@@ -88,12 +85,12 @@ class ToolsFormType extends AbstractType
                 'label' => 'Start calculation',
                 'attr' => ['class' => 'primary save'],
             ])
-
             ->add('close', SubmitType::class, [
                 'label' => 'Close (do nothing)',
                 'attr' => ['class' => 'secondary close', 'formnovalidate' => 'formnovalidate'],
             ]);
-        }
+    }
+
 ##
     public function configureOptions(OptionsResolver $resolver)
     {

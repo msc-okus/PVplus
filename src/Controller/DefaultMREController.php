@@ -41,6 +41,21 @@ class DefaultMREController extends BaseController
     {
     }
 
+    #[Route(path: '/mr/test/upImport')]
+    public function testUpImport(WeatherServiceNew $weatherService, WeatherStationRepository $weatherStationRepo)
+    {
+        $weatherStation = $weatherStationRepo->findOneBy(['databaseIdent' => 'G4NET_25']);
+        $stamp = strtotime('2023-01-10 12:00');
+        $weatherService->loadWeatherDataUP($weatherStation, $stamp);
+
+        return $this->render('cron/showResult.html.twig', [
+            'headline' => 'Test UP Import',
+            'availabilitys' => '',
+            'output' => '',
+        ]);
+    }
+
+
     #[Route(path: '/mr/sun')]
     public function testSunRise(WeatherServiceNew $weatherService, AnlagenRepository $anlagenRepository, WeatherStationRepository $weatherStationRepository): Response
     {
@@ -84,12 +99,14 @@ class DefaultMREController extends BaseController
             'availabilitys' => '',
             'output' => 'TEST',
         ]);
-
-        dd($html);
-
-        $output = $pdf->getOutputFromHtml($html, ['enable-local-file-access' => true]);
-        dd($output);
-    }
+        $tempFile = tmpfile();
+        fwrite($tempFile, $html);
+        fseek($tempFile,0);
+        $output = $pdf->getOutput(stream_get_meta_data($tempFile)['uri'], ['enable-local-file-access' => true, 'load-error-handling' => 'ignore']);
+        fclose($tempFile);
+        #$output = $pdf->getOutputFromHtml($html, ['enable-local-file-access' => true]);
+        dd(get_resource_type($output));
+     }
 
     /**
      * @throws \Exception

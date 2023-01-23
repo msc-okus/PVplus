@@ -125,7 +125,6 @@ class ReportingController extends AbstractController
             $page,
             20
         );
-
         return $this->render('reporting/_inc/_listReports.html.twig', [
             'pagination' => $pagination,
             'stati' => self::reportStati(),
@@ -283,15 +282,8 @@ class ReportingController extends AbstractController
                             'chart2'            => $epcNewService->chartYieldCumulative($anlage, $reportArray['monthTable']),
                         ]);
 
-                        $response = new BinaryFileResponse($pdf->createPdfTemp($anlage, $result, 'string'));
-                        $response->headers->set('Content-Type', 'application/pdf');
-                        $response->deleteFileAfterSend(true);
-                        $response->setContentDisposition(
-                            ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-                            $anlage->getAnlName().'_EPC-Report_'.$month.'_'.$year.'.pdf'
-                        );
+                        $pdf->createPdf($result, 'string', $anlage->getAnlName().'_EPC-Report_'.$month.'_'.$year.'.pdf');
 
-                        return $response;
                 }
                 break;
             case 'epc-new-pr':
@@ -306,13 +298,17 @@ class ReportingController extends AbstractController
                     // 'chart2'            => $chartYieldCumulativ,
                 ]);
 
-                $response = new BinaryFileResponse($pdf->createPdfTemp($anlage, $result, 'string'));
+                $pdf->createPdf($result, 'string', $anlage->getAnlName().'_EPC-Report_'.$month.'_'.$year.'.pdf');
+
+                /*
+                $response = new BinaryFileResponse($pdf->createPdf($result, 'string'));
                 $response->headers->set('Content-Type', 'application/pdf');
                 $response->deleteFileAfterSend(true);
                 $response->setContentDisposition(
                     ResponseHeaderBag::DISPOSITION_ATTACHMENT,
                     $anlage->getAnlName().'_EPC-Report_'.$month.'_'.$year.'.pdf'
                 );
+                */
                 break;
             case 'monthly-report':
                 //standard G4N Report (an O&M Goldbeck angelehnt)
@@ -408,22 +404,12 @@ class ReportingController extends AbstractController
                             'kwhLossesMonthTable' => $output['kwhLossesMonthTable'],
                             'kwhLossesYearTable' => $output['kwhLossesYearTable']
                         ]);
-                        /*
 
-                        header("Content-type: application/pdf");
-                        header("Content-Length: " . filesize($filename));
-                        header("Content-type: application/pdf");
-
-                        $response = new BinaryFileResponse($pdf->createPdfTemp($anlage, $result, null, $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year));
-                        */
                         $filename = $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf';
                         $result = str_replace('src="//', 'src="https://', $result);
+                        $pdf->createPdf($result, 'string', $filename);
 
-                        return new PdfResponse(
-                            $snappyPdf->getOutputFromHtml(
-                                $result, ['enable-local-file-access' => true, 'orientation' => 'landscape'])
-                            , $filename
-                        );
+                        return $this->redirect($route);
                     }
 
                     return $this->render('report/_form.html.twig', [
@@ -1136,9 +1122,9 @@ class ReportingController extends AbstractController
 
     }
 
-
-    //generate PDF
-
+    /** (Steve)
+     * generate PDF
+     */
     #[Route(path: '/new_reporting/pdf/{id}', name: 'app_reporting_new_pdf')]
     public function newShowReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, MonthlyService $reportsMonthly, $tempPathBaseUrl, $kernelProjectDir)
     {
@@ -1250,8 +1236,6 @@ class ReportingController extends AbstractController
                 );
                 break;
             case 'monthly-report':
-
-
                 $result = $this->renderView('report/newMonthlyReport.html.twig', [
                      'reportContentHeadline'    => count($reportArray['headline'])===1?$this->convertToarray($reportArray['headline']):$reportArray['headline'],
                      'reports'                  =>[
@@ -1344,17 +1328,6 @@ class ReportingController extends AbstractController
                 // Send the file to the browser.
                 readfile('/usr/home/pvpluy/public_html' . $pathpart . '/public/' . $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf');
 
-
-
-                /* $response = new BinaryFileResponse($pdf->createPdfTemp($anlage, $result, 'string'));
-              $response->headers->set('Content-Type', 'application/pdf');
-              $response->deleteFileAfterSend(true);
-              $response->setContentDisposition(
-                  ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-                  $anlage->getAnlName().'_Monthly-Report_'.$month.'_'.$year.'.pdf'
-              );
-             return $response;
-             */
 
                 break;
         }

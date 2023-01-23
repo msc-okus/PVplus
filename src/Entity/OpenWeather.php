@@ -13,23 +13,26 @@ class OpenWeather
     #[ORM\Column(type: 'integer')]
     private $id;
 
-    #[ORM\Column(type: 'string', length: 20)]
-    private $stamp;
+    #[ORM\Column(type: 'string', length: 20, nullable: false)]
+    private ?string $stamp;
 
     #[ORM\Column(type: 'string', length: 20)]
-    private $tempC;
+    private ?string $tempC;
 
     #[ORM\Column(type: 'string', length: 20)]
-    private $iconWeather;
+    private ?string $windSpeed;
+
+    #[ORM\Column(type: 'string', length: 20)]
+    private ?string $iconWeather;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private $description;
+    private ?string $description;
 
     #[ORM\Column(type: 'json')]
-    private $data = [];
+    private ?array $data = [];
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'openWeather')]
-    private $anlage;
+    private ?Anlage $anlage;
 
     public function getId(): ?int
     {
@@ -56,6 +59,18 @@ class OpenWeather
     public function setTempC(string $tempC): self
     {
         $this->tempC = $tempC;
+
+        return $this;
+    }
+
+    public function getWindSpeed(): ?string
+    {
+        return $this->windSpeed;
+    }
+
+    public function setWindSpeed(?string $windSpeed): self
+    {
+        $this->windSpeed = $windSpeed;
 
         return $this;
     }

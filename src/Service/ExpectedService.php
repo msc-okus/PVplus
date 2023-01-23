@@ -136,7 +136,7 @@ class ExpectedService
                         $shadow_loss = $shadow_loss * 0.8;
                     }
 
-                    $pannelTemp = (float) $weather['panel_temp'];   // Pannel Temperatur
+                    $pannelTemp = is_numeric($weather['panel_temp']) ? (float)$weather['panel_temp'] : null;   // Pannel Temperatur
                     $irrUpper = (float) $weather['irr_upper'] - ((float) $weather['irr_upper'] / 100 * $shadow_loss);    // Strahlung an obern Sensor
                     $irrLower = (float) $weather['irr_lower'] - ((float) $weather['irr_lower'] / 100 * $shadow_loss);    // Strahlung an unterem Sensor
 
@@ -168,7 +168,7 @@ class ExpectedService
                         }
 
                         // Temperatur Korrektur
-                        if ($anlage->getHasPannelTemp()) { // && $pannelTemp >= 25
+                        if ($anlage->getHasPannelTemp() && $pannelTemp) {
                             $expPowerDcHlp = $expPowerDcHlp * $modul->getModuleType()->getTempCorrPower($pannelTemp);
                             $expCurrentDcHlp = $expCurrentDcHlp * $modul->getModuleType()->getTempCorrCurrent($pannelTemp);
                         }

@@ -150,7 +150,7 @@ class ReportEpcService
 
                 switch ($n) {
                     case 1:
-                        $from = date('Y-m-d', strtotime("$year-$month-$facStartDay 00:00"));
+                        $from               = date('Y-m-d', strtotime("$year-$month-$facStartDay 00:00"));
                         $prArray            = $this->PRCalulation->calcPR($anlage, date_create($from), date_create($to));
                         $days               = $daysInMonth - $daysInStartMonth + 1;
                         $ertragPvSyst       = $anlage->getOneMonthPvSyst($month)->getErtragDesign() / $daysInMonth * $days;
@@ -182,7 +182,7 @@ class ReportEpcService
                 $monthlyData = $this->monthlyDataRepo->findOneBy(['anlage' => $anlage, 'year' => $year, 'month' => $month]);
                 */
                 $currentMonthClass = '';
-                if (true) {#($pr && $pr->getstamp() <= $date) {
+                if (date_create($from) <= $date) {
                     $prReal         = $prArray['prEvu']; // $this->format($pr->getPrEvuMonth());
                     $prStandard     = $prArray['prDefaultEvu']; // $this->format($pr->getPrDefaultMonthEvu());
                     switch ($n) {
