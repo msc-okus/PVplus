@@ -229,7 +229,7 @@ class AlertSystemService
         }
         // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
-        dump($sungap);
+
         $time = G4NTrait::timeAjustment($time, -2);
         if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
 
@@ -456,7 +456,6 @@ class AlertSystemService
     private function generateTickets($errorType, $errorCategorie, $anlage, $inverter, $time, $message)
     {
         $ticketOld = $this->getLastTicket($anlage, $time, $errorCategorie, $inverter);// we retrieve here the previous ticket (if any)
-        if ($inverter == "19")dump($time, $ticketOld);
         //this could be the ticket from  the previous quarter or the last ticket from  the previous day
         if ($ticketOld !== null) { // is there is a previous ticket we just extend it
             $ticketDate = $ticketOld->getDates()->last();
@@ -516,7 +515,6 @@ class AlertSystemService
             $this->em->persist($ticket);
             $this->em->persist($ticketDate);
         }
-        if ($inverter == "19")dump($ticket);
     }
 
     private function getLastTicket($anlage, $time, $errorCategory, $inverter): mixed

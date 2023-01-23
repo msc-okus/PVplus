@@ -200,8 +200,6 @@ class WeatherServiceNew
         $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
 
 
-        //if (fmod($sunrisedata['sunrise'], 900) == 0) $sunrisedata['sunrise'] = $sunrisedata['sunrise'] - 60;
-        //if (fmod($sunrisedata['sunset'], 900) == 0) $sunrisedata['sunset'] = $sunrisedata['sunset'] - 60;// this 2 ifs are requiered to avoid having a sunrise/sunset exactly at a quarter, because it can cause errors
         $returnArray['sunrise'] = $time.' '.date('H:i', $sunrisedata['sunrise'] + (int)$totalOffset);
         $returnArray['sunset'] = $time.' '.date('H:i', $sunrisedata['sunset'] + (int)$totalOffset);
         return $returnArray;

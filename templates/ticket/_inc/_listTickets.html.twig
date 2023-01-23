@@ -78,6 +78,7 @@
             {% endfor %}
             </tbody>
         </table>
+        {{ knp_pagination_render(pagination, false, {}, {'controllerNameStimulus': 'ticket-list'}) }}
 {#
         <div id="modal-form0" {{ stimulus_controller('ticket-edit', {
             formUrl: path('app_ticket_create'),
@@ -148,9 +149,9 @@
                 }) }}
             </div>
         </div>
-        {# join Tickets – Begin #}
 
-        {{ knp_pagination_render(pagination, false, {}, {'controllerNameStimulus': 'ticket-list'}) }}
+
+
     </div>
 </div>
 
