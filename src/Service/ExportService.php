@@ -190,7 +190,7 @@ class ExportService
         $res = $conn->prepare($sql);
         $res->execute();
         if ($res->rowCount() > 0) {
-            $fp = fopen('daten '.$anlage->getAnlName().'-'.$from->format('Y-m').'.csv', 'a');
+            $fp = fopen('daten-'.$anlage->getAnlName().'-'.$from->format('Y-m').'.csv', 'a');
             $first = true;
             $i = 0;
             while ($row = $res->fetch(PDO::FETCH_ASSOC)) {
