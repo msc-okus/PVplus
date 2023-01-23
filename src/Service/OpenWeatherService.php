@@ -22,7 +22,7 @@ class OpenWeatherService
         $this->em = $em;
     }
 
-    public function loadOpenWeather(Anlage $anlage)
+    public function loadOpenWeather(Anlage $anlage): string
     {
         $timestamp = self::getCetTime() - (self::getCetTime() % (3 * 3600));
         $date = date('Y-m-d H:00:00', $timestamp);
@@ -47,6 +47,7 @@ class OpenWeatherService
 
                 $openWeather
                     ->setTempC(round($clima->main->temp - 273.15, 0))
+                    ->setWindSpeed($clima->wind->speed)
                     ->setIconWeather(strtolower($clima->weather[0]->icon))
                     ->setDescription($clima->weather[0]->description)
                     ->setData(json_decode($contents, true));
