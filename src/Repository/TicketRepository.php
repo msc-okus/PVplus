@@ -234,19 +234,16 @@ class TicketRepository extends ServiceEntityRepository
     }
     public function findLastByAnlageInverterTime($anlage, $today, $yesterday, $errorCategory, $inverter)
     {
-        $description = 'Error with the Data of the Weather station';
         $result = $this->createQueryBuilder('t')
             ->andWhere('t.end < :today')
             ->andWhere('t.end >= :yesterday')
             ->andWhere('t.anlage = :anl')
             ->andWhere('t.alertType = :error')
             ->andWhere('t.inverter = :inverter')
-            ->andWhere('t.description != :description')
             ->setParameter('today', $today)
             ->setParameter('yesterday', $yesterday)
             ->setParameter('anl', $anlage)
             ->setParameter('error', $errorCategory)
-            ->setParameter('description', $description)
             ->setParameter('inverter', $inverter)
             ->orderBy('t.end', 'DESC')
             ->getQuery();

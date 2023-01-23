@@ -31,8 +31,8 @@ class AlertSystemWeatherService
         private StatusRepository        $statusRepo,
         private TicketRepository        $ticketRepo)
     {
-        define('SOR', '10');
-        define('EFOR', '20');
+        define('EFOR', '10');
+        define('SOR', '20');
         define('OMC', '30');
 
         define('DATA_GAP', 10);
@@ -40,6 +40,7 @@ class AlertSystemWeatherService
         define('GRID_ERROR', 30);
         define('WEATHER_STATION_ERROR', 40);
         define('EXTERNAL_CONTROL', 50); // Regelung vom Direktvermarketr oder Netztbetreiber
+        define('POWER_DIFF', 60);
     }
 
     /**
@@ -95,9 +96,12 @@ class AlertSystemWeatherService
      * @param $time
      * @return array
      */
-    private static function WData(Anlage $anlage, $time): array
+    private function WData(Anlage $anlage, $time): array
     {
-        $status_report = [];
+        $offsetServer = new DateTimeZone("Europe/Luxembourg");
+        $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), strtoupper($anlage->getCountry())));
+        $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
+        $time = date('Y-m-d H:i:s', strtotime($time) - $totalOffset);
         $conn = self::getPdoConnection();
         $sqlw = 'SELECT b.g_lower as gi , b.g_upper as gmod, b.temp_ambient as temp, b.wind_speed as wspeed 
                     FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) 

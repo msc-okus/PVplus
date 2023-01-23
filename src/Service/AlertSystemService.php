@@ -199,7 +199,22 @@ class AlertSystemService
 
         }
     }
+    /**
+     * Generate tickets for the given time, check if there is an older ticket for same inverter with same error.
+     * Write new ticket to database or extend existing ticket with new end time.
+     * @param Anlage $anlage
+     * @param string|null $time
+     */
+    public function checkExpected(Anlage $anlage, ?string $time = null)
+    {
+        if ($time === null) {
+            $time = $this->getLastQuarter(date('Y-m-d'));
+        }
 
+        // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
+
+
+    }
     /**
      * Generate tickets for the given time, check if there is an older ticket for same inverter with same error.
      * Write new ticket to database or extend existing ticket with new end time.
@@ -214,8 +229,8 @@ class AlertSystemService
         }
         // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
+        dump($sungap);
         $time = G4NTrait::timeAjustment($time, -2);
-
         if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
 
 
@@ -238,18 +253,7 @@ class AlertSystemService
 
             if ($plant_status['ppc'] === false) {
 
-                /*
-                if ($anlage->getAnlId() == "56" ||  $anlage->getAnlId() == "44"||  $anlage->getAnlId() == "111") {
-                    if (count($array_PowerDiff) > 0) {
-                        foreach ($array_PowerDiff as $inverter) {
-                            if ($inverter != "") {
-                                $message = "Difference between Power and Expected greater than " . $anlage->getPercentageDiff() . "% in Inverter " . $anlage->getInverterFromAnlage()[(int)$inverter];
-                                $this->generateTickets('', POWER_DIFF, $anlage, $inverter, $time, $message);
-                            }
-                        }
-                    }
-                }
-                */
+
                 if (count($array_gap) > 0) {
                     foreach ($array_gap as $inverter) {
                         if ($inverter != "") {
@@ -297,11 +301,9 @@ class AlertSystemService
     {
 
         $offsetServer = new DateTimeZone("Europe/Luxembourg");
-        $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon()));
+        $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), strtoupper($anlage->getCountry())));
         $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
-        if ($anlage->getAnlId() == "181") $totalOffset = 0;
-        $time = date('Y-m-d H:i', strtotime($time) - (int)$totalOffset); // in the sunrise function we use + because we change from THEIR time to OURS, here we substract because we change form OURS  to THEIRS
-
+        $time = date('Y-m-d H:i:s', strtotime($time) - $totalOffset);
         $irrLimit = $anlage->getThreshold1PA0() == 0 ? $anlage->getThreshold1PA0() : 20; // we get the irradiation limit from the plant config
         $freqLimitTop = $anlage->getFreqBase() + $anlage->getFreqTolerance();
         $freqLimitBot = $anlage->getFreqBase() - $anlage->getFreqTolerance();
@@ -454,6 +456,7 @@ class AlertSystemService
     private function generateTickets($errorType, $errorCategorie, $anlage, $inverter, $time, $message)
     {
         $ticketOld = $this->getLastTicket($anlage, $time, $errorCategorie, $inverter);// we retrieve here the previous ticket (if any)
+        if ($inverter == "19")dump($time, $ticketOld);
         //this could be the ticket from  the previous quarter or the last ticket from  the previous day
         if ($ticketOld !== null) { // is there is a previous ticket we just extend it
             $ticketDate = $ticketOld->getDates()->last();
@@ -513,12 +516,13 @@ class AlertSystemService
             $this->em->persist($ticket);
             $this->em->persist($ticketDate);
         }
+        if ($inverter == "19")dump($ticket);
     }
 
     private function getLastTicket($anlage, $time, $errorCategory, $inverter): mixed
     {
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
-        if (strtotime($time) - 900 <= strtotime($sungap['sunrise'])) return $this->getTicketYesterday($anlage, $time);
+        if (strtotime($time) - 900 < strtotime($sungap['sunrise'])) return $this->getTicketYesterday($anlage, $time, $errorCategory,  $inverter);
         else return  $this->getLastTicketInverter($anlage, $time, $errorCategory, $inverter);
     }
 
@@ -544,12 +548,12 @@ class AlertSystemService
      * @param $inverter
      * @return mixed
      */
-    private function getTicketYesterday($anlage, $time): mixed
+    private function getTicketYesterday($anlage, $time, $errorCategory, $inverter): mixed
     {
         $today = date('Y-m-d', strtotime($time));
         $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
         $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
-        $ticket = $this->ticketRepo->findAllLastByAnlageTime($anlage, $today, $lastQuarterYesterday); // we try to retrieve the last quarter of yesterday
+        $ticket = $this->ticketRepo->findLastByAnlageInverterTime($anlage, $today, $lastQuarterYesterday, $errorCategory, $inverter); // we try to retrieve the last quarter of yesterday
         return $ticket != null ? $ticket[0] : null;
     }
 
