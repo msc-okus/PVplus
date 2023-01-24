@@ -10,6 +10,7 @@
                 <div class="cell medium-2">{{ form_row(module.type) }}</div>
                 <div class="cell medium-2">{{ form_row(module.power) }}</div>
                 <div class="cell medium-2">{{ form_row(module.tempCoefCurrent) }}</div>
+                <div class="cell medium-2">{{ form_row(module.tempCoefVoltage) }}</div>
                 <div class="cell medium-2">{{ form_row(module.tempCoefPower) }}</div>
                 <div class="cell medium-2">{{ form_row(module.degradation) }}</div>
             </div>
@@ -19,7 +20,7 @@
                 <div class="cell medium-2">{{ form_row(module.maxPmpp) }}</div>
             </div>
             <div class="grid-x grid-padding-x">
-                <div class="cell medium-6">
+                <div class="cell medium-6 large-4">
                     <fieldset class="fieldset">
                         <legend>Operators Current</legend>
                         <div class="grid-x grid-padding-x">
@@ -35,7 +36,22 @@
                     </fieldset>
                 </div>
 
-                <div class="cell medium-6">
+                <div class="cell medium-6 large-4">
+                    <fieldset class="fieldset">
+                        <legend>Operators Voltage</legend>
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-2">{{ form_row(module.operatorVoltageA) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorVoltageB) }}</div>
+                        </div>
+                        <div class="grid-x grid-padding-x">
+                            <div class="cell medium-2">{{ form_row(module.operatorVoltageHightA) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorVoltageHightB) }}</div>
+                            <div class="cell medium-2">{{ form_row(module.operatorVoltageHightC) }}</div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="cell medium-6 large-4">
                     <fieldset class="fieldset">
                         <legend>Operators Power</legend>
                         <div class="grid-x grid-padding-x">
@@ -414,6 +430,7 @@
                                                 <div class="cell medium-2">{{ form_row(module.type) }}</div>
                                                 <div class="cell medium-2">{{ form_row(module.power) }}</div>
                                                 <div class="cell medium-2">{{ form_row(module.tempCoefCurrent) }}</div>
+                                                <div class="cell medium-2">{{ form_row(module.tempCoefVoltage) }}</div>
                                                 <div class="cell medium-2">{{ form_row(module.tempCoefPower) }}</div>
                                                 <div class="cell medium-2">{{ form_row(module.degradation) }}</div>
                                             </div>
@@ -424,7 +441,7 @@
 
                                             </div>
                                             <div class="grid-x grid-padding-x">
-                                                <div class="cell medium-6">
+                                                <div class="cell medium-6 large-4">
                                                     <fieldset class="fieldset">
                                                         <legend>Operators Current</legend>
                                                         <div class="grid-x grid-padding-x">
@@ -440,7 +457,22 @@
                                                     </fieldset>
                                                 </div>
 
-                                                <div class="cell medium-6">
+                                                <div class="cell medium-6 large-4">
+                                                    <fieldset class="fieldset">
+                                                        <legend>Operators Voltage</legend>
+                                                        <div class="grid-x grid-padding-x">
+                                                            <div class="cell medium-2">{{ form_row(module.operatorVoltageA) }}</div>
+                                                            <div class="cell medium-2">{{ form_row(module.operatorVoltageB) }}</div>
+                                                        </div>
+                                                        <div class="grid-x grid-padding-x">
+                                                            <div class="cell medium-2">{{ form_row(module.operatorVoltageHightA) }}</div>
+                                                            <div class="cell medium-2">{{ form_row(module.operatorVoltageHightB) }}</div>
+                                                            <div class="cell medium-2">{{ form_row(module.operatorVoltageHightC) }}</div>
+                                                        </div>
+                                                    </fieldset>
+                                                </div>
+
+                                                <div class="cell medium-6 large-4">
                                                     <fieldset class="fieldset">
                                                         <legend>Operators Power</legend>
                                                         <div class="grid-x grid-padding-x">

@@ -658,12 +658,14 @@ class AnlageFormType extends AbstractType
             ->add('freqBase', TextType::class, [
                 'label' => 'Base frequency of the Plant',
                 'help' => '[freqBase]',
-                'attr' => ['data-plant-target' => 'ticket']
+                'attr' => ['data-plant-target' => 'ticket'],
+                'empty_data' => '',
             ])
             ->add('freqTolerance', TextType::class, [
                 'label' => 'Frequency tolerance of the Plant',
                 'help' => '[hasFrequency]',
-                'attr' => ['data-plant-target' => 'ticket']
+                'attr' => ['data-plant-target' => 'ticket'],
+                'empty_data' => '',
             ])
             ->add('expectedTicket', SwitchType::class, [
                 'label' => 'Activate Expected Tickets',
@@ -673,7 +675,8 @@ class AnlageFormType extends AbstractType
             ->add('percentageDiff',TextType::class, [
                 'label' => 'Ticket Expected limit',
                 'help' => '[percentageDiff]',
-                'attr' => ['data-plant-target' => 'ticket']
+                'attr' => ['data-plant-target' => 'ticket'],
+                'empty_data' => '',
             ])
             ->add('weatherTicket', SwitchType::class, [
                 'label' => 'Activate Weather Ticket',

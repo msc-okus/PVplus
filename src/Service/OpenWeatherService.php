@@ -24,7 +24,7 @@ class OpenWeatherService
 
     public function loadOpenWeather(Anlage $anlage): string
     {
-        $timestamp = self::getCetTime() - (self::getCetTime() % (3 * 3600));
+        $timestamp = self::getCetTime() - (self::getCetTime() % (3600));
         $date = date('Y-m-d H:00:00', $timestamp);
 
         $apiKey = '795982a4e205f23abb3ce3cf9a9a032a';
