@@ -14,37 +14,126 @@ class VoltageChartService
 {
     use G4NTrait;
 
-    private Security $security;
-
-    private AnlagenStatusRepository $statusRepository;
-
-    private InvertersRepository $invertersRepo;
-
-    public functionsService $functions;
-
-    private IrradiationChartService $irradiationChart;
-
-    public function __construct(Security $security,
-        AnlagenStatusRepository $statusRepository,
-        InvertersRepository $invertersRepo,
-        IrradiationChartService $irradiationChart,
-        FunctionsService $functions)
+    public function __construct(
+        private Security $security,
+        private AnlagenStatusRepository $statusRepository,
+        private InvertersRepository $invertersRepo,
+        private IrradiationChartService $irradiationChart,
+        private FunctionsService $functions)
     {
-        $this->security = $security;
-        $this->statusRepository = $statusRepository;
-        $this->invertersRepo = $invertersRepo;
-        $this->functions = $functions;
-        $this->irradiationChart = $irradiationChart;
     }
 
     /**
      * Erzeugt Daten für das DC Spannung Diagram Diagramm, eine Linie je Inverter gruppiert nach Gruppen.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
-     *
+     * @param int $group
+     * @param bool $hour
      * @return array
-     *               // dc_current_inverter
+     * @throws \Exception
+     */
+    public function getVoltage1(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
+    {
+        $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
+        $conn = self::getPdoConnection();
+        $acGroups = $anlage->getGroupsAc();
+        $dataArray = [];
+        switch ($anlage->getConfigType()) {
+            case 1:
+            case 3:
+            case 4:
+                // z.B. Gronningen
+                $groupQuery = "group_ac = '$group' ";
+                $nameArray = $this->functions->getNameArray($anlage, 'ac');
+                break;
+            default:
+                $groupQuery = "group_dc = '$group' ";
+                $nameArray = $this->functions->getNameArray($anlage, 'dc');
+        }
+        $dataArray['inverterArray'] = $nameArray;
+        // SOLL Strom für diesen Zeitraum und diese Gruppe
+        $sqlExp = 'SELECT a.stamp as stamp, AVG(b.dc_exp_voltage) as expected
+                   FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_voltage, group_ac FROM '.$anlage->getDbNameDcSoll()." WHERE $groupQuery) b ON a.stamp = b.stamp)
+                   WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
+        dump($sqlExp);
+        $result = $conn->query($sqlExp);
+        $expectedResult = $result->fetchAll(PDO::FETCH_ASSOC);
+
+        $invertersInGroup = ($acGroups[$group]['GMAX'] - $acGroups[$group]['GMIN']) + 1;
+        if ($result->rowCount() > 0) {
+            $dataArray['maxSeries'] = $invertersInGroup;
+            $counter = 0;
+            foreach ($expectedResult as $rowSoll) {
+                $stamp = $rowSoll['stamp'];
+                $stampAdjust = self::timeAjustment($stamp, (float) $anlage->getAnlZeitzone());
+                $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
+
+                // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
+                $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
+
+                if (!(($rowSoll['expected'] == 0) && (self::isDateToday($stampAdjust) && self::getCetTime() - strtotime($stampAdjust) < 7200))) {
+                    switch ($anlage->getConfigType()) {
+                        case 1:
+                        case 2:
+                            $dataArray['chart'][$counter]['expected'] = $rowSoll['expected'] > 0 ? $rowSoll['expected'] / $invertersInGroup : 0;
+                            $dataArray['chart'][$counter]['expected'] = $hour ? $dataArray['chart'][$counter]['expected'] / 4 : $dataArray['chart'][$counter]['expected'];
+                            break;
+                        default:
+                            $dataArray['chart'][$counter]['expected'] = $hour ? $rowSoll['expected'] / $invertersInGroup / 4 : $rowSoll['expected'] / $invertersInGroup;
+                    }
+                    $dataArray['chart'][$counter]['expected'] = round($dataArray['chart'][$counter]['expected'], 2);
+                }
+
+                if ($hour) {
+                    $wherePart1 = "stamp >= '$stampAdjust' AND stamp < '$stampAdjust2'";
+                } else {
+                    $wherePart1 = "stamp = '$stampAdjust' ";
+                }
+                switch ($anlage->getConfigType()) {
+                    case 1:
+                    case 2:
+                        $sql = 'SELECT AVG(wr_udc) as istCurrent FROM '.$anlage->getDbNameACIst().' WHERE '.$wherePart1." AND $groupQuery group by date_format(stamp, '$form'), group_dc;";
+                        break;
+                    case 3:
+                        $sql = 'SELECT AVG(wr_udc) as istCurrent FROM '.$anlage->getDbNameDCIst().' WHERE '.$wherePart1." AND $groupQuery group by date_format(stamp, '$form'), wr_num;";
+                        break;
+                    case 4:
+                        $sql = 'SELECT AVG(wr_udc) as istCurrent FROM '.$anlage->getDbNameDCIst().' WHERE '.$wherePart1." AND $groupQuery group by date_format(stamp, '$form');";
+                        break;
+                }
+                $resultAct = $conn->query($sql);
+                $inverterCount = 1;
+                while ($rowAct = $resultAct->fetch(PDO::FETCH_ASSOC)) {
+                    $currentAct = $hour ? $rowAct['istCurrent'] / 4 : $rowAct['istCurrent'];
+                    $currentAct = round($currentAct, 2);
+                    if (!($currentAct == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
+                        $dataArray['chart'][$counter][$nameArray[$inverterCount]] = $currentAct;
+                    }
+
+                    ++$inverterCount;
+                }
+                ++$counter;
+                $dataArray['offsetLegend'] = $acGroups[$group]['GMIN'] - 1;
+            }
+        }
+        $conn = null;
+        dump($dataArray);
+        return $dataArray;
+    }
+
+
+    /**
+     * Erzeugt Daten für das DC Spannung Diagram Diagramm, eine Linie je Inverter gruppiert nach Gruppen.
+     *
+     * @param Anlage $anlage
+     * @param $from
+     * @param $to
+     * @param int $set
+     * @param bool $hour
+     * @return array
+     * @throws \Exception
      */
     public function getVoltageGroups(Anlage $anlage, $from, $to, int $set = 1, bool $hour = false): array
     {
@@ -53,15 +142,15 @@ class VoltageChartService
         } else {
             $form = '%y%m%d%H%i';
         }
-        $conn = self::connectToDatabase();
+        $conn = self::getPdoConnection();
         $dcGroups = $anlage->getGroupsDc();
         $dataArray = [];
         // Spannung für diesen Zeitraum und diese Gruppe
         $sql_time = "SELECT stamp FROM db_dummysoll WHERE stamp BETWEEN '$from' AND '$to' GROUP BY date_format(stamp, '$form')";
         $result = $conn->query($sql_time);
-        if ($result->num_rows > 0) {
+        if ($result->rowCount() > 0) {
             $counter = 0;
-            while ($rowSoll = $result->fetch_assoc()) {
+            while ($rowSoll = $result->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = $rowSoll['stamp'];
                 $stampAdjust = self::timeAjustment($stamp, (float) $anlage->getAnlZeitzone());
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
@@ -85,8 +174,8 @@ class VoltageChartService
                             }
                         }
                         $resultIst = $conn->query($sql);
-                        if ($resultIst->num_rows == 1) {
-                            $rowIst = $resultIst->fetch_assoc();
+                        if ($resultIst->rowCount() == 1) {
+                            $rowIst = $resultIst->fetch(PDO::FETCH_ASSOC);
                             if ($hour) {
                                 $voltageAct = round($rowIst['actVoltage'], 2) / 4;
                             } else {
@@ -104,7 +193,7 @@ class VoltageChartService
                 ++$counter;
             }
         }
-        $conn->close();
+        $conn = null;
 
         return $dataArray;
     }
@@ -112,11 +201,13 @@ class VoltageChartService
     /**
      * Erzeugt Daten für das DC Spannungs Diagram Diagramm, eine Linie je MPP gruppiert nach Inverter.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
-     *
-     * @return array|false
-     *                     // dc_voltage_mpp
+     * @param int $inverter
+     * @param bool $hour
+     * @return array
+     * @throws \Exception
      */
     public function getVoltageMpp(Anlage $anlage, $from, $to, int $inverter = 1, bool $hour = false): array
     {
@@ -138,7 +229,7 @@ class VoltageChartService
         }
         $result = $conn->query($sql_voltage);
 
-        if ($result != false) {
+        if ($result) {
             if ($result->rowCount() > 0) {
                 $counter = 0;
                 while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
@@ -166,13 +257,9 @@ class VoltageChartService
                     }
                 }
             }
-            $conn = null;
 
-            return $dataArray;
-        } else {
-            $conn = null;
-
-            return false;
         }
+        $conn = null;
+        return $dataArray;
     }
 }

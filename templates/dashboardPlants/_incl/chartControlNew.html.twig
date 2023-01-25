@@ -119,7 +119,7 @@
 </script>
 
 {% from "dashboardPlants/_incl/macrosMenuSelectBox.html.twig" import showHeatmap ,showTempHeatmap ,showSollIstAnalyse,showSollIstTempAnalyse,showSollIstIrrAnalyse,showSollIstHeatmap, acActOverview, acActGroup, dcActGroup, dcGroupPowerDiff, irradiation, inverterPerformance,
-    currentDcOverview, currentDcInverter, currentDcGroup, dcActPlant, dcActOverview, currentDcString, acActPlant, acVoltage, acCurrent, acFrequency, acReactive, voltageDcString %}
+    currentDcOverview, currentDcInverter, currentDcGroup, dcActPlant, dcActOverview, currentDcString, acActPlant, acVoltage, acCurrent, acFrequency, acReactive, voltageDc1, voltageDcString %}
 
 {% from "dashboardPlants/_incl/macrosGroupeMenuSelectBox.html.twig" import groupMenu, groupMenuNew %}
 
@@ -178,7 +178,8 @@
 
 
                 <optgroup label="DC Voltage">
-                    {{ voltageDcString(form, aktAnlage) }}      {# VoltDC1 #}
+                    {{ voltageDc1(form, aktAnlage) }}           {# VoltageDC1 #}
+                    {{ voltageDcString(form, aktAnlage) }}      {# VoltStringDC1 #}
                 </optgroup>
 
             {% endif %}

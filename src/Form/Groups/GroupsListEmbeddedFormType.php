@@ -92,6 +92,12 @@ class GroupsListEmbeddedFormType extends AbstractType
                 'required' => false,
                 'empty_data' => null,
             ])
+            ->add('importId', TextType::class, [
+                'help' => '[importId] ID to select Inverter via Import Script (Example: VCOM ID)',
+                'label' => 'Import ID (for import script)',
+                'empty_data' => '',
+                'required' => false,
+            ])
 
             // ###############################################
             // ###              Relations                 ####
