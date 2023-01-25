@@ -69,10 +69,12 @@ class AnlagenController extends BaseController
                 $economicVarNames = $economicVarNames1;
             }
 
-            $economicVarNames->setparams($anlage, $form->get('var_1')->getData(), $form->get('var_2')->getData(), $form->get('var_3')->getData(), $form->get('var_4')->getData(), $form->get('var_5')->getData(), $form->get('var_6')->getData(), $form->get('var_7')->getData(), $form->get('var_8')->getData(), $form->get('var_9')->getData(), $form->get('var_10')->getData(), $form->get('var_11')->getData(), $form->get('var_12')->getData(), $form->get('var_13')->getData(), $form->get('var_14')->getData(), $form->get('var_15')->getData());
+            if ($this->isGranted('ROLE_AM')) {
+                $economicVarNames->setparams($anlage, $form->get('var_1')->getData(), $form->get('var_2')->getData(), $form->get('var_3')->getData(), $form->get('var_4')->getData(), $form->get('var_5')->getData(), $form->get('var_6')->getData(), $form->get('var_7')->getData(), $form->get('var_8')->getData(), $form->get('var_9')->getData(), $form->get('var_10')->getData(), $form->get('var_11')->getData(), $form->get('var_12')->getData(), $form->get('var_13')->getData(), $form->get('var_14')->getData(), $form->get('var_15')->getData());
 
-            // TODO: think and work on the switches, they are quite complex!
-            $anlage->setEconomicVarNames($economicVarNames);
+                // TODO: think and work on the switches, they are quite complex!
+                $anlage->setEconomicVarNames($economicVarNames);
+            }
 
             $successMessage = 'Plant data saved!';
             $em->persist($anlage);

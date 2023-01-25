@@ -13,7 +13,7 @@ import '../bootstrap';
 import '../styles/app.scss';
 import 'foundation-sites';
 import 'foundation-datepicker';
-import 'daterangepicker';
+
 
 
 import $ from 'jquery';
