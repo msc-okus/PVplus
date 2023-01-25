@@ -1002,9 +1002,9 @@ class Anlage
         return $this;
     }
 
-    public function getAnlGeoLat(): ?string
+    public function getAnlGeoLat(): ?float
     {
-        return $this->anlGeoLat;
+        return (float)$this->anlGeoLat;
     }
 
     public function setAnlGeoLat(string $anlGeoLat): self
@@ -1014,9 +1014,9 @@ class Anlage
         return $this;
     }
 
-    public function getAnlGeoLon(): ?string
+    public function getAnlGeoLon(): ?float
     {
-        return $this->anlGeoLon;
+        return (float)$this->anlGeoLon;
     }
 
     public function setAnlGeoLon(string $anlGeoLon): self

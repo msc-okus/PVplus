@@ -247,9 +247,9 @@ class WeatherFunctionsService
         if (is_null($airTemp) || is_null($gPOA)) return null;
         if ($windSpeed < 0 || $windSpeed === null ) $windSpeed = 0;
 
-        $a                  = $anlage->getTempCorrA(); #$tempCorrParams['a'];
-        $b                  = $anlage->getTempCorrB(); #$tempCorrParams['b'];
-        $deltaTcnd          = $anlage->getTempCorrDeltaTCnd(); #$tempCorrParams['deltaTcnd'];
+        $a                  = $anlage->getTempCorrA();
+        $b                  = $anlage->getTempCorrB();
+        $deltaTcnd          = $anlage->getTempCorrDeltaTCnd();
 
         $tempModulBack  = $gPOA * pow(M_E, $a + ($b * $windSpeed)) + $airTemp;
 

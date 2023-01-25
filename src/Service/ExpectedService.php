@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Anlage;
 use App\Entity\AnlageGroupModules;
 use App\Entity\AnlageGroupMonths;
+use App\Entity\OpenWeather;
 use App\Entity\WeatherStation;
 use App\Helper\G4NTrait;
 use App\Repository\AnlageMonthRepository;
@@ -25,7 +26,8 @@ class ExpectedService
         private GroupModulesRepository $groupModulesRepo,
         private AnlageMonthRepository $anlageMonthRepo,
         private FunctionsService $functions,
-        private WeatherFunctionsService $weatherFunctions)
+        private WeatherFunctionsService $weatherFunctions,
+        private OpenWeatherService $openWeather)
     {
     }
 
@@ -124,12 +126,10 @@ class ExpectedService
                         $tempIrr = $this->functions->mittelwert([(float) $weather['irr_upper'], (float) $weather['irr_lower']]);
                     }
                     if ($tempIrr <= 100) {
-                        $shadow_loss = $shadow_loss * 0.0;
-                    } // 0.05
-                    elseif ($tempIrr <= 200) {
-                        $shadow_loss = $shadow_loss * 0.0;
-                    } // 0.21
-                    elseif ($tempIrr <= 400) {
+                        $shadow_loss = $shadow_loss * 0.0; // 0.05
+                    } elseif ($tempIrr <= 200) {
+                        $shadow_loss = $shadow_loss * 0.0; // 0.21
+                    } elseif ($tempIrr <= 400) {
                         $shadow_loss = $shadow_loss * 0.35;
                     } elseif ($tempIrr <= 600) {
                         $shadow_loss = $shadow_loss * 0.57;
@@ -188,10 +188,18 @@ class ExpectedService
                             if (false) { // $anlage->hasAmbientTemp
                                 // Wenn nur Umgebungstemepratur vorhanden
                             } else {
-                                // Wenn weder Umgebungs noch Modul Temperatuir vorhanden, dann nutze Daten aus Open Weather (sind nur Stunden weise vorhanden)
-
+                                // Wenn weder Umgebungs noch Modul Temperatur vorhanden, dann nutze Daten aus Open Weather (sind nur Stunden weise vorhanden)
+                                if ($anlage->getAnlId() == '183') {
+                                    $openWeather = $this->openWeather->findOpenWeather($anlage, date_create($stamp));
+                                    $windSpeed = 4; // ReGebeng – gemittelte Daten aus OpenWeather
+                                    $airTemp = 26; // ReGebeng – gemittelte Daten aus OpenWeather
+                                    $pannelTemp = round($this->weatherFunctions->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
+                                    #if ($irr > 0) dump("Pannel: $pannelTemp | AirTemp: $airTemp | WindSpeed: $windSpeed | Irr: $irr");
+                                    $expPowerDcHlp = $expPowerDcHlp * $modul->getModuleType()->getTempCorrPower($pannelTemp);
+                                    $expCurrentDcHlp = $expCurrentDcHlp * $modul->getModuleType()->getTempCorrCurrent($pannelTemp);
+                                    $expVoltageDcHlp = $expVoltageDcHlp * $modul->getModuleType()->getTempCorrVoltage($pannelTemp);
+                                }
                             }
-                            #$pannelTemp = $this->functions->
                         }
 
                         // degradation abziehen (degradation * Betriebsjahre).

@@ -366,9 +366,9 @@ class AnlageModules
         return $this;
     }
 
-    public function getOperatorVoltageA(): string
+    public function getOperatorVoltageA(): ?float
     {
-        return $this->operatorVoltageA;
+        return (float)$this->operatorVoltageA;
     }
 
     public function setOperatorVoltageA(string $operatorVoltageA): void
@@ -376,9 +376,9 @@ class AnlageModules
         $this->operatorVoltageA = $operatorVoltageA;
     }
 
-    public function getOperatorVoltageB(): string
+    public function getOperatorVoltageB(): ?float
     {
-        return $this->operatorVoltageB;
+        return (float)$this->operatorVoltageB;
     }
 
     public function setOperatorVoltageB(string $operatorVoltageB): void
@@ -386,9 +386,9 @@ class AnlageModules
         $this->operatorVoltageB = $operatorVoltageB;
     }
 
-    public function getOperatorVoltageHightA(): string
+    public function getOperatorVoltageHightA(): ?float
     {
-        return $this->operatorVoltageHightA;
+        return (float)$this->operatorVoltageHightA;
     }
 
     public function setOperatorVoltageHightA(string $operatorVoltageHightA): void
@@ -396,9 +396,9 @@ class AnlageModules
         $this->operatorVoltageHightA = $operatorVoltageHightA;
     }
 
-    public function getOperatorVoltageHightB(): string
+    public function getOperatorVoltageHightB(): ?float
     {
-        return $this->operatorVoltageHightB;
+        return (float)$this->operatorVoltageHightB;
     }
 
     public function setOperatorVoltageHightB(string $operatorVoltageHightB): void
@@ -406,9 +406,9 @@ class AnlageModules
         $this->operatorVoltageHightB = $operatorVoltageHightB;
     }
 
-    public function getOperatorVoltageHightC(): string
+    public function getOperatorVoltageHightC(): ?float
     {
-        return $this->operatorVoltageHightC;
+        return (float)$this->operatorVoltageHightC;
     }
 
     public function setOperatorVoltageHightC(string $operatorVoltageHightC): void
