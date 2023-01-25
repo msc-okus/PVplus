@@ -208,13 +208,14 @@ class TicketController extends BaseController
         $direction = $request->query->get('direction', "");
         $prooftam = $request->query->get('prooftam', 0);
         $ignored = $request->query->get('ignored', 0);
-
+        $TicketName = $request->query->get('TicketName', "");
         if ($ignored == 0) $ignoredBool = false;
         else $ignoredBool = true;
         if ($sort === "") $sort = "ticket.begin";
         if ($direction === "") $direction ="desc";
         $filter['anlagen']['value'] = $anlage;
         $filter['anlagen']['array'] = $anlagenRepo->findAllActiveAndAllowed();
+        $filter['TicketName']['value'] = $TicketName;
         $filter['status']['value'] = $status;
         $filter['status']['array'] = self::ticketStati();
         $filter['priority']['value'] = $prio;
@@ -224,7 +225,7 @@ class TicketController extends BaseController
         $filter['type']['value'] = $type;
         $filter['type']['array'] = self::errorType();
 
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlageName, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $sort, $direction, $ignoredBool);
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlageName, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $sort, $direction, $ignoredBool, $TicketName);
         $pagination = $paginator->paginate($queryBuilder, $page,25 );
         $pagination->setParam('sort', $sort);
         $pagination->setParam('direction', $direction);
@@ -250,6 +251,7 @@ class TicketController extends BaseController
             'anlagen'       => $anlagenRepo->findAllActiveAndAllowed(),
             'user'          => $editor,
             'id'            => $id,
+            'TicketName'    => $TicketName,
             'inverter'      => $inverter,
             'filter'        => $filter,
             'prooftam'      => $prooftam,

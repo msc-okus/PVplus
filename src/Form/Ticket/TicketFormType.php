@@ -105,6 +105,10 @@ class TicketFormType extends AbstractType
             ;
         }
         $builder
+            ->add('TicketName', TextType::class, [
+                'label' => 'Inverter Identification',
+                'help' => 'This tag helps the user distinguish between tickets',
+            ])
             ->add('inverter', TextType::class, [
                 'label' => 'Inverter',
                 'required' => true,

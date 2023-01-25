@@ -22,6 +22,9 @@
                 {% endfor %}
             </select>
         </div>
+        <div class="cell medium-1"  style="margin-top:-17px!important;">
+            <input type="text" name="TicketName" class="input-group-field" value="{{ TicketName }}" placeholder="Identifier">
+        </div>
         <div class="cell medium-1">
             <select name="prio" >
                 <option value="00"> {% trans %}ticket.priority.name{% endtrans %} </option>

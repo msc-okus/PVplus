@@ -70,7 +70,7 @@ class TicketRepository extends ServiceEntityRepository
      *
      * @param array $orders Array Key defines the 'order field', value defines order direction (ASC, DESC) or order should not used (null)
      */
-    public function getWithSearchQueryBuilderNew(?string $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0, string $sort = "", string $direction = "", bool $ignore = false): QueryBuilder
+    public function getWithSearchQueryBuilderNew(?string $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0, string $sort = "", string $direction = "", bool $ignore = false, $TicketName = ""): QueryBuilder
     {
         /** @var User $user */
         $user = $this->security->getUser();
@@ -115,11 +115,13 @@ class TicketRepository extends ServiceEntityRepository
         if ($prooftam == 1){
             $qb->andWhere("ticket.needsProof = 1");
         }
+        if ($TicketName !== "") $qb->andWhere("ticket.TicketName = '$TicketName'");
         if ($ignore) $qb->andWhere("ticket.ignoreTicket = true");
         else $qb->andWhere("ticket.ignoreTicket = false");
 
         if ($sort !== "") $qb->addOrderBy($sort, $direction);
         $qb->addOrderBy("ticket.id", "ASC"); // second order by ID
+
 
         return $qb;
     }
