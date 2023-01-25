@@ -45,10 +45,30 @@
 {{ form_start(form, {'attr':{
     'data-controller':'submit-confirm',
     'data-action':'submit-confirm#onSubmit',
-    'data-submit-confirm-title-value':'This action will change these settings for this group. ',
+    'data-submit-confirm-title-value':'This action will change these settings for this form. ',
     'data-submit-confirm-text-value':"Are you sure you want to continue!",
     'data-submit-confirm-icon-value':'warning',
 }}) }}
+<div class="grid-x grid-padding-x">
+    <div class="cell medium-1">{{ form_row(form.dcGroup) }}</div>
+    <div class="cell medium-2">{{ form_row(form.dcGroupName) }}</div>
+    <div class="cell medium-1">{{ form_row(form.acGroup) }}</div>
+    <div class="cell medium-2">{{ form_row(form.unitFirst) }}</div>
+    <div class="cell medium-2">{{ form_row(form.unitLast) }}</div>
+    <div class="cell medium-2">{{ form_row(form.weatherStation) }}</div>
+    <div class="cell medium-2">{{ form_row(form.importId) }}</div>
+</div>
+<div class="grid-x grid-padding-x">
+    <div class="cell medium-1">{{ form_row(form.irrUpper) }}</div>
+    <div class="cell medium-1">{{ form_row(form.irrLower) }}</div>
+    <div class="cell medium-2">{{ form_row(form.secureLoss) }}</div>
+    <div class="cell medium-2">{{ form_row(form.factorAC) }}</div>
+    <div class="cell medium-2">{{ form_row(form.gridLoss) }}</div>
+    <div class="cell medium-2">{{ form_row(form.limitAc) }}</div>
+    <div class="cell medium-2">{{ form_row(form.gridLimitAc) }}</div>
+    <div class="hide">{{ form_row(form.anlage) }}</div>
+</div>
+{#
 <div class="grid-x grid-margin-x align-middle" >
 
     <div class="cell medium-2" >
@@ -100,6 +120,7 @@
         {{ form_row(form.anlage) }}
     </div>
 </div>
+#}
 <div class="grid-x grid-padding-x ">
     <div class="cell medium-6">
         <p>Modul Settings</p>
@@ -158,7 +179,7 @@
         </div>
     </div>
 </div>
-<div class="button-group align-right">
+<div class="button-form align-right">
     <button class="button  ">{{ button_label|default('Update') }}</button>
 </div>
 

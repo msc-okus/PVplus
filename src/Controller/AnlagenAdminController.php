@@ -279,7 +279,7 @@ class AnlagenAdminController extends BaseController
     }
 
     #[Route(path: '/admin/anlagen/delete/{id}', name: 'app_admin_anlage_delete')]
-    #[IsGranted('ROLE_DEV')]
+    #[IsGranted(['ROLE_DEV'])]
     public function delete($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, Security $security): RedirectResponse
     {
         if ($this->isGranted('ROLE_DEV')) {

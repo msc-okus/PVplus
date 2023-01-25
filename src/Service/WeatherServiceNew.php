@@ -205,7 +205,7 @@ class WeatherServiceNew
         return $returnArray;
     }
 
-    public function getNearestTimezone($cur_lat, $cur_long, $country_code = ''): string
+    public function getNearestTimezone($cur_lat, $cur_long, string $country_code = ''): string
     {
         $timezone_ids = ($country_code) ? DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $country_code)
             : DateTimeZone::listIdentifiers();

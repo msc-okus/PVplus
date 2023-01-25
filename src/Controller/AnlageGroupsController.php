@@ -123,12 +123,10 @@ class AnlageGroupsController extends AbstractController
                 $request->query->getInt('page',1),
                 25
             );
-                return $this->render('anlage_groups/_searchPreview.html.twig', [
 
-                    'anlage_groups'=>$pagination,
-
-
-                ]);
+            return $this->render('anlage_groups/_searchPreview.html.twig', [
+                'anlage_groups'=>$pagination,
+            ]);
 
         }
         if($param){

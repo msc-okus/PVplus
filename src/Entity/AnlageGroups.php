@@ -60,6 +60,9 @@ class AnlageGroups
     #[ORM\Column(type: 'string', length: 20)]
     private string $gridLimitAc;
 
+    #[ORM\Column(type: 'string', length: 40)]
+    private string $importId;
+
     #[ORM\OneToMany(mappedBy: 'anlageGroup', targetEntity: AnlageGroupMonths::class, cascade: ['persist', 'remove'])]
     #[ORM\OrderBy(['month' => 'ASC'])]
     private Collection $months;
@@ -202,6 +205,16 @@ class AnlageGroups
         $this->secureLoss = str_replace(',', '.', $secureLoss);
 
         return $this;
+    }
+
+    public function getImportId(): string
+    {
+        return $this->importId;
+    }
+
+    public function setImportId(string $importId): void
+    {
+        $this->importId = $importId;
     }
 
     /**

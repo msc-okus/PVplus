@@ -27,6 +27,10 @@ class ModulesListEmbeddedFormType extends AbstractType
                 'label' => 'Temp. Coef. Voltage',
                 'empty_data' => '0',
             ])
+            ->add('tempCoefVoltage', TextType::class, [
+                'label' => 'Temp. Coef. Voltage',
+                'empty_data' => '0',
+            ])
             ->add('tempCoefPower', TextType::class, [
                 'label' => 'Temp. Coef. Power',
                 'empty_data' => '0',
@@ -100,6 +104,31 @@ class ModulesListEmbeddedFormType extends AbstractType
                 'label' => 'B (>200W)',
                 'empty_data' => '',
             ])
+
+            ######### Voltage ##########
+
+            ->add('operatorVoltageA', TextType::class, [
+                'label' => 'A',
+                'empty_data' => '',
+            ])
+            ->add('operatorVoltageB', TextType::class, [
+                'label' => 'B',
+                'empty_data' => '',
+            ])
+
+            ->add('operatorVoltageHightA', TextType::class, [
+                'label' => 'A (>200W)',
+                'empty_data' => '',
+            ])
+            ->add('operatorVoltageHightB', TextType::class, [
+                'label' => 'B (>200W)',
+                'empty_data' => '',
+            ])
+            ->add('operatorVoltageHightC', TextType::class, [
+                'label' => 'C (>200W)',
+                'empty_data' => '',
+            ])
+
         ;
     }
 
