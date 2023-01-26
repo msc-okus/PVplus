@@ -43,7 +43,7 @@ class DefaultJMController extends AbstractController
 
         $anlage = $anlagenRepository->findIdLike("44")[0];
         $fromStamp = strtotime("2022-01-01");
-        $toStamp = strtotime("2022-02-01");
+        $toStamp = strtotime("2022-12-01");
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 86400) {
             $service->generateTicketsExpectedInterval($anlage, date('Y-m-d H:i:00', $stamp));
         }

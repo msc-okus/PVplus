@@ -16,11 +16,16 @@ export default class extends Controller {
 
     async search(event) {
         event.preventDefault();
+
         const $searchListform = $(this.searchBarTarget).find('form');
+        var serializedData = $searchListform.serialize();
+        console.log(serializedData);
+        serializedData = serializedData.concat("&filtering=filtered");
+        console.log(serializedData);
         this.listTarget.innerHTML = await $.ajax({
             url: this.urlSearchValue,
             method: $searchListform.prop('method'),
-            data: $searchListform.serialize(),
+            data: serializedData,
         });
         $(document).foundation();
     }
@@ -28,6 +33,8 @@ export default class extends Controller {
     async page(event) {
         event.preventDefault();
         const $queryParams = $(event.currentTarget).data("query-value");
+        $queryParams['filtering'] = "non-filtered";
+        console.log($queryParams['filtering']);
         this.listTarget.innerHTML = await $.ajax({
             url: this.urlSearchValue,
             data: $queryParams,

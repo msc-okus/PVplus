@@ -9,6 +9,7 @@
                     <span data-tooltip tabindex="1" title="With '•' means: is created by 'AlertSystem'"><i class="fa fa-info-circle"></i></span>
                 </th>
                 <th>Plant</th>
+                <th>Identifier</th>
                 <th class="text-center">Status</th>
                 <th class="text-center">Priority</th>
                 <th>Editor</th>
@@ -34,6 +35,9 @@
                 <tr>
                     <td>{{ ticket.id }}{% if ticket.createdBy == 'AlertSystem' %} •{% endif %}</td>
                     <td>{{ ticket.anlage.anlName }} {% if is_granted('ROLE_G4N') %} ({{ ticket.anlage.anlId }}) {% endif %}</td>
+                    {% set maxCharId = 10 %}
+                    <td {% if ticket.TicketName|length > maxCharId %}data-tooltip data-click-open="false" title="{{ ticket.TicketName }}"{% endif %}><span>{{ ticket.TicketName|u.truncate(maxCharId, ' ...', false) }}</span></td>
+
                     <td class="text-center">
                         {% set status %}ticket.status.{{ ticket.status }}{% endset %}
                         <span class="label ticket-status-{{ ticket.status }}">{{ status|trans }}</span>

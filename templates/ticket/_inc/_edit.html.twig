@@ -49,7 +49,9 @@
                                 {% set counter = counter + 1 %}
                             {% endif %}
                         {% endfor %}
+
                         <div class="grid-x grid-margin-x grid-padding-x">
+
                             {# Split by Inverter stuff #}
                             {% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA')) %}
                                     <button class="button small no-margin hollow expanded {% if (features == null or features.SplitInverter != true) %} is-hidden {% endif%} " type="button"  {% if (edited) %}data-toggle="split-dropdown-{{ dropdownId }}"{% else %} disabled{% endif %}{% if (counter <= 1)%} disabled {% endif%} data-ticket-edit-target="splitDeploy">Split by Inverter</button>
@@ -106,6 +108,11 @@
                                 </div>
                             {% endif %}
 
+                            {% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA')) %}
+                                <div class="cell small-12 medium-3 large-2">
+                                    {{ form_row(ticketForm.TicketName) }}
+                                </div>
+                            {% endif %}
                             <div class="cell small-12 medium-3 large-2">
                                 {{ form_row(ticketForm.anlage, {'attr': {'value': anlage.anlName } }) }}
                             </div>

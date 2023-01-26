@@ -96,9 +96,9 @@ class AlertSystemWeatherService
      * here we analyze the data from the weather station and generate the status.
      * @param Anlage $anlage
      * @param $time
-     * @return array
+     * @return mixed
      */
-    private function WData(Anlage $anlage, $time): array
+    private function WData(Anlage $anlage, $time): mixed
     {
         $offsetServer = new DateTimeZone("Europe/Luxembourg");
         $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), strtoupper($anlage->getCountry())));
