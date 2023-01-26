@@ -47,14 +47,14 @@
             </select>
         </div>
         {#
-        <div class="cell medium-1">
-            <select name="type" > {# type = errorType (Bsp:  SOR, EFOR, OMC)
-                <option value="00">{% trans %}ticket.error.type.name{% endtrans %}</option>
-                {% for key, value in filter.type.array %}
-                    <option value="{{ value }}" {% if filter.type.value == value %} selected {% endif %}>{{ key }}</option>
-                {% endfor %}
-            </select>
-        </div>
+            <div class="cell medium-1">
+                <select name="type" > {# type = errorType (Bsp:  SOR, EFOR, OMC)
+                    <option value="00">{% trans %}ticket.error.type.name{% endtrans %}</option>
+                    {% for key, value in filter.type.array %}
+                        <option value="{{ value }}" {% if filter.type.value == value %} selected {% endif %}>{{ key }}</option>
+                    {% endfor %}
+                </select>
+            </div>
         #}
         <div class="cell medium-1"  style="margin-top:-17px!important;">
             <input type="text" name="inverter" class="input-group-field" value="{{ inverter }}" placeholder="Inverter">
