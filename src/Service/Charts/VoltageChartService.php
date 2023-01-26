@@ -57,7 +57,7 @@ class VoltageChartService
         $sqlExp = 'SELECT a.stamp as stamp, AVG(b.dc_exp_voltage) as expected
                    FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_voltage, group_ac FROM '.$anlage->getDbNameDcSoll()." WHERE $groupQuery) b ON a.stamp = b.stamp)
                    WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
-        dump($sqlExp);
+
         $result = $conn->query($sqlExp);
         $expectedResult = $result->fetchAll(PDO::FETCH_ASSOC);
 
@@ -77,11 +77,11 @@ class VoltageChartService
                     switch ($anlage->getConfigType()) {
                         case 1:
                         case 2:
-                            $dataArray['chart'][$counter]['expected'] = $rowSoll['expected'] > 0 ? $rowSoll['expected'] / $invertersInGroup : 0;
+                            $dataArray['chart'][$counter]['expected'] = $rowSoll['expected'] > 0 ? $rowSoll['expected'] : 0;
                             $dataArray['chart'][$counter]['expected'] = $hour ? $dataArray['chart'][$counter]['expected'] / 4 : $dataArray['chart'][$counter]['expected'];
                             break;
                         default:
-                            $dataArray['chart'][$counter]['expected'] = $hour ? $rowSoll['expected'] / $invertersInGroup / 4 : $rowSoll['expected'] / $invertersInGroup;
+                            $dataArray['chart'][$counter]['expected'] = $hour ? $rowSoll['expected'] / 4 : $rowSoll['expected'];
                     }
                     $dataArray['chart'][$counter]['expected'] = round($dataArray['chart'][$counter]['expected'], 2);
                 }
@@ -119,7 +119,7 @@ class VoltageChartService
             }
         }
         $conn = null;
-        dump($dataArray);
+
         return $dataArray;
     }
 

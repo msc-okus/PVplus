@@ -437,12 +437,12 @@ class AnlageModules
     public function getExpVoltage(float $irr): float
     {
         if ($irr > 200) {
-            $expected = $this->getOperatorVoltageHightA() * $irr ** 3 + $this->getOperatorVoltageHightB() * $irr ** 2 + $this->getOperatorVoltageHightC() * $irr;
+            $expected = ($this->getOperatorVoltageHightA() * $irr ** 1 + $this->getOperatorVoltageHightB() * $irr) + $this->getOperatorVoltageHightC();
         } else {
-            $expected = $this->getOperatorVoltageA() * $irr ** 2 + $this->getOperatorVoltageB() * $irr;
+            $expected = ($this->getOperatorVoltageA() * log($irr)) + $this->getOperatorVoltageB();
         }
 
-        return $irr > 0 ? $expected : 0;
+        return $irr > 10 ? $expected : 0;
     }
 
     /**
