@@ -36,6 +36,7 @@
         <div  class="cell medium-2"  style="margin-top:-17px!important;">
             <input type="text" name="editor" class="input-group-field js-autocomplete-user" value="{{ user }}" placeholder="Editor">
         </div>
+        {# we will use this field to recogniye when we are explicitely clicking the search button over jscript #}
         <div class="cell medium-1">
             <select name="category" >{# category = alertType (bsp: datagap, inverter power, etc.) #}
                 {{ filter.category.value }}

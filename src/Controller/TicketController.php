@@ -181,6 +181,14 @@ class TicketController extends BaseController
         $session = $requestStack->getSession();
         $pageSession = $session->get('page');
         $page = $request->query->getInt('page');
+        //dd($request->query->get('filtering'));
+
+        if (count($request->query) > 0 && $request->query->get('filtering') == 'filtered')
+        {
+            $page = 1;
+            $request->query->set('filtering', 'non-filtered');
+        } // we do this to reset the page if the user uses the filter
+
         if ($page == 0) {
             if ($pageSession == 0) {
                 $page = 1;
@@ -256,7 +264,7 @@ class TicketController extends BaseController
             'filter'        => $filter,
             'prooftam'      => $prooftam,
             'sort'          => $sort,
-            'direction'     => $direction
+            'direction'     => $direction,
         ]);
     }
 
