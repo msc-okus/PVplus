@@ -80,6 +80,12 @@ class AnlageGroupsController extends AbstractController
                 if($form2->getData()['gridLoss'] !==null){
                     $group->setGridLoss($form2->getData()['gridLoss']);
                 }
+                if($form2->getData()['limitAc'] !==null){
+                    $group->setLimitAc($form2->getData()['limitAc']);
+                }
+                if($form2->getData()['gridLimitAc'] !==null){
+                    $group->setGridLimitAc($form2->getData()['gridLimitAc']);
+                }
 
 
                 $groupsRepository->save($group, true);
