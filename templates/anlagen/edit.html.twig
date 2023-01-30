@@ -15,5 +15,7 @@
             <h1>Edit Plant {{ anlage.anlName }} / {{ anlage.eigner.firma }}</h1>
         </div>
     </div>
-    {{ include('anlagen/_form.html.twig') }}
+    <div {{ stimulus_controller('plant') }}>
+        {{ include('anlagen/_form.html.twig') }}
+    </div>
 {% endblock %}

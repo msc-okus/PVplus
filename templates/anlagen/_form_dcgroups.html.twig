@@ -10,9 +10,10 @@
                 <div class="cell medium-2">{{ form_row(group.dcGroup) }}</div>
                 <div class="cell medium-2">{{ form_row(group.dcGroupName) }}</div>
                 <div class="cell medium-2">{{ form_row(group.acGroup) }}</div>
-                <div class="cell medium-2">{{ form_row(group.unitFirst) }}</div>
-                <div class="cell medium-2">{{ form_row(group.unitLast) }}</div>
+                <div class="cell medium-1">{{ form_row(group.unitFirst) }}</div>
+                <div class="cell medium-1">{{ form_row(group.unitLast) }}</div>
                 <div class="cell medium-2">{{ form_row(group.weatherStation) }}</div>
+                <div class="cell medium-2">{{ form_row(group.importId) }}</div>
             </div>
             <div class="grid-x grid-padding-x">
                 <div class="cell medium-1">{{ form_row(group.irrUpper) }}</div>
@@ -150,12 +151,13 @@
                                     <a href="#" class="accordion-title">Group: {{ loop.index }} {% if is_granted('ROLE_G4N') %} - (Group ID: {{ group.vars.data.id }}) {% endif %} Name: {{ group.vars.data.dcGroupName }} –> AC Group {{ group.vars.data.acGroup }}</a>
                                     <div class="accordion-content" data-tab-content>
                                         <div class="grid-x grid-padding-x">
-                                            <div class="cell medium-2">{{ form_row(group.dcGroup) }}</div>
+                                            <div class="cell medium-1">{{ form_row(group.dcGroup) }}</div>
                                             <div class="cell medium-2">{{ form_row(group.dcGroupName) }}</div>
-                                            <div class="cell medium-2">{{ form_row(group.acGroup) }}</div>
+                                            <div class="cell medium-1">{{ form_row(group.acGroup) }}</div>
                                             <div class="cell medium-2">{{ form_row(group.unitFirst) }}</div>
                                             <div class="cell medium-2">{{ form_row(group.unitLast) }}</div>
                                             <div class="cell medium-2">{{ form_row(group.weatherStation) }}</div>
+                                            <div class="cell medium-2">{{ form_row(group.importId) }}</div>
                                         </div>
                                         <div class="grid-x grid-padding-x">
                                             <div class="cell medium-1">{{ form_row(group.irrUpper) }}</div>

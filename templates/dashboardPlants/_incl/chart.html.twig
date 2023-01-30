@@ -664,6 +664,7 @@ and form.selectedChart != 'sollistirranalyse'%}
     </script>
 
 {% elseif form.selectedChart == 'dc_current_mpp' %}
+    {#  #}
     <!-- Liniendiagramm DC (current mpp) -->
     <script>
         am4core.ready(function() {
@@ -734,6 +735,12 @@ and form.selectedChart != 'sollistirranalyse'%}
 
         }); // end am4core.ready()
     </script>
+
+{% elseif form.selectedChart == 'dc_voltage_1' %}
+    {# Volt1 #}
+    <!-- Liniendiagramm DC (voltage plant) -->
+    {% include 'dashboardPlants/_incl/chart/curr1.html.twig' %}
+
 {% elseif form.selectedChart == 'dc_voltage_groups' %}
     <!-- Liniendiagramm DC (voltage groups) -->
     <script>

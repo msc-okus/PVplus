@@ -6,6 +6,7 @@ use App\Repository\ModulesRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use phpDocumentor\Reflection\Types\Float_;
 
 #[ORM\Entity(repositoryClass: ModulesRepository::class)]
 class AnlageModules
@@ -77,6 +78,21 @@ class AnlageModules
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $operatorCurrentHighA;
+
+    #[ORM\Column(type: 'string', length: 20)]
+    private string $operatorVoltageA;
+
+    #[ORM\Column(type: 'string', length: 20)]
+    private string $operatorVoltageB;
+
+    #[ORM\Column(type: 'string', length: 20)]
+    private string $operatorVoltageHightA;
+
+    #[ORM\Column(type: 'string', length: 20)]
+    private string $operatorVoltageHightB;
+
+    #[ORM\Column(type: 'string', length: 20)]
+    private string $operatorVoltageHightC;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'modules')]
     private Anlage $anlage;
@@ -350,6 +366,58 @@ class AnlageModules
         return $this;
     }
 
+    public function getOperatorVoltageA(): ?float
+    {
+        return (float)$this->operatorVoltageA;
+    }
+
+    public function setOperatorVoltageA(string $operatorVoltageA): void
+    {
+        $this->operatorVoltageA = $operatorVoltageA;
+    }
+
+    public function getOperatorVoltageB(): ?float
+    {
+        return (float)$this->operatorVoltageB;
+    }
+
+    public function setOperatorVoltageB(string $operatorVoltageB): void
+    {
+        $this->operatorVoltageB = $operatorVoltageB;
+    }
+
+    public function getOperatorVoltageHightA(): ?float
+    {
+        return (float)$this->operatorVoltageHightA;
+    }
+
+    public function setOperatorVoltageHightA(string $operatorVoltageHightA): void
+    {
+        $this->operatorVoltageHightA = $operatorVoltageHightA;
+    }
+
+    public function getOperatorVoltageHightB(): ?float
+    {
+        return (float)$this->operatorVoltageHightB;
+    }
+
+    public function setOperatorVoltageHightB(string $operatorVoltageHightB): void
+    {
+        $this->operatorVoltageHightB = $operatorVoltageHightB;
+    }
+
+    public function getOperatorVoltageHightC(): ?float
+    {
+        return (float)$this->operatorVoltageHightC;
+    }
+
+    public function setOperatorVoltageHightC(string $operatorVoltageHightC): void
+    {
+        $this->operatorVoltageHightC = $operatorVoltageHightC;
+    }
+
+
+
     // ### Calulated Values
     /**
      * This Factor has to multiply by the numbers of modules, to calculate the expected current.<br>
@@ -364,6 +432,17 @@ class AnlageModules
         }
 
         return $irr > 0 ? $expected : 0;
+    }
+
+    public function getExpVoltage(float $irr): float
+    {
+        if ($irr > 200) {
+            $expected = ($this->getOperatorVoltageHightA() * $irr ** 1 + $this->getOperatorVoltageHightB() * $irr) + $this->getOperatorVoltageHightC();
+        } else {
+            $expected = ($this->getOperatorVoltageA() * log($irr)) + $this->getOperatorVoltageB();
+        }
+
+        return $irr > 10 ? $expected : 0;
     }
 
     /**
@@ -390,6 +469,11 @@ class AnlageModules
     public function getTempCorrCurrent(float $pannelTemp): float
     {
         return (float) (1 + ($this->getTempCoefCurrent() * ($pannelTemp - 25) / 100));
+    }
+
+    public function getTempCorrVoltage(float $pannelTemp): float
+    {
+        return (float) (1 + ($this->getTempCoefVoltage() * ($pannelTemp - 25) / 100));
     }
 
     public function getAnlage(): ?Anlage

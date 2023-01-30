@@ -70,7 +70,7 @@ class TicketRepository extends ServiceEntityRepository
      *
      * @param array $orders Array Key defines the 'order field', value defines order direction (ASC, DESC) or order should not used (null)
      */
-    public function getWithSearchQueryBuilderNew(?string $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0, string $sort = "", string $direction = "", bool $ignore = false): QueryBuilder
+    public function getWithSearchQueryBuilderNew(?string $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0, string $sort = "", string $direction = "", bool $ignore = false, $TicketName = ""): QueryBuilder
     {
         /** @var User $user */
         $user = $this->security->getUser();
@@ -98,7 +98,10 @@ class TicketRepository extends ServiceEntityRepository
         }
 
         if ($inverter != '') {
-            $qb->andWhere("ticket.inverter = $inverter");
+            $qb->andWhere("ticket.inverter LIKE '$inverter,%'");
+            $qb->orWhere("ticket.inverter LIKE '% $inverter,%'");
+            $qb->orWhere("ticket.inverter = '$inverter'");
+            $qb->orWhere("ticket.inverter LIKE '%, $inverter'");
         }
         if ((int) $prio > 0) {
             $qb->andWhere("ticket.priority = $prio");
@@ -115,11 +118,13 @@ class TicketRepository extends ServiceEntityRepository
         if ($prooftam == 1){
             $qb->andWhere("ticket.needsProof = 1");
         }
+        if ($TicketName !== "") $qb->andWhere("ticket.TicketName = '$TicketName'");
         if ($ignore) $qb->andWhere("ticket.ignoreTicket = true");
         else $qb->andWhere("ticket.ignoreTicket = false");
 
         if ($sort !== "") $qb->addOrderBy($sort, $direction);
         $qb->addOrderBy("ticket.id", "ASC"); // second order by ID
+
 
         return $qb;
     }
@@ -234,19 +239,16 @@ class TicketRepository extends ServiceEntityRepository
     }
     public function findLastByAnlageInverterTime($anlage, $today, $yesterday, $errorCategory, $inverter)
     {
-        $description = 'Error with the Data of the Weather station';
         $result = $this->createQueryBuilder('t')
             ->andWhere('t.end < :today')
             ->andWhere('t.end >= :yesterday')
             ->andWhere('t.anlage = :anl')
             ->andWhere('t.alertType = :error')
             ->andWhere('t.inverter = :inverter')
-            ->andWhere('t.description != :description')
             ->setParameter('today', $today)
             ->setParameter('yesterday', $yesterday)
             ->setParameter('anl', $anlage)
             ->setParameter('error', $errorCategory)
-            ->setParameter('description', $description)
             ->setParameter('inverter', $inverter)
             ->orderBy('t.end', 'DESC')
             ->getQuery();
@@ -256,6 +258,7 @@ class TicketRepository extends ServiceEntityRepository
 
     public function findByAnlageInverterTime($anlage, $time, $errorCategory, $inverter)
     {
+
         $description = 'Error with the Data of the Weather station';
         $result = $this->createQueryBuilder('t')
             ->andWhere('t.end = :end')
@@ -273,38 +276,4 @@ class TicketRepository extends ServiceEntityRepository
         return $result->getResult();
     }
 
-
-    public function findByAnlageInverterTimeWeather($anlage, $time)
-    {
-        $description = 'Error with the Data of the Weather station';
-        $result = $this->createQueryBuilder('t')
-            ->andWhere('t.end = :end')
-            ->andWhere('t.anlage = :anl')
-            ->andWhere('t.description = :description')
-            ->setParameter('end', $time)
-            ->setParameter('anl', $anlage)
-            ->setParameter('description', $description)
-            ->getQuery();
-
-        return $result->getResult();
-    }
-
-    public function findLastByAnlageInverterTimeWeather($anlage, $today, $yesterday)
-    {
-        $description = 'Error with the Data of the Weather station';
-        $result = $this->createQueryBuilder('t')
-            ->andWhere('t.end < :today')
-            ->andWhere('t.end > :yesterday')
-            ->andWhere('t.anlage = :anl')
-            ->andWhere('t.description = :description')
-            ->setParameter('today', $today)
-            ->setParameter('yesterday', $yesterday)
-            ->setParameter('anl', $anlage)
-            ->setParameter('description', $description)
-            ->orderBy('t.end', 'DESC')
-            ->setMaxResults(1)
-            ->getQuery();
-
-        return $result->getResult();
-    }
 }

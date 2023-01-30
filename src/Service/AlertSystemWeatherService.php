@@ -11,6 +11,8 @@ use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\StatusRepository;
 use App\Repository\TicketRepository;
+use DateTime;
+use DateTimeZone;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use JetBrains\PhpStorm\ArrayShape;
@@ -31,8 +33,8 @@ class AlertSystemWeatherService
         private StatusRepository        $statusRepo,
         private TicketRepository        $ticketRepo)
     {
-        define('SOR', '10');
-        define('EFOR', '20');
+        define('EFOR', '10');
+        define('SOR', '20');
         define('OMC', '30');
 
         define('DATA_GAP', 10);
@@ -40,26 +42,68 @@ class AlertSystemWeatherService
         define('GRID_ERROR', 30);
         define('WEATHER_STATION_ERROR', 40);
         define('EXTERNAL_CONTROL', 50); // Regelung vom Direktvermarketr oder Netztbetreiber
+        define('POWER_DIFF', 60);
     }
 
-    public function generateTicketsIntervalWeather(Anlage $anlage, string $from, string $to)
+    /**
+     * this is the function we use to generate tickets from the command
+     * @param Anlage $anlage
+     * @param string $from
+     * @param string|null $to
+     * @return void
+     */
+    public function generateWeatherTicketsInterval(Anlage $anlage, string $from, ?string $to = null): void
     {
         $fromStamp = strtotime($from);
-        $toStamp = strtotime($to);
-        for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
-            $this->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
+        if ($to != null) {
+            $toStamp = strtotime($to);
+            for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
+                $this->checkWeatherStation($anlage, date('Y-m-d H:i:00', $stamp));
+            }
+        }
+        else $this->checkWeatherStation($anlage, date('Y-m-d H:i:00', $fromStamp));
+    }
+
+    /**
+     * main function from the class to work with the tickets, but should never be called from outside the class
+     * @param Anlage $anlage
+     * @param string $time
+     * @return void
+     */
+    public function checkWeatherStation(Anlage $anlage, string $time)
+    {
+        $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
+        if ( $anlage->getWeatherStation()->getType() !== 'custom') {
+            if ($time >= $sungap['sunrise'] && $time <=  $sungap['sunset']) {
+                $status_report = $this->WData($anlage, $time);
+                $ticketData = "";
+                if ($status_report['Irradiation']) $ticketData = $ticketData . "Problem with the Irradiation ";
+                if ($status_report['Temperature']) $ticketData = $ticketData . "Problem with the Temperature";
+                if ($status_report['wspeed'] != "") $ticketData = $ticketData . "Problem with the Wind Speed";
+                $this->generateTicket($ticketData, $time, $anlage);
+                /* disabled by now.
+                if ($ticketData != "") {
+                    self::messagingFunction($ticketData, $anlage);
+                }
+                */
+                unset($status_report);
+            }
         }
     }
+
+
     /**
      * here we analyze the data from the weather station and generate the status.
-     *
      * @param Anlage $anlage
      * @param $time
-     * @return array
+     * @return mixed
      */
-    private static function WData(Anlage $anlage, $time): array
+    private function WData(Anlage $anlage, $time): mixed
     {
-        $status_report = [];
+        $offsetServer = new DateTimeZone("Europe/Luxembourg");
+        $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), strtoupper($anlage->getCountry())));
+        $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
+        $time = date('Y-m-d H:i:s', strtotime($time) - $totalOffset);
         $conn = self::getPdoConnection();
         $sqlw = 'SELECT b.g_lower as gi , b.g_upper as gmod, b.temp_ambient as temp, b.wind_speed as wspeed 
                     FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) 
@@ -96,7 +140,7 @@ class AlertSystemWeatherService
                     $status_report['wspeed'] = 'No data';
                 }
             } else {
-                $status_report['wspeed'] = 'there is no wind measurer in the plant';
+                $status_report['wspeed'] = "";
             }
         }
         $conn = null;
@@ -104,149 +148,60 @@ class AlertSystemWeatherService
         return $status_report;
     }
     /**
-     * We use this to make an error message of the status array from the weather station and to generate/update Tickets.
+     * We use this to generate/update Tickets.
      *
      * @param $status_report
      * @param $time
      * @param $anlage
-     * @param $sunrise
-     * @return string
+     * @return void
      */
-    private function AnalyzeWeather($status_report, $time, $anlage, $sunrise): string
+    private function generateTicket($status_report, $time, $anlage): void
     {
-        $message = '';
-
         $ticket = self::getLastTicketWeather($anlage, $time);
 
-        if ($ticket != null && $status_report['Irradiation'] == 'No data' || $status_report['Irradiation'] == 'Irradiation is 0') {
-            $ticket = new Ticket();
-            $ticket->setAnlage($anlage);
-            $ticket->setStatus(10);
-            $ticket->setErrorType('');
-            $ticket->setEditor('Alert system');
-            $ticket->setDescription('Error with the Data of the Weather station');
-            $ticket->setSystemStatus(10);
-            $ticket->setPriority(10);
-            $ticket->setAlertType('40'); // 40 = Weather Station Error
-            $timetempbeg = date('Y-m-d H:i:s', strtotime($time));
-            $begin = date_create_from_format('Y-m-d H:i:s', $timetempbeg);
-            $begin->getTimestamp();
-            $ticket->setBegin($begin);
-        }
-        if ($status_report['Irradiation'] == 'No data') {
+         if ($ticket != null) {
             $timetempend = date('Y-m-d H:i:s', strtotime($time));
             $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
             $end->getTimestamp();
             $ticket->setEnd($end);
-            $messaging = (date_diff($end, $ticket->getBegin(), true)->i == 30);
-            if ($messaging) {
-                $timeq2 = date('Y-m-d H:i:s', strtotime($time) - 1800);
-                $status_q2 = $this->statusRepo->findOneByanlageDate($anlage, $timeq2, true);
-                $temp = $status_q2->getStatus()['temperature'];
-                $wind = $status_q2->getStatus()['wspeed'];
-                $dateString = $ticket->getBegin()->format('Y-m-d H:i:s');
-                $message .= 'There is no Irradiation Data since '.$dateString.'<br>';
-                if ($temp == 'No data') {
-                    $message .= 'There was no temperature data at '.$dateString.'<br>';
-                }
-                if ($wind == 'No data') {
-                    $message .= 'There was no wind data at '.$dateString.'<br>';
-                }
-            }
-        } elseif ($status_report['Irradiation'] == 'Irradiation is 0') {
-            $timetempend = date('Y-m-d H:i:s', strtotime($time));
-            $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
-            $end->getTimestamp();
-            $ticket->setEnd($end);
-            $messaging = (date_diff($end, $ticket->getBegin(), true)->i == 30);
-            if ($messaging) {
-                $timeq2 = date('Y-m-d H:i:s', strtotime($time) - 1800);
-                $status_q2 = $this->statusRepo->findOneByanlageDate($anlage, $timeq2, true)[0];
-                $temp = $status_q2->getStatus()['temperature'];
-                $wind = $status_q2->getStatus()['wspeed'];
-                $dateString = $ticket->getBegin()->format('Y-m-d H:i:s');
-                $message .= 'Irradiation is 0 since '.$dateString.'<br>';
-                if ($temp == 'No data') {
-                    $message .= 'There was no temperature data at '.$dateString.'<br>';
-                }
-                if ($wind == 'No data') {
-                    $message .= 'There was no wind data at '.$dateString.'<br>';
-                }
-            }
-        } elseif ($ticket != null) {
-            $timetempend = date('Y-m-d H:i:s', strtotime($time) - 900);
-            $end = date_create_from_format('Y-m-d H:i:s', $timetempend);
-            $end->getTimestamp();
-            $ticket->setEnd($end);
+             $this->em->persist($ticket);
+             $this->em->flush();
         }
-        if ($ticket != null) {
-            $this->em->persist($ticket);
-        }
-        $this->em->flush();
-
-        return $message;
+         else if ($status_report != ""){
+             $ticket = new Ticket();
+             $date = date_create_from_format('Y-m-d H:i:s', $time);
+             $ticket->setBegin($date);
+             $ticket->setEnd($date);
+             $ticket->setInverter('*');
+             $ticket->setAnlage($anlage);
+             $ticket->setAlertType(40);
+             $ticket->setDescription($status_report);
+             $ticket->setEditor("AlertSystem");
+             $this->em->persist($ticket);
+             $this->em->flush();
+         }
     }
 
-
-    public function checkWeatherStation(Anlage $anlage, ?string $time = null)
-    {
-        if ($time === null) {
-            $time = $this->getLastQuarter(date('Y-m-d H:i:s'));
-            $time = G4NTrait::timeAjustment($time, -2);
-        }
-        $sungap = $this->weather->getSunrise($anlage, $time);
-
-        $weatherStation = $anlage->getWeatherStation();
-        if ($weatherStation->getType() !== 'custom') {
-            if (($anlage->getAnlType() != 'masterslave') && ($anlage->getCalcPR() == true) && (($time > $sungap['sunrise']) && ($time < $sungap['sunset']))) {
-                $status_report = $this->WDataFix($anlage, $time);
-                if ($status_report === 0) {
-                    self::messagingFunction('No Data received from the weather station in the last four hours.', $anlage);
-                }
-                unset($status_report);
-            }
-        }
-    }
-
-    /**
-     * here we analyze the data from the weather station and generate the status.
-     *
-     * @param Anlage $anlage
-     * @param $time
-     *
-     * @return int
-     */
-    private static function WDataFix(Anlage $anlage, $time): int
-    {
-        $conn = self::getPdoConnection();
-        $begin = G4NTrait::timeAjustment($time, -4);
-
-        $sqlw = 'SELECT count(db_id)
-                    FROM '.$anlage->getDbNameWeather()." 
-                    WHERE stamp >= '$begin' AND stamp <= '$time' ";
-
-        $resw = $conn->query($sqlw);
-
-        return $resw->rowCount();
-    }
 
     /**
      * here we retrieve the tickets to link
      * @param $anlage
      * @param $time
+     * @return mixed
      */
-    public function getLastTicketWeather($anlage, $time){
+    public function getLastTicketWeather($anlage, $time): mixed
+    {
         $today = date('Y-m-d', strtotime($time));
         $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
         $sunrise = self::getLastQuarter($this->weather->getSunrise($anlage, $today)['sunrise']); // the first quarter of today
         $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
-        $quarter = date('Y-m-d H:i', strtotime($time)); // the quarter before the actual
-
+        $quarter = date('Y-m-d H:i', strtotime($time) - 900); // the quarter before the actual
         if ($quarter <= $sunrise) {
-            $ticket = $this->ticketRepo->findLastByAnlageInverterTimeWeather($anlage, $today, $lastQuarterYesterday); // the same as above but for weather station
+            $ticket = $this->ticketRepo->findLastByAnlageInverterTime($anlage, $today, $lastQuarterYesterday, 40, "*")[0]; // the same as above but for weather station
         } else {
-            $ticket = $this->ticketRepo->findByAnlageIinverterTimeWeather($anlage, $time);
+            $ticket = $this->ticketRepo->findByAnlageInverterTime($anlage, $quarter, 40, "*")[0];
         }
+        return $ticket;
     }
 
     /**

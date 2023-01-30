@@ -267,9 +267,11 @@ trait G4NTrait
      * Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms<br>
      * adjust Plant timestamp with offset from entity plant ($anlage->getAnlZeitzone()).
      *
+     * @param Anlage $anlage
      * @param $stamp
      * @param false $reverse
      *
+     * @return string
      * @throws Exception
      */
     public function timeShift(Anlage $anlage, $stamp, bool $reverse = false): string
@@ -308,11 +310,12 @@ trait G4NTrait
     /**
      * as the name of the function describs, get the plants nearest timezone.
      *
-     * @param $cur_lat
-     * @param $cur_long
+     * @param float $cur_lat
+     * @param float $cur_long
      * @param string $country_code
+     * @return string
      */
-    public function getNearestTimezone($cur_lat, $cur_long, $country_code = ''): string
+    public function getNearestTimezone(float $cur_lat, float $cur_long, string $country_code = ''): string
     {
         $timezone_ids = ($country_code) ? DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $country_code)
             : DateTimeZone::listIdentifiers();
@@ -357,6 +360,7 @@ trait G4NTrait
      *
      * @param $from
      * @param $to
+     * @return int
      */
     public function g4nDateDiffMonth($from, $to): int
     {
