@@ -126,202 +126,108 @@ class DCPowerChartService
     }
 
     /**
+     * @param Anlage $anlage
      * @param $from
      * @param $to
-     *
+     * @param int $group
+     * @param bool $hour
      * @return array
      *               [DC2]
+     * @throws \Exception
      */
     public function getDC2(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
-        if ($group == -1) {
-            if ($hour) {
-                $form = '%y%m%d%H';
-            } else {
-                $form = '%y%m%d%H%i';
-            }
+        $dataArray = [];
+        $dataArray['maxSeries'] = 0;
+        $nameArray = $this->functions->getNameArray($anlage, 'ac');
+        $dataArray['inverterArray'] = $nameArray;
+        $acGroups = $anlage->getGroupsAc();
+        $type = '';
+        $hour ? $form = '%y%m%d%H' : $form = '%y%m%d%H%i';
 
-            $conn = self::getPdoConnection();
-            $groups = $anlage->getGroupsAc();
-            $dataArray = [];
-            $inverterNr = 0;
+        $type .= match ($anlage->getConfigType()) {
+            1 => " group_ac = '$group' AND",
+            default => " group_dc = '$group' AND",
+        };
+
+        $sqlExpected = 'SELECT a.stamp as stamp , sum(b.dc_exp_power) as expected
+                            FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_power, group_ac FROM '.$anlage->getDbNameDcSoll()." WHERE group_ac = '$group') b ON a.stamp = b.stamp)
+                            WHERE a.stamp BETWEEN '$from' AND '$to'
+                            GROUP by date_format(a.stamp, '$form')";
+
+        $conn = self::getPdoConnection();
+        $resultExp = $conn->query($sqlExpected);
+        if ($resultExp->rowCount() > 0) {
+            $counter = 0;
+
             switch ($anlage->getConfigType()) {
-                case 1: // Andjik
-                case 3:
-                case 4:
-                    $nameArray = $this->functions->getNameArray($anlage, 'dc');
+                case 3: // Groningen
                     break;
                 default:
-                    $nameArray = $this->functions->getNameArray($anlage, 'ac');
+                    $dataArray['offsetLegend'] = $acGroups[$group]['GMIN'] - 1;
             }
-            $sqlExp = 'SELECT a.stamp as stamp, sum(b.dc_exp_power) as expected
-                        FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_power, group_ac FROM '.$anlage->getDbNameDcSoll()." WHERE group_ac = '$group') b ON a.stamp = b.stamp)
-                        WHERE a.stamp BETWEEN '$from' AND '$to' 
-                        GROUP BY date_format(a.stamp, '$form')";
+            $dataArray['label'] = $acGroups[$group]['GroupName'];
 
-            if ($anlage->getUseNewDcSchema()) {
-                $sql = 'SELECT sum(wr_pdc) as istCurrent 
-                                    FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameDCIst()." b ON a.stamp = b.stamp)
-                                    WHERE a.stamp BETWEEN '$from' AND '$to' 
-                                    GROUP BY date_format(a.stamp, '$form'), wr_group ";
+            // get Irradiation
+            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
+                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
             } else {
-                $sql = 'SELECT sum(wr_pdc) as istCurrent 
-                                    FROM (db_dummysoll a LEFT JOIN  '.$anlage->getDbNameACIst()." b ON a.stamp = b.stamp)
-                                    WHERE a.stamp BETWEEN '$from' AND '$to' 
-                                    GROUP BY date_format(a.stamp, '$form'), group_dc ";
+                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
             }
 
-            $resultExp = $conn->query($sqlExp);
-            $resultActual = $conn->query($sql);
-            $maxInverter = $resultActual->rowCount() / $resultExp->rowCount();
-
-            $dataArray['inverterArray'] = $nameArray;
-
-            if ($resultExp->rowCount() > 0) {
-                // add Irradiation
-                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == 'Groningen') {
-                    $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
+            $expectedArray = $resultExp->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($expectedArray as $rowExp) {
+                $stamp = $rowExp['stamp'];
+                $rowExp['expected'] === null || $rowExp['expected'] < 0 ? $expected = 0 : $expected = $rowExp['expected'];
+                $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $rowExp['stamp']);
+                $counterInv = 1;
+                if ($hour) {
+                    $endStamp = date('Y-m-d H:i', strtotime($stamp) + 3600);
+                    $sqlIst = 'SELECT sum(wr_pdc) as istCurrent FROM '.$anlage->getDbNameIst().' WHERE '.$type." stamp >= '$stamp' AND  stamp < '$endStamp' group by unit ORDER BY unit";
                 } else {
-                    $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
+                    $sqlIst = 'SELECT wr_pdc as istCurrent FROM '.$anlage->getDbNameIst().' WHERE '.$type." stamp = '$stamp' ORDER BY unit";
                 }
-                // SOLL Strom für diesen Zeitraum und diese Gruppe
+                $resultActual = $conn->query($sqlIst);
+                while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
+                    $actCurrent = (float)$rowActual['istCurrent'] > 0 ? (float)$rowActual['istCurrent'] : 0 ;
 
-                $dataArray['maxSeries'] = 0;
-                $legend = $groups[$group]['GMIN'] - 1;
-                $counter = 0;
-                while ($rowExp = $resultExp->fetch(PDO::FETCH_ASSOC)) {
-                    $stamp = $rowExp['stamp'];
-                    ($rowExp['soll'] == null) ? $expected = 0 : $expected = $rowExp['soll'];
-                    $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
-                    $counterInv = 1;
-                    $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
-                    $dataArray['chart'][$counter]['expected'] = $groups[$group]['GMAX'] - $groups[$group]['GMIN'] == 0 ? $rowExp['expected'] : $rowExp['expected'] / ($groups[$group]['GMAX'] - $groups[$group]['GMIN']);
-                    $dataArray['chart'][$counter]['expected'] = $expected;
-                    while ($counterInv <= $maxInverter) {
-                        $rowActual = $resultActual->fetch(PDO::FETCH_ASSOC);
-
-                        $currentIst = $rowActual['istCurrent'];
-                        if ($currentIst != null) {
-                            $currentIst = round($rowActual['istCurrent'], 2);
-                        } else {
-                            $currentIst = 0;
+                    if (!($actCurrent == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
+                        switch ($anlage->getConfigType()) {
+                            case 3: // Groningen
+                                $dataArray['chart'][$counter][$nameArray[$group]] = $actCurrent;
+                                break;
+                            default:
+                                $dataArray['chart'][$counter][$nameArray[$counterInv + $dataArray['offsetLegend']]] = $actCurrent;
                         }
+                    }
 
-                        if (!(self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
-                            switch ($anlage->getConfigType()) {
-                                case 3:
-                                    break;
-                                default:
-                                    $dataArray['chart'][$counter][$nameArray[$counterInv]] = $currentIst;
+                    switch ($anlage->getConfigType()) {
+                        case 3:
+                        case 1:
+                            if ($counterInv > $dataArray['maxSeries']) {
+                                $dataArray['maxSeries'] = $counterInv;
                             }
-                        }
-                        ++$counterInv;
+                            break;
+                        default:
+                            if ($counterInv > $dataArray['maxSeries']) {
+                                $dataArray['maxSeries'] = $counterInv - 1;
+                            }
                     }
-                    $dataArray['maxSeries'] = $maxInverter;
-                    // add Irradiation
-                    if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
-                        $dataArray['chart'][$counter]['irradiation'] = $dataArrayIrradiation['chart'][$counter]['val1'];
-                    } else {
-                        $dataArray['chart'][$counter]['irradiation'] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;
-                    }
-                    ++$counter;
+
+                    ++$counterInv;
                 }
-                $dataArray['offsetLegend'] = 0;
-            }
-        } else {
-            if ($hour) {
-                $form = '%y%m%d%H';
-            } else {
-                $form = '%y%m%d%H%i';
-            }
 
-            $conn = self::getPdoConnection();
-            $groups = $anlage->getGroupsAc();
-            $dataArray = [];
-            $inverterNr = 0;
-            switch ($anlage->getConfigType()) {
-                case 1: // Andjik
-                case 3:
-                case 4:
-                    $nameArray = $this->functions->getNameArray($anlage, 'dc');
-                    break;
-                default:
-                    $nameArray = $this->functions->getNameArray($anlage, 'ac');
-            }
-            $sqlExp = 'SELECT a.stamp as stamp, sum(b.dc_exp_power) as expected
-                        FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_power, group_ac FROM '.$anlage->getDbNameDcSoll()." WHERE group_ac = '$group') b ON a.stamp = b.stamp)
-                        WHERE a.stamp BETWEEN '$from' AND '$to' 
-                        GROUP BY date_format(a.stamp, '$form')";
+                // and here
+                --$counterInv;
+                ($counterInv > 0) ? $dataArray['chart'][$counter]['expected'] = $expected / $counterInv : $dataArray['chart'][$counter]['expected'] = $expected;
 
-            if ($anlage->getUseNewDcSchema()) {
-                $sql = 'SELECT sum(wr_pdc) as istCurrent 
-                                    FROM (db_dummysoll a LEFT JOIN (SELECT * FROM '.$anlage->getDbNameDCIst()." WHERE group_ac = '$group') b ON a.stamp = b.stamp)
-                                    WHERE a.stamp BETWEEN '$from' AND '$to' AND group_ac = '$group' 
-                                    GROUP BY date_format(a.stamp, '$form'), wr_group ";
-            } else {
-                $sql = 'SELECT sum(wr_pdc) as istCurrent 
-                                    FROM (db_dummysoll a LEFT JOIN (SELECT * FROM '.$anlage->getDbNameACIst()." WHERE group_ac = '$group') b ON a.stamp = b.stamp)
-                                    WHERE a.stamp BETWEEN '$from' AND '$to' 
-                                    GROUP BY date_format(a.stamp, '$form'), group_dc ";
-            }
-
-            $resultExp = $conn->query($sqlExp);
-            $resultActual = $conn->query($sql);
-
-            $maxInverter = $resultActual->rowCount() / $resultExp->rowCount();
-
-            $dataArray['inverterArray'] = $nameArray;
-
-            if ($resultExp->rowCount() > 0) {
                 // add Irradiation
-                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == 'Groningen') {
-                    $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
+                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
+                    $dataArray['chart'][$counter]['irradiation'] = $dataArrayIrradiation['chart'][$counter]['val1'];
                 } else {
-                    $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
+                    $dataArray['chart'][$counter]['irradiation'] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;
                 }
-                // SOLL Strom für diesen Zeitraum und diese Gruppe
-
-                $dataArray['maxSeries'] = 0;
-                $legend = $groups[$group]['GMIN'] - 1;
-                $counter = 0;
-                while ($rowExp = $resultExp->fetch(PDO::FETCH_ASSOC)) {
-                    $stamp = $rowExp['stamp'];
-                    ($rowExp['soll'] == null) ? $expected = 0 : $expected = $rowExp['soll'];
-                    $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
-                    $counterInv = 1;
-                    $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
-                    $dataArray['chart'][$counter]['expected'] = $groups[$group]['GMAX'] - $groups[$group]['GMIN'] == 0 ? $rowExp['expected'] : $rowExp['expected'] / ($groups[$group]['GMAX'] - $groups[$group]['GMIN']);
-
-                    while ($counterInv <= $maxInverter) {
-                        $rowActual = $resultActual->fetch(PDO::FETCH_ASSOC);
-
-                        $currentIst = $rowActual['istCurrent'];
-                        if ($currentIst != null) {
-                            $currentIst = round($rowActual['istCurrent'], 2);
-                        } else {
-                            $currentIst = 0;
-                        }
-
-                        if (!(self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
-                            switch ($anlage->getConfigType()) {
-                                case 3:
-                                    break;
-                                default:
-                                    $dataArray['chart'][$counter][$nameArray[$counterInv + $legend]] = $currentIst;
-                            }
-                        }
-                        ++$counterInv;
-                    }
-                    $dataArray['maxSeries'] = $maxInverter;
-                    // add Irradiation
-                    if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
-                        $dataArray['chart'][$counter]['irradiation'] = $dataArrayIrradiation['chart'][$counter]['val1'];
-                    } else {
-                        $dataArray['chart'][$counter]['irradiation'] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;
-                    }
-                    ++$counter;
-                }
-                $dataArray['offsetLegend'] = $legend;
+                ++$counter;
             }
         }
         $conn = null;
@@ -332,11 +238,13 @@ class DCPowerChartService
     /**
      * Erzeugt Daten für das Soll/Ist AC Diagramm nach Gruppen.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
-     *
+     * @param int $group
+     * @param bool $hour
      * @return array
-     *               [DC3]
+     * @throws \Exception [DC3]
      */
     public function getDC3(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {

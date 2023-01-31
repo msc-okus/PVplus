@@ -51,9 +51,9 @@ class OpenWeather
         return $this;
     }
 
-    public function getTempC(): ?string
+    public function getTempC(): ?float
     {
-        return $this->tempC;
+        return (float)$this->tempC;
     }
 
     public function setTempC(string $tempC): self
@@ -63,9 +63,9 @@ class OpenWeather
         return $this;
     }
 
-    public function getWindSpeed(): ?string
+    public function getWindSpeed(): ?float
     {
-        return $this->windSpeed;
+        return (float)$this->windSpeed;
     }
 
     public function setWindSpeed(?string $windSpeed): self

@@ -104,10 +104,15 @@ class ExpectedService
             // Wetterstation auswählen, von der die Daten kommen sollen
             /* @var WeatherStation $currentWeatherStation */
             $currentWeatherStation = $group->getWeatherStation() ? $group->getWeatherStation() : $anlage->getWeatherStation();
-            for ($unit = $group->getUnitFirst(); $unit <= $group->getUnitLast(); ++$unit) {
-                foreach ($weatherArray[$currentWeatherStation->getDatabaseIdent()] as $weather) {
-                    $stamp = $weather['stamp'];
 
+            foreach ($weatherArray[$currentWeatherStation->getDatabaseIdent()] as $weather) {
+                $stamp = $weather['stamp'];
+                $openWeather = false; ### temporäre deaktivierung OpenWeather
+                ###$openWeather = $this->openWeatherRepo->findTimeMatchingOpenWeather($anlage, date_create($stamp));
+
+                ###if ($openWeather) dump($openWeather->getTempC());
+
+                for ($unit = $group->getUnitFirst(); $unit <= $group->getUnitLast(); ++$unit) {
                     // use plant based shadow loss (normaly - 0)
                     $shadow_loss = $group->getShadowLoss();
                     if ($groupMonth) {
@@ -196,13 +201,12 @@ class ExpectedService
                             } else {
                                 // Wenn weder Umgebungs noch Modul Temperatur vorhanden, dann nutze Daten aus Open Weather (sind nur Stunden weise vorhanden)
                                 if ($anlage->getAnlId() == '183') {
-                                    $openWeather = $this->openWeatherRepo->findTimeMatchingOpenWeather($anlage, date_create($stamp));
-                                    if ($openWeather) {
+                                    if ($openWeather || true) {
                                         $windSpeed = 4; // ReGebeng – gemittelte Daten aus OpenWeather
-                                        $airTemp = 26; // ReGebeng – gemittelte Daten aus OpenWeather
+                                        $airTemp = 24; // ReGebeng – gemittelte Daten aus OpenWeather
 
-                                        $windSpeed = $openWeather->getWindSpeed();
-                                        $airTemp = $openWeather->getTempC();
+                                        #$windSpeed = $openWeather->getWindSpeed();
+                                        #$airTemp = $openWeather->getTempC();
                                         $pannelTemp = round($this->weatherFunctions->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
                                         #if ($irr > 0) dump("Pannel: $pannelTemp | AirTemp: $airTemp | WindSpeed: $windSpeed | Irr: $irr");
                                         $expPowerDcHlp = $expPowerDcHlp * $modul->getModuleType()->getTempCorrPower($pannelTemp);
