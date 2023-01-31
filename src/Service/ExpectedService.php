@@ -200,26 +200,34 @@ class ExpectedService
                                 // Wenn nur Umgebungstemepratur vorhanden
                             } else {
                                 // Wenn weder Umgebungs noch Modul Temperatur vorhanden, dann nutze Daten aus Open Weather (sind nur Stunden weise vorhanden)
-                                if ($anlage->getAnlId() == '183') {
-                                    if ($openWeather || true) {
-                                        $windSpeed = 4; // ReGebeng – gemittelte Daten aus OpenWeather
-                                        $airTemp = 24; // ReGebeng – gemittelte Daten aus OpenWeather
+                                if ($anlage->getAnlId() == '183') {  // im Moment nur für REGebeng
+                                    $windSpeed = 4; // ReGebeng – gemittelte Daten aus OpenWeather
+                                    $airTemp = 24; // ReGebeng – gemittelte Daten aus OpenWeather
 
-                                        #$windSpeed = $openWeather->getWindSpeed();
-                                        #$airTemp = $openWeather->getTempC();
-                                        $pannelTemp = round($this->weatherFunctions->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
-                                        #if ($irr > 0) dump("Pannel: $pannelTemp | AirTemp: $airTemp | WindSpeed: $windSpeed | Irr: $irr");
-                                        $expPowerDcHlp = $expPowerDcHlp * $modul->getModuleType()->getTempCorrPower($pannelTemp);
-                                        $expCurrentDcHlp = $expCurrentDcHlp * $modul->getModuleType()->getTempCorrCurrent($pannelTemp);
-                                        $expVoltageDcHlp = $expVoltageDcHlp * $modul->getModuleType()->getTempCorrVoltage($pannelTemp);
-                                    }
+                                    #$windSpeed = $openWeather->getWindSpeed();
+                                    #$airTemp = $openWeather->getTempC();
+
+                                    // Calculate pannel temperatur by NREL
+                                    $pannelTemp = round($this->weatherFunctions->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
+
+                                    // Correct Values by modul temperature
+                                    $expPowerDcHlp = $expPowerDcHlp * $modul->getModuleType()->getTempCorrPower($pannelTemp);
+                                    $expCurrentDcHlp = $expCurrentDcHlp * $modul->getModuleType()->getTempCorrCurrent($pannelTemp);
+                                    $expVoltageDcHlp = $expVoltageDcHlp * $modul->getModuleType()->getTempCorrVoltage($pannelTemp);
                                 }
                             }
                         }
 
                         // degradation abziehen (degradation * Betriebsjahre).
-                        $expPowerDcHlp = $expPowerDcHlp - ($expPowerDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
-                        $expCurrentDcHlp = $expCurrentDcHlp - ($expCurrentDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
+                        $expVoltageDcHlp = $expVoltageDcHlp - ($expVoltageDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
+                        if ($anlage->getAnlId() == '183') { // im Moment nur für REGebeng
+                            // Calculate DC power by current and voltage
+                            $expPowerDcHlp = $expCurrentDcHlp * $expVoltageDcHlp / 4000;
+                        } else {
+                            $expPowerDcHlp = $expPowerDcHlp - ($expPowerDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
+                        }
+                        #$expCurrentDcHlp = $expCurrentDcHlp - ($expCurrentDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
+
 
                         $expPowerDc += $expPowerDcHlp;
                         $expCurrentDc += $expCurrentDcHlp;

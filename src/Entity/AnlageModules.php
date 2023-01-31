@@ -453,7 +453,7 @@ class AnlageModules
         }
         if ($expected > $this->getMaxUmpp()) $expected = $this->getMaxUmpp();
 
-        return $irr > 10 ? $expected : 0;
+        return $irr > 2 ? $expected : 0;
     }
 
     /**
