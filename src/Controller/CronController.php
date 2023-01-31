@@ -9,9 +9,13 @@ use App\Service\checkSystemStatusService;
 use App\Service\MessageService;
 use App\Service\ReportService;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
+/**
+ * @IsGranted("ROLE_G4N")
+ */
 #[deprecated]
 class CronController extends BaseController
 {

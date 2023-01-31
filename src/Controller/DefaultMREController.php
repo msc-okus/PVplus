@@ -19,6 +19,7 @@ use App\Service\WeatherServiceNew;
 use JetBrains\PhpStorm\NoReturn;
 use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
 use Knp\Snappy\Pdf;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -28,6 +29,9 @@ use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
 
+/**
+ * @IsGranted("ROLE_G4N")
+ */
 class DefaultMREController extends BaseController
 {
     use G4NTrait;

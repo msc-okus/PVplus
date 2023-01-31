@@ -16,11 +16,15 @@ use App\Service\MessageService;
 use App\Service\WeatherServiceNew;
 use DateTimeZone;
 use Doctrine\ORM\EntityManagerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use PDO;
 
+/**
+ * @IsGranted("ROLE_G4N")
+ */
 class DefaultJMController extends AbstractController
 {
     private functionsService $functions;

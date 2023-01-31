@@ -10,10 +10,14 @@ use App\Repository\EignerRepository;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @IsGranted("ROLE_G4N")
+ */
 class EignerController extends BaseController
 {
     #[Route(path: '/admin/owner/new', name: 'app_admin_owner_new')]
@@ -43,6 +47,7 @@ class EignerController extends BaseController
             'isupload' => '',
         ]);
     }
+
 
     #[Route(path: '/admin/owner/list', name: 'app_admin_owner_list')]
     public function list(Request $request, PaginatorInterface $paginator, EignerRepository $ownerRepo): Response

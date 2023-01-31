@@ -7,6 +7,7 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -69,10 +70,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'json')]
     private array $roles = [];
 
+    #[Deprecated]
     #[Groups(['user:read'])]
     #[ORM\Column(name: 'level', type: 'integer', nullable: false, options: ['default' => 1])]
     private int $level = 1;
 
+    #[Deprecated]
     #[ORM\Column(name: 'admin', type: 'integer', nullable: false)]
     private int $admin = 0;
 
