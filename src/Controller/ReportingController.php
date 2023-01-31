@@ -402,7 +402,8 @@ class ReportingController extends AbstractController
                             'ticketCountTable' => $output['ticketCountTable'],
                             'ticketCountTableMonth' => $output['ticketCountTableMonth'],
                             'kwhLossesMonthTable' => $output['kwhLossesMonthTable'],
-                            'kwhLossesYearTable' => $output['kwhLossesYearTable']
+                            'kwhLossesYearTable' => $output['kwhLossesYearTable'],
+                            'economicsMandy2' => $output['economicsMandy2'],
                         ]);
 
                         $filename = $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf';
