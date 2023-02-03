@@ -114,6 +114,7 @@ class AssetManagementService
      */
     public function buildAssetReport(Anlage $anlage, array $report): array
     {
+
         $month = $report['reportMonth'];
         for ($i = 0; $i < 12; ++$i) {
             $forecast[$i] = $this->functions->getForcastByMonth($anlage, $i);
@@ -1630,6 +1631,8 @@ class AssetManagementService
             $outPaCY[] = $pa;
             unset($pa);
         }
+
+
         // we have to generate the overall values of errors for the year
         $daysInThisMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
         $endate = $report['reportYear'].'-'.$report['reportMonth'].'-'.$daysInThisMonth." 23:59:00";
@@ -1773,6 +1776,8 @@ class AssetManagementService
             'OMCQuarters' => $OMCErrors,
         ];
 
+
+
         // we can add the values we generate for the table of the errors to generate the pie graphic directly
         $chart->series = [
             [
@@ -1890,6 +1895,7 @@ class AssetManagementService
                     'padding' => 0, 90, 0, 0,
                 ],
         ];
+
 
         $chart->setOption($option);
         $failures_Year_To_Date = $chart->render('failures_Year_To_Date', ['style' => 'height: 175px; width:300px; ']);
@@ -2091,6 +2097,115 @@ class AssetManagementService
 
         $chart->setOption($option);
         $plant_availability = $chart->render('plant_availability', ['style' => 'height: 175px; width:300px; ']);
+
+
+        //Tables for the kwh losses with bar graphs
+
+        if ($anlage->hasPVSYST()){
+            $PVSYSTmonthExpected = $tbody_a_production['expectedPvSyst'][$month-2];
+            $PVSYSTyearExpected = 0;
+            for($index = 0; $index < $month -1; $index++){
+                $PVSYSTyearExpected = $PVSYSTyearExpected + $tbody_a_production['expectedPvSyst'][$index];
+            }
+        }
+        $G4NmonthExpected = $tbody_a_production['powerExp'][$month-2];
+        $G4NyearExpected = 0;
+        for($index = 0; $index < $month -1; $index++){
+            $G4NyearExpected = $G4NyearExpected + $tbody_a_production['powerExp'][$index];
+        }
+        $ActualPower = $tbody_a_production['powerAct'][$month-2];
+        $ActualPowerYear = 0;
+        for($index = 0; $index < $month -1; $index++){
+            $ActualPowerYear = $ActualPowerYear + $tbody_a_production['powerAct'][$index];
+        }
+        // dd($kwhLossesYearTable, $kwhLossesMonthTable, $G4NmonthExpected, $G4NyearExpected, $PVSYSTmonthExpected, $PVSYSTyearExpected,$tbody_a_production,$ActualPower, $ActualPowerYear);
+        $chart->tooltip = [];
+        $chart->xAxis = [];
+        $chart->yAxis = [];
+        $chart->series = [];
+        unset($option);
+        $chart->xAxis = [
+            'type' => 'category',
+            'axisLabel' => [
+                'show' => false,
+                'margin' => '10',
+            ],
+            'splitArea' => [
+                'show' => true,
+            ],
+            'data' => [],
+            'scale' => true,
+            'min' => 0,
+        ];
+        $chart->yAxis = [
+            'type' => 'value',
+            'name' => 'KWH',
+            'nameLocation' => 'middle',
+            'nameGap' => 80,
+            'scale' => true,
+            'min' => 0,
+        ];
+
+        $chart->series =
+            [
+                [
+                    'name' => 'Expected G4N',
+                    'type' => 'bar',
+                    'data' => $G4NmonthExpected,
+                    'visualMap' => 'false',
+                ],
+                [
+                    'name' => 'aCTUAL',
+                    'type' => 'bar',
+                    'data' => $ActualPower,
+                    'visualMap' => 'false',
+                ],
+                [
+                    'name' => 'SOR Losses',
+                    'type' => 'bar',
+                    'data' => -$kwhLossesMonthTable['SORLosses'],
+                    'visualMap' => 'false',
+                ],
+                [
+                    'name' => 'EFOR Losses',
+                    'type' => 'bar',
+                    'data' => -$kwhLossesMonthTable['EFORLosses'],
+                    'visualMap' => 'false',
+                ],
+                [
+                    'name' => 'OMC Losses',
+                    'type' => 'bar',
+                    'data' => -$kwhLossesMonthTable['OMCLosses'],
+                    'visualMap' => 'false',
+                ],
+            ];
+        $option = [
+            'animation' => false,
+            'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000'],
+            'title' => [
+                'text' => 'Production Losses',
+                'left' => 'center',
+            ],
+            'tooltip' => [
+                'show' => true,
+            ],
+            'legend' => [
+                'show' => true,
+                'left' => 'center',
+                'top' => 20,
+            ],
+            'grid' => [
+                'height' => '80%',
+                'top' => 50,
+                'width' => '80%',
+                'left' => 100,
+            ],
+        ];
+
+        $chart->setOption($option);
+        $losseskwhchart = $chart->render('Month_losses', ['style' => 'height: 175px; width:300px; ']);
+
+
 
         $chart->tooltip = [];
         $chart->xAxis = [];
@@ -3321,6 +3436,11 @@ class AssetManagementService
         $chart->yAxis = [];
         $chart->series = [];
         unset($option);
+
+        $TicketAvailabilityMonthTable =$this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($report['from']))), date_create(date("Y-m-d ",strtotime($report['to']))));
+        $TicketAvailabilityYearTable = $this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($report['from']))), date_create(date("Y-m-d ",strtotime($report['to']))), "year");
+
+
         // end Chart Losses compared cummulated
         $output = [
             'plantId' => $plantId,
@@ -3401,6 +3521,9 @@ class AssetManagementService
             'kwhLossesYearTable' =>$kwhLossesYearTable,
             'kwhLossesMonthTable' =>$kwhLossesMonthTable,
             'economicsMandy2' => $economicsMandy2,
+            'wkhLossesChartMonth' => $losseskwhchart,
+            'TicketAvailabilityMonthTable' => $TicketAvailabilityMonthTable,
+            'TicketAvailabilityYearTable' => $TicketAvailabilityYearTable
         ];
 
         return $output;

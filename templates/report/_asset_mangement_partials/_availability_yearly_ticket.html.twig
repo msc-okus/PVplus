@@ -143,6 +143,53 @@
                 </div>
             </td>
         </tr>
+        <tr >
+            <td style="width: 50%">
+                <table style="margin-top: 30px; width: 90%">
+                    <thead>
+                    <th></th>
+                    {% if (anlage.eigner.features.aktDep1) %}
+                        <th>O+M</th>
+                    {% endif %}
+                    {% if (anlage.eigner.features.aktDep2) %}
+                        <th>EPC</th>
+                    {% endif %}
+                    {% if (anlage.eigner.features.aktDep3) %}
+                        <th>AM</th>
+                    {% endif %}
+                    <th> Open Book</th>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="tr_next_columns"> PA[%] </td>
+                        {% if (anlage.eigner.features.aktDep1) %}
+                            <td class="tr_next_columns">{{ TicketAvailabilityYearTable.pa1 |number_format(2, ',', '.')}}</td>
+                        {% endif %}
+                        {% if (anlage.eigner.features.aktDep2) %}
+                            <td class="tr_next_columns">{{ TicketAvailabilityYearTable.pa2 |number_format(2, ',', '.')}}</td>
+                        {% endif %}
+                        {% if (anlage.eigner.features.aktDep3) %}
+                            <td class="tr_next_columns">{{ TicketAvailabilityYearTable.pa3 |number_format(2, ',', '.')}}</td>
+                        {% endif %}
+                        <td class="tr_next_columns"> {{ TicketAvailabilityYearTable.pa0 |number_format(2, ',', '.')}}</td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">PR[%]</td>
+                        {% if (anlage.eigner.features.aktDep1) %}
+                            <td class="tr_next_columns">To come</td>
+                        {% endif %}
+                        {% if (anlage.eigner.features.aktDep2) %}
+                            <td class="tr_next_columns">To come</td>
+                        {% endif %}
+                        {% if (anlage.eigner.features.aktDep3) %}
+                            <td class="tr_next_columns">To come</td>
+                        {% endif %}
+                        <td class="tr_next_columns">To come</td>
+                    </tr>
+                    </tbody>
 
+                </table>
+            </td>
+        </tr>
     </table>
 {% endblock page %}

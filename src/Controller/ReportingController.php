@@ -404,6 +404,9 @@ class ReportingController extends AbstractController
                             'kwhLossesMonthTable' => $output['kwhLossesMonthTable'],
                             'kwhLossesYearTable' => $output['kwhLossesYearTable'],
                             'economicsMandy2' => $output['economicsMandy2'],
+                            'wkhLossesChartMonth' => $output['wkhLossesChartMonth'],
+                            'TicketAvailabilityMonthTable' => $output['TicketAvailabilityMonthTable'],
+                            'TicketAvailabilityYearTable' => $output['TicketAvailabilityYearTable'],
                         ]);
 
                         $filename = $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf';
@@ -553,6 +556,7 @@ class ReportingController extends AbstractController
                     $form->handleRequest($request);
                     $data = $form->getData();
                     $output["data"] = $data;
+                    //dd($output['wkhLossesChartMonth'], $output['operations_right'], $output['economicsCumulatedForecastChart']);
                     if ($form->isSubmitted() && $form->isValid()) {
                         $result = $this->renderView('report/assetreport.html.twig', [
                             'invNr' => count($output["plantAvailabilityMonth"]),
@@ -629,6 +633,9 @@ class ReportingController extends AbstractController
                             'kwhLossesMonthTable' => $output['kwhLossesMonthTable'],
                             'kwhLossesYearTable' => $output['kwhLossesYearTable'],
                             'economicsMandy2' => $output['economicsMandy2'],
+                            'wkhLossesChartMonth' => $output['wkhLossesChartMonth'],
+                            'TicketAvailabilityMonthTable' => $output['TicketAvailabilityMonthTable'],
+                            'TicketAvailabilityYearTable' => $output['TicketAvailabilityYearTable'],
                         ]);
                         break;
                     }
