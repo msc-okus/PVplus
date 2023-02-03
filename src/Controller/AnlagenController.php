@@ -19,9 +19,26 @@ use Symfony\Component\Routing\Annotation\Route;
 class AnlagenController extends BaseController
 {
     use G4NTrait;
-
     use PVPNameArraysTrait;
+    #[Route(path: 'api/anlagen/list', name: 'api_anlagen_list', methods: ['GET','POST'])]
+    public function api_list_analge(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository): Response
+    {
+        $grantedPlantList = $this->getUser()->getGrantedArray();
+        $eigners = [];
+        /** @var Eigner $eigner */
+        foreach ($this->getUser()->getEigners()->toArray() as $eigner) {
+            $eigners[] = $eigner->getId();
+        }
 
+        $anlage = $anlagenRepository->findAllIDByEigner($eigners);
+        $content[] = $anlage;
+
+        if (is_array($content) or $content) {
+            return new JsonResponse($content);
+        }else{
+            return new Response(null, 204);
+        }
+    }
     #[Route(path: '/anlagen/list', name: 'app_anlagen_list')]
     public function list(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository): Response
     {

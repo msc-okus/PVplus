@@ -40,6 +40,7 @@ class IrradiationChartService
         } else {
             $sql2 = 'SELECT a.stamp, b.g_lower as g_lower , b.g_upper as g_upper FROM (db_dummysoll a LEFT JOIN '.$anlage->getDbNameWeather()." b ON a.stamp = b.stamp) WHERE a.stamp BETWEEN '$from' and '$to' GROUP BY date_format(a.stamp, '$form')";
         }
+
         $res = $conn->query($sql2);
         if ($res->rowCount() > 0) {
             $counter = 0;

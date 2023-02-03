@@ -26,6 +26,9 @@ use App\Service\Charts\VoltageChartService;
 use DateTime;
 use PDO;
 use Symfony\Component\Security\Core\Security;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+
 
 class ChartService
 {
@@ -53,6 +56,7 @@ class ChartService
         private SollIstIrrAnalyseChartService $sollistirrAnalyseChartService,
         private SollIstHeatmapChartService $sollistheatmapChartService)
     {
+
     }
 
     /**
@@ -64,6 +68,20 @@ class ChartService
      */
     public function getGraphsAndControl($form, ?Anlage $anlage, ?bool $hour): array
     {
+
+        $request = Request::createFromGlobals();
+        $request->getPathInfo();
+        $request = new Request(
+            $_GET,
+            $_POST,
+            array(),
+            $_COOKIE,
+            $_FILES,
+            $_SERVER
+        );
+
+        $RURI = $request->getRequestUri();
+
         $resultArray = [];
         $resultArray['data'] = '';
         $resultArray['showEvuDiag'] = 0;
@@ -469,17 +487,17 @@ class ChartService
                     }
                     break;
                 case 'heatmap':
-                    $dataArray = $this->heatmapChartService->getHeatmap($anlage, $from, $to);
+                    $dataArray = $this->heatmapChartService->getHeatmap($anlage, $from, $to, $form['selectedSet']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'Inverter PR Heatmap [%]';
                     break;
                 case 'tempheatmap':
-                    $dataArray = $this->tempheatmapChartService->getTempHeatmap($anlage, $from, $to);
+                    $dataArray = $this->tempheatmapChartService->getTempHeatmap($anlage, $from, $to, $form['selectedSet']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'Inverter Temperature Heatmap [C°]';
                     break;
                 case 'sollistheatmap':
-                    $dataArray = $this->sollistheatmapChartService->getSollIstHeatmap($anlage, $from, $to);
+                    $dataArray = $this->sollistheatmapChartService->getSollIstHeatmap($anlage, $from, $to, $form['selectedSet']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'DC Current Heatmap';
                     break;
@@ -491,7 +509,7 @@ class ChartService
                 case 'sollisttempanalyse':
                     $dataArray = $this->sollisttempAnalyseChartService->getSollIstTempDeviationAnalyse($anlage, $from, $to, $form['selectedGroup']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
-                    $resultArray['headline'] = 'Performance Categories vs. Module Temperatures';
+                    $resultArray['headline'] = 'Performance Categories vs. Temperatures';
                     break;
                 case 'sollistirranalyse':
                     $dataArray = $this->sollistirrAnalyseChartService->getSollIstIrrDeviationAnalyse($anlage, $from, $to, $form['selectedGroup'], $form['optionIrrVal']);

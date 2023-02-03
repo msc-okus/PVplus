@@ -73,11 +73,13 @@ class TempHeatmapChartService
      *               [Heatmap]
      */
     // MS 06/2022
-    public function getTempHeatmap(Anlage $anlage, $from, $to, bool $hour = false): ?array
+    public function getTempHeatmap(Anlage $anlage, $from, $to, $sets, bool $hour = false): ?array
     {
+        ini_set('memory_limit', '3G');
         $gmt_offset = 1;   // Unterschied von GMT zur eigenen Zeitzone in Stunden.
         $zenith = 90 + 50 / 60;
         $current_date = strtotime($from);
+
         $sunset = date_sunset($current_date, SUNFUNCS_RET_TIMESTAMP, (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon(), $zenith, $gmt_offset);
         $sunrise = date_sunrise($current_date, SUNFUNCS_RET_TIMESTAMP, (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon(), $zenith, $gmt_offset);
 
@@ -94,6 +96,9 @@ class TempHeatmapChartService
         $from = date('Y-m-d H:00', $sunrise - 3600);
         $to = date('Y-m-d H:00', $sunset + 5400);
 
+        $from = self::timeAjustment($from, $anlage->getAnlZeitzone());
+        $to = self::timeAjustment($to, 1);
+
         $conn = self::getPdoConnection();
         $dataArray = [];
 
@@ -108,13 +113,32 @@ class TempHeatmapChartService
                 $group = 'group_dc';
         }
 
-        $sql = "SELECT wr_temp as istTemp,$group as group_dc,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts 
-                                    FROM (db_dummysoll a LEFT JOIN  ".$anlage->getDbNameACIst()." b ON a.stamp = b.stamp)
-                                    WHERE a.stamp BETWEEN '$from' AND '$to' 
-                                    GROUP BY a.stamp, b.$group";
+        $groupct = count($anlage->getGroupsDc());
+        if ($groupct > 50) {
+            if ($sets == null) {
+                $sqladd = "AND $group BETWEEN '1' AND '50'";
+            }
+            if ($sets != null) {
+                $res = explode(',', $sets);
+                $min = ltrim($res[0], "[");
+                $max = rtrim($res[1], "]");
+                $sqladd = "AND $group BETWEEN '$min' AND '$max'";
+            }
+        } else {
+            $sqladd = "";
+        }
+
+       # $sql = "SELECT wr_temp as istTemp,$group as group_dc,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts
+       #                             FROM (db_dummysoll a LEFT JOIN  ".$anlage->getDbNameACIst()." b ON a.stamp = b.stamp)
+       #                             WHERE a.stamp BETWEEN '$from' AND '$to'
+       #                            GROUP BY a.stamp, b.$group";
+
+        $sql = "SELECT wr_temp as istTemp, $group, stamp as ts
+                FROM  ".$anlage->getDbNameACIst()." WHERE stamp BETWEEN '$from' AND '$to'
+                $sqladd
+                GROUP BY stamp, $group";
 
         $resultActual = $conn->query($sql);
-
         $dataArray['inverterArray'] = $nameArray;
 
         if ($resultActual->rowCount() > 0) {
@@ -126,10 +150,11 @@ class TempHeatmapChartService
 
             $dataArray['maxSeries'] = 0;
             $counter = 0;
-            $rows = $resultActual->rowCount();
+            #
             while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
-                $stamp = $rowActual['ts'];
-
+               # $stamp = $rowActual['ts'];
+                $stamp = self::timeShift($anlage,$rowActual['ts']);
+                // Find Key in Array
                 $keys = self::array_recursive_search_key_map($stamp, $dataArrayIrradiation);
 
                 // fetch Irradiation
@@ -148,7 +173,7 @@ class TempHeatmapChartService
                 $value = ($value > (float) 100) ? (float) 100 : $value;
                 $e = explode(' ', $stamp);
                 $dataArray['chart'][$counter]['ydate'] = $e[1];
-                $dataArray['chart'][$counter]['xinv'] = $nameArray[$rowActual['group_dc']];
+                $dataArray['chart'][$counter]['xinv'] = $nameArray[$rowActual[$group]];
                 $dataArray['chart'][$counter]['value'] = $value;
                 $dataArray['chart'][$counter]['irr'] = $dataIrr;
                 /*

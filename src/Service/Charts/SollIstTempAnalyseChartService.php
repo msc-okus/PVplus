@@ -122,10 +122,10 @@ class SollIstTempAnalyseChartService
                     case ($prz >= 90 and $prz <= 94);
                     $color = "#ffff00";
                     break;
-                    case ($prz >= 85 and $prz <= 89);
-                    $color = "#ff8800";
-                    break;
-                    case ($prz > 0 and $prz <= 84);
+                   // case ($prz >= 85 and $prz <= 89);
+                   // $color = "#ff8800";
+                   // break;
+                    case ($prz > 0 and $prz <= 89);
                     $color = "#f30000";
                     break;
                     default:
