@@ -2127,18 +2127,23 @@ class AssetManagementService
         $chart->xAxis = [
             'type' => 'category',
             'axisLabel' => [
-                'show' => true,
+                'show' => false,
                 'margin' => '10',
             ],
             'splitArea' => [
                 'show' => true,
             ],
+            'data' => [],
+            'scale' => true,
+            'min' => 0,
         ];
         $chart->yAxis = [
             'type' => 'value',
-            'name' => 'kWh',
+            'name' => 'KWH',
             'nameLocation' => 'middle',
-            'nameGap' => 70,
+            'nameGap' => 80,
+            'scale' => true,
+            'min' => 0,
         ];
 
         $chart->series =
