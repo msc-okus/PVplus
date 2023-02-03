@@ -74,18 +74,22 @@
                                     {% endif %}
                                 "><span class="fa fa-file-excel"></span></a>
 
-                                {% if report.reportType != 'am-report' or is_granted('ROLE_AM') %} {# Zeige Download Butten wenn es keine AM Bericht ist, oder wenn die Berichtigung für AM Bericht ausreicht #}
+                                {#
+                                {% if report.reportType != 'am-report' or is_granted('ROLE_AM') %} {# Zeige Download Butten wenn es keine AM Bericht ist, oder wenn die Berichtigung für AM Bericht ausreicht
+                                #}
+                                {% if report.reportType != 'am-report' %}
                                     <a href="{{ path('app_reporting_pdf', { id: report.id}) }}"   target="_blank" title="load PDF file" class="hollow button tiny action-icon shadow
                                         {{ visibility }}
                                     "><span class="fa fa-file-pdf"></span></a>
                                 {% endif %}
 
                                 {# edit report #}
-                                {% if is_granted('ROLE_G4N') %}
+                                {% if is_granted('ROLE_G4N') or report.reportType == 'am-report' %}
                                     <a href="{{ path('app_reporting_html', { id: report.id}) }}" target="_blank" title="load html code into new window" class="hollow button tiny action-icon shadow">
                                         <span class="fas fa-code"></span>
                                     </a>
-
+                                {% endif %}
+                                {% if is_granted('ROLE_G4N') %}
                                     <button class="hollow button tiny action-icon shadow"
                                        data-action="modal-form#openModal"
                                        data-append-to="div#modal-form{{ report.id }}"

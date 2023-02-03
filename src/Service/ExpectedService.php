@@ -13,6 +13,8 @@ use App\Repository\AnlagenRepository;
 use App\Repository\GroupModulesRepository;
 use App\Repository\GroupMonthsRepository;
 use App\Repository\GroupsRepository;
+use App\Repository\OpenWeatherRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use PDO;
 
 class ExpectedService
@@ -27,7 +29,8 @@ class ExpectedService
         private AnlageMonthRepository $anlageMonthRepo,
         private FunctionsService $functions,
         private WeatherFunctionsService $weatherFunctions,
-        private OpenWeatherService $openWeather)
+        private OpenWeatherService $openWeather,
+        private OpenWeatherRepository $openWeatherRepo)
     {
     }
 
@@ -64,6 +67,9 @@ class ExpectedService
         return $output;
     }
 
+    /**
+     * @throws NonUniqueResultException
+     */
     private function calcExpected(Anlage $anlage, $from, $to): array
     {
         $resultArray = [];
@@ -98,10 +104,15 @@ class ExpectedService
             // Wetterstation auswählen, von der die Daten kommen sollen
             /* @var WeatherStation $currentWeatherStation */
             $currentWeatherStation = $group->getWeatherStation() ? $group->getWeatherStation() : $anlage->getWeatherStation();
-            for ($unit = $group->getUnitFirst(); $unit <= $group->getUnitLast(); ++$unit) {
-                foreach ($weatherArray[$currentWeatherStation->getDatabaseIdent()] as $weather) {
-                    $stamp = $weather['stamp'];
 
+            foreach ($weatherArray[$currentWeatherStation->getDatabaseIdent()] as $weather) {
+                $stamp = $weather['stamp'];
+                $openWeather = false; ### temporäre deaktivierung OpenWeather
+                ###$openWeather = $this->openWeatherRepo->findTimeMatchingOpenWeather($anlage, date_create($stamp));
+
+                ###if ($openWeather) dump($openWeather->getTempC());
+
+                for ($unit = $group->getUnitFirst(); $unit <= $group->getUnitLast(); ++$unit) {
                     // use plant based shadow loss (normaly - 0)
                     $shadow_loss = $group->getShadowLoss();
                     if ($groupMonth) {
@@ -189,12 +200,17 @@ class ExpectedService
                                 // Wenn nur Umgebungstemepratur vorhanden
                             } else {
                                 // Wenn weder Umgebungs noch Modul Temperatur vorhanden, dann nutze Daten aus Open Weather (sind nur Stunden weise vorhanden)
-                                if ($anlage->getAnlId() == '183') {
-                                    $openWeather = $this->openWeather->findOpenWeather($anlage, date_create($stamp));
+                                if ($anlage->getAnlId() == '183') {  // im Moment nur für REGebeng
                                     $windSpeed = 4; // ReGebeng – gemittelte Daten aus OpenWeather
-                                    $airTemp = 26; // ReGebeng – gemittelte Daten aus OpenWeather
+                                    $airTemp = 24; // ReGebeng – gemittelte Daten aus OpenWeather
+
+                                    #$windSpeed = $openWeather->getWindSpeed();
+                                    #$airTemp = $openWeather->getTempC();
+
+                                    // Calculate pannel temperatur by NREL
                                     $pannelTemp = round($this->weatherFunctions->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
-                                    #if ($irr > 0) dump("Pannel: $pannelTemp | AirTemp: $airTemp | WindSpeed: $windSpeed | Irr: $irr");
+
+                                    // Correct Values by modul temperature
                                     $expPowerDcHlp = $expPowerDcHlp * $modul->getModuleType()->getTempCorrPower($pannelTemp);
                                     $expCurrentDcHlp = $expCurrentDcHlp * $modul->getModuleType()->getTempCorrCurrent($pannelTemp);
                                     $expVoltageDcHlp = $expVoltageDcHlp * $modul->getModuleType()->getTempCorrVoltage($pannelTemp);
@@ -203,8 +219,15 @@ class ExpectedService
                         }
 
                         // degradation abziehen (degradation * Betriebsjahre).
-                        $expPowerDcHlp = $expPowerDcHlp - ($expPowerDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
-                        $expCurrentDcHlp = $expCurrentDcHlp - ($expCurrentDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
+                        $expVoltageDcHlp = $expVoltageDcHlp - ($expVoltageDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
+                        if ($anlage->getAnlId() == '183') { // im Moment nur für REGebeng
+                            // Calculate DC power by current and voltage
+                            $expPowerDcHlp = $expCurrentDcHlp * $expVoltageDcHlp / 4000;
+                        } else {
+                            $expPowerDcHlp = $expPowerDcHlp - ($expPowerDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
+                        }
+                        #$expCurrentDcHlp = $expCurrentDcHlp - ($expCurrentDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
+
 
                         $expPowerDc += $expPowerDcHlp;
                         $expCurrentDc += $expCurrentDcHlp;
@@ -212,6 +235,7 @@ class ExpectedService
                         $limitExpCurrent += $limitExpCurrentHlp;
                         $expVoltage += $expVoltageDcHlp;
                     }
+                    $expVoltage = $expVoltage / count($modules);
 
                     // Verluste auf der DC Seite brechnen
                     // Kabel Verluste + Sicherheitsverlust
@@ -224,7 +248,7 @@ class ExpectedService
                     }
 
                     // Limitierung durch Modul prüfen und entsprechend abregeln
-                    $expCurrentDc = $expCurrentDc > $limitExpCurrent ? $limitExpCurrent : $expCurrentDc;
+                    $expCurrentDc = min($expCurrentDc, $limitExpCurrent);
 
                     // AC Expected Berechnung
                     // Umrechnung DC nach AC
@@ -250,12 +274,11 @@ class ExpectedService
                         'exp_power_ac' => round($expPowerAc, 6),
                         'exp_evu' => round($expEvu, 6),
                         'exp_nolimit' => round($expNoLimit, 6),
-                        'exp_voltage' => round($expVoltage, 4),
+                        'exp_voltage' => round($expVoltage, 6),
                     ];
                 }
             }
         }
-
         return $resultArray;
     }
 }

@@ -24,6 +24,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
 
+/**
+ * @IsGranted("ROLE_G4N")
+ */
 class AnlagenAdminController extends BaseController
 {
     use G4NTrait;

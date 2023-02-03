@@ -354,15 +354,21 @@ class ChartService
                         $resultArray['seriesx']['tooltipText'] = 'Actuale current [A]';
                     }
                     break;
+
+
                 // Voltage Charts DC //
                 case 'dc_voltage_1':
                     $dataArray = $this->voltageChart->getVoltage1($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'DC Group Electricity [V]';
+                        $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
+                        $resultArray['headline'] = 'DC Overview AVG Electricity [V]';
+                        $resultArray['series1']['name'] = 'Expected';
+                        $resultArray['series1']['tooltipText'] = 'Expected';
                         $resultArray['seriesx']['name'] = 'Group ';
                         $resultArray['seriesx']['tooltipText'] = 'Group electricity [V]';
+                        $resultArray['inverterArray'] = json_encode($dataArray['inverterArray']);
                     }
                     break;
                     // Voltage Charts DC //

@@ -422,6 +422,9 @@ class AnlageModules
     /**
      * This Factor has to multiply by the numbers of modules, to calculate the expected current.<br>
      * The Parameter $irr (Irradiation) must be of type float.
+     *
+     * @param float $irr
+     * @return float
      */
     public function getFactorCurrent(float $irr): float
     {
@@ -434,20 +437,31 @@ class AnlageModules
         return $irr > 0 ? $expected : 0;
     }
 
+    /**
+     * Calculate the expected voltage for the given irradiation.
+     * generate only values if $irr is greater then 10 Watt
+     *
+     * @param float $irr
+     * @return float
+     */
     public function getExpVoltage(float $irr): float
     {
         if ($irr > 200) {
-            $expected = $this->getOperatorVoltageHightA() * $irr ** 3 + $this->getOperatorVoltageHightB() * $irr ** 2 + $this->getOperatorVoltageHightC() * $irr;
+            $expected = ($this->getOperatorVoltageHightA() * $irr ** 1 + $this->getOperatorVoltageHightB() * $irr) + $this->getOperatorVoltageHightC();
         } else {
-            $expected = $this->getOperatorVoltageA() * $irr ** 2 + $this->getOperatorVoltageB() * $irr;
+            $expected = ($this->getOperatorVoltageA() * log($irr)) + $this->getOperatorVoltageB();
         }
+        if ($expected > $this->getMaxUmpp()) $expected = $this->getMaxUmpp();
 
-        return $irr > 0 ? $expected : 0;
+        return $irr > 2 ? $expected : 0;
     }
 
     /**
      * This Factor has to multiply by the numbers of modules, to calculate the expected power.<br>
      * The Parameter $irr (Irradiation) must be of type float.
+     *
+     * @param float $irr
+     * @return float
      */
     public function getFactorPower(float $irr): float
     {

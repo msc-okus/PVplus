@@ -47,10 +47,10 @@ class UserController extends BaseController
 
             $user->setGrantedList($savPlantList);
             $user->setRoles($roles);
-            if ($form['plainPassword']->getData() != '') {
+            if ($form['newPlainPassword']->getData() != '') {
                 $user->setPassword($userPasswordHasher->hashPassword(
                     $user,
-                    $form['plainPassword']->getData()
+                    $form['newPlainPassword']->getData()
                 ));
             }
             $em->persist($user);

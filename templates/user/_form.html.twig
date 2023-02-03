@@ -5,7 +5,7 @@
     <td></td>
 {% endmacro %}
 
-{{ form_start(userForm, {'attr': {'novalidate': 'no', 'autocomplete': 'off'}}) }}
+{{ form_start(userForm, {'attr': {'novalidate': 'no', 'autocomplete': 'new-password'}}) }}
 <div class="grid-x grid-margin-x grid-padding-x">
     <div class="cell small-6 medium-3">
         <fieldset class="fieldset">
@@ -13,7 +13,7 @@
                 <span data-tooltip tabindex="1" title="Please enter the user data !"><i class="fa fa-info-circle"></i></span>
             </legend>
             {{ form_row(userForm.username) }}
-            {{ form_row(userForm.plainPassword) }}
+            {{ form_row(userForm.newPlainPassword) }}
             {{ form_row(userForm.email) }}
         </fieldset>
     </div>

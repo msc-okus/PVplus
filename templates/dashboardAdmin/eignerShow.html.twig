@@ -26,7 +26,7 @@
                 {% if plant.anlId in app.user.grantedList or is_granted('ROLE_G4N') %} {# nur anzeigen wenn Anlage für diesen aktuellen User freigegebn oder admin #}
                     <div class="grid-x grid-margin-x">
                         <div class="cell">
-                            <h6><b>{{ plant.anlName }} </b>{% if is_granted('ROLE_G4N') %}<small><b>[{{ plant.anlId }} / {{ plant.anlIntNr }} / {{ plant.weatherStation.databaseIdent }}]</b></small>{% endif %}</h6>
+                            <h6><b>{{ plant.anlName }} </b>{% if is_granted('ROLE_G4N') %}<small><b>[{{ plant.anlId }} / {{ plant.anlIntNr }} /  {% if plant.weatherStation is defined and plant.weatherStation.databaseIdent is defined %}{{ plant.weatherStation.databaseIdent }} {% endif %}]</b></small>{% endif %}</h6>
                         </div>
                     </div>
                     <div class="grid-x grid-margin-x">

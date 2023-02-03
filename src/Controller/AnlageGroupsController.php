@@ -10,11 +10,15 @@ use App\Form\Groups\DcGroupsSFGUpdateFormType;
 use App\Repository\GroupsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @IsGranted("ROLE_G4N")
+ */
 #[Route('/anlage/groups')]
 class AnlageGroupsController extends AbstractController
 {
@@ -79,6 +83,12 @@ class AnlageGroupsController extends AbstractController
                 }
                 if($form2->getData()['gridLoss'] !==null){
                     $group->setGridLoss($form2->getData()['gridLoss']);
+                }
+                if($form2->getData()['limitAc'] !==null){
+                    $group->setLimitAc($form2->getData()['limitAc']);
+                }
+                if($form2->getData()['gridLimitAc'] !==null){
+                    $group->setGridLimitAc($form2->getData()['gridLimitAc']);
                 }
 
 

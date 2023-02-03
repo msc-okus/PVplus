@@ -13,11 +13,15 @@ use App\Message\Command\GenerateTickets;
 use App\Message\Command\LoadAPIData;
 use App\Message\Command\LoadINAXData;
 use App\Service\LogMessagesService;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @IsGranted("ROLE_G4N")
+ */
 class ToolsController extends BaseController
 {
     use G4NTrait;
