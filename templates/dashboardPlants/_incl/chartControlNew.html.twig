@@ -131,20 +131,24 @@
     <div class="cell medium-6 large-4 xlarge-2">
         <select class="js-submit-onchange selectedChart" title="Please select a view from the list." data-toggle="tooltip" name="selectedChart">
             <optgroup label="Analysis">
-                {% if aktAnlage.showAvailability or is_granted('ROLE_ADMIN') %}<option value="availability" {% if form.selectedChart == 'availability' %}selected{% endif %}>Show Availability [%]</option>{% endif %}
+                {% if aktAnlage.showAvailability or is_granted('ROLE_ADMIN') %}
+                    <option value="availability" {% if form.selectedChart == 'availability' %}selected{% endif %}>Show Availability [%]</option>
+                {% endif %}
                 {% if aktAnlage.showPr or is_granted('ROLE_ADMIN') %}
-                <option value="pr_and_av" {% if form.selectedChart == 'pr_and_av' %}selected{% endif %}>Show PR&nbsp;[%]</option>
+                    <option value="pr_and_av" {% if form.selectedChart == 'pr_and_av' %}selected{% endif %}>Show PR&nbsp;[%]</option>
                 {% endif %}
                 {% if aktAnlage.showForecast %}
-                <option value="forecast" {% if form.selectedChart == 'forecast' %}selected{% endif %}>Forecast&nbsp;[kWh]</option>
+                    <option value="forecast" {% if form.selectedChart == 'forecast' %}selected{% endif %}>Forecast&nbsp;[kWh]</option>
                 {% endif %}
-                {{ showHeatmap(form, aktAnlage) }}            {# Headmap #}
-                {{ showTempHeatmap(form, aktAnlage) }}        {# Headmap #}
-                {{ showSollIstHeatmap(form, aktAnlage) }}     {# Headmap #}
                 {% if is_granted('ROLE_G4N') or is_granted('ROLE_ANALYSE') %}
-                    {{ showSollIstAnalyse(form, aktAnlage) }}     {# Bubblechart #}
-                    {{ showSollIstTempAnalyse(form, aktAnlage) }}    {# Bubblechart #}
-                    {{ showSollIstIrrAnalyse(form, aktAnlage) }}     {# Bubblechart #}
+                    {{ showHeatmap(form, aktAnlage) }}            {# Headmap #}
+                    {{ showTempHeatmap(form, aktAnlage) }}        {# Headmap #}
+                    {{ showSollIstHeatmap(form, aktAnlage) }}     {# Headmap #}
+                    {% if is_granted('ROLE_BETA') %}
+                        {{ showSollIstAnalyse(form, aktAnlage) }}     {# Bubblechart #}
+                        {{ showSollIstTempAnalyse(form, aktAnlage) }}    {# Bubblechart #}
+                        {{ showSollIstIrrAnalyse(form, aktAnlage) }}     {# Bubblechart #}
+                    {% endif %}
                 {% endif %}
             </optgroup>
             <!-- ab hier AC -->
@@ -159,7 +163,7 @@
                 {{ acReactive(form, aktAnlage) }}
             </optgroup>
 
-            {% if aktAnlage.hasDc %}
+            {% if aktAnlage.hasDc or is_granted('ROLE_ADMIN')%}
                 <!-- ab hier DC -->
                 <optgroup label="DC Power">
                     {{ dcActPlant(form, aktAnlage) }}       {# DC1 #}

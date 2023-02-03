@@ -200,9 +200,18 @@ class ExpectedService
                                 // Wenn nur Umgebungstemepratur vorhanden
                             } else {
                                 // Wenn weder Umgebungs noch Modul Temperatur vorhanden, dann nutze Daten aus Open Weather (sind nur Stunden weise vorhanden)
-                                if ($anlage->getAnlId() == '183') {  // im Moment nur für REGebeng
-                                    $windSpeed = 4; // ReGebeng – gemittelte Daten aus OpenWeather
-                                    $airTemp = 24; // ReGebeng – gemittelte Daten aus OpenWeather
+                                if ($anlage->getAnlId() == '183' ) {  // im Moment nur für REGebeng
+                                    switch ($anlage->getAnlId() == '183') {
+                                        case '183':
+                                            $windSpeed = 4; // ReGebeng – gemittelte Daten aus OpenWeather
+                                            $airTemp = 24; // ReGebeng – gemittelte Daten aus OpenWeather
+                                        break;
+                                        case 'xx':
+                                            $windSpeed = 1; //
+                                            $airTemp = 24; //
+                                        break;
+                                    }
+
 
                                     #$windSpeed = $openWeather->getWindSpeed();
                                     #$airTemp = $openWeather->getTempC();
