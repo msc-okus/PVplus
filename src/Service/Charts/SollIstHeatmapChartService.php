@@ -73,14 +73,10 @@ class SollIstHeatmapChartService
      *               [Heatmap]
      */
     // MS 06/2022
-    public function getSollIstHeatmap(Anlage $anlage, $from, $to, bool $hour = false): ?array
+    public function getSollIstHeatmap(Anlage $anlage, $from, $to, $sets = 0, bool $hour = false): ?array
     {
+        ini_set('memory_limit', '3G');
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
-        $conn = self::getPdoConnection();
-        $dataArray = [];
-        $group = 1;
-        $anlagename = $anlage->getAnlName();
-        $pnominverter = $anlage->getPnomInverterArray();
         $counter = 0;
 
         $gmt_offset = 1;   // Unterschied von GMT zur eigenen Zeitzone in Stunden.
@@ -90,22 +86,12 @@ class SollIstHeatmapChartService
         $sunset = date_sunset($current_date, SUNFUNCS_RET_TIMESTAMP, (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon(), $zenith, $gmt_offset);
         $sunrise = date_sunrise($current_date, SUNFUNCS_RET_TIMESTAMP, (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon(), $zenith, $gmt_offset);
 
-        if ($hour) {
-            $form = '%y%m%d%H';
-        } else {
-            $form = '%y%m%d%H%i';
-        }
-
-        // $sunArray = $this->WeatherServiceNew->getSunrise($anlage,$from);
-        // $sunrise = $sunArray[$anlagename]['sunrise'];
-        // $sunset = $sunArray[$anlagename]['sunset'];
-
         $from = date('Y-m-d H:00', $sunrise - 3600);
         $to = date('Y-m-d H:00', $sunset + 5400);
 
         $conn = self::getPdoConnection();
         $dataArray = [];
-        $inverterNr = 0;
+
         switch ($anlage->getConfigType()) {
             case 3:
             case 4:
@@ -116,63 +102,75 @@ class SollIstHeatmapChartService
                 $nameArray = $this->functions->getNameArray($anlage, 'dc');
                 $group = 'group_dc';
         }
-
-        if ($anlage->getUseNewDcSchema()) {
-            $sql = "SELECT date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts, c.wr_idc as istCurrent, b.soll_imppwr as sollCurrent, b.dc_exp_power as expected, c.$group as inv FROM db_dummysoll a 
+       /* if ($anlage->getUseNewDcSchema()) {
+            $sql = "SELECT a.stamp as ts, c.wr_idc as istCurrent, b.soll_imppwr as sollCurrent, b.dc_exp_power as expected, c.$group as inv FROM db_dummysoll a 
                     LEFT JOIN ".$anlage->getDbNameDcSoll().' b ON a.stamp = b.stamp 
                     LEFT JOIN '.$anlage->getDbNameDCIst()." c ON b.stamp = c.stamp 
                     WHERE a.stamp BETWEEN '$from' AND '$to'
                     GROUP BY a.stamp, c.$group;";
         } else {
-            $sql = "SELECT date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts, c.wr_idc as istCurrent, b.soll_imppwr as sollCurrent, b.dc_exp_power as expected, c.group_dc as inv FROM db_dummysoll a 
+            $sql = "SELECT a.stamp as ts, c.wr_idc as istCurrent, b.soll_imppwr as sollCurrent, b.dc_exp_power as expected, c.group_dc as inv FROM db_dummysoll a 
                     LEFT JOIN ".$anlage->getDbNameDcSoll().' b ON a.stamp = b.stamp 
                     LEFT JOIN '.$anlage->getDbNameACIst()." c ON b.stamp = c.stamp 
                     WHERE a.stamp BETWEEN '$from' AND '$to'
                     GROUP BY a.stamp, c.group_dc;";
         }
+     */
+        $groupct = count($anlage->getGroupsDc());
+        if ($groupct > 50) {
+            if ($sets == null) {
+                $sqladd = "AND c.$group BETWEEN '1' AND '50'";
+            }
+            if ($sets != null) {
+                $res = explode(',', $sets);
+                $min = ltrim($res[0], "[");
+                $max = rtrim($res[1], "]");
+                $sqladd = "AND c.$group BETWEEN '$min' AND '$max'";
+            }
+        } else {
+            $sqladd = "";
+        }
+
+        $sql = 'SELECT 
+                as1.ts,
+                as1.inv,
+                as1.istCurrent,
+                as2.sollCurrent,
+                as2.expected
+                FROM (SELECT c.stamp as ts, c.wr_idc as istCurrent, c.'.$group.' as inv FROM 
+                 '.$anlage->getDbNameACIst().' c WHERE c.stamp 
+                 BETWEEN \''.$from.'\' AND \''.$to.'\' 
+                 '.$sqladd.'  
+                 GROUP BY c.stamp,c.'.$group.' ORDER BY NULL)
+                AS as1
+             JOIN
+                (SELECT b.stamp as ts, b.soll_imppwr as sollCurrent, b.dc_exp_power as expected FROM 
+                 '.$anlage->getDbNameDcSoll().' b WHERE b.stamp 
+                 BETWEEN \''.$from.'\' AND \''.$to.'\' 
+                 GROUP BY b.stamp ORDER BY NULL)
+                AS as2  
+                on (as1.ts = as2.ts)';
 
         $resultActual = $conn->query($sql);
-
         $dataArray['inverterArray'] = $nameArray;
         $maxInverter = $resultActual->rowCount();
 
         // SOLL Strom für diesen Zeitraum und diese Gruppe
 
         if ($resultActual->rowCount() > 0) {
-            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == 'Groningen') {
-                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
-            } else {
-                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
-            }
-
             $dataArray['maxSeries'] = 0;
             $counter = 0;
 
             while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
-                $stamp = $rowActual['ts'];
-                $stampAd = date('Y-m-d H:i', strtotime(self::timeAjustment($stamp, $anlage->getAnlZeitzoneWs())));
-
-                // Find Key in Array
-                $keys = self::array_recursive_search_key_map($stampAd, $dataArrayIrradiation);
-
-                // fetch Irradiation
-                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
-                    $key = $keys[1];
-                    $dataIrr = $dataArrayIrradiation['chart'][$key]['val1'];
-                } else {
-                    $key = $keys[1];
-                    $dataIrr = ($dataArrayIrradiation['chart'][$key]['val1'] + $dataArrayIrradiation['chart'][$key]['val2']) / 2;
-                }
-
+                $stamp = self::timeShift($anlage,$rowActual['ts']);
                 $e = explode(' ', $stamp);
                 $dataArray['chart'][$counter]['ydate'] = $e[1];
-
                 ($rowActual['sollCurrent'] == null) ? $powersoll = 0 : $powersoll = $rowActual['sollCurrent'];
                 ($rowActual['istCurrent'] == null) ? $powerist = 0 : $powerist = $rowActual['istCurrent'];
 
                 if ($powersoll != 0) {
                     $value = round(($powerist / $powersoll) * (float) 100);
-                } else {
+                 } else {
                     $value = 0;
                 }
                 $value = ($value > (float) 100) ? (float) 100 : $value;
@@ -194,7 +192,6 @@ class SollIstHeatmapChartService
             }
             $dataArray['offsetLegend'] = 0;
         }
-
         return $dataArray;
     }
 }

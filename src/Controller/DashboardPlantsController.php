@@ -8,16 +8,89 @@ use App\Entity\User;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\AvailabilityService;
+use App\Service\Charts\HeatmapChartService;
 use App\Service\ChartService;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\Charts\SollIstHeatmapChartService;
+
+
+use function _PHPStan_c900ee2af\React\Promise\all;
 
 class DashboardPlantsController extends BaseController
 {
     use G4NTrait;
+    #[Route(path: '/api/plants/{eignerId}/{anlageId}/{analyse}', name: 'api_dashboard_plant_analsyse', methods: ['GET','POST'])]
+    public function analysePlantAPI($eignerId, $anlageId, $analyse, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService, HeatmapChartService $heatmapChartService,): Response
+    {
+        $form = [];
+
+        /* @var Anlage|null $aktAnlage */
+        if ($anlageId && $anlageId > 0) {
+            $aktAnlage = $anlagenRepository->findOneBy(['anlId' => $anlageId]);
+          } else {
+            $aktAnlage = null;
+        }
+        /* @var Anlage $anlagen */
+        if ($eignerId) {
+            if ($this->isGranted('ROLE_G4N')) {
+                $anlagen = $anlagenRepository->findByEignerActive($eignerId, $anlageId);
+            } else {
+                /* @var User $user */
+                $user = $this->getUser();
+                $granted = $user->getGrantedArray();
+                $anlagen = $anlagenRepository->findGrantedActive($eignerId, $anlageId, $granted);
+            }
+        }
+
+       switch($analyse) {
+           case 'availability':
+
+               break;
+           case 'pr_and_av':
+
+               break;
+           case 'forecast':
+
+               break;
+           case 'heatmap':
+               $from =  $request->query->get('from');
+               $to =  $request->query->get('to');
+               $content = null;
+               if ($aktAnlage) {
+                   $dataArray = $heatmapChartService->getHeatmap($aktAnlage, $from, $to);
+                   $resultArray['data'] = $dataArray['chart'];
+                   $content = $resultArray;
+              }
+               break;
+           case 'tempheatmap':
+
+               break;
+           case 'sollistheatmap':
+
+               break;
+           case 'sollistanalyse':
+
+               break;
+           case 'sollistirranalyse':
+
+               break;
+           case 'sollisttempanalyse':
+
+               break;
+           default:
+               return new Response(null, 204);
+       }
+        if (is_array($content) or $content) {
+            return new JsonResponse($content);
+        }else{
+            return new Response(null, 204);
+        }
+    }
 
     /**
      * @throws Exception
@@ -105,6 +178,7 @@ if ($form['startDateNew']){
     $form['to'] =   date('Y-m-d 23:59', strtotime($request->request->get('to')));
 
   } else {
+
      switch ($form['optionStep']) {
         case 'lastday':
             $date = ($request->request->get('to')) ? $request->request->get('to') : date('Y-m-d');
@@ -184,6 +258,7 @@ if ($form['startDateNew']){
         if ($aktAnlage) {
             $content = $chartService->getGraphsAndControl($form, $aktAnlage, $hour);
         }
+
         $isInTimeRange = self::isInTimeRange();
 
         return $this->render('dashboardPlants/plantsShow.html.twig', [

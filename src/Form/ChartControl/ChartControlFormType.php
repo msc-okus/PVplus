@@ -15,6 +15,7 @@ class ChartControlFormType extends AbstractType
         $builder
             ->add('selectedChart')
             ->add('selectedGroup')
+            ->add('selectedSet')
             ->add('selectedInverter')
             ->add('to', DateType::class, [
                 'empty_data' => new \DateTime('now'),

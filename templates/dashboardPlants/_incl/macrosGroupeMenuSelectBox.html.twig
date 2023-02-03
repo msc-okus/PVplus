@@ -1,6 +1,9 @@
 {% macro groupMenu(form, aktAnlage) %}
 
-    {% if form.selectedChart == 'dc_inv_power_diff' or form.selectedChart == 'inverter_performance' or form.selectedChart == 'dc_current_inverter' or form.selectedChart == 'ac_act_group' or form.selectedChart == 'ac_act_voltage' or form.selectedChart == 'ac_act_current' or form.selectedChart == 'ac_act_frequency' or form.selectedChart == 'dc_act_group' or form.selectedChart == 'dc_current_overview' %}
+    {% if form.selectedChart == 'dc_inv_power_diff' or form.selectedChart == 'inverter_performance' or form.selectedChart == 'dc_current_inverter'
+        or form.selectedChart == 'ac_act_group' or form.selectedChart == 'ac_act_voltage' or form.selectedChart == 'ac_act_current'
+        or form.selectedChart == 'ac_act_frequency' or form.selectedChart == 'dc_act_group' or form.selectedChart == 'dc_current_overview'
+    %}
         <select class="form-control js-submit-onchange" title="Select a Group d1" data-toggle="tooltip" name="selectedGroup">
             {% if form.selectedChart starts with 'acAct' or form.selectedChart == 'dc_current_overview' or form.selectedChart == 'reactive_power'%}
 
@@ -22,7 +25,8 @@
         <input type="hidden" name="selectedSet" value="1">
 
     {% elseif form.selectedChart == 'dc_voltage_groups' or form.selectedChart == 'dc_current_group' %}
-        {% if aktAnlage.groups|length > 10 %}
+
+        {% if aktAnlage.groups|length > 50 %}
             <select class="form-control js-submit-onchange" title="Select a Set" data-toggle="tooltip" name="selectedSet">
                 {% for set in 1..((aktAnlage.groups|length/10)|round(0)) %}
                     <option value="{{ loop.index }}" {% if form.selectedSet == loop.index %}selected{% endif %}>Set "{{ loop.index }}"</option>
@@ -58,9 +62,11 @@
         or form.selectedChart == 'dc_grp_power_diff' or form.selectedChart == 'status_log' or form.selectedChart == 'pvsyst' or form.selectedChart == 'grid'
     %}
         <input type="hidden" name="selectedGroup" value="1">
+
     {% else %}
         <select class="form-control js-submit-onchange" title="Select a Group" data-toggle="tooltip" name="selectedGroup">
-            {% if ((form.selectedChart == 'dc_act_overview' or form.selectedChart == 'dc_act_group' or form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse') and is_granted('ROLE_G4N')) %}
+            {% if ((form.selectedChart == 'dc_act_overview' or form.selectedChart == 'dc_act_group' or form.selectedChart == 'sollistanalyse'
+                or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse') and is_granted('ROLE_G4N')) %}
                 <option value="-1" >All</option>
             {% endif %}
             {% if     aktAnlage.configType == 1 %}
