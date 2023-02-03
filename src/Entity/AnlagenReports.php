@@ -195,7 +195,7 @@ class AnlagenReports
 
     public function getContentArray(): ?array
     {
-        return unserialize($this->contentArray);
+        return unserialize($this->contentArray, ["allowed_classes" => true]);
     }
     public function getContentArrayForExcel(): ?array{
         return unserialize($this->contentArray, ["allowed_classes" => false]);

@@ -12,7 +12,7 @@
 {% block body %}
     <div class="grid-x">
         <div class="cell">
-            <h1 id="thechange"></h1>
+            <h1 id="thechange">Tools</h1>
         </div>
     </div>
 
@@ -39,20 +39,20 @@
                 <div class="callout" >
                     {{ output|raw }}
                 </div>
-                <div class="" style="min-height: 50vh; max-height: 50vh; overflow: scroll;"
-                        {{ stimulus_controller('tools-message', {
+                <div class="" style="max-height: 50vh; overflow-y: scroll;"
+                    {{ stimulus_controller('tools-message', {
                         url: path('app_log_messages_list'),
                         refreshIntervale: 5000,
-                        }) }}>
+                    }) }}>
                 </div>
             </div>
         </div>
 
-    <div class="grid-x grid-margin-x grid-padding-x text-left">
-        <div class="cell medium-4">
-            {{ form_widget(toolsForm.calc) }}
-            {{ form_widget(toolsForm.close) }}
+        <div class="grid-x grid-margin-x grid-margin-y">
+            <div class="cell medium-4">
+                {{ form_widget(toolsForm.calc) }}
+                {{ form_widget(toolsForm.close) }}
+            </div>
         </div>
-    </div>
     {{ form_end(toolsForm) }}
 {% endblock %}

@@ -85,6 +85,9 @@ class Ticket
 
     #[ORM\Column]
     private ?bool $ignoreTicket = false;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $TicketName = "";
     /*
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $generatedFrom = '';
@@ -413,6 +416,18 @@ class Ticket
     public function setIgnoreTicket(bool $ignoreTicket): self
     {
         $this->ignoreTicket = $ignoreTicket;
+
+        return $this;
+    }
+
+    public function getTicketName(): ?string
+    {
+        return $this->TicketName;
+    }
+
+    public function setTicketName(?string $TicketName): self
+    {
+        $this->TicketName = $TicketName;
 
         return $this;
     }

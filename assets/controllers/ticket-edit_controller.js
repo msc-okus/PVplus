@@ -22,7 +22,6 @@ export default class extends Controller {
         this.modalBodyTarget.innerHTML = 'Loading ...';
         this.modal = new Reveal($(this.modalTarget));
         this.modal.open();
-
         if (this.formUrlValue === '/ticket/create') {
             this.modalBodyTarget.innerHTML = await $.ajax({
                 url: this.formUrlValue,
@@ -52,11 +51,13 @@ export default class extends Controller {
         event.preventDefault();
         const  $form = $(this.modalBodyTarget).find('form');
         try {
+
             await $.ajax({
                 url: this.formUrlValue,
                 method: $form.prop('method'),
                 data: $form.serialize(),
             });
+
             this.dispatch('success');
             this.modal.destroy();
         } catch(e) {
@@ -311,7 +312,8 @@ export default class extends Controller {
 
 
     toggle(){
-        let $button = $(this.deactivableTargets);
+
+        let $button = $(this.deactivableTarget);
         if ($button.attr('disabled')) {
             $button.removeAttr('disabled');
         }
@@ -380,7 +382,6 @@ export default class extends Controller {
             $(this.splitAlertTarget).addClass('is-hidden');
         }
     }
-
     async splitTicketByInverter({ params: { ticketid }}){
         let inverterStringa = '';
         let inverterStringb = '';

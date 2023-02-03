@@ -4,9 +4,13 @@ namespace App\Controller;
 
 use App\Helper\G4NTrait;
 use App\Service\CheckSystemStatusService;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
+/**
+ * @IsGranted("ROLE_G4N")
+ */
 class DefaultController extends BaseController
 {
     use G4NTrait;

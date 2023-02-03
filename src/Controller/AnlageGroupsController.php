@@ -10,11 +10,15 @@ use App\Form\Groups\DcGroupsSFGUpdateFormType;
 use App\Repository\GroupsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @IsGranted("ROLE_G4N")
+ */
 #[Route('/anlage/groups')]
 class AnlageGroupsController extends AbstractController
 {
@@ -44,12 +48,11 @@ class AnlageGroupsController extends AbstractController
         ]);
     }
 
-    #[Route('/anlage/{anlage}/{param}', name: 'app_anlage_groups_anlage_index', methods: ['GET','POST'])]
-    public function index2(GroupsRepository $groupsRepository ,Request $request, Anlage $anlage, PaginatorInterface $paginator, string $param=null ): Response
+    #[Route('/anlage/{anlage}/{param}', name: 'app_anlage_groups_anlage_index', defaults: ['param' => ''], methods: ['GET','POST'])]
+    public function index2(GroupsRepository $groupsRepository, Request $request, Anlage $anlage, PaginatorInterface $paginator, ?string $param = null ): Response
     {
-
         $searchTerm = $request->query->get('q');
-        if($param){
+        if ($param){
             $searchTerm = $param;
         }
 
@@ -80,6 +83,12 @@ class AnlageGroupsController extends AbstractController
                 }
                 if($form2->getData()['gridLoss'] !==null){
                     $group->setGridLoss($form2->getData()['gridLoss']);
+                }
+                if($form2->getData()['limitAc'] !==null){
+                    $group->setLimitAc($form2->getData()['limitAc']);
+                }
+                if($form2->getData()['gridLimitAc'] !==null){
+                    $group->setGridLimitAc($form2->getData()['gridLimitAc']);
                 }
 
 
@@ -124,12 +133,10 @@ class AnlageGroupsController extends AbstractController
                 $request->query->getInt('page',1),
                 25
             );
-                return $this->render('anlage_groups/_searchPreview.html.twig', [
 
-                    'anlage_groups'=>$pagination,
-
-
-                ]);
+            return $this->render('anlage_groups/_searchPreview.html.twig', [
+                'anlage_groups'=>$pagination,
+            ]);
 
         }
         if($param){
@@ -161,11 +168,10 @@ class AnlageGroupsController extends AbstractController
     public function edit(Request $request, AnlageGroups $anlageGroup,GroupsRepository $groupsRepository, EntityManagerInterface $entityManager): Response
     {
        //dd($anlageGroup->getModules());
-        $form = $this->createForm(AnlageGroupsTypeForm::class, $anlageGroup);
+        $form = $this->createForm(AnlageGroupsTypeForm::class, $anlageGroup,['anlage'=>$anlageGroup->getAnlage()]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-
             $entityManager->flush();
 
             return $this->redirectToRoute('app_anlage_groups_edit', ['id'=>$anlageGroup->getId()], Response::HTTP_SEE_OTHER);

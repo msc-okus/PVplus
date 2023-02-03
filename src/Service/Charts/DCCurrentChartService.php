@@ -14,32 +14,23 @@ class DCCurrentChartService
 {
     use G4NTrait;
 
-    private Security $security;
-
-    private AnlagenStatusRepository $statusRepository;
-
-    private InvertersRepository $invertersRepo;
-
-    public functionsService $functions;
-
-    private IrradiationChartService $irradiationChart;
-
-    public function __construct(Security $security,
-        AnlagenStatusRepository $statusRepository,
-        InvertersRepository $invertersRepo,
-        IrradiationChartService $irradiationChart,
-        FunctionsService $functions)
+    public function __construct(
+        private Security $security,
+        private AnlagenStatusRepository $statusRepository,
+        private InvertersRepository $invertersRepo,
+        private IrradiationChartService $irradiationChart,
+        private FunctionsService $functions)
     {
-        $this->security = $security;
-        $this->statusRepository = $statusRepository;
-        $this->invertersRepo = $invertersRepo;
-        $this->functions = $functions;
-        $this->irradiationChart = $irradiationChart;
     }
 
     /**
+     * @param Anlage $anlage
      * @param $from
      * @param $to
+     * @param int $group
+     * @param bool $hour
+     * @return array
+     * @throws \Exception
      */
     public function getCurr1(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
@@ -132,11 +123,14 @@ class DCCurrentChartService
     /**
      * Erzeugt Daten für das DC Strom Diagram Diagramm, eine Linie je Gruppe.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
-     *
+     * @param int $set
+     * @param bool $hour
      * @return array
      *               dc_current_group
+     * @throws \Exception
      */
     public function getCurr2(Anlage $anlage, $from, $to, int $set = 1, bool $hour = false): array
     {

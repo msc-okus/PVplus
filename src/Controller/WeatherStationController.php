@@ -9,10 +9,13 @@ use App\Helper\PVPNameArraysTrait;
 use App\Repository\WeatherStationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-
+/**
+ * @IsGranted("ROLE_G4N")
+ */
 class WeatherStationController extends BaseController
 {
     use G4NTrait;

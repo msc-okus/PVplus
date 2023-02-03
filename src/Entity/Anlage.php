@@ -379,7 +379,7 @@ class Anlage
     private string $lid;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?float $annualDegradation;
+    private float|string|null $annualDegradation;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $pldPR;
@@ -480,10 +480,10 @@ class Anlage
     private Collection $tickets;
 
     #[ORM\OneToOne(mappedBy: 'anlage', targetEntity: EconomicVarNames::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
-    private EconomicVarNames $economicVarNames;
+    private ?EconomicVarNames $economicVarNames;
 
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: EconomicVarValues::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
-    private Collection $economicVarValues;
+    private ?Collection $economicVarValues;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
     private ?bool $useDayForecast = false;
@@ -535,6 +535,18 @@ class Anlage
 
     #[ORM\Column]
     private ?bool $ignoreNegativEvu = true;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $expectedTicket = false;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $percentageDiff = "20";
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $weatherTicket = false;
+
+    #[ORM\Column]
+    private ?bool $ActivateTicketSystem = false;
 
     public function __construct()
     {
@@ -990,9 +1002,9 @@ class Anlage
         return $this;
     }
 
-    public function getAnlGeoLat(): ?string
+    public function getAnlGeoLat(): ?float
     {
-        return $this->anlGeoLat;
+        return (float)$this->anlGeoLat;
     }
 
     public function setAnlGeoLat(string $anlGeoLat): self
@@ -1002,9 +1014,9 @@ class Anlage
         return $this;
     }
 
-    public function getAnlGeoLon(): ?string
+    public function getAnlGeoLon(): ?float
     {
-        return $this->anlGeoLon;
+        return (float)$this->anlGeoLon;
     }
 
     public function setAnlGeoLon(string $anlGeoLon): self
@@ -3441,5 +3453,53 @@ class Anlage
     public function isNight(?DateTime $stamp = null): bool
     {
         return !$this->isDay($stamp);
+    }
+
+    public function isExpectedTicket(): ?bool
+    {
+        return $this->expectedTicket;
+    }
+
+    public function setExpectedTicket(?bool $expectedTicket): self
+    {
+        $this->expectedTicket = $expectedTicket;
+
+        return $this;
+    }
+
+    public function getPercentageDiff(): ?string
+    {
+        return $this->percentageDiff;
+    }
+
+    public function setPercentageDiff(?string $percentageDiff): self
+    {
+        $this->percentageDiff = $percentageDiff;
+
+        return $this;
+    }
+
+    public function isWeatherTicket(): ?bool
+    {
+        return $this->weatherTicket;
+    }
+
+    public function setWeatherTicket(?bool $weatherTicket): self
+    {
+        $this->weatherTicket = $weatherTicket;
+
+        return $this;
+    }
+
+    public function isActivateTicketSystem(): ?bool
+    {
+        return $this->ActivateTicketSystem;
+    }
+
+    public function setActivateTicketSystem(bool $ActivateTicketSystem): self
+    {
+        $this->ActivateTicketSystem = $ActivateTicketSystem;
+
+        return $this;
     }
 }

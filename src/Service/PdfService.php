@@ -2,11 +2,8 @@
 
 namespace App\Service;
 
-use App\Entity\Anlage;
 use chromeheadlessio\Service;
-use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
 use Knp\Snappy\Pdf;
-use Nuzkito\ChromePdf\ChromePdf;
 
 class PdfService
 {
@@ -24,8 +21,9 @@ class PdfService
      * @param string      $html   contains html or filename or url
      * @param string|null $source choose from wich source (given html, file or url)
      */
-    public function createPdfTemp(Anlage $anlage, string $html, ?string $source = null, $filename = 'tempPDF.pdf'): string|PdfResponse
+    public function createPdf(string $html, ?string $source = null, string $filename = 'tempPDF.pdf', string $orientation = 'landscape'): void
     {
+        $pdf = "";
         if ($source === null) {
             // Create ChromeHeadless service with your token key specified
             $secretToken = '2bf7e9e8c86aa136b2e0e7a34d5c9bc2f4a5f83291a5c79f5a8c63a3c1227da9';
@@ -39,26 +37,33 @@ class PdfService
                 'orientation' => 'landscape',
                 'printBackground' => true,
             ])->sendToBrowser($filename.'.pdf');
-
-            return '';
         } else {
             switch ($source) {
                 case 'string':
-                    #$pdf->generateFromHtml($html);
-                    return new PdfResponse(
-                        $this->snappyPdf->getOutputFromHtml(
-                            $html, ['enable-local-file-access' => true, 'orientation' => 'landscape']),
-                        $filename
-                    );
-                case 'file':
-                    // $pdf->generateFromFile($html);
+                    $pdf = $this->snappyPdf->getOutputFromHtml($html, ['enable-local-file-access' => true, 'orientation' => "$orientation"]);
                     break;
+                case 'file':
                 case 'url':
-                    // $pdf->generateFromUrl($html);
+                    $pdf = $this->snappyPdf->getOutput($html, ['enable-local-file-access' => true, 'load-error-handling' => 'ignore', 'orientation' => "$orientation"]);
                     break;
             }
-
-            return $this->tempPathBaseUrl.'/'.$filename;
+            $tempPdf = tmpfile();
+            fwrite($tempPdf, $pdf);
+            fseek($tempPdf,0);
+            header("Content-Disposition: attachment; filename=" . urlencode($filename));
+            header("Content-Type: application/force-download");
+            header("Content-Type: application/octet-stream");
+            header("Content-Type: application/download");
+            header("Content-Description: File Transfer");
+            header("Content-Length: " . filesize(stream_get_meta_data($tempPdf)['uri']));
+            while (!feof($tempPdf))
+            {
+                echo fread($tempPdf, 65536);
+                flush(); // this is essential for large downloads
+            }
+            fclose($tempPdf);
         }
+
+        return;
     }
 }

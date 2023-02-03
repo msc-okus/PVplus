@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Entity\Anlage;
 use App\Entity\AnlageGroupModules;
 use App\Entity\AnlageGroupMonths;
+use App\Entity\OpenWeather;
 use App\Entity\WeatherStation;
 use App\Helper\G4NTrait;
 use App\Repository\AnlageMonthRepository;
@@ -12,6 +13,8 @@ use App\Repository\AnlagenRepository;
 use App\Repository\GroupModulesRepository;
 use App\Repository\GroupMonthsRepository;
 use App\Repository\GroupsRepository;
+use App\Repository\OpenWeatherRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use PDO;
 
 class ExpectedService
@@ -24,7 +27,10 @@ class ExpectedService
         private GroupMonthsRepository $groupMonthsRepo,
         private GroupModulesRepository $groupModulesRepo,
         private AnlageMonthRepository $anlageMonthRepo,
-        private FunctionsService $functions)
+        private FunctionsService $functions,
+        private WeatherFunctionsService $weatherFunctions,
+        private OpenWeatherService $openWeather,
+        private OpenWeatherRepository $openWeatherRepo)
     {
     }
 
@@ -39,17 +45,19 @@ class ExpectedService
             $conn = self::getPdoConnection();
             $arrayExpected = $this->calcExpected($anlage, $from, $to);
             if ($arrayExpected) {
-                $sql = 'INSERT INTO '.$anlage->getDbNameDcSoll().' (stamp, wr, wr_num, group_dc, group_ac, ac_exp_power, ac_exp_power_evu, ac_exp_power_no_limit, dc_exp_power, dc_exp_current, soll_imppwr, soll_pdcwr) VALUES ';
+                $sql = 'INSERT INTO '.$anlage->getDbNameDcSoll().' (stamp, wr, wr_num, group_dc, group_ac, ac_exp_power, ac_exp_power_evu, ac_exp_power_no_limit, dc_exp_power, dc_exp_current, soll_imppwr, soll_pdcwr, dc_exp_voltage) VALUES ';
                 foreach ($arrayExpected as $expected) {
                     $sql .= "('".$expected['stamp']."',".$expected['unit'].','.$expected['dc_group'].','.$expected['dc_group'].','.$expected['ac_group'].','.
                         $expected['exp_power_ac'].','.$expected['exp_evu'].','.$expected['exp_nolimit'].','.$expected['exp_power_dc'].','.
-                        $expected['exp_current_dc'].','.$expected['exp_current_dc'].','.$expected['exp_power_dc'].'),';
+                        $expected['exp_current_dc'].','.$expected['exp_current_dc'].','.$expected['exp_power_dc'].','.$expected['exp_voltage'].'),';
                 }
                 $sql = substr($sql, 0, -1); // nimm das letzte Komma weg
                 $conn->exec('DELETE FROM '.$anlage->getDbNameDcSoll()." WHERE stamp BETWEEN '$from' AND '$to';");
+                #dd('DELETE FROM '.$anlage->getDbNameDcSoll()." WHERE stamp BETWEEN '$from' AND '$to';");
                 $conn->exec($sql);
                 $recUpdated = count($arrayExpected);
                 $output .= "From $from until $to – $recUpdated records updated.<br>";
+
             } else {
                 $output .= "Fehler bei 'calcExpected', leeres Array zurückgegben.<br>";
             }
@@ -59,6 +67,9 @@ class ExpectedService
         return $output;
     }
 
+    /**
+     * @throws NonUniqueResultException
+     */
     private function calcExpected(Anlage $anlage, $from, $to): array
     {
         $resultArray = [];
@@ -69,7 +80,7 @@ class ExpectedService
         $conn = self::getPdoConnection();
         // Lade Wetter (Wetterstation der Anlage) Daten für die angegebene Zeit und Speicher diese in ein Array
         $weatherStations = $this->groupsRepo->findAllWeatherstations($anlage, $anlage->getWeatherStation());
-        $sqlWetterDaten = 'SELECT stamp AS stamp, g_lower AS irr_lower, g_upper AS irr_upper, pt_avg AS panel_temp FROM '.$anlage->getDbNameWeather()." WHERE (`stamp` BETWEEN '$from' AND '$to') AND (g_lower > 0 OR g_upper > 0)";
+        $sqlWetterDaten = 'SELECT stamp AS stamp, g_lower AS irr_lower, g_upper AS irr_upper, temp_pannel AS panel_temp, temp_ambient AS ambient_temp FROM '.$anlage->getDbNameWeather()." WHERE (`stamp` BETWEEN '$from' AND '$to') AND (g_lower > 0 OR g_upper > 0)";
         $resWeather = $conn->prepare($sqlWetterDaten);
         $resWeather->execute();
         $weatherArray[$anlage->getWeatherStation()->getDatabaseIdent()] = $resWeather->fetchAll(PDO::FETCH_ASSOC);
@@ -93,10 +104,15 @@ class ExpectedService
             // Wetterstation auswählen, von der die Daten kommen sollen
             /* @var WeatherStation $currentWeatherStation */
             $currentWeatherStation = $group->getWeatherStation() ? $group->getWeatherStation() : $anlage->getWeatherStation();
-            for ($unit = $group->getUnitFirst(); $unit <= $group->getUnitLast(); ++$unit) {
-                foreach ($weatherArray[$currentWeatherStation->getDatabaseIdent()] as $weather) {
-                    $stamp = $weather['stamp'];
 
+            foreach ($weatherArray[$currentWeatherStation->getDatabaseIdent()] as $weather) {
+                $stamp = $weather['stamp'];
+                $openWeather = false; ### temporäre deaktivierung OpenWeather
+                ###$openWeather = $this->openWeatherRepo->findTimeMatchingOpenWeather($anlage, date_create($stamp));
+
+                ###if ($openWeather) dump($openWeather->getTempC());
+
+                for ($unit = $group->getUnitFirst(); $unit <= $group->getUnitLast(); ++$unit) {
                     // use plant based shadow loss (normaly - 0)
                     $shadow_loss = $group->getShadowLoss();
                     if ($groupMonth) {
@@ -121,12 +137,10 @@ class ExpectedService
                         $tempIrr = $this->functions->mittelwert([(float) $weather['irr_upper'], (float) $weather['irr_lower']]);
                     }
                     if ($tempIrr <= 100) {
-                        $shadow_loss = $shadow_loss * 0.0;
-                    } // 0.05
-                    elseif ($tempIrr <= 200) {
-                        $shadow_loss = $shadow_loss * 0.0;
-                    } // 0.21
-                    elseif ($tempIrr <= 400) {
+                        $shadow_loss = $shadow_loss * 0.0; // 0.05
+                    } elseif ($tempIrr <= 200) {
+                        $shadow_loss = $shadow_loss * 0.0; // 0.21
+                    } elseif ($tempIrr <= 400) {
                         $shadow_loss = $shadow_loss * 0.35;
                     } elseif ($tempIrr <= 600) {
                         $shadow_loss = $shadow_loss * 0.57;
@@ -136,7 +150,7 @@ class ExpectedService
                         $shadow_loss = $shadow_loss * 0.8;
                     }
 
-                    $pannelTemp = (float) $weather['panel_temp'];   // Pannel Temperatur
+                    $pannelTemp = is_numeric($weather['panel_temp']) ? (float)$weather['panel_temp'] : null;   // Pannel Temperatur
                     $irrUpper = (float) $weather['irr_upper'] - ((float) $weather['irr_upper'] / 100 * $shadow_loss);    // Strahlung an obern Sensor
                     $irrLower = (float) $weather['irr_lower'] - ((float) $weather['irr_lower'] / 100 * $shadow_loss);    // Strahlung an unterem Sensor
 
@@ -149,39 +163,79 @@ class ExpectedService
 
                     /** @var AnlageGroupModules[] $modules */
                     $modules = $group->getModules();
-                    $expPowerDc = $expCurrentDc = $limitExpCurrent = $limitExpPower = 0;
+                    $expPowerDc = $expCurrentDc = $limitExpCurrent = $limitExpPower = $expVoltage = 0;
                     foreach ($modules as $modul) {
                         if ($anlage->getIsOstWestAnlage()) {
                             // Ist 'Ost/West' Anlage, dann nutze $irrUpper (Strahlung Osten) und $irrLower (Strahlung Westen) und multipliziere mit der Anzahl Strings Ost / West
+                            // Power
                             $expPowerDcHlp = $modul->getModuleType()->getFactorPower($irrUpper) * $modul->getNumStringsPerUnitEast() * $modul->getNumModulesPerString() / 1000 / 4; // Ost
                             $expPowerDcHlp += $modul->getModuleType()->getFactorPower($irrLower) * $modul->getNumStringsPerUnitWest() * $modul->getNumModulesPerString() / 1000 / 4; // West
                             $limitExpPowerHlp = ($modul->getNumStringsPerUnitWest() + $modul->getNumStringsPerUnitEast()) * $modul->getNumModulesPerString() * $modul->getModuleType()->getMaxPmpp() / 1000 / 4;
+                            // Current
                             $expCurrentDcHlp = $modul->getModuleType()->getFactorCurrent($irrUpper) * $modul->getNumStringsPerUnitEast(); // Ost // nicht durch 4 teilen, sind keine Ah, sondern A
                             $expCurrentDcHlp += $modul->getModuleType()->getFactorCurrent($irrLower) * $modul->getNumStringsPerUnitWest(); // West // nicht durch 4 teilen, sind keine Ah, sondern A
                             $limitExpCurrentHlp = ($modul->getNumStringsPerUnitWest() + $modul->getNumStringsPerUnitEast()) * ($modul->getModuleType()->getMaxImpp() * 1.015); // 1,5% Sicherheitsaufschlag
+                            // Voltage
+                            $expVoltageDcHlp = $modul->getModuleType()->getExpVoltage($irrUpper) * $modul->getNumModulesPerString();
                         } else {
                             // Ist keine 'Ost/West' Anlage
+                            // Power
                             $expPowerDcHlp = $modul->getModuleType()->getFactorPower($irr) * $modul->getNumStringsPerUnit() * $modul->getNumModulesPerString() / 1000 / 4;
                             $limitExpPowerHlp = $modul->getNumStringsPerUnit() * $modul->getNumModulesPerString() * $modul->getModuleType()->getMaxPmpp() / 1000 / 4;
+                            // Current
                             $expCurrentDcHlp = $modul->getModuleType()->getFactorCurrent($irr) * $modul->getNumStringsPerUnit(); // nicht durch 4 teilen, sind keine Ah, sondern A
                             $limitExpCurrentHlp = $modul->getNumStringsPerUnit() * ($modul->getModuleType()->getMaxImpp() * 1.015); // 1,5% Sicherheitsaufschlag
+                            // Voltage
+                            $expVoltageDcHlp = $modul->getModuleType()->getExpVoltage($irr) * $modul->getNumModulesPerString();
                         }
 
                         // Temperatur Korrektur
-                        if ($anlage->getHasPannelTemp()) { // && $pannelTemp >= 25
+                        if ($anlage->getHasPannelTemp() && $pannelTemp) {
                             $expPowerDcHlp = $expPowerDcHlp * $modul->getModuleType()->getTempCorrPower($pannelTemp);
                             $expCurrentDcHlp = $expCurrentDcHlp * $modul->getModuleType()->getTempCorrCurrent($pannelTemp);
+                            $expVoltageDcHlp = $expVoltageDcHlp * $modul->getModuleType()->getTempCorrVoltage($pannelTemp);
+                        } else {
+                            // ToDo: Funktion zur Berechnung der Temperatur Korrektur via OpenWeather (temp ambient, wind speed), NREL und Co implementieren
+                            if (false) { // $anlage->hasAmbientTemp
+                                // Wenn nur Umgebungstemepratur vorhanden
+                            } else {
+                                // Wenn weder Umgebungs noch Modul Temperatur vorhanden, dann nutze Daten aus Open Weather (sind nur Stunden weise vorhanden)
+                                if ($anlage->getAnlId() == '183') {  // im Moment nur für REGebeng
+                                    $windSpeed = 4; // ReGebeng – gemittelte Daten aus OpenWeather
+                                    $airTemp = 24; // ReGebeng – gemittelte Daten aus OpenWeather
+
+                                    #$windSpeed = $openWeather->getWindSpeed();
+                                    #$airTemp = $openWeather->getTempC();
+
+                                    // Calculate pannel temperatur by NREL
+                                    $pannelTemp = round($this->weatherFunctions->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
+
+                                    // Correct Values by modul temperature
+                                    $expPowerDcHlp = $expPowerDcHlp * $modul->getModuleType()->getTempCorrPower($pannelTemp);
+                                    $expCurrentDcHlp = $expCurrentDcHlp * $modul->getModuleType()->getTempCorrCurrent($pannelTemp);
+                                    $expVoltageDcHlp = $expVoltageDcHlp * $modul->getModuleType()->getTempCorrVoltage($pannelTemp);
+                                }
+                            }
                         }
 
                         // degradation abziehen (degradation * Betriebsjahre).
-                        $expPowerDcHlp = $expPowerDcHlp - ($expPowerDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
-                        $expCurrentDcHlp = $expCurrentDcHlp - ($expCurrentDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
+                        $expVoltageDcHlp = $expVoltageDcHlp - ($expVoltageDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
+                        if ($anlage->getAnlId() == '183') { // im Moment nur für REGebeng
+                            // Calculate DC power by current and voltage
+                            $expPowerDcHlp = $expCurrentDcHlp * $expVoltageDcHlp / 4000;
+                        } else {
+                            $expPowerDcHlp = $expPowerDcHlp - ($expPowerDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
+                        }
+                        #$expCurrentDcHlp = $expCurrentDcHlp - ($expCurrentDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
+
 
                         $expPowerDc += $expPowerDcHlp;
                         $expCurrentDc += $expCurrentDcHlp;
                         $limitExpPower += $limitExpPowerHlp;
                         $limitExpCurrent += $limitExpCurrentHlp;
+                        $expVoltage += $expVoltageDcHlp;
                     }
+                    $expVoltage = $expVoltage / count($modules);
 
                     // Verluste auf der DC Seite brechnen
                     // Kabel Verluste + Sicherheitsverlust
@@ -194,7 +248,7 @@ class ExpectedService
                     }
 
                     // Limitierung durch Modul prüfen und entsprechend abregeln
-                    $expCurrentDc = $expCurrentDc > $limitExpCurrent ? $limitExpCurrent : $expCurrentDc;
+                    $expCurrentDc = min($expCurrentDc, $limitExpCurrent);
 
                     // AC Expected Berechnung
                     // Umrechnung DC nach AC
@@ -220,11 +274,11 @@ class ExpectedService
                         'exp_power_ac' => round($expPowerAc, 6),
                         'exp_evu' => round($expEvu, 6),
                         'exp_nolimit' => round($expNoLimit, 6),
+                        'exp_voltage' => round($expVoltage, 6),
                     ];
                 }
             }
         }
-
         return $resultArray;
     }
 }
