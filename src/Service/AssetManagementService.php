@@ -84,7 +84,7 @@ class AssetManagementService
             ->setRawReport('')
             ->setComments($comment);
         if ($userId) {
-            $report->setCreatedBy();
+            $report->setCreatedBy($userId);
         }
         $this->em->persist($report);
         $this->em->flush();
