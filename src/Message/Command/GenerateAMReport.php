@@ -3,6 +3,7 @@
 
 namespace App\Message\Command;
 
+use App\Entity\User;
 use DateTime;
 
 class GenerateAMReport
@@ -12,6 +13,7 @@ class GenerateAMReport
         private int $anlageId,
         private string $month,
         private string $year,
+        private ?string $userId, // e-mail
         private int $logId
     )
     {
@@ -30,6 +32,11 @@ class GenerateAMReport
     public function getYear(): string
     {
         return $this->year;
+    }
+
+    public function getUserId(): string
+    {
+        return $this->userId;
     }
 
     public function getlogId(): int

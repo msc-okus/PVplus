@@ -68,7 +68,8 @@ class ReportingController extends AbstractController
         ReportEpcPRNewService $reportEpcNew,
         LogMessagesService $logMessages,
         MessageBusInterface $messageBus,
-        string $kernelProjectDir): Response
+        string $kernelProjectDir
+    ): Response
     {
         $anlage = $request->query->get('anlage');
         $searchstatus = $request->query->get('searchstatus');
@@ -82,7 +83,7 @@ class ReportingController extends AbstractController
         $reportDate = new \DateTime("$reportYear-$reportMonth-$daysOfMonth");
         $anlageId = $request->query->get('anlage-id');
         $aktAnlagen = $anlagenRepo->findIdLike([$anlageId]);
-
+        $userId = $this->getUser()->getUserIdentifier();
         switch ($reportType) {
             case 'monthly':
                 $output = $reportsMonthly->createMonthlyReport($aktAnlagen[0], $reportMonth, $reportYear);
@@ -97,7 +98,7 @@ class ReportingController extends AbstractController
                 // we try to find and delete a previous report from this month/year
                 #$output = $assetManagement->createAmReport($aktAnlagen[0], $reportMonth, $reportYear);
                 $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'AM Report', "create AM Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear");
-                $message = new GenerateAMReport($aktAnlagen[0]->getAnlId(), $reportMonth, $reportYear, $logId);
+                $message = new GenerateAMReport($aktAnlagen[0]->getAnlId(), $reportMonth, $reportYear, $userId, $logId);
                 $messageBus->dispatch($message);
                 break;
         }
