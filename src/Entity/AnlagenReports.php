@@ -81,7 +81,7 @@ class AnlagenReports
     private $comments;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $file = null;
+    private ?string $file = "";
 
     public function getId(): ?int
     {
