@@ -378,6 +378,9 @@
                                             {{ form_row(anlageForm.percentageDiff) }}
                                         </div>
                                     </div>
+                                {% else %}
+                                    {% do anlageForm.expectedTicket.setRendered() %}
+                                    {% do anlageForm.percentageDiff.setRendered() %}
                                 {% endif %}
                                 {{ form_row(anlageForm.weatherTicket) }}
                                 <div class="grid-x">

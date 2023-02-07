@@ -52,6 +52,7 @@ class WeatherStationFormType extends AbstractType
             ->add('description', TextareaType::class, [
                 'label' => 'Description',
                 'empty_data' => '',
+                'attr' => ['rows' => '5'],
             ])
             ->add('hasUpper', ChoiceType::class, [
                 'label' => 'hat oberen Sensor (Ost Sensor)',
@@ -104,9 +105,11 @@ class WeatherStationFormType extends AbstractType
             ])
             ->add('geoLat', TextType::class, [
                 'label' => 'Position Latitude',
+                'empty_data' => '',
             ])
             ->add('geoLon', TextType::class, [
                 'label' => 'Position Longitude',
+                'empty_data' => '',
             ])
 
             ->add('save', SubmitType::class, [
