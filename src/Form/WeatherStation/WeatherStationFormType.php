@@ -41,6 +41,10 @@ class WeatherStationFormType extends AbstractType
                 'label' => 'Database Ident Code',
                 'empty_data' => '',
             ])
+            ->add('databaseStationIdent', TextType::class, [
+                'label' => 'Database Station Ident Code (only if UP WeatherSation)',
+                'empty_data' => '',
+            ])
             ->add('location', TextType::class, [
                 'label' => 'Location',
                 'empty_data' => '',

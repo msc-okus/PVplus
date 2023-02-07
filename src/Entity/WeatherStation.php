@@ -29,6 +29,9 @@ class WeatherStation
     #[ORM\Column(type: 'string', length: 20)]
     private string $databaseIdent;
 
+    #[ORM\Column(type: 'string', length: 20)]
+    private string $databaseStationIdent;
+
     #[ORM\Column(type: 'string', length: 255)]
     private string $location;
 
@@ -109,6 +112,16 @@ class WeatherStation
         return $this;
     }
 
+    public function getDatabaseStationIdent(): string
+    {
+        return $this->databaseStationIdent;
+    }
+
+    public function setDatabaseStationIdent(string $databaseStationIdent): void
+    {
+        $this->databaseStationIdent = $databaseStationIdent;
+    }
+
     public function getLocation(): ?string
     {
         return $this->location;
@@ -181,7 +194,7 @@ class WeatherStation
         return $this;
     }
 
-    public function getDbNameWeather()
+    public function getDbNameWeather(): string
     {
         return 'db__pv_ws_'.$this->getDatabaseIdent();
     }
