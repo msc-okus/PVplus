@@ -294,7 +294,7 @@ class AlertSystemService
             if ($counter == $invCount)  $powerArray = "*";
 
             if ($powerArray != ""){
-                dump($powerArray);
+                #dump($powerArray);
                 $message = "Power below ".$percentajeDiff." % of Expected: " . $powerArray;
                 $this->generateTicketsExpected(10, $anlage, $powerArray, $timeBegin, $timeEnd, $message);
             }
@@ -603,7 +603,7 @@ class AlertSystemService
                 $ticketDate->setKpiPaDep2(10);
                 $ticketDate->setKpiPaDep3(10);
             }
-            dump($ticket);
+            #dump($ticket);
             $this->em->persist($ticket);
             $this->em->persist($ticketDate);
         }

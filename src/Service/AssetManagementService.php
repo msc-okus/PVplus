@@ -41,7 +41,10 @@ class AssetManagementService
         $this->conn = self::getPdoConnection();
     }
 
-    public function createAmReport(Anlage $anlage, $reportMonth, $reportYear): string
+    /**
+     * @throws ExceptionInterface
+     */
+    public function createAmReport(Anlage $anlage, $reportMonth, $reportYear, ?string $userId = null): string
     {
         $report = $this->reportRepo->findOneByAMY($anlage, $reportMonth, $reportYear)[0];
         $comment = '';
@@ -80,6 +83,9 @@ class AssetManagementService
             ->setContentArray($output)
             ->setRawReport('')
             ->setComments($comment);
+        if ($userId) {
+            $report->setCreatedBy();
+        }
         $this->em->persist($report);
         $this->em->flush();
 

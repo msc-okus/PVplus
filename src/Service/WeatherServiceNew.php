@@ -140,7 +140,6 @@ class WeatherServiceNew
                 if ($gUpper < 0 || $isNight) {
                     $gUpper = '0.0';
                 }
-                echo " $gUpper $gLower $isNight\n";
                 $windSpeed = $row['wind_speed'];
                 $sql_insert = 'INSERT INTO '.$weatherStation->getDbNameWeather()." 
                         SET anl_intnr = '$anlIntNr', stamp = '$stamp', 

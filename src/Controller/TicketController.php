@@ -235,6 +235,7 @@ class TicketController extends BaseController
 
         $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $sort, $direction, $ignoredBool, $TicketName);
 
+
         $pagination = $paginator->paginate($queryBuilder, $page,25 );
         $pagination->setParam('sort', $sort);
         $pagination->setParam('direction', $direction);
