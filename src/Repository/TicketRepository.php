@@ -1,6 +1,7 @@
 <?php
 namespace App\Repository;
 
+use App\Entity\Anlage;
 use App\Entity\Ticket;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -70,7 +71,7 @@ class TicketRepository extends ServiceEntityRepository
      *
      * @param array $orders Array Key defines the 'order field', value defines order direction (ASC, DESC) or order should not used (null)
      */
-    public function getWithSearchQueryBuilderNew(?string $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0, string $sort = "", string $direction = "", bool $ignore = false, $TicketName = ""): QueryBuilder
+    public function getWithSearchQueryBuilderNew(?Anlage $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0, string $sort = "", string $direction = "", bool $ignore = false, $TicketName = ""): QueryBuilder
     {
         /** @var User $user */
         $user = $this->security->getUser();
@@ -88,7 +89,7 @@ class TicketRepository extends ServiceEntityRepository
         }
 
         if ($anlage != '') {
-            $qb->andWhere("a.anlName = '$anlage'");
+            $qb->andWhere("ticket.anlage = '$anlage'");
         }
         if ($editor != '') {
             $qb->andWhere("ticket.editor = '$editor'");
@@ -98,10 +99,12 @@ class TicketRepository extends ServiceEntityRepository
         }
 
         if ($inverter != '') {
-            $qb->andWhere("ticket.inverter LIKE '$inverter,%'");
+            $qb->andWhere("ticket.inverter LIKE '$inverter,%' OR ticket.inverter LIKE '% $inverter,%' OR ticket.inverter = '$inverter' OR ticket.inverter LIKE '%, $inverter'");
+            /*
             $qb->orWhere("ticket.inverter LIKE '% $inverter,%'");
             $qb->orWhere("ticket.inverter = '$inverter'");
             $qb->orWhere("ticket.inverter LIKE '%, $inverter'");
+            */
         }
         if ((int) $prio > 0) {
             $qb->andWhere("ticket.priority = $prio");

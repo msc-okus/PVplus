@@ -77,11 +77,11 @@
                                 {#
                                 {% if report.reportType != 'am-report' or is_granted('ROLE_AM') %} {# Zeige Download Butten wenn es keine AM Bericht ist, oder wenn die Berichtigung für AM Bericht ausreicht
                                 #}
-                                {% if report.reportType != 'am-report' %}
+
                                     <a href="{{ path('app_reporting_pdf', { id: report.id}) }}"   target="_blank" title="load PDF file" class="hollow button tiny action-icon shadow
                                         {{ visibility }}
                                     "><span class="fa fa-file-pdf"></span></a>
-                                {% endif %}
+
 
                                 {# edit report #}
                                 {% if is_granted('ROLE_G4N') or report.reportType == 'am-report' %}

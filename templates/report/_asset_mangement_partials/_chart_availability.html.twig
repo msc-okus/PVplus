@@ -1,0 +1,17 @@
+{% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
+
+{% block page %}
+    <table>
+        <tr style="height: 25%">
+            <td style="width: 100%">
+                {{ wkhLossesChartMonth | raw }}
+            </td>
+        </tr>
+        <tr style="height: 25%">
+            <td style="width: 100%">
+                {{ wkhLossesTicketChartMonth | raw }}
+            </td>
+        </tr>
+
+    </table>
+{% endblock page %}
