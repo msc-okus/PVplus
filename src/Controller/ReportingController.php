@@ -561,6 +561,7 @@ class ReportingController extends AbstractController
                     $output["data"] = $data;
                     //dd($output['wkhLossesChartMonth'], $output['operations_right'], $output['economicsCumulatedForecastChart']);
                     if ($form->isSubmitted() && $form->isValid()) {
+
                         $result = $this->renderView('report/assetreport.html.twig', [
                             'invNr' => count($output["plantAvailabilityMonth"]),
                             'comments' => $report->getComments(),
