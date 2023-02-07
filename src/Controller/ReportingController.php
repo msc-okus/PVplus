@@ -335,6 +335,7 @@ class ReportingController extends AbstractController
                     if ($form->isSubmitted() && $form->isValid()) {
                         $data = $form->getData();
                         #$output['data'] = $data;
+                        //dd($output['production_monthly_chart'], $output['wkhLossesChartMonth']);
                         $result = $this->renderView('report/assetreport.html.twig', [
                             'invNr' => count($output['plantAvailabilityMonth']),
                             'comments' => $report->getComments(),
@@ -411,6 +412,8 @@ class ReportingController extends AbstractController
                             'kwhLossesYearTable' => $output['kwhLossesYearTable'],
                             'economicsMandy2' => $output['economicsMandy2'],
                             'wkhLossesChartMonth' => $output['wkhLossesChartMonth'],
+                            'wkhLossesTicketChartMonth' => $output['wkhLossesTicketChartMonth'],
+                            'kwhLossesChartYear' => $output['kwhLossesChartYear'],
                             'TicketAvailabilityMonthTable' => $output['TicketAvailabilityMonthTable'],
                             'TicketAvailabilityYearTable' => $output['TicketAvailabilityYearTable'],
                         ]);
@@ -564,6 +567,7 @@ class ReportingController extends AbstractController
                     $output["data"] = $data;
                     //dd($output['wkhLossesChartMonth'], $output['operations_right'], $output['economicsCumulatedForecastChart']);
                     if ($form->isSubmitted() && $form->isValid()) {
+
                         $result = $this->renderView('report/assetreport.html.twig', [
                             'invNr' => count($output["plantAvailabilityMonth"]),
                             'comments' => $report->getComments(),
@@ -640,8 +644,11 @@ class ReportingController extends AbstractController
                             'kwhLossesYearTable' => $output['kwhLossesYearTable'],
                             'economicsMandy2' => $output['economicsMandy2'],
                             'wkhLossesChartMonth' => $output['wkhLossesChartMonth'],
+                            'wkhLossesTicketChartMonth' => $output['wkhLossesTicketChartMonth'],
+                            'kwhLossesChartYear' => $output['kwhLossesChartYear'],
                             'TicketAvailabilityMonthTable' => $output['TicketAvailabilityMonthTable'],
                             'TicketAvailabilityYearTable' => $output['TicketAvailabilityYearTable'],
+
                         ]);
                         break;
                     }
@@ -1144,7 +1151,7 @@ class ReportingController extends AbstractController
     {
         /** @var AnlagenReports|null $report */
         $session = $this->container->get('session');
-        $pdf = new PdfService($tempPathBaseUrl);
+        //$pdf = new PdfService($tempPathBaseUrl);
         $searchstatus       = $session->get('search');
         $searchtype         = $session->get('type');
         $anlageq            = $session->get('anlage');
