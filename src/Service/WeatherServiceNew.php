@@ -159,8 +159,8 @@ class WeatherServiceNew
                 unset($sql_array);
                 unset($spalte);
             } else {
-                $output .= 'FEHLER: csvinhalt leer';
-                echo 'CSV Inhalt leer '.$weatherStationIdent."\n";
+                $output .= 'FEHLER: csvinhalt leer '.$weatherStationIdent.' | ';
+                #echo 'CSV Inhalt leer '.$weatherStationIdent."\n";
             }
         }
         $output .= '<h3>END Weather import</h3>';
