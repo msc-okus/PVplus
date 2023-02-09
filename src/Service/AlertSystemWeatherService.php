@@ -81,6 +81,7 @@ class AlertSystemWeatherService
                 if ($status_report['Temperature']) $ticketData = $ticketData . "Problem with the Temperature";
                 if ($status_report['wspeed'] != "") $ticketData = $ticketData . "Problem with the Wind Speed";
                 $this->generateTicket($ticketData, $time, $anlage);
+
                 /* disabled by now.
                 if ($ticketData != "") {
                     self::messagingFunction($ticketData, $anlage);
@@ -174,12 +175,14 @@ class AlertSystemWeatherService
              $ticket->setEnd($date);
              $ticket->setInverter('*');
              $ticket->setAnlage($anlage);
+             $ticket->setStatus(10);
              $ticket->setAlertType(40);
              $ticket->setDescription($status_report);
              $ticket->setEditor("AlertSystem");
              $this->em->persist($ticket);
              $this->em->flush();
          }
+         dd($ticket);
     }
 
 

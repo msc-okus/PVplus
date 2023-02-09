@@ -47,7 +47,7 @@ class PdfService
                     $pdf = $this->snappyPdf->getOutput($html, ['enable-local-file-access' => true, 'load-error-handling' => 'ignore', 'orientation' => "$orientation"]);
                     break;
             }
-            $tempPdf = tmpile();
+            $tempPdf = tmpfile();
 
             fwrite($tempPdf, $pdf);
             fseek($tempPdf,0);

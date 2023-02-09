@@ -14,6 +14,7 @@ use Doctrine\Instantiator\Exception\ExceptionInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
+use Hisune\EchartsPHP\Doc\IDE\XAxis;
 use Hisune\EchartsPHP\ECharts;
 use PDO;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
@@ -1758,9 +1759,9 @@ class AssetManagementService
             $failRelativeOMCPorcent = 0;
         }
         $kwhLossesYearTable = [
-            'SORLosses'     => $sumLossesYearSOR,
-            'EFORLosses'    => $sumLossesYearEFOR,
-            'OMCLosses'     => $sumLossesYearOMC
+            'SORLosses'     => $sumLossesYearSOR + 1 ,
+            'EFORLosses'    => $sumLossesYearEFOR + 1,
+            'OMCLosses'     => $sumLossesYearOMC + 1
         ];
         $availabilityYearToDateTable = [
             'expectedAvailability' => (int) $anlage->getContractualAvailability(),
@@ -2111,19 +2112,18 @@ class AssetManagementService
         //Tables for the kwh losses with bar graphs
 
         if ($anlage->hasPVSYST()){
-            $PVSYSTmonthExpected = $tbody_a_production['expectedPvSyst'][$month-2];
-            $PVSYSTyearExpected = 0;
+            $PVSYSTyearExpected = 1;
             for($index = 0; $index < $month -1; $index++){
                 $PVSYSTyearExpected = $PVSYSTyearExpected + $tbody_a_production['expectedPvSyst'][$index];
             }
         }
         $G4NmonthExpected = $tbody_a_production['powerExp'][$month-2];
-        $G4NyearExpected = 0;
+        $G4NyearExpected = 1;
         for($index = 0; $index < $month -1; $index++){
             $G4NyearExpected = $G4NyearExpected + $tbody_a_production['powerExp'][$index];
         }
         $ActualPower = $tbody_a_production['powerAct'][$month-2];
-        $ActualPowerYear = 0;
+        $ActualPowerYear = 1;
         for($index = 0; $index < $month -1; $index++){
             $ActualPowerYear = $ActualPowerYear + $tbody_a_production['powerAct'][$index];
         }
@@ -2138,32 +2138,13 @@ class AssetManagementService
 
         $chart->xAxis = [
             'type' => 'value',
-            'name' => 'KWH',
-            'nameLocation' => 'middle',
-            'nameGap' => 80,
-            'scale' => true,
-            'min' => 0,
-            'gridIndex' => 0,
-            'axisLabel' => [
-                'show' => true,
-                'margin' => '10',
-                'verticalAlign' => 'bottom',
-                'rotate' => '90'
-            ],
         ];
+
         $chart->yAxis = [
             'type' => 'category',
-            'axisLabel' => [
-                'show' => true,
-                'margin' => '10',
-            ],
-            'splitArea' => [
-                'show' => true,
-            ],
             'data' => [],
-            'scale' => true,
-            'min' => 0,
         ];
+
         if ($anlage->hasPVSYST()) {
             $chart->series =
                 [
@@ -2225,9 +2206,9 @@ class AssetManagementService
                         ],
                     ],
                     [
-                    'name' => 'Actual',
-                    'type' => 'bar',
-                    'data' => [$ActualPower],
+                        'name' => 'Actual',
+                        'type' => 'bar',
+                        'data' => [$ActualPower],
                     ],
                     [
                         'name' => 'SOR Losses',
@@ -2247,6 +2228,7 @@ class AssetManagementService
 
                 ];
         }
+
         $option = [
             'animation' => false,
             'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000'],
@@ -2268,7 +2250,8 @@ class AssetManagementService
         ];
 
 
-        $chart->setOption($option);
+  //      $chart->setOption($option);
+
         $losseskwhchart = $chart->render('Month_losses', ['style' => 'height: 350px; width:28cm; ']);
 
         $chart->tooltip = [];
@@ -2291,13 +2274,13 @@ class AssetManagementService
             'min' => 0,
         ];
         $chart->yAxis = [
-            'type' => 'value',
+            'type' => 'log',
             'name' => 'KWH',
             'nameLocation' => 'middle',
             'nameGap' => 80,
             'scale' => true,
-            'min' => 0,
-            'gridIndex' => 0
+            'min' => 1,
+
         ];
         if ($anlage->hasPVSYST()) {
             $chart->series =
@@ -2330,6 +2313,24 @@ class AssetManagementService
                         'data' => [$ActualPowerYear],
                         'visualMap' => 'false',
                     ],
+                    [
+                        'name' => 'SOR Losses',
+                        'type' => 'bar',
+                        'data' => [$kwhLossesYearTable['SORLosses']],
+                        'visualMap' => 'false',
+                    ],
+                    [
+                        'name' => 'EFOR Losses',
+                        'type' => 'bar',
+                        'data' => [$kwhLossesYearTable['EFORLosses']],
+                        'visualMap' => 'false',
+                    ],
+                    [
+                        'name' => 'OMC Losses',
+                        'type' => 'bar',
+                        'data' => [$kwhLossesYearTable['OMCLosses']],
+                        'visualMap' => 'false',
+                    ]
 
                 ];
         }
@@ -2356,6 +2357,25 @@ class AssetManagementService
                         'data' => [$ActualPowerYear],
                         'visualMap' => 'false',
                     ],
+                    [
+                        'name' => 'SOR Losses',
+                        'type' => 'bar',
+                        'data' => [$kwhLossesYearTable['SORLosses']],
+                        'visualMap' => 'false',
+                    ],
+                    [
+                        'name' => 'EFOR Losses',
+                        'type' => 'bar',
+                        'data' => [$kwhLossesYearTable['EFORLosses']],
+                        'visualMap' => 'false',
+                    ],
+                    [
+                        'name' => 'OMC Losses',
+                        'type' => 'bar',
+                        'data' => [$kwhLossesYearTable['OMCLosses']],
+                        'visualMap' => 'false',
+                    ]
+
                 ];
         }
         $option = [
@@ -3707,7 +3727,7 @@ class AssetManagementService
             'economicsMandy2' => $economicsMandy2,
             'wkhLossesChartMonth' => $losseskwhchart,
             'kwhLossesChartYear' => $losseskwhchartyear,
-            'wkhLossesTicketChartMonth' => $lossesTicketkwhchart,
+            'wkhLossesTicketChartMonth' => "",
             'TicketAvailabilityMonthTable' => $TicketAvailabilityMonthTable,
             'TicketAvailabilityYearTable' => $TicketAvailabilityYearTable
         ];

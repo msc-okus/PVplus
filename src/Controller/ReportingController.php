@@ -423,7 +423,7 @@ class ReportingController extends AbstractController
                         $result = str_replace('src="//', 'src="https://', $result);
 
                         $pdf->createPdf($result, 'string', $filename);
-
+                        dd("something wrong");
                         return $this->redirect($route);
                     }
 

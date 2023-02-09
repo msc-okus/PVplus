@@ -60,7 +60,6 @@ class CheckWeatherStationCommand extends Command
         } else {
             $to = date('Y-m-d H:i:00', $time);
         }
-
         if ($from <= $to) {
             $fromStamp = strtotime($from);
             $toStamp = strtotime($to);
