@@ -54,7 +54,9 @@ class AlertSystemWeatherService
      */
     public function generateWeatherTicketsInterval(Anlage $anlage, string $from, ?string $to = null): void
     {
+
         $fromStamp = strtotime($from);
+        dump("outide function", $fromStamp);
         if ($to != null) {
             $toStamp = strtotime($to);
             for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
@@ -73,8 +75,10 @@ class AlertSystemWeatherService
     public function checkWeatherStation(Anlage $anlage, string $time)
     {
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
+        dump($sungap);
         if ( $anlage->getWeatherStation()->getType() !== 'custom') {
             if ($time >= $sungap['sunrise'] && $time <=  $sungap['sunset']) {
+                dump("dentro");
                 $status_report = $this->WData($anlage, $time);
                 $ticketData = "";
                 if ($status_report['Irradiation']) $ticketData = $ticketData . "Problem with the Irradiation ";

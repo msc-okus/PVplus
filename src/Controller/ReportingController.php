@@ -417,6 +417,8 @@ class ReportingController extends AbstractController
                             'kwhLossesChartYear' => $output['kwhLossesChartYear'],
                             'TicketAvailabilityMonthTable' => $output['TicketAvailabilityMonthTable'],
                             'TicketAvailabilityYearTable' => $output['TicketAvailabilityYearTable'],
+                            'monthlyLossesHelpTable' => $output['monthlyLossesHelpTable'],
+                            'yearLossesHelpTable' => $output['yearLossesHelpTable']
                         ]);
                         $filename = $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf';
 
@@ -650,6 +652,8 @@ class ReportingController extends AbstractController
                             'kwhLossesChartYear' => $output['kwhLossesChartYear'],
                             'TicketAvailabilityMonthTable' => $output['TicketAvailabilityMonthTable'],
                             'TicketAvailabilityYearTable' => $output['TicketAvailabilityYearTable'],
+                            'monthlyLossesHelpTable' => $output['monthlyLossesHelpTable'],
+                            'yearLossesHelpTable' => $output['yearLossesHelpTable']
 
                         ]);
                         break;

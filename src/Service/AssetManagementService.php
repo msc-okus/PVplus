@@ -2135,106 +2135,123 @@ class AssetManagementService
         $chart->series = [];
         unset($option);
 
-
-        $chart->xAxis = [
-            'type' => 'value',
-        ];
-
         $chart->yAxis = [
             'type' => 'category',
-            'data' => [],
+            'axisLabel' => [
+                'show' => true,
+                'margin' => '10',
+            ],
+            'splitArea' => [
+                'show' => true,
+            ],
+            'data' =>[" "],
         ];
-
-        if ($anlage->hasPVSYST()) {
-            $chart->series =
-                [
+        $chart->xAxis = [
+            'type' => 'log',
+            'min' => 1,
+            'name' => 'KWH',
+            'nameLocation' => 'middle',
+            'nameGap' => 80,
+            'offset' => -20,
+        ];
+        if ($anlage->hasPVSYST() === true) {
+                $chart->series =[
                     [
                         'name' => 'Expected G4N',
                         'type' => 'bar',
                         'data' => [$G4NmonthExpected] ,
+                        'visualMap' => 'false'
                     ],
                     [
                         'name' => 'Expected PV SYST',
                         'type' => 'bar',
-                        'data' => [
-                            $expectedPvSyst[$report['reportMonth'] - 1],
-                        ],
+                        'data' => [$expectedPvSyst[$report['reportMonth'] - 1]],
+
+                        'visualMap' => 'false'
                     ],
                     [
                         'name' => 'G4N Simulation',
                         'type' => 'bar',
-                        'data' => [
-                            $forecast[$month-2],
-                        ],
-                    ],
+                        'data' => [$forecast[$month-2]],
+
+                        'visualMap' => 'false'],
                     [
                         'name' => 'Actual',
                         'type' => 'bar',
                         'data' => [$ActualPower],
+                        'visualMap' => 'false'
                     ],
                     [
                         'name' => 'SOR Losses',
                         'type' => 'bar',
                         'data' => [$kwhLossesMonthTable['SORLosses']],
+                        'visualMap' => 'false'
                     ],
                     [
                         'name' => 'EFOR Losses',
                         'type' => 'bar',
                         'data' => [$kwhLossesMonthTable['EFORLosses']],
+                        'visualMap' => 'false'
                     ],
                     [
                         'name' => 'OMC Losses',
                         'type' => 'bar',
                         'data' => [$kwhLossesMonthTable['OMCLosses']],
-                    ],
-
+                        'visualMap' => 'false'
+                    ]
                 ];
         }
         else {
+
             $chart->series =
                 [
                     [
-                        'name' => 'Expected G4N',
+                        'name' => 'Expected g4n',
                         'type' => 'bar',
                         'data' => [$G4NmonthExpected],
+                        'visualMap' => 'false',
                     ],
                     [
                         'name' => 'G4N Simulation',
                         'type' => 'bar',
-                        'data' => [
-                            $forecast[$month-2],
-                        ],
-                    ],
+                        'data' => [$forecast[$month-2]],
+
+                        'visualMap' => 'false'],
                     [
                         'name' => 'Actual',
                         'type' => 'bar',
                         'data' => [$ActualPower],
+                        'visualMap' => 'false'
                     ],
                     [
                         'name' => 'SOR Losses',
                         'type' => 'bar',
                         'data' => [$kwhLossesMonthTable['SORLosses']],
+                        'visualMap' => 'false'
                     ],
                     [
                         'name' => 'EFOR Losses',
                         'type' => 'bar',
                         'data' => [$kwhLossesMonthTable['EFORLosses']],
+                        'visualMap' => 'false'
                     ],
                     [
                         'name' => 'OMC Losses',
                         'type' => 'bar',
                         'data' => [$kwhLossesMonthTable['OMCLosses']],
-                    ],
+                        'visualMap' => 'false'
+                    ]
 
-                ];
-        }
+                    ];}
 
         $option = [
             'animation' => false,
-            'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000'],
             'title' => [
-                'text' => 'Production Monthly',
+                'text' => 'Year '.$report['reportYear'],
                 'left' => 'center',
+            ],
+            'tooltip' => [
+                'show' => true,
             ],
             'legend' => [
                 'show' => true,
@@ -2243,22 +2260,32 @@ class AssetManagementService
             ],
             'grid' => [
                 'height' => '80%',
-                'top' => 80,
+                'top' => 50,
                 'width' => '80%',
-                'left' => 90,
+                'left' => 100,
             ],
         ];
 
+        $chart->setOption($option);
 
-  //      $chart->setOption($option);
+        $losseskwhchart = $chart->render('Month_losses', ['style' => 'height: 450px; width:28cm;']);
 
-        $losseskwhchart = $chart->render('Month_losses', ['style' => 'height: 350px; width:28cm; ']);
 
+        $monthlyLossesHelpTable = [
+            'ExpectedG4N' => $G4NmonthExpected,
+            'ExpectedPVSYS' => $expectedPvSyst[$report['reportMonth'] - 1],
+            'Forecast' => $forecast[$month-2],
+            'Actual' => $ActualPower,
+            'SORLosses' => $kwhLossesMonthTable['SORLosses'],
+            'EFORLosses' => $kwhLossesMonthTable['EFORLosses'],
+            'OMCLosses' => $kwhLossesMonthTable['OMCLosses']
+        ];
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
         $chart->series = [];
         unset($option);
+/*
         $chart->xAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -2269,7 +2296,7 @@ class AssetManagementService
             'splitArea' => [
                 'show' => true,
             ],
-            'data' => [],
+            'data' => [" "],
             'scale' => true,
             'min' => 0,
         ];
@@ -2401,10 +2428,149 @@ class AssetManagementService
                 'left' => 90,
             ],
         ];
+        $chart->setOption($option);
+*/
+        $chart->yAxis = [
+            'type' => 'category',
+            'axisLabel' => [
+                'show' => true,
+                'margin' => '10',
+            ],
+            'splitArea' => [
+                'show' => true,
+            ],
+            'data' =>[" "],
+        ];
+        $chart->xAxis = [
+            'type' => 'log',
+            'min' => 1,
+            'name' => 'KWH',
+            'nameLocation' => 'middle',
+            'nameGap' => 80,
+            'offset' => -20,
+        ];
+        if ($anlage->hasPVSYST() === true) {
+            $chart->series =[
+                [
+                    'name' => 'Expected G4N',
+                    'type' => 'bar',
+                    'data' => [$G4NyearExpected] ,
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'Expected PV SYST',
+                    'type' => 'bar',
+                    'data' => [$PVSYSTyearExpected],
 
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'G4N Simulation',
+                    'type' => 'bar',
+                    'data' => [ $forecastSum[$month-2]],
+
+                    'visualMap' => 'false'],
+                [
+                    'name' => 'Actual',
+                    'type' => 'bar',
+                    'data' => [$ActualPowerYear],
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'SOR Losses',
+                    'type' => 'bar',
+                    'data' => [$kwhLossesYearTable['SORLosses']],
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'EFOR Losses',
+                    'type' => 'bar',
+                    'data' => [$kwhLossesYearTable['EFORLosses']],
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'OMC Losses',
+                    'type' => 'bar',
+                    'data' => [$kwhLossesYearTable['OMCLosses']],
+                    'visualMap' => 'false'
+                ]
+            ];
+        }
+        else {
+
+            $chart->series =[
+                [
+                    'name' => 'Expected G4N',
+                    'type' => 'bar',
+                    'data' => [$G4NyearExpected] ,
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'G4N Simulation',
+                    'type' => 'bar',
+                    'data' => [ $forecastSum[$month-2]],
+
+                    'visualMap' => 'false'],
+                [
+                    'name' => 'Actual',
+                    'type' => 'bar',
+                    'data' => [$ActualPowerYear],
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'SOR Losses',
+                    'type' => 'bar',
+                    'data' => [$kwhLossesYearTable['SORLosses']],
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'EFOR Losses',
+                    'type' => 'bar',
+                    'data' => [$kwhLossesYearTable['EFORLosses']],
+                    'visualMap' => 'false'
+                ],
+                [
+                    'name' => 'OMC Losses',
+                    'type' => 'bar',
+                    'data' => [$kwhLossesYearTable['OMCLosses']],
+                    'visualMap' => 'false'
+                ]
+            ];}
+
+        $option = [
+            'animation' => false,
+            'title' => [
+                'text' => 'Year '.$report['reportYear'],
+                'left' => 'center',
+            ],
+            'tooltip' => [
+                'show' => true,
+            ],
+            'legend' => [
+                'show' => true,
+                'left' => 'center',
+                'top' => 20,
+            ],
+            'grid' => [
+                'height' => '80%',
+                'top' => 50,
+                'width' => '80%',
+                'left' => 100,
+            ],
+        ];
 
         $chart->setOption($option);
         $losseskwhchartyear = $chart->render('Year_losses', ['style' => 'height: 350px; width:28cm; ']);
+
+        $yearLossesHelpTable = [
+            'ExpectedG4N' => $G4NyearExpected,
+            'ExpectedPVSYS' => $PVSYSTyearExpected,
+            'Forecast' => $forecastSum[$month-2],
+            'Actual' => $ActualPowerYear,
+            'SORLosses' => $kwhLossesYearTable['SORLosses'],
+            'EFORLosses' => $kwhLossesYearTable['EFORLosses'],
+            'OMCLosses' => $kwhLossesYearTable['OMCLosses'],
+        ];
 
         $chart->tooltip = [];
         $chart->xAxis = [];
@@ -3729,7 +3895,10 @@ class AssetManagementService
             'kwhLossesChartYear' => $losseskwhchartyear,
             'wkhLossesTicketChartMonth' => "",
             'TicketAvailabilityMonthTable' => $TicketAvailabilityMonthTable,
-            'TicketAvailabilityYearTable' => $TicketAvailabilityYearTable
+            'TicketAvailabilityYearTable' => $TicketAvailabilityYearTable,
+            'monthlyLossesHelpTable' => $monthlyLossesHelpTable,
+            'yearLossesHelpTable' => $yearLossesHelpTable
+
         ];
 
         return $output;
