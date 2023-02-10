@@ -33,12 +33,20 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 
     private EntityManagerInterface $em;
 
+
+
     public function __construct(UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordHasherInterface $asswordHasher, EntityManagerInterface $em)
     {
         $this->urlGenerator = $urlGenerator;
         $this->csrfTokenManager = $csrfTokenManager;
         $this->passwordHasher = $asswordHasher;
         $this->em = $em;
+    }
+
+    public function supports(Request $request): bool
+    {
+
+        return $request->getPathInfo() === '/login' && $request->isMethod('POST');
     }
 
     public function authenticate(Request $request): Passport
