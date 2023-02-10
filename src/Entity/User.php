@@ -95,13 +95,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: Eigner::class, mappedBy: 'user')]
     private $eigners;
 
-    #[ORM\OneToMany(mappedBy: 'user', targetEntity: ApiToken::class, orphanRemoval: true)]
-    private Collection $apiTokens;
-
     public function __construct()
     {
         $this->eigners = new ArrayCollection();
-        $this->apiTokens = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -322,36 +318,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setGrantedList(string $grantedList): self
     {
         $this->grantedList = $grantedList;
-
-        return $this;
-    }
-
-    /**
-     * @return Collection<int, ApiToken>
-     */
-    public function getApiTokens(): Collection
-    {
-        return $this->apiTokens;
-    }
-
-    public function addApiToken(ApiToken $apiToken): self
-    {
-        if (!$this->apiTokens->contains($apiToken)) {
-            $this->apiTokens->add($apiToken);
-            $apiToken->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeApiToken(ApiToken $apiToken): self
-    {
-        if ($this->apiTokens->removeElement($apiToken)) {
-            // set the owning side to null (unless already changed)
-            if ($apiToken->getUser() === $this) {
-                $apiToken->setUser(null);
-            }
-        }
 
         return $this;
     }
