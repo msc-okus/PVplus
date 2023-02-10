@@ -75,6 +75,11 @@ class ApiToken
         return $this->user->getEmail();
     }
 
+    #[Groups('token:read')]
+    public function getMessage(): ?string
+    {
+        return 'Go to /api and add for any request your token as Bearer Token in the authorization header ';
+    }
 
     public function isExpired(): bool
     {

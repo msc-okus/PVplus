@@ -35,13 +35,13 @@ class ApiTokenAuthenticator extends AbstractAuthenticator
             $token= $this->apiTokenRepository->findOneBy(['token'=>$apiToken]);
 
             if($token===null ){
-                throw new CustomUserMessageAuthenticationException('Invalid token');
+                throw new CustomUserMessageAuthenticationException('Invalid token. send a POST request to /create_token  with email and password as form-data in the Body request if you need to create a new Token ');
             }
             if( $token->isExpired()){
-                throw new CustomUserMessageAuthenticationException('This Token has expired. send a POST request to /create_token  with email and password as form-data to create a new Token ');
+                throw new CustomUserMessageAuthenticationException('This Token has expired. send a POST request to /create_token  with email and password as form-data in the Body request to create a new Token ');
             }
         }else{
-            throw new CustomUserMessageAuthenticationException('No API token provided');
+            throw new CustomUserMessageAuthenticationException('No API token provided. send a POST request to /create_token  with email and password as form-data  in the Body request if you need to create a new Token ');
         }
 
 
