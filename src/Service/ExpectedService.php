@@ -244,7 +244,7 @@ class ExpectedService
                         $limitExpCurrent += $limitExpCurrentHlp;
                         $expVoltage += $expVoltageDcHlp;
                     }
-                    $expVoltage = $expVoltage / count($modules);
+                    $expVoltage = count($modules) !== 0 ? $expVoltage / count($modules) : 0;
 
                     // Verluste auf der DC Seite brechnen
                     // Kabel Verluste + Sicherheitsverlust
