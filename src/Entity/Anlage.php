@@ -2,9 +2,14 @@
 
 namespace App\Entity;
 
+
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
+
 use App\Repository\AnlagenRepository;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -14,17 +19,19 @@ use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
- * DbAnlage.
- *
  * @ApiResource(
- *     shortName="anlage",
+ *     collectionOperations={"get", "post"},
+ *     itemOperations={"get","put"},
+ *     shortName="anlages",
  *     normalizationContext={"groups"={"main:read"}},
  *     denormalizationContext={"groups"={"main:write"}},
  *     attributes={
+ *          "pagination_items_per_page"=10,
  *          "formats"={"jsonld", "json", "html", "csv"={"text/csv"}}
  *     }
  * )
- * @ApiFilter(SearchFilter::class, properties={"anlName": "partial"})
+ * @ApiFilter(SearchFilter::class, properties={"anlName":"partial"})
+ *
  */
 #[ORM\Table(name: 'anlage')]
 #[ORM\Entity(repositoryClass: 'App\Repository\AnlagenRepository')]
