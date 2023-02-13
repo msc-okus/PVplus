@@ -113,13 +113,15 @@ class HeatmapChartService
             case 4:
                 $nameArray = $this->functions->getNameArray($anlage, 'ac');
                 $group = 'group_ac';
+                $groupct = count($anlage->getGroupsAc());
                 break;
             default:
                 $nameArray = $this->functions->getNameArray($anlage, 'dc');
                 $group = 'group_dc';
+                $groupct = count($anlage->getGroupsDc());
         }
 
-        $groupct = count($anlage->getGroupsDc());
+
         if ($groupct > 50) {
             if ($sets == null) {
                 $sqladd = "AND $group BETWEEN '1' AND '50'";
@@ -134,60 +136,38 @@ class HeatmapChartService
             $sqladd = "";
         }
 
-      #  $sql = "SELECT wr_pac as istPower,$group as group_dc,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts
-      #                                FROM (db_dummysoll a LEFT JOIN  ".$anlage->getDbNameACIst()." b ON a.stamp = b.stamp)
-      #                                WHERE a.stamp BETWEEN '$from' AND '$to'
-      #                                 GROUP BY a.stamp, b.$group";
-
-        $sql = "SELECT wr_pac as istPower, $group , stamp as ts
-                FROM  ".$anlage->getDbNameACIst()." WHERE stamp BETWEEN '$from' AND '$to' 
-                ".$sqladd."
-                GROUP BY stamp, $group";
-
+      $sql = "SELECT T1.istPower,T1.".$group.",T1.ts,T2.g_upper
+            FROM (SELECT stamp as ts, wr_pac as istPower, ".$group."  FROM ".$anlage->getDbNameACIst()." WHERE stamp BETWEEN '$from' and '$to'  ".$sqladd." GROUP BY ts, ".$group.")
+            AS T1
+            JOIN (SELECT stamp as ts, g_lower as g_lower , g_upper as g_upper FROM ".$anlage->getDbNameWeather()." WHERE stamp BETWEEN '$from' and '$to' ) 
+            AS T2 
+            on (T1.ts = T2.ts);";
+#
         $resultActual = $conn->query($sql);
         $dataArray['inverterArray'] = $nameArray;
 
         if ($resultActual->rowCount() > 0) {
-
-            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == 'Groningen') {
-                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
-             } else {
-                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
-            }
 
             $dataArray['maxSeries'] = 0;
             $counter = 0;
             $counterInv = 1;
 
             while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
-                $stamp = self::timeShift($anlage,$rowActual['ts']);
-                // Find Key in Array
-                $keys = self::array_recursive_search_key_map($stamp, $dataArrayIrradiation);
 
-                // fetch Irradiation
-                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
-                    $key = $keys[1];
-                    $dataIrr = $dataArrayIrradiation['chart'][$key]['val1'];
-                  } else {
-                    $key = $keys[1];
-                    $dataIrr = ($dataArrayIrradiation['chart'][$key]['val1'] + $dataArrayIrradiation['chart'][$key]['val2']) / 2;
-                }
-
+                $stamp = $rowActual['ts'];
                 $e = explode(' ', $stamp);
                 $dataArray['chart'][$counter]['ydate'] = $e[1];
-
+                $dataIrr = $rowActual['g_upper'];
                 $powerist = $rowActual['istPower'];
 
                 if ($powerist != null) {
-                    $poweristkwh = $powerist * (float) 4;
+                    $poweristkwh =  ($powerist * (float) 4) ;
                 } else {
                     $poweristkwh = 0;
                 }
-
-                $pnomkwh = $pnominverter[$rowActual[$group]] / (float) 1000;
-
+                $pnomkwh = $pnominverter[$rowActual[$group]] ;#/ (float) 1000;
                 if ($dataIrr > 10) {
-                    $theoreticalIRR = ($dataIrr / (float) 1000) * $pnomkwh;
+                    $theoreticalIRR = (($dataIrr / (float) 1000) * $pnomkwh );
                     if ($poweristkwh == 0 or $theoreticalIRR == 0) {
                         $value = 0;
                     } else {

@@ -130,14 +130,14 @@ class SollIstHeatmapChartService
         } else {
             $sqladd = "";
         }
-
+##New SQL
         $sql = 'SELECT 
                 as1.ts,
                 as1.inv,
                 as1.istCurrent,
                 as2.sollCurrent,
                 as2.expected
-                FROM (SELECT c.stamp as ts, c.wr_idc as istCurrent, c.'.$group.' as inv FROM 
+                FROM (SELECT c.stamp as ts, c.wr_idc as istCurrent, c.'.$group.' as inv FROM g
                  '.$anlage->getDbNameACIst().' c WHERE c.stamp 
                  BETWEEN \''.$from.'\' AND \''.$to.'\' 
                  '.$sqladd.'  
