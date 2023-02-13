@@ -2268,7 +2268,7 @@ class AssetManagementService
 
         $chart->setOption($option);
 
-        $losseskwhchart = $chart->render('Month_losses', ['style' => 'height: 450px; width:28cm;']);
+        $losseskwhchart = $chart->render('Month_losses', ['style' => 'height: 350px; width:28cm;']);
 
 
         $monthlyLossesHelpTable = [
@@ -2280,6 +2280,7 @@ class AssetManagementService
             'EFORLosses' => $kwhLossesMonthTable['EFORLosses'],
             'OMCLosses' => $kwhLossesMonthTable['OMCLosses']
         ];
+
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
