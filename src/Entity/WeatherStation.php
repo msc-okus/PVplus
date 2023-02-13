@@ -30,7 +30,7 @@ class WeatherStation
     private string $databaseIdent;
 
     #[ORM\Column(type: 'string', length: 20)]
-    private string $databaseStationIdent;
+    private ?string $databaseStationIdent;
 
     #[ORM\Column(type: 'string', length: 255)]
     private string $location;
@@ -114,7 +114,7 @@ class WeatherStation
 
     public function getDatabaseStationIdent(): string
     {
-        return $this->databaseStationIdent;
+        return is_null($this->databaseStationIdent) ? '' : $this->databaseStationIdent;
     }
 
     public function setDatabaseStationIdent(string $databaseStationIdent): void
