@@ -696,6 +696,8 @@ class FunctionsService
      * @param AnlageGroupMonths|null $groupMonth
      * @return float
      * @deprecated
+     * no Function to replace at the moment
+     * todo : check how we can replace
      */
     public function calcIrr(float $irrUpper, float $irrLower, $date, Anlage $anlage, AnlageGroups $group, WeatherStation $weatherStation, ?AnlageGroupMonths $groupMonth): float
     {

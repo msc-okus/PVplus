@@ -51,6 +51,7 @@ class AvailabilityByTicketService
         if (is_int($anlage)) {
             $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);
         }
+        // If $date is a string, create a DateTime Object
         if (! is_a($date, 'DateTime')) {
             $date = date_create($date);
         }
@@ -219,7 +220,6 @@ class AvailabilityByTicketService
 
         // get plant data and irradiation data
         $istData = $this->getIstData($anlage, $from, $to);
-        #dump($istData['2022-10-05 16:00:00']);
         $einstrahlungen = $this->getIrrData($anlage, $from, $to);
 
         // Aus IstDaten und IstStrahlungsdaten die Tages-Verfügbarkeit je Inverter berechnen
@@ -268,7 +268,6 @@ class AvailabilityByTicketService
             // Handel case6 by ticket
             /** @var TicketDate $case6Ticket */
             $case6Tickets = $this->ticketDateRepo->findDataGapOutage($anlage, $from, $to, $department);
-            #dump($case6Tickets);
             foreach ($case6Tickets as $case6Ticket){
                 $c6From = $case6Ticket->getBegin()->getTimestamp();
                 $c6To = $case6Ticket->getEnd()->getTimestamp();
@@ -323,7 +322,6 @@ class AvailabilityByTicketService
                             $case3Helper[$inverter] = 0;
                         }
                         // Case 2 (second part of ti - means case1 + case2 = ti)
-                        #if ($stamp == '2022-10-05 16:00:00') dump("($strahlung > $threshold2PA && ($powerAc > 0 || $powerAc === null) && $case5 === false && $case6 === false) ");
                         if ($strahlung > $threshold2PA && ($powerAc > 0 || $powerAc === null) && $case5 === false && $case6 === false) {
                             $case2 = true;
                             ++$availability[$inverter]['case2'];

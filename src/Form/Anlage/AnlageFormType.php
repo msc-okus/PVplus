@@ -522,18 +522,12 @@ class AnlageFormType extends AbstractType
                 'label' => 'Use all Data from begining of Working Time',
                 'help' => '[retrieveAllData]',
             ])
-            ->add('freqBase', TextType::class, [
-                'label' => 'Base frequency of the Plant',
-                'help' => '[freqBase]',
-            ])
-            ->add('freqTolerance', TextType::class, [
-                'label' => 'Frequency tolerance of the Plant',
-                'help' => '[hasFrequency]',
-            ])
             ->add('hasFrequency', SwitchType::class, [
                 'label' => 'Has Frequency',
                 'help' => '[hasFrequency]',
             ])
+
+
             // ###############################################
             // ###            Availability                ####
             // ###############################################
@@ -649,6 +643,45 @@ class AnlageFormType extends AbstractType
                 'empty_data'    => 'expected',
                 'expanded'      => false,
                 'multiple'      => false,
+            ])
+
+
+            // ###############################################
+            // ###            Ticket & Alert              ####
+            // ###############################################
+
+            ->add('ActivateTicketSystem', SwitchType::class, [
+                'label' => 'Activate the Ticket System',
+                'help' => '[ActivateTicketSystem]',
+                'attr' => ['data-plant-target' => 'activateTicket', 'data-action'=>'plant#activateTicket'],
+            ])
+            ->add('freqBase', TextType::class, [
+                'label' => 'Base frequency of the Plant',
+                'help' => '[freqBase]',
+                'attr' => ['data-plant-target' => 'ticket'],
+                'empty_data' => '',
+            ])
+            ->add('freqTolerance', TextType::class, [
+                'label' => 'Frequency tolerance of the Plant',
+                'help' => '[hasFrequency]',
+                'attr' => ['data-plant-target' => 'ticket'],
+                'empty_data' => '',
+            ])
+            ->add('expectedTicket', SwitchType::class, [
+                'label' => 'Activate Expected Tickets',
+                'help' => '[ExpectedTicket]',
+                'attr' => ['data-plant-target' => 'ticket']
+            ])
+            ->add('percentageDiff',TextType::class, [
+                'label' => 'Ticket Expected limit',
+                'help' => '[percentageDiff]',
+                'attr' => ['data-plant-target' => 'ticket'],
+                'empty_data' => '',
+            ])
+            ->add('weatherTicket', SwitchType::class, [
+                'label' => 'Activate Weather Ticket',
+                'help' => '[WeatherTicket]',
+                'attr' => ['data-plant-target' => 'ticket']
             ])
 
             // ###############################################

@@ -24,6 +24,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Security;
 
+/**
+ * @IsGranted("ROLE_G4N")
+ */
 class AnlagenAdminController extends BaseController
 {
     use G4NTrait;
@@ -279,7 +282,7 @@ class AnlagenAdminController extends BaseController
     }
 
     #[Route(path: '/admin/anlagen/delete/{id}', name: 'app_admin_anlage_delete')]
-    #[IsGranted('ROLE_DEV')]
+    #[IsGranted(['ROLE_DEV'])]
     public function delete($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, Security $security): RedirectResponse
     {
         if ($this->isGranted('ROLE_DEV')) {

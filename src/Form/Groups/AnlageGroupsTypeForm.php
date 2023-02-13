@@ -46,14 +46,6 @@ class AnlageGroupsTypeForm extends AbstractType
                 'label'=>'Irr Lower',
                 'help'=>'irrLower'
             ])
-            ->add('shadowLoss', TextType::class,[
-                'label'=>'Shadow Loss',
-                'help'=>'shadowLoss'
-            ])
-            ->add('cabelLoss', TextType::class,[
-                'label'=>'Cabel Loss',
-                'help'=>'cabelLoss'
-            ])
             ->add('secureLoss', TextType::class,[
                 'label'=>'Secure Loss',
                 'help'=>'secureLoss'
@@ -74,21 +66,27 @@ class AnlageGroupsTypeForm extends AbstractType
                 'label'=>'Abriegelung Grid AC',
                 'help'=>'gridLimitAc'
             ])
+            ->add('importId', TextType::class, [
+                'help' => '[importId] ID to select Inverter via Import Script (Example: VCOM ID)',
+                'label' => 'Import ID (for import script)',
+                'empty_data' => '',
+                'required' => false,
+            ])
             ->add('anlage',EntityType::class, [
                 'class'=> Anlage::class,
                 'disabled'=> true,
                 'label'=>'Anlage',
-                'help'=>'anlage'
+                'help'=>'anlage',
+                'attr' => ['style' => 'display: none;'],
             ])
             ->add('weatherStation', EntityType::class, [
-                'class'=> WeatherStation::class,
-                'choice_label'=>function(WeatherStation $weatherStation){
-                    return $weatherStation->getLocation();
-                },
-                'disabled'=> true,
-                'label'=>'WeatherStation',
-                'help'=>'weatherStation'
-
+                'label' => 'Wetterstation',
+                'help' => '[weatherStation]',
+                'class' => WeatherStation::class,
+                'choice_label' => function (WeatherStation $station) {return sprintf('%s - %s', $station->getDatabaseIdent(), $station->getLocation()); },
+                'placeholder' => 'select a Weatherstation',
+                'required' => false,
+                'empty_data' => null,
             ])
             ->add('modules', CollectionType::class, [
                 'entry_type' => GroupModulFormType::class,
@@ -97,6 +95,7 @@ class AnlageGroupsTypeForm extends AbstractType
                 'allow_delete' => true,
                 'delete_empty' => true,
                 'by_reference' => false,
+                'entry_options' => ['anlage' => $options['anlage']],
             ])
             ->add('months', CollectionType::class, [
                 'entry_type' => MonthsListEmbeddedFormType::class,
@@ -113,7 +112,7 @@ class AnlageGroupsTypeForm extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => AnlageGroups::class,
-
+            'anlage'=>null
         ]);
 
     }

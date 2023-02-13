@@ -185,7 +185,9 @@ class WeatherServiceNew
         $sunrise = date_create(date("Y-m-d H:i:s", $sunrisedata['sunrise']));
         $sunset = date_create(date("Y-m-d H:i:s", $sunrisedata['sunset']));
 
-        return !($sunrise < $stamp && $stamp < $sunset);
+        #dump($sunrise->format("H:i")." > ".$stamp->format("H:i")." && ".$stamp->format("H:i")." > ".$sunset->format("H:i"));
+        #dump(($sunrise > $stamp || $stamp > $sunset));
+        return $sunrise > $stamp || $stamp > $sunset;
     }
 
     /** Given a plant and no date it will return the sunrise info of the given plant for the current day
@@ -195,14 +197,16 @@ class WeatherServiceNew
     {
         $sunrisedata = date_sun_info(strtotime($time), (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon());
         $offsetServer = new DateTimeZone("Europe/Luxembourg");
-        $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon()));
+        $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(),strtoupper($anlage->getCountry())));
         $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
+
+
         $returnArray['sunrise'] = $time.' '.date('H:i', $sunrisedata['sunrise'] + (int)$totalOffset);
         $returnArray['sunset'] = $time.' '.date('H:i', $sunrisedata['sunset'] + (int)$totalOffset);
         return $returnArray;
     }
 
-    public function getNearestTimezone($cur_lat, $cur_long, $country_code = ''): string
+    public function getNearestTimezone($cur_lat, $cur_long, string $country_code = ''): string
     {
         $timezone_ids = ($country_code) ? DateTimeZone::listIdentifiers(DateTimeZone::PER_COUNTRY, $country_code)
             : DateTimeZone::listIdentifiers();

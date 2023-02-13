@@ -34,6 +34,20 @@ class DcGroupsSFGUpdateFormType extends AbstractType
                 ],
                 'empty_data'=>null
             ])
+            ->add('limitAc', TextType::class,[
+                'label'=>false,
+                'attr'=>[
+                    'placeholder'=>'Limit AC'
+                ],
+                'empty_data'=>null
+            ])
+            ->add('gridLimitAc', TextType::class,[
+                'label'=>false,
+                'attr'=>[
+                    'placeholder'=>'Grid Limit AC'
+                ],
+                'empty_data'=>null
+            ])
            ->add('term', HiddenType::class,[
               'label'=>false,
               'empty_data'=>null,

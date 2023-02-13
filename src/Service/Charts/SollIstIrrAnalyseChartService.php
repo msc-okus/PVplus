@@ -163,11 +163,11 @@ class SollIstIrrAnalyseChartService
                     $colorAC = "#009900";
                     $ACsum100 += $actPowerAC;
                     break;
-                    case ($przac >= 90 and $przac <= 94);
+                    case ($przac >= 80 and $przac <= 94);
                     $colorAC = "#ffff00";
                     $ACsum95 += $actPowerAC;
                     break;
-                    case ($przac > 0 and $przac <= 89);
+                    case ($przac > 0 and $przac <= 79);
                     $ACsum90 += $actPowerAC;
                     $colorAC = "#ff0000";
                     break;
@@ -179,11 +179,11 @@ class SollIstIrrAnalyseChartService
                     $DCsum100 += $actPowerDC;
                     $colorDC = "#009900";
                     break;
-                    case ($przdc >= 90 and $przdc <= 94);
+                    case ($przdc >= 80 and $przdc <= 94);
                     $DCsum95 += $actPowerDC;
                     $colorDC = "#ffff00";
                     break;
-                    case ($przdc > 0 and $przdc <= 89);
+                    case ($przdc > 0 and $przdc <= 79);
                     $DCsum90 += $actPowerDC;
                     $colorDC = "#ff0000";
                     break;

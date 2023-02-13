@@ -54,13 +54,15 @@ class UserFormType extends AbstractType
              $anlagen = $this->anlagenRepo->findAllIDByEigner($sel_eigner);
          }
 
-        if ($user != null) {
+        if ($user !== null) {
             $grantedArray = $user->getGrantedArray();
             if ($grantedArray) {
                 foreach ($grantedArray as $Gkey) {
                     $fixGrantedArray[] = preg_replace('/\s+/', '', $Gkey);
                 }
             }
+        } else {
+            $fixGrantedArray = [];
         }
 
         if ($anlagen){
@@ -83,7 +85,7 @@ class UserFormType extends AbstractType
                 'required' => true,
                 'attr' => ['placeholder' => 'Benutzername'],
             ])
-            ->add('plainPassword', RepeatedType::class, [
+            ->add('newPlainPassword', RepeatedType::class, [
                 'type' => PasswordType::class,
                 'invalid_message' => 'The password fields must match.',
                 'first_options' => ['label' => 'Password'],
@@ -91,6 +93,8 @@ class UserFormType extends AbstractType
                 'required' => true,
                 'mapped' => false,
                 'data' => '',
+                #'always_empty' => true,
+                'attr' => ['autocomplete'=>'new-password'],
             ])
             ->add('email', EmailType::class, [
                 'label' => 'eMail address',

@@ -12,20 +12,22 @@ class OpenWeatherService
 {
     use G4NTrait;
 
-    private OpenWeatherRepository $openWeatherRepo;
-
-    private EntityManagerInterface $em;
-
-    public function __construct(OpenWeatherRepository $openWeatherRepo, EntityManagerInterface $em)
+    public function __construct(
+        private OpenWeatherRepository $openWeatherRepo,
+        private EntityManagerInterface $em)
     {
-        $this->openWeatherRepo = $openWeatherRepo;
-        $this->em = $em;
     }
 
-    public function loadOpenWeather(Anlage $anlage)
+    public function loadOpenWeather(Anlage $anlage): string
     {
-        $timestamp = self::getCetTime() - (self::getCetTime() % (3 * 3600));
-        $date = date('Y-m-d H:00:00', $timestamp);
+        $timestamp = self::getCetTime() - (self::getCetTime() % (3600));
+
+        $offsetServer = new \DateTimeZone("Europe/Luxembourg");
+        $plantoffset = new \DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), strtoupper($anlage->getCountry())));
+        $totalOffset = $plantoffset->getOffset(new \DateTime("now")) - $offsetServer->getOffset(new \DateTime("now"));
+        #if ($anlage->getAnlId() == '183')        dd($totalOffset);
+
+        $date = date('Y-m-d H:00:00', $timestamp + $totalOffset);
 
         $apiKey = '795982a4e205f23abb3ce3cf9a9a032a';
         $lat = $anlage->getAnlGeoLat();
@@ -47,6 +49,7 @@ class OpenWeatherService
 
                 $openWeather
                     ->setTempC(round($clima->main->temp - 273.15, 0))
+                    ->setWindSpeed($clima->wind->speed)
                     ->setIconWeather(strtolower($clima->weather[0]->icon))
                     ->setDescription($clima->weather[0]->description)
                     ->setData(json_decode($contents, true));
@@ -57,5 +60,11 @@ class OpenWeatherService
         $this->em->flush();
 
         return $date;
+    }
+
+    public function findOpenWeather(Anlage $anlage, \DateTime $stamp): ?OpenWeather
+    {
+
+        return null;
     }
 }

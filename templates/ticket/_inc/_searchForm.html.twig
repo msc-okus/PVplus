@@ -22,6 +22,9 @@
                 {% endfor %}
             </select>
         </div>
+        <div class="cell medium-1"  style="margin-top:-17px!important;">
+            <input type="text" name="TicketName" class="input-group-field" value="{{ TicketName }}" placeholder="Identifier">
+        </div>
         <div class="cell medium-1">
             <select name="prio" >
                 <option value="00"> {% trans %}ticket.priority.name{% endtrans %} </option>
@@ -33,6 +36,7 @@
         <div  class="cell medium-2"  style="margin-top:-17px!important;">
             <input type="text" name="editor" class="input-group-field js-autocomplete-user" value="{{ user }}" placeholder="Editor">
         </div>
+        {# we will use this field to recogniye when we are explicitely clicking the search button over jscript #}
         <div class="cell medium-1">
             <select name="category" >{# category = alertType (bsp: datagap, inverter power, etc.) #}
                 {{ filter.category.value }}
@@ -42,14 +46,16 @@
                 {% endfor %}
             </select>
         </div>
+        {#
         <div class="cell medium-1">
-            <select name="type" > {# type = errorType (Bsp:  SOR, EFOR, OMC) #}
+            <select name="type" > {# type = errorType (Bsp:  SOR, EFOR, OMC)
                 <option value="00">{% trans %}ticket.error.type.name{% endtrans %}</option>
                 {% for key, value in filter.type.array %}
                     <option value="{{ value }}" {% if filter.type.value == value %} selected {% endif %}>{{ key }}</option>
                 {% endfor %}
             </select>
         </div>
+        #}
         <div class="cell medium-1"  style="margin-top:-17px!important;">
             <input type="text" name="inverter" class="input-group-field" value="{{ inverter }}" placeholder="Inverter">
         </div>

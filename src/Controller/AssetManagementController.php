@@ -6,9 +6,13 @@ use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\AssetManagementService;
 use Nuzkito\ChromePdf\ChromePdf;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * @IsGranted("ROLE_G4N")
+ */
 class AssetManagementController extends BaseController
 {
     use G4NTrait;

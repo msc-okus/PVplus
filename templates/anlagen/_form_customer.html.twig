@@ -326,7 +326,7 @@
 
                 {% if is_granted('ROLE_AM') %}
                     {# Economics Variable Names #}
-                    <div class="tabs-panel" id="economics">
+                    <div class="tabs-panel" id="economics"     >
                         <fieldset class="fieldset">
 
                             <legend>Variable names</legend>
@@ -425,7 +425,7 @@
                     </div>
 
                     {# Economics Values #}
-                    <div class="tabs-panel" id="economicsvalues">
+                    <div class="tabs-panel" id="economicsvalues" >
                         <fieldset class="fieldset js-economicVarValues-wrapper"
                                   data-prototype="{{  formMacros.addeconomicVarValue(anlageForm.economicVarValues.vars.prototype,econames)|e('html_attr') }}"
                                   data-index="{{ anlageForm.economicVarValues | length }}">
