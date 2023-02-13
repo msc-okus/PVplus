@@ -229,7 +229,7 @@ class ExpectedService
 
                         // degradation abziehen (degradation * Betriebsjahre).
                         $expVoltageDcHlp = $expVoltageDcHlp - ($expVoltageDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
-                        if ($anlage->getAnlId() == '183') { // im Moment nur für REGebeng
+                        if ($anlage->getAnlId() == '183' || $anlage->getAnlId() == '175') { // im Moment nur für REGebeng und Perleberg
                             // Calculate DC power by current and voltage
                             $expPowerDcHlp = $expCurrentDcHlp * $expVoltageDcHlp / 4000;
                         } else {
@@ -244,7 +244,7 @@ class ExpectedService
                         $limitExpCurrent += $limitExpCurrentHlp;
                         $expVoltage += $expVoltageDcHlp;
                     }
-                    $expVoltage = $expVoltage / count($modules);
+                    $expVoltage = count($modules) !== 0 ? $expVoltage / count($modules) : 0;
 
                     // Verluste auf der DC Seite brechnen
                     // Kabel Verluste + Sicherheitsverlust

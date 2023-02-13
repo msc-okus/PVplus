@@ -40,11 +40,12 @@ class DCCurrentChartService
         $dataArray = [];
         switch ($anlage->getConfigType()) {
             case 1:
+            case 2:
             case 3:
             case 4:
                 // z.B. Gronningen
                 $groupQuery = "group_ac = '$group' ";
-                $nameArray = $this->functions->getNameArray($anlage, 'ac');
+                $nameArray = $this->functions->getNameArray($anlage, 'dc');
                 break;
             default:
                 $groupQuery = "group_dc = '$group' ";
