@@ -130,7 +130,7 @@ class SollIstHeatmapChartService
         } else {
             $sqladd = "";
         }
-
+##New SQL
         $sql = 'SELECT 
                 as1.ts,
                 as1.inv,
