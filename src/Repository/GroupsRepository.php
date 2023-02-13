@@ -62,7 +62,7 @@ class GroupsRepository extends ServiceEntityRepository
         return $this->createQueryBuilder('g')
                 ->andWhere('g.anlage =:anlage')
                 ->setParameter('anlage', $anlage)
-                ->orderBy('g.dcGroupName','ASC')
+                ->orderBy('g.dcGroup','ASC')
             ;
     }
 

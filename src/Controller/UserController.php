@@ -71,6 +71,7 @@ class UserController extends BaseController
             'userForm' => $form,
         ]);
     }
+
     // USER List zur Listen Ansicht der User
     #[Route(path: '/admin/user/list', name: 'app_admin_user_list')]
     #[IsGranted(['ROLE_ADMIN_OWNER'])]
@@ -114,6 +115,7 @@ class UserController extends BaseController
             'pagination' => $pagination,
         ]);
     }
+
     // USER Edit
     #[Route(path: '/admin/user/edit/{id}', name: 'app_admin_user_edit')]
     #[IsGranted(['ROLE_ADMIN_OWNER'])]
@@ -141,10 +143,10 @@ class UserController extends BaseController
                 $savPlantList = (implode(",", $selPlantList));
                 $user->setGrantedList($savPlantList);
 
-                if ($form['plainPassword']->getData() != '') {
+                if ($form['newPlainPassword']->getData() != '') {
                     $user->setPassword($userPasswordHasher->hashPassword(
                         $user,
-                        $form['plainPassword']->getData()
+                        $form['newPlainPassword']->getData()
                     ));
                 }
 
@@ -170,6 +172,7 @@ class UserController extends BaseController
             return $this->redirectToRoute('app_admin_user_list');
         }
     }
+
     // USER Show zum Anzeigen der eigenen Userverwalltung
     #[Route(path: '/admin/user/show/{id}', name: 'app_admin_user_show')]
     public function show($id, EntityManagerInterface $em, Request $request, UserRepository $userRepository, UserPasswordHasherInterface $userPasswordHasher): Response
@@ -192,10 +195,10 @@ class UserController extends BaseController
             }
 
             if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
-                if ($form['plainPassword']->getData() != '') {
+                if ($form['newPlainPassword']->getData() != '') {
                     $user->setPassword($userPasswordHasher->hashPassword(
                         $user,
-                        $form['plainPassword']->getData()
+                        $form['newPlainPassword']->getData()
                     ));
                 }
                 $em->persist($user);

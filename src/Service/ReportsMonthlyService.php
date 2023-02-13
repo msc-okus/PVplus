@@ -359,7 +359,6 @@ class ReportsMonthlyService
     public function exportReportToPDF(Anlage $anlage, AnlagenReports $report): void
     {
         // übergabe der Werte an KoolReport
-        dd($report->getContentArray());
         $reportout = new ReportMonthly($report->getContentArray());
         $output = $reportout->run()->render('ReportMonthly', true);
         $pdfFilename = $anlage->getAnlName().' '.sprintf("%04d%02d", $report->getYear(), $report->getMonth()).' Monthly Report.pdf';

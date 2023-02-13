@@ -7,10 +7,12 @@ use App\Form\AssetManagement\AssetManagementeReportFormType;
 use App\Form\Reports\ReportsFormType;
 use App\Helper\G4NTrait;
 use App\Helper\PVPNameArraysTrait;
+use App\Message\Command\GenerateAMReport;
 use App\Reports\Goldbeck\EPCMonthlyPRGuaranteeReport;
 use App\Reports\ReportMonthly\ReportMonthly;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
+use App\Service\LogMessagesService;
 use App\Service\ReportEpcService;
 use App\Service\AssetManagementService;
 use App\Service\PdfService;
@@ -20,7 +22,6 @@ use App\Service\ReportsEpcNewService;
 use App\Service\ReportService;
 use App\Service\ReportsMonthlyService;
 use Doctrine\ORM\EntityManagerInterface;
-use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
 use Knp\Component\Pager\PaginatorInterface;
 use Knp\Snappy\Pdf;
 use PhpOffice\PhpSpreadsheet\Exception;
@@ -33,15 +34,14 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
-use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Nuzkito\ChromePdf\ChromePdf;
-use Twig\Environment;
 
 class ReportingController extends AbstractController
 {
@@ -66,7 +66,10 @@ class ReportingController extends AbstractController
         ReportsMonthlyService $reportsMonthly,
         AssetManagementService $assetManagement,
         ReportEpcPRNewService $reportEpcNew,
-        string $kernelProjectDir): Response
+        LogMessagesService $logMessages,
+        MessageBusInterface $messageBus,
+        string $kernelProjectDir
+    ): Response
     {
         $anlage = $request->query->get('anlage');
         $searchstatus = $request->query->get('searchstatus');
@@ -80,7 +83,7 @@ class ReportingController extends AbstractController
         $reportDate = new \DateTime("$reportYear-$reportMonth-$daysOfMonth");
         $anlageId = $request->query->get('anlage-id');
         $aktAnlagen = $anlagenRepo->findIdLike([$anlageId]);
-
+        $userId = $this->getUser()->getUserIdentifier();
         switch ($reportType) {
             case 'monthly':
                 $output = $reportsMonthly->createMonthlyReport($aktAnlagen[0], $reportMonth, $reportYear);
@@ -93,7 +96,10 @@ class ReportingController extends AbstractController
                 break;
             case 'am':
                 // we try to find and delete a previous report from this month/year
-                $output = $assetManagement->createAmReport($aktAnlagen[0], $reportMonth, $reportYear);
+                #$output = $assetManagement->createAmReport($aktAnlagen[0], $reportMonth, $reportYear);
+                $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'AM Report', "create AM Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear");
+                $message = new GenerateAMReport($aktAnlagen[0]->getAnlId(), $reportMonth, $reportYear, $userId, $logId);
+                $messageBus->dispatch($message);
                 break;
         }
         $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($anlage, $searchstatus, $searchtype, $searchmonth, $searchyear);
@@ -329,6 +335,7 @@ class ReportingController extends AbstractController
                     if ($form->isSubmitted() && $form->isValid()) {
                         $data = $form->getData();
                         #$output['data'] = $data;
+                        //dd($output['production_monthly_chart'], $output['wkhLossesChartMonth']);
                         $result = $this->renderView('report/assetreport.html.twig', [
                             'invNr' => count($output['plantAvailabilityMonth']),
                             'comments' => $report->getComments(),
@@ -405,6 +412,8 @@ class ReportingController extends AbstractController
                             'kwhLossesYearTable' => $output['kwhLossesYearTable'],
                             'economicsMandy2' => $output['economicsMandy2'],
                             'wkhLossesChartMonth' => $output['wkhLossesChartMonth'],
+                            'wkhLossesTicketChartMonth' => $output['wkhLossesTicketChartMonth'],
+                            'kwhLossesChartYear' => $output['kwhLossesChartYear'],
                             'TicketAvailabilityMonthTable' => $output['TicketAvailabilityMonthTable'],
                             'TicketAvailabilityYearTable' => $output['TicketAvailabilityYearTable'],
                         ]);
@@ -558,6 +567,7 @@ class ReportingController extends AbstractController
                     $output["data"] = $data;
                     //dd($output['wkhLossesChartMonth'], $output['operations_right'], $output['economicsCumulatedForecastChart']);
                     if ($form->isSubmitted() && $form->isValid()) {
+
                         $result = $this->renderView('report/assetreport.html.twig', [
                             'invNr' => count($output["plantAvailabilityMonth"]),
                             'comments' => $report->getComments(),
@@ -634,8 +644,11 @@ class ReportingController extends AbstractController
                             'kwhLossesYearTable' => $output['kwhLossesYearTable'],
                             'economicsMandy2' => $output['economicsMandy2'],
                             'wkhLossesChartMonth' => $output['wkhLossesChartMonth'],
+                            'wkhLossesTicketChartMonth' => $output['wkhLossesTicketChartMonth'],
+                            'kwhLossesChartYear' => $output['kwhLossesChartYear'],
                             'TicketAvailabilityMonthTable' => $output['TicketAvailabilityMonthTable'],
                             'TicketAvailabilityYearTable' => $output['TicketAvailabilityYearTable'],
+
                         ]);
                         break;
                     }
@@ -1138,7 +1151,7 @@ class ReportingController extends AbstractController
     {
         /** @var AnlagenReports|null $report */
         $session = $this->container->get('session');
-        $pdf = new PdfService($tempPathBaseUrl);
+        //$pdf = new PdfService($tempPathBaseUrl);
         $searchstatus       = $session->get('search');
         $searchtype         = $session->get('type');
         $anlageq            = $session->get('anlage');
