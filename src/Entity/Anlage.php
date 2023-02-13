@@ -498,7 +498,7 @@ class Anlage
     private $anlageFiles;
 
     #[ORM\OneToOne(mappedBy: 'anlage', targetEntity: AnlageSettings::class, cascade: ['persist', 'remove'])]
-    private AnlageSettings $settings;
+    private ?AnlageSettings $settings;
 
     #[ORM\Column(type: 'string', length: 150, nullable: true)]
     private ?string $picture = '';

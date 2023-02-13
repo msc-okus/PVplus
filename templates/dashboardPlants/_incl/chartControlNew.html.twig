@@ -178,23 +178,25 @@
             </optgroup>
             <!-- ab hier AC -->
             <optgroup label="AC">
-                {{ acActPlant(form, aktAnlage) }}       {# AC1 #}
-                {{ acActOverview(form, aktAnlage) }}    {# AC2 #}
-                {{ acActGroup(form, aktAnlage) }}       {# AC3 #}
-                <option value="ac_grp_power_diff" {% if form.selectedChart == 'ac_grp_power_diff' or not form.selectedChart %}selected{% endif %}>AC - Inverter {% if is_granted('ROLE_DEV') %}[AC 4]{% endif %}</option>
-                {{ acVoltage(form, aktAnlage) }}
-                {{ acCurrent(form, aktAnlage) }}
-                {{ acFrequency(form, aktAnlage) }}
-                {{ acReactive(form, aktAnlage) }}
+                {% if aktAnlage.settings.chartAC1 %}{{ acActPlant(form, aktAnlage) }}{% endif %}       {# AC1 #}
+                {% if aktAnlage.settings.chartAC2 %}{{ acActOverview(form, aktAnlage) }}{% endif %}    {# AC2 #}
+                {% if aktAnlage.settings.chartAC3 %}{{ acActGroup(form, aktAnlage) }}{% endif %}       {# AC3 #}
+                {% if aktAnlage.settings.chartAC4 %}
+                    <option value="ac_grp_power_diff" {% if form.selectedChart == 'ac_grp_power_diff' or not form.selectedChart %}selected{% endif %}>AC - Inverter {% if is_granted('ROLE_DEV') %}[AC 4]{% endif %}</option>
+                {% endif %}
+                {% if aktAnlage.settings.chartAC5 %}{{ acVoltage(form, aktAnlage) }}{% endif %}
+                {% if aktAnlage.settings.chartAC6 %}{{ acCurrent(form, aktAnlage) }}{% endif %}
+                {% if aktAnlage.settings.chartAC7 %}{{ acFrequency(form, aktAnlage) }}{% endif %}
+                {% if aktAnlage.settings.chartAC8 %}{{ acReactive(form, aktAnlage) }}{% endif %}
             </optgroup>
 
             {% if aktAnlage.hasDc or is_granted('ROLE_ADMIN')%}
                 <!-- ab hier DC -->
                 <optgroup label="DC Power">
-                    {{ dcActPlant(form, aktAnlage) }}       {# DC1 #}
-                    {{ dcActOverview(form, aktAnlage) }}    {# DC2 #}
-                    {{ dcActGroup(form, aktAnlage) }}       {# DC3 #}
-                    <!--{{ dcGroupPowerDiff(form, aktAnlage) }} {# DC4 Bar Chart #}-->
+                    {% if aktAnlage.settings.chartDC1 %}{{ dcActPlant(form, aktAnlage) }}{% endif %}       {# DC1 #}
+                    {% if aktAnlage.settings.chartDC2 %}{{ dcActOverview(form, aktAnlage) }}{% endif %}    {# DC2 #}
+                    {% if aktAnlage.settings.chartDC3 %}{{ dcActGroup(form, aktAnlage) }}{% endif %}       {# DC3 #}
+                    {% if aktAnlage.settings.chartDC4 %}{{ dcGroupPowerDiff(form, aktAnlage) }}{% endif %} {# DC4 Bar Chart #}
                 </optgroup>
 
                 <!-- ab hier Current DC -->

@@ -699,6 +699,14 @@ class AnlageFormType extends AbstractType
             ])
 
             // ###############################################
+            // ###            Settings NEW                ####
+            // ###############################################
+
+            ->add('settings', AnlageSettingsFormType::class, [
+
+            ])
+
+            // ###############################################
             // ###              Settings                  ####
             // ###############################################
             ->add('anlView', ChoiceType::class, [

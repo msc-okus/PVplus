@@ -11,10 +11,10 @@
                 {{ form_row(anlageForm.excludeFromExpCalc) }}
             </fieldset>
         </div>
-        <div class="cell medium-6">
+        <div class="cell medium-9">
             <fieldset class="fieldset">
                 <legend>Configuration Backend</legend>
-                <div class="grid-x grid-padding-x small-up-1 medium-up-2">
+                <div class="grid-x grid-padding-x small-up-1 medium-up-2 large-up-3">
                     <div class="cell">{{ form_row(anlageForm.showOnlyUpperIrr) }}</div>
                     <div class="cell">{{ form_row(anlageForm.showStringCharts) }}</div>
                     <div class="cell">{{ form_row(anlageForm.showAvailability) }}</div>
@@ -35,9 +35,43 @@
                 </div>
             </fieldset>
         </div>
+    </div>
+    <div class="grid-x grid-margin-x">
         <div class="cell medium-3">
             <fieldset class="fieldset">
-                <legend>Charts</legend>
+                <legend>AC Charts</legend>
+                {{ form_row(anlageForm.settings.chartAC1) }}
+                {{ form_row(anlageForm.settings.chartAC2) }}
+                {{ form_row(anlageForm.settings.chartAC3) }}
+                {{ form_row(anlageForm.settings.chartAC4) }}
+                {{ form_row(anlageForm.settings.chartAC5) }}
+                {{ form_row(anlageForm.settings.chartAC6) }}
+                {{ form_row(anlageForm.settings.chartAC7) }}
+                {{ form_row(anlageForm.settings.chartAC8) }}
+                {{ form_row(anlageForm.settings.chartAC9) }}
+            </fieldset>
+        </div>
+        <div class="cell medium-3">
+            <fieldset class="fieldset">
+                <legend>DC Charts</legend>
+                {{ form_row(anlageForm.settings.chartDC1) }}
+                {{ form_row(anlageForm.settings.chartDC2) }}
+                {{ form_row(anlageForm.settings.chartDC3) }}
+                {{ form_row(anlageForm.settings.chartDC4) }}
+                {{ form_row(anlageForm.settings.chartDC5) }}
+                {{ form_row(anlageForm.settings.chartDC6) }}
+            </fieldset>
+        </div>
+        <div class="cell medium-3">
+            <fieldset class="fieldset">
+                <legend>Analysis</legend>
+
+            </fieldset>
+        </div>
+        <div class="cell medium-3">
+            <fieldset class="fieldset">
+                <legend>Miscellaneous</legend>
+
             </fieldset>
         </div>
     </div>
