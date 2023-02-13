@@ -2,43 +2,6 @@
     <div class="grid-x grid-margin-x">
         <div class="cell medium-3">
             <fieldset class="fieldset">
-                <legend>Settings</legend>
-                {{ form_row(anlageForm.anlView) }}
-                {{ form_row(anlageForm.anlHidePlant) }}
-                {{ form_row(anlageForm.anlMute) }}
-                {{ form_row(anlageForm.anlMuteUntil) }}
-                {{ form_row(anlageForm.calcPR) }}
-                {{ form_row(anlageForm.excludeFromExpCalc) }}
-            </fieldset>
-        </div>
-        <div class="cell medium-9">
-            <fieldset class="fieldset">
-                <legend>Configuration Backend</legend>
-                <div class="grid-x grid-padding-x small-up-1 medium-up-2 large-up-3">
-                    <div class="cell">{{ form_row(anlageForm.showOnlyUpperIrr) }}</div>
-                    <div class="cell">{{ form_row(anlageForm.showStringCharts) }}</div>
-                    <div class="cell">{{ form_row(anlageForm.showAvailability) }}</div>
-                    <div class="cell">{{ form_row(anlageForm.showAvailabilitySecond) }}</div>
-                    <div class="cell">{{ form_row(anlageForm.showInverterPerformance) }}</div>
-                    <div class="cell">{{ form_row(anlageForm.showEvuDiag) }}</div>
-                    <div class="cell">{{ form_row(anlageForm.showInverterOutDiag) }}</div>
-                    <div class="cell">{{ form_row(anlageForm.showCosPhiDiag) }}</div>
-                    <div class="cell">{{ form_row(anlageForm.showCosPhiPowerDiag) }}</div>
-                    <div class="cell">{{ form_row(anlageForm.showGraphDcInverter) }}</div>
-                    <div class="cell">{{ form_row(anlageForm.showGraphDcCurrInv) }}</div>
-                    <div class="cell">{{ form_row(anlageForm.showGraphDcCurrGrp) }}</div>
-                    <div class="cell">{{ form_row(anlageForm.showGraphVoltGrp) }}</div>
-                    <div class="cell">{{ form_row(anlageForm.showGraphIrrPlant) }}</div>
-                    <div class="cell">{{ form_row(anlageForm.showPR) }}</div>
-                    <div class="cell"> {{ form_row(anlageForm.showPvSyst) }}</div>
-                    <div class="cell"> {{ form_row(anlageForm.showForecast) }}</div>
-                </div>
-            </fieldset>
-        </div>
-    </div>
-    <div class="grid-x grid-margin-x">
-        <div class="cell medium-3">
-            <fieldset class="fieldset">
                 <legend>AC Charts</legend>
                 {{ form_row(anlageForm.settings.chartAC1) }}
                 {{ form_row(anlageForm.settings.chartAC2) }}
@@ -65,13 +28,67 @@
         <div class="cell medium-3">
             <fieldset class="fieldset">
                 <legend>Analysis</legend>
-
+                {{ form_row(anlageForm.settings.chartAnalyse1) }}
+                {{ form_row(anlageForm.settings.chartAnalyse2) }}
+                {{ form_row(anlageForm.settings.chartAnalyse3) }}
+                {{ form_row(anlageForm.settings.chartAnalyse4) }}
+                {{ form_row(anlageForm.settings.chartAnalyse5) }}
+                {{ form_row(anlageForm.settings.chartAnalyse6) }}
+                {{ form_row(anlageForm.settings.chartAnalyse7) }}
+                {{ form_row(anlageForm.settings.chartAnalyse8) }}
+                {{ form_row(anlageForm.settings.chartAnalyse9) }}
             </fieldset>
         </div>
         <div class="cell medium-3">
             <fieldset class="fieldset">
                 <legend>Miscellaneous</legend>
-
+                {{ form_row(anlageForm.settings.chartCurr1) }}
+                {{ form_row(anlageForm.settings.chartCurr2) }}
+                {{ form_row(anlageForm.settings.chartCurr3) }}
+                {{ form_row(anlageForm.settings.chartVolt1) }}
+                {{ form_row(anlageForm.settings.chartVolt2) }}
+                {{ form_row(anlageForm.settings.chartVolt3) }}
+                {{ form_row(anlageForm.settings.chartSensor1) }}
+                {{ form_row(anlageForm.settings.chartSensor2) }}
+                {{ form_row(anlageForm.settings.chartSensor3) }}
+                {{ form_row(anlageForm.settings.chartSensor4) }}
+            </fieldset>
+        </div>
+    </div>
+    <div class="grid-x grid-margin-x">
+        <div class="cell medium-3">
+            <fieldset class="fieldset">
+                <legend>Settings</legend>
+                {{ form_row(anlageForm.anlView) }}
+                {{ form_row(anlageForm.anlHidePlant) }}
+                {{ form_row(anlageForm.anlMute) }}
+                {{ form_row(anlageForm.anlMuteUntil) }}
+                {{ form_row(anlageForm.calcPR) }}
+                {{ form_row(anlageForm.excludeFromExpCalc) }}
+            </fieldset>
+        </div>
+        <div class="cell medium-9">
+            <fieldset class="fieldset">
+                <legend>Configuration Backend (deprecated)</legend>
+                <div class="grid-x grid-padding-x small-up-1 medium-up-2 large-up-3">
+                    <div class="cell">{{ form_row(anlageForm.showOnlyUpperIrr) }}</div>
+                    <div class="cell">{{ form_row(anlageForm.showStringCharts) }}</div>
+                    <div class="cell">{{ form_row(anlageForm.showAvailability) }}</div>
+                    <div class="cell">{{ form_row(anlageForm.showAvailabilitySecond) }}</div>
+                    <div class="cell">{{ form_row(anlageForm.showInverterPerformance) }}</div>
+                    <div class="cell">{{ form_row(anlageForm.showEvuDiag) }}</div>
+                    <div class="cell">{{ form_row(anlageForm.showInverterOutDiag) }}</div>
+                    <div class="cell">{{ form_row(anlageForm.showCosPhiDiag) }}</div>
+                    <div class="cell">{{ form_row(anlageForm.showCosPhiPowerDiag) }}</div>
+                    <div class="cell">{{ form_row(anlageForm.showGraphDcInverter) }}</div>
+                    <div class="cell">{{ form_row(anlageForm.showGraphDcCurrInv) }}</div>
+                    <div class="cell">{{ form_row(anlageForm.showGraphDcCurrGrp) }}</div>
+                    <div class="cell">{{ form_row(anlageForm.showGraphVoltGrp) }}</div>
+                    <div class="cell">{{ form_row(anlageForm.showGraphIrrPlant) }}</div>
+                    <div class="cell">{{ form_row(anlageForm.showPR) }}</div>
+                    <div class="cell"> {{ form_row(anlageForm.showPvSyst) }}</div>
+                    <div class="cell"> {{ form_row(anlageForm.showForecast) }}</div>
+                </div>
             </fieldset>
         </div>
     </div>

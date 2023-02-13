@@ -156,23 +156,23 @@
     <div class="cell medium-6 large-4 xlarge-2">
         <select class="js-submit-onchange selectedChart" title="Please select a view from the list." data-toggle="tooltip" name="selectedChart">
             <optgroup label="Analysis">
-                {% if aktAnlage.showAvailability or is_granted('ROLE_ADMIN') %}
+                {% if aktAnlage.settings.chartAnalyse1 or is_granted('ROLE_ADMIN') %}
                     <option value="availability" {% if form.selectedChart == 'availability' %}selected{% endif %}>Show Availability [%]</option>
                 {% endif %}
-                {% if aktAnlage.showPr or is_granted('ROLE_ADMIN') %}
+                {% if aktAnlage.settings.chartAnalyse2 or is_granted('ROLE_ADMIN') %}
                     <option value="pr_and_av" {% if form.selectedChart == 'pr_and_av' %}selected{% endif %}>Show PR&nbsp;[%]</option>
                 {% endif %}
-                {% if aktAnlage.showForecast %}
+                {% if aktAnlage.settings.chartAnalyse3 %}
                     <option value="forecast" {% if form.selectedChart == 'forecast' %}selected{% endif %}>Forecast&nbsp;[kWh]</option>
                 {% endif %}
                 {% if is_granted('ROLE_G4N') or is_granted('ROLE_ANALYSE') %}
-                    {{ showHeatmap(form, aktAnlage) }}            {# Headmap #}
-                    {{ showTempHeatmap(form, aktAnlage) }}        {# Headmap #}
-                    {{ showSollIstHeatmap(form, aktAnlage) }}     {# Headmap #}
+                    {% if aktAnlage.settings.chartAnalyse4 %}{{ showHeatmap(form, aktAnlage) }}{% endif %}            {# Headmap #}
+                    {% if aktAnlage.settings.chartAnalyse5 %}{{ showTempHeatmap(form, aktAnlage) }}{% endif %}        {# Headmap #}
+                    {% if aktAnlage.settings.chartAnalyse6 %}{{ showSollIstHeatmap(form, aktAnlage) }}{% endif %}     {# Headmap #}
                     {% if is_granted('ROLE_BETA') %}
-                        {{ showSollIstAnalyse(form, aktAnlage) }}     {# Bubblechart #}
-                        {{ showSollIstTempAnalyse(form, aktAnlage) }}    {# Bubblechart #}
-                        {{ showSollIstIrrAnalyse(form, aktAnlage) }}     {# Bubblechart #}
+                        {% if aktAnlage.settings.chartAnalyse7 %}{{ showSollIstAnalyse(form, aktAnlage) }}{% endif %}     {# Bubblechart #}
+                        {% if aktAnlage.settings.chartAnalyse8 %}{{ showSollIstTempAnalyse(form, aktAnlage) }}{% endif %}    {# Bubblechart #}
+                        {% if aktAnlage.settings.chartAnalyse9 %}{{ showSollIstIrrAnalyse(form, aktAnlage) }}{% endif %}     {# Bubblechart #}
                     {% endif %}
                 {% endif %}
             </optgroup>
@@ -201,24 +201,30 @@
 
                 <!-- ab hier Current DC -->
                 <optgroup label="DC Current">
-                    {{ currentDcOverview(form, aktAnlage) }}    {# Curr1 #}
-                    <!--{{ currentDcGroup(form, aktAnlage) }}       {# Curr2 #}
-                    {{ currentDcInverter(form, aktAnlage) }}    {# Curr3 #}
-                    {{ currentDcString(form, aktAnlage) }}      {# Curr4 #}-->
+                    {% if aktAnlage.settings.chartCurr1 %}{{ currentDcOverview(form, aktAnlage) }}{% endif %}    {# Curr1 #}
+                    {% if aktAnlage.settings.chartCurr2 %}{{ currentDcGroup(form, aktAnlage) }}{% endif %}       {# Curr2 #}
+                    {% if aktAnlage.settings.chartCurr3 %}{{ currentDcInverter(form, aktAnlage) }}{% endif %}    {# Curr3 #}
+                    <!--{{ currentDcString(form, aktAnlage) }}      {# Curr4 #}-->
                 </optgroup>
 
 
                 <optgroup label="DC Voltage">
-                    {{ voltageDc1(form, aktAnlage) }}           {# VoltageDC1 #}
-                    {{ voltageDcString(form, aktAnlage) }}      {# VoltStringDC1 #}
+                    {% if aktAnlage.settings.chartVolt1 %}{{ voltageDc1(form, aktAnlage) }}{% endif %}           {# VoltageDC1 #}
+                    {% if aktAnlage.settings.chartVolt2 %}{{ voltageDcString(form, aktAnlage) }}{% endif %}      {# VoltStringDC1 #}
                 </optgroup>
 
             {% endif %}
 
             <!-- diverses -->
             <optgroup label="Sensors">
-                {{ irradiation(form, aktAnlage) }}
-                <option value="temp" {% if form.selectedChart == 'temp' %}selected{% endif %}>Temperature [°C]</option>
+                {% if aktAnlage.settings.chartSensor1 %}{{ irradiation(form, aktAnlage) }}{% endif %}
+                {% if aktAnlage.settings.chartSensor2 %}
+                    <option value="irradiation_plant" {% if form.selectedChart == 'irradiation_plant' %}selected{% endif %}>Irradiation Plant [W/m²]</option>
+                {% endif %}
+                {% if aktAnlage.settings.chartSensor3 %}
+                    <option value="temp" {% if form.selectedChart == 'temp' %}selected{% endif %}>Temperature [°C]</option>
+                {% endif %}
+
             </optgroup>
 
             <!-- Developer and G4N Stuff -->
