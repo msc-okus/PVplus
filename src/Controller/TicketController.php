@@ -233,7 +233,9 @@ class TicketController extends BaseController
         $filter['type']['value'] = $type;
         $filter['type']['array'] = self::errorType();
 
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlageName, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $sort, $direction, $ignoredBool, $TicketName);
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $sort, $direction, $ignoredBool, $TicketName);
+
+
         $pagination = $paginator->paginate($queryBuilder, $page,25 );
         $pagination->setParam('sort', $sort);
         $pagination->setParam('direction', $direction);

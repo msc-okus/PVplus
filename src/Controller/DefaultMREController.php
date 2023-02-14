@@ -109,7 +109,7 @@ class DefaultMREController extends BaseController
         $output = $pdf->getOutput(stream_get_meta_data($tempFile)['uri'], ['enable-local-file-access' => true, 'load-error-handling' => 'ignore']);
         fclose($tempFile);
         #$output = $pdf->getOutputFromHtml($html, ['enable-local-file-access' => true]);
-        dd(get_resource_type($output));
+        #dd(get_resource_type($output));
      }
 
     /**

@@ -200,9 +200,18 @@ class ExpectedService
                                 // Wenn nur Umgebungstemepratur vorhanden
                             } else {
                                 // Wenn weder Umgebungs noch Modul Temperatur vorhanden, dann nutze Daten aus Open Weather (sind nur Stunden weise vorhanden)
-                                if ($anlage->getAnlId() == '183') {  // im Moment nur für REGebeng
-                                    $windSpeed = 4; // ReGebeng – gemittelte Daten aus OpenWeather
-                                    $airTemp = 24; // ReGebeng – gemittelte Daten aus OpenWeather
+                                if ($anlage->getAnlId() == '183' ) {  // im Moment nur für REGebeng
+                                    switch ($anlage->getAnlId() == '183') {
+                                        case '183':
+                                            $windSpeed = 4; // ReGebeng – gemittelte Daten aus OpenWeather
+                                            $airTemp = 24; // ReGebeng – gemittelte Daten aus OpenWeather
+                                        break;
+                                        case 'xx':
+                                            $windSpeed = 1; //
+                                            $airTemp = 24; //
+                                        break;
+                                    }
+
 
                                     #$windSpeed = $openWeather->getWindSpeed();
                                     #$airTemp = $openWeather->getTempC();
@@ -220,7 +229,7 @@ class ExpectedService
 
                         // degradation abziehen (degradation * Betriebsjahre).
                         $expVoltageDcHlp = $expVoltageDcHlp - ($expVoltageDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
-                        if ($anlage->getAnlId() == '183') { // im Moment nur für REGebeng
+                        if ($anlage->getAnlId() == '183' || $anlage->getAnlId() == '175') { // im Moment nur für REGebeng und Perleberg
                             // Calculate DC power by current and voltage
                             $expPowerDcHlp = $expCurrentDcHlp * $expVoltageDcHlp / 4000;
                         } else {
@@ -235,7 +244,7 @@ class ExpectedService
                         $limitExpCurrent += $limitExpCurrentHlp;
                         $expVoltage += $expVoltageDcHlp;
                     }
-                    $expVoltage = $expVoltage / count($modules);
+                    $expVoltage = count($modules) !== 0 ? $expVoltage / count($modules) : 0;
 
                     // Verluste auf der DC Seite brechnen
                     // Kabel Verluste + Sicherheitsverlust

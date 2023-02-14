@@ -1,6 +1,7 @@
 <?php
 namespace App\Repository;
 
+use App\Entity\Anlage;
 use App\Entity\Ticket;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
@@ -68,9 +69,22 @@ class TicketRepository extends ServiceEntityRepository
     /**
      * Build query with all options, including 'has user rights to see'.
      *
-     * @param array $orders Array Key defines the 'order field', value defines order direction (ASC, DESC) or order should not used (null)
+     * @param string|null $anlage
+     * @param string|null $editor
+     * @param string|null $id
+     * @param string|null $prio
+     * @param string|null $status
+     * @param string|null $category
+     * @param string|null $type
+     * @param string|null $inverter
+     * @param int $prooftam
+     * @param string $sort
+     * @param string $direction
+     * @param bool $ignore
+     * @param string $TicketName
+     * @return QueryBuilder
      */
-    public function getWithSearchQueryBuilderNew(?string $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0, string $sort = "", string $direction = "", bool $ignore = false, $TicketName = ""): QueryBuilder
+    public function getWithSearchQueryBuilderNew(?Anlage $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0, string $sort = "", string $direction = "", bool $ignore = false, $TicketName = ""): QueryBuilder
     {
         /** @var User $user */
         $user = $this->security->getUser();
@@ -81,14 +95,11 @@ class TicketRepository extends ServiceEntityRepository
             ->addSelect('a')
         ;
         if (!$this->security->isGranted('ROLE_G4N')) {
-            $qb
-                ->andWhere('a.anlId IN (:plantList)')
-                ->setParameter('plantList', $granted)
-            ;
+            $qb->andWhere('a.anlId IN (:plantList)')
+                ->setParameter('plantList', $granted);
         }
-
         if ($anlage != '') {
-            $qb->andWhere("a.anlName = '$anlage'");
+            $qb->andWhere("ticket.anlage = '$anlage'");
         }
         if ($editor != '') {
             $qb->andWhere("ticket.editor = '$editor'");
@@ -96,12 +107,8 @@ class TicketRepository extends ServiceEntityRepository
         if ((int) $id > 0) {
             $qb->andWhere("ticket.id = $id");
         }
-
         if ($inverter != '') {
-            $qb->andWhere("ticket.inverter LIKE '$inverter,%'");
-            $qb->orWhere("ticket.inverter LIKE '% $inverter,%'");
-            $qb->orWhere("ticket.inverter = '$inverter'");
-            $qb->orWhere("ticket.inverter LIKE '%, $inverter'");
+            $qb->andWhere("ticket.inverter LIKE '$inverter,%' or ticket.inverter LIKE '% $inverter,%' or ticket.inverter = '$inverter' or ticket.inverter LIKE '%, $inverter'");
         }
         if ((int) $prio > 0) {
             $qb->andWhere("ticket.priority = $prio");

@@ -378,6 +378,9 @@
                                             {{ form_row(anlageForm.percentageDiff) }}
                                         </div>
                                     </div>
+                                {% else %}
+                                    {% do anlageForm.expectedTicket.setRendered() %}
+                                    {% do anlageForm.percentageDiff.setRendered() %}
                                 {% endif %}
                                 {{ form_row(anlageForm.weatherTicket) }}
                                 <div class="grid-x">
@@ -499,46 +502,7 @@
                 </div>
 
                 {# Settings and Config #}
-                <div class="tabs-panel" id="settings">
-                    <div class="grid-x grid-margin-x">
-                        <div class="cell medium-6">
-                            <fieldset class="fieldset">
-                                <legend>Settings</legend>
-                                {{ form_row(anlageForm.anlView) }}
-                                {{ form_row(anlageForm.anlHidePlant) }}
-                                {{ form_row(anlageForm.anlMute) }}
-                                {{ form_row(anlageForm.anlMuteUntil) }}
-                                {{ form_row(anlageForm.calcPR) }}
-                                {{ form_row(anlageForm.excludeFromExpCalc) }}
-                            </fieldset>
-                        </div>
-                        <div class="cell medium-6">
-                            <fieldset class="fieldset">
-                                <legend>Configuration Backend</legend>
-                                <div class="grid-x grid-padding-x small-up-1 medium-up-2">
-                                    <div class="cell">{{ form_row(anlageForm.showOnlyUpperIrr) }}</div>
-                                    <div class="cell">{{ form_row(anlageForm.showStringCharts) }}</div>
-                                    <div class="cell">{{ form_row(anlageForm.showAvailability) }}</div>
-                                    <div class="cell">{{ form_row(anlageForm.showAvailabilitySecond) }}</div>
-                                    <div class="cell">{{ form_row(anlageForm.showInverterPerformance) }}</div>
-                                    <div class="cell">{{ form_row(anlageForm.showEvuDiag) }}</div>
-                                    <div class="cell">{{ form_row(anlageForm.showInverterOutDiag) }}</div>
-                                    <div class="cell">{{ form_row(anlageForm.showCosPhiDiag) }}</div>
-                                    <div class="cell">{{ form_row(anlageForm.showCosPhiPowerDiag) }}</div>
-                                    <div class="cell">{{ form_row(anlageForm.showGraphDcInverter) }}</div>
-                                    <div class="cell">{{ form_row(anlageForm.showGraphDcCurrInv) }}</div>
-                                    <div class="cell">{{ form_row(anlageForm.showGraphDcCurrGrp) }}</div>
-                                    <div class="cell">{{ form_row(anlageForm.showGraphVoltGrp) }}</div>
-                                    <div class="cell">{{ form_row(anlageForm.showGraphIrrPlant) }}</div>
-                                    <div class="cell">{{ form_row(anlageForm.showPR) }}</div>
-                                    <div class="cell"> {{ form_row(anlageForm.showPvSyst) }}</div>
-                                    <div class="cell"> {{ form_row(anlageForm.showForecast) }}</div>
-                                </div>
-                            </fieldset>
-                        </div>
-                    </div>
-
-                </div>
+                {{ include('anlagen/_incl/_settings.html.twig') }}
 
                 {# Timings #}
                 <div class="tabs-panel" id="timeing">

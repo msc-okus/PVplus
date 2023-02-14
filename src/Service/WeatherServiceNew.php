@@ -43,106 +43,110 @@ class WeatherServiceNew
         $dateiendung = '.dat'; // Dateiendung
         $trenner = ' ';        // Trennzeichen Leer=Tabstop
 
-        $weatherStationIdent = $weatherStation->getDatabaseIdent();
+        if ($weatherStation->getDatabaseStationIdent() && $weatherStation->getDatabaseStationIdent() != $weatherStation->getDatabaseIdent()) {
+            $weatherStationIdent = $weatherStation->getDatabaseStationIdent(); // from Weather Station
+        } else {
+            $weatherStationIdent = $weatherStation->getDatabaseIdent(); // from Weather Station
+        }
 
-        $output .= "Wetterstation: $weatherStationIdent<br>";
-        $dateiname = $dateianfang.$datum.$dateiendung; // generierte Dateiname
-        $urlfile = $verzeichnis.$weatherStationIdent.$slash.$dateiname;
-        $spalte = [];
-        $csvInhalt = file("$urlfile", FILE_SKIP_EMPTY_LINES);
+        if ($weatherStation->getDatabaseIdent()) {
+            $output .= "Wetterstation: $weatherStationIdent<br>";
+            $dateiname = $dateianfang . $datum . $dateiendung; // generierte Dateiname
+            $urlfile = $verzeichnis . $weatherStationIdent . $slash . $dateiname;
+            $spalte = [];
 
-        if (!$this->array_empty($csvInhalt)) {
-            // TODO: erstezen durch 'str_getcsv'
-            foreach ($csvInhalt as $inhalt) { // Die Zeilen der CSV Datei lesen und in Array schreiben
-                $spalte[] = explode($trenner, $inhalt);
-            }
+            $csvInhalt = @file("$urlfile", FILE_SKIP_EMPTY_LINES);
 
-            $last = count($spalte);
-            $zeit = '';
-            $date = '';
-            $at_avg = '';
-            $pt_avg = '';
-            $gmod_avg = '';
-            $gi_avg = '';
-            $wind = '';
-            $sqlstamp = '';
-            $sql_array = [];
-            // Zuordnung der cvs daten in Variablen.
-            foreach ($spalte as $out) {
-                if ($weatherStation->getType() === 'UPold') {
-                    $zeit = $out[1];
-                    $date = $out[2];
-                    $sqlstamp = '20'.substr($date, 6, 2).'-'.substr($date, 3, 2).'-'.substr($date, 0, 2)." $zeit";
-                    $at_avg = $out[4];
-                    $pt_avg = $out[7];
-                    $gi_avg = $out[10];
-                    $gmod_avg = $out[13];
-                    $wind = $out[17];
-                    if ($gi_avg < 0) {
-                        $gi_avg = 0;
-                    }
-                    if ($gmod_avg < 0) {
-                        $gmod_avg = 0;
-                    }
-                } elseif ($weatherStation->getType() === 'UPnew') {
-                    $zeit = $out[1];
-                    $date = $out[2];
-                    $sqlstamp = '20'.substr($date, 6, 2).'-'.substr($date, 3, 2).'-'.substr($date, 0, 2)." $zeit";
-                    $at_avg = $out[4];
-                    $pt_avg = $out[7];
-                    $gi_avg = $out[13];
-                    $gmod_avg = $out[10];
-                    $wind = 0;
-                } elseif ($weatherStation->getType() === 'UPv1120') {
-                    $zeit = $out[1];
-                    $date = $out[2];
-                    $sqlstamp = '20'.substr($date, 6, 2).'-'.substr($date, 3, 2).'-'.substr($date, 0, 2)." $zeit";
-                    $at_avg = $out[10];  // Ambient (Luft) Temperature
-                    $pt_avg = $out[19];  // Pannel Temperature
-                    $gi_avg = $out[7];   // unterer Sensor
-                    $gmod_avg = $out[6]; // oberer Sensor
-                    $wind = 0;
-                    if ($gi_avg < 0) {
-                        $gi_avg = 0;
-                    }
-                    if ($gmod_avg < 0) {
-                        $gmod_avg = 0;
-                    }
-                }
-                // correct stamp if DLS
-                if (date('I', strtotime($sqlstamp)) == 1) {
-                    $sqlstamp = date('Y-m-d H:i', strtotime($sqlstamp) + 3600);
+            if ($csvInhalt !== false) {
+                // TODO: erstezen durch 'str_getcsv'
+                foreach ($csvInhalt as $inhalt) { // Die Zeilen der CSV Datei lesen und in Array schreiben
+                    $spalte[] = explode($trenner, $inhalt);
                 }
 
-                $output .= $weatherStation->getType()." -> $zeit $date -- $at_avg | $pt_avg | $gi_avg | $gmod_avg | $wind <br>";
-                $sql_array[] = [
-                    'anl_intnr' => $weatherStationIdent,
-                    'stamp' => $sqlstamp,
-                    'at_avg' => str_replace(',', '.', $at_avg),
-                    'pt_avg' => str_replace(',', '.', $pt_avg),
-                    'gi_avg' => str_replace(',', '.', $gi_avg),
-                    'gmod_avg' => str_replace(',', '.', $gmod_avg),
-                    'wind_speed' => str_replace(',', '.', $wind),
-                ];
-            }
+                $last = count($spalte);
+                $zeit = '';
+                $date = '';
+                $at_avg = '';
+                $pt_avg = '';
+                $gmod_avg = '';
+                $gi_avg = '';
+                $wind = '';
+                $sqlstamp = '';
+                $sql_array = [];
+                // Zuordnung der cvs daten in Variablen.
+                foreach ($spalte as $out) {
+                    if ($weatherStation->getType() === 'UPold') {
+                        $zeit = $out[1];
+                        $date = $out[2];
+                        $sqlstamp = '20' . substr($date, 6, 2) . '-' . substr($date, 3, 2) . '-' . substr($date, 0, 2) . " $zeit";
+                        $at_avg = $out[4];
+                        $pt_avg = $out[7];
+                        $gi_avg = $out[10];
+                        $gmod_avg = $out[13];
+                        $wind = $out[17];
+                        if ($gi_avg < 0) {
+                            $gi_avg = 0;
+                        }
+                        if ($gmod_avg < 0) {
+                            $gmod_avg = 0;
+                        }
+                    } elseif ($weatherStation->getType() === 'UPnew') {
+                        $zeit = $out[1];
+                        $date = $out[2];
+                        $sqlstamp = '20' . substr($date, 6, 2) . '-' . substr($date, 3, 2) . '-' . substr($date, 0, 2) . " $zeit";
+                        $at_avg = $out[4];
+                        $pt_avg = $out[7];
+                        $gi_avg = $out[13];
+                        $gmod_avg = $out[10];
+                        $wind = 0;
+                    } elseif ($weatherStation->getType() === 'UPv1120') {
+                        $zeit = $out[1];
+                        $date = $out[2];
+                        $sqlstamp = '20' . substr($date, 6, 2) . '-' . substr($date, 3, 2) . '-' . substr($date, 0, 2) . " $zeit";
+                        $at_avg = $out[10];  // Ambient (Luft) Temperature
+                        $pt_avg = $out[19];  // Pannel Temperature
+                        $gi_avg = $out[7];   // unterer Sensor
+                        $gmod_avg = $out[6]; // oberer Sensor
+                        $wind = 0;
+                        if ($gi_avg < 0) {
+                            $gi_avg = 0;
+                        }
+                        if ($gmod_avg < 0) {
+                            $gmod_avg = 0;
+                        }
+                    }
+                    // correct stamp if DLS
+                    if (date('I', strtotime($sqlstamp)) == 1) {
+                        $sqlstamp = date('Y-m-d H:i', strtotime($sqlstamp) + 3600);
+                    }
 
-            foreach ($sql_array as $row) {
-                $anlIntNr = $row['anl_intnr'];
-                $stamp = $row['stamp'];
-                $isNight = $this->isNight($weatherStation, $stamp);
-                $tempAmbientAvg = $row['at_avg'];
-                $tempPannleAvg = $row['pt_avg'];
-                $gLower = $row['gi_avg'];
-                if ($gLower < 0 || $isNight) {
-                    $gLower = '0.0';
+                    $output .= $weatherStation->getType() . " -> $zeit $date -- $at_avg | $pt_avg | $gi_avg | $gmod_avg | $wind <br>";
+                    $sql_array[] = [
+                        'anl_intnr' => $weatherStationIdent,
+                        'stamp' => $sqlstamp,
+                        'at_avg' => str_replace(',', '.', $at_avg),
+                        'pt_avg' => str_replace(',', '.', $pt_avg),
+                        'gi_avg' => str_replace(',', '.', $gi_avg),
+                        'gmod_avg' => str_replace(',', '.', $gmod_avg),
+                        'wind_speed' => str_replace(',', '.', $wind),
+                    ];
                 }
-                $gUpper = $row['gmod_avg'];
-                if ($gUpper < 0 || $isNight) {
-                    $gUpper = '0.0';
-                }
-                echo " $gUpper $gLower $isNight\n";
-                $windSpeed = $row['wind_speed'];
-                $sql_insert = 'INSERT INTO '.$weatherStation->getDbNameWeather()." 
+                foreach ($sql_array as $row) {
+                    $anlIntNr = $row['anl_intnr'];
+                    $stamp = $row['stamp'];
+                    $isNight = $this->isNight($weatherStation, $stamp);
+                    $tempAmbientAvg = $row['at_avg'];
+                    $tempPannleAvg = $row['pt_avg'];
+                    $gLower = $row['gi_avg'];
+                    if ($gLower < 0 || $isNight) {
+                        $gLower = '0.0';
+                    }
+                    $gUpper = $row['gmod_avg'];
+                    if ($gUpper < 0 || $isNight) {
+                        $gUpper = '0.0';
+                    }
+                    $windSpeed = $row['wind_speed'];
+                    $sql_insert = 'INSERT INTO ' . $weatherStation->getDbNameWeather() . " 
                         SET anl_intnr = '$anlIntNr', stamp = '$stamp', 
                             at_avg = '$tempAmbientAvg', pt_avg = '$tempPannleAvg', gi_avg = '$gLower', gmod_avg = '$gUpper', wind_speed = '$windSpeed',
                             g_upper = '$gUpper', g_lower = '$gLower', temp_pannel = '$tempPannleAvg', temp_ambient = '$tempAmbientAvg'
@@ -150,12 +154,14 @@ class WeatherServiceNew
                             at_avg = '$tempAmbientAvg', pt_avg = '$tempPannleAvg', gi_avg = '$gLower', gmod_avg = '$gUpper', wind_speed = '$windSpeed',
                             g_upper = '$gUpper', g_lower = '$gLower', temp_pannel = '$tempPannleAvg', temp_ambient = '$tempAmbientAvg'";
 
-                $conn->exec($sql_insert);
+                    $conn->exec($sql_insert);
+                }
+                unset($sql_array);
+                unset($spalte);
+            } else {
+                $output .= 'FEHLER: csvinhalt leer '.$weatherStationIdent.' | ';
+                #echo 'CSV Inhalt leer '.$weatherStationIdent."\n";
             }
-            unset($sql_array);
-            unset($spalte);
-        } else {
-            $output .= 'FEHLER: csvinhalt leer';
         }
         $output .= '<h3>END Weather import</h3>';
         $conn = null;
@@ -163,30 +169,16 @@ class WeatherServiceNew
         return $output;
     }
 
-    // Prüfen ob ARRAY LEER IST
-    private function array_empty($arr): bool
-    {
-        foreach ($arr as $val) {
-            if ($val != '') {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     private function isNight(WeatherStation $weatherStation, string $stampString):bool
     {
         $stamp = date_create($stampString);
-        if ($weatherStation->getGeoLat() == "" || $weatherStation->getGeoLon() == "") return true;
+        if ($weatherStation->getGeoLat() == "" || $weatherStation->getGeoLon() == "") return false;
 
         $sunrisedata = date_sun_info($stamp->getTimestamp(), (float)$weatherStation->getGeoLat(), (float)$weatherStation->getGeoLon());
 
         $sunrise = date_create(date("Y-m-d H:i:s", $sunrisedata['sunrise']));
         $sunset = date_create(date("Y-m-d H:i:s", $sunrisedata['sunset']));
 
-        #dump($sunrise->format("H:i")." > ".$stamp->format("H:i")." && ".$stamp->format("H:i")." > ".$sunset->format("H:i"));
-        #dump(($sunrise > $stamp || $stamp > $sunset));
         return $sunrise > $stamp || $stamp > $sunset;
     }
 

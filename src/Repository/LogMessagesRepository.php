@@ -48,41 +48,13 @@ class LogMessagesRepository extends ServiceEntityRepository
     public function findUseful()
     {
         return $this->createQueryBuilder('log')
-            ->andWhere('log.state != :state OR log.startedAt >= :end')
-            ->setParameter('state', 'done')
+            ->andWhere("(log.state = 'done' AND log.startedAt >= :end) or (log.state != 'done' and  log.startedAt >= :lastend)")
             ->setParameter('end', date('Y-m-d H:i:s', time() - 3600 * 6))
+            ->setParameter('lastend', date('Y-m-d H:i:s', time() - 3600 * 48))
             ->orderBy('log.startedAt', 'DESC')
             ->getQuery()
             ->getResult()
         ;
     }
 
-    // /**
-    //  * @return LogMessages[] Returns an array of LogMessages objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('l')
-            ->andWhere('l.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('l.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?LogMessages
-    {
-        return $this->createQueryBuilder('l')
-            ->andWhere('l.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }
