@@ -127,12 +127,12 @@ class SollIstIrrAnalyseChartService
                 AS as2 
                 on (as1.ts = as2.ts)
              JOIN
-               (SELECT w.stamp as ts, (w.g_upper + w.g_lower) / 2 as avg_irr FROM 
+               (SELECT w.stamp as ts, w.g_upper as avg_irr FROM 
                  '.$anlage->getDbNameWeather().' w WHERE w.stamp 
                  BETWEEN \''.$from.'\' AND \''.$to.'\'
-                 AND (w.g_upper + w.g_lower) / 2 BETWEEN \''.$irr_from.'\' AND \''.$irr_to.'\'
-                 AND w.g_upper > 0 
-                 AND w.g_lower > 0
+                 AND ROUND(w.g_upper, 0) BETWEEN \''.$irr_from.'\' AND \''.$irr_to.'\'
+                 AND ROUND(w.g_upper, 0) > 0 
+                 AND ROUND(w.g_upper, 0) > 0
                  GROUP BY w.stamp ORDER BY NULL)
                 AS as3
                 on (as1.ts = as3.ts)';

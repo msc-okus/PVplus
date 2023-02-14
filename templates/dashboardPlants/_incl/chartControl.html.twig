@@ -3,52 +3,52 @@
     //Date RangePicker Config and Function
     $(function() {
         $('.daterange').daterangepicker({
-            autostart:true,
-            showDropdowns: false,
-            showWeekNumbers: false,
-            startDate: moment().startOf('month'),
-            endDate: moment().endOf('month'),
-            showCustomRangeLabel:true,
-            ranges: {
-                'Today': [moment(), moment()],
-                //'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                //'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                //'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                'This Month': [moment().startOf('month'), moment().endOf('month')],
-                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-                'Last 3 Month': [moment().subtract(3, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                autostart:true,
+                showDropdowns: false,
+                showWeekNumbers: false,
+                startDate: moment().startOf('month'),
+                endDate: moment().endOf('month'),
+                showCustomRangeLabel:true,
+                ranges: {
+                    'Today': [moment(), moment()],
+                    //'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    //'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    //'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                    'Last 3 Month': [moment().subtract(3, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                },
+                opens: 'left',
+                buttonClasses: ['btn btn-default'],
+                applyClass: 'primary save button button',
+                cancelClass: 'secondary close button button',
+                format: 'YYYY-MM-DD',
+                separator: ' to ',
+                locale: {
+                    applyLabel: 'Submit',
+                    cancelLabel: 'Clear',
+                    fromLabel: 'From',
+                    toLabel: 'To',
+                    customRangeLabel: 'Custom',
+                    daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+                    monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                    firstDay: 0
+                },
+            }, function(start, end, label) {
+                $('.daterange span').html(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
+                $('#selRange').val(label);
             },
-            opens: 'left',
-            buttonClasses: ['btn btn-default'],
-            applyClass: 'primary save button button',
-            cancelClass: 'secondary close button button',
-            format: 'YYYY-MM-DD',
-            separator: ' to ',
-            locale: {
-                applyLabel: 'Submit',
-                cancelLabel: 'Clear',
-                fromLabel: 'From',
-                toLabel: 'To',
-                customRangeLabel: 'Custom',
-                daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
-                monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-                firstDay: 0
-            },
-        }, function(start, end, label) {
-            $('.daterange span').html(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
-            $('#selRange').val(label);
-        },
 
-        $('.daterange').on('apply.daterangepicker', function (ev, picker, label) {
-            var rangesfr = picker.range;
-            var startDate = picker.startDate;
-            var endDate = picker.endDate;
-            $('#from').val(startDate.format('YYYY-MM-DD'));
-            $('#to').val(endDate.format('YYYY-MM-DD'));
-            $("#mysubmit").val('yes');
-            $("#chart-control").delay(100).submit();
-        })
-    );
+            $('.daterange').on('apply.daterangepicker', function (ev, picker, label) {
+                var rangesfr = picker.range;
+                var startDate = picker.startDate;
+                var endDate = picker.endDate;
+                $('#from').val(startDate.format('YYYY-MM-DD'));
+                $('#to').val(endDate.format('YYYY-MM-DD'));
+                $("#mysubmit").val('yes');
+                $("#chart-control").delay(100).submit();
+            })
+        );
 
         var list = $('.ranges ul li');
         for(i=0;i<=list.length-1;i++){
@@ -124,16 +124,16 @@
         $("#slider-range").slider({
             range: true,
             min: 1,
-            max: {{aktAnlage.acGroups|length}},
+            max: {{aktAnlage.groups|length}},
             values: {% if  form.selectedSet  %}{{ form.selectedSet }},{% else %}[1,50],{% endif %}
-            slide: function( event, ui ) {
-                $( "#sview" ).val("" + ui.values[ 0 ] + "-" + ui.values[ 1 ]+ "");
-                $( "#sviewhidden" ).val("[" + ui.values[ 0 ] + "," + ui.values[ 1 ]+ "]");
-            },
-            change: function(){
-                $("#sendrange").css("background-color", "greenyellow");
-            }
-        });
+        slide: function( event, ui ) {
+            $( "#sview" ).val("" + ui.values[ 0 ] + "-" + ui.values[ 1 ]+ "");
+            $( "#sviewhidden" ).val("[" + ui.values[ 0 ] + "," + ui.values[ 1 ]+ "]");
+        },
+        change: function(){
+            $("#sendrange").css("background-color", "greenyellow");
+        }
+    });
         $("#sview").val("" + $("#slider-range").slider( "values", 0 ) + "-" + $("#slider-range").slider( "values", 1 ) + "");
         $("#sviewhidden").val("[" + $("#slider-range").slider( "values", 0 ) + "," + $("#slider-range").slider( "values", 1 ) + "]");
         $("#goshare").click(function() {
@@ -159,10 +159,10 @@
             <optgroup label="Analysis">
                 {% if aktAnlage.showAvailability or is_granted('ROLE_ADMIN') %}<option value="availability" {% if form.selectedChart == 'availability' %}selected{% endif %}>Show Availability [%]</option>{% endif %}
                 {% if aktAnlage.showPr or is_granted('ROLE_ADMIN') %}
-                <option value="pr_and_av" {% if form.selectedChart == 'pr_and_av' %}selected{% endif %}>Show PR&nbsp;[%]</option>
+                    <option value="pr_and_av" {% if form.selectedChart == 'pr_and_av' %}selected{% endif %}>Show PR&nbsp;[%]</option>
                 {% endif %}
                 {% if aktAnlage.showForecast %}
-                <option value="forecast" {% if form.selectedChart == 'forecast' %}selected{% endif %}>Forecast&nbsp;[kWh]</option>
+                    <option value="forecast" {% if form.selectedChart == 'forecast' %}selected{% endif %}>Forecast&nbsp;[kWh]</option>
                 {% endif %}
                 {{ showHeatmap(form, aktAnlage) }}            {# Headmap #}
                 {{ showTempHeatmap(form, aktAnlage) }}        {# Headmap #}
@@ -234,26 +234,26 @@
     <div class="cell medium-4 large-2 xlarge-2">
         {{ groupMenuNew(form, aktAnlage) }}
         {% if form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap' %}
-        {% if aktAnlage.acGroups|length > 50 %}
-        <div class="grid-x grid-padding-x" style="height:40px;">
-        <div class="cell medium-5 large-5 xlarge-5"><label for="amount">INV Range:</label></div>
-        <div class="cell medium-4 large-4 xlarge-4">
-                <input type="text" id="sview" readonly style="border:0; background-color: #701b1b00 ; box-shadow: inset 0 0px 0px rgba(10, 10, 10, 0.1);font-weight:bold;">
-                <input type="hidden" id="sviewhidden" name="selectedSet" value="0">
-                <input type="hidden"  name="selectedSetfrom" value="{{ form.selectedSet }}">
-        </div>
-            <div class="cell medium-3 large-3 xlarge-3">
-                <label id="goshare" class="button" style="background-color: #701b1b00;display: block;font-weight: 800;color: green;font-size: 38px;padding:0 0 0 5px;">
-                    <div type="text" id="sendrange" style="display: block">
-                        <i class="fa fa fa-expand"></i></div>
-                </label>
-            </div>
-        </div>
-            <div id="slider-range"></div>
-        {% else %}
-            <input type="hidden" id="sview" name="selectedSet" value="0">
+            {% if aktAnlage.groups|length > 50 %}
+                <div class="grid-x grid-padding-x" style="height:40px;">
+                    <div class="cell medium-5 large-5 xlarge-5"><label for="amount">INV Range:</label></div>
+                    <div class="cell medium-4 large-4 xlarge-4">
+                        <input type="text" id="sview" readonly style="border:0; background-color: #701b1b00 ; box-shadow: inset 0 0px 0px rgba(10, 10, 10, 0.1);font-weight:bold;">
+                        <input type="hidden" id="sviewhidden" name="selectedSet" value="0">
+                        <input type="hidden"  name="selectedSetfrom" value="{{ form.selectedSet }}">
+                    </div>
+                    <div class="cell medium-3 large-3 xlarge-3">
+                        <label id="goshare" class="button" style="background-color: #701b1b00;display: block;font-weight: 800;color: green;font-size: 38px;padding:0 0 0 5px;">
+                            <div type="text" id="sendrange" style="display: block">
+                                <i class="fa fa fa-expand"></i></div>
+                        </label>
+                    </div>
+                </div>
+                <div id="slider-range"></div>
+            {% else %}
+                <input type="hidden" id="sview" name="selectedSet" value="0">
+            {% endif %}
         {% endif %}
-{% endif %}
     </div>
 
     <div class="grid-x grid-padding-x">
@@ -305,11 +305,11 @@
 
         {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse'%}
         {% else %}
-        <div class="cell medium-1 large-1 xlarge-1">
-            <label class="button js-submit-onchange" style="background-color: #701b1b00;display: block;font-weight: 800;color: green;font-size: 38px;padding:0 0 0 5px;">
-                <input type="radio" name="optionStep" value="nextday" style="display: none">
-                <i class="fa fa-angle-right"></i></label>
-        </div>
+            <div class="cell medium-1 large-1 xlarge-1">
+                <label class="button js-submit-onchange" style="background-color: #701b1b00;display: block;font-weight: 800;color: green;font-size: 38px;padding:0 0 0 5px;">
+                    <input type="radio" name="optionStep" value="nextday" style="display: none">
+                    <i class="fa fa-angle-right"></i></label>
+            </div>
         {% endif %}
 
     </div>
@@ -330,53 +330,53 @@
 
     {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' %}
     {% else %}
-    <div class="cell medium-6 large-8 xlarge-4">
-        <div class="small button-group round toggle" {% if form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap'%}style="display: none"{% endif %}>
-            <label class="button js-submit-onchange {% if form.optionDate == 1 or not form.optionDate %}active{% endif %} {% if form.selectedChart == 'pr_and_av' or form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' %}disabled{% endif %}">
-                <input type="radio" name="optionDate" value="1" {% if form.optionDate == 1 or not form.optionDate %}checked="checked"{% endif %}>one day
-            </label>
-            <label class="button js-submit-onchange {% if form.optionDate == 3 %}active{% endif %} {% if form.selectedChart == 'pr_and_av' or form.selectedChart == 'availability' or form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' %}disabled{% endif %}">
-                <input type="radio" name="optionDate" value="3" {% if form.optionDate == 3 %}checked{% endif %}>last 3 days
-            </label>
-            <label class="button js-submit-onchange {% if form.optionDate == 7 %}active{% endif %} {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' or form.selectedChart == 'availability' %}disabled{% endif %}">
-                <input type="radio" name="optionDate" value="7" {% if form.optionDate == 7 %}checked{% endif %}>last 7 days
-            </label>
-            <label class="button js-submit-onchange {% if form.optionDate == 14 %}active{% endif %} {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' or form.selectedChart == 'availability' %}disabled{% endif %}">
-                <input type="radio" name="optionDate" value="14" {% if form.optionDate == 14 %}checked{% endif %}>last 14 days
-            </label>
-            <!--
+        <div class="cell medium-6 large-8 xlarge-4">
+            <div class="small button-group round toggle" {% if form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap'%}style="display: none"{% endif %}>
+                <label class="button js-submit-onchange {% if form.optionDate == 1 or not form.optionDate %}active{% endif %} {% if form.selectedChart == 'pr_and_av' or form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' %}disabled{% endif %}">
+                    <input type="radio" name="optionDate" value="1" {% if form.optionDate == 1 or not form.optionDate %}checked="checked"{% endif %}>one day
+                </label>
+                <label class="button js-submit-onchange {% if form.optionDate == 3 %}active{% endif %} {% if form.selectedChart == 'pr_and_av' or form.selectedChart == 'availability' or form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' %}disabled{% endif %}">
+                    <input type="radio" name="optionDate" value="3" {% if form.optionDate == 3 %}checked{% endif %}>last 3 days
+                </label>
+                <label class="button js-submit-onchange {% if form.optionDate == 7 %}active{% endif %} {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' or form.selectedChart == 'availability' %}disabled{% endif %}">
+                    <input type="radio" name="optionDate" value="7" {% if form.optionDate == 7 %}checked{% endif %}>last 7 days
+                </label>
+                <label class="button js-submit-onchange {% if form.optionDate == 14 %}active{% endif %} {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' or form.selectedChart == 'availability' %}disabled{% endif %}">
+                    <input type="radio" name="optionDate" value="14" {% if form.optionDate == 14 %}checked{% endif %}>last 14 days
+                </label>
+                <!--
             <label class="button js-submit-onchange {% if form.optionDate == 30 %}active{% endif %} {% if form.selectedChart == 'availability' %}disabled{% endif %}">
                 <input type="radio" name="optionDate" value="30" {% if form.optionDate == 30 %}checked{% endif %}>last 30 days
             </label>
             -->
-            <label class="button js-submit-onchange {% if form.optionDate == 100000 %}active{% endif %} {% if form.selectedChart == 'availability' and not is_granted('ROLE_ADMIN') %}disabled{% endif %}">
-                <input type="radio" name="optionDate" value="100000" {% if form.optionDate == 100000 %}checked{% endif %}>month
-            </label>
-            {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse'%}
-                <label class="button js-submit-onchange {% if form.optionDate == 300000 %}active{% endif %} {% if form.selectedChart == 'availability' and not is_granted('ROLE_ADMIN') %}disabled{% endif %}">
-                    <input type="radio" name="optionDate" value="300000" {% if form.optionDate == 300000 %}checked{% endif %}>3 months
+                <label class="button js-submit-onchange {% if form.optionDate == 100000 %}active{% endif %} {% if form.selectedChart == 'availability' and not is_granted('ROLE_ADMIN') %}disabled{% endif %}">
+                    <input type="radio" name="optionDate" value="100000" {% if form.optionDate == 100000 %}checked{% endif %}>month
                 </label>
-            {% endif %}
+                {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse'%}
+                    <label class="button js-submit-onchange {% if form.optionDate == 300000 %}active{% endif %} {% if form.selectedChart == 'availability' and not is_granted('ROLE_ADMIN') %}disabled{% endif %}">
+                        <input type="radio" name="optionDate" value="300000" {% if form.optionDate == 300000 %}checked{% endif %}>3 months
+                    </label>
+                {% endif %}
 
+            </div>
         </div>
-    </div>
-{% endif %}
+    {% endif %}
 
-{% if form.selectedChart == 'sollistirranalyse' %}
-      <div class="cell medium-4 large-6 xlarge-2">
-          <div class="small button-group round toggle">
-              <label class="button js-submit-onchange {% if form.optionIrrVal == 400 %}active{% endif %}">
-                  <input type="radio" name="optionIrrVal" value="400" {% if form.optionIrrVal == 400 %}checked="checked"{% endif %}> < 400 W/m²
-              </label>
-              <label class="button js-submit-onchange {% if form.optionIrrVal == 800 %}active{% endif %}">
-                  <input type="radio" name="optionIrrVal" value="800" {% if form.optionIrrVal == 800 %}checked="checked"{% endif %}>400 - 800 W/m²
-              </label>
-              <label class="button js-submit-onchange {% if form.optionIrrVal == 1000 %}active{% endif %}">
-                  <input type="radio" name="optionIrrVal" value="1000" {% if form.optionIrrVal == 1000 %}checked="checked"{% endif %}> > 800 W/m²
-              </label>
-          </div>
-     </div>
-{% endif %}
+    {% if form.selectedChart == 'sollistirranalyse' %}
+        <div class="cell medium-4 large-6 xlarge-2">
+            <div class="small button-group round toggle">
+                <label class="button js-submit-onchange {% if form.optionIrrVal == 400 %}active{% endif %}">
+                    <input type="radio" name="optionIrrVal" value="400" {% if form.optionIrrVal == 400 %}checked="checked"{% endif %}> < 400 W/m²
+                </label>
+                <label class="button js-submit-onchange {% if form.optionIrrVal == 800 %}active{% endif %}">
+                    <input type="radio" name="optionIrrVal" value="800" {% if form.optionIrrVal == 800 %}checked="checked"{% endif %}>400 - 800 W/m²
+                </label>
+                <label class="button js-submit-onchange {% if form.optionIrrVal == 1000 %}active{% endif %}">
+                    <input type="radio" name="optionIrrVal" value="1000" {% if form.optionIrrVal == 1000 %}checked="checked"{% endif %}> > 800 W/m²
+                </label>
+            </div>
+        </div>
+    {% endif %}
 
 </div>
 
