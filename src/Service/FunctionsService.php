@@ -904,26 +904,37 @@ class FunctionsService
         return $evu;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function checkAndIncludeMonthlyCorrectionIrr(Anlage $anlage, float $irr, $from, $to): float
     {
         $monthlyDatas = $this->monthlyDataRepo->findByDateRange($anlage, date_create($from), date_create($to));
 
         foreach ($monthlyDatas as $monthlyData) {
-            if ($monthlyData->getIrrCorrectedValuMonth() && $monthlyData->getIrrCorrectedValuMonth() > 0) {
+            // calculate the first and the last day of the given month and year in $monthlyData
+            $firstDayMonth = date_create($monthlyData->getYear() . "-". $monthlyData->getMonth()."-01");
+            $lastDayMonth  = date_create($monthlyData->getYear() . "-". $monthlyData->getMonth()."-".$firstDayMonth->format("t"));
 
-                $tempFrom = new DateTime($monthlyData->getYear() . '-' . $monthlyData->getMonth() . '-01 00:00');
-                $tempDaysInMonth = $tempFrom->format('t');
-                $tempTo = new DateTime($monthlyData->getYear() . '-' . $monthlyData->getMonth() . '-' . $tempDaysInMonth . ' 23:59');
+            // check if the time period is the hole month. Only if we get 1 whole Month we can use this correction
+            if ($firstDayMonth->format("Y-m-d 00:00") === $from && $lastDayMonth->format("Y-m-d 23:59") === $to) {
+                if ($monthlyData->getIrrCorrectedValuMonth() && $monthlyData->getIrrCorrectedValuMonth() > 0) {
 
-                $weather = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $tempFrom->format("Y-m-d H:i"), $tempTo->format("Y-m-d H:i"));
-                if ($anlage->getIsOstWestAnlage()) {
-                    $irrTemp = ($weather['upperIrr'] * $anlage->getPowerEast() + $weather['lowerIrr'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
-                } else {
-                    $irrTemp = $weather['upperIrr'] / 4 / 1000; // Umrechnug zu kWh
-                }
-                if ($irrTemp > 0) {
-                    $irr -= $irrTemp;
-                    $irr += $monthlyData->getIrrCorrectedValuMonth();
+                    $tempFrom = new DateTime($monthlyData->getYear() . '-' . $monthlyData->getMonth() . '-01 00:00');
+                    $tempDaysInMonth = $tempFrom->format('t');
+                    $tempTo = new DateTime($monthlyData->getYear() . '-' . $monthlyData->getMonth() . '-' . $tempDaysInMonth . ' 23:59');
+
+                    $weather = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $tempFrom->format("Y-m-d H:i"), $tempTo->format("Y-m-d H:i"));
+                    if ($anlage->getIsOstWestAnlage()) {
+                        $irrTemp = ($weather['upperIrr'] * $anlage->getPowerEast() + $weather['lowerIrr'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
+                    } else {
+                        $irrTemp = $weather['upperIrr'] / 4 / 1000; // Umrechnug zu kWh
+                    }
+
+                    if ($irrTemp > 0) {
+                        $irr -= $irrTemp;
+                        $irr += $monthlyData->getIrrCorrectedValuMonth();
+                    }
                 }
             }
         }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\Service\Reports;
 
 use App\Entity\Anlage;
 use App\Entity\AnlagenReports;
@@ -11,6 +11,9 @@ use App\Repository\Case5Repository;
 use App\Repository\PRRepository;
 use App\Repository\PvSystMonthRepository;
 use App\Repository\ReportsRepository;
+use App\Service\FunctionsService;
+use App\Service\PRCalulationService;
+use App\Service\ReportService;
 use Doctrine\ORM\EntityManagerInterface;
 use JetBrains\PhpStorm\NoReturn;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
@@ -105,54 +108,45 @@ class ReportsMonthlyService
             // Table
             $day = new \DateTime("$year-$month-$i 12:00");
             $prArray = $this->PRCalulation->calcPR($anlage, $day);
+
             $dayValues['datum'] = $day->format('m-d');
-            if ( false ) {
-                foreach ($prArray as $prKey => $value) {
-                    $dayValues[$prKey] = $value;
-                }
+
+            $dayValues['PowerEvuMonth'] = $anlage->getShowEvuDiag() ? $prArray['powerEvu'] : $prArray['powerAct'];
+            if ($anlage->getUseGridMeterDayData()) {
+                $dayValues['powerEGridExt'] = $prArray['powerEGridExt'];
+                $dayValues['spezYield'] = $dayValues['powerEGridExt'] / $anlage->getPnom();
+                $dayValues['prEvuEpc'] = $prArray['prEGridExt'];
+                $dayValues['prEvuDefault'] = $prArray['prDefaultEGridExt'];
             } else {
-                $dayValues['PowerEvuMonth'] = $anlage->getShowEvuDiag() ? $prArray['powerEvu'] : $prArray['powerAct'];
-                if ($anlage->getUseGridMeterDayData()) {
-                    $dayValues['powerEGridExt'] = $prArray['powerEGridExt'];
-                    $dayValues['spezYield'] = $dayValues['powerEGridExt'] / $anlage->getPnom();
-                    $dayValues['prEvuEpc'] = $prArray['prEGridExt'];
-                    $dayValues['prEvuDefault'] = $prArray['prDefaultEGridExt'];
-                } else {
-                    $dayValues['powerEGridExt'] = 0;
-                    $dayValues['spezYield'] = $anlage->getShowEvuDiag() ? $prArray['powerEvu'] / $anlage->getPnom() : $prArray['powerAct'] / $anlage->getPnom();
-                    $dayValues['prEvuEpc'] = $anlage->getShowEvuDiag() ? $prArray['prEvu'] : $prArray['prAct'];
-                    $dayValues['prEvuDefault'] = $anlage->getShowEvuDiag() ? $prArray['prDefaultEvu'] : $prArray['prDefaultAct'];
-                }
-                $dayValues['irradiation'] = $prArray['irradiation'];
-
-                $dayValues['pa0'] = $prArray['pa0'];
-                $dayValues['pa1'] = $prArray['pa1'];
-                $dayValues['pa2'] = $prArray['pa2'];
-                $dayValues['pa3'] = $prArray['pa3'];
-
-                if ($anlage->getShowAvailability()) {
-                    #$dayValues['plantAvailability'] = $prArray['availability'];
-                }
-                if ($anlage->getShowAvailabilitySecond()) {
-                    #$dayValues['plantAvailabilitySecond'] = -111;
-                }
-                $dayValues['powerTheo'] = $prArray['irradiation'] * $anlage->getPnom();
-                $dayValues['powerTheoFT'] = $prArray['powerTheo'];
-                $dayValues['powerExp'] = $prArray['powerExp'];
-                $dayValues['case5perDay'] = $prArray['case5perDay']; // $report['prs'][$i]->getcase5perDay();
-
+                $dayValues['powerEGridExt'] = 0;
+                $dayValues['spezYield'] = $anlage->getShowEvuDiag() ? $prArray['powerEvu'] / $anlage->getPnom() : $prArray['powerAct'] / $anlage->getPnom();
+                $dayValues['prEvuEpc'] = $anlage->getShowEvuDiag() ? $prArray['prEvu'] : $prArray['prAct'];
+                $dayValues['prEvuDefault'] = $anlage->getShowEvuDiag() ? $prArray['prDefaultEvu'] : $prArray['prDefaultAct'];
             }
+            $dayValues['irradiation'] = $prArray['irradiation'];
+
+            $dayValues['pa0'] = $prArray['pa0'];
+            $dayValues['pa1'] = $prArray['pa1'];
+            $dayValues['pa2'] = $prArray['pa2'];
+            $dayValues['pa3'] = $prArray['pa3'];
+
+            $dayValues['powerTheo'] = $prArray['irradiation'] * $anlage->getPnom();
+            $dayValues['powerTheoFT'] = $prArray['powerTheo'];
+            $dayValues['powerExp'] = $prArray['powerExp'];
+            $dayValues['case5perDay'] = $prArray['case5perDay']; // $report['prs'][$i]->getcase5perDay();
+
+
             $dayValuesFinal[] = $dayValues;
 
             // Chart
-                $dayChartValues[] = [
-                    'datum' => $dayValues['datum'],
-                    'powerEGridExt' => $dayValues['powerEGridExt'],
-                    'PowerEvuMonth' => $dayValues['PowerEvuMonth'],
-                    'irradiation' => $dayValues['irradiation'],
-                    'prEvuProz' => $dayValues['prEvuEpc'],
-                ];
-            }
+            $dayChartValues[] = [
+                'datum' => $dayValues['datum'],
+                'powerEGridExt' => $dayValues['powerEGridExt'],
+                'PowerEvuMonth' => $dayValues['PowerEvuMonth'],
+                'irradiation' => $dayValues['irradiation'],
+                'prEvuProz' => $dayValues['prEvuEpc'],
+            ];
+        }
 
         unset($prArray);
 

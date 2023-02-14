@@ -659,7 +659,7 @@ class PRCalulationService
         $result['algorithmus'] = $anlage->getUseCustPRAlgorithm();
         $result['powerTheoTempCorr'] = (float) $power['powerTheo'];
         $result['tempCorrection'] = (float) $tempCorrection;
-        $result['irradiation'] = (float) $irr;
+        $result['irradiation'] = $irr;
         $result['availability'] = $pa2; // old EPC
         $result['availability2'] = $pa1; // old O&M
         $result['pa0'] = $pa0;
