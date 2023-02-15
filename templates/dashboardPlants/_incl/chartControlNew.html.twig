@@ -208,13 +208,13 @@
                 {% endif %}
 
                 {% if is_granted('ROLE_G4N') or is_granted('ROLE_ANALYSE') %}
-                    {% if aktAnlage.settings.chartAnalyse4 %}{{ showHeatmap(form, aktAnlage) }}{% endif %}            {# Headmap #}
-                    {% if aktAnlage.settings.chartAnalyse5 %}{{ showTempHeatmap(form, aktAnlage) }}{% endif %}        {# Headmap #}
-                    {% if aktAnlage.settings.chartAnalyse6 %}{% if aktAnlage.hasDc %}{{ showSollIstHeatmap(form, aktAnlage) }}{% endif %}{% endif %}     {# Headmap #}
-                    {% if is_granted('ROLE_BETA') %}
-                        {% if aktAnlage.settings.chartAnalyse7 %}{{ showSollIstAnalyse(form, aktAnlage) }}{% endif %}     {# Bubblechart #}
-                        {% if aktAnlage.settings.chartAnalyse8 %}{{ showSollIstTempAnalyse(form, aktAnlage) }}{% endif %}    {# Bubblechart #}
-                        {% if aktAnlage.settings.chartAnalyse9 %}{% if aktAnlage.hasDc %}{{ showSollIstIrrAnalyse(form, aktAnlage) }}{% endif %}{% endif %}     {# Bubblechart #}
+                    {% if aktAnlage.settings.chartAnalyse4 or is_granted('ROLE_ADMIN') %}{{ showHeatmap(form, aktAnlage) }}{% endif %}            {# Headmap #}
+                    {% if aktAnlage.settings.chartAnalyse5 or is_granted('ROLE_ADMIN') %}{{ showTempHeatmap(form, aktAnlage) }}{% endif %}        {# Headmap #}
+                    {% if aktAnlage.settings.chartAnalyse6 or is_granted('ROLE_ADMIN') %}{% if aktAnlage.hasDc %}{{ showSollIstHeatmap(form, aktAnlage) }}{% endif %}{% endif %}     {# Headmap #}
+                    {% if is_granted('ROLE_BETA') or is_granted('ROLE_G4N') %}
+                        {% if aktAnlage.settings.chartAnalyse7 or is_granted('ROLE_ADMIN') %}{{ showSollIstAnalyse(form, aktAnlage) }}{% endif %}     {# Bubblechart #}
+                        {% if aktAnlage.settings.chartAnalyse8 or is_granted('ROLE_ADMIN') %}{{ showSollIstTempAnalyse(form, aktAnlage) }}{% endif %}    {# Bubblechart #}
+                        {% if aktAnlage.settings.chartAnalyse9 or is_granted('ROLE_ADMIN') %}{% if aktAnlage.hasDc %}{{ showSollIstIrrAnalyse(form, aktAnlage) }}{% endif %}{% endif %}     {# Bubblechart #}
                     {% endif %}
                 {% endif %}
             </optgroup>
@@ -260,11 +260,11 @@
 
             <!-- diverses -->
             <optgroup label="Sensors">
-                {% if aktAnlage.settings.chartSensor1 %}{{ irradiation(form, aktAnlage) }}{% endif %}
+                {% if aktAnlage.settings.chartSensor1 or is_granted('ROLE_ADMIN') %}{{ irradiation(form, aktAnlage) }}{% endif %}
                 {% if aktAnlage.settings.chartSensor2 %}
                     <option value="irradiation_plant" {% if form.selectedChart == 'irradiation_plant' %}selected{% endif %}>Irradiation Plant [W/m²]</option>
                 {% endif %}
-                {% if aktAnlage.settings.chartSensor3 %}
+                {% if aktAnlage.settings.chartSensor3 or is_granted('ROLE_ADMIN') %}
                     <option value="temp" {% if form.selectedChart == 'temp' %}selected{% endif %}>Temperature [°C]</option>
                 {% endif %}
 
