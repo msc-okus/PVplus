@@ -333,6 +333,7 @@ class ReportingController extends AbstractController
                     $form = $this->createForm(AssetManagementeReportFormType::class);
                     $form->handleRequest($request);
                     if ($form->isSubmitted() && $form->isValid()) {
+
                         $data = $form->getData();
                         #$output['data'] = $data;
                         //dd($output['production_monthly_chart'], $output['wkhLossesChartMonth']);
@@ -416,12 +417,15 @@ class ReportingController extends AbstractController
                             'kwhLossesChartYear' => $output['kwhLossesChartYear'],
                             'TicketAvailabilityMonthTable' => $output['TicketAvailabilityMonthTable'],
                             'TicketAvailabilityYearTable' => $output['TicketAvailabilityYearTable'],
+                            'monthlyLossesHelpTable' => $output['monthlyLossesHelpTable'],
+                            'yearLossesHelpTable' => $output['yearLossesHelpTable']
                         ]);
-
                         $filename = $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf';
-                        $result = str_replace('src="//', 'src="https://', $result);
-                        $pdf->createPdf($result, 'string', $filename);
 
+                        $result = str_replace('src="//', 'src="https://', $result);
+
+                        $pdf->createPdf($result, 'string', $filename);
+                        dd("something wrong");
                         return $this->redirect($route);
                     }
 
@@ -648,6 +652,8 @@ class ReportingController extends AbstractController
                             'kwhLossesChartYear' => $output['kwhLossesChartYear'],
                             'TicketAvailabilityMonthTable' => $output['TicketAvailabilityMonthTable'],
                             'TicketAvailabilityYearTable' => $output['TicketAvailabilityYearTable'],
+                            'monthlyLossesHelpTable' => $output['monthlyLossesHelpTable'],
+                            'yearLossesHelpTable' => $output['yearLossesHelpTable']
 
                         ]);
                         break;
@@ -1317,12 +1323,7 @@ class ReportingController extends AbstractController
                           "showHeatAndTemperaturTable" => 'Show Heat And Temperature Table',
                           "reportCreationDate" => 'Report Creation Date'
                     ]
-
-
-
                 ]);
-
-
 
                 $pdf = new ChromePdf('/usr/bin/chromium');
                 $pos = $this->substr_Index($kernelProjectDir, '/', 5);

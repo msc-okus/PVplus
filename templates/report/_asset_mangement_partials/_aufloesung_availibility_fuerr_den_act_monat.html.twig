@@ -112,30 +112,6 @@
                 </table>
 
             </td>
-
-            <td style="width: 50%">
-                <table style="margin-top: 30px; width: 90%">
-                    <thead>
-                    <th>Type of Ticket</th>
-                    <th>Losses in kWh to G4N Expected</th>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td class="tr_next_columns">Planned Outage <sup><b> a</b></sup></td>
-                        <td class="tr_next_columns"> {{ kwhLossesMonthTable['SORLosses'] |number_format(2, ',', '.') }}</td>
-                    </tr>
-                    <tr>
-                        <td class="tr_next_columns">Unplanned Outage <sup><b> b</b></sup> <sup><b>c</b></sup></td>
-                        <td class="tr_next_columns"> {{ kwhLossesMonthTable['EFORLosses'] |number_format(2, ',', '.') }}</td>
-                    </tr>
-                    <tr>
-                        <td class="tr_next_columns">Grid Error/Grid Off <sup><b> d</b></sup></td>
-                        <td class="tr_next_columns"> {{ kwhLossesMonthTable['OMCLosses'] |number_format(2, ',', '.') }}</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </td>
-        </tr>
         <tr>
             <td>
                 <div style="text-align: left">
@@ -146,58 +122,5 @@
                 </div>
             </td>
         </tr>
-        {#
-        <tr >
-            <td style="width: 50%">
-                <table style="margin-top: 30px; width: 90%">
-                    <thead>
-                    <th></th>
-                        {% if (anlage.eigner.features.aktDep1) %}
-                            <th>O+M</th>
-                        {% endif %}
-                        {% if (anlage.eigner.features.aktDep2) %}
-                            <th>EPC</th>
-                        {% endif %}
-                        {% if (anlage.eigner.features.aktDep3) %}
-                            <th>AM</th>
-                        {% endif %}
-                        <th> Open Book</th>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="tr_next_columns"> PA[%]</td>
-                            {% if (anlage.eigner.features.aktDep1) %}
-                                <td class="tr_next_columns">{{ TicketAvailabilityMonthTable.pa1 |number_format(2, ',', '.')}}</td>
-                            {% endif %}
-                            {% if (anlage.eigner.features.aktDep2) %}
-                                <td class="tr_next_columns">{{ TicketAvailabilityMonthTable.pa2 |number_format(2, ',', '.')}}</td>
-                            {% endif %}
-                            {% if (anlage.eigner.features.aktDep3) %}
-                                <td class="tr_next_columns">{{ TicketAvailabilityMonthTable.pa3 |number_format(2, ',', '.')}}</td>
-                            {% endif %}
-                            <td class="tr_next_columns"> {{ TicketAvailabilityMonthTable.pa0 |number_format(2, ',', '.')}}</td>
-                        </tr>
-                        <tr>
-                            <td class="tr_next_columns">PR[%]</td>
-                            {% if (anlage.eigner.features.aktDep1) %}
-                                <td class="tr_next_columns">To come</td>
-                            {% endif %}
-                            {% if (anlage.eigner.features.aktDep2) %}
-                                <td class="tr_next_columns">To come</td>
-                            {% endif %}
-                            {% if (anlage.eigner.features.aktDep3) %}
-                                <td class="tr_next_columns">To come</td>
-                            {% endif %}
-                            <td class="tr_next_columns">To come</td>
-                        </tr>
-                    </tbody>
-
-                </table>
-            </td>
-            <td>
-
-            </td>
-        </tr>
-        #}
     </table>
 {% endblock page %}
