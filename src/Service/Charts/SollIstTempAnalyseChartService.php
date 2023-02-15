@@ -75,7 +75,7 @@ class SollIstTempAnalyseChartService
             $sql_add_where_b = "";
             $sql_add_where_a = "";
         }
-//fix the sql Query with an select statement in the join this ist much faster
+//fix the sql Query with an select statement in the join this is much faster
 // MS 01/23
         $sql = 'SELECT 
                 as1.act_power_ac,

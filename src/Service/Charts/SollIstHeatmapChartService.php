@@ -130,26 +130,48 @@ class SollIstHeatmapChartService
         } else {
             $sqladd = "";
         }
-##New SQL
-        $sql = 'SELECT 
+//fix the sql Query with an select statement in the join this is much faster
+        if ($anlage->getUseNewDcSchema()) {
+            $sql = "SELECT 
                 as1.ts,
                 as1.inv,
                 as1.istCurrent,
                 as2.sollCurrent,
                 as2.expected
-                FROM (SELECT c.stamp as ts, c.wr_idc as istCurrent, c.'.$group.' as inv FROM g
-                 '.$anlage->getDbNameACIst().' c WHERE c.stamp 
-                 BETWEEN \''.$from.'\' AND \''.$to.'\' 
-                 '.$sqladd.'  
-                 GROUP BY c.stamp,c.'.$group.' ORDER BY NULL)
+                FROM (SELECT c.stamp as ts, c.wr_idc as istCurrent, c.wr_group as inv FROM
+                 " . $anlage->getDbNameDCIst() . " c WHERE c.stamp 
+                 BETWEEN '$from' AND '$to' 
+                 $sqladd
+                 GROUP BY c.stamp,c.wr_group ORDER BY NULL)
                 AS as1
              JOIN
                 (SELECT b.stamp as ts, b.soll_imppwr as sollCurrent, b.dc_exp_power as expected FROM 
-                 '.$anlage->getDbNameDcSoll().' b WHERE b.stamp 
-                 BETWEEN \''.$from.'\' AND \''.$to.'\' 
+                 " . $anlage->getDbNameDcSoll() . " b WHERE b.stamp 
+                 BETWEEN '$from' AND '$to'
                  GROUP BY b.stamp ORDER BY NULL)
                 AS as2  
-                on (as1.ts = as2.ts)';
+                on (as1.ts = as2.ts)";
+        } else {
+            $sql = "SELECT 
+                as1.ts,
+                as1.inv,
+                as1.istCurrent,
+                as2.sollCurrent,
+                as2.expected
+                FROM (SELECT c.stamp as ts, c.wr_idc as istCurrent, c.$group as inv FROM
+                 " . $anlage->getDbNameACIst() . " c WHERE c.stamp 
+                 BETWEEN '$from' AND '$to' 
+                 $sqladd
+                 GROUP BY c.stamp,c.$group ORDER BY NULL)
+                AS as1
+             JOIN
+                (SELECT b.stamp as ts, b.soll_imppwr as sollCurrent, b.dc_exp_power as expected FROM 
+                 " . $anlage->getDbNameDcSoll() . " b WHERE b.stamp 
+                 BETWEEN '$from' AND '$to'
+                 GROUP BY b.stamp ORDER BY NULL)
+                AS as2  
+                on (as1.ts = as2.ts)";
+        }
 
         $resultActual = $conn->query($sql);
         $dataArray['inverterArray'] = $nameArray;

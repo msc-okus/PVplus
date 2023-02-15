@@ -113,7 +113,8 @@ class TempHeatmapChartService
                 $group = 'group_dc';
         }
 
-        $groupct = count($anlage->getGroupsDc());
+        $groupct = count($anlage->getGroupsAc());
+
         if ($groupct > 50) {
             if ($sets == null) {
                 $sqladd = "AND $group BETWEEN '1' AND '50'";
@@ -127,11 +128,6 @@ class TempHeatmapChartService
         } else {
             $sqladd = "";
         }
-
-       # $sql = "SELECT wr_temp as istTemp,$group as group_dc,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts
-       #                             FROM (db_dummysoll a LEFT JOIN  ".$anlage->getDbNameACIst()." b ON a.stamp = b.stamp)
-       #                             WHERE a.stamp BETWEEN '$from' AND '$to'
-       #                            GROUP BY a.stamp, b.$group";
 
         $sql = "SELECT wr_temp as istTemp, $group, stamp as ts
                 FROM  ".$anlage->getDbNameACIst()." WHERE stamp BETWEEN '$from' AND '$to'
@@ -147,7 +143,7 @@ class TempHeatmapChartService
             } else {
                 $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
             }
-
+            #
             $dataArray['maxSeries'] = 0;
             $counter = 0;
             #
