@@ -43,7 +43,7 @@ class HelpCommand extends Command
         $ergebniss = '';
         $io = new SymfonyStyle($input, $output);
 
-        $anlage = $this->anlagenRepository->find(183); // 183 = REGebeng
+        $anlage = $this->anlagenRepository->find(95); // 183 = REGebeng
         $reportDate = new \DateTime("2022-12-31");
         $reportMonth = 12;
         $reportYear = 2022;
