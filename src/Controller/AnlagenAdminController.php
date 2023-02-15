@@ -95,6 +95,7 @@ class AnlagenAdminController extends BaseController
         ]);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked() || $form->get('savecreatedb')->isClicked())) {
+
             $successMessage = 'Plant data saved!';
             if ($form->get('savecreatedb')->isClicked()) {
                 if ($this->createDatabasesForPlant($anlage)) {
@@ -122,6 +123,13 @@ class AnlagenAdminController extends BaseController
 
     /**
      * @param $id
+     * @param EntityManagerInterface $em
+     * @param Request $request
+     * @param AnlagenRepository $anlagenRepository
+     * @param EconomicVarNamesRepository $ecoNamesRepo
+     * @param UploaderHelper $uploaderHelper
+     * @param AnlageFileRepository $RepositoryUpload
+     * @return RedirectResponse|Response
      */
     #[Route(path: '/admin/anlagen/editconfig/{id}', name: 'app_admin_anlagen_edit_config')]
     public function editConfig($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo, UploaderHelper $uploaderHelper, AnlageFileRepository $RepositoryUpload): RedirectResponse|Response
