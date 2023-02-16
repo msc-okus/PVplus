@@ -2130,13 +2130,13 @@ class AssetManagementService
 
         // dd($kwhLossesYearTable, $kwhLossesMonthTable, $G4NmonthExpected, $G4NyearExpected, $PVSYSTmonthExpected, $PVSYSTyearExpected,$tbody_a_production,$ActualPower, $ActualPowerYear);
         $percentageTable = [
-            'G4NExpected' => $G4NmonthExpected * 100/$G4NmonthExpected ,
-            'PVSYSExpected' => $tbody_a_production['expectedPvSyst'][$month - 2] * 100 / $G4NmonthExpected,
-            'forecast' =>  $forecast[$month-2] * 100 / $G4NmonthExpected,
-            'ActualPower' => $ActualPower * 100 / $G4NmonthExpected,
-            'SORLosses' => -$kwhLossesMonthTable['SORLosses']  * 100 / $G4NmonthExpected,
-            'EFORLosses' => -$kwhLossesMonthTable['EFORLosses']  * 100 / $G4NmonthExpected ,
-            'OMCLosses' => -$kwhLossesMonthTable['OMCLosses']  * 100 / $G4NmonthExpected
+            'G4NExpected' => (int)($G4NmonthExpected * 100/$G4NmonthExpected) ,
+            'PVSYSExpected' => (int)($tbody_a_production['expectedPvSyst'][$month - 2] * 100 / $G4NmonthExpected),
+            'forecast' =>  (int)($forecast[$month-2] * 100 / $G4NmonthExpected),
+            'ActualPower' => (int)($ActualPower * 100 / $G4NmonthExpected),
+            'SORLosses' => -(int)($kwhLossesMonthTable['SORLosses']  * 100 / $G4NmonthExpected),
+            'EFORLosses' => -(int)($kwhLossesMonthTable['EFORLosses']  * 100 / $G4NmonthExpected) ,
+            'OMCLosses' => -(int)($kwhLossesMonthTable['OMCLosses']  * 100 / $G4NmonthExpected)
         ];
 
         $chart->tooltip = [];
@@ -2162,7 +2162,7 @@ class AssetManagementService
             'nameLocation' => 'middle',
             'nameGap' => 80,
         ];
-
+        dump($percentageTable);
         if ($anlage->hasPVSYST() === true) {
                 $chart->series =[
                     [
@@ -2180,40 +2180,61 @@ class AssetManagementService
                         'type' => 'bar',
                         'data' => [$percentageTable['PVSYSExpected']] ,
                         'visualMap' => 'false',
+                        'label' => [
+                            'show' => true,
+                            'position' => 'inside'
+                        ],
                     ],
                     [
                         'name' => 'G4N Simulation[%]',
                         'type' => 'bar',
                         'data' => [$percentageTable['forecast']],
-                        'visualMap' => 'false'],
+                        'visualMap' => 'false',
+                        'label' => [
+                            'show' => true,
+                            'position' => 'inside'
+                        ],
+                    ],
 
                     [
                         'name' => 'Actual',
                         'type' => 'bar',
                         'data' => [$percentageTable['ActualPower']],
                         'visualMap' => 'false',
-
+                        'label' => [
+                            'show' => true,
+                            'position' => 'inside'
+                        ],
                     ],
                     [
                         'name' => 'SOR Losses[%]',
                         'type' => 'bar',
                         'data' => [$percentageTable['SORLosses']],
                         'visualMap' => 'false',
-
+                        'label' => [
+                            'show' => true,
+                            'position' => 'inside'
+                        ],
                     ],
                     [
                         'name' => 'EFOR Losses[%]',
                         'type' => 'bar',
                         'data' => [$percentageTable['EFORLosses']],
                         'visualMap' => 'false',
-
+                        'label' => [
+                            'show' => true,
+                            'position' => 'inside'
+                        ],
                     ],
                     [
                         'name' => 'OMC Losses[%]',
                         'type' => 'bar',
                         'data' => [$percentageTable['OMCLosses']],
                         'visualMap' => 'false',
-
+                        'label' => [
+                            'show' => true,
+                            'position' => 'inside'
+                        ],
                     ]
                 ];
         }
@@ -2222,7 +2243,7 @@ class AssetManagementService
                 [
                     'name' => 'Expected G4N[%]',
                     'type' => 'bar',
-                    'data' => [$percentageTable['G4NExpected']] ,
+                    'data' => [(int)$percentageTable['G4NExpected']] ,
                     'visualMap' => 'false',
                     'label' => [
                         'show' => true,
@@ -2232,21 +2253,34 @@ class AssetManagementService
                 [
                     'name' => 'G4N Simulation[%]',
                     'type' => 'bar',
-                    'data' => [$percentageTable['forecast']],
-                    'visualMap' => 'false'],
+                    'data' => [(int)$percentageTable['forecast']],
+                    'visualMap' => 'false',
+                    'label' => [
+                        'show' => true,
+                        'position' => 'inside'
+                    ],
+                ],
+
 
                 [
                     'name' => 'Actual[%]',
                     'type' => 'bar',
-                    'data' => [$percentageTable['ActualPower']],
+                    'data' => [(int)$percentageTable['ActualPower']],
                     'visualMap' => 'false',
-
+                    'label' => [
+                        'show' => true,
+                        'position' => 'inside'
+                    ],
                 ],
                 [
                     'name' => 'SOR Losses[%]',
                     'type' => 'bar',
-                    'data' => [$percentageTable['SORLosses']],
+                    'data' => [(int)$percentageTable['SORLosses']],
                     'visualMap' => 'false',
+                    'label' => [
+                        'show' => true,
+                        'position' => 'inside'
+                    ],
 
                 ],
                 [
@@ -2254,14 +2288,20 @@ class AssetManagementService
                     'type' => 'bar',
                     'data' => [$percentageTable['EFORLosses']],
                     'visualMap' => 'false',
-
+                    'label' => [
+                        'show' => true,
+                        'position' => 'inside'
+                    ],
                 ],
                 [
                     'name' => 'OMC Losses[%]',
                     'type' => 'bar',
                     'data' => [$percentageTable['OMCLosses']],
                     'visualMap' => 'false',
-
+                    'label' => [
+                        'show' => true,
+                        'position' => 'inside'
+                    ],
                 ]
             ];
         }
@@ -2305,13 +2345,13 @@ class AssetManagementService
         ];
 
         $percentageTableYear = [
-            'G4NExpected' => $G4NyearExpected * 100/$G4NyearExpected ,
-            'PVSYSExpected' => $PVSYSTyearExpected * 100 / $G4NyearExpected,
-            'forecast' =>  $forecastSum[$month-2] * 100 / $G4NyearExpected,
-            'ActualPower' => $ActualPowerYear * 100 / $G4NyearExpected,
-            'SORLosses' => -$kwhLossesYearTable['SORLosses']  * 100 / $G4NyearExpected,
-            'EFORLosses' => -$kwhLossesYearTable['EFORLosses']  * 100 / $G4NyearExpected ,
-            'OMCLosses' => -$kwhLossesYearTable['OMCLosses']  * 100 / $G4NyearExpected
+            'G4NExpected' => (int)($G4NyearExpected * 100/$G4NyearExpected) ,
+            'PVSYSExpected' => (int)($PVSYSTyearExpected * 100 / $G4NyearExpected),
+            'forecast' =>  (int)($forecastSum[$month-2] * 100 / $G4NyearExpected),
+            'ActualPower' => (int)($ActualPowerYear * 100 / $G4NyearExpected),
+            'SORLosses' => -(int)($kwhLossesYearTable['SORLosses']  * 100 / $G4NyearExpected),
+            'EFORLosses' => -(int)($kwhLossesYearTable['EFORLosses']  * 100 / $G4NyearExpected) ,
+            'OMCLosses' => -(int)($kwhLossesYearTable['OMCLosses']  * 100 / $G4NyearExpected)
         ];
         $chart->tooltip = [];
         $chart->xAxis = [];
@@ -2343,69 +2383,46 @@ class AssetManagementService
                     'type' => 'bar',
                     'data' => [$percentageTableYear['G4NExpected']] ,
                     'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
                 ],
                 [
                     'name' => 'Expected PVSYS[%]',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['PVSYSExpected']] ,
                     'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
                 ],
                 [
                     'name' => 'G4N Simulation[%]',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['forecast']],
                     'visualMap' => 'false'],
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
+
                 [
                     'name' => 'Actual',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['ActualPower']],
                     'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
+
                 ],
                 [
                     'name' => 'SOR Losses[%]',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['SORLosses']],
                     'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
+
                 ],
                 [
                     'name' => 'EFOR Losses[%]',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['EFORLosses']],
                     'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
+
                 ],
                 [
                     'name' => 'OMC Losses[%]',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['OMCLosses']],
                     'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
+
                 ]
             ];
         }
@@ -2416,10 +2433,7 @@ class AssetManagementService
                     'type' => 'bar',
                     'data' => [$percentageTableYear['G4NExpected']] ,
                     'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
+
                 ],
                 [
                     'name' => 'G4N Simulation[%]',
