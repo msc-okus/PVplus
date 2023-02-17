@@ -109,23 +109,37 @@ class HeatmapChartService
                 $groupct = count($anlage->getGroupsDc());
         }
 
-        if ($groupct > 50) {
+
+           if ($groupct) {
             if ($sets == null) {
-                $sqladd = "AND $group BETWEEN '1' AND '50'";
-            }
-            if ($sets != null) {
+                $min = 1;
+                $max = (($groupct > 100) ? (int)ceil($groupct / 10) : (int)ceil($groupct / 2));
+                $max = (($max > 50) ? '50' : $max);
+                $sqladd = "AND $group BETWEEN '$min' AND '$max'";
+            } else {
                 $res = explode(',', $sets);
-                $min = ltrim($res[0], "[");
-                $max = rtrim($res[1], "]");
-                $sqladd = "AND $group BETWEEN " . (empty($min) ? '0' : $min) . " AND " . (empty($max) ? '50' : $max) . " ";
+
+                $min = (int)ltrim($res[0], "[");
+                $max = (int)rtrim($res[1], "]");
+                (($max > $groupct) ? $max = $groupct:$max = $max);
+                (($groupct > $min) ? $min = $min:$min = 1);
+                $sqladd = "AND $group BETWEEN ".(empty($min)? '0' : $min)." AND ".(empty($max)? '50' : $max)."";
+
             }
         } else {
-            $sqladd = "";
+               $min = 1;
+               $max = 50;
+               $sqladd = "AND $group BETWEEN '$min' AND '$max'";
         }
 
-        //fix the sql Query with an select statement in the join this is much faster
-        $sql = "SELECT T1.istPower, T1." . $group . ", T1.ts, T2.g_upper
-            FROM (SELECT stamp as ts, wr_pac as istPower, " . $group . "  FROM " . $anlage->getDbNameACIst() . " WHERE stamp BETWEEN '$from' and '$to'  " . $sqladd . " GROUP BY ts, " . $group . " ORDER BY " . $group . " DESC)
+        $dataArray['minSeries'] = $min;
+        $dataArray['maxSeries'] = $max;
+        $dataArray['sumSeries'] = $groupct;
+
+//fix the sql Query with an select statement in the join this is much faster
+      $sql = "SELECT T1.istPower,T1.".$group.",T1.ts,T2.g_upper
+            FROM (SELECT stamp as ts, wr_pac as istPower, ".$group."  FROM ".$anlage->getDbNameACIst()." WHERE stamp BETWEEN '$from' and '$to'  ".$sqladd." GROUP BY ts, ".$group." ORDER BY ".$group." DESC)
+
             AS T1
             JOIN (SELECT stamp as ts, g_lower as g_lower , g_upper as g_upper FROM " . $anlage->getDbNameWeather() . " WHERE stamp BETWEEN '$from' and '$to' ) 
             AS T2 

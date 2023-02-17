@@ -1,0 +1,129 @@
+<script>
+    am4core.ready(function() {
+        // Create the Chart Instance
+        let chart = am4core.create("amchart-holder", am4charts.XYChart);
+
+        chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+        chart.numberFormatter.intlLocales = "de-DE";
+        chart.numberFormatter.numberFormat = {
+            "style": "decimal",
+            "minimumFractionDigits": 0
+        };
+        // Title Chart
+        let title = chart.titles.create();
+        title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+        title.fontSize = 18;
+        title.marginBottom = 30;
+
+        // Legend
+        chart.legend = new am4charts.Legend();
+        chart.legend.useDefaultMarker = false;
+
+        // Create axes
+        let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+        let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+        valueAxis.title.text = "[[kW/kWp]]";
+
+        // Create series
+        function addSeries(id,val,xname) {
+            var series = chart.series.push(new am4charts.LineSeries());
+            series.data = {{ content.data|raw }};
+            series.dataFields.dateX = "date";
+            series.dataFields.valueY = "pnomac_" + id ;
+            series.name = xname;
+
+            var segment = series.segments.template;
+            segment.interactionsEnabled = true;
+
+            var hoverState = segment.states.create("hover");
+            hoverState.properties.strokeWidth = 3;
+
+            var dimmed = segment.states.create("dimmed");
+            dimmed.properties.stroke = am4core.color("#dadada");
+
+            //series.tooltipText = xname + ": {valueY} kW/kWp [/]";
+            series.strokeWidth = 1;
+            series.defaultState.transitionDuration = 300;
+            series.tensionX = 0.8;
+
+            return series;
+        }
+
+       let datax = data = {{ content.data|raw }};
+       let x = 0;
+
+        for (let i = {{ content.minSeries|raw }}; i <= {{ content.maxSeries|raw }}; i++) {
+            let xinvname = 'xinv_'+ i +'';
+            let val = 'pnomac_'+ i +''; let xname = datax[x][xinvname];
+            x++;
+            addSeries(i,val,xname);
+        }
+
+        chart.cursor = new am4charts.XYCursor();
+        chart.cursor.xAxis = dateAxis;
+        chart.exporting.menu = new am4core.ExportMenu();
+        chart.scrollbarX = new am4core.Scrollbar();
+        chart.scrollbarX.marginBottom = "20"
+        chart.scrollbarY = new am4core.Scrollbar();
+        chart.scrollbarY.marginLeft = "20";
+        chart.exporting.menu.items[0].label = "Download";
+        chart.exporting.formatOptions.getKey("json").disabled = true;
+        chart.exporting.formatOptions.getKey("html").disabled = true;
+        chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+        chart.exporting.formatOptions.getKey("print").disabled = true;
+        chart.exporting.formatOptions.getKey("pdf").disabled = true;
+        chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+
+        chart.legend.markers.template.states.create("dimmed").properties.opacity = 0.3;
+        chart.legend.labels.template.states.create("dimmed").properties.opacity = 0.3;
+        chart.legend.labels.template.truncate = true;
+
+        chart.legend.itemContainers.template.events.on("over", function(event) {
+            processOver(event.target.dataItem.dataContext);
+        })
+
+        chart.legend.itemContainers.template.events.on("out", function(event) {
+           processOut(event.target.dataItem.dataContext);
+        })
+
+        chart.legend.labels.template.textDecoration = "none";
+        chart.legend.valueLabels.template.textDecoration = "none";
+
+        var as = chart.legend.labels.template.states.getKey("active");
+        as.properties.textDecoration = "line-through";
+        as.properties.fill = am4core.color("#000ll");
+
+        var as2 = chart.legend.valueLabels.template.states.getKey("active");
+        as2.properties.textDecoration = "line-through";
+        as2.properties.fill = am4core.color("#000zu");
+
+        function processOver(hoveredSeries) {
+            hoveredSeries.toFront();
+            hoveredSeries.segments.each(function(segment) {
+                segment.setState("hover");
+            })
+
+            chart.series.each(function(series) {
+                if (series != hoveredSeries) {
+                    series.segments.each(function(segment) {
+                        segment.setState("dimmed");
+                    })
+                }
+            });
+        }
+
+        function processOut() {
+            chart.series.each(function(series) {
+                series.segments.each(function(segment) {
+                    segment.setState("default");
+                })
+            });
+        }
+
+        document.getElementById("button").addEventListener("click", function(){
+            processOver(chart.series.getIndex(3));
+        })
+
+        // End Chart Instance
+    });
+</script>

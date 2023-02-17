@@ -8,13 +8,15 @@
                 showWeekNumbers: false,
                 startDate: moment().startOf('month'),
                 endDate: moment().endOf('month'),
-                    {% if  form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap' %}
+                    {% if  form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap' or form.selectedChart == 'acpnom'%}
                 showCustomRangeLabel:false,
+                singleDatePicker: true,
                     {% else %}
                 showCustomRangeLabel:true,
+                singleDatePicker: false,
                     {% endif %}
                 ranges: {
-                    {% if  form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap' %}
+                    {% if  form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap' or form.selectedChart == 'acpnom' %}
                 'Today': [moment(), moment()]
                     {% else %}
                 'Today': [moment(), moment()],
@@ -126,36 +128,14 @@
         });
     });
 </script>
-<script>
-    //Range Slider Config and Function
-    $(function() {
-        $("#slider-range").slider({
-            range: true,
-            min: 1,
-            max: {{aktAnlage.groups|length}},
-            values: {% if  form.selectedSet  %}{{ form.selectedSet }},{% else %}[1,50],{% endif %}
-        slide: function( event, ui ) {
-            $( "#sview" ).val("" + ui.values[ 0 ] + "-" + ui.values[ 1 ]+ "");
-            $( "#sviewhidden" ).val("[" + ui.values[ 0 ] + "," + ui.values[ 1 ]+ "]");
-        },
-        change: function(){
-            $("#sendrange").css("background-color", "greenyellow");
-        }
-    });
-        $("#sview").val("" + $("#slider-range").slider( "values", 0 ) + "-" + $("#slider-range").slider( "values", 1 ) + "");
-        $("#sviewhidden").val("[" + $("#slider-range").slider( "values", 0 ) + "," + $("#slider-range").slider( "values", 1 ) + "]");
-        $("#goshare").click(function() {
-            $("#mysubmit").val('yes');
-            $("#chart-control").delay(100).submit();
-        });
-    });
-</script>
 
-
-{% if form.selectedChart == 'tempheatmap'  %}
-    {%  set grlength = aktAnlage.groupsAc|length  %}
+{% if  form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap' or form.selectedChart == 'acpnom' %}
+{% if  content.maxSeries|raw  %}
+    {%  set grlengthmax = content.maxSeries|raw  %}
+    {%  set grlengthmin = content.minSeries|raw  %}
 {% else %}
-    {%  set grlength = aktAnlage.groupsDc|length  %}
+    {%  set grlengthmax = 50  %}
+    {%  set grlengthmin = 1  %}
 {% endif %}
 
 <script>
@@ -164,12 +144,12 @@
         $("#slider-range").slider({
             range: true,
             min: 1,
-            max: {{grlength}},
-            values: {% if  form.selectedSet  %}{{ form.selectedSet }},{% else %}[1,50],{% endif %}
-        slide: function( event, ui ) {
-            $( "#sview" ).val("" + ui.values[ 0 ] + "-" + ui.values[ 1 ]+ "");
-            $( "#sviewhidden" ).val("[" + ui.values[ 0 ] + "," + ui.values[ 1 ]+ "]");
-        },
+            max: {% if content.sumSeries|raw  %} {{ content.sumSeries|raw }}, {% else %} {{ grlengthmax }},{% endif %}
+            values: {% if  form.selectedSet  %} {{ form.selectedSet }},{% else %}[{{ grlengthmin }},{{ grlengthmax }}],{% endif %}
+            slide: function( event, ui ) {
+                $( "#sview" ).val("" + ui.values[ 0 ] + "-" + ui.values[ 1 ]+ "");
+                $( "#sviewhidden" ).val("[" + ui.values[ 0 ] + "," + ui.values[ 1 ]+ "]");
+            },
         change: function(event,ui) {
             if ((ui.values[1] - ui.values[0]) > 100) {alert("The selected range is greater than 100, which can lead to delays in the view!");};
             $("#sendrange").css("background-color", "#e6e6e6");
@@ -183,8 +163,9 @@
         });
     });
 </script>
+{% endif %}
 
-{% from "dashboardPlants/_incl/macrosMenuSelectBox.html.twig" import showHeatmap ,showTempHeatmap ,showSollIstAnalyse,showSollIstTempAnalyse,showSollIstIrrAnalyse,showSollIstHeatmap, acActOverview, acActGroup, dcActGroup, dcGroupPowerDiff, irradiation, inverterPerformance,
+{% from "dashboardPlants/_incl/macrosMenuSelectBox.html.twig" import showACPnom,showHeatmap ,showTempHeatmap ,showSollIstAnalyse,showSollIstTempAnalyse,showSollIstIrrAnalyse,showSollIstHeatmap, acActOverview, acActGroup, dcActGroup, dcGroupPowerDiff, irradiation, inverterPerformance,
     currentDcOverview, currentDcInverter, currentDcGroup, dcActPlant, dcActOverview, currentDcString, acActPlant, acVoltage, acCurrent, acFrequency, acReactive, voltageDc1, voltageDcString %}
 
 {% from "dashboardPlants/_incl/macrosGroupeMenuSelectBox.html.twig" import groupMenu, groupMenuNew %}
@@ -207,6 +188,7 @@
                     <option value="forecast" {% if form.selectedChart == 'forecast' %}selected{% endif %}>Forecast&nbsp;[kWh]</option>
                 {% endif %}
 
+
                 {% if is_granted('ROLE_G4N') or is_granted('ROLE_ANALYSE') %}
                     {% if aktAnlage.settings.chartAnalyse4 or is_granted('ROLE_ADMIN') %}{{ showHeatmap(form, aktAnlage) }}{% endif %}            {# Headmap #}
                     {% if aktAnlage.settings.chartAnalyse5 or is_granted('ROLE_ADMIN') %}{{ showTempHeatmap(form, aktAnlage) }}{% endif %}        {# Headmap #}
@@ -223,6 +205,7 @@
                 {% if aktAnlage.settings.chartAC1 %}{{ acActPlant(form, aktAnlage) }}{% endif %}       {# AC1 #}
                 {% if aktAnlage.settings.chartAC2 %}{{ acActOverview(form, aktAnlage) }}{% endif %}    {# AC2 #}
                 {% if aktAnlage.settings.chartAC3 %}{{ acActGroup(form, aktAnlage) }}{% endif %}       {# AC3 #}
+                {% if aktAnlage.settings.chartAC9 %}{{ showACPnom(form, aktAnlage) }}{% endif %}        {# LineChart #}
                 {% if aktAnlage.settings.chartAC4 %}
                     <option value="ac_grp_power_diff" {% if form.selectedChart == 'ac_grp_power_diff' or not form.selectedChart %}selected{% endif %}>AC - Inverter {% if is_granted('ROLE_DEV') %}[AC 4]{% endif %}</option>
                 {% endif %}
@@ -233,7 +216,6 @@
             </optgroup>
 
             {% if aktAnlage.hasDc %} {# ausblenden wenn keine DC Daten vorhanden sind #}
-
                 <!-- ab hier DC -->
                 <optgroup label="DC Power">
                     {% if aktAnlage.settings.chartDC1 %}{{ dcActPlant(form, aktAnlage) }}{% endif %}       {# DC1 #}
@@ -288,24 +270,24 @@
 
     <div class="cell medium-4 large-2 xlarge-2">
         {{ groupMenuNew(form, aktAnlage) }}
-        {% if form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap' %}
-            {% if aktAnlage.groups|length > 50 %}
+        {% if form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap' or form.selectedChart == 'acpnom'%}
+            {% if grlengthmax %}
                 <div class="grid-x grid-padding-x" style="height:40px;">
-                    <div class="cell medium-5">
-                        <label for="amount">INV Range:</label>
-                    </div>
-                    <div class="cell medium-4">
+                    <div class="cell medium-5 large-5 xlarge-5"><label for="amount">INV Range:</label></div>
+                    <div class="cell medium-4 large-4 xlarge-4">
 
                         <input type="text" id="sview" readonly style="border:0; background-color: #701b1b00 ; box-shadow: inset 0 0px 0px rgba(10, 10, 10, 0.1);font-weight:bold;">
                         <input type="hidden" id="sviewhidden" name="selectedSet" value="0">
                         <input type="hidden"  name="selectedSetfrom" value="{{ form.selectedSet }}">
                     </div>
 
-                    <div class="cell medium-3">
-                        <label id="goshare" class="button" style="background-color: #701b1b00;display: block;font-weight: 800;color: green;font-size: 38px;padding:0 0 0 5px;">
+
+                    <div class="cell medium-3 large-3 xlarge-3">
+                        <label id="goshare" class="button" title="Submit the range" style="background-color: #701b1b00;display: block;font-weight: 800;color: green;font-size: 38px;padding:0 0 0 5px;">
                             <div type="text" id="sendrange" style="display: block">
-                                <i class="fa fa fa-expand"></i>
-                            </div>
+                                <i class="fa fa fa-expand"></i></div>
+
+
                         </label>
                     </div>
                 </div>
@@ -318,7 +300,7 @@
 
     {# neues Cahrt Control System #}
     {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse'
-        or form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap'%}
+        or form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap' or form.selectedChart == 'acpnom'%}
         <div class="cell medium-2 large-4 xlarge-4">
             <div class="input-group">
                 <label class="button" style="background-color: #701b1b00;display: block;font-weight: 800;color: green;font-size: 38px;padding:0 5px 0 0;">
@@ -376,8 +358,8 @@
                 </label>
             </div>
         </div>
-
-        {% if (form.selectedChart != 'availability') and (form.selectedChart != 'pr_and_av') and (form.selectedChart != 'forecast') and (form.selectedChart != 'status_log') and (form.selectedChart != 'pvsyst') and (form.selectedChart != 'heatmap') and (form.selectedChart != 'tempheatmap') and (form.selectedChart != 'sollistanalyse') and form.selectedChart != 'sollistirranalyse' and (form.selectedChart != 'sollisttempanalyse') and (form.selectedChart != 'sollistheatmap') and (form.selectedChart != 'grid')%}
+    {% endif %}
+        {% if (form.selectedChart != 'availability') and (form.selectedChart != 'acpnom') and (form.selectedChart != 'pr_and_av') and (form.selectedChart != 'forecast') and (form.selectedChart != 'status_log') and (form.selectedChart != 'pvsyst') and (form.selectedChart != 'heatmap') and (form.selectedChart != 'tempheatmap') and (form.selectedChart != 'sollistanalyse') and form.selectedChart != 'sollistirranalyse' and (form.selectedChart != 'sollisttempanalyse') and (form.selectedChart != 'sollistheatmap') and (form.selectedChart != 'grid')%}
             <div class="cell medium-1 large-1 xlarge-1">
                 <div class="switch tiny align-center-middle">
                     <label class="" style="line-height: 1;"><small>Interval min.</small></label>
@@ -391,7 +373,7 @@
             </div>
         {% endif %}
         <div class="cell medium-6 large-8 xlarge-4">
-            <div class="small button-group round toggle" {% if form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap'%}style="display: none"{% endif %}>
+            <div class="small button-group round toggle" {% if form.selectedChart == 'heatmap' or form.selectedChart == 'acpnom' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap'%}style="display: none"{% endif %}>
                 <label class="button js-submit-onchange {% if form.optionDate == 1 or not form.optionDate %}active{% endif %} {% if form.selectedChart == 'pr_and_av' or form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' %}disabled{% endif %}">
                     <input type="radio" name="optionDate" value="1" {% if form.optionDate == 1 or not form.optionDate %}checked="checked"{% endif %}>one day
                 </label>
