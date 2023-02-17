@@ -108,6 +108,7 @@ class ReportsMonthlyService
             // Table
             $day = new \DateTime("$year-$month-$i 12:00");
             $prArray = $this->PRCalulation->calcPR($anlage, $day);
+            #dd($prArray);
 
             $dayValues['datum'] = $day->format('m-d');
 

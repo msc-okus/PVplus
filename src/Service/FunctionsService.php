@@ -765,21 +765,20 @@ class FunctionsService
             // Berechnung der externen Zählerwerte unter Berücksichtigung der Manuel eingetragenen Monatswerte.
             // Darüber kann eine Koorektur der Zählerwerte erfolgen.
             // Wenn für einen Monat Manuel Zählerwerte eingegeben wurden, wird der Wert der Tageszählwer wieder subtrahiert und der Manuel eingebene Wert addiert.
-            /*
-            if (strtotime($from < strtotime($anlage->getEpcReportStart()))) {
-                $from = $anlage->getEpcReportStart()->format('y-m-d');
-            }*/
             $powerEGridExt = $this->gridMeterDayRepo->sumByDateRange($anlage, $from, $to);
             if (!$powerEGridExt) {
                 $powerEGridExt = 0;
             }
+            // prüfe ob $from Datum und das $to datum weniger al einen Monat auseinaderliegen
+            // wenn das so ist darf die korrektur nicht ausgeführt werden
+            if (!$day) $day = strtotime($to) - strtotime($from) <= (3600 *24);
             // wenn Tageswerte angefordert, dann nicht mit Monatswerten verrechnen, wenn keine Tageswerte vorhanden sind, wird 0 zurückgegeben.
-            if ($day === false) {
+            if (!$day) {
                 $year = (int) date('Y', strtotime($from));
                 $month = (int) date('m', strtotime($from));
                 $monthes = self::g4nDateDiffMonth($from, $to);
                 for ($n = 1; $n <= $monthes; ++$n) {
-                    $monthlyData = $this->monthlyDataRepo->findOneBy(['anlage' => $anlage, 'year' => $year, 'month' => $month]);
+                    $monthlyData = $this->monthlyDataRepo->findOneBy(['anlage' => $anlage, 'year' => $year, 'month' => $month]);// calculate the first and the last day of the given month and year in $monthlyData
                     if ($monthlyData != null && $monthlyData->getExternMeterDataMonth() > 0) {
                         $currentDate = strtotime($year.'-'.$month.'-01');
                         $lastDayMonth = date('t', $currentDate);
@@ -817,6 +816,7 @@ class FunctionsService
         // ############ für den angeforderten Zeitraum #############
 
         // Wenn externe Tagesdaten genutzt werden, sollen lade diese aus der DB und ÜBERSCHREIBE die Daten aus den 15Minuten Werten
+
         $powerEGridExt = $this->getSumeGridMeter($anlage, $from, $to);
 
         // EVU Leistung ermitteln –
@@ -881,22 +881,29 @@ class FunctionsService
                 // $monthlyDatas = $this->monthlyDataRepo->findBy(['anlage' => $anlage], ['year' => 'asc', 'month' => 'asc']);
                 $monthlyDatas = $this->monthlyDataRepo->findByDateRange($anlage, date_create($from), date_create($to));
                 foreach ($monthlyDatas as $monthlyData) {
-                    $tempFrom = new DateTime($monthlyData->getYear() . '-' . $monthlyData->getMonth() . '-01 00:00');
-                    $tempDaysInMonth = $tempFrom->format('t');
-                    $tempTo = new DateTime($monthlyData->getYear() . '-' . $monthlyData->getMonth() . '-' . $tempDaysInMonth . ' 23:59');
+                    // calculate the first and the last day of the given month and year in $monthlyData
+                    $firstDayMonth = date_create($monthlyData->getYear() . "-". $monthlyData->getMonth()."-01");
+                    $lastDayMonth  = date_create($monthlyData->getYear() . "-". $monthlyData->getMonth()."-".$firstDayMonth->format("t"));
 
-                    if ($anlage->isIgnoreNegativEvu()) {
-                        $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '" . $tempFrom->format('Y-m-d H:i') . "' AND '" . $tempTo->format('Y-m-d H:i') . "' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
-                    } else {
-                        $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '" . $tempFrom->format('Y-m-d H:i') . "' AND '" . $tempTo->format('Y-m-d H:i') . "' GROUP BY unit LIMIT 1";
+                    // check if the time period is the hole month. Only if we get 1 whole Month we can use this correction
+                    if ($firstDayMonth->format("Y-m-d 00:00") === $from && $lastDayMonth->format("Y-m-d 23:59") === $to) {
+                        $tempFrom = new DateTime($monthlyData->getYear() . '-' . $monthlyData->getMonth() . '-01 00:00');
+                        $tempDaysInMonth = $tempFrom->format('t');
+                        $tempTo = new DateTime($monthlyData->getYear() . '-' . $monthlyData->getMonth() . '-' . $tempDaysInMonth . ' 23:59');
+
+                        if ($anlage->isIgnoreNegativEvu()) {
+                            $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '" . $tempFrom->format('Y-m-d H:i') . "' AND '" . $tempTo->format('Y-m-d H:i') . "' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
+                        } else {
+                            $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '" . $tempFrom->format('Y-m-d H:i') . "' AND '" . $tempTo->format('Y-m-d H:i') . "' GROUP BY unit LIMIT 1";
+                        }
+                        $res = $conn->query($sql);
+                        if ($res->rowCount() == 1) {
+                            $row = $res->fetch(PDO::FETCH_ASSOC);
+                            $evu -= $row['power_evu'];
+                            $evu += $monthlyData->getExternMeterDataMonth();
+                        }
+                        unset($res);
                     }
-                    $res = $conn->query($sql);
-                    if ($res->rowCount() == 1) {
-                        $row = $res->fetch(PDO::FETCH_ASSOC);
-                        $evu -= $row['power_evu'];
-                        $evu += $monthlyData->getExternMeterDataMonth();
-                    }
-                    unset($res);
                 }
             }
         }
