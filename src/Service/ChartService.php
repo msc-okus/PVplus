@@ -502,20 +502,37 @@ class ChartService
                         $resultArray['series1']['tooltipText'] = '';
                     }
                     break;
+                case 'acpnom':
+                    $dataArray = $this->acCharts->getNomPowerGroupAC($anlage, $from, $to, $form['selectedSet']);
+                    $resultArray['data'] = json_encode($dataArray['chart']);
+                    $resultArray['headline'] = 'AC Power Inverter normalized';
+                    $resultArray['maxSeries'] = $dataArray['maxSeries'];
+                    $resultArray['minSeries'] = $dataArray['minSeries'];
+                    $resultArray['sumSeries'] = $dataArray['sumSeries'];
+                break;
                 case 'heatmap':
                     $dataArray = $this->heatmapChartService->getHeatmap($anlage, $from, $to, $form['selectedSet']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'Inverter PR Heatmap [%]';
+                    $resultArray['maxSeries'] = $dataArray['maxSeries'];
+                    $resultArray['minSeries'] = $dataArray['minSeries'];
+                    $resultArray['sumSeries'] = $dataArray['sumSeries'];
                     break;
                 case 'tempheatmap':
                     $dataArray = $this->tempheatmapChartService->getTempHeatmap($anlage, $from, $to, $form['selectedSet']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'Inverter Temperature Heatmap [C°]';
+                    $resultArray['maxSeries'] = $dataArray['maxSeries'];
+                    $resultArray['minSeries'] = $dataArray['minSeries'];
+                    $resultArray['sumSeries'] = $dataArray['sumSeries'];
                     break;
                 case 'sollistheatmap':
                     $dataArray = $this->sollistheatmapChartService->getSollIstHeatmap($anlage, $from, $to, $form['selectedSet']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
                     $resultArray['headline'] = 'DC Current Heatmap';
+                    $resultArray['maxSeries'] = $dataArray['maxSeries'];
+                    $resultArray['minSeries'] = $dataArray['minSeries'];
+                    $resultArray['sumSeries'] = $dataArray['sumSeries'];
                     break;
                 case 'sollistanalyse':
                     $dataArray = $this->sollistAnalyseChartService->getSollIstDeviationAnalyse($anlage, $from, $to ,$form['selectedGroup']);

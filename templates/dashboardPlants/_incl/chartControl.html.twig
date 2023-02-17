@@ -143,7 +143,7 @@
 </script>
 
 
-{% from "dashboardPlants/_incl/macrosMenuSelectBox.html.twig" import showHeatmap ,showTempHeatmap ,showSollIstAnalyse,showSollIstTempAnalyse,showSollIstIrrAnalyse,showSollIstHeatmap, acActOverview, acActGroup, dcActGroup, dcGroupPowerDiff, irradiation, inverterPerformance,
+{% from "dashboardPlants/_incl/macrosMenuSelectBox.html.twig" import showACPnom ,showHeatmap ,showTempHeatmap ,showSollIstAnalyse,showSollIstTempAnalyse,showSollIstIrrAnalyse,showSollIstHeatmap, acActOverview, acActGroup, dcActGroup, dcGroupPowerDiff, irradiation, inverterPerformance,
     currentDcOverview, currentDcInverter, currentDcGroup, dcActPlant, dcActOverview, currentDcString, acActPlant, acVoltage, acCurrent, acFrequency, acReactive, voltageDcString %}
 
 {% from "dashboardPlants/_incl/macrosGroupeMenuSelectBox.html.twig" import groupMenu, groupMenuNew %}
@@ -166,8 +166,9 @@
                 {{ showHeatmap(form, aktAnlage) }}            {# Headmap #}
                 {{ showTempHeatmap(form, aktAnlage) }}        {# Headmap #}
                 {{ showSollIstHeatmap(form, aktAnlage) }}     {# Headmap #}
+                {{ showACPnom(form, aktAnlage) }}             {# LineChart #}
                 {% if is_granted('ROLE_G4N') or is_granted('ROLE_ANALYSE') %}
-                    {{ showSollIstAnalyse(form, aktAnlage) }}     {# Bubblechart #}
+                    {{ showSollIstAnalyse(form, aktAnlage) }}        {# Bubblechart #}
                     {{ showSollIstTempAnalyse(form, aktAnlage) }}    {# Bubblechart #}
                     {{ showSollIstIrrAnalyse(form, aktAnlage) }}     {# Bubblechart #}
                 {% endif %}
@@ -232,7 +233,7 @@
 
     <div class="cell medium-4 large-2 xlarge-2">
         {{ groupMenuNew(form, aktAnlage) }}
-        {% if form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap' %}
+        {% if form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap' or form.selectedChart == 'acpnom' %}
             {% if aktAnlage.groups|length > 50 %}
                 <div class="grid-x grid-padding-x" style="height:40px;">
                     <div class="cell medium-5 large-5 xlarge-5"><label for="amount">INV Range:</label></div>
@@ -313,7 +314,8 @@
 
     </div>
 
-    {% if (form.selectedChart != 'availability') and (form.selectedChart != 'pr_and_av') and (form.selectedChart != 'forecast') and (form.selectedChart != 'status_log') and (form.selectedChart != 'pvsyst') and (form.selectedChart != 'heatmap') and (form.selectedChart != 'tempheatmap') and (form.selectedChart != 'sollistanalyse') and form.selectedChart != 'sollistirranalyse' and (form.selectedChart != 'sollisttempanalyse') and (form.selectedChart != 'sollistheatmap') and (form.selectedChart != 'grid')%}
+    {% if (form.selectedChart != 'availability') and (form.selectedChart != 'pr_and_av') and (form.selectedChart != 'forecast') and (form.selectedChart != 'status_log') and (form.selectedChart != 'pvsyst') and (form.selectedChart != 'heatmap') and (form.selectedChart != 'tempheatmap') and (form.selectedChart != 'sollistanalyse') and form.selectedChart != 'sollistirranalyse'
+        and (form.selectedChart != 'sollisttempanalyse') and (form.selectedChart != 'sollistheatmap') and (form.selectedChart != 'grid') and (form.selectedChart != 'acpnom')%}
         <div class="cell medium-1 large-1 xlarge-1">
             <div class="switch tiny align-center-middle">
                 <label class="" style="line-height: 1;"><small>Interval min.</small></label>

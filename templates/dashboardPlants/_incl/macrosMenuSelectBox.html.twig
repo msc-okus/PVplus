@@ -1,3 +1,7 @@
+{# INV AC Pnom Diagramme #}
+{% macro showACPnom(form, aktAnlage) %}
+    <option value="acpnom" {% if form.selectedChart == 'acpnom' %}selected{% endif %}>AC Power - Inverter normalized [kW/kWp]</option>
+{% endmacro %}
 {# INV PR Heatmap Diagramme #}
 {% macro showHeatmap(form, aktAnlage) %}
     <option value="heatmap" {% if form.selectedChart == 'heatmap' %}selected{% endif %}>Inverter PR Heatmap [%]</option>

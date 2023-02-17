@@ -1403,6 +1403,8 @@ and form.selectedChart != 'sollistirranalyse'%}
     {{ gridTable(content.grid) }}
 {% elseif form.selectedChart == 'forecast' %}
     {% include 'dashboardPlants/_incl/chart/forecast.html.twig' %}
+{% elseif form.selectedChart == 'acpnom' %}
+    {% include 'dashboardPlants/_incl/chart/AcPNom.html.twig' %}
 {% elseif form.selectedChart == 'heatmap' %}
     {% include 'dashboardPlants/_incl/chart/heatmap.html.twig' %}
 {% elseif form.selectedChart == 'tempheatmap' %}
