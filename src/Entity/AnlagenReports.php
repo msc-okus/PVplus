@@ -2,28 +2,38 @@
 
 namespace App\Entity;
 
+
+
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\BooleanFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\NumericFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
 use App\Repository\ReportsRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 
+
 /**
  * @ApiResource(
+ *     collectionOperations={"get", "post"},
+ *     itemOperations={"get","put"},
  *     shortName="reports",
  *     normalizationContext={"groups"={"main:read"}},
  *     denormalizationContext={"groups"={"main:write"}},
  *     attributes={
+ *          "pagination_items_per_page"=10,
  *          "formats"={"jsonld", "json", "html", "csv"={"text/csv"}}
  *     }
  * )
+ * @ApiFilter(SearchFilter::class, properties={"reportType":"partial"})
  * @ApiFilter(NumericFilter::class, properties={"reportStatus"})
- * @ApiFilter(SearchFilter::class, properties={"reportType": "partial"})
+ *
  */
+
 #[ORM\Entity(repositoryClass: ReportsRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 #[ORM\Table(name: 'anlagen_reports')]
@@ -79,6 +89,9 @@ class AnlagenReports
 
     #[ORM\Column(type: 'text', nullable: true)]
     private $comments;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $file = "";
 
     public function getId(): ?int
     {
@@ -228,6 +241,18 @@ class AnlagenReports
     public function setComments(?string $comments): self
     {
         $this->comments = $comments;
+
+        return $this;
+    }
+
+    public function getFile(): ?string
+    {
+        return $this->file;
+    }
+
+    public function setFile(?string $file): self
+    {
+        $this->file = $file;
 
         return $this;
     }

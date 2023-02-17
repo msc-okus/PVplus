@@ -2,11 +2,76 @@
 
 {% block page %}
     <table>
-        <tr style="height: 100%">
+        <tr>
             <td style="width: 100%">
                 {{ wkhLossesChartMonth | raw }}
             </td>
         </tr>
-
+    </table>
+    <table>
+        <tr>
+            <td style="width: 25% !important; ">
+                <table>
+                    <thead>
+                        <th>Type of Ticket</th>
+                        <th>Losses in kWh </th>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="tr_next_columns">Planned Outage <sup><b> a</b></sup></td>
+                        <td class="tr_next_columns"> {{ monthlyLossesHelpTable['SORLosses'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">Unplanned Outage <sup><b> b</b></sup> <sup><b>c</b></sup></td>
+                        <td class="tr_next_columns"> {{ monthlyLossesHelpTable['EFORLosses'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">Grid Error/Grid Off <sup><b> d</b></sup></td>
+                        <td class="tr_next_columns"> {{ monthlyLossesHelpTable['OMCLosses'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 25% !important; ">
+                <table >
+                    <thead>
+                    <th></th>
+                    <th>kWh</th>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="tr_next_columns">Expected G4N </td>
+                        <td class="tr_next_columns"> {{ monthlyLossesHelpTable['ExpectedG4N'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">G4N Simulation </td>
+                        <td class="tr_next_columns"> {{ monthlyLossesHelpTable['Forecast'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    {% if (anlage.hasPVSYST == true) %}
+                        <tr>
+                            <td class="tr_next_columns">Expected PVSYS</td>
+                            <td class="tr_next_columns"> {{ monthlyLossesHelpTable['ExoectedPVSYS'] |number_format(2, ',', '.') }}</td>
+                        </tr>
+                    {% endif %}
+                    <tr>
+                        <td class="tr_next_columns">Production</td>
+                        <td class="tr_next_columns"> {{ monthlyLossesHelpTable['Actual'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 25% !important;">
+                <div style="text-align: left">
+                    <sup><b>a</b></sup> Maintenance, SOR<br>
+                    <sup><b>b</b></sup> Defects, EFOR<br>
+                    <sup><b>c</b></sup><b> From this EFOR errors {{ Availability_Year_To_Date_Table['actualGaps'] |number_format(2, ',', '.') }}% are Data Gaps</b><br>
+                    <sup><b>d</b></sup> Availability is not effected, OMC
+                </div>
+            </td>
+        </tr>
     </table>
 {% endblock page %}

@@ -54,7 +54,9 @@ class AlertSystemWeatherService
      */
     public function generateWeatherTicketsInterval(Anlage $anlage, string $from, ?string $to = null): void
     {
+
         $fromStamp = strtotime($from);
+        dump("outide function", $fromStamp);
         if ($to != null) {
             $toStamp = strtotime($to);
             for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
@@ -73,14 +75,17 @@ class AlertSystemWeatherService
     public function checkWeatherStation(Anlage $anlage, string $time)
     {
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
+        dump($sungap);
         if ( $anlage->getWeatherStation()->getType() !== 'custom') {
             if ($time >= $sungap['sunrise'] && $time <=  $sungap['sunset']) {
+                dump("dentro");
                 $status_report = $this->WData($anlage, $time);
                 $ticketData = "";
                 if ($status_report['Irradiation']) $ticketData = $ticketData . "Problem with the Irradiation ";
                 if ($status_report['Temperature']) $ticketData = $ticketData . "Problem with the Temperature";
                 if ($status_report['wspeed'] != "") $ticketData = $ticketData . "Problem with the Wind Speed";
                 $this->generateTicket($ticketData, $time, $anlage);
+
                 /* disabled by now.
                 if ($ticketData != "") {
                     self::messagingFunction($ticketData, $anlage);
@@ -174,12 +179,14 @@ class AlertSystemWeatherService
              $ticket->setEnd($date);
              $ticket->setInverter('*');
              $ticket->setAnlage($anlage);
+             $ticket->setStatus(10);
              $ticket->setAlertType(40);
              $ticket->setDescription($status_report);
              $ticket->setEditor("AlertSystem");
              $this->em->persist($ticket);
              $this->em->flush();
          }
+         dd($ticket);
     }
 
 

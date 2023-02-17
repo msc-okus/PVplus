@@ -199,9 +199,7 @@ class TicketController extends BaseController
         $anlageId = $request->query->get('anlage');
         if ($anlageId != '') {
             $anlage = $anlagenRepo->findOneBy(['anlId' => $anlageId]);
-            $anlageName = $anlage->getAnlName();
         } else {
-            $anlageName = '';
             $anlage = null;
         }
 
