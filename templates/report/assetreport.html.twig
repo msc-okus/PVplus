@@ -62,15 +62,13 @@
 
                 {% endif %}
                 {% if (data.AvYearlyTicketOverview == true) %}
-                    {% include 'report/_asset_mangement_partials/_availability_yearly_ticket.html.twig'%}
-
-              {#       {% include 'report/_asset_mangement_partials/_chart_availability_year.html.twig' %}#}
-
+                        {% include 'report/_asset_mangement_partials/_availability_yearly_ticket.html.twig'%}
+                        {% include 'report/_asset_mangement_partials/_chart_availability_year.html.twig' %}
+                        {% include 'report/_asset_mangement_partials/_chart_year_by_month.html.twig' %}
                 {% endif %}
                 {% if (data.AvMonthlyOverview) %}
                     {% include 'report/_asset_mangement_partials/_aufloesung_availibility_fuerr_den_act_monat.html.twig'%}
-
-{#  {% include 'report/_asset_mangement_partials/_chart_availability.html.twig' %} #}
+                    {% include 'report/_asset_mangement_partials/_chart_availability.html.twig' %}
 
                 {% endif %}
                 {% if (data.AvInv == true) %}
