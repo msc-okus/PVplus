@@ -164,10 +164,10 @@ class AnlageGroupsController extends AbstractController
 
 
 
-    #[Route('/{id}/edit', name: 'app_anlage_groups_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, AnlageGroups $anlageGroup,GroupsRepository $groupsRepository, EntityManagerInterface $entityManager): Response
+    #[Route('/{page}/{id}/edit/', name: 'app_anlage_groups_edit', methods: ['GET', 'POST'])]
+    public function edit(Request $request, AnlageGroups $anlageGroup,GroupsRepository $groupsRepository, EntityManagerInterface $entityManager, int $page=1): Response
     {
-       //dd($anlageGroup->getModules());
+
         $form = $this->createForm(AnlageGroupsTypeForm::class, $anlageGroup,['anlage'=>$anlageGroup->getAnlage()]);
         $form->handleRequest($request);
 
