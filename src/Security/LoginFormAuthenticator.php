@@ -33,12 +33,20 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
 
     private EntityManagerInterface $em;
 
+
+
     public function __construct(UrlGeneratorInterface $urlGenerator, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordHasherInterface $asswordHasher, EntityManagerInterface $em)
     {
         $this->urlGenerator = $urlGenerator;
         $this->csrfTokenManager = $csrfTokenManager;
         $this->passwordHasher = $asswordHasher;
         $this->em = $em;
+    }
+
+    public function supports(Request $request): bool
+    {
+
+        return $request->getPathInfo() === '/login' && $request->isMethod('POST');
     }
 
     public function authenticate(Request $request): Passport
@@ -60,7 +68,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
             }),
             new PasswordCredentials($password),
             [
-                new RememberMeBadge(),
+
                 new CsrfTokenBadge(
                     'authenticate',
                     $request->request->get('_csrf_token')
@@ -75,7 +83,7 @@ class LoginFormAuthenticator extends AbstractLoginFormAuthenticator
             return new RedirectResponse($targetPath);
         }
 
-        return new RedirectResponse($this->urlGenerator->generate('app_dashboard'));
+        return new RedirectResponse($this->urlGenerator->generate('app_login'));
     }
 
     protected function getLoginUrl(Request $request): string
