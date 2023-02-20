@@ -20,7 +20,10 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
- *     collectionOperations={"get", "post"},
+ *      security="is_granted('ROLE_ADMIN')",
+ *     collectionOperations={
+ *     "get"={"security"="is_granted('ROLE_API_USER')"},
+ *     "post"},
  *     itemOperations={"get","put"},
  *     shortName="users",
  *     normalizationContext={"groups"={"user:read"}},
@@ -45,6 +48,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         'Admin' => 'ROLE_ADMIN',
         'Green4Net User' => 'ROLE_G4N',
         'AdminUser' => 'ROLE_ADMIN_USER',
+        'API (full)' => 'ROLE_API_FULL_USER',
+        'API ' => 'ROLE_API_USER',
         'Owner (full)' => 'ROLE_OWNER_FULL',
         'Owner' => 'ROLE_OWNER',
         'AssetManagement' => 'ROLE_AM',
@@ -81,7 +86,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private array $roles = [];
 
     #[Deprecated]
-    #[Groups(['user:read'])]
     #[ORM\Column(name: 'level', type: 'integer', nullable: false, options: ['default' => 1])]
     private int $level = 1;
 
@@ -98,15 +102,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'json')]
     private ?array $assignedAnlagen = [];
 
-    #[Groups(['main:read'])]
+
     #[ORM\Column(type: 'string', length: 250)]
     private string $grantedList;
 
+    #[Groups(['user:read'])]
     #[ORM\ManyToMany(targetEntity: Eigner::class, mappedBy: 'user')]
     private $eigners;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: ApiToken::class)]
-    #[Groups(['user:read'])]
     private Collection $apiTokens;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserLogin::class)]

@@ -15,6 +15,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
+ *     security="is_granted('ROLE_ADMIN')",
  *     collectionOperations={"get", "post"},
  *     itemOperations={"get","put"},
  *     shortName="logins",
