@@ -2,7 +2,11 @@
 
 namespace App\Entity;
 
+
+
+use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -12,16 +16,22 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 
+
+
 /**
- * PvpUser.
- *
  * @ApiResource(
+ *     collectionOperations={"get", "post"},
+ *     itemOperations={"get","put"},
+ *     shortName="users",
  *     normalizationContext={"groups"={"user:read"}},
  *     denormalizationContext={"groups"={"user:write"}},
  *     attributes={
+ *          "pagination_items_per_page"=10,
  *          "formats"={"jsonld", "json", "html", "csv"={"text/csv"}}
  *     }
  * )
+ * @ApiFilter(SearchFilter::class, properties={"anlName":"partial"})
+ *
  */
 #[ORM\Table(name: 'pvp_user')]
 #[ORM\UniqueConstraint(name: 'name', columns: ['name'])]
@@ -63,7 +73,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(name: 'name', type: 'string', length: 20, nullable: false)]
     private string $name;
 
-    #[Groups(['user:read'])]
+
     #[ORM\Column(name: 'password', type: 'string')]
     private string $password;
 
@@ -95,9 +105,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\ManyToMany(targetEntity: Eigner::class, mappedBy: 'user')]
     private $eigners;
 
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: ApiToken::class)]
+    #[Groups(['user:read'])]
+    private Collection $apiTokens;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: UserLogin::class)]
+
+    private Collection $userLogins;
+
     public function __construct()
     {
         $this->eigners = new ArrayCollection();
+        $this->apiTokens = new ArrayCollection();
+        $this->userLogins = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -318,6 +338,73 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setGrantedList(string $grantedList): self
     {
         $this->grantedList = $grantedList;
+
+        return $this;
+    }
+
+
+
+    /**
+     * @return Collection<int, ApiToken>
+     */
+    #[Groups(['user:read'])]
+    public function getApiTokens(): Collection
+    {
+        return $this->apiTokens;
+    }
+
+    public function addApiToken(ApiToken $apiToken): self
+    {
+        if (!$this->apiTokens->contains($apiToken)) {
+            $this->apiTokens->add($apiToken);
+            $apiToken->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeApiToken(ApiToken $apiToken): self
+    {
+        if ($this->apiTokens->removeElement($apiToken)) {
+            // set the owning side to null (unless already changed)
+            if ($apiToken->getUser() === $this) {
+                $apiToken->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+
+
+
+    /**
+     * @return Collection<int, UserLogin>
+     */
+    #[Groups(['user:read'])]
+    public function getUserLogins(): Collection
+    {
+        return $this->userLogins;
+    }
+
+    public function addUserLogin(UserLogin $userLogin): self
+    {
+        if (!$this->userLogins->contains($userLogin)) {
+            $this->userLogins->add($userLogin);
+            $userLogin->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserLogin(UserLogin $userLogin): self
+    {
+        if ($this->userLogins->removeElement($userLogin)) {
+            // set the owning side to null (unless already changed)
+            if ($userLogin->getUser() === $this) {
+                $userLogin->setUser(null);
+            }
+        }
 
         return $this;
     }

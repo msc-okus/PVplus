@@ -13,8 +13,8 @@ class AnlageSettings
     #[ORM\Column(type: 'integer')]
     private int $id;
 
-    #[ORM\OneToOne(targetEntity: Anlage::class, inversedBy: 'settings', cascade: ['persist', 'remove'])]
-    private Anlage $anlage;
+    #[ORM\OneToOne(inversedBy: 'settings', targetEntity: Anlage::class, cascade: ['persist', 'remove'])]
+    private ?Anlage $anlage = null;
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $paDep1Name = 'EPC';
@@ -28,13 +28,127 @@ class AnlageSettings
     #[ORM\Column(type: 'string', length: 20)]
     private string $paDefaultDataGapHandling = 'available';
 
-    // not available
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartAC1 = true;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartAC2 = true;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartAC3 = true;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartAC4 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartAC5 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartAC6 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartAC7 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartAC8 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartAC9 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartDC1 = true;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartDC2 = true;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartDC3 = true;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartDC4 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartDC5 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartDC6 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartAnalyse1 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartAnalyse2 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartAnalyse3 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartAnalyse4 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartAnalyse5 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartAnalyse6 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartAnalyse7 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartAnalyse8 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartAnalyse9 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartCurr1 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartCurr2 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartCurr3 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartVolt1 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartVolt2 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartVolt3 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartSensor1 = true;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartSensor2 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartSensor3 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $chartSensor4 = false;
+
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    public function getAnlage(): ?Anlage
+    {
+        return $this->anlage;
+    }
+
+    public function setAnlage(?Anlage $anlage): self
+    {
+        $this->anlage = $anlage;
+
+        return $this;
+    }
+
     /**
+     * @deprecated use Depatment Name from oner instead
      * Department name for plant availability 1
      * default: 'EPC'.
      */
@@ -42,7 +156,9 @@ class AnlageSettings
     {
         return $this->paDep1Name;
     }
-
+    /**
+     * @deprecated use Depatment Name from oner instead
+     */
     public function setPaDep1Name(string $paDep1Name): self
     {
         $this->paDep1Name = $paDep1Name;
@@ -51,6 +167,7 @@ class AnlageSettings
     }
 
     /**
+     * @deprecated use Depatment Name from oner instead
      * Department name for plant availability 2
      * default: 'O&M'.
      */
@@ -58,7 +175,9 @@ class AnlageSettings
     {
         return $this->paDep2Name;
     }
-
+    /**
+     * @deprecated use Depatment Name from oner instead
+     */
     public function setPaDep2Name(string $paDep2Name): self
     {
         $this->paDep2Name = $paDep2Name;
@@ -67,6 +186,7 @@ class AnlageSettings
     }
 
     /**
+     * @deprecated use Depatment Name from oner instead
      * Department name for plant availability 3
      * default: 'AM'.
      */
@@ -74,7 +194,9 @@ class AnlageSettings
     {
         return $this->paDep3Name;
     }
-
+    /**
+     * @deprecated use Depatment Name from oner instead
+     */
     public function setPaDep3Name(string $paDep3Name): self
     {
         $this->paDep3Name = $paDep3Name;
@@ -97,4 +219,414 @@ class AnlageSettings
 
         return $this;
     }
+
+    public function isChartAC1(): ?bool
+    {
+
+        return $this->chartAC1;
+    }
+
+    public function setChartAC1(?bool $chartAC1): self
+    {
+        $this->chartAC1 = $chartAC1;
+
+        return $this;
+    }
+
+    public function isChartAC2(): ?bool
+    {
+        return $this->chartAC2;
+    }
+
+    public function setChartAC2(?bool $chartAC2): self
+    {
+        $this->chartAC2 = $chartAC2;
+
+        return $this;
+    }
+
+    public function isChartAC3(): ?bool
+    {
+        return $this->chartAC3;
+    }
+
+    public function setChartAC3(?bool $chartAC3): self
+    {
+        $this->chartAC3 = $chartAC3;
+
+        return $this;
+    }
+
+    public function isChartAC4(): ?bool
+    {
+        return $this->chartAC4;
+    }
+
+    public function setChartAC4(?bool $chartAC4): self
+    {
+        $this->chartAC4 = $chartAC4;
+
+        return $this;
+    }
+
+    public function isChartAC5(): ?bool
+    {
+        return $this->chartAC5;
+    }
+
+    public function setChartAC5(?bool $chartAC5): self
+    {
+        $this->chartAC5 = $chartAC5;
+
+        return $this;
+    }
+
+    public function isChartAC6(): ?bool
+    {
+        return $this->chartAC6;
+    }
+
+    public function setChartAC6(?bool $chartAC6): self
+    {
+        $this->chartAC6 = $chartAC6;
+
+        return $this;
+    }
+
+    public function isChartAC7(): ?bool
+    {
+        return $this->chartAC7;
+    }
+
+    public function setChartAC7(?bool $chartAC7): self
+    {
+        $this->chartAC7 = $chartAC7;
+
+        return $this;
+    }
+
+    public function isChartAC8(): ?bool
+    {
+        return $this->chartAC8;
+    }
+
+    public function setChartAC8(?bool $chartAC8): self
+    {
+        $this->chartAC8 = $chartAC8;
+
+        return $this;
+    }
+
+    public function isChartAC9(): ?bool
+    {
+        return $this->chartAC9;
+    }
+
+    public function setChartAC9(?bool $chartAC9): self
+    {
+        $this->chartAC9 = $chartAC9;
+
+        return $this;
+    }
+
+    public function isChartDC1(): ?bool
+    {
+        return $this->chartDC1;
+    }
+
+    public function setChartDC1(?bool $chartDC1): self
+    {
+        $this->chartDC1 = $chartDC1;
+
+        return $this;
+    }
+
+    public function isChartDC2(): ?bool
+    {
+        return $this->chartDC2;
+    }
+
+    public function setChartDC2(?bool $chartDC2): self
+    {
+        $this->chartDC2 = $chartDC2;
+
+        return $this;
+    }
+
+    public function isChartDC3(): ?bool
+    {
+        return $this->chartDC3;
+    }
+
+    public function setChartDC3(?bool $chartDC3): self
+    {
+        $this->chartDC3 = $chartDC3;
+
+        return $this;
+    }
+
+    public function isChartDC4(): ?bool
+    {
+        return $this->chartDC4;
+    }
+
+    public function setChartDC4(?bool $chartDC4): self
+    {
+        $this->chartDC4 = $chartDC4;
+
+        return $this;
+    }
+
+    public function isChartDC5(): ?bool
+    {
+        return $this->chartDC5;
+    }
+
+    public function setChartDC5(?bool $chartDC5): self
+    {
+        $this->chartDC5 = $chartDC5;
+
+        return $this;
+    }
+
+    public function isChartDC6(): ?bool
+    {
+        return $this->chartDC6;
+    }
+
+    public function setChartDC6(?bool $chartDC6): self
+    {
+        $this->chartDC6 = $chartDC6;
+
+        return $this;
+    }
+
+    public function isChartAnalyse1(): ?bool
+    {
+        return $this->chartAnalyse1;
+    }
+
+    public function setChartAnalyse1(?bool $chartAnalyse1): self
+    {
+        $this->chartAnalyse1 = $chartAnalyse1;
+
+        return $this;
+    }
+
+    public function isChartAnalyse2(): ?bool
+    {
+        return $this->chartAnalyse2;
+    }
+
+    public function setChartAnalyse2(?bool $chartAnalyse2): self
+    {
+        $this->chartAnalyse2 = $chartAnalyse2;
+
+        return $this;
+    }
+
+    public function isChartAnalyse3(): ?bool
+    {
+        return $this->chartAnalyse3;
+    }
+
+    public function setChartAnalyse3(?bool $chartAnalyse3): self
+    {
+        $this->chartAnalyse3 = $chartAnalyse3;
+
+        return $this;
+    }
+
+    public function isChartAnalyse4(): ?bool
+    {
+        return $this->chartAnalyse4;
+    }
+
+    public function setChartAnalyse4(?bool $chartAnalyse4): self
+    {
+        $this->chartAnalyse4 = $chartAnalyse4;
+
+        return $this;
+    }
+
+    public function isChartAnalyse5(): ?bool
+    {
+        return $this->chartAnalyse5;
+    }
+
+    public function setChartAnalyse5(?bool $chartAnalyse5): self
+    {
+        $this->chartAnalyse5 = $chartAnalyse5;
+
+        return $this;
+    }
+
+    public function isChartAnalyse6(): ?bool
+    {
+        return $this->chartAnalyse6;
+    }
+
+    public function setChartAnalyse6(?bool $chartAnalyse6): self
+    {
+        $this->chartAnalyse6 = $chartAnalyse6;
+
+        return $this;
+    }
+
+    public function isChartAnalyse7(): ?bool
+    {
+        return $this->chartAnalyse7;
+    }
+
+    public function setChartAnalyse7(?bool $chartAnalyse7): self
+    {
+        $this->chartAnalyse7 = $chartAnalyse7;
+
+        return $this;
+    }
+
+    public function isChartAnalyse8(): ?bool
+    {
+        return $this->chartAnalyse8;
+    }
+
+    public function setChartAnalyse8(?bool $chartAnalyse8): self
+    {
+        $this->chartAnalyse8 = $chartAnalyse8;
+
+        return $this;
+    }
+
+    public function isChartAnalyse9(): ?bool
+    {
+        return $this->chartAnalyse9;
+    }
+
+    public function setChartAnalyse9(?bool $chartAnalyse9): self
+    {
+        $this->chartAnalyse9 = $chartAnalyse9;
+
+        return $this;
+    }
+
+    public function isChartCurr1(): ?bool
+    {
+        return $this->chartCurr1;
+    }
+
+    public function setChartCurr1(?bool $chartCurr1): self
+    {
+        $this->chartCurr1 = $chartCurr1;
+
+        return $this;
+    }
+
+    public function isChartCurr2(): ?bool
+    {
+        return $this->chartCurr2;
+    }
+
+    public function setChartCurr2(?bool $chartCurr2): self
+    {
+        $this->chartCurr2 = $chartCurr2;
+
+        return $this;
+    }
+
+    public function isChartCurr3(): ?bool
+    {
+        return $this->chartCurr3;
+    }
+
+    public function setChartCurr3(?bool $chartCurr3): self
+    {
+        $this->chartCurr3 = $chartCurr3;
+
+        return $this;
+    }
+
+    public function isChartVolt1(): ?bool
+    {
+        return $this->chartVolt1;
+    }
+
+    public function setChartVolt1(?bool $chartVolt1): self
+    {
+        $this->chartVolt1 = $chartVolt1;
+
+        return $this;
+    }
+
+    public function isChartVolt2(): ?bool
+    {
+        return $this->chartVolt2;
+    }
+
+    public function setChartVolt2(?bool $chartVolt2): self
+    {
+        $this->chartVolt2 = $chartVolt2;
+
+        return $this;
+    }
+
+    public function isChartVolt3(): ?bool
+    {
+        return $this->chartVolt3;
+    }
+
+    public function setChartVolt3(?bool $chartVolt3): self
+    {
+        $this->chartVolt3 = $chartVolt3;
+
+        return $this;
+    }
+
+    public function isChartSensor1(): ?bool
+    {
+        return $this->chartSensor1;
+    }
+
+    public function setChartSensor1(?bool $chartSensor1): self
+    {
+        $this->chartSensor1 = $chartSensor1;
+
+        return $this;
+    }
+
+    public function isChartSensor2(): ?bool
+    {
+        return $this->chartSensor2;
+    }
+
+    public function setChartSensor2(?bool $chartSensor2): self
+    {
+        $this->chartSensor2 = $chartSensor2;
+
+        return $this;
+    }
+
+    public function isChartSensor3(): ?bool
+    {
+        return $this->chartSensor3;
+    }
+
+    public function setChartSensor3(?bool $chartSensor3): self
+    {
+        $this->chartSensor3 = $chartSensor3;
+
+        return $this;
+    }
+
+    public function isChartSensor4(): ?bool
+    {
+        return $this->chartSensor4;
+    }
+
+    public function setChartSensor4(?bool $chartSensor4): self
+    {
+        $this->chartSensor4 = $chartSensor4;
+
+        return $this;
+    }
+
 }

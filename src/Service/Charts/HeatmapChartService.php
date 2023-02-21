@@ -27,14 +27,14 @@ class HeatmapChartService
 
     private WeatherServiceNew $weatherService;
 
-    public function __construct(Security $security,
-        AnlagenStatusRepository $statusRepository,
-        InvertersRepository $invertersRepo,
-        IrradiationChartService $irradiationChart,
-        DCPowerChartService $DCPowerChartService,
-        ACPowerChartsService $ACPowerChartService,
-        WeatherServiceNew $weatherService,
-        FunctionsService $functions)
+    public function __construct(Security                $security,
+                                AnlagenStatusRepository $statusRepository,
+                                InvertersRepository     $invertersRepo,
+                                IrradiationChartService $irradiationChart,
+                                DCPowerChartService     $DCPowerChartService,
+                                ACPowerChartsService    $ACPowerChartService,
+                                WeatherServiceNew       $weatherService,
+                                FunctionsService        $functions)
     {
         $this->security = $security;
         $this->statusRepository = $statusRepository;
@@ -73,27 +73,18 @@ class HeatmapChartService
      *               [Heatmap]
      */
     // MS 05/2022
-    public function getHeatmap(Anlage $anlage, $from, $to, $sets = 0 ,bool $hour = false): ?array
+    public function getHeatmap(Anlage $anlage, $from, $to, $sets = 0, bool $hour = false): ?array
     {
         ini_set('memory_limit', '3G');
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $conn = self::getPdoConnection();
         $dataArray = [];
-        $group = 1;
-        $anlagename = $anlage->getAnlName();
         $pnominverter = $anlage->getPnomInverterArray();
-        $counter = 0;
         $gmt_offset = 1;   // Unterschied von GMT zur eigenen Zeitzone in Stunden.
         $zenith = 90 + 50 / 60;
         $current_date = strtotime(str_replace("T", "", $from));
-        $sunset = date_sunset($current_date, SUNFUNCS_RET_TIMESTAMP, (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon(), $zenith, $gmt_offset);
-        $sunrise = date_sunrise($current_date, SUNFUNCS_RET_TIMESTAMP, (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon(), $zenith, $gmt_offset);
-
-        if ($hour) {
-            $form = '%y%m%d%H';
-        } else {
-            $form = '%y%m%d%H%i';
-        }
+        $sunset = date_sunset($current_date, SUNFUNCS_RET_TIMESTAMP, (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon(), $zenith, $gmt_offset);
+        $sunrise = date_sunrise($current_date, SUNFUNCS_RET_TIMESTAMP, (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon(), $zenith, $gmt_offset);
 
         // $sunArray = $this->WeatherServiceNew->getSunrise($anlage,$from);
         // $sunrise = $sunArray[$anlagename]['sunrise'];
@@ -105,99 +96,90 @@ class HeatmapChartService
         $from = self::timeAjustment($from, $anlage->getAnlZeitzone());
         $to = self::timeAjustment($to, 1);
 
-        $conn = self::getPdoConnection();
-        $dataArray = [];
-        $inverterNr = 0;
         switch ($anlage->getConfigType()) {
             case 3:
             case 4:
                 $nameArray = $this->functions->getNameArray($anlage, 'ac');
                 $group = 'group_ac';
+                $groupct = count($anlage->getGroupsAc());
                 break;
             default:
                 $nameArray = $this->functions->getNameArray($anlage, 'dc');
                 $group = 'group_dc';
+                $groupct = count($anlage->getGroupsDc());
         }
 
-        $groupct = count($anlage->getGroupsDc());
-        if ($groupct > 50) {
+
+           if ($groupct) {
             if ($sets == null) {
-                $sqladd = "AND $group BETWEEN '1' AND '50'";
-            }
-            if ($sets != null) {
-                $res = explode(',', $sets);
-                $min = ltrim($res[0], "[");
-                $max = rtrim($res[1], "]");
+                $min = 1;
+                $max = (($groupct > 100) ? (int)ceil($groupct / 10) : (int)ceil($groupct / 2));
+                $max = (($max > 50) ? '50' : $max);
                 $sqladd = "AND $group BETWEEN '$min' AND '$max'";
+            } else {
+                $res = explode(',', $sets);
+
+                $min = (int)ltrim($res[0], "[");
+                $max = (int)rtrim($res[1], "]");
+                (($max > $groupct) ? $max = $groupct:$max = $max);
+                (($groupct > $min) ? $min = $min:$min = 1);
+                $sqladd = "AND $group BETWEEN ".(empty($min)? '0' : $min)." AND ".(empty($max)? '50' : $max)."";
+
             }
         } else {
-            $sqladd = "";
+               $min = 1;
+               $max = 50;
+               $sqladd = "AND $group BETWEEN '$min' AND '$max'";
         }
 
-      #  $sql = "SELECT wr_pac as istPower,$group as group_dc,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts
-      #                                FROM (db_dummysoll a LEFT JOIN  ".$anlage->getDbNameACIst()." b ON a.stamp = b.stamp)
-      #                                WHERE a.stamp BETWEEN '$from' AND '$to'
-      #                                 GROUP BY a.stamp, b.$group";
+        $dataArray['minSeries'] = $min;
+        $dataArray['maxSeries'] = $max;
+        $dataArray['sumSeries'] = $groupct;
 
-        $sql = "SELECT wr_pac as istPower, $group , stamp as ts
-                FROM  ".$anlage->getDbNameACIst()." WHERE stamp BETWEEN '$from' AND '$to' 
-                ".$sqladd."
-                GROUP BY stamp, $group";
+//fix the sql Query with an select statement in the join this is much faster
+      $sql = "SELECT T1.istPower,T1.".$group.",T1.ts,T2.g_upper
+            FROM (SELECT stamp as ts, wr_pac as istPower, ".$group."  FROM ".$anlage->getDbNameACIst()." WHERE stamp BETWEEN '$from' and '$to'  ".$sqladd." GROUP BY ts, ".$group." ORDER BY ".$group." DESC)
+
+            AS T1
+            JOIN (SELECT stamp as ts, g_lower as g_lower , g_upper as g_upper FROM " . $anlage->getDbNameWeather() . " WHERE stamp BETWEEN '$from' and '$to' ) 
+            AS T2 
+            on (T1.ts = T2.ts) ;";
 
         $resultActual = $conn->query($sql);
         $dataArray['inverterArray'] = $nameArray;
 
         if ($resultActual->rowCount() > 0) {
 
-            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == 'Groningen') {
-                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
-             } else {
-                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
-            }
-
             $dataArray['maxSeries'] = 0;
             $counter = 0;
             $counterInv = 1;
 
             while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
-                $stamp = self::timeShift($anlage,$rowActual['ts']);
-                // Find Key in Array
-                $keys = self::array_recursive_search_key_map($stamp, $dataArrayIrradiation);
 
-                // fetch Irradiation
-                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
-                    $key = $keys[1];
-                    $dataIrr = $dataArrayIrradiation['chart'][$key]['val1'];
-                  } else {
-                    $key = $keys[1];
-                    $dataIrr = ($dataArrayIrradiation['chart'][$key]['val1'] + $dataArrayIrradiation['chart'][$key]['val2']) / 2;
-                }
-
+                $stamp = $rowActual['ts'];
                 $e = explode(' ', $stamp);
                 $dataArray['chart'][$counter]['ydate'] = $e[1];
-
+                $dataIrr = $rowActual['g_upper'];
                 $powerist = $rowActual['istPower'];
 
                 if ($powerist != null) {
-                    $poweristkwh = $powerist * (float) 4;
+                    $poweristkwh = ($powerist * 4);
                 } else {
                     $poweristkwh = 0;
                 }
-
-                $pnomkwh = $pnominverter[$rowActual[$group]] / (float) 1000;
-
+                $pnomkwh = $pnominverter[$rowActual[$group]];#/ (float) 1000;
                 if ($dataIrr > 10) {
-                    $theoreticalIRR = ($dataIrr / (float) 1000) * $pnomkwh;
+                    $theoreticalIRR = (($dataIrr / 1000) * $pnomkwh);
                     if ($poweristkwh == 0 or $theoreticalIRR == 0) {
                         $value = 0;
                     } else {
-                        $value = round(($poweristkwh / $theoreticalIRR) * (float) 100);
+                        $value = round(($poweristkwh / $theoreticalIRR) * 100);
                     }
                 } else {
                     $value = 0;
                 }
 
-                $value = ($value > (float) 100) ? (float) 100 : $value;
+                $value = ($value > 100.0) ? 100.0 : $value;
                 $dataArray['chart'][$counter]['xinv'] = $nameArray[$rowActual[$group]];
                 $dataArray['chart'][$counter]['value'] = $value;
                 /*

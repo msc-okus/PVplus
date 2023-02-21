@@ -1,3 +1,7 @@
+{# INV AC Pnom Diagramme #}
+{% macro showACPnom(form, aktAnlage) %}
+    <option value="acpnom" {% if form.selectedChart == 'acpnom' %}selected{% endif %}>AC Power - Inverter normalized [kW/kWp]</option>
+{% endmacro %}
 {# INV PR Heatmap Diagramme #}
 {% macro showHeatmap(form, aktAnlage) %}
     <option value="heatmap" {% if form.selectedChart == 'heatmap' %}selected{% endif %}>Inverter PR Heatmap [%]</option>
@@ -203,9 +207,7 @@
         <option value="irradiation_one" {% if form.selectedChart == 'irradiation_one' %}selected{% endif %}>Irradiation [W/m²]</option>
     {% else %}
         <option value="irradiation" {% if form.selectedChart == 'irradiation' %}selected{% endif %}>Irradiation [W/m²]</option>
-        {% if aktAnlage.showGraphIrrPlant %}
-            <option value="irradiation_plant" {% if form.selectedChart == 'irradiation_plant' %}selected{% endif %}>Irradiation Plant [W/m²]</option>
-        {% endif %}
+
     {% endif %}
 {% endmacro %}
 

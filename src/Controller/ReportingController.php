@@ -17,10 +17,9 @@ use App\Service\ReportEpcService;
 use App\Service\AssetManagementService;
 use App\Service\PdfService;
 use App\Service\ReportEpcPRNewService;
-use App\Service\Reports\MonthlyService;
+use App\Service\Reports\ReportsMonthlyService;
 use App\Service\ReportsEpcNewService;
 use App\Service\ReportService;
-use App\Service\ReportsMonthlyService;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Knp\Snappy\Pdf;
@@ -425,6 +424,7 @@ class ReportingController extends AbstractController
                             'losseskwhchartYearMonthly' => $output['losseskwhchartYearMonthly'],
                             'PercentageTableYear' => $output['PercentageTableYear'],
                             'percentageTableMonth' => $output['percentageTableMonth'],
+
                         ]);
                         $filename = $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf';
 
@@ -663,6 +663,7 @@ class ReportingController extends AbstractController
                             'losseskwhchartYearMonthly' => $output['losseskwhchartYearMonthly'],
                             'percentageTableYear' => $output['percentageTableYear'],
                             'percentagTableMonth' => $output['percentageTable'],
+
                         ]);
                         break;
                     }

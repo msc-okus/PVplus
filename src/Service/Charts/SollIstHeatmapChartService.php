@@ -92,75 +92,101 @@ class SollIstHeatmapChartService
         $conn = self::getPdoConnection();
         $dataArray = [];
 
-        switch ($anlage->getConfigType()) {
-            case 3:
-            case 4:
-                $nameArray = $this->functions->getNameArray($anlage, 'ac');
-                $group = 'wr_group';
-                break;
-            default:
-                $nameArray = $this->functions->getNameArray($anlage, 'dc');
-                $group = 'group_dc';
-        }
-       /* if ($anlage->getUseNewDcSchema()) {
-            $sql = "SELECT a.stamp as ts, c.wr_idc as istCurrent, b.soll_imppwr as sollCurrent, b.dc_exp_power as expected, c.$group as inv FROM db_dummysoll a 
-                    LEFT JOIN ".$anlage->getDbNameDcSoll().' b ON a.stamp = b.stamp 
-                    LEFT JOIN '.$anlage->getDbNameDCIst()." c ON b.stamp = c.stamp 
-                    WHERE a.stamp BETWEEN '$from' AND '$to'
-                    GROUP BY a.stamp, c.$group;";
-        } else {
-            $sql = "SELECT a.stamp as ts, c.wr_idc as istCurrent, b.soll_imppwr as sollCurrent, b.dc_exp_power as expected, c.group_dc as inv FROM db_dummysoll a 
-                    LEFT JOIN ".$anlage->getDbNameDcSoll().' b ON a.stamp = b.stamp 
-                    LEFT JOIN '.$anlage->getDbNameACIst()." c ON b.stamp = c.stamp 
-                    WHERE a.stamp BETWEEN '$from' AND '$to'
-                    GROUP BY a.stamp, c.group_dc;";
-        }
-     */
-        $groupct = count($anlage->getGroupsDc());
-        if ($groupct > 50) {
-            if ($sets == null) {
-                $sqladd = "AND c.$group BETWEEN '1' AND '50'";
+// fix the sql Query with an select statement in the join this is much faster
+        if ($anlage->getUseNewDcSchema()) {
+            $nameArray = $this->functions->getNameArray($anlage, 'dc');
+            $groupct = count($anlage->getGroupsDc());
+            if ($groupct) {
+                if ($sets == null) {
+                    $min = 1;
+                    $max = (($groupct > 100) ? (int)ceil($groupct / 10) : (int)ceil($groupct / 2));
+                    $max = (($max > 50) ? '50' : $max);
+                    $sqladd = "AND c.wr_group BETWEEN '$min' AND '$max'";
+                } else {
+                    $res = explode(',', $sets);
+                    $min = (int)ltrim($res[0], "[");
+                    $max = (int)rtrim($res[1], "]");
+                    (($max > $groupct) ? $max = $groupct:$max = $max);
+                    (($groupct > $min) ? $min = $min:$min = 1);
+                    $sqladd = "AND c.wr_group BETWEEN " . (empty($min) ? '1' : $min) . " AND " . (empty($max) ? '50' : $max) . "";
+                }
+            } else {
+                $min = 1;
+                $max = 50;
+                $sqladd = "AND c.wr_group BETWEEN '$min' AND '$max '";
             }
-            if ($sets != null) {
-                $res = explode(',', $sets);
-                $min = ltrim($res[0], "[");
-                $max = rtrim($res[1], "]");
-                $sqladd = "AND c.$group BETWEEN '$min' AND '$max'";
-            }
-        } else {
-            $sqladd = "";
-        }
-
-        $sql = 'SELECT 
+// fix the sql Query with an select statement in the join this is much faster
+            $sql = "SELECT 
                 as1.ts,
                 as1.inv,
                 as1.istCurrent,
                 as2.sollCurrent,
                 as2.expected
-                FROM (SELECT c.stamp as ts, c.wr_idc as istCurrent, c.'.$group.' as inv FROM 
-                 '.$anlage->getDbNameACIst().' c WHERE c.stamp 
-                 BETWEEN \''.$from.'\' AND \''.$to.'\' 
-                 '.$sqladd.'  
-                 GROUP BY c.stamp,c.'.$group.' ORDER BY NULL)
+                FROM (SELECT c.stamp as ts, c.wr_idc as istCurrent, c.wr_group as inv FROM
+                 " . $anlage->getDbNameDCIst() . " c WHERE c.stamp 
+                 BETWEEN '$from' AND '$to' 
+                 $sqladd
+                 GROUP BY c.stamp,c.wr_group ORDER BY NULL)
                 AS as1
              JOIN
                 (SELECT b.stamp as ts, b.soll_imppwr as sollCurrent, b.dc_exp_power as expected FROM 
-                 '.$anlage->getDbNameDcSoll().' b WHERE b.stamp 
-                 BETWEEN \''.$from.'\' AND \''.$to.'\' 
+                 " . $anlage->getDbNameDcSoll() . " b WHERE b.stamp 
+                 BETWEEN '$from' AND '$to'
                  GROUP BY b.stamp ORDER BY NULL)
                 AS as2  
-                on (as1.ts = as2.ts)';
+                on (as1.ts = as2.ts)";
+        } else {
+            $nameArray = $this->functions->getNameArray($anlage, 'dc');
+            $groupct = count($anlage->getGroupsDc());
+            if ($groupct) {
+                if ($sets == null) {
+                    $min = 1;
+                    $max = (($groupct > 100) ? (int)ceil($groupct / 10) : (int)ceil($groupct / 2));
+                    $max = (($max > 50) ? '50' : $max);
+                    $sqladd = "AND c.group_dc BETWEEN '$min' AND '$max'";
+                } else {
+                    $res = explode(',', $sets);
+                    $min = (int)ltrim($res[0], "[");
+                    $max = (int)rtrim($res[1], "]");
+                    (($max > $groupct) ? $max = $groupct:$max = $max);
+                    (($groupct > $min) ? $min = $min:$min = 1);
+                    $sqladd = "AND c.group_dc BETWEEN " . (empty($min) ? '1' : $min) . " AND " . (empty($max) ? '50' : $max) . "";
+                }
+            } else {
+                $min = 1;
+                $max = 50;
+                $sqladd = "AND c.group_dc BETWEEN '$min' AND '$max '";
+            }
+// fix the sql Query with an select statement in the join this is much faster
+            $sql = "SELECT 
+                as1.ts,
+                as1.inv,
+                as1.istCurrent,
+                as2.sollCurrent,
+                as2.expected
+                FROM (SELECT c.stamp as ts, c.wr_idc as istCurrent, c.group_dc as inv FROM
+                 " . $anlage->getDbNameACIst() . " c WHERE c.stamp 
+                 BETWEEN '$from' AND '$to' 
+                 $sqladd
+                 GROUP BY c.stamp,c.group_dc ORDER BY NULL)
+                AS as1
+             JOIN
+                (SELECT b.stamp as ts, b.soll_imppwr as sollCurrent, b.dc_exp_power as expected FROM 
+                 " . $anlage->getDbNameDcSoll() . " b WHERE b.stamp 
+                 BETWEEN '$from' AND '$to'
+                 GROUP BY b.stamp ORDER BY NULL)
+                AS as2  
+                on (as1.ts = as2.ts)";
+        }
+//
+        $dataArray['minSeries'] = $min;
+        $dataArray['maxSeries'] = $max;
+        $dataArray['sumSeries'] = $groupct;
 
         $resultActual = $conn->query($sql);
         $dataArray['inverterArray'] = $nameArray;
-        $maxInverter = $resultActual->rowCount();
-
         // SOLL Strom für diesen Zeitraum und diese Gruppe
-
         if ($resultActual->rowCount() > 0) {
-            $dataArray['maxSeries'] = 0;
-            $counter = 0;
-
             while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = self::timeShift($anlage,$rowActual['ts']);
                 $e = explode(' ', $stamp);
@@ -176,7 +202,6 @@ class SollIstHeatmapChartService
                 $value = ($value > (float) 100) ? (float) 100 : $value;
                 $value = ($value < (float) 0) ? (float) 100 : $value;
                 ($nameArray[$rowActual['inv']]) ? $value = $value : $value = -1;
-                $dataArray['maxSeries'] = $maxInverter;
                 $dataArray['chart'][$counter]['xinv'] = $nameArray[$rowActual['inv']];
                 $dataArray['chart'][$counter]['value'] = $value;
                 $dataArray['chart'][$counter]['ist'] = $powerist;

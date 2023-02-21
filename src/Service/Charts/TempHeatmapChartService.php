@@ -79,7 +79,7 @@ class TempHeatmapChartService
         $gmt_offset = 1;   // Unterschied von GMT zur eigenen Zeitzone in Stunden.
         $zenith = 90 + 50 / 60;
         $current_date = strtotime($from);
-
+        $counter = 0;
         $sunset = date_sunset($current_date, SUNFUNCS_RET_TIMESTAMP, (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon(), $zenith, $gmt_offset);
         $sunrise = date_sunrise($current_date, SUNFUNCS_RET_TIMESTAMP, (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon(), $zenith, $gmt_offset);
 
@@ -107,70 +107,58 @@ class TempHeatmapChartService
             case 4:
                 $nameArray = $this->functions->getNameArray($anlage, 'ac');
                 $group = 'group_ac';
+            $groupct = count($anlage->getGroupsAc());
                 break;
             default:
                 $nameArray = $this->functions->getNameArray($anlage, 'dc');
                 $group = 'group_dc';
+                $groupct = count($anlage->getGroupsDc());
         }
 
-        $groupct = count($anlage->getGroupsDc());
-        if ($groupct > 50) {
+        if ($groupct) {
             if ($sets == null) {
-                $sqladd = "AND $group BETWEEN '1' AND '50'";
-            }
-            if ($sets != null) {
-                $res = explode(',', $sets);
-                $min = ltrim($res[0], "[");
-                $max = rtrim($res[1], "]");
+                $min = 1;
+                $max = (($groupct > 100) ? (int)ceil($groupct / 10) : (int)ceil($groupct / 2));
+                $max = (($max > 50) ? '50' : $max);
                 $sqladd = "AND $group BETWEEN '$min' AND '$max'";
+            } else {
+                $res = explode(',', $sets);
+                $min = (int)ltrim($res[0], "[");
+                $max = (int)rtrim($res[1], "]");
+                (($max > $groupct) ? $max = $groupct : $max = $max);
+                (($groupct > $min) ? $min = $min : $min = 1);
+                $sqladd = "AND $group BETWEEN " . (empty($min) ? '1' : $min) . " AND " . (empty($max) ? '50' : $max) . "";
             }
         } else {
-            $sqladd = "";
+            $min = 1;
+            $max = 50;
+            $sqladd = "AND $group BETWEEN '$min' AND '$max'";
         }
 
-       # $sql = "SELECT wr_temp as istTemp,$group as group_dc,date_format(a.stamp, '%Y-%m-%d% %H:%i') as ts
-       #                             FROM (db_dummysoll a LEFT JOIN  ".$anlage->getDbNameACIst()." b ON a.stamp = b.stamp)
-       #                             WHERE a.stamp BETWEEN '$from' AND '$to'
-       #                            GROUP BY a.stamp, b.$group";
+        $dataArray['minSeries'] = $min;
+        $dataArray['maxSeries'] = $max;
+        $dataArray['sumSeries'] = $groupct;
 
-        $sql = "SELECT wr_temp as istTemp, $group, stamp as ts
-                FROM  ".$anlage->getDbNameACIst()." WHERE stamp BETWEEN '$from' AND '$to'
-                $sqladd
-                GROUP BY stamp, $group";
+        $sql = "SELECT T1.istTemp,T1.".$group.",T1.ts,T2.g_upper
+            FROM (SELECT stamp as ts, wr_temp as istTemp, ".$group."  FROM ".$anlage->getDbNameACIst()." WHERE stamp BETWEEN '$from' and '$to'  ".$sqladd." GROUP BY ts, ".$group." ORDER BY ".$group." DESC)
+            AS T1
+            JOIN (SELECT stamp as ts, g_lower as g_lower , g_upper as g_upper FROM ".$anlage->getDbNameWeather()." WHERE stamp BETWEEN '$from' and '$to' ) 
+            AS T2 
+            on (T1.ts = T2.ts) ;";
 
         $resultActual = $conn->query($sql);
         $dataArray['inverterArray'] = $nameArray;
 
         if ($resultActual->rowCount() > 0) {
-            if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false || $anlage->getUseCustPRAlgorithm() == 'Groningen') {
-                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper');
-            } else {
-                $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to);
-            }
-
-            $dataArray['maxSeries'] = 0;
-            $counter = 0;
             #
             while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
-               # $stamp = $rowActual['ts'];
                 $stamp = self::timeShift($anlage,$rowActual['ts']);
-                // Find Key in Array
-                $keys = self::array_recursive_search_key_map($stamp, $dataArrayIrradiation);
-
-                // fetch Irradiation
-                if ($anlage->getShowOnlyUpperIrr() || $anlage->getWeatherStation()->getHasLower() == false) {
-                    $key = $keys[1];
-                    $dataIrr = $dataArrayIrradiation['chart'][$key]['val1'];
-                } else {
-                    $key = $keys[1];
-                    $dataIrr = ($dataArrayIrradiation['chart'][$key]['val1'] + $dataArrayIrradiation['chart'][$key]['val2']) / 2;
-                }
-
+                $dataIrr = $rowActual['g_upper'];
+                (empty($dataIrr) ? $dataIrr = 0 : $dataIrr = $dataIrr);
                 $e = explode(' ', $stamp);
                 $dataArray['chart'][$counter]['ydate'] = $e[1];
-
                 $value = round($rowActual['istTemp']);
-                $value = ($value > (float) 100) ? (float) 100 : $value;
+                $value = ($value > 100) ?  100 : $value;
                 $e = explode(' ', $stamp);
                 $dataArray['chart'][$counter]['ydate'] = $e[1];
                 $dataArray['chart'][$counter]['xinv'] = $nameArray[$rowActual[$group]];

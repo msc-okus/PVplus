@@ -18,7 +18,6 @@
                         <input type="text" class="user" name="username" placeholder="Username" required="" value="{{ last_username }}">
                         <input type="password" name="password" class="lock" placeholder="Password" required="">
                         <input type="hidden" name="login" value="true">
-                        <input id="remember-me" type="checkbox" name="_remember_me"><label for="remember-me">Remember me</label>
                         <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
                         <input class="button button-signin" type="submit" name="Sign In" value="Sign In">
                     </form>

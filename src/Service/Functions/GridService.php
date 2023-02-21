@@ -37,7 +37,7 @@ class GridService
             $sql = "SELECT sum(prod_power) as power_grid 
                 FROM ".$anlage->getDbNameMeters() . " s
                 RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
-                WHERE s.stamp BETWEEN '" . $from->format('Y-m-d H:i') . "' AND '" . $to->format('Y-m-d H:i') . "' AND s.prod_power > 0 AND ppc.p_set_gridop_rel = 100 and ppc.p_set_rpc_rel = 100";
+                WHERE s.stamp BETWEEN '" . $from->format('Y-m-d H:i') . "' AND '" . $to->format('Y-m-d H:i') . "' AND s.prod_power > 0 AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is  null)";
         } else {
             $sql = "SELECT sum(prod_power) as power_grid 
                 FROM ".$anlage->getDbNameMeters()." 

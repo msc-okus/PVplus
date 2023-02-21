@@ -826,4 +826,131 @@ class ACPowerChartsService
 
         return $dataArray;
     }
+    /**
+     * Erzeugt Pnom Chart auf der AC Seite
+     * MS 02/23
+     * @param $from
+     * @param $to
+     *
+     * @return array
+     * Pnom AC Seite
+     */
+    public function getNomPowerGroupAC(Anlage $anlage, $from, $to, $sets = 0, int $group = 1, bool $hour = false): array
+    {
+        ini_set('memory_limit', '3G');
+        $conn = self::getPdoConnection();
+        $dataArray = [];
+        $group = 1;
+        $anlagename = $anlage->getAnlName();
+        $pnominverter = $anlage->getPnomInverterArray();
+        $counter = 0;
+        $counterInv = 0;
+        $gmt_offset = 1;   // Unterschied von GMT zur eigenen Zeitzone in Stunden.
+        $zenith = 90 + 50 / 60;
+        $current_date = strtotime(str_replace("T", "", $from));
+        $sunset = date_sunset($current_date, SUNFUNCS_RET_TIMESTAMP, (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon(), $zenith, $gmt_offset);
+        $sunrise = date_sunrise($current_date, SUNFUNCS_RET_TIMESTAMP, (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon(), $zenith, $gmt_offset);
+
+        // $sunArray = $this->WeatherServiceNew->getSunrise($anlage,$from);
+        // $sunrise = $sunArray[$anlagename]['sunrise'];
+        // $sunset = $sunArray[$anlagename]['sunset'];
+
+        $from = date('Y-m-d H:00', $sunrise - 3600);
+        $to = date('Y-m-d H:00', $sunset + 5400);
+
+        $from = self::timeAjustment($from, $anlage->getAnlZeitzone());
+        $to = self::timeAjustment($to, 1);
+
+        switch ($anlage->getConfigType()) {
+            case 1:
+                $group = 'group_dc';
+                $nameArray = $this->functions->getNameArray($anlage, 'dc');
+                $groupct = count($nameArray);
+                break;
+            default:
+                $group = 'group_ac';
+                $nameArray = $this->functions->getNameArray($anlage, 'ac');
+                $groupct = count($nameArray);
+        }
+
+        if ($groupct) {
+            if ($sets == null) {
+                $min = 1;
+                $max = (($groupct > 100) ? (int)ceil($groupct / 10) : (int)ceil($groupct / 2));
+                $max = (($max > 50) ? '50' : $max);
+                $sqladd = "AND $group BETWEEN '$min' AND '$max'";
+              } else {
+                $res = explode(',', $sets);
+                $min = (int)ltrim($res[0], "[");
+                $max = (int)rtrim($res[1], "]");
+                (($max > $groupct) ? $max = $groupct : $max = $max);
+                (($groupct > $min) ? $min = $min : $min = 1);
+                $sqladd = "AND $group BETWEEN " . (empty($min) ? '1' : $min) . " AND " . (empty($max) ? '5' : $max) . "";
+            }
+        } else {
+            $min = 1;
+            $max = 5;
+            $sqladd = "AND $group BETWEEN '$min' AND ' $max'";
+        }
+
+// array for range slider
+        $dataArray['minSeries'] = $min;
+        $dataArray['maxSeries'] = $max;
+        $dataArray['sumSeries'] = $groupct;
+//
+        $sql = "SELECT c.stamp as ts, c.wr_idc as istCurrent ,c.wr_pac as istPower, c.$group as inv FROM
+                 " . $anlage->getDbNameACIst() . " c WHERE c.stamp 
+                 BETWEEN '$from' AND '$to' 
+                 $sqladd
+                 GROUP BY c.stamp,c.$group ORDER BY NULL";
+
+        $resultActual = $conn->query($sql);
+        $dataArray['SeriesNameArray'] = $nameArray;
+        if ($resultActual->rowCount() > 0) {
+            while ($rowActual = $resultActual->fetch(PDO::FETCH_ASSOC)) {
+                $stamp = $rowActual['ts'];
+                $e = explode(' ', $stamp);
+                $dataArray['chart'][$counter]['ydate'] = $e[1];
+                $dataArray['chart'][$counter]['date'] = $stamp;
+                $powerist = $rowActual['istPower'];
+                $powersoll = $rowActual['expectedAC'];
+
+                if ($powerist != null) {
+                    $poweristkwh =  $powerist;
+                } else {
+                    $poweristkwh = 0;
+                }
+
+                if ($powersoll != null) {
+                    $powersollkwh =  $powersoll;
+                } else {
+                    $powersollkwh = 0;
+                }
+
+                $pnomkwh = $pnominverter[$rowActual['inv']] ;
+                if($pnomkwh != 0) {
+                  $value_acpnom = round(($poweristkwh / $pnomkwh) * 4,2);
+                 } else {
+                  $value_acpnom = 0;
+                }
+                //$value_expac = round(($powersollkwh / $pnomkwh) * 4, 2);
+                $inv_num = $rowActual['inv'];
+                $dataArray['chart'][$counter]['xinv_'.$inv_num.''] = $nameArray[$rowActual['inv']];
+                $dataArray['chart'][$counter]['pnomac_'.$inv_num.''] = $value_acpnom;
+
+               # $dataArray['chart'][$counter]['pnomexpac'] = $value_expac;
+                /*
+                $dataArray['chart'][$counter]['irr'] =  $dataIrr;
+                $dataArray['chart'][$counter]['thirr'] =  $theoreticalIRR;
+                $dataArray['chart'][$counter]['pnomkwh'] =  $pnomkwh;
+                $dataArray['chart'][$counter]['ist'] =  $powerist ;
+                $dataArray['chart'][$counter]['istkwh'] =  $poweristkwh ;
+                */
+                ++$counter;
+                ++$counterInv;
+            }
+            $dataArray['offsetLegend'] = 0;
+        }
+        return $dataArray;
+   }
 }

@@ -1,7 +1,63 @@
 <div class="tabs-panel" id="settings">
-    <div class="grid-x grid-margin-x">
+    <div class="grid-x grid-margin-x" data-equalizer data-equalize-on="medium" id="eq1">
         <div class="cell medium-3">
-            <fieldset class="fieldset">
+            <fieldset class="fieldset" data-equalizer-watch>
+                <legend>AC Charts</legend>
+                {{ form_row(anlageForm.settings.chartAC1) }}
+                {{ form_row(anlageForm.settings.chartAC2) }}
+                {{ form_row(anlageForm.settings.chartAC3) }}
+                {{ form_row(anlageForm.settings.chartAC9) }}
+                {{ form_row(anlageForm.settings.chartAC4) }}
+                {{ form_row(anlageForm.settings.chartAC5) }}
+                {{ form_row(anlageForm.settings.chartAC6) }}
+                {{ form_row(anlageForm.settings.chartAC7) }}
+                {{ form_row(anlageForm.settings.chartAC8) }}
+            </fieldset>
+        </div>
+        <div class="cell medium-3">
+            <fieldset class="fieldset" data-equalizer-watch>
+                <legend>DC Charts</legend>
+                {{ form_row(anlageForm.settings.chartDC1) }}
+                {{ form_row(anlageForm.settings.chartDC2) }}
+                {{ form_row(anlageForm.settings.chartDC3) }}
+                {{ form_row(anlageForm.settings.chartDC4) }}
+                {{ form_row(anlageForm.settings.chartDC5) }}
+                {{ form_row(anlageForm.settings.chartDC6) }}
+            </fieldset>
+        </div>
+        <div class="cell medium-3">
+            <fieldset class="fieldset" data-equalizer-watch>
+                <legend>Analysis</legend>
+                {{ form_row(anlageForm.settings.chartAnalyse1) }}
+                {{ form_row(anlageForm.settings.chartAnalyse2) }}
+                {{ form_row(anlageForm.settings.chartAnalyse3) }}
+                {{ form_row(anlageForm.settings.chartAnalyse4) }}
+                {{ form_row(anlageForm.settings.chartAnalyse5) }}
+                {{ form_row(anlageForm.settings.chartAnalyse6) }}
+                {{ form_row(anlageForm.settings.chartAnalyse7) }}
+                {{ form_row(anlageForm.settings.chartAnalyse8) }}
+                {{ form_row(anlageForm.settings.chartAnalyse9) }}
+            </fieldset>
+        </div>
+        <div class="cell medium-3">
+            <fieldset class="fieldset" data-equalizer-watch>
+                <legend>Miscellaneous</legend>
+                {{ form_row(anlageForm.settings.chartCurr1) }}
+                {{ form_row(anlageForm.settings.chartCurr2) }}
+                {{ form_row(anlageForm.settings.chartCurr3) }}
+                {{ form_row(anlageForm.settings.chartVolt1) }}
+                {{ form_row(anlageForm.settings.chartVolt2) }}
+                {{ form_row(anlageForm.settings.chartVolt3) }}
+                {{ form_row(anlageForm.settings.chartSensor1) }}
+                {{ form_row(anlageForm.settings.chartSensor2) }}
+                {{ form_row(anlageForm.settings.chartSensor3) }}
+                {{ form_row(anlageForm.settings.chartSensor4) }}
+            </fieldset>
+        </div>
+    </div>
+    <div class="grid-x grid-margin-x" data-equalizer data-equalize-on="medium" id="eq2">
+        <div class="cell medium-3">
+            <fieldset class="fieldset" data-equalizer-watch>
                 <legend>Settings</legend>
                 {{ form_row(anlageForm.anlView) }}
                 {{ form_row(anlageForm.anlHidePlant) }}
@@ -11,10 +67,10 @@
                 {{ form_row(anlageForm.excludeFromExpCalc) }}
             </fieldset>
         </div>
-        <div class="cell medium-6">
-            <fieldset class="fieldset">
-                <legend>Configuration Backend</legend>
-                <div class="grid-x grid-padding-x small-up-1 medium-up-2">
+        <div class="cell medium-9">
+            <fieldset class="fieldset" data-equalizer-watch>
+                <legend>Configuration Backend (deprecated)</legend>
+                <div class="grid-x grid-padding-x small-up-1 medium-up-2 large-up-3">
                     <div class="cell">{{ form_row(anlageForm.showOnlyUpperIrr) }}</div>
                     <div class="cell">{{ form_row(anlageForm.showStringCharts) }}</div>
                     <div class="cell">{{ form_row(anlageForm.showAvailability) }}</div>
@@ -33,11 +89,6 @@
                     <div class="cell"> {{ form_row(anlageForm.showPvSyst) }}</div>
                     <div class="cell"> {{ form_row(anlageForm.showForecast) }}</div>
                 </div>
-            </fieldset>
-        </div>
-        <div class="cell medium-3">
-            <fieldset class="fieldset">
-                <legend>Charts</legend>
             </fieldset>
         </div>
     </div>

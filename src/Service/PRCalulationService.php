@@ -568,6 +568,7 @@ class PRCalulationService
 
         // Leistungsdaten ermitteln
         $power = $this->functions->getSumAcPower($anlage, $localStartDate, $localEndDate);
+
         $result['powerEvu'] = $power['powerEvu'];
         $result['powerAct'] = $power['powerAct'];
         $result['powerExp'] = $power['powerExpEvu'] > 0 ? $power['powerExpEvu'] : $power['powerExp'];
@@ -578,7 +579,6 @@ class PRCalulationService
         $pa1 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 1);
         $pa2 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 2);
         $pa3 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 3);
-
         $availability = $pa2;
 
         // Strahlungen berechnen – (upper = Ost / lower = West)
@@ -659,7 +659,7 @@ class PRCalulationService
         $result['algorithmus'] = $anlage->getUseCustPRAlgorithm();
         $result['powerTheoTempCorr'] = (float) $power['powerTheo'];
         $result['tempCorrection'] = (float) $tempCorrection;
-        $result['irradiation'] = (float) $irr;
+        $result['irradiation'] = $irr;
         $result['availability'] = $pa2; // old EPC
         $result['availability2'] = $pa1; // old O&M
         $result['pa0'] = $pa0;
