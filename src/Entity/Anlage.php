@@ -105,15 +105,19 @@ class Anlage
     #[ORM\Column(type: 'string', length: 20)]
     private string $powerWest = '0';
 
+    #[Deprecated]
     #[ORM\Column(name: 'anl_data_go_ws', type: 'string', length: 10, nullable: false, options: ['default' => 'No'])]
     private string $anlDataGoWs = 'No';
 
+    #[Deprecated]
     #[ORM\Column(name: 'anl_modul_anz', type: 'string', length: 50, nullable: false)]
     private string $anlModulAnz = '';
 
+    #[Deprecated]
     #[ORM\Column(name: 'anl_modul_name', type: 'string', length: 100, nullable: false)]
     private string $anlModulName = '';
 
+    #[Deprecated]
     #[ORM\Column(name: 'anl_modul_leistung', type: 'string', length: 50, nullable: false)]
     private string $anlModulLeistung = '';
 
@@ -159,9 +163,13 @@ class Anlage
     #[ORM\Column(name: 'anl_hide_plant', type: 'string', length: 10, nullable: false)]
     private string $anlHidePlant = 'No';
 
+    #[Groups(['api:read'])]
+    #[SerializedName('plant_location_lat')]
     #[ORM\Column(name: 'anl_geo_lat', type: 'string', length: 30, nullable: false)]
     private string $anlGeoLat = '';
 
+    #[Groups(['api:read'])]
+    #[SerializedName('plant_location_lon')]
     #[ORM\Column(name: 'anl_geo_lon', type: 'string', length: 30, nullable: false)]
     private string $anlGeoLon = '';
 
@@ -783,55 +791,55 @@ class Anlage
 
         return $this;
     }
+    /*
+        public function getAnlDataGoWs(): ?string
+        {
+            return $this->anlDataGoWs;
+        }
 
-    public function getAnlDataGoWs(): ?string
-    {
-        return $this->anlDataGoWs;
-    }
+        public function setAnlDataGoWs(string $anlDataGoWs): self
+        {
+            $this->anlDataGoWs = $anlDataGoWs;
 
-    public function setAnlDataGoWs(string $anlDataGoWs): self
-    {
-        $this->anlDataGoWs = $anlDataGoWs;
+            return $this;
+        }
 
-        return $this;
-    }
+        public function getAnlModulAnz(): ?string
+        {
+            return $this->anlModulAnz;
+        }
 
-    public function getAnlModulAnz(): ?string
-    {
-        return $this->anlModulAnz;
-    }
+        public function setAnlModulAnz(string $anlModulAnz): self
+        {
+            $this->anlModulAnz = $anlModulAnz;
 
-    public function setAnlModulAnz(string $anlModulAnz): self
-    {
-        $this->anlModulAnz = $anlModulAnz;
+            return $this;
+        }
 
-        return $this;
-    }
+        public function getAnlModulName(): ?string
+        {
+            return $this->anlModulName;
+        }
 
-    public function getAnlModulName(): ?string
-    {
-        return $this->anlModulName;
-    }
+        public function setAnlModulName(string $anlModulName): self
+        {
+            $this->anlModulName = $anlModulName;
 
-    public function setAnlModulName(string $anlModulName): self
-    {
-        $this->anlModulName = $anlModulName;
+            return $this;
+        }
 
-        return $this;
-    }
+        public function getAnlModulLeistung(): ?string
+        {
+            return $this->anlModulLeistung;
+        }
 
-    public function getAnlModulLeistung(): ?string
-    {
-        return $this->anlModulLeistung;
-    }
+        public function setAnlModulLeistung(string $anlModulLeistung): self
+        {
+            $this->anlModulLeistung = $anlModulLeistung;
 
-    public function setAnlModulLeistung(string $anlModulLeistung): self
-    {
-        $this->anlModulLeistung = $anlModulLeistung;
-
-        return $this;
-    }
-
+            return $this;
+        }
+    */
     public function getAnlDbIst(): ?string
     {
         return $this->anlDbIst;
