@@ -17,17 +17,25 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 
 /**
  * @ApiResource(
- *     collectionOperations={"get", "post"},
- *     itemOperations={"get","put"},
+ *     security="is_granted('ROLE_ADMIN')",
+ *     collectionOperations={
+ *      "get"={"security"="is_granted('ROLE_API_USER')"},
+ *      "post"
+ *      },
+ *     itemOperations={
+ *     "get"={"security"="is_granted('ROLE_API_USER')"},
+ *     "put"
+ *     },
  *     shortName="anlages",
- *     normalizationContext={"groups"={"main:read"}},
- *     denormalizationContext={"groups"={"main:write"}},
+ *     normalizationContext={"groups"={"api:read"}},
+ *     denormalizationContext={"groups"={"api:write"}},
  *     attributes={
- *          "pagination_items_per_page"=10,
- *          "formats"={"jsonld", "json", "html", "csv"={"text/csv"}}
+ *          "pagination_items_per_page"=30,
+ *          "formats"={ "json", "jsonld","html", "csv"={"text/csv"}}
  *     }
  * )
  * @ApiFilter(SearchFilter::class, properties={"anlName":"partial"})
@@ -40,7 +48,8 @@ class Anlage
 {
     private string $dbAnlagenData = 'pvp_data';
 
-    #[Groups(['main'])]
+    #[Groups(['main','api:read'])]
+    #[SerializedName('ID')]
     #[ORM\Column(name: 'id', type: 'bigint', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
@@ -63,7 +72,8 @@ class Anlage
     #[ORM\Column(name: 'anl_betrieb', type: 'date', nullable: true)]
     private ?DateTime $anlBetrieb;
 
-    #[Groups(['main'])]
+    #[Groups(['main','api:read'])]
+    #[SerializedName('Plant_Name')]
     #[ORM\Column(name: 'anl_name', type: 'string', length: 50, nullable: false)]
     private string $anlName;
 
@@ -82,13 +92,18 @@ class Anlage
     #[ORM\Column(name: 'anl_intnr', type: 'string', length: 50, nullable: true)]
     private ?string $anlIntnr;
 
-    #[Groups(['main'])]
+    #[Groups(['main','api:read'])]
+    #[SerializedName('Pnom')]
     #[ORM\Column(type: 'string', length: 20)]
     private string $power = '0';
 
+    #[Groups(['api:read'])]
+    #[SerializedName('Pnom_east')]
     #[ORM\Column(type: 'string', length: 20)]
     private string $powerEast = '0';
 
+    #[Groups(['api:read'])]
+    #[SerializedName('Pnom_west')]
     #[ORM\Column(type: 'string', length: 20)]
     private string $powerWest = '0';
 
@@ -367,6 +382,8 @@ class Anlage
     #[ORM\Column(type: 'string', length: 20)]
     private string $pacDuration = '';
 
+    #[Groups(['api:read'])]
+    #[SerializedName('Pnom_simulation')]
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $kwPeakPvSyst;
 
@@ -412,6 +429,8 @@ class Anlage
     private string $pldYield = '';
 
     #[ORM\Column(type: 'string', length: 30)]
+    #[Groups(['api:read'])]
+    #[SerializedName('Project_number')]
     private string $projektNr = '';
 
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageLegendReport::class, cascade: ['persist', 'remove'])]
