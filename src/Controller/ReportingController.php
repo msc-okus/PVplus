@@ -339,7 +339,7 @@ class ReportingController extends AbstractController
 
                         $data = $form->getData();
                         #$output['data'] = $data;
-                        //dd($output['production_monthly_chart'], $output['wkhLossesChartMonth']);
+                       //dd($output);
                         $result = $this->renderView('report/assetreport.html.twig', [
                             'invNr' => count($output['plantAvailabilityMonth']),
                             'comments' => $report->getComments(),
@@ -423,6 +423,8 @@ class ReportingController extends AbstractController
                             'monthlyLossesHelpTable' => $output['monthlyLossesHelpTable'],
                             'yearLossesHelpTable' => $output['yearLossesHelpTable'],
                             'losseskwhchartYearMonthly' => $output['losseskwhchartYearMonthly'],
+                            'PercentageTableYear' => $output['PercentageTableYear'],
+                            'percentageTableMonth' => $output['percentageTableMonth'],
                         ]);
                         $filename = $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf';
 
@@ -659,6 +661,8 @@ class ReportingController extends AbstractController
                             'monthlyLossesHelpTable' => $output['monthlyLossesHelpTable'],
                             'yearLossesHelpTable' => $output['yearLossesHelpTable'],
                             'losseskwhchartYearMonthly' => $output['losseskwhchartYearMonthly'],
+                            'percentageTableYear' => $output['percentageTableYear'],
+                            'percentagTableMonth' => $output['percentageTable'],
                         ]);
                         break;
                     }
