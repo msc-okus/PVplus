@@ -2793,44 +2793,7 @@ class AssetManagementService
             ],
         ];
         $chart->setOption($option);
-*/
-        $chart->yAxis = [
-            'type' => 'category',
-            'axisLabel' => [
-                'show' => true,
-                'margin' => '10',
-            ],
-            'splitArea' => [
-                'show' => true,
-            ],
-            'data' =>[" "],
-        ];
-        $chart->xAxis = [
-            'type' => 'log',
-            'min' => 1,
-            'name' => 'KWH',
-            'nameLocation' => 'middle',
-            'nameGap' => 80,
-            'offset' => -20,
-        ];
-        if ($anlage->hasPVSYST() === true) {
-            $chart->series =[
-                [
-                    'name' => 'Expected G4N',
-                    'type' => 'bar',
-                    'data' => [$G4NyearExpected] ,
-                    'visualMap' => 'false'
-                ],
-                [
-                    'name' => 'Expected PV SYST',
-                    'type' => 'bar',
-                    'data' => [$PVSYSTyearExpected],
-
-        $chart->setOption($option);
         $losseskwhchartYearMonthly = $chart->render('Year_losses_monthly', ['style' => 'height: 800px; width:26cm; ']);
-
-
-
 
         $yearLossesHelpTable = [
             'ExpectedG4N' => $G4NyearExpected,
@@ -2841,12 +2804,6 @@ class AssetManagementService
             'EFORLosses' => $kwhLossesYearTable['EFORLosses'],
             'OMCLosses' => $kwhLossesYearTable['OMCLosses'],
         ];
-
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
 
         $chart->tooltip = [];
         $chart->xAxis = [];
