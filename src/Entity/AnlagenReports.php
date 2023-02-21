@@ -19,7 +19,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
- *     security="is_granted('ROLE_ADMIN')",
+ *      security="is_granted('ROLE_ADMIN')",
+ *      securityMessage="Only Admin can access to this page",
  *     collectionOperations={"get", "post"},
  *     itemOperations={"get","put"},
  *     shortName="reports",

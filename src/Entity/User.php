@@ -21,12 +21,13 @@ use Symfony\Component\Serializer\Annotation\Groups;
 /**
  * @ApiResource(
  *      security="is_granted('ROLE_ADMIN')",
- *     collectionOperations={
- *     "get"={"security"="is_granted('ROLE_API_USER')"},
- *     "post"},
- *     itemOperations={"get","put"},
- *     shortName="users",
- *     normalizationContext={"groups"={"user:read"}},
+ *      securityMessage="Only Admin can access to this page",
+ *      collectionOperations={
+ *      "get",
+ *      "post"},
+ *      itemOperations={"get","put"},
+ *      shortName="users",
+ *      normalizationContext={"groups"={"user:read"}},
  *     denormalizationContext={"groups"={"user:write"}},
  *     attributes={
  *          "pagination_items_per_page"=10,
