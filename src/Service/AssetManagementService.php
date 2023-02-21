@@ -2174,16 +2174,7 @@ class AssetManagementService
                             'position' => 'inside'
                         ],
                     ],
-                    [
-                        'name' => 'Expected PVSYS[%]',
-                        'type' => 'bar',
-                        'data' => [$percentageTable['PVSYSExpected']] ,
-                        'visualMap' => 'false',
-                        'label' => [
-                            'show' => true,
-                            'position' => 'inside'
-                        ],
-                    ],
+
                     [
                         'name' => 'G4N Simulation[%]',
                         'type' => 'bar',
@@ -2205,6 +2196,17 @@ class AssetManagementService
                             'position' => 'inside'
                         ],
                     ],
+                    [
+                        'name' => 'Expected PVSYS[%]',
+                        'type' => 'bar',
+                        'data' => [$percentageTable['PVSYSExpected']] ,
+                        'visualMap' => 'false',
+                        'label' => [
+                            'show' => true,
+                            'position' => 'inside'
+                        ],
+                    ],
+
                     [
                         'name' => 'SOR Losses[%]',
                         'type' => 'bar',
@@ -2306,25 +2308,27 @@ class AssetManagementService
         }
 
         $option = [
-            'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000', '#ea7ccc', '#9a60b4'],
+            'color' => ['#f1975a', '#b7b7b7', '#698ed0', '#ffc000', '#ea7ccc', '#9a60b4', '#b7b7a4'],
             'animation' => false,
             'title' => [
-                'text' => 'Production and Losses in Percentage',
+                'text' => 'Production and Losses in Percentage by Month',
                 'left' => 'center',
+                'top' => '10',
             ],
             'tooltip' => [
                 'show' => true,
             ],
             'legend' => [
                 'show' => true,
-                'left' => 'center',
-                'top' => 20,
+                'right' => 'right',
+                'top' => 60,
+                'padding' => -10 ,
             ],
             'grid' => [
                 'height' => '80%',
                 'top' => 50,
                 'width' => '80%',
-                'left' => 10,
+                'left' => 60,
             ],
         ];
 
@@ -2388,16 +2392,6 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'Expected PVSYS[%]',
-                    'type' => 'bar',
-                    'data' => [$percentageTableYear['PVSYSExpected']] ,
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
-                ],
-                [
                     'name' => 'G4N Simulation[%]',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['forecast']],
@@ -2411,6 +2405,16 @@ class AssetManagementService
                     'name' => 'Actual',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['ActualPower']],
+                    'visualMap' => 'false',
+                    'label' => [
+                        'show' => true,
+                        'position' => 'inside'
+                    ],
+                ],
+                [
+                    'name' => 'Expected PVSYS[%]',
+                    'type' => 'bar',
+                    'data' => [$percentageTableYear['PVSYSExpected']] ,
                     'visualMap' => 'false',
                     'label' => [
                         'show' => true,
@@ -2515,24 +2519,27 @@ class AssetManagementService
         }
 
         $option = [
+            'color' => ['#f1975a', '#b7b7b7', '#698ed0', '#ffc000', '#ea7ccc', '#9a60b4', '#b7b7a4'],
             'animation' => false,
             'title' => [
-                'text' => 'Production and Losses in Percentage',
+                'text' => 'Production and Losses in Percentage by Month',
                 'left' => 'center',
+                'top' => '10',
             ],
             'tooltip' => [
                 'show' => true,
             ],
             'legend' => [
                 'show' => true,
-                'left' => 'center',
-                'top' => 30,
+                'right' => 'right',
+                'top' => 60,
+                'padding' => -10 ,
             ],
             'grid' => [
                 'height' => '80%',
                 'top' => 50,
                 'width' => '80%',
-                'left' => 20,
+                'left' => 60,
             ],
         ];
 
@@ -2600,16 +2607,7 @@ class AssetManagementService
         if ($anlage->hasPVSYST() === true) {
             $chart->series =
                 [
-                    [
-                        'name' => 'Expected PVSYST[%]',
-                        'type' => 'bar',
-                        'data' => $table_percentage_monthly['expectedPvSyst'],
-                        'visualMap' => 'false',
-                        'label' => [
-                            'show' => true,
-                            'position' => 'inside'
-                        ],
-                    ],
+
                     [
                         'name' => 'Expected g4n[%]',
                         'type' => 'bar',
@@ -2634,6 +2632,16 @@ class AssetManagementService
                         'name' => 'Actual[%]',
                         'type' => 'bar',
                         'data' => $table_percentage_monthly['Actual'],
+                        'visualMap' => 'false',
+                        'label' => [
+                            'show' => true,
+                            'position' => 'inside'
+                        ],
+                    ],
+                    [
+                        'name' => 'Expected PVSYST[%]',
+                        'type' => 'bar',
+                        'data' => $table_percentage_monthly['expectedPvSyst'],
                         'visualMap' => 'false',
                         'label' => [
                             'show' => true,
@@ -2739,18 +2747,21 @@ class AssetManagementService
         }
 
         $option = [
+            'color' => ['#f1975a', '#b7b7b7', '#698ed0', '#ffc000', '#ea7ccc', '#9a60b4', '#b7b7a4'],
             'animation' => false,
             'title' => [
                 'text' => 'Production and Losses in Percentage by Month',
                 'left' => 'center',
+                'top' => '10',
             ],
             'tooltip' => [
                 'show' => true,
             ],
             'legend' => [
                 'show' => true,
-                'left' => 'center',
-                'top' => 20,
+                'right' => 'right',
+                'top' => 60,
+                'padding' => -10 ,
             ],
             'grid' => [
                 'height' => '80%',
