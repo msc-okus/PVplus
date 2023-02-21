@@ -580,7 +580,6 @@ class FunctionsService
                     FROM ".$weatherStation->getDbNameWeather()." w  
                     RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON w.stamp = ppc.stamp 
                     WHERE w.stamp BETWEEN '$from' AND '$to' AND (ppc.p_set_gridop_rel = 100 or ppc.p_set_gridop_rel is null) and (ppc.p_set_rpc_rel = 100 or ppc.p_set_rpc_rel is  null)";
-            #if (str_contains($from,'2021-10-06')) dump($sql);
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {
                 $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -770,12 +769,13 @@ class FunctionsService
             // Darüber kann eine Koorektur der Zählerwerte erfolgen.
             // Wenn für einen Monat Manuel Zählerwerte eingegeben wurden, wird der Wert der Tageszählwer wieder subtrahiert und der Manuel eingebene Wert addiert.
             $powerEGridExt = $this->gridMeterDayRepo->sumByDateRange($anlage, $from, $to);
-            if (!$powerEGridExt) {
-                $powerEGridExt = 0;
-            }
+
+            if (!$powerEGridExt) $powerEGridExt = 0;
+
             // prüfe ob $from Datum und das $to datum weniger al einen Monat auseinaderliegen
             // wenn das so ist darf die korrektur nicht ausgeführt werden
-            if (!$day) $day = strtotime($to) - strtotime($from) <= (3600 *24);
+            if (!$day) $day = strtotime($to) - strtotime($from) <= (3600 *25); // mal 25 um Schaltung auf Winterzeit zu berücksichtigen
+
             // wenn Tageswerte angefordert, dann nicht mit Monatswerten verrechnen, wenn keine Tageswerte vorhanden sind, wird 0 zurückgegeben.
             if (!$day) {
                 $year = (int) date('Y', strtotime($from));
@@ -820,7 +820,6 @@ class FunctionsService
         // ############ für den angeforderten Zeitraum #############
 
         // Wenn externe Tagesdaten genutzt werden, sollen lade diese aus der DB und ÜBERSCHREIBE die Daten aus den 15Minuten Werten
-
         $powerEGridExt = $this->getSumeGridMeter($anlage, $from, $to);
 
         // EVU Leistung ermitteln –

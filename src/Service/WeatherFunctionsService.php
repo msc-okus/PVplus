@@ -51,7 +51,6 @@ class WeatherFunctionsService
     public function getWeather(WeatherStation $weatherStation, $from, $to): ?array
     {
         $conn = self::getPdoConnection();
-
         $weather = [];
         $dbTable = $weatherStation->getDbNameWeather();
         $sql = "SELECT COUNT(db_id) AS anzahl FROM $dbTable WHERE stamp BETWEEN '$from' and '$to'";

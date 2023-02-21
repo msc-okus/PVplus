@@ -108,7 +108,6 @@ class ReportsMonthlyService
             // Table
             $day = new \DateTime("$year-$month-$i 12:00");
             $prArray = $this->PRCalulation->calcPR($anlage, $day);
-            #dd($prArray);
 
             $dayValues['datum'] = $day->format('m-d');
 
@@ -155,40 +154,36 @@ class ReportsMonthlyService
         $fromDay = new \DateTime("$year-$month-01 00:00");
         $toDay = new \DateTime("$year-$month-$daysInMonth 23:59");
         $prSumArray = $this->PRCalulation->calcPR($anlage, $fromDay, $toDay);
+        dd($prSumArray);
         // Summe / Total Row
         $sumValues['datum'] = $total;
-        if ( false ) {
-            foreach ($prSumArray as $prKey => $value) {
-                $sumValues[$prKey] = $value;
-            }
+        $sumValues['PowerEvuMonth'] = $anlage->getShowEvuDiag() ? $prSumArray['powerEvu'] : $prSumArray['powerAct'];
+        if ($anlage->getUseGridMeterDayData()) {
+            $sumValues['powerEGridExt'] = $prSumArray['powerEGridExt'];
+            $sumValues['spezYield'] = $sumValues['powerEGridExt'] / $anlage->getPnom();
+            $sumValues['prEvuEpc'] = $prSumArray['prEGridExt'];
+            $sumValues['prEvuDefault'] = $prSumArray['prDefaultEGridExt'];
         } else {
-            $sumValues['PowerEvuMonth'] = $anlage->getShowEvuDiag() ? $prSumArray['powerEvu'] : $prSumArray['powerAct'];
-            if ($anlage->getUseGridMeterDayData()) {
-                $sumValues['powerEGridExt'] = $prSumArray['powerEGridExt'];
-                $sumValues['spezYield'] = $sumValues['powerEGridExt'] / $anlage->getPnom();
-                $sumValues['prEvuEpc'] = $prSumArray['prEGridExt'];
-                $sumValues['prEvuDefault'] = $prSumArray['prDefaultEGridExt'];
-            } else {
-                $sumValues['spezYield'] = $anlage->getShowEvuDiag() ? $prSumArray['powerEvu'] / $anlage->getPnom() : $prSumArray['powerAct'] / $anlage->getPnom();
-                $sumValues['prEvuEpc'] = $anlage->getShowEvuDiag() ? $prSumArray['prEvu'] : $prSumArray['prAct'];
-                $sumValues['prEvuDefault'] = $anlage->getShowEvuDiag() ? $prSumArray['prDefaultEvu'] : $prSumArray['prDefaultAct'];
-            }
-            $sumValues['irradiation'] = $prSumArray['irradiation'];
-            $sumValues['pa0'] = $prSumArray['pa0'];
-            $sumValues['pa1'] = $prSumArray['pa1'];
-            $sumValues['pa2'] = $prSumArray['pa2'];
-            $sumValues['pa3'] = $prSumArray['pa3'];
-            if ($anlage->getShowAvailability()) {
-
-            }
-            if ($anlage->getShowAvailabilitySecond()) {
-
-            }
-            $sumValues['powerTheo'] = $prSumArray['irradiation'] * $anlage->getPnom();
-            $sumValues['powerTheoFT'] = $prSumArray['powerTheo'];
-            $sumValues['powerExp'] = $prSumArray['powerExp'];
-            $sumValues['case5perDay'] = $prSumArray['case5perDay'];
+            $sumValues['spezYield'] = $anlage->getShowEvuDiag() ? $prSumArray['powerEvu'] / $anlage->getPnom() : $prSumArray['powerAct'] / $anlage->getPnom();
+            $sumValues['prEvuEpc'] = $anlage->getShowEvuDiag() ? $prSumArray['prEvu'] : $prSumArray['prAct'];
+            $sumValues['prEvuDefault'] = $anlage->getShowEvuDiag() ? $prSumArray['prDefaultEvu'] : $prSumArray['prDefaultAct'];
         }
+        $sumValues['irradiation'] = $prSumArray['irradiation'];
+        $sumValues['pa0'] = $prSumArray['pa0'];
+        $sumValues['pa1'] = $prSumArray['pa1'];
+        $sumValues['pa2'] = $prSumArray['pa2'];
+        $sumValues['pa3'] = $prSumArray['pa3'];
+        if ($anlage->getShowAvailability()) {
+
+        }
+        if ($anlage->getShowAvailabilitySecond()) {
+
+        }
+        $sumValues['powerTheo'] = $prSumArray['irradiation'] * $anlage->getPnom();
+        $sumValues['powerTheoFT'] = $prSumArray['powerTheo'];
+        $sumValues['powerExp'] = $prSumArray['powerExp'];
+        $sumValues['case5perDay'] = $prSumArray['case5perDay'];
+
         $dayValuesFinal[] = $sumValues;
 
         // beginn create array for heat and temperatur table
