@@ -7,12 +7,14 @@
                 {{ kwhLossesChartYear | raw }}
             </td>
         </tr>
-        <tr style="height: 30%">
-            <td style="width: 50%; ">
-                <table style="margin-top: 30px; width: 90%">
+    </table>
+    <table>
+        <tr>
+            <td >
+                <table style="width: 50% !important; ">
                     <thead>
                     <th>Type of Ticket</th>
-                    <th>Losses in kWh to G4N Expected</th>
+                    <th>Losses in kWh </th>
                     </thead>
                     <tbody>
                     <tr>
@@ -30,8 +32,50 @@
                     </tbody>
                 </table>
             </td>
-            <td style="width: 50%; ">
-                <table style="margin-top: 30px; width: 90%">
+            <td >
+                <table style="width: 50% !important; ">
+                    <thead>
+                    <th></th>
+                    <th>% relative to G4N Expected </th>
+                    </thead>
+                    <tbody>
+                    {% if (anlage.hasPVSYST == true) %}
+                        <tr>
+                            <td class="tr_next_columns">Expected PVSYS</td>
+                            <td class="tr_next_columns"> {{ PercentageTableYear['PVSYSExpected'] |number_format(2, ',', '.') }}</td>
+                        </tr>
+                    {% endif %}
+                    <tr>
+                        <td class="tr_next_columns">G4N Expected</td>
+                        <td class="tr_next_columns"> {{ PercentageTableYear['G4NExpected'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">G4N Simulation </td>
+                        <td class="tr_next_columns"> {{ PercentageTableYear['forecast'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">Actual </td>
+                        <td class="tr_next_columns"> {{ PercentageTableYear['ActualPower'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">Planned Outage <sup><b> a</b></sup></td>
+                        <td class="tr_next_columns"> {{ PercentageTableYear['SORLosses'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">Unplanned Outage <sup><b> b</b></sup> <sup><b>c</b></sup></td>
+                        <td class="tr_next_columns"> {{ PercentageTableYear['EFORLosses'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">Grid Error/Grid Off <sup><b> d</b></sup></td>
+                        <td class="tr_next_columns"> {{ PercentageTableYear['OMCLosses'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 25% !important; " colspan="2">
+                <table style="width: 25% !important; ">
                     <thead>
                     <th></th>
                     <th>kWh</th>
@@ -48,7 +92,8 @@
                     {% if (anlage.hasPVSYST == true) %}
                         <tr>
                             <td class="tr_next_columns">Expected PVSYS</td>
-                            <td class="tr_next_columns"> {{ yearLossesHelpTable['ExoectedPVSYS'] |number_format(2, ',', '.') }}</td>
+                            <td class="tr_next_columns"> {{ yearLossesHelpTable['ExpectedPVSYS'] |number_format(2, ',', '.') }}</td>
+
                         </tr>
                     {% endif %}
                     <tr>
@@ -59,8 +104,8 @@
                 </table>
             </td>
         </tr>
-        <tr style="height: 20%">
-            <td>
+        <tr>
+            <td style="width: 25% !important; " colspan="2">
                 <div style="text-align: left">
                     <sup><b>a</b></sup> Maintenance, SOR<br>
                     <sup><b>b</b></sup> Defects, EFOR<br>
@@ -69,6 +114,5 @@
                 </div>
             </td>
         </tr>
-
     </table>
 {% endblock page %}

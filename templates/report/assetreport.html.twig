@@ -1,4 +1,11 @@
 {% extends 'report/assetreport.base.html.twig' %}
+{% block javascripts %}
+        {{ parent() }}
+        <script src="https://cdn.amcharts.com/lib/4/core.js" type="text/javascript"></script>
+        <script src="https://cdn.amcharts.com/lib/4/charts.js" type="text/javascript"></script>
+        <script src="https://cdn.amcharts.com/lib/4/themes/animated.js" type="text/javascript"></script>
+        {{ encore_entry_script_tags('dashboard') }}
+{% endblock %}
 {%- block content %}
         <div class="container">
             {# WE COULD USE PARAMETERS HERE TO DECIDE WICH PARTS TO INCLUDE BUT WE WILL NEED A MORE COMPLEX FORM DEDICATED FOR THE AM REPORT#}
@@ -55,14 +62,12 @@
 
                 {% endif %}
                 {% if (data.AvYearlyTicketOverview == true) %}
-                    {% include 'report/_asset_mangement_partials/_availability_yearly_ticket.html.twig'%}
-
-                    {% include 'report/_asset_mangement_partials/_chart_availability_year.html.twig' %}
-
+                        {% include 'report/_asset_mangement_partials/_availability_yearly_ticket.html.twig'%}
+                        {% include 'report/_asset_mangement_partials/_chart_availability_year.html.twig' %}
+                        {% include 'report/_asset_mangement_partials/_chart_year_by_month.html.twig' %}
                 {% endif %}
                 {% if (data.AvMonthlyOverview) %}
                     {% include 'report/_asset_mangement_partials/_aufloesung_availibility_fuerr_den_act_monat.html.twig'%}
-
                     {% include 'report/_asset_mangement_partials/_chart_availability.html.twig' %}
 
                 {% endif %}

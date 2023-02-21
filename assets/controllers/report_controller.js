@@ -3,7 +3,7 @@ import { useDispatch } from 'stimulus-use';
 import $ from 'jquery';
 
 export default class extends Controller {
-    static targets = ['list', 'reportForm', 'searchForm', 'createForm', 'required', 'deactivable'];
+    static targets = ['list', 'reportForm', 'searchForm', 'createForm', 'required', 'deactivable', 'deactivable1'];
     static values = {
         urlCreate: String,
         urlSearch: String,
@@ -15,8 +15,14 @@ export default class extends Controller {
 
     toggle(){
         const $button = $(this.deactivableTargets);
+        const $button1 = $(this.deactivable1Targets);
         if ($button.attr('disabled')) {
             $button.removeAttr('disabled');
+        } else {
+            $button.attr('disabled', 'disabled');
+        }
+        if ($button1.attr('disabled')) {
+            $button1.removeAttr('disabled');
         } else {
             $button.attr('disabled', 'disabled');
         }
@@ -24,10 +30,13 @@ export default class extends Controller {
 
     handleInput() {
         const $button = $(this.deactivableTargets);
+        const $button1 = $(this.deactivable1Targets);
         const isRequiredFilled = this.requiredTargets.every(el => el.value);
         if (isRequiredFilled) {
             $button.removeAttr('disabled');
+            $button1.removeAttr('disabled');
         } else {
+            $button.attr('disabled', 'disabled');
             $button.attr('disabled', 'disabled');
         }
     }
@@ -66,6 +75,23 @@ export default class extends Controller {
 
         this.listTarget.innerHTML = await $.ajax({
             url: this.urlCreateValue,
+            method: $createReportform.prop('method'),
+            data: $createReportform.serialize(),
+            beforeSend: function(){
+                $('.ajax-loader').css('visibility', 'visible');
+            },
+            complete: function(){
+                $('.ajax-loader').css('visibility', 'hidden');
+            }
+        });
+        this.dispatch('success');
+    }
+    async createlocal(event) {
+        event.preventDefault();
+        const $createReportform = $(this.reportFormTarget).find('form');
+
+        this.listTarget.innerHTML = await $.ajax({
+            url: "/",
             method: $createReportform.prop('method'),
             data: $createReportform.serialize(),
             beforeSend: function(){
