@@ -1,18 +1,20 @@
-<div style="page-break-after: always; height: 100%!important;">
-    <table style="width: 100%; margin-top: 15px!important;">
-        <tr style="border-bottom: solid 2px {{ anlage.eigner.fontColor2 }};">
-            <td style=" width: 254mm; text-align: left;" class=""><h1>{{ anlage.projektNr }} {{ anlage.anlName }}</h1></td>
-            <td><img alt="Cutomer Logo" class="customer_logo" src="{{ absolute_url(asset(anlage.eigner.getCustomerLogo)) }}"></td>
+<div style="page-break-after: always; ">
+    <div style="height: 13mm!important; width:100%!important; overflow: hidden">
+        <table style="width: 100%; ">
+            <tr style="border-bottom: solid 2px {{ anlage.eigner.fontColor2 }};">
+                <td style=" width: 254mm; text-align: left;" class=""><h1>{{ anlage.projektNr }} {{ anlage.anlName }}</h1></td>
+                <td><img alt="Cutomer Logo" class="customer_logo" src="{{ absolute_url(asset(anlage.eigner.getCustomerLogo)) }}"></td>
 
-        </tr>
-    </table>
+            </tr>
+        </table>
+    </div>
     <div class="content_asset_report">
         {% block page %}
 
         {% endblock page %}
     </div>
-    <div style="top: 25px; position: relative; width:100%!important">
-        <table style="width: 100%; margin-bottom: 0;">
+    <div style="position: relative; height: 10mm!important; margin-top: 1mm; width:100%!important; overflow: hidden">
+        <table style="width: 100%; ">
             <tr style="border-top: solid 2px #91bc5b;">
                 <td style="width: 254mm; text-align: left;" class=""></td>
                 <td><img alt="green4net" class="g4n_logo" src="{{ absolute_url(asset('images/green4net.jpg')) }}"></td>
