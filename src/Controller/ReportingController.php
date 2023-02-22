@@ -661,9 +661,8 @@ class ReportingController extends AbstractController
                             'monthlyLossesHelpTable' => $output['monthlyLossesHelpTable'],
                             'yearLossesHelpTable' => $output['yearLossesHelpTable'],
                             'losseskwhchartYearMonthly' => $output['losseskwhchartYearMonthly'],
-                            'percentageTableYear' => $output['percentageTableYear'],
-                            'percentagTableMonth' => $output['percentageTable'],
-
+                            'PercentageTableYear' => $output['PercentageTableYear'],
+                            'percentageTableMonth' => $output['percentageTableMonth'],
                         ]);
                         break;
                     }
