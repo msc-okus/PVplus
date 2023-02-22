@@ -49,7 +49,7 @@ class Anlage
     private string $dbAnlagenData = 'pvp_data';
 
     #[Groups(['main','api:read'])]
-    #[SerializedName('ID')]
+    #[SerializedName('id')]
     #[ORM\Column(name: 'id', type: 'bigint', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
@@ -71,7 +71,7 @@ class Anlage
     private ?DateTime $anlBetrieb;
 
     #[Groups(['main','api:read'])]
-    #[SerializedName('Plant_Name')]
+    #[SerializedName('plant_name')]
     #[ORM\Column(name: 'anl_name', type: 'string', length: 50, nullable: false)]
     private string $anlName;
 
@@ -91,17 +91,17 @@ class Anlage
     private ?string $anlIntnr;
 
     #[Groups(['main','api:read'])]
-    #[SerializedName('Pnom')]
+    #[SerializedName('p_nom')]
     #[ORM\Column(type: 'string', length: 20)]
     private string $power = '0';
 
     #[Groups(['api:read'])]
-    #[SerializedName('Pnom_east')]
+    #[SerializedName('p_nom_east')]
     #[ORM\Column(type: 'string', length: 20)]
     private string $powerEast = '0';
 
     #[Groups(['api:read'])]
-    #[SerializedName('Pnom_west')]
+    #[SerializedName('p_nom_west')]
     #[ORM\Column(type: 'string', length: 20)]
     private string $powerWest = '0';
 
@@ -382,7 +382,7 @@ class Anlage
     private string $pacDuration = '';
 
     #[Groups(['api:read'])]
-    #[SerializedName('Pnom_simulation')]
+    #[SerializedName('p_nom_simulation')]
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $kwPeakPvSyst;
 
@@ -430,7 +430,7 @@ class Anlage
 
     #[ORM\Column(type: 'string', length: 30)]
     #[Groups(['api:read'])]
-    #[SerializedName('Project_number')]
+    #[SerializedName('project_number')]
     private string $projektNr = '';
 
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageLegendReport::class, cascade: ['persist', 'remove'])]
