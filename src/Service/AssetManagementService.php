@@ -2778,9 +2778,6 @@ class AssetManagementService
         $chart->setOption($option);
         $losseskwhchartYearMonthly = $chart->render('Year_losses_monthly', ['style' => 'height: 800px; width:28cm; ']);
 
-
-
-
         $yearLossesHelpTable = [
             'ExpectedG4N' => $G4NyearExpected,
             'ExpectedPVSYS' => $PVSYSTyearExpected,
@@ -2790,12 +2787,6 @@ class AssetManagementService
             'EFORLosses' => $kwhLossesYearTable['EFORLosses'],
             'OMCLosses' => $kwhLossesYearTable['OMCLosses'],
         ];
-
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
 
         $chart->tooltip = [];
         $chart->xAxis = [];
