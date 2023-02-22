@@ -4118,7 +4118,6 @@ class AssetManagementService
     }
     public function calculateLosses($begin, $end, $anlage):Array
     {
-        dump($begin, $end);
         $sumLossesMonthSOR = 0;
         $sumLossesMonthEFOR = 0;
         $sumLossesMonthOMC = 0;

@@ -184,7 +184,6 @@ class TicketController extends BaseController
 
         if ($request->query->get('filtering') == 'filtered')
         {
-            dump($request->query->get('filtering'));
             //$page = 1;
             $request->query->set('filtering', 'non-filtered');
             //dd($request->query->get('filtering'));
