@@ -2174,22 +2174,20 @@ class AssetManagementService
                             'position' => 'inside'
                         ],
                     ],
-
                     [
-                        'name' => 'G4N Simulation[%]',
+                        'name' => 'Actual[%]',
                         'type' => 'bar',
-                        'data' => [$percentageTable['forecast']],
+                        'data' => [$percentageTable['ActualPower']],
                         'visualMap' => 'false',
                         'label' => [
                             'show' => true,
                             'position' => 'inside'
                         ],
                     ],
-
                     [
-                        'name' => 'Actual',
+                        'name' => 'G4N Simulation[%]',
                         'type' => 'bar',
-                        'data' => [$percentageTable['ActualPower']],
+                        'data' => [$percentageTable['forecast']],
                         'visualMap' => 'false',
                         'label' => [
                             'show' => true,
@@ -2252,21 +2250,19 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'G4N Simulation[%]',
+                    'name' => 'Actual[%]',
                     'type' => 'bar',
-                    'data' => [$percentageTable['forecast']],
+                    'data' => [$percentageTable['ActualPower']],
                     'visualMap' => 'false',
                     'label' => [
                         'show' => true,
                         'position' => 'inside'
                     ],
                 ],
-
-
                 [
-                    'name' => 'Actual[%]',
+                    'name' => 'G4N Simulation[%]',
                     'type' => 'bar',
-                    'data' => [$percentageTable['ActualPower']],
+                    'data' => [$percentageTable['forecast']],
                     'visualMap' => 'false',
                     'label' => [
                         'show' => true,
@@ -2308,7 +2304,7 @@ class AssetManagementService
         }
 
         $option = [
-            'color' => ['#f1975a', '#b7b7b7', '#698ed0', '#ffc000', '#ea7ccc', '#9a60b4', '#b7b7a4'],
+            'color' => ['#f1975a', '#698ed0', '#b7b7b7', '#ffc000', '#ea7ccc', '#9a60b4', '#b7b7a4'],
             'animation' => false,
             'title' => [
                 'text' => 'Production and Losses in Percentage for the month',
@@ -2393,9 +2389,9 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'G4N Simulation[%]',
+                    'name' => 'Actual[%]',
                     'type' => 'bar',
-                    'data' => [$percentageTableYear['forecast']],
+                    'data' => [$percentageTableYear['ActualPower']],
                     'visualMap' => 'false',
                     'label' => [
                         'show' => true,
@@ -2403,9 +2399,9 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'Actual',
+                    'name' => 'G4N Simulation[%]',
                     'type' => 'bar',
-                    'data' => [$percentageTableYear['ActualPower']],
+                    'data' => [$percentageTableYear['forecast']],
                     'visualMap' => 'false',
                     'label' => [
                         'show' => true,
@@ -2467,9 +2463,9 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'G4N Simulation[%]',
+                    'name' => 'Actual[%]',
                     'type' => 'bar',
-                    'data' => [$percentageTableYear['forecast']],
+                    'data' => [$percentageTableYear['ActualPower']],
                     'visualMap' => 'false',
                     'label' => [
                         'show' => true,
@@ -2477,9 +2473,9 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'Actual[%]',
+                    'name' => 'G4N Simulation[%]',
                     'type' => 'bar',
-                    'data' => [$percentageTableYear['ActualPower']],
+                    'data' => [$percentageTableYear['forecast']],
                     'visualMap' => 'false',
                     'label' => [
                         'show' => true,
@@ -2521,7 +2517,7 @@ class AssetManagementService
 
 
         $option = [
-            'color' => ['#f1975a', '#b7b7b7', '#698ed0', '#ffc000', '#ea7ccc', '#9a60b4', '#b7b7a4'],
+            'color' => ['#f1975a', '#698ed0', '#b7b7b7',  '#ffc000', '#ea7ccc', '#9a60b4', '#b7b7a4'],
             'animation' => false,
             'title' => [
                 'text' => 'Production and Losses cummulative',
@@ -2623,9 +2619,9 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'G4N Simulation[%]',
+                        'name' => 'Actual[%]',
                         'type' => 'bar',
-                        'data' => $table_percentage_monthly['Forecast'],
+                        'data' => $table_percentage_monthly['Actual'],
                         'visualMap' => 'false',
                         'label' => [
                             'show' => true,
@@ -2633,9 +2629,9 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'Actual[%]',
+                        'name' => 'G4N Simulation[%]',
                         'type' => 'bar',
-                        'data' => $table_percentage_monthly['Actual'],
+                        'data' => $table_percentage_monthly['Forecast'],
                         'visualMap' => 'false',
                         'label' => [
                             'show' => true,
@@ -2698,9 +2694,9 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'G4N Simulation[%]',
+                        'name' => 'Actual[%]',
                         'type' => 'bar',
-                        'data' => $table_percentage_monthly['Forecast'],
+                        'data' => $table_percentage_monthly['Actual'],
                         'visualMap' => 'false',
                         'label' => [
                             'show' => true,
@@ -2708,9 +2704,9 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'Actual[%]',
+                        'name' => 'G4N Simulation[%]',
                         'type' => 'bar',
-                        'data' => $table_percentage_monthly['Actual'],
+                        'data' => $table_percentage_monthly['Forecast'],
                         'visualMap' => 'false',
                         'label' => [
                             'show' => true,
@@ -2751,7 +2747,7 @@ class AssetManagementService
         }
 
         $option = [
-            'color' => ['#f1975a', '#b7b7b7', '#698ed0', '#ffc000', '#ea7ccc', '#9a60b4', '#b7b7a4'],
+            'color' => ['#f1975a', '#698ed0', '#b7b7b7', '#ffc000', '#ea7ccc', '#9a60b4', '#b7b7a4'],
             'animation' => false,
             'title' => [
                 'text' => 'Production and Losses in Percentage by Month',
