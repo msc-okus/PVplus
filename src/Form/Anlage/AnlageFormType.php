@@ -787,26 +787,6 @@ class AnlageFormType extends AbstractType
             ->add('showCosPhiPowerDiag', SwitchType::class, [
                 'help' => '[showCosPhiPowerDiag]',
             ])
-            ->add('showGraphDcInverter', SwitchType::class, [
-                'help' => '[showGraphDcInverter]',
-                'label' => 'Zeige Diagramm \'DC - Inverter\'',
-            ])
-            ->add('showGraphDcCurrInv', SwitchType::class, [
-                'label' => 'Zeige Diagramm \'DC - Current Inverter\'',
-                'help' => '[showGraphDcCurrInv]',
-            ])
-            ->add('showGraphDcCurrGrp', SwitchType::class, [
-                'label' => 'Zeige Diagramm \'DC - Current Group\'',
-                'help' => '[showGraphDcCurrGrp]',
-            ])
-            ->add('showGraphVoltGrp', SwitchType::class, [
-                'label' => 'Zeige Diagramm \'DC - Voltage Group\'',
-                'help' => '[showGraphVoltGrp]',
-            ])
-            ->add('showGraphIrrPlant', SwitchType::class, [
-                'label' => 'Zeige Diagramm \'Irradiation Plant\'',
-                'help' => '[showGraphIrrPlant]',
-            ])
             ->add('showPR', SwitchType::class, [
                 'label' => 'Zeige Diagramm \'PR\'',
                 'help' => '[showPR]',
