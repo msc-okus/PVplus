@@ -1759,9 +1759,9 @@ class AssetManagementService
             $failRelativeOMCPorcent = 0;
         }
         $kwhLossesYearTable = [
-            'SORLosses'     => $sumLossesYearSOR + 1 ,
-            'EFORLosses'    => $sumLossesYearEFOR + 1,
-            'OMCLosses'     => $sumLossesYearOMC + 1
+            'SORLosses'     => $sumLossesYearSOR ,
+            'EFORLosses'    => $sumLossesYearEFOR,
+            'OMCLosses'     => $sumLossesYearOMC
         ];
         $availabilityYearToDateTable = [
             'expectedAvailability' => (int) $anlage->getContractualAvailability(),
@@ -2134,9 +2134,9 @@ class AssetManagementService
             'PVSYSExpected' => (int)($tbody_a_production['expectedPvSyst'][$month - 2] * 100 / $G4NmonthExpected),
             'forecast' =>  (int)($forecast[$month-2] * 100 / $G4NmonthExpected),
             'ActualPower' => (int)($ActualPower * 100 / $G4NmonthExpected),
-            'SORLosses' => -(int)($kwhLossesMonthTable['SORLosses']  * 100 / $G4NmonthExpected),
-            'EFORLosses' => -(int)($kwhLossesMonthTable['EFORLosses']  * 100 / $G4NmonthExpected) ,
-            'OMCLosses' => -(int)($kwhLossesMonthTable['OMCLosses']  * 100 / $G4NmonthExpected)
+            'SORLosses' => number_format(-($kwhLossesMonthTable['SORLosses']  * 100 / $G4NmonthExpected), 2),
+            'EFORLosses' => number_format(-($kwhLossesMonthTable['EFORLosses']  * 100 / $G4NmonthExpected), 2) ,
+            'OMCLosses' => number_format(-($kwhLossesMonthTable['OMCLosses']  * 100 / $G4NmonthExpected), 2)
         ];
 
         $chart->tooltip = [];
@@ -2311,7 +2311,7 @@ class AssetManagementService
             'color' => ['#f1975a', '#b7b7b7', '#698ed0', '#ffc000', '#ea7ccc', '#9a60b4', '#b7b7a4'],
             'animation' => false,
             'title' => [
-                'text' => 'Production and Losses in Percentage by Month',
+                'text' => 'Production and Losses in Percentage for the month',
                 'left' => 'center',
                 'top' => '10',
             ],
@@ -2352,9 +2352,9 @@ class AssetManagementService
             'PVSYSExpected' => (int)($PVSYSTyearExpected * 100 / $G4NyearExpected),
             'forecast' =>  (int)($forecastSum[$month-2] * 100 / $G4NyearExpected),
             'ActualPower' => (int)($ActualPowerYear * 100 / $G4NyearExpected),
-            'SORLosses' => -(int)($kwhLossesYearTable['SORLosses']  * 100 / $G4NyearExpected),
-            'EFORLosses' => -(int)($kwhLossesYearTable['EFORLosses']  * 100 / $G4NyearExpected) ,
-            'OMCLosses' => -(int)($kwhLossesYearTable['OMCLosses']  * 100 / $G4NyearExpected)
+            'SORLosses' => number_format(-($kwhLossesYearTable['SORLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
+            'EFORLosses' => number_format(-($kwhLossesYearTable['EFORLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
+            'OMCLosses' => number_format(-($kwhLossesYearTable['OMCLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
         ];
         $chart->tooltip = [];
         $chart->xAxis = [];
@@ -2523,7 +2523,7 @@ class AssetManagementService
             'color' => ['#f1975a', '#b7b7b7', '#698ed0', '#ffc000', '#ea7ccc', '#9a60b4', '#b7b7a4'],
             'animation' => false,
             'title' => [
-                'text' => 'Production and Losses in Percentage by Month',
+                'text' => 'Production and Losses cummulative',
                 'left' => 'center',
                 'top' => '10',
             ],
@@ -2568,9 +2568,9 @@ class AssetManagementService
                 $table_percentage_monthly['ExpectedG4N'][] = (int)($tbody_a_production['powerExp'][$i] * 100 / $tbody_a_production['powerExp'][$i]);
                 $table_percentage_monthly['Forecast'][] = (int)($tbody_a_production['forecast'][$i] * 100 / $tbody_a_production['powerExp'][$i]);
                 $table_percentage_monthly['expectedPvSyst'][] = (int)($tbody_a_production['expectedPvSyst'][$i] * 100 / $tbody_a_production['powerExp'][$i]);
-                $table_percentage_monthly['SORLosses'][] = (int)-($kwhLosses['SORLosses'] * 100 / $tbody_a_production['powerExp'][$i]);
-                $table_percentage_monthly['EFORLosses'][] = (int)-($kwhLosses['EFORLosses'] * 100 / $tbody_a_production['powerExp'][$i]);
-                $table_percentage_monthly['OMCLosses'][] = (int)-($kwhLosses['OMCLosses'] * 100 / $tbody_a_production['powerExp'][$i]);
+                $table_percentage_monthly['SORLosses'][] = number_format(-($kwhLosses['SORLosses'] * 100 / $tbody_a_production['powerExp'][$i]), 2);
+                $table_percentage_monthly['EFORLosses'][] = number_format(-($kwhLosses['EFORLosses'] * 100 / $tbody_a_production['powerExp'][$i]), 2);
+                $table_percentage_monthly['OMCLosses'][] = number_format(-($kwhLosses['OMCLosses'] * 100 / $tbody_a_production['powerExp'][$i]), 2);
             }
             else {
                 $table_percentage_monthly['Actual'][] = 0;
@@ -2746,25 +2746,6 @@ class AssetManagementService
                             'position' => 'inside'
                         ],
                     ],
-                    [
-                        'name' => 'SOR Losses',
-                        'type' => 'bar',
-                        'data' => [$kwhLossesYearTable['SORLosses']],
-                        'visualMap' => 'false',
-                    ],
-                    [
-                        'name' => 'EFOR Losses',
-                        'type' => 'bar',
-                        'data' => [$kwhLossesYearTable['EFORLosses']],
-                        'visualMap' => 'false',
-                    ],
-                    [
-                        'name' => 'OMC Losses',
-                        'type' => 'bar',
-                        'data' => [$kwhLossesYearTable['OMCLosses']],
-                        'visualMap' => 'false',
-                    ]
-
                 ];
         }
 
@@ -2792,39 +2773,6 @@ class AssetManagementService
                 'left' => 60,
             ],
         ];
-        $chart->setOption($option);
-*/
-        $chart->yAxis = [
-            'type' => 'category',
-            'axisLabel' => [
-                'show' => true,
-                'margin' => '10',
-            ],
-            'splitArea' => [
-                'show' => true,
-            ],
-            'data' =>[" "],
-        ];
-        $chart->xAxis = [
-            'type' => 'log',
-            'min' => 1,
-            'name' => 'KWH',
-            'nameLocation' => 'middle',
-            'nameGap' => 80,
-            'offset' => -20,
-        ];
-        if ($anlage->hasPVSYST() === true) {
-            $chart->series =[
-                [
-                    'name' => 'Expected G4N',
-                    'type' => 'bar',
-                    'data' => [$G4NyearExpected] ,
-                    'visualMap' => 'false'
-                ],
-                [
-                    'name' => 'Expected PV SYST',
-                    'type' => 'bar',
-                    'data' => [$PVSYSTyearExpected],
 
         $chart->setOption($option);
         $losseskwhchartYearMonthly = $chart->render('Year_losses_monthly', ['style' => 'height: 800px; width:26cm; ']);
