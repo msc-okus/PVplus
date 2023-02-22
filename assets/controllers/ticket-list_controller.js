@@ -28,6 +28,18 @@ export default class extends Controller {
         });
         $(document).foundation();
     }
+    async update(event) {
+        event.preventDefault();
+
+        const $searchListform = $(this.searchBarTarget).find('form');
+        var serializedData = $searchListform.serialize();
+        this.listTarget.innerHTML = await $.ajax({
+            url: this.urlSearchValue,
+            method: $searchListform.prop('method'),
+            data: serializedData,
+        });
+        $(document).foundation();
+    }
 
     async page(event) {
         event.preventDefault();
