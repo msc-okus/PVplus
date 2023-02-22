@@ -40,3 +40,8 @@ services:
 
 
     Symfony\Component\Asset\Context\RequestStackContext: '@assets.context'
+
+    App\Serializer\AdminGroupsContextBuilder:
+        decorates: 'api_platform.serializer.context_builder'
+        arguments: [ '@App\Serializer\AdminGroupsContextBuilder.inner' ]
+        autoconfigure: false

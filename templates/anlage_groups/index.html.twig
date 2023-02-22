@@ -100,7 +100,7 @@
                         <td>{{ anlage_group.gridLimitAc }}</td>
                         <td>
 
-                            <a href="{{ path('app_anlage_groups_edit', {'id': anlage_group.id}) }}"
+                            <a href="{{ path('app_anlage_groups_edit', {'id': anlage_group.id, 'page': anlage_groups.currentPageNumber}) }}"
                                class="hollow button tiny action-icon shadow"><span class="fa fa-edit"></span></a>
                         </td>
                     </tr>
