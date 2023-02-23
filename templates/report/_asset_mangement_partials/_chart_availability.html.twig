@@ -10,6 +10,83 @@
             </tr>
         </table>
         <table>
+             <tr>
+                 <table style="width: 50%">
+                     <thead>
+                         <tr>
+                            <th style="text-align: center" class="table-center" colspan="2" rowspan="3">
+                                <b>Production / Plan and loss values</b>
+                            </th>
+                             <th style="text-align: center" class="table-center" rowspan="3">
+                                 <b>kWh</b>
+                             </th>
+                             <th style="text-align: center" class="table-center">
+                                 <b>Relative to</b>
+                             </th>
+                         </tr>
+                         <tr>
+                             <th style="text-align: center" class="table-center">
+                                 <b>G4N Expected</b>
+                             </th>
+                         </tr>
+                         <tr>
+                             <th style="text-align: center" class="table-center">
+                                 <b>%</b>
+                             </th>
+                         </tr>
+                     </thead>
+                     <tbody>
+                        <tr>
+                            <td style="text-align: center" class="tr_next_columns" rowspan="2"> Actual Values</td>
+                            <td style="text-align: left" class="tr_next_columns">  Production - Actual</td>
+                            <td class="tr_next_columns">{{ monthlyLossesHelpTable['Actual'] |number_format(2, ',', '.') }}</td>
+                            <td class="tr_next_columns">{{ percentageTableMonth['ActualPower'] |number_format(2, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left" class="tr_next_columns"> Expected G4N </td>
+                            <td class="tr_next_columns">{{ monthlyLossesHelpTable['ExpectedG4N'] |number_format(2, ',', '.') }}</td>
+                            <td class="tr_next_columns">{{ percentageTableMonth['G4NExpected'] |number_format(2, ',', '.') }}</td>
+                        </tr>
+                        {% if (anlage.hasPVSYST == true) %}
+                        <tr>
+                            <td style="text-align: center" class="tr_next_columns" rowspan="2"> Planned Values</td>
+                            <td style="text-align: left" class="tr_next_columns">  Expected Plan Simulation</td>
+                            <td class="tr_next_columns">{{ monthlyLossesHelpTable['ExpectedPVSYS'] |number_format(2, ',', '.') }}</td>
+                            <td class="tr_next_columns">{{ percentageTableMonth['PVSYSExpected'] |number_format(2, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left" class="tr_next_columns"> G4N Simulation </td>
+                            <td class="tr_next_columns">{{ monthlyLossesHelpTable['Forecast'] |number_format(2, ',', '.') }}</td>
+                            <td class="tr_next_columns">{{ percentageTableMonth['forecast'] |number_format(2, ',', '.') }}</td>
+                        </tr>
+                        {% else %}
+                            <tr>
+                                <td style="text-align: center" class="tr_next_columns" > Planned Values</td>
+                                <td style="text-align: left" class="tr_next_columns"> G4N Simulation </td>
+                                <td class="tr_next_columns">{{ monthlyLossesHelpTable['Forecast'] |number_format(2, ',', '.') }}</td>
+                                <td class="tr_next_columns">{{ percentageTableMonth['forecast'] |number_format(2, ',', '.') }}</td>
+                            </tr>
+                        {% endif %}
+                        <tr>
+                            <td style="text-align: center" class="tr_next_columns" rowspan="3"> Type of Ticket</td>
+                            <td style="text-align: left" class="tr_next_columns">  SOR Losses - Planned Outage</td>
+                            <td class="tr_next_columns">{{ monthlyLossesHelpTable['SORLosses'] |number_format(2, ',', '.') }}</td>
+                            <td class="tr_next_columns">{{ percentageTableMonth['SORLosses'] |number_format(2, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left" class="tr_next_columns"> EFOR Losses - Unplanned Outage </td>
+                            <td class="tr_next_columns">{{ monthlyLossesHelpTable['EFORLosses'] |number_format(2, ',', '.') }}</td>
+                            <td class="tr_next_columns">{{ percentageTableMonth['EFORLosses'] |number_format(2, ',', '.') }}</td>
+                        </tr>
+                        <tr>
+                            <td style="text-align: left" class="tr_next_columns"> OMC Losses - Grid Error / Grid Off </td>
+                            <td class="tr_next_columns">{{ monthlyLossesHelpTable['OMCLosses'] |number_format(2, ',', '.') }}</td>
+                            <td class="tr_next_columns">{{ percentageTableMonth['OMCLosses'] |number_format(2, ',', '.') }}</td>
+                        </tr>
+                     </tbody>
+                 </table>
+             </tr>
+            {#
             <tr>
                 <td >
                     <table style="width: 50% !important; ">
@@ -105,9 +182,10 @@
                     </table>
                 </td>
             </tr>
+            #}
             <tr>
                 <td  colspan="2">
-                    <div style="text-align: left; width: 25%!important">
+                    <div style="text-align: left; width: 25%!important; font-size: small">
                         <sup><b>a</b></sup> Maintenance, SOR<br>
                         <sup><b>b</b></sup> Defects, EFOR<br>
                         <sup><b>c</b></sup><b> From this EFOR errors {{ Availability_Year_To_Date_Table['actualGaps'] |number_format(2, ',', '.') }}% are Data Gaps</b><br>

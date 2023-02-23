@@ -363,6 +363,7 @@ class AssetManagementService
             'title' => [
                 'text' => 'Year '.$report['reportYear'],
                 'left' => 'center',
+                'top' => 10
             ],
             'tooltip' => [
                     'show' => true,
@@ -494,6 +495,7 @@ class AssetManagementService
             'title' => [
                 'text' => 'Cumulative forecast plan PVSYST',
                 'left' => 'center',
+                'top' => 10,
             ],
             'tooltip' => [
                     'show' => true,
@@ -615,6 +617,7 @@ class AssetManagementService
             'title' => [
                 'text' => 'Cumulative forecast plan g4n',
                 'left' => 'center',
+                'top' => 10,
             ],
             'tooltip' => [
                     'show' => true,
@@ -752,6 +755,7 @@ class AssetManagementService
             'title' => [
                 'text' => 'Monthly losses at plan values',
                 'left' => 'center',
+                'top' => 10,
             ],
             'tooltip' => [
                     'show' => true,
@@ -928,6 +932,7 @@ class AssetManagementService
             'title' => [
                 'text' => 'Cumulative losses',
                 'left' => 'center',
+                'top' => 10,
             ],
             'tooltip' => [
                     'show' => true,
@@ -1106,6 +1111,7 @@ class AssetManagementService
             'title' => [
                 'text' => $monthName.' '.$report['reportYear'],
                 'left' => 'center',
+                'top' => 10,
             ],
             'tooltip' => [
                     'show' => true,
@@ -1890,7 +1896,7 @@ class AssetManagementService
             'title' => [
                 'text' => 'Failure - Year to date',
                 'left' => 'center',
-                'top' => 'top',
+                'top' => 10,
                 'textStyle' => ['fontSize' => 10],
             ],
             'tooltip' => [
@@ -2773,16 +2779,6 @@ class AssetManagementService
 
         $chart->setOption($option);
         $losseskwhchartYearMonthly = $chart->render('Year_losses_monthly', ['style' => 'height: 800px; width:28cm; ']);
-
-        $yearLossesHelpTable = [
-            'ExpectedG4N' => $G4NyearExpected,
-            'ExpectedPVSYS' => $PVSYSTyearExpected,
-            'Forecast' => $forecastSum[$month-2],
-            'Actual' => $ActualPowerYear,
-            'SORLosses' => $kwhLossesYearTable['SORLosses'],
-            'EFORLosses' => $kwhLossesYearTable['EFORLosses'],
-            'OMCLosses' => $kwhLossesYearTable['OMCLosses'],
-        ];
 
         $chart->tooltip = [];
         $chart->xAxis = [];
