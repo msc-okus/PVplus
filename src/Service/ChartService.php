@@ -509,7 +509,17 @@ class ChartService
                     $resultArray['maxSeries'] = $dataArray['maxSeries'];
                     $resultArray['minSeries'] = $dataArray['minSeries'];
                     $resultArray['sumSeries'] = $dataArray['sumSeries'];
-                break;
+                    $resultArray['SeriesNameArray'] = json_encode($dataArray['SeriesNameArray']);
+                    break;
+                case 'dcpnomcurr':
+                    $dataArray = $this->currentChart->getNomCurrentGroupDC($anlage, $from, $to, $form['selectedSet']);
+                    $resultArray['data'] = json_encode($dataArray['chart']);
+                    $resultArray['headline'] = 'DC Current Inverter normalized';
+                    $resultArray['maxSeries'] = $dataArray['maxSeries'];
+                    $resultArray['minSeries'] = $dataArray['minSeries'];
+                    $resultArray['sumSeries'] = $dataArray['sumSeries'];
+                    $resultArray['SeriesNameArray'] = json_encode($dataArray['SeriesNameArray']);
+                    break;
                 case 'heatmap':
                     $dataArray = $this->heatmapChartService->getHeatmap($anlage, $from, $to, $form['selectedSet']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
