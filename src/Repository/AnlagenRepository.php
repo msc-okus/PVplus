@@ -322,11 +322,11 @@ class AnlagenRepository extends ServiceEntityRepository
                 ->setParameter('granted', $granted);
         }
         $qb
-            ->orderBy('a.eigner', 'ASC')
-            ->addOrderBy('a.anlName', 'ASC');
+            ->orderBy('a.anlName', 'ASC') //a.eigner
+            #->addOrderBy('a.anlName', 'ASC')
+        ;
 
-        return $qb->getQuery()
-                    ->getResult();
+        return $qb->getQuery()->getResult();
     }
 
     public function getWithSearchQueryBuilder(?string $term): QueryBuilder

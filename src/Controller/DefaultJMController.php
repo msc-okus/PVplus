@@ -10,6 +10,7 @@ use App\Repository\StatusRepository;
 use App\Repository\TicketRepository;
 use App\Service\AlertSystemService;
 use App\Service\AlertSystemWeatherService;
+use App\Service\AssetManagementService;
 use App\Service\Charts\IrradiationChartService;
 use App\Service\FunctionsService;
 use App\Service\MessageService;
@@ -55,8 +56,9 @@ class DefaultJMController extends AbstractController
     }
 
     #[Route(path: '/test/read', name: 'default_read')]
-    public function testread(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather){
-        $anlage = $ar->findIdLike("94")[0];
+    public function testread(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather, AssetManagementService $am){
+        $anlage = $ar->findIdLike("57")[0];
+        $am->createAmReport($anlage, "01", "2023");
         return $this->render('base.html.twig');// this is suposed to never run so no problem
     }
 }

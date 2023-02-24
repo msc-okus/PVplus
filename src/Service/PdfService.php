@@ -48,6 +48,7 @@ class PdfService
                     break;
             }
             $tempPdf = tmpfile();
+
             fwrite($tempPdf, $pdf);
             fseek($tempPdf,0);
             header("Content-Disposition: attachment; filename=" . urlencode($filename));
@@ -56,11 +57,14 @@ class PdfService
             header("Content-Type: application/download");
             header("Content-Description: File Transfer");
             header("Content-Length: " . filesize(stream_get_meta_data($tempPdf)['uri']));
+
             while (!feof($tempPdf))
             {
                 echo fread($tempPdf, 65536);
                 flush(); // this is essential for large downloads
             }
+
+
             fclose($tempPdf);
         }
 

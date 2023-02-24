@@ -35,10 +35,11 @@ class AnlagenController extends BaseController
 
         if (is_array($content) or $content) {
             return new JsonResponse($content);
-        }else{
+        } else {
             return new Response(null, 204);
         }
     }
+
     #[Route(path: '/anlagen/list', name: 'app_anlagen_list')]
     public function list(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository): Response
     {
@@ -68,7 +69,7 @@ class AnlagenController extends BaseController
     }
 
     #[Route(path: '/anlagen/edit/{id}', name: 'app_anlagen_edit')]
-    public function editLegend($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo)
+    public function editLegend($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository, EconomicVarNamesRepository $ecoNamesRepo): Response
     {
         $anlage = $anlagenRepository->find($id);
         $economicVarNames1 = new EconomicVarNames();
