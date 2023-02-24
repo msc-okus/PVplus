@@ -3426,4 +3426,15 @@ class Anlage
 
         return $this;
     }
+
+    public function isShowGraphDcCurrGrp(): bool
+    {
+        return $this->showGraphDcCurrGrp;
+    }
+
+    public function setShowGraphDcCurrGrp(bool $showGraphDcCurrGrp): void
+    {
+        $this->showGraphDcCurrGrp = $showGraphDcCurrGrp;
+    }
+
 }
