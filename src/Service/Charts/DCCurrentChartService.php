@@ -3,6 +3,7 @@
 namespace App\Service\Charts;
 
 use App\Entity\Anlage;
+use App\Entity\AnlageGroupModules;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenStatusRepository;
 use App\Repository\InvertersRepository;
@@ -368,5 +369,113 @@ class DCCurrentChartService
 
             return false;
         }
+    }
+    public function getNomCurrentGroupDC(Anlage $anlage, $from, $to, $sets = 0, int $group = 1, bool $hour = false): array
+    {
+        ini_set('memory_limit', '3G');
+        $conn = self::getPdoConnection();
+        $dataArray = [];
+        $nameArray = [];
+        $group = 1;
+        $g=1;
+        $counter = 0;
+        $counterInv = 0;
+        $gmt_offset = 1;   // Unterschied von GMT zur eigenen Zeitzone in Stunden.
+        $zenith = 90 + 50 / 60;
+        $current_date = strtotime(str_replace("T", "", $from));
+        $sunset = date_sunset($current_date, SUNFUNCS_RET_TIMESTAMP, (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon(), $zenith, $gmt_offset);
+        $sunrise = date_sunrise($current_date, SUNFUNCS_RET_TIMESTAMP, (float) $anlage->getAnlGeoLat(), (float) $anlage->getAnlGeoLon(), $zenith, $gmt_offset);
+
+        // $sunArray = $this->WeatherServiceNew->getSunrise($anlage,$from);
+        // $sunrise = $sunArray[$anlagename]['sunrise'];
+        // $sunset = $sunArray[$anlagename]['sunset'];
+
+        $from = date('Y-m-d H:00', $sunrise - 3600);
+        $to = date('Y-m-d H:00', $sunset + 5400);
+
+        $from = self::timeAjustment($from, $anlage->getAnlZeitzone());
+        $to = self::timeAjustment($to, 1);
+
+        $dcGroups = $anlage->getGroupsDc();
+        $groupct = count($dcGroups);
+
+        if ($anlage->getUseNewDcSchema()) {
+            $groupdc = 'wr_group';
+            $nameArray = $this->functions->getNameArray($anlage, 'dc');
+        } else {
+            $groupdc = 'group_dc';
+            $nameArray = $this->functions->getNameArray($anlage, 'dc');
+        }
+
+        /** @var AnlageGroupModules[] $modules */
+        foreach ($anlage->getGroups() as $group) {
+            $modules = $group->getModules();
+            foreach ($modules as $modul) {
+                $mImpp[$g] = $modul->getModuleType()->getMaxImpp() * $modul->getNumStringsPerUnit();
+                $g++;
+            }
+        }
+   #
+        ###    $  = $module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower() / 1000;
+   #
+        if ($groupct) {
+            if ($sets == null) {
+                $min = 1;
+                $max = (($groupct > 100) ? (int)ceil($groupct / 10) : (int)ceil($groupct / 2));
+                $max = (($max > 50) ? '50' : $max);
+                $sqladd = "AND $groupdc BETWEEN '$min' AND '$max'";
+            } else {
+                $res = explode(',', $sets);
+                $min = (int)ltrim($res[0], "[");
+                $max = (int)rtrim($res[1], "]");
+                (($max > $groupct) ? $max = $groupct : $max = $max);
+                (($groupct > $min) ? $min = $min : $min = 1);
+                $sqladd = "AND $groupdc BETWEEN " . (empty($min) ? '1' : $min) . " AND " . (empty($max) ? '5' : $max) . "";
+            }
+        } else {
+            $min = 1;
+            $max = 5;
+            $sqladd = "AND $groupdc BETWEEN '$min' AND ' $max'";
+        }
+                //
+                    if ($anlage->getUseNewDcSchema()) {
+                        $sql = "SELECT stamp as ts,wr_idc as istCurrent, $groupdc as inv FROM ".$anlage->getDbNameDCIst()." WHERE 
+                        stamp BETWEEN '$from' AND '$to' 
+                        $sqladd
+                        GROUP BY stamp, $groupdc ORDER BY NULL";
+                    } else {
+                        $sql = "SELECT stamp as ts,wr_idc as istCurrent, $groupdc as inv FROM ".$anlage->getDbNameACIst()." WHERE 
+                        stamp BETWEEN '$from' AND '$to' 
+                        $sqladd
+                        GROUP BY stamp, $groupdc ORDER BY NULL";
+                    }
+
+                $resultIst = $conn->query($sql);
+
+                if ($resultIst->rowCount() > 0) {
+
+                    while ($rowCurrIst = $resultIst->fetch(PDO::FETCH_ASSOC)) {
+                        $stamp = $rowCurrIst['ts'];
+                        $e = strtotime($stamp);
+                                  #      $dataArray['chart'][$counter]['ydate'] = $e[1];
+                        $dataArray['chart'][$counter]['date'] = $stamp;
+                        (($rowCurrIst['istCurrent']) ? $currentIst = round($rowCurrIst['istCurrent'], 2) : $currentIst = 0);
+                        $currentGroupName = $dcGroups[$rowCurrIst['inv']]['GroupName'];
+                        $currentImpp = $mImpp[$rowCurrIst['inv']];
+                        $inv_num = $rowCurrIst['inv'];
+                        $value_dcpnom = round(($currentIst / $currentImpp),2);
+                        $dataArray['chart'][$counter]['xinv'] = $currentGroupName;
+                        $dataArray['chart'][$counter]['pnomdc'] = $value_dcpnom;
+                        ++$counter;
+                    }
+
+                }
+        // array for range slider
+        $dataArray['minSeries'] = $min;
+        $dataArray['maxSeries'] = $max;
+        $dataArray['sumSeries'] = $groupct;
+        $dataArray['SeriesNameArray'] = $nameArray;
+        $dataArray['offsetLegend'] = 0;
+        return $dataArray;
     }
 }

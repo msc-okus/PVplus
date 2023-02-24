@@ -8,7 +8,8 @@
                 showWeekNumbers: false,
                 startDate: moment().startOf('month'),
                 endDate: moment().endOf('month'),
-                    {% if  form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap' or form.selectedChart == 'acpnom'%}
+                    {% if  form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap'
+                        or form.selectedChart == 'dcpnomcurr'  or form.selectedChart == 'acpnom'%}
                 showCustomRangeLabel:false,
                 singleDatePicker: true,
                     {% else %}
@@ -16,7 +17,8 @@
                 singleDatePicker: false,
                     {% endif %}
                 ranges: {
-                    {% if  form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap' or form.selectedChart == 'acpnom' %}
+                    {% if  form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap'
+                        or form.selectedChart == 'dcpnomcurr'  or form.selectedChart == 'acpnom' %}
                 'Today': [moment(), moment()]
                     {% else %}
                 'Today': [moment(), moment()],
@@ -129,7 +131,8 @@
     });
 </script>
 
-{% if  form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap' or form.selectedChart == 'acpnom' %}
+{% if  form.selectedChart == 'dcpnomcurr' or form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap'
+    or form.selectedChart == 'sollistheatmap' or form.selectedChart == 'acpnom' %}
 {% if  content.maxSeries|raw  %}
     {%  set grlengthmax = content.maxSeries|raw  %}
     {%  set grlengthmin = content.minSeries|raw  %}
@@ -144,8 +147,8 @@
         $("#slider-range").slider({
             range: true,
             min: 1,
-            max: {% if content.sumSeries|raw  %} {{ content.sumSeries|raw }} {% else %} {{ grlengthmax }}{% endif %},
-            values: {% if  form.selectedSet  %} {{ form.selectedSet }}{% else %}[{{ grlengthmin }},{{ grlengthmax }}]{% endif %},
+            max: {% if content.sumSeries|raw  %} {{ content.sumSeries|raw }}, {% else %} {{ grlengthmax }},{% endif %}
+            values: {% if  form.selectedSet  %} {{ form.selectedSet }}, {% else %}[{{ grlengthmin }},{{ grlengthmax }}],{% endif %}
             slide: function( event, ui ) {
                 $( "#sview" ).val("" + ui.values[ 0 ] + "-" + ui.values[ 1 ]+ "");
                 $( "#sviewhidden" ).val("[" + ui.values[ 0 ] + "," + ui.values[ 1 ]+ "]");
@@ -165,7 +168,7 @@
 </script>
 {% endif %}
 
-{% from "dashboardPlants/_incl/macrosMenuSelectBox.html.twig" import showACPnom,showHeatmap ,showTempHeatmap ,showSollIstAnalyse,showSollIstTempAnalyse,showSollIstIrrAnalyse,showSollIstHeatmap, acActOverview, acActGroup, dcActGroup, dcGroupPowerDiff, irradiation, inverterPerformance,
+{% from "dashboardPlants/_incl/macrosMenuSelectBox.html.twig" import showDCPnomCurr,showACPnom,showHeatmap ,showTempHeatmap ,showSollIstAnalyse,showSollIstTempAnalyse,showSollIstIrrAnalyse,showSollIstHeatmap, acActOverview, acActGroup, dcActGroup, dcGroupPowerDiff, irradiation, inverterPerformance,
     currentDcOverview, currentDcInverter, currentDcGroup, dcActPlant, dcActOverview, currentDcString, acActPlant, acVoltage, acCurrent, acFrequency, acReactive, voltageDc1, voltageDcString %}
 
 {% from "dashboardPlants/_incl/macrosGroupeMenuSelectBox.html.twig" import groupMenu, groupMenuNew %}
@@ -178,78 +181,74 @@
     <div class="cell medium-6 large-4 xlarge-2">
         <select class="js-submit-onchange selectedChart" title="Please select a view from the list." data-toggle="tooltip" name="selectedChart">
             <optgroup label="Analysis">
-                {% if aktAnlage.settings.chartAnalyse1 or is_granted('ROLE_ADMIN') %}
+                {% if aktAnlage.showAvailability or is_granted('ROLE_ADMIN') %}
                     <option value="availability" {% if form.selectedChart == 'availability' %}selected{% endif %}>Show Availability [%]</option>
                 {% endif %}
-                {% if aktAnlage.settings.chartAnalyse2 or is_granted('ROLE_ADMIN') %}
+                {% if aktAnlage.showPr or is_granted('ROLE_ADMIN') %}
                     <option value="pr_and_av" {% if form.selectedChart == 'pr_and_av' %}selected{% endif %}>Show PR&nbsp;[%]</option>
                 {% endif %}
-                {% if aktAnlage.settings.chartAnalyse3 %}
+                {% if aktAnlage.showForecast %}
                     <option value="forecast" {% if form.selectedChart == 'forecast' %}selected{% endif %}>Forecast&nbsp;[kWh]</option>
                 {% endif %}
-
-
-                {% if is_granted('ROLE_G4N') or is_granted('ROLE_ANALYSE') %}
-                    {% if aktAnlage.settings.chartAnalyse4 or is_granted('ROLE_ADMIN') %}{{ showHeatmap(form, aktAnlage) }}{% endif %}            {# Headmap #}
-                    {% if aktAnlage.settings.chartAnalyse5 or is_granted('ROLE_ADMIN') %}{{ showTempHeatmap(form, aktAnlage) }}{% endif %}        {# Headmap #}
-                    {% if aktAnlage.settings.chartAnalyse6 or is_granted('ROLE_ADMIN') %}{% if aktAnlage.hasDc %}{{ showSollIstHeatmap(form, aktAnlage) }}{% endif %}{% endif %}     {# Headmap #}
-                    {% if is_granted('ROLE_BETA') or is_granted('ROLE_G4N') %}
-                        {% if aktAnlage.settings.chartAnalyse7 or is_granted('ROLE_ADMIN') %}{{ showSollIstAnalyse(form, aktAnlage) }}{% endif %}     {# Bubblechart #}
-                        {% if aktAnlage.settings.chartAnalyse8 or is_granted('ROLE_ADMIN') %}{{ showSollIstTempAnalyse(form, aktAnlage) }}{% endif %}    {# Bubblechart #}
-                        {% if aktAnlage.settings.chartAnalyse9 or is_granted('ROLE_ADMIN') %}{% if aktAnlage.hasDc %}{{ showSollIstIrrAnalyse(form, aktAnlage) }}{% endif %}{% endif %}     {# Bubblechart #}
+               {% if is_granted('ROLE_G4N') or is_granted('ROLE_ANALYSE') %}
+                   {{ showHeatmap(form, aktAnlage) }}            {# Headmap #}
+                   {{ showTempHeatmap(form, aktAnlage) }}        {# Headmap #}
+                   {% if aktAnlage.hasDc %}   {# DC Current Headmap ausblenden wenn keine DC Daten vorhanden sind #}
+                       {{ showSollIstHeatmap(form, aktAnlage) }}
+                   {% endif %}
+                    {% if is_granted('ROLE_BETA') %}
+                        {{ showSollIstAnalyse(form, aktAnlage) }}        {# Bubblechart #}
+                        {{ showSollIstTempAnalyse(form, aktAnlage) }}    {# Bubblechart #}
+                        {% if aktAnlage.hasDc %} {{
+                        showSollIstIrrAnalyse(form, aktAnlage) }}
+                        {% endif %}  {# Bubblechart mit DC Anteil daher ausblenden wenn keine DC Daten vorhanden sind #}
                     {% endif %}
-                {% endif %}
             </optgroup>
             <!-- ab hier AC -->
             <optgroup label="AC">
-                {% if aktAnlage.settings.chartAC1 %}{{ acActPlant(form, aktAnlage) }}{% endif %}       {# AC1 #}
-                {% if aktAnlage.settings.chartAC2 %}{{ acActOverview(form, aktAnlage) }}{% endif %}    {# AC2 #}
-                {% if aktAnlage.settings.chartAC3 %}{{ acActGroup(form, aktAnlage) }}{% endif %}       {# AC3 #}
-                {% if aktAnlage.settings.chartAC9 %}{{ showACPnom(form, aktAnlage) }}{% endif %}        {# LineChart #}
-                {% if aktAnlage.settings.chartAC4 %}
-                    <option value="ac_grp_power_diff" {% if form.selectedChart == 'ac_grp_power_diff' or not form.selectedChart %}selected{% endif %}>AC - Inverter {% if is_granted('ROLE_DEV') %}[AC 4]{% endif %}</option>
-                {% endif %}
-                {% if aktAnlage.settings.chartAC5 %}{{ acVoltage(form, aktAnlage) }}{% endif %}
-                {% if aktAnlage.settings.chartAC6 %}{{ acCurrent(form, aktAnlage) }}{% endif %}
-                {% if aktAnlage.settings.chartAC7 %}{{ acFrequency(form, aktAnlage) }}{% endif %}
-                {% if aktAnlage.settings.chartAC8 %}{{ acReactive(form, aktAnlage) }}{% endif %}
+                {{ acActPlant(form, aktAnlage) }}       {# AC1 #}
+                {{ acActOverview(form, aktAnlage) }}    {# AC2 #}
+                {{ acActGroup(form, aktAnlage) }}       {# AC3 #}
+                {{ showACPnom(form, aktAnlage) }}       {# LineChart #}
+                <option value="ac_grp_power_diff" {% if form.selectedChart == 'ac_grp_power_diff' or not form.selectedChart %}selected{% endif %}>AC - Inverter {% if is_granted('ROLE_DEV') %}[AC 4]{% endif %}</option>
+                {{ acVoltage(form, aktAnlage) }}
+                {{ acCurrent(form, aktAnlage) }}
+                {{ acFrequency(form, aktAnlage) }}
+                {{ acReactive(form, aktAnlage) }}
             </optgroup>
 
-            {% if aktAnlage.hasDc %} {# ausblenden wenn keine DC Daten vorhanden sind #}
+
+            {% if aktAnlage.hasDc or is_granted('ROLE_ADMIN')%}
+
                 <!-- ab hier DC -->
                 <optgroup label="DC Power">
-                    {% if aktAnlage.settings.chartDC1 %}{{ dcActPlant(form, aktAnlage) }}{% endif %}       {# DC1 #}
-                    {% if aktAnlage.settings.chartDC2 %}{{ dcActOverview(form, aktAnlage) }}{% endif %}    {# DC2 #}
-                    {% if aktAnlage.settings.chartDC3 %}{{ dcActGroup(form, aktAnlage) }}{% endif %}       {# DC3 #}
-                    {% if aktAnlage.settings.chartDC4 %}{{ dcGroupPowerDiff(form, aktAnlage) }}{% endif %} {# DC4 Bar Chart #}
+                    {{ dcActPlant(form, aktAnlage) }}       {# DC1 #}
+                    {{ dcActOverview(form, aktAnlage) }}    {# DC2 #}
+                    {{ dcActGroup(form, aktAnlage) }}       {# DC3 #}
+                    <!--{{ dcGroupPowerDiff(form, aktAnlage) }} {# DC4 Bar Chart #}-->
                 </optgroup>
 
                 <!-- ab hier Current DC -->
                 <optgroup label="DC Current">
-                    {% if aktAnlage.settings.chartCurr1 %}{{ currentDcOverview(form, aktAnlage) }}{% endif %}    {# Curr1 #}
-                    {% if aktAnlage.settings.chartCurr2 %}{{ currentDcGroup(form, aktAnlage) }}{% endif %}       {# Curr2 #}
-                    {% if aktAnlage.settings.chartCurr3 %}{{ currentDcInverter(form, aktAnlage) }}{% endif %}    {# Curr3 #}
-                    <!--{{ currentDcString(form, aktAnlage) }}      {# Curr4 #}-->
+                    {{ currentDcOverview(form, aktAnlage) }}    {# Curr1 #}
+                    <!--{{ currentDcGroup(form, aktAnlage) }}       {# Curr2 #}
+                    {{ currentDcInverter(form, aktAnlage) }}    {# Curr3 #}
+                    {{ currentDcString(form, aktAnlage) }}      {# Curr4 #}-->
+                    {{ showDCPnomCurr(form, aktAnlage) }}       {# LineChart #}
                 </optgroup>
 
 
                 <optgroup label="DC Voltage">
-                    {% if aktAnlage.settings.chartVolt1 %}{{ voltageDc1(form, aktAnlage) }}{% endif %}           {# VoltageDC1 #}
-                    {% if aktAnlage.settings.chartVolt2 %}{{ voltageDcString(form, aktAnlage) }}{% endif %}      {# VoltStringDC1 #}
+                    {{ voltageDc1(form, aktAnlage) }}           {# VoltageDC1 #}
+                    {{ voltageDcString(form, aktAnlage) }}      {# VoltStringDC1 #}
                 </optgroup>
 
             {% endif %}
 
             <!-- diverses -->
             <optgroup label="Sensors">
-                {% if aktAnlage.settings.chartSensor1 or is_granted('ROLE_ADMIN') %}{{ irradiation(form, aktAnlage) }}{% endif %}
-                {% if aktAnlage.settings.chartSensor2 %}
-                    <option value="irradiation_plant" {% if form.selectedChart == 'irradiation_plant' %}selected{% endif %}>Irradiation Plant [W/m²]</option>
-                {% endif %}
-                {% if aktAnlage.settings.chartSensor3 or is_granted('ROLE_ADMIN') %}
-                    <option value="temp" {% if form.selectedChart == 'temp' %}selected{% endif %}>Temperature [°C]</option>
-                {% endif %}
-
+                {{ irradiation(form, aktAnlage) }}
+                <option value="temp" {% if form.selectedChart == 'temp' %}selected{% endif %}>Temperature [°C]</option>
             </optgroup>
 
             <!-- Developer and G4N Stuff -->
@@ -270,23 +269,21 @@
 
     <div class="cell medium-4 large-2 xlarge-2">
         {{ groupMenuNew(form, aktAnlage) }}
-        {% if form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap' or form.selectedChart == 'acpnom'%}
+        {% if form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap'
+            or form.selectedChart == 'dcpnomcurr' or form.selectedChart == 'acpnom'%}
             {% if grlengthmax %}
                 <div class="grid-x grid-padding-x" style="height:40px;">
                     <div class="cell medium-5 large-5 xlarge-5"><label for="amount">INV Range:</label></div>
                     <div class="cell medium-4 large-4 xlarge-4">
-
                         <input type="text" id="sview" readonly style="border:0; background-color: #701b1b00 ; box-shadow: inset 0 0px 0px rgba(10, 10, 10, 0.1);font-weight:bold;">
                         <input type="hidden" id="sviewhidden" name="selectedSet" value="0">
                         <input type="hidden"  name="selectedSetfrom" value="{{ form.selectedSet }}">
                     </div>
 
-
                     <div class="cell medium-3 large-3 xlarge-3">
                         <label id="goshare" class="button" title="Submit the range" style="background-color: #701b1b00;display: block;font-weight: 800;color: green;font-size: 38px;padding:0 0 0 5px;">
                             <div type="text" id="sendrange" style="display: block">
                                 <i class="fa fa fa-expand"></i></div>
-
 
                         </label>
                     </div>
@@ -298,9 +295,11 @@
         {% endif %}
     </div>
 
-    {# neues Chart Control System #}
+    {# neues Cahrt Control System #}
     {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse'
-        or form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap' or form.selectedChart == 'acpnom'%}
+        or form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap'
+        or form.selectedChart == 'sollistheatmap'
+        or form.selectedChart == 'acpnom' or form.selectedChart == 'dcpnomcurr'%}
         <div class="cell medium-2 large-4 xlarge-4">
             <div class="input-group">
                 <label class="button" style="background-color: #701b1b00;display: block;font-weight: 800;color: green;font-size: 38px;padding:0 5px 0 0;">
@@ -359,48 +358,49 @@
             </div>
         </div>
     {% endif %}
-    {% if (form.selectedChart != 'availability') and (form.selectedChart != 'acpnom') and (form.selectedChart != 'pr_and_av') and (form.selectedChart != 'forecast') and (form.selectedChart != 'status_log') and (form.selectedChart != 'pvsyst') and (form.selectedChart != 'heatmap') and (form.selectedChart != 'tempheatmap') and (form.selectedChart != 'sollistanalyse') and form.selectedChart != 'sollistirranalyse' and (form.selectedChart != 'sollisttempanalyse') and (form.selectedChart != 'sollistheatmap') and (form.selectedChart != 'grid')%}
-        <div class="cell medium-1 large-1 xlarge-1">
-            <div class="switch tiny align-center-middle">
-                <label class="" style="line-height: 1;"><small>Interval min.</small></label>
-                <input class="switch-input js-submit-onchange" id="hour" type="checkbox" name="hour" {%if form.hour == true  %} checked {% endif %}>
-                <label class="switch-paddle" for="hour">
-                    <span class="show-for-sr"></span>
-                    <span class="switch-active" aria-hidden="true">60</span>
-                    <span class="switch-inactive" aria-hidden="true">15</span>
+        {% if (form.selectedChart != 'availability') and (form.selectedChart != 'acpnom') and (form.selectedChart != 'dcpnomcurr') and (form.selectedChart != 'pr_and_av') and (form.selectedChart != 'forecast') and (form.selectedChart != 'status_log') and (form.selectedChart != 'pvsyst') and (form.selectedChart != 'heatmap') and (form.selectedChart != 'tempheatmap') and (form.selectedChart != 'sollistanalyse') and form.selectedChart != 'sollistirranalyse' and (form.selectedChart != 'sollisttempanalyse') and (form.selectedChart != 'sollistheatmap') and (form.selectedChart != 'grid')%}
+            <div class="cell medium-1 large-1 xlarge-1">
+                <div class="switch tiny align-center-middle">
+                    <label class="" style="line-height: 1;"><small>Interval min.</small></label>
+                    <input class="switch-input js-submit-onchange" id="hour" type="checkbox" name="hour" {%if form.hour == true  %} checked {% endif %}>
+                    <label class="switch-paddle" for="hour">
+                        <span class="show-for-sr"></span>
+                        <span class="switch-active" aria-hidden="true">60</span>
+                        <span class="switch-inactive" aria-hidden="true">15</span>
+                    </label>
+                </div>
+            </div>
+        {% endif %}
+        <div class="cell medium-6 large-8 xlarge-4">
+            <div class="small button-group round toggle" {% if form.selectedChart == 'heatmap' or form.selectedChart == 'acpnom' or form.selectedChart == 'dcpnomcurr' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap'%}style="display: none"{% endif %}>
+                <label class="button js-submit-onchange {% if form.optionDate == 1 or not form.optionDate %}active{% endif %} {% if form.selectedChart == 'pr_and_av' or form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' %}disabled{% endif %}">
+                    <input type="radio" name="optionDate" value="1" {% if form.optionDate == 1 or not form.optionDate %}checked="checked"{% endif %}>one day
                 </label>
+                <label class="button js-submit-onchange {% if form.optionDate == 3 %}active{% endif %} {% if form.selectedChart == 'pr_and_av' or form.selectedChart == 'availability' or form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' %}disabled{% endif %}">
+                    <input type="radio" name="optionDate" value="3" {% if form.optionDate == 3 %}checked{% endif %}>last 3 days
+                </label>
+                <label class="button js-submit-onchange {% if form.optionDate == 7 %}active{% endif %} {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' or form.selectedChart == 'availability' %}disabled{% endif %}">
+                    <input type="radio" name="optionDate" value="7" {% if form.optionDate == 7 %}checked{% endif %}>last 7 days
+                </label>
+                <label class="button js-submit-onchange {% if form.optionDate == 14 %}active{% endif %} {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' or form.selectedChart == 'availability' %}disabled{% endif %}">
+                    <input type="radio" name="optionDate" value="14" {% if form.optionDate == 14 %}checked{% endif %}>last 14 days
+                </label>
+                <!--
+            <label class="button js-submit-onchange {% if form.optionDate == 30 %}active{% endif %} {% if form.selectedChart == 'availability' %}disabled{% endif %}">
+                <input type="radio" name="optionDate" value="30" {% if form.optionDate == 30 %}checked{% endif %}>last 30 days
+            </label>
+            -->
+                <label class="button js-submit-onchange {% if form.optionDate == 100000 %}active{% endif %} {% if form.selectedChart == 'availability' and not is_granted('ROLE_ADMIN') %}disabled{% endif %}">
+                    <input type="radio" name="optionDate" value="100000" {% if form.optionDate == 100000 %}checked{% endif %}>month
+                </label>
+                {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse'%}
+                    <label class="button js-submit-onchange {% if form.optionDate == 300000 %}active{% endif %} {% if form.selectedChart == 'availability' and not is_granted('ROLE_ADMIN') %}disabled{% endif %}">
+                        <input type="radio" name="optionDate" value="300000" {% if form.optionDate == 300000 %}checked{% endif %}>3 months
+                    </label>
+                {% endif %}
+
             </div>
         </div>
     {% endif %}
-    <div class="cell medium-6 large-8 xlarge-4">
-        <div class="small button-group round toggle" {% if form.selectedChart == 'heatmap' or form.selectedChart == 'acpnom' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap'%}style="display: none"{% endif %}>
-            <label class="button js-submit-onchange {% if form.optionDate == 1 or not form.optionDate %}active{% endif %} {% if form.selectedChart == 'pr_and_av' or form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' %}disabled{% endif %}">
-                <input type="radio" name="optionDate" value="1" {% if form.optionDate == 1 or not form.optionDate %}checked="checked"{% endif %}>one day
-            </label>
-            <label class="button js-submit-onchange {% if form.optionDate == 3 %}active{% endif %} {% if form.selectedChart == 'pr_and_av' or form.selectedChart == 'availability' or form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' %}disabled{% endif %}">
-                <input type="radio" name="optionDate" value="3" {% if form.optionDate == 3 %}checked{% endif %}>last 3 days
-            </label>
-            <label class="button js-submit-onchange {% if form.optionDate == 7 %}active{% endif %} {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' or form.selectedChart == 'availability' %}disabled{% endif %}">
-                <input type="radio" name="optionDate" value="7" {% if form.optionDate == 7 %}checked{% endif %}>last 7 days
-            </label>
-            <label class="button js-submit-onchange {% if form.optionDate == 14 %}active{% endif %} {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' or form.selectedChart == 'availability' %}disabled{% endif %}">
-                <input type="radio" name="optionDate" value="14" {% if form.optionDate == 14 %}checked{% endif %}>last 14 days
-            </label>
-            <!--
-        <label class="button js-submit-onchange {% if form.optionDate == 30 %}active{% endif %} {% if form.selectedChart == 'availability' %}disabled{% endif %}">
-            <input type="radio" name="optionDate" value="30" {% if form.optionDate == 30 %}checked{% endif %}>last 30 days
-        </label>
-        -->
-            <label class="button js-submit-onchange {% if form.optionDate == 100000 %}active{% endif %} {% if form.selectedChart == 'availability' and not is_granted('ROLE_ADMIN') %}disabled{% endif %}">
-                <input type="radio" name="optionDate" value="100000" {% if form.optionDate == 100000 %}checked{% endif %}>month
-            </label>
-            {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse'%}
-                <label class="button js-submit-onchange {% if form.optionDate == 300000 %}active{% endif %} {% if form.selectedChart == 'availability' and not is_granted('ROLE_ADMIN') %}disabled{% endif %}">
-                    <input type="radio" name="optionDate" value="300000" {% if form.optionDate == 300000 %}checked{% endif %}>3 months
-                </label>
-            {% endif %}
-
-        </div>
-    </div>
 </div>
 
