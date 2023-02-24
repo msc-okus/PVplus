@@ -17,6 +17,7 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
 
 /**
  * @ApiResource(
+ *     security="is_granted('ROLE_ADMIN')",
  *     collectionOperations={"get", "post"},
  *     itemOperations={"get","put"},
  *     shortName="tokens",

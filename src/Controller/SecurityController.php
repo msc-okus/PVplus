@@ -9,6 +9,7 @@ use App\Repository\UserLoginRepository;
 use App\Repository\UserRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends BaseController
@@ -64,5 +65,16 @@ class SecurityController extends BaseController
 
 
         return $this->json(["token"=>null]);
+    }
+
+    #[Route('/api_redirection', name:'api_redirection')]
+    public function api_redirection(ApiTokenRepository $apiTokenRepository, UserRepository $userRepository,Security $security): ?Response
+    {
+        /*if($security->isGranted('ROLE_ADMIN')){
+            return null;
+        }*/
+
+
+        return null;
     }
 }

@@ -17,17 +17,25 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Annotation\SerializedName;
 
 /**
  * @ApiResource(
- *     collectionOperations={"get", "post"},
- *     itemOperations={"get","put"},
+ *     security="is_granted('ROLE_ADMIN')",
+ *     collectionOperations={
+ *      "get"={"security"="is_granted('ROLE_API_USER')"},
+ *      "post"
+ *      },
+ *     itemOperations={
+ *     "get"={"security"="is_granted('ROLE_API_USER')"},
+ *     "put"
+ *     },
  *     shortName="anlages",
- *     normalizationContext={"groups"={"main:read"}},
- *     denormalizationContext={"groups"={"main:write"}},
+ *     normalizationContext={"groups"={"api:read"}},
+ *     denormalizationContext={"groups"={"api:write"}},
  *     attributes={
- *          "pagination_items_per_page"=10,
- *          "formats"={"jsonld", "json", "html", "csv"={"text/csv"}}
+ *          "pagination_items_per_page"=30,
+ *          "formats"={ "json", "jsonld","html", "csv"={"text/csv"}}
  *     }
  * )
  * @ApiFilter(SearchFilter::class, properties={"anlName":"partial"})
@@ -40,7 +48,8 @@ class Anlage
 {
     private string $dbAnlagenData = 'pvp_data';
 
-    #[Groups(['main'])]
+    #[Groups(['main','api:read'])]
+    #[SerializedName('id')]
     #[ORM\Column(name: 'id', type: 'bigint', nullable: false)]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
@@ -54,16 +63,15 @@ class Anlage
     #[ORM\Column(name: 'anl_type', type: 'string', length: 25, nullable: false)]
     private string $anlType;
 
-    /**
-     * @deprecated
-     */
+    #[Deprecated]
     #[ORM\Column(name: 'anl_dbase', type: 'string', length: 25, nullable: false, options: ['default' => 'web32_db2'])]
     private string $anlDbase = 'web32_db2';
 
     #[ORM\Column(name: 'anl_betrieb', type: 'date', nullable: true)]
     private ?DateTime $anlBetrieb;
 
-    #[Groups(['main'])]
+    #[Groups(['main','api:read'])]
+    #[SerializedName('plant_name')]
     #[ORM\Column(name: 'anl_name', type: 'string', length: 50, nullable: false)]
     private string $anlName;
 
@@ -82,43 +90,46 @@ class Anlage
     #[ORM\Column(name: 'anl_intnr', type: 'string', length: 50, nullable: true)]
     private ?string $anlIntnr;
 
-    #[Groups(['main'])]
+    #[Groups(['main','api:read'])]
+    #[SerializedName('p_nom')]
     #[ORM\Column(type: 'string', length: 20)]
     private string $power = '0';
 
+    #[Groups(['api:read'])]
+    #[SerializedName('p_nom_east')]
     #[ORM\Column(type: 'string', length: 20)]
     private string $powerEast = '0';
 
+    #[Groups(['api:read'])]
+    #[SerializedName('p_nom_west')]
     #[ORM\Column(type: 'string', length: 20)]
     private string $powerWest = '0';
 
+    #[Deprecated]
     #[ORM\Column(name: 'anl_data_go_ws', type: 'string', length: 10, nullable: false, options: ['default' => 'No'])]
     private string $anlDataGoWs = 'No';
 
+    #[Deprecated]
     #[ORM\Column(name: 'anl_modul_anz', type: 'string', length: 50, nullable: false)]
     private string $anlModulAnz = '';
 
+    #[Deprecated]
     #[ORM\Column(name: 'anl_modul_name', type: 'string', length: 100, nullable: false)]
     private string $anlModulName = '';
 
+    #[Deprecated]
     #[ORM\Column(name: 'anl_modul_leistung', type: 'string', length: 50, nullable: false)]
     private string $anlModulLeistung = '';
 
-    /**
-     * @deprecated
-     */
+    #[Deprecated]
     #[ORM\Column(name: 'anl_db_ist', type: 'string', length: 50, nullable: false)]
     private string $anlDbIst = '';
 
-    /**
-     * @deprecated
-     */
+    #[Deprecated]
     #[ORM\Column(name: 'anl_db_ws', type: 'string', length: 50, nullable: false)]
     private string $anlDbWs = '';
 
-    /**
-     * @deprecated
-     */
+    #[Deprecated]
     #[ORM\Column(name: 'anl_same_ws', type: 'string', length: 10, nullable: false, options: ['default' => 'No'])]
     private string $anlSameWs = 'No';
 
@@ -128,15 +139,11 @@ class Anlage
     #[ORM\Column(name: 'anl_input_daily', type: 'string', length: 10, nullable: false, options: ['default' => 'No'])]
     private string $anlInputDaily = 'No';
 
-    /**
-     * @deprecated
-     */
+    #[Deprecated]
     #[ORM\Column(name: 'anl_grupe', type: 'string', length: 10, nullable: false, options: ['default' => 'No'])]
     private string $anlGruppe = 'No';
 
-    /**
-     * @deprecated
-     */
+    #[Deprecated]
     #[ORM\Column(name: 'anl_grupe_dc', type: 'string', length: 10, nullable: false, options: ['default' => 'No'])]
     private string $anlGruppeDc = 'No';
 
@@ -146,9 +153,7 @@ class Anlage
     #[ORM\Column(name: 'anl_db_unit', type: 'string', length: 10, nullable: true, options: ['default' => 'kwh'])]
     private ?string $anlDbUnit = 'kwh';
 
-    /**
-     * @deprecated
-     */
+    #[Deprecated]
     #[ORM\Column(name: 'anl_wind_unit', type: 'string', length: 10, nullable: false, options: ['default' => 'km/h'])]
     private string $anlWindUnit = 'km/h';
 
@@ -158,9 +163,13 @@ class Anlage
     #[ORM\Column(name: 'anl_hide_plant', type: 'string', length: 10, nullable: false)]
     private string $anlHidePlant = 'No';
 
+    #[Groups(['api:read'])]
+    #[SerializedName('plant_location_lat')]
     #[ORM\Column(name: 'anl_geo_lat', type: 'string', length: 30, nullable: false)]
     private string $anlGeoLat = '';
 
+    #[Groups(['api:read'])]
+    #[SerializedName('plant_location_lon')]
     #[ORM\Column(name: 'anl_geo_lon', type: 'string', length: 30, nullable: false)]
     private string $anlGeoLon = '';
 
@@ -238,18 +247,23 @@ class Anlage
     private bool $showCosPhiPowerDiag = false;
 
     #[ORM\Column(type: 'boolean')]
+    #[Deprecated]
     private bool $showGraphDcCurrInv = false;
 
     #[ORM\Column(type: 'boolean')]
+    #[Deprecated]
     private bool $showGraphDcCurrGrp = false;
 
     #[ORM\Column(type: 'boolean')]
+    #[Deprecated]
     private bool $showGraphVoltGrp = false;
 
     #[ORM\Column(type: 'boolean')]
+    #[Deprecated]
     private bool $showGraphDcInverter = false;
 
     #[ORM\Column(type: 'boolean')]
+    #[Deprecated]
     private bool $showGraphIrrPlant = false;
 
     #[ORM\Column(type: 'boolean')]
@@ -367,6 +381,8 @@ class Anlage
     #[ORM\Column(type: 'string', length: 20)]
     private string $pacDuration = '';
 
+    #[Groups(['api:read'])]
+    #[SerializedName('p_nom_simulation')]
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $kwPeakPvSyst;
 
@@ -394,9 +410,10 @@ class Anlage
     #[ORM\Column(type: 'string', length: 20)]
     private string $epcReportType = '';
 
-    #[ORM\OneToMany(targetEntity: AnlagenPvSystMonth::class, mappedBy: 'anlage', cascade: ['persist', 'remove'])]
+    #[Deprecated]
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlagenPvSystMonth::class, cascade: ['persist', 'remove'])]
     #[ORM\OrderBy(['month' => 'ASC'])]
-    private $anlagenPvSystMonths;
+    private Collection $anlagenPvSystMonths;
 
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlagenMonthlyData::class, cascade: ['persist', 'remove'])]
     #[ORM\OrderBy(['year' => 'ASC', 'month' => 'ASC'])]
@@ -412,6 +429,8 @@ class Anlage
     private string $pldYield = '';
 
     #[ORM\Column(type: 'string', length: 30)]
+    #[Groups(['api:read'])]
+    #[SerializedName('project_number')]
     private string $projektNr = '';
 
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageLegendReport::class, cascade: ['persist', 'remove'])]
@@ -469,7 +488,7 @@ class Anlage
     private int $configType;
 
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: Log::class)]
-    private $logs;
+    private Collection $logs;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
     private bool $hasDc = true;
@@ -502,7 +521,7 @@ class Anlage
     private ?string $lossesForecast = '5';
 
     #[ORM\OneToMany(mappedBy: 'plant', targetEntity: AnlageFile::class, orphanRemoval: true)]
-    private $anlageFiles;
+    private Collection $anlageFiles;
 
     #[ORM\OneToOne(mappedBy: 'anlage', targetEntity: AnlageSettings::class, cascade: ['persist', 'remove'])]
     private ?AnlageSettings $settings;
@@ -772,55 +791,55 @@ class Anlage
 
         return $this;
     }
+    /*
+        public function getAnlDataGoWs(): ?string
+        {
+            return $this->anlDataGoWs;
+        }
 
-    public function getAnlDataGoWs(): ?string
-    {
-        return $this->anlDataGoWs;
-    }
+        public function setAnlDataGoWs(string $anlDataGoWs): self
+        {
+            $this->anlDataGoWs = $anlDataGoWs;
 
-    public function setAnlDataGoWs(string $anlDataGoWs): self
-    {
-        $this->anlDataGoWs = $anlDataGoWs;
+            return $this;
+        }
 
-        return $this;
-    }
+        public function getAnlModulAnz(): ?string
+        {
+            return $this->anlModulAnz;
+        }
 
-    public function getAnlModulAnz(): ?string
-    {
-        return $this->anlModulAnz;
-    }
+        public function setAnlModulAnz(string $anlModulAnz): self
+        {
+            $this->anlModulAnz = $anlModulAnz;
 
-    public function setAnlModulAnz(string $anlModulAnz): self
-    {
-        $this->anlModulAnz = $anlModulAnz;
+            return $this;
+        }
 
-        return $this;
-    }
+        public function getAnlModulName(): ?string
+        {
+            return $this->anlModulName;
+        }
 
-    public function getAnlModulName(): ?string
-    {
-        return $this->anlModulName;
-    }
+        public function setAnlModulName(string $anlModulName): self
+        {
+            $this->anlModulName = $anlModulName;
 
-    public function setAnlModulName(string $anlModulName): self
-    {
-        $this->anlModulName = $anlModulName;
+            return $this;
+        }
 
-        return $this;
-    }
+        public function getAnlModulLeistung(): ?string
+        {
+            return $this->anlModulLeistung;
+        }
 
-    public function getAnlModulLeistung(): ?string
-    {
-        return $this->anlModulLeistung;
-    }
+        public function setAnlModulLeistung(string $anlModulLeistung): self
+        {
+            $this->anlModulLeistung = $anlModulLeistung;
 
-    public function setAnlModulLeistung(string $anlModulLeistung): self
-    {
-        $this->anlModulLeistung = $anlModulLeistung;
-
-        return $this;
-    }
-
+            return $this;
+        }
+    */
     public function getAnlDbIst(): ?string
     {
         return $this->anlDbIst;
@@ -880,36 +899,7 @@ class Anlage
 
         return $this;
     }
-/*
-    public function getAnlGruppe(): ?string
-    {
-        return $this->anlGruppe;
-    }
 
-    public function setAnlGruppe(string $anlGruppe): self
-    {
-        $this->anlGruppe = $anlGruppe;
-
-        return $this;
-    }
-
-    public function getAnlGruppeDc(): ?string
-    {
-        return $this->anlGruppeDc;
-    }
-
-    public function getDcGroupsAktiv(): bool
-    {
-        return $this->anlGruppeDc === 'Yes';
-    }
-
-    public function setAnlGruppeDc(string $anlGruppeDc): self
-    {
-        $this->anlGruppeDc = $anlGruppeDc;
-
-        return $this;
-    }
-*/
     public function getAnlZeitzone(): ?float
     {
         return (float) $this->anlZeitzone;
@@ -972,20 +962,7 @@ class Anlage
 
         return $this;
     }
-/*
-    public function getAnlWindUnit(): ?string
-    {
-        return $this->anlWindUnit;
-    }
 
-    public function setAnlWindUnit(string $anlWindUnit): self
-    {
-        $this->anlWindUnit = $anlWindUnit;
-
-        return $this;
-    }
-
-*/
     public function getAnlView(): ?string
     {
         return $this->anlView;
@@ -1574,66 +1551,6 @@ class Anlage
                 $anlagenReport->setAnlage(null);
             }
         }
-
-        return $this;
-    }
-
-    public function getShowGraphDcCurrInv(): ?bool
-    {
-        return $this->showGraphDcCurrInv;
-    }
-
-    public function setShowGraphDcCurrInv(bool $showGraphDcCurrInv): self
-    {
-        $this->showGraphDcCurrInv = $showGraphDcCurrInv;
-
-        return $this;
-    }
-
-    public function getShowGraphDcCurrGrp(): ?bool
-    {
-        return $this->showGraphDcCurrGrp;
-    }
-
-    public function setShowGraphDcCurrGrp(bool $showGraphDcCurrGrp): self
-    {
-        $this->showGraphDcCurrGrp = $showGraphDcCurrGrp;
-
-        return $this;
-    }
-
-    public function getShowGraphVoltGrp(): ?bool
-    {
-        return $this->showGraphVoltGrp;
-    }
-
-    public function setShowGraphVoltGrp(bool $showGraphVoltGrp): self
-    {
-        $this->showGraphVoltGrp = $showGraphVoltGrp;
-
-        return $this;
-    }
-
-    public function getShowGraphDcInverter(): ?bool
-    {
-        return $this->showGraphDcInverter;
-    }
-
-    public function setShowGraphDcInverter(bool $showGraphDcInverter): self
-    {
-        $this->showGraphDcInverter = $showGraphDcInverter;
-
-        return $this;
-    }
-
-    public function getShowGraphIrrPlant(): ?bool
-    {
-        return $this->showGraphIrrPlant;
-    }
-
-    public function setShowGraphIrrPlant(bool $showGraphIrrPlant): self
-    {
-        $this->showGraphIrrPlant = $showGraphIrrPlant;
 
         return $this;
     }

@@ -78,6 +78,7 @@ class ReportingController extends AbstractController
         $reportType = $request->query->get('report-typ');
         $reportMonth = $request->query->get('month');
         $reportYear = $request->query->get('year');
+        $local = $request->query->get('local');
         $daysOfMonth = date('t', strtotime("$reportYear-$reportMonth-01"));
         $reportDate = new \DateTime("$reportYear-$reportMonth-$daysOfMonth");
         $anlageId = $request->query->get('anlage-id');
@@ -95,10 +96,12 @@ class ReportingController extends AbstractController
                 break;
             case 'am':
                 // we try to find and delete a previous report from this month/year
-                #$output = $assetManagement->createAmReport($aktAnlagen[0], $reportMonth, $reportYear);
-                $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'AM Report', "create AM Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear");
-                $message = new GenerateAMReport($aktAnlagen[0]->getAnlId(), $reportMonth, $reportYear, $userId, $logId);
-                $messageBus->dispatch($message);
+                if ($local !== null) $output = $assetManagement->createAmReport($aktAnlagen[0], $reportMonth, $reportYear);
+                else {
+                    $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'AM Report', "create AM Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear");
+                    $message = new GenerateAMReport($aktAnlagen[0]->getAnlId(), $reportMonth, $reportYear, $userId, $logId);
+                    $messageBus->dispatch($message);
+                }
                 break;
         }
         $queryBuilder = $reportsRepository->getWithSearchQueryBuilder($anlage, $searchstatus, $searchtype, $searchmonth, $searchyear);
@@ -335,7 +338,7 @@ class ReportingController extends AbstractController
 
                         $data = $form->getData();
                         #$output['data'] = $data;
-                        //dd($output['production_monthly_chart'], $output['wkhLossesChartMonth']);
+                       //dd($output);
                         $result = $this->renderView('report/assetreport.html.twig', [
                             'invNr' => count($output['plantAvailabilityMonth']),
                             'comments' => $report->getComments(),
@@ -417,7 +420,11 @@ class ReportingController extends AbstractController
                             'TicketAvailabilityMonthTable' => $output['TicketAvailabilityMonthTable'],
                             'TicketAvailabilityYearTable' => $output['TicketAvailabilityYearTable'],
                             'monthlyLossesHelpTable' => $output['monthlyLossesHelpTable'],
-                            'yearLossesHelpTable' => $output['yearLossesHelpTable']
+                            'yearLossesHelpTable' => $output['yearLossesHelpTable'],
+                            'losseskwhchartYearMonthly' => $output['losseskwhchartYearMonthly'],
+                            'PercentageTableYear' => $output['PercentageTableYear'],
+                            'percentageTableMonth' => $output['percentageTableMonth'],
+
                         ]);
                         $filename = $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf';
 
@@ -652,8 +659,10 @@ class ReportingController extends AbstractController
                             'TicketAvailabilityMonthTable' => $output['TicketAvailabilityMonthTable'],
                             'TicketAvailabilityYearTable' => $output['TicketAvailabilityYearTable'],
                             'monthlyLossesHelpTable' => $output['monthlyLossesHelpTable'],
-                            'yearLossesHelpTable' => $output['yearLossesHelpTable']
-
+                            'yearLossesHelpTable' => $output['yearLossesHelpTable'],
+                            'losseskwhchartYearMonthly' => $output['losseskwhchartYearMonthly'],
+                            'PercentageTableYear' => $output['PercentageTableYear'],
+                            'percentageTableMonth' => $output['percentageTableMonth'],
                         ]);
                         break;
                     }

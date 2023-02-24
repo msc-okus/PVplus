@@ -141,7 +141,7 @@ include_once __DIR__.'/tablechart_fields.tmpl';
 </div>
 
 <?php
-    if ($showAvailability == true || $showAvailabilitySecond == true) {
+    if ($showAvailability || $showAvailabilitySecond) {
         ?>
 <div class="grid-x grid-margin-x" style="margin-top: 2em">
     <div class="cell">

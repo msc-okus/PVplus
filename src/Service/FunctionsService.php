@@ -568,7 +568,7 @@ class FunctionsService
             $sql = "SELECT COUNT(w.db_id) AS anzahl 
                     FROM ". $weatherStation->getDbNameWeather(). " w  
                     RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON w.stamp = ppc.stamp 
-                    WHERE w.stamp BETWEEN '$from' and '$to' AND ppc.p_set_gridop_rel = 100 and ppc.p_set_rpc_rel = 100";
+                    WHERE w.stamp BETWEEN '$from' and '$to' AND (ppc.p_set_gridop_rel = 100 or ppc.p_set_gridop_rel is null) and (ppc.p_set_rpc_rel = 100 or ppc.p_set_rpc_rel is null)";
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {
                 $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -579,7 +579,7 @@ class FunctionsService
             $sql = "SELECT sum(g_lower) as irr_lower, sum(g_upper) as irr_upper, sum(g_horizontal) as irr_horizontal, avg(g_horizontal) as irr_horizontal_avg, AVG(at_avg) AS air_temp, AVG(pt_avg) AS panel_temp, AVG(wind_speed) as wind_speed 
                     FROM ".$weatherStation->getDbNameWeather()." w  
                     RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON w.stamp = ppc.stamp 
-                    WHERE w.stamp BETWEEN '$from' AND '$to' AND ppc.p_set_gridop_rel = 100 and ppc.p_set_rpc_rel = 100";
+                    WHERE w.stamp BETWEEN '$from' AND '$to' AND (ppc.p_set_gridop_rel = 100 or ppc.p_set_gridop_rel is null) and (ppc.p_set_rpc_rel = 100 or ppc.p_set_rpc_rel is  null)";
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {
                 $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -608,7 +608,10 @@ class FunctionsService
         }
         unset($res);
 
-        $sql = "SELECT sum(g_lower) as irr_lower, sum(g_upper) as irr_upper, sum(g_horizontal) as irr_horizontal, avg(g_horizontal) as irr_horizontal_avg, AVG(at_avg) AS air_temp, AVG(pt_avg) AS panel_temp, AVG(wind_speed) as wind_speed FROM $dbTable WHERE stamp BETWEEN '$from' and '$to'";
+        $sql = "SELECT sum(g_lower) as irr_lower, sum(g_upper) as irr_upper, sum(g_horizontal) as irr_horizontal, avg(g_horizontal) as irr_horizontal_avg, AVG(at_avg) AS air_temp, AVG(pt_avg) AS panel_temp, AVG(wind_speed) as wind_speed 
+                FROM $dbTable 
+                WHERE stamp BETWEEN '$from' and '$to'";
+        #if (str_contains($from,'2021-10-06')) dd($sql);
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -766,12 +769,13 @@ class FunctionsService
             // Darüber kann eine Koorektur der Zählerwerte erfolgen.
             // Wenn für einen Monat Manuel Zählerwerte eingegeben wurden, wird der Wert der Tageszählwer wieder subtrahiert und der Manuel eingebene Wert addiert.
             $powerEGridExt = $this->gridMeterDayRepo->sumByDateRange($anlage, $from, $to);
-            if (!$powerEGridExt) {
-                $powerEGridExt = 0;
-            }
+
+            if (!$powerEGridExt) $powerEGridExt = 0;
+
             // prüfe ob $from Datum und das $to datum weniger al einen Monat auseinaderliegen
             // wenn das so ist darf die korrektur nicht ausgeführt werden
-            if (!$day) $day = strtotime($to) - strtotime($from) <= (3600 *24);
+            if (!$day) $day = strtotime($to) - strtotime($from) <= (3600 *25); // mal 25 um Schaltung auf Winterzeit zu berücksichtigen
+
             // wenn Tageswerte angefordert, dann nicht mit Monatswerten verrechnen, wenn keine Tageswerte vorhanden sind, wird 0 zurückgegeben.
             if (!$day) {
                 $year = (int) date('Y', strtotime($from));
@@ -816,7 +820,6 @@ class FunctionsService
         // ############ für den angeforderten Zeitraum #############
 
         // Wenn externe Tagesdaten genutzt werden, sollen lade diese aus der DB und ÜBERSCHREIBE die Daten aus den 15Minuten Werten
-
         $powerEGridExt = $this->getSumeGridMeter($anlage, $from, $to);
 
         // EVU Leistung ermitteln –
@@ -987,7 +990,7 @@ class FunctionsService
         $sql = "SELECT sum(e_z_evu) as power_evu_ppc
                 FROM " . $anlage->getDbNameAcIst() . " s
                 RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
-                WHERE s.stamp >= '$from' AND s.stamp <= '$to' AND s.unit = $section AND s.e_z_evu > 0 AND ppc.p_set_gridop_rel = 100 and ppc.p_set_rpc_rel = 100";
+                WHERE s.stamp >= '$from' AND s.stamp <= '$to' AND s.unit = $section AND s.e_z_evu > 0 AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is  null)";
         $res = $conn->query($sql);
         if ($res->rowCount() === 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -1028,7 +1031,7 @@ class FunctionsService
             $sql = "SELECT sum(theo_power) as theo_power, sum(theo_power_ft) as theo_power_ft 
                 FROM " . $anlage->getDbNameSection() . " s
                 RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
-                WHERE s.stamp >= '$from' AND s.stamp <= '$to' AND s.section = $section AND s.theo_power_ft > 0 AND ppc.p_set_gridop_rel = 100 and ppc.p_set_rpc_rel = 100";
+                WHERE s.stamp >= '$from' AND s.stamp <= '$to' AND s.section = $section AND s.theo_power_ft > 0 AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is null)";
             $res = $conn->query($sql);
             if ($res->rowCount() === 1) {
                 $row = $res->fetch(PDO::FETCH_ASSOC);

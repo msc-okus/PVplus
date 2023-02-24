@@ -3,7 +3,7 @@
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Availability Analysis - Monthly Overview</h3>
     <span class="subheadline" style="color: {{ anlage.eigner.fontColor3 }};">Resolution according to failure groups - {{ month }} {{ year }}</span>
-    <table style="vertical-align: bottom">
+    <table style="vertical-align: bottom;">
         <tr>
             <td style="width:50%">
                 <table style="width: 90%">
@@ -122,5 +122,54 @@
                 </div>
             </td>
         </tr>
+        {%  if (TicketAvailabilityMonthTable) %}
+        <tr >
+            <td style="width: 50%">
+                <table>
+                    <thead>
+                    <th></th>
+                    {% if (anlage.eigner.features.aktDep1) %}
+                        <th>O+M</th>
+                    {% endif %}
+                    {% if (anlage.eigner.features.aktDep2) %}
+                        <th>EPC</th>
+                    {% endif %}
+                    {% if (anlage.eigner.features.aktDep3) %}
+                        <th>AM</th>
+                    {% endif %}
+                    <th> Open Book</th>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="tr_next_columns"> PA[%]</td>
+                        {% if (anlage.eigner.features.aktDep1) %}
+                            <td class="tr_next_columns">{{ TicketAvailabilityMonthTable.pa1 |number_format(2, ',', '.')}}</td>
+                        {% endif %}
+                        {% if (anlage.eigner.features.aktDep2) %}
+                            <td class="tr_next_columns">{{ TicketAvailabilityMonthTable.pa2 |number_format(2, ',', '.')}}</td>
+                        {% endif %}
+                        {% if (anlage.eigner.features.aktDep3) %}
+                            <td class="tr_next_columns">{{ TicketAvailabilityMonthTable.pa3 |number_format(2, ',', '.')}}</td>
+                        {% endif %}
+                        <td class="tr_next_columns"> {{ TicketAvailabilityMonthTable.pa0 |number_format(2, ',', '.')}}</td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">PR</td>
+                        {% if (anlage.eigner.features.aktDep1) %}
+                            <td class="tr_next_columns">To come</td>
+                        {% endif %}
+                        {% if (anlage.eigner.features.aktDep2) %}
+                            <td class="tr_next_columns">To come</td>
+                        {% endif %}
+                        {% if (anlage.eigner.features.aktDep3) %}
+                            <td class="tr_next_columns">To come</td>
+                        {% endif %}
+                        <td class="tr_next_columns">To come</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        {% endif %}
     </table>
 {% endblock page %}

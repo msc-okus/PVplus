@@ -58,7 +58,7 @@ class ExportService
                         $factorEast = $groupAC->getPowerEast() / $groupAC->getDcPowerInverter();
                         $factorWest = $groupAC->getPowerWest() / $groupAC->getDcPowerInverter();
                         $irradiation = $weather['upperIrr'] * $factorEast + $weather['lowerIrr'] * $factorWest;
-                        $irradiationPpc = ($weather['upperIrrPpc'] + $weather['lowerIrrPpc']) / 2;
+                        $irradiationPpc = $weather['upperIrrPpc'] * $factorEast + $weather['lowerIrrPpc'] * $factorWest;
                     } elseif ($weather['upperIrr'] > 0) {
                         $irradiation = $weather['upperIrr'];
                         $irradiationPpc = $weather['upperIrrPpc'];

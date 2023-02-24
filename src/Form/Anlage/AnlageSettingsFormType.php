@@ -25,6 +25,9 @@ class AnlageSettingsFormType extends AbstractType
                 'label'     => 'AC Power -Actual & Expected, Inverter',
                 'help'      => '[chartAC3]'
             ])
+            ->add('chartAC9', SwitchType::class, [
+                'label'     => 'AC Power Normalized - Inverter',
+            ])
             ->add('chartAC4', SwitchType::class, [
                 'label'     => 'AC Inverter (Bar Chart)',
                 'help'      => '[chartAC4]',
@@ -42,11 +45,7 @@ class AnlageSettingsFormType extends AbstractType
                 'help'      => '[chartAC7]'
             ])
             ->add('chartAC8', SwitchType::class, [
-                'label'     => 'AC Reactive Power - inverter',
-                'help'      => '[chartAC8]'
-            ])
-            ->add('chartAC9', SwitchType::class, [
-                'label'     => 'NN AC9',
+                'label'     => 'AC Reactive Power - Inverter',
                 'help'      => '[chartAC8]'
             ])
 

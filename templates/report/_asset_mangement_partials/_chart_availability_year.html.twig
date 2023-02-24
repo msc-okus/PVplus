@@ -7,12 +7,91 @@
                 {{ kwhLossesChartYear | raw }}
             </td>
         </tr>
-        <tr style="height: 30%">
-            <td style="width: 50%; ">
-                <table style="margin-top: 30px; width: 90%">
+    </table>
+    <table style="margin-left: 50px">
+        <tr>
+            <table style="width: 50%">
+                <thead>
+                <tr>
+                    <th style="text-align: center" class="table-center" colspan="2" rowspan="3">
+                        <b>Production / Plan and loss values</b>
+                    </th>
+                    <th style="text-align: center" class="table-center" rowspan="3">
+                        <b>kWh</b>
+                    </th>
+                    <th style="text-align: center" class="table-center">
+                        <b>Relative to</b>
+                    </th>
+                </tr>
+                <tr>
+                    <th style="text-align: center" class="table-center">
+                        <b>G4N Expected</b>
+                    </th>
+                </tr>
+                <tr>
+                    <th style="text-align: center" class="table-center">
+                        <b>%</b>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td style="text-align: center" class="tr_next_columns" rowspan="2"> Actual Values</td>
+                    <td style="text-align: left" class="tr_next_columns">  Production - Actual</td>
+                    <td class="tr_next_columns">{{ yearLossesHelpTable['Actual'] |number_format(2, ',', '.') }}</td>
+                    <td class="tr_next_columns">{{ PercentageTableYear['ActualPower'] |number_format(2, ',', '.') }}</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left" class="tr_next_columns"> Expected G4N </td>
+                    <td class="tr_next_columns">{{ yearLossesHelpTable['ExpectedG4N'] |number_format(2, ',', '.') }}</td>
+                    <td class="tr_next_columns">{{ PercentageTableYear['G4NExpected'] |number_format(2, ',', '.') }}</td>
+                </tr>
+                {% if ((anlage.hasPVSYST == true) == true) %}
+                    <tr>
+                        <td style="text-align: center" class="tr_next_columns" rowspan="2"> Planned Values</td>
+                        <td style="text-align: left" class="tr_next_columns">  Expected Plan Simulation</td>
+                        <td class="tr_next_columns">{{ yearLossesHelpTable['ExpectedPVSYS'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns">{{ PercentageTableYear['PVSYSExpected'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left" class="tr_next_columns"> G4N Simulation </td>
+                        <td class="tr_next_columns">{{ yearLossesHelpTable['Forecast'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns">{{ PercentageTableYear['forecast'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td style="text-align: center" class="tr_next_columns"> Planned Values</td>
+                        <td style="text-align: left" class="tr_next_columns"> G4N Simulation </td>
+                        <td class="tr_next_columns">{{ yearLossesHelpTable['Forecast'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns">{{ PercentageTableYear['forecast'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                {% endif %}
+                <tr>
+                    <td style="text-align: center" class="tr_next_columns" rowspan="3"> Type of Ticket</td>
+                    <td style="text-align: left" class="tr_next_columns">  SOR Losses - Planned Outage</td>
+                    <td class="tr_next_columns">{{ yearLossesHelpTable['SORLosses'] |number_format(2, ',', '.') }}</td>
+                    <td class="tr_next_columns">{{ PercentageTableYear['SORLosses'] |number_format(2, ',', '.') }}</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left" class="tr_next_columns"> EFOR Losses - Unplanned Outage </td>
+                    <td class="tr_next_columns">{{ yearLossesHelpTable['EFORLosses'] |number_format(2, ',', '.') }}</td>
+                    <td class="tr_next_columns">{{ PercentageTableYear['EFORLosses'] |number_format(2, ',', '.') }}</td>
+                </tr>
+                <tr>
+                    <td style="text-align: left" class="tr_next_columns"> OMC Losses - Grid Error / Grid Off </td>
+                    <td class="tr_next_columns">{{ yearLossesHelpTable['OMCLosses'] |number_format(2, ',', '.') }}</td>
+                    <td class="tr_next_columns">{{ PercentageTableYear['OMCLosses'] |number_format(2, ',', '.') }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </tr>
+        {#
+        <tr>
+            <td >
+                <table style="width: 50% !important; ">
                     <thead>
                     <th>Type of Ticket</th>
-                    <th>Losses in kWh to G4N Expected</th>
+                    <th>Losses in kWh </th>
                     </thead>
                     <tbody>
                     <tr>
@@ -30,8 +109,50 @@
                     </tbody>
                 </table>
             </td>
-            <td style="width: 50%; ">
-                <table style="margin-top: 30px; width: 90%">
+            <td >
+                <table style="width: 50% !important; ">
+                    <thead>
+                    <th></th>
+                    <th>% relative to G4N Expected </th>
+                    </thead>
+                    <tbody>
+                    {% if (anlage.hasPVSYST == true) %}
+                        <tr>
+                            <td class="tr_next_columns">Expected PVSYS</td>
+                            <td class="tr_next_columns"> {{ PercentageTableYear['PVSYSExpected'] |number_format(2, ',', '.') }}</td>
+                        </tr>
+                    {% endif %}
+                    <tr>
+                        <td class="tr_next_columns">G4N Expected</td>
+                        <td class="tr_next_columns"> {{ PercentageTableYear['G4NExpected'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">G4N Simulation </td>
+                        <td class="tr_next_columns"> {{ PercentageTableYear['forecast'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">Actual </td>
+                        <td class="tr_next_columns"> {{ PercentageTableYear['ActualPower'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">Planned Outage <sup><b> a</b></sup></td>
+                        <td class="tr_next_columns"> {{ PercentageTableYear['SORLosses'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">Unplanned Outage <sup><b> b</b></sup> <sup><b>c</b></sup></td>
+                        <td class="tr_next_columns"> {{ PercentageTableYear['EFORLosses'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td class="tr_next_columns">Grid Error/Grid Off <sup><b> d</b></sup></td>
+                        <td class="tr_next_columns"> {{ PercentageTableYear['OMCLosses'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td style="width: 25% !important; " colspan="2">
+                <table style="width: 25% !important; ">
                     <thead>
                     <th></th>
                     <th>kWh</th>
@@ -48,7 +169,8 @@
                     {% if (anlage.hasPVSYST == true) %}
                         <tr>
                             <td class="tr_next_columns">Expected PVSYS</td>
-                            <td class="tr_next_columns"> {{ yearLossesHelpTable['ExoectedPVSYS'] |number_format(2, ',', '.') }}</td>
+                            <td class="tr_next_columns"> {{ yearLossesHelpTable['ExpectedPVSYS'] |number_format(2, ',', '.') }}</td>
+
                         </tr>
                     {% endif %}
                     <tr>
@@ -59,9 +181,10 @@
                 </table>
             </td>
         </tr>
-        <tr style="height: 20%">
-            <td>
-                <div style="text-align: left">
+        #}
+        <tr>
+            <td style="width: 25% !important; " colspan="2">
+                <div style="text-align: left; font-size: small">
                     <sup><b>a</b></sup> Maintenance, SOR<br>
                     <sup><b>b</b></sup> Defects, EFOR<br>
                     <sup><b>c</b></sup><b> From this EFOR errors {{ Availability_Year_To_Date_Table['actualGaps'] |number_format(2, ',', '.') }}% are Data Gaps</b><br>
@@ -69,6 +192,5 @@
                 </div>
             </td>
         </tr>
-
     </table>
 {% endblock page %}

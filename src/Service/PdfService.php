@@ -40,7 +40,17 @@ class PdfService
         } else {
             switch ($source) {
                 case 'string':
-                    $pdf = $this->snappyPdf->getOutputFromHtml($html, ['enable-local-file-access' => true, 'orientation' => "$orientation"]);
+                    $pdf = $this->snappyPdf->getOutputFromHtml($html, [
+                        'enable-local-file-access' => true,
+                        'orientation'   => "$orientation",
+                        'page-size'     => 'A4',
+                        'margin-top'    => '5',
+                        'margin-right'  => '10',
+                        'margin-bottom' => '5',
+                        'margin-left'   => '10',
+                        'print-media-type'  => true,
+                        'disable-smart-shrinking' => true,
+                    ]);
                     break;
                 case 'file':
                 case 'url':

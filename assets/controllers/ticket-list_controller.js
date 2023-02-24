@@ -18,10 +18,21 @@ export default class extends Controller {
         event.preventDefault();
 
         const $searchListform = $(this.searchBarTarget).find('form');
+        var serializedData = $searchListform.serialize().concat("&page=1");
+        const $queryParams = $(event.currentTarget).data("query-value");
+        console.log($queryParams, this.urlSearchValue, serializedData);
+        this.listTarget.innerHTML = await $.ajax({
+            url: this.urlSearchValue,
+            method: $searchListform.prop('method'),
+            data: serializedData,
+        });
+        $(document).foundation();
+    }
+    async update(event) {
+        event.preventDefault();
+
+        const $searchListform = $(this.searchBarTarget).find('form');
         var serializedData = $searchListform.serialize();
-        console.log(serializedData);
-        serializedData = serializedData.concat("&filtering=filtered");
-        console.log(serializedData);
         this.listTarget.innerHTML = await $.ajax({
             url: this.urlSearchValue,
             method: $searchListform.prop('method'),
@@ -33,8 +44,6 @@ export default class extends Controller {
     async page(event) {
         event.preventDefault();
         const $queryParams = $(event.currentTarget).data("query-value");
-        $queryParams['filtering'] = "non-filtered";
-        console.log($queryParams['filtering']);
         this.listTarget.innerHTML = await $.ajax({
             url: this.urlSearchValue,
             data: $queryParams,
@@ -44,7 +53,7 @@ export default class extends Controller {
     async sortId(event) {
         event.preventDefault();
         $(this.sortTarget).val('ticket.id');
-        console.log($(this.directionTarget).val());
+
         if ($(this.directionTarget).val() == '') {$(this.directionTarget).val('ASC');}
         else if ($(this.directionTarget).val() == 'ASC'){$(this.directionTarget).val('DESC');}
         else {$(this.directionTarget).val('ASC');}

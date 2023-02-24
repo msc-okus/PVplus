@@ -37,6 +37,7 @@ class AssetManagementController extends BaseController
         $output = $assetManagement->assetReport($anlage, $month, $year, $pages);
         $baseurl = $request->getSchemeAndHttpHost();
         $plantId = $output['plantId'];
+
         $result = $this->render('report/assetreport.html.twig', [
             'baseurl' => $baseurl,
             'owner' => $output['owner'],
@@ -114,7 +115,9 @@ class AssetManagementController extends BaseController
             'lossesComparedTableCumulated' => $output['lossesComparedTableCumulated'],
             'cumulated_losses_compared_chart' => $output['cumulated_losses_compared_chart'],
             'kwhLossesYearTable' => $output['kwhLossesYearTable'],
-            'kwhLossesMonthTable' => $output['kwhLossesMonthTable']
+            'kwhLossesMonthTable' => $output['kwhLossesMonthTable'],
+            'PercentageTableYear' => $output['PercentageTableYear'],
+            'percentagTableMonth' => $output['percentageTableMonth'],
         ]);
         if ($export == 0) {
             return $result;

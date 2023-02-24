@@ -149,6 +149,7 @@
             min: 1,
             max: {% if content.sumSeries|raw  %} {{ content.sumSeries|raw }}, {% else %} {{ grlengthmax }},{% endif %}
             values: {% if  form.selectedSet  %} {{ form.selectedSet }}, {% else %}[{{ grlengthmin }},{{ grlengthmax }}],{% endif %}
+
             slide: function( event, ui ) {
                 $( "#sview" ).val("" + ui.values[ 0 ] + "-" + ui.values[ 1 ]+ "");
                 $( "#sviewhidden" ).val("[" + ui.values[ 0 ] + "," + ui.values[ 1 ]+ "]");
@@ -229,18 +230,11 @@
 
                 <!-- ab hier Current DC -->
                 <optgroup label="DC Current">
-<<<<<<< HEAD
-                    {{ currentDcOverview(form, aktAnlage) }}    {# Curr1 #}
-                    <!--{{ currentDcGroup(form, aktAnlage) }}       {# Curr2 #}
-                    {{ currentDcInverter(form, aktAnlage) }}    {# Curr3 #}
-                    {{ currentDcString(form, aktAnlage) }}      {# Curr4 #}-->
-                    {{ showDCPnomCurr(form, aktAnlage) }}       {# LineChart #}
-=======
                     {% if aktAnlage.settings.chartCurr1 %}{{ currentDcOverview(form, aktAnlage) }}{% endif %}    {# Curr1 #}
                     {% if aktAnlage.settings.chartCurr2 %}{{ currentDcGroup(form, aktAnlage) }}{% endif %}       {# Curr2 #}
                     {% if aktAnlage.settings.chartCurr3 %}{{ currentDcInverter(form, aktAnlage) }}{% endif %}    {# Curr3 #}
+                    {{ showDCPnomCurr(form, aktAnlage) }}       {# LineChart #}
                     <!--{{ currentDcString(form, aktAnlage) }}      {# Curr4 #}-->
->>>>>>> 17039c78a0c0491cf5ad4b87baffa11fb039c8e1
                 </optgroup>
 
 
@@ -310,7 +304,7 @@
         {% endif %}
     </div>
 
-    {# neues Cahrt Control System #}
+    {# neues Chart Control System #}
     {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse'
         or form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap'
         or form.selectedChart == 'sollistheatmap'
@@ -393,29 +387,40 @@
                 </label>
                 <label class="button js-submit-onchange {% if form.optionDate == 3 %}active{% endif %} {% if form.selectedChart == 'pr_and_av' or form.selectedChart == 'availability' or form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' %}disabled{% endif %}">
                     <input type="radio" name="optionDate" value="3" {% if form.optionDate == 3 %}checked{% endif %}>last 3 days
-                </label>
-                <label class="button js-submit-onchange {% if form.optionDate == 7 %}active{% endif %} {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' or form.selectedChart == 'availability' %}disabled{% endif %}">
-                    <input type="radio" name="optionDate" value="7" {% if form.optionDate == 7 %}checked{% endif %}>last 7 days
-                </label>
-                <label class="button js-submit-onchange {% if form.optionDate == 14 %}active{% endif %} {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' or form.selectedChart == 'availability' %}disabled{% endif %}">
-                    <input type="radio" name="optionDate" value="14" {% if form.optionDate == 14 %}checked{% endif %}>last 14 days
-                </label>
-                <!--
-            <label class="button js-submit-onchange {% if form.optionDate == 30 %}active{% endif %} {% if form.selectedChart == 'availability' %}disabled{% endif %}">
-                <input type="radio" name="optionDate" value="30" {% if form.optionDate == 30 %}checked{% endif %}>last 30 days
-            </label>
-            -->
-                <label class="button js-submit-onchange {% if form.optionDate == 100000 %}active{% endif %} {% if form.selectedChart == 'availability' and not is_granted('ROLE_ADMIN') %}disabled{% endif %}">
-                    <input type="radio" name="optionDate" value="100000" {% if form.optionDate == 100000 %}checked{% endif %}>month
-                </label>
-                {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse'%}
-                    <label class="button js-submit-onchange {% if form.optionDate == 300000 %}active{% endif %} {% if form.selectedChart == 'availability' and not is_granted('ROLE_ADMIN') %}disabled{% endif %}">
-                        <input type="radio" name="optionDate" value="300000" {% if form.optionDate == 300000 %}checked{% endif %}>3 months
-                    </label>
-                {% endif %}
 
+                </label>
             </div>
         </div>
     {% endif %}
+    <div class="cell medium-6 large-8 xlarge-4">
+        <div class="small button-group round toggle" {% if form.selectedChart == 'heatmap' or form.selectedChart == 'acpnom' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap'%}style="display: none"{% endif %}>
+            <label class="button js-submit-onchange {% if form.optionDate == 1 or not form.optionDate %}active{% endif %} {% if form.selectedChart == 'pr_and_av' or form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' %}disabled{% endif %}">
+                <input type="radio" name="optionDate" value="1" {% if form.optionDate == 1 or not form.optionDate %}checked="checked"{% endif %}>one day
+            </label>
+            <label class="button js-submit-onchange {% if form.optionDate == 3 %}active{% endif %} {% if form.selectedChart == 'pr_and_av' or form.selectedChart == 'availability' or form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' %}disabled{% endif %}">
+                <input type="radio" name="optionDate" value="3" {% if form.optionDate == 3 %}checked{% endif %}>last 3 days
+            </label>
+            <label class="button js-submit-onchange {% if form.optionDate == 7 %}active{% endif %} {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' or form.selectedChart == 'availability' %}disabled{% endif %}">
+                <input type="radio" name="optionDate" value="7" {% if form.optionDate == 7 %}checked{% endif %}>last 7 days
+            </label>
+            <label class="button js-submit-onchange {% if form.optionDate == 14 %}active{% endif %} {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' or form.selectedChart == 'availability' %}disabled{% endif %}">
+                <input type="radio" name="optionDate" value="14" {% if form.optionDate == 14 %}checked{% endif %}>last 14 days
+            </label>
+            <!--
+        <label class="button js-submit-onchange {% if form.optionDate == 30 %}active{% endif %} {% if form.selectedChart == 'availability' %}disabled{% endif %}">
+            <input type="radio" name="optionDate" value="30" {% if form.optionDate == 30 %}checked{% endif %}>last 30 days
+        </label>
+        -->
+            <label class="button js-submit-onchange {% if form.optionDate == 100000 %}active{% endif %} {% if form.selectedChart == 'availability' and not is_granted('ROLE_ADMIN') %}disabled{% endif %}">
+                <input type="radio" name="optionDate" value="100000" {% if form.optionDate == 100000 %}checked{% endif %}>month
+            </label>
+            {% if form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse'%}
+                <label class="button js-submit-onchange {% if form.optionDate == 300000 %}active{% endif %} {% if form.selectedChart == 'availability' and not is_granted('ROLE_ADMIN') %}disabled{% endif %}">
+                    <input type="radio" name="optionDate" value="300000" {% if form.optionDate == 300000 %}checked{% endif %}>3 months
+                </label>
+            {% endif %}
+
+        </div>
+    </div>
 </div>
 
