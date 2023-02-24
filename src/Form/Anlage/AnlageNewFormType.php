@@ -160,8 +160,9 @@ class AnlageNewFormType extends AbstractType
                 'help' => '[WeatherStation]',
                 'class' => WeatherStation::class,
                 'choice_label' => function (WeatherStation $station) {return sprintf('%s - %s', $station->getDatabaseIdent(), $station->getLocation()); },
+                'placeholder' => 'Please Choose',
                 'required' => true,
-                'disabled' => !$isDeveloper,
+                #'disabled' => !$isDeveloper,
             ])
             ->add('useLowerIrrForExpected', ChoiceType::class, [
                 'label' => 'Benutze \'IrrLower\' für die Berechnung Expected',
