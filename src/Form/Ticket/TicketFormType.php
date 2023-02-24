@@ -106,7 +106,7 @@ class TicketFormType extends AbstractType
         }
         $builder
             ->add('TicketName', TextType::class, [
-                'label' => 'Inverter Identification',
+                'label' => 'Ticket Identification',
                 'help' => 'This tag helps the user distinguish between tickets',
             ])
             ->add('inverter', TextType::class, [
@@ -165,7 +165,7 @@ class TicketFormType extends AbstractType
                 'label'         => 'Needs proof',
             ])
             ->add('ignoreTicket', SwitchType::class, [
-                'label'         => 'Ignore Ticket',
+                'label'         => 'Ignore',
             ])
 
             // ### List of Ticket Dates

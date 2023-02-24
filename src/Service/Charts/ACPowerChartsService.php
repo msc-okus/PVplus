@@ -66,11 +66,12 @@ class ACPowerChartsService
 
         if ($resExp->rowCount() > 0) {
             $counter = 0;
-
-            if ($anlage->getShowOnlyUpperIrr() || !$anlage->getWeatherStation()->getHasLower() || $anlage->getUseCustPRAlgorithm() == 'Groningen' || !$anlage->getIsOstWestAnlage()) {
-                #$dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
-            } else {
-                #$dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
+            if($anlage->getWeatherStation()) {
+                if ($anlage->getShowOnlyUpperIrr() || !$anlage->getWeatherStation()->getHasLower() || $anlage->getUseCustPRAlgorithm() == 'Groningen' || !$anlage->getIsOstWestAnlage()) {
+                    #$dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
+                } else {
+                    #$dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
+                }
             }
             $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
             while ($rowExp = $resExp->fetch(PDO::FETCH_ASSOC)) {
