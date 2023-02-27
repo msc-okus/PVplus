@@ -325,6 +325,8 @@ class ChartService
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
+                        $resultArray['minSeries'] = $dataArray['minSeries'];
+                        $resultArray['sumSeries'] = $dataArray['sumSeries'];
                         $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
                         $resultArray['headline'] = 'DC Current [A] - overview';
                         $resultArray['series1']['name'] = 'Expected';

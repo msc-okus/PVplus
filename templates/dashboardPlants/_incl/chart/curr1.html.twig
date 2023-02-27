@@ -44,7 +44,6 @@
 
         // Create series
         function addSeries(seriesId) {
-
             // Create series Actual
             let series = new am4charts.LineSeries();
             let newSeriesId = seriesId;
@@ -59,7 +58,7 @@
             series = chart.series.push(series);
         }
 
-        for (let i = 1; i <= {{ content.maxSeries }}; i++) {
+        for (let i = {{ content.minSeries }}; i <= {{ content.maxSeries }}; i++) {
             addSeries(i);
         }
 
