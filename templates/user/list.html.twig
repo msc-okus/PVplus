@@ -31,7 +31,7 @@
                 <td>{{ user.rolesAsString }}</td>
                 {% if is_granted('ROLE_G4N') %}
                     <td>{{ user.grantedList }}</td>
-                    <td><a class="hollow button tiny no-margin shadow" href="{{ path('app_dashboard', {_switch_user: user.email}) }}" target="_blank">Impersonate</a></td>
+                    <td><a class="hollow button tiny no-margin shadow" href="{{ path('app_dashboard', {_switch_user: user.email}) }}">Impersonate</a></td>
                 {% endif %}
                 <td><a href="{{ path('app_admin_user_edit', {id: user.userId}) }}" class="hollow button action-icon shadow"><span class="fa fa-edit"></span></a></td>
             </tr>

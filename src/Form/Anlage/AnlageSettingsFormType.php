@@ -26,7 +26,7 @@ class AnlageSettingsFormType extends AbstractType
                 'help'      => '[chartAC3]'
             ])
             ->add('chartAC9', SwitchType::class, [
-                'label'     => 'AC Power Normalized - Inverter',
+                'label'     => 'AC Power - Inverter (Normalized)',
             ])
             ->add('chartAC4', SwitchType::class, [
                 'label'     => 'AC Inverter (Bar Chart)',
@@ -115,15 +115,15 @@ class AnlageSettingsFormType extends AbstractType
             
             ###### Current ######
             ->add('chartCurr1', SwitchType::class, [
-                'label'     => 'Curr1',
+                'label'     => 'DC Current, Overview',
                 'help'      => '[chartCurr1]'
             ])
             ->add('chartCurr2', SwitchType::class, [
-                'label'     => 'Curr2',
+                'label'     => 'DC Current, Inverter (not ready)',
                 'help'      => '[chartCurr2]'
             ])
             ->add('chartCurr3', SwitchType::class, [
-                'label'     => 'Curr3',
+                'label'     => 'DC Current Overview (Normalized)',
                 'help'      => '[chartCurr3]'
             ])
             ###### Voltage ######
