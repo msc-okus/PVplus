@@ -239,10 +239,8 @@ class DCCurrentChartService
                 // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
                 $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
 
-                $row['sollCurrent'] > 0 ? $currentExp = round($row['sollCurrent'], 2) : $currentExp = 0;
-                if ($currentExp === null) {
-                    $currentExp = 0;
-                }
+                $currentExp = $row['sollCurrent'] > 0 ? round($row['sollCurrent'], 2) : 0.0;
+
                 if (!($currentExp == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                     $dataArray['chart'][$counter]['soll'] = $currentExp;
                 }
@@ -307,11 +305,14 @@ class DCCurrentChartService
     /**
      * Erzeugt Daten für das DC Strom Diagram Diagramm, eine Linie je MPP gruppiert nach Inverter.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
-     *
+     * @param int|null $inverter
+     * @param bool $hour
      * @return bool|array // dc_current_mpp
      *                    // dc_current_mpp
+     * @throws \Exception
      */
     public function getCurr4(Anlage $anlage, $from, $to, ?int $inverter = 1, bool $hour = false): bool|array
     {
@@ -337,7 +338,7 @@ class DCCurrentChartService
             }
         }
         $result = $conn->query($sql_strom);
-        if ($result != false) {
+        if ($result) {
             if ($result->rowCount() > 0) {
                 $counter = 0;
                 while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
@@ -411,10 +412,11 @@ class DCCurrentChartService
         /** @var AnlageGroupModules[] $modules */
         foreach ($anlage->getGroups() as $group) {
             $modules = $group->getModules();
+            $mImppTemp = 0;
             foreach ($modules as $modul) {
-                $mImpp[$g] = $modul->getModuleType()->getMaxImpp() * $modul->getNumStringsPerUnit();
-                $g++;
+                $mImppTemp += ($modul->getModuleType()->getMaxImpp() * $modul->getNumStringsPerUnit());
             }
+            $mImpp[] = $mImppTemp;
         }
    #
         ###    $  = $module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower() / 1000;

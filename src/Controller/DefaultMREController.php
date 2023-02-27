@@ -46,20 +46,19 @@ class DefaultMREController extends BaseController
     }
 
     #[Route(path: '/mr/test/inverter')]
-    public function testPlantInverter(AnlagenRepository $anlagenRepository)
+    public function testPlantInverter(AnlagenRepository $anlagenRepository): Response
     {
         $anlage = $anlagenRepository->find('175');
-        dd($anlage->getPnomInverterArray());
 
         return $this->render('cron/showResult.html.twig', [
             'headline' => 'Test Plant Inverter',
             'availabilitys' => '',
-            'output' => '',
+            'output' => self::printArrayAsTable($anlage->getPnomInverterArray()),
         ]);
     }
 
     #[Route(path: '/mr/test/upImport')]
-    public function testUpImport(WeatherServiceNew $weatherService, WeatherStationRepository $weatherStationRepo)
+    public function testUpImport(WeatherServiceNew $weatherService, WeatherStationRepository $weatherStationRepo): Response
     {
         $weatherStation = $weatherStationRepo->findOneBy(['databaseIdent' => 'G4NET_25']);
         $stamp = strtotime('2023-01-10 12:00');
@@ -83,6 +82,7 @@ class DefaultMREController extends BaseController
         #$time = strtotime('2022-12-11');
         $sunrisedata = date_sun_info($time, (float)$weatherStation->getGeoLat(), (float)$weatherStation->getGeoLon());
         $sunrisedatas = date_sun_info($time, (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon());
+        $sunriseArray = [];
         foreach ($sunrisedatas as $key => $value) {
             $sunriseArray[] = ['Key' => $key, "Stamp" => date('Y-m-d H:i', $value)];
         }
@@ -102,28 +102,6 @@ class DefaultMREController extends BaseController
             'output' => $checkSystemStatus->checkSystemStatus(),
         ]);
     }
-
-    /**
-     * @throws SyntaxError
-     * @throws RuntimeError
-     * @throws LoaderError
-     */
-    #[Route(path: '/mr/test/pdf')]
-    public function testPdf(Environment $twig, Pdf $pdf): Response
-    {
-        $html = $twig->render('cron/showResult.html.twig', [
-            'headline' => 'Update Systemstatus',
-            'availabilitys' => '',
-            'output' => 'TEST',
-        ]);
-        $tempFile = tmpfile();
-        fwrite($tempFile, $html);
-        fseek($tempFile,0);
-        $output = $pdf->getOutput(stream_get_meta_data($tempFile)['uri'], ['enable-local-file-access' => true, 'load-error-handling' => 'ignore']);
-        fclose($tempFile);
-        #$output = $pdf->getOutputFromHtml($html, ['enable-local-file-access' => true]);
-        #dd(get_resource_type($output));
-     }
 
     /**
      * @throws \Exception
