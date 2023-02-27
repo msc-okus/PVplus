@@ -929,6 +929,7 @@ class ACPowerChartsService
                 }
 
                 $pnomkwh = $pnominverter[$rowActual['inv']] ;
+                #dd($pnominverter,$pnomkwh,$poweristkwh);
                 if($pnomkwh != 0) {
                   $value_acpnom = round(($poweristkwh / $pnomkwh) * 4,2);
                  } else {

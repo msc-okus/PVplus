@@ -61,8 +61,11 @@ class DCCurrentChartService
         $expectedResult = $result->fetchAll(PDO::FETCH_ASSOC);
 
         $invertersInGroup = ($acGroups[$group]['GMAX'] - $acGroups[$group]['GMIN']) + 1;
+        $dataArray['minSeries'] = $acGroups[$group]['GMIN'];
+        $dataArray['maxSeries'] = $acGroups[$group]['GMAX'];
+
         if ($result->rowCount() > 0) {
-            $dataArray['maxSeries'] = $invertersInGroup;
+            $dataArray['sumSeries'] = $invertersInGroup;
             $counter = 0;
             foreach ($expectedResult as $rowSoll) {
                 $stamp = $rowSoll['stamp'];
@@ -93,32 +96,30 @@ class DCCurrentChartService
                 switch ($anlage->getConfigType()) {
                     case 1:
                     case 2:
-                        $sql = 'SELECT sum(wr_idc) as istCurrent FROM '.$anlage->getDbNameACIst().' WHERE '.$wherePart1." AND $groupQuery group by date_format(stamp, '$form'), group_dc;";
+                        $sql = 'SELECT sum(wr_idc) as istCurrent, group_dc as dc_num FROM '.$anlage->getDbNameACIst().' WHERE '.$wherePart1." AND $groupQuery group by date_format(stamp, '$form'), group_dc;";
                         break;
                     case 3:
-                        $sql = 'SELECT sum(wr_idc) as istCurrent FROM '.$anlage->getDbNameDCIst().' WHERE '.$wherePart1." AND $groupQuery group by date_format(stamp, '$form'), wr_num;";
+                        $sql = 'SELECT sum(wr_idc) as istCurrent, wr_num as dc_num FROM '.$anlage->getDbNameDCIst().' WHERE '.$wherePart1." AND $groupQuery group by date_format(stamp, '$form'), wr_num;";
                         break;
                     case 4:
-                        $sql = 'SELECT sum(wr_idc) as istCurrent FROM '.$anlage->getDbNameDCIst().' WHERE '.$wherePart1." AND $groupQuery group by date_format(stamp, '$form');";
+                        $sql = 'SELECT sum(wr_idc) as istCurrent, wr_num as dc_num FROM '.$anlage->getDbNameDCIst().' WHERE '.$wherePart1." AND $groupQuery group by date_format(stamp, '$form');";
                         break;
                 }
+
                 $resultAct = $conn->query($sql);
-                $inverterCount = 1;
+
                 while ($rowAct = $resultAct->fetch(PDO::FETCH_ASSOC)) {
                     $currentAct = $hour ? $rowAct['istCurrent'] / 4 : $rowAct['istCurrent'];
                     $currentAct = round($currentAct, 2);
                     if (!($currentAct == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
-                        $dataArray['chart'][$counter][$nameArray[$inverterCount]] = $currentAct;
+                        $dataArray['chart'][$counter][$nameArray[$rowAct['dc_num']]] = $currentAct;
                     }
-
-                    ++$inverterCount;
                 }
                 ++$counter;
                 $dataArray['offsetLegend'] = $acGroups[$group]['GMIN'] - 1;
             }
         }
         $conn = null;
-
         return $dataArray;
     }
 
