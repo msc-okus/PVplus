@@ -45,6 +45,19 @@ class DefaultMREController extends BaseController
     {
     }
 
+    #[Route(path: '/mr/test/inverter')]
+    public function testPlantInverter(AnlagenRepository $anlagenRepository)
+    {
+        $anlage = $anlagenRepository->find('175');
+        dd($anlage->getPnomInverterArray());
+
+        return $this->render('cron/showResult.html.twig', [
+            'headline' => 'Test Plant Inverter',
+            'availabilitys' => '',
+            'output' => '',
+        ]);
+    }
+
     #[Route(path: '/mr/test/upImport')]
     public function testUpImport(WeatherServiceNew $weatherService, WeatherStationRepository $weatherStationRepo)
     {

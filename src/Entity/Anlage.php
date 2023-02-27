@@ -718,6 +718,25 @@ class Anlage
         return $this;
     }
 
+    /**
+     * Replaced by getPnom
+     * @deprecated  */
+    public function getPower(): ?string
+    {
+        return $this->power;
+    }
+
+    /**
+     * Replaced by setPnom
+     * @deprecated
+     */
+    public function setPower(string $power): self
+    {
+        $this->power = str_replace(',', '.', $power);
+
+        return $this;
+    }
+
     public function getPnom(): ?float
     {
         return (float) $this->power;
@@ -3262,7 +3281,7 @@ class Anlage
      */
     public function getPnomInverterArray(): array
     {
-        $dcPNomPerInvereter = [];
+        $dcPNomPerInverter = [];
 
         switch ($this->getConfigType()) {
             case 1:
@@ -3272,25 +3291,25 @@ class Anlage
                     foreach ($inverter->getModules() as $module) {
                         $sumPNom += $module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower() / 1000;
                     }
-                    $dcPNomPerInvereter[$inverter->getDcGroup()] = $sumPNom;
+                    $dcPNomPerInverter[$inverter->getDcGroup()] = $sumPNom;
                 }
                 break;
             case 3:
             case 4:
                 foreach ($this->getAcGroups() as $inverter) {
-                    $dcPNomPerInvereter[$inverter->getAcGroup()] = 0;
+                    $dcPNomPerInverter[$inverter->getAcGroup()] = 0;
                 }
                 foreach ($this->getGroups() as $groups) {
                     $sumPNom = 0;
                     foreach ($groups->getModules() as $module) {
                         $sumPNom += $module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower() / 1000;
                     }
-                    $dcPNomPerInvereter[$groups->getAcGroup()] += $sumPNom * ($groups->getUnitLast() - $groups->getUnitFirst() + 1);
+                    $dcPNomPerInverter[$groups->getAcGroup()] += $sumPNom * ($groups->getUnitLast() - $groups->getUnitFirst() + 1);
                 }
                 break;
         }
 
-        return $dcPNomPerInvereter ;
+        return $dcPNomPerInverter ;
     }
 
     public function isExcludeFromExpCalc(): ?bool
