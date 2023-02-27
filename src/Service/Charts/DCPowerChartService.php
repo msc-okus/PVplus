@@ -73,7 +73,6 @@ class DCPowerChartService
                     $sqlActual = 'SELECT sum(wr_pdc) AS dcIst FROM '.$anlage->getDbNameIst()." 
                         WHERE $whereQueryPart1 GROUP BY date_format(stamp, '$form')";
                 }
-dump($sqlActual);
                 $resActual = $conn->query($sqlActual);
                 if ($resActual->rowCount() == 1) {
                     $rowActual = $resActual->fetch(PDO::FETCH_ASSOC);
