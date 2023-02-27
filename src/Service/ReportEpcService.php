@@ -881,13 +881,13 @@ class ReportEpcService
 
         switch ($anlage->getPldDivisor()) {
             case 'guaranteedExpected':
-                $pld = (($guaranteedExpectedEnergy - ($measuredEnergy / (round($availability, 2) / 100))) / $guaranteedExpectedEnergy) * 100 * (($anlage->isUsePnomForPld()) ? $anlage->getPower() : 1) * $anlage->getPldYield();
+                $pld = (($guaranteedExpectedEnergy - ($measuredEnergy / (round($availability, 2) / 100))) / $guaranteedExpectedEnergy) * 100 * (($anlage->isUsePnomForPld()) ? $anlage->getPnom() : 1) * $anlage->getPldYield();
                 $diffdCalculation = $measuredEnergy - $guaranteedExpectedEnergy;
                 $percentDiffCalulation = ($measuredEnergy - $guaranteedExpectedEnergy) * 100 / $guaranteedExpectedEnergy;
                 $ratio = $measuredEnergy * 100 / $guaranteedExpectedEnergy;
                 break;
             default:
-                $pld = (($expectedEnery - ($measuredEnergy / (round($availability, 2) / 100))) / $expectedEnery) * 100 * (($anlage->isUsePnomForPld()) ? $anlage->getPower() : 1) * $anlage->getPldYield();
+                $pld = (($expectedEnery - ($measuredEnergy / (round($availability, 2) / 100))) / $expectedEnery) * 100 * (($anlage->isUsePnomForPld()) ? $anlage->getPnom() : 1) * $anlage->getPldYield();
                 $diffdCalculation = $measuredEnergy - $expectedEnery;
                 $percentDiffCalulation = ($measuredEnergy - $expectedEnery) * 100 / $expectedEnery;
                 $ratio = $measuredEnergy * 100 / $expectedEnery;
