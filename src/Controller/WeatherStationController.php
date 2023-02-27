@@ -104,7 +104,7 @@ class WeatherStationController extends BaseController
      *
      * @return bool
      */
-    private function createWeatherDatabase($databaseIdent)
+    public function createWeatherDatabase($databaseIdent): bool
     {
         $pdo = self::getPdoConnection();
         $sqlCreateWeatherDatabase = "

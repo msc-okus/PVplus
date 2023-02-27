@@ -29,20 +29,20 @@ class WeatherStation
     #[ORM\Column(type: 'string', length: 20)]
     private string $databaseIdent;
 
-    #[ORM\Column(type: 'string', length: 20)]
-    private ?string $databaseStationIdent;
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $databaseStationIdent = null;
 
     #[ORM\Column(type: 'string', length: 255)]
-    private string $location;
+    private string $location = "";
 
     #[ORM\Column(type: 'text')]
-    private ?string $description;
+    private ?string $description = "";
 
     #[ORM\Column(type: 'boolean')]
-    private ?bool $hasUpper;
+    private ?bool $hasUpper = true;
 
     #[ORM\Column(type: 'boolean')]
-    private ?bool $hasLower;
+    private ?bool $hasLower = false;
 
     #[ORM\Column(type: 'boolean')]
     private ?bool $changeSensor = false;
@@ -50,32 +50,32 @@ class WeatherStation
     #[ORM\Column(type: 'string', length: 20)]
     private ?string $timeZoneWeatherStation = '0';
 
-    #[ORM\OneToMany(targetEntity: Anlage::class, mappedBy: 'weatherStation')]
+    #[ORM\OneToMany(mappedBy: 'weatherStation', targetEntity: Anlage::class)]
     private $anlagen;
 
     #[ORM\Column(type: 'boolean')]
-    private $hasPannelTemp = 1;
+    private bool $hasPannelTemp = true;
 
     #[ORM\Column(type: 'boolean')]
-    private $hasHorizontal = 0;
+    private bool $hasHorizontal = false;
 
-    #[ORM\OneToMany(targetEntity: AnlageAcGroups::class, mappedBy: 'weatherStation')]
+    #[ORM\OneToMany(mappedBy: 'weatherStation', targetEntity: AnlageAcGroups::class)]
     private $anlageAcGroups;
 
     #[ORM\Column(type: 'string', length: 40)]
-    private ?string $labelUpper;
+    private ?string $labelUpper = "";
 
     #[ORM\Column(type: 'string', length: 40)]
-    private ?string $labelLower;
+    private ?string $labelLower = "";
 
     #[ORM\Column(type: 'string', length: 40)]
-    private ?string $labelHorizontal;
+    private ?string $labelHorizontal = "";
 
     #[ORM\Column(type: 'string', length: 40)]
-    private ?string $geoLat;
+    private ?string $geoLat = '0';
 
     #[ORM\Column(type: 'string', length: 40)]
-    private ?string $geoLon;
+    private ?string $geoLon = '0';
 
     public function __construct()
     {

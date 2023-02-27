@@ -283,8 +283,8 @@
                     <div class="cell medium-3 large-3 xlarge-3">
                         <label id="goshare" class="button" title="Submit the range" style="background-color: #701b1b00;display: block;font-weight: 800;color: green;font-size: 38px;padding:0 0 0 5px;">
                             <div type="text" id="sendrange" style="display: block">
-                                <i class="fa fa fa-expand"></i></div>
-
+                                <i class="fa fa fa-expand"></i>
+                            </div>
                         </label>
                     </div>
                 </div>
@@ -388,6 +388,7 @@
                 <!--
             <label class="button js-submit-onchange {% if form.optionDate == 30 %}active{% endif %} {% if form.selectedChart == 'availability' %}disabled{% endif %}">
                 <input type="radio" name="optionDate" value="30" {% if form.optionDate == 30 %}checked{% endif %}>last 30 days
+
             </label>
             -->
                 <label class="button js-submit-onchange {% if form.optionDate == 100000 %}active{% endif %} {% if form.selectedChart == 'availability' and not is_granted('ROLE_ADMIN') %}disabled{% endif %}">

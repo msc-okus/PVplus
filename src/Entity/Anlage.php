@@ -718,25 +718,6 @@ class Anlage
         return $this;
     }
 
-    /**
-     * Replaced by getPnom
-     * @deprecated  */
-    public function getPower(): ?string
-    {
-        return $this->power;
-    }
-
-    /**
-     * Replaced by setPnom
-     * @deprecated
-     */
-    public function setPower(string $power): self
-    {
-        $this->power = str_replace(',', '.', $power);
-
-        return $this;
-    }
-
     public function getPnom(): ?float
     {
         return (float) $this->power;

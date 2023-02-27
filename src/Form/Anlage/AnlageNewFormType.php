@@ -162,14 +162,16 @@ class AnlageNewFormType extends AbstractType
                 'choice_label' => function (WeatherStation $station) {return sprintf('%s - %s', $station->getDatabaseIdent(), $station->getLocation()); },
                 'placeholder' => 'Please Choose',
                 'required' => true,
+                'empty_data' => null,
                 #'disabled' => !$isDeveloper,
             ])
+            /*
             ->add('useLowerIrrForExpected', ChoiceType::class, [
                 'label' => 'Benutze \'IrrLower\' für die Berechnung Expected',
                 'help' => '[useLowerIrrForExpected]',
                 'choices' => ['Yes' => '1', 'No' => '0'],
                 'empty_data' => '0',
-            ])
+            ]) */
 
             // #############################################
             // ###          STEUERELEMENTE              ####

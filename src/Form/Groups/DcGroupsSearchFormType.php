@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class DcGroupsSearchFormType extends AbstractType
 {
 
-    public function __construct(private  GroupsRepository $groupsRepository)
+    public function __construct(private GroupsRepository $groupsRepository)
     {
     }
 
@@ -39,19 +39,7 @@ class DcGroupsSearchFormType extends AbstractType
                     'onchange'=>'this.form.submit()'
                 ]
             ])
-
-
-
-
-
-
-
-
-
-
-
         ;
-
 
     }
 
