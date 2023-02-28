@@ -835,6 +835,7 @@ class FunctionsService
             $powerEvu = $row['power_evu'];
         }
         unset($res);
+
         $powerEvu = $this->checkAndIncludeMonthlyCorrectionEVU($anlage, $powerEvu, $from, $to);
 
         // Expected Leistung ermitteln
@@ -881,31 +882,46 @@ class FunctionsService
 
         if ($evu) {
             if ($anlage->getUseGridMeterDayData() === false) {
-                // $monthlyDatas = $this->monthlyDataRepo->findBy(['anlage' => $anlage], ['year' => 'asc', 'month' => 'asc']);
                 $monthlyDatas = $this->monthlyDataRepo->findByDateRange($anlage, date_create($from), date_create($to));
+
                 foreach ($monthlyDatas as $monthlyData) {
                     // calculate the first and the last day of the given month and year in $monthlyData
                     $firstDayMonth = date_create($monthlyData->getYear() . "-". $monthlyData->getMonth()."-01");
                     $lastDayMonth  = date_create($monthlyData->getYear() . "-". $monthlyData->getMonth()."-".$firstDayMonth->format("t"));
 
                     // check if the time period is the hole month. Only if we get 1 whole Month we can use this correction
-                    if ($firstDayMonth->format("Y-m-d 00:00") === $from && $lastDayMonth->format("Y-m-d 23:59") === $to) {
-                        $tempFrom = new DateTime($monthlyData->getYear() . '-' . $monthlyData->getMonth() . '-01 00:00');
-                        $tempDaysInMonth = $tempFrom->format('t');
-                        $tempTo = new DateTime($monthlyData->getYear() . '-' . $monthlyData->getMonth() . '-' . $tempDaysInMonth . ' 23:59');
-
-                        if ($anlage->isIgnoreNegativEvu()) {
-                            $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '" . $tempFrom->format('Y-m-d H:i') . "' AND '" . $tempTo->format('Y-m-d H:i') . "' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
-                        } else {
-                            $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '" . $tempFrom->format('Y-m-d H:i') . "' AND '" . $tempTo->format('Y-m-d H:i') . "' GROUP BY unit LIMIT 1";
-                        }
-                        $res = $conn->query($sql);
-                        if ($res->rowCount() == 1) {
-                            $row = $res->fetch(PDO::FETCH_ASSOC);
-                            $evu -= $row['power_evu'];
-                            $evu += $monthlyData->getExternMeterDataMonth();
-                        }
-                        unset($res);
+                    // or if we get the starting or ending Month from an epc Report ($epcStartEndMonth == true)
+                    $fromObj = date_create($from);
+                    $toObj = date_create($to);
+                    $epcStartMonth = $anlage->getFacDateStart()->format('Ym') ===  $firstDayMonth->format('Ym');
+                    $epcEndMonth   = $anlage->getFacDate()->format('Ym') ===  $firstDayMonth->format('Ym') ;
+                    $holeFac = $anlage->getFacDate()->format('Ymd') === $toObj->format('Ymd') && $anlage->getFacDateStart()->format('Ymd') === $fromObj->format('Ymd');
+                    if (($firstDayMonth->format("Y-m-d 00:00") === $from && $lastDayMonth->format("Y-m-d 23:59") === $to) || $epcStartMonth || $epcEndMonth || $holeFac) {
+                        #if ($monthlyData->getExternMeterDataMonth() && $monthlyData->getExternMeterDataMonth() > 0) {
+                            if ($epcStartMonth) {
+                                $tempFrom = new DateTime($monthlyData->getYear() . '-' . $monthlyData->getMonth() . '-' . $anlage->getFacDateStart()->format('d') . ' 00:00');
+                            } else {
+                                $tempFrom = new DateTime($monthlyData->getYear() . '-' . $monthlyData->getMonth() . '-01 00:00');
+                            }
+                            $tempDaysInMonth = $tempFrom->format('t');
+                            if ($epcEndMonth) {
+                                $tempTo = new DateTime($monthlyData->getYear() . '-' . $monthlyData->getMonth() . '-' . $anlage->getFacDate()->format('d') . ' 23:59');
+                            } else {
+                                $tempTo = new DateTime($monthlyData->getYear() . '-' . $monthlyData->getMonth() . '-' . $tempDaysInMonth . ' 23:59');
+                            }
+                            if ($anlage->isIgnoreNegativEvu()) {
+                                $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '" . $tempFrom->format('Y-m-d H:i') . "' AND '" . $tempTo->format('Y-m-d H:i') . "' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
+                            } else {
+                                $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '" . $tempFrom->format('Y-m-d H:i') . "' AND '" . $tempTo->format('Y-m-d H:i') . "' GROUP BY unit LIMIT 1";
+                            }
+                            $res = $conn->query($sql);
+                            if ($res->rowCount() == 1) {
+                                $row = $res->fetch(PDO::FETCH_ASSOC);
+                                $evu -= $row['power_evu'];
+                                $evu += $monthlyData->getExternMeterDataMonth();
+                            }
+                            unset($res);
+                        #}
                     }
                 }
             }
@@ -927,12 +943,24 @@ class FunctionsService
             $lastDayMonth  = date_create($monthlyData->getYear() . "-". $monthlyData->getMonth()."-".$firstDayMonth->format("t"));
 
             // check if the time period is the hole month. Only if we get 1 whole Month we can use this correction
-            if ($firstDayMonth->format("Y-m-d 00:00") === $from && $lastDayMonth->format("Y-m-d 23:59") === $to) {
+            // or if we get the starting or ending Month from an epc Report ($epcStartEndMonth == true)
+            $fromObj = date_create($from);
+            $toObj = date_create($to);
+            $epcStartMonth = $anlage->getFacDateStart()->format('Ym') ===  $fromObj->format('Ym');
+            $epcEndMonth   = $anlage->getFacDate()->format('Ym') ===  $toObj->format('Ym') ;
+            if (($firstDayMonth->format("Y-m-d 00:00") === $from && $lastDayMonth->format("Y-m-d 23:59") === $to) || $epcStartMonth || $epcEndMonth) {
                 if ($monthlyData->getIrrCorrectedValuMonth() && $monthlyData->getIrrCorrectedValuMonth() > 0) {
-
-                    $tempFrom = new DateTime($monthlyData->getYear() . '-' . $monthlyData->getMonth() . '-01 00:00');
+                    if ($epcStartMonth) {
+                        $tempFrom = $anlage->getFacDateStart();
+                    } else {
+                        $tempFrom = new DateTime($monthlyData->getYear() . '-' . $monthlyData->getMonth() . '-01 00:00');
+                    }
                     $tempDaysInMonth = $tempFrom->format('t');
-                    $tempTo = new DateTime($monthlyData->getYear() . '-' . $monthlyData->getMonth() . '-' . $tempDaysInMonth . ' 23:59');
+                    if ($epcEndMonth) {
+                        $tempTo = date_create($anlage->getFacDate()->format('Y-m-d 23:59'));
+                    } else {
+                        $tempTo = new DateTime($monthlyData->getYear() . '-' . $monthlyData->getMonth() . '-' . $tempDaysInMonth . ' 23:59');
+                    }
 
                     $weather = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $tempFrom->format("Y-m-d H:i"), $tempTo->format("Y-m-d H:i"));
                     if ($anlage->getIsOstWestAnlage()) {
