@@ -59,8 +59,8 @@ class DashboardPlantsController extends BaseController
 
                break;
            case 'heatmap':
-               $from =  $request->query->get('from');
-               $to =  $request->query->get('to');
+               $from =  $request->request->get('from');#post
+               $to =  $request->request->get('to');
                $content = null;
                if ($aktAnlage) {
                    $dataArray = $heatmapChartService->getHeatmap($aktAnlage, $from, $to);
