@@ -7,33 +7,30 @@
     <div {% if anlage is not null %}{{ stimulus_controller('search-group', {
         url:path('app_anlage_groups_anlage_index',{'anlage':anlage})
     }) }}{% endif %}>
-        <div class="grid-x">
-            <div class="cell medium-4">
+        <div class="grid-x grid-margin-x">
+            <div class="cell medium-3">
                 {{ form_start(form) }}
-                <div class="grid-x  align-middle">
 
-                    <div class="cell medium-10">
                         {{ form_row(form.anlage) }}
-                    </div>
 
-                </div>
                 {{ form_end(form) }}
             </div>
 
             {% if show_form2 == true %}
-
-            <div class="cell grid-x medium-4">
-                <form class="cell medium-10">
-                    <input
-                            name="q"
-                            value="{{ searchTerm }}"
-                            placeholder="Search specifics {{ anlage.anlName }} groups..."
-                            type="search"
-                            data-action="search-group#onSearchGroup"
-                    >
-                </form>
-            </div>
-            <div class="cell medium-4">
+                <div class="cell medium-3">
+                    <form>
+                        <input
+                                name="q"
+                                value="{{ searchTerm }}"
+                                placeholder="Search specifics {{ anlage.anlName }} groups..."
+                                type="search"
+                                data-action="search-group#onSearchGroup"
+                        >
+                    </form>
+                </div>
+                <div class="cell medium-1">
+                </div>
+                <div class="cell medium-5">
                 {{ form_start(form2, {'attr':{
                     'data-controller':'submit-confirm',
                     'data-action':'submit-confirm#onSubmit',
@@ -41,19 +38,30 @@
                     'data-submit-confirm-text-value':"Are you sure you want to continue!",
                     'data-submit-confirm-icon-value':'warning',
                 }}) }}
-                <div class="grid-x grid-margin-x">
-                    {{ form_widget(form2, {'attr':{'class':'cell medium-9 grid-x grid-margin-x'}}) }}
-                    <div class="button-group align-center-middle cell medium-3">
-                        <button type="submit" class="button " formnovalidate>update</button>
+
+                    <div class="grid-x grid-margin-x">
+                        <div class="cell small-2">
+                            {{ form_row(form2.secureLoss) }}
+                        </div>
+                        <div class="cell small-2">
+                            {{ form_row(form2.factorAC) }}
+                        </div>
+                        <div class="cell small-2">
+                            {{ form_row(form2.gridLoss) }}
+                        </div>
+                        <div class="cell small-2">
+                            {{ form_row(form2.limitAc) }}
+                        </div>
+                        <div class="cell small-2">
+                            {{ form_row(form2.gridLimitAc) }}
+                        </div>
+                        <div class="cell small-2">
+                            <button type="submit" class="button " formnovalidate>update</button>
+                        </div>
                     </div>
-
-
+                    {{ form_end(form2) }}
                 </div>
-
-                {{ form_end(form2) }}
-
-                {% endif %}
-            </div>
+            {% endif %}
         </div>
 
         <div data-search-group-target="bodytab">
@@ -99,7 +107,6 @@
                         <td>{{ anlage_group.limitAc }}</td>
                         <td>{{ anlage_group.gridLimitAc }}</td>
                         <td>
-
                             <a href="{{ path('app_anlage_groups_edit', {'id': anlage_group.id, 'page': anlage_groups.currentPageNumber}) }}"
                                class="hollow button tiny action-icon shadow"><span class="fa fa-edit"></span></a>
                         </td>
@@ -113,7 +120,6 @@
             </table>
             {{ knp_pagination_render(anlage_groups) }}
         </div>
-
     </div>
 
 {% endblock %}

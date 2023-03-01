@@ -53,12 +53,12 @@
         </select>
     </div>
 
-    <div class="cell medium-2">
-        <input  type="checkbox" id="local" name="local" value="local" {% if  (is_granted('ROLE_G4N') != true) %} hidden {% else %} checked {% endif %} checked>
-        <label for="local"> create locally</label><br>
+    <div class="cell medium-3">
         <button name="new-report" class="button" value="yes" disabled
                 data-report-target="deactivable"
                 data-action="report#create"
         >Create New Report</button>
+       &nbsp;<input type="checkbox" id="local" name="local" value="local" {% if not is_granted('ROLE_ADMIN') %} hidden {% endif %}>{% if is_granted('ROLE_ADMIN') %}<label for="local">create locally</label>{% endif %}
     </div>
+
 </div>

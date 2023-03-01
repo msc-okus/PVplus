@@ -66,11 +66,12 @@ class ACPowerChartsService
 
         if ($resExp->rowCount() > 0) {
             $counter = 0;
-
-            if ($anlage->getShowOnlyUpperIrr() || !$anlage->getWeatherStation()->getHasLower() || $anlage->getUseCustPRAlgorithm() == 'Groningen' || !$anlage->getIsOstWestAnlage()) {
-                #$dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
-            } else {
-                #$dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
+            if($anlage->getWeatherStation()) {
+                if ($anlage->getShowOnlyUpperIrr() || !$anlage->getWeatherStation()->getHasLower() || $anlage->getUseCustPRAlgorithm() == 'Groningen' || !$anlage->getIsOstWestAnlage()) {
+                    #$dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
+                } else {
+                    #$dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
+                }
             }
             $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
             while ($rowExp = $resExp->fetch(PDO::FETCH_ASSOC)) {
@@ -928,6 +929,7 @@ class ACPowerChartsService
                 }
 
                 $pnomkwh = $pnominverter[$rowActual['inv']] ;
+                #dd($pnominverter,$pnomkwh,$poweristkwh);
                 if($pnomkwh != 0) {
                   $value_acpnom = round(($poweristkwh / $pnomkwh) * 4,2);
                  } else {
@@ -935,8 +937,8 @@ class ACPowerChartsService
                 }
                 //$value_expac = round(($powersollkwh / $pnomkwh) * 4, 2);
                 $inv_num = $rowActual['inv'];
-                $dataArray['chart'][$counter]['xinv_'.$inv_num.''] = $nameArray[$rowActual['inv']];
-                $dataArray['chart'][$counter]['pnomac_'.$inv_num.''] = $value_acpnom;
+                $dataArray['chart'][$counter]['xinv'] = $nameArray[$rowActual['inv']];
+                $dataArray['chart'][$counter]['pnomac'] = $value_acpnom;
 
                # $dataArray['chart'][$counter]['pnomexpac'] = $value_expac;
                 /*

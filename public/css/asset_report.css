@@ -1,39 +1,42 @@
 @page {
   size: A4 landscape;
-  margin: 0;
 }
 
 @media print{
   html, body {
-    width: 297mm;
-    height: 210mm;
+    width: 277mm;
+    height: 200mm;
+    padding: 0;
+    margin: 0;
   }
 }
 
 body{
-  padding-left: 1.3cm;
-  padding-right: 1.3cm;
+  padding: 0;
+  margin: 0;
 }
 
 body * {font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;}
 
 .content_asset_report{
-  height:18cm!important;
-  width: 29cm!important;
+  width: 277mm!important;
+  height: 176mm!important;
+  overflow: hidden;
 }
 
 h1{
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 h2{
-  margin:0 0 5px 0;
+  margin-bottom: 4px;
   padding: 0;
 }
 
 h3{
   color: #15508e!important;
-  font-size: 1.5em;
+  font-size: 1.4rem;
+  margin: 1.5rem 0 1rem 0;
 }
 
 .page-break {
@@ -45,7 +48,7 @@ small {
 }
 
 .subheadline{
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   display: block;
   font-size:14px !important;
   color: #2e639a;
@@ -54,13 +57,13 @@ small {
 .headline_customer{
   border-bottom: solid 2px #00386d;
   text-align: right;
-  width: 29.7cm!important;
+  /*width: 29.7cm!important;*/
 }
 
 table {
   border-collapse: collapse;
   width: 100% ;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
 }
 table .autowidth{
   width: auto;
@@ -71,7 +74,7 @@ table * {
 
 table td, table th {
   border: none 0px;
-  padding: 2px 2px;
+  padding: 3px 2px 1px 2px;
   border-collapse: collapse;
   font-size: 11px;
 }
@@ -104,37 +107,39 @@ table .tr_first_column_nonbold {
   border: solid 1px #000;
 }
 
-.cell medium-6 {
-  page-break-after: always !important;
-}
 
 #basetable{
   width: 100% !important;
 }
 
-#asset_report .asset_report_table_operations_data{
+.asset_report_table_operations_data{
   width: 100% !important;
 }
-#asset_report .asset_report_table_operations_data td .td_values_1 {
+
+.asset_report_table_operations_data td {
+  padding: 2px 2px 0px 2px;
+  font-size: 10px;
+}
+.asset_report_table_operations_data td .td_values_1 {
   background-color: #5f8148;
 }
-#asset_report .asset_report_table_operations_data td .td_values_2 {
+.asset_report_table_operations_data td .td_values_2 {
   background-color: #a9d08e;
 }
-#asset_report .asset_report_table_operations_data td .td_values_3 {
+.asset_report_table_operations_data td .td_values_3 {
   background-color: #ffff00;
 }
-#asset_report .asset_report_table_operations_data td .td_values_4 {
+.asset_report_table_operations_data td .td_values_4 {
   background-color: #ffc000;
 }
-#asset_report .asset_report_table_operations_data td .td_values_5 {
+.asset_report_table_operations_data td .td_values_5 {
   background-color: #cc0000;
 }
-#asset_report .asset_report_table_operations_data_small{
+.asset_report_table_operations_data_small{
   width: 100% !important;
 }
-#asset_report .asset_report_table_operations_data_small tr td{
-  font-size: 7.3px !important;
+.asset_report_table_operations_data_small tr td{
+  font-size: 7px !important;
 }
 
 #asset_report, #asset_report_table_header{

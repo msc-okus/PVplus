@@ -2,6 +2,10 @@
 {% macro showACPnom(form, aktAnlage) %}
     <option value="acpnom" {% if form.selectedChart == 'acpnom' %}selected{% endif %}>AC Power - Inverter normalized [kW/kWp]</option>
 {% endmacro %}
+{# INV AC Pnom Diagramme #}
+{% macro showDCPnomCurr(form, aktAnlage) %}
+    <option value="dcpnomcurr" {% if form.selectedChart == 'dcpnomcurr' %}selected{% endif %}>DC Current - Inverter normalized [A/Impp]</option>
+{% endmacro %}
 {# INV PR Heatmap Diagramme #}
 {% macro showHeatmap(form, aktAnlage) %}
     <option value="heatmap" {% if form.selectedChart == 'heatmap' %}selected{% endif %}>Inverter PR Heatmap [%]</option>
@@ -76,7 +80,7 @@
 
 {# AC8 #}
 {% macro acReactive(form, aktAnlage) %}
-    {% if is_granted('ROLE_G4N') %}<option value="reactive_power" {% if form.selectedChart == 'reactive_power' %}selected{% endif %}>AC Reactive Power&nbsp;- Inverter [kvar] {% if is_granted('ROLE_DEV') %}[AC 8]{% endif %}</option>{% endif %}
+    <option value="reactive_power" {% if form.selectedChart == 'reactive_power' %}selected{% endif %}>AC Reactive Power&nbsp;- Inverter [kvar] {% if is_granted('ROLE_DEV') %}[AC 8]{% endif %}</option>
 {% endmacro %}
 
 

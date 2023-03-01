@@ -118,7 +118,7 @@ class ReportEpcService
         $startYear = $anlage->getEpcReportStart()->format('Y');
         $currentMonth = (int) $date->format('m');
         $currentYear = (int) $date->format('Y');
-        if ($currentMonth == $anlage->getEpcReportEnd()->format('m') && $currentYear == $anlage->getEpcReportEnd()->format('Y')) $finalReport = true; else $finalReport = false;
+        $finalReport = $currentMonth == $anlage->getEpcReportEnd()->format('m') && $currentYear == $anlage->getEpcReportEnd()->format('Y');
         $report['finalReport'] = $finalReport;
 
         $sumPrRealPrProg = $sumDays = $sumErtragDesign = $sumEGridReal = $sumAnteil = $sumPrReal = $sumSpecPowerGuar = $sumSpecPowerRealProg = $counter = $sumPrDesign = $sumSpezErtragDesign = 0;
@@ -160,7 +160,7 @@ class ReportEpcService
                         break;
                     case $anzahlMonate:
                         $days               = $daysInEndMonth;
-                        $to                 = date('Y-m-d', strtotime("$year-$month-$facEndDay 23:59"));
+                        $to                 = date('Y-m-d 23:59', strtotime("$year-$month-$facEndDay 23:59"));
                         $prArray            = $this->PRCalulation->calcPR($anlage, date_create($from), date_create($to));
                         $ertragPvSyst       = $anlage->getOneMonthPvSyst($month)->getErtragDesign() / $daysInMonth * $days;
                         $prDesignPvSyst     = $anlage->getOneMonthPvSyst($month)->getPrDesign();
@@ -177,10 +177,7 @@ class ReportEpcService
 
                 /** @var AnlagenPR $pr */
                 $pr = $this->prRepository->findOneBy(['anlage' => $anlage, 'stamp' => date_create(date('Y-m-d', strtotime("$year-$month-$daysInMonth")))]);
-                /*
-                /** @var AnlagenMonthlyData $monthlyData
-                $monthlyData = $this->monthlyDataRepo->findOneBy(['anlage' => $anlage, 'year' => $year, 'month' => $month]);
-                */
+
                 $currentMonthClass = '';
                 if (date_create($from) <= $date) {
                     $prReal         = $prArray['prEvu']; // $this->format($pr->getPrEvuMonth());
@@ -196,11 +193,6 @@ class ReportEpcService
                                 $prReal     = $prArray['prEGridExt'];
                                 $prStandard = $prArray['prDefaultEGridExt'];
                             }
-                            /*
-                            if ($monthlyData != null && $monthlyData->getExternMeterDataMonth() > 0) {
-                                $eGridReal = $monthlyData->getExternMeterDataMonth();
-                            }
-                            */
                             break;
                         default:
                             $eGridReal      = $prArray['powerEvu']; // $pr->getPowerEvuMonth();
@@ -211,11 +203,6 @@ class ReportEpcService
                                 $prReal     = $prArray['prEGridExt']; // $pr->getPrEGridExtMonth();
                                 $prStandard = $prArray['prDefaultEGridExt']; // $this->format($pr->getPrDefaultMonthEGridExt());
                             }
-                            /*
-                            if ($monthlyData != null && $monthlyData->getExternMeterDataMonth() > 0) {
-                                $eGridReal  = $monthlyData->getExternMeterDataMonth(); // / $daysInMonth * $days;
-                            }
-                            */
                     }
 
                     $prRealprProg = $prReal;
@@ -224,6 +211,7 @@ class ReportEpcService
                         // für das Einfärben der Zeile des aktuellen Monats
                         $currentMonthClass  = 'current-month';
                         $prArrayFormel = $this->PRCalulation->calcPR($anlage, $anlage->getEpcReportStart(), date_create($to));
+                        #dd($prArrayFormel);
                         if ($anlage->getUseGridMeterDayData()) {
                             $formelEnergy   = $prArrayFormel['powerEGridExt'];
                             $formelPR       = $prArrayFormel['prEGridExt'];
@@ -633,7 +621,7 @@ class ReportEpcService
                         $sumPrRealReal += $prReal;
                         $sumEGridRealDesignReal += $eGridReal - $ertragPvSyst;
                         $sumSpecPowerGuarReal += $spezErtragDesign * (1 - ((float) $anlage->getDesignPR() - (float) $anlage->getContractualPR()) / 100);
-                        $sumSpecPowerRealProgReal += $eGridReal / $anlage->getKwPeak();
+                        $sumSpecPowerRealProgReal += $eGridReal / $anlage->getPnom();
                         $sumGuaranteedExpextedReal += $guaranteedExpexted;
                         $sumExpectedYieldReal += $expectedYield;
                         $sumAvailabilityReal += $availability;
@@ -671,7 +659,7 @@ class ReportEpcService
                     $sumPrDesign += $prDesignPvSyst;
                     $sumPrReal += $prReal;
                     $sumSpecPowerGuar += $spezErtragDesign * (1 - ((float) $anlage->getDesignPR() - (float) $anlage->getContractualPR()) / 100);
-                    $sumSpecPowerRealProg += $eGridReal / $anlage->getKwPeak();
+                    $sumSpecPowerRealProg += $eGridReal / $anlage->getPnom();
                     $sumAvailability += $availability;
                     $sumExpectedYield += $expectedYield;
                     $sumGuaranteedExpexted += $guaranteedExpexted;
@@ -704,7 +692,7 @@ class ReportEpcService
                         'eGridReal' => $this->format($eGridReal),
                         'eGridReal-Design' => $this->format($eGridReal - $ertragPvSyst),
                         'eGridReal-Guar' => $this->format($eGridReal - $eGridGuar),
-                        'spezErtrag' => $this->format($eGridReal / $anlage->getKwPeak(), 2),
+                        'spezErtrag' => $this->format($eGridReal / $anlage->getPnom(), 2),
                         'prReal' => $this->format($prReal),
                         'availability' => $this->format($availability),
                         'prReal_prDesign' => $this->format($prReal - $prDesignPvSyst),
@@ -732,7 +720,7 @@ class ReportEpcService
             'eGridReal' => $this->format($sumEGridReal),
             'eGridReal-Design' => $this->format($sumEGridRealDesign),
             'eGridReal-Guar' => $this->format($sumEGridReal - ($sumErtragDesign * (1 - ((float) $anlage->getDesignPR() - (float) $anlage->getContractualPR()) / 100))),
-            'spezErtrag' => $this->format($sumEGridReal / $anlage->getKwPeak()),
+            'spezErtrag' => $this->format($sumEGridReal / $anlage->getPnom()),
             'prReal' => $this->format($sumPrReal / $counter),
             'prReal_prDesign' => $this->format(($sumPrReal / $counter) - $anlage->getDesignPR()),
             // 'availability'          => $this->format($sumAvailability / $counter),
@@ -759,7 +747,7 @@ class ReportEpcService
             'eGridReal' => $this->format($sumEGridRealReal),
             'eGridReal-Design' => $this->format($sumEGridRealDesignReal),
             'eGridReal-Guar' => $this->format($sumEGridRealReal - ($sumErtragDesignReal * (1 - ((float) $anlage->getDesignPR() - (float) $anlage->getContractualPR()) / 100))),
-            'spezErtrag' => $this->format($sumEGridRealReal / $anlage->getKwPeak()),
+            'spezErtrag' => $this->format($sumEGridRealReal / $anlage->getPnom()),
             'prReal' => $this->format($formelPR), // $this->format($sumPrRealReal / $counterReal),
             'prReal_prDesign' => $this->format($formelPR - $anlage->getDesignPR()),
             'availability' => $this->format($paFormel),
@@ -862,7 +850,7 @@ class ReportEpcService
                 'ExpectedEnergyGuar' => $this->format($guaranteedExpectedEnergy),
                 'AbschlagTrafo' => $anlage->getTransformerTee(),
                 'AbschlagGarantie' => $anlage->getGuaranteeTee(),
-                'kwPeak' => $anlage->getKwPeak(),
+                'kwPeak' => $anlage->getPnom(),
                 'kwPeakPvSyst' => $anlage->getKwPeakPvSyst(),
                 'startFac' => $anlage->getFacDateStart()->format('d.m.Y'),
                 'endeFac' => $anlage->getFacDate()->format('d.m.Y'),
@@ -881,13 +869,13 @@ class ReportEpcService
 
         switch ($anlage->getPldDivisor()) {
             case 'guaranteedExpected':
-                $pld = (($guaranteedExpectedEnergy - ($measuredEnergy / (round($availability, 2) / 100))) / $guaranteedExpectedEnergy) * 100 * (($anlage->isUsePnomForPld()) ? $anlage->getPower() : 1) * $anlage->getPldYield();
+                $pld = (($guaranteedExpectedEnergy - ($measuredEnergy / (round($availability, 2) / 100))) / $guaranteedExpectedEnergy) * 100 * (($anlage->isUsePnomForPld()) ? $anlage->getPnom() : 1) * $anlage->getPldYield();
                 $diffdCalculation = $measuredEnergy - $guaranteedExpectedEnergy;
                 $percentDiffCalulation = ($measuredEnergy - $guaranteedExpectedEnergy) * 100 / $guaranteedExpectedEnergy;
                 $ratio = $measuredEnergy * 100 / $guaranteedExpectedEnergy;
                 break;
             default:
-                $pld = (($expectedEnery - ($measuredEnergy / (round($availability, 2) / 100))) / $expectedEnery) * 100 * (($anlage->isUsePnomForPld()) ? $anlage->getPower() : 1) * $anlage->getPldYield();
+                $pld = (($expectedEnery - ($measuredEnergy / (round($availability, 2) / 100))) / $expectedEnery) * 100 * (($anlage->isUsePnomForPld()) ? $anlage->getPnom() : 1) * $anlage->getPldYield();
                 $diffdCalculation = $measuredEnergy - $expectedEnery;
                 $percentDiffCalulation = ($measuredEnergy - $expectedEnery) * 100 / $expectedEnery;
                 $ratio = $measuredEnergy * 100 / $expectedEnery;

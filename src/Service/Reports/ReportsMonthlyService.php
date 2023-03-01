@@ -173,12 +173,7 @@ class ReportsMonthlyService
         $sumValues['pa1'] = $prSumArray['pa1'];
         $sumValues['pa2'] = $prSumArray['pa2'];
         $sumValues['pa3'] = $prSumArray['pa3'];
-        if ($anlage->getShowAvailability()) {
 
-        }
-        if ($anlage->getShowAvailabilitySecond()) {
-
-        }
         $sumValues['powerTheo'] = $prSumArray['irradiation'] * $anlage->getPnom();
         $sumValues['powerTheoFT'] = $prSumArray['powerTheo'];
         $sumValues['powerExp'] = $prSumArray['powerExp'];

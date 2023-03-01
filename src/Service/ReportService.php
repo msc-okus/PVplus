@@ -154,7 +154,6 @@ class ReportService
         // die Daten dem Array hinzufuegen
         for ($i = 0; $i < count($report['prs']); ++$i) {
             $stamp = $report['prs'][$i]->getstamp();
-            #dump($stamp);
             $dayValues['datum'] = $report['prs'][$i]->getstamp()->format('m-d');
             $dayValues['PowerEvuMonth'] = ($anlage->getShowEvuDiag()) ? (float) $report['prs'][$i]->getPowerEvu() : (float) $report['prs'][$i]->getPowerAct();
             if ($anlage->getUseGridMeterDayData()) {

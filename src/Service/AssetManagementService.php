@@ -363,6 +363,7 @@ class AssetManagementService
             'title' => [
                 'text' => 'Year '.$report['reportYear'],
                 'left' => 'center',
+                'top' => 10
             ],
             'tooltip' => [
                     'show' => true,
@@ -494,6 +495,7 @@ class AssetManagementService
             'title' => [
                 'text' => 'Cumulative forecast plan PVSYST',
                 'left' => 'center',
+                'top' => 10,
             ],
             'tooltip' => [
                     'show' => true,
@@ -615,6 +617,7 @@ class AssetManagementService
             'title' => [
                 'text' => 'Cumulative forecast plan g4n',
                 'left' => 'center',
+                'top' => 10,
             ],
             'tooltip' => [
                     'show' => true,
@@ -752,6 +755,7 @@ class AssetManagementService
             'title' => [
                 'text' => 'Monthly losses at plan values',
                 'left' => 'center',
+                'top' => 10,
             ],
             'tooltip' => [
                     'show' => true,
@@ -928,6 +932,7 @@ class AssetManagementService
             'title' => [
                 'text' => 'Cumulative losses',
                 'left' => 'center',
+                'top' => 10,
             ],
             'tooltip' => [
                     'show' => true,
@@ -1106,6 +1111,7 @@ class AssetManagementService
             'title' => [
                 'text' => $monthName.' '.$report['reportYear'],
                 'left' => 'center',
+                'top' => 10,
             ],
             'tooltip' => [
                     'show' => true,
@@ -1890,7 +1896,7 @@ class AssetManagementService
             'title' => [
                 'text' => 'Failure - Year to date',
                 'left' => 'center',
-                'top' => 'top',
+                'top' => 10,
                 'textStyle' => ['fontSize' => 10],
             ],
             'tooltip' => [
@@ -2174,22 +2180,20 @@ class AssetManagementService
                             'position' => 'inside'
                         ],
                     ],
-
                     [
-                        'name' => 'G4N Simulation[%]',
+                        'name' => 'Actual[%]',
                         'type' => 'bar',
-                        'data' => [$percentageTable['forecast']],
+                        'data' => [$percentageTable['ActualPower']],
                         'visualMap' => 'false',
                         'label' => [
                             'show' => true,
                             'position' => 'inside'
                         ],
                     ],
-
                     [
-                        'name' => 'Actual',
+                        'name' => 'G4N Simulation[%]',
                         'type' => 'bar',
-                        'data' => [$percentageTable['ActualPower']],
+                        'data' => [$percentageTable['forecast']],
                         'visualMap' => 'false',
                         'label' => [
                             'show' => true,
@@ -2206,9 +2210,8 @@ class AssetManagementService
                             'position' => 'inside'
                         ],
                     ],
-
                     [
-                        'name' => 'SOR Losses[%]',
+                        'name' => 'SOR Losses[%] - Planned Outage',
                         'type' => 'bar',
                         'data' => [$percentageTable['SORLosses']],
                         'visualMap' => 'false',
@@ -2216,9 +2219,10 @@ class AssetManagementService
                             'show' => true,
                             'position' => 'inside'
                         ],
+
                     ],
                     [
-                        'name' => 'EFOR Losses[%]',
+                        'name' => 'EFOR Losses[%] - Unplanned Outage',
                         'type' => 'bar',
                         'data' => [$percentageTable['EFORLosses']],
                         'visualMap' => 'false',
@@ -2228,7 +2232,7 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'OMC Losses[%]',
+                        'name' => 'OMC Losses[%] - Grid Error/Grid Off',
                         'type' => 'bar',
                         'data' => [$percentageTable['OMCLosses']],
                         'visualMap' => 'false',
@@ -2252,18 +2256,6 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'G4N Simulation[%]',
-                    'type' => 'bar',
-                    'data' => [$percentageTable['forecast']],
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
-                ],
-
-
-                [
                     'name' => 'Actual[%]',
                     'type' => 'bar',
                     'data' => [$percentageTable['ActualPower']],
@@ -2274,7 +2266,17 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'SOR Losses[%]',
+                    'name' => 'G4N Simulation[%]',
+                    'type' => 'bar',
+                    'data' => [$percentageTable['forecast']],
+                    'visualMap' => 'false',
+                    'label' => [
+                        'show' => true,
+                        'position' => 'inside'
+                    ],
+                ],
+                [
+                    'name' => 'SOR Losses[%] - Planned Outage',
                     'type' => 'bar',
                     'data' => [$percentageTable['SORLosses']],
                     'visualMap' => 'false',
@@ -2285,7 +2287,7 @@ class AssetManagementService
 
                 ],
                 [
-                    'name' => 'EFOR Losses[%]',
+                    'name' => 'EFOR Losses[%] - Unplanned Outage',
                     'type' => 'bar',
                     'data' => [$percentageTable['EFORLosses']],
                     'visualMap' => 'false',
@@ -2295,7 +2297,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'OMC Losses[%]',
+                    'name' => 'OMC Losses[%] - Grid Error/Grid Off',
                     'type' => 'bar',
                     'data' => [$percentageTable['OMCLosses']],
                     'visualMap' => 'false',
@@ -2308,7 +2310,7 @@ class AssetManagementService
         }
 
         $option = [
-            'color' => ['#f1975a', '#b7b7b7', '#698ed0', '#ffc000', '#ea7ccc', '#9a60b4', '#b7b7a4'],
+            'color' => ['#f1975a', '#698ed0', '#b7b7b7', '#ffc000', '#ea7ccc', '#9a60b4', '#b7b7a4'],
             'animation' => false,
             'title' => [
                 'text' => 'Production and Losses in Percentage for the month',
@@ -2321,14 +2323,15 @@ class AssetManagementService
             'legend' => [
                 'show' => true,
                 'right' => 'right',
-                'top' => 60,
-                'padding' => -10 ,
+                'top' => 50,
+                //'padding' => -10 ,
             ],
             'grid' => [
                 'height' => '80%',
                 'top' => 50,
-                'width' => '80%',
-                'left' => 60,
+                'width' => '70%',
+                'left' => 50,
+
             ],
         ];
 
@@ -2392,9 +2395,9 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'G4N Simulation[%]',
+                    'name' => 'Actual[%]',
                     'type' => 'bar',
-                    'data' => [$percentageTableYear['forecast']],
+                    'data' => [$percentageTableYear['ActualPower']],
                     'visualMap' => 'false',
                     'label' => [
                         'show' => true,
@@ -2402,9 +2405,9 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'Actual',
+                    'name' => 'G4N Simulation[%]',
                     'type' => 'bar',
-                    'data' => [$percentageTableYear['ActualPower']],
+                    'data' => [$percentageTableYear['forecast']],
                     'visualMap' => 'false',
                     'label' => [
                         'show' => true,
@@ -2422,7 +2425,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'SOR Losses[%]',
+                    'name' => 'SOR Losses[%] - Planned outage',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['SORLosses']],
                     'visualMap' => 'false',
@@ -2432,7 +2435,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'EFOR Losses[%]',
+                    'name' => 'EFOR Losses[%] - Unplanned Outage',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['EFORLosses']],
                     'visualMap' => 'false',
@@ -2442,7 +2445,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'OMC Losses[%]',
+                    'name' => 'OMC Losses[%] - Grid Error/Grid Off',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['OMCLosses']],
                     'visualMap' => 'false',
@@ -2466,6 +2469,16 @@ class AssetManagementService
                     ],
                 ],
                 [
+                    'name' => 'Actual[%]',
+                    'type' => 'bar',
+                    'data' => [$percentageTableYear['ActualPower']],
+                    'visualMap' => 'false',
+                    'label' => [
+                        'show' => true,
+                        'position' => 'inside'
+                    ],
+                ],
+                [
                     'name' => 'G4N Simulation[%]',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['forecast']],
@@ -2476,17 +2489,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'Actual',
-                    'type' => 'bar',
-                    'data' => [$percentageTableYear['ActualPower']],
-                    'visualMap' => 'false',
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
-                ],
-                [
-                    'name' => 'SOR Losses[%]',
+                    'name' => 'SOR Losses[%] - Planned Outage',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['SORLosses']],
                     'visualMap' => 'false',
@@ -2496,7 +2499,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'EFOR Losses[%]',
+                    'name' => 'EFOR Losses[%] - Unplanned Outage',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['EFORLosses']],
                     'visualMap' => 'false',
@@ -2506,7 +2509,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'OMC Losses[%]',
+                    'name' => 'OMC Losses[%] - Grid Error/Grid Off',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['OMCLosses']],
                     'visualMap' => 'false',
@@ -2520,7 +2523,7 @@ class AssetManagementService
 
 
         $option = [
-            'color' => ['#f1975a', '#b7b7b7', '#698ed0', '#ffc000', '#ea7ccc', '#9a60b4', '#b7b7a4'],
+            'color' => ['#f1975a', '#698ed0', '#b7b7b7',  '#ffc000', '#ea7ccc', '#9a60b4', '#b7b7a4'],
             'animation' => false,
             'title' => [
                 'text' => 'Production and Losses cummulative',
@@ -2536,13 +2539,13 @@ class AssetManagementService
             'legend' => [
                 'show' => true,
                 'right' => 'right',
-                'top' => 60,
-                'padding' => -10 ,
+                'top' => 50,
+                //'padding' => -10 ,
             ],
             'grid' => [
                 'height' => '80%',
                 'top' => 50,
-                'width' => '80%',
+                'width' => '70%',
                 'left' => 60,
             ],
         ];
@@ -2622,9 +2625,9 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'G4N Simulation[%]',
+                        'name' => 'Actual[%]',
                         'type' => 'bar',
-                        'data' => $table_percentage_monthly['Forecast'],
+                        'data' => $table_percentage_monthly['Actual'],
                         'visualMap' => 'false',
                         'label' => [
                             'show' => true,
@@ -2632,9 +2635,9 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'Actual[%]',
+                        'name' => 'G4N Simulation[%]',
                         'type' => 'bar',
-                        'data' => $table_percentage_monthly['Actual'],
+                        'data' => $table_percentage_monthly['Forecast'],
                         'visualMap' => 'false',
                         'label' => [
                             'show' => true,
@@ -2652,7 +2655,7 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'SOR Losses[%]',
+                        'name' => 'SOR Losses[%] - Planned outage',
                         'type' => 'bar',
                         'data' => $table_percentage_monthly['SORLosses'],
                         'visualMap' => 'false',
@@ -2662,7 +2665,7 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'EFOR Losses[%]',
+                        'name' => 'EFOR Losses[%] - Unplanned Outage',
                         'type' => 'bar',
                         'data' => $table_percentage_monthly['EFORLosses'],
                         'visualMap' => 'false',
@@ -2672,7 +2675,7 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'OMC Losses[%]',
+                        'name' => 'OMC Losses[%] - Grid Error/Grid Off',
                         'type' => 'bar',
                         'data' => $table_percentage_monthly['OMCLosses'],
                         'visualMap' => 'false',
@@ -2697,16 +2700,6 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'G4N Simulation[%]',
-                        'type' => 'bar',
-                        'data' => $table_percentage_monthly['Forecast'],
-                        'visualMap' => 'false',
-                        'label' => [
-                            'show' => true,
-                            'position' => 'inside'
-                        ],
-                    ],
-                    [
                         'name' => 'Actual[%]',
                         'type' => 'bar',
                         'data' => $table_percentage_monthly['Actual'],
@@ -2717,7 +2710,17 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'SOR Losses[%]',
+                        'name' => 'G4N Simulation[%]',
+                        'type' => 'bar',
+                        'data' => $table_percentage_monthly['Forecast'],
+                        'visualMap' => 'false',
+                        'label' => [
+                            'show' => true,
+                            'position' => 'inside'
+                        ],
+                    ],
+                    [
+                        'name' => 'SOR Losses[%] - Planned outage',
                         'type' => 'bar',
                         'data' => $table_percentage_monthly['SORLosses'],
                         'visualMap' => 'false',
@@ -2727,7 +2730,7 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'EFOR Losses[%]',
+                        'name' => 'EFOR Losses[%] - Unplanned Outage',
                         'type' => 'bar',
                         'data' => $table_percentage_monthly['EFORLosses'],
                         'visualMap' => 'false',
@@ -2737,7 +2740,7 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'OMC Losses[%]',
+                        'name' => 'OMC Losses[%] - Grid Error/Grid Off',
                         'type' => 'bar',
                         'data' => $table_percentage_monthly['OMCLosses'],
                         'visualMap' => 'false',
@@ -2750,7 +2753,7 @@ class AssetManagementService
         }
 
         $option = [
-            'color' => ['#f1975a', '#b7b7b7', '#698ed0', '#ffc000', '#ea7ccc', '#9a60b4', '#b7b7a4'],
+            'color' => ['#f1975a', '#698ed0', '#b7b7b7', '#ffc000', '#ea7ccc', '#9a60b4', '#b7b7a4'],
             'animation' => false,
             'title' => [
                 'text' => 'Production and Losses in Percentage by Month',
@@ -2763,38 +2766,19 @@ class AssetManagementService
             'legend' => [
                 'show' => true,
                 'right' => 'right',
-                'top' => 60,
-                'padding' => -10 ,
+                'top' => 50,
+                //'padding' => -10 ,
             ],
             'grid' => [
                 'height' => '80%',
                 'top' => 50,
-                'width' => '80%',
+                'width' => '70%',
                 'left' => 60,
             ],
         ];
 
         $chart->setOption($option);
-        $losseskwhchartYearMonthly = $chart->render('Year_losses_monthly', ['style' => 'height: 800px; width:26cm; ']);
-
-
-
-
-        $yearLossesHelpTable = [
-            'ExpectedG4N' => $G4NyearExpected,
-            'ExpectedPVSYS' => $PVSYSTyearExpected,
-            'Forecast' => $forecastSum[$month-2],
-            'Actual' => $ActualPowerYear,
-            'SORLosses' => $kwhLossesYearTable['SORLosses'],
-            'EFORLosses' => $kwhLossesYearTable['EFORLosses'],
-            'OMCLosses' => $kwhLossesYearTable['OMCLosses'],
-        ];
-
-        $chart->tooltip = [];
-        $chart->xAxis = [];
-        $chart->yAxis = [];
-        $chart->series = [];
-        unset($option);
+        $losseskwhchartYearMonthly = $chart->render('Year_losses_monthly', ['style' => 'height: 800px; width:28cm; ']);
 
         $chart->tooltip = [];
         $chart->xAxis = [];
@@ -4126,7 +4110,6 @@ class AssetManagementService
     }
     public function calculateLosses($begin, $end, $anlage):Array
     {
-        dump($begin, $end);
         $sumLossesMonthSOR = 0;
         $sumLossesMonthEFOR = 0;
         $sumLossesMonthOMC = 0;

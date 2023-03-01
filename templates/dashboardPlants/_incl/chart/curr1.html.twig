@@ -37,6 +37,7 @@
         seriesE.dataFields.valueY = "expected";
         seriesE.tooltipText = "Expected DC [kWh]: {valueY} [/]";
         seriesE.stroke = am4core.color("#fdd400");
+        seriesE.fill = am4core.color("#fdd400");
         seriesE.strokeWidth = 1;
         seriesE.tensionX = 0.8;
 
@@ -44,7 +45,6 @@
 
         // Create series
         function addSeries(seriesId) {
-
             // Create series Actual
             let series = new am4charts.LineSeries();
             let newSeriesId = seriesId;
@@ -59,7 +59,7 @@
             series = chart.series.push(series);
         }
 
-        for (let i = 1; i <= {{ content.maxSeries }}; i++) {
+        for (let i = {{ content.minSeries }}; i <= {{ content.maxSeries }}; i++) {
             addSeries(i);
         }
 

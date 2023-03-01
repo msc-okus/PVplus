@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Anlage;
 use App\Entity\AnlageFile;
 use App\Entity\EconomicVarNames;
+use App\Entity\WeatherStation;
 use App\Form\Anlage\AnlageAcGroupsFormType;
 use App\Form\Anlage\AnlageConfigFormType;
 use App\Form\Anlage\AnlageDcGroupsFormType;
@@ -32,7 +33,7 @@ class AnlagenAdminController extends BaseController
     use G4NTrait;
 
     #[Route(path: '/admin/anlagen/new', name: 'app_admin_anlagen_new')]
-    public function new(EntityManagerInterface $em, Request $request): RedirectResponse|Response
+    public function new(EntityManagerInterface $em, Request $request, WeatherStationController $weatherStationController): RedirectResponse|Response
     {
         $form = $this->createForm(AnlageNewFormType::class);
         $form->handleRequest($request);
@@ -42,6 +43,16 @@ class AnlagenAdminController extends BaseController
             $em->persist($anlage);
             $em->flush();
             $anlage->setAnlIntnr('CX'.$anlage->getAnlagenId());
+
+            if ($form->get('WeatherStation')->getViewData() == "") {
+                $weatherStation = new WeatherStation();
+                $weatherStationController->createWeatherDatabase($anlage->getAnlIntnr());
+                $weatherStation->setDatabaseIdent($anlage->getAnlIntnr());
+                $weatherStation->setType('custom');
+                $weatherStation->setLocation($anlage->getAnlName());
+                $anlage->setWeatherStation($weatherStation);
+
+            }
             $em->persist($anlage);
             $em->flush();
             self::createDatabasesForPlant($anlage);
