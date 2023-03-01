@@ -20,6 +20,7 @@ class AnlagenController extends BaseController
 {
     use G4NTrait;
     use PVPNameArraysTrait;
+
     #[Route(path: 'api/anlagen/list', name: 'api_anlagen_list', methods: ['GET','POST'])]
     public function api_list_analge(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository): Response
     {

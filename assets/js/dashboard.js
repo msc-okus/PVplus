@@ -19,6 +19,11 @@ $(".js-submit-onchange").change(function () {
     $("#chart-control").submit();
 });
 
+$(".js-submit-onchange-select").change(function () {
+    $("#mysubmit").val('select');
+    $("#chart-control").submit();
+});
+
 $('#startDate').fdatepicker({
     language: 'en',
     weekStart: '1',

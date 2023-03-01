@@ -179,7 +179,7 @@
     <input type="hidden" name="mysubmit" id="mysubmit" value="no">
 
     <div class="cell medium-6 large-4 xlarge-2">
-        <select class="js-submit-onchange selectedChart" title="Please select a view from the list." data-toggle="tooltip" name="selectedChart">
+        <select class="js-submit-onchange-select selectedChart" title="Please select a view from the list." data-toggle="tooltip" name="selectedChart">
             <optgroup label="Analysis">
                 {% if aktAnlage.settings.chartAnalyse1 or is_granted('ROLE_ADMIN') %}
                     <option value="availability" {% if form.selectedChart == 'availability' %}selected{% endif %}>Show Availability [%]</option>
