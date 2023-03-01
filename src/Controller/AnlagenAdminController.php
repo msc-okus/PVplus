@@ -71,6 +71,8 @@ class AnlagenAdminController extends BaseController
         ]);
     }
 
+   
+
     #[Route(path: '/admin/anlagen/list', name: 'app_admin_anlagen_list')]
     public function list(Request $request, PaginatorInterface $paginator, AnlagenRepository $anlagenRepository): Response
     {

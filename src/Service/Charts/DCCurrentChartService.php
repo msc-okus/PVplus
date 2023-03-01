@@ -460,11 +460,10 @@ class DCCurrentChartService
                     while ($rowCurrIst = $resultIst->fetch(PDO::FETCH_ASSOC)) {
                         $stamp = $rowCurrIst['ts'];
                         $e = strtotime($stamp);
-                                  #      $dataArray['chart'][$counter]['ydate'] = $e[1];
                         $dataArray['chart'][$counter]['date'] = $stamp;
                         (($rowCurrIst['istCurrent']) ? $currentIst = round($rowCurrIst['istCurrent'], 2) : $currentIst = 0);
                         $currentGroupName = $dcGroups[$rowCurrIst['inv']]['GroupName'];
-                        $currentImpp = $mImpp[$rowCurrIst['inv']];
+                        $currentImpp = $mImpp[$rowCurrIst['inv'] - 1]; // the array beginn at zero
                         $inv_num = $rowCurrIst['inv'];
                         $value_dcpnom = round(($currentIst / $currentImpp),2);
                         $dataArray['chart'][$counter]['xinv'] = $currentGroupName;
