@@ -145,6 +145,12 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '',
                 'required' => false,
             ])
+            ->add('customPlantId', TextType::class, [
+                'label' => 'Identifier to select Plant via API (e.g. VCOM)',
+                'help'  => '[customPlantId]',
+                'empty_data' => '',
+                'required' => false,
+            ])
             ->add('notes', TextareaType::class, [
                 'label' => 'Notizen zur Anlage',
                 'attr' => ['rows' => '6'],

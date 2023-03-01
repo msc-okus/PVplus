@@ -11,11 +11,13 @@ use App\Repository\WeatherStationRepository;
 use App\Service\AvailabilityByTicketService;
 use App\Service\AvailabilityService;
 use App\Service\CheckSystemStatusService;
+use App\Service\ExpectedService;
 use App\Service\ExportService;
 use App\Service\FunctionsService;
 use App\Service\PRCalulationService;
 use App\Service\ReportEpcPRNewService;
 use App\Service\WeatherServiceNew;
+use Doctrine\ORM\NonUniqueResultException;
 use JetBrains\PhpStorm\NoReturn;
 use Knp\Bundle\SnappyBundle\Snappy\Response\PdfResponse;
 use Knp\Snappy\Pdf;
@@ -100,6 +102,23 @@ class DefaultMREController extends BaseController
             'headline' => 'Update Systemstatus',
             'availabilitys' => '',
             'output' => $checkSystemStatus->checkSystemStatus(),
+        ]);
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     */
+    #[Route(path: '/mr/expected/{plant}', defaults: ['plant' => 44])]
+    public function updateExpected($plant, ExpectedService $expectedService, AnlagenRepository $anlagenRepository): Response
+    {
+        $anlage = $anlagenRepository->find($plant);
+        $from = '2023-02-28 00:00'; //date('Y-m-d 00:00');
+        $to = date('Y-m-d 23:59');
+
+        return $this->render('cron/showResult.html.twig', [
+            'headline' => 'Update Systemstatus',
+            'availabilitys' => '',
+            'output' => $expectedService->storeExpectedToDatabase($anlage, $from, $to),
         ]);
     }
 
