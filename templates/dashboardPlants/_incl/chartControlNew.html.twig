@@ -3,11 +3,15 @@
     //Date RangePicker Config and Function
     $(function() {
         $('.daterange').daterangepicker({
+                maxDate: moment().subtract(0, 'days'),
                 autostart:true,
                 showDropdowns: false,
                 showWeekNumbers: false,
                 startDate: moment().startOf('month'),
                 endDate: moment().endOf('month'),
+                maxSpan: {
+                    months: 12,
+                },
                     {% if  form.selectedChart == 'heatmap' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap'
                         or form.selectedChart == 'dcpnomcurr'  or form.selectedChart == 'acpnom'%}
                 showCustomRangeLabel:false,
