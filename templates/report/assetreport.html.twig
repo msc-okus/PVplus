@@ -68,7 +68,6 @@
                 {% if (data.AvMonthlyOverview) %}
                     {% include 'report/_asset_mangement_partials/_aufloesung_availibility_fuerr_den_act_monat.html.twig'%}
                     {% include 'report/_asset_mangement_partials/_chart_availability.html.twig' %}
-
                 {% endif %}
                 {% if (data.AvInv == true) %}
                     {%  for page in 0..(((invNr/40)|round(0, 'ceil'))-1) %}
@@ -81,9 +80,7 @@
             {% if(data.Economics) == true %}
 
                 {% include 'report/_asset_mangement_partials/_economics_income_p_month.html.twig'%}
-
                 {% include 'report/_asset_mangement_partials/_economics_costs_per_mandy.html.twig'%}
-
                 {% include 'report/_asset_mangement_partials/_economics_operating_statement.html.twig'%}
                 {% include 'report/_asset_mangement_partials/_economics_commulative_forecast.html.twig'%}
                 {% include 'report/_asset_mangement_partials/_economics_losses_compared.html.twig'%}

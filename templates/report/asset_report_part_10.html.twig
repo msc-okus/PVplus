@@ -1,0 +1,17 @@
+{% extends 'report/assetreport.base.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.amcharts.com/lib/4/core.js" type="text/javascript"></script>
+    <script src="https://cdn.amcharts.com/lib/4/charts.js" type="text/javascript"></script>
+    <script src="https://cdn.amcharts.com/lib/4/themes/animated.js" type="text/javascript"></script>
+    {{ encore_entry_script_tags('dashboard') }}
+{% endblock %}
+{% block content %}
+    <div class="container">
+        {%  for page in 0..(((invNr/20)|round(0, 'ceil'))-1) %}
+            {% include 'report/_asset_mangement_partials/_availability_yearly_ticket.html.twig'%}
+            {% include 'report/_asset_mangement_partials/_chart_availability_year.html.twig' %}
+            {% include 'report/_asset_mangement_partials/_chart_year_by_month.html.twig' %}
+        {% endfor %}
+    </div>
+{% endblock %}

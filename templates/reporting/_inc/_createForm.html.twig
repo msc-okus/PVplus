@@ -58,7 +58,7 @@
                 data-report-target="deactivable"
                 data-action="report#create"
         >Create New Report</button>
-       &nbsp;<input type="checkbox" id="local" name="local" value="local" {% if not is_granted('ROLE_ADMIN') %} hidden {% endif %}>{% if is_granted('ROLE_ADMIN') %}<label for="local">create locally</label>{% endif %}
+       &nbsp;<input type="checkbox" id="local" name="local" value="local" checked {% if not is_granted('ROLE_ADMIN') %} hidden {% endif %}>{% if is_granted('ROLE_ADMIN') %}<label for="local">create locally</label>{% endif %}
     </div>
 
 </div>
