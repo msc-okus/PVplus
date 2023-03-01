@@ -1,4 +1,5 @@
 import $ from "jquery";
+//import daterangepicker from 'daterangepicker'
 import fdatepicker from 'foundation-datepicker';
 
 function Display() {

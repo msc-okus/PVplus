@@ -385,7 +385,7 @@
         </div>
     {% endif %}
     <div class="cell medium-6 large-8 xlarge-4">
-        <div class="small button-group round toggle" {% if form.selectedChart == 'heatmap' or form.selectedChart == 'acpnom' or form.selectedChart == 'dcpnomcurr' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap'%}style="display: none"{% endif %}>
+        <div class="small button-group round toggle" {% if form.selectedChart == 'heatmap' or form.selectedChart == 'acpnom' or form.selectedChart == 'dcpnomcurr' or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap' or form.selectedChart == 'sollistanalyse'%}style="display: none"{% endif %}>
             <label class="button js-submit-onchange {% if form.optionDate == 1 or not form.optionDate %}active{% endif %} {% if form.selectedChart == 'pr_and_av' or form.selectedChart == 'sollistanalyse' or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse' %}disabled{% endif %}">
                 <input type="radio" name="optionDate" value="1" {% if form.optionDate == 1 or not form.optionDate %}checked="checked"{% endif %}>one day
             </label>
