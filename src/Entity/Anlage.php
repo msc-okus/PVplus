@@ -3281,7 +3281,7 @@ class Anlage
      */
     public function getPnomInverterArray(): array
     {
-        $dcPNomPerInverter = [];
+        $dcPNomPerInvereter = [];
 
         switch ($this->getConfigType()) {
             case 1:
@@ -3291,25 +3291,25 @@ class Anlage
                     foreach ($inverter->getModules() as $module) {
                         $sumPNom += $module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower() / 1000;
                     }
-                    $dcPNomPerInverter[$inverter->getDcGroup()] = $sumPNom;
+                    $dcPNomPerInvereter[$inverter->getDcGroup()] = $sumPNom;
                 }
                 break;
             case 3:
             case 4:
                 foreach ($this->getAcGroups() as $inverter) {
-                    $dcPNomPerInverter[$inverter->getAcGroup()] = 0;
+                    $dcPNomPerInvereter[$inverter->getAcGroup()] = 0;
                 }
                 foreach ($this->getGroups() as $groups) {
                     $sumPNom = 0;
                     foreach ($groups->getModules() as $module) {
                         $sumPNom += $module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower() / 1000;
                     }
-                    $dcPNomPerInverter[$groups->getAcGroup()] += $sumPNom * ($groups->getUnitLast() - $groups->getUnitFirst() + 1);
+                    $dcPNomPerInvereter[$groups->getAcGroup()] += $sumPNom * ($groups->getUnitLast() - $groups->getUnitFirst() + 1);
                 }
                 break;
         }
 
-        return $dcPNomPerInverter ;
+        return $dcPNomPerInvereter ;
     }
 
     public function isExcludeFromExpCalc(): ?bool
