@@ -67,7 +67,8 @@ class ReportingController extends AbstractController
         ReportEpcPRNewService $reportEpcNew,
         LogMessagesService $logMessages,
         MessageBusInterface $messageBus,
-        string $kernelProjectDir
+        string $kernelProjectDir,
+        PdfService $pdf
     ): Response
     {
         $anlage = $request->query->get('anlage');
@@ -84,6 +85,7 @@ class ReportingController extends AbstractController
         $anlageId = $request->query->get('anlage-id');
         $aktAnlagen = $anlagenRepo->findIdLike([$anlageId]);
         $userId = $this->getUser()->getUserIdentifier();
+
         switch ($reportType) {
             case 'monthly':
                 $output = $reportsMonthly->createMonthlyReport($aktAnlagen[0], $reportMonth, $reportYear);
@@ -96,7 +98,143 @@ class ReportingController extends AbstractController
                 break;
             case 'am':
                 // we try to find and delete a previous report from this month/year
-                if ($local !== null) $output = $assetManagement->createAmReport($aktAnlagen[0], $reportMonth, $reportYear);
+                if ($local !== null) {
+                    $report = $assetManagement->createAmReport($aktAnlagen[0], $reportMonth, $reportYear);
+
+                    $content = $report->getContentArray();
+                    $htmlhead = $this->renderView('report/asset_report_header.html.twig', [
+                        'comments' => $report->getComments(),
+                        'anlage' => $report->getAnlage(),
+                        'month' => $reportMonth,
+                        'year' => $reportYear,
+                        'dataMonthArray' => $content['dataMonthArray'],
+                        'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
+                        'dataCfArray' => $content['dataCfArray'],
+                        'reportmonth' => $content['reportmonth'],
+                        'montharray' => $content['monthArray'],
+                        //until here all the parameters must be used in all the renders
+
+                    ]);
+                    $htmlhead = str_replace('src="//', 'src="https://', $htmlhead);
+                    $fileroute = $aktAnlagen[0]->getAnlName() . '_AssetReport_' .$reportMonth . '_' . $reportYear ;
+                    $pathhead = $pdf->createPage($htmlhead, $fileroute, "head", false);// we will store this later in the entity
+                    $html1 = $this->renderView('report/asset_report_part_1.html.twig', [
+                        'comments' => $report->getComments(),
+                        'anlage' => $report->getAnlage(),
+                        'month' => $reportMonth,
+                        'year' => $reportYear,
+                        'dataMonthArray' => $content['dataMonthArray'],
+                        'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
+                        'dataCfArray' => $content['dataCfArray'],
+                        'reportmonth' => $content['reportmonth'],
+                        'montharray' => $content['monthArray'],
+                        //until here all the parameters must be used in all the renders
+                        'operations_right' => $content['operations_right'],
+                        'table_overview_monthly' => $content['table_overview_monthly']
+
+                    ]);
+                    $html1 = str_replace('src="//', 'src="https://', $html1);
+                    $fileroute = $aktAnlagen[0]->getAnlName() . '_AssetReport_' .$reportMonth . '_' . $reportYear ;
+                    $path1 = $pdf->createPage($html1, $fileroute, "Page1", false);// we will store this later in the entity
+
+                    $html2 = $this->renderView('report/asset_report_part_2.html.twig', [
+                        'comments' => $report->getComments(),
+                        'anlage' => $report->getAnlage(),
+                        'month' => $reportMonth,
+                        'year' => $reportYear,
+                        'dataMonthArray' => $content['dataMonthArray'],
+                        'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
+                        'dataCfArray' => $content['dataCfArray'],
+                        'reportmonth' => $content['reportmonth'],
+                        'montharray' => $content['monthArray'],
+                        //until here all the parameters must be used in all the renders
+                        'forecast_PVSYST_table' => $content['forecast_PVSYST_table'],
+                        'table_overview_monthly' => $content['table_overview_monthly'],
+                        'forecast_PVSYST' => $content['forecast_PVSYST'],
+
+                    ]);
+                    $html2 = str_replace('src="//', 'src="https://', $html2);
+                    $fileroute = $aktAnlagen[0]->getAnlName() . '_AssetReport_' .$reportMonth . '_' . $reportYear ;
+                    $path2 = $pdf->createPage($html2, $fileroute, "Page2", false);// we will store this later in the entity
+                    $html3 = $this->renderView('report/asset_report_part_3.html.twig', [
+                        'comments' => $report->getComments(),
+                        'anlage' => $report->getAnlage(),
+                        'month' => $reportMonth,
+                        'year' => $reportYear,
+                        'dataMonthArray' => $content['dataMonthArray'],
+                        'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
+                        'dataCfArray' => $content['dataCfArray'],
+                        'reportmonth' => $content['reportmonth'],
+                        'montharray' => $content['monthArray'],
+                        //until here all the parameters must be used in all the renders
+                        'forecast_G4N_table' => $content['forecast_G4N_table'],
+                        'forecast_G4N' => $content['forecast_G4N'],
+
+                    ]);
+                    $html3 = str_replace('src="//', 'src="https://', $html3);
+
+                    $fileroute = $aktAnlagen[0]->getAnlName() . '_AssetReport_' .$reportMonth . '_' . $reportYear ;
+                    $path3 = $pdf->createPage($html3, $fileroute, "Page3", false);// we will store this later in the entity
+                    $html4 = $this->renderView('report/asset_report_part_4.html.twig', [
+                        'comments' => $report->getComments(),
+                        'anlage' => $report->getAnlage(),
+                        'month' => $reportMonth,
+                        'year' => $reportYear,
+                        'dataMonthArray' => $content['dataMonthArray'],
+                        'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
+                        'dataCfArray' => $content['dataCfArray'],
+                        'reportmonth' => $content['reportmonth'],
+                        'montharray' => $content['monthArray'],
+                        //until here all the parameters must be used in all the renders
+                        'losses_t1' => $content['losses_t1'],
+                        'losses_year' => $content['losses_year'],
+                        'losses_t2' => $content['losses_t2'],
+                        'losses_monthly' => $content['losses_monthly'],
+
+                    ]);
+                    $html4 = str_replace('src="//', 'src="https://', $html4);
+                    $fileroute = $aktAnlagen[0]->getAnlName() . '_AssetReport_' .$reportMonth . '_' . $reportYear ;
+                    $path4 = $pdf->createPage($html4, $fileroute, "Page4", false);// we will store this later in the entity
+                    $html5 = $this->renderView('report/asset_report_part_5.html.twig', [
+                        'comments' => $report->getComments(),
+                        'anlage' => $report->getAnlage(),
+                        'month' => $reportMonth,
+                        'year' => $reportYear,
+                        'dataMonthArray' => $content['dataMonthArray'],
+                        'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
+                        'dataCfArray' => $content['dataCfArray'],
+                        'reportmonth' => $content['reportmonth'],
+                        'montharray' => $content['monthArray'],
+                        //until here all the parameters must be used in all the renders
+                        'operations_monthly_right_g4n_tr1' => $content['operations_monthly_right_g4n_tr1'],
+                        'operations_monthly_right_g4n_tr2' => $content['operations_monthly_right_g4n_tr2'],
+                        'operations_monthly_right_g4n_tr3' => $content['operations_monthly_right_g4n_tr3'],
+                        'operations_monthly_right_g4n_tr4' => $content['operations_monthly_right_g4n_tr4'],
+                        'operations_monthly_right_g4n_tr5' => $content['operations_monthly_right_g4n_tr5'],
+                        'operations_monthly_right_g4n_tr6' => $content['operations_monthly_right_g4n_tr6'],
+                        'production_monthly_chart' => $content['production_monthly_chart']
+                    ]);
+                    $html5 = str_replace('src="//', 'src="https://', $html5);
+                    $fileroute = $aktAnlagen[0]->getAnlName() . '_AssetReport_' .$reportMonth . '_' . $reportYear ;
+                    $path5 = $pdf->createPage($html5, $fileroute, "Page5", true);// we will store this later in the entity
+
+                    $html6 = $this->renderView('report/asset_report_part_6.html.twig', [
+                        'comments' => $report->getComments(),
+                        'anlage' => $report->getAnlage(),
+                        'month' => $reportMonth,
+                        'year' => $reportYear,
+                        'dataMonthArray' => $content['dataMonthArray'],
+                        'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
+                        'dataCfArray' => $content['dataCfArray'],
+                        'reportmonth' => $content['reportmonth'],
+                        'montharray' => $content['monthArray'],
+                        //until here all the parameters must be used in all the renders
+
+                    ]);
+                    $html6 = str_replace('src="//', 'src="https://', $html6);
+                    $fileroute = $aktAnlagen[0]->getAnlName() . '_AssetReport_' .$reportMonth . '_' . $reportYear ;
+                    $path6 = $pdf->createPage($html6, $fileroute, "Page6", true);// we will store this later in the entity
+                }
                 else {
                     $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'AM Report', "create AM Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear");
                     $message = new GenerateAMReport($aktAnlagen[0]->getAnlId(), $reportMonth, $reportYear, $userId, $logId);
@@ -335,10 +473,7 @@ class ReportingController extends AbstractController
                     $form = $this->createForm(AssetManagementeReportFormType::class);
                     $form->handleRequest($request);
                     if ($form->isSubmitted() && $form->isValid()) {
-
                         $data = $form->getData();
-                        #$output['data'] = $data;
-                       //dd($output);
                         $result = $this->renderView('report/assetreport.html.twig', [
                             'invNr' => count($output['plantAvailabilityMonth']),
                             'comments' => $report->getComments(),
@@ -430,7 +565,7 @@ class ReportingController extends AbstractController
 
                         $result = str_replace('src="//', 'src="https://', $result);
 
-                        $pdf->createPdf($result, 'string', $filename);
+                        $pdf->createPdf($result, 'string', $filename,'landscape', true);
                         dd("something wrong");
                         return $this->redirect($route);
                     }
@@ -697,8 +832,6 @@ class ReportingController extends AbstractController
                         'forcast'       => $reportArray['forcastTable'],
                         'pldTable'      => $reportArray['pldTable'],
                         'legend'        => $anlage->getLegendEpcReports(),
-                        // 'chart1'            => $chartYieldPercenDiff,
-                        // 'chart2'            => $chartYieldCumulativ,
                     ]);
                     break;
             }

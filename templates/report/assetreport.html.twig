@@ -6,9 +6,8 @@
         <script src="https://cdn.amcharts.com/lib/4/themes/animated.js" type="text/javascript"></script>
         {{ encore_entry_script_tags('dashboard') }}
 {% endblock %}
-{%- block content %}
+{% block content %}
         <div class="container">
-            {# WE COULD USE PARAMETERS HERE TO DECIDE WICH PARTS TO INCLUDE BUT WE WILL NEED A MORE COMPLEX FORM DEDICATED FOR THE AM REPORT#}
             {% include 'report/_asset_mangement_partials/_header.html.twig'%}
 
                 {% include 'report/_asset_mangement_partials/_comments.html.twig' %}
@@ -86,15 +85,10 @@
                 {% include 'report/_asset_mangement_partials/_economics_costs_per_mandy.html.twig'%}
 
                 {% include 'report/_asset_mangement_partials/_economics_operating_statement.html.twig'%}
-
                 {% include 'report/_asset_mangement_partials/_economics_commulative_forecast.html.twig'%}
-
                 {% include 'report/_asset_mangement_partials/_economics_losses_compared.html.twig'%}
-
                 {% include 'report/_asset_mangement_partials/_economics_cumulated_losses_compared.html.twig'%}
-
             {% endif %}
-
         </div>
 {% endblock %}
 
