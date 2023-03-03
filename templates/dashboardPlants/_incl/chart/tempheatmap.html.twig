@@ -15,7 +15,7 @@
         // Create series
         //Title
         let title = chart.titles.create();
-        title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+        title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
         title.fontSize = 16;
         title.marginBottom = 30;
 
