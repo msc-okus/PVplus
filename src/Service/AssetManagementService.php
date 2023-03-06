@@ -358,9 +358,14 @@ class AssetManagementService
         }
 
         $option = [
+            'textStyle' => [
+                'fontFamily' => 'monospace',
+                'fontsize' => '16'
+            ],
             'animation' => false,
             'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000'],
             'title' => [
+                'fontFamily' => 'monospace',
                 'text' => 'Year '.$report['reportYear'],
                 'left' => 'center',
                 'top' => 10

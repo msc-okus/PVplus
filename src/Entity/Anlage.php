@@ -2971,7 +2971,7 @@ class Anlage
         return $this->getAnlId() ;
     }
 
-    public function getEconomicVarNames(): EconomicVarNames
+    public function getEconomicVarNames(): ?EconomicVarNames
     {
         return $this->economicVarNames;
     }
