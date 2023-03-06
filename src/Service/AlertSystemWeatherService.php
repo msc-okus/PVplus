@@ -183,7 +183,6 @@ class AlertSystemWeatherService
              $this->em->persist($ticket);
              $this->em->flush();
          }
-         dd($ticket);
     }
 
 

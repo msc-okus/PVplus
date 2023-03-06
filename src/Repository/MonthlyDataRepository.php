@@ -60,8 +60,7 @@ class MonthlyDataRepository extends ServiceEntityRepository
             ->setParameter('start', $start)
             ->setParameter('end', $end)
             ->setParameter('anlage', $anlage)
-            ->orderBy('a.year')
-            ->orderBy('a.month')
+            ->orderBy('a.year, a.month', 'asc')
             ->getQuery()
         ;
 

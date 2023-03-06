@@ -39,7 +39,7 @@ and form.selectedChart != 'sollistirranalyse'%}
                 "minimumFractionDigits": 0
             };
             let title = chart.titles.create();
-            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
             title.fontSize = 18;
             title.marginBottom = 30;
             // Legend
@@ -102,7 +102,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
             chart.exporting.formatOptions.getKey("print").disabled = true;
             chart.exporting.formatOptions.getKey("pdf").disabled = true;
-            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
             ;
             
             chart.events.on("ready", function(ev) {
@@ -117,13 +117,11 @@ and form.selectedChart != 'sollistirranalyse'%}
     <script>
         am4core.ready(function() {
             // Create chart instance
-            {% if form.optionDate < 14 %}
             am4core.useTheme(am4themes_animated);
-            {% endif %}
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
             let title = chart.titles.create();
-            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
             title.fontSize = 18;
             title.marginBottom = 30;
             chart.data = {{ content.data|raw }};
@@ -193,7 +191,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
             chart.exporting.formatOptions.getKey("print").disabled = true;
             chart.exporting.formatOptions.getKey("pdf").disabled = true;
-            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
 
 
         }); // end am4core.ready()
@@ -203,13 +201,11 @@ and form.selectedChart != 'sollistirranalyse'%}
     <script>
         am4core.ready(function() {
             // Create chart instance
-            {% if form.optionDate < 14 %}
             am4core.useTheme(am4themes_animated);
-            {% endif %}
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
             let title = chart.titles.create();
-            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
             title.fontSize = 18;
             title.marginBottom = 30;
             chart.data = {{ content.data|raw }};
@@ -286,7 +282,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
             chart.exporting.formatOptions.getKey("print").disabled = true;
             chart.exporting.formatOptions.getKey("pdf").disabled = true;
-            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
 
 
         }); // end am4core.ready()
@@ -296,12 +292,11 @@ and form.selectedChart != 'sollistirranalyse'%}
     <script>
         am4core.ready(function() {
             // Create chart instance
-            {% if form.optionDate < 14 %}
+
             am4core.useTheme(am4themes_animated);
-            {% endif %}
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             let title = chart.titles.create();
-            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
             title.fontSize = 18;
             title.marginBottom = 30;
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
@@ -373,7 +368,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
             chart.exporting.formatOptions.getKey("print").disabled = true;
             chart.exporting.formatOptions.getKey("pdf").disabled = true;
-            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
 
 
         }); // end am4core.ready()
@@ -383,12 +378,10 @@ and form.selectedChart != 'sollistirranalyse'%}
     <script>
         am4core.ready(function() {
             // Create chart instance
-            {% if form.optionDate < 14 %}
                 am4core.useTheme(am4themes_animated);
-            {% endif %}
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             let title = chart.titles.create();
-            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
             title.fontSize = 18;
             title.marginBottom = 30;
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
@@ -460,7 +453,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
             chart.exporting.formatOptions.getKey("print").disabled = true;
             chart.exporting.formatOptions.getKey("pdf").disabled = true;
-            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
 
 
         }); // end am4core.ready()
@@ -487,14 +480,12 @@ and form.selectedChart != 'sollistirranalyse'%}
     <script>
         am4core.ready(function() {
             // Create chart instance
-            {% if form.optionDate < 14 %}
-                am4core.useTheme(am4themes_animated);
-            {% endif %}
+            am4core.useTheme(am4themes_animated);
 
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
             let title = chart.titles.create();
-            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
             title.fontSize = 18;
             title.marginBottom = 30;
             chart.data = {{ content.data|raw }};
@@ -547,7 +538,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
             chart.exporting.formatOptions.getKey("print").disabled = true;
             chart.exporting.formatOptions.getKey("pdf").disabled = true;
-            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
 
 
         }); // end am4core.ready()
@@ -558,14 +549,12 @@ and form.selectedChart != 'sollistirranalyse'%}
     <script>
         am4core.ready(function() {
             // Create chart instance
-            {% if form.optionDate < 14 %}
-                am4core.useTheme(am4themes_animated);
-            {% endif %}
+            am4core.useTheme(am4themes_animated);
 
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
             let title = chart.titles.create();
-            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
             title.fontSize = 18;
             title.marginBottom = 30;
             chart.data = {{ content.data|raw }};
@@ -657,7 +646,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
             chart.exporting.formatOptions.getKey("print").disabled = true;
             chart.exporting.formatOptions.getKey("pdf").disabled = true;
-            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
 
 
         }); // end am4core.ready()
@@ -669,10 +658,7 @@ and form.selectedChart != 'sollistirranalyse'%}
     <script>
         am4core.ready(function() {
             // Create chart instance
-            {% if form.optionDate < 14 %}
                 am4core.useTheme(am4themes_animated);
-            {% endif %}
-
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
             chart.data = {{ content.data|raw }};
@@ -683,7 +669,7 @@ and form.selectedChart != 'sollistirranalyse'%}
                 "minimumFractionDigits": 0
             };
             let title = chart.titles.create();
-            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}to {{ form.to|date("Y-m-d") }})";
             title.fontSize = 18;
             title.marginBottom = 30;
             // Legend
@@ -730,7 +716,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
             chart.exporting.formatOptions.getKey("print").disabled = true;
             chart.exporting.formatOptions.getKey("pdf").disabled = true;
-            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
 
 
         }); // end am4core.ready()
@@ -746,14 +732,11 @@ and form.selectedChart != 'sollistirranalyse'%}
     <script>
         am4core.ready(function() {
             // Create chart instance
-            {% if form.optionDate < 14 %}
-                am4core.useTheme(am4themes_animated);
-            {% endif %}
-
+            am4core.useTheme(am4themes_animated);
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
             let title = chart.titles.create();
-            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
             title.fontSize = 18;
             title.marginBottom = 30;
             chart.data = {{ content.data|raw }};
@@ -802,7 +785,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
             chart.exporting.formatOptions.getKey("print").disabled = true;
             chart.exporting.formatOptions.getKey("pdf").disabled = true;
-            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
 
 
         }); // end am4core.ready()
@@ -812,14 +795,11 @@ and form.selectedChart != 'sollistirranalyse'%}
     <script>
         am4core.ready(function() {
             // Create chart instance
-            {% if form.optionDate < 14 %}
                 am4core.useTheme(am4themes_animated);
-            {% endif %}
-
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
             let title = chart.titles.create();
-            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
             title.fontSize = 18;
             title.marginBottom = 30;
             chart.data = {{ content.data|raw }};
@@ -874,7 +854,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
             chart.exporting.formatOptions.getKey("print").disabled = true;
             chart.exporting.formatOptions.getKey("pdf").disabled = true;
-            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
 
 
         }); // end am4core.ready()
@@ -887,7 +867,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
             let title = chart.titles.create();
-            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
             title.fontSize = 18;
             title.marginBottom = 30;
             chart.data = {{ content.data|raw }};
@@ -961,7 +941,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
             chart.exporting.formatOptions.getKey("print").disabled = true;
             chart.exporting.formatOptions.getKey("pdf").disabled = true;
-            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
 
 
             chart.events.on("ready", function(ev) {
@@ -974,7 +954,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
             chart.exporting.formatOptions.getKey("print").disabled = true;
             chart.exporting.formatOptions.getKey("pdf").disabled = true;
-            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
 
 
         }); // end am4core.ready()
@@ -989,7 +969,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
             let title = chart.titles.create();
-            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
             title.fontSize = 18;
             title.marginBottom = 30;
             chart.data = {{ content.data|raw }};
@@ -1045,7 +1025,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
             chart.exporting.formatOptions.getKey("print").disabled = true;
             chart.exporting.formatOptions.getKey("pdf").disabled = true;
-            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
 
 
         }); // end am4core.ready()
@@ -1055,14 +1035,11 @@ and form.selectedChart != 'sollistirranalyse'%}
     <script>
         am4core.ready(function() {
             // Create chart instance
-            {% if form.optionDate < 14 %}
             am4core.useTheme(am4themes_animated);
-            {% endif %}
-
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
             let title = chart.titles.create();
-            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
             title.fontSize = 18;
             title.marginBottom = 30;
             chart.data = {{ content.data|raw }};
@@ -1156,7 +1133,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
             chart.exporting.formatOptions.getKey("print").disabled = true;
             chart.exporting.formatOptions.getKey("pdf").disabled = true;
-            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
 
 
         }); // end am4core.ready()
@@ -1166,14 +1143,11 @@ and form.selectedChart != 'sollistirranalyse'%}
     <script>
         am4core.ready(function() {
             // Create chart instance
-            {% if form.optionDate < 14 %}
                 am4core.useTheme(am4themes_animated);
-            {% endif %}
-
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
             let title = chart.titles.create();
-            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
             title.fontSize = 18;
             title.marginBottom = 30;
             chart.data = {{ content.data|raw }};
@@ -1236,7 +1210,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
             chart.exporting.formatOptions.getKey("print").disabled = true;
             chart.exporting.formatOptions.getKey("pdf").disabled = true;
-            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
 
 
         }); // end am4core.ready()
@@ -1246,14 +1220,11 @@ and form.selectedChart != 'sollistirranalyse'%}
     <script>
         am4core.ready(function() {
             // Create chart instance
-            {% if form.optionDate < 14 %}
                 am4core.useTheme(am4themes_animated);
-            {% endif %}
-
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
             let title = chart.titles.create();
-            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
             title.fontSize = 18;
             title.marginBottom = 30;
             chart.data = {{ content.data|raw }};
@@ -1300,7 +1271,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
             chart.exporting.formatOptions.getKey("print").disabled = true;
             chart.exporting.formatOptions.getKey("pdf").disabled = true;
-            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
 
 
         }); // end am4core.ready()
@@ -1310,10 +1281,7 @@ and form.selectedChart != 'sollistirranalyse'%}
     <script>
         am4core.ready(function() {
             // Create chart instance
-            {% if form.optionDate < 14 %}
                 am4core.useTheme(am4themes_animated);
-            {% endif %}
-
             let chart = am4core.create("amchart-holder", am4charts.XYChart);
             //chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
             chart.data = {{ content.data|raw }};
@@ -1324,7 +1292,7 @@ and form.selectedChart != 'sollistirranalyse'%}
                 "minimumFractionDigits": 0
             };
             let title = chart.titles.create();
-            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
             title.fontSize = 18;
             title.marginBottom = 30;
             // Legend
@@ -1383,7 +1351,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
             chart.exporting.formatOptions.getKey("print").disabled = true;
             chart.exporting.formatOptions.getKey("pdf").disabled = true;
-            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
 
 
         }); // end am4core.ready()
@@ -1395,7 +1363,7 @@ and form.selectedChart != 'sollistirranalyse'%}
     {{ statusTable(content.status) }}
 {% elseif form.selectedChart == 'availability' %}
     <h3>{{ content.headline }} - {{ aktAnlage.anlName }}</h3>
-    <h4>from: {{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to: {{ form.to|date("Y-m-d") }}{% endif %}</h4>
+    <h4>from: {{ form.from|date("Y-m-d") }} to: {{ form.to|date("Y-m-d") }}</h4>
     {% include 'dashboardPlants/_incl/chart/availabillityNew.html.twig' %}
 {% elseif form.selectedChart == 'pvsyst' %}
     {{ pvSystTable(content.pvSysts) }}

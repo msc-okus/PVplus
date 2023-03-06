@@ -65,7 +65,7 @@ class Anlage
 
     #[Deprecated]
     #[ORM\Column(name: 'anl_dbase', type: 'string', length: 25, nullable: false, options: ['default' => 'web32_db2'])]
-    private string $anlDbase = 'web32_db2';
+    private string $anlDbase = 'web32_db2'; // ready to delete
 
     #[ORM\Column(name: 'anl_betrieb', type: 'date', nullable: true)]
     private ?DateTime $anlBetrieb;
@@ -90,6 +90,9 @@ class Anlage
     #[ORM\Column(name: 'anl_intnr', type: 'string', length: 50, nullable: true)]
     private ?string $anlIntnr;
 
+    #[ORM\Column(type: 'string', length: 50, nullable: true)]
+    private ?string $customPlantId = '';
+
     #[Groups(['main','api:read'])]
     #[SerializedName('p_nom')]
     #[ORM\Column(type: 'string', length: 20)]
@@ -107,19 +110,19 @@ class Anlage
 
     #[Deprecated]
     #[ORM\Column(name: 'anl_data_go_ws', type: 'string', length: 10, nullable: false, options: ['default' => 'No'])]
-    private string $anlDataGoWs = 'No';
+    private string $anlDataGoWs = 'No'; // ready to delete
 
     #[Deprecated]
     #[ORM\Column(name: 'anl_modul_anz', type: 'string', length: 50, nullable: false)]
-    private string $anlModulAnz = '';
+    private string $anlModulAnz = ''; // ready to delete
 
     #[Deprecated]
     #[ORM\Column(name: 'anl_modul_name', type: 'string', length: 100, nullable: false)]
-    private string $anlModulName = '';
+    private string $anlModulName = ''; // ready to delete
 
     #[Deprecated]
     #[ORM\Column(name: 'anl_modul_leistung', type: 'string', length: 50, nullable: false)]
-    private string $anlModulLeistung = '';
+    private string $anlModulLeistung = ''; // ready to delete
 
     #[Deprecated]
     #[ORM\Column(name: 'anl_db_ist', type: 'string', length: 50, nullable: false)]
@@ -141,11 +144,11 @@ class Anlage
 
     #[Deprecated]
     #[ORM\Column(name: 'anl_grupe', type: 'string', length: 10, nullable: false, options: ['default' => 'No'])]
-    private string $anlGruppe = 'No';
+    private string $anlGruppe = 'No'; // ready to delete
 
     #[Deprecated]
     #[ORM\Column(name: 'anl_grupe_dc', type: 'string', length: 10, nullable: false, options: ['default' => 'No'])]
-    private string $anlGruppeDc = 'No';
+    private string $anlGruppeDc = 'No'; // ready to delete
 
     #[ORM\Column(name: 'anl_zeitzone', type: 'string', length: 50, nullable: false)]
     private string $anlZeitzone = '0';
@@ -155,7 +158,7 @@ class Anlage
 
     #[Deprecated]
     #[ORM\Column(name: 'anl_wind_unit', type: 'string', length: 10, nullable: false, options: ['default' => 'km/h'])]
-    private string $anlWindUnit = 'km/h';
+    private string $anlWindUnit = 'km/h'; // ready to delete
 
     #[ORM\Column(name: 'anl_view', type: 'string', length: 10, nullable: false, options: ['default' => 'No'])]
     private string $anlView = 'No';
@@ -256,15 +259,15 @@ class Anlage
 
     #[ORM\Column(type: 'boolean')]
     #[Deprecated]
-    private bool $showGraphVoltGrp = false;
+    private bool $showGraphVoltGrp = false; // ready to delete
 
     #[ORM\Column(type: 'boolean')]
     #[Deprecated]
-    private bool $showGraphDcInverter = false;
+    private bool $showGraphDcInverter = false; // ready to delete
 
     #[ORM\Column(type: 'boolean')]
     #[Deprecated]
-    private bool $showGraphIrrPlant = false;
+    private bool $showGraphIrrPlant = false; // ready to delete
 
     #[ORM\Column(type: 'boolean')]
     private bool $showPR = false;
@@ -718,6 +721,16 @@ class Anlage
         return $this;
     }
 
+    public function getCustomPlantId(): ?string
+    {
+        return $this->customPlantId;
+    }
+
+    public function setCustomPlantId(?string $customPlantId): void
+    {
+        $this->customPlantId = $customPlantId;
+    }
+
     /**
      * Replaced by getPnom
      * @deprecated  */
@@ -791,55 +804,7 @@ class Anlage
 
         return $this;
     }
-    /*
-        public function getAnlDataGoWs(): ?string
-        {
-            return $this->anlDataGoWs;
-        }
-
-        public function setAnlDataGoWs(string $anlDataGoWs): self
-        {
-            $this->anlDataGoWs = $anlDataGoWs;
-
-            return $this;
-        }
-
-        public function getAnlModulAnz(): ?string
-        {
-            return $this->anlModulAnz;
-        }
-
-        public function setAnlModulAnz(string $anlModulAnz): self
-        {
-            $this->anlModulAnz = $anlModulAnz;
-
-            return $this;
-        }
-
-        public function getAnlModulName(): ?string
-        {
-            return $this->anlModulName;
-        }
-
-        public function setAnlModulName(string $anlModulName): self
-        {
-            $this->anlModulName = $anlModulName;
-
-            return $this;
-        }
-
-        public function getAnlModulLeistung(): ?string
-        {
-            return $this->anlModulLeistung;
-        }
-
-        public function setAnlModulLeistung(string $anlModulLeistung): self
-        {
-            $this->anlModulLeistung = $anlModulLeistung;
-
-            return $this;
-        }
-    */
+/*
     public function getAnlDbIst(): ?string
     {
         return $this->anlDbIst;
@@ -875,7 +840,7 @@ class Anlage
 
         return $this;
     }
-
+*/
     public function getSendWarnMail(): ?bool
     {
         return $this->sendWarnMail;
@@ -1100,23 +1065,17 @@ class Anlage
     // get Weather Database
     public function getNameWeather(): ?string
     {
-        $weatherDB = ($this->getAnlDbWs()) ? $this->getAnlDbWs() : $this->getAnlIntnr();
-        $weatherDB = $this->getWeatherStation()->getDatabaseIdent();
-
-        return $weatherDB;
+        return $this->getWeatherStation()->getDatabaseIdent();
     }
 
     public function getDbNameWeather(): string
     {
-        ($this->getAnlDbWs()) ? $anlageDbWeather = $this->getAnlDbWs() : $anlageDbWeather = $this->getAnlIntnr();
-        $anlageDbWeather = $this->getNameWeather();
-
-        return $this->dbAnlagenData.'.db__pv_ws_'.$anlageDbWeather;
+        return $this->dbAnlagenData.'.db__pv_ws_'.$this->getNameWeather();
     }
 
+    #[Deprecated]
     public function getDbNameWeatherOld()
     {
-        ($this->getAnlDbWs()) ? $anlageDbWeather = $this->getAnlDbWs() : $anlageDbWeather = $this->getAnlIntnr();
         $anlageDbWeather = $this->getNameWeather();
 
         return 'db__pv_ws_'.$anlageDbWeather;
@@ -2258,7 +2217,7 @@ class Anlage
 
     public function setCountry(string $country): self
     {
-        $this->country = $country;
+        $this->country = strtolower($country);
 
         return $this;
     }
@@ -3281,7 +3240,7 @@ class Anlage
      */
     public function getPnomInverterArray(): array
     {
-        $dcPNomPerInverter = [];
+        $dcPNomPerInvereter = [];
 
         switch ($this->getConfigType()) {
             case 1:
@@ -3291,25 +3250,25 @@ class Anlage
                     foreach ($inverter->getModules() as $module) {
                         $sumPNom += $module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower() / 1000;
                     }
-                    $dcPNomPerInverter[$inverter->getDcGroup()] = $sumPNom;
+                    $dcPNomPerInvereter[$inverter->getDcGroup()] = $sumPNom;
                 }
                 break;
             case 3:
             case 4:
                 foreach ($this->getAcGroups() as $inverter) {
-                    $dcPNomPerInverter[$inverter->getAcGroup()] = 0;
+                    $dcPNomPerInvereter[$inverter->getAcGroup()] = 0;
                 }
                 foreach ($this->getGroups() as $groups) {
                     $sumPNom = 0;
                     foreach ($groups->getModules() as $module) {
                         $sumPNom += $module->getNumStringsPerUnit() * $module->getNumModulesPerString() * $module->getModuleType()->getPower() / 1000;
                     }
-                    $dcPNomPerInverter[$groups->getAcGroup()] += $sumPNom * ($groups->getUnitLast() - $groups->getUnitFirst() + 1);
+                    $dcPNomPerInvereter[$groups->getAcGroup()] += $sumPNom * ($groups->getUnitLast() - $groups->getUnitFirst() + 1);
                 }
                 break;
         }
 
-        return $dcPNomPerInverter ;
+        return $dcPNomPerInvereter ;
     }
 
     public function isExcludeFromExpCalc(): ?bool

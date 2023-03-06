@@ -12,7 +12,7 @@
 
         // Title
         let title = chart.titles.create();
-        title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+        title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
         title.fontSize = 16;
         title.marginBottom = 30;
         // Subtitle
@@ -93,7 +93,7 @@
          chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
          chart.exporting.formatOptions.getKey("print").disabled = true;
          chart.exporting.formatOptions.getKey("pdf").disabled = true;
-         chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+         chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
 
          // Create Legende
          var legend = new am4charts.Legend();

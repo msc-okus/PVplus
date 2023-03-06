@@ -300,31 +300,7 @@ class AnlagenRepository extends ServiceEntityRepository
      */
     public function findAllActiveAndAllowed(): array
     {
-        $qb = $this->createQueryBuilder('a')
-            ->leftJoin('a.economicVarNames', 'varName')
-            ->leftJoin('a.economicVarValues', 'ecoValu')
-            ->leftJoin('a.settings', 'settings')
-            ->addSelect('varName')
-            ->addSelect('ecoValu')
-            ->addSelect('settings');
-
-        if ($this->security->isGranted('ROLE_G4N')) {
-            $qb
-                ->andWhere("a.anlHidePlant = 'No'");
-        } else {
-            /** @var User $user */
-            $user = $this->security->getUser();
-            $granted = $user->getGrantedArray();
-            $qb
-                ->andWhere("a.anlHidePlant = 'No'")
-                ->andWhere("a.anlView = 'Yes'")
-                ->andWhere("a.anlId IN (:granted)")
-                ->setParameter('granted', $granted);
-        }
-        $qb
-            ->orderBy('a.anlName', 'ASC') //a.eigner
-            #->addOrderBy('a.anlName', 'ASC')
-        ;
+        $qb = self::querBuilderFindAllActiveAndAllowed();
 
         return $qb->getQuery()->getResult();
     }
@@ -419,9 +395,36 @@ class AnlagenRepository extends ServiceEntityRepository
                ;
     }
 
-    public function findAllOrderedByAscNameQueryBuilder()
+
+    public function querBuilderFindAllActiveAndAllowed(): QueryBuilder
     {
-        return $this->createQueryBuilder('a')->orderBy('a.anlName', 'ASC');
+        $qb = $this->createQueryBuilder('a')
+            ->leftJoin('a.economicVarNames', 'varName')
+            ->leftJoin('a.economicVarValues', 'ecoValu')
+            ->leftJoin('a.settings', 'settings')
+            ->addSelect('varName')
+            ->addSelect('ecoValu')
+            ->addSelect('settings');
+
+        if ($this->security->isGranted('ROLE_G4N')) {
+            $qb
+                ->andWhere("a.anlHidePlant = 'No'");
+        } else {
+            /** @var User $user */
+            $user = $this->security->getUser();
+            $granted = $user->getGrantedArray();
+            $qb
+                ->andWhere("a.anlHidePlant = 'No'")
+                ->andWhere("a.anlView = 'Yes'")
+                ->andWhere("a.anlId IN (:granted)")
+                ->setParameter('granted', $granted);
+        }
+        $qb
+            ->orderBy('a.anlName', 'ASC') //a.eigner
+            #->addOrderBy('a.anlName', 'ASC')
+        ;
+
+        return $qb;
     }
 
 

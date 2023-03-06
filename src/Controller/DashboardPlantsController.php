@@ -24,6 +24,7 @@ use function _PHPStan_c900ee2af\React\Promise\all;
 class DashboardPlantsController extends BaseController
 {
     use G4NTrait;
+
     #[Route(path: '/api/plants/{eignerId}/{anlageId}/{analyse}', name: 'api_dashboard_plant_analsyse', methods: ['GET','POST'])]
     public function analysePlantAPI($eignerId, $anlageId, $analyse, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService, HeatmapChartService $heatmapChartService,): Response
     {
@@ -58,8 +59,8 @@ class DashboardPlantsController extends BaseController
 
                break;
            case 'heatmap':
-               $from =  $request->query->get('from');
-               $to =  $request->query->get('to');
+               $from =  $request->request->get('from');#post
+               $to =  $request->request->get('to');
                $content = null;
                if ($aktAnlage) {
                    $dataArray = $heatmapChartService->getHeatmap($aktAnlage, $from, $to);
@@ -87,7 +88,7 @@ class DashboardPlantsController extends BaseController
        }
         if (is_array($content) or $content) {
             return new JsonResponse($content);
-        }else{
+        } else {
             return new Response(null, 204);
         }
     }
@@ -118,6 +119,7 @@ class DashboardPlantsController extends BaseController
                 $anlagen = $anlagenRepository->findGrantedActive($eignerId, $anlageId, $granted);
             }
         }
+
         if ($request->request->get('mysubmit') === null || $request->request->all() === null) {
             $form['selectedChart'] = 'ac_single';
             $form['selectedGroup'] = 1;
@@ -128,31 +130,14 @@ class DashboardPlantsController extends BaseController
             $form['optionDate'] = 1;
             $form['optionIrrVal'] = 400;
             $form['hour'] = false;
+            $form['selRange']           = $request->request->get('selRange');
         }
 
-        if ($request->request->get('mysubmit') === 'yes' || $request->request->get('addCase5') === 'addCase5') {
-
-            // Verarbeitung der Case 5 Ereignisse
-            if ($request->request->get('addCase5') === 'addCase5') {
-                $this->updateCase5Availability(
-                    $aktAnlage,
-                    $request->request->get('case5id'),
-                    $request->request->get('to'),
-                    $request->request->get('case5from'),
-                    $request->request->get('case5to'),
-                    $request->request->get('case5inverter'),
-                    $request->request->get('case5reason'),
-                    $entityManager,
-                    $availabilityService
-                );
-            }
-
+        if ($request->request->get('mysubmit') === 'yes' || $request->request->get('mysubmit') === 'select') {
             $form['selectedChart']      = $request->request->get('selectedChart');
             $form['selectedGroup']      = $request->request->get('selectedGroup');
             $form['selectedInverter']   = $request->request->get('selectedInverter');
             $form['selectedSet']        = $request->request->get('selectedSet');
-            $form['optionDate']         = $request->request->get('optionDate');
-            $form['optionStep']         = $request->request->get('optionStep');
             $form['startDateNew']       = $request->request->get('startDateNew');
             $form['selRange']           = $request->request->get('selRange');
             $form['optionIrrVal']       = $request->request->get('optionIrrVal');
@@ -160,99 +145,26 @@ class DashboardPlantsController extends BaseController
 
             if ($form['selectedChart'] == 'sollistirranalyse'   && !$form['optionIrrVal']) $form['optionIrrVal'] = 400;
 
-            // Predefine Optiondate
+            // Predefine
             if ($form['selectedChart'] == 'pr_and_av'           && $form['optionDate'] < 7) $form['optionDate'] = 7;
 
-        ##    if ($form['selectedChart'] == 'sollistanalyse'      && $form['optionDate'] < 7) $form['optionDate'] = 100000;
-        ##    if ($form['selectedChart'] == 'sollisttempanalyse'  && $form['optionDate'] < 7) $form['optionDate'] = 100000;
-        ##    if ($form['selectedChart'] == 'sollistirranalyse'   && $form['optionDate'] < 7) {
-        ##        $form['optionDate'] = 100000;
-        ##        $form['optionIrrVal'] = 400;
-        ##    }
-        ##    // bei Verfügbarkeit der Anzeige kann nur ein Tag gezeigt werden
-        ##   // if ($form['selectedChart'] == 'availability' && $form['optionDate'] > 1) { $form['optionDate'] = 1; }
-
-if ($form['startDateNew']){
-
-    $form['from'] = date('Y-m-d 00:00', strtotime($request->request->get('from')));
-    $form['to'] =   date('Y-m-d 23:59', strtotime($request->request->get('to')));
-
-  } else {
-
-     switch ($form['optionStep']) {
-        case 'lastday':
-            $date = ($request->request->get('to')) ? $request->request->get('to') : date('Y-m-d');
-            if ($form['optionDate'] <= 14) {
-                $to = date('Y-m-d 23:59', strtotime($date) - (86400 * $form['optionDate']));
-                $from = date('Y-m-d 00:00', strtotime($to) - (86400 * ($form['optionDate'] - 1)));
-            }
-            if ($form['optionDate'] == 100000) {
-                $from = date('Y-m-d 00:00', strtotime($date . '-1 month'));
-                $from = date('Y-m-d 00:00', strtotime($from . 'first day of this month'));
-                $to = date('Y-m-d 23:59', strtotime($from . 'last day of this month'));
-            }
-            if ($form['optionDate'] == 300000) {
-                $from = date('Y-m-d 00:00', strtotime($date . '-3 month'));
-                $from = date('Y-m-d 00:00', strtotime($from . 'first day of this month'));
-                $ddate = date('Y-m-d 00:00', strtotime($from . '+3 month'));
-                $to = date('Y-m-d 23:59', strtotime($ddate . 'last day of this month'));
-            }
-            $form['from'] = $from;
-            $form['to'] = strtotime($to) > strtotime('now') ? date('Y-m-d H:i') : $to;
-            break;
-
-        case 'nextday':
-            $date = ($request->request->get('to')) ? $request->request->get('to') : date('Y-m-d');
-
-            if ($form['optionDate'] <= 14) {
-                $to = date('Y-m-d 23:59', strtotime($date) + (86400 * $form['optionDate']));
-                $from = date('Y-m-d 00:00', strtotime($to) - (86400 * ($form['optionDate'] - 1)));
-            }
-            if ($form['optionDate'] == 100000) {
-                $from = date('Y-m-d 00:00', strtotime($date . '+1 month'));
-                $from = date('Y-m-d 00:00', strtotime($from . 'first day of this month'));
-                $to = date('Y-m-d 00:00', strtotime($from . 'last day of this month'));
-            }
-            if ($form['optionDate'] == 300000) {
-                $ndate = date('Y-m-d 00:00', strtotime($date . '+3 month'));
-                $from = date('Y-m-d 00:00', strtotime($date . 'first day of this month'));
-                $to = date('Y-m-d 00:00', strtotime($ndate . 'last day of this month'));
-            }
-            $form['from'] = $from;
-            $form['to'] = strtotime($to) > strtotime('now') ? date('Y-m-d H:i') : $to;
-            break;
-
-        default:
-            // optionDate == 100000 → Zeige Daten für den ganzen Monat, also vom ersten bis zum letzten Tages des ausgewäten Monats
-            if ($form['optionDate'] == 100000) {
-                $daysInMonth = date('t', strtotime($request->request->get('to')));
-                $form['to'] = date("Y-m-$daysInMonth 23:59", strtotime($request->request->get('to')));
-                $form['from'] = date('Y-m-01 00:00', strtotime($request->request->get('to')));
-            } elseif ($form['optionDate'] == 300000) {
-                $ndate = date('Y-m-d 00:00', strtotime($request->request->get('to') . '-3 month'));
-                $form['from'] = date('Y-m-d 00:00', strtotime($ndate . 'first day of this month'));
-                $form['to'] = date('Y-m-d 00:00', strtotime($request->request->get('to') . 'first day of this month'));
-                /* quartals berechnung php mit ceil()
-                $current_quarter = ceil(date('n',strtotime($request->request->get('to'))) / 3);
-                $form['from'] = date('Y-m-d 23:59', strtotime(date('Y') . '-' . (($current_quarter * 3) - 2) . '-1'));
-                $form['to'] = date('Y-m-t 00:00', strtotime(date('Y') . '-' . (($current_quarter * 3)) . '-1'));
-                */
-            } else {
-                $form['to'] = $request->request->get('to');
-                if ($form['to'] > date('Y-m-d')) {
-                    $form['to'] = date('Y-m-d H:i');
+            if ($request->request->get('mysubmit') === 'select') {
+                $form['to'] = (new \DateTime())->format('Y-m-d 23:59');
+                $form['from'] = (new \DateTime())->format('Y-m-d');
+               } else {
+                if ($form['startDateNew']) {
+                    $form['from'] = date('Y-m-d 00:00', strtotime($request->request->get('from')));
+                    $form['to'] = date('Y-m-d 23:59', strtotime($request->request->get('to')));
+                    $form['selectedGroup'] = 1;
                 }
-                // Korrigiert Datum, wenn diese in der Zukunft liegt
-                $form['from'] = date('Y-m-d 00:00', strtotime($form['to']) - (86400 * ($form['optionDate'] - 1)));
             }
-    }
-}
             // ergänze um Uhrzeit
             if (strlen($form['to']) <= 10) {
                 $form['to'] = $form['to'].' 23:59';
             }
             // bei den PA und PR Diagramm werden immer mindestens 7 Tage angezeigt
         }
+
         $content = null;
         $hour = $request->get('hour') == 'on';
         if ($aktAnlage) {

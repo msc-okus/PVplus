@@ -34,6 +34,9 @@ class ExpectedService
     {
     }
 
+    /**
+     * @throws NonUniqueResultException
+     */
     public function storeExpectedToDatabase(Anlage|int $anlage, $from, $to): string
     {
         if (is_int($anlage)) {

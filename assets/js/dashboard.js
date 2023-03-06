@@ -1,4 +1,5 @@
 import $ from "jquery";
+//import daterangepicker from 'daterangepicker'
 import fdatepicker from 'foundation-datepicker';
 
 function Display() {
@@ -16,6 +17,11 @@ function Display() {
 
 $(".js-submit-onchange").change(function () {
     $("#mysubmit").val('yes');
+    $("#chart-control").submit();
+});
+
+$(".js-submit-onchange-select").change(function () {
+    $("#mysubmit").val('select');
     $("#chart-control").submit();
 });
 

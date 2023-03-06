@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@200&display=swap');
+
 @page {
   size: A4 landscape;
 }
@@ -16,7 +18,7 @@ body{
   margin: 0;
 }
 
-body * {font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;}
+body * {font-family: 'Source Sans Pro', sans-serif;}
 
 .content_asset_report{
   width: 277mm!important;
@@ -69,7 +71,7 @@ table .autowidth{
   width: auto;
 }
 table * {
-  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  font-family: 'Source Sans Pro', sans-serif;
 }
 
 table td, table th {

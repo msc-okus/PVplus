@@ -937,7 +937,7 @@ class ACPowerChartsService
                 }
                 //$value_expac = round(($powersollkwh / $pnomkwh) * 4, 2);
                 $inv_num = $rowActual['inv'];
-                $dataArray['chart'][$counter]['xinv'] = $nameArray[$rowActual['inv']];
+                $dataArray['chart'][$counter]['xinv'] = $nameArray[$rowActual['inv']];#array startet by zero
                 $dataArray['chart'][$counter]['pnomac'] = $value_acpnom;
 
                # $dataArray['chart'][$counter]['pnomexpac'] = $value_expac;

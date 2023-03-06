@@ -21,6 +21,7 @@
                 <th>Owner activ</th>
                 <th>Hiden</th>
                 <th></th>
+                <th class="text-center"><small>Custom Plant ID</small></th>
             {% else %}
                 <th>City</th>
             {% endif %}
@@ -42,6 +43,7 @@
                     <td>{{ plant.anlView }}</td>
                     <td>{{ plant.anlHidePlant }}</td>
                     <td>{{ plant.epcReportType }}</td>
+                    <td class="text-center"><small>{{ plant.customPlantId }}</small></td>
                 {% else %}
                     <td>{{ plant.anlPlz }} {{ plant.anlOrt }}</td>
                 {% endif %}

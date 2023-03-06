@@ -18,7 +18,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 class DcGroupsSearchFormType extends AbstractType
 {
 
-    public function __construct(private GroupsRepository $groupsRepository)
+    public function __construct()
     {
     }
 
@@ -34,7 +34,7 @@ class DcGroupsSearchFormType extends AbstractType
                     return $anlage->getAnlName();
                 },
                 'query_builder' => fn(AnlagenRepository $anlagenRepository)
-                => $anlagenRepository-> findAllOrderedByAscNameQueryBuilder(),
+                => $anlagenRepository->querBuilderFindAllActiveAndAllowed(),
                 'attr'=>[
                     'onchange'=>'this.form.submit()'
                 ]

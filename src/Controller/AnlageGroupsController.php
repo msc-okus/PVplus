@@ -121,7 +121,7 @@ class AnlageGroupsController extends AbstractController
                 return $this->render('anlage_groups/index.html.twig', [
                     'form' => $form->createView(),
                     'anlage_groups'=>$pagination,
-                    'form2'=>$form2->createView(),
+                    'form2'=>$form2->createView(), // anlagen für Select Box
                     'show_form2'=>true,
                     'searchTerm'=>$searchTerm,
                     'anlage'=>$anlage
