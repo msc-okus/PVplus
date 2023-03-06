@@ -62,10 +62,10 @@ class AnlagenReports
     private int $reportTypeVersion = 0;
 
     #[ORM\Column(type: 'date')]
-    private $startDate;
+    private \DateTimeInterface $startDate;
 
     #[ORM\Column(type: 'date')]
-    private $endDate;
+    private \DateTimeInterface $endDate;
 
     #[ORM\Column(type: 'text')]
     private string $rawReport;
@@ -90,7 +90,7 @@ class AnlagenReports
     private int $reportStatus = 10;
 
     #[ORM\Column(type: 'text', nullable: true)]
-    private $comments;
+    private string $comments;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $file = "";
