@@ -215,18 +215,21 @@ class ReportingController extends AbstractController
                         'operations_monthly_right_g4n_tr4' => $content['operations_monthly_right_g4n_tr4'],
                         'operations_monthly_right_g4n_tr5' => $content['operations_monthly_right_g4n_tr5'],
                         'operations_monthly_right_g4n_tr6' => $content['operations_monthly_right_g4n_tr6'],
+                        'operations_monthly_right_g4n_tr7' => $content['operations_monthly_right_g4n_tr7'],
                         'operations_monthly_right_pvsyst_tr1' => $content['operations_monthly_right_pvsyst_tr1'],
                         'operations_monthly_right_pvsyst_tr2' => $content['operations_monthly_right_pvsyst_tr2'],
                         'operations_monthly_right_pvsyst_tr3' => $content['operations_monthly_right_pvsyst_tr3'],
                         'operations_monthly_right_pvsyst_tr4' => $content['operations_monthly_right_pvsyst_tr4'],
                         'operations_monthly_right_pvsyst_tr5' => $content['operations_monthly_right_pvsyst_tr5'],
                         'operations_monthly_right_pvsyst_tr6' => $content['operations_monthly_right_pvsyst_tr6'],
+                        'operations_monthly_right_pvsyst_tr7' => $content['operations_monthly_right_pvsyst_tr7'],
                         'operations_monthly_right_iout_tr1' => $content['operations_monthly_right_iout_tr1'],
                         'operations_monthly_right_iout_tr2' => $content['operations_monthly_right_iout_tr2'],
                         'operations_monthly_right_iout_tr3' => $content['operations_monthly_right_iout_tr3'],
                         'operations_monthly_right_iout_tr4' => $content['operations_monthly_right_iout_tr4'],
                         'operations_monthly_right_iout_tr5' => $content['operations_monthly_right_iout_tr5'],
                         'operations_monthly_right_iout_tr6' => $content['operations_monthly_right_iout_tr6'],
+                        'operations_monthly_right_iout_tr7' => $content['operations_monthly_right_iout_tr7'],
                         'production_monthly_chart' => $content['production_monthly_chart']
                     ]);
                     $html5 = str_replace('src="//', 'src="https://', $html5);
@@ -770,7 +773,7 @@ class ReportingController extends AbstractController
                                 $pdf->useTemplate($tplId);
                             }
                         }
-                        return $pdf->Output();
+                        $pdf->Output("D", "AssetReport".$report->getAnlage()->getAnlName() . "-" . $report->getMonth() . "-" . $report->getYear() . ".pdf");
 
                     }
 
