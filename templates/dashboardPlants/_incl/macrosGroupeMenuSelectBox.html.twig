@@ -68,8 +68,8 @@
     {% else %}
 
         <select class="form-control js-submit-onchange" title="Select a Group" data-toggle="tooltip" name="selectedGroup">
-            {% if ((form.selectedChart == 'dc_act_overview' or form.selectedChart == 'dc_act_group' or form.selectedChart == 'sollistanalyse'
-                or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse') and is_granted('ROLE_G4N')) %}
+            {% if (form.selectedChart == 'dc_act_overview' or form.selectedChart == 'dc_act_group' or form.selectedChart == 'sollistanalyse'
+                or form.selectedChart == 'sollisttempanalyse' or form.selectedChart == 'sollistirranalyse') %}
                 <option value="-1" >All</option>
             {% endif %}
             {% if     aktAnlage.configType == 1 %}

@@ -4,7 +4,6 @@
 {% block title %}List Plants{% endblock %}
 
 {% block body %}
-    {% dump(pagination) %}
     <h1>List Plants</h1>
     {{ macrolibrary.searchbox(app.request.query.get('qp'), 'qp') }}
     <table class="table">

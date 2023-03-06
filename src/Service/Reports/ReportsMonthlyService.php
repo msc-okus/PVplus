@@ -154,7 +154,7 @@ class ReportsMonthlyService
         $fromDay = new \DateTime("$year-$month-01 00:00");
         $toDay = new \DateTime("$year-$month-$daysInMonth 23:59");
         $prSumArray = $this->PRCalulation->calcPR($anlage, $fromDay, $toDay);
-        dd($prSumArray);
+
         // Summe / Total Row
         $sumValues['datum'] = $total;
         $sumValues['PowerEvuMonth'] = $anlage->getShowEvuDiag() ? $prSumArray['powerEvu'] : $prSumArray['powerAct'];
