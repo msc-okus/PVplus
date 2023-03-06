@@ -2217,7 +2217,7 @@ class Anlage
 
     public function setCountry(string $country): self
     {
-        $this->country = $country;
+        $this->country = strtolower($country);
 
         return $this;
     }
