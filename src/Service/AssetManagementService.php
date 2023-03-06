@@ -45,7 +45,7 @@ class AssetManagementService
     /**
      * @throws ExceptionInterface
      */
-    public function createAmReport(Anlage $anlage, $reportMonth, $reportYear, ?string $userId = null): string
+    public function createAmReport(Anlage $anlage, $reportMonth, $reportYear, ?string $userId = null): AnlagenReports
     {
         $report = $this->reportRepo->findOneByAMY($anlage, $reportMonth, $reportYear)[0];
         $comment = '';
@@ -90,7 +90,7 @@ class AssetManagementService
         $this->em->persist($report);
         $this->em->flush();
 
-        return 'Asset Report generated'; //$output;
+        return $report; //$output;
     }
 
     /**

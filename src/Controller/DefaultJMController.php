@@ -62,4 +62,8 @@ class DefaultJMController extends AbstractController
 
         return $this->render('base.html.twig');// this is suposed to never run so no problem
     }
+    #[Route(path: '/test/pdf', name: 'default_pdf')]
+    public function testpdf(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather, AssetManagementService $am){
+
+    }
 }
