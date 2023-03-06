@@ -880,13 +880,14 @@ class FunctionsService
     {
         $conn = self::getPdoConnection();
 
+        $fromObj = date_create($from);
+        $toObj = date_create($to);
         if ($evu) {
             if ($anlage->getUseGridMeterDayData() === false) {
-                $monthlyDatas = $this->monthlyDataRepo->findByDateRange($anlage, date_create($from), date_create($to));
+                $monthlyDatas = $this->monthlyDataRepo->findByDateRange($anlage, $fromObj, $toObj);
                 $countMonthes = count($monthlyDatas);
                 #if ($countMonthes > 1) dump($monthlyDatas, $evu);
-                $fromObj = date_create($from);
-                $toObj = date_create($to);
+
                 foreach ($monthlyDatas as $monthlyData) {
                     // calculate the first and the last day of the given month and year in $monthlyData
                     $firstDayMonth = date_create($monthlyData->getYear() . "-". $monthlyData->getMonth()."-01");
@@ -896,9 +897,11 @@ class FunctionsService
                     // or if we get the starting or ending Month from an epc Report ($epcStartEndMonth == true)
 
                     $epcStartMonth = $anlage->getEpcReportStart()->format('Ym') ===  $firstDayMonth->format('Ym');
-                    $epcEndMonth   = $anlage->getEpcReportEnd()->format('Ym') ===  $firstDayMonth->format('Ym') ;
-                    $holeReport = $anlage->getEpcReportStart()->format('Ymd') === $fromObj->format('Ymd') && $anlage->getEpcReportEnd()->format('Ymd') === $toObj->format('Ymd');
-                     if (($firstDayMonth->format("Y-m-d 00:00") === $from && $lastDayMonth->format("Y-m-d 23:59") === $to) || $epcStartMonth || $epcEndMonth || $holeReport) {
+                    $epcEndMonth   = $anlage->getEpcReportEnd()->format('Ym') ===  $firstDayMonth->format('Ym');
+                    $wholeMonth = ($toObj->getTimestamp() - $fromObj->getTimestamp()) / 86400 >= 28; // looks like this is not only one Day
+                    $wholeReport = $anlage->getEpcReportStart()->format('Ymd') === $fromObj->format('Ymd') && $anlage->getEpcReportEnd()->format('Ymd') === $toObj->format('Ymd');
+                    #if ($countMonthes > 1) dump($wholeMonth);
+                    if (($firstDayMonth->format("Y-m-d 00:00") === $from && $lastDayMonth->format("Y-m-d 23:59") === $to) || $epcStartMonth || $epcEndMonth || $wholeReport || $wholeMonth) {
                         if ($monthlyData->getExternMeterDataMonth() && $monthlyData->getExternMeterDataMonth() > 0) {
                             if ($epcStartMonth) {
                                 $tempFrom = new DateTime($monthlyData->getYear() . '-' . $monthlyData->getMonth() . '-' . $anlage->getFacDateStart()->format('d') . ' 00:00');
@@ -916,7 +919,7 @@ class FunctionsService
                             } else {
                                 $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '" . $tempFrom->format('Y-m-d H:i') . "' AND '" . $tempTo->format('Y-m-d H:i') . "' GROUP BY unit LIMIT 1";
                             }
-                            #if ($countMonthes > 1) dump($sql. "||| $countMonthes");
+                            if ($countMonthes > 1) dump($sql. "||| $countMonthes");
                             $res = $conn->query($sql);
                             if ($res->rowCount() == 1) {
                                 $row = $res->fetch(PDO::FETCH_ASSOC);
