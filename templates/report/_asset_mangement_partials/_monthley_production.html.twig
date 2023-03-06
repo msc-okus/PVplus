@@ -298,18 +298,20 @@
                         {% endfor %}
                     </tr>
                     {% if (anlage.RetrieveAllData) %}
-                        <tr>
-                            <td class="tr_first_column">Total runtime</td>
-                            {% for data in operations_monthly_right_g4n_tr7 %}
-                                {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
-                                {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
-                                {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
-                                {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
-                                {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
-                                {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
-                                <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %} >{{ data|number_format(0, ',', '.') }}{% endif %}</td>
-                            {% endfor %}
-                        </tr>
+                        {% if (operations_monthly_right_g4n_tr7 != null) %}
+                            <tr>
+                                <td class="tr_first_column">Total runtime</td>
+                                {% for data in operations_monthly_right_g4n_tr7 %}
+                                    {% if (data > -2) %}{% set color = "#00b050" %}{% endif %}
+                                    {% if (data < -2) %}{% set color = "#cee4c0" %}{% endif %}
+                                    {% if (data < -8) %}{% set color = "#ffff00" %}{% endif %}
+                                    {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
+                                    {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
+                                    {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
+                                    <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %} >{{ data|number_format(0, ',', '.') }}{% endif %}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endif %}
                     {% endif %}
                     </tbody>
                 </table>

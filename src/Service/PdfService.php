@@ -84,6 +84,8 @@ class PdfService
     {
         $pdf = $this->snappyPdf->getOutputFromHtml($html, ['enable-local-file-access' => true, 'orientation' => "$orientation"]);
         $filepath = '/usr/home/pvpluy/public_html/public/' . $fileroute . '/' . $name . '.pdf';
+        $filepath = str_replace(" ", "_", $filepath);
+        $fileroute = str_replace(" ", "_", $fileroute);
         if (!is_dir('/usr/home/pvpluy/public_html/public/' . $fileroute )) {
             mkdir('/usr/home/pvpluy/public_html/public/' . $fileroute , 0755, true);
         }
