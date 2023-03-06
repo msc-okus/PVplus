@@ -105,7 +105,7 @@
             chartright.numberFormatter.numberFormat = "#";
             // Title Right
             let titleright = chartright.titles.create();
-            titleright.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            titleright.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
             titleright.fontSize = 16;
             titleright.marginBottom = 30;
             // Subtitle Right
@@ -116,7 +116,7 @@
             title2right.marginBottom = 10;
             // Title Left
             let titleleft = chartleft.titles.create();
-            titleleft.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            titleleft.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
             titleleft.fontSize = 16;
             titleleft.marginBottom = 30;
             // Subtitle Left
@@ -234,7 +234,7 @@
             chartleft.exporting.formatOptions.getKey("pdfdata").disabled = true;
             chartleft.exporting.formatOptions.getKey("print").disabled = true;
             chartleft.exporting.formatOptions.getKey("pdf").disabled = false;
-            chartleft.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            chartleft.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
             //
             chartright.cursor = new am4charts.XYCursor();
             chartright.cursor.behavior = "zoomXY";
@@ -250,7 +250,7 @@
             chartright.exporting.formatOptions.getKey("pdfdata").disabled = true;
             chartright.exporting.formatOptions.getKey("print").disabled = true;
             chartright.exporting.formatOptions.getKey("pdf").disabled = false;
-            chartright.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }}{% if form.optionDate != 1 %} to {{ form.to|date("Y-m-d") }}{% endif %})";
+            chartright.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
             // Create Legende Left
             var legendleft = new am4charts.Legend();
             legendleft.parent = chartleft.chartContainer;
