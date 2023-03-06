@@ -23,7 +23,11 @@
         {{ form_row(assetForm.AvInv) }}
 
     </div>
-    <div style="margin-left: 10px">{{ form_row(assetForm.Economics) }} </div>
+    {% if (anlage.getEconomicVarNames != null) %}
+        <div style="margin-left: 10px">{{ form_row(assetForm.Economics) }} </div>
+    {% else %}
+        Economics are not available as the Economic Variables have not been configured
+    {% endif %}
     <div> {{ form_row(assetForm.submit) }}</div>
     <div style="visibility: hidden">{{ form_rest(assetForm) }}</div>
     <div style="visibility: hidden"> form_rest(form)</div>

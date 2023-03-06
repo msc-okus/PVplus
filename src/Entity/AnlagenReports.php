@@ -95,6 +95,9 @@ class AnlagenReports
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $file = "";
 
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $PdfParts = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -255,6 +258,18 @@ class AnlagenReports
     public function setFile(?string $file): self
     {
         $this->file = $file;
+
+        return $this;
+    }
+
+    public function getPdfParts(): ?Array
+    {
+        return unserialize($this->PdfParts);
+    }
+
+    public function setPdfParts(Array $PdfParts): self
+    {
+        $this->PdfParts = serialize($PdfParts);
 
         return $this;
     }

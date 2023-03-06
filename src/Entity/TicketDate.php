@@ -13,6 +13,7 @@ use Symfony\Component\Serializer\Serializer;
 #[ORM\Entity(repositoryClass: TicketDateRepository::class)]
 #[ORM\Table(name: 'ticket_date')]
 #[ORM\UniqueConstraint(name: 'date_unique', columns: ['begin', 'end', 'ticket_id'])]
+
 class TicketDate
 {
     use TicketTrait;

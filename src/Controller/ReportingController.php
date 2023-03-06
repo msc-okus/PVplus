@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Controller;
-
 use App\Entity\AnlagenReports;
 use App\Form\AssetManagement\AssetManagementeReportFormType;
 use App\Form\Reports\ReportsFormType;
@@ -20,6 +19,7 @@ use App\Service\ReportEpcPRNewService;
 use App\Service\Reports\ReportsMonthlyService;
 use App\Service\ReportsEpcNewService;
 use App\Service\ReportService;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Knp\Snappy\Pdf;
@@ -29,6 +29,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use setasign\Fpdi\Fpdi;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -68,7 +69,8 @@ class ReportingController extends AbstractController
         LogMessagesService $logMessages,
         MessageBusInterface $messageBus,
         string $kernelProjectDir,
-        PdfService $pdf
+        PdfService $pdf,
+        EntityManagerInterface $em
     ): Response
     {
         $anlage = $request->query->get('anlage');
@@ -116,8 +118,8 @@ class ReportingController extends AbstractController
 
                     ]);
                     $htmlhead = str_replace('src="//', 'src="https://', $htmlhead);
-                    $fileroute = $aktAnlagen[0]->getAnlName() . '_AssetReport_' .$reportMonth . '_' . $reportYear ;
-                    $pathhead = $pdf->createPage($htmlhead, $fileroute, "head", false);// we will store this later in the entity
+                    $fileroute = $aktAnlagen[0]->getEigner()->getFirma()."/".$aktAnlagen[0]->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+                    $reportParts[0] = $pdf->createPage($htmlhead, $fileroute, "head", false);// we will store this later in the entity
                     $html1 = $this->renderView('report/asset_report_part_1.html.twig', [
                         'comments' => $report->getComments(),
                         'anlage' => $report->getAnlage(),
@@ -134,28 +136,29 @@ class ReportingController extends AbstractController
 
                     ]);
                     $html1 = str_replace('src="//', 'src="https://', $html1);
-                    $fileroute = $aktAnlagen[0]->getAnlName() . '_AssetReport_' .$reportMonth . '_' . $reportYear ;
-                    $path1 = $pdf->createPage($html1, $fileroute, "Page1", false);// we will store this later in the entity
+                    $fileroute = $aktAnlagen[0]->getEigner()->getFirma()."/".$aktAnlagen[0]->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+                    $reportParts[1] = $pdf->createPage($html1, $fileroute, "ProductionCapFactor", false);// we will store this later in the entity
+                    if($report->getAnlage()->hasPVSYST()) {
+                        $html2 = $this->renderView('report/asset_report_part_2.html.twig', [
+                            'comments' => $report->getComments(),
+                            'anlage' => $report->getAnlage(),
+                            'month' => $reportMonth,
+                            'year' => $reportYear,
+                            'dataMonthArray' => $content['dataMonthArray'],
+                            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
+                            'dataCfArray' => $content['dataCfArray'],
+                            'reportmonth' => $content['reportmonth'],
+                            'montharray' => $content['monthArray'],
+                            //until here all the parameters must be used in all the renders
+                            'forecast_PVSYST_table' => $content['forecast_PVSYST_table'],
+                            'table_overview_monthly' => $content['table_overview_monthly'],
+                            'forecast_PVSYST' => $content['forecast_PVSYST'],
 
-                    $html2 = $this->renderView('report/asset_report_part_2.html.twig', [
-                        'comments' => $report->getComments(),
-                        'anlage' => $report->getAnlage(),
-                        'month' => $reportMonth,
-                        'year' => $reportYear,
-                        'dataMonthArray' => $content['dataMonthArray'],
-                        'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
-                        'dataCfArray' => $content['dataCfArray'],
-                        'reportmonth' => $content['reportmonth'],
-                        'montharray' => $content['monthArray'],
-                        //until here all the parameters must be used in all the renders
-                        'forecast_PVSYST_table' => $content['forecast_PVSYST_table'],
-                        'table_overview_monthly' => $content['table_overview_monthly'],
-                        'forecast_PVSYST' => $content['forecast_PVSYST'],
-
-                    ]);
-                    $html2 = str_replace('src="//', 'src="https://', $html2);
-                    $fileroute = $aktAnlagen[0]->getAnlName() . '_AssetReport_' .$reportMonth . '_' . $reportYear ;
-                    $path2 = $pdf->createPage($html2, $fileroute, "Page2", false);// we will store this later in the entity
+                        ]);
+                        $html2 = str_replace('src="//', 'src="https://', $html2);
+                        $fileroute = $aktAnlagen[0]->getEigner()->getFirma()."/".$aktAnlagen[0]->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+                        $reportParts[2] = $pdf->createPage($html2, $fileroute, "CumForecastPVSYS", false);// we will store this later in the entity
+                    }
                     $html3 = $this->renderView('report/asset_report_part_3.html.twig', [
                         'comments' => $report->getComments(),
                         'anlage' => $report->getAnlage(),
@@ -173,8 +176,8 @@ class ReportingController extends AbstractController
                     ]);
                     $html3 = str_replace('src="//', 'src="https://', $html3);
 
-                    $fileroute = $aktAnlagen[0]->getAnlName() . '_AssetReport_' .$reportMonth . '_' . $reportYear ;
-                    $path3 = $pdf->createPage($html3, $fileroute, "Page3", false);// we will store this later in the entity
+                    $fileroute = $aktAnlagen[0]->getEigner()->getFirma()."/".$aktAnlagen[0]->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+                    $reportParts[3] = $pdf->createPage($html3, $fileroute, "CumForecastG4N", false);// we will store this later in the entity
                     $html4 = $this->renderView('report/asset_report_part_4.html.twig', [
                         'comments' => $report->getComments(),
                         'anlage' => $report->getAnlage(),
@@ -193,8 +196,8 @@ class ReportingController extends AbstractController
 
                     ]);
                     $html4 = str_replace('src="//', 'src="https://', $html4);
-                    $fileroute = $aktAnlagen[0]->getAnlName() . '_AssetReport_' .$reportMonth . '_' . $reportYear ;
-                    $path4 = $pdf->createPage($html4, $fileroute, "Page4", false);// we will store this later in the entity
+                    $fileroute = $aktAnlagen[0]->getEigner()->getFirma()."/".$aktAnlagen[0]->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+                    $reportParts[4] = $pdf->createPage($html4, $fileroute, "CumLosses", false);// we will store this later in the entity
                     $html5 = $this->renderView('report/asset_report_part_5.html.twig', [
                         'comments' => $report->getComments(),
                         'anlage' => $report->getAnlage(),
@@ -227,8 +230,8 @@ class ReportingController extends AbstractController
                         'production_monthly_chart' => $content['production_monthly_chart']
                     ]);
                     $html5 = str_replace('src="//', 'src="https://', $html5);
-                    $fileroute = $aktAnlagen[0]->getAnlName() . '_AssetReport_' .$reportMonth . '_' . $reportYear ;
-                    $path5 = $pdf->createPage($html5, $fileroute, "Page5", false);// we will store this later in the entity
+                    $fileroute = $aktAnlagen[0]->getEigner()->getFirma()."/".$aktAnlagen[0]->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+                    $reportParts[5] = $pdf->createPage($html5, $fileroute, "MonthlyProd", false);// we will store this later in the entity
 
                     $html6 = $this->renderView('report/asset_report_part_6.html.twig', [
                         'comments' => $report->getComments(),
@@ -245,8 +248,8 @@ class ReportingController extends AbstractController
 
                     ]);
                     $html6 = str_replace('src="//', 'src="https://', $html6);
-                    $fileroute = $aktAnlagen[0]->getAnlName() . '_AssetReport_' .$reportMonth . '_' . $reportYear ;
-                    $path6 = $pdf->createPage($html6, $fileroute, "Page6", false);// we will store this later in the entity
+                    $fileroute = $aktAnlagen[0]->getEigner()->getFirma()."/".$aktAnlagen[0]->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+                    $reportParts[6] = $pdf->createPage($html6, $fileroute, "ProdExpvsAct", false);// we will store this later in the entity
                     $html7 = $this->renderView('report/asset_report_part_7.html.twig', [
                         'comments' => $report->getComments(),
                         'anlage' => $report->getAnlage(),
@@ -263,8 +266,8 @@ class ReportingController extends AbstractController
                         'acGroups' => $content['acGroups'],
                     ]);
                     $html7 = str_replace('src="//', 'src="https://', $html7);
-                    $fileroute = $aktAnlagen[0]->getAnlName() . '_AssetReport_' .$reportMonth . '_' . $reportYear ;
-                    $path7 = $pdf->createPage($html7, $fileroute, "Page7", false);// we will store this later in the entity
+                    $fileroute = $aktAnlagen[0]->getEigner()->getFirma()."/".$aktAnlagen[0]->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+                    $reportParts[7] = $pdf->createPage($html7, $fileroute, "String", false);// we will store this later in the entity
                     $html8 = $this->renderView('report/asset_report_part_8.html.twig', [
                         'comments' => $report->getComments(),
                         'anlage' => $report->getAnlage(),
@@ -281,8 +284,8 @@ class ReportingController extends AbstractController
                         'acGroups' => $content['acGroups'],
                     ]);
                     $html8 = str_replace('src="//', 'src="https://', $html8);
-                    $fileroute = $aktAnlagen[0]->getAnlName() . '_AssetReport_' .$reportMonth . '_' . $reportYear ;
-                    $path8 = $pdf->createPage($html8, $fileroute, "Page8", false);// we will store this later in the entity
+                    $fileroute = $aktAnlagen[0]->getEigner()->getFirma()."/".$aktAnlagen[0]->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+                    $reportParts[8] = $pdf->createPage($html8, $fileroute, "Inverter", false);// we will store this later in the entity
                     $html9 = $this->renderView('report/asset_report_part_9.html.twig', [
                         'comments' => $report->getComments(),
                         'anlage' => $report->getAnlage(),
@@ -300,8 +303,8 @@ class ReportingController extends AbstractController
                         'plantAvailabilityCurrentYear' => $content['plantAvailabilityCurrentYear'],
                     ]);
                     $html9 = str_replace('src="//', 'src="https://', $html9);
-                    $fileroute = $aktAnlagen[0]->getAnlName() . '_AssetReport_' .$reportMonth . '_' . $reportYear ;
-                    $path9 = $pdf->createPage($html9, $fileroute, "Page9", false);// we will store this later in the entity
+                    $fileroute = $aktAnlagen[0]->getEigner()->getFirma()."/".$aktAnlagen[0]->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+                    $reportParts[9] = $pdf->createPage($html9, $fileroute, "AvailabilityYearOverview", false);// we will store this later in the entity
                     $html10 = $this->renderView('report/asset_report_part_10.html.twig', [
                         'comments' => $report->getComments(),
                         'anlage' => $report->getAnlage(),
@@ -325,8 +328,8 @@ class ReportingController extends AbstractController
                         'losseskwhchartYearMonthly' => $content['losseskwhchartYearMonthly']
                     ]);
                     $html10 = str_replace('src="//', 'src="https://', $html10);
-                    $fileroute = $aktAnlagen[0]->getAnlName() . '_AssetReport_' .$reportMonth . '_' . $reportYear ;
-                    $path10 = $pdf->createPage($html10, $fileroute, "Page10", false);// we will store this later in the entity
+                    $fileroute = $aktAnlagen[0]->getEigner()->getFirma()."/".$aktAnlagen[0]->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+                    $reportParts[10] = $pdf->createPage($html10, $fileroute, "AvailabilityYear", false);// we will store this later in the entity
                     $html11 = $this->renderView('report/asset_report_part_11.html.twig', [
                         'comments' => $report->getComments(),
                         'anlage' => $report->getAnlage(),
@@ -349,8 +352,8 @@ class ReportingController extends AbstractController
                         'percentageTableMonth' => $content['percentageTableMonth']
                     ]);
                     $html11 = str_replace('src="//', 'src="https://', $html11);
-                    $fileroute = $aktAnlagen[0]->getAnlName() . '_AssetReport_' .$reportMonth . '_' . $reportYear ;
-                    $path11 = $pdf->createPage($html11, $fileroute, "Page11", false);// we will store this later in the entity
+                    $fileroute = $aktAnlagen[0]->getEigner()->getFirma()."/".$aktAnlagen[0]->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+                    $reportParts[11] = $pdf->createPage($html11, $fileroute, "AvailabilityMonth", false);// we will store this later in the entity
                     $html12 = $this->renderView('report/asset_report_part_12.html.twig', [
                         'comments' => $report->getComments(),
                         'anlage' => $report->getAnlage(),
@@ -367,40 +370,45 @@ class ReportingController extends AbstractController
                         'acGroups' => $content['acGroups']
                     ]);
                     $html12 = str_replace('src="//', 'src="https://', $html12);
-                    $fileroute = $aktAnlagen[0]->getAnlName() . '_AssetReport_' .$reportMonth . '_' . $reportYear ;
-                    $path12 = $pdf->createPage($html12, $fileroute, "Page12", false);// we will store this later in the entity
-                    $html13 = $this->renderView('report/asset_report_part_13.html.twig', [
-                        'comments' => $report->getComments(),
-                        'anlage' => $report->getAnlage(),
-                        'month' => $reportMonth,
-                        'year' => $reportYear,
-                        'dataMonthArray' => $content['dataMonthArray'],
-                        'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
-                        'dataCfArray' => $content['dataCfArray'],
-                        'reportmonth' => $content['reportmonth'],
-                        'montharray' => $content['monthArray'],
-                        //until here all the parameters must be used in all the renders
-                        'invNr' => count($content['plantAvailabilityMonth']),
-                        'plantAvailabilityMonth' => $content['plantAvailabilityMonth'],
-                        'acGroups' => $content['acGroups'],
-                        'income_per_month' => $content['income_per_month'],
-                        'income_per_month_chart' => $content['income_per_month_chart'],
-                        'economicsMandy' => $content['economicsMandy'],
-                        'economicsMandy2' => $content['economicsMandy2'],
-                        'total_Costs_Per_Date' => $content['total_Costs_Per_Date'],
-                        'operating_statement_chart' => $content['operating_statement_chart'],
-                        'economicsCumulatedForecast' => $content['economicsCumulatedForecast'],
-                        'economicsCumulatedForecastChart' => $content['economicsCumulatedForecastChart'],
-                        'lossesComparedTable' => $content['lossesComparedTable'],
-                        'losses_compared_chart' => $content['losses_compared_chart'],
-                        'lossesComparedTableCumulated' => $content['lossesComparedTableCumulated'],
-                        'cumulated_losses_compared_chart' => $content['cumulated_losses_compared_chart'],
+                    $fileroute = $aktAnlagen[0]->getEigner()->getFirma()."/".$aktAnlagen[0]->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+                    $reportParts[12] = $pdf->createPage($html12, $fileroute, "AvailabilityByInverter", false);// we will store this later in the entity
+                    if ($report->getAnlage()->getEconomicVarNames() !== null) {
 
-                    ]);
-                    $html13 = str_replace('src="//', 'src="https://', $html13);
-                    $fileroute = $aktAnlagen[0]->getAnlName() . '_AssetReport_' .$reportMonth . '_' . $reportYear ;
-                    $path13 = $pdf->createPage($html13, $fileroute, "Page13", true);// we will store this later in the entity
-                    dd("hi");
+                        $html13 = $this->renderView('report/asset_report_part_13.html.twig', [
+                            'comments' => $report->getComments(),
+                            'anlage' => $report->getAnlage(),
+                            'month' => $reportMonth,
+                            'year' => $reportYear,
+                            'dataMonthArray' => $content['dataMonthArray'],
+                            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
+                            'dataCfArray' => $content['dataCfArray'],
+                            'reportmonth' => $content['reportmonth'],
+                            'montharray' => $content['monthArray'],
+                            //until here all the parameters must be used in all the renders
+                            'invNr' => count($content['plantAvailabilityMonth']),
+                            'plantAvailabilityMonth' => $content['plantAvailabilityMonth'],
+                            'acGroups' => $content['acGroups'],
+                            'income_per_month' => $content['income_per_month'],
+                            'income_per_month_chart' => $content['income_per_month_chart'],
+                            'economicsMandy' => $content['economicsMandy'],
+                            'economicsMandy2' => $content['economicsMandy2'],
+                            'total_Costs_Per_Date' => $content['total_Costs_Per_Date'],
+                            'operating_statement_chart' => $content['operating_statement_chart'],
+                            'economicsCumulatedForecast' => $content['economicsCumulatedForecast'],
+                            'economicsCumulatedForecastChart' => $content['economicsCumulatedForecastChart'],
+                            'lossesComparedTable' => $content['lossesComparedTable'],
+                            'losses_compared_chart' => $content['losses_compared_chart'],
+                            'lossesComparedTableCumulated' => $content['lossesComparedTableCumulated'],
+                            'cumulated_losses_compared_chart' => $content['cumulated_losses_compared_chart'],
+
+                        ]);
+                        $html13 = str_replace('src="//', 'src="https://', $html13);
+                        $fileroute = $aktAnlagen[0]->getEigner()->getFirma()."/".$aktAnlagen[0]->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+                        $reportParts[13] = $pdf->createPage($html13, $fileroute, "Economic", false);// we will store this later in the entity
+                    }
+                    $report->setPdfParts($reportParts);
+                    $em->persist($report);
+                    $em->flush();
                 }
                 else {
                     $logId = $logMessages->writeNewEntry($aktAnlagen[0], 'AM Report', "create AM Report " . $aktAnlagen[0]->getAnlName() . " - $reportMonth / $reportYear");
@@ -636,105 +644,134 @@ class ReportingController extends AbstractController
             case 'am-report':
                 $report = $reportsRepository->find($id);
                 if ($report) {
+
                     $output = $report->getContentArray();
                     $form = $this->createForm(AssetManagementeReportFormType::class);
                     $form->handleRequest($request);
+
                     if ($form->isSubmitted() && $form->isValid()) {
                         $data = $form->getData();
-                        $result = $this->renderView('report/assetreport.html.twig', [
-                            'invNr' => count($output['plantAvailabilityMonth']),
-                            'comments' => $report->getComments(),
-                            'data' => $data,
-                            'anlage' => $anlage,
-                            'year' => $output['year'],
-                            'month' => $output['month'],
-                            'reportmonth' => $output['reportmonth'],
-                            'montharray' => $output['monthArray'],
-                            'degradation' => $output['degradation'],
-                            'forecast_PVSYST_table' => $output['forecast_PVSYST_table'],
-                            'forecast_PVSYST' => $output['forecast_PVSYST'],
-                            'forecast_G4N_table' => $output['forecast_G4N_table'],
-                            'forecast_G4N' => $output['forecast_G4N'],
-                            'dataMonthArray' => $output['dataMonthArray'],
-                            'dataMonthArrayFullYear' => $output['dataMonthArrayFullYear'],
-                            'dataCfArray' => $output['dataCfArray'],
-                            'operations_right' => $output['operations_right'],
-                            'table_overview_monthly' => $output['table_overview_monthly'],
-                            'losses_t1' => $output['losses_t1'],
-                            'losses_t2' => $output['losses_t2'],
-                            'losses_year' => $output['losses_year'],
-                            'losses_monthly' => $output['losses_monthly'],
-                            'production_monthly_chart' => $output['production_monthly_chart'],
-                            'operations_monthly_right_pvsyst_tr1' => $output['operations_monthly_right_pvsyst_tr1'],
-                            'operations_monthly_right_pvsyst_tr2' => $output['operations_monthly_right_pvsyst_tr2'],
-                            'operations_monthly_right_pvsyst_tr3' => $output['operations_monthly_right_pvsyst_tr3'],
-                            'operations_monthly_right_pvsyst_tr4' => $output['operations_monthly_right_pvsyst_tr4'],
-                            'operations_monthly_right_pvsyst_tr5' => $output['operations_monthly_right_pvsyst_tr5'],
-                            'operations_monthly_right_pvsyst_tr6' => $output['operations_monthly_right_pvsyst_tr6'],
-                            'operations_monthly_right_pvsyst_tr7' => $output['operations_monthly_right_pvsyst_tr7'],
-                            'operations_monthly_right_g4n_tr1' => $output['operations_monthly_right_g4n_tr1'],
-                            'operations_monthly_right_g4n_tr2' => $output['operations_monthly_right_g4n_tr2'],
-                            'operations_monthly_right_g4n_tr3' => $output['operations_monthly_right_g4n_tr3'],
-                            'operations_monthly_right_g4n_tr4' => $output['operations_monthly_right_g4n_tr4'],
-                            'operations_monthly_right_g4n_tr5' => $output['operations_monthly_right_g4n_tr5'],
-                            'operations_monthly_right_g4n_tr6' => $output['operations_monthly_right_g4n_tr6'],
-                            'operations_monthly_right_g4n_tr7' => $output['operations_monthly_right_g4n_tr7'],
-                            'operations_monthly_right_iout_tr1' => $output['operations_monthly_right_iout_tr1'],
-                            'operations_monthly_right_iout_tr2' => $output['operations_monthly_right_iout_tr2'],
-                            'operations_monthly_right_iout_tr3' => $output['operations_monthly_right_iout_tr3'],
-                            'operations_monthly_right_iout_tr4' => $output['operations_monthly_right_iout_tr4'],
-                            'operations_monthly_right_iout_tr5' => $output['operations_monthly_right_iout_tr5'],
-                            'operations_monthly_right_iout_tr6' => $output['operations_monthly_right_iout_tr6'],
-                            'operations_monthly_right_iout_tr7' => $output['operations_monthly_right_iout_tr7'],
-                            'table_overview_dayly' => $output['table_overview_dayly'],
-                            'plantAvailabilityCurrentYear' => $output['plantAvailabilityCurrentYear'],
-                            'daysInReportMonth' => $output['daysInReportMonth'],
-                            'tableColsLimit' => $output['tableColsLimit'],
-                            'acGroups' => $output['acGroups'],
-                            'availability_Year_To_Date' => $output['availability_Year_To_Date'],
-                            'Availability_Year_To_Date_Table' => $output['Availability_Year_To_Date_Table'],
-                            'failures_Year_To_Date' => $output['failures_Year_To_Date'],
-                            'plant_availability' => $output['plant_availability'],
-                            'actual' => $output['actual'],
-                            'plantAvailabilityMonth' => $output['plantAvailabilityMonth'],
-                            'operations_currents_dayly_table' => $output['operations_currents_dayly_table'],
-                            'income_per_month' => $output['income_per_month'],
-                            'income_per_month_chart' => $output['income_per_month_chart'],
-                            'economicsMandy' => $output['economicsMandy'],
-                            'total_Costs_Per_Date' => $output['total_Costs_Per_Date'],
-                            'operating_statement_chart' => $output['operating_statement_chart'],
-                            'economicsCumulatedForecast' => $output['economicsCumulatedForecast'],
-                            'economicsCumulatedForecastChart' => $output['economicsCumulatedForecastChart'],
-                            'lossesComparedTable' => $output['lossesComparedTable'],
-                            'losses_compared_chart' => $output['losses_compared_chart'],
-                            'lossesComparedTableCumulated' => $output['lossesComparedTableCumulated'],
-                            'cumulated_losses_compared_chart' => $output['cumulated_losses_compared_chart'],
-                            'availabilityMonthTable' => $output['availabilityMonthTable'],
-                            'fails_month' => $output['fails_month'],
-                            'ticketCountTable' => $output['ticketCountTable'],
-                            'ticketCountTableMonth' => $output['ticketCountTableMonth'],
-                            'kwhLossesMonthTable' => $output['kwhLossesMonthTable'],
-                            'kwhLossesYearTable' => $output['kwhLossesYearTable'],
-                            'economicsMandy2' => $output['economicsMandy2'],
-                            'wkhLossesChartMonth' => $output['wkhLossesChartMonth'],
-                            'wkhLossesTicketChartMonth' => $output['wkhLossesTicketChartMonth'],
-                            'kwhLossesChartYear' => $output['kwhLossesChartYear'],
-                            'TicketAvailabilityMonthTable' => $output['TicketAvailabilityMonthTable'],
-                            'TicketAvailabilityYearTable' => $output['TicketAvailabilityYearTable'],
-                            'monthlyLossesHelpTable' => $output['monthlyLossesHelpTable'],
-                            'yearLossesHelpTable' => $output['yearLossesHelpTable'],
-                            'losseskwhchartYearMonthly' => $output['losseskwhchartYearMonthly'],
-                            'PercentageTableYear' => $output['PercentageTableYear'],
-                            'percentageTableMonth' => $output['percentageTableMonth'],
+                        $files = $report->getPdfParts();
+                        $pdf = new Fpdi();
+                        // this is the header and we will always want to include it
+                        $pageCount =  $pdf->setSourceFile($files[0]);
+                        for ($i=0; $i < $pageCount; $i++) {
+                            $pdf->AddPage("L");
+                            $tplId = $pdf->importPage($i+1);
+                            $pdf->useTemplate($tplId);
+                        }
+                        if ($data['Production']) {
+                            if ($data['ProdCap']) {
+                                $pageCount = $pdf->setSourceFile($files[1]);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
+                            if ($data['CumulatForecastPVSYS']) {
+                                $pageCount = $pdf->setSourceFile($files[2]);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
+                            if ($data['CumulatForecastG4N']) {
+                                $pageCount = $pdf->setSourceFile($files[3]);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
+                            if ($data['CumulatLosses']) {
+                                $pageCount = $pdf->setSourceFile($files[4]);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
+                            if ($data['MonthlyProd']) {
+                                $pageCount = $pdf->setSourceFile($files[5]);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
+                            if ($data['DailyProd']) {
+                                $pageCount = $pdf->setSourceFile($files[6]);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
+                            if ($data['StringCurr']) {
+                                $pageCount = $pdf->setSourceFile($files[7]);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
+                            if ($data['InvPow']) {
+                                $pageCount = $pdf->setSourceFile($files[8]);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
+                        }
+                        if ($data['Availability']){
 
-                        ]);
-                        $filename = $anlage->getAnlName() . '_AssetReport_' . $month . '_' . $year . '.pdf';
+                            if ($data['AvYearlyOverview']) {
 
-                        $result = str_replace('src="//', 'src="https://', $result);
+                                $pageCount = $pdf->setSourceFile($files[9]);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
+                            if ($data['AvMonthlyOverview']) {
+                                $pageCount = $pdf->setSourceFile($files[10]);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
+                            if ($data['AvYearlyTicketOverview']) {
+                                $pageCount = $pdf->setSourceFile($files[11]);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
+                            if ($data['AvInv']) {
+                                $pageCount = $pdf->setSourceFile($files[12]);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
+                        }
+                        if ($data['Economics']) {
+                            $pageCount = $pdf->setSourceFile($files[13]);
+                            for ($i = 0; $i < $pageCount; $i++) {
+                                $pdf->AddPage("L");
+                                $tplId = $pdf->importPage($i + 1);
+                                $pdf->useTemplate($tplId);
+                            }
+                        }
+                        return $pdf->Output();
 
-                        $pdf->createPdf($result, 'string', $filename,'landscape', true);
-                        dd("something wrong");
-                        return $this->redirect($route);
                     }
 
                     return $this->render('report/_form.html.twig', [
