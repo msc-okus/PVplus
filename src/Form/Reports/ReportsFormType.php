@@ -9,6 +9,7 @@ use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -31,6 +32,10 @@ class ReportsFormType extends AbstractType
             ])
             ->add('comments', CKEditorType::class, [
                 'config' => ['toolbar' => 'my_toolbar'],
+            ])
+            ->add('headline', TextType::class, [
+                'label' => 'Headline',
+                'empty_data'=> '',
             ])
 
             ->add('save', SubmitType::class, [

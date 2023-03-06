@@ -11,11 +11,11 @@ use App\Reports\Goldbeck\EPCMonthlyPRGuaranteeReport;
 use App\Reports\ReportMonthly\ReportMonthly;
 use App\Repository\AnlagenRepository;
 use App\Repository\ReportsRepository;
-use App\Service\LogMessagesService;
-use App\Service\ReportEpcService;
 use App\Service\AssetManagementService;
+use App\Service\LogMessagesService;
 use App\Service\PdfService;
 use App\Service\ReportEpcPRNewService;
+use App\Service\Reports\ReportEpcService;
 use App\Service\Reports\ReportsMonthlyService;
 use App\Service\ReportsEpcNewService;
 use App\Service\ReportService;
@@ -23,6 +23,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Knp\Snappy\Pdf;
+use Nuzkito\ChromePdf\ChromePdf;
 use PhpOffice\PhpSpreadsheet\Exception;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
@@ -31,17 +32,16 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use setasign\Fpdi\Fpdi;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpFoundation\ResponseHeaderBag;
-use Nuzkito\ChromePdf\ChromePdf;
 
 class ReportingController extends AbstractController
 {
@@ -563,6 +563,7 @@ class ReportingController extends AbstractController
                                 'kwpeak'        => $anlage->getPnom(),
                                 'reportCreationDate' => $reportCreationDate,
                                 'epcNote'       => $anlage->getEpcReportNote(),
+                                'main_headline' => $report->getHeadline(),
                             ],
                         ];
                         $report = new EPCMonthlyPRGuaranteeReport([

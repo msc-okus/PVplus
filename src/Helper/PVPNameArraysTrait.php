@@ -16,7 +16,6 @@ trait PVPNameArraysTrait
     public static function yearsArray(): array
     {
         return [
-            2020 => 2020,
             2021 => 2021,
             2022 => 2022,
             2023 => 2023,
@@ -69,6 +68,7 @@ trait PVPNameArraysTrait
     {
         // Values for Report Status
         $reportStati[0] = 'final';
+        $reportStati[1] = 'final FAC';
         $reportStati[3] = 'under observation';
         $reportStati[5] = 'proof reading';
         $reportStati[9] = 'archive (g4n only)';

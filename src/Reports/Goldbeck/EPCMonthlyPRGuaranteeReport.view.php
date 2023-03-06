@@ -13,6 +13,7 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
 <body>
 <div class="grid-x grid-margin-x">
     <div class="cell">
+        <h1><?php echo $headlines['main_headline']?></h1>
         <h3>Basic Values</h3>
         <?php
             Table::create([

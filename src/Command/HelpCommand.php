@@ -5,14 +5,11 @@ namespace App\Command;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\AssetManagementService;
-use App\Service\DummySollService;
-use App\Service\ReportEpcService;
+use App\Service\Reports\ReportEpcService;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\Serializer\Exception\ExceptionInterface;
 
 class HelpCommand extends Command
 {

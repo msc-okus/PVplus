@@ -92,6 +92,9 @@ class AnlagenReports
     #[ORM\Column(type: 'text', nullable: true)]
     private string $comments;
 
+    #[ORM\Column(type: 'string', length: 100, nullable: true)]
+    private ?string $headline = "";
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $file = "";
 
@@ -248,6 +251,16 @@ class AnlagenReports
         $this->comments = $comments;
 
         return $this;
+    }
+
+    public function getHeadline(): ?string
+    {
+        return $this->headline;
+    }
+
+    public function setHeadline(string $headline): void
+    {
+        $this->headline = $headline;
     }
 
     public function getFile(): ?string
