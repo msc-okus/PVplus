@@ -625,15 +625,6 @@ class ReportingController extends AbstractController
 
                 $pdf->createPdf($result, 'string', $anlage->getAnlName().'_EPC-Report_'.$month.'_'.$year.'.pdf');
 
-                /*
-                $response = new BinaryFileResponse($pdf->createPdf($result, 'string'));
-                $response->headers->set('Content-Type', 'application/pdf');
-                $response->deleteFileAfterSend(true);
-                $response->setContentDisposition(
-                    ResponseHeaderBag::DISPOSITION_ATTACHMENT,
-                    $anlage->getAnlName().'_EPC-Report_'.$month.'_'.$year.'.pdf'
-                );
-                */
                 break;
             case 'monthly-report':
                 //standard G4N Report (an O&M Goldbeck angelehnt)
@@ -645,6 +636,7 @@ class ReportingController extends AbstractController
                         $output = $reportService->buildMonthlyReport($anlage, $report->getContentArray(), $reportCreationDate, 0, 0, true);
                 }
                 break;
+                /*
             case 'am-report':
                 $report = $reportsRepository->find($id);
                 if ($report) {
@@ -784,6 +776,7 @@ class ReportingController extends AbstractController
                     ]);
 
                 }
+                */
         }
         return $this->redirect($route);
     }
