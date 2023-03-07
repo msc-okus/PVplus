@@ -38,13 +38,8 @@ class AnlageFormType extends AbstractType
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin     = $this->security->isGranted('ROLE_ADMIN');
 
-        $prArray = [
-            'No Cust PR' => 'no',
-            'Groningen' => 'Groningen',
-            'Veendam' => 'Veendam',
-            'Lelystad (Temp Korrektur)' => 'Lelystad',
-            'Ladenburg' => 'Ladenburg',
-        ];
+        $prArray = self::prFormulars();
+
         $pldAlgorithmArray = [
             'Lelystad' => 'Lelystad',
             'Leek/Kampen' => 'Leek/Kampen',
@@ -59,10 +54,7 @@ class AnlageFormType extends AbstractType
             'Guaranteed Expected Energy' => 'guaranteedExpected',
         ];
 
-        $paFormulars = [
-            'ti / (titheo - tiFM)'  => 1,
-            'ti / titheo'           => 2,
-        ];
+        $paFormulars = self::paFormulars();
 
         $tooltipTextPlantType = "
                                     <ul>

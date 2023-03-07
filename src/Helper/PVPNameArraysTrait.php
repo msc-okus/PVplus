@@ -13,6 +13,25 @@ trait PVPNameArraysTrait
         $this->translator = $translator;
     }
 
+    public static function prFormulars(): array
+    {
+        return [
+            'No Cust PR' => 'no',
+            'Groningen' => 'Groningen',
+            'EnergyProduced / (Theo.Energy + PA)' => 'Veendam',
+            'EnergyProduced / (Theo.Energy * Ft)' => 'Lelystad',
+            'Ladenburg' => 'Ladenburg',
+        ];;
+    }
+
+    public static function paFormulars(): array
+    {
+        return [
+            'ti / (titheo - tiFM)'  => 1,
+            'ti / titheo'           => 2,
+        ];
+    }
+
     public static function yearsArray(): array
     {
         return [

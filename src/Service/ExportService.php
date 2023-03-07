@@ -104,7 +104,16 @@ class ExportService
         return $output;
     }
 
-    public function getFacPRData(Anlage $anlage, DateTime $from, DateTime $to = null): array
+    /**
+     * Exportiert die FAC relevanten Daten, Summiert auf Tage
+     *
+     * @param Anlage $anlage
+     * @param DateTime $from
+     * @param DateTime|null $to
+     * @param string $target (array = php array zur Weiterverarbeitung, csv = export als csv Datei)
+     * @return array
+     */
+    public function getFacPRData(Anlage $anlage, DateTime $from, ?DateTime $to = null, string $target = 'array'): array
     {
         $conn = self::getPdoConnection();
 
@@ -126,7 +135,8 @@ class ExportService
             } else {
                 $export[$stamp]['eGrid'] = $sumAcPower['powerEvu'];
             }
-            $export[$stamp]['theoPower'] = $sumAcPower['powerTheo'];
+            $export[$stamp]['theoPower'] = 0;
+            $export[$stamp]['theoPowerFT'] = $sumAcPower['powerTheo'];
 
             $sql = 'SELECT sum(g_upper) as upper, sum(g_lower) as lower, sum(g_horizontal) as horizontal FROM '.$anlage->getDbNameWeather()." WHERE stamp BETWEEN '$localFrom' AND '$localTo'";
             $res = $conn->prepare($sql);
@@ -143,6 +153,8 @@ class ExportService
             } else {
                 $export[$stamp]['irr_mod'] = null;
             }
+
+            $export[$stamp]['theoPower'] = $export[$stamp]['irr_mod'] * $anlage->getPnom();
         }
 
         return $export;

@@ -200,7 +200,7 @@ class DefaultMREController extends BaseController
         ]);
     }
 
-    #[Route(path: '/mr/export/facRawData/{id}')]
+    #[Route(path: '/mr/export/facRawData/{id}', name: 'export_fac_daily')]
     public function exportFacRawDataExport($id, ExportService $export, AnlagenRepository $anlagenRepository): Response
     {
         $output = '';

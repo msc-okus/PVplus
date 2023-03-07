@@ -56,16 +56,26 @@
                                 {% else %}
                                     {% set visibility = 'disabled' %}
                                 {% endif %}
-                                {% if is_granted('ROLE_G4N') and report.id > 3525 %}
-                                    {# Steve Excel #}
+
+                                {# Excel and PDF download New Steve (not ready) #}
+                                {% if is_granted('ROLE_DEV') and report.id > 3525 %}
                                     <a href="{{ path('app_reporting_new_excel', { id: report.id}) }}" target="_blank" title="load Excel file" class="hollow button tiny action-icon shadow">
                                         <span class="fa fa-file-excel" style="color:darkgreen"></span></a>
 
                                     <a href="{{ path('app_reporting_new_pdf', { id: report.id}) }}"  target="_blank"  title="load PDF file" class="hollow button tiny action-icon shadow
                                         {{ visibility }}"
                                     ><span class="fa fa-file-pdf" style="color:darkgreen"></span></a>
-                                    {# Steve Excel #}
                                 {% endif %}
+
+
+                                {# export FAC Data, nur aktiv wenn status = 'final FAC' (reportStatus = 1) #}
+                                {% if is_granted('ROLE_G4N') and report.reportStatus == 1 %}
+                                    <a href="{{ path('export_fac_daily', {id: report.anlage}) }}" class="hollow button tiny action-icon shadow" target="_blank">
+                                        <span class="fa fa-file-export"></span>
+                                    </a>
+                                {% endif %}
+
+                                {# download excel via 'Koolreport' #}
                                 <a href="{{ path('app_reporting_excel', { id: report.id}) }}" target="_blank" title="load Excel file" class="hollow button tiny action-icon shadow
                                     {% if report.reportType == 'am-report' or (report.reportType == 'epc-report' and report.anlage.epcReportType == 'yieldGuarantee') %}
                                         disabled
@@ -74,10 +84,7 @@
                                     {% endif %}
                                 "><span class="fa fa-file-excel"></span></a>
 
-                                {#
-                                {% if report.reportType != 'am-report' or is_granted('ROLE_AM') %} {# Zeige Download Butten wenn es keine AM Bericht ist, oder wenn die Berichtigung für AM Bericht ausreicht
-                                #}
-
+                                {# download pdf #}
                                 <a href="{{ path('app_reporting_pdf', { id: report.id}) }}"   target="_blank" title="load PDF file" class="hollow button tiny action-icon shadow
                                     {{ visibility }}
                                 "><span class="fa fa-file-pdf"></span></a>
