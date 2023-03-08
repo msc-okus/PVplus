@@ -23,12 +23,10 @@ class TicketFormType extends AbstractType
 {
     use PVPNameArraysTrait;
 
-    private AnlagenRepository $anlagenRepository;
-
-    public function __construct(AnlagenRepository $anlagenRepository, TranslatorInterface $translator)
+    public function __construct(
+        private AnlagenRepository $anlagenRepository,
+        private TranslatorInterface $translator)
     {
-        $this->anlagenRepository = $anlagenRepository;
-        $this->translator = $translator;
     }
 
     public function configureOptions(OptionsResolver $resolver)
@@ -152,6 +150,7 @@ class TicketFormType extends AbstractType
                 'attr' => ['data-action' => 'change->ticket-edit#saveCheck',
                     'data-ticket-edit-target' => 'formCategory'],
             ])
+            /*
             ->add('errorType', ChoiceType::class, [
                 'label' => 'Type of error',
                 'help' => 'OMC: Out of Management Control<br>EFOR: Equivalent Forced Outage Rate<br>SOR: Scheduled Uutage Rate',
@@ -161,6 +160,7 @@ class TicketFormType extends AbstractType
                 'empty_data' => '',
                 'required' => false,
             ])
+            */
             ->add('needsProof', SwitchType::class, [
                 'label'         => 'Needs proof',
             ])
@@ -194,56 +194,6 @@ class TicketFormType extends AbstractType
                 'attr' => ['rows' => '9'],
                 'required' => false,
             ])
-
-            // ###
-            ->add('PR0', SwitchType::class, [
-                'label' => 'PR',
-                'required' => false,
-            ])
-            ->add('PA0C5', SwitchType::class, [
-                'label' => 'PA5',
-                'required' => false,
-            ])
-            ->add('PA0C6', SwitchType::class, [
-                'label' => 'PA6',
-                'required' => false,
-            ])
-            ->add('Yield0', SwitchType::class, [
-                'label' => 'Yield',
-                'required' => false,
-            ])
-            ->add('PR1', SwitchType::class, [
-                'label' => 'PR',
-                'required' => false,
-            ])
-            ->add('PA1C5', SwitchType::class, [
-                'label' => 'PA5',
-                'required' => false,
-            ])
-            ->add('PA1C6', SwitchType::class, [
-                'label' => 'PA6',
-                'required' => false,
-            ])
-            ->add('Yield1', SwitchType::class, [
-                'label' => 'Yield',
-                'required' => false,
-            ])
-
-            ->add('PR2', SwitchType::class, [
-                'label' => 'PR',
-                'required' => false,
-            ])
-            ->add('PA2C5', SwitchType::class, [
-                'label' => 'PA5',
-                'required' => false,
-            ])
-            ->add('PA2C6', SwitchType::class, [
-                'label' => 'PA6',
-                'required' => false,
-            ])
-            ->add('Yield2', SwitchType::class, [
-                'label' => 'Yield',
-                'required' => false,
-            ]);
+            ;
     }
 }
