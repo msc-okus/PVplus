@@ -10,6 +10,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Symfony\Component\Serializer\Serializer;
 
 #[ORM\Entity(repositoryClass: TicketRepository::class)]
@@ -34,39 +35,51 @@ class Ticket
     #[ORM\Column(type: 'string', length: 50)]
     private string $editor;
 
+    #[Deprecated]
     #[ORM\Column(type: 'boolean')]
     private bool $PR0 = false;
 
+    #[Deprecated]
     #[ORM\Column(type: 'boolean')]
     private bool $PR1 = false;
 
+    #[Deprecated]
     #[ORM\Column(type: 'boolean')]
     private bool $PR2 = false;
 
+    #[Deprecated]
     #[ORM\Column(type: 'boolean')]
     private bool $PA0C5 = false;
 
+    #[Deprecated]
     #[ORM\Column(type: 'boolean')]
     private bool $PA1C5 = false;
 
+    #[Deprecated]
     #[ORM\Column(type: 'boolean')]
     private bool $PA2C5 = false;
 
+    #[Deprecated]
     #[ORM\Column(type: 'boolean')]
     private bool $PA0C6 = false;
 
+    #[Deprecated]
     #[ORM\Column(type: 'boolean')]
     private bool $PA1C6 = false;
 
+    #[Deprecated]
     #[ORM\Column(type: 'boolean')]
     private bool $PA2C6 = false;
 
+    #[Deprecated]
     #[ORM\Column(type: 'boolean')]
     private bool $yield0 = false;
 
+    #[Deprecated]
     #[ORM\Column(type: 'boolean')]
     private bool $yield1 = false;
 
+    #[Deprecated]
     #[ORM\Column(type: 'boolean')]
     private bool $yield2 = false;
 
@@ -132,8 +145,6 @@ class Ticket
         $this->autoTicket = $autoTicket;
     }
 
-
-
     public function getEditor(): ?string
     {
         return $this->editor;
@@ -146,6 +157,7 @@ class Ticket
         return $this;
     }
 
+    /*
     public function getPR0(): ?bool
     {
         return $this->PR0;
@@ -291,6 +303,7 @@ class Ticket
 
         return $this;
     }
+    */
 
     public function unsetId()
     {

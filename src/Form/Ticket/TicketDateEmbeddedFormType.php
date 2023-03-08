@@ -6,6 +6,7 @@ use App\Entity\TicketDate;
 use App\Helper\PVPNameArraysTrait;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -50,6 +51,15 @@ class TicketDateEmbeddedFormType extends AbstractType
                 'choices'       => self::kpiPaDep3(),
                 'placeholder'   => 'Please select …',
                 'empty_data'    => '',
+            ])
+            ->add('performanceKpi', ChoiceType::class, [
+                'label'         => 'Performance KPI',
+                'choices'       => self::kpiPerformace(),
+                'mapped'        => false
+            ])
+            ->add('performanceKpiValue', TextType::class, [
+                'label'         => 'Value',
+                'mapped'        => false
             ])
         ;
     }
