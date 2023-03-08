@@ -250,7 +250,16 @@
         }
 
     }
+
+    .daterangepicker {
+        .table-condensed tr:nth-child(2n) {
+            background-color: transparent;
+        }
+    }
+
     main {
+
+
         background-color: $g4n-gray;
         padding-bottom: 2rem;
         padding-top: 2rem;

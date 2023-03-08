@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="5cab6c04-23b2-47e2-9787-0508aafacf3c" name="dev.PVplus.net" url="http://dev.g4npvplus.net">
+        <fileTransfer accessType="SFTP" host="g4npvplus.net" port="22" sshConfigId="0b32e740-9a8d-4790-820c-b746fc0e9e75" sshConfig="pvpluy_0@g4npvplus.net:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+      <webServer id="813a396f-bee6-48ce-b05b-b55dd0ae6a7e" name="prod.PVplus.net" url="http://www.g4npvplus.net">
+        <fileTransfer accessType="SFTP" host="g4npvplus.net" port="22" sshConfigId="7a8b5739-c6a4-4c57-bb8b-286c4a87c0bb" sshConfig="pvpluy_1@g4npvplus.net:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+      <webServer id="cec2db37-872b-4cb1-a452-29e7d8a85258" name="mr.PVplus.net" url="http://mr.g4npvplus.net">
+        <fileTransfer rootFolder="/dev.pvp" accessType="SFTP" host="mr.g4npvplus.net" port="22" sshConfigId="c9116eb2-bcba-4037-bf46-712eff5d56e2" sshConfig="pvpluy_5@mr.g4npvplus.net:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+      <webServer id="4a34d0ff-3a8b-454b-a431-d36ce36a2211" name="ms.PVplus.net" url="http://ms.g4npvplus.net">
+        <fileTransfer rootFolder="/public_html/dev.ms/pvp4" accessType="SFTP" host="dedi6015.your-server.de" port="22" sshConfigId="0a132d4d-d24a-441e-a9f1-89d2a9a20353" sshConfig="pvpluy@dedi6015.your-server.de:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+      <webServer id="10797877-1bd9-4021-9af5-6161b64760d3" name="jm.PVplus.net" url="http://ms.g4npvplus.net">
+        <fileTransfer rootFolder="/public_html/dev.jm/PVplus-4.0" accessType="SFTP" host="dedi6015.your-server.de" port="22" sshConfigId="0a132d4d-d24a-441e-a9f1-89d2a9a20353" sshConfig="pvpluy@dedi6015.your-server.de:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
