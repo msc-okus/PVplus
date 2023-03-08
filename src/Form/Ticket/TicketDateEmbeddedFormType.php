@@ -9,13 +9,23 @@ use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Security\Core\Security;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class TicketDateEmbeddedFormType extends AbstractType
 {
     use PVPNameArraysTrait;
+    public function __construct(
+        private Security $security,
+        private TranslatorInterface $translator,
+    )
+    {
+    }
 
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+        $isDeveloper = $this->security->isGranted('ROLE_DEV');
+        $isAdmin     = $this->security->isGranted('ROLE_ADMIN');
 
         $builder
             ->add('dataGapEvaluation', ChoiceType::class, [
@@ -52,16 +62,19 @@ class TicketDateEmbeddedFormType extends AbstractType
                 'placeholder'   => 'Please select …',
                 'empty_data'    => '',
             ])
-            ->add('performanceKpi', ChoiceType::class, [
-                'label'         => 'Performance KPI',
-                'choices'       => self::kpiPerformace(),
-                'mapped'        => false
-            ])
-            ->add('performanceKpiValue', TextType::class, [
-                'label'         => 'Value',
-                'mapped'        => false
-            ])
-        ;
+            ;
+        if ($isDeveloper) {
+            $builder
+                ->add('performanceKpi', ChoiceType::class, [
+                    'label' => 'Performance KPI',
+                    'choices' => self::kpiPerformace(),
+                    'mapped' => false
+                ])
+                ->add('performanceKpiValue', TextType::class, [
+                    'label' => 'Value',
+                    'mapped' => false
+                ]);
+        }
     }
 
     public function configureOptions(OptionsResolver $resolver): void

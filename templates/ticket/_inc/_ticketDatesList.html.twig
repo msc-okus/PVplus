@@ -19,8 +19,10 @@
                 {% if (features and features.aktDep1) %}<td>PA {{ settings.nameDep1 }}</td>{% endif %}
                 {% if (features and features.aktDep2) %}<td>PA {{ settings.nameDep2 }}</td>{% endif %}
                 {% if (features and features.aktDep3) %}<td>PA {{ settings.nameDep3 }}</td>{% endif %}
-                <th>Performance KPIs</th>
-                <th></th>
+                {% if is_granted(('ROLE_DEV')) %}
+                    <th>Performance KPIs</th>
+                    <th></th>
+                {% endif %}
                 <th></th>
                 <th></th>
             </tr>
@@ -54,8 +56,10 @@
                     {% if (features and features.aktDep3) %}
                         <td>{{ form_widget(date.kpiPaDep3, { 'attr': {'class': 'no-margin',  'data-ticket-split-target':'aktDep3'} }) }}</td>
                     {% endif %}
-                    <td>{{ form_widget(date.performanceKpi, { 'attr': {'class': 'no-margin'} }) }}</td>
-                    <td>{{ form_widget(date.performanceKpiValue) }}</td>
+                    {% if is_granted(('ROLE_DEV')) %}
+                        <td>{{ form_widget(date.performanceKpi, { 'attr': {'class': 'no-margin'} }) }}</td>
+                        <td>{{ form_widget(date.performanceKpiValue) }}</td>
+                    {% endif %}
                     <td class="text-right">
                         <button class="{% if (features == null or features.SplitGap != true) %} is-hidden {% endif%} button action-icon tiny no-margin hollow shadow"
                                 {% if (ticketForm.dates|length) <= 1 %}disabled{% endif %}
