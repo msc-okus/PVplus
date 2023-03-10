@@ -15,6 +15,7 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 class TicketDateEmbeddedFormType extends AbstractType
 {
     use PVPNameArraysTrait;
+
     public function __construct(
         private Security $security,
         private TranslatorInterface $translator,
