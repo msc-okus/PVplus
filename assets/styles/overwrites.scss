@@ -250,7 +250,15 @@
         }
 
     }
+
+    .daterangepicker {
+        .table-condensed tr:nth-child(2n) {
+            background-color: transparent;
+        }
+    }
+
     main {
+
         background-color: $g4n-gray;
         padding-bottom: 2rem;
         padding-top: 2rem;
@@ -266,7 +274,11 @@
             background: #fefefe;
             color: #0a0a0a;
             transition: all 0.5s ease;
-            padding: 1rem;
+            padding: 0.5rem; // 1rem
+        }
+
+        .fieldset legend {
+            margin-left: 0.5rem;
         }
 
         .action-icon {

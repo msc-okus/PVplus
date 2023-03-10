@@ -156,6 +156,15 @@ trait PVPNameArraysTrait
         return $kpi;
     }
 
+    public function kpiPerformace(): array
+    {
+        $kpi['replace Power'] = 10;
+        $kpi['replace Irradiation'] = 20;
+        $kpi['tbd'] = 30;
+
+        return $kpi;
+    }
+
     public function kpiPaDep3(): array
     {
         return $this->errorType();

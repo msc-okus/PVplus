@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" autoUpload="On explicit save action" promptOnRemoteOverwrite="CHECK_TIMESTAMP" serverName="mr.PVplus.net" remoteFilesAllowedToDisappearOnAutoupload="false" confirmBeforeUploading="false" autoUploadExternalChanges="true" showExcludedInSync="true">
+    <option name="confirmBeforeUploading" value="false" />
+    <serverData>
+      <paths name="dev.PVplus.net">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath path="/vendor" />
+            <excludedPath path="/var" />
+            <excludedPath path="/public/build/ckeditor" />
+            <excludedPath path="/public/build/fonts" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+      <paths name="jm.PVplus.net">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath path="/var" />
+            <excludedPath path="/vendor" />
+            <excludedPath path="/node_modules" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+      <paths name="mr.PVplus.net">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath path="/var" />
+            <excludedPath path="/vendor" />
+            <excludedPath path="/node_modules" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+      <paths name="ms.PVplus.net">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath path="/var" />
+            <excludedPath path="/vendor" />
+            <excludedPath path="/node_modules" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+      <paths name="prod.PVplus.net">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+          <excludedPaths>
+            <excludedPath path="/vendor" />
+            <excludedPath path="/var" />
+          </excludedPaths>
+        </serverdata>
+      </paths>
+    </serverData>
+    <option name="myAutoUpload" value="ON_EXPLICIT_SAVE" />
+  </component>
+</project>
