@@ -160,7 +160,7 @@ trait PVPNameArraysTrait
     {
         $kpi['replace Power'] = 10;
         $kpi['replace Irradiation'] = 20;
-        $kpi['tbd'] = 30;
+        $kpi['tbd'] = 90;
 
         return $kpi;
     }
