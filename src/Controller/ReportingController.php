@@ -564,6 +564,7 @@ class ReportingController extends AbstractController
                                 'reportCreationDate' => $reportCreationDate,
                                 'epcNote'       => $anlage->getEpcReportNote(),
                                 'main_headline' => $report->getHeadline(),
+                                'reportStatus'  => $report->getReportStatus(),
                             ],
                         ];
                         $report = new EPCMonthlyPRGuaranteeReport([
@@ -1530,6 +1531,7 @@ class ReportingController extends AbstractController
                                 'kwpeak'        => $anlage->getPnom(),
                                 'reportCreationDate' => $reportCreationDate,
                                 'epcNote'       => $anlage->getEpcReportNote(),
+                                'reportStatus'  => $report->getReportStatus(),
                             ],
                         ];
                         $report = new EPCMonthlyPRGuaranteeReport([
