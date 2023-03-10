@@ -1,14 +1,23 @@
 
 <script>
-    //Date RangePicker Config and Function
+    // Date RangePicker Config and Function
     $(function() {
+        [startDate, endDate] = $('.daterange span').html().split(' - ');
+        // Predefine Startdate
+        if (!startDate){
+           var startDatex = moment().startOf('month');
+           var endDatex =  moment().endOf('month');
+            } else {
+            var startDatex = moment(startDate).toDate();
+            var endDatex = moment(endDate).toDate();
+        }
+        //
         $('.daterange').daterangepicker({
                 maxDate: moment().subtract(0, 'days'),
                 autostart:true,
-                showDropdowns: false,
                 showWeekNumbers: false,
-                startDate: moment().startOf('month'),
-                endDate: moment().endOf('month'),
+                startDate: startDatex,
+                endDate: endDatex,
                 showDropdowns: true,
                 minYear: 2020,
                 maxSpan: {
@@ -35,15 +44,25 @@
                         or form.selectedChart == 'acpnom'
                     %}
                         'Today': [moment(), moment()],
-                        'This Month': [moment().startOf('month'), moment().endOf('month')],
-                        'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-                        'Last 3 Month': [moment().subtract(3, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                        'This Month': [moment(startDatex).startOf('month'), moment(startDatex).endOf('month')],
+                        'Last Month': [moment(startDatex).subtract(1, 'month').startOf('month'), moment(startDatex).subtract(1, 'month').endOf('month')],
+                        'Last 3 Month': [moment(startDatex).subtract(3, 'month').startOf('month'), moment(startDatex).subtract(1, 'month').endOf('month')]
+                    {% elseif form.selectedChart == 'sollistanalyse'
+                        or form.selectedChart == 'sollisttempanalyse'
+                        or form.selectedChart == 'sollistirranalyse'
+                    %}
+                        'Today': [moment(), moment()],
+                        'Last 3 Days': [moment(startDatex).subtract(2, 'days'), moment(startDatex)],
+                        'Last 7 Days': [moment(startDatex).subtract(6, 'days'), moment(startDatex)],
+                        'Last 14 Days': [moment(startDatex).subtract(13, 'days'), moment(startDatex)],
+                        'This Month': [moment(startDatex).startOf('month'), moment(startDatex).endOf('month')],
+                        'Last 3 Month': [moment(startDatex).subtract(3, 'month').startOf('month'), moment(startDatex).subtract(1, 'month').endOf('month')],
                     {% else %}
                         'Today': [moment(), moment()],
-                        'Last 3 Days': [moment().subtract(2, 'days'), moment()],
-                        'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                        'Last 14 Days': [moment().subtract(13, 'days'), moment()],
-                        'This Month': [moment().startOf('month'), moment().endOf('month')],
+                        'Last 3 Days': [moment(startDatex).subtract(2, 'days'), moment(startDatex)],
+                        'Last 7 Days': [moment(startDatex).subtract(6, 'days'), moment(startDatex)],
+                        'Last 14 Days': [moment(startDatex).subtract(13, 'days'), moment(startDatex)],
+                        //'This Month': [moment(startDatex).startOf('month'), moment(startDatex).endOf('month')],
                         //'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
                         //'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
                         //'Last 3 Month': [moment().subtract(3, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
@@ -80,7 +99,7 @@
                 $("#chart-control").delay(100).submit();
             })
         );
-        // extra function
+        // Extra function
         var list = $('.ranges ul li');
         for(i=0;i<=list.length-1;i++) {
             list[i].addEventListener("click",setlabel);
