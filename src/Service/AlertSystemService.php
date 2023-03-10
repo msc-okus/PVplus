@@ -314,7 +314,6 @@ class AlertSystemService
         }
         // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
-
         $time = G4NTrait::timeAjustment($time, -2);
         if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
 
@@ -367,9 +366,11 @@ class AlertSystemService
                 $this->generateTickets(OMC, $errorCategorie, $anlage, '*', $time, "");
             }
         }
+
         if ((date('Y-m-d H:i', strtotime($time) + 900) >= $sungap['sunset']) && (date('Y-m-d H:i', strtotime($time) + 900) <= date('Y-m-d H:i', strtotime($sungap['sunset']) +1800))){
             $this->joinTicketsForTheDay($anlage, date('Y-m-d', strtotime($time)));
         }
+
         $this->em->flush();
 
         return 'success';
@@ -401,10 +402,10 @@ class AlertSystemService
         $return['Vol'] = "";
         $invCount = count($anlage->getInverterFromAnlage());
         $irradiation = $this->weatherFunctions->getIrrByStampForTicket($anlage, date_create($time));
-
+        dump($irrLimit, $irradiation, $anlage->getThreshold1PA0());
         if ($irradiation < $irrLimit) $this->irr = true;
         else $this->irr = false;
-        $counter = 0;
+
 
 
         if ($anlage->getHasPPC()) {
@@ -439,21 +440,21 @@ class AlertSystemService
             $resp = $conn->query($sqlVol);
             //here if there is no plant control we check the values and get the information to create the tickets
             $resultVol = $resp->fetchAll(PDO::FETCH_ASSOC);
-            if (count($resultNull) == $invCount) $return['Gap'] = '*';
+            if (count($resultNull) == $invCount &&  $this->irr == false) $return['Gap'] = '*';
             else {
                 foreach ($resultNull as $value) {
                     if ($return['Gap'] !== "") $return['Gap'] = $return['Gap'] . ", " . $value['unit'];
                     else $return['Gap'] = $value['unit'];
                 }
             }
-            if (count($result0) == $invCount) $return['Power0'] = '*';
+            if (count($result0) == $invCount &&  $this->irr == false) $return['Power0'] = '*';
             else {
                 foreach ($result0 as $value) {
                     if ($return['Power0'] !== "") $return['Power0'] = $return['Power0'] . ", " . $value['unit'];
                     else $return['Power0'] = $value['unit'];
                 }
             }
-            if (count($resultVol) == $invCount) $return['Vol'] = '*';
+            if (count($resultVol) == $invCount &&  $this->irr == false) $return['Vol'] = '*';
             else {
                 foreach ($resultVol as $value) {
                     if ($return['Vol'] !== "") $return['Vol'] = $return['Vol'] . ", " . $value['unit'];
@@ -477,8 +478,10 @@ class AlertSystemService
      */
     private function generateTickets($errorType, $errorCategorie, $anlage, $inverter, $time, $message)
     {
+        dump($time);
         $ticketOld = $this->getLastTicket($anlage, $time, $errorCategorie, $inverter);// we retrieve here the previous ticket (if any)
         //this could be the ticket from  the previous quarter or the last ticket from  the previous day
+        if ($inverter == "22") dump($ticketOld);
         if ($ticketOld !== null) { // is there is a previous ticket we just extend it
             $ticketDate = $ticketOld->getDates()->last();
             $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
@@ -610,8 +613,9 @@ class AlertSystemService
 
     private function getLastTicket($anlage, $time, $errorCategory, $inverter): mixed
     {
+        if ($inverter == "22") dump($inverter, $time, $errorCategory);
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
-        if (strtotime($time) - 900 < strtotime($sungap['sunrise'])) return $this->getTicketYesterday($anlage, $time, $errorCategory,  $inverter);
+        if (strtotime($time) - 900 <= strtotime($sungap['sunrise'])) return $this->getTicketYesterday($anlage, $time, $errorCategory,  $inverter);
         else return  $this->getLastTicketInverter($anlage, $time, $errorCategory, $inverter);
     }
 
