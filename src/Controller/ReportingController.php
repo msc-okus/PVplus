@@ -636,7 +636,7 @@ class ReportingController extends AbstractController
                         $output = $reportService->buildMonthlyReport($anlage, $report->getContentArray(), $reportCreationDate, 0, 0, true);
                 }
                 break;
-                /*
+
             case 'am-report':
                 $report = $reportsRepository->find($id);
                 if ($report) {
@@ -776,7 +776,7 @@ class ReportingController extends AbstractController
                     ]);
 
                 }
-                */
+
         }
         return $this->redirect($route);
     }
