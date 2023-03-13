@@ -46,12 +46,13 @@ class VoltageChartService
             case 4:
                 // z.B. Gronningen
                 $groupQuery = "group_ac = '$group' ";
-                $nameArray = $this->functions->getNameArray($anlage, 'ac');
+                $nameArray = $this->functions->getNameArray($anlage, 'dc');
                 break;
             default:
                 $groupQuery = "group_dc = '$group' ";
                 $nameArray = $this->functions->getNameArray($anlage, 'dc');
         }
+
         $dataArray['inverterArray'] = $nameArray;
         // SOLL Strom für diesen Zeitraum und diese Gruppe
         $sqlExp = 'SELECT a.stamp as stamp, AVG(b.dc_exp_voltage) as expected
@@ -62,8 +63,9 @@ class VoltageChartService
         $expectedResult = $result->fetchAll(PDO::FETCH_ASSOC);
 
         $invertersInGroup = ($acGroups[$group]['GMAX'] - $acGroups[$group]['GMIN']) + 1;
+
         if ($result->rowCount() > 0) {
-            $dataArray['maxSeries'] = $invertersInGroup;
+            $dataArray['sumSeries'] = $invertersInGroup;
             $counter = 0;
             foreach ($expectedResult as $rowSoll) {
                 $stamp = $rowSoll['stamp'];
@@ -94,32 +96,34 @@ class VoltageChartService
                 switch ($anlage->getConfigType()) {
                     case 1:
                     case 2:
-                        $sql = 'SELECT AVG(wr_udc) as istCurrent FROM '.$anlage->getDbNameACIst().' WHERE '.$wherePart1." AND $groupQuery group by date_format(stamp, '$form'), group_dc;";
+                        $sql = 'SELECT AVG(wr_udc) as istCurrent, group_dc as dc_num FROM '.$anlage->getDbNameACIst().' WHERE '.$wherePart1." AND $groupQuery group by date_format(stamp, '$form'), group_dc;";
                         break;
                     case 3:
-                        $sql = 'SELECT AVG(wr_udc) as istCurrent FROM '.$anlage->getDbNameDCIst().' WHERE '.$wherePart1." AND $groupQuery group by date_format(stamp, '$form'), wr_num;";
+                        $sql = 'SELECT AVG(wr_udc) as istCurrent, wr_num as dc_num FROM '.$anlage->getDbNameDCIst().' WHERE '.$wherePart1." AND $groupQuery group by date_format(stamp, '$form'), wr_num;";
                         break;
                     case 4:
-                        $sql = 'SELECT AVG(wr_udc) as istCurrent FROM '.$anlage->getDbNameDCIst().' WHERE '.$wherePart1." AND $groupQuery group by date_format(stamp, '$form');";
+                        $sql = 'SELECT AVG(wr_udc) as istCurrent, wr_num as dc_num FROM '.$anlage->getDbNameDCIst().' WHERE '.$wherePart1." AND $groupQuery group by date_format(stamp, '$form');";
                         break;
                 }
+
                 $resultAct = $conn->query($sql);
                 $inverterCount = 1;
+
                 while ($rowAct = $resultAct->fetch(PDO::FETCH_ASSOC)) {
                     $currentAct = $hour ? $rowAct['istCurrent'] / 4 : $rowAct['istCurrent'];
                     $currentAct = round($currentAct, 2);
                     if (!($currentAct == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
-                        $dataArray['chart'][$counter][$nameArray[$inverterCount]] = $currentAct;
+                        $dataArray['chart'][$counter][$nameArray[$rowAct['dc_num']]] = $currentAct;
                     }
-
                     ++$inverterCount;
                 }
-                ++$counter;
+                $dataArray['minSeries'] = $acGroups[$group]['GMIN'];
+                $dataArray['maxSeries'] = $acGroups[$group]['GMAX'] - 1;
                 $dataArray['offsetLegend'] = $acGroups[$group]['GMIN'] - 1;
+                ++$counter;
             }
         }
         $conn = null;
-
         return $dataArray;
     }
 
