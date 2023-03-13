@@ -139,7 +139,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             // Create axes
             let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
             let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-
+            valueAxis.title.text = "{{ content.seriesx.tooltipText }}";
 
             // Create series
             let series1 = chart.series.push(new am4charts.LineSeries());
@@ -223,7 +223,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             // Create axes
             let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
             let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-
+            valueAxis.title.text = "{{ content.seriesx.tooltipText }}";
             // Create series
             let series0 = chart.series.push(new am4charts.LineSeries());
             series0.name = "{{ content.series0.name }}";
@@ -316,7 +316,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             // Create axes
             let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
             let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-
+            valueAxis.title.text = "{{ content.seriesx.tooltipText }}";
             // Create series
             let series0 = chart.series.push(new am4charts.LineSeries());
             series0.name = "{{ content.series1.name }}";
@@ -401,7 +401,7 @@ and form.selectedChart != 'sollistirranalyse'%}
             // Create axes
             let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
             let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-
+            valueAxis.title.text = "{{ content.seriesx.tooltipText }}";
             // Create series
             let series0 = chart.series.push(new am4charts.LineSeries());
             series0.name = "{{ content.series1.name }}";
