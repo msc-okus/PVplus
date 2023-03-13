@@ -27,7 +27,7 @@
         // Create axes
         let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
         let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
-
+        valueAxis.title.text = "{{ content.seriesx.tooltipText }}";
         // Expected series
         let seriesE = chart.series.push(new am4charts.LineSeries());
         seriesE.name = "Expected DC"

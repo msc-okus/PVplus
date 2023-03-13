@@ -130,7 +130,6 @@ class ChartService
             switch ($form['selectedChart']) {
                 // AC Charts //
                 // AC1 //
-
                 case 'ac_single':
                     $dataArray = $this->acCharts->getAC1($anlage, $from, $to, $hour);
                     if ($dataArray) {
@@ -145,7 +144,8 @@ class ChartService
                         $resultArray['theoPowerSum'] = $dataArray['theoPowerSum'];
                         $resultArray['expNoLimitSum'] = $dataArray['expNoLimitSum'];
                         $resultArray['cosPhiSum'] = $dataArray['cosPhiSum'];
-                        $resultArray['headline'] = 'AC production [kWh] – actual and expected';
+                        $resultArray['headline'] = 'AC production [[kWh]] – actual and expected';
+                        $resultArray['seriesx']['tooltipText'] = '[[kWh]]';
                     }
                     break;
                     // AC2 //
@@ -154,12 +154,12 @@ class ChartService
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'AC Production by Group [kWh] – Actual and Expected';
+                        $resultArray['headline'] = 'AC Production by Group [[kWh]] – Actual and Expected';
                         $resultArray['series1']['name'] = 'Expected';
                         $resultArray['series1']['tooltipText'] = 'Expected ';
                         $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
                         $resultArray['seriesx']['name'] = 'Inverter ';
-                        $resultArray['seriesx']['tooltipText'] = 'Inverter ';
+                        $resultArray['seriesx']['tooltipText'] = '[[kWh]]';
                         $resultArray['inverterArray'] = json_encode($dataArray['inverterArray']);
                     }
                     break;
@@ -169,12 +169,12 @@ class ChartService
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'AC Production by Group [kWh] – Actual and Expected';
+                        $resultArray['headline'] = 'AC Production by Group [[kWh]] – Actual and Expected';
                         $resultArray['series1']['name'] = 'Expected';
                         $resultArray['series1']['tooltipText'] = 'Expected ';
                         $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
                         $resultArray['seriesx']['name'] = 'Inverter ';
-                        $resultArray['seriesx']['tooltipText'] = 'Inverter ';
+                        $resultArray['seriesx']['tooltipText'] = '[[kWh]]';
                         $resultArray['inverterArray'] = json_encode($dataArray['inverterArray']);
                     }
                     break;
@@ -186,9 +186,9 @@ class ChartService
                         $resultArray['hasLink'] = false;
                         $resultArray['rangeValue'] = $dataArray['rangeValue'];
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'AC Inverter Production [kWh]';
+                        $resultArray['headline'] = 'AC Inverter Production [[kWh]]';
                         $resultArray['series1']['name'] = 'Actual Inverter ';
-                        $resultArray['series1']['tooltipText'] = 'Actual Inverter [kWh] Group ';
+                        $resultArray['series1']['tooltipText'] = '[[kWh]]';
                     }
                     break;
                 case 'ac_act_voltage':
@@ -196,16 +196,16 @@ class ChartService
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'AC Production Voltage [V]';
+                        $resultArray['headline'] = 'AC Production Voltage [[V]]';
                         $resultArray['series1']['name'] = 'Voltage Phase 1';
-                        $resultArray['series1']['tooltipText'] = 'Voltage Phase 1';
+                        $resultArray['series1']['tooltipText'] = 'Voltage Phase 1 [[V]]';
                         $resultArray['series2']['name'] = 'Voltage Phase 2';
-                        $resultArray['series2']['tooltipText'] = 'Voltage Phase 2';
+                        $resultArray['series2']['tooltipText'] = 'Voltage Phase 2 [[V]]';
                         $resultArray['series3']['name'] = 'Voltage Phase 3';
-                        $resultArray['series3']['tooltipText'] = 'Voltage Phase 3';
+                        $resultArray['series3']['tooltipText'] = 'Voltage Phase 3 [[V]]';
                         $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
                         $resultArray['seriesx']['name'] = 'Actual Inverter ';
-                        $resultArray['seriesx']['tooltipText'] = 'Inverter ';
+                        $resultArray['seriesx']['tooltipText'] = '[[V]]';
                         $resultArray['inverterArray'] = json_encode($dataArray['inverterArray']);
                     }
                     break;
@@ -214,15 +214,16 @@ class ChartService
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'AC Production Current [A]';
+                        $resultArray['headline'] = 'AC Production Current [[A]]';
                         $resultArray['series0']['name'] = 'Current (Sum Phase 1-3)';
-                        $resultArray['series0']['tooltipText'] = 'Current (Sum Phase 1-3)';
+                        $resultArray['series0']['tooltipText'] = 'Current (Sum Phase 1-3) [[A]]';
                         $resultArray['series1']['name'] = 'Current Phase 1';
-                        $resultArray['series1']['tooltipText'] = 'Current Phase 1';
+                        $resultArray['series1']['tooltipText'] = 'Current Phase 1 [[A]]';
                         $resultArray['series2']['name'] = 'Current Phase 2';
-                        $resultArray['series2']['tooltipText'] = 'Current Phase 2';
+                        $resultArray['series2']['tooltipText'] = 'Current Phase 2 [[A]]';
                         $resultArray['series3']['name'] = 'Current Phase 3';
-                        $resultArray['series3']['tooltipText'] = 'Current Phase 3';
+                        $resultArray['series3']['tooltipText'] = 'Current Phase 3 [[A]]';
+                        $resultArray['seriesx']['tooltipText'] = '[[A]]';
                         $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
                     }
                     break;
@@ -231,9 +232,10 @@ class ChartService
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'AC Frequency [Hz]';
+                        $resultArray['headline'] = 'AC Frequency [[Hz]]';
                         $resultArray['series1']['name'] = 'Frequency';
                         $resultArray['series1']['tooltipText'] = 'Frequency ';
+                        $resultArray['seriesx']['tooltipText'] = '[[Hz]]';
                         $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
                     }
                     break;
@@ -242,13 +244,13 @@ class ChartService
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'Reactive power [kVAr]';
+                        $resultArray['headline'] = 'Reactive power [[kVAr]]';
                         $resultArray['series1']['name'] = 'Reactive power';
                         $resultArray['series1']['tooltipText'] = 'Reactive power ';
+                        $resultArray['seriesx']['tooltipText'] = '[[kVAr]]';
                         $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
                     }
                     break;
-
                     // DC Charts //
                 case 'dc_single':
                     $dataArray = $this->dcChart->getDC1($anlage, $from, $to, $hour);
@@ -258,7 +260,8 @@ class ChartService
                         $resultArray['expSum'] = $dataArray['expSum'];
                         $resultArray['irrSum'] = $dataArray['irrSum']; // Einstrahlung in kW/m²
                         $resultArray['theoPowerSum'] = 0;
-                        $resultArray['headline'] = 'DC Production [kWh] – Actual and Expected';
+                        $resultArray['headline'] = 'DC Production [[kWh]] – Actual and Expected';
+                        $resultArray['seriesx']['tooltipText'] = '[[kWh]]';
                     }
                     break;
                 case 'dc_act_overview':
@@ -266,12 +269,12 @@ class ChartService
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'DC Production [kWh]';
+                        $resultArray['headline'] = 'DC Production [[kWh]]';
                         $resultArray['series1']['name'] = 'Expected ';
                         $resultArray['series1']['tooltipText'] = 'Expected [[kWh]]';
                         $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
                         $resultArray['seriesx']['name'] = 'Inverter ';
-                        $resultArray['seriesx']['tooltipText'] = 'Act [kWh]';
+                        $resultArray['seriesx']['tooltipText'] = '[[kWh]]';
                         $resultArray['inverterArray'] = json_encode($dataArray['inverterArray']);
                     }
                     break;
@@ -280,12 +283,12 @@ class ChartService
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'DC Production by Group [kWh]';
+                        $resultArray['headline'] = 'DC Production by Group [[kWh]]';
                         $resultArray['series1']['name'] = 'Expected';
                         $resultArray['series1']['tooltipText'] = 'Expected ';
                         $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
                         $resultArray['seriesx']['name'] = 'Inverter ';
-                        $resultArray['seriesx']['tooltipText'] = 'Inverter ';
+                        $resultArray['seriesx']['tooltipText'] = '[[kWh]]';
                         $resultArray['inverterArray'] = json_encode($dataArray['inverterArray']);
                     }
                     break;
@@ -296,11 +299,11 @@ class ChartService
                         $resultArray['hasLink'] = true;
                         $resultArray['rangeValue'] = $dataArray['rangeValue'];
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'DC Inverter Production [kWh]';
+                        $resultArray['headline'] = 'DC Inverter Production [[kWh]]';
                         $resultArray['series1']['name'] = 'Expected';
-                        $resultArray['series1']['tooltipText'] = 'Expected [kWh]';
+                        $resultArray['series1']['tooltipText'] = 'Expected [[kWh]]';
                         $resultArray['seriesx']['name'] = 'Actual Inverter ';
-                        $resultArray['seriesx']['tooltipText'] = 'Actual Inverter [kWh] Group ';
+                        $resultArray['seriesx']['tooltipText'] = '[[kWh]]';
                     }
                     break;
                 case 'dc_inv_power_diff': // ?????????????
@@ -309,17 +312,15 @@ class ChartService
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['rangeValue'] = $dataArray['rangeValue'];
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'DC Inverter Production [kWh]';
+                        $resultArray['headline'] = 'DC Inverter Production [[kWh]]';
                         $resultArray['series1']['name'] = 'Expected';
-                        $resultArray['series1']['tooltipText'] = 'Expected [kWh]';
+                        $resultArray['series1']['tooltipText'] = 'Expected [[kWh]]';
                         $resultArray['seriesx']['name'] = 'Actual Inverter ';
-                        $resultArray['seriesx']['tooltipText'] = 'Actual Inverter [kWh] Group ';
+                        $resultArray['seriesx']['tooltipText'] = '[[kWh]]';
                     }
                     break;
-
                     // Current Charts DC //
                     // Übersicht Strom auf Basis der AC Gruppe
-                //
                 case 'dc_current_overview':
                     $dataArray = $this->currentChart->getCurr1($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray) {
@@ -328,11 +329,11 @@ class ChartService
                         $resultArray['minSeries'] = $dataArray['minSeries'];
                         $resultArray['sumSeries'] = $dataArray['sumSeries'];
                         $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
-                        $resultArray['headline'] = 'DC Current [A] - overview';
+                        $resultArray['headline'] = 'DC Current [[A]] - overview';
                         $resultArray['series1']['name'] = 'Expected';
                         $resultArray['series1']['tooltipText'] = 'Expected';
-                        $resultArray['seriesx']['name'] = '';
-                        $resultArray['seriesx']['tooltipText'] = '';
+                        $resultArray['seriesx']['name'] = 'Group ';
+                        $resultArray['seriesx']['tooltipText'] = '[[A]]';
                         $resultArray['inverterArray'] = json_encode($dataArray['inverterArray']);
                     }
                     break;
@@ -342,25 +343,24 @@ class ChartService
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
                         $resultArray['label'] = $dataArray['label'];
-                        $resultArray['headline'] = 'DC Current [A] - all Groups';
+                        $resultArray['headline'] = 'DC Current [[A]] - all Groups';
                         $resultArray['series1']['name'] = 'Expected Group';
                         $resultArray['series1']['tooltipText'] = 'Expected Group ';
                         $resultArray['seriesx']['name'] = 'Group ';
-                        $resultArray['seriesx']['tooltipText'] = 'Group ';
+                        $resultArray['seriesx']['tooltipText'] = '[[A]] ';
                     }
                     break;
                 case 'dc_current_inverter':
                     $dataArray = $this->currentChart->getCurr3($anlage, $from, $to, $form['selectedGroup'], $hour);
-
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'DC Current [A]';
+                        $resultArray['headline'] = 'DC Current [[A]]';
                         $resultArray['series1']['name'] = 'Expected ';
                         $resultArray['series1']['tooltipText'] = 'Expected current [[A]]';
                         $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
                         $resultArray['seriesx']['name'] = 'Inverter ';
-                        $resultArray['seriesx']['tooltipText'] = 'Act current [A]';
+                        $resultArray['seriesx']['tooltipText'] = '[[A]]';
                         $resultArray['inverterArray'] = json_encode($dataArray['inverterArray']);
                     }
                     break;
@@ -369,25 +369,25 @@ class ChartService
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'DC Current [A]';
+                        $resultArray['headline'] = 'DC Current [[A]]';
                         $resultArray['seriesx']['name'] = 'String ';
-                        $resultArray['seriesx']['tooltipText'] = 'Actuale current [A]';
+                        $resultArray['seriesx']['tooltipText'] = '[[A]]';
                     }
                     break;
-
-
                 // Voltage Charts DC //
                 case 'dc_voltage_1':
                     $dataArray = $this->voltageChart->getVoltage1($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
+                        $resultArray['minSeries'] = $dataArray['minSeries'];
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
+                        $resultArray['sumSeries'] = $dataArray['sumSeries'];
                         $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
-                        $resultArray['headline'] = 'DC Overview AVG Electricity [V]';
+                        $resultArray['headline'] = 'DC Overview AVG Electricity [[V]]';
                         $resultArray['series1']['name'] = 'Expected';
                         $resultArray['series1']['tooltipText'] = 'Expected';
                         $resultArray['seriesx']['name'] = 'Group ';
-                        $resultArray['seriesx']['tooltipText'] = 'Group electricity [V]';
+                        $resultArray['seriesx']['tooltipText'] = '[[V]]';
                         $resultArray['inverterArray'] = json_encode($dataArray['inverterArray']);
                     }
                     break;
@@ -397,9 +397,9 @@ class ChartService
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'Electricity [V]';
+                        $resultArray['headline'] = 'Group Electricity [[V]]';
                         $resultArray['seriesx']['name'] = 'Group ';
-                        $resultArray['seriesx']['tooltipText'] = 'Group electricity [V]';
+                        $resultArray['seriesx']['tooltipText'] = '[[V]]';
                     }
                     break;
                 case 'dc_voltage_mpp':
@@ -407,30 +407,29 @@ class ChartService
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'DC Voltage [V]';
+                        $resultArray['headline'] = 'DC Voltage [[V]]';
                         $resultArray['seriesx']['name'] = 'String ';
-                        $resultArray['seriesx']['tooltipText'] = 'Voltage [V]';
+                        $resultArray['seriesx']['tooltipText'] = '[[V]]';
                     }
                     break;
-
                 case 'irradiation':
                     $dataArray = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
-                        $resultArray['headline'] = 'Irradiation [W/m²]';
+                        $resultArray['headline'] = 'Irradiation [[W/m²]]';
                         $resultArray['series1']['name'] = ($anlage->getWeatherStation()->getLabelUpper() != '') ? $anlage->getWeatherStation()->getLabelUpper() : 'Incident upper table';
-                        $resultArray['series1']['tooltipText'] = (($anlage->getWeatherStation()->getLabelUpper() != '') ? $anlage->getWeatherStation()->getLabelUpper() : 'Incident upper table').' [W/m²]';
+                        $resultArray['series1']['tooltipText'] = (($anlage->getWeatherStation()->getLabelUpper() != '') ? $anlage->getWeatherStation()->getLabelUpper() : 'Incident upper table').' [[W/m²]]';
                         $resultArray['series2']['name'] = ($anlage->getWeatherStation()->getLabelLower() != '') ? $anlage->getWeatherStation()->getLabelLower() : 'Incident lower table';
-                        $resultArray['series2']['tooltipText'] = (($anlage->getWeatherStation()->getLabelLower() != '') ? $anlage->getWeatherStation()->getLabelLower() : 'Incident lower table').' [W/m²]';
+                        $resultArray['series2']['tooltipText'] = (($anlage->getWeatherStation()->getLabelLower() != '') ? $anlage->getWeatherStation()->getLabelLower() : 'Incident lower table').' [[W/m²]]';
                     }
                     break;
                 case 'irradiation_one':
                     $dataArray = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'upper', $hour);
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
-                        $resultArray['headline'] = 'Irradiation [W/m²]';
+                        $resultArray['headline'] = 'Irradiation [[W/m²]]';
                         $resultArray['series1']['name'] = ($anlage->getWeatherStation()->getLabelUpper() != '') ? $anlage->getWeatherStation()->getLabelUpper() : 'Incident';
-                        $resultArray['series1']['tooltipText'] = (($anlage->getWeatherStation()->getLabelUpper() != '') ? $anlage->getWeatherStation()->getLabelUpper() : 'Incident').' [W/m²]';
+                        $resultArray['series1']['tooltipText'] = (($anlage->getWeatherStation()->getLabelUpper() != '') ? $anlage->getWeatherStation()->getLabelUpper() : 'Incident').' [[W/m²]]';
                     }
                     break;
                 case 'irradiation_plant':
@@ -438,11 +437,11 @@ class ChartService
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
-                        $resultArray['headline'] = 'Irradiation w/m²';
+                        $resultArray['headline'] = 'Irradiation [[W/m²]]';
                         $resultArray['series1']['name'] = 'Irr G4N';
                         $resultArray['series1']['tooltipText'] = 'G4N';
                         $resultArray['seriesx']['name'] = 'Irradiation ';
-                        $resultArray['seriesx']['tooltipText'] = 'Irradiation w/m²';
+                        $resultArray['seriesx']['tooltipText'] = '[[W/m²]]';
                         $resultArray['nameX'] = json_encode($dataArray['nameX']);
                     }
                     break;
@@ -450,13 +449,13 @@ class ChartService
                     $dataArray = $this->getAirAndPanelTemp($anlage, $from, $to, $hour);
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
-                        $resultArray['headline'] = 'Air and Panel Temperature °C';
-                        $resultArray['series1']['name'] = 'Air temperature °C';
-                        $resultArray['series1']['tooltipText'] = 'Air temperature °C';
-                        $resultArray['series2']['name'] = 'Panel temperature °C';
-                        $resultArray['series2']['tooltipText'] = 'Panel temperature °C';
-                        $resultArray['series3']['name'] = 'Panel temperature corrected °C';
-                        $resultArray['series3']['tooltipText'] = 'Panel temperature corrected °C';
+                        $resultArray['headline'] = 'Air and Panel Temperature [[°C]]';
+                        $resultArray['series1']['name'] = 'Air temperature [[°C]]';
+                        $resultArray['series1']['tooltipText'] = '[[°C]]';
+                        $resultArray['series2']['name'] = 'Panel temperature [[°C]]';
+                        $resultArray['series2']['tooltipText'] = '[[°C]]';
+                        $resultArray['series3']['name'] = 'Panel temperature corrected [[°C]]';
+                        $resultArray['series3']['tooltipText'] = ' [[°C]]';
                     }
                     break;
                 case 'pr_and_av':
@@ -525,7 +524,7 @@ class ChartService
                 case 'heatmap':
                     $dataArray = $this->heatmapChartService->getHeatmap($anlage, $from, $to, $form['selectedSet']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
-                    $resultArray['headline'] = 'Inverter PR Heatmap [%]';
+                    $resultArray['headline'] = 'Inverter PR Heatmap [[%]]';
                     $resultArray['maxSeries'] = $dataArray['maxSeries'];
                     $resultArray['minSeries'] = $dataArray['minSeries'];
                     $resultArray['sumSeries'] = $dataArray['sumSeries'];
@@ -533,7 +532,7 @@ class ChartService
                 case 'tempheatmap':
                     $dataArray = $this->tempheatmapChartService->getTempHeatmap($anlage, $from, $to, $form['selectedSet']);
                     $resultArray['data'] = json_encode($dataArray['chart']);
-                    $resultArray['headline'] = 'Inverter Temperature Heatmap [C°]';
+                    $resultArray['headline'] = 'Inverter Temperature Heatmap [[°C]]';
                     $resultArray['maxSeries'] = $dataArray['maxSeries'];
                     $resultArray['minSeries'] = $dataArray['minSeries'];
                     $resultArray['sumSeries'] = $dataArray['sumSeries'];
@@ -569,9 +568,7 @@ class ChartService
 
         return $resultArray;
     }
-
     // ##########################################
-
     private function getPlantAvailability(Anlage $anlage, DateTime $from, DateTime $to): array
     {
         $dataArray = [];
