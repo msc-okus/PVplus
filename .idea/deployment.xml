@@ -8,12 +8,6 @@
           <mappings>
             <mapping deploy="/" local="$PROJECT_DIR$" web="/" />
           </mappings>
-          <excludedPaths>
-            <excludedPath path="/vendor" />
-            <excludedPath path="/var" />
-            <excludedPath path="/public/build/ckeditor" />
-            <excludedPath path="/public/build/fonts" />
-          </excludedPaths>
         </serverdata>
       </paths>
       <paths name="jm.PVplus.net">
@@ -21,11 +15,6 @@
           <mappings>
             <mapping deploy="/" local="$PROJECT_DIR$" web="/" />
           </mappings>
-          <excludedPaths>
-            <excludedPath path="/var" />
-            <excludedPath path="/vendor" />
-            <excludedPath path="/node_modules" />
-          </excludedPaths>
         </serverdata>
       </paths>
       <paths name="mr.PVplus.net">
@@ -33,11 +22,6 @@
           <mappings>
             <mapping deploy="/" local="$PROJECT_DIR$" web="/" />
           </mappings>
-          <excludedPaths>
-            <excludedPath path="/var" />
-            <excludedPath path="/vendor" />
-            <excludedPath path="/node_modules" />
-          </excludedPaths>
         </serverdata>
       </paths>
       <paths name="ms.PVplus.net">
@@ -45,11 +29,6 @@
           <mappings>
             <mapping deploy="/" local="$PROJECT_DIR$" web="/" />
           </mappings>
-          <excludedPaths>
-            <excludedPath path="/var" />
-            <excludedPath path="/vendor" />
-            <excludedPath path="/node_modules" />
-          </excludedPaths>
         </serverdata>
       </paths>
       <paths name="prod.PVplus.net">
@@ -57,10 +36,6 @@
           <mappings>
             <mapping deploy="/" local="$PROJECT_DIR$" web="/" />
           </mappings>
-          <excludedPaths>
-            <excludedPath path="/vendor" />
-            <excludedPath path="/var" />
-          </excludedPaths>
         </serverdata>
       </paths>
     </serverData>
