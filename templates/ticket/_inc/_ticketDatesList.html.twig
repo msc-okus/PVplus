@@ -5,6 +5,7 @@
     {% set features = false %}
     {% set settings = false %}
 {% endif %}
+
 <div class="grid-x grid-padding-x">
     <div class="cell small-12">
         <table>
@@ -31,13 +32,13 @@
             {% if (ticketForm.dates != null) %}
                 {% for date in ticketForm.dates %}
                 <tr {{ stimulus_controller('ticket-split', {
-                    urlSplit: path('app_ticket_split', {id: date.vars.value.id}),
-                    urlDelete: path('app_ticket_delete', {id: date.vars.value.id}),
-                    errorType:  ticket.alertType
+                    urlSplit: path('app_ticket_split', {id: date.vars.value.id|default(0)|default(0)}),
+                    urlDelete: path('app_ticket_delete', {id: date.vars.value.id|default(0)|default(0)}),
+                    errorType: ticket.alertType
                 }) }}>
                     <td>{{ loop.index }} ({{ date.vars.value.intervals }})</td>
-                    <td>{{ date.vars.value.begin|format_datetime(pattern="yyyy-MM-dd HH:mm") }}</td>
-                    <td>{{ date.vars.value.end|format_datetime(pattern="yyyy-MM-dd HH:mm") }}</td>
+                    <td>{{ form_widget(date.begin) }}{# {{ date.vars.value.begin|format_datetime(pattern="yyyy-MM-dd HH:mm") }} #}</td>
+                    <td>{{ form_widget(date.end) }}{# {{ date.vars.value.end|format_datetime(pattern="yyyy-MM-dd HH:mm") }} #}</td>
 
                     {% if (ticket.alertType != 10 and ticket.alertType != 20) %}
                         <td hidden>{{ form_widget(date.dataGapEvaluation, { 'attr':{'class': 'no-margin', 'data-ticket-split-target':'dataGapEv', 'data-action':'change->ticket-split#checkKpiSelectBoxes', 'disabled':'true'} }) }}</td>
@@ -65,23 +66,23 @@
                                 {% if (ticketForm.dates|length) <= 1 %}disabled{% endif %}
                                 type="button"
                                 data-action="ticket-split#openDelete"
-                                data-ticket-edit-id-param="{{ date.vars.value.id }}"
+                                data-ticket-edit-id-param="{{ date.vars.value.id|default(0) }}"
                         >
                             <span class="fa fa-trash-alt"></span>
                         </button>
 
-                        <div id="formdelete{{ date.vars.value.id }}">
+                        <div id="formdelete{{ date.vars.value.id|default(0) }}">
                             <div class="reveal"
                                  data-reveal
-                                 data-append-to="div#formdelete{{ date.vars.value.id }}"
+                                 data-append-to="div#formdelete{{ date.vars.value.id|default(0) }}"
                                  data-multiple-opened="true"
                                  data-ticket-split-target="splitDelete"
                             >
                                 <div>
                                     <fieldset class="fieldset">
                                         <legend>Choose which interval you want to extend:</legend>
-                                        <select class="select-{{ date.vars.value.id }}"
-                                                data-ticket-split-id-param="{{ date.vars.value.id }}"
+                                        <select class="select-{{ date.vars.value.id|default(0) }}"
+                                                data-ticket-split-id-param="{{ date.vars.value.id|default(0) }}"
                                                 data-action="change->ticket-split#delete"
                                         >
                                             <option value="">Please Choose one</option>
@@ -100,22 +101,22 @@
                             </div>
                         </div>
                     </td> {# delete Button #}
-                    <td id="{{ date.vars.value.id }}">
+                    <td id="{{ date.vars.value.id|default(0) }}">
                         <button
                                 {% if (date.vars.value.end|date("U") - date.vars.value.begin|date("U") <= 900) %} disabled {% endif %}
                                 {% if (features == null or features.SplitGap != true) %} hidden {% endif%}
                                 type="button"
                                 class="button action-icon tiny no-margin hollow shadow {% if (features == null or features.SplitGap != true) %} is-hidden {% endif%}"
                                 data-action="ticket-split#openSplitTicket"
-                                data-ticket-edit-id-param="{{ date.vars.value.id }}"
+                                data-ticket-edit-id-param="{{ date.vars.value.id|default(0) }}"
                         >
                             <span class="fa fa-plus"></span>
                         </button>
 
-                        <div id="formd{{ date.vars.value.id }}">
-                            <div class="reveal" id="split-ticket{{ date.vars.value.id }}"
+                        <div id="formd{{ date.vars.value.id|default(0) }}">
+                            <div class="reveal" id="split-ticket{{ date.vars.value.id|default(0) }}"
                                  data-reveal
-                                 data-append-to="div#formd{{ date.vars.value.id }}"
+                                 data-append-to="div#formd{{ date.vars.value.id|default(0) }}"
                                  data-multiple-opened="true"
                                  data-ticket-split-target="splitModal"
                             >
@@ -148,14 +149,14 @@
                                                 >
 
                                                 <input type="datetime-local"
-                                                       class="{{ date.vars.value.id }}"
+                                                       class="{{ date.vars.value.id|default(0) }}"
                                                        name="begin-time"
                                                        value="{{ date.vars.value.begin()|format_datetime(pattern="yyyy-MM-dd'T'HH:mm") }}"
                                                        min="{{ date.vars.value.begin()|format_datetime(pattern="yyyy-MM-dd'T'HH:mm") }}"
                                                        max="{{ date.vars.value.end()|format_datetime(pattern="yyyy-MM-dd'T'HH:mm") }}"
                                                        step="900"
                                                        data-action="change->ticket-split#check"
-                                                       data-ticket-split-id-param="{{ date.vars.value.id }}"
+                                                       data-ticket-split-id-param="{{ date.vars.value.id|default(0) }}"
                                                 >
                                                 <input disabled
                                                        type="datetime-local"
@@ -170,7 +171,7 @@
                                                     type="button"
                                                     class="button"
                                                     data-action="ticket-split#splitTicket"
-                                                    data-ticket-split-id-param="{{ date.vars.value.id }}"
+                                                    data-ticket-split-id-param="{{ date.vars.value.id|default(0) }}"
                                                     disabled
                                             >Split Ticket
                                             </button>

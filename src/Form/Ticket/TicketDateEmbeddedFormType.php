@@ -4,8 +4,10 @@ namespace App\Form\Ticket;
 
 use App\Entity\TicketDate;
 use App\Helper\PVPNameArraysTrait;
+use FluidTYPO3\Flux\Form\Field\DateTime;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -37,9 +39,22 @@ class TicketDateEmbeddedFormType extends AbstractType
                     'comm. issue'   => 20,
                 ],
             ])
+            ->add('begin', DateTimeType::class, [
+                'widget' => 'single_text',
+                'attr' => [
+                    'readonly' => true,
+                    'disabled' => true,
+                ],
+            ])
+            ->add('end', DateTimeType::class, [
+                'widget' => 'single_text',
+                'attr' => [
+                    'readonly' => true,
+                    'disabled' => true,
+                ],
+            ])
             ->add('errorType', ChoiceType::class, [
                 'label'         => 'Type of error',
-                'help'          => 'SOR, EFOR, OMC',
                 'choices'       => self::errorType(),
                 'placeholder'   => 'Please select …',
                 'disabled'      => false,

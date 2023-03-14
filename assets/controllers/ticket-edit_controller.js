@@ -162,7 +162,6 @@ export default class extends Controller {
     }
 
     saveCheck({ params: { edited }}){
-        console.log('hey');
         //getting a string with the inverters so later we can check if there is any or none
         let inverterString = '';
         let body = $(this.modalBodyTarget);

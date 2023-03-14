@@ -23,7 +23,7 @@ class TicketDate
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column(type: 'integer')]
-    private int $id;
+    private ?int $id;
 
     #[ORM\ManyToOne(targetEntity: Ticket::class, inversedBy: 'dates')]
     #[ORM\JoinColumn(nullable: true)]
@@ -40,6 +40,7 @@ class TicketDate
 
     public function getId(): ?int
     {
+        if (!isset($this->id)) return 0;
         return $this->id;
     }
 
@@ -67,7 +68,7 @@ class TicketDate
         return $this;
     }
 
-    public function copyTicket(Ticket $ticket)
+    public function copyTicket(Ticket $ticket): void
     {
         $this->begin = $ticket->getBegin();
         $this->end = $ticket->getEnd();
@@ -90,7 +91,7 @@ class TicketDate
         $this->intervals = ($endstamp - $beginstamp) / 900;
     }
 
-    public function copyTicketDate(TicketDate $ticket)
+    public function copyTicketDate(TicketDate $ticket): void
     {
         $this->begin = $ticket->getBegin();
         $this->end = $ticket->getEnd();

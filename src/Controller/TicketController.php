@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Anlage;
+use App\Entity\Eigner;
 use App\Entity\Ticket;
 use App\Entity\TicketDate;
 use App\Form\Ticket\TicketFormType;
@@ -31,25 +32,46 @@ class TicketController extends BaseController
             $anlage = null;
         }
 
-        $form = $this->createForm(TicketFormType::class);
-        $form->handleRequest($request);
+        if ($anlage) {
+            $ticket = new Ticket();
+            $ticket->setAnlage($anlage);
+            $ticket
+                ->setBegin(date_create(date('Y-m-d H:i:s', time() - time() % 900)))
+                ->setEnd(date_create(date('Y-m-d H:i:s', (time() - time() % 900) + 900)))
+                ->setAlertType(0);
+            $ticketDate = new TicketDate();
+            $ticketDate
+                ->setBegin($ticket->getBegin())
+                ->setEnd($ticket->getEnd())
+                ->setAnlage($anlage);
+            $ticket->getDates()->add($ticketDate);
+            $form = $this->createForm(TicketFormType::class, $ticket);
+        } else {
+            $form = $this->createForm(TicketFormType::class);
+        }
 
+        $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var Ticket $ticket */
             $ticket = $form->getData();
             $ticket->setEditor($this->getUser()->getUsername());
-            $date = new TicketDate();
-            $date->copyTicket($ticket);
-            if ($date->getAlertType() == 20){
-                $date->setKpiPaDep1(10);
-                $date->setKpiPaDep2(10);
-                $date->setKpiPaDep3(10);
+
+            $dates = $ticket->getDates();
+            foreach ($dates as $date) {
+                $date->copyTicket($ticket);
+                if ($date->getAlertType() == 20) {
+                    $date->setKpiPaDep1(10);
+                    $date->setKpiPaDep2(10);
+                    $date->setKpiPaDep3(10);
+                }
+                if ($ticket->getAlertType() == 20) $date->setDataGapEvaluation(10);
+                $ticket->addDate($date);
             }
-            if ($ticket->getAlertType() == 20) $date->setDataGapEvaluation(10);
-            $ticket->addDate($date);
             $em->persist($ticket);
             $em->flush();
 
             return new Response(null, 204);
+
         } elseif ($form->isSubmitted() && !$form->isValid()) {
             $anlage = $form->getData()->getAnlage();
         }
@@ -66,7 +88,7 @@ class TicketController extends BaseController
 
         return $this->renderForm('ticket/_inc/_edit.html.twig', [
             'ticketForm'    => $form,
-            'ticket'        => false,
+            'ticket'        => $ticket,
             'anlage'        => $anlage,
             'edited'        => false,
             'invArray'      => $inverterArray,
@@ -119,18 +141,18 @@ class TicketController extends BaseController
             if ($ticket->getStatus() === 30 && $ticket->getEnd() === null) {
                 $ticket->setEnd(new \DateTime('now'));
             }
-            // Adjust, if neccesary, the start ean end Date of the master Ticket, depending on the TicketDates
+            // Adjust, if neccesary, the start and end Date of the master Ticket, depending on the TicketDates
 
             if ($ticketDates) {
                 $found = false;
                 while(!$found){
                     $firstTicketDate = $ticket->getDates()->first();
                     if ($firstTicketDate->getEnd() < $ticket->getBegin()) $ticket->removeDate($firstTicketDate);
-                    elseif($firstTicketDate->getEnd() == $ticket->getBegin()){
+                    elseif ($firstTicketDate->getEnd() == $ticket->getBegin()){
                         $ticket->removeDate($firstTicketDate);
                         $found = true;
                     }
-                    else{
+                    else {
                         $firstTicketDate->setBegin($ticket->getBegin());
                         $found = true;
                         $em->persist($firstTicketDate);
@@ -138,16 +160,16 @@ class TicketController extends BaseController
                 }
 
                 $found = false;
-                while(!$found){
+                while (!$found){
                     $lastTicketDate = $ticket->getDates()->last();
-                    if ($lastTicketDate->getBegin() > $ticket->getEnd()) $ticket->removeDate($lastTicketDate);
-                    elseif($lastTicketDate->getBegin() == $ticket->getEnd()){
+                    if ($lastTicketDate->getBegin() > $ticket->getEnd()) {
+                        $ticket->removeDate($lastTicketDate);
+                    } elseif ($lastTicketDate->getBegin() == $ticket->getEnd()){
                         $ticket->removeDate($lastTicketDate);
                         $found = true;
-                    }
-                    else{
+                    } else {
                         $lastTicketDate->setEnd($ticket->getEnd());
-                        $found=true;
+                        $found = true;
                         $em->persist($lastTicketDate);
                     }
                 }
@@ -186,7 +208,6 @@ class TicketController extends BaseController
         {
             //$page = 1;
             $request->query->set('filtering', 'non-filtered');
-            //dd($request->query->get('filtering'));
         } // we do this to reset the page if the user uses the filter
 
         if ($page == 0) {

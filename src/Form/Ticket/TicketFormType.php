@@ -3,6 +3,7 @@
 namespace App\Form\Ticket;
 
 use App\Entity\Anlage;
+use App\Entity\AnlagenReports;
 use App\Entity\Ticket;
 use App\Form\Type\AnlageTextType;
 use App\Form\Type\SwitchType;
@@ -13,6 +14,7 @@ use Stakovicz\UXCollection\Form\UXCollectionType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -47,67 +49,38 @@ class TicketFormType extends AbstractType
         $ticket = $options['data'] ?? null;
         $isNewTicket = (bool) $ticket;
 
-        if (!$isNewTicket) {
-            $builder
-                ->add('anlage', AnlageTextType::class, [
-                    'label' => 'Plant name ',
-                    'attr' => [
-                        'readonly' => true,
-                    ],
-                ])
-                ->add('begin', DateTimeType::class, [
-                    'label' => 'Begin',
-                    'label_html' => true,
-                    'required' => false,
-                    'input' => 'datetime',
-                    'widget' => 'single_text',
-                    'data' => new \DateTime(date('Y-m-d H:i', time() - time() % 900)),
-                    'attr' => ['step' => 900, 'data-action' => 'change->ticket-edit#saveCheck', 'data-ticket-edit-target' => 'formBegin'],
-                ])
-                ->add('end', DateTimeType::class, [
-                    'label' => 'End',
-                    'label_html' => true,
-                    'required' => true,
-                    'input' => 'datetime',
-                    'widget' => 'single_text',
-                    'data' => new \DateTime(date('Y-m-d H:i', 900 + time() - time() % 900)),
-                    'attr' => ['step' => 900, 'data-action' => 'change->ticket-edit#saveCheck', 'data-ticket-edit-target' => 'formEnd'],
-                ])
-            ;
-        } else {
-            $builder
-                ->add('anlage', AnlageTextType::class, [
-                    'label' => 'Plant name ',
-                    'attr' => [
-                        'readonly' => true,
-                    ],
-                ])
-                ->add('begin', DateTimeType::class, [
-                    'label' => 'Begin',
-                    'label_html' => true,
-                    'required' => false,
-                    'widget' => 'single_text',
-                    'attr' => [
-                        'step' => 900,
-                        'data-action' => 'change->ticket-edit#saveCheck',
-                        'data-ticket-edit-target' => 'formBegin',
-                        'max' => $ticket->getBegin()->format("Y-m-d\TH:i")
-                    ],
-                ])
-                ->add('end', DateTimeType::class, [
-                    'label' => 'End',
-                    'label_html' => true,
-                    'required' => true,
-                    'widget' => 'single_text',
-                    'attr' => [
-                        'min' => $ticket->getEnd()->format("Y-m-d\TH:i"),
-                        'step' => 900,
-                        'data-action' => 'change->ticket-edit#saveCheck',
-                        'data-ticket-edit-target' => 'formEnd'],
-                ])
-            ;
-        }
         $builder
+            ->add('anlage', AnlageTextType::class, [
+                'label' => 'Plant name ',
+                'attr' => [
+                    'readonly' => true,
+                ],
+            ])
+            ->add('begin', DateTimeType::class, [
+                'label' => 'Begin',
+                'label_html' => true,
+                'required' => false,
+                'widget' => 'single_text',
+               # 'data' => new \DateTime(date('Y-m-d H:i', time() - time() % 900)),
+                'attr' => [
+                    'step' => 900,
+                    'data-action' => 'change->ticket-edit#saveCheck',
+                    'data-ticket-edit-target' => 'formBegin',
+                    'max' => $isNewTicket ? $ticket->getBegin()->format("Y-m-d\TH:i") : ''
+                ],
+            ])
+            ->add('end', DateTimeType::class, [
+                'label' => 'End',
+                'label_html' => true,
+                'required' => true,
+                'widget' => 'single_text',
+               # 'data' => new \DateTime(date('Y-m-d H:i', 900 + time() - time() % 900)),
+                'attr' => [
+                    'min' => $isNewTicket ? $ticket->getEnd()->format("Y-m-d\TH:i") : '',
+                    'step' => 900,
+                    'data-action' => 'change->ticket-edit#saveCheck',
+                    'data-ticket-edit-target' => 'formEnd'],
+            ])
             ->add('TicketName', TextType::class, [
                 'label' => 'Ticket Identification',
                 'help' => 'This tag helps the user distinguish between tickets',
@@ -118,10 +91,7 @@ class TicketFormType extends AbstractType
                 'attr' => ['readonly' => 'true'],
                 'help' => '* = all Invertres',
             ])
-            ->add('dates', UXCollectionType::class, [
-                'required' => false,
-                'entry_type' => TicketDateEmbeddedFormType::class,
-            ])
+
             ->add('dataGapEvaluation', ChoiceType::class, [
                 'required' => false,
                 'placeholder' => 'please Choose …',
@@ -148,7 +118,7 @@ class TicketFormType extends AbstractType
                 'label' => 'Category of error ',
                 'help' => 'data gap, inverter, ...',
                 'choices' => self::errorCategorie(),
-                'disabled' => $isNewTicket,
+                'disabled' => false, //$isNewTicket,
                 'placeholder' => 'Please select ...',
                 'invalid_message' => 'Please select a Error Category.',
                 'empty_data' => 0,
@@ -174,8 +144,9 @@ class TicketFormType extends AbstractType
             ])
 
             // ### List of Ticket Dates
-            ->add('dates', UXCollectionType::class, [
+            ->add('dates', CollectionType::class, [
                 'entry_type' => TicketDateEmbeddedFormType::class,
+                'allow_add' => true, //This should do the trick.
             ])
 
             // ### ACTIONS
@@ -201,4 +172,6 @@ class TicketFormType extends AbstractType
             ])
             ;
     }
+
+
 }

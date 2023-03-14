@@ -22,6 +22,11 @@
           <mappings>
             <mapping deploy="/" local="$PROJECT_DIR$" web="/" />
           </mappings>
+          <excludedPaths>
+            <excludedPath local="true" path="$PROJECT_DIR$/public/bundles" />
+            <excludedPath local="true" path="$PROJECT_DIR$/public/build/ckeditor" />
+            <excludedPath local="true" path="$PROJECT_DIR$/var" />
+          </excludedPaths>
         </serverdata>
       </paths>
       <paths name="ms.PVplus.net">
