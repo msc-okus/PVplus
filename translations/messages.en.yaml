@@ -14,7 +14,8 @@ ticket:
       30: grid error
       40: weather
       50: external control
-      60: Power/Expected error
+      60: power/expected error
+      70: performance ticket
 
   status:
     name: Status

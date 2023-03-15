@@ -31,14 +31,6 @@ class TicketDateEmbeddedFormType extends AbstractType
         $isAdmin     = $this->security->isGranted('ROLE_ADMIN');
 
         $builder
-            ->add('dataGapEvaluation', ChoiceType::class, [
-                'required'  => false,
-                'placeholder'   => 'please Choose ...',
-                'choices'       => [
-                    'outage'        => 10,
-                    'comm. issue'   => 20,
-                ],
-            ])
             ->add('begin', DateTimeType::class, [
                 'widget' => 'single_text',
                 'attr' => [
@@ -53,12 +45,22 @@ class TicketDateEmbeddedFormType extends AbstractType
                     'disabled' => true,
                 ],
             ])
+
+            ########### PA Tickets ###########
             ->add('errorType', ChoiceType::class, [
                 'label'         => 'Type of error',
                 'choices'       => self::errorType(),
                 'placeholder'   => 'Please select …',
                 'disabled'      => false,
                 'empty_data'    => '',
+            ])
+            ->add('dataGapEvaluation', ChoiceType::class, [
+                'required'  => false,
+                'placeholder'   => 'please Choose ...',
+                'choices'       => [
+                    'outage'        => 10,
+                    'comm. issue'   => 20,
+                ],
             ])
             ->add('kpiPaDep1',ChoiceType::class, [
                 'label'         => 'O&M',
@@ -79,17 +81,64 @@ class TicketDateEmbeddedFormType extends AbstractType
                 'empty_data'    => '',
             ])
             ;
+
+        ########### Performance Tickets ###########
         if ($isDeveloper) {
             $builder
                 ->add('performanceKpi', ChoiceType::class, [
-                    'label' => 'Performance KPI',
-                    'choices' => self::kpiPerformace(),
-                    'mapped' => false
+                    'label'     => 'Performance KPI',
+                    'choices'   => self::kpiPerformace(),
+                    'mapped'    => false
                 ])
-                ->add('performanceKpiValue', TextType::class, [
-                    'label' => 'Value',
-                    'mapped' => false
-                ]);
+                ->add('performanceKpiBehaviorDep1', ChoiceType::class, [
+                    'label'     => 'Behavior Dep 1',
+                    'choices'   => [
+                        'exclude'   => 'exclude',
+                        'replace [kWh]'   => 'replace',
+                        'correct [kWh]'   => 'correct'
+                    ],
+                    'mapped'    => false
+                ])
+                ->add('performanceKpiBehaviorDep2', ChoiceType::class, [
+                    'label'     => 'Behavior Dep 1',
+                    'choices'   => [
+                        'exclude'   => 'exclude',
+                        'replace [kWh]'   => 'replace',
+                        'correct [kWh]'   => 'correct'
+                    ],
+                    'mapped'    => false
+                ])
+                ->add('performanceKpiBehaviorDep3', ChoiceType::class, [
+                    'label'     => 'Behavior Dep 1',
+                    'choices'   => [
+                        'exclude'   => 'exclude',
+                        'replace [kWh]'   => 'replace',
+                        'correct [kWh]'   => 'correct'
+                    ],
+                    'mapped'    => false
+                ])
+                ->add('performanceKpiValueDep1', TextType::class, [
+                    'label'     => 'Value',
+                    'attr'      => [
+                        'placeholder' => 'value [kWh]'
+                    ],
+                    'mapped'    => false
+                ])
+                ->add('performanceKpiValueDep2', TextType::class, [
+                    'label'     => 'Value',
+                    'attr'      => [
+                        'placeholder' => 'value [kWh]'
+                    ],
+                    'mapped'    => false
+                ])
+                ->add('performanceKpiValueDep3', TextType::class, [
+                    'label'     => 'Value',
+                    'attr'      => [
+                        'placeholder' => 'value [kWh]'
+                    ],
+                    'mapped'    => false
+                ])
+            ;
         }
     }
 

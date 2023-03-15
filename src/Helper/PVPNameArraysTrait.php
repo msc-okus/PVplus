@@ -109,10 +109,10 @@ trait PVPNameArraysTrait
 
     public function ticketPriority(): array
     {
-        $spriority[$this->translator->trans('ticket.priority.10')] = 10;
-        $spriority[$this->translator->trans('ticket.priority.20')] = 20;
-        $spriority[$this->translator->trans('ticket.priority.30')] = 30;
-        $spriority[$this->translator->trans('ticket.priority.40')] = 40;
+        $spriority[$this->translator->trans('ticket.priority.10')] = 10; //Low
+        $spriority[$this->translator->trans('ticket.priority.20')] = 20; //Normal
+        $spriority[$this->translator->trans('ticket.priority.30')] = 30; //High
+        $spriority[$this->translator->trans('ticket.priority.40')] = 40; //Urgent
 
 
         return $spriority;
@@ -120,20 +120,21 @@ trait PVPNameArraysTrait
 
     public function errorCategorie(): array
     {
-        $errorCategory[$this->translator->trans('ticket.error.category.10')] = 10;
-        $errorCategory[$this->translator->trans('ticket.error.category.20')] = 20;
-        $errorCategory[$this->translator->trans('ticket.error.category.30')] = 30;
-        $errorCategory[$this->translator->trans('ticket.error.category.40')] = 40;
-        $errorCategory[$this->translator->trans('ticket.error.category.50')] = 50;
-        $errorCategory[$this->translator->trans('ticket.error.category.60')] = 60;
+        $errorCategory[$this->translator->trans('ticket.error.category.10')] = 10; //data gap
+        $errorCategory[$this->translator->trans('ticket.error.category.20')] = 20; //inverter error
+        $errorCategory[$this->translator->trans('ticket.error.category.30')] = 30; //grid error
+        $errorCategory[$this->translator->trans('ticket.error.category.40')] = 40; //weather
+        $errorCategory[$this->translator->trans('ticket.error.category.50')] = 50; //external control
+        $errorCategory[$this->translator->trans('ticket.error.category.60')] = 60; //power/expected error
+        $errorCategory[$this->translator->trans('ticket.error.category.70')] = 70; //performance ticket
         return $errorCategory;
     }
 
     public function errorType(): array
     {
-        $errorType[$this->translator->trans('ticket.error.type.10')] = 10;
-        $errorType[$this->translator->trans('ticket.error.type.20')] = 20;
-        $errorType[$this->translator->trans('ticket.error.type.30')] = 30;
+        $errorType[$this->translator->trans('ticket.error.type.10')] = 10; //EFOR
+        $errorType[$this->translator->trans('ticket.error.type.20')] = 20; //SOR
+        $errorType[$this->translator->trans('ticket.error.type.30')] = 30; //OMC
 
         return $errorType;
     }
@@ -158,9 +159,9 @@ trait PVPNameArraysTrait
 
     public function kpiPerformace(): array
     {
-        $kpi['replace Power'] = 10;
-        $kpi['replace Irradiation'] = 20;
-        $kpi['tbd'] = 90;
+        $kpi['Sensor'] = 10;
+        $kpi['PR'] = 20;
+        $kpi['Power'] = 30;
 
         return $kpi;
     }
