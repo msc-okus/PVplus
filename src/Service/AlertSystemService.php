@@ -315,8 +315,7 @@ class AlertSystemService
         // we look 2 hours in the past to make sure the data we are using is stable (all is okay with the data)
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
         $time = G4NTrait::timeAjustment($time, -2);
-        if (($time >= $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
-
+        if (($time > $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
 
             //here we retrieve the values from the plant and set soma flags to generate tickets
             $plant_status = self::RetrievePlant($anlage, $time);
@@ -402,12 +401,8 @@ class AlertSystemService
         $return['Vol'] = "";
         $invCount = count($anlage->getInverterFromAnlage());
         $irradiation = $this->weatherFunctions->getIrrByStampForTicket($anlage, date_create($time));
-        dump($irrLimit, $irradiation, $anlage->getThreshold1PA0());
         if ($irradiation < $irrLimit) $this->irr = true;
         else $this->irr = false;
-
-
-
         if ($anlage->getHasPPC()) {
             $sqlPpc = 'SELECT * 
                         FROM ' . $anlage->getDbNamePPC() . " 
@@ -478,10 +473,9 @@ class AlertSystemService
      */
     private function generateTickets($errorType, $errorCategorie, $anlage, $inverter, $time, $message)
     {
-        dump($time);
         $ticketOld = $this->getLastTicket($anlage, $time, $errorCategorie, $inverter);// we retrieve here the previous ticket (if any)
         //this could be the ticket from  the previous quarter or the last ticket from  the previous day
-        if ($inverter == "22") dump($ticketOld);
+        //if ($inverter == "19") dump($ticketOld);
         if ($ticketOld !== null) { // is there is a previous ticket we just extend it
             $ticketDate = $ticketOld->getDates()->last();
             $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
@@ -540,6 +534,7 @@ class AlertSystemService
             $this->em->persist($ticket);
             $this->em->persist($ticketDate);
         }
+        //if ($inverter == "19")dump($ticket, $ticketOld);
     }
     /**
      * Given all the information needed to generate a ticket, the tickets are created and commited to the db (single ticket variant)
@@ -613,9 +608,10 @@ class AlertSystemService
 
     private function getLastTicket($anlage, $time, $errorCategory, $inverter): mixed
     {
-        if ($inverter == "22") dump($inverter, $time, $errorCategory);
+
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
-        if (strtotime($time) - 900 <= strtotime($sungap['sunrise'])) return $this->getTicketYesterday($anlage, $time, $errorCategory,  $inverter);
+        //if ($inverter == "19") dump($time, $errorCategory, $sungap);
+        if (strtotime($time) - 900 < strtotime($sungap['sunrise'])) return $this->getTicketYesterday($anlage, $time, $errorCategory,  $inverter);
         else return  $this->getLastTicketInverter($anlage, $time, $errorCategory, $inverter);
     }
 
@@ -629,6 +625,7 @@ class AlertSystemService
      */
     private function getLastTicketInverter($anlage, $time, $errorCategory, $inverter): mixed
     {
+        //if ($inverter == "19") dump("hoy");
         $ticket = $this->ticketRepo->findByAnlageInverterTime($anlage, $time, $errorCategory, $inverter); // we try to retrieve the ticket in the previous quarter
         return $ticket != null ? $ticket[0] : null;
     }
@@ -643,6 +640,7 @@ class AlertSystemService
      */
     private function getTicketYesterday($anlage, $time, $errorCategory, $inverter): mixed
     {
+        //if ($inverter == "19") dump("ayer");
         $today = date('Y-m-d', strtotime($time));
         $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
         $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
