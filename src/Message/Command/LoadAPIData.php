@@ -1,13 +1,11 @@
 <?php
 
-
 namespace App\Message\Command;
 
 use DateTime;
 
 class LoadAPIData
 {
-
     public function __construct(
         private int $anlageId,
         private DateTime $startDate,

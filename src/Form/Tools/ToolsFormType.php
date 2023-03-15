@@ -41,7 +41,7 @@ class ToolsFormType extends AbstractType
 
         $choiceFunction = [
             'Plant Data Tools' => [
-                'Expected (New)' => 'expected',
+                'G4N Expected' => 'expected',
                 'Update availability' => 'availability',
                 'Update PR' => 'pr',
             ],
