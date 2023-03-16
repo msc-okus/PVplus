@@ -167,12 +167,6 @@ class TicketFormType extends AbstractType
             ->add('ignoreTicket', SwitchType::class, [
                 'label'         => 'Ignore',
             ])
-
-            // ### List of Ticket Dates
-            ->add('dates', UXCollectionType::class, [
-                'entry_type' => TicketDateEmbeddedFormType::class,
-            ])
-
             // ### ACTIONS
             ->add('dataGapEvaluation', ChoiceType::class, [
                 'required' => false,
@@ -182,7 +176,6 @@ class TicketFormType extends AbstractType
                     'comm. issue' => 'comm. issue',
                 ],
             ])
-
             // ### Free Text for descriptions
             ->add('freeText', CKEditorType::class, [
                 'config' => ['toolbar' => 'my_toolbar'],

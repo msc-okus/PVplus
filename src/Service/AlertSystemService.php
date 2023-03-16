@@ -211,8 +211,22 @@ class AlertSystemService
                 }
             }
 
-            //$this->getTicketYesterday($anlage, $time);
-
+            // first we will find the first moment of the day when irradiation was > irradiation limit
+            $stampBeginIrr = strtotime($this->getLastQuarter($sungap['sunrise']));
+            $found = false;
+            while($stampBeginIrr < strtotime($sungap['sunset']) && $found === false){
+                $irrLimit = $anlage->getThreshold1PA0() != "0" ? (float)$anlage->getThreshold1PA0() : 20; // we get the irradiation limit from the plant config
+                $irradiation = $this->weatherFunctions->getIrrByStampForTicket($anlage, date_create(date('Y-m-d H:i', $stampBeginIrr)));
+                if ($irradiation > $irrLimit){
+                    $found = true;
+                }
+                else {
+                    $found = false;
+                    $stampBeginIrr +=900;
+                }
+            }
+            //here $stampBeginIrr contains the first moment of the day where irr > irrlimit
+            dd(date('Y-m-d H:i', $stampBeginIrr));
             $this->em->flush();
 
         }
