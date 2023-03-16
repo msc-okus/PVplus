@@ -135,6 +135,22 @@ class AlertSystemService
         $fromStamp = strtotime($this->getLastQuarter(date('Y-m-d H:i', strtotime($sungap['sunrise']))));
         $toStamp = strtotime($this->getLastQuarter(date('Y-m-d H:i', strtotime($sungap['sunset']))));
 
+        // first we will find the first moment of the day when irradiation was > irradiation limit
+        $stampBeginIrr = strtotime($this->getLastQuarter($sungap['sunrise']));
+        $found = false;
+        while($stampBeginIrr < strtotime($sungap['sunset']) && $found === false){
+            $irrLimit = $anlage->getThreshold1PA0() != "0" ? (float)$anlage->getThreshold1PA0() : 20; // we get the irradiation limit from the plant config
+            $irradiation = $this->weatherFunctions->getIrrByStampForTicket($anlage, date_create(date('Y-m-d H:i', $stampBeginIrr)));
+            if ($irradiation > $irrLimit){
+                $found = true;
+            }
+            else {
+                $found = false;
+                $stampBeginIrr +=900;
+            }
+        }
+
+
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) { // we iterate over all the quarters of the day
             //we retrieve all the tickets that begin in this quarter
             $ticketGap = $this->ticketRepo->findMultipleByBeginErrorAnlage($anlage, date('Y-m-d H:i', ($stamp)), DATA_GAP);
@@ -156,6 +172,15 @@ class AlertSystemService
                             $mainTicketGap->setDescription($mainTicketGap->getDescription() . ", " . $anlage->getInverterFromAnlage()[(int)$secondTicketGap->getInverter()]);
                         }
                     }
+                    if (($mainTicketGap->getBegin()->getTimestamp()) == $stampBeginIrr){
+
+                        dump($mainTicketGap);
+                        $ticketOld = $this->getTicketYesterday($anlage, $time, 10, $mainTicketGap->getInverter());
+                        if ($ticketOld){
+                            $mainTicketGap->setBegin($ticketOld->getBegin());
+                        }
+                    }
+
                     $this->em->persist($mainTicketGap);
                 }
             }
@@ -173,6 +198,14 @@ class AlertSystemService
                             $mainTicket0->setDescription($mainTicket0->getDescription() . ", " . $anlage->getInverterFromAnlage()[(int)$secondTicket0->getInverter()]);
                         }
                     }
+                    if (($mainTicket0->getBegin()->getTimestamp()) == $stampBeginIrr){
+
+                        dump($mainTicket0);
+                        $ticketOld = $this->getTicketYesterday($anlage, $time, 10, $mainTicket0->getInverter());
+                        if ($ticketOld){
+                            $mainTicket0->setBegin($ticketOld->getBegin());
+                        }
+                    }
                     $this->em->persist($mainTicket0);
                 }
             }
@@ -188,6 +221,14 @@ class AlertSystemService
                             $secondTicketGridIndex--; //we do this because when we remove an element the index is moved to the left
                             $mainTicketGrid->setInverter($mainTicketGrid->getInverter() . ", " . $secondTicketGrid->getInverter());
                             $mainTicketGrid->setDescription($mainTicketGrid->getDescription() . ", " . $anlage->getInverterFromAnlage()[(int)$secondTicketGrid->getInverter()]);
+                        }
+                    }
+                    if (($mainTicketGrid->getBegin()->getTimestamp()) == $stampBeginIrr){
+
+                        dump($mainTicketGrid);
+                        $ticketOld = $this->getTicketYesterday($anlage, $time, 10, $mainTicketGrid->getInverter());
+                        if ($ticketOld){
+                            $mainTicketGrid->setBegin($ticketOld->getBegin());
                         }
                     }
                     $this->em->persist($mainTicketGrid);
@@ -210,23 +251,7 @@ class AlertSystemService
                     $this->em->persist($mainTicketPower);
                 }
             }
-
-            // first we will find the first moment of the day when irradiation was > irradiation limit
-            $stampBeginIrr = strtotime($this->getLastQuarter($sungap['sunrise']));
-            $found = false;
-            while($stampBeginIrr < strtotime($sungap['sunset']) && $found === false){
-                $irrLimit = $anlage->getThreshold1PA0() != "0" ? (float)$anlage->getThreshold1PA0() : 20; // we get the irradiation limit from the plant config
-                $irradiation = $this->weatherFunctions->getIrrByStampForTicket($anlage, date_create(date('Y-m-d H:i', $stampBeginIrr)));
-                if ($irradiation > $irrLimit){
-                    $found = true;
-                }
-                else {
-                    $found = false;
-                    $stampBeginIrr +=900;
-                }
-            }
             //here $stampBeginIrr contains the first moment of the day where irr > irrlimit
-            dd(date('Y-m-d H:i', $stampBeginIrr));
             $this->em->flush();
 
         }
