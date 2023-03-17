@@ -1,13 +1,11 @@
 <?php
 
-
 namespace App\Message\Command;
 
 use DateTime;
 
 class GenerateTickets
 {
-
     public function __construct(
         private int $anlageId,
         private DateTime $startDate,

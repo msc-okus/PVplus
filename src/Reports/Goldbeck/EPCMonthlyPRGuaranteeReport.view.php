@@ -13,7 +13,7 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
 <body>
 <div class="grid-x grid-margin-x">
     <div class="cell">
-        <h1><?php echo $headlines['main_headline']?></h1>
+        <h2><?php echo $headlines['main_headline']?></h2>
         <h3>Basic Values</h3>
         <?php
             Table::create([
@@ -28,37 +28,37 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
                     ],
                     'pld' => [
                         'type' => 'number',
-                        'label' => 'PLD<br>[EUR/kWh]',
+                        'label' => 'PLD [EUR/kWh]',
                         'formatValue' => function ($value) {return number_format($value, 8, ',', '.'); },
                     ],
                     'PRDesign' => [
                         'type' => 'number',
-                        'label' => 'PR design<br>[%]',
+                        'label' => 'PR design [%]',
                         'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
                     ],
                     'PRgarantiert' => [
                         'type' => 'number',
-                        'label' => 'PR guaranteed<br>[%]',
+                        'label' => 'PR guaranteed [%]',
                         'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
                     ],
                     'Risikoabschlag' => [
                         'type' => 'number',
-                        'label' => 'Risk discount<br>[%]',
+                        'label' => 'Risk discount [%]',
                         'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
                     ],
                     'AnnualDegradation' => [
                         'type' => 'number',
-                        'label' => 'Annual Degradation<br>[%]',
+                        'label' => 'Annual Degradation [%]',
                         'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
                     ],
                     'kwPeak' => [
                         'type' => 'number',
-                        'label' => 'Plant size as build<br>[kWp]',
+                        'label' => 'Plant size as build [kWp]',
                         'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
                     ],
                     'kwPeakPvSyst' => [
                         'type' => 'number',
-                        'label' => 'Plant size by PVSYST<br>[kWp]',
+                        'label' => 'Plant size by PVSYST [kWp]',
                         'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
                     ],
                 ],
@@ -68,7 +68,7 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
 </div>
 <div class="grid-x grid-margin-x">
     <div class="cell small-6">
-        <?php if ($headlines['finalReport'] != true) {?>
+        <?php if ($headlines['reportStatus'] != 1) {?>
         <h3>PR Forecast <small><?php echo $this->dataStore('forecast')->toArray()[0]['forecastDateText']; ?></small></h3>
         <?php
             Table::create([
@@ -214,33 +214,35 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
 </div>
 <div class="grid-x grid-margin-x">
     <div class="cell small-3">
-        <h3>PLD</h3>
-        <?php
-            Table::create([
-                'dataSource' => $this->dataStore('pld')->toArray(),
-                'showHeader' => true,
-                'columns' => [
-                    'year' => [
-                        'label' => 'Year',
-                    ],
-                    'eLoss' => [
-                        'label' => 'E loss [kWh]',
-                        'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
-                    ],
-                    'pld' => [
-                        'label' => 'net present PLD [EUR]',
-                        'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
-                    ],
+        <?php if ($this->dataStore('forecast_real')->toArray()[0]['pld'] > 0) {?>
+            <h3>PLD</h3>
+            <?php
+                Table::create([
+                    'dataSource' => $this->dataStore('pld')->toArray(),
+                    'showHeader' => true,
+                    'columns' => [
+                        'year' => [
+                            'label' => 'Year',
+                        ],
+                        'eLoss' => [
+                            'label' => 'E loss [kWh]',
+                            'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
+                        ],
+                        'pld' => [
+                            'label' => 'net present PLD [EUR]',
+                            'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
+                        ],
 
-                    '{others}' => [
-                        'type' => 'number',
-                        'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
+                        '{others}' => [
+                            'type' => 'number',
+                            'formatValue' => function ($value) {return number_format($value, 2, ',', '.'); },
+                        ],
                     ],
-                ],
-            ]);
-        ?>
+                ]);
+            ?>
+        <?php } ?>
     </div>
-    <div class="cell small-9">
+    <div class="cell small-9" style="max-height: 350px; overflow: hidden;">
         <h3>Difference PR<sub><small>prog/real</small></sub> - PR<sub><small>Guar</small></sub> <small>(<?php echo $this->dataStore('forecast')->toArray()[0]['forecastDateText']; ?>)</small></h3>
         <?php
             ComboChart::create([
@@ -254,13 +256,12 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
                         'bottom' => 50,
                     ],
                     'annotations' => [
-                        'alwaysOutside' => 'true',
                         'textStyle' => [
                             'fontSize' => 10,
                         ],
                         'color' => '#4d4d4d',
                     ],
-                    'fontSize' => 12,
+                    'fontSize' => 10,
                     'width' => 750,
                     'height' => 310,
                 ],
@@ -283,7 +284,11 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
     <div class="cell">
         <h3>Monthly Values</h3>
         <?php
-            if ($headlines['finalReport'] == true) {
+            match ($array['algorithmus']) {
+                'Lelystad'  => $excludedColumns[] = '',//'availability',
+                default => $excludedColumns[] = ''
+            };
+            if ($headlines['reportStatus'] == 1) {
                 $excludedColumns[] = 'prReal_prDesign';
                 $excludedColumns[] = 'dummy';
                 $excludedColumns[] = 'eGridReal-Design';
@@ -294,10 +299,6 @@ $headlines = $this->dataStore('headlines')->toArray()[0];
             } else {
                 $excludedColumns = [];
             }
-            match ($array['algorithmus']) {
-                'Lelystad'  => $excludedColumns[] = '',//'availability',
-                default => $excludedColumns[] = ''
-            };
             Table::create([
                 'excludedColumns'   => $excludedColumns,
                 'dataSource'        => $this->dataStore('main')->toArray(),

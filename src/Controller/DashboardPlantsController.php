@@ -130,7 +130,7 @@ class DashboardPlantsController extends BaseController
             $form['optionDate'] = 1;
             $form['optionIrrVal'] = 400;
             $form['hour'] = false;
-            $form['selRange']           = $request->request->get('selRange');
+            $form['selRange'] = $request->request->get('selRange');
         }
 
         if ($request->request->get('mysubmit') === 'yes' || $request->request->get('mysubmit') === 'select') {
@@ -142,20 +142,19 @@ class DashboardPlantsController extends BaseController
             $form['selRange']           = $request->request->get('selRange');
             $form['optionIrrVal']       = $request->request->get('optionIrrVal');
             $form['hour']               = $request->request->get('hour');
-
             if ($form['selectedChart'] == 'sollistirranalyse'   && !$form['optionIrrVal']) $form['optionIrrVal'] = 400;
-
             // Predefine
             if ($form['selectedChart'] == 'pr_and_av'           && $form['optionDate'] < 7) $form['optionDate'] = 7;
 
             if ($request->request->get('mysubmit') === 'select') {
+                $form['from'] = (new \DateTime())->format('Y-m-d 00:00');
                 $form['to'] = (new \DateTime())->format('Y-m-d 23:59');
-                $form['from'] = (new \DateTime())->format('Y-m-d');
+                $form['selectedGroup'] = 1;
                } else {
                 if ($form['startDateNew']) {
                     $form['from'] = date('Y-m-d 00:00', strtotime($request->request->get('from')));
                     $form['to'] = date('Y-m-d 23:59', strtotime($request->request->get('to')));
-                    $form['selectedGroup'] = 1;
+              //     $form['selectedGroup'] = 1;
                 }
             }
             // ergänze um Uhrzeit
