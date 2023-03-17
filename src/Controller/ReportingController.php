@@ -55,6 +55,7 @@ class ReportingController extends AbstractController
 
     /**
      * @throws ExceptionInterface
+     * @throws \Doctrine\Instantiator\Exception\ExceptionInterface
      */
     #[Route(path: '/reporting/create', name: 'app_reporting_create', methods: ['GET', 'POST'])]
     public function createReport(
