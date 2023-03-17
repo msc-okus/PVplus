@@ -73,11 +73,10 @@
                         <div class="header-menu">
                             <ul class="menu vertical" style="font-size: 90%;">
                                 {% if (app.user) %}
-                                    <li><a href=""><i class="far fa-clock"></i><span id="uhr"
-                                        {{ stimulus_controller('background-processes', {
-                                            url: path('app_admin_server_time'),
-                                            refreshIntervale: 60000,
-                                        }) }}></span></a></li>
+                                    <li {{ stimulus_controller('servertime', {
+                                        refreshIntervale: 1000,
+                                    }) }}
+                                    ><a href=""><i class="far fa-clock"></i>&nbsp;<span id="uhr" data-servertime-target="content" ></span></a></li>
                                     {% if is_granted('IS_IMPERSONATOR') %}
                                         <li><a class="dropdown-item" href="{{ path('app_dashboard', {'_switch_user': '_exit'}) }}"><i class="fas fa-random"></i> Exit Impersonation </a></li>
                                     {% else %}
