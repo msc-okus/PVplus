@@ -48,7 +48,7 @@ class HelpCommand extends Command
         $io->comment("Starte Hilfs Command: AM Report ".$anlage->getAnlName());
 
         #$ergebniss .= $this->reportEpc->createEpcReport($anlage, $reportDate);
-        $ergebniss .= $this->assetManagement->createAmReport($anlage, $reportMonth, $reportYear);
+        $ergebniss = $this->assetManagement->createAmReport($anlage, $reportMonth, $reportYear);
 
         $io->success("Fertig");
 

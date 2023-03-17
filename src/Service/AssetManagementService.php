@@ -37,6 +37,7 @@ class AssetManagementService
         private AvailabilityByTicketService $availability,
         private TicketDateRepository $ticketDateRepo,
         private ReportsRepository $reportRepo,
+        private LogMessagesService $logMessages
     ) 
     {
         $this->conn = self::getPdoConnection();
@@ -45,7 +46,7 @@ class AssetManagementService
     /**
      * @throws ExceptionInterface
      */
-    public function createAmReport(Anlage $anlage, $reportMonth, $reportYear, ?string $userId = null): AnlagenReports
+    public function createAmReport(Anlage $anlage, $reportMonth, $reportYear, ?string $userId = null, ?int $logId): AnlagenReports
     {
         $report = $this->reportRepo->findOneByAMY($anlage, $reportMonth, $reportYear)[0];
         $comment = '';
