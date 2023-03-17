@@ -9,7 +9,6 @@ class PdfService
 {
 
     public function __construct(
-        private $tempPathBaseUrl,
         private Pdf $snappyPdf,
     )
     {
@@ -41,7 +40,17 @@ class PdfService
             } else {
                 switch ($source) {
                     case 'string':
-                        $pdf = $this->snappyPdf->getOutputFromHtml($html, ['enable-local-file-access' => true, 'orientation' => "$orientation"]);
+                        $pdf = $this->snappyPdf->getOutputFromHtml($html, [
+                            'enable-local-file-access' => true,
+                            'orientation'   => "$orientation",
+                            'page-size'     => 'A4',
+                            'margin-top'    => '5',
+                            'margin-right'  => '10',
+                            'margin-bottom' => '5',
+                            'margin-left'   => '10',
+                            'print-media-type'  => true,
+                            'disable-smart-shrinking' => true,
+                            ]);
                         break;
                     case 'file':
                     case 'url':
@@ -76,13 +85,24 @@ class PdfService
      *
      * @param string $html contains html or filename or url
      * @param string $fileroute
-     * @param string $orientation
      * @param $name
+     * @param bool $view
+     * @param string $orientation
      * @return string this contains the route of the file that should be stored in the db
      */
     public function createPage(string $html, string $fileroute, $name, bool $view, string $orientation = 'landscape'): string
     {
-        $pdf = $this->snappyPdf->getOutputFromHtml($html, ['enable-local-file-access' => true, 'orientation' => "$orientation"]);
+        $pdf = $this->snappyPdf->getOutputFromHtml($html, [
+            'enable-local-file-access' => true,
+            'orientation'   => "$orientation",
+            'page-size'     => 'A4',
+            'margin-top'    => '5',
+            'margin-right'  => '10',
+            'margin-bottom' => '5',
+            'margin-left'   => '10',
+            'print-media-type'  => true,
+            'disable-smart-shrinking' => true,
+        ]);
         $filepath = '/usr/home/pvpluy/public_html/public/' . $fileroute . '/' . $name . '.pdf';
         $filepath = str_replace(" ", "_", $filepath);
         $fileroute = str_replace(" ", "_", $fileroute);
