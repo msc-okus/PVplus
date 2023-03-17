@@ -40,15 +40,14 @@ class HelpCommand extends Command
         $ergebniss = '';
         $io = new SymfonyStyle($input, $output);
 
-        $anlage = $this->anlagenRepository->find(95); // 183 = REGebeng
-        $reportDate = new \DateTime("2022-12-31");
-        $reportMonth = 12;
-        $reportYear = 2022;
+        $anlage = $this->anlagenRepository->find(183); // 183 = REGebeng
+
+        $reportMonth = 01;
+        $reportYear = 2023;
 
         $io->comment("Starte Hilfs Command: AM Report ".$anlage->getAnlName());
-
         #$ergebniss .= $this->reportEpc->createEpcReport($anlage, $reportDate);
-        $ergebniss .= $this->assetManagement->createAmReport($anlage, $reportMonth, $reportYear);
+         $this->assetManagement->createAmReport($anlage, $reportMonth, $reportYear);
 
         $io->success("Fertig");
 
