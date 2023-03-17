@@ -27,7 +27,7 @@ class GenerateAMReportHandler implements MessageHandlerInterface
         $logId = $generateAMReport->getlogId();
 
         $this->logMessages->updateEntry($logId, 'working', 0);
-        $this->assetManagement->createAmReport($anlage, $generateAMReport->getMonth(), $generateAMReport->getYear(), $generateAMReport->getUserId());
+        $this->assetManagement->createAmReport($anlage, $generateAMReport->getMonth(), $generateAMReport->getYear(), $generateAMReport->getUserId(), $logId);
         $this->logMessages->updateEntry($logId, 'working', 100);
         $this->logMessages->updateEntry($logId, 'done');
     }
