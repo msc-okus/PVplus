@@ -51,10 +51,11 @@ class AssetManagementService
      */
     public function createAmReport(Anlage $anlage, $reportMonth, $reportYear, ?string $userId = null): AnlagenReports
     {
+
         $report = $this->reportRepo->findOneByAMY($anlage, $reportMonth, $reportYear)[0];
         $comment = '';
         if ($report) {
-            $comment = $report->getComments();
+            //$comment = $report->getComments();
             $this->em->remove($report);
             $this->em->flush();
         }
