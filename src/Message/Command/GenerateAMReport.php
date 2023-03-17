@@ -1,14 +1,10 @@
 <?php
 
-
 namespace App\Message\Command;
 
-use App\Entity\User;
-use DateTime;
 
 class GenerateAMReport
 {
-
     public function __construct(
         private int $anlageId,
         private string $month,
