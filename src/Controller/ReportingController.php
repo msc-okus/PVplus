@@ -19,7 +19,6 @@ use App\Service\Reports\ReportEpcService;
 use App\Service\Reports\ReportsMonthlyService;
 use App\Service\ReportsEpcNewService;
 use App\Service\ReportService;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Knp\Component\Pager\PaginatorInterface;
 use Knp\Snappy\Pdf;
@@ -50,7 +49,6 @@ class ReportingController extends AbstractController
 
     public function __construct(private $kernelProjectDir)
     {
-
     }
 
     /**
