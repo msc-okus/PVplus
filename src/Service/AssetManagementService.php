@@ -41,6 +41,7 @@ class AssetManagementService
         private ReportsRepository $reportRepo,
         private Environment $twig,
         private PdfService $pdf,
+        private LogMessagesService $logMessages,
     ) 
     {
         $this->conn = self::getPdoConnection();
@@ -49,17 +50,19 @@ class AssetManagementService
     /**
      * @throws ExceptionInterface
      */
-    public function createAmReport(Anlage $anlage, $reportMonth, $reportYear, ?string $userId = null): AnlagenReports
+    public function createAmReport(Anlage $anlage, $reportMonth, $reportYear, ?string $userId = null, ?int $logId = null): AnlagenReports
     {
+
         $report = $this->reportRepo->findOneByAMY($anlage, $reportMonth, $reportYear)[0];
         $comment = '';
         if ($report) {
-            $comment = $report->getComments();
             $this->em->remove($report);
             $this->em->flush();
         }
         // then we generate our own report and try to persist it
+        $this->logMessages->updateEntry($logId, 'working', 10);
         $output = $this->assetReport($anlage, $reportMonth, $reportYear, 0);
+        $this->logMessages->updateEntry($logId, 'working', 50);
         $data = [
             'Production' => true,
             'ProdCap' => true,
@@ -114,6 +117,7 @@ class AssetManagementService
         $html1 = str_replace('src="//', 'src="https://', $html1);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts[1] = $pdf->createPage($html1, $fileroute, "ProductionCapFactor", false);// we will store this later in the entity
+        $this->logMessages->updateEntry($logId, 'working', 55);
         if($anlage->hasPVSYST()) {
             $html2 = $this->twig->render('report/asset_report_part_2.html.twig', [
                 'anlage' => $anlage,
@@ -173,6 +177,7 @@ class AssetManagementService
         $html4 = str_replace('src="//', 'src="https://', $html4);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts[4] = $pdf->createPage($html4, $fileroute, "CumLosses", false);// we will store this later in the entity
+        $this->logMessages->updateEntry($logId, 'working', 60);
         $html5 = $this->twig->render('report/asset_report_part_5.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -226,6 +231,7 @@ class AssetManagementService
         $html6 = str_replace('src="//', 'src="https://', $html6);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts[6] = $pdf->createPage($html6, $fileroute, "ProdExpvsAct", false);// we will store this later in the entity
+        $this->logMessages->updateEntry($logId, 'working', 65);
         $html7 = $this->twig->render('report/asset_report_part_7.html.twig', [
 
             'anlage' => $anlage,
@@ -279,6 +285,7 @@ class AssetManagementService
         $html9 = str_replace('src="//', 'src="https://', $html9);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts[9] = $pdf->createPage($html9, $fileroute, "AvailabilityYearOverview", false);// we will store this later in the entity
+        $this->logMessages->updateEntry($logId, 'working', 70);
         $html10 = $this->twig->render('report/asset_report_part_10.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -343,6 +350,7 @@ class AssetManagementService
         $html12 = str_replace('src="//', 'src="https://', $html12);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts[12] = $pdf->createPage($html12, $fileroute, "AvailabilityByInverter", false);// we will store this later in the entity
+        $this->logMessages->updateEntry($logId, 'working', 75);
         if ($anlage->getEconomicVarNames() !== null) {
 
             $html13 = $this->twig->render('report/asset_report_part_13.html.twig', [
@@ -378,7 +386,6 @@ class AssetManagementService
         }
 
         $report = new AnlagenReports();
-
         $report
             ->setPdfParts($reportParts)
             ->setAnlage($anlage)
