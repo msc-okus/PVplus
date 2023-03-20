@@ -371,6 +371,17 @@ class Ticket
 
         return $this;
     }
+    public function isNeedsProofTAM(): ?bool
+    {
+        return $this->needsProof;
+    }
+
+    public function setNeedsProofTAM(?bool $needsProof): self
+    {
+        $this->needsProof = $needsProof;
+
+        return $this;
+    }
 
     public function isOpenTicket(): ?bool
     {

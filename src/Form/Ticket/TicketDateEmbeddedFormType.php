@@ -3,6 +3,7 @@
 namespace App\Form\Ticket;
 
 use App\Entity\TicketDate;
+use App\Form\Type\SwitchType;
 use App\Helper\PVPNameArraysTrait;
 use FluidTYPO3\Flux\Form\Field\DateTime;
 use Symfony\Component\Form\AbstractType;
@@ -29,6 +30,7 @@ class TicketDateEmbeddedFormType extends AbstractType
     {
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin     = $this->security->isGranted('ROLE_ADMIN');
+        $isBeta      = $this->security->isGranted('ROLE_BETA');
 
         $builder
             ->add('begin', DateTimeType::class, [
@@ -83,61 +85,63 @@ class TicketDateEmbeddedFormType extends AbstractType
             ;
 
         ########### Performance Tickets ###########
-        if ($isDeveloper) {
+        if ($isDeveloper || $isBeta) {
             $builder
-                ->add('performanceKpi', ChoiceType::class, [
-                    'label'     => 'Performance KPI',
-                    'choices'   => self::kpiPerformace(),
+                ########## exclude Sensors &  replace Sensor
+
+                // at the moment only Dummy - no field
+                ->add('sensors', ChoiceType::class, [
+                    'label'     => 'excludeSensors',
+                    'choices'   => ['Wind' => 1, 'Irr' => 2, 'ModulTemp' => 3, 'and so on' => 4],
+                    'placeholder' => 'please chose',
                     'mapped'    => false
                 ])
-                ->add('performanceKpiBehaviorDep1', ChoiceType::class, [
-                    'label'     => 'Behavior Dep 1',
-                    'choices'   => [
-                        'exclude'   => 'exclude',
-                        'replace [kWh]'   => 'replace',
-                        'correct [kWh]'   => 'correct'
-                    ],
-                    'mapped'    => false
-                ])
-                ->add('performanceKpiBehaviorDep2', ChoiceType::class, [
-                    'label'     => 'Behavior Dep 1',
-                    'choices'   => [
-                        'exclude'   => 'exclude',
-                        'replace [kWh]'   => 'replace',
-                        'correct [kWh]'   => 'correct'
-                    ],
-                    'mapped'    => false
-                ])
-                ->add('performanceKpiBehaviorDep3', ChoiceType::class, [
-                    'label'     => 'Behavior Dep 1',
-                    'choices'   => [
-                        'exclude'   => 'exclude',
-                        'replace [kWh]'   => 'replace',
-                        'correct [kWh]'   => 'correct'
-                    ],
-                    'mapped'    => false
-                ])
-                ->add('performanceKpiValueDep1', TextType::class, [
-                    'label'     => 'Value',
+
+                // new field
+                ########### replace Energy (Irr)
+                ->add('valueEnergy', TextType::class, [
+                    'label'     => 'Value energy',
                     'attr'      => [
                         'placeholder' => 'value [kWh]'
                     ],
                     'mapped'    => false
                 ])
-                ->add('performanceKpiValueDep2', TextType::class, [
-                    'label'     => 'Value',
+                ########### exclude from PR/Energy & replace Energy (Irr)
+                // new field (bool)
+                ->add('useHour', SwitchType::class, [
+                    'label'     => 'use hour (PVsyst)',
+                    'mapped'    => false
+                ])
+
+                ########### replace Energy (Irr)
+                // new field (bool)
+                ->add('replaceWithPVsyst', SwitchType::class, [
+                    'label'     => 'replace Energy with PVsyst',
+                    'mapped'    => false
+                    // new field (bool)
+                ])->add('replaceIrrWithPVsyst', SwitchType::class, [
+                    'label'     => 'replace Irradiation with PVsyst',
+                    'mapped'    => false
+                ])
+                // new field
+                ->add('valueIrr', TextType::class, [
+                    'label'     => 'Value Irradiation',
+                    'attr'      => [
+                        'placeholder' => 'value [W/qm]'
+                    ],
+                    'mapped'    => false
+                ])
+
+                ########### correct Energy
+                // new field
+                ->add('correctEnergyValue', TextType::class, [
+                    'label'     => 'correct Energy Value',
                     'attr'      => [
                         'placeholder' => 'value [kWh]'
                     ],
                     'mapped'    => false
                 ])
-                ->add('performanceKpiValueDep3', TextType::class, [
-                    'label'     => 'Value',
-                    'attr'      => [
-                        'placeholder' => 'value [kWh]'
-                    ],
-                    'mapped'    => false
-                ])
+
             ;
         }
     }

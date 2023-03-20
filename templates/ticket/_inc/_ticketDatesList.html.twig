@@ -6,26 +6,37 @@
     {% set settings = false %}
 {% endif %}
 
-{# must be calculated dynamic by type of ticket (only if new) #}
-{% set performanceTicket = true %}
 
 <table>
     <thead>
     <tr>
-        <th>Interval (Cases)</th>
-        <th>Begin</th>
-        <th>End</th>
-        {% if (performanceTicket) %}
-            {# Performance Ticket #}
-            <th>Performance KPIs</th>
-            <th colspan="2">Behavior O&M</th>
-            <th colspan="2">Behavior EPC</th>
-            <th colspan="2">Behavior AM</th>
-        {% else %}
-        {# Availability Ticket #}
-            {% if (edited == true and (ticket.alertType == 10 or ticket.alertType == 20)) %}
-                <th>Evaluation</th>
+        <th style="width: 10%">Interval (Cases)</th>
+        <th style="width: 15%">Begin</th>
+        <th style="width: 15%">End</th>
+        {# Performance Ticket #}
+        {% if (performanceTicket) %} {# (ticket.alertType >= 70 and ticket.alertType <=79) #}
+            {% if (select == 71) %}
+                <th>Sensor to exclude</th>
             {% endif %}
+            {% if (select == 72) %}
+                <th>Sensor to replace</th>
+            {% endif %}
+            {% if (select == 73) %}
+                <th>Use Hour (PVsyst)</th>
+            {% endif %}
+            {% if (select == 74) %}
+                <th>replace Energy with PVsyst</th>
+                <th>replace also Irr by PVsyst</th>
+                <th>Use Hour (PVsyst)</th>
+                <th>Value Energy</th>
+                <th>Value Irradiation</th>
+            {% endif %}
+            {% if (select == 75) %}
+                <th>Correction Value (+/-)</th>
+            {% endif %}
+        {# Availability Ticket #}
+        {% elseif (edited == true and (ticket.alertType == 10 or ticket.alertType == 20)) %}
+            <th>Evaluation</th>
             {% if (features and features.aktDep1) %}<td>PA {{ settings.nameDep1 }}</td>{% endif %}
             {% if (features and features.aktDep2) %}<td>PA {{ settings.nameDep2 }}</td>{% endif %}
             {% if (features and features.aktDep3) %}<td>PA {{ settings.nameDep3 }}</td>{% endif %}
@@ -45,19 +56,31 @@
             <td>{{ loop.index }} ({{ date.vars.value.intervals }})</td>
             <td>{{ form_widget(date.begin) }}{# {{ date.vars.value.begin|format_datetime(pattern="yyyy-MM-dd HH:mm") }} #}</td>
             <td>{{ form_widget(date.end) }}{# {{ date.vars.value.end|format_datetime(pattern="yyyy-MM-dd HH:mm") }} #}</td>
-            {% if (performanceTicket) %}
-                {# Performance Ticket #}
-                <td>{{ form_widget(date.performanceKpi, { 'attr': {'class': 'no-margin'} }) }}</td>
-                <td>{{ form_widget(date.performanceKpiBehaviorDep1, { 'attr': {'class': 'no-margin'} }) }}</td>
-                <td>{{ form_widget(date.performanceKpiValueDep1) }}</td>
-                <td>{{ form_widget(date.performanceKpiBehaviorDep2, { 'attr': {'class': 'no-margin'} }) }}</td>
-                <td>{{ form_widget(date.performanceKpiValueDep2) }}</td>
-                <td>{{ form_widget(date.performanceKpiBehaviorDep3, { 'attr': {'class': 'no-margin'} }) }}</td>
-                <td>{{ form_widget(date.performanceKpiValueDep3) }}</td>
+            {# Performance Ticket #}
+            {% if (performanceTicket) %} {# (ticket.alertType >= 70 and ticket.alertType <=79) #}
+                {% if (select == 71) %}
+                    <td>{{ form_widget(date.sensors, { 'attr': {'class': 'no-margin'} }) }}</td>
+                {% endif %}
+                {% if (select == 72) %}
+                    <td>{{ form_widget(date.sensors, { 'attr': {'class': 'no-margin'} }) }}</td>
+                {% endif %}
+                {% if (select == 73) %}
+                    <td>{{ form_widget(date.useHour) }}</td>
+                {% endif %}
+                {% if (select == 74) %}
+                    <td>{{ form_widget(date.replaceWithPVsyst) }}</td>
+                    <td>{{ form_widget(date.replaceIrrWithPVsyst) }}</td>
+                    <td>{{ form_widget(date.useHour) }}</td>
+                    <td>{{ form_widget(date.valueEnergy) }}</td>
+                    <td>{{ form_widget(date.valueIrr) }}</td>
+                {% endif %}
+                {% if (select == 75) %}
+                    <td>{{ form_widget(date.correctEnergyValue) }}</td>
+                {% endif %}
             {% else %}
                 {# Availability Ticket #}
                 {% if (ticket.alertType != 10 and ticket.alertType != 20) %}
-                    <td hidden>{{ form_widget(date.dataGapEvaluation, { 'attr':{'class': 'no-margin', 'data-ticket-split-target':'dataGapEv', 'data-action':'change->ticket-split#checkKpiSelectBoxes', 'disabled':'true'} }) }}</td>
+                    <td class="hide">{{ form_widget(date.dataGapEvaluation, { 'attr':{'class': 'no-margin ', 'data-ticket-split-target':'dataGapEv', 'data-action':'change->ticket-split#checkKpiSelectBoxes', 'disabled':'true'} }) }}</td>
                 {% else %}
                     <td>{{ form_widget(date.dataGapEvaluation, { 'attr':{'class': 'no-margin', 'data-ticket-split-target':'dataGapEv', 'data-action':'change->ticket-split#checkKpiSelectBoxes'} }) }}</td>
                 {% endif %}

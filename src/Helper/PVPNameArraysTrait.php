@@ -86,11 +86,11 @@ trait PVPNameArraysTrait
     public static function reportStati(): array
     {
         // Values for Report Status
-        $reportStati[0] = 'final';
-        $reportStati[1] = 'final FAC';
-        $reportStati[3] = 'under observation';
-        $reportStati[5] = 'proof reading';
-        $reportStati[9] = 'archive (g4n only)';
+        $reportStati[0]  = 'final';
+        $reportStati[1]  = 'final FAC';
+        $reportStati[3]  = 'under observation';
+        $reportStati[5]  = 'proof reading';
+        $reportStati[9]  = 'archive (g4n only)';
         $reportStati[10] = 'draft (g4n only)';
         $reportStati[11] = 'wrong (g4n only)';
 
@@ -126,7 +126,13 @@ trait PVPNameArraysTrait
         $errorCategory[$this->translator->trans('ticket.error.category.40')] = 40; //weather
         $errorCategory[$this->translator->trans('ticket.error.category.50')] = 50; //external control
         $errorCategory[$this->translator->trans('ticket.error.category.60')] = 60; //power/expected error
-        $errorCategory[$this->translator->trans('ticket.error.category.70')] = 70; //performance ticket
+
+        $errorCategory[$this->translator->trans('ticket.error.category.7')][$this->translator->trans('ticket.error.category.70')] = 70; //performance ticket
+        $errorCategory[$this->translator->trans('ticket.error.category.7')][$this->translator->trans('ticket.error.category.71')] = 71; //performance ticket
+        $errorCategory[$this->translator->trans('ticket.error.category.7')][$this->translator->trans('ticket.error.category.72')] = 72; //performance ticket
+        $errorCategory[$this->translator->trans('ticket.error.category.7')][$this->translator->trans('ticket.error.category.73')] = 73; //performance ticket
+        $errorCategory[$this->translator->trans('ticket.error.category.7')][$this->translator->trans('ticket.error.category.74')] = 74; //performance ticket
+
         return $errorCategory;
     }
 

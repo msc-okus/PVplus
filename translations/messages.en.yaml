@@ -9,13 +9,18 @@ ticket:
 
     category:
       name: Error Category
+      7 : Performance Tickets
       10: data gap
       20: inverter error
       30: grid error
       40: weather
-      50: external control
+      50: external control (ppc, ...)
       60: power/expected error
-      70: performance ticket
+      70: exclude sensors
+      71: replace Sensors
+      72: exclude from PR/Energy
+      73: replace Energy (Irr)
+      74: correct Energy
 
   status:
     name: Status

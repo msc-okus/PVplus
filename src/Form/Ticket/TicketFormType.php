@@ -13,6 +13,7 @@ use FOS\CKEditorBundle\Form\Type\CKEditorType;
 use Stakovicz\UXCollection\Form\UXCollectionType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
@@ -44,6 +45,7 @@ class TicketFormType extends AbstractType
     {
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
         $isAdmin     = $this->security->isGranted('ROLE_ADMIN');
+        $isBeta      = $this->security->isGranted('ROLE_BETA');
 
         /** @var Ticket $ticket */
         $ticket = $options['data'] ?? null;
@@ -53,7 +55,6 @@ class TicketFormType extends AbstractType
         } else {
             $isNewTicket = false;
         }
-        dump($isNewTicket, $ticket->getCreatedAt());
 
         $builder
             ->add('TicketName', TextType::class, [
@@ -126,8 +127,8 @@ class TicketFormType extends AbstractType
                 'empty_data' => 10, // Low
                 'invalid_message' => 'Please select a Priority.',
             ])
-            ->add('needsProof', SwitchType::class, [
-                'label'         => 'Needs proof',
+            ->add('needsProofTAM', SwitchType::class, [
+                'label'         => 'proof by TAM',
             ])
             ->add('ignoreTicket', SwitchType::class, [
                 'label'         => 'Ignore',
@@ -149,18 +150,17 @@ class TicketFormType extends AbstractType
                 'entry_type' => TicketDateEmbeddedFormType::class,
                 'allow_add' => true, //This should do the trick.
             ])
+        ;
 
-            // ### ACTIONS
-            /*
-            ->add('dataGapEvaluation', ChoiceType::class, [
-                'required' => false,
-                'placeholder' => 'please Choose ...',
-                'choices' => [
-                    'outage' => 'outage',
-                    'comm. issue' => 'comm. issue',
-                ],
-            ])
-            */
+            ########### Performance Tickets ###########
+        if ($isDeveloper || $isBeta) {
+            $builder
+                ->add('needsProofEPC', SwitchType::class, [
+                    'label'     => 'proof by EPC',
+                    'mapped'    => false,
+                ])
+            ;
+        }
             ;
     }
 
