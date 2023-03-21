@@ -6,7 +6,6 @@ use App\Form\Model\ToolsModel;
 use App\Form\Tools\ToolsFormType;
 use App\Helper\G4NTrait;
 use App\Message\Command\CalcExpected;
-use App\Message\Command\CalcPlantAvailability;
 use App\Message\Command\CalcPlantAvailabilityNew;
 use App\Message\Command\CalcPR;
 use App\Message\Command\GenerateTickets;
