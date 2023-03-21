@@ -16,6 +16,7 @@ class AnlageSettings
     #[ORM\OneToOne(inversedBy: 'settings', targetEntity: Anlage::class, cascade: ['persist', 'remove'])]
     private ?Anlage $anlage = null;
 
+    // Settings for Department handling
     #[ORM\Column(type: 'string', length: 20)]
     private string $paDep1Name = 'EPC';
 
@@ -25,9 +26,15 @@ class AnlageSettings
     #[ORM\Column(type: 'string', length: 20)]
     private string $paDep3Name = 'AM';
 
+    // Settings for Expected
+    #[ORM\Column(nullable: true)]
+    private ?bool $epxCalculationByCurrent = true; // if true = caclulate Expected by current*voltage / if false = caclulate by power settings
+
+    // Handling PA calculation
     #[ORM\Column(type: 'string', length: 20)]
     private string $paDefaultDataGapHandling = 'available';
 
+    // Settings for Chart Select-menu
     #[ORM\Column(nullable: true)]
     private ?bool $chartAC1 = true;
 
@@ -218,6 +225,16 @@ class AnlageSettings
         $this->paDefaultDataGapHandling = $paDefaultDataGapHandling;
 
         return $this;
+    }
+
+    public function getEpxCalculationByCurrent(): ?bool
+    {
+        return $this->epxCalculationByCurrent;
+    }
+
+    public function setEpxCalculationByCurrent(?bool $epxCalculationByCurrent): void
+    {
+        $this->epxCalculationByCurrent = $epxCalculationByCurrent;
     }
 
     public function isChartAC1(): ?bool

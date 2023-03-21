@@ -215,7 +215,6 @@ class ExpectedService
                                         break;
                                     }
 
-
                                     #$windSpeed = $openWeather->getWindSpeed();
                                     #$airTemp = $openWeather->getTempC();
 
@@ -232,14 +231,13 @@ class ExpectedService
 
                         // degradation abziehen (degradation * Betriebsjahre).
                         $expVoltageDcHlp = $expVoltageDcHlp - ($expVoltageDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
-                        if ($anlage->getAnlId() == '183' || $anlage->getAnlId() == '175') { // im Moment nur für REGebeng und Perleberg
+                        if ($anlage->getSettings()->getEpxCalculationByCurrent()) {
                             // Calculate DC power by current and voltage
                             $expPowerDcHlp = $expCurrentDcHlp * $expVoltageDcHlp / 4000;
                         } else {
                             $expPowerDcHlp = $expPowerDcHlp - ($expPowerDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
                         }
                         #$expCurrentDcHlp = $expCurrentDcHlp - ($expCurrentDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
-
 
                         $expPowerDc += $expPowerDcHlp;
                         $expCurrentDc += $expCurrentDcHlp;

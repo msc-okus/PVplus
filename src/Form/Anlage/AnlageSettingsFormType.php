@@ -156,6 +156,11 @@ class AnlageSettingsFormType extends AbstractType
                 'label'     => 'NN. ',
                 'help'      => '[chartSensor4]'
             ])
+
+            ->add('epxCalculationByCurrent', SwitchType::class, [
+                'label'     => 'calculate expected by current * voltage',
+                'help'      => '[epxCalculationByCurrent]'
+            ])
         ;
     }
 
