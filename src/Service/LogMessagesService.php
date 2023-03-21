@@ -35,16 +35,18 @@ class LogMessagesService
         return $log->getId();
     }
 
-    public function updateEntry(int $id, string $state, ?int $progress = null)
+    public function updateEntry(?int $id, string $state, ?int $progress = null): void
     {
-        $log = $this->logMessagesRepo->findOneBy(['id' => $id]);
-        $log->setState($state);
-        if ($progress) {
-            $log->setProgress($progress);
+        if ($id !== null) {
+            $log = $this->logMessagesRepo->findOneBy(['id' => $id]);
+            $log->setState($state);
+            if ($progress) {
+                $log->setProgress($progress);
+            }
+            if ($state == 'done') {
+                $log->setFinishedAt(new \DateTimeImmutable());
+            }
+            $this->em->flush();
         }
-        if ($state == 'done') {
-            $log->setFinishedAt(new \DateTimeImmutable());
-        }
-        $this->em->flush();
     }
 }

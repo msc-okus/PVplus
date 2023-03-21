@@ -1,0 +1,9 @@
+<table id="background-tasks" class=" message-log">
+    {% for log in logs %}
+        <tr class="{{ log.state }}" style="background-color: white;">
+            <td>{{ log.plant }}</td>
+            <td>{{ log.function }}</td>
+            <td>{{ log.state }} ({{ log.progress }}%)</td>
+        </tr>
+    {% endfor %}
+</table>

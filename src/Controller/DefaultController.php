@@ -4,7 +4,9 @@ namespace App\Controller;
 
 use App\Helper\G4NTrait;
 use App\Service\CheckSystemStatusService;
+use phpDocumentor\Reflection\Types\String_;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
@@ -15,22 +17,17 @@ class DefaultController extends BaseController
 {
     use G4NTrait;
 
-    private UrlGeneratorInterface $urlGenerator;
-
-    public function __construct(UrlGeneratorInterface $urlGenerator)
+    public function __construct()
     {
-        $this->urlGenerator = $urlGenerator;
+
     }
 
-    #[Route(path: '/test/systemstatus')]
-    public function checkSystemStatus(CheckSystemStatusService $checkSystemStatus)
-    {
-        $output = $checkSystemStatus->checkSystemStatus();
 
-        return $this->render('cron/showResult.html.twig', [
-            'headline' => 'Systemstatus',
-            'availabilitys' => '',
-            'output' => $output,
+    #[Route(path: '/admin/server-time', name: 'app_admin_server_time')]
+    public function getServerTime(): Response
+    {
+        return $this->render('default/time.html.twig', [
+            'serverDate' => date('Y-m-d H:i:s'),
         ]);
     }
 }
