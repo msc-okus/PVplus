@@ -6,11 +6,11 @@
     {% set settings = false %}
 {% endif %}
 
-{# must be calculated dynamic by type of ticket (only if new) #}
-{% set performanceTicket = true %}
-{% set select = 75 %}
+
 {% if performanceTicket %}
-    {% set hiddenPerformanceTicket = 'hide' %}
+    {% set hiddenPerformanceTicket = 'is-hidden' %}
+{% else %}
+    {% set hiddenPerformanceTicket = '' %}
 {% endif %}
 
 
@@ -47,7 +47,7 @@
                             <div class="cell small-6 medium-2">
                                 {{ form_row(ticketForm.alertType) }}
                             </div>
-                            <div class="{{ hiddenPerformanceTicket }}"> {# hide TicketStuff on Performance Ticket #}
+                            <div data-ticket-edit-target="inverterDiv" class="{{ hiddenPerformanceTicket }}"> {# hide TicketStuff on Performance Ticket #}
                                 <div class="cell small-6 medium-2">
                                     {# Select inverter stuff #}
                                     <div class="grid-x">

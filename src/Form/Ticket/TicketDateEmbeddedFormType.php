@@ -37,14 +37,12 @@ class TicketDateEmbeddedFormType extends AbstractType
                 'widget' => 'single_text',
                 'attr' => [
                     'readonly' => true,
-                    'disabled' => true,
                 ],
             ])
             ->add('end', DateTimeType::class, [
                 'widget' => 'single_text',
                 'attr' => [
                     'readonly' => true,
-                    'disabled' => true,
                 ],
             ])
 
@@ -94,7 +92,7 @@ class TicketDateEmbeddedFormType extends AbstractType
                     'label'     => 'excludeSensors',
                     'choices'   => ['Wind' => 1, 'Irr' => 2, 'ModulTemp' => 3, 'and so on' => 4],
                     'placeholder' => 'please chose',
-                    'mapped'    => false
+                    'mapped' => false
                 ])
 
                 // new field
@@ -104,24 +102,28 @@ class TicketDateEmbeddedFormType extends AbstractType
                     'attr'      => [
                         'placeholder' => 'value [kWh]'
                     ],
-                    'mapped'    => false
                 ])
                 ########### exclude from PR/Energy & replace Energy (Irr)
                 // new field (bool)
                 ->add('useHour', SwitchType::class, [
                     'label'     => 'use hour (PVsyst)',
-                    'mapped'    => false
                 ])
 
                 ########### replace Energy (Irr)
                 // new field (bool)
-                ->add('replaceWithPVsyst', SwitchType::class, [
+                ->add('replaceEnergy', SwitchType::class, [
                     'label'     => 'replace Energy with PVsyst',
-                    'mapped'    => false
+                    'attr' => [
+                        'data-action' => 'change->ticket-edit#replaceCheck',
+                        'data-ticket-edit-target' => 'formReplace'
+                    ],
                     // new field (bool)
-                ])->add('replaceIrrWithPVsyst', SwitchType::class, [
+                ])->add('replaceIrr', SwitchType::class, [
                     'label'     => 'replace Irradiation with PVsyst',
-                    'mapped'    => false
+                    'attr' => [
+                        'data-action' => 'change->ticket-edit#replaceCheck',
+                        'data-ticket-edit-target' => 'formReplaceIrr'
+                    ],
                 ])
                 // new field
                 ->add('valueIrr', TextType::class, [
@@ -129,7 +131,6 @@ class TicketDateEmbeddedFormType extends AbstractType
                     'attr'      => [
                         'placeholder' => 'value [W/qm]'
                     ],
-                    'mapped'    => false
                 ])
 
                 ########### correct Energy
@@ -139,7 +140,6 @@ class TicketDateEmbeddedFormType extends AbstractType
                     'attr'      => [
                         'placeholder' => 'value [kWh]'
                     ],
-                    'mapped'    => false
                 ])
 
             ;

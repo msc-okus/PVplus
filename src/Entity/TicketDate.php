@@ -33,6 +33,24 @@ class TicketDate
     #[ORM\JoinColumn(nullable: false)]
     private Anlage $Anlage;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $replaceEnergy = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $replaceIrr = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $useHour = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $valueEnergy = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $valueIrr = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $correctEnergyValue = null;
+
 
     public function __construct()
     {
@@ -121,5 +139,77 @@ class TicketDate
         $beginstamp = $this->getBegin()->getTimestamp();
 
         return (int)(($endstamp - $beginstamp) / 900);
+    }
+
+    public function isReplaceEnergy(): ?bool
+    {
+        return $this->replaceEnergy;
+    }
+
+    public function setReplaceEnergy(?bool $replaceEnergy): self
+    {
+        $this->replaceEnergy = $replaceEnergy;
+
+        return $this;
+    }
+
+    public function isReplaceIrr(): ?bool
+    {
+        return $this->replaceIrr;
+    }
+
+    public function setReplaceIrr(?bool $replaceIrr): self
+    {
+        $this->replaceIrr = $replaceIrr;
+
+        return $this;
+    }
+
+    public function isUseHour(): ?bool
+    {
+        return $this->useHour;
+    }
+
+    public function setUseHour(?bool $useHour): self
+    {
+        $this->useHour = $useHour;
+
+        return $this;
+    }
+
+    public function getValueEnergy(): ?string
+    {
+        return $this->valueEnergy;
+    }
+
+    public function setValueEnergy(?string $valueEnergy): self
+    {
+        $this->valueEnergy = $valueEnergy;
+
+        return $this;
+    }
+
+    public function getValueIrr(): ?string
+    {
+        return $this->valueIrr;
+    }
+
+    public function setValueIrr(?string $valueIrr): self
+    {
+        $this->valueIrr = $valueIrr;
+
+        return $this;
+    }
+
+    public function getCorrectEnergyValue(): ?string
+    {
+        return $this->correctEnergyValue;
+    }
+
+    public function setCorrectEnergyValue(?string $correctEnergyValue): self
+    {
+        $this->correctEnergyValue = $correctEnergyValue;
+
+        return $this;
     }
 }

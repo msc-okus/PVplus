@@ -1,8 +1,6 @@
 {% if (ticket) %}
     {% set features = ticket.anlage.eigner.features %}
-    {% set settings = ticket.anlage.eigner.settings %}
 {% else %}
-    {% set features = false %}
     {% set settings = false %}
 {% endif %}
 
@@ -13,34 +11,19 @@
         <th style="width: 10%">Interval (Cases)</th>
         <th style="width: 15%">Begin</th>
         <th style="width: 15%">End</th>
-        {# Performance Ticket #}
-        {% if (performanceTicket) %} {# (ticket.alertType >= 70 and ticket.alertType <=79) #}
-            {% if (select == 71) %}
-                <th>Sensor to exclude</th>
-            {% endif %}
-            {% if (select == 72) %}
-                <th>Sensor to replace</th>
-            {% endif %}
-            {% if (select == 73) %}
-                <th>Use Hour (PVsyst)</th>
-            {% endif %}
-            {% if (select == 74) %}
-                <th>replace Energy with PVsyst</th>
-                <th>replace also Irr by PVsyst</th>
-                <th>Use Hour (PVsyst)</th>
-                <th>Value Energy</th>
-                <th>Value Irradiation</th>
-            {% endif %}
-            {% if (select == 75) %}
-                <th>Correction Value (+/-)</th>
-            {% endif %}
-        {# Availability Ticket #}
-        {% elseif (edited == true and (ticket.alertType == 10 or ticket.alertType == 20)) %}
-            <th>Evaluation</th>
-            {% if (features and features.aktDep1) %}<td>PA {{ settings.nameDep1 }}</td>{% endif %}
-            {% if (features and features.aktDep2) %}<td>PA {{ settings.nameDep2 }}</td>{% endif %}
-            {% if (features and features.aktDep3) %}<td>PA {{ settings.nameDep3 }}</td>{% endif %}
-        {% endif %}
+        {# Performance Ticket - VARIABLE CONTENT OF THE GAP #}
+        <th class="is-hidden" data-ticket-edit-target="headerExclude">Sensor to exclude</th>
+        <th class="is-hidden" data-ticket-edit-target="headerReplace">Sensor to replace</th>
+        <th class="is-hidden" data-ticket-edit-target="headerReplacePower">replace Energy with PVsyst</th>
+        <th class="is-hidden" data-ticket-edit-target="headerReplaceIrr">replace Irr with PVsyst</th>
+        <th class="is-hidden" data-ticket-edit-target="headerHour">Use Hour (PVsyst)</th>
+        <th class="is-hidden" data-ticket-edit-target="headerEnergyValue">Value Energy</th>
+        <th class="is-hidden" data-ticket-edit-target="headerIrrValue">Value Irradiation</th>
+        <th class="is-hidden" data-ticket-edit-target="headerCorrection">Correction Value (+/-)</th>
+        <th class="is-hidden" data-ticket-edit-target="headerEvaluation">Evaluation</th>
+        <th class="is-hidden" data-ticket-edit-target="headerAktDep1">{% if (features and features.aktDep1) %}PA {{ settings.nameDep1 }}   {% endif %}</th>
+        <th class="is-hidden" data-ticket-edit-target="headerAktDep2">{% if (features and features.aktDep2) %}PA {{ settings.nameDep2 }}   {% endif %}</th>
+        <th class="is-hidden" data-ticket-edit-target="headerAktDep3">{% if (features and features.aktDep3) %}PA {{ settings.nameDep3 }}{% endif %}</th>
         <th></th>
         <th></th>
     </tr>
@@ -57,46 +40,24 @@
             <td>{{ form_widget(date.begin) }}{# {{ date.vars.value.begin|format_datetime(pattern="yyyy-MM-dd HH:mm") }} #}</td>
             <td>{{ form_widget(date.end) }}{# {{ date.vars.value.end|format_datetime(pattern="yyyy-MM-dd HH:mm") }} #}</td>
             {# Performance Ticket #}
-            {% if (performanceTicket) %} {# (ticket.alertType >= 70 and ticket.alertType <=79) #}
-                {% if (select == 71) %}
-                    <td>{{ form_widget(date.sensors, { 'attr': {'class': 'no-margin'} }) }}</td>
-                {% endif %}
-                {% if (select == 72) %}
-                    <td>{{ form_widget(date.sensors, { 'attr': {'class': 'no-margin'} }) }}</td>
-                {% endif %}
-                {% if (select == 73) %}
-                    <td>{{ form_widget(date.useHour) }}</td>
-                {% endif %}
-                {% if (select == 74) %}
-                    <td>{{ form_widget(date.replaceWithPVsyst) }}</td>
-                    <td>{{ form_widget(date.replaceIrrWithPVsyst) }}</td>
-                    <td>{{ form_widget(date.useHour) }}</td>
-                    <td>{{ form_widget(date.valueEnergy) }}</td>
-                    <td>{{ form_widget(date.valueIrr) }}</td>
-                {% endif %}
-                {% if (select == 75) %}
-                    <td>{{ form_widget(date.correctEnergyValue) }}</td>
-                {% endif %}
+
+            <td class="is-hidden" data-ticket-edit-target="fieldSensor">{{ form_widget(date.sensors, { 'attr': {'class': 'no-margin'} }) }}</td>
+            <td class="is-hidden" data-ticket-edit-target="fieldReplacePower">{{ form_widget(date.replaceEnergy) }}</td>
+            <td class="is-hidden" data-ticket-edit-target="fieldReplaceIrr">{{ form_widget(date.replaceIrr) }}</td>
+            <td class="is-hidden" data-ticket-edit-target="fieldHour">{{ form_widget(date.useHour) }}</td>
+            <td class="is-hidden" data-ticket-edit-target="fieldEnergyValue">{{ form_widget(date.valueEnergy) }}</td>
+            <td class="is-hidden" data-ticket-edit-target="fieldIrrValue">{{ form_widget(date.valueIrr) }}</td>
+            <td class="is-hidden" data-ticket-edit-target="fieldCorrection">{{ form_widget(date.correctEnergyValue) }}</td>
+            {% if (ticket.alertType != 10 and ticket.alertType != 20) %}
+                <td class="is-hidden" data-ticket-edit-target="fieldEvaluation">{{ form_widget(date.dataGapEvaluation, { 'attr':{'class': 'no-margin ', 'data-ticket-split-target':'dataGapEv', 'data-action':'change->ticket-split#checkKpiSelectBoxes', 'disabled':'true'} }) }}</td>
             {% else %}
-                {# Availability Ticket #}
-                {% if (ticket.alertType != 10 and ticket.alertType != 20) %}
-                    <td class="hide">{{ form_widget(date.dataGapEvaluation, { 'attr':{'class': 'no-margin ', 'data-ticket-split-target':'dataGapEv', 'data-action':'change->ticket-split#checkKpiSelectBoxes', 'disabled':'true'} }) }}</td>
-                {% else %}
-                    <td>{{ form_widget(date.dataGapEvaluation, { 'attr':{'class': 'no-margin', 'data-ticket-split-target':'dataGapEv', 'data-action':'change->ticket-split#checkKpiSelectBoxes'} }) }}</td>
-                {% endif %}
+                <td class="is-hidden" data-ticket-edit-target="fieldEvaluation">{{ form_widget(date.dataGapEvaluation, { 'attr':{'class': 'no-margin', 'data-ticket-split-target':'dataGapEv', 'data-action':'change->ticket-split#checkKpiSelectBoxes'} }) }}</td>
+            {% endif %}
 
-                {% if (features and features.aktDep1) %}
-                    <td>{{ form_widget(date.kpiPaDep1, { 'attr': {'class': 'no-margin',  'data-ticket-split-target':'aktDep1' } }) }}</td>
-                {% endif %}
+            <td class="is-hidden" data-ticket-edit-target="fieldAktDep1" data-ticket-split-target="aktDep1">{% if (features and features.aktDep1) %}{{ form_widget(date.kpiPaDep1, { 'attr': {'class': 'no-margin',  'data-ticket-split-target':'aktDep1' } }) }}        {% endif %}</td>
+            <td class="is-hidden" data-ticket-edit-target="fieldAktDep2" data-ticket-split-target="aktDep2">{% if (features and features.aktDep2) %}{{ form_widget(date.kpiPaDep2, { 'attr': {'class': 'no-margin',  'data-ticket-split-target':'aktDep2' } }) }}   {% endif %}</td>
+            <td class="is-hidden" data-ticket-edit-target="fieldAktDep3" data-ticket-split-target="aktDep3">{% if (features and features.aktDep3) %}{{ form_widget(date.kpiPaDep3, { 'attr': {'class': 'no-margin',  'data-ticket-split-target':'aktDep3'} }) }}     {% endif %}</td>
 
-                {% if (features and features.aktDep2) %}
-                    <td>{{ form_widget(date.kpiPaDep2, { 'attr': {'class': 'no-margin',  'data-ticket-split-target':'aktDep2' } }) }}</td>
-                {% endif %}
-
-                {% if (features and features.aktDep3) %}
-                    <td>{{ form_widget(date.kpiPaDep3, { 'attr': {'class': 'no-margin',  'data-ticket-split-target':'aktDep3'} }) }}</td>
-                {% endif %}
-            {% endif%}
 
             <td class="text-right">
                 <button class="{% if (features == null or features.SplitGap != true) %} is-hidden {% endif%} button action-icon tiny no-margin hollow shadow"

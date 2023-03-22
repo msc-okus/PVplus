@@ -55,8 +55,8 @@ class TicketController extends BaseController
             /** @var Ticket $ticket */
             $ticket = $form->getData();
             $ticket->setEditor($this->getUser()->getUsername());
-
             $dates = $ticket->getDates();
+            dd($ticket);
             foreach ($dates as $date) {
                 $date->copyTicket($ticket);
                 if ($date->getAlertType() == 20) {
@@ -64,9 +64,9 @@ class TicketController extends BaseController
                     $date->setKpiPaDep2(10);
                     $date->setKpiPaDep3(10);
                 }
-                if ($ticket->getAlertType() == 20) $date->setDataGapEvaluation(10);
-                $ticket->addDate($date);
+                if ($ticket->getAlertType() == 20) $ticket->getDates()[0]->setDataGapEvaluation(10);
             }
+
             $em->persist($ticket);
             $em->flush();
 
@@ -92,6 +92,7 @@ class TicketController extends BaseController
             'anlage'        => $anlage,
             'edited'        => false,
             'invArray'      => $inverterArray,
+            'performanceTicket' => false
         ]);
     }
 
@@ -146,7 +147,9 @@ class TicketController extends BaseController
             if ($ticketDates) {
                 $found = false;
                 while(!$found){
-                    $firstTicketDate = $ticket->getDates()->first();
+                    //dd($ticketDates->first());
+                    $firstTicketDate = $ticketDates->first();
+
                     if ($firstTicketDate->getEnd() < $ticket->getBegin()) $ticket->removeDate($firstTicketDate);
                     elseif ($firstTicketDate->getEnd() == $ticket->getBegin()){
                         $ticket->removeDate($firstTicketDate);
@@ -185,13 +188,15 @@ class TicketController extends BaseController
 
             return new Response(null, 204);
         }
-
+        if ($ticket->getAlertType() >=70 && $ticket->getAlertType() < 80) $performanceTicket =  true;
+        else $performanceTicket = false;
         return $this->renderForm('ticket/_inc/_edit.html.twig', [
             'ticketForm' => $form,
             'ticket' => $ticket,
             'anlage' => $anlage,
             'edited' => true,
-            'invArray' => $inverterArray
+            'invArray' => $inverterArray,
+            'performanceTicket' => $performanceTicket
         ]);
     }
 

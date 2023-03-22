@@ -50,10 +50,10 @@ class TicketFormType extends AbstractType
         /** @var Ticket $ticket */
         $ticket = $options['data'] ?? null;
 
-        if ($ticket) {
-            $isNewTicket = $ticket->getCreatedAt() !== null;
-        } else {
+        if ($ticket->getCreatedAt() != null) {
             $isNewTicket = false;
+        } else {
+            $isNewTicket = true;
         }
 
         $builder
@@ -66,27 +66,46 @@ class TicketFormType extends AbstractType
                 'attr' => [
                     'readonly' => true,
                 ],
-            ])
-            ->add('alertType', ChoiceType::class, [
+            ]);
+            if ($isNewTicket == true){
+
+                $builder->add('alertType', ChoiceType::class, [
+                    'label' => 'Category of ticket ',
+                    'help' => 'data gap, inverter, ...',
+                    'choices' => self::errorCategorie(),
+
+                    'placeholder' => 'Please select ...',
+                    'invalid_message' => 'Please select a Error Category.',
+                    'empty_data' => 0,
+                    'attr' => [
+                        'data-action' => 'change->ticket-edit#saveCheck',
+                        'data-ticket-edit-target' => 'formCategory',
+                        'data-ticket-edit-edited-param'=> 'false',
+                    ],
+                ]);}
+            else
+
+                $builder->add('alertType', ChoiceType::class, [
                 'label' => 'Category of ticket ',
                 'help' => 'data gap, inverter, ...',
                 'choices' => self::errorCategorie(),
-                'disabled' => $isNewTicket,
+                'disabled' => true,
                 'placeholder' => 'Please select ...',
                 'invalid_message' => 'Please select a Error Category.',
                 'empty_data' => 0,
                 'attr' => [
                     'data-action' => 'change->ticket-edit#saveCheck',
-                    'data-ticket-edit-target' => 'formCategory'
+                    'data-ticket-edit-target' => 'formCategory',
+                    'data-ticket-edit-edited-param'=> 'true',
                 ],
-            ])
-            ->add('inverter', TextType::class, [
+            ]);
+
+            $builder->add('inverter', TextType::class, [
                 'label' => 'Inverter',
                 'required' => true,
                 'help' => '* = all Invertres',
                 'attr' => [
                     'readonly' => true,
-                    'disabled' => true,
                 ],
             ])
             ->add('begin', DateTimeType::class, [
