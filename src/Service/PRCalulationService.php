@@ -528,11 +528,11 @@ class PRCalulationService
      *  $result['prDep3Act'] (by default 'AM')<br>
      *  $result['prDep3Exp'] (by default 'AM')<br>
      *  $result['prDep3EGridExt'] (by default 'AM')<br>
-     *  $result['algorithmus'] @deprecated (depending on settings in Plant)<br>
+     *  $result['algorithmus'] deprecated (depending on settings in Plant)<br>
      *  $result['tempCorrection']<br>
      *  $result['irradiation']<br>
-     *  $result['availability'] @deprecated<br>
-     *  $result['availability2'] @deprecated<br>
+     *  $result['availability'] deprecated<br>
+     *  $result['availability2'] deprecated<br>
      *  $result['pa0'] (by default 'open book')<br>
      *  $result['pa1'] (by default 'O&M')<br>
      *  $result['pa2'] (by default 'EPC')<br>

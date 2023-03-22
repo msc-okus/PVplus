@@ -16,6 +16,7 @@ use App\Service\ExportService;
 use App\Service\FunctionsService;
 use App\Service\PRCalulationService;
 use App\Service\ReportEpcPRNewService;
+use App\Service\Reports\ReportsMonthlyService;
 use App\Service\WeatherServiceNew;
 use Doctrine\ORM\NonUniqueResultException;
 use JetBrains\PhpStorm\NoReturn;
@@ -72,7 +73,6 @@ class DefaultMREController extends BaseController
             'output' => '',
         ]);
     }
-
 
     #[Route(path: '/mr/sun')]
     public function testSunRise(WeatherServiceNew $weatherService, AnlagenRepository $anlagenRepository, WeatherStationRepository $weatherStationRepository): Response
@@ -250,4 +250,21 @@ class DefaultMREController extends BaseController
         );
     }
 
+    #[Route(path: '/test/monthly/{id}', defaults: ['id' => 108])]
+    public function testNewMonthly($id, AnlagenRepository $anlagenRepository, ReportsMonthlyService $reportsMonthly): Response
+    {
+        $year = 2023;
+        $month = 1;
+        $date = date_create("$year-$month-01 12:00");
+        $daysInMonth = $date->format("t");
+        $anlage = $anlagenRepository->find($id);
+
+        $output = $reportsMonthly->buildMonthlyReportNew($anlage, $month, $year);
+
+
+        return $this->render('report/reportMonthlyNew.html.twig', [
+            'anlage'        => $anlage,
+            'report'        => $output,
+        ]);
+    }
 }
