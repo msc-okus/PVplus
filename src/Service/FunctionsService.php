@@ -919,7 +919,7 @@ class FunctionsService
                             } else {
                                 $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '" . $tempFrom->format('Y-m-d H:i') . "' AND '" . $tempTo->format('Y-m-d H:i') . "' GROUP BY unit LIMIT 1";
                             }
-                            if ($countMonthes > 1) dump($sql. "||| $countMonthes");
+                            #if ($countMonthes > 1) dump($sql. "||| $countMonthes");
                             $res = $conn->query($sql);
                             if ($res->rowCount() == 1) {
                                 $row = $res->fetch(PDO::FETCH_ASSOC);

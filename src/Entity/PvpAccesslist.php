@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 
 /**
  * PvpAccesslist.
@@ -10,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'pvp_accesslist')]
 #[ORM\Index(name: 'id', columns: ['id'])]
 #[ORM\Entity]
+#[Deprecated]
 class PvpAccesslist
 {
     /**

@@ -12,6 +12,26 @@ class AnlageSettingsFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options) {
         $builder
+            ######## Handling Departments ########
+            ->add('disableDep0', SwitchType::class, [
+                'label'     => 'could not be disabled',
+                'help'      => '[disableDep0]',
+                'attr'      => ['disabled' => 'disabled'],
+                'mapped'    => false,
+            ])
+            ->add('disableDep1', SwitchType::class, [
+                'label'     => 'disable',
+                'help'      => '[disableDep1]',
+            ])
+            ->add('disableDep2', SwitchType::class, [
+                'label'     => 'disable',
+                'help'      => '[disableDep2]',
+            ])
+            ->add('disableDep3', SwitchType::class, [
+                'label'     => 'disable',
+                'help'      => '[disableDep3]',
+            ])
+
             ######## AC Charts ########
             ->add('chartAC1', SwitchType::class, [
                 'label'     => 'AC Power -Actual & Expected, Plant',

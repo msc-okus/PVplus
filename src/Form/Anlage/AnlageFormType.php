@@ -248,18 +248,9 @@ class AnlageFormType extends AbstractType
                 'required' => false,
                 'empty_data' => '',
             ])
-
-            ->add('useCustPRAlgorithm', ChoiceType::class, [
-                'label' => 'Wähle und aktiviere Kundenspezifische PR Berechnung',
-                'help' => '[useCustPRAlgorithm]',
-                'choices' => $prArray,
-                'empty_data' => 'no',
-                'expanded' => false,
-                'multiple' => false,
-            ])
             ->add('tempCorrCellTypeAvg', TextType::class, [
-                'label' => 't Cell AVG (nur für PR Algor. Lelystadt, wenn 0 dann ohne Temperatur korrektur)',
-                'help' => '[tempCorrCellTypeAvg]',
+                'label' => 't Cell AVG ',
+                'help' => '[tempCorrCellTypeAvg]<br>(nur für PR Algor. Lelystadt, wenn 0 dann ohne Temperatur korrektur)',
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '0',
