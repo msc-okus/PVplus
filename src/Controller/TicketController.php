@@ -54,9 +54,10 @@ class TicketController extends BaseController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var Ticket $ticket */
             $ticket = $form->getData();
+            if ($ticket->getDates()->first()->getBegin() < $ticket->getBegin()) $ticket->setBegin($ticket->getDates()->first()->getBegin());
+            if ($ticket->getDates()->last()->getEnd() > $ticket->getEnd())$ticket->setEnd($ticket->getDates()->last()->getEnd());
             $ticket->setEditor($this->getUser()->getUsername());
             $dates = $ticket->getDates();
-            dd($ticket);
             foreach ($dates as $date) {
                 $date->copyTicket($ticket);
                 if ($date->getAlertType() == 20) {
@@ -147,7 +148,7 @@ class TicketController extends BaseController
             if ($ticketDates) {
                 $found = false;
                 while(!$found){
-                    //dd($ticketDates->first());
+
                     $firstTicketDate = $ticketDates->first();
 
                     if ($firstTicketDate->getEnd() < $ticket->getBegin()) $ticket->removeDate($firstTicketDate);

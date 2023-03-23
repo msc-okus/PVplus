@@ -11,7 +11,7 @@ export default class extends Controller {
                         'headerIrrValue', 'headerCorrection', 'headerEvaluation', 'headerAktDep1', 'headerAktDep2',
                         'headerAktDep3', 'formReplace', 'fieldSensor', 'fieldReplacePower', 'fieldReplaceIrr', 'fieldHour',
                         'fieldEnergyValue', 'fieldIrrValue', 'fieldCorrection', 'fieldEvaluation', 'fieldAktDep1', 'fieldAktDep2',
-                        'fieldAktDep3', 'formReplaceIrr', 'inverterDiv'];
+                        'fieldAktDep3', 'formReplaceIrr', 'inverterDiv', 'formHour', 'formBeginHidden', 'formEndHidden', 'formBeginDate', 'formEndDate'];
     static values = {
         formUrl: String,
         splitUrl: String,
@@ -40,6 +40,66 @@ export default class extends Controller {
         }
         this.checkCategory();
         $(this.modalBodyTarget).foundation();
+
+    }
+    hourCheck(){
+        const valueBegin = $(this.formBeginDateTarget).prop('value');
+        const valueEnd = $(this.formEndDateTarget).prop('value');
+        const valueBeginHidden = $(this.formBeginHiddenTarget).prop('value');
+        const valueEndHidden = $(this.formEndHiddenTarget).prop('value');
+
+        console.log(valueBeginHidden);
+        if ($(this.formHourTarget).prop('checked') == true) {
+            $(this.formBeginHiddenTarget).val(valueBegin);
+            $(this.formEndHiddenTarget).val(valueEnd);
+
+            let beginDate = new Date(valueBegin);
+            let endDate = new Date(valueEnd);
+            let beginMonth = '';
+            let endMonth = '';
+            let beginDay = '';
+            let endDay = '';
+            let newStringEndDate = '';
+            if (beginDate.getMonth() < 9) {
+                beginMonth = '0'.concat((beginDate.getMonth() + 1).toString());
+            }
+            else{
+                 beginMonth = (beginDate.getMonth() + 1).toString();
+            }
+            if (endDate.getMonth() < 9) {
+                 endMonth = '0'.concat((endDate.getMonth() + 1).toString());
+            }
+            else{
+                 endMonth = (endDate.getMonth() + 1).toString();
+            }
+            if (beginDate.getDate() < 10){
+                beginDay =  '0'.concat(beginDate.getDate().toString());
+            }
+            else{
+                beginDay = beginDate.getDate().toString();
+            }
+            if (endDate.getDate() < 10){
+                endDay =  '0'.concat(endDate.getDate().toString());
+            }
+            else{
+                endDay = endDate.getDate().toString();
+            }
+            let newStringBeginDate = beginDate.getFullYear().toString().concat('-', beginMonth, '-', beginDay, 'T', beginDate.getHours().toString(), ':', '00');
+
+            if (endDate.getMinutes() != 0) {
+                newStringEndDate = endDate.getFullYear().toString().concat('-', endMonth, '-', endDay, 'T', (endDate.getHours() + 1).toString(), ':', '00');
+            }
+            else{
+                newStringEndDate = endDate.getFullYear().toString().concat('-', endMonth, '-', endDay, 'T', (endDate.getHours() ).toString(), ':', '00');
+            }
+            $(this.formBeginDateTarget).val(newStringBeginDate);
+            $(this.formEndDateTarget).val(newStringEndDate);
+        }
+        else if(valueBeginHidden != '' && valueEndHidden != ''){
+            $(this.formBeginDateTarget).val(valueBeginHidden);
+            $(this.formEndDateTarget).val(valueEndHidden);
+        }
+
 
     }
     replaceCheck(){

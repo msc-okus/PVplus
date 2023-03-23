@@ -50,7 +50,7 @@ class TicketFormType extends AbstractType
         /** @var Ticket $ticket */
         $ticket = $options['data'] ?? null;
 
-        if ($ticket->getCreatedAt() != null) {
+        if ($ticket != null && $ticket->getCreatedAt() != null) {
             $isNewTicket = false;
         } else {
             $isNewTicket = true;
@@ -117,7 +117,7 @@ class TicketFormType extends AbstractType
                     'step' => 900,
                     'data-action' => 'change->ticket-edit#saveCheck',
                     'data-ticket-edit-target' => 'formBegin',
-                    'max' => $isNewTicket ? $ticket->getBegin()->format("Y-m-d\TH:i") : ''
+                    //'max' => $isNewTicket ? $ticket->getBegin()->format("Y-m-d\TH:i") : ''
                 ],
             ])
             ->add('end', DateTimeType::class, [
@@ -126,7 +126,7 @@ class TicketFormType extends AbstractType
                 'required' => true,
                 'widget' => 'single_text',
                 'attr' => [
-                    'min' => $isNewTicket ? $ticket->getEnd()->format("Y-m-d\TH:i") : '',
+                    //'min' => $isNewTicket ? $ticket->getEnd()->format("Y-m-d\TH:i") : '',
                     'step' => 900,
                     'data-action' => 'change->ticket-edit#saveCheck',
                     'data-ticket-edit-target' => 'formEnd'],

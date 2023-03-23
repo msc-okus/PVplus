@@ -37,12 +37,32 @@ class TicketDateEmbeddedFormType extends AbstractType
                 'widget' => 'single_text',
                 'attr' => [
                     'readonly' => true,
+                    'data-ticket-edit-target' => 'formBeginDate'
                 ],
             ])
             ->add('end', DateTimeType::class, [
                 'widget' => 'single_text',
                 'attr' => [
                     'readonly' => true,
+                    'data-ticket-edit-target' => 'formEndDate'
+                ],
+            ])
+            ->add('beginHidden', DateTimeType::class, [
+                'widget' => 'single_text',
+                'mapped' => false,
+                'attr' => [
+                    'readonly' => true,
+                    'data-ticket-edit-target' => 'formBeginHidden',
+                    'hidden' => true
+                ],
+            ])
+            ->add('endHidden', DateTimeType::class, [
+                'widget' => 'single_text',
+                'mapped' => false,
+                'attr' => [
+                    'readonly' => true,
+                    'data-ticket-edit-target' => 'formEndHidden',
+                    'hidden' => true
                 ],
             ])
 
@@ -107,6 +127,10 @@ class TicketDateEmbeddedFormType extends AbstractType
                 // new field (bool)
                 ->add('useHour', SwitchType::class, [
                     'label'     => 'use hour (PVsyst)',
+                    'attr'      => [
+                        'data-action' => 'change->ticket-edit#hourCheck',
+                        'data-ticket-edit-target' => 'formHour'
+                    ]
                 ])
 
                 ########### replace Energy (Irr)
