@@ -47,23 +47,23 @@ class AnlageGroupsTypeForm extends AbstractType
                 'help'=>'irrLower'
             ])
             ->add('secureLoss', TextType::class,[
-                'label'=>'Secure Loss',
+                'label'=>'Secure Loss [%]',
                 'help'=>'secureLoss'
             ])
             ->add('factorAC', TextType::class,[
-                'label'=>'DC -> AC[%]',
+                'label'=>'DC -> AC [%]',
                 'help'=>'factorAC'
             ])
             ->add('gridLoss', TextType::class,[
-                'label'=>'Grid Loss',
+                'label'=>'Grid Loss [%]',
                 'help'=>'gridLoss'
             ])
             ->add('limitAc', TextType::class,[
-                'label'=>'Abriegelung Inverter AC',
+                'label'=>'Limit Inverter AC [kWh]',
                 'help'=>'limitAc'
             ])
             ->add('gridLimitAc', TextType::class,[
-                'label'=>'Abriegelung Grid AC',
+                'label'=>'Limit Grid AC [kWh??]',
                 'help'=>'gridLimitAc'
             ])
             ->add('importId', TextType::class, [
@@ -80,7 +80,7 @@ class AnlageGroupsTypeForm extends AbstractType
                 'attr' => ['style' => 'display: none;'],
             ])
             ->add('weatherStation', EntityType::class, [
-                'label' => 'Wetterstation',
+                'label' => 'Weatherstation',
                 'help' => '[weatherStation]',
                 'class' => WeatherStation::class,
                 'choice_label' => function (WeatherStation $station) {return sprintf('%s - %s', $station->getDatabaseIdent(), $station->getLocation()); },
