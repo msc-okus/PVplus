@@ -624,7 +624,6 @@ class PRCalulationService
         $result['prDep1EGridExt'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irr, $power['powerEGridExt'], $result['powerTheoDep1'], $pa0); //(($power['powerEGridExt'] / $tempTheoPower) * 100;
 
         $result['powerTheoDep2'] = $anlage->getPrFormular2() == 'Lelystad' ? $power['powerTheo'] : $anlage->getPnom() * $irr; // if theoretic Power ist corrected by temperature (NREL) (PR Algoritm = Lelystad) then use 'powerTheo' from array $power, if not calc by Pnom and Irr.
-        $result['powerTheo'] = $result['powerTheoDep2'];
         $result['prDep2Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr, $power['powerEvu'], $result['powerTheoDep2'], $pa0); //($power['powerEvu'] / $tempTheoPower) * 100;
         $result['prDep2Act'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr, $power['powerAct'],  $result['powerTheoDep2'], $pa0); //(($power['powerAct'] / $tempTheoPower) * 100;
         $result['prDep2Exp'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr, $power['powerExp'], $result['powerTheoDep2'], $pa0); //(($result['powerExp'] / $tempTheoPower) * 100;
@@ -782,7 +781,8 @@ class PRCalulationService
 
             default:
                 // wenn es keinen spezielen Algoritmus gibt
-                $result = ($irr > 0) ? ($eGrid / $anlage->getPnom() * $irr) * 100 : null;
+                $result = ($irr > 0) ? ($eGrid / ($anlage->getPnom() * $irr)) * 100 : null;
+                #dd($eGrid, $anlage->getPnom() * $irr);
         }
 
         return $result;
