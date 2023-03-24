@@ -59,7 +59,8 @@ export default class extends Controller {
             let endMonth = '';
             let beginDay = '';
             let endDay = '';
-            let newStringEndDate = '';
+            let beginHour = '';
+            let endHour = '';
             if (beginDate.getMonth() < 9) {
                 beginMonth = '0'.concat((beginDate.getMonth() + 1).toString());
             }
@@ -84,14 +85,32 @@ export default class extends Controller {
             else{
                 endDay = endDate.getDate().toString();
             }
-            let newStringBeginDate = beginDate.getFullYear().toString().concat('-', beginMonth, '-', beginDay, 'T', beginDate.getHours().toString(), ':', '00');
+            let beginHourInt = 0;
+            if (beginDate.getMinutes() < 15) beginHourInt = beginDate.getHours() - 1;
+            else beginHourInt = beginDate.getHours();
 
-            if (endDate.getMinutes() != 0) {
-                newStringEndDate = endDate.getFullYear().toString().concat('-', endMonth, '-', endDay, 'T', (endDate.getHours() + 1).toString(), ':', '00');
+            let hour = 0;
+            if (endDate.getMinutes() > 15) hour = endDate.getHours() + 1;
+            else hour = endDate.getHours();
+
+            if (beginHourInt < 10){
+                beginHour =  '0'.concat(beginHourInt.toString());
             }
             else{
-                newStringEndDate = endDate.getFullYear().toString().concat('-', endMonth, '-', endDay, 'T', (endDate.getHours() ).toString(), ':', '00');
+                beginHour = beginHourInt.toString();
             }
+
+
+            if (hour < 10){
+                endHour = '0'.concat(hour.toString());
+            }
+            else{
+                endHour =  hour.toString();
+            }
+
+            let newStringBeginDate = beginDate.getFullYear().toString().concat('-', beginMonth, '-', beginDay, 'T',beginHour, ':', '15');
+            let newStringEndDate = endDate.getFullYear().toString().concat('-', endMonth, '-', endDay, 'T', endHour, ':', '15');
+
             $(this.formBeginDateTarget).val(newStringBeginDate);
             $(this.formEndDateTarget).val(newStringEndDate);
         }
@@ -103,6 +122,7 @@ export default class extends Controller {
 
     }
     replaceCheck(){
+
             $(this.headerExcludeTarget).addClass('is-hidden');
             $(this.headerReplaceTarget).addClass('is-hidden');
             $(this.headerReplacePowerTarget).removeClass('is-hidden');
@@ -111,7 +131,8 @@ export default class extends Controller {
                 $(this.headerHourTarget).removeClass('is-hidden');
                 $(this.headerEnergyValueTarget).removeClass('is-hidden');
                 $(this.headerIrrValueTarget).removeClass('is-hidden');
-            }else{
+            }
+            else{
                 $(this.headerReplaceIrrTarget).removeClass('is-hidden');
                 $(this.headerHourTarget).addClass('is-hidden');
                 $(this.headerEnergyValueTarget).addClass('is-hidden');
@@ -122,28 +143,29 @@ export default class extends Controller {
             $(this.headerAktDep1Target).addClass('is-hidden');
             $(this.headerAktDep2Target).addClass('is-hidden');
             $(this.headerAktDep2Target).addClass('is-hidden');
-
-
             $(this.fieldSensorTarget).addClass('is-hidden');
             $(this.fieldReplacePowerTarget).removeClass('is-hidden');
-
-        if ($(this.formReplaceTarget).prop('checked') == false) {
-            $(this.fieldReplaceIrrTarget).addClass('is-hidden');
-            $(this.fieldHourTarget).removeClass('is-hidden');
-            $(this.fieldEnergyValueTarget).removeClass('is-hidden');
-            $(this.fieldIrrValueTarget).removeClass('is-hidden');
-        }else{
-            $(this.fieldReplaceIrrTarget).removeClass('is-hidden');
-            $(this.fieldHourTarget).addClass('is-hidden');
-            $(this.fieldEnergyValueTarget).addClass('is-hidden');
-            $(this.fieldIrrValueTarget).addClass('is-hidden');
-        }
+            if ($(this.formReplaceTarget).prop('checked') == false) {
+                $(this.fieldReplaceIrrTarget).addClass('is-hidden');
+                $(this.fieldHourTarget).removeClass('is-hidden');
+                $(this.fieldEnergyValueTarget).removeClass('is-hidden');
+                $(this.fieldIrrValueTarget).removeClass('is-hidden');
+            }
+            else{
+                $(this.fieldReplaceIrrTarget).removeClass('is-hidden');
+                $(this.fieldHourTarget).addClass('is-hidden');
+                $(this.fieldEnergyValueTarget).addClass('is-hidden');
+                $(this.fieldIrrValueTarget).addClass('is-hidden');
+            }
             $(this.fieldCorrectionTarget).addClass('is-hidden');
             $(this.fieldEvaluationTarget).addClass('is-hidden');
             $(this.fieldAktDep1Target).addClass('is-hidden');
             $(this.fieldAktDep2Target).addClass('is-hidden');
             $(this.fieldAktDep2Target).addClass('is-hidden');
 
+            if ($(this.formHourTarget).prop('checked') == false){
+
+            }
     }
     checkCategory(){
         const cat = $(this.formCategoryTarget).val();

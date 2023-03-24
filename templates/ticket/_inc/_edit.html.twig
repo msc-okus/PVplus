@@ -164,9 +164,11 @@
                                 {{ form_row(ticketForm.needsProofEPC) }}
                             </div>
                             {% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA')) %}
-                                <div class="cell small-6 medium-1">
-                                    {{ form_row(ticketForm.ignoreTicket) }}
-                                </div>
+                                {% if (edited) %}
+                                    <div class="cell small-6 medium-1" >
+                                        {{ form_row(ticketForm.ignoreTicket) }}
+                                    </div>
+                                {% endif %}
                             {% endif %}
                         </div>
                         <div class="grid-x grid-padding-x">

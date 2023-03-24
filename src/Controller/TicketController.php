@@ -145,7 +145,7 @@ class TicketController extends BaseController
             }
             // Adjust, if neccesary, the start and end Date of the master Ticket, depending on the TicketDates
 
-            if ($ticketDates) {
+            if ($ticketDates) { // cambiar aqui para que si el primer y ultimo date estan fuera del ticket se expande el ticket
                 $found = false;
                 while(!$found){
 
