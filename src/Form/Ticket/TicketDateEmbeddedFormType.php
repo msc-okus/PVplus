@@ -67,6 +67,13 @@ class TicketDateEmbeddedFormType extends AbstractType
                     'class' => 'is-hidden'
                 ],
             ])
+            ->add('reasonChoose',ChoiceType::class, [
+                'mapped' => false,
+                'choices'       => [],
+                'placeholder'   => 'Please select …',
+                'empty_data'    => '',
+            ])
+
 
             ########### PA Tickets ###########
             ->add('errorType', ChoiceType::class, [
