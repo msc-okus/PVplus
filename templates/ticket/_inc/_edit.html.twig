@@ -47,102 +47,100 @@
                             <div class="cell small-6 medium-2">
                                 {{ form_row(ticketForm.alertType) }}
                             </div>
-                            <div data-ticket-edit-target="inverterDiv" class="{{ hiddenPerformanceTicket }}"> {# hide TicketStuff on Performance Ticket #}
-                                <div class="cell small-6 medium-2">
-                                    {# Select inverter stuff #}
-                                    <div class="grid-x">
-                                        <div class="cell">
-                                            <label>&nbsp;</label>
-                                            <button class="button small no-margin hollow expanded" type="button" data-toggle="inverter-dropdown-{{ dropdownId }}">Select Inverters</button>
-                                            <div class="dropdown-pane shadow" id="inverter-dropdown-{{ dropdownId }}" data-dropdown data-auto-focus="true" data-alignment="center" data-close-on-click="true">
-                                                {% if (invArray != null) %}
-                                                    <div class="grid-x">
+                            <div class="cell small-12 medium-6">
+                                <div data-ticket-edit-target="inverterDiv" class="grid-x grid-padding-x {{ hiddenPerformanceTicket }}">  {# hide TicketStuff on Performance Ticket #}
+                                    <div class="cell small-12 medium-4">
+                                        {# Select inverter stuff #}
+                                        <label>&nbsp;</label>
+                                        <button class="button small no-margin hollow expanded" type="button" data-toggle="inverter-dropdown-{{ dropdownId }}">Select Inverters</button>
+                                        <div class="dropdown-pane shadow" id="inverter-dropdown-{{ dropdownId }}" data-dropdown data-auto-focus="true" data-alignment="center" data-close-on-click="true">
+                                            {% if (invArray != null) %}
+                                                <div class="grid-x">
+                                                    <div class="cell small-form">
+                                                        <h3>Inverter List</h3>
+                                                        <input id="check-all" type="checkbox" {% if (edited) %}data-ticket-edit-edited-param="true" {% else %} data-ticket-edit-edited-param="false" {% endif %} data-action="click->ticket-edit#checkSelect" data-ticket-edit-target="switch">
+                                                        <label for="check-all" class="">Select All</label>
+                                                    </div>
+                                                </div>
+                                                <div class="grid-x small-up-3 medium-up-6 large-up-9 xlarge-up-12">
+                                                    {% for inverter in invArray %}
                                                         <div class="cell small-form">
-                                                            <h3>Inverter List</h3>
-                                                            <input id="check-all" type="checkbox" {% if (edited) %}data-ticket-edit-edited-param="true" {% else %} data-ticket-edit-edited-param="false" {% endif %} data-action="click->ticket-edit#checkSelect" data-ticket-edit-target="switch">
-                                                            <label for="check-all" class="">Select All</label>
+                                                            <input id="{{ inverter['inv'] }}" type="checkbox" class="js-checkbox" name="{{ loop.index }}" {{ inverter['select'] }} {% if (edited) %}data-ticket-edit-edited-param="true" {% else %} data-ticket-edit-edited-param="false" {% endif %} data-action="click->ticket-edit#saveCheck">
+                                                            <label for="{{ inverter['inv'] }}" class="">{{ inverter['inv'] }}</label>
                                                         </div>
+                                                    {% endfor %}
+                                                </div>
+                                            {% else %}
+                                                No Inverters found to select
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div class="cell small-12 medium-4">
+                                        {{ form_row(ticketForm.inverter) }}
+                                    </div>
+                                    <div class="cell small-12 medium-4">
+                                        {# Split by Inverter stuff #}
+                                        <label>&nbsp;</label>
+                                        <button class="button small no-margin hollow expanded {% if (features == null or features.SplitInverter != true) %} is-hidden {% endif%}"
+                                                type="button"
+                                                {% if (edited) %}data-toggle="split-dropdown-{{ dropdownId }}"{% else %} disabled{% endif %}{% if (counter <= 1)%} disabled {% endif%}
+                                                data-ticket-edit-target="splitDeploy">Split by Inverter
+                                        </button>
+                                        <div class="dropdown-pane shadow" {% if (edited) %} id="split-dropdown-{{ dropdownId }}" {% else%} disabled {% endif %}data-dropdown data-auto-focus="true" data-alignment="center" data-close-on-click="true">
+                                            {% if (invArray != null) %}
+                                                <div class="grid-x">
+                                                    <div class="cell small-12 "
+                                                         style="background-color: red"
+                                                         data-ticket-edit-target="splitAlert"
+                                                    >
+                                                        No inverters in one of the Tickets
                                                     </div>
-                                                    <div class="grid-x small-up-3 medium-up-6 large-up-9 xlarge-up-12">
-                                                        {% for inverter in invArray %}
-                                                            <div class="cell small-form">
-                                                                <input id="{{ inverter['inv'] }}" type="checkbox" class="js-checkbox" name="{{ loop.index }}" {{ inverter['select'] }} {% if (edited) %}data-ticket-edit-edited-param="true" {% else %} data-ticket-edit-edited-param="false" {% endif %} data-action="click->ticket-edit#saveCheck">
-                                                                <label for="{{ inverter['inv'] }}" class="">{{ inverter['inv'] }}</label>
+                                                    <div class="cell">
+                                                        <h3>Inverter List</h3>
+                                                    </div>
+                                                </div>
+                                                <h4>This Ticket</h4>
+                                                <div class="grid-x small-up-3 medium-up-6 large-up-6 xlarge-up-9">
+                                                    {% for inverter in invArray %}
+                                                        {% if (inverter['select'] == "checked") %}
+                                                            <div class="cell js-div-split-a small-form" id="div-split-{{ loop.index }}a">
+                                                                <input id="split-{{ loop.index }}a" type="checkbox" class="js-checkbox-split-a" name="{{ loop.index }}" {{ inverter['select'] }}  data-ticket-edit-id-param="{{ loop.index }}"data-action="click->ticket-edit#checkInverterSplit1">
+                                                                <label for="split-{{ loop.index }}a" class="">{{ inverter['inv'] }}</label>
                                                             </div>
-                                                        {% endfor %}
-                                                    </div>
-                                                {% else %}
-                                                    No Inverters found to select
-                                                {% endif %}
-                                            </div>
-
+                                                        {% else  %}
+                                                            <div class="cell js-div-split-a is-hidden small-form" id="div-split-{{ loop.index  }}a">
+                                                                <input id="split-{{ loop.index  }}a" type="checkbox" class="js-checkbox-split-a" name="{{ loop.index }}" {{ inverter['select'] }} data-ticket-edit-id-param="{{ loop.index }}" data-action="click->ticket-edit#checkInverterSplit1">
+                                                                <label for="split-{{ loop.index }}a" class="">{{ inverter['inv'] }}</label>
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                                <hr>
+                                                <h4>New Ticket</h4>
+                                                <div class="grid-x small-up-3 medium-up-6 large-up-6 xlarge-up-9">
+                                                    {% for inverter in invArray %}
+                                                        {% if (inverter['select'] == "checked") %}
+                                                            <div class="cell js-div-split-b small-form" id="div-split-{{ loop.index }}b">
+                                                                <input id="split-{{ loop.index }}b" type="checkbox" class="js-checkbox-split-b" name="{{ loop.index }}" data-ticket-edit-id-param="{{ loop.index }}" data-action="click->ticket-edit#checkInverterSplit2">
+                                                                <label for="split-{{ loop.index }}b" class="">{{ inverter['inv'] }}</label>
+                                                            </div>
+                                                        {% else  %}
+                                                            <div class="cell js-div-split-b is-hidden small-form" id="div-split-{{ loop.index}}b">
+                                                                <input id="split-{{ loop.index }}b" type="checkbox" class="js-checkbox-split-b" name="{{ loop.index }}" data-ticket-edit-id-param="{{ loop.index }}" data-action="click->ticket-edit#checkInverterSplit2">
+                                                                <label for="split-{{ loop.index }}b" class="">{{ inverter['inv'] }}</label>
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                                <button type="button" class="button small"  data-ticket-edit-target="splitButton" {% if (edited) %}data-ticket-edit-ticketid-param="{{ ticket.id }}" disabled data-action="ticket-edit#splitTicketByInverter" {% endif %}>Split</button>
+                                            {% else %}
+                                                No Inverters found to select
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </div>
-                                <div class="cell small-6 medium-2">
-                                    {{ form_row(ticketForm.inverter) }}
-                                </div>
-                                <div class="cell small-6 medium-2">
-                                    {# Split by Inverter stuff #}
-                                    <label>&nbsp;</label>
-                                    <button class="button small no-margin hollow expanded {% if (features == null or features.SplitInverter != true) %} is-hidden {% endif%}"
-                                            type="button"
-                                            {% if (edited) %}data-toggle="split-dropdown-{{ dropdownId }}"{% else %} disabled{% endif %}{% if (counter <= 1)%} disabled {% endif%}
-                                            data-ticket-edit-target="splitDeploy">Split by Inverter
-                                    </button>
-                                    <div class="dropdown-pane shadow" {% if (edited) %} id="split-dropdown-{{ dropdownId }}" {% else%} disabled {% endif %}data-dropdown data-auto-focus="true" data-alignment="center" data-close-on-click="true">
-                                        {% if (invArray != null) %}
-                                            <div class="grid-x">
-                                                <div class="cell small-12 "
-                                                     style="background-color: red"
-                                                     data-ticket-edit-target="splitAlert"
-                                                >
-                                                    No inverters in one of the Tickets
-                                                </div>
-                                                <div class="cell">
-                                                    <h3>Inverter List</h3>
-                                                </div>
-                                            </div>
-                                            <h4>This Ticket</h4>
-                                            <div class="grid-x small-up-3 medium-up-6 large-up-6 xlarge-up-9">
-                                                {% for inverter in invArray %}
-                                                    {% if (inverter['select'] == "checked") %}
-                                                        <div class="cell js-div-split-a small-form" id="div-split-{{ loop.index }}a">
-                                                            <input id="split-{{ loop.index }}a" type="checkbox" class="js-checkbox-split-a" name="{{ loop.index }}" {{ inverter['select'] }}  data-ticket-edit-id-param="{{ loop.index }}"data-action="click->ticket-edit#checkInverterSplit1">
-                                                            <label for="split-{{ loop.index }}a" class="">{{ inverter['inv'] }}</label>
-                                                        </div>
-                                                    {% else  %}
-                                                        <div class="cell js-div-split-a is-hidden small-form" id="div-split-{{ loop.index  }}a">
-                                                            <input id="split-{{ loop.index  }}a" type="checkbox" class="js-checkbox-split-a" name="{{ loop.index }}" {{ inverter['select'] }} data-ticket-edit-id-param="{{ loop.index }}" data-action="click->ticket-edit#checkInverterSplit1">
-                                                            <label for="split-{{ loop.index }}a" class="">{{ inverter['inv'] }}</label>
-                                                        </div>
-                                                    {% endif %}
-                                                {% endfor %}
-                                            </div>
-                                            <hr>
-                                            <h4>New Ticket</h4>
-                                            <div class="grid-x small-up-3 medium-up-6 large-up-6 xlarge-up-9">
-                                                {% for inverter in invArray %}
-                                                    {% if (inverter['select'] == "checked") %}
-                                                        <div class="cell js-div-split-b small-form" id="div-split-{{ loop.index }}b">
-                                                            <input id="split-{{ loop.index }}b" type="checkbox" class="js-checkbox-split-b" name="{{ loop.index }}" data-ticket-edit-id-param="{{ loop.index }}" data-action="click->ticket-edit#checkInverterSplit2">
-                                                            <label for="split-{{ loop.index }}b" class="">{{ inverter['inv'] }}</label>
-                                                        </div>
-                                                    {% else  %}
-                                                        <div class="cell js-div-split-b is-hidden small-form" id="div-split-{{ loop.index}}b">
-                                                            <input id="split-{{ loop.index }}b" type="checkbox" class="js-checkbox-split-b" name="{{ loop.index }}" data-ticket-edit-id-param="{{ loop.index }}" data-action="click->ticket-edit#checkInverterSplit2">
-                                                            <label for="split-{{ loop.index }}b" class="">{{ inverter['inv'] }}</label>
-                                                        </div>
-                                                    {% endif %}
-                                                {% endfor %}
-                                            </div>
-                                            <button type="button" class="button small"  data-ticket-edit-target="splitButton" {% if (edited) %}data-ticket-edit-ticketid-param="{{ ticket.id }}" disabled data-action="ticket-edit#splitTicketByInverter" {% endif %}>Split</button>
-                                        {% else %}
-                                            No Inverters found to select
-                                        {% endif %}
-                                    </div>
-                                </div>
                             </div>
+
                         </div>
                         <div class="grid-x grid-padding-x">
                             <div class="cell small-6 medium-2">
@@ -202,6 +200,7 @@
                 {{ form_end(ticketForm) }}
             </div>
         </div>
+        {# error messages #}
         <div class="grid-x grid-margin-y">
             <div {% if edited %}class="cell small-12 callout warning is-hidden"{% else %}class="cell small-12 callout warning"{% endif %}
                  data-ticket-edit-target="Callout">
