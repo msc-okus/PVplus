@@ -20,6 +20,7 @@
         <th class="is-hidden" data-ticket-edit-target="headerEnergyValue">Value Energy</th>
         <th class="is-hidden" data-ticket-edit-target="headerIrrValue">Value Irradiation</th>
         <th class="is-hidden" data-ticket-edit-target="headerCorrection">Correction Value (+/-)</th>
+        <th class="is-hidden" data-ticket-edit-target="headerReason">Reason</th>
         <th class="is-hidden" data-ticket-edit-target="headerEvaluation">Evaluation</th>
         <th class="is-hidden" data-ticket-edit-target="headerAktDep1">{% if (features and features.aktDep1) %}PA {{ settings.nameDep1 }}   {% endif %}</th>
         <th class="is-hidden" data-ticket-edit-target="headerAktDep2">{% if (features and features.aktDep2) %}PA {{ settings.nameDep2 }}   {% endif %}</th>
@@ -48,6 +49,10 @@
             <td class="is-hidden" data-ticket-edit-target="fieldEnergyValue">{{ form_widget(date.valueEnergy) }}</td>
             <td class="is-hidden" data-ticket-edit-target="fieldIrrValue">{{ form_widget(date.valueIrr) }}</td>
             <td class="is-hidden" data-ticket-edit-target="fieldCorrection">{{ form_widget(date.correctEnergyValue) }}</td>
+            <td class="is-hidden" data-ticket-edit-target="fieldReason">
+                {{ form_widget(date.reasonText) }}
+                {{ form_widget(date.reasonChoose) }}
+            </td>
             {% if (ticket.alertType != 10 and ticket.alertType != 20) %}
                 <td class="is-hidden" data-ticket-edit-target="fieldEvaluation">{{ form_widget(date.dataGapEvaluation, { 'attr':{'class': 'no-margin ', 'data-ticket-split-target':'dataGapEv', 'data-action':'change->ticket-split#checkKpiSelectBoxes', 'disabled':'true'} }) }}</td>
             {% else %}

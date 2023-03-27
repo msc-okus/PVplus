@@ -51,6 +51,9 @@ class TicketDate
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $correctEnergyValue = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $reasonText = null;
+
 
     public function __construct()
     {
@@ -209,6 +212,18 @@ class TicketDate
     public function setCorrectEnergyValue(?string $correctEnergyValue): self
     {
         $this->correctEnergyValue = $correctEnergyValue;
+
+        return $this;
+    }
+
+    public function getReasonText(): ?string
+    {
+        return $this->reasonText;
+    }
+
+    public function setReasonText(?string $reasonText): self
+    {
+        $this->reasonText = $reasonText;
 
         return $this;
     }

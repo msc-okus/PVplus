@@ -11,7 +11,8 @@ export default class extends Controller {
                         'headerIrrValue', 'headerCorrection', 'headerEvaluation', 'headerAktDep1', 'headerAktDep2',
                         'headerAktDep3', 'formReplace', 'fieldSensor', 'fieldReplacePower', 'fieldReplaceIrr', 'fieldHour',
                         'fieldEnergyValue', 'fieldIrrValue', 'fieldCorrection', 'fieldEvaluation', 'fieldAktDep1', 'fieldAktDep2',
-                        'fieldAktDep3', 'formReplaceIrr', 'inverterDiv', 'formHour', 'formBeginHidden', 'formEndHidden', 'formBeginDate', 'formEndDate'];
+                        'fieldAktDep3', 'formReplaceIrr', 'inverterDiv', 'formHour', 'formBeginHidden', 'formEndHidden', 'formBeginDate',
+                        'formEndDate', 'formReasonSelect', 'formReasonText', 'headerReason', 'fieldReason'];
     static values = {
         formUrl: String,
         splitUrl: String,
@@ -50,6 +51,7 @@ export default class extends Controller {
             $(this.headerIrrValueTarget).addClass('is-hidden');
             $(this.headerCorrectionTarget).addClass('is-hidden');
             $(this.headerEvaluationTarget).addClass('is-hidden');
+            $(this.headerReasonTarget).addClass('is-hidden');
             $(this.headerAktDep1Target).addClass('is-hidden');
             $(this.headerAktDep2Target).addClass('is-hidden');
             $(this.headerAktDep2Target).addClass('is-hidden');
@@ -62,6 +64,7 @@ export default class extends Controller {
             $(this.fieldEnergyValueTarget).addClass('is-hidden');
             $(this.fieldIrrValueTarget).addClass('is-hidden');
             $(this.fieldCorrectionTarget).addClass('is-hidden');
+            $(this.fieldReasonTarget).addClass('is-hidden');
             $(this.fieldEvaluationTarget).addClass('is-hidden');
             $(this.fieldAktDep1Target).addClass('is-hidden');
             $(this.fieldAktDep2Target).addClass('is-hidden');
@@ -70,6 +73,19 @@ export default class extends Controller {
         }
         $(this.modalBodyTarget).foundation();
     }
+
+    reasonCheck(){
+        console.log($(this.formReasonSelectTarget).val());
+        if ($(this.formReasonSelectTarget).val() == 30){
+            $(this.formReasonTextTarget).prop('readonly', false);
+            $(this.formReasonTextTarget).val('')
+        }
+        else{
+            $(this.formReasonTextTarget).prop('readonly', true);
+            $(this.formReasonTextTarget).val($(this.formReasonSelectTarget).val())
+        }
+    }
+
     hourCheck(){
         const valueBegin = $(this.formBeginDateTarget).prop('value');
         const valueEnd = $(this.formEndDateTarget).prop('value');
@@ -170,6 +186,7 @@ export default class extends Controller {
             $(this.headerHourTarget).removeClass('is-hidden');
             $(this.headerCorrectionTarget).addClass('is-hidden');
             $(this.headerEvaluationTarget).addClass('is-hidden');
+            $(this.headerReasonTarget).removeClass('is-hidden');
             $(this.headerAktDep1Target).addClass('is-hidden');
             $(this.headerAktDep2Target).addClass('is-hidden');
             $(this.headerAktDep2Target).addClass('is-hidden');
@@ -187,9 +204,9 @@ export default class extends Controller {
                 $(this.fieldIrrValueTarget).addClass('is-hidden');
             }
             $(this.fieldHourTarget).removeClass('is-hidden');
-
             $(this.fieldCorrectionTarget).addClass('is-hidden');
             $(this.fieldEvaluationTarget).addClass('is-hidden');
+            $(this.fieldReasonTarget).removeClass('is-hidden');
             $(this.fieldAktDep1Target).addClass('is-hidden');
             $(this.fieldAktDep2Target).addClass('is-hidden');
             $(this.fieldAktDep2Target).addClass('is-hidden');
@@ -199,7 +216,6 @@ export default class extends Controller {
                 }
                 this.hourCheck();
             }
-
     }
     checkCategory(){
         const cat = $(this.formCategoryTarget).val();
@@ -218,6 +234,7 @@ export default class extends Controller {
                 $(this.headerIrrValueTarget).addClass('is-hidden');
                 $(this.headerCorrectionTarget).addClass('is-hidden');
                 $(this.headerEvaluationTarget).removeClass('is-hidden');
+                $(this.headerReasonTarget).addClass('is-hidden');
                 $(this.headerAktDep1Target).removeClass('is-hidden');
                 $(this.headerAktDep2Target).removeClass('is-hidden');
                 $(this.headerAktDep2Target).removeClass('is-hidden');
@@ -230,6 +247,7 @@ export default class extends Controller {
                 $(this.fieldEnergyValueTarget).addClass('is-hidden');
                 $(this.fieldIrrValueTarget).addClass('is-hidden');
                 $(this.fieldCorrectionTarget).addClass('is-hidden');
+                $(this.fieldReasonTarget).addClass('is-hidden');
                 $(this.fieldEvaluationTarget).removeClass('is-hidden');
                 $(this.fieldAktDep1Target).removeClass('is-hidden');
                 $(this.fieldAktDep2Target).removeClass('is-hidden');
@@ -247,6 +265,7 @@ export default class extends Controller {
                 $(this.headerIrrValueTarget).addClass('is-hidden');
                 $(this.headerCorrectionTarget).addClass('is-hidden');
                 $(this.headerEvaluationTarget).removeClass('is-hidden');
+                $(this.headerReasonTarget).addClass('is-hidden');
                 $(this.headerAktDep1Target).removeClass('is-hidden');
                 $(this.headerAktDep2Target).removeClass('is-hidden');
                 $(this.headerAktDep2Target).removeClass('is-hidden');
@@ -260,6 +279,7 @@ export default class extends Controller {
                 $(this.fieldIrrValueTarget).addClass('is-hidden');
                 $(this.fieldCorrectionTarget).addClass('is-hidden');
                 $(this.fieldEvaluationTarget).removeClass('is-hidden');
+                $(this.fieldReasonTarget).addClass('is-hidden');
                 $(this.fieldAktDep1Target).removeClass('is-hidden');
                 $(this.fieldAktDep2Target).removeClass('is-hidden');
                 $(this.fieldAktDep2Target).removeClass('is-hidden');
@@ -276,6 +296,7 @@ export default class extends Controller {
                 $(this.headerIrrValueTarget).addClass('is-hidden');
                 $(this.headerCorrectionTarget).addClass('is-hidden');
                 $(this.headerEvaluationTarget).addClass('is-hidden');
+                $(this.headerReasonTarget).addClass('is-hidden');
                 $(this.headerAktDep1Target).addClass('is-hidden');
                 $(this.headerAktDep2Target).addClass('is-hidden');
                 $(this.headerAktDep2Target).addClass('is-hidden');
@@ -288,6 +309,7 @@ export default class extends Controller {
                 $(this.fieldIrrValueTarget).addClass('is-hidden');
                 $(this.fieldCorrectionTarget).addClass('is-hidden');
                 $(this.fieldEvaluationTarget).addClass('is-hidden');
+                $(this.fieldReasonTarget).addClass('is-hidden');
                 $(this.fieldAktDep1Target).addClass('is-hidden');
                 $(this.fieldAktDep2Target).addClass('is-hidden');
                 $(this.fieldAktDep2Target).addClass('is-hidden');
@@ -320,6 +342,7 @@ export default class extends Controller {
                 $(this.headerIrrValueTarget).addClass('is-hidden');
                 $(this.headerCorrectionTarget).addClass('is-hidden');
                 $(this.headerEvaluationTarget).addClass('is-hidden');
+                $(this.headerReasonTarget).addClass('is-hidden');
                 $(this.headerAktDep1Target).addClass('is-hidden');
                 $(this.headerAktDep2Target).addClass('is-hidden');
                 $(this.headerAktDep2Target).addClass('is-hidden');
@@ -332,6 +355,7 @@ export default class extends Controller {
                 $(this.fieldIrrValueTarget).addClass('is-hidden');
                 $(this.fieldCorrectionTarget).addClass('is-hidden');
                 $(this.fieldEvaluationTarget).addClass('is-hidden');
+                $(this.fieldReasonTarget).addClass('is-hidden');
                 $(this.fieldAktDep1Target).addClass('is-hidden');
                 $(this.fieldAktDep2Target).addClass('is-hidden');
                 $(this.fieldAktDep2Target).addClass('is-hidden');
@@ -365,6 +389,7 @@ export default class extends Controller {
                 $(this.headerIrrValueTarget).addClass('is-hidden');
                 $(this.headerCorrectionTarget).addClass('is-hidden');
                 $(this.headerEvaluationTarget).addClass('is-hidden');
+                $(this.headerReasonTarget).addClass('is-hidden');
                 $(this.headerAktDep1Target).addClass('is-hidden');
                 $(this.headerAktDep2Target).addClass('is-hidden');
                 $(this.headerAktDep2Target).addClass('is-hidden');
@@ -378,6 +403,7 @@ export default class extends Controller {
                 $(this.fieldIrrValueTarget).addClass('is-hidden');
                 $(this.fieldCorrectionTarget).addClass('is-hidden');
                 $(this.fieldEvaluationTarget).addClass('is-hidden');
+                $(this.fieldReasonTarget).addClass('is-hidden');
                 $(this.fieldAktDep1Target).addClass('is-hidden');
                 $(this.fieldAktDep2Target).addClass('is-hidden');
                 $(this.fieldAktDep2Target).addClass('is-hidden');
@@ -432,6 +458,7 @@ export default class extends Controller {
                 $(this.headerIrrValueTarget).addClass('is-hidden');
                 $(this.headerCorrectionTarget).removeClass('is-hidden');
                 $(this.headerEvaluationTarget).addClass('is-hidden');
+                $(this.headerReasonTarget).removeClass('is-hidden');
                 $(this.headerAktDep1Target).addClass('is-hidden');
                 $(this.headerAktDep2Target).addClass('is-hidden');
                 $(this.headerAktDep2Target).addClass('is-hidden');
@@ -444,6 +471,7 @@ export default class extends Controller {
                 $(this.fieldIrrValueTarget).addClass('is-hidden');
                 $(this.fieldCorrectionTarget).removeClass('is-hidden');
                 $(this.fieldEvaluationTarget).addClass('is-hidden');
+                $(this.fieldReasonTarget).removeClass('is-hidden');
                 $(this.fieldAktDep1Target).addClass('is-hidden');
                 $(this.fieldAktDep2Target).addClass('is-hidden');
                 $(this.fieldAktDep2Target).addClass('is-hidden');
@@ -497,7 +525,7 @@ export default class extends Controller {
                 $(this.inverterDivTarget).removeClass('is-hidden');
                 break;
             default:
-                console.log('hey')
+
                 $(this.headerExcludeTarget).addClass('is-hidden');
                 $(this.headerReplaceTarget).addClass('is-hidden');
                 $(this.headerReplacePowerTarget).addClass('is-hidden');

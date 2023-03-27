@@ -101,6 +101,12 @@ class Ticket
 
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $TicketName = "";
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $whoHided = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $WhenHidded = null;
     /*
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $generatedFrom = '';
@@ -304,6 +310,30 @@ class Ticket
     public function setTicketName(?string $TicketName): self
     {
         $this->TicketName = $TicketName;
+
+        return $this;
+    }
+
+    public function getWhoHided(): ?string
+    {
+        return $this->whoHided;
+    }
+
+    public function setWhoHided(?string $whoHided): self
+    {
+        $this->whoHided = $whoHided;
+
+        return $this;
+    }
+
+    public function getWhenHidded(): ?string
+    {
+        return $this->WhenHidded;
+    }
+
+    public function setWhenHidded(?string $WhenHidded): self
+    {
+        $this->WhenHidded = $WhenHidded;
 
         return $this;
     }

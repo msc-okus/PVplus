@@ -69,9 +69,26 @@ class TicketDateEmbeddedFormType extends AbstractType
             ])
             ->add('reasonChoose',ChoiceType::class, [
                 'mapped' => false,
-                'choices'       => [],
+                'choices'       => [
+                    "Snow" => 'Snow',
+                    "Failure" => 'Failure',
+                    "Other..." => 30,
+                ],
                 'placeholder'   => 'Please select …',
                 'empty_data'    => '',
+
+                'attr'          => [
+                    'data-action' => 'change->ticket-edit#reasonCheck',
+                    'data-ticket-edit-target' => 'formReasonSelect'
+                ]
+            ])
+            ->add('reasonText', TextType::class,[
+
+                'attr'      => [
+                    'readonly' => true,
+                    'placeholder' => 'Write your reason here.',
+                    'data-ticket-edit-target' => 'formReasonText'
+                ],
             ])
 
 

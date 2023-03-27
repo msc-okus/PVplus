@@ -138,8 +138,17 @@ class TicketController extends BaseController
             $request->attributes->set('page', $page);
             /** @var Ticket $ticket */
             $ticket = $form->getData();
+            if($form->getData()->isIgnoreTicket()){
+                $ticket->setWhoHided($this->getUser()->getUsername());
+                $ticket->setWhenHidded(date("Y-m-d H:i:s"));
+            }
+            else{
+                $ticket->setWhoHided("");
+                $ticket->setWhenHidded("");
+            }
             $ticketDates = $ticket->getDates();
             $ticket->setEditor($this->getUser()->getUsername());
+
             if ($ticket->getStatus() === 30 && $ticket->getEnd() === null) {
                 $ticket->setEnd(new \DateTime('now'));
             }
