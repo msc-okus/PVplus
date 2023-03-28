@@ -91,8 +91,8 @@
 {% endblock %}
 #}
 {% block switch_type_widget %}
-
-    <div class="switch tiny">
+    {% dump attr %}
+    <div class="switch {{ attr.switch_size|default('small') }}">
         <input class="switch-input" id="{{ form.vars.id }}" {{ block('widget_attributes') }} type="checkbox"  {% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
         <label class="switch-paddle" for="{{ form.vars.id }}" {{ block('widget_attributes') }}>
         </label>
@@ -415,7 +415,7 @@
 {%- block checkbox_row -%}
     {%- set parent_class = parent_class|default(attr.class|default('')) -%}
     {%- if 'switch-input' in parent_class -%}
-        <div class="switch small">
+        <div class="switch {{ attr.class|default('small') }}">
             {{- form_label(form) -}}
             {% if form.vars.value == 1 %}
                 {% set checked = 'checked' %}

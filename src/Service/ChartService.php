@@ -325,8 +325,8 @@ class ChartService
                     $dataArray = $this->currentChart->getCurr1($anlage, $from, $to, $form['selectedGroup'], $hour);
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
-                        $resultArray['maxSeries'] = $dataArray['maxSeries'];
                         $resultArray['minSeries'] = $dataArray['minSeries'];
+                        $resultArray['maxSeries'] = $dataArray['maxSeries'];
                         $resultArray['sumSeries'] = $dataArray['sumSeries'];
                         $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
                         $resultArray['headline'] = 'DC Current [[A]] - overview';
@@ -383,7 +383,7 @@ class ChartService
                         $resultArray['maxSeries'] = $dataArray['maxSeries'];
                         $resultArray['sumSeries'] = $dataArray['sumSeries'];
                         $resultArray['offsetLegende'] = $dataArray['offsetLegend'];
-                        $resultArray['headline'] = 'DC Overview AVG Electricity [[V]]';
+                        $resultArray['headline'] = 'DC Voltage Overview [[V]]';
                         $resultArray['series1']['name'] = 'Expected';
                         $resultArray['series1']['tooltipText'] = 'Expected';
                         $resultArray['seriesx']['name'] = 'Group ';

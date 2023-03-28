@@ -108,7 +108,7 @@
             {% if form.selectedGroup > loop.length %} {% set nn = 1 %} {% endif %}
             <option value="{{ selectorB }}" {% if nn == selectorB %}selected{% endif %}>{{ groupB.acGroupName }}</option>
         {% endfor %}
-    {% elseif form.selectedChart == 'dc_current_overview' %}
+    {% elseif form.selectedChart == 'dc_current_overview' or form.selectedChart == 'dc_voltage_1' %}
         {# AC Gruppen anzeigen #}
         {% set selectorC = 0 %}
         {% set nn = form.selectedGroup %}

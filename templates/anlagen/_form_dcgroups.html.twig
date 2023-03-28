@@ -126,17 +126,16 @@
     <div class="grid-x">
         <div class="cell">
             <ul class="tabs" data-tabs id="anlage-tabs" data-deep-link="true">
-                {# <li class="tabs-title is-active"><a data-tabs-target="plant-data" href="#plant-data" aria-selected="true" >General</a></li> #}
                 {% if is_granted('ROLE_G4N') %}
-                    <li class="tabs-title"><a data-tabs-target="groups" href="#groups">Groups</a></li>
-                    <li class="tabs-title"><a data-tabs-target="plant-month" href="#plant-month">Months</a></li>
+                    <li class="tabs-title is-active"><a data-tabs-target="groups-tab" href="#groups-tab" aria-selected="true">Groups</a></li>
+                    <li class="tabs-title"><a data-tabs-target="month-tab" href="#month-tab">Months</a></li>
                 {% endif %}
             </ul>
 
             <div class="tabs-content" data-tabs-content="anlage-tabs">
 
                 {# Groups #}
-                <div class="tabs-panel is-active" id="groups">
+                <div class="tabs-panel is-active" id="groups-tab">
                     <fieldset class="fieldset js-group-wrapper"
                               data-prototype="{{ formMacros.addGroup(anlageForm.groups.vars.prototype, (anlageForm.groups|length +1))|e('html_attr') }}"
                               data-index="{{ anlageForm.groups|length }}"
@@ -249,7 +248,7 @@
                 </div>
 
                 {# Months #}
-                <div class="tabs-panel" id="plant-month">
+                <div class="tabs-panel" id="month-tab">
                     <div class="cell">
                         <div class="js-plant-month-wrapper"
                              data-prototype="{{ formMacros.addPlantMonth(anlageForm.anlageMonth.vars.prototype)|e('html_attr') }}"
