@@ -31,7 +31,7 @@ trait TicketTrait
     private ?int $systemStatus = 0;
 
     #[ORM\Column(type: 'integer', nullable: true)]
-    private int $priority = 0;
+    private ?int $priority = 0;
 
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $answer = '';
@@ -137,19 +137,19 @@ trait TicketTrait
         return $this->inverter;
     }
 
-    public function setInverter(string $Inverter): self
+    public function setInverter(string $inverter): self
     {
-        $this->inverter = $Inverter;
+        $this->inverter = $inverter;
         if ($this->description == "") {
             switch ($this->getAlertType()) {
                 case 10:
-                    $this->description = "Data gap in Inverter(s): " . $Inverter;
+                    $this->description = "Data gap in Inverter(s): " . $inverter;
                     break;
                 case 20:
-                    $this->description = "Power Error in Inverter(s): " . $Inverter;
+                    $this->description = "Power Error in Inverter(s): " . $inverter;
                     break;
                 case 30:
-                    $this->description = "Grid Error in Inverter(s): " . $Inverter;
+                    $this->description = "Grid Error in Inverter(s): " . $inverter;
                     break;
 
             }
@@ -210,7 +210,7 @@ trait TicketTrait
         return $this->priority;
     }
 
-    public function setPriority(int $Priority): self
+    public function setPriority(?int $Priority): self
     {
         $this->priority = $Priority;
 
@@ -234,7 +234,7 @@ trait TicketTrait
         return $this->description;
     }
 
-    public function setDescription(string $Description): self
+    public function setDescription(?string $Description): self
     {
         $this->description = $Description;
 
@@ -258,7 +258,7 @@ trait TicketTrait
         return $this->intervals;
     }
 
-    public function setIntervals(int $intervals): self
+    public function setIntervals(?int $intervals): self
     {
         $this->intervals = $intervals;
 
@@ -297,7 +297,4 @@ trait TicketTrait
         $this->kpiPaDep3 = $kpiPaDep3;
         return $this;
     }
-
-
-
 }

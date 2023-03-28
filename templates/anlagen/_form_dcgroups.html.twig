@@ -252,32 +252,35 @@
                     <div class="cell">
                         <div class="js-plant-month-wrapper"
                              data-prototype="{{ formMacros.addPlantMonth(anlageForm.anlageMonth.vars.prototype)|e('html_attr') }}"
-                             data-index="{{ anlageForm.anlageMonth|length }}">
-                            <p>Settings per Month (globale, all groups)</p>
-                            <table id="plant-months">
-                                <thead>
-                                <tr>
-                                    <th><small>Month</small></th>
-                                    <th><small>Irr Upper</small></th>
-                                    <th><small>Irr Lower</small></th>
-                                    <th><small>Shadow Loss</small></th>
-                                    <th></th>
-                                </tr>
-                                </thead>
-
-                                <tbody>
-                                {% for month in anlageForm.anlageMonth %}
-                                    <tr class="js-plant-month-item">
-                                        <td>{{ form_widget(month.month) }}</td>
-                                        <td>{{ form_widget(month.irrUpper) }}</td>
-                                        <td>{{ form_widget(month.irrLower) }}</td>
-                                        <td>{{ form_widget(month.shadowLoss) }}</td>
-                                        <td><a href="#" class="js-remove-plant-month"><span class="fa fa-minus-circle"></span></a></td>
+                             data-index="{{ anlageForm.anlageMonth|length }}"
+                        >
+                            <fieldset class="fieldset">
+                                <legend>Shadow losses – Settings per Month (globale, all groups)</legend>
+                                <table>
+                                    <thead>
+                                    <tr>
+                                        <th><small>Month</small></th>
+                                        <th><small>Irr Upper</small></th>
+                                        <th><small>Irr Lower</small></th>
+                                        <th><small>Shadow Loss</small></th>
+                                        <th></th>
                                     </tr>
-                                {% endfor %}
-                                </tbody>
-                            </table>
-                            <button type="button" class="button secondary small js-add-plant-month"><span class="fa fa-plus-circle"></span>&nbsp;Add </button>
+                                    </thead>
+
+                                    <tbody>
+                                    {% for month in anlageForm.anlageMonth %}
+                                        <tr class="js-plant-month-item">
+                                            <td>{{ form_widget(month.month) }}</td>
+                                            <td>{{ form_widget(month.irrUpper) }}</td>
+                                            <td>{{ form_widget(month.irrLower) }}</td>
+                                            <td>{{ form_widget(month.shadowLoss) }}</td>
+                                            <td><a href="#" class="js-remove-plant-month"><span class="fa fa-minus-circle"></span></a></td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                <button type="button" class="button secondary small js-add-plant-month"><span class="fa fa-plus-circle"></span>&nbsp;Add </button>
+                                </fieldset>
                         </div>
                     </div>
                 </div>
