@@ -193,7 +193,16 @@
 
 {# VoltDC1  #}
 {% macro voltageDc1(form, aktAnlage) %}
-    <option value="dc_voltage_1" {% if form.selectedChart == 'dc_voltage_1' %}selected{% endif %}>DC - Voltage Actual & Expected, Plant&nbsp;[V]{% if is_granted('ROLE_DEV') %}[VoltDC 1]{% endif %}</option>
+    {% if aktAnlage.configType == 1 %}
+        <option value="dc_voltage_1" {% if form.selectedChart == 'dc_voltage_1' %}selected{% endif %}>DC - Voltage, Overview&nbsp;[V]{% if is_granted('ROLE_DEV') %}[VoltDc1 1]{% endif %}</option>
+    {% elseif aktAnlage.configType == 2 %}
+        {# wird hier im Moment nicht benötigt #}
+        {# <option value="dc_current_overview" {% if form.selectedChart == 'dc_voltage_1' %}selected{% endif %}>DC - Current, Overview&nbsp;[A]{% if is_granted('ROLE_DEV') %}[Curr 1]{% endif %}</option> #}
+    {% elseif aktAnlage.configType == 3 %}
+        <option value="dc_voltage_1" {% if form.selectedChart == 'dc_voltage_1' %}selected{% endif %}>DC - Voltage, Inverter&nbsp;[V]{% if is_granted('ROLE_DEV') %}[Curr 1]{% endif %}</option>
+    {% elseif aktAnlage.configType == 4 %}
+        <option value="dc_voltage_1" {% if form.selectedChart == 'dc_voltage_1' %}selected{% endif %}>DC - Voltage, Inverter&nbsp;[V]{% if is_granted('ROLE_DEV') %}[Curr 1]{% endif %}</option>
+    {% endif %}
 {% endmacro %}
 
 {% if is_granted('ROLE_DEV') %}

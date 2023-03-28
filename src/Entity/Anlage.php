@@ -210,6 +210,7 @@ class Anlage
     #[ORM\Column(type: 'boolean')]
     private bool $useCosPhi = false;
 
+    #[Deprecated]
     #[ORM\Column(type: 'string', length: 50, nullable: true)]
     private ?string $useCustPRAlgorithm;
 
@@ -1461,15 +1462,22 @@ class Anlage
      * Groningen<br>
      * Veendamm<br>
      * Lelystad | with temp corr. <br>.
+     *
+     * @deprecated use getPrFormular2 instead
      */
+    #[Deprecated]
     public function getUseCustPRAlgorithm(): ?string
     {
-        return $this->useCustPRAlgorithm;
+        return $this->prFormular2;
     }
 
+    /**
+     * @deprecated use setPrFormular2 instead
+     */
+    #[Deprecated]
     public function setUseCustPRAlgorithm(?string $useCustPRAlgorithm): self
     {
-        $this->useCustPRAlgorithm = $useCustPRAlgorithm;
+        $this->prFormular2 = $useCustPRAlgorithm;
 
         return $this;
     }

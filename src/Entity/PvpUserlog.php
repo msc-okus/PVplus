@@ -3,12 +3,14 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 
 /**
  * PvpUserlog.
  */
 #[ORM\Table(name: 'pvp_userlog')]
 #[ORM\Entity]
+#[Deprecated]
 class PvpUserlog
 {
     /**

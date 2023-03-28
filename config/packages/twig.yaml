@@ -7,7 +7,6 @@ twig:
         'public/scss/': pdf
 
     form_themes:
- #       - 'foundation_6_layout.html.twig'
         - 'form/foundation_6_layout.html.twig'
         - '@FOSCKEditor/Form/ckeditor_widget.html.twig'
 

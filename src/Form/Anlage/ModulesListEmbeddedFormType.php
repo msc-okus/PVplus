@@ -54,79 +54,81 @@ class ModulesListEmbeddedFormType extends AbstractType
 
             ->add('operatorCurrentA', TextType::class, [
                 'label' => 'A',
-                'empty_data' => '',
+                'empty_data' => '0',
             ])
             ->add('operatorCurrentB', TextType::class, [
                 'label' => 'B',
-                'empty_data' => '',
+                'empty_data' => '0',
             ])
             ->add('operatorCurrentC', TextType::class, [
                 'label' => 'C',
-                'empty_data' => '',
+                'empty_data' => '0',
             ])
             ->add('operatorCurrentD', TextType::class, [
                 'label' => 'D',
-                'empty_data' => '',
+                'empty_data' => '0',
             ])
             ->add('operatorCurrentE', TextType::class, [
                 'label' => 'E',
-                'empty_data' => '',
+                'empty_data' => '0',
             ])
             ->add('operatorCurrentHighA', TextType::class, [
                 'label' => 'A (>200W)',
-                'empty_data' => '',
+                'empty_data' => '0',
             ])
 
             ->add('operatorPowerA', TextType::class, [
                 'label' => 'A',
-                'empty_data' => '',
+                'empty_data' => '0',
             ])
             ->add('operatorPowerB', TextType::class, [
                 'label' => 'B',
-                'empty_data' => '',
+                'empty_data' => '0',
             ])
             ->add('operatorPowerC', TextType::class, [
                 'label' => 'C',
-                'empty_data' => '',
+                'empty_data' => '0',
             ])
             ->add('operatorPowerD', TextType::class, [
                 'label' => 'D',
+                'empty_data' => '0',
             ])
 
             ->add('operatorPowerE', TextType::class, [
                 'label' => 'E',
+                'empty_data' => '0',
             ])
             ->add('operatorPowerHighA', TextType::class, [
                 'label' => 'A (>200W)',
-                'empty_data' => '',
+                'empty_data' => '0',
             ])
             ->add('operatorPowerHighB', TextType::class, [
                 'label' => 'B (>200W)',
-                'empty_data' => '',
+                'empty_data' => '0',
             ])
 
             ######### Voltage ##########
 
             ->add('operatorVoltageA', TextType::class, [
                 'label' => 'A',
-                'empty_data' => '',
+                'empty_data' => '0',
             ])
             ->add('operatorVoltageB', TextType::class, [
                 'label' => 'B',
-                'empty_data' => '',
+                'empty_data' => '0',
             ])
 
             ->add('operatorVoltageHightA', TextType::class, [
                 'label' => 'A (>200W)',
-                'empty_data' => '',
+                'empty_data' => '0',
             ])
             ->add('operatorVoltageHightB', TextType::class, [
                 'label' => 'B (>200W)',
-                'empty_data' => '',
+                'empty_data' => '0',
             ])
             ->add('operatorVoltageHightC', TextType::class, [
                 'label' => 'C (>200W)',
-                'empty_data' => '',
+                'empty_data' => '0',
             ])
 
         ;

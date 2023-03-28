@@ -51,7 +51,7 @@ class WeatherStation
     private ?string $timeZoneWeatherStation = '0';
 
     #[ORM\OneToMany(mappedBy: 'weatherStation', targetEntity: Anlage::class)]
-    private $anlagen;
+    private Collection $anlagen;
 
     #[ORM\Column(type: 'boolean')]
     private bool $hasPannelTemp = true;
@@ -60,7 +60,7 @@ class WeatherStation
     private bool $hasHorizontal = false;
 
     #[ORM\OneToMany(mappedBy: 'weatherStation', targetEntity: AnlageAcGroups::class)]
-    private $anlageAcGroups;
+    private Collection $anlageAcGroups;
 
     #[ORM\Column(type: 'string', length: 40)]
     private ?string $labelUpper = "";
@@ -182,9 +182,9 @@ class WeatherStation
         return $this;
     }
 
-    public function gettimeZoneWeatherStation(): ?int
+    public function gettimeZoneWeatherStation(): ?string
     {
-        return (int) $this->timeZoneWeatherStation;
+        return $this->timeZoneWeatherStation;
     }
 
     public function settimeZoneWeatherStation(string $timeZoneWeatherStation): self
