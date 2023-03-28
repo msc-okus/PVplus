@@ -148,15 +148,15 @@ class AnlageSettingsFormType extends AbstractType
             ])
             ###### Voltage ######
             ->add('chartVolt1', SwitchType::class, [
-                'label'     => 'Voltage 1',
+                'label'     => 'DC Voltage, Overview',
                 'help'      => '[chartVolt1]'
             ])
             ->add('chartVolt2', SwitchType::class, [
-                'label'     => 'Voltage 2',
+                'label'     => 'Voltage 2 (inaktiv)',
                 'help'      => '[chartVolt2]'
             ])
             ->add('chartVolt3', SwitchType::class, [
-                'label'     => 'Voltage 3',
+                'label'     => 'Voltage 3 (inaktiv)',
                 'help'      => '[chartVolt3]'
             ])
             ###### Sensor ######
@@ -169,11 +169,11 @@ class AnlageSettingsFormType extends AbstractType
                 'help'      => '[chartSensor2]'
             ])
             ->add('chartSensor3', SwitchType::class, [
-                'label'     => 'Temperature',
+                'label'     => 'Temperature & Wind',
                 'help'      => '[chartSensor3]'
             ])
             ->add('chartSensor4', SwitchType::class, [
-                'label'     => 'NN. ',
+                'label'     => 'NN.  (inaktiv)',
                 'help'      => '[chartSensor4]'
             ])
 

@@ -91,7 +91,6 @@
 {% endblock %}
 #}
 {% block switch_type_widget %}
-    {% dump attr %}
     <div class="switch {{ attr.switch_size|default('small') }}">
         <input class="switch-input" id="{{ form.vars.id }}" {{ block('widget_attributes') }} type="checkbox"  {% if value is defined %} value="{{ value }}"{% endif %}{% if checked %} checked="checked"{% endif %} />
         <label class="switch-paddle" for="{{ form.vars.id }}" {{ block('widget_attributes') }}>
