@@ -2,7 +2,7 @@
 
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Availability Analysis - Monthly Overview</h3>
-    <span class="subheadline" style="color: {{ anlage.eigner.fontColor3 }};">Resolution according to failure groups - {{ month }} {{ year }}</span>
+    <span class="subheadline" style="color: {{ anlage.eigner.fontColor3 }};">Resolution according to failure groups - {{ monthName }} {{ year }}</span>
     <table style="vertical-align: bottom;">
         <tr>
             <td style="width:50%">
@@ -20,7 +20,7 @@
                         <th class="table-center">Availability</th>
                     </tr>
                     <tr>
-                        <th class="table-center">{{ month }} {{ year|slice(2,3) }}</th>
+                        <th class="table-center">{{ monthName }} {{ year|slice(2,3) }}</th>
                         <th class="table-center"> [%]</th>
                         <th class="table-center"> [%]</th>
                         <th class="table-center"> [%]</th>
@@ -153,6 +153,7 @@
                         {% endif %}
                         <td class="tr_next_columns"> {{ TicketAvailabilityMonthTable.pa0 |number_format(2, ',', '.')}}</td>
                     </tr>
+                    {#
                     <tr>
                         <td class="tr_next_columns">PR</td>
                         {% if (anlage.eigner.features.aktDep1) %}
@@ -166,6 +167,7 @@
                         {% endif %}
                         <td class="tr_next_columns">To come</td>
                     </tr>
+                    #}
                     </tbody>
                 </table>
             </td>

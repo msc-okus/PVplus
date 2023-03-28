@@ -2,7 +2,7 @@
 
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Availability Inverter</h3>
-    <span class="subheadline">Daily overview - {{ month }} {{ year }}</span>
+    <span class="subheadline">Daily overview - {{ monthName }} {{ year }}</span>
 
     <table >
         <tr>
@@ -74,6 +74,7 @@
                 </table>
             </td>
         </tr>
+        {#
         <tr>
             <td colspan="2">
                 <table class="legend_colors autowidth">
@@ -88,6 +89,7 @@
                 </table>
             </td>
         </tr>
+        #}
     </table>
 
 {% endblock page %}
