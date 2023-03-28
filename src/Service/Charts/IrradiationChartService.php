@@ -137,7 +137,7 @@ class IrradiationChartService
                         }
                     } else {
                         if (!(self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
-                            $dataArray['chart'][$counter]['g4n'] = 0;
+                            $dataArray['chart'][$counter]['g4n'] = null;
                         }
                     }
 
