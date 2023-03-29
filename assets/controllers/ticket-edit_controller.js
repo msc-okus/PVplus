@@ -40,7 +40,6 @@ export default class extends Controller {
             });
         }
         this.checkCategory();
-        this.replaceCheck();
         if (this.formUrlValue === '/ticket/create'){ //if it is a new ticket we hide all the fields from kpi
             $(this.headerExcludeTarget).addClass('is-hidden');
             $(this.headerReplaceTarget).addClass('is-hidden');
@@ -87,16 +86,25 @@ export default class extends Controller {
     }
 
     hourCheck(){
+
+        if ($(this.formReplaceTarget).prop('checked') == true) $(this.formHourTarget).prop('checked', true)
+        //NEW BEHAVIOUR: if the category is one of the performance ticket, the hour Check must also be respected for the main dates
+        //for that we will check if the category is one of those and if true, we will make ticket date begin/end = mainticket begin/end
+        //after that if hour is checked we will also aply the hour rule to the main ticket date
+        const cat = $(this.formCategoryTarget).val();
+        if (cat >= 70 && cat < 80){
+            $(this.formBeginDateTarget).val($(this.formBeginTarget).prop('value'));
+            $(this.formEndDateTarget).val($(this.formEndTarget).prop('value'));
+            console.log($(this.formBeginTarget).prop('value'), $(this.formEndTarget).prop('value'));
+        }
         const valueBegin = $(this.formBeginDateTarget).prop('value');
         const valueEnd = $(this.formEndDateTarget).prop('value');
         const valueBeginHidden = $(this.formBeginHiddenTarget).prop('value');
         const valueEndHidden = $(this.formEndHiddenTarget).prop('value');
-
-        console.log(valueBeginHidden);
         if ($(this.formHourTarget).prop('checked') == true) {
             $(this.formBeginHiddenTarget).val(valueBegin);
             $(this.formEndHiddenTarget).val(valueEnd);
-
+            //here begins the ruling to adjust the values to hours and also t oadd 0 in the dates if the are < 10
             let beginDate = new Date(valueBegin);
             let endDate = new Date(valueEnd);
             let beginMonth = '';
@@ -156,19 +164,52 @@ export default class extends Controller {
 
             let newStringEndDate = endDate.getFullYear().toString().concat('-', endMonth, '-', endDay, 'T', endHour, ':', '00');
 
-            console.log(newStringEndDate);
             $(this.formBeginDateTarget).val(newStringBeginDate);
             $(this.formEndDateTarget).val(newStringEndDate);
+            $(this.formBeginTarget).val(newStringBeginDate);
+            $(this.formEndTarget).val(newStringEndDate);
         }
         else if(valueBeginHidden != '' && valueEndHidden != ''){
             $(this.formBeginDateTarget).val(valueBeginHidden);
             $(this.formEndDateTarget).val(valueEndHidden);
+            $(this.formBeginTarget).val(valueBeginHidden);
+            $(this.formEndTarget).val(valueEndHidden);
+        }
+        //now we recheck the dates
+        const date1 = new Date($(this.formBeginTarget).prop('value'));
+        const date2 = new Date($(this.formEndTarget).prop('value'));
+        date1.setSeconds(0);
+        date2.setSeconds(0);
+        const timestamp1 = date1.getTime();
+        const timestamp2 = date2.getTime();
+
+        if (timestamp2 > timestamp1) {
+            $(this.CalloutTarget).addClass('is-hidden');
+            $(this.saveButtonTarget).removeAttr('disabled');
+            $(this.AlertDatesTarget).addClass('is-hidden');
+            if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+                $(this.AlertFormatTarget).addClass('is-hidden');
+            } else {
+                $(this.CalloutTarget).removeClass('is-hidden');
+                $(this.AlertFormatTarget).removeClass('is-hidden');
+                $(this.saveButtonTarget).attr('disabled', 'disabled');
+            }
+        }
+        else{
+            $(this.CalloutTarget).removeClass('is-hidden');
+            $(this.saveButtonTarget).attr('disabled', 'disabled');
+            $(this.AlertDatesTarget).removeClass('is-hidden');
+            if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+                $(this.AlertFormatTarget).addClass('is-hidden');
+            } else {
+                $(this.AlertFormatTarget).removeClass('is-hidden');
+            }
         }
 
 
     }
     replaceCheck(){
-
+            // this is the change of overlay if the user decides to replace energy with PVSYST in the replace ticket
             $(this.headerExcludeTarget).addClass('is-hidden');
             $(this.headerReplaceTarget).addClass('is-hidden');
             $(this.headerReplacePowerTarget).removeClass('is-hidden');
@@ -213,16 +254,16 @@ export default class extends Controller {
             if ($(this.formReplaceTarget).prop('checked') == true) {
                 if ($(this.formHourTarget).prop('checked') == false) {
                     $(this.formHourTarget).prop('checked', true);
+                    this.hourCheck();
                 }
-                this.hourCheck();
             }
     }
     checkCategory(){
         const cat = $(this.formCategoryTarget).val();
-        console.log(cat);
         var inverterString = '';
         let body = $(this.modalBodyTarget);
         // in this switch we remove the hidding class to show the fields of the ticket date on demand
+
         switch (cat){
             case '10':
                 $(this.headerExcludeTarget).addClass('is-hidden');
@@ -239,7 +280,6 @@ export default class extends Controller {
                 $(this.headerAktDep2Target).removeClass('is-hidden');
                 $(this.headerAktDep2Target).removeClass('is-hidden');
 
-
                 $(this.fieldSensorTarget).addClass('is-hidden');
                 $(this.fieldReplacePowerTarget).addClass('is-hidden');
                 $(this.fieldReplaceIrrTarget).addClass('is-hidden');
@@ -252,10 +292,11 @@ export default class extends Controller {
                 $(this.fieldAktDep1Target).removeClass('is-hidden');
                 $(this.fieldAktDep2Target).removeClass('is-hidden');
                 $(this.fieldAktDep2Target).removeClass('is-hidden');
-
                 $(this.inverterDivTarget).removeClass('is-hidden');
+                $(this.formHourTarget).prop('checked', false);
                 break;
             case '20':
+                console.timeLog("hihi");
                 $(this.headerExcludeTarget).addClass('is-hidden');
                 $(this.headerReplaceTarget).addClass('is-hidden');
                 $(this.headerReplacePowerTarget).addClass('is-hidden');
@@ -285,6 +326,7 @@ export default class extends Controller {
                 $(this.fieldAktDep2Target).removeClass('is-hidden');
 
                 $(this.inverterDivTarget).removeClass('is-hidden');
+                $(this.formHourTarget).prop('checked', false);
                 break;
             case '70':
                 $(this.headerExcludeTarget).removeClass('is-hidden');
@@ -314,6 +356,7 @@ export default class extends Controller {
                 $(this.fieldAktDep2Target).addClass('is-hidden');
                 $(this.fieldAktDep2Target).addClass('is-hidden');
                 $(this.inverterDivTarget).addClass('is-hidden');
+                $(this.formHourTarget).prop('checked', false);
                 body.find('input:checkbox[class=js-checkbox]').each(function () {
                     $(this).prop('checked', true);
                     if (inverterString == '')
@@ -361,6 +404,7 @@ export default class extends Controller {
                 $(this.fieldAktDep2Target).addClass('is-hidden');
 
                 $(this.inverterDivTarget).addClass('is-hidden');
+                $(this.formHourTarget).prop('checked', false);
                 body.find('input:checkbox[class=js-checkbox]').each(function () {
                     $(this).prop('checked', true);
                     if (inverterString == '')
@@ -523,6 +567,7 @@ export default class extends Controller {
                 $(this.fieldAktDep2Target).addClass('is-hidden');
 
                 $(this.inverterDivTarget).removeClass('is-hidden');
+                $(this.formHourTarget).prop('checked', false);
                 break;
             default:
 
@@ -550,6 +595,7 @@ export default class extends Controller {
                 $(this.fieldAktDep1Target).addClass('is-hidden');
                 $(this.fieldAktDep2Target).addClass('is-hidden');
                 $(this.fieldAktDep3Target).addClass('is-hidden');
+                $(this.formHourTarget).prop('checked', false);
                 console.log($(this.fieldEvaluationTarget), $(this.headerAktDep1Target))
                 $(this.inverterDivTarget).removeClass('is-hidden');
 
@@ -653,6 +699,7 @@ export default class extends Controller {
                     $(this.AlertFormatTarget).removeClass('is-hidden');
                 }
             }
+
             if (cat == ""){
 
                 $(this.AlertCategoryTarget).removeClass('is-hidden');
@@ -772,6 +819,7 @@ export default class extends Controller {
                 $(this.AlertDatesTarget).addClass('is-hidden');
                 if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
                     $(this.AlertFormatTarget).addClass('is-hidden');
+                    if ($(this.formHourTarget).prop('checked') == true) this.hourCheck();
                     if (cat == ""){
                         $(this.AlertCategoryTarget).removeClass('is-hidden');
                     }
@@ -790,6 +838,7 @@ export default class extends Controller {
             } else {
                 $(this.AlertDatesTarget).removeClass('is-hidden');
                 if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+                    if ($(this.formHourTarget).prop('checked') == true) this.hourCheck();
                     $(this.AlertFormatTarget).addClass('is-hidden');
                     if (cat == ""){
                         $(this.AlertCategoryTarget).removeClass('is-hidden');
@@ -815,6 +864,7 @@ export default class extends Controller {
             if (timestamp2 > timestamp1){
                 $(this.AlertDatesTarget).addClass('is-hidden');
                 if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+                    if ($(this.formHourTarget).prop('checked') == true) this.hourCheck();
                     $(this.AlertFormatTarget).addClass('is-hidden');
                     if (cat == ""){
                         $(this.CalloutTarget).removeClass('is-hidden');
@@ -825,6 +875,7 @@ export default class extends Controller {
                         $(this.AlertCategoryTarget).addClass('is-hidden');
                     }
                 } else {
+
                     $(this.CalloutTarget).removeClass('is-hidden');
                     $(this.AlertFormatTarget).removeClass('is-hidden');
                     $(this.saveButtonTarget).attr('disabled', 'disabled');
@@ -841,6 +892,7 @@ export default class extends Controller {
                 $(this.saveButtonTarget).attr('disabled', 'disabled');
 
                     if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+                        if ($(this.formHourTarget).prop('checked') == true) this.hourCheck();
                         $(this.AlertFormatTarget).addClass('is-hidden');
                         if (cat == ""){
                             $(this.AlertCategoryTarget).removeClass('is-hidden');
