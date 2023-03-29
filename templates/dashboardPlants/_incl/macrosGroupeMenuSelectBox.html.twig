@@ -122,13 +122,14 @@
         {% set selectorX = 0 %}
         {% set nn = form.selectedGroup %}
         {% for groupX in aktAnlage.groups %}
-            {% set selectorX = selectorX + 1 %}
+            {% set selectorX = selectorX + 1%}
             {% if form.selectedGroup > loop.length %} {% set nn = 1 %} {% endif %}
             <option value="{{ selectorX }}" {% if nn == selectorX %}selected{% endif %}>{{ groupX.dcGroupName }}</option>
+         {# +1 ????? #}
         {% endfor %}
     {% endif %}
 {% endmacro %}
-{#{% if form.selectedGroup == loop.index %}selected{% endif %}
+{#{% if form.selectedGroup == loop.index %} selected {% endif %}
 {# configType == 2 #}
 {% macro configType2(form, aktAnlage) %}
     {% if form.selectedChart starts with 'ac_act' or form.selectedChart starts with 'dc_act'
