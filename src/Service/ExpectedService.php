@@ -201,6 +201,8 @@ class ExpectedService
                             // ToDo: Funktion zur Berechnung der Temperatur Korrektur via OpenWeather (temp ambient, wind speed), NREL und Co implementieren
                             if (false) { // $anlage->hasAmbientTemp
                                 // Wenn nur Umgebungstemepratur vorhanden
+
+                                // Berechne anhand der gemessenen Umgebungstemperatur, mit hilfe der NREL Methode, die Modul Temperatur
                             } else {
                                 // Wenn weder Umgebungs noch Modul Temperatur vorhanden, dann nutze Daten aus Open Weather (sind nur Stunden weise vorhanden)
                                 if ($anlage->getAnlId() == '183' ) {  // im Moment nur für REGebeng
