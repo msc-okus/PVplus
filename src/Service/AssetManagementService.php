@@ -1927,7 +1927,7 @@ class AssetManagementService
                 $days = $i + 1;
                 $day = new \DateTime("$year-$month-$days");
                 $output2 = $this->PRCalulation->calcPR($anlage, $day);
-                dd($output2);
+
                 $table_overview_dayly[] =
                     [
                         'date' => $day->format('M-d'),
