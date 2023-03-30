@@ -74,6 +74,7 @@ class DCCurrentChartService
 
                 // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
                 $dataArray['chart'][$counter]['date'] = self::timeShift($anlage, $stamp);
+                $dataArray['chart'][$counter]['expectedUR'] = $rowSoll['expected'];
 
                 if (!(($rowSoll['expected'] == 0) && (self::isDateToday($stampAdjust) && self::getCetTime() - strtotime($stampAdjust) < 7200))) {
                     switch ($anlage->getConfigType()) {
