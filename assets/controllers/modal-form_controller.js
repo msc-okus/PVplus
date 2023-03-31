@@ -5,7 +5,7 @@ import $ from 'jquery';
 
 
 export default class extends Controller {
-    static targets = ['modal', 'modalBody'];
+    static targets = ['modalPdf','modal', 'modalBodyPdf', 'modalBody', 'createButton'];
     static values = {
         formUrl: String,
     }
@@ -23,6 +23,31 @@ export default class extends Controller {
         this.modal.open();
 
         this.modalBodyTarget.innerHTML = await $.ajax(this.formUrlValue);
+    }
+
+    async openModalCreate({ params: { id }}){
+        this.modalBodyPdfTarget.innerHTML = 'Loading ...';
+        this.modal = new Reveal($(this.modalPdfTarget));
+        this.modal.open();
+
+            this.modalBodyPdfTarget.innerHTML = await $.ajax({
+                url: '/reporting/pdf/'.concat(id),
+                data: {'anlage': $(this.anlageTarget).val()},
+            });
+            $(this.saveButtonTarget).attr('disabled', 'disabled');
+
+        $(this.modalBodyPdfTarget).foundation();
+
+    }
+    async createReport(){
+        const  $form = $(this.modalBodyTarget).find('form');
+        console.log($form);
+    }
+
+    async closeModal(){
+        event.preventDefault();
+        this.dispatch('success');
+        this.modal.destroy();
     }
 
     async submitForm(event) {

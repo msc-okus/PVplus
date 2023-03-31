@@ -1,4 +1,4 @@
-{% extends 'base.html.twig' %}
+
 {% block body %}
 
 {{ form_start(assetForm) }}
@@ -28,7 +28,7 @@
     {% else %}
         Economics are not available as the Economic Variables have not been configured
     {% endif %}
-    <div> {{ form_row(assetForm.submit) }}</div>
+    <div hidden> {{ form_row(assetForm.submit) }}</div>
     <div style="visibility: hidden">{{ form_rest(assetForm) }}</div>
     <div style="visibility: hidden"> form_rest(form)</div>
 

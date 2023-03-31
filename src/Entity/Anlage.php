@@ -26,6 +26,7 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
  *      "get"={"security"="is_granted('ROLE_API_USER')"},
  *      "post"
  *      },
+ *      },
  *     itemOperations={
  *     "get"={"security"="is_granted('ROLE_API_USER')"},
  *     "put"
