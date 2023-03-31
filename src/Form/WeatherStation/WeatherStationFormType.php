@@ -86,7 +86,6 @@ class WeatherStationFormType extends AbstractType
                 'label' => 'Zeitzone Wetterstation',
                 'choices' => self::timeArray(),
                 'placeholder' => 'Please Choose',
-                'empty_data' => '0',
             ])
             ->add('labelUpper', TextType::class, [
                 'label' => 'Beschreibung für Irr Upper',

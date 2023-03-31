@@ -133,7 +133,7 @@ class WeatherServiceNew
                 }
                 foreach ($sql_array as $row) {
                     $anlIntNr = $row['anl_intnr'];
-                    $stamp = $row['stamp'];
+                    $stamp = date('Y-m-d H:i:00', strtotime($row['stamp'])+(3600 * $weatherStation->gettimeZoneWeatherStation()));
                     $isNight = $this->isNight($weatherStation, $stamp);
                     $tempAmbientAvg = $row['at_avg'];
                     $tempPannleAvg = $row['pt_avg'];

@@ -373,7 +373,7 @@ class AnlageModules
 
     public function setOperatorVoltageA(string $operatorVoltageA): void
     {
-        $this->operatorVoltageA = $operatorVoltageA;
+        $this->operatorVoltageA = str_replace(',', '.', $operatorVoltageA);
     }
 
     public function getOperatorVoltageB(): ?float
@@ -383,7 +383,7 @@ class AnlageModules
 
     public function setOperatorVoltageB(string $operatorVoltageB): void
     {
-        $this->operatorVoltageB = $operatorVoltageB;
+        $this->operatorVoltageB = str_replace(',', '.', $operatorVoltageB);
     }
 
     public function getOperatorVoltageHightA(): ?float
@@ -393,7 +393,7 @@ class AnlageModules
 
     public function setOperatorVoltageHightA(string $operatorVoltageHightA): void
     {
-        $this->operatorVoltageHightA = $operatorVoltageHightA;
+        $this->operatorVoltageHightA = str_replace(',', '.', $operatorVoltageHightA);
     }
 
     public function getOperatorVoltageHightB(): ?float
@@ -403,7 +403,7 @@ class AnlageModules
 
     public function setOperatorVoltageHightB(string $operatorVoltageHightB): void
     {
-        $this->operatorVoltageHightB = $operatorVoltageHightB;
+        $this->operatorVoltageHightB = str_replace(',', '.', $operatorVoltageHightB);
     }
 
     public function getOperatorVoltageHightC(): ?float
@@ -413,7 +413,7 @@ class AnlageModules
 
     public function setOperatorVoltageHightC(string $operatorVoltageHightC): void
     {
-        $this->operatorVoltageHightC = $operatorVoltageHightC;
+        $this->operatorVoltageHightC = str_replace(',', '.', $operatorVoltageHightC);
     }
 
 
@@ -439,7 +439,7 @@ class AnlageModules
 
     /**
      * Calculate the expected voltage for the given irradiation.
-     * generate only values if $irr is greater then 10 Watt
+     * generate only values if $irr is greater then 2 Watt
      *
      * @param float $irr
      * @return float
@@ -447,7 +447,7 @@ class AnlageModules
     public function getExpVoltage(float $irr): float
     {
         if ($irr > 200) {
-            $expected = ($this->getOperatorVoltageHightA() * $irr ** 1 + $this->getOperatorVoltageHightB() * $irr) + $this->getOperatorVoltageHightC();
+            $expected = ($this->getOperatorVoltageHightA() * $irr ** 2 + $this->getOperatorVoltageHightB() * $irr) + $this->getOperatorVoltageHightC();
         } else {
             $expected = ($this->getOperatorVoltageA() * log($irr)) + $this->getOperatorVoltageB();
         }

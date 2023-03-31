@@ -94,7 +94,7 @@
                 <li class="tabs-title is-active"><a data-tabs-target="plant-data" href="#plant-data" aria-selected="true" >General</a></li>
                 {% if is_granted('ROLE_G4N') %}
                     <li class="tabs-title"><a data-tabs-target="plant-config" href="#plant-config">Plant configuration</a></li>
-                    <li class="tabs-title"><a data-tabs-target="availability" href="#availability">Availability Setup</a></li>
+                    <li class="tabs-title"><a data-tabs-target="availability" href="#availability">PA & PR Setup</a></li>
                     <li class="tabs-title"><a data-tabs-target="ticket" href="#ticket">Ticket & Alert Setup</a></li>
                     {% if is_granted('ROLE_ADMIN') %}
                         <li class="tabs-title"><a data-tabs-target="modules" href="#modules">Modules</a></li>
@@ -185,17 +185,7 @@
                                     <div class="cell medium-4">{{ form_row(anlageForm.powerWest) }}</div>
                                 </div>
                             </fieldset>
-                            <fieldset class="fieldset">
-                                <legend>PR Berechnung</legend>
-                                {{ form_row(anlageForm.useCustPRAlgorithm) }}
-                                {{ form_row(anlageForm.tempCorrCellTypeAvg) }}
-                                <div class="grid-x grid-padding-x">
-                                    <div class="cell medium-3">{{ form_row(anlageForm.tempCorrGamma) }}</div>
-                                    <div class="cell medium-3">{{ form_row(anlageForm.tempCorrA) }}</div>
-                                    <div class="cell medium-3">{{ form_row(anlageForm.tempCorrB) }}</div>
-                                    <div class="cell medium-3">{{ form_row(anlageForm.tempCorrDeltaTCnd) }}</div>
-                                </div>
-                            </fieldset>
+
 
                             <fieldset class="fieldset">
                                 <legend>Config</legend>
@@ -306,9 +296,42 @@
                     </div>
                 </div>
 
-                {# Availability #}
+                {# Availability & PR#}
                 <div class="tabs-panel" id="availability">
-                    <div class="grid-x grid-padding-x">
+                    <div class="grid-x">
+                        <div class="cell">
+                            <fieldset class="fieldset">
+                                <legend>Department Settings</legend>
+                                <div class="grid-x grid-padding-x">
+                                    <div class="cell medium-3">
+                                        <fieldset class="fieldset">
+                                            <legend>Technical</legend>
+                                            {{ form_row(anlageForm.settings.disableDep0) }}
+                                        </fieldset>
+                                    </div>
+                                    <div class="cell medium-3">
+                                        <fieldset class="fieldset">
+                                            <legend>Department 1 (O&M)</legend>
+                                            {{ form_row(anlageForm.settings.disableDep1) }}
+                                        </fieldset>
+                                    </div>
+                                    <div class="cell medium-3">
+                                        <fieldset class="fieldset">
+                                            <legend>Department 2 (EPC)</legend>
+                                            {{ form_row(anlageForm.settings.disableDep2) }}
+                                        </fieldset>
+                                    </div>
+                                    <div class="cell medium-3">
+                                        <fieldset class="fieldset">
+                                            <legend>Department 3 (AM)</legend>
+                                            {{ form_row(anlageForm.settings.disableDep3) }}
+                                        </fieldset>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="grid-x">
                         <div class="cell">
                             <fieldset class="fieldset">
                                 <legend>PA Berechnung</legend>
@@ -319,7 +342,6 @@
                                             {{ form_row(anlageForm.threshold1PA0) }}
                                             {{ form_row(anlageForm.threshold2PA0) }}
                                             {{ form_row(anlageForm.paFormular0) }}
-                                            {{ form_row(anlageForm.prFormular0) }}
                                         </fieldset>
                                     </div>
                                     <div class="cell medium-3">
@@ -328,7 +350,6 @@
                                             {{ form_row(anlageForm.threshold1PA1) }}
                                             {{ form_row(anlageForm.threshold2PA1) }}
                                             {{ form_row(anlageForm.paFormular1) }}
-                                            {{ form_row(anlageForm.prFormular1) }}
                                         </fieldset>
                                     </div>
                                     <div class="cell medium-3">
@@ -337,7 +358,6 @@
                                             {{ form_row(anlageForm.threshold1PA2) }}
                                             {{ form_row(anlageForm.threshold2PA2) }}
                                             {{ form_row(anlageForm.paFormular2) }}
-                                            {{ form_row(anlageForm.prFormular2) }}
                                         </fieldset>
                                     </div>
                                     <div class="cell medium-3">
@@ -346,7 +366,58 @@
                                             {{ form_row(anlageForm.threshold1PA3) }}
                                             {{ form_row(anlageForm.threshold2PA3) }}
                                             {{ form_row(anlageForm.paFormular3) }}
-                                            {{ form_row(anlageForm.prFormular3) }}
+                                        </fieldset>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    <div class="grid-x ">
+                        <div class="cell">
+                            <fieldset class="fieldset">
+                                <legend>PR Berechnung</legend>
+                                <div class="grid-x grid-padding-x">
+                                    <div class="cell">
+                                        <div class="grid-x grid-padding-x">
+                                            <div class="cell medium-3">
+                                                <fieldset class="fieldset">
+                                                    <legend>Technical</legend>
+                                                    {{ form_row(anlageForm.prFormular0) }}
+                                                </fieldset>
+                                            </div>
+                                            <div class="cell medium-3">
+                                                <fieldset class="fieldset">
+                                                    <legend>Department 1 (O&M)</legend>
+                                                    {{ form_row(anlageForm.prFormular1) }}
+                                                </fieldset>
+                                            </div>
+                                            <div class="cell medium-3">
+                                                <fieldset class="fieldset">
+                                                    <legend>Department 2 (EPC)</legend>
+                                                    {{ form_row(anlageForm.prFormular2) }}
+                                                </fieldset>
+                                            </div>
+                                            <div class="cell medium-3">
+                                                <fieldset class="fieldset">
+                                                    <legend>Department 3 (AM)</legend>
+
+                                                    {{ form_row(anlageForm.prFormular3) }}
+                                                </fieldset>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="grid-x grid-padding-x">
+                                    <div class="cell">
+                                        <fieldset class="fieldset">
+                                            <legend>Settings for PR Calculation</legend>
+                                            <div class="grid-x grid-padding-x">
+                                                <div class="cell medium-2">{{ form_row(anlageForm.tempCorrCellTypeAvg) }}</div>
+                                                <div class="cell medium-2">{{ form_row(anlageForm.tempCorrGamma) }}</div>
+                                                <div class="cell medium-2">{{ form_row(anlageForm.tempCorrA) }}</div>
+                                                <div class="cell medium-2">{{ form_row(anlageForm.tempCorrB) }}</div>
+                                                <div class="cell medium-2">{{ form_row(anlageForm.tempCorrDeltaTCnd) }}</div>
+                                            </div>
                                         </fieldset>
                                     </div>
                                 </div>

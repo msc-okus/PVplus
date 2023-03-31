@@ -82,7 +82,7 @@ class AssetManagementService
         $pdf = $this->pdf;
 
         $content = $output;
-        if ($logId != null) $this->logMessages->updateEntry($logId, 'working', 95);
+        $this->logMessages->updateEntry($logId, 'working', 95);
         $htmlhead = $this->twig->render('report/asset_report_header.html.twig', [
             'comments' => "",
             'anlage' => $anlage,
@@ -407,7 +407,12 @@ class AssetManagementService
     }
 
     /**
-     * @throws ExceptionInterface
+     * @param $anlage
+     * @param $month
+     * @param $year
+     * @param int|null $logId
+     * @return array
+     * @throws NoResultException
      */
     public function assetReport($anlage, $month = 0, $year = 0, ?int $logId = null): array
     {
@@ -425,16 +430,17 @@ class AssetManagementService
 
         return $this->buildAssetReport($anlage, $report, $logId);
     }
+
     /**
      * @param Anlage $anlage
      * @param array $report
+     * @param int|null $logId
      * @return array
      * @throws NoResultException
-     * @throws NonUniqueResultException
      */
     public function buildAssetReport(Anlage $anlage, array $report, ?int $logId = null): array
     {
-        if ($logId != null) $this->logMessages->updateEntry($logId, 'working', 10);
+        $this->logMessages->updateEntry($logId, 'working', 10);
         $month = $report['reportMonth'];
         for ($i = 0; $i < 12; ++$i) {
             $forecast[$i] = $this->functions->getForcastByMonth($anlage, $i);
@@ -534,7 +540,7 @@ class AssetManagementService
             'powerExt' => $powerExternal,
             'forecast' => $forecast,
         ];
-        if ($logId != null) $this->logMessages->updateEntry($logId, 'working', 20);
+        $this->logMessages->updateEntry($logId, 'working', 20);
         for ($i = 0; $i < 12; ++$i) {
             $dataCfArray[$i]['month'] = $monthExtendedArray[$i]['month'];
             $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $i + 1, $report['reportYear']);
@@ -877,7 +883,7 @@ class AssetManagementService
             'forcast_plan_G4NP90' => $tbody_forcast_plan_G4NP90,
         ];
 
-        if ($logId != null) $this->logMessages->updateEntry($logId, 'working', 30);
+        $this->logMessages->updateEntry($logId, 'working', 30);
         $chart->xAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -1306,7 +1312,7 @@ class AssetManagementService
             'scale' => true,
             'min' => 0,
         ];
-        if ($logId != null) $this->logMessages->updateEntry($logId, 'working', 40);
+        $this->logMessages->updateEntry($logId, 'working', 40);
         if ($anlage->hasPVSYST()) {
             if ($anlage->hasGrid()) {
                 $chart->series =
@@ -1866,7 +1872,7 @@ class AssetManagementService
                 '0',
             ];
         }
-        if ($logId != null) $this->logMessages->updateEntry($logId, 'working', 50);
+        $this->logMessages->updateEntry($logId, 'working', 50);
         // Parameter fuer Year to Date
         if (!($yearPacDate == $report['reportYear'] && $monthPacDate > $currentMonth)) {
             $x = $powerEvuQ1 + $powerEvuQ2 + $powerEvuQ3 + $powerEvuQ4;
@@ -2470,7 +2476,7 @@ class AssetManagementService
         $chart->yAxis = [];
         $chart->series = [];
         unset($option);
-        if ($logId != null) $this->logMessages->updateEntry($logId, 'working', 60);
+        $this->logMessages->updateEntry($logId, 'working', 60);
         $chart->yAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -2924,7 +2930,7 @@ class AssetManagementService
             'data' => $invertedMonthArray,
 
         ];
-        if ($logId != null) $this->logMessages->updateEntry($logId, 'working', 70);
+        $this->logMessages->updateEntry($logId, 'working', 70);
         $chart->xAxis = [
             'type' => 'value',
             'name' => '%',
@@ -3709,7 +3715,7 @@ class AssetManagementService
             else $incomePerMonth['powerExpTotal'][$i] = $incomePerMonth['powerExp'][$i] - $economicsMandy[$i];
             $incomePerMonth['monthley_feed_in_tarif'][$i] = $monthleyFeedInTarif;
         }
-        if ($logId != null) $this->logMessages->updateEntry($logId, 'working', 80);
+        $this->logMessages->updateEntry($logId, 'working', 80);
         $revenuesSumPVSYST[0] = $incomePerMonth['revenues_act'][0];
         $revenuesSumG4N[0] = $incomePerMonth['revenues_act'][0];
         $revenuesSumForecast[0] = $incomePerMonth['powerExp'][0];
@@ -4129,7 +4135,7 @@ class AssetManagementService
         // end Operating Statement
 
         // beginn Losses compared
-        if ($logId != null) $this->logMessages->updateEntry($logId, 'working', 90);
+        $this->logMessages->updateEntry($logId, 'working', 90);
         for ($i = 0; $i < 12; ++$i) {
             if ($i < $month - 1) {
                 $Difference_Profit_ACT_to_PVSYST_plan[] = $incomePerMonth['revenues_act_minus_totals'][$i] - $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][$i];
@@ -4429,6 +4435,13 @@ class AssetManagementService
 
         return $output;
     }
+
+    /**
+     * @param $begin
+     * @param $end
+     * @param $anlage
+     * @return Array
+     */
     public function calculateLosses($begin, $end, $anlage):Array
     {
         $sumLossesMonthSOR = 0;

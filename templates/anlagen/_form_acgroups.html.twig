@@ -24,9 +24,8 @@
     <div class="grid-x">
         <div class="cell">
             <ul class="tabs" data-tabs id="anlage-tabs" data-deep-link="true">
-                {# <li class="tabs-title is-active"><a data-tabs-target="plant-data" href="#plant-data" aria-selected="true" >General</a></li> #}
                 {% if is_granted('ROLE_G4N') %}
-                    <li class="tabs-title"><a data-tabs-target="acgroups" href="#acgroups">AC Groups</a></li>
+                    <li class="tabs-title is-active"><a data-tabs-target="acgroups" href="#acgroups" aria-selected="true">AC Groups</a></li>
                 {% endif %}
             </ul>
 

@@ -23,7 +23,7 @@ class LogMessagesService
     {
         $log = new LogMessages();
         $log
-            ->setPlant($anlage->getAnlName().' - '.$anlage->getProjektNr())
+            ->setPlant($anlage->getAnlName())//.' - '.$anlage->getProjektNr())
             ->setFunction($function)
             ->setJob($job)
             ->setStartedAt(new \DateTimeImmutable())
