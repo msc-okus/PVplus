@@ -47,27 +47,19 @@ class UserLogin
 
     public function __construct(User $user)
     {
-
         $this->user=$user;
         $this->loggedAt= new \DateTimeImmutable();
-
     }
-
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @param User|null $user
-     */
     public function setUser(?User $user): void
     {
         $this->user = $user;
     }
-
-
 
     public function getUser(): ?User
     {
@@ -80,7 +72,6 @@ class UserLogin
         return $this->loggedAt->format('l jS \of F Y h:i:s A');
 
     }
-
 
     public function getLoggedAt(): ?\DateTimeImmutable
     {

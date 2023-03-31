@@ -248,18 +248,9 @@ class AnlageFormType extends AbstractType
                 'required' => false,
                 'empty_data' => '',
             ])
-
-            ->add('useCustPRAlgorithm', ChoiceType::class, [
-                'label' => 'Wähle und aktiviere Kundenspezifische PR Berechnung',
-                'help' => '[useCustPRAlgorithm]',
-                'choices' => $prArray,
-                'empty_data' => 'no',
-                'expanded' => false,
-                'multiple' => false,
-            ])
             ->add('tempCorrCellTypeAvg', TextType::class, [
-                'label' => 't Cell AVG (nur für PR Algor. Lelystadt, wenn 0 dann ohne Temperatur korrektur)',
-                'help' => '[tempCorrCellTypeAvg]',
+                'label' => 't Cell AVG ',
+                'help' => '[tempCorrCellTypeAvg]<br>(nur für PR Algor. Lelystadt, wenn 0 dann ohne Temperatur korrektur)',
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '0',
@@ -758,8 +749,9 @@ class AnlageFormType extends AbstractType
             // ###         Configuartion Backend          ####
             // ###############################################
             ->add('showOnlyUpperIrr', SwitchType::class, [
-                'label' => 'Zeige nur eine Strahlungskennlinie',
+                'label' => 'Show one Irr Line',
                 'help' => '[showOnlyUpperIrr]',
+                'attr' => ['switch_size' => 'tiny'],
             ])
             ->add('showStringCharts', SwitchType::class, [
                 'help' => '[showStringCharts]',
@@ -774,16 +766,24 @@ class AnlageFormType extends AbstractType
                 'help' => '[showInverterPerformance]',
             ])
             ->add('showEvuDiag', SwitchType::class, [
+                'label' => 'EVU',
                 'help' => '[showEvuDiag]',
+                'attr' => ['switch_size' => 'tiny'],
             ])
             ->add('showInverterOutDiag', SwitchType::class, [
+                'label' => 'Inverter',
                 'help' => '[showInverterOutDiag]',
+                'attr' => ['switch_size' => 'tiny'],
             ])
             ->add('showCosPhiDiag', SwitchType::class, [
+                'label' => 'CosPhi',
                 'help' => '[showCosPhiDiag]',
+                'attr' => ['switch_size' => 'tiny'],
             ])
             ->add('showCosPhiPowerDiag', SwitchType::class, [
+                'label' => 'Cos Phi Power',
                 'help' => '[showCosPhiPowerDiag]',
+                'attr' => ['switch_size' => 'tiny'],
             ])
             ->add('showPR', SwitchType::class, [
                 'label' => 'Zeige Diagramm \'PR\'',

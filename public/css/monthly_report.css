@@ -10,8 +10,8 @@
     width: 297mm;
     height: 210mm;
   }
-  html *, body * {
-    font-family: 'Source Sans Pro', sans-serif;
+  body.report * {
+
   }
 }
 
@@ -20,7 +20,7 @@ body {
   padding-right: 1.3cm;
 }
 
-body * {
+body div.report * {
   font-family: 'Source Sans Pro', sans-serif;
 }
 
@@ -56,12 +56,10 @@ table {
   width: auto !important;
   /*margin-bottom: 1.5rem;*/
 }
-table * {
 
-}
 
-table td, table th {
-  border: none 0px;
+.content table td, table th {
+  border: solid 1px #666666;
   padding: 2px 2px;
   border-collapse: collapse;
   font-size: 11px;
@@ -82,6 +80,9 @@ table th {
   font-weight: bold;
   text-align: right;
   border: solid 1px #000;
+}
+table th.left {
+  text-align: left;
 }
 .strong td {font-weight: bold; }
 .line { border-top: solid 2px #1e1e1e;}
