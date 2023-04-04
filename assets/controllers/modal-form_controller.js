@@ -5,9 +5,10 @@ import $ from 'jquery';
 
 
 export default class extends Controller {
-    static targets = ['modalPdf','modal', 'modalBodyPdf', 'modalBody', 'createButton'];
+    static targets = ['modalPdf','modal', 'modalBodyPdf', 'modalBody'];
     static values = {
         formUrl: String,
+        submitUrl: String
     }
 
     modal = null;
@@ -25,13 +26,13 @@ export default class extends Controller {
         this.modalBodyTarget.innerHTML = await $.ajax(this.formUrlValue);
     }
 
-    async openModalCreate({ params: { id }}){
+    async openModalCreate(event){
         this.modalBodyPdfTarget.innerHTML = 'Loading ...';
         this.modal = new Reveal($(this.modalPdfTarget));
         this.modal.open();
 
             this.modalBodyPdfTarget.innerHTML = await $.ajax({
-                url: '/reporting/pdf/'.concat(id),
+                url: this.submitUrlValue,
                 data: {'anlage': $(this.anlageTarget).val()},
             });
             $(this.saveButtonTarget).attr('disabled', 'disabled');
@@ -39,9 +40,23 @@ export default class extends Controller {
         $(this.modalBodyPdfTarget).foundation();
 
     }
-    async createReport(){
-        const  $form = $(this.modalBodyTarget).find('form');
-        console.log($form);
+    async createReport(event){
+        event.preventDefault();
+        const  $form = $(this.modalBodyPdfTarget).find('form');
+
+        //console.log($form.serialize());
+        console.log("here?");
+        /*
+        await $.ajax({
+             url: this.submitUrlValue,
+             data: $form.serialize(),
+             method: 'get',
+         });
+         */
+        //this.dispatch('success');
+        this.modal.destroy();
+
+
     }
 
     async closeModal(){

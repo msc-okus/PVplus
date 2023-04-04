@@ -4,7 +4,7 @@
 {% endblock %}
 {% block content %}
     <div class="container">
-        {%  for page in 0..(((invNr/40)|round(0, 'ceil'))-1) %}
+        {%  for page in 0..(((invNr/20)|round(0, 'ceil'))-1) %}
             {% include 'report/_asset_mangement_partials/_string_currents_daily_difference_g4n_actuals.html.twig'%}
         {% endfor %}
     </div>

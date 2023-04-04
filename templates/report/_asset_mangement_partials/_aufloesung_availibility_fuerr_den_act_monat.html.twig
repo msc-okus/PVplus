@@ -128,14 +128,20 @@
                 <table>
                     <thead>
                     <th></th>
-                    {% if (anlage.eigner.features.aktDep1) %}
-                        <th>O+M</th>
+                    {% if (anlage.eigner.features.aktDep1)  %}
+                        {% if( not anlage.settings.disableDep1) %}
+                            <th>O+M</th>
+                        {% endif %}
                     {% endif %}
                     {% if (anlage.eigner.features.aktDep2) %}
-                        <th>EPC</th>
+                        {% if( not anlage.settings.disableDep2) %}
+                            <th>EPC</th>
+                        {% endif %}
                     {% endif %}
                     {% if (anlage.eigner.features.aktDep3) %}
-                        <th>AM</th>
+                        {% if( not anlage.settings.disableDep3) %}
+                            <th>AM</th>
+                        {% endif %}
                     {% endif %}
                     <th> Open Book</th>
                     </thead>
@@ -143,26 +149,38 @@
                     <tr>
                         <td class="tr_next_columns"> PA[%]</td>
                         {% if (anlage.eigner.features.aktDep1) %}
-                            <td class="tr_next_columns">{{ TicketAvailabilityMonthTable.pa1 |number_format(2, ',', '.')}}</td>
+                            {%  if ( not anlage.settings.disableDep1) %}
+                                <td class="tr_next_columns">{{ TicketAvailabilityMonthTable.pa1 |number_format(2, ',', '.')}}</td>
+                            {% endif %}
                         {% endif %}
-                        {% if (anlage.eigner.features.aktDep2) %}
-                            <td class="tr_next_columns">{{ TicketAvailabilityMonthTable.pa2 |number_format(2, ',', '.')}}</td>
+                        {% if (anlage.eigner.features.aktDep2 ) %}
+                            {%  if ( not anlage.settings.disableDep2) %}
+                                <td class="tr_next_columns">{{ TicketAvailabilityMonthTable.pa2 |number_format(2, ',', '.')}}</td>
+                            {% endif %}
                         {% endif %}
                         {% if (anlage.eigner.features.aktDep3) %}
-                            <td class="tr_next_columns">{{ TicketAvailabilityMonthTable.pa3 |number_format(2, ',', '.')}}</td>
+                            {%  if ( not anlage.settings.disableDep3) %}
+                                <td class="tr_next_columns">{{ TicketAvailabilityMonthTable.pa3 |number_format(2, ',', '.')}}</td>
+                            {% endif %}
                         {% endif %}
                         <td class="tr_next_columns"> {{ TicketAvailabilityMonthTable.pa0 |number_format(2, ',', '.')}}</td>
                     </tr>
                     <tr>
                         <td class="tr_next_columns">PR</td>
-                        {% if (anlage.eigner.features.aktDep1) %}
-                            <td class="tr_next_columns">To come</td>
+                        {% if (anlage.eigner.features.aktDep1 ) %}
+                            {%  if ( not anlage.settings.disableDep1) %}
+                                <td class="tr_next_columns">To come</td>
+                            {% endif %}
                         {% endif %}
-                        {% if (anlage.eigner.features.aktDep2) %}
-                            <td class="tr_next_columns">To come</td>
+                        {% if (anlage.eigner.features.aktDep2)   %}
+                            {%  if ( not anlage.settings.disableDep2) %}
+                                <td class="tr_next_columns">To come</td>
+                            {% endif %}
                         {% endif %}
                         {% if (anlage.eigner.features.aktDep3) %}
-                            <td class="tr_next_columns">To come</td>
+                            {%  if ( not anlage.settings.disableDep3) %}
+                                <td class="tr_next_columns">To come</td>
+                            {% endif %}
                         {% endif %}
                         <td class="tr_next_columns">To come</td>
                     </tr>

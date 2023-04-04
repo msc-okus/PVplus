@@ -50,6 +50,7 @@
                         <td class="text-right">
                             <div id="modal-form{{ report.id }}" {{ stimulus_controller('modal-form', {
                                     formUrl: path('app_reporting_edit', { id: report.id, page: pagination.currentPageNumber }),
+                                    submitUrl: path('app_reporting_pdf',{ id: report.id }),
                             }) }}>
                                 {% if is_granted('ROLE_G4N') or report.reportStatus <= 3 %}
                                     {% set visibility = 'enabled' %}
@@ -86,7 +87,7 @@
 
 
                                 {# download pdf #}
-                                {% if (report.reportType != "am-report") %}
+                                {% if (report.reportType != null) %}
                                 <a href="{{ path('app_reporting_pdf', { id: report.id}) }}"   target="_blank" title="load PDF file" class="hollow button tiny action-icon shadow
                                     {{ visibility }}
                                 "><span class="fa fa-file-pdf"></span></a>
