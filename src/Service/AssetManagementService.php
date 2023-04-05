@@ -3190,7 +3190,7 @@ class AssetManagementService
                 $tempTo = new \DateTime($report['reportYear'].'-'.$report['reportMonth']."-$day 23:59");
                 $pa[] = [
                     'form_date' => $day,
-                    'pa' => $this->availability->calcAvailability($anlage, $tempFrom, $tempTo, $inverter, 0),
+                    'pa' => $this->availability->calcAvailability($anlage, $tempFrom, $tempTo, $inverter, 0),//TODO: add a parameter to change the dep
                     'unit' => $inverter,
                 ];
             }
