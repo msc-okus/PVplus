@@ -1,9 +1,10 @@
 import { Controller } from '@hotwired/stimulus';
 import { useDispatch } from 'stimulus-use';
 import $ from 'jquery';
+import {Reveal} from "foundation-sites";
 
 export default class extends Controller {
-    static targets = ['list', 'reportForm', 'searchForm', 'createForm', 'required', 'deactivable', 'deactivable1'];
+    static targets = ['list', 'reportForm', 'searchForm', 'createForm', 'required', 'deactivable', 'deactivable1', 'modalBody'];
     static values = {
         urlCreate: String,
         urlSearch: String,
@@ -102,6 +103,24 @@ export default class extends Controller {
             }
         });
         this.dispatch('success');
+    }
+    async openModal(event) {
+        this.modalBodyTarget.innerHTML = 'Loading ...';
+        this.modal = new Reveal($(this.modalTarget));
+        this.modal.open();
+        if (this.formUrlValue === '/ticket/create') {
+            this.modalBodyTarget.innerHTML = await $.ajax({
+                url: this.formUrlValue,
+                data: {'anlage': $(this.anlageTarget).val()},
+            });
+            $(this.saveButtonTarget).attr('disabled', 'disabled');
+        } else {
+            this.modalBodyTarget.innerHTML = await $.ajax({
+                url: this.formUrlValue,
+            });
+        }
+
+        $(this.modalBodyTarget).foundation();
     }
 }
 

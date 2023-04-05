@@ -176,7 +176,7 @@ class Anlage
     #[ORM\Column(name: 'anl_geo_lon', type: 'string', length: 30, nullable: false)]
     private string $anlGeoLon = '';
 
-    #[ORM\Column(name: 'anl_mute', type: 'string', length: 10, nullable: false, options: ['default' => 'No'])]
+    #[ORM\Column(name: 'anl_mute', type: 'string', length: 10, nullable: false)]
     private string $anlMute = 'No';
 
     #[ORM\Column(name: 'anl_mute_until', type: 'datetime', nullable: true)]

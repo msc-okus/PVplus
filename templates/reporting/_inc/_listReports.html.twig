@@ -50,6 +50,7 @@
                         <td class="text-right">
                             <div id="modal-form{{ report.id }}" {{ stimulus_controller('modal-form', {
                                     formUrl: path('app_reporting_edit', { id: report.id, page: pagination.currentPageNumber }),
+                                    submitUrl: path('app_reporting_pdf',{ id: report.id }),
                             }) }}>
                                 {% if is_granted('ROLE_G4N') or report.reportStatus <= 3 %}
                                     {% set visibility = 'enabled' %}
@@ -84,11 +85,26 @@
                                     {% endif %}
                                 "><span class="fa fa-file-excel"></span></a>
 
+
                                 {# download pdf #}
+                                {% if (report.reportType != null) %}
                                 <a href="{{ path('app_reporting_pdf', { id: report.id}) }}"   target="_blank" title="load PDF file" class="hollow button tiny action-icon shadow
                                     {{ visibility }}
                                 "><span class="fa fa-file-pdf"></span></a>
+                                {% else %}
+                                <button class="hollow button action-icon shadow"
+                                        data-action="modal-form#openModalCreate"
+                                        data-append-to="div#modal-form{{ report.id }}"
+                                        data-modal-form-id-param="{{ report.id }}"
+                                ><span class="fa fa-file-pdf"></span></button>
 
+                                    {{ include('reporting/_inc/_modal_form.html.twig', {
+                                        modalId: report.id,
+                                        modalTitel: 'Generate Pdf',
+                                        class: 'large',
+                                        dataVOffset: '10',
+                                    }) }}
+                                {% endif %}
                                 {# edit report #}
                                 {% if is_granted('ROLE_G4N') or report.reportType == 'am-report' %}
                                     <a href="{{ path('app_reporting_html', { id: report.id}) }}" target="_blank" title="load html code into new window" class="hollow button tiny action-icon shadow">

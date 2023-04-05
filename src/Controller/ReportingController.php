@@ -224,6 +224,7 @@ class ReportingController extends AbstractController
     #[Route(path: '/reporting/pdf/{id}', name: 'app_reporting_pdf')]
     public function showReportAsPdf(Request $request, $id, ReportService $reportService, ReportsRepository $reportsRepository, NormalizerInterface $serializer, ReportsEpcNewService $epcNewService, ReportsMonthlyService $reportsMonthly, Pdf $snappyPdf, PdfService $pdf, $tempPathBaseUrl)
     {
+
         /** @var AnlagenReports|null $report */
         $session = $this->container->get('session');
         $searchstatus       = $session->get('search');
@@ -331,12 +332,14 @@ class ReportingController extends AbstractController
 
             case 'am-report':
                 $report = $reportsRepository->find($id);
+
                 if ($report) {
 
                     $output = $report->getContentArray();
                     $form = $this->createForm(AssetManagementeReportFormType::class);
                     $form->handleRequest($request);
-
+                    $data = $_GET['asset_managemente_report_form'];
+                    //dd($request, $form, $_GET['asset_managemente_report_form'], $report);
                     if ($form->isSubmitted() && $form->isValid()) {
                         $data = $form->getData();
                         $files = $report->getPdfParts();
@@ -462,9 +465,9 @@ class ReportingController extends AbstractController
 
                     }
 
-                    return $this->render('report/_form.html.twig', [
-                        'assetForm' => $form->createView(),
-                        'anlage' => $anlage,
+                    return $this->renderForm('report/_form.html.twig', [
+                        'assetForm' => $form,
+                        'anlage' => $anlage
                     ]);
 
                 }

@@ -129,7 +129,8 @@ class TicketFormType extends AbstractType
                     //'min' => $isNewTicket ? $ticket->getEnd()->format("Y-m-d\TH:i") : '',
                     'step' => 900,
                     'data-action' => 'change->ticket-edit#saveCheck',
-                    'data-ticket-edit-target' => 'formEnd'],
+                    'data-ticket-edit-target' => 'formEnd'
+                ],
             ])
 
             ->add('status', ChoiceType::class, [
