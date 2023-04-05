@@ -1,6 +1,6 @@
 {% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
 {% block page %}
-    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Availability Analysis - Yearly Overview</h3>
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Availability Analysis - Yearly Overview - {{ year }}</h3>
     <table>
         <tr>
             <td style="width: 50%">
@@ -18,7 +18,7 @@
                         <th class="table-center">Availability</th>
                     </tr>
                     <tr>
-                        <th class="table-center"> Jan {{ year|slice(2,3) }} - {{ month }} {{ year|slice(2,3) }}</th>
+                        <th class="table-center"> Jan {{ year|slice(2,3) }} - {{ monthName }} {{ year|slice(2,3) }}</th>
                         <th class="table-center"> [%] </th>
                         <th class="table-center"> [%]</th>
                         <th class="table-center"> [%]</th>
@@ -188,8 +188,10 @@
                             {% endif %}
                             <td class="tr_next_columns"> {{ TicketAvailabilityYearTable.pa0 |number_format(2, ',', '.')}}</td>
                         </tr>
+                        {#
                         <tr>
                             <td class="tr_next_columns">PR[%]</td>
+
                             {% if (anlage.eigner.features.aktDep1) %}
                                 {% if (not anlage.settings.disableDep1) %}
                                     <td class="tr_next_columns">To come</td>
@@ -206,7 +208,9 @@
                                 {% endif %}
                             {% endif %}
                             <td class="tr_next_columns">To come</td>
+
                         </tr>
+                        #}
                         </tbody>
 
                     </table>
