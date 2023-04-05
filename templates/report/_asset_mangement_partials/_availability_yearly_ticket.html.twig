@@ -188,29 +188,29 @@
                             {% endif %}
                             <td class="tr_next_columns"> {{ TicketAvailabilityYearTable.pa0 |number_format(2, ',', '.')}}</td>
                         </tr>
-                        {#
+
                         <tr>
                             <td class="tr_next_columns">PR[%]</td>
 
                             {% if (anlage.eigner.features.aktDep1) %}
                                 {% if (not anlage.settings.disableDep1) %}
-                                    <td class="tr_next_columns">To come</td>
+                                    <td class="tr_next_columns">{{ TicketAvailabilityYearTable.prDep1Act |number_format(2, ',', '.') }}</td>
                                 {% endif %}
                             {% endif %}
                             {% if (anlage.eigner.features.aktDep2) %}
                                 {% if (not anlage.settings.disableDep2) %}
-                                    <td class="tr_next_columns">To come</td>
+                                    <td class="tr_next_columns">{{ TicketAvailabilityYearTable.prDep2Act |number_format(2, ',', '.') }}</td>
                                 {% endif %}
                             {% endif %}
                             {% if (anlage.eigner.features.aktDep3) %}
                                 {% if (not anlage.settings.disableDep3) %}
-                                    <td class="tr_next_columns">To come</td>
+                                    <td class="tr_next_columns">{{ TicketAvailabilityYearTable.prDep3Act |number_format(2, ',', '.') }}</td>
                                 {% endif %}
                             {% endif %}
-                            <td class="tr_next_columns">To come</td>
+                            <td class="tr_next_columns">{{ TicketAvailabilityYearTable.prDep0Act |number_format(2, ',', '.') }}</td>
 
                         </tr>
-                        #}
+
                         </tbody>
 
                     </table>

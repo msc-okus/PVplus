@@ -1916,18 +1916,19 @@ class AssetManagementService
         $start = $report['reportYear'].'-'.$report['reportMonth'].'-01 00:00';
         $end = $report['reportYear'].'-'.$report['reportMonth'].'-'.$daysInReportMonth.' 23:59';
 
-        $output = $this->DownloadAnalyseService->getAllSingleSystemData($anlage, $report['reportYear'], $report['reportMonth'], 2);
+        $output = $this->DownloadAnalyseService->getAllSingleSystemData($anlage, "2023",$report['reportMonth'] , 2);
         $dcData = $this->DownloadAnalyseService->getDcSingleSystemData($anlage, $start, $end, '%d.%m.%Y');
         $dcDataExpected = $this->DownloadAnalyseService->getEcpectedDcSingleSystemData($anlage, $start, $end, '%d.%m.%Y');
 
-        if ($output) {
-            for ($i = 0; $i < count($output); ++$i) {
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
+
+
+            for ($i = 0; $i < $daysInMonth ; ++$i) {
                 $year = $report['reportYear'];
                 $month = $report['reportMonth'];
                 $days = $i + 1;
                 $day = new \DateTime("$year-$month-$days");
                 $output2 = $this->PRCalulation->calcPR($anlage, $day);
-
                 $table_overview_dayly[] =
                     [
                         'date' => $day->format('M-d'),
@@ -1944,10 +1945,10 @@ class AssetManagementService
                         'prExpMonth' => (float) $output2['prExp'],
                         'plantAvailability' => (float) $output2['availability'],
                         'plantAvailabilitySecond' => (float) $output2['availability2'],
-                        'panneltemp' => (float) $output[$i]->getpanneltemp(),
+                        'panneltemp' => 0,
+                        //(float) $output[$i]->getpanneltemp()
                     ];
             }
-        }
 
         if ($anlage->getConfigType() == 1) {
             // Type 1 is the only one where acGrops are NOT the Inverter
