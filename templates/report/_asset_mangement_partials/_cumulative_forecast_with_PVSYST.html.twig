@@ -1,7 +1,7 @@
 {% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
 
 {% block page %}
-    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Cumulative Forecast - PVSYST</h3>
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Cumulative Forecast - Plant Simulation</h3>
     <span class="subheadline">Yearly planned simulation values vs. Actuals</span>
     {% for data in table_overview_monthly.powerEvu %}
     {% endfor %}
@@ -36,14 +36,14 @@
                         {% endfor %}
                     </tr>
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Plan Simulation<sup>**</sup> - P50</td>
+                        <td class="tr_first_column" style="text-align: right">Plant Simulation<sup>**</sup> - P50</td>
                         {% for data in forecast_PVSYST_table.forcast_plan_PVSYSTP50 %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
                     </tr>
 
                     <tr>
-                        <td class="tr_first_column" style="text-align: right">Plan Simulation - P90</td>
+                        <td class="tr_first_column" style="text-align: right">Plant Simulation - P90</td>
                         {% for data in forecast_PVSYST_table.forcast_plan_PVSYSTP90 %}
                             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
                         {% endfor %}
