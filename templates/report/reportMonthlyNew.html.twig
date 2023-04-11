@@ -1,7 +1,6 @@
 {% extends 'report/report.base.portrait.html.twig' %}
 
 {% block content %}
-{% dump report %}
     <table>
         {% for day in report.days %}
             {% if loop.last %}{% set trstyle = ' class=strong' %}{% else %}{% set trstyle = '' %}{% endif %}

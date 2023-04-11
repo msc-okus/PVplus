@@ -2459,7 +2459,6 @@ class AssetManagementService
             $ActualPowerYear = $ActualPowerYear + $tbody_a_production['powerAct'][$index];
         }
 
-        // dd($kwhLossesYearTable, $kwhLossesMonthTable, $G4NmonthExpected, $G4NyearExpected, $PVSYSTmonthExpected, $PVSYSTyearExpected,$tbody_a_production,$ActualPower, $ActualPowerYear);
         $percentageTable = [
             'G4NExpected' => (int)($G4NmonthExpected * 100/$G4NmonthExpected) ,
             'PVSYSExpected' => (int)($tbody_a_production['expectedPvSyst'][$month - 2] * 100 / $G4NmonthExpected),
@@ -2910,7 +2909,6 @@ class AssetManagementService
                 $table_percentage_monthly['OMCLosses'][] = 0;
             }
         }
-        //dd($invertedMonthArray, $table_percentage_monthly, array_slice($dataMonthArray, 0, $report['reportMonth']));
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];

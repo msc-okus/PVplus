@@ -407,7 +407,6 @@
 {%- block checkbox_row -%}
     {%- set parent_class = parent_class|default(attr.class|default('')) -%}
     {%- if 'switch-input' in parent_class -%}
-        {% dump attr %}
         <div class="switch  {{ attr.class|default('') }}">
             {{- form_label(form) -}}
             {% if form.vars.value == 1 %}

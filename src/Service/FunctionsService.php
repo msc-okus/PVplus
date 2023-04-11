@@ -611,7 +611,6 @@ class FunctionsService
         $sql = "SELECT sum(g_lower) as irr_lower, sum(g_upper) as irr_upper, sum(g_horizontal) as irr_horizontal, avg(g_horizontal) as irr_horizontal_avg, AVG(at_avg) AS air_temp, AVG(pt_avg) AS panel_temp, AVG(wind_speed) as wind_speed 
                 FROM $dbTable 
                 WHERE stamp BETWEEN '$from' and '$to'";
-        #if (str_contains($from,'2021-10-06')) dd($sql);
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);

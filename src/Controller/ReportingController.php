@@ -339,7 +339,6 @@ class ReportingController extends AbstractController
                     $form = $this->createForm(AssetManagementeReportFormType::class);
                     $form->handleRequest($request);
                     $data = $_GET['asset_managemente_report_form'];
-                    //dd($request, $form, $_GET['asset_managemente_report_form'], $report);
                     if ($form->isSubmitted() && $form->isValid()) {
                         $data = $form->getData();
                         $files = $report->getPdfParts();
@@ -606,7 +605,6 @@ class ReportingController extends AbstractController
                     $form->handleRequest($request);
                     $data = $form->getData();
                     $output["data"] = $data;
-                    //dd($output['wkhLossesChartMonth'], $output['operations_right'], $output['economicsCumulatedForecastChart']);
                     if ($form->isSubmitted() && $form->isValid()) {
 
                         $result = $this->renderView('report/assetreport.html.twig', [
