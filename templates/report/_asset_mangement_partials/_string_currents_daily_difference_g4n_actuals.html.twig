@@ -4,38 +4,38 @@
 
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">String currents - Heatmap</h3>
-    <span class="subheadline">Overview - Daily difference between g4n expected vs. actuals - {{ month }} {{ year }}</span>
+    <span class="subheadline">Overview - Daily difference between g4n expected vs. actuals - {{ monthName }} {{ year }}</span>
 
     <table>
         <tr>
             <td style="vertical-align: top;">
                 {% set itemcounter = 1 %}
-                {% if (page == (((invNr / 40)|round(0, 'ceil'))-1)) %}
+                {% if (page == (((invNr / 20)|round(0, 'ceil'))-1)) %}
 
-                    {% if  (invNr % 40) != 0 %}
-                        {% set maxInv = (invNr % 40) %}
+                    {% if  (invNr % 20) != 0 %}
+                        {% set maxInv = (invNr % 20) %}
                     {% else %}
-                        {% set maxInv =  40 %}
+                        {% set maxInv =  20 %}
                     {% endif %}
 
                 {% else  %}
-                    {% set maxInv =  40 %}
+                    {% set maxInv =  20 %}
                 {% endif %}
                 <table class="asset_report_table_operations_data" style="margin-bottom: 5px!important;width:100%!important">
                     {% for inv in 0..maxInv-1 %}
-                        {%  set data = operations_currents_dayly_table[(page*40)+inv] %}
+                        {%  set data = operations_currents_dayly_table[(page*20)+inv] %}
                         <td style = 'border: none !important; padding:0 !important;vertical-align: bottom !important;'>
                             <table class = "streamdayly" style="margin:0 !important;width:100%!important">
                                 <thead>
                                 {% if (itemcounter == 1 ) %}
-                                    <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;border-left: solid 1px !important;" rowspan="3">Day</th><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">{{ acGroups[(page*40)+inv] }}</th></tr>
+                                    <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;border-left: solid 1px !important;" rowspan="3">Day</th><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">{{ acGroups[(page*20)+inv] }}</th></tr>
                                     <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">[%]</th></tr>
                                 {% else %}
                                     {% if loop.last %}
-                                        <tr><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; text-align: center;"> {{ acGroups[(page*40)+inv] }} </th></tr>
+                                        <tr><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; text-align: center;"> {{ acGroups[(page*20)+inv] }} </th></tr>
                                         <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important;  text-align: center;">[%]</th></tr>
                                     {% else %}
-                                        <tr><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">{{ acGroups[(page*40)+inv] }}</th></tr>
+                                        <tr><th style=" height:28px; padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">{{ acGroups[(page*20)+inv] }}</th></tr>
                                         <tr><th style="padding:0 !important;margin:0 !important;font-size: 7.3px!important; border-right: 0px!important; text-align: center;">[%]</th></tr>
                                     {% endif %}
 

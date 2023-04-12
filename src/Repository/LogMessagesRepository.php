@@ -7,6 +7,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\Security\Core\Security;
 
 /**
  * @method LogMessages|null find($id, $lockMode = null, $lockVersion = null)
@@ -16,7 +17,7 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class LogMessagesRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, private Security $security)
     {
         parent::__construct($registry, LogMessages::class);
     }
@@ -45,7 +46,7 @@ class LogMessagesRepository extends ServiceEntityRepository
         }
     }
 
-    public function findUseful()
+    public function findUsefull()
     {
         return $this->createQueryBuilder('log')
             ->andWhere("(log.state = 'done' AND log.startedAt >= :end) or (log.state != 'done' and  log.startedAt >= :lastend)")
@@ -55,6 +56,32 @@ class LogMessagesRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult()
         ;
+    }
+
+    public function findSmallList()
+    {
+        if ($this->security->isGranted('ROLE_G4N')) {
+            $q = $this->createQueryBuilder('log')
+                ->andWhere("(log.state = 'done' AND log.startedAt >= :end) or (log.state != 'done' and  log.startedAt >= :lastend)")
+                ->setParameter('end', date('Y-m-d H:i:s', time() - 3600 * 1))
+                ->setParameter('lastend', date('Y-m-d H:i:s', time() - 3600 * 1))
+                ->orderBy('log.startedAt', 'DESC')
+                ->setMaxResults(4)
+                ->getQuery()
+                ->getResult();
+        } else {
+            $q = $this->createQueryBuilder('log')
+                ->andWhere("log.function LIKE 'create AM Report%'")
+                ->andWhere("(log.state = 'done' AND log.startedAt >= :end) or (log.state != 'done' and  log.startedAt >= :lastend)")
+                ->setParameter('end', date('Y-m-d H:i:s', time() - 3600 * 1))
+                ->setParameter('lastend', date('Y-m-d H:i:s', time() - 3600 * 1))
+                ->orderBy('log.startedAt', 'DESC')
+                ->setMaxResults(4)
+                ->getQuery()
+                ->getResult();
+        }
+
+        return $q;
     }
 
 }

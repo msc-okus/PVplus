@@ -1,0 +1,21 @@
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+
+@media print{
+  html, body {
+    height: 297mm;
+    width: 210mm;
+  }
+}
+
+body {
+  padding-left: 1.3cm;
+  padding-right: 1.3cm;
+}
+
+.content_report{
+  width: 180mm!important;
+  height: 270mm!important;
+}

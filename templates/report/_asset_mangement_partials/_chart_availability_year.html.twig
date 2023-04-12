@@ -25,7 +25,7 @@
                 </tr>
                 <tr>
                     <th style="text-align: center" class="table-center">
-                        <b>G4N Expected</b>
+                        <b>g4n Expected</b>
                     </th>
                 </tr>
                 <tr>
@@ -49,19 +49,19 @@
                 {% if ((anlage.hasPVSYST == true) == true) %}
                     <tr>
                         <td style="text-align: center" class="tr_next_columns" rowspan="2"> Planned Values</td>
-                        <td style="text-align: left" class="tr_next_columns">  Expected Plan Simulation</td>
-                        <td class="tr_next_columns">{{ yearLossesHelpTable['ExpectedPVSYS'] |number_format(2, ',', '.') }}</td>
-                        <td class="tr_next_columns">{{ PercentageTableYear['PVSYSExpected'] |number_format(2, ',', '.') }}</td>
-                    </tr>
-                    <tr>
-                        <td style="text-align: left" class="tr_next_columns"> G4N Simulation </td>
+                        <td style="text-align: left" class="tr_next_columns"> Forecast g4n </td>
                         <td class="tr_next_columns">{{ yearLossesHelpTable['Forecast'] |number_format(2, ',', '.') }}</td>
                         <td class="tr_next_columns">{{ PercentageTableYear['forecast'] |number_format(2, ',', '.') }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: left" class="tr_next_columns"> Plant Simulation</td>
+                        <td class="tr_next_columns">{{ yearLossesHelpTable['ExpectedPVSYS'] |number_format(2, ',', '.') }}</td>
+                        <td class="tr_next_columns">{{ PercentageTableYear['PVSYSExpected'] |number_format(2, ',', '.') }}</td>
                     </tr>
                 {% else %}
                     <tr>
                         <td style="text-align: center" class="tr_next_columns"> Planned Values</td>
-                        <td style="text-align: left" class="tr_next_columns"> G4N Simulation </td>
+                        <td style="text-align: left" class="tr_next_columns"> Forecast g4n </td>
                         <td class="tr_next_columns">{{ yearLossesHelpTable['Forecast'] |number_format(2, ',', '.') }}</td>
                         <td class="tr_next_columns">{{ PercentageTableYear['forecast'] |number_format(2, ',', '.') }}</td>
                     </tr>

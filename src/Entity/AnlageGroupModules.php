@@ -107,4 +107,9 @@ class AnlageGroupModules
 
         return $this;
     }
+
+    public function getPower(): float
+    {
+        return $this->getNumStringsPerUnit()*$this->getNumModulesPerString()*$this->getModuleType()->getPower()/1000;
+    }
 }

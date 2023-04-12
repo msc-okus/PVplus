@@ -56,12 +56,12 @@ class AssetManagementService
         $report = $this->reportRepo->findOneByAMY($anlage, $reportMonth, $reportYear)[0];
         $comment = '';
         if ($report) {
-            //$comment = $report->getComments();
             $this->em->remove($report);
             $this->em->flush();
         }
         // then we generate our own report and try to persist it
-        $output = $this->assetReport($anlage, $reportMonth, $reportYear, 0);
+        $output = $this->assetReport($anlage, $reportMonth, $reportYear, $logId);
+
         $data = [
             'Production' => true,
             'ProdCap' => true,
@@ -82,11 +82,12 @@ class AssetManagementService
         $pdf = $this->pdf;
 
         $content = $output;
-
+        $this->logMessages->updateEntry($logId, 'working', 95);
         $htmlhead = $this->twig->render('report/asset_report_header.html.twig', [
             'comments' => "",
             'anlage' => $anlage,
             'month' => $reportMonth,
+            'monthName' => $output['month'],
             'year' => $reportYear,
             'dataMonthArray' => $content['dataMonthArray'],
             'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -102,6 +103,7 @@ class AssetManagementService
         $html1 = $this->twig->render('report/asset_report_part_1.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
+            'monthName' => $output['month'],
             'year' => $reportYear,
             'dataMonthArray' => $content['dataMonthArray'],
             'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -116,11 +118,12 @@ class AssetManagementService
         $html1 = str_replace('src="//', 'src="https://', $html1);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts[1] = $pdf->createPage($html1, $fileroute, "ProductionCapFactor", false);// we will store this later in the entity
-        if ($logId != null) $this->logMessages->updateEntry($logId, 'working', 10);
+
         if($anlage->hasPVSYST()) {
             $html2 = $this->twig->render('report/asset_report_part_2.html.twig', [
                 'anlage' => $anlage,
                 'month' => $reportMonth,
+                'monthName' => $output['month'],
                 'year' => $reportYear,
                 'dataMonthArray' => $content['dataMonthArray'],
                 'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -138,9 +141,9 @@ class AssetManagementService
             $reportParts[2] = $pdf->createPage($html2, $fileroute, "CumForecastPVSYS", false);// we will store this later in the entity
         }
         $html3 = $this->twig->render('report/asset_report_part_3.html.twig', [
-
             'anlage' => $anlage,
             'month' => $reportMonth,
+            'monthName' => $output['month'],
             'year' => $reportYear,
             'dataMonthArray' => $content['dataMonthArray'],
             'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -160,6 +163,7 @@ class AssetManagementService
 
             'anlage' => $anlage,
             'month' => $reportMonth,
+            'monthName' => $output['month'],
             'year' => $reportYear,
             'dataMonthArray' => $content['dataMonthArray'],
             'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -176,10 +180,11 @@ class AssetManagementService
         $html4 = str_replace('src="//', 'src="https://', $html4);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts[4] = $pdf->createPage($html4, $fileroute, "CumLosses", false);// we will store this later in the entity
-        if ($logId != null) $this->logMessages->updateEntry($logId, 'working', 30);
+
         $html5 = $this->twig->render('report/asset_report_part_5.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
+            'monthName' => $output['month'],
             'year' => $reportYear,
             'dataMonthArray' => $content['dataMonthArray'],
             'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -217,6 +222,7 @@ class AssetManagementService
         $html6 = $this->twig->render('report/asset_report_part_6.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
+            'monthName' => $output['month'],
             'year' => $reportYear,
             'dataMonthArray' => $content['dataMonthArray'],
             'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -230,11 +236,12 @@ class AssetManagementService
         $html6 = str_replace('src="//', 'src="https://', $html6);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts[6] = $pdf->createPage($html6, $fileroute, "ProdExpvsAct", false);// we will store this later in the entity
-        if ($logId != null) $this->logMessages->updateEntry($logId, 'working', 50);
+
         $html7 = $this->twig->render('report/asset_report_part_7.html.twig', [
 
             'anlage' => $anlage,
             'month' => $reportMonth,
+            'monthName' => $output['month'],
             'year' => $reportYear,
             'dataMonthArray' => $content['dataMonthArray'],
             'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -252,6 +259,7 @@ class AssetManagementService
         $html8 = $this->twig->render('report/asset_report_part_8.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
+            'monthName' => $output['month'],
             'year' => $reportYear,
             'dataMonthArray' => $content['dataMonthArray'],
             'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -269,6 +277,7 @@ class AssetManagementService
         $html9 = $this->twig->render('report/asset_report_part_9.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
+            'monthName' => $output['month'],
             'year' => $reportYear,
             'dataMonthArray' => $content['dataMonthArray'],
             'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -284,10 +293,10 @@ class AssetManagementService
         $html9 = str_replace('src="//', 'src="https://', $html9);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts[9] = $pdf->createPage($html9, $fileroute, "AvailabilityYearOverview", false);// we will store this later in the entity
-        if ($logId != null) $this->logMessages->updateEntry($logId, 'working', 70);
         $html10 = $this->twig->render('report/asset_report_part_10.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
+            'monthName' => $output['month'],
             'year' => $reportYear,
             'dataMonthArray' => $content['dataMonthArray'],
             'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -312,6 +321,7 @@ class AssetManagementService
         $html11 =$this->twig->render('report/asset_report_part_11.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
+            'monthName' => $output['month'],
             'year' => $reportYear,
             'dataMonthArray' => $content['dataMonthArray'],
             'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -335,6 +345,7 @@ class AssetManagementService
         $html12 = $this->twig->render('report/asset_report_part_12.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
+            'monthName' => $output['month'],
             'year' => $reportYear,
             'dataMonthArray' => $content['dataMonthArray'],
             'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -349,12 +360,13 @@ class AssetManagementService
         $html12 = str_replace('src="//', 'src="https://', $html12);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts[12] = $pdf->createPage($html12, $fileroute, "AvailabilityByInverter", false);// we will store this later in the entity
-        if ($logId != null) $this->logMessages->updateEntry($logId, 'working', 90);
+
         if ($anlage->getEconomicVarNames() !== null) {
 
             $html13 = $this->twig->render('report/asset_report_part_13.html.twig', [
                 'anlage' => $anlage,
                 'month' => $reportMonth,
+                'monthName' => $output['month'],
                 'year' => $reportYear,
                 'dataMonthArray' => $content['dataMonthArray'],
                 'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -408,9 +420,14 @@ class AssetManagementService
     }
 
     /**
-     * @throws ExceptionInterface
+     * @param $anlage
+     * @param $month
+     * @param $year
+     * @param int|null $logId
+     * @return array
+     * @throws NoResultException
      */
-    public function assetReport($anlage, $month = 0, $year = 0, $pages = 0): array
+    public function assetReport($anlage, $month = 0, $year = 0, ?int $logId = null): array
     {
         $date = strtotime("$year-$month-01");
         $reportMonth = date('m', $date);
@@ -424,18 +441,19 @@ class AssetManagementService
         $report['to'] = $to;
         $report['reportYear'] = $reportYear;
 
-        return $this->buildAssetReport($anlage, $report);
+        return $this->buildAssetReport($anlage, $report, $logId);
     }
+
     /**
      * @param Anlage $anlage
      * @param array $report
+     * @param int|null $logId
      * @return array
      * @throws NoResultException
-     * @throws NonUniqueResultException
      */
-    public function buildAssetReport(Anlage $anlage, array $report): array
+    public function buildAssetReport(Anlage $anlage, array $report, ?int $logId = null): array
     {
-
+        $this->logMessages->updateEntry($logId, 'working', 10);
         $month = $report['reportMonth'];
         for ($i = 0; $i < 12; ++$i) {
             $forecast[$i] = $this->functions->getForcastByMonth($anlage, $i);
@@ -535,6 +553,7 @@ class AssetManagementService
             'powerExt' => $powerExternal,
             'forecast' => $forecast,
         ];
+        $this->logMessages->updateEntry($logId, 'working', 20);
         for ($i = 0; $i < 12; ++$i) {
             $dataCfArray[$i]['month'] = $monthExtendedArray[$i]['month'];
             $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $i + 1, $report['reportYear']);
@@ -578,7 +597,7 @@ class AssetManagementService
                             'visualMap' => 'false',
                         ],
                         [
-                            'name' => 'Expected PVSYST',
+                            'name' => 'Plant Simulation',
                             'type' => 'bar',
                             'data' => $expectedPvSyst,
                             'visualMap' => 'false',
@@ -600,7 +619,7 @@ class AssetManagementService
                 $chart->series =
                     [
                         [
-                            'name' => 'Expected PVSYST',
+                            'name' => 'Plant Simulation',
                             'type' => 'bar',
                             'data' => $expectedPvSyst,
                             'visualMap' => 'false',
@@ -636,14 +655,7 @@ class AssetManagementService
                             'data' => $powerExp,
                             'visualMap' => 'false',
                         ],
-/*
-                        [
-                            'name' => 'forecast g4n',
-                            'type' => 'bar',
-                            'data' => $forecast,
-                            'visualMap' => 'false',
-                        ],
-  */                  ];
+                  ];
             } else {
                 $chart->series =
                     [
@@ -659,14 +671,6 @@ class AssetManagementService
                             'data' => $powerAct,
                             'visualMap' => 'false',
                         ],
-                        /*
-                        [
-                            'name' => 'forecast g4n',
-                            'type' => 'bar',
-                            'data' => $forecast,
-                            'visualMap' => 'false',
-                        ],
-                        */
                     ];
             }
         }
@@ -777,19 +781,19 @@ class AssetManagementService
         $chart->series =
             [
                 [
-                    'name' => 'Production ACT / PVSYST - P50',
+                    'name' => 'Production ACT / Plant Simulation - P50',
                     'type' => 'line',
                     'data' => $tbody_forecast_PVSYSTP50,
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Production ACT / PVSYST - P90',
+                    'name' => 'Production ACT / Plant Simulation - P90',
                     'type' => 'line',
                     'data' => $tbody_forecast_PVSYSTP90,
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Plan PVSYST - P50',
+                    'name' => 'Plant Simulation - P50',
                     'type' => 'line',
                     'data' => $tbody_forecast_plan_PVSYSTP50,
                     'visualMap' => 'false',
@@ -798,7 +802,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'Plan PVSYST - P90',
+                    'name' => 'Plant Simulation - P90',
                     'type' => 'line',
                     'data' => $tbody_forecast_plan_PVSYSTP90,
                     'visualMap' => 'false',
@@ -877,7 +881,7 @@ class AssetManagementService
             'forcast_plan_G4NP90' => $tbody_forcast_plan_G4NP90,
         ];
 
-
+        $this->logMessages->updateEntry($logId, 'working', 30);
         $chart->xAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -911,7 +915,7 @@ class AssetManagementService
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Plan g4n Forecast - P50',
+                    'name' => 'Forecast g4n - P50',
                     'type' => 'line',
                     'data' => $tbody_forcast_plan_G4NP50,
                     'visualMap' => 'false',
@@ -920,7 +924,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'Plan g4n Forecast - P90',
+                    'name' => 'Forecast g4n - P90',
                     'type' => 'line',
                     'data' => $tbody_forcast_plan_G4NP90,
                     'visualMap' => 'false',
@@ -1156,7 +1160,7 @@ class AssetManagementService
                 $chart->series =
                     [
                         [
-                            'name' => 'Difference ACT to PVSYST',
+                            'name' => 'Difference ACT to Plant Simulation',
                             'type' => 'line',
                             'data' => $difference_Egrid_to_PVSYST,
                             'visualMap' => 'false',
@@ -1184,7 +1188,7 @@ class AssetManagementService
                 $chart->series =
                     [
                         [
-                            'name' => 'Difference ACT to PVSYST',
+                            'name' => 'Difference ACT to Plant Simulation',
                             'type' => 'line',
                             'data' => $difference_Egrid_to_PVSYST,
                             'visualMap' => 'false',
@@ -1306,6 +1310,7 @@ class AssetManagementService
             'scale' => true,
             'min' => 0,
         ];
+        $this->logMessages->updateEntry($logId, 'working', 40);
         if ($anlage->hasPVSYST()) {
             if ($anlage->hasGrid()) {
                 $chart->series =
@@ -1319,7 +1324,7 @@ class AssetManagementService
                             'visualMap' => 'false',
                         ],
                         [
-                            'name' => 'Expected PV SYST',
+                            'name' => 'Plant Simulation',
                             'type' => 'bar',
                             'data' => [
                                 $expectedPvSyst[$report['reportMonth'] - 1],
@@ -1347,7 +1352,7 @@ class AssetManagementService
                 $chart->series =
                     [
                         [
-                            'name' => 'Expected PV SYST',
+                            'name' => 'Plant Simulation',
                             'type' => 'bar',
                             'data' => [
                                 $expectedPvSyst[$report['reportMonth'] - 1],
@@ -1865,7 +1870,7 @@ class AssetManagementService
                 '0',
             ];
         }
-
+        $this->logMessages->updateEntry($logId, 'working', 50);
         // Parameter fuer Year to Date
         if (!($yearPacDate == $report['reportYear'] && $monthPacDate > $currentMonth)) {
             $x = $powerEvuQ1 + $powerEvuQ2 + $powerEvuQ3 + $powerEvuQ4;
@@ -1911,12 +1916,14 @@ class AssetManagementService
         $start = $report['reportYear'].'-'.$report['reportMonth'].'-01 00:00';
         $end = $report['reportYear'].'-'.$report['reportMonth'].'-'.$daysInReportMonth.' 23:59';
 
-        $output = $this->DownloadAnalyseService->getAllSingleSystemData($anlage, $report['reportYear'], $report['reportMonth'], 2);
+        $output = $this->DownloadAnalyseService->getAllSingleSystemData($anlage, "2023",$report['reportMonth'] , 2);
         $dcData = $this->DownloadAnalyseService->getDcSingleSystemData($anlage, $start, $end, '%d.%m.%Y');
         $dcDataExpected = $this->DownloadAnalyseService->getEcpectedDcSingleSystemData($anlage, $start, $end, '%d.%m.%Y');
 
-        if ($output) {
-            for ($i = 0; $i < count($output); ++$i) {
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
+
+
+            for ($i = 0; $i < $daysInMonth ; ++$i) {
                 $year = $report['reportYear'];
                 $month = $report['reportMonth'];
                 $days = $i + 1;
@@ -1938,10 +1945,10 @@ class AssetManagementService
                         'prExpMonth' => (float) $output2['prExp'],
                         'plantAvailability' => (float) $output2['availability'],
                         'plantAvailabilitySecond' => (float) $output2['availability2'],
-                        'panneltemp' => (float) $output[$i]->getpanneltemp(),
+                        'panneltemp' => 0,
+                        //(float) $output[$i]->getpanneltemp()
                     ];
             }
-        }
 
         if ($anlage->getConfigType() == 1) {
             // Type 1 is the only one where acGrops are NOT the Inverter
@@ -2453,7 +2460,6 @@ class AssetManagementService
             $ActualPowerYear = $ActualPowerYear + $tbody_a_production['powerAct'][$index];
         }
 
-        // dd($kwhLossesYearTable, $kwhLossesMonthTable, $G4NmonthExpected, $G4NyearExpected, $PVSYSTmonthExpected, $PVSYSTyearExpected,$tbody_a_production,$ActualPower, $ActualPowerYear);
         $percentageTable = [
             'G4NExpected' => (int)($G4NmonthExpected * 100/$G4NmonthExpected) ,
             'PVSYSExpected' => (int)($tbody_a_production['expectedPvSyst'][$month - 2] * 100 / $G4NmonthExpected),
@@ -2469,7 +2475,7 @@ class AssetManagementService
         $chart->yAxis = [];
         $chart->series = [];
         unset($option);
-
+        $this->logMessages->updateEntry($logId, 'working', 60);
         $chart->yAxis = [
             'type' => 'category',
             'axisLabel' => [
@@ -2520,7 +2526,7 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'Expected PVSYS[%]',
+                        'name' => 'Plant Simulation[%]',
                         'type' => 'bar',
                         'data' => [$percentageTable['PVSYSExpected']] ,
                         'visualMap' => 'false',
@@ -2724,7 +2730,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'G4N Simulation[%]',
+                    'name' => 'Forecast g4n[%]',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['forecast']],
                     'visualMap' => 'false',
@@ -2734,7 +2740,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'Expected PVSYS[%]',
+                    'name' => 'Plant Simulation[%]',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['PVSYSExpected']] ,
                     'visualMap' => 'false',
@@ -2798,7 +2804,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'G4N Simulation[%]',
+                    'name' => 'Forecast g4n[%]',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['forecast']],
                     'visualMap' => 'false',
@@ -2904,7 +2910,6 @@ class AssetManagementService
                 $table_percentage_monthly['OMCLosses'][] = 0;
             }
         }
-        //dd($invertedMonthArray, $table_percentage_monthly, array_slice($dataMonthArray, 0, $report['reportMonth']));
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
@@ -2923,6 +2928,7 @@ class AssetManagementService
             'data' => $invertedMonthArray,
 
         ];
+        $this->logMessages->updateEntry($logId, 'working', 70);
         $chart->xAxis = [
             'type' => 'value',
             'name' => '%',
@@ -2954,7 +2960,7 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'G4N Simulation[%]',
+                        'name' => 'Forecast g4n[%]',
                         'type' => 'bar',
                         'data' => $table_percentage_monthly['Forecast'],
                         'visualMap' => 'false',
@@ -2964,7 +2970,7 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'Expected PVSYST[%]',
+                        'name' => 'Plant Simulation[%]',
                         'type' => 'bar',
                         'data' => $table_percentage_monthly['expectedPvSyst'],
                         'visualMap' => 'false',
@@ -3029,7 +3035,7 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'G4N Simulation[%]',
+                        'name' => 'Forecast g4n[%]',
                         'type' => 'bar',
                         'data' => $table_percentage_monthly['Forecast'],
                         'visualMap' => 'false',
@@ -3182,7 +3188,7 @@ class AssetManagementService
                 $tempTo = new \DateTime($report['reportYear'].'-'.$report['reportMonth']."-$day 23:59");
                 $pa[] = [
                     'form_date' => $day,
-                    'pa' => $this->availability->calcAvailability($anlage, $tempFrom, $tempTo, $inverter, 0),
+                    'pa' => $this->availability->calcAvailability($anlage, $tempFrom, $tempTo, $inverter, 0),//TODO: add a parameter to change the dep
                     'unit' => $inverter,
                 ];
             }
@@ -3707,7 +3713,7 @@ class AssetManagementService
             else $incomePerMonth['powerExpTotal'][$i] = $incomePerMonth['powerExp'][$i] - $economicsMandy[$i];
             $incomePerMonth['monthley_feed_in_tarif'][$i] = $monthleyFeedInTarif;
         }
-
+        $this->logMessages->updateEntry($logId, 'working', 80);
         $revenuesSumPVSYST[0] = $incomePerMonth['revenues_act'][0];
         $revenuesSumG4N[0] = $incomePerMonth['revenues_act'][0];
         $revenuesSumForecast[0] = $incomePerMonth['powerExp'][0];
@@ -4127,7 +4133,7 @@ class AssetManagementService
         // end Operating Statement
 
         // beginn Losses compared
-
+        $this->logMessages->updateEntry($logId, 'working', 90);
         for ($i = 0; $i < 12; ++$i) {
             if ($i < $month - 1) {
                 $Difference_Profit_ACT_to_PVSYST_plan[] = $incomePerMonth['revenues_act_minus_totals'][$i] - $incomePerMonth['PVSYST_plan_proceeds_EXP_minus_totals'][$i];
@@ -4427,6 +4433,13 @@ class AssetManagementService
 
         return $output;
     }
+
+    /**
+     * @param $begin
+     * @param $end
+     * @param $anlage
+     * @return Array
+     */
     public function calculateLosses($begin, $end, $anlage):Array
     {
         $sumLossesMonthSOR = 0;

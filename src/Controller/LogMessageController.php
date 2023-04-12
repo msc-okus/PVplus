@@ -14,9 +14,19 @@ class LogMessageController extends BaseController
     #[Route(path: '/log/messages/list', name: 'app_log_messages_list')]
     public function listActualMessages(LogMessagesRepository $logMessagesRepo): Response
     {
-        $logMessages = $logMessagesRepo->findUseful();
+        $logMessages = $logMessagesRepo->findUsefull();
 
         return $this->render('logMessages/_list.html.twig', [
+            'logs' => $logMessages,
+        ]);
+    }
+
+    #[Route(path: '/log/messages/list-small', name: 'app_log_background_messages')]
+    public function listBackgroundProcesses(LogMessagesRepository $logMessagesRepo): Response
+    {
+        $logMessages = $logMessagesRepo->findSmallList();
+
+        return $this->render('logMessages/_listSmall.html.twig', [
             'logs' => $logMessages,
         ]);
     }

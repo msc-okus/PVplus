@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 
 /**
  * DbAnlBerichte.
@@ -10,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\Table(name: 'db_anl_berichte')]
 #[ORM\Index(name: 'br_create_date', columns: ['br_create_date'])]
 #[ORM\Entity]
+#[Deprecated]
 class DbAnlBerichte
 {
     /**

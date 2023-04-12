@@ -14,6 +14,7 @@ use App\Repository\PRRepository;
 use App\Repository\PVSystDatenRepository;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 
 class PRCalulationService
 {
@@ -511,15 +512,31 @@ class PRCalulationService
      *  $result['prEvu']<br>
      *  $result['prAct']<br>
      *  $result['prExp']<br>
-     *  $result['algorithmus']<br>
+     *  $result['prDep0Evu'] (by default 'open book')<br>
+     *  $result['prDep0Act'] (by default 'open book')<br>
+     *  $result['prDep0Exp'] (by default 'open book')<br>
+     *  $result['prDep0EGridExt'] (by default 'open book')<br>
+     *  $result['prDep1Evu'] (by default 'O&M')<br>
+     *  $result['prDep1Act'] (by default 'O&M')<br>
+     *  $result['prDep1Exp'] (by default 'O&M')<br>
+     *  $result['prDep1EGridExt'] (by default 'O&M')<br>
+     *  $result['prDep2Evu'] (by default 'EPC')<br>
+     *  $result['prDep2Act'] (by default 'EPC')<br>
+     *  $result['prDep2Exp'] (by default 'EPC')<br>
+     *  $result['prDep2EGridExt'] (by default 'EPC')<br>
+     *  $result['prDep3Evu'] (by default 'AM')<br>
+     *  $result['prDep3Act'] (by default 'AM')<br>
+     *  $result['prDep3Exp'] (by default 'AM')<br>
+     *  $result['prDep3EGridExt'] (by default 'AM')<br>
+     *  $result['algorithmus'] deprecated (depending on settings in Plant)<br>
      *  $result['tempCorrection']<br>
      *  $result['irradiation']<br>
      *  $result['availability'] deprecated<br>
      *  $result['availability2'] deprecated<br>
-     *  $result['pa0'] (proof)<br>
-     *  $result['pa1'] (proof)<br>
-     *  $result['pa2'] (proof)<br>
-     *  $result['pa3'] (proof)<br>
+     *  $result['pa0'] (by default 'open book')<br>
+     *  $result['pa1'] (by default 'O&M')<br>
+     *  $result['pa2'] (by default 'EPC')<br>
+     *  $result['pa3'] (by default 'AM')<br>
      *  $result['anzCase5'] (proof)<br>
      *  $result['tCellAvgMeasured'] (proof)<br>
      *  $result['tCellAvgNrel'] (proof)<br>
@@ -590,21 +607,35 @@ class PRCalulationService
 
         $irr = $this->functions->checkAndIncludeMonthlyCorrectionIrr($anlage, $irr, $localStartDate, $localEndDate);
 
-        // if theoretic Power ist corrected by temperature (NREL) (PR Algoritm = Lelystad) then use 'powerTheo' from array $power, if not calc by Pnom and Irr.
-        $powerTheo = $anlage->getUseCustPRAlgorithm() == 'Lelystad' ? $power['powerTheo'] : $anlage->getPnom() * $irr;
-        $result['powerTheo'] = $powerTheo;
         $tempCorrection = 0; // not used at the Moment
 
         // PR Calculation
-        // Standard PR, wird NICHT mit Temp-Koriegierten Theoretischen berechnet sondern mit Pnom * Irradiation
-        $tempTheoPower = $anlage->getPnom() * $irr;
+        $result['powerTheoDep0'] = $anlage->getPrFormular0() == 'Lelystad' ? $power['powerTheo'] : $anlage->getPnom() * $irr; // if theoretic Power ist corrected by temperature (NREL) (PR Algoritm = Lelystad) then use 'powerTheo' from array $power, if not calc by Pnom and Irr.
+        $result['powerTheo'] = $result['powerTheoDep0'];
+        $result['prDep0Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr, $power['powerEvu'], $result['powerTheoDep0'], $pa0); //($power['powerEvu'] / $tempTheoPower) * 100;
+        $result['prDep0Act'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr, $power['powerAct'], $result['powerTheoDep0'], $pa0); //(($power['powerAct'] / $tempTheoPower) * 100;
+        $result['prDep0Exp'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr, $power['powerExp'], $result['powerTheoDep0'], $pa0); //(($result['powerExp'] / $tempTheoPower) * 100;
+        $result['prDep0EGridExt'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr, $power['powerEGridExt'], $result['powerTheoDep0'], $pa0); //(($power['powerEGridExt'] / $tempTheoPower) * 100;
 
-        if ($tempTheoPower > 0) { // Verhindere Divison by zero
-            $result['prDefaultEvu'] = ($power['powerEvu'] / $tempTheoPower) * 100;
-            $result['prDefaultAct'] = ($power['powerAct'] / $tempTheoPower) * 100;
-            $result['prDefaultExp'] = ($result['powerExp'] / $tempTheoPower) * 100;
-            $result['prDefaultEGridExt'] = ($power['powerEGridExt'] / $tempTheoPower) * 100;
-        }
+        $result['powerTheoDep1'] = $anlage->getPrFormular1() == 'Lelystad' ? $power['powerTheo'] : $anlage->getPnom() * $irr; // if theoretic Power ist corrected by temperature (NREL) (PR Algoritm = Lelystad) then use 'powerTheo' from array $power, if not calc by Pnom and Irr.
+        $result['prDep1Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irr, $power['powerEvu'], $result['powerTheoDep1'], $pa0); //($power['powerEvu'] / $tempTheoPower) * 100;
+        $result['prDep1Act'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irr, $power['powerAct'], $result['powerTheoDep1'], $pa0); //(($power['powerAct'] / $tempTheoPower) * 100;
+        $result['prDep1Exp'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irr, $power['powerExp'], $result['powerTheoDep1'], $pa0); //(($result['powerExp'] / $tempTheoPower) * 100;
+        $result['prDep1EGridExt'] = $this->calcPrBySelectedAlgorithm($anlage, 1, $irr, $power['powerEGridExt'], $result['powerTheoDep1'], $pa0); //(($power['powerEGridExt'] / $tempTheoPower) * 100;
+
+        $result['powerTheoDep2'] = $anlage->getPrFormular2() == 'Lelystad' ? $power['powerTheo'] : $anlage->getPnom() * $irr; // if theoretic Power ist corrected by temperature (NREL) (PR Algoritm = Lelystad) then use 'powerTheo' from array $power, if not calc by Pnom and Irr.
+        $result['prDep2Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr, $power['powerEvu'], $result['powerTheoDep2'], $pa0); //($power['powerEvu'] / $tempTheoPower) * 100;
+        $result['prDep2Act'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr, $power['powerAct'],  $result['powerTheoDep2'], $pa0); //(($power['powerAct'] / $tempTheoPower) * 100;
+        $result['prDep2Exp'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr, $power['powerExp'], $result['powerTheoDep2'], $pa0); //(($result['powerExp'] / $tempTheoPower) * 100;
+        $result['prDep2EGridExt'] = $this->calcPrBySelectedAlgorithm($anlage, 2, $irr, $power['powerEGridExt'], $result['powerTheoDep2'], $pa0); //(($power['powerEGridExt'] / $tempTheoPower) * 100;
+
+        $result['powerTheoDep3'] = $anlage->getPrFormular3() == 'Lelystad' ? $power['powerTheo'] : $anlage->getPnom() * $irr; // if theoretic Power ist corrected by temperature (NREL) (PR Algoritm = Lelystad) then use 'powerTheo' from array $power, if not calc by Pnom and Irr.
+        $result['prDep3Evu'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerEvu'], $result['powerTheoDep3'], $pa0); //($power['powerEvu'] / $tempTheoPower) * 100;
+        $result['prDep3Act'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerAct'], $result['powerTheoDep3'], $pa0); //(($power['powerAct'] / $tempTheoPower) * 100;
+        $result['prDep3Exp'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerExp'], $result['powerTheoDep3'], $pa0); //(($result['powerExp'] / $tempTheoPower) * 100;
+        $result['prDep3EGridExt'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerEGridExt'], $result['powerTheoDep3'], $pa0); //(($power['powerEGridExt'] / $tempTheoPower) * 100;
+
+        /*
         // depending on used allgoritmus
         switch ($anlage->getUseCustPRAlgorithm()) {
             case 'Groningen':
@@ -653,11 +684,12 @@ class PRCalulationService
                     $result['prEGridExt'] = ($power['powerEGridExt'] / $powerTheo) * 100;
                 }
         }
+        */
 
         $anzCase5PerDay = $this->case5Repo->countCase5DayAnlage($anlage, $localStartDate, $localEndDate);
 
-        $result['algorithmus'] = $anlage->getUseCustPRAlgorithm();
-        $result['powerTheoTempCorr'] = (float) $power['powerTheo'];
+        $result['algorithmus'] = $anlage->getUseCustPRAlgorithm(); /** @deprecated */
+        $result['powerTheoTempCorr'] = (float) $power['powerTheo']; /** @deprecated */
         $result['tempCorrection'] = (float) $tempCorrection;
         $result['irradiation'] = $irr;
         $result['availability'] = $pa2; // old EPC
@@ -666,6 +698,14 @@ class PRCalulationService
         $result['pa1'] = $pa1;
         $result['pa2'] = $pa2;
         $result['pa3'] = $pa3;
+        $result['prDefaultEvu'] = $result['prDep0Evu']; // OpenBook / default PR
+        $result['prDefaultAct'] = $result['prDep0Act']; // OpenBook / default PR
+        $result['prDefaultExp'] = $result['prDep0Exp']; // OpenBook / default PR
+        $result['prDefaultEGridExt'] = $result['prDep0EGridExt']; // OpenBook / default PR
+        $result['prEvu'] = $result['prDep2Evu']; // EPC PR
+        $result['prAct'] = $result['prDep2Act']; // EPC PR
+        $result['prExp'] = $result['prDep2Exp']; // EPC PR
+        $result['prEGridExt'] = $result['prDep2EGridExt']; // EPC PR
         $result['anzCase5'] = $anzCase5PerDay;
         $result['tCellAvgMeasured'] = (float) $weather['panelTempAvg'];
         $result['tCellAvgNrel'] = (float) $weather['temp_cell_corr'];
@@ -674,8 +714,21 @@ class PRCalulationService
         return $result;
     }
 
+    /**
+     * @deprecated use 'calcPrBySelectedAlgorithm()' instead
+     * @param Anlage $anlage
+     * @param float $irr
+     * @param float $spezYield
+     * @param float $eGrid
+     * @param float $theoPowerFT
+     * @param $pa
+     * @return float
+     */
+    #[Deprecated]
     public function calcPrByValues(Anlage $anlage, float $irr, float $spezYield, float $eGrid, float $theoPowerFT, $pa): float
     {
+        return $this->calcPrBySelectedAlgorithm($anlage, 2, $irr, $eGrid, $theoPowerFT, $pa);
+        /*
         switch ($anlage->getUseCustPRAlgorithm()) {
             case 'Lelystad':
                 // Summe der theo Power aus den IST Werten (koriegiert mit TemperaturKorrektur)
@@ -685,5 +738,52 @@ class PRCalulationService
                 // wenn es keinen spezielen Algoritmus gibt
                 return ($irr > 0) ? $spezYield / $irr * 100 : 0;
         }
+        */
+    }
+
+    /**
+     * @param Anlage $anlage
+     * @param int $dep
+     * @param float $irr
+     * @param float $eGrid
+     * @param float $theoPower
+     * @param float $pa
+     * @param int|null $years
+     * @return float|null
+     */
+    public function calcPrBySelectedAlgorithm(Anlage $anlage, int $dep, float $irr, float $eGrid, float $theoPower, float $pa, ?int $years = null): ?float
+    {
+        $result = null;
+        $algorithm = match ($dep) {
+            1 => $anlage->getPrFormular1(),
+            2 => $anlage->getPrFormular2(),
+            3 => $anlage->getPrFormular3(),
+            default => $anlage->getPrFormular0(),
+        };
+        switch ($algorithm) {
+            case 'Groningen': // special for Groningen
+                $result = ($eGrid > 0 && $pa > 0) ? ($eGrid / ($theoPower / 1000 * $pa)) * (10 / 0.9945) : null;
+                break;
+            case 'Veendam': // with availability
+                $result = ($eGrid > 0 && $pa > 0) ? ($eGrid / ($theoPower / 100 * $pa)) * 100 : null;
+                break;
+            case 'Lelystad': // with Temp Correction by NREL
+                // Sum of theo. power from the actual values (corrected with temperature correction)
+                $result = ($eGrid > 0 && $pa > 0) ? ($eGrid / $theoPower) * 100 : null;
+                break;
+            case 'Ladenburg': // not tested (2023-03-22 MR)
+                if ($years && $years > 0){
+                    // entspricht Standard PR plus degradation (Faktor = $years int)
+                    $powerTheo = ($anlage->getPnom() / 1000) * pow(1 - 0.25, $years) * $irr;
+                    $result = ($irr > 0) ? ($eGrid / $powerTheo) * 100 : null;
+                }
+                break;
+
+            default:
+                // wenn es keinen spezielen Algoritmus gibt
+                $result = ($irr > 0) ? ($eGrid / ($anlage->getPnom() * $irr)) * 100 : null;
+        }
+
+        return $result;
     }
 }

@@ -56,7 +56,6 @@ class ExpectedService
                 }
                 $sql = substr($sql, 0, -1); // nimm das letzte Komma weg
                 $conn->exec('DELETE FROM '.$anlage->getDbNameDcSoll()." WHERE stamp BETWEEN '$from' AND '$to';");
-                #dd('DELETE FROM '.$anlage->getDbNameDcSoll()." WHERE stamp BETWEEN '$from' AND '$to';");
                 $conn->exec($sql);
                 $recUpdated = count($arrayExpected);
                 $output .= "From $from until $to – $recUpdated records updated.<br>";
@@ -201,6 +200,8 @@ class ExpectedService
                             // ToDo: Funktion zur Berechnung der Temperatur Korrektur via OpenWeather (temp ambient, wind speed), NREL und Co implementieren
                             if (false) { // $anlage->hasAmbientTemp
                                 // Wenn nur Umgebungstemepratur vorhanden
+
+                                // Berechne anhand der gemessenen Umgebungstemperatur, mit hilfe der NREL Methode, die Modul Temperatur
                             } else {
                                 // Wenn weder Umgebungs noch Modul Temperatur vorhanden, dann nutze Daten aus Open Weather (sind nur Stunden weise vorhanden)
                                 if ($anlage->getAnlId() == '183' ) {  // im Moment nur für REGebeng
@@ -214,7 +215,6 @@ class ExpectedService
                                             $airTemp = 24; //
                                         break;
                                     }
-
 
                                     #$windSpeed = $openWeather->getWindSpeed();
                                     #$airTemp = $openWeather->getTempC();
@@ -232,14 +232,13 @@ class ExpectedService
 
                         // degradation abziehen (degradation * Betriebsjahre).
                         $expVoltageDcHlp = $expVoltageDcHlp - ($expVoltageDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
-                        if ($anlage->getAnlId() == '183' || $anlage->getAnlId() == '175') { // im Moment nur für REGebeng und Perleberg
+                        if ($anlage->getSettings()->getEpxCalculationByCurrent()) {
                             // Calculate DC power by current and voltage
                             $expPowerDcHlp = $expCurrentDcHlp * $expVoltageDcHlp / 4000;
                         } else {
                             $expPowerDcHlp = $expPowerDcHlp - ($expPowerDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
                         }
                         #$expCurrentDcHlp = $expCurrentDcHlp - ($expCurrentDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
-
 
                         $expPowerDc += $expPowerDcHlp;
                         $expCurrentDc += $expCurrentDcHlp;

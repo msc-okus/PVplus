@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\AnlageSettingsRepository;
 use Doctrine\ORM\Mapping as ORM;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 
 #[ORM\Entity(repositoryClass: AnlageSettingsRepository::class)]
 class AnlageSettings
@@ -16,18 +17,37 @@ class AnlageSettings
     #[ORM\OneToOne(inversedBy: 'settings', targetEntity: Anlage::class, cascade: ['persist', 'remove'])]
     private ?Anlage $anlage = null;
 
+    // Settings for Department handling
     #[ORM\Column(type: 'string', length: 20)]
+    #[Deprecated]
     private string $paDep1Name = 'EPC';
 
     #[ORM\Column(type: 'string', length: 20)]
+    #[Deprecated]
     private string $paDep2Name = 'O&M';
 
     #[ORM\Column(type: 'string', length: 20)]
+    #[Deprecated]
     private string $paDep3Name = 'AM';
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $disableDep1 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $disableDep2 = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $disableDep3 = false;
+
+    // Settings for Expected
+    #[ORM\Column(nullable: true)]
+    private ?bool $epxCalculationByCurrent = true; // if true = caclulate Expected by current*voltage / if false = caclulate by power settings
+
+    // Handling PA calculation
     #[ORM\Column(type: 'string', length: 20)]
     private string $paDefaultDataGapHandling = 'available';
 
+    // Settings for Chart Select-menu
     #[ORM\Column(nullable: true)]
     private ?bool $chartAC1 = true;
 
@@ -147,62 +167,36 @@ class AnlageSettings
         return $this;
     }
 
-    /**
-     * @deprecated use Depatment Name from oner instead
-     * Department name for plant availability 1
-     * default: 'EPC'.
-     */
-    public function getPaDep1Name(): string
+    public function isDisableDep1(): ?bool
     {
-        return $this->paDep1Name;
-    }
-    /**
-     * @deprecated use Depatment Name from oner instead
-     */
-    public function setPaDep1Name(string $paDep1Name): self
-    {
-        $this->paDep1Name = $paDep1Name;
-
-        return $this;
+        return $this->disableDep1;
     }
 
-    /**
-     * @deprecated use Depatment Name from oner instead
-     * Department name for plant availability 2
-     * default: 'O&M'.
-     */
-    public function getPaDep2Name(): string
+    public function setDisableDep1(bool $disableDep1): void
     {
-        return $this->paDep2Name;
-    }
-    /**
-     * @deprecated use Depatment Name from oner instead
-     */
-    public function setPaDep2Name(string $paDep2Name): self
-    {
-        $this->paDep2Name = $paDep2Name;
-
-        return $this;
+        $this->disableDep1 = $disableDep1;
     }
 
-    /**
-     * @deprecated use Depatment Name from oner instead
-     * Department name for plant availability 3
-     * default: 'AM'.
-     */
-    public function getPaDep3Name(): string
+    public function isDisableDep2(): ?bool
     {
-        return $this->paDep3Name;
+        return $this->disableDep2;
     }
-    /**
-     * @deprecated use Depatment Name from oner instead
-     */
-    public function setPaDep3Name(string $paDep3Name): self
-    {
-        $this->paDep3Name = $paDep3Name;
 
-        return $this;
+    public function setDisableDep2(bool $disableDep2): void
+    {
+        $this->disableDep2 = $disableDep2;
     }
+
+    public function isDisableDep3(): ?bool
+    {
+        return $this->disableDep3;
+    }
+
+    public function setDisableDep3(bool $disableDep3): void
+    {
+        $this->disableDep3 = $disableDep3;
+    }
+
 
     /**
      * indicateing the default behavior, how data gaps should be handled
@@ -218,6 +212,16 @@ class AnlageSettings
         $this->paDefaultDataGapHandling = $paDefaultDataGapHandling;
 
         return $this;
+    }
+
+    public function getEpxCalculationByCurrent(): ?bool
+    {
+        return $this->epxCalculationByCurrent;
+    }
+
+    public function setEpxCalculationByCurrent(?bool $epxCalculationByCurrent): void
+    {
+        $this->epxCalculationByCurrent = $epxCalculationByCurrent;
     }
 
     public function isChartAC1(): ?bool

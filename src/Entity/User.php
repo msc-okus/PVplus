@@ -2,8 +2,6 @@
 
 namespace App\Entity;
 
-
-
 use ApiPlatform\Core\Annotation\ApiFilter;
 use ApiPlatform\Core\Annotation\ApiResource;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
@@ -15,8 +13,6 @@ use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
-
-
 
 /**
  * @ApiResource(

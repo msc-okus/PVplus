@@ -6,7 +6,13 @@ import $ from 'jquery';
 export default class extends Controller {
     static targets = ['splitAlert', 'modal', 'modalBody', 'splitModal', 'splitForm', 'switch', 'deactivable',
                         'anlage', 'saveButton', 'AlertFormat', 'AlertDates', 'formBegin', 'formEnd', 'splitButton',
-                        'splitDeploy','AlertInverter', 'Callout', 'formCategory', 'AlertCategory'];
+                        'splitDeploy','AlertInverter', 'Callout', 'formCategory', 'AlertCategory', 'headerExclude',
+                        'headerReplace', 'headerReplacePower', 'headerReplaceIrr', 'headerHour', 'headerEnergyValue',
+                        'headerIrrValue', 'headerCorrection', 'headerEvaluation', 'headerAktDep1', 'headerAktDep2',
+                        'headerAktDep3', 'formReplace', 'fieldSensor', 'fieldReplacePower', 'fieldReplaceIrr', 'fieldHour',
+                        'fieldEnergyValue', 'fieldIrrValue', 'fieldCorrection', 'fieldEvaluation', 'fieldAktDep1', 'fieldAktDep2',
+                        'fieldAktDep3', 'formReplaceIrr', 'inverterDiv', 'formHour', 'formBeginHidden', 'formEndHidden', 'formBeginDate',
+                        'formEndDate', 'formReasonSelect', 'formReasonText', 'headerReason', 'fieldReason'];
     static values = {
         formUrl: String,
         splitUrl: String,
@@ -33,10 +39,523 @@ export default class extends Controller {
                 url: this.formUrlValue,
             });
         }
-        $(this.modalBodyTarget).foundation();
+        this.checkCategory();
+        this.replaceCheck();
+        if (this.formUrlValue === '/ticket/create'){ //if it is a new ticket we hide all the fields from kpi
+            $(this.headerExcludeTarget).addClass('is-hidden');
+            $(this.headerReplaceTarget).addClass('is-hidden');
+            $(this.headerReplacePowerTarget).addClass('is-hidden');
+            $(this.headerReplaceIrrTarget).addClass('is-hidden');
+            $(this.headerHourTarget).addClass('is-hidden');
+            $(this.headerEnergyValueTarget).addClass('is-hidden');
+            $(this.headerIrrValueTarget).addClass('is-hidden');
+            $(this.headerCorrectionTarget).addClass('is-hidden');
+            $(this.headerEvaluationTarget).addClass('is-hidden');
+            $(this.headerReasonTarget).addClass('is-hidden');
+            $(this.headerAktDep1Target).addClass('is-hidden');
+            $(this.headerAktDep2Target).addClass('is-hidden');
+            $(this.headerAktDep2Target).addClass('is-hidden');
 
+
+            $(this.fieldSensorTarget).addClass('is-hidden');
+            $(this.fieldReplacePowerTarget).addClass('is-hidden');
+            $(this.fieldReplaceIrrTarget).addClass('is-hidden');
+            $(this.fieldHourTarget).addClass('is-hidden');
+            $(this.fieldEnergyValueTarget).addClass('is-hidden');
+            $(this.fieldIrrValueTarget).addClass('is-hidden');
+            $(this.fieldCorrectionTarget).addClass('is-hidden');
+            $(this.fieldReasonTarget).addClass('is-hidden');
+            $(this.fieldEvaluationTarget).addClass('is-hidden');
+            $(this.fieldAktDep1Target).addClass('is-hidden');
+            $(this.fieldAktDep2Target).addClass('is-hidden');
+            $(this.fieldAktDep2Target).addClass('is-hidden');
+
+        }
+        $(this.modalBodyTarget).foundation();
     }
 
+    reasonCheck(){
+        console.log($(this.formReasonSelectTarget).val());
+        if ($(this.formReasonSelectTarget).val() == 30){
+            $(this.formReasonTextTarget).prop('readonly', false);
+            $(this.formReasonTextTarget).val('')
+        }
+        else{
+            $(this.formReasonTextTarget).prop('readonly', true);
+            $(this.formReasonTextTarget).val($(this.formReasonSelectTarget).val())
+        }
+    }
+
+    hourCheck(){
+        const valueBegin = $(this.formBeginDateTarget).prop('value');
+        const valueEnd = $(this.formEndDateTarget).prop('value');
+        const valueBeginHidden = $(this.formBeginHiddenTarget).prop('value');
+        const valueEndHidden = $(this.formEndHiddenTarget).prop('value');
+
+        console.log(valueBeginHidden);
+        if ($(this.formHourTarget).prop('checked') == true) {
+            $(this.formBeginHiddenTarget).val(valueBegin);
+            $(this.formEndHiddenTarget).val(valueEnd);
+
+            let beginDate = new Date(valueBegin);
+            let endDate = new Date(valueEnd);
+            let beginMonth = '';
+            let endMonth = '';
+            let beginDay = '';
+            let endDay = '';
+            let beginHour = '';
+            let endHour = '';
+            if (beginDate.getMonth() < 9) {
+                beginMonth = '0'.concat((beginDate.getMonth() + 1).toString());
+            }
+            else{
+                 beginMonth = (beginDate.getMonth() + 1).toString();
+            }
+            if (endDate.getMonth() < 9) {
+                 endMonth = '0'.concat((endDate.getMonth() + 1).toString());
+            }
+            else{
+                 endMonth = (endDate.getMonth() + 1).toString();
+            }
+            if (beginDate.getDate() < 10){
+                beginDay =  '0'.concat(beginDate.getDate().toString());
+            }
+            else{
+                beginDay = beginDate.getDate().toString();
+            }
+            if (endDate.getDate() < 10){
+                endDay =  '0'.concat(endDate.getDate().toString());
+            }
+            else{
+                endDay = endDate.getDate().toString();
+            }
+            let beginHourInt = 0;
+            if (beginDate.getMinutes() < 15) beginHourInt = beginDate.getHours() - 1;
+            else beginHourInt = beginDate.getHours();
+
+            let hour = 0;
+            if (endDate.getMinutes() > 0) hour = endDate.getHours() + 1;
+            else hour = endDate.getHours();
+
+            if (beginHourInt < 10){
+                beginHour =  '0'.concat(beginHourInt.toString());
+            }
+            else{
+                beginHour = beginHourInt.toString();
+            }
+
+
+            if (hour < 10){
+                endHour = '0'.concat(hour.toString());
+            }
+            else{
+                endHour =  hour.toString();
+            }
+
+            let newStringBeginDate = beginDate.getFullYear().toString().concat('-', beginMonth, '-', beginDay, 'T',beginHour, ':', '15');
+
+            let newStringEndDate = endDate.getFullYear().toString().concat('-', endMonth, '-', endDay, 'T', endHour, ':', '00');
+
+            console.log(newStringEndDate);
+            $(this.formBeginDateTarget).val(newStringBeginDate);
+            $(this.formEndDateTarget).val(newStringEndDate);
+        }
+        else if(valueBeginHidden != '' && valueEndHidden != ''){
+            $(this.formBeginDateTarget).val(valueBeginHidden);
+            $(this.formEndDateTarget).val(valueEndHidden);
+        }
+
+
+    }
+    replaceCheck(){
+
+            $(this.headerExcludeTarget).addClass('is-hidden');
+            $(this.headerReplaceTarget).addClass('is-hidden');
+            $(this.headerReplacePowerTarget).removeClass('is-hidden');
+            if ($(this.formReplaceTarget).prop('checked') == false) {
+                $(this.headerReplaceIrrTarget).addClass('is-hidden');
+                $(this.headerEnergyValueTarget).removeClass('is-hidden');
+                $(this.headerIrrValueTarget).removeClass('is-hidden');
+            }
+            else{
+                $(this.headerReplaceIrrTarget).removeClass('is-hidden');
+                //$(this.headerHourTarget).addClass('is-hidden');
+                $(this.headerEnergyValueTarget).addClass('is-hidden');
+                $(this.headerIrrValueTarget).addClass('is-hidden');
+            }
+            $(this.headerHourTarget).removeClass('is-hidden');
+            $(this.headerCorrectionTarget).addClass('is-hidden');
+            $(this.headerEvaluationTarget).addClass('is-hidden');
+            $(this.headerReasonTarget).removeClass('is-hidden');
+            $(this.headerAktDep1Target).addClass('is-hidden');
+            $(this.headerAktDep2Target).addClass('is-hidden');
+            $(this.headerAktDep2Target).addClass('is-hidden');
+            $(this.fieldSensorTarget).addClass('is-hidden');
+            $(this.fieldReplacePowerTarget).removeClass('is-hidden');
+            if ($(this.formReplaceTarget).prop('checked') == false) {
+                $(this.fieldReplaceIrrTarget).addClass('is-hidden');
+                $(this.fieldEnergyValueTarget).removeClass('is-hidden');
+                $(this.fieldIrrValueTarget).removeClass('is-hidden');
+            }
+            else{
+                $(this.fieldReplaceIrrTarget).removeClass('is-hidden');
+                //$(this.fieldHourTarget).addClass('is-hidden');
+                $(this.fieldEnergyValueTarget).addClass('is-hidden');
+                $(this.fieldIrrValueTarget).addClass('is-hidden');
+            }
+            $(this.fieldHourTarget).removeClass('is-hidden');
+            $(this.fieldCorrectionTarget).addClass('is-hidden');
+            $(this.fieldEvaluationTarget).addClass('is-hidden');
+            $(this.fieldReasonTarget).removeClass('is-hidden');
+            $(this.fieldAktDep1Target).addClass('is-hidden');
+            $(this.fieldAktDep2Target).addClass('is-hidden');
+            $(this.fieldAktDep2Target).addClass('is-hidden');
+            if ($(this.formReplaceTarget).prop('checked') == true) {
+                if ($(this.formHourTarget).prop('checked') == false) {
+                    $(this.formHourTarget).prop('checked', true);
+                }
+                this.hourCheck();
+            }
+    }
+    checkCategory(){
+        const cat = $(this.formCategoryTarget).val();
+        console.log(cat);
+        var inverterString = '';
+        let body = $(this.modalBodyTarget);
+        // in this switch we remove the hidding class to show the fields of the ticket date on demand
+        switch (cat){
+            case '10':
+                $(this.headerExcludeTarget).addClass('is-hidden');
+                $(this.headerReplaceTarget).addClass('is-hidden');
+                $(this.headerReplacePowerTarget).addClass('is-hidden');
+                $(this.headerReplaceIrrTarget).addClass('is-hidden');
+                $(this.headerHourTarget).addClass('is-hidden');
+                $(this.headerEnergyValueTarget).addClass('is-hidden');
+                $(this.headerIrrValueTarget).addClass('is-hidden');
+                $(this.headerCorrectionTarget).addClass('is-hidden');
+                $(this.headerEvaluationTarget).removeClass('is-hidden');
+                $(this.headerReasonTarget).addClass('is-hidden');
+                $(this.headerAktDep1Target).removeClass('is-hidden');
+                $(this.headerAktDep2Target).removeClass('is-hidden');
+                $(this.headerAktDep2Target).removeClass('is-hidden');
+
+
+                $(this.fieldSensorTarget).addClass('is-hidden');
+                $(this.fieldReplacePowerTarget).addClass('is-hidden');
+                $(this.fieldReplaceIrrTarget).addClass('is-hidden');
+                $(this.fieldHourTarget).addClass('is-hidden');
+                $(this.fieldEnergyValueTarget).addClass('is-hidden');
+                $(this.fieldIrrValueTarget).addClass('is-hidden');
+                $(this.fieldCorrectionTarget).addClass('is-hidden');
+                $(this.fieldReasonTarget).addClass('is-hidden');
+                $(this.fieldEvaluationTarget).removeClass('is-hidden');
+                $(this.fieldAktDep1Target).removeClass('is-hidden');
+                $(this.fieldAktDep2Target).removeClass('is-hidden');
+                $(this.fieldAktDep2Target).removeClass('is-hidden');
+
+                $(this.inverterDivTarget).removeClass('is-hidden');
+                break;
+            case '20':
+                $(this.headerExcludeTarget).addClass('is-hidden');
+                $(this.headerReplaceTarget).addClass('is-hidden');
+                $(this.headerReplacePowerTarget).addClass('is-hidden');
+                $(this.headerReplaceIrrTarget).addClass('is-hidden');
+                $(this.headerHourTarget).addClass('is-hidden');
+                $(this.headerEnergyValueTarget).addClass('is-hidden');
+                $(this.headerIrrValueTarget).addClass('is-hidden');
+                $(this.headerCorrectionTarget).addClass('is-hidden');
+                $(this.headerEvaluationTarget).removeClass('is-hidden');
+                $(this.headerReasonTarget).addClass('is-hidden');
+                $(this.headerAktDep1Target).removeClass('is-hidden');
+                $(this.headerAktDep2Target).removeClass('is-hidden');
+                $(this.headerAktDep2Target).removeClass('is-hidden');
+
+
+                $(this.fieldSensorTarget).addClass('is-hidden');
+                $(this.fieldReplacePowerTarget).addClass('is-hidden');
+                $(this.fieldReplaceIrrTarget).addClass('is-hidden');
+                $(this.fieldHourTarget).addClass('is-hidden');
+                $(this.fieldEnergyValueTarget).addClass('is-hidden');
+                $(this.fieldIrrValueTarget).addClass('is-hidden');
+                $(this.fieldCorrectionTarget).addClass('is-hidden');
+                $(this.fieldEvaluationTarget).removeClass('is-hidden');
+                $(this.fieldReasonTarget).addClass('is-hidden');
+                $(this.fieldAktDep1Target).removeClass('is-hidden');
+                $(this.fieldAktDep2Target).removeClass('is-hidden');
+                $(this.fieldAktDep2Target).removeClass('is-hidden');
+
+                $(this.inverterDivTarget).removeClass('is-hidden');
+                break;
+            case '70':
+                $(this.headerExcludeTarget).removeClass('is-hidden');
+                $(this.headerReplaceTarget).addClass('is-hidden');
+                $(this.headerReplacePowerTarget).addClass('is-hidden');
+                $(this.headerReplaceIrrTarget).addClass('is-hidden');
+                $(this.headerHourTarget).addClass('is-hidden');
+                $(this.headerEnergyValueTarget).addClass('is-hidden');
+                $(this.headerIrrValueTarget).addClass('is-hidden');
+                $(this.headerCorrectionTarget).addClass('is-hidden');
+                $(this.headerEvaluationTarget).addClass('is-hidden');
+                $(this.headerReasonTarget).addClass('is-hidden');
+                $(this.headerAktDep1Target).addClass('is-hidden');
+                $(this.headerAktDep2Target).addClass('is-hidden');
+                $(this.headerAktDep2Target).addClass('is-hidden');
+
+                $(this.fieldSensorTarget).removeClass('is-hidden');
+                $(this.fieldReplacePowerTarget).addClass('is-hidden');
+                $(this.fieldReplaceIrrTarget).addClass('is-hidden');
+                $(this.fieldHourTarget).addClass('is-hidden');
+                $(this.fieldEnergyValueTarget).addClass('is-hidden');
+                $(this.fieldIrrValueTarget).addClass('is-hidden');
+                $(this.fieldCorrectionTarget).addClass('is-hidden');
+                $(this.fieldEvaluationTarget).addClass('is-hidden');
+                $(this.fieldReasonTarget).addClass('is-hidden');
+                $(this.fieldAktDep1Target).addClass('is-hidden');
+                $(this.fieldAktDep2Target).addClass('is-hidden');
+                $(this.fieldAktDep2Target).addClass('is-hidden');
+                $(this.inverterDivTarget).addClass('is-hidden');
+                body.find('input:checkbox[class=js-checkbox]').each(function () {
+                    $(this).prop('checked', true);
+                    if (inverterString == '')
+                    {
+                        inverterString = inverterString + $(this).prop('name');
+                    }
+                    else
+                    {
+                        inverterString = inverterString + ', ' + $(this).prop('name');
+                    }
+                    body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
+                    body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
+                    body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
+                });
+
+                inverterString = '*';
+                body.find('#ticket_form_inverter').val(inverterString);
+                break;
+            case'71':
+                $(this.headerExcludeTarget).addClass('is-hidden');
+                $(this.headerReplaceTarget).removeClass('is-hidden');
+                $(this.headerReplacePowerTarget).addClass('is-hidden');
+                $(this.headerReplaceIrrTarget).addClass('is-hidden');
+                $(this.headerHourTarget).addClass('is-hidden');
+                $(this.headerEnergyValueTarget).addClass('is-hidden');
+                $(this.headerIrrValueTarget).addClass('is-hidden');
+                $(this.headerCorrectionTarget).addClass('is-hidden');
+                $(this.headerEvaluationTarget).addClass('is-hidden');
+                $(this.headerReasonTarget).addClass('is-hidden');
+                $(this.headerAktDep1Target).addClass('is-hidden');
+                $(this.headerAktDep2Target).addClass('is-hidden');
+                $(this.headerAktDep2Target).addClass('is-hidden');
+
+                $(this.fieldSensorTarget).removeClass('is-hidden');
+                $(this.fieldReplacePowerTarget).addClass('is-hidden');
+                $(this.fieldReplaceIrrTarget).addClass('is-hidden');
+                $(this.fieldHourTarget).addClass('is-hidden');
+                $(this.fieldEnergyValueTarget).addClass('is-hidden');
+                $(this.fieldIrrValueTarget).addClass('is-hidden');
+                $(this.fieldCorrectionTarget).addClass('is-hidden');
+                $(this.fieldEvaluationTarget).addClass('is-hidden');
+                $(this.fieldReasonTarget).addClass('is-hidden');
+                $(this.fieldAktDep1Target).addClass('is-hidden');
+                $(this.fieldAktDep2Target).addClass('is-hidden');
+                $(this.fieldAktDep2Target).addClass('is-hidden');
+
+                $(this.inverterDivTarget).addClass('is-hidden');
+                body.find('input:checkbox[class=js-checkbox]').each(function () {
+                    $(this).prop('checked', true);
+                    if (inverterString == '')
+                    {
+                        inverterString = inverterString + $(this).prop('name');
+                    }
+                    else
+                    {
+                        inverterString = inverterString + ', ' + $(this).prop('name');
+                    }
+                    body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
+                    body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
+                    body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
+                });
+
+                inverterString = '*';
+                body.find('#ticket_form_inverter').val(inverterString);
+                break;
+            case'72':
+                $(this.headerExcludeTarget).addClass('is-hidden');
+                $(this.headerReplaceTarget).addClass('is-hidden');
+                $(this.headerReplacePowerTarget).addClass('is-hidden');
+                $(this.headerReplaceIrrTarget).addClass('is-hidden');
+                $(this.headerHourTarget).removeClass('is-hidden');
+                $(this.headerEnergyValueTarget).addClass('is-hidden');
+                $(this.headerIrrValueTarget).addClass('is-hidden');
+                $(this.headerCorrectionTarget).addClass('is-hidden');
+                $(this.headerEvaluationTarget).addClass('is-hidden');
+                $(this.headerReasonTarget).addClass('is-hidden');
+                $(this.headerAktDep1Target).addClass('is-hidden');
+                $(this.headerAktDep2Target).addClass('is-hidden');
+                $(this.headerAktDep2Target).addClass('is-hidden');
+
+
+                $(this.fieldSensorTarget).addClass('is-hidden');
+                $(this.fieldReplacePowerTarget).addClass('is-hidden');
+                $(this.fieldReplaceIrrTarget).addClass('is-hidden');
+                $(this.fieldHourTarget).removeClass('is-hidden');
+                $(this.fieldEnergyValueTarget).addClass('is-hidden');
+                $(this.fieldIrrValueTarget).addClass('is-hidden');
+                $(this.fieldCorrectionTarget).addClass('is-hidden');
+                $(this.fieldEvaluationTarget).addClass('is-hidden');
+                $(this.fieldReasonTarget).addClass('is-hidden');
+                $(this.fieldAktDep1Target).addClass('is-hidden');
+                $(this.fieldAktDep2Target).addClass('is-hidden');
+                $(this.fieldAktDep2Target).addClass('is-hidden');
+
+                $(this.inverterDivTarget).addClass('is-hidden');
+
+                body.find('input:checkbox[class=js-checkbox]').each(function () {
+                    $(this).prop('checked', true);
+                    if (inverterString == '')
+                    {
+                        inverterString = inverterString + $(this).prop('name');
+                    }
+                    else
+                    {
+                        inverterString = inverterString + ', ' + $(this).prop('name');
+                    }
+                    body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
+                    body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
+                    body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
+                });
+
+                inverterString = '*';
+                body.find('#ticket_form_inverter').val(inverterString);
+                break;
+            case'73':
+                this.replaceCheck();
+                $(this.inverterDivTarget).addClass('is-hidden');
+                body.find('input:checkbox[class=js-checkbox]').each(function () {
+                    $(this).prop('checked', true);
+                    if (inverterString == '')
+                    {
+                        inverterString = inverterString + $(this).prop('name');
+                    }
+                    else
+                    {
+                        inverterString = inverterString + ', ' + $(this).prop('name');
+                    }
+                    body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
+                    body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
+                    body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
+                });
+                inverterString = '*';
+                body.find('#ticket_form_inverter').val(inverterString);
+                break;
+            case '74':
+                $(this.headerExcludeTarget).addClass('is-hidden');
+                $(this.headerReplaceTarget).addClass('is-hidden');
+                $(this.headerReplacePowerTarget).addClass('is-hidden');
+                $(this.headerReplaceIrrTarget).addClass('is-hidden');
+                $(this.headerHourTarget).addClass('is-hidden');
+                $(this.headerEnergyValueTarget).addClass('is-hidden');
+                $(this.headerIrrValueTarget).addClass('is-hidden');
+                $(this.headerCorrectionTarget).removeClass('is-hidden');
+                $(this.headerEvaluationTarget).addClass('is-hidden');
+                $(this.headerReasonTarget).removeClass('is-hidden');
+                $(this.headerAktDep1Target).addClass('is-hidden');
+                $(this.headerAktDep2Target).addClass('is-hidden');
+                $(this.headerAktDep2Target).addClass('is-hidden');
+
+                $(this.fieldSensorTarget).addClass('is-hidden');
+                $(this.fieldReplacePowerTarget).addClass('is-hidden');
+                $(this.fieldReplaceIrrTarget).addClass('is-hidden');
+                $(this.fieldHourTarget).addClass('is-hidden');
+                $(this.fieldEnergyValueTarget).addClass('is-hidden');
+                $(this.fieldIrrValueTarget).addClass('is-hidden');
+                $(this.fieldCorrectionTarget).removeClass('is-hidden');
+                $(this.fieldEvaluationTarget).addClass('is-hidden');
+                $(this.fieldReasonTarget).removeClass('is-hidden');
+                $(this.fieldAktDep1Target).addClass('is-hidden');
+                $(this.fieldAktDep2Target).addClass('is-hidden');
+                $(this.fieldAktDep2Target).addClass('is-hidden');
+
+                $(this.inverterDivTarget).addClass('is-hidden');
+
+                body.find('input:checkbox[class=js-checkbox]').each(function () {
+                    $(this).prop('checked', true);
+                    if (inverterString == '')
+                    {
+                        inverterString = inverterString + $(this).prop('name');
+                    }
+                    else
+                    {
+                        inverterString = inverterString + ', ' + $(this).prop('name');
+                    }
+                    body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
+                    body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
+                    body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
+                });
+
+                inverterString = '*';
+                body.find('#ticket_form_inverter').val(inverterString);
+                break;
+            case '':
+                $(this.headerExcludeTarget).addClass('is-hidden');
+                $(this.headerReplaceTarget).addClass('is-hidden');
+                $(this.headerReplacePowerTarget).addClass('is-hidden');
+                $(this.headerReplaceIrrTarget).addClass('is-hidden');
+                $(this.headerHourTarget).addClass('is-hidden');
+                $(this.headerEnergyValueTarget).addClass('is-hidden');
+                $(this.headerIrrValueTarget).addClass('is-hidden');
+                $(this.headerCorrectionTarget).addClass('is-hidden');
+                $(this.headerEvaluationTarget).addClass('is-hidden');
+                $(this.headerAktDep1Target).addClass('is-hidden');
+                $(this.headerAktDep2Target).addClass('is-hidden');
+                $(this.headerAktDep3Target).addClass('is-hidden');
+
+                $(this.fieldSensorTarget).addClass('is-hidden');
+                $(this.fieldReplacePowerTarget).addClass('is-hidden');
+                $(this.fieldReplaceIrrTarget).addClass('is-hidden');
+                $(this.fieldHourTarget).addClass('is-hidden');
+                $(this.fieldEnergyValueTarget).addClass('is-hidden');
+                $(this.fieldIrrValueTarget).addClass('is-hidden');
+                $(this.fieldCorrectionTarget).addClass('is-hidden');
+                $(this.fieldEvaluationTarget).addClass('is-hidden');
+                $(this.fieldAktDep1Target).addClass('is-hidden');
+                $(this.fieldAktDep2Target).addClass('is-hidden');
+                $(this.fieldAktDep2Target).addClass('is-hidden');
+
+                $(this.inverterDivTarget).removeClass('is-hidden');
+                break;
+            default:
+
+                $(this.headerExcludeTarget).addClass('is-hidden');
+                $(this.headerReplaceTarget).addClass('is-hidden');
+                $(this.headerReplacePowerTarget).addClass('is-hidden');
+                $(this.headerReplaceIrrTarget).addClass('is-hidden');
+                $(this.headerHourTarget).addClass('is-hidden');
+                $(this.headerEnergyValueTarget).addClass('is-hidden');
+                $(this.headerIrrValueTarget).addClass('is-hidden');
+                $(this.headerCorrectionTarget).addClass('is-hidden');
+                $(this.headerEvaluationTarget).addClass('is-hidden');
+                $(this.headerAktDep1Target).addClass('is-hidden');
+                $(this.headerAktDep2Target).addClass('is-hidden');
+                $(this.headerAktDep3Target).addClass('is-hidden');
+
+                $(this.fieldSensorTarget).addClass('is-hidden');
+                $(this.fieldReplacePowerTarget).addClass('is-hidden');
+                $(this.fieldReplaceIrrTarget).addClass('is-hidden');
+                $(this.fieldHourTarget).addClass('is-hidden');
+                $(this.fieldEnergyValueTarget).addClass('is-hidden');
+                $(this.fieldIrrValueTarget).addClass('is-hidden');
+                $(this.fieldCorrectionTarget).addClass('is-hidden');
+                $(this.fieldEvaluationTarget).addClass('is-hidden');
+                $(this.fieldAktDep1Target).addClass('is-hidden');
+                $(this.fieldAktDep2Target).addClass('is-hidden');
+                $(this.fieldAktDep3Target).addClass('is-hidden');
+                console.log($(this.fieldEvaluationTarget), $(this.headerAktDep1Target))
+                $(this.inverterDivTarget).removeClass('is-hidden');
+
+
+        }
+    }
     setBody(html){
         this.modalBodyTarget.innerHTML = html;
     }
@@ -72,8 +591,16 @@ export default class extends Controller {
     }
 
     checkSelect({ params: { edited }}){
+        const cat = $(this.formCategoryTarget).val();
+        const valueBegin = $(this.formBeginTarget).prop('value');
+        const valueEnd = $(this.formEndTarget).prop('value');
         let body = $(this.modalBodyTarget);
-
+        const date1 = new Date(valueBegin);
+        const date2 = new Date(valueEnd);
+        date1.setSeconds(0);
+        date2.setSeconds(0);
+        const timestamp1 = date1.getTime();
+        const timestamp2 = date2.getTime();
         body.find('.js-div-split-a').each(function(){
             $(this).addClass('is-hidden');
             $(this).find('.js-checkbox-split-a').prop('checked', false);
@@ -87,8 +614,14 @@ export default class extends Controller {
         if ($(this.switchTarget).prop('checked')) {
             body.find('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', true);
-                if (inverterString == '') {inverterString = inverterString + $(this).prop('name');}
-                else {inverterString = inverterString + ', ' + $(this).prop('name');}
+                if (inverterString == '')
+                {
+                    inverterString = inverterString + $(this).prop('name');
+                }
+                else
+                {
+                    inverterString = inverterString + ', ' + $(this).prop('name');
+                }
                 body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
                 body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
                 body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
@@ -102,53 +635,70 @@ export default class extends Controller {
                 $(this).prop('checked', false);
             });
             $(this.splitDeployTarget).attr('disabled', 'disabled');
-
+            inverterString = '';
         }
         $(this.modalBodyTarget).find('#ticket_form_inverter').val(inverterString);
-
 
         if (inverterString == '') {
             $(this.CalloutTarget).removeClass('is-hidden');
             $(this.AlertInverterTarget).removeClass('is-hidden');
             $(this.saveButtonTarget).attr('disabled', 'disabled');
-            if (timestamp2 > timestamp1){
-                $(this.AlertDatesTarget).addClass('is-hidden');
-                if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
-                    $(this.AlertFormatTarget).addClass('is-hidden');
-                    $(this.saveButtonTarget).removeAttr('disabled');
-                } else {
-                    $(this.AlertFormatTarget).removeClass('is-hidden');
-                    $(this.saveButtonTarget).attr('disabled', 'disabled');
-                }
-            } else {
+
+            if (timestamp2 < timestamp1){
                 $(this.AlertDatesTarget).removeClass('is-hidden');
                 $(this.saveButtonTarget).attr('disabled', 'disabled');
-                if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+                if ((timestamp1 % 900000 != 0) && (timestamp2 % 900000 != 0)){
                     $(this.AlertFormatTarget).addClass('is-hidden');
-                    $(this.saveButtonTarget).removeAttr('disabled');
                 } else {
                     $(this.AlertFormatTarget).removeClass('is-hidden');
-                    $(this.saveButtonTarget).attr('disabled', 'disabled');
                 }
+            }
+            if (cat == ""){
+
+                $(this.AlertCategoryTarget).removeClass('is-hidden');
+            }
+            else{
+                $(this.AlertCategoryTarget).addClass('is-hidden');
             }
         }
         else {
             $(this.AlertInverterTarget).addClass('is-hidden');
             $(this.CalloutTarget).addClass('is-hidden');
+            $(this.saveButtonTarget).removeAttr('disabled');
             if (timestamp2 > timestamp1){
                 $(this.AlertDatesTarget).addClass('is-hidden');
                 if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
                     $(this.AlertFormatTarget).addClass('is-hidden');
                     $(this.saveButtonTarget).removeAttr('disabled');
+                    if (cat == ''){
+                        $(this.CalloutTarget).removeClass('is-hidden');
+                        $(this.saveButtonTarget).attr('disabled', 'disabled');
+                        $(this.AlertCategoryTarget).removeClass('is-hidden');
+                    }
+                    else{
+                        $(this.AlertCategoryTarget).addClass('is-hidden');
+                    }
                 } else {
                     $(this.CalloutTarget).removeClass('is-hidden');
                     $(this.AlertFormatTarget).removeClass('is-hidden');
                     $(this.saveButtonTarget).attr('disabled', 'disabled');
+                    if (cat == ""){
+                        $(this.saveButtonTarget).attr('disabled', 'disabled');
+                    }
+                    else{
+                        $(this.AlertCategoryTarget).addClass('is-hidden');
+                    }
                 }
             } else {
                 $(this.CalloutTarget).removeClass('is-hidden')
                 $(this.AlertDatesTarget).removeClass('is-hidden');
                 $(this.saveButtonTarget).attr('disabled', 'disabled');
+                if (cat == ""){
+                    $(this.AlertCategoryTarget).removeClass('is-hidden');
+                }
+                else{
+                    $(this.AlertCategoryTarget).addClass('is-hidden');
+                }
                 if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
                     $(this.AlertFormatTarget).addClass('is-hidden');
                     $(this.saveButtonTarget).removeAttr('disabled');
@@ -158,15 +708,18 @@ export default class extends Controller {
                     $(this.saveButtonTarget).attr('disabled', 'disabled');
                 }
             }
+
+
         }
     }
 
     saveCheck({ params: { edited }}){
-        console.log('hey');
         //getting a string with the inverters so later we can check if there is any or none
+
         let inverterString = '';
         let body = $(this.modalBodyTarget);
         let counter = 0;
+        this.checkCategory()
         body.find('.js-div-split-a').each(function(){
             $(this).addClass('is-hidden');
             $(this).find('.js-checkbox-split-a').prop('checked', false);

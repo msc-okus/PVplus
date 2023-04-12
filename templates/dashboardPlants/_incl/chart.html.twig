@@ -723,11 +723,12 @@ and form.selectedChart != 'sollistirranalyse'%}
     </script>
 
 {% elseif form.selectedChart == 'dc_voltage_1' %}
-    {# Volt1 #}
+    {# VoltDC1 #}
     <!-- Liniendiagramm DC (voltage plant) -->
     {% include 'dashboardPlants/_incl/chart/curr1.html.twig' %}
 
 {% elseif form.selectedChart == 'dc_voltage_groups' %}
+    {# VoltDC1 #}
     <!-- Liniendiagramm DC (voltage groups) -->
     <script>
         am4core.ready(function() {

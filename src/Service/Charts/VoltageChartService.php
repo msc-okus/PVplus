@@ -58,18 +58,19 @@ class VoltageChartService
         $sqlExp = 'SELECT a.stamp as stamp, AVG(b.dc_exp_voltage) as expected
                    FROM (db_dummysoll a LEFT JOIN (SELECT stamp, dc_exp_voltage, group_ac FROM '.$anlage->getDbNameDcSoll()." WHERE $groupQuery) b ON a.stamp = b.stamp)
                    WHERE a.stamp >= '$from' AND a.stamp <= '$to' GROUP BY date_format(a.stamp, '$form')";
-
         $result = $conn->query($sqlExp);
         $expectedResult = $result->fetchAll(PDO::FETCH_ASSOC);
 
         $invertersInGroup = ($acGroups[$group]['GMAX'] - $acGroups[$group]['GMIN']) + 1;
+        $dataArray['minSeries'] = $acGroups[$group]['GMIN'];
+        $dataArray['maxSeries'] = $acGroups[$group]['GMAX'];
 
         if ($result->rowCount() > 0) {
             $dataArray['sumSeries'] = $invertersInGroup;
             $counter = 0;
             foreach ($expectedResult as $rowSoll) {
-                $stamp = $rowSoll['stamp'];
-                $stampAdjust = self::timeAjustment($stamp, (float) $anlage->getAnlZeitzone());
+                $stamp = self::timeShift($anlage, $rowSoll['stamp']);
+                $stampAdjust = self::timeAjustment($rowSoll['stamp'], $anlage->getAnlZeitzone());
                 $stampAdjust2 = self::timeAjustment($stampAdjust, 1);
 
                 // Correct the time based on the timedifference to the geological location from the plant on the x-axis from the diagramms
@@ -107,7 +108,6 @@ class VoltageChartService
                 }
 
                 $resultAct = $conn->query($sql);
-                $inverterCount = 1;
 
                 while ($rowAct = $resultAct->fetch(PDO::FETCH_ASSOC)) {
                     $currentAct = $hour ? $rowAct['istCurrent'] / 4 : $rowAct['istCurrent'];
@@ -115,12 +115,9 @@ class VoltageChartService
                     if (!($currentAct == 0 && self::isDateToday($stamp) && self::getCetTime() - strtotime($stamp) < 7200)) {
                         $dataArray['chart'][$counter][$nameArray[$rowAct['dc_num']]] = $currentAct;
                     }
-                    ++$inverterCount;
                 }
-                $dataArray['minSeries'] = $acGroups[$group]['GMIN'];
-                $dataArray['maxSeries'] = $acGroups[$group]['GMAX'] - 1;
-                $dataArray['offsetLegend'] = $acGroups[$group]['GMIN'] - 1;
                 ++$counter;
+                $dataArray['offsetLegend'] = $acGroups[$group]['GMIN'] - 1;
             }
         }
         $conn = null;
