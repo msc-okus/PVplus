@@ -161,6 +161,9 @@
                             <div class="cell small-6 medium-1">
                                 {{ form_row(ticketForm.needsProofEPC) }}
                             </div>
+                            <div data-ticket-edit-target="headerFormKpi" class="cell small-6 medium-1" >
+                                {{ form_row(ticketForm.KpiStatus) }}
+                            </div>
                             {% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA')) %}
                                 {% if (edited) %}
                                     <div class="cell small-6 medium-1" >

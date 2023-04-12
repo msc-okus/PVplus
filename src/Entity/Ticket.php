@@ -107,6 +107,9 @@ class Ticket
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $WhenHidded = null;
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $kpiStatus = null;
     /*
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $generatedFrom = '';
@@ -334,6 +337,18 @@ class Ticket
     public function setWhenHidded(?string $WhenHidded): self
     {
         $this->WhenHidded = $WhenHidded;
+
+        return $this;
+    }
+
+    public function getKpiStatus(): ?string
+    {
+        return $this->kpiStatus;
+    }
+
+    public function setKpiStatus(?string $kpiStatus): self
+    {
+        $this->kpiStatus = $kpiStatus;
 
         return $this;
     }

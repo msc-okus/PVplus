@@ -25,7 +25,6 @@
         <th class="is-hidden" data-ticket-edit-target="headerAktDep1">{% if (features and features.aktDep1) %}PA {{ settings.nameDep1 }}   {% endif %}</th>
         <th class="is-hidden" data-ticket-edit-target="headerAktDep2">{% if (features and features.aktDep2) %}PA {{ settings.nameDep2 }}   {% endif %}</th>
         <th class="is-hidden" data-ticket-edit-target="headerAktDep3">{% if (features and features.aktDep3) %}PA {{ settings.nameDep3 }}{% endif %}</th>
-        <th class="is-hidden" data-ticket-edit-target="headerFormKpi">Kpi Status</th>
         <th></th>
         <th style="width: 35px"></th>
         <th style="width: 35px"></th>
@@ -65,7 +64,7 @@
             <td class="is-hidden" data-ticket-edit-target="fieldAktDep3" data-ticket-split-target="aktDep3">{% if (features and features.aktDep3) %}{{ form_widget(date.kpiPaDep3, { 'attr': {'class': 'no-margin',  'data-ticket-split-target':'aktDep3'} }) }}     {% endif %}</td>
             {{ form_widget(date.beginHidden) }}
             {{ form_widget(date.endHidden) }}
-            <td> {{ form_widget(date.KpiStatus) }}</td>
+
             <td></td>
             <td class="text-right">
                 <button class="{% if (features == null or features.SplitGap != true) %} is-hidden {% endif%} button action-icon tiny no-margin hollow shadow"

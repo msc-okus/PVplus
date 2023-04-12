@@ -170,7 +170,7 @@ export default class extends Controller {
 
     }
     replaceCheck(){
-
+            if (this.formUrlValue === '/ticket/create') body.find('#ticket_form_KpiStatus').val(20);
             $(this.headerExcludeTarget).addClass('is-hidden');
             $(this.headerReplaceTarget).addClass('is-hidden');
             $(this.headerReplacePowerTarget).removeClass('is-hidden');
@@ -278,6 +278,7 @@ export default class extends Controller {
                 $(this.fieldAktDep2Target).removeClass('is-hidden');
                 $(this.inverterDivTarget).removeClass('is-hidden');
                 $(this.formkpiStatusTarget).addClass('is-hidden');
+                if (this.formUrlValue === '/ticket/create') body.find('#ticket_form_KpiStatus').val(20);
                 break;
             case '20':
                 console.log('entro');
@@ -311,6 +312,7 @@ export default class extends Controller {
                 $(this.fieldAktDep2Target).removeClass('is-hidden');
                 $(this.inverterDivTarget).removeClass('is-hidden');
                 $(this.formkpiStatusTarget).addClass('is-hidden');
+                if (this.formUrlValue === '/ticket/create') body.find('#ticket_form_KpiStatus').val(20);
                 break;
             case '70':
                 $(this.headerExcludeTarget).removeClass('is-hidden');
@@ -342,7 +344,7 @@ export default class extends Controller {
                 $(this.fieldAktDep2Target).addClass('is-hidden');
                 $(this.inverterDivTarget).addClass('is-hidden');
                 $(this.formkpiStatusTarget).removeClass('is-hidden');
-
+                if (this.formUrlValue === '/ticket/create') body.find('#ticket_form_KpiStatus').val(20);
                 break;
             case '71':
                 $(this.headerExcludeTarget).addClass('is-hidden');
@@ -374,7 +376,7 @@ export default class extends Controller {
                 $(this.fieldAktDep2Target).addClass('is-hidden');
                 $(this.inverterDivTarget).addClass('is-hidden');
                 $(this.formkpiStatusTarget).removeClass('is-hidden');
-
+                if (this.formUrlValue === '/ticket/create') body.find('#ticket_form_KpiStatus').val(20);
                 break;
             case '72':
                 $(this.headerExcludeTarget).addClass('is-hidden');
@@ -390,7 +392,7 @@ export default class extends Controller {
                 $(this.headerAktDep1Target).addClass('is-hidden');
                 $(this.headerAktDep2Target).addClass('is-hidden');
                 $(this.headerAktDep2Target).addClass('is-hidden');
-                $(this.headerFormKpiTarget).addClass('is-hidden');
+                $(this.headerFormKpiTarget).removeClass('is-hidden');
 
 
                 $(this.fieldSensorTarget).addClass('is-hidden');
@@ -406,8 +408,8 @@ export default class extends Controller {
                 $(this.fieldAktDep2Target).addClass('is-hidden');
                 $(this.fieldAktDep2Target).addClass('is-hidden');
                 $(this.inverterDivTarget).addClass('is-hidden');
-                $(this.formkpiStatusTarget).addClass('is-hidden');
 
+                if (this.formUrlValue === '/ticket/create') body.find('#ticket_form_KpiStatus').val(10);
                 break;
             case '73':
                 console.log("entering");
@@ -442,8 +444,8 @@ export default class extends Controller {
                 $(this.fieldAktDep2Target).addClass('is-hidden');
                 $(this.fieldAktDep2Target).addClass('is-hidden');
                 $(this.inverterDivTarget).addClass('is-hidden');
-                $(this.formkpiStatusTarget).removeClass('is-hidden');
 
+                if (this.formUrlValue === '/ticket/create') body.find('#ticket_form_KpiStatus').val(20);
                 break;
             case '':
                 $(this.headerExcludeTarget).addClass('is-hidden');
@@ -458,6 +460,7 @@ export default class extends Controller {
                 $(this.headerAktDep1Target).addClass('is-hidden');
                 $(this.headerAktDep2Target).addClass('is-hidden');
                 $(this.headerAktDep3Target).addClass('is-hidden');
+                $(this.headerFormKpiTarget).addClass('is-hidden');
 
                 $(this.fieldSensorTarget).addClass('is-hidden');
                 $(this.fieldReplacePowerTarget).addClass('is-hidden');
@@ -472,6 +475,7 @@ export default class extends Controller {
                 $(this.fieldAktDep2Target).addClass('is-hidden');
 
                 $(this.inverterDivTarget).removeClass('is-hidden');
+                if (this.formUrlValue === '/ticket/create') body.find('#ticket_form_KpiStatus').val(20);
                 break;
             default:
 
@@ -487,6 +491,7 @@ export default class extends Controller {
                 $(this.headerAktDep1Target).addClass('is-hidden');
                 $(this.headerAktDep2Target).addClass('is-hidden');
                 $(this.headerAktDep3Target).addClass('is-hidden');
+                $(this.headerFormKpiTarget).addClass('is-hidden');
 
                 $(this.fieldSensorTarget).addClass('is-hidden');
                 $(this.fieldReplacePowerTarget).addClass('is-hidden');
@@ -501,7 +506,7 @@ export default class extends Controller {
                 $(this.fieldAktDep3Target).addClass('is-hidden');
                 console.log($(this.fieldEvaluationTarget), $(this.headerAktDep1Target))
                 $(this.inverterDivTarget).removeClass('is-hidden');
-
+                if (this.formUrlValue === '/ticket/create') body.find('#ticket_form_KpiStatus').val(20);
 
         }
     }

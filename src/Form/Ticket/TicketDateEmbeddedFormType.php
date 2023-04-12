@@ -68,20 +68,16 @@ class TicketDateEmbeddedFormType extends AbstractType
                     'class' => 'is-hidden'
                 ],
             ])
-            ->add('reasonText',CollectionType::class, [
-                'entry_type'   => ChoiceType::class,
-                'entry_options'=> [
-                    'choices' => [
-                        'Snow' => 'Snow',
-                        'Failure' => 'Failure',
-                    ]
-                ],
+
+            ->add('reasonText',TextType::class, [
+                'empty_data' => '',
                 'attr'          => [
                   //  'data-action' => 'change->ticket-edit#reasonCheck',
                     'data-ticket-edit-target' => 'formReasonSelect'
                 ]
 
             ])
+
 
             ########### PA Tickets ###########
             ->add('errorType', ChoiceType::class, [
@@ -122,14 +118,7 @@ class TicketDateEmbeddedFormType extends AbstractType
         ########### Performance Tickets ###########
         if ($isDeveloper || $isBeta) {
             $builder
-                ->add('KpiStatus', ChoiceType::class, [
-                    'choices' => self::kpiStatus(),
-                    'placeholder' => 'please chose',
-                    'mapped' => true,
-                    'attr'      => [
-                        'data-ticket-edit-target' => 'formkpiStatus'
-                    ],
-                ])
+
                 ########## exclude Sensors &  replace Sensor
 
                 // at the moment only Dummy - no field

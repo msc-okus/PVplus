@@ -32,9 +32,9 @@ ticket:
 
   kpistatus:
     name: KpiStatus
-    10: Open
-    20: Data sent
-    30: Data updated
+    10: Activ
+    20: Inactiv
+
 
   priority:
     name: Priority
