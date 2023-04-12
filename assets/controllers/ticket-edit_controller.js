@@ -40,7 +40,7 @@ export default class extends Controller {
             });
         }
         this.checkCategory();
-        this.replaceCheck();
+        //this.replaceCheck();
         if (this.formUrlValue === '/ticket/create'){ //if it is a new ticket we hide all the fields from kpi
             $(this.headerExcludeTarget).addClass('is-hidden');
             $(this.headerReplaceTarget).addClass('is-hidden');
@@ -228,6 +228,25 @@ export default class extends Controller {
         var inverterString = '';
         let body = $(this.modalBodyTarget);
         // in this switch we remove the hidding class to show the fields of the ticket date on demand
+        if (cat >= 70 && cat <= 80 ){
+            body.find('input:checkbox[class=js-checkbox]').each(function () {
+                $(this).prop('checked', true);
+                if (inverterString == '')
+                {
+                    inverterString = inverterString + $(this).prop('name');
+                }
+                else
+                {
+                    inverterString = inverterString + ', ' + $(this).prop('name');
+                }
+                body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
+                body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
+                body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
+            });
+
+            inverterString = '*';
+            body.find('#ticket_form_inverter').val(inverterString);
+        }
         switch (cat){
             case '10':
                 $(this.headerExcludeTarget).addClass('is-hidden');
@@ -245,7 +264,6 @@ export default class extends Controller {
                 $(this.headerAktDep2Target).removeClass('is-hidden');
                 $(this.headerFormKpiTarget).addClass('is-hidden');
 
-
                 $(this.fieldSensorTarget).addClass('is-hidden');
                 $(this.fieldReplacePowerTarget).addClass('is-hidden');
                 $(this.fieldReplaceIrrTarget).addClass('is-hidden');
@@ -262,6 +280,7 @@ export default class extends Controller {
                 $(this.formkpiStatusTarget).addClass('is-hidden');
                 break;
             case '20':
+                console.log('entro');
                 $(this.headerExcludeTarget).addClass('is-hidden');
                 $(this.headerReplaceTarget).addClass('is-hidden');
                 $(this.headerReplacePowerTarget).addClass('is-hidden');
@@ -324,25 +343,8 @@ export default class extends Controller {
                 $(this.inverterDivTarget).addClass('is-hidden');
                 $(this.formkpiStatusTarget).removeClass('is-hidden');
 
-                body.find('input:checkbox[class=js-checkbox]').each(function () {
-                    $(this).prop('checked', true);
-                    if (inverterString == '')
-                    {
-                        inverterString = inverterString + $(this).prop('name');
-                    }
-                    else
-                    {
-                        inverterString = inverterString + ', ' + $(this).prop('name');
-                    }
-                    body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
-                    body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
-                    body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
-                });
-
-                inverterString = '*';
-                body.find('#ticket_form_inverter').val(inverterString);
                 break;
-            case'71':
+            case '71':
                 $(this.headerExcludeTarget).addClass('is-hidden');
                 $(this.headerReplaceTarget).removeClass('is-hidden');
                 $(this.headerReplacePowerTarget).addClass('is-hidden');
@@ -373,25 +375,8 @@ export default class extends Controller {
                 $(this.inverterDivTarget).addClass('is-hidden');
                 $(this.formkpiStatusTarget).removeClass('is-hidden');
 
-                body.find('input:checkbox[class=js-checkbox]').each(function () {
-                    $(this).prop('checked', true);
-                    if (inverterString == '')
-                    {
-                        inverterString = inverterString + $(this).prop('name');
-                    }
-                    else
-                    {
-                        inverterString = inverterString + ', ' + $(this).prop('name');
-                    }
-                    body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
-                    body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
-                    body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
-                });
-
-                inverterString = '*';
-                body.find('#ticket_form_inverter').val(inverterString);
                 break;
-            case'72':
+            case '72':
                 $(this.headerExcludeTarget).addClass('is-hidden');
                 $(this.headerReplaceTarget).addClass('is-hidden');
                 $(this.headerReplacePowerTarget).addClass('is-hidden');
@@ -423,43 +408,10 @@ export default class extends Controller {
                 $(this.inverterDivTarget).addClass('is-hidden');
                 $(this.formkpiStatusTarget).addClass('is-hidden');
 
-                body.find('input:checkbox[class=js-checkbox]').each(function () {
-                    $(this).prop('checked', true);
-                    if (inverterString == '')
-                    {
-                        inverterString = inverterString + $(this).prop('name');
-                    }
-                    else
-                    {
-                        inverterString = inverterString + ', ' + $(this).prop('name');
-                    }
-                    body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
-                    body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
-                    body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
-                });
-
-                inverterString = '*';
-                body.find('#ticket_form_inverter').val(inverterString);
                 break;
-            case'73':
+            case '73':
+                console.log("entering");
                 this.replaceCheck();
-                $(this.inverterDivTarget).addClass('is-hidden');
-                body.find('input:checkbox[class=js-checkbox]').each(function () {
-                    $(this).prop('checked', true);
-                    if (inverterString == '')
-                    {
-                        inverterString = inverterString + $(this).prop('name');
-                    }
-                    else
-                    {
-                        inverterString = inverterString + ', ' + $(this).prop('name');
-                    }
-                    body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
-                    body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
-                    body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
-                });
-                inverterString = '*';
-                body.find('#ticket_form_inverter').val(inverterString);
                 break;
             case '74':
                 $(this.headerExcludeTarget).addClass('is-hidden');
@@ -492,23 +444,6 @@ export default class extends Controller {
                 $(this.inverterDivTarget).addClass('is-hidden');
                 $(this.formkpiStatusTarget).removeClass('is-hidden');
 
-                body.find('input:checkbox[class=js-checkbox]').each(function () {
-                    $(this).prop('checked', true);
-                    if (inverterString == '')
-                    {
-                        inverterString = inverterString + $(this).prop('name');
-                    }
-                    else
-                    {
-                        inverterString = inverterString + ', ' + $(this).prop('name');
-                    }
-                    body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
-                    body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
-                    body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
-                });
-
-                inverterString = '*';
-                body.find('#ticket_form_inverter').val(inverterString);
                 break;
             case '':
                 $(this.headerExcludeTarget).addClass('is-hidden');

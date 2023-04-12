@@ -52,7 +52,6 @@
             <td class="is-hidden" data-ticket-edit-target="fieldIrrValue">{{ form_widget(date.valueIrr) }}</td>
             <td class="is-hidden" data-ticket-edit-target="fieldCorrection">{{ form_widget(date.correctEnergyValue) }}</td>
             <td class="is-hidden" data-ticket-edit-target="fieldReason">
-                {{ form_widget(date.reasonChoose) }}
                 {{ form_widget(date.reasonText) }}
             </td>
             {% if (ticket.alertType != 10 and ticket.alertType != 20) %}

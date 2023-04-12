@@ -8,6 +8,7 @@ use App\Helper\PVPNameArraysTrait;
 use FluidTYPO3\Flux\Form\Field\DateTime;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -67,30 +68,20 @@ class TicketDateEmbeddedFormType extends AbstractType
                     'class' => 'is-hidden'
                 ],
             ])
-            ->add('reasonChoose',ChoiceType::class, [
-                'mapped' => false,
-                'choices'       => [
-                    "Snow" => 'Snow',
-                    "Failure" => 'Failure',
-                    "Other..." => 30,
+            ->add('reasonText',CollectionType::class, [
+                'entry_type'   => ChoiceType::class,
+                'entry_options'=> [
+                    'choices' => [
+                        'Snow' => 'Snow',
+                        'Failure' => 'Failure',
+                    ]
                 ],
-                'placeholder'   => 'Please select …',
-                'empty_data'    => '',
-
                 'attr'          => [
-                    'data-action' => 'change->ticket-edit#reasonCheck',
+                  //  'data-action' => 'change->ticket-edit#reasonCheck',
                     'data-ticket-edit-target' => 'formReasonSelect'
                 ]
-            ])
-            ->add('reasonText', TextType::class,[
 
-                'attr'      => [
-                    'readonly' => true,
-                    'placeholder' => 'Write your reason here.',
-                    'data-ticket-edit-target' => 'formReasonText'
-                ],
             ])
-
 
             ########### PA Tickets ###########
             ->add('errorType', ChoiceType::class, [
