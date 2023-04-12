@@ -90,7 +90,7 @@ class AnlagenReports
     private int $reportStatus = 10;
 
     #[ORM\Column(type: 'text', nullable: true)]
-    private string $comments;
+    private ?string $comments;
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
     private ?string $headline = "";
