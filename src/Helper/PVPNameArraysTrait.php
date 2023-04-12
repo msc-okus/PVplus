@@ -144,6 +144,14 @@ trait PVPNameArraysTrait
 
         return $errorType;
     }
+    public function kpiStatus(): array
+    {
+        $statusKpi[$this->translator->trans('ticket.kpistatus.10')] = 10;
+        $statusKpi[$this->translator->trans('ticket.kpistatus.20')] = 20;
+        $statusKpi[$this->translator->trans('ticket.kpistatus.30')] = 30;
+
+        return $statusKpi;
+    }
 
     public function kpiPaDep1(): array
     {

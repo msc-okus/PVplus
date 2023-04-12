@@ -131,6 +131,14 @@ class TicketDateEmbeddedFormType extends AbstractType
         ########### Performance Tickets ###########
         if ($isDeveloper || $isBeta) {
             $builder
+                ->add('KpiStatus', ChoiceType::class, [
+                    'choices' => self::kpiStatus(),
+                    'placeholder' => 'please chose',
+                    'mapped' => true,
+                    'attr'      => [
+                        'data-ticket-edit-target' => 'formkpiStatus'
+                    ],
+                ])
                 ########## exclude Sensors &  replace Sensor
 
                 // at the moment only Dummy - no field

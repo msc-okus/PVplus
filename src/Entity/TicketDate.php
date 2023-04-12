@@ -54,6 +54,9 @@ class TicketDate
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $reasonText = null;
 
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $KpiStatus = null;
+
 
     public function __construct()
     {
@@ -224,6 +227,18 @@ class TicketDate
     public function setReasonText(?string $reasonText): self
     {
         $this->reasonText = $reasonText;
+
+        return $this;
+    }
+
+    public function getKpiStatus(): ?string
+    {
+        return $this->KpiStatus;
+    }
+
+    public function setKpiStatus(?string $KpiStatus): self
+    {
+        $this->KpiStatus = $KpiStatus;
 
         return $this;
     }

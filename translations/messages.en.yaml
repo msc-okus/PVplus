@@ -30,6 +30,12 @@ ticket:
     40: Wait external
     90: Closed
 
+  kpistatus:
+    name: KpiStatus
+    10: Open
+    20: Data sent
+    30: Data updated
+
   priority:
     name: Priority
     10: Low
