@@ -56,8 +56,10 @@ class AlertSystemService
      */
     public function generateTicketsInterval(Anlage $anlage, string $from, ?string $to = null): void
     {
+
         $fromStamp = strtotime($from);
         if ($to != null) {
+
             $toStamp = strtotime($to);
             for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
                 $this->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
@@ -174,7 +176,7 @@ class AlertSystemService
                     }
                     if (($mainTicketGap->getBegin()->getTimestamp()) == $stampBeginIrr){
 
-                        dump($mainTicketGap);
+
                         $ticketOld = $this->getTicketYesterday($anlage, $time, 10, $mainTicketGap->getInverter());
                         if ($ticketOld){
                             $mainTicketGap->setBegin($ticketOld->getBegin());
@@ -200,7 +202,7 @@ class AlertSystemService
                     }
                     if (($mainTicket0->getBegin()->getTimestamp()) == $stampBeginIrr){
 
-                        dump($mainTicket0);
+
                         $ticketOld = $this->getTicketYesterday($anlage, $time, 10, $mainTicket0->getInverter());
                         if ($ticketOld){
                             $mainTicket0->setBegin($ticketOld->getBegin());
@@ -225,7 +227,7 @@ class AlertSystemService
                     }
                     if (($mainTicketGrid->getBegin()->getTimestamp()) == $stampBeginIrr){
 
-                        dump($mainTicketGrid);
+
                         $ticketOld = $this->getTicketYesterday($anlage, $time, 10, $mainTicketGrid->getInverter());
                         if ($ticketOld){
                             $mainTicketGrid->setBegin($ticketOld->getBegin());
@@ -355,9 +357,9 @@ class AlertSystemService
         $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
         $time = G4NTrait::timeAjustment($time, -2);
         if (($time > $sungap['sunrise']) && ($time <= $sungap['sunset'])) {
-
             //here we retrieve the values from the plant and set soma flags to generate tickets
             $plant_status = self::RetrievePlant($anlage, $time);
+
             // We do this to avoid checking further inverters if we have a PPC control shut
             $array_gap = explode(", ", $plant_status['Gap']);
             $array_zero = explode(", ", $plant_status['Power0']);
@@ -391,7 +393,7 @@ class AlertSystemService
                         }
                     }
                 }
-                if((count($array_vol) === count($anlage->getInverterFromAnlage()))){
+                if((count($array_vol) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")){
                     foreach ($array_vol as $inverter) {
                         if (($inverter != "")) {
                             $message = "Grid Error in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter];
@@ -452,7 +454,6 @@ class AlertSystemService
                 $return['ppc'] = (($ppdData['p_set_rel'] < 100 || $ppdData['p_set_gridop_rel'] < 100) && $anlage->getHasPPC());
             }
         }
-
         if ($return['ppc'] != true) {
 
             $sqlAct = 'SELECT b.unit 
@@ -513,6 +514,7 @@ class AlertSystemService
     private function generateTickets($errorType, $errorCategorie, $anlage, $inverter, $time, $message)
     {
         $ticketOld = $this->getLastTicket($anlage, $time, $errorCategorie, $inverter);// we retrieve here the previous ticket (if any)
+
         //this could be the ticket from  the previous quarter or the last ticket from  the previous day
         //if ($inverter == "19") dump($ticketOld);
         if ($ticketOld !== null) { // is there is a previous ticket we just extend it
@@ -573,7 +575,7 @@ class AlertSystemService
             $this->em->persist($ticket);
             $this->em->persist($ticketDate);
         }
-        //if ($inverter == "19")dump($ticket, $ticketOld);
+
     }
     /**
      * Given all the information needed to generate a ticket, the tickets are created and commited to the db (single ticket variant)
