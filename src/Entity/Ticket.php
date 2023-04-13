@@ -110,6 +110,12 @@ class Ticket
 
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $kpiStatus = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $Scope = null;
+
+    #[ORM\Column]
+    private ?bool $ProofAM = false;
     /*
     #[ORM\Column(type: 'string', length: 255, nullable: true)]
     private ?string $generatedFrom = '';
@@ -349,6 +355,30 @@ class Ticket
     public function setKpiStatus(?string $kpiStatus): self
     {
         $this->kpiStatus = $kpiStatus;
+
+        return $this;
+    }
+
+    public function getScope(): ?string
+    {
+        return $this->Scope;
+    }
+
+    public function setScope(?string $Scope): self
+    {
+        $this->Scope = $Scope;
+
+        return $this;
+    }
+
+    public function isProofAM(): ?bool
+    {
+        return $this->ProofAM;
+    }
+
+    public function setProofAM(bool $ProofAM): self
+    {
+        $this->ProofAM = $ProofAM;
 
         return $this;
     }

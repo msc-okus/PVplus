@@ -25,6 +25,7 @@
         <th class="is-hidden" data-ticket-edit-target="headerAktDep1">{% if (features and features.aktDep1) %}PA {{ settings.nameDep1 }}   {% endif %}</th>
         <th class="is-hidden" data-ticket-edit-target="headerAktDep2">{% if (features and features.aktDep2) %}PA {{ settings.nameDep2 }}   {% endif %}</th>
         <th class="is-hidden" data-ticket-edit-target="headerAktDep3">{% if (features and features.aktDep3) %}PA {{ settings.nameDep3 }}{% endif %}</th>
+        <th class="is-hidden" data-ticket-edit-target="headerPRMethod">Exclude Method </th>
         <th></th>
         <th style="width: 35px"></th>
         <th style="width: 35px"></th>
@@ -62,6 +63,7 @@
             <td class="is-hidden" data-ticket-edit-target="fieldAktDep1" data-ticket-split-target="aktDep1">{% if (features and features.aktDep1) %}{{ form_widget(date.kpiPaDep1, { 'attr': {'class': 'no-margin',  'data-ticket-split-target':'aktDep1' } }) }}        {% endif %}</td>
             <td class="is-hidden" data-ticket-edit-target="fieldAktDep2" data-ticket-split-target="aktDep2">{% if (features and features.aktDep2) %}{{ form_widget(date.kpiPaDep2, { 'attr': {'class': 'no-margin',  'data-ticket-split-target':'aktDep2' } }) }}   {% endif %}</td>
             <td class="is-hidden" data-ticket-edit-target="fieldAktDep3" data-ticket-split-target="aktDep3">{% if (features and features.aktDep3) %}{{ form_widget(date.kpiPaDep3, { 'attr': {'class': 'no-margin',  'data-ticket-split-target':'aktDep3'} }) }}     {% endif %}</td>
+            <td class="" data-ticket-edit-target="fieldPRMethod">{{ form_widget(date.PRExcludeMethod) }}</td>
             {{ form_widget(date.beginHidden) }}
             {{ form_widget(date.endHidden) }}
 

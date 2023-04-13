@@ -150,6 +150,9 @@ class TicketFormType extends AbstractType
             ->add('needsProofTAM', SwitchType::class, [
                 'label'         => 'proof by TAM',
             ])
+            ->add('ProofAM', SwitchType::class, [
+                'label' => 'proof by AM'
+            ])
             ->add('ignoreTicket', SwitchType::class, [
                 'label'         => 'Ignore',
             ])
@@ -187,6 +190,11 @@ class TicketFormType extends AbstractType
                         'data-ticket-edit-target' => 'formkpiStatus'
                     ],
 
+                ])
+                ->add('scope', ChoiceType::class, [
+                    'label'     => 'Scope',
+                    'mapped'    => false,
+                    'choices'   => self::scope()
                 ])
             ;
         }
