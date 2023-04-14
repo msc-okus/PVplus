@@ -54,6 +54,9 @@ class TicketDate
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $reasonText = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $PRExcludeMethod = null;
+
 
     public function __construct()
     {
@@ -227,4 +230,18 @@ class TicketDate
 
         return $this;
     }
+
+    public function getPRExcludeMethod(): ?string
+    {
+        return $this->PRExcludeMethod;
+    }
+
+    public function setPRExcludeMethod(?string $PRExcludeMethod): self
+    {
+        $this->PRExcludeMethod = $PRExcludeMethod;
+
+        return $this;
+    }
+
+
 }

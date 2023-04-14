@@ -8,6 +8,7 @@ use App\Helper\PVPNameArraysTrait;
 use FluidTYPO3\Flux\Form\Field\DateTime;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -67,28 +68,14 @@ class TicketDateEmbeddedFormType extends AbstractType
                     'class' => 'is-hidden'
                 ],
             ])
-            ->add('reasonChoose',ChoiceType::class, [
-                'mapped' => false,
-                'choices'       => [
-                    "Snow" => 'Snow',
-                    "Failure" => 'Failure',
-                    "Other..." => 30,
-                ],
-                'placeholder'   => 'Please select …',
-                'empty_data'    => '',
 
+            ->add('reasonText',TextType::class, [
+                'empty_data' => '',
                 'attr'          => [
-                    'data-action' => 'change->ticket-edit#reasonCheck',
+                  //  'data-action' => 'change->ticket-edit#reasonCheck',
                     'data-ticket-edit-target' => 'formReasonSelect'
                 ]
-            ])
-            ->add('reasonText', TextType::class,[
 
-                'attr'      => [
-                    'readonly' => true,
-                    'placeholder' => 'Write your reason here.',
-                    'data-ticket-edit-target' => 'formReasonText'
-                ],
             ])
 
 
@@ -131,12 +118,15 @@ class TicketDateEmbeddedFormType extends AbstractType
         ########### Performance Tickets ###########
         if ($isDeveloper || $isBeta) {
             $builder
-                ########## exclude Sensors &  replace Sensor
 
+                ########## exclude Sensors &  replace Sensor
+                ->add('PRExcludeMethod', ChoiceType::class, [
+                    'choices' => self::PRExcludeMethods(),
+                ])
                 // at the moment only Dummy - no field
                 ->add('sensors', ChoiceType::class, [
                     'label'     => 'excludeSensors',
-                    'choices'   => ['Wind' => 1, 'Irr' => 2, 'ModulTemp' => 3, 'and so on' => 4],
+                    'choices'   => ['Wind' => 10, 'Irr' => 20, 'ModulTemp' => 30, 'and so on' => 40],
                     'placeholder' => 'please chose',
                     'mapped' => false
                 ])
