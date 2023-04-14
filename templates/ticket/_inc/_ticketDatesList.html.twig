@@ -44,7 +44,7 @@
             <td>{{ form_widget(date.end) }}{# {{ date.vars.value.end|format_datetime(pattern="yyyy-MM-dd HH:mm") }} #}</td>
             {# Performance Ticket #}
 
-            <td class="is-hidden" data-ticket-edit-target="fieldSensor">{{ form_widget(date.sensors, { 'attr': {'class': 'no-margin'} }) }}</td>
+            <td class="is-hidden" data-ticket-edit-target="fieldSensor">{{ form_widget(date.sensors) }}</td>
             <td class="is-hidden" data-ticket-edit-target="fieldReplacePower">{{ form_widget(date.replaceEnergy) }}</td>
             <td class="is-hidden" data-ticket-edit-target="fieldReplaceIrr">{{ form_widget(date.replaceIrr) }}</td>
             <td class="is-hidden" data-ticket-edit-target="fieldHour">{{ form_widget(date.useHour) }}</td>
@@ -52,8 +52,13 @@
             <td class="is-hidden" data-ticket-edit-target="fieldIrrValue">{{ form_widget(date.valueIrr) }}</td>
             <td class="is-hidden" data-ticket-edit-target="fieldCorrection">{{ form_widget(date.correctEnergyValue) }}</td>
             <td class="is-hidden" data-ticket-edit-target="fieldReason">
-                {{ form_widget(date.reasonText) }}
+                <input type="text" list="reasonList" data-action="change->ticket-edit#reasonCheck" data-ticket-edit-target="reasonInput">
+                    <datalist id="reasonList">
+                        <option value="Snow">
+                        <option value="Inverter Broken">
+                    </datalist>
             </td>
+            <div hidden>    {{ form_widget(date.reasonText) }}</div>
             {% if (ticket.alertType != 10 and ticket.alertType != 20) %}
                 <td class="is-hidden" data-ticket-edit-target="fieldEvaluation">{{ form_widget(date.dataGapEvaluation, { 'attr':{'class': 'no-margin ', 'data-ticket-split-target':'dataGapEv', 'data-action':'change->ticket-split#checkKpiSelectBoxes', 'disabled':'true'} }) }}</td>
             {% else %}
