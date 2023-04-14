@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="grid-x">
+        <div class="cell">
+            <h1>{{ headline }}</h1>
+        </div>
+    </div>
+    {% include'special_operations/_inc/_createForm.html.twig' %}
+
+    </form>
+    <div class="grid-x">
+        <div class="cell">
+            {% if (output) %}{{ output|raw }}{% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block title %}
+    {{  parent() }}Special Operations
+{% endblock %}
+
+
+{% block javascripts %}
+{% endblock %}
