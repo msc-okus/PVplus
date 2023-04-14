@@ -30,6 +30,21 @@ ticket:
     40: Wait external
     90: Closed
 
+  kpistatus:
+    name: KpiStatus
+    10: Activ
+    20: Inactiv
+
+  prmethod:
+    name: prmethod
+    10: Skip
+    20: Replace
+
+  scope:
+    name: scope
+    10: O&M
+    20: EPC
+    30: AM
   priority:
     name: Priority
     10: Low

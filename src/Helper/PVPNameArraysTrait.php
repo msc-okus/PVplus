@@ -144,6 +144,13 @@ trait PVPNameArraysTrait
 
         return $errorType;
     }
+    public function kpiStatus(): array
+    {
+        $statusKpi[$this->translator->trans('ticket.kpistatus.10')] = 10;
+        $statusKpi[$this->translator->trans('ticket.kpistatus.20')] = 20;
+
+        return $statusKpi;
+    }
 
     public function kpiPaDep1(): array
     {
@@ -175,5 +182,16 @@ trait PVPNameArraysTrait
     public function kpiPaDep3(): array
     {
         return $this->errorType();
+    }
+    public function PRExcludeMethods(){
+        $prMethod[$this->translator->trans('ticket.prmethod.10')] = 10;
+        $prMethod[$this->translator->trans('ticket.prmethod.20')] = 20;
+        return $prMethod;
+    }
+    public function scope(){
+        $scope[$this->translator->trans('ticket.scope.10')] = 10;
+        $scope[$this->translator->trans('ticket.scope.20')] = 20;
+        $scope[$this->translator->trans('ticket.scope.30')] = 30;
+        return $scope;
     }
 }
