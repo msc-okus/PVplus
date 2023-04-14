@@ -13,7 +13,7 @@ export default class extends Controller {
                         'fieldEnergyValue', 'fieldIrrValue', 'fieldCorrection', 'fieldEvaluation', 'fieldAktDep1', 'fieldAktDep2',
                         'fieldAktDep3', 'formReplaceIrr', 'inverterDiv', 'formHour', 'formBeginHidden', 'formEndHidden', 'formBeginDate',
                         'formEndDate', 'formReasonSelect', 'formReasonText', 'headerReason', 'fieldReason', 'formkpiStatus', 'headerFormKpi',
-                        'headerPRMethod', 'fieldPRMethod', 'scope'];
+                        'headerPRMethod', 'fieldPRMethod', 'scope', 'reasonInput'];
     static values = {
         formUrl: String,
         splitUrl: String,
@@ -41,7 +41,8 @@ export default class extends Controller {
             });
         }
         this.checkCategory();
-        //this.replaceCheck();
+        //this.replaceCheck(); MARKED TO REMOVE
+        /*
         if (this.formUrlValue === '/ticket/create'){ //if it is a new ticket we hide all the fields from kpi
             $(this.scopeTarget).addClass('is-hidden');
             $(this.headerExcludeTarget).addClass('is-hidden');
@@ -76,19 +77,14 @@ export default class extends Controller {
             $(this.formkpiStatusTarget).addClass('is-hidden');
             $(this.fieldPRMethodTarget).addClass('is-hidden');
         }
+
+         */
         $(this.modalBodyTarget).foundation();
     }
 
     reasonCheck(){
-        console.log($(this.formReasonSelectTarget).val());
-        if ($(this.formReasonSelectTarget).val() == 30){
-            $(this.formReasonTextTarget).prop('readonly', false);
-            $(this.formReasonTextTarget).val('')
-        }
-        else{
-            $(this.formReasonTextTarget).prop('readonly', true);
-            $(this.formReasonTextTarget).val($(this.formReasonSelectTarget).val())
-        }
+        let reason = $(this.reasonInputTarget).val();
+        $(this.formReasonSelectTarget).val(reason);
     }
 
     hourCheck(){
@@ -212,6 +208,7 @@ export default class extends Controller {
                 $(this.fieldEnergyValueTarget).addClass('is-hidden');
                 $(this.fieldIrrValueTarget).addClass('is-hidden');
             }
+            console.log("hi");
             $(this.fieldHourTarget).removeClass('is-hidden');
             $(this.fieldCorrectionTarget).addClass('is-hidden');
             $(this.fieldEvaluationTarget).addClass('is-hidden');
@@ -227,6 +224,8 @@ export default class extends Controller {
                 }
                 this.hourCheck();
             }
+        let reason = $(this.formReasonSelectTarget).val();
+        $(this.reasonInputTarget).val(reason);
     }
     checkCategory(){
         const cat = $(this.formCategoryTarget).val();
@@ -466,7 +465,10 @@ export default class extends Controller {
                 $(this.inverterDivTarget).addClass('is-hidden');
                 $(this.fieldPRMethodTarget).addClass('is-hidden');
 
-                if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20)};
+                let reason = $(this.formReasonSelectTarget).val();
+                $(this.reasonInputTarget).val(reason);
+
+                if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20);}
                 break;
             case '':
                 $(this.headerExcludeTarget).addClass('is-hidden');
@@ -498,7 +500,7 @@ export default class extends Controller {
                 $(this.fieldPRMethodTarget).addClass('is-hidden');
 
                 $(this.inverterDivTarget).removeClass('is-hidden');
-                if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20)};
+                if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20);}
                 break;
             default:
 
