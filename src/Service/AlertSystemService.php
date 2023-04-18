@@ -545,6 +545,7 @@ class AlertSystemService
             $ticket->setDescription($message);
             $ticket->setCreatedBy("AlertSystem");
             $ticket->setUpdatedBy("AlertSystem");
+            $ticket->setProofAM(false);
             if ($errorCategorie == EXTERNAL_CONTROL) {
                 $ticket->setInverter('*');
                 $ticketDate->setInverter('*');

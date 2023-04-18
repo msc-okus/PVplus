@@ -1,6 +1,6 @@
 <div {{ stimulus_controller('request') }}>
     <form id="tableForm"></form>
-    <div data-action="ticket-edit:success->ticket-list#update">
+    <div data-action="ticket-edit:success->ticket-list#update submit-confirm:async:submitted->ticket-list#update">
         <table class="table sortable">
             <thead>
             <tr>
@@ -77,6 +77,22 @@
                                 dataVOffset: '10',
                             }) }}
                         </div>
+                    </td>
+
+                    <td>
+                        {% if is_granted('ROLE_DEV') %}
+                            <a href="#"
+                               class="hollow alert button tiny action-icon shadow"
+                                    {{ stimulus_controller('submit-confirm', {
+                                        title: 'Remove this ticket?',
+                                        confirmButtonText: 'Yes, remove it',
+                                        redirectUrl: path('app_ticket_deleteticket', { id: ticket.id})
+                                    }) }}
+                               data-action="submit-confirm#onSubmit"
+                            >
+                                <span class="fa fa-trash-alt"></span>
+                            </a>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}

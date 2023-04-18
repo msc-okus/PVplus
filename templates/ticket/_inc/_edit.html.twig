@@ -46,6 +46,9 @@
                             </div>
                             <div class="cell small-6 medium-2">
                                 {{ form_row(ticketForm.alertType) }}
+                            </div >
+                            <div class="cell small-6 medium-2 is-hidden" data-ticket-edit-target="scope">
+                                {{ form_row(ticketForm.scope) }}
                             </div>
                             <div class="cell small-12 medium-6">
                                 <div data-ticket-edit-target="inverterDiv" class="grid-x grid-padding-x {{ hiddenPerformanceTicket }}">  {# hide TicketStuff on Performance Ticket #}
@@ -161,8 +164,14 @@
                             <div class="cell small-6 medium-1">
                                 {{ form_row(ticketForm.needsProofEPC) }}
                             </div>
+                            <div class="cell small-6 medium-1">
+                                {{ form_row(ticketForm.ProofAM) }}
+                            </div>
+
                             <div data-ticket-edit-target="headerFormKpi" class="cell small-6 medium-1" >
-                                {{ form_row(ticketForm.KpiStatus) }}
+                                {% if (is_granted('ROLE_G4N')) %}
+                                    {{ form_row(ticketForm.KpiStatus) }}
+                                {% endif %}
                             </div>
                             {% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA')) %}
                                 {% if (edited) %}

@@ -84,7 +84,7 @@ class TicketRepository extends ServiceEntityRepository
      * @param string $TicketName
      * @return QueryBuilder
      */
-    public function getWithSearchQueryBuilderNew(?Anlage $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0, string $sort = "", string $direction = "", bool $ignore = false, $TicketName = ""): QueryBuilder
+    public function getWithSearchQueryBuilderNew(?Anlage $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0, string $sort = "", string $direction = "", bool $ignore = false, string $TicketName = "", int $kpistatus = 0): QueryBuilder
     {
         /** @var User $user */
         $user = $this->security->getUser();
@@ -124,6 +124,9 @@ class TicketRepository extends ServiceEntityRepository
         }
         if ($prooftam == 1){
             $qb->andWhere("ticket.needsProof = 1");
+        }
+        if ($kpistatus != 0){
+            $qb->andWhere("ticket.kpiStatus = $kpistatus");
         }
         if ($TicketName !== "") $qb->andWhere("ticket.TicketName = '$TicketName'");
         if ($ignore) $qb->andWhere("ticket.ignoreTicket = true");
