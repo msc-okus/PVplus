@@ -451,7 +451,7 @@ class AlertSystemService
             $respPpc = $conn->query($sqlPpc);
             if ($respPpc->rowCount() === 1) {
                 $ppdData = $respPpc->fetch(PDO::FETCH_ASSOC);
-                $return['ppc'] = (($ppdData['p_set_rel'] < 100 || $ppdData['p_set_gridop_rel'] < 100) && $anlage->getHasPPC());
+                $return['ppc'] = (($ppdData['p_set_rpc_rel'] < 100 || $ppdData['p_set_gridop_rel'] < 100) && $anlage->getHasPPC());
             }
         }
         if ($return['ppc'] != true) {
