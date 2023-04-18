@@ -12,6 +12,7 @@ use App\Repository\GridMeterDayRepository;
 use App\Repository\MonthlyDataRepository;
 use App\Repository\PRRepository;
 use App\Repository\PVSystDatenRepository;
+use App\Service\Functions\PowerService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
@@ -26,6 +27,7 @@ class PRCalulationService
         private PRRepository $PRRepository,
         private AnlageAvailabilityRepository $anlageAvailabilityRepo,
         private FunctionsService $functions,
+        private PowerService $powerServicer,
         private EntityManagerInterface $em,
         private Case5Repository $case5Repo,
         private MonthlyDataRepository $monthlyDataRepo,
@@ -556,10 +558,10 @@ class PRCalulationService
         }
 
         // Wetter Daten ermitteln
-        $weather = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate);
+        $weather = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate, false, $anlage);
 
         // Leistungsdaten ermitteln
-        $power = $this->functions->getSumAcPower($anlage, $localStartDate, $localEndDate);
+        $power = $this->powerServicer->getSumAcPowerV2($anlage, date_create($localStartDate), date_create($localEndDate));
 
         $result['powerEvu'] = $power['powerEvu'];
         $result['powerAct'] = $power['powerAct'];
