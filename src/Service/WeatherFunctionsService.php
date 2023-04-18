@@ -48,7 +48,7 @@ class WeatherFunctionsService
      * @param $to
      * @return array|null
      */
-    public function getWeather(WeatherStation $weatherStation, $from, $to): ?array
+    public function getWeather(WeatherStation $weatherStation, $from, $to, bool $ppc = false, ?Anlage $anlage = null): ?array
     {
         $conn = self::getPdoConnection();
         $weather = [];
@@ -62,7 +62,8 @@ class WeatherFunctionsService
         unset($res);
 
         if ($weather['anzahl'] > 0) {
-            $sql = "SELECT 
+            if ($ppc) {
+                $sql = "SELECT 
                         SUM(g_lower) as irr_lower, 
                         SUM(g_upper) as irr_upper, 
                         SUM(g_horizontal) as irr_horizontal, 
@@ -71,8 +72,25 @@ class WeatherFunctionsService
                         AVG(wind_speed) as wind_speed ,
                         SUM(temp_cell_corr) as temp_cell_corr,
                         SUM(temp_cell_multi_irr) as temp_cell_multi_irr
-                    FROM $dbTable 
+                    FROM $dbTable s
+                        RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp
+                    WHERE s.stamp BETWEEN '$from' AND '$to'
+                        AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) 
+                        AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is null)
+                ";
+            } else {
+                $sql = "SELECT 
+                        SUM(g_lower) as irr_lower, 
+                        SUM(g_upper) as irr_upper, 
+                        SUM(g_horizontal) as irr_horizontal, 
+                        AVG(at_avg) AS air_temp, 
+                        AVG(pt_avg) AS panel_temp, 
+                        AVG(wind_speed) as wind_speed ,
+                        SUM(temp_cell_corr) as temp_cell_corr,
+                        SUM(temp_cell_multi_irr) as temp_cell_multi_irr
+                    FROM $dbTable  
                     WHERE stamp BETWEEN '$from' AND '$to'";
+            }
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {
                 $row = $res->fetch(PDO::FETCH_ASSOC);

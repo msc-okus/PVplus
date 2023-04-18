@@ -76,90 +76,111 @@ class PowerService
      * By default we retrieve the unfiltered power (without ppc)
      *
      * @param Anlage $anlage
-     * @param $from
-     * @param $to
+     * @param DateTime $from
+     * @param DateTime $to
      * @param bool $ppc
      * @return array
      */
-    public function getSumAcPowerV2(Anlage $anlage, DateTime $from, DateTime $to): array
+    public function getSumAcPowerV2(Anlage $anlage, DateTime $from, DateTime $to, bool $ppc = false): array
     {
         $conn = self::getPdoConnection();
         $result = [];
-        $powerEvu = $powerExp = $powerExpEvu = $powerTheo = $tCellAvg = $tCellAvgMultiIrr = 0;
+        $powerEvu = $powerEGridExt = $powerExp = $powerExpEvu = $powerTheo = $tCellAvg = $tCellAvgMultiIrr = $powerAct = 0;
 
+        // prüfe Ob Anlage PPC Steuerung hat, wenn nicht dann $ppc auf false setzten
+        if (false === $anlage->getHasPPC()) $ppc = false;
+
+        // SQL part zum auschluß von negativen 'evu' Werten
         $ignorNegativEvuSQL = $anlage->isIgnoreNegativEvu() ? 'AND e_z_evu > 0' : '';
 
+        // SQL part für die einbindung der PPC Daten
+        if ($ppc) {
+            $ppcWhereSQL = " AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) 
+                AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is null) ";
+            $ppcJoinSQL = " RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp ";
+        } else {
+            $ppcWhereSQL = $ppcJoinSQL = "";
+        }
+
         // Wenn externe Tagesdaten genutzt werden, sollen lade diese aus der DB und ÜBERSCHREIBE die Daten aus den 15Minuten Werten
-        // $powerEGridExt = $this->functions->getSumeGridMeter($anlage, $from, $to);
+        // Ist nur möglich wenn KEINE ppc Daten ausgewertet werden
+        if (!$ppc) $powerEGridExt = $this->functions->getSumeGridMeter($anlage, $from->format('Y-m-d'), $to->format('Y-m-d'),);
 
         // EVU Leistung ermitteln –
         // dieser Wert kann der offiziele Grid Zähler wert sein, kann aber auch nur ein interner Wert sein. Siehe Konfiguration $anlage->getUseGridMeterDayData()
-
-        $sql = "SELECT sum(prod_power) as power_grid 
-            FROM ".$anlage->getDbNameMeters() . " s
-            RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
-            WHERE s.stamp BETWEEN '" . $from->format('Y-m-d H:i') . "' 
+        $sql = "SELECT sum(e_z_evu) as power_evu 
+            FROM ".$anlage->getDbNameAcIst() . " s
+            $ppcJoinSQL 
+            WHERE unit = 1 AND s.stamp BETWEEN '" . $from->format('Y-m-d H:i') . "' 
                 AND '" . $to->format('Y-m-d H:i') . "' 
                 $ignorNegativEvuSQL 
-                AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) 
-                AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is null)"
+                $ppcWhereSQL"
         ;
 
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
-            $powerEvu = $row['power_evu_ppc'];
-        }
-        unset($res);
-
-        $sql = "SELECT sum(prod_power) as power_grid 
-                FROM ".$anlage->getDbNameMeters() . " 
-                WHERE stamp BETWEEN '" . $from->format('Y-m-d H:i') . "' AND '" . $to->format('Y-m-d H:i') . "' 
-                $ignorNegativEvuSQL;";
-
-        $res = $conn->query($sql);
-            if ($res->rowCount() == 1) {
-            $row = $res->fetch(PDO::FETCH_ASSOC);
             $powerEvu = $row['power_evu'];
         }
         unset($res);
 
-        $powerEvu = $this->checkAndIncludeMonthlyCorrectionEVU($anlage, $powerEvu, $from, $to);
+        $powerEvu = $this->checkAndIncludeMonthlyCorrectionEVU($anlage, $powerEvu, $from->format('Y-m-d H:i'), $to->format('Y-m-d H:i'));
 
         // Expected Leistung ermitteln
-        $sql = 'SELECT SUM(ac_exp_power) AS sum_power_ac, SUM(ac_exp_power_evu) AS sum_power_ac_evu FROM '.$anlage->getDbNameDcSoll()." WHERE stamp >= '$from' AND stamp <= '$to'";
+        $sql = 'SELECT SUM(ac_exp_power) AS sum_power_ac, SUM(ac_exp_power_evu) AS sum_power_ac_evu 
+                    FROM '.$anlage->getDbNameDcSoll()." s
+                    $ppcJoinSQL
+                    WHERE s.stamp BETWEEN '" . $from->format('Y-m-d H:i') . "' AND '" . $to->format('Y-m-d H:i') . "'
+                    $ppcWhereSQL
+                    ";
+
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
-            $powerExp = $row['sum_power_ac'];
-            $powerExpEvu = $row['sum_power_ac_evu'];
+            $powerExpPpc = $row['sum_power_ac'];
+            $powerExpEvuPpc = $row['sum_power_ac_evu'];
         }
         unset($res);
 
         // Theoretic Power (TempCorr)
-        $sql = 'SELECT SUM(theo_power) AS theo_power FROM '.$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to' AND theo_power > 0";
+        $sql = 'SELECT SUM(theo_power) AS theo_power 
+                    FROM '.$anlage->getDbNameAcIst()." s
+                    $ppcJoinSQL
+                    WHERE s.stamp BETWEEN '" . $from->format('Y-m-d H:i') . "' AND '" . $to->format('Y-m-d H:i') . "'
+                    AND theo_power > 0
+                    $ppcWhereSQL
+                    ";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
-            $powerTheo = $row['theo_power'];
+            $powerTheoPpc = $row['theo_power'];
         }
         unset($res);
 
+
         // Actual (Inverter Out) Leistung ermitteln
-        $sql = 'SELECT sum(wr_pac) as sum_power_ac, sum(theo_power) as theo_power FROM '.$anlage->getDbNameAcIst()." WHERE stamp >= '$from' AND stamp <= '$to' AND wr_pac > 0";
+        $sql = 'SELECT sum(wr_pac) as sum_power_ac, sum(theo_power) as theo_power 
+                    FROM '.$anlage->getDbNameAcIst()." s
+                    $ppcJoinSQL
+                    WHERE s.stamp BETWEEN '" . $from->format('Y-m-d H:i') . "' AND '" . $to->format('Y-m-d H:i') . "'
+                    AND wr_pac > 0
+                    $ppcWhereSQL
+                    ";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
-            $result['powerEvu']         = (float)$powerEvu;
-            $result['powerAct']         = (float)$row['sum_power_ac'];
-            $result['powerExp']         = (float)$powerExp;
-            $result['powerExpEvu']      = (float)$powerExpEvu;
-            $result['powerEGridExt']    = (float)$powerEGridExt;
-            $result['powerTheo']        = (float)$powerTheo;
-            $result['tCellAvg']         = (float)$tCellAvg;
-            $result['tCellAvgMultiIrr'] = (float)$tCellAvgMultiIrr;
+            $powerActPpc = $row['sum_power_ac'];
         }
         unset($res);
+
+        $result['powerEvu']             = (float)$powerEvu;
+        $result['powerAct']             = (float)$powerAct;
+        $result['powerExp']             = (float)$powerExp;
+        $result['powerExpEvu']          = (float)$powerExpEvu;
+        $result['powerEGridExt']        = $ppc ? (float)$powerEvu : (float)$powerEGridExt;
+        $result['powerTheo']            = (float)$powerTheo;
+        $result['tCellAvg']             = (float)$tCellAvg;
+        $result['tCellAvgMultiIrr']     = (float)$tCellAvgMultiIrr;
 
         return $result;
     }
@@ -169,11 +190,11 @@ class PowerService
      * Sum only values with ppc = 100
      *
      * @param Anlage $anlage
-     * @param $from
-     * @param $to
+     * @param DateTime $from
+     * @param DateTime $to
      * @return array
      */
-    public function getSumAcPowerV2Ppc(Anlage $anlage, $from, $to): array
+    public function getSumAcPowerV2Ppc(Anlage $anlage, DateTime $from, DateTime $to): array
     {
         return $this->getSumAcPowerV2($anlage, $from, $to, true);
     }
