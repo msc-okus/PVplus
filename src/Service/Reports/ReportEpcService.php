@@ -155,6 +155,7 @@ class ReportEpcService
                     case 1:
                         $from               = date('Y-m-d', strtotime("$year-$month-$facStartDay 00:00"));
                         $prArray            = $this->PRCalulation->calcPR($anlage, date_create($from), date_create($to));
+                        #dd(date_create($from), date_create($to),$prArray);
                         $days               = $daysInMonth - $daysInStartMonth + 1;
                         $ertragPvSyst       = $anlage->getOneMonthPvSyst($month)->getErtragDesign() / $daysInMonth * $days;
                         $prDesignPvSyst     = $anlage->getOneMonthPvSyst($month)->getPrDesign();
@@ -207,25 +208,24 @@ class ReportEpcService
                                 $prStandard = $prArray['prDefaultEGridExt']; // $this->format($pr->getPrDefaultMonthEGridExt());
                             }
                     }
-
+                    #dd($prReal);
                     $prRealprProg = $prReal;
                     $realDateTextEnd = date('My', strtotime("$year-$month-1"));
                     if (($month == $currentMonth && $year == $currentYear) && $run === 2) {
                         // für das Einfärben der Zeile des aktuellen Monats
                         $currentMonthClass  = 'current-month';
                         $prArrayFormel = $this->PRCalulation->calcPR($anlage, $anlage->getEpcReportStart(), date_create($to));
+                        #dd($prArrayFormel);
                         if ($anlage->getUseGridMeterDayData()) {
                             $formelEnergy   = $prArrayFormel['powerEGridExt'];
-                            $formelPR       = $prArrayFormel['prEGridExt'];
-                            $prStandard     = $prArrayFormel['prDefaultEGridExt'];
+                            $formelPR       = $prArrayFormel['prDep2EGridExt'];
                         } else {
                             $formelEnergy   = $prArrayFormel['powerEvu'];
-                            $formelPR       = $prArrayFormel['prEvu'];
-                            $prStandard     = $prArrayFormel['prDefaultEvu'];
+                            $formelPR       = $prArrayFormel['prDep2Evu'];
                         }
                         $formelIrr          = $prArrayFormel['irradiation'];
-                        $formelPowerTheo    = $prArrayFormel['powerTheo'];
-                        $formelAvailability = $prArrayFormel['availability'];
+                        $formelPowerTheo    = $prArrayFormel['powerTheoDep2'];
+                        $formelAvailability = $prArrayFormel['pa2'];
                         $formelAlgorithmus  = $prArrayFormel['algorithmus'];
                         $tempCorrection     = $prArrayFormel['tempCorrection'];
                     }
@@ -446,7 +446,7 @@ class ReportEpcService
 
         // Daten für die Darstellung der Formel
         $report['formel'][] = [
-            'eGridReal' => $this->format($sumEGridRealReal), // $formelEnergy
+            'eGridReal' => $this->format($formelEnergy), // $formelEnergy | $sumEGridRealReal
             'prReal' => $formelPR,
             'availability' => $this->format($formelAvailability),
             'theoPower' => $this->format($formelPowerTheo),
@@ -468,7 +468,7 @@ class ReportEpcService
             'endePac' => $anlage->getPacDateEnd()->format('d.m.Y'),
             'pld' => $anlage->getPldPR(),
         ];
-
+        #dd($report);
         return $report;
     }
 

@@ -117,9 +117,9 @@ class Ticket
     #[ORM\Column]
     private ?bool $ProofAM = false;
     /*
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
-    private ?string $generatedFrom = '';
-*/
+        #[ORM\Column(type: 'string', length: 255, nullable: true)]
+        private ?string $generatedFrom = '';
+    */
 
     public function __construct()
     {

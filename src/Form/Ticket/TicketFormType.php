@@ -67,8 +67,7 @@ class TicketFormType extends AbstractType
                     'readonly' => true,
                 ],
             ]);
-        if ($isNewTicket == true){
-
+        if ($isNewTicket){
             $builder->add('alertType', ChoiceType::class, [
                 'label' => 'Category of ticket ',
                 'help' => 'data gap, inverter, ...',
@@ -82,9 +81,8 @@ class TicketFormType extends AbstractType
                     'data-ticket-edit-target' => 'formCategory',
                     'data-ticket-edit-edited-param'=> 'false',
                 ],
-            ]);}
-        else
-
+            ]);
+        } else {
             $builder->add('alertType', ChoiceType::class, [
                 'label' => 'Category of ticket ',
                 'help' => 'data gap, inverter, ...',
@@ -96,18 +94,20 @@ class TicketFormType extends AbstractType
                 'attr' => [
                     'data-action' => 'change->ticket-edit#saveCheck',
                     'data-ticket-edit-target' => 'formCategory',
-                    'data-ticket-edit-edited-param'=> 'true',
+                    'data-ticket-edit-edited-param' => 'true',
                 ],
             ]);
+        }
 
-        $builder->add('inverter', TextType::class, [
+        $builder
+            ->add('inverter', TextType::class, [
             'label' => 'Inverter',
             'required' => true,
             'help' => '* = all Invertres',
             'attr' => [
                 'readonly' => true,
-            ],
-        ])
+                ],
+            ])
             ->add('begin', DateTimeType::class, [
                 'label' => 'Begin',
                 'label_html' => true,
@@ -180,12 +180,10 @@ class TicketFormType extends AbstractType
             $builder
                 ->add('needsProofEPC', SwitchType::class, [
                     'label'     => 'proof by EPC',
-                    'mapped'    => false,
                 ])
                 ->add('KpiStatus', ChoiceType::class, [
                     'choices' => self::kpiStatus(),
                     'placeholder' => 'please chose',
-                    'mapped' => true,
                     'attr'      => [
                         'data-ticket-edit-target' => 'formkpiStatus'
                     ],
@@ -193,7 +191,6 @@ class TicketFormType extends AbstractType
                 ])
                 ->add('scope', ChoiceType::class, [
                     'label'     => 'Scope',
-                    'mapped'    => false,
                     'choices'   => self::scope()
                 ])
             ;
