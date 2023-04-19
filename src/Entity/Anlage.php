@@ -1000,6 +1000,11 @@ class Anlage
         return $this;
     }
 
+    public function getOwner(): ?Eigner
+    {
+        return $this->eigner;
+    }
+
     public function getEigner(): ?Eigner
     {
         return $this->eigner;

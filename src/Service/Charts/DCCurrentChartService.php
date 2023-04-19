@@ -466,7 +466,8 @@ class DCCurrentChartService
                         $currentGroupName = $dcGroups[$rowCurrIst['inv']]['GroupName'];
                         $currentImpp = $mImpp[$rowCurrIst['inv'] - 1]; // the array beginn at zero
                         $inv_num = $rowCurrIst['inv'];
-                        $value_dcpnom = round(($currentIst / $currentImpp),2);
+
+                        $value_dcpnom = $currentImpp > 0 ? round(($currentIst / $currentImpp),2) : 0;
                         $dataArray['chart'][$counter]['xinv'] = $currentGroupName;
                         $dataArray['chart'][$counter]['pnomdc'] = $value_dcpnom;
                         ++$counter;

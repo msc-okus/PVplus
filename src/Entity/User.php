@@ -75,7 +75,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(name: 'name', type: 'string', length: 20, nullable: false)]
     private string $name;
 
-
     #[ORM\Column(name: 'password', type: 'string')]
     private string $password;
 
@@ -99,13 +98,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'json')]
     private ?array $assignedAnlagen = [];
 
-
     #[ORM\Column(type: 'string', length: 250)]
     private string $grantedList;
 
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private ?string $allPlants;
+
     #[Groups(['user:read'])]
     #[ORM\ManyToMany(targetEntity: Eigner::class, mappedBy: 'user')]
-    private $eigners;
+    private Collection $eigners;
 
     #[ORM\OneToMany(mappedBy: 'user', targetEntity: ApiToken::class)]
     private Collection $apiTokens;
@@ -305,7 +306,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return $this->eigners;
     }
-
+    public function getOwner(): ?Eigner
+    {
+        return $this->getEigners()->first();
+    }
     public function addEigner(Eigner $eigner): self
     {
         if (!$this->eigners->contains($eigner)) {
@@ -331,9 +335,20 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->grantedList;
     }
 
-    public function getGrantedArray(): array|false
+    public function getGrantedArray(bool $repectAll = true): array|false
     {
-        return explode(',', $this->grantedList);
+        $array = [];
+        if ($this->allPlants && $repectAll) {
+            foreach ($this->getEigners()->first()->getAnlagen()->toArray() as $plant){
+                $array[] = $plant->getAnlId();
+            }
+        } else {
+            foreach (explode(',', $this->grantedList) as $value) {
+                $array[] = preg_replace('/\s+/', '', $value);
+            }
+        }
+
+        return $array;
     }
 
     public function setGrantedList(string $grantedList): self
@@ -343,6 +358,15 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getAllPlants(): ?bool
+    {
+        return $this->allPlants;
+    }
+
+    public function setAllPlants(string $allPlants): void
+    {
+        $this->allPlants = $allPlants;
+    }
 
 
     /**
@@ -375,9 +399,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
-
-
-
 
     /**
      * @return Collection<int, UserLogin>

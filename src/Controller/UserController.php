@@ -103,7 +103,7 @@ class UserController extends BaseController
           }
         }
 
-        $queryBuilder = $userRepository->getWithSearchQueryBuilderbyID($term);
+        $queryBuilder = $userRepository->getWithSearchQueryBuilder($term);
 
         $pagination = $paginator->paginate(
             $queryBuilder,                                  /* query NOT result */
