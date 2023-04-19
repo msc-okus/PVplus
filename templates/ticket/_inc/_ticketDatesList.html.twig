@@ -14,9 +14,9 @@
         {# Performance Ticket - VARIABLE CONTENT OF THE GAP #}
         <th class="is-hidden" data-ticket-edit-target="headerExclude">Sensor to exclude</th>
         <th class="is-hidden" data-ticket-edit-target="headerReplace">Sensor to replace</th>
-        <th class="is-hidden" data-ticket-edit-target="headerReplacePower">replace Energy with PVsyst</th>
-        <th class="is-hidden" data-ticket-edit-target="headerReplaceIrr">replace Irr with PVsyst</th>
-        <th class="is-hidden" data-ticket-edit-target="headerHour">Use Hour (PVsyst)</th>
+        <th class="is-hidden" data-ticket-edit-target="headerReplacePower">replace Energy with {{ features.simulatorName }}</th>
+        <th class="is-hidden" data-ticket-edit-target="headerReplaceIrr">replace Irr with {{ features.simulatorName }}</th>
+        <th class="is-hidden" data-ticket-edit-target="headerHour">Use Hour {% if (features and features.simulatorName == "PVSyst") %}(PVSyst){% endif %}</th>
         <th class="is-hidden" data-ticket-edit-target="headerEnergyValue">Value Energy</th>
         <th class="is-hidden" data-ticket-edit-target="headerIrrValue">Value Irradiation</th>
         <th class="is-hidden" data-ticket-edit-target="headerCorrection">Correction Value (+/-)</th>
