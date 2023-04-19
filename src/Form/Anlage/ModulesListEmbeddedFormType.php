@@ -36,7 +36,7 @@ class ModulesListEmbeddedFormType extends AbstractType
                 'empty_data' => '0',
             ])
             ->add('degradation', TextType::class, [
-                'label' => 'Module degradation',
+                'label' => 'Module degradation per Year',
                 'empty_data' => '0',
             ])
             ->add('maxImpp', TextType::class, [

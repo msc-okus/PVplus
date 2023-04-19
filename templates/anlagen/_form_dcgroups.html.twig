@@ -182,6 +182,7 @@
                                                             <th><small>Strings (West)</small></th>
                                                             <th><small>Modules / String</small></th>
                                                             <th></th>
+                                                            <th></th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
@@ -192,6 +193,7 @@
                                                             <td>{{ form_widget(module.numStringsPerUnitEast) }}</td>
                                                             <td>{{ form_widget(module.numStringsPerUnitWest) }}</td>
                                                             <td>{{ form_widget(module.numModulesPerString) }}</td>
+                                                            <td>{{ module.vars.data.power }}</td>
                                                             <td><a href="#" class="js-remove-use-module"><span class="fa fa-minus-circle"></span></a></td>
                                                         </tr>
                                                     {% endfor %}

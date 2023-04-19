@@ -37,11 +37,13 @@ export default class extends Controller {
     }
 
     async confirmAction(result) {
+
         if (this.redirectUrlValue) {
             const response = await $.ajax(this.redirectUrlValue);
             this.dispatch('async:submitted', {
                 response
             });
+
         } else {
             this.element.submit();
         }

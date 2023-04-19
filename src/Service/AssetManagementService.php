@@ -87,6 +87,7 @@ class AssetManagementService
             'comments' => "",
             'anlage' => $anlage,
             'month' => $reportMonth,
+            'monthName' => $output['month'],
             'year' => $reportYear,
             'dataMonthArray' => $content['dataMonthArray'],
             'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -102,6 +103,7 @@ class AssetManagementService
         $html1 = $this->twig->render('report/asset_report_part_1.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
+            'monthName' => $output['month'],
             'year' => $reportYear,
             'dataMonthArray' => $content['dataMonthArray'],
             'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -121,6 +123,7 @@ class AssetManagementService
             $html2 = $this->twig->render('report/asset_report_part_2.html.twig', [
                 'anlage' => $anlage,
                 'month' => $reportMonth,
+                'monthName' => $output['month'],
                 'year' => $reportYear,
                 'dataMonthArray' => $content['dataMonthArray'],
                 'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -138,9 +141,9 @@ class AssetManagementService
             $reportParts[2] = $pdf->createPage($html2, $fileroute, "CumForecastPVSYS", false);// we will store this later in the entity
         }
         $html3 = $this->twig->render('report/asset_report_part_3.html.twig', [
-
             'anlage' => $anlage,
             'month' => $reportMonth,
+            'monthName' => $output['month'],
             'year' => $reportYear,
             'dataMonthArray' => $content['dataMonthArray'],
             'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -160,6 +163,7 @@ class AssetManagementService
 
             'anlage' => $anlage,
             'month' => $reportMonth,
+            'monthName' => $output['month'],
             'year' => $reportYear,
             'dataMonthArray' => $content['dataMonthArray'],
             'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -180,6 +184,7 @@ class AssetManagementService
         $html5 = $this->twig->render('report/asset_report_part_5.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
+            'monthName' => $output['month'],
             'year' => $reportYear,
             'dataMonthArray' => $content['dataMonthArray'],
             'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -217,6 +222,7 @@ class AssetManagementService
         $html6 = $this->twig->render('report/asset_report_part_6.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
+            'monthName' => $output['month'],
             'year' => $reportYear,
             'dataMonthArray' => $content['dataMonthArray'],
             'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -235,6 +241,7 @@ class AssetManagementService
 
             'anlage' => $anlage,
             'month' => $reportMonth,
+            'monthName' => $output['month'],
             'year' => $reportYear,
             'dataMonthArray' => $content['dataMonthArray'],
             'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -252,6 +259,7 @@ class AssetManagementService
         $html8 = $this->twig->render('report/asset_report_part_8.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
+            'monthName' => $output['month'],
             'year' => $reportYear,
             'dataMonthArray' => $content['dataMonthArray'],
             'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -269,6 +277,7 @@ class AssetManagementService
         $html9 = $this->twig->render('report/asset_report_part_9.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
+            'monthName' => $output['month'],
             'year' => $reportYear,
             'dataMonthArray' => $content['dataMonthArray'],
             'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -287,6 +296,7 @@ class AssetManagementService
         $html10 = $this->twig->render('report/asset_report_part_10.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
+            'monthName' => $output['month'],
             'year' => $reportYear,
             'dataMonthArray' => $content['dataMonthArray'],
             'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -311,6 +321,7 @@ class AssetManagementService
         $html11 =$this->twig->render('report/asset_report_part_11.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
+            'monthName' => $output['month'],
             'year' => $reportYear,
             'dataMonthArray' => $content['dataMonthArray'],
             'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -334,6 +345,7 @@ class AssetManagementService
         $html12 = $this->twig->render('report/asset_report_part_12.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
+            'monthName' => $output['month'],
             'year' => $reportYear,
             'dataMonthArray' => $content['dataMonthArray'],
             'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -354,6 +366,7 @@ class AssetManagementService
             $html13 = $this->twig->render('report/asset_report_part_13.html.twig', [
                 'anlage' => $anlage,
                 'month' => $reportMonth,
+                'monthName' => $output['month'],
                 'year' => $reportYear,
                 'dataMonthArray' => $content['dataMonthArray'],
                 'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
@@ -584,7 +597,7 @@ class AssetManagementService
                             'visualMap' => 'false',
                         ],
                         [
-                            'name' => 'Expected PVSYST',
+                            'name' => 'Plant Simulation',
                             'type' => 'bar',
                             'data' => $expectedPvSyst,
                             'visualMap' => 'false',
@@ -606,7 +619,7 @@ class AssetManagementService
                 $chart->series =
                     [
                         [
-                            'name' => 'Expected PVSYST',
+                            'name' => 'Plant Simulation',
                             'type' => 'bar',
                             'data' => $expectedPvSyst,
                             'visualMap' => 'false',
@@ -642,14 +655,7 @@ class AssetManagementService
                             'data' => $powerExp,
                             'visualMap' => 'false',
                         ],
-/*
-                        [
-                            'name' => 'forecast g4n',
-                            'type' => 'bar',
-                            'data' => $forecast,
-                            'visualMap' => 'false',
-                        ],
-  */                  ];
+                  ];
             } else {
                 $chart->series =
                     [
@@ -665,14 +671,6 @@ class AssetManagementService
                             'data' => $powerAct,
                             'visualMap' => 'false',
                         ],
-                        /*
-                        [
-                            'name' => 'forecast g4n',
-                            'type' => 'bar',
-                            'data' => $forecast,
-                            'visualMap' => 'false',
-                        ],
-                        */
                     ];
             }
         }
@@ -783,19 +781,19 @@ class AssetManagementService
         $chart->series =
             [
                 [
-                    'name' => 'Production ACT / PVSYST - P50',
+                    'name' => 'Production ACT / Plant Simulation - P50',
                     'type' => 'line',
                     'data' => $tbody_forecast_PVSYSTP50,
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Production ACT / PVSYST - P90',
+                    'name' => 'Production ACT / Plant Simulation - P90',
                     'type' => 'line',
                     'data' => $tbody_forecast_PVSYSTP90,
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Plan PVSYST - P50',
+                    'name' => 'Plant Simulation - P50',
                     'type' => 'line',
                     'data' => $tbody_forecast_plan_PVSYSTP50,
                     'visualMap' => 'false',
@@ -804,7 +802,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'Plan PVSYST - P90',
+                    'name' => 'Plant Simulation - P90',
                     'type' => 'line',
                     'data' => $tbody_forecast_plan_PVSYSTP90,
                     'visualMap' => 'false',
@@ -917,7 +915,7 @@ class AssetManagementService
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Plan g4n Forecast - P50',
+                    'name' => 'Forecast g4n - P50',
                     'type' => 'line',
                     'data' => $tbody_forcast_plan_G4NP50,
                     'visualMap' => 'false',
@@ -926,7 +924,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'Plan g4n Forecast - P90',
+                    'name' => 'Forecast g4n - P90',
                     'type' => 'line',
                     'data' => $tbody_forcast_plan_G4NP90,
                     'visualMap' => 'false',
@@ -1162,7 +1160,7 @@ class AssetManagementService
                 $chart->series =
                     [
                         [
-                            'name' => 'Difference ACT to PVSYST',
+                            'name' => 'Difference ACT to Plant Simulation',
                             'type' => 'line',
                             'data' => $difference_Egrid_to_PVSYST,
                             'visualMap' => 'false',
@@ -1190,7 +1188,7 @@ class AssetManagementService
                 $chart->series =
                     [
                         [
-                            'name' => 'Difference ACT to PVSYST',
+                            'name' => 'Difference ACT to Plant Simulation',
                             'type' => 'line',
                             'data' => $difference_Egrid_to_PVSYST,
                             'visualMap' => 'false',
@@ -1326,7 +1324,7 @@ class AssetManagementService
                             'visualMap' => 'false',
                         ],
                         [
-                            'name' => 'Expected PV SYST',
+                            'name' => 'Plant Simulation',
                             'type' => 'bar',
                             'data' => [
                                 $expectedPvSyst[$report['reportMonth'] - 1],
@@ -1354,7 +1352,7 @@ class AssetManagementService
                 $chart->series =
                     [
                         [
-                            'name' => 'Expected PV SYST',
+                            'name' => 'Plant Simulation',
                             'type' => 'bar',
                             'data' => [
                                 $expectedPvSyst[$report['reportMonth'] - 1],
@@ -1918,12 +1916,14 @@ class AssetManagementService
         $start = $report['reportYear'].'-'.$report['reportMonth'].'-01 00:00';
         $end = $report['reportYear'].'-'.$report['reportMonth'].'-'.$daysInReportMonth.' 23:59';
 
-        $output = $this->DownloadAnalyseService->getAllSingleSystemData($anlage, $report['reportYear'], $report['reportMonth'], 2);
+        $output = $this->DownloadAnalyseService->getAllSingleSystemData($anlage, "2023",$report['reportMonth'] , 2);
         $dcData = $this->DownloadAnalyseService->getDcSingleSystemData($anlage, $start, $end, '%d.%m.%Y');
         $dcDataExpected = $this->DownloadAnalyseService->getEcpectedDcSingleSystemData($anlage, $start, $end, '%d.%m.%Y');
 
-        if ($output) {
-            for ($i = 0; $i < count($output); ++$i) {
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $report['reportMonth'], $report['reportYear']);
+
+
+            for ($i = 0; $i < $daysInMonth ; ++$i) {
                 $year = $report['reportYear'];
                 $month = $report['reportMonth'];
                 $days = $i + 1;
@@ -1945,10 +1945,10 @@ class AssetManagementService
                         'prExpMonth' => (float) $output2['prExp'],
                         'plantAvailability' => (float) $output2['availability'],
                         'plantAvailabilitySecond' => (float) $output2['availability2'],
-                        'panneltemp' => (float) $output[$i]->getpanneltemp(),
+                        'panneltemp' => 0,
+                        //(float) $output[$i]->getpanneltemp()
                     ];
             }
-        }
 
         if ($anlage->getConfigType() == 1) {
             // Type 1 is the only one where acGrops are NOT the Inverter
@@ -2460,7 +2460,6 @@ class AssetManagementService
             $ActualPowerYear = $ActualPowerYear + $tbody_a_production['powerAct'][$index];
         }
 
-        // dd($kwhLossesYearTable, $kwhLossesMonthTable, $G4NmonthExpected, $G4NyearExpected, $PVSYSTmonthExpected, $PVSYSTyearExpected,$tbody_a_production,$ActualPower, $ActualPowerYear);
         $percentageTable = [
             'G4NExpected' => (int)($G4NmonthExpected * 100/$G4NmonthExpected) ,
             'PVSYSExpected' => (int)($tbody_a_production['expectedPvSyst'][$month - 2] * 100 / $G4NmonthExpected),
@@ -2527,7 +2526,7 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'Expected PVSYS[%]',
+                        'name' => 'Plant Simulation[%]',
                         'type' => 'bar',
                         'data' => [$percentageTable['PVSYSExpected']] ,
                         'visualMap' => 'false',
@@ -2731,7 +2730,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'G4N Simulation[%]',
+                    'name' => 'Forecast g4n[%]',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['forecast']],
                     'visualMap' => 'false',
@@ -2741,7 +2740,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'Expected PVSYS[%]',
+                    'name' => 'Plant Simulation[%]',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['PVSYSExpected']] ,
                     'visualMap' => 'false',
@@ -2805,7 +2804,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'G4N Simulation[%]',
+                    'name' => 'Forecast g4n[%]',
                     'type' => 'bar',
                     'data' => [$percentageTableYear['forecast']],
                     'visualMap' => 'false',
@@ -2911,7 +2910,6 @@ class AssetManagementService
                 $table_percentage_monthly['OMCLosses'][] = 0;
             }
         }
-        //dd($invertedMonthArray, $table_percentage_monthly, array_slice($dataMonthArray, 0, $report['reportMonth']));
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
@@ -2962,7 +2960,7 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'G4N Simulation[%]',
+                        'name' => 'Forecast g4n[%]',
                         'type' => 'bar',
                         'data' => $table_percentage_monthly['Forecast'],
                         'visualMap' => 'false',
@@ -2972,7 +2970,7 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'Expected PVSYST[%]',
+                        'name' => 'Plant Simulation[%]',
                         'type' => 'bar',
                         'data' => $table_percentage_monthly['expectedPvSyst'],
                         'visualMap' => 'false',
@@ -3037,7 +3035,7 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'G4N Simulation[%]',
+                        'name' => 'Forecast g4n[%]',
                         'type' => 'bar',
                         'data' => $table_percentage_monthly['Forecast'],
                         'visualMap' => 'false',
@@ -3190,7 +3188,7 @@ class AssetManagementService
                 $tempTo = new \DateTime($report['reportYear'].'-'.$report['reportMonth']."-$day 23:59");
                 $pa[] = [
                     'form_date' => $day,
-                    'pa' => $this->availability->calcAvailability($anlage, $tempFrom, $tempTo, $inverter, 0),
+                    'pa' => $this->availability->calcAvailability($anlage, $tempFrom, $tempTo, $inverter, 0),//TODO: add a parameter to change the dep
                     'unit' => $inverter,
                 ];
             }

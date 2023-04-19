@@ -782,7 +782,6 @@ class PRCalulationService
             default:
                 // wenn es keinen spezielen Algoritmus gibt
                 $result = ($irr > 0) ? ($eGrid / ($anlage->getPnom() * $irr)) * 100 : null;
-                #dd($eGrid, $anlage->getPnom() * $irr);
         }
 
         return $result;

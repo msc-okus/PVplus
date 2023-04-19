@@ -1,7 +1,6 @@
 {% extends 'report/report.base.portrait.html.twig' %}
 
 {% block content %}
-{% dump report %}
     <table>
         {% for day in report.days %}
             {% if loop.last %}{% set trstyle = ' class=strong' %}{% else %}{% set trstyle = '' %}{% endif %}
@@ -22,30 +21,30 @@
                 <th>G4N Expected</th>
 
                 <th>Power Theo.</th>
-                <th>Grid</th>
-                <th>Inverter</th>
-                <th>Expected</th>
+                <th>PR Grid</th>
+                <th>PR Inv.</th>
+                <th>PR Exp.</th>
                 <th>PA</th>
 
                 <th>Power Theo.</th>
-                <th>Grid</th>
-                <th>Inverter</th>
-                <th>Expected</th>
+                <th>PR Grid</th>
+                <th>PR Inv.</th>
+                <th>PR Exp.</th>
                 <th>PA</th>
 
                 <th>Power Theo.</th>
-                <th>Grid</th>
-                <th>Inverter</th>
-                <th>Expected</th>
+                <th>PR Grid</th>
+                <th>PR Inverter</th>
+                <th>PR Exp.</th>
                 <th>PA</th>
 
                 <th>Power Theo.</th>
-                <th>Grid</th>
-                <th>Inverter</th>
-                <th>Expected</th>
+                <th>PR Grid</th>
+                <th>PR Inv.</th>
+                <th>PR Exp.</th>
                 <th>PA</th>
 
-                <th></th>
+
             </tr>
             </thead>
             <tbody>

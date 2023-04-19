@@ -158,28 +158,6 @@ class DefaultMREController extends BaseController
         ]);
     }
 
-    #[Route(path: '/mr/bavelse/export/{year}/{month}')]
-    public function bavelseExport($year, $month, ExportService $bavelseExport, AnlagenRepository $anlagenRepository, AvailabilityByTicketService $availabilityByTicket): Response
-    {
-        $output = '';
-        /** @var Anlage $anlage */
-        $anlage = $anlagenRepository->findOneBy(['anlId' => '97']);
-        $from = date_create($year.'-'.$month.'-01');
-        if ($month == 12) {
-            $to = date_create(($year+1).'-01-01');
-        } else {
-            $to = date_create($year.'-'.($month+1).'-01');
-        }
-        $daysInMonth = $to->format('t');
-        $output = $bavelseExport->gewichtetTagesstrahlung($anlage, $from, $to);
-        $availability = $availabilityByTicket->calcAvailability($anlage, date_create("$year-$month-01"), date_create("$year-$month-$daysInMonth"), null, 2);
-
-        return $this->render('cron/showResult.html.twig', [
-            'headline' => 'Bavelse Berg Monats Bericht',
-            'availabilitys' => $availability,
-            'output' => $output,
-        ]);
-    }
 
     #[Route(path: '/mr/export/rawdata/{id}')]
     public function exportRawDataExport($id, ExportService $exportService, AnlagenRepository $anlagenRepository): Response

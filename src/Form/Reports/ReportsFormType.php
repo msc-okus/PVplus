@@ -32,6 +32,7 @@ class ReportsFormType extends AbstractType
             ])
             ->add('comments', CKEditorType::class, [
                 'config' => ['toolbar' => 'my_toolbar'],
+                'empty_data' => '',
             ])
             ->add('headline', TextType::class, [
                 'label' => 'Headline',

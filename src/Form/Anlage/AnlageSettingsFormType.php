@@ -178,7 +178,7 @@ class AnlageSettingsFormType extends AbstractType
             ])
 
             ->add('epxCalculationByCurrent', SwitchType::class, [
-                'label'     => 'calculate expected by current * voltage',
+                'label'     => 'Calculate \'expected\' with (current * voltage)',
                 'help'      => '[epxCalculationByCurrent]'
             ])
         ;

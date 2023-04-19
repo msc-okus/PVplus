@@ -251,6 +251,7 @@ class TicketController extends BaseController
         $prooftam = $request->query->get('prooftam', 0);
         $ignored = $request->query->get('ignored', 0);
         $TicketName = $request->query->get('TicketName', "");
+        $kpistatus = $request->query->get('kpistatus', 0);
         if ($ignored == 0) $ignoredBool = false;
         else $ignoredBool = true;
         if ($sort === "") $sort = "ticket.begin";
@@ -266,8 +267,10 @@ class TicketController extends BaseController
         $filter['category']['array'] = self::errorCategorie();
         $filter['type']['value'] = $type;
         $filter['type']['array'] = self::errorType();
+        $filter['kpistatus']['value'] = $kpistatus;
+        $filter['kpistatus']['array'] = self::kpiStatus();
 
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $sort, $direction, $ignoredBool, $TicketName);
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $sort, $direction, $ignoredBool, $TicketName, $kpistatus);
 
 
         $pagination = $paginator->paginate($queryBuilder, $page,25 );
@@ -359,10 +362,106 @@ class TicketController extends BaseController
             'invArray' => $inverterArray
         ]);
     }
+    #[Route(path: '/ticket/deleteTicket/{id}', name: 'app_ticket_deleteticket')]
+    public function deleteTicket($id, TicketRepository $ticketRepo,  PaginatorInterface $paginator, Request $request, AnlagenRepository $anlagenRepo, EntityManagerInterface $em, functionsService $functions,  RequestStack $requestStack): Response
+    {
+        $filter = [];
+        $session = $requestStack->getSession();
+        $pageSession = $session->get('page');
+        $page = $request->query->getInt('page');
+
+        $ticket = $ticketRepo->findOneById($id);
+        if ($ticket != null){
+            $em->remove($ticket);
+            $em->flush();
+        }
+
+
+        if ($request->query->get('filtering') == 'filtered')
+        {
+            //$page = 1;
+            $request->query->set('filtering', 'non-filtered');
+        } // we do this to reset the page if the user uses the filter
+
+        if ($page == 0) {
+            if ($pageSession == 0) {
+                $page = 1;
+            } else {
+                $page = $pageSession;
+            }
+        }
+        $anlageId = $request->query->get('anlage');
+        if ($anlageId != '') {
+            $anlage = $anlagenRepo->findOneBy(['anlId' => $anlageId]);
+        } else {
+            $anlage = null;
+        }
+
+        $status = $request->query->get('status');
+        $editor = $request->query->get('editor');
+        $inverter = $request->query->get('inverter');
+        $prio = $request->query->get('prio');
+        $category = $request->query->get('category');
+        $type = $request->query->get('type');
+        $sort = $request->query->get('sort', "");
+        $direction = $request->query->get('direction', "");
+        $prooftam = $request->query->get('prooftam', 0);
+        $ignored = $request->query->get('ignored', 0);
+        $TicketName = $request->query->get('TicketName', "");
+        $kpistatus = $request->query->get('kpistatus', 0);
+        if ($ignored == 0) $ignoredBool = false;
+        else $ignoredBool = true;
+        if ($sort === "") $sort = "ticket.begin";
+        if ($direction === "") $direction ="desc";
+        $filter['anlagen']['value'] = $anlage;
+        $filter['anlagen']['array'] = $anlagenRepo->findAllActiveAndAllowed();
+        $filter['TicketName']['value'] = $TicketName;
+        $filter['status']['value'] = $status;
+        $filter['status']['array'] = self::ticketStati();
+        $filter['priority']['value'] = $prio;
+        $filter['priority']['array'] = self::ticketPriority();
+        $filter['category']['value'] = $category;
+        $filter['category']['array'] = self::errorCategorie();
+        $filter['type']['value'] = $type;
+        $filter['type']['array'] = self::errorType();
+        $filter['kpistatus']['value'] = $kpistatus;
+        $filter['kpistatus']['array'] = self::kpiStatus();
+
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $sort, $direction, $ignoredBool, $TicketName, $kpistatus);
+
+
+        $pagination = $paginator->paginate($queryBuilder, $page,25 );
+        $pagination->setParam('sort', $sort);
+        $pagination->setParam('direction', $direction);
+        // check if we get no result
+        if ($pagination->count() == 0){
+            $page = 1;
+            $pagination = $paginator->paginate($queryBuilder, $page,25 );
+            $pagination->setParam('sort', $sort);
+            $pagination->setParam('direction', $direction);
+        }
+        $session->set('page', "$page");
+
+
+        return $this->render('ticket/list.html.twig', [
+            'pagination'    => $pagination,
+            'anlage'        => $anlage,
+            'anlagen'       => $anlagenRepo->findAllActiveAndAllowed(),
+            'user'          => $editor,
+            'id'            => $id,
+            'TicketName'    => $TicketName,
+            'inverter'      => $inverter,
+            'filter'        => $filter,
+            'prooftam'      => $prooftam,
+            'sort'          => $sort,
+            'direction'     => $direction,
+        ]);
+    }
 
     #[Route(path: '/ticket/delete/{id}', name: 'app_ticket_delete')]
     public function delete($id, TicketRepository $ticketRepo, TicketDateRepository $ticketDateRepo, Request $request, EntityManagerInterface $em, functionsService $functions): Response
     {
+
         $option = $request->query->get('value');
         $page = $request->query->getInt('page', 1);
         $ticketDate = $ticketDateRepo->findOneById($id);

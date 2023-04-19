@@ -67,25 +67,23 @@ class TicketFormType extends AbstractType
                     'readonly' => true,
                 ],
             ]);
-            if ($isNewTicket == true){
+        if ($isNewTicket){
+            $builder->add('alertType', ChoiceType::class, [
+                'label' => 'Category of ticket ',
+                'help' => 'data gap, inverter, ...',
+                'choices' => self::errorCategorie(),
 
-                $builder->add('alertType', ChoiceType::class, [
-                    'label' => 'Category of ticket ',
-                    'help' => 'data gap, inverter, ...',
-                    'choices' => self::errorCategorie(),
-
-                    'placeholder' => 'Please select ...',
-                    'invalid_message' => 'Please select a Error Category.',
-                    'empty_data' => 0,
-                    'attr' => [
-                        'data-action' => 'change->ticket-edit#saveCheck',
-                        'data-ticket-edit-target' => 'formCategory',
-                        'data-ticket-edit-edited-param'=> 'false',
-                    ],
-                ]);}
-            else
-
-                $builder->add('alertType', ChoiceType::class, [
+                'placeholder' => 'Please select ...',
+                'invalid_message' => 'Please select a Error Category.',
+                'empty_data' => 0,
+                'attr' => [
+                    'data-action' => 'change->ticket-edit#saveCheck',
+                    'data-ticket-edit-target' => 'formCategory',
+                    'data-ticket-edit-edited-param'=> 'false',
+                ],
+            ]);
+        } else {
+            $builder->add('alertType', ChoiceType::class, [
                 'label' => 'Category of ticket ',
                 'help' => 'data gap, inverter, ...',
                 'choices' => self::errorCategorie(),
@@ -96,16 +94,18 @@ class TicketFormType extends AbstractType
                 'attr' => [
                     'data-action' => 'change->ticket-edit#saveCheck',
                     'data-ticket-edit-target' => 'formCategory',
-                    'data-ticket-edit-edited-param'=> 'true',
+                    'data-ticket-edit-edited-param' => 'true',
                 ],
             ]);
+        }
 
-            $builder->add('inverter', TextType::class, [
-                'label' => 'Inverter',
-                'required' => true,
-                'help' => '* = all Invertres',
-                'attr' => [
-                    'readonly' => true,
+        $builder
+            ->add('inverter', TextType::class, [
+            'label' => 'Inverter',
+            'required' => true,
+            'help' => '* = all Invertres',
+            'attr' => [
+                'readonly' => true,
                 ],
             ])
             ->add('begin', DateTimeType::class, [
@@ -129,7 +129,8 @@ class TicketFormType extends AbstractType
                     //'min' => $isNewTicket ? $ticket->getEnd()->format("Y-m-d\TH:i") : '',
                     'step' => 900,
                     'data-action' => 'change->ticket-edit#saveCheck',
-                    'data-ticket-edit-target' => 'formEnd'],
+                    'data-ticket-edit-target' => 'formEnd'
+                ],
             ])
 
             ->add('status', ChoiceType::class, [
@@ -148,6 +149,9 @@ class TicketFormType extends AbstractType
             ])
             ->add('needsProofTAM', SwitchType::class, [
                 'label'         => 'proof by TAM',
+            ])
+            ->add('ProofAM', SwitchType::class, [
+                'label' => 'proof by AM'
             ])
             ->add('ignoreTicket', SwitchType::class, [
                 'label'         => 'Ignore',
@@ -171,16 +175,27 @@ class TicketFormType extends AbstractType
             ])
         ;
 
-            ########### Performance Tickets ###########
+        ########### Performance Tickets ###########
         if ($isDeveloper || $isBeta) {
             $builder
                 ->add('needsProofEPC', SwitchType::class, [
                     'label'     => 'proof by EPC',
-                    'mapped'    => false,
+                ])
+                ->add('KpiStatus', ChoiceType::class, [
+                    'choices' => self::kpiStatus(),
+                    'placeholder' => 'please chose',
+                    'attr'      => [
+                        'data-ticket-edit-target' => 'formkpiStatus'
+                    ],
+
+                ])
+                ->add('scope', ChoiceType::class, [
+                    'label'     => 'Scope',
+                    'choices'   => self::scope()
                 ])
             ;
         }
-            ;
+
     }
 
 

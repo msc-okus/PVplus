@@ -102,6 +102,7 @@ class SollIstHeatmapChartService
                     $max = (($groupct > 100) ? (int)ceil($groupct / 10) : (int)ceil($groupct / 2));
                     $max = (($max > 50) ? '50' : $max);
                     $sqladd = "AND c.wr_group BETWEEN '$min' AND '$max'";
+                    $sqladb = "AND b.group_dc BETWEEN '$min' AND '$max '";
                 } else {
                     $res = explode(',', $sets);
                     $min = (int)ltrim($res[0], "[");
@@ -109,11 +110,13 @@ class SollIstHeatmapChartService
                     (($max > $groupct) ? $max = $groupct:$max = $max);
                     (($groupct > $min) ? $min = $min:$min = 1);
                     $sqladd = "AND c.wr_group BETWEEN " . (empty($min) ? '1' : $min) . " AND " . (empty($max) ? '50' : $max) . "";
+                    $sqladb = "AND b.group_dc BETWEEN " . (empty($min) ? '1' : $min) . " AND " . (empty($max) ? '50' : $max) . "";
                 }
             } else {
                 $min = 1;
                 $max = 50;
                 $sqladd = "AND c.wr_group BETWEEN '$min' AND '$max '";
+                $sqladb = "AND b.group_dc BETWEEN '$min' AND '$max '";
             }
 // fix the sql Query with an select statement in the join this is much faster
             $sql = "SELECT 
@@ -129,12 +132,14 @@ class SollIstHeatmapChartService
                  GROUP BY c.stamp,c.wr_group ORDER BY NULL)
                 AS as1
              JOIN
-                (SELECT b.stamp as ts, b.soll_imppwr as sollCurrent, b.dc_exp_power as expected FROM 
+                (SELECT b.group_dc as grp_dc, b.stamp as ts, b.soll_imppwr as sollCurrent, b.dc_exp_power as expected FROM 
                  " . $anlage->getDbNameDcSoll() . " b WHERE b.stamp 
                  BETWEEN '$from' AND '$to'
-                 GROUP BY b.stamp ORDER BY NULL)
+                 $sqladb
+                 GROUP BY b.stamp,b.group_dc ORDER BY NULL)
                 AS as2  
-                on (as1.ts = as2.ts)";
+                on (as1.ts = as2.ts and as1.inv = as2.grp_dc)";
+
         } else {
             $nameArray = $this->functions->getNameArray($anlage, 'dc');
             $groupct = count($anlage->getGroupsDc());
@@ -144,6 +149,7 @@ class SollIstHeatmapChartService
                     $max = (($groupct > 100) ? (int)ceil($groupct / 10) : (int)ceil($groupct / 2));
                     $max = (($max > 50) ? '50' : $max);
                     $sqladd = "AND c.group_dc BETWEEN '$min' AND '$max'";
+                    $sqladb = "AND b.group_dc BETWEEN '$min' AND '$max'";
                 } else {
                     $res = explode(',', $sets);
                     $min = (int)ltrim($res[0], "[");
@@ -151,11 +157,13 @@ class SollIstHeatmapChartService
                     (($max > $groupct) ? $max = $groupct:$max = $max);
                     (($groupct > $min) ? $min = $min:$min = 1);
                     $sqladd = "AND c.group_dc BETWEEN " . (empty($min) ? '1' : $min) . " AND " . (empty($max) ? '50' : $max) . "";
+                    $sqladb = "AND b.group_dc BETWEEN " . (empty($min) ? '1' : $min) . " AND " . (empty($max) ? '50' : $max) . "";
                 }
             } else {
                 $min = 1;
                 $max = 50;
                 $sqladd = "AND c.group_dc BETWEEN '$min' AND '$max '";
+                $sqladb = "AND b.group_dc BETWEEN '$min' AND '$max '";
             }
 // fix the sql Query with an select statement in the join this is much faster
             $sql = "SELECT 
@@ -171,12 +179,13 @@ class SollIstHeatmapChartService
                  GROUP BY c.stamp,c.group_dc ORDER BY NULL)
                 AS as1
              JOIN
-                (SELECT b.stamp as ts, b.soll_imppwr as sollCurrent, b.dc_exp_power as expected FROM 
+                (SELECT b.stamp as ts,b.group_dc, b.soll_imppwr as sollCurrent, b.dc_exp_power as expected FROM 
                  " . $anlage->getDbNameDcSoll() . " b WHERE b.stamp 
                  BETWEEN '$from' AND '$to'
-                 GROUP BY b.stamp ORDER BY NULL)
+                 $sqladb
+                 GROUP BY b.stamp,b.group_dc ORDER BY NULL)
                 AS as2  
-                on (as1.ts = as2.ts)";
+                on (as1.ts = as2.ts and as1.inv = as2.group_dc);";
         }
 //
         $dataArray['minSeries'] = $min;

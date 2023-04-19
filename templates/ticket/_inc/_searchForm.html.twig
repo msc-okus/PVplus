@@ -33,7 +33,7 @@
                 {% endfor %}
             </select>
         </div>
-        <div  class="cell medium-2" style="margin-top:-17px!important;">
+        <div  class="cell medium-1" style="margin-top:-17px!important;">
             <input type="text" name="editor" class="input-group-field js-autocomplete-user" value="{{ user }}" placeholder="Editor">
         </div>
         {# we will use this field to recogniye when we are explicitely clicking the search button over jscript #}
@@ -43,6 +43,15 @@
                 <option value="00">{% trans %}ticket.error.category.name{% endtrans %}</option>
                 {% for key, value in filter.category.array %}
                     <option value="{{ value }}" {% if filter.category.value == value %} selected {% endif %}>{{ key }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="cell medium-1" style="margin-top:-17px!important;">
+            <select name="kpistatus" class="no-margin">
+                {{ filter.kpistatus.value }}
+                <option value="00">{% trans %}ticket.kpistatus.name{% endtrans %}</option>
+                {% for key, value in filter.kpistatus.array %}
+                    <option value="{{ value }}" {% if filter.kpistatus.value == value %} selected {% endif %}>{{ key }}</option>
                 {% endfor %}
             </select>
         </div>

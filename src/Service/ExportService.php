@@ -8,7 +8,7 @@ use App\Helper\G4NTrait;
 use App\Repository\AnlageAvailabilityRepository;
 use App\Repository\GridMeterDayRepository;
 use App\Repository\PRRepository;
-use App\Service\Functions\GridService;
+use App\Service\Functions\PowerService;
 use DateTime;
 use PDO;
 
@@ -22,7 +22,7 @@ class ExportService
         private AnlageAvailabilityRepository $availabilityRepo,
         private GridMeterDayRepository $gridRepo,
         private WeatherFunctionsService $weatherFunctions,
-        private GridService $gridService
+        private PowerService $powerService
     )
     {
     }
@@ -93,8 +93,8 @@ class ExportService
             $output .= '<td>'.round($gewichteteStrahlungPpc / 1000 / 4, 4).'</td>';
             $output .= '<td>'.round($gewichteteTheoPower, 2).'</td>';
             $output .= '<td>'.round($gewichteteTheoPowerPpc, 2).'</td>';
-            $output .= '<td>'.round($this->gridService->getGridSum($anlage, date_create(date('Y-m-d 00:00', $stamp)), date_create(date('Y-m-d 23:59', $stamp))),2).'</td>';
-            $output .= '<td>'.round($this->gridService->getGridSumPpc($anlage, date_create(date('Y-m-d 00:00', $stamp)), date_create(date('Y-m-d 23:59', $stamp))),2).'</td>';
+            $output .= '<td>'.round($this->powerService->getGridSum($anlage, date_create(date('Y-m-d 00:00', $stamp)), date_create(date('Y-m-d 23:59', $stamp))),2).'</td>';
+            $output .= '<td>'.round($this->powerService->getGridSumPpc($anlage, date_create(date('Y-m-d 00:00', $stamp)), date_create(date('Y-m-d 23:59', $stamp))),2).'</td>';
             $output .= '<td>'.round($sumEvuPower,2).'</td>';
             $output .= '<td>'.round($sumEvuPowerPpc,2).'</td>';
             $output .= '</tr>';
