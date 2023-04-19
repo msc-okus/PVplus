@@ -88,8 +88,6 @@ class UserFormType extends AbstractType
                 'second_options' => ['label' => 'Repeat Password'],
                 'required' => true,
                 'mapped' => false,
-                'data' => '',
-                #'always_empty' => true,
                 'attr' => ['autocomplete'=>'new-password'],
             ])
             ->add('email', EmailType::class, [
@@ -122,7 +120,6 @@ class UserFormType extends AbstractType
             ])
             ->add('allPlants', SwitchType::class, [
                 'label'         => 'allow all activ Plants',
-                'empty_data'    => '',
             ])
             ->add('grantedList', TextType::class, [
                 'label' => '',

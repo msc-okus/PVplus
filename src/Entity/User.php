@@ -101,8 +101,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: 'string', length: 250)]
     private string $grantedList;
 
-    #[ORM\Column(type: 'boolean', nullable: true)]
-    private ?string $allPlants;
+    #[ORM\Column(nullable: true)]
+    private ?bool $allPlants = false;
 
     #[Groups(['user:read'])]
     #[ORM\ManyToMany(targetEntity: Eigner::class, mappedBy: 'user')]
@@ -360,12 +360,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getAllPlants(): ?bool
     {
-        return $this->allPlants;
+        return is_null($this->allPlants) ? false : $this->allPlants;
     }
 
-    public function setAllPlants(string $allPlants): void
+    public function setAllPlants(?bool $allPlants): self
     {
         $this->allPlants = $allPlants;
+
+        return $this;
     }
 
 
