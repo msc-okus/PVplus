@@ -205,6 +205,11 @@ class AnlageFormType extends AbstractType
                 'empty_data' => 1,
                 'disabled' => !($isDeveloper || $isAdmin),
             ])
+            ->add('pathToImportScript', TextType::class, [
+                'label'     => 'Path to Import Script',
+                'help'      => '[pathToImportScript]',
+                'empty_data'    => '',
+            ])
         ;
 
 

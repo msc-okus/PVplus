@@ -29,7 +29,7 @@ class DownloadDataFormType extends AbstractType
             ->add('anlage', EntityType::class, [
                 'label' => 'please select a Plant',
                 'class' => Anlage::class,
-                'choices' => $this->anlagenRepository->findAllActive(),
+                'choices' => $this->anlagenRepository->findAllActiveAndAllowed(),
                 'choice_label' => 'anlName',
             ])
             ->add('startDate', DateType::class, [

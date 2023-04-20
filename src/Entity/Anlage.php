@@ -581,6 +581,9 @@ class Anlage
     #[ORM\Column]
     private ?bool $kpiTicket = false;
 
+    #[ORM\Column(nullable: true)]
+    private ?string $pathToImportScript;
+
     public function __construct()
     {
         $this->acGroups = new ArrayCollection();
@@ -3405,18 +3408,6 @@ class Anlage
     public function setShowGraphDcCurrGrp(bool $showGraphDcCurrGrp): void
     {
         $this->showGraphDcCurrGrp = $showGraphDcCurrGrp;
-    }
-
-    public function isKpiTicket(): ?bool
-    {
-        return $this->kpiTicket;
-    }
-
-    public function setKpiTicket(bool $kpiTicket): self
-    {
-        $this->kpiTicket = $kpiTicket;
-
-        return $this;
     }
 
 }
