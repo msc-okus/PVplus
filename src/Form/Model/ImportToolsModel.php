@@ -12,6 +12,8 @@ class ImportToolsModel
 
     public \DateTime $endDate;
 
+    public string $path;
+
     public string $preselect;
 
     public string $function1;

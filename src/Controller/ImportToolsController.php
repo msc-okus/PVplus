@@ -7,6 +7,7 @@ use App\Form\ImportTools\ImportToolsFormType;
 use App\Helper\G4NTrait;
 use App\Message\Command\ImportData;
 use App\Repository\AnlagenRepository;
+use App\Repository\PVSystDatenRepository;
 use App\Service\LogMessagesService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,6 +20,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
  */
 class ImportToolsController extends AbstractController
 {
+
     use G4NTrait;
 
     #[Route('admin/import/tools', name: 'app_admin_import_tools')]
@@ -32,10 +34,13 @@ class ImportToolsController extends AbstractController
         if ($form->isSubmitted() && $form->isValid() && $form->get('calc')->isClicked() && $request->getMethod() == 'POST') {
             /* @var ImportToolsModel $importToolsModel */
             $importToolsModel = $form->getData();
+
             $start = strtotime($importToolsModel->startDate->format('Y-m-d 00:00'));
             $end = strtotime($importToolsModel->endDate->format('Y-m-d 23:59'));
             $importToolsModel->endDate->add(new \DateInterval('P1D'));
             $anlage = $anlagenRepo->findOneBy(['anlId' => $importToolsModel->anlage]);
+            $importToolsModel->path = (string)$anlage->getPathToImportScript();
+
             // Start recalculation
             if ($form->get('function')->getData() != null) {
                 switch ($form->get('function')->getData()) {
@@ -43,7 +48,7 @@ class ImportToolsController extends AbstractController
                         $output = '<h3>Import API Data:</h3>';
                         $job = 'Load API Data – from ' . $importToolsModel->startDate->format('Y-m-d 00:00') . ' until ' . $importToolsModel->endDate->format('Y-m-d 00:00');
                         $logId = $logMessages->writeNewEntry($importToolsModel->anlage, 'Import API Data', $job);
-                        $message = new ImportData($importToolsModel->anlage->getAnlId(), $importToolsModel->startDate, $importToolsModel->endDate, $logId);
+                        $message = new ImportData($importToolsModel->anlage->getAnlId(), $importToolsModel->startDate, $importToolsModel->endDate, $importToolsModel->path, $logId);
                         $messageBus->dispatch($message);
                         $output .= 'Command was send to messenger! Will be processed in background.<br>';
                         break;

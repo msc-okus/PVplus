@@ -10,6 +10,7 @@ class ImportData
         private int $anlageId,
         private DateTime $startDate,
         private DateTime $endDate,
+        private string $path,
         private int $logId
     )
     {
@@ -28,6 +29,11 @@ class ImportData
     public function getEndDate(): DateTime
     {
         return $this->endDate;
+    }
+
+    public function getPath(): string
+    {
+        return $this->path;
     }
 
     public function getlogId(): int

@@ -95,7 +95,7 @@ class ExternFileService
         return $output;
     }
 
-    public function CallImportDataFromApiManuel($path, $anlageId, $from, $to): string
+    public function CallImportDataFromApiManuel($path, $from, $to): string
     {
         $currentDir = __DIR__;
         exec("php $currentDir/../../../public_html/anlagen/goldbeck/$path/loadDataFromApi.php ".$from." ".$to);

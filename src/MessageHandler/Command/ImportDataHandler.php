@@ -22,11 +22,13 @@ class ImportDataHandler implements MessageHandlerInterface
     public function __invoke(ImportData $dta)
     {
         $anlageId = $dta->getAnlageId();
+
         $logId = $dta->getlogId();
         $this->logMessages->updateEntry($logId, 'working');
 
-         #  $this->externFileService->($anlageId, date('Y-m-d 00:00', $stamp));
-            $this->externFileService->CallImportDataFromApiManuel('SUNROCK_Oosterhout', $anlageId, $dta->getStartDate()->getTimestamp(), $dta->getEndDate()->getTimestamp());
+        $path = $dta->getPath();
+
+            $this->externFileService->CallImportDataFromApiManuel($path, $dta->getStartDate()->getTimestamp(), $dta->getEndDate()->getTimestamp());
 
         $this->logMessages->updateEntry($logId, 'done');
     }
