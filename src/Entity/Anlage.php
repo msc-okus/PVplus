@@ -578,6 +578,9 @@ class Anlage
     #[ORM\Column]
     private ?bool $ActivateTicketSystem = false;
 
+    #[ORM\Column(nullable: true)]
+    private ?string $pathToImportScript;
+
     public function __construct()
     {
         $this->acGroups = new ArrayCollection();
@@ -998,6 +1001,11 @@ class Anlage
         $this->anlMuteUntil = $anlMuteUntil;
 
         return $this;
+    }
+
+    public function getOwner(): ?Eigner
+    {
+        return $this->eigner;
     }
 
     public function getEigner(): ?Eigner
@@ -3402,6 +3410,16 @@ class Anlage
     public function setShowGraphDcCurrGrp(bool $showGraphDcCurrGrp): void
     {
         $this->showGraphDcCurrGrp = $showGraphDcCurrGrp;
+    }
+
+    public function getPathToImportScript(): ?string
+    {
+        return $this->pathToImportScript;
+    }
+
+    public function setPathToImportScript(?string $pathToImportScript): void
+    {
+        $this->pathToImportScript = $pathToImportScript;
     }
 
 }

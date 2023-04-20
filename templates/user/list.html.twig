@@ -15,6 +15,7 @@
             {# <th>Owner Access List</th> #}
             <th>Role</th>
             {% if is_granted('ROLE_G4N') %}
+                <th>Owner</th>
                 <th>Plant List</th>
                 <th></th>
             {% endif %}
@@ -28,9 +29,10 @@
                 <td>{{ user.userName }}</td>
                 <td>{{ user.email }}</td>
               {#  <td>{{ user.getEignerIdNew }}</td> #}
-                <td>{{ user.rolesAsString }}</td>
+                <td><small>{{ user.rolesAsString }}</small></td>
                 {% if is_granted('ROLE_G4N') %}
-                    <td>{{ user.grantedList }}</td>
+                    <td>{% if user.owner %}{{ user.owner.firma }}{% endif %} </td>
+                    <td><small>{{ user.grantedList }}</small></td>
                     <td><a class="hollow button tiny no-margin shadow" href="{{ path('app_dashboard', {_switch_user: user.email}) }}">Impersonate</a></td>
                 {% endif %}
                 <td><a href="{{ path('app_admin_user_edit', {id: user.userId}) }}" class="hollow button action-icon shadow"><span class="fa fa-edit"></span></a></td>

@@ -6,6 +6,7 @@ use App\Controller\SecurityController;
 use App\Entity\Eigner;
 use App\Entity\Anlage;
 use App\Entity\User;
+use App\Form\Type\SwitchType;
 use App\Repository\AnlagenRepository;
 use App\Repository\EignerRepository;
 use App\Repository\UserRepository;
@@ -42,7 +43,7 @@ class UserFormType extends AbstractType
         //the logged eigner id
         if ($this->security->isGranted('ROLE_G4N')){
             $eigner = null;
-        }else {
+        } else {
             $eigner = $this?->security->getUser()?->getEigners()[0];
         }
         //find selected eigner id
@@ -55,14 +56,9 @@ class UserFormType extends AbstractType
          }
 
         if ($user !== null) {
-            $grantedArray = $user->getGrantedArray();
-            if ($grantedArray) {
-                foreach ($grantedArray as $Gkey) {
-                    $fixGrantedArray[] = preg_replace('/\s+/', '', $Gkey);
-                }
-            }
+            $grantedArray = $user->getGrantedArray(false);
         } else {
-            $fixGrantedArray = [];
+            $grantedArray = [];
         }
 
         if ($anlagen){
@@ -92,8 +88,6 @@ class UserFormType extends AbstractType
                 'second_options' => ['label' => 'Repeat Password'],
                 'required' => true,
                 'mapped' => false,
-                'data' => '',
-                #'always_empty' => true,
                 'attr' => ['autocomplete'=>'new-password'],
             ])
             ->add('email', EmailType::class, [
@@ -124,6 +118,9 @@ class UserFormType extends AbstractType
                 'data' => $singlechoince,
                 'disabled' => true,
             ])
+            ->add('allPlants', SwitchType::class, [
+                'label'         => 'allow all activ Plants',
+            ])
             ->add('grantedList', TextType::class, [
                 'label' => '',
                 'compound' => true,
@@ -134,7 +131,7 @@ class UserFormType extends AbstractType
                 'expanded' => true,
                 'multiple' => true,
                 'required' => true,
-                'data' => $fixGrantedArray,
+                'data' => $grantedArray,
                 'mapped' => false,
                 'choice_attr' => function($choice, $key, $value) {
                     return ['class' => 'plant_'.strtolower($value)];

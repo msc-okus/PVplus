@@ -9,14 +9,11 @@ use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
 
 class CalcExpectedHandler implements MessageHandlerInterface
 {
-    private ExpectedService $expectedService;
 
-    private LogMessagesService $logMessages;
-
-    public function __construct(ExpectedService $expectedService, LogMessagesService $logMessages)
+    public function __construct(
+        private ExpectedService $expectedService,
+        private LogMessagesService $logMessages)
     {
-        $this->expectedService = $expectedService;
-        $this->logMessages = $logMessages;
     }
 
     public function __invoke(CalcExpected $calcExpected)

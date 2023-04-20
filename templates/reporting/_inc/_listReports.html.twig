@@ -87,7 +87,7 @@
 
 
                                 {# download pdf #}
-                                {% if (report.reportType != 'am-report') %}
+                                {% if (report.reportType != null) %}
                                 <a href="{{ path('app_reporting_pdf', { id: report.id}) }}"   target="_blank" title="load PDF file" class="hollow button tiny action-icon shadow
                                     {{ visibility }}
                                 "><span class="fa fa-file-pdf"></span></a>

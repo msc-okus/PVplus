@@ -313,7 +313,13 @@ class Eigner
     {
         return $this->anlage;
     }
-
+    /**
+     * @return Collection|Anlage[]
+     */
+    public function getAnlagen(): Collection
+    {
+        return $this->anlage;
+    }
     /**
      * @param bool $role
      *

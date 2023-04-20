@@ -65,6 +65,7 @@ class DCCurrentChartService
         $dataArray['maxSeries'] = $acGroups[$group]['GMAX'];
 
         if ($result->rowCount() > 0) {
+            $dataArrayIrradiation = $this->irradiationChart->getIrradiation($anlage, $from, $to, 'all', $hour);
             $dataArray['sumSeries'] = $invertersInGroup;
             $counter = 0;
             foreach ($expectedResult as $rowSoll) {
@@ -116,6 +117,18 @@ class DCCurrentChartService
                         $dataArray['chart'][$counter][$nameArray[$rowAct['dc_num']]] = $currentAct;
                     }
                 }
+                // Irradiation
+                if (isset($dataArrayIrradiation['chart'][$counter]['val1'])) {
+                    if ($anlage->getIsOstWestAnlage()) {
+                        $dataArray['chart'][$counter]['irradiation'] = ($dataArrayIrradiation['chart'][$counter]['val1'] * $anlage->getPowerEast() + $dataArrayIrradiation['chart'][$counter]['val2'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+                    } else {
+                        if ($anlage->getShowOnlyUpperIrr() || !$anlage->getWeatherStation()->getHasLower()) {
+                            $dataArray['chart'][$counter]['irradiation'] = $dataArrayIrradiation['chart'][$counter]['val1'];
+                        } else {
+                            $dataArray['chart'][$counter]['irradiation'] = ($dataArrayIrradiation['chart'][$counter]['val1'] + $dataArrayIrradiation['chart'][$counter]['val2']) / 2;
+                        }
+                    }
+                }
                 ++$counter;
                 $dataArray['offsetLegend'] = $acGroups[$group]['GMIN'] - 1;
             }
@@ -133,7 +146,7 @@ class DCCurrentChartService
      * @param int $set
      * @param bool $hour
      * @return array
-     *               dc_current_group
+     *
      * @throws \Exception
      */
     public function getCurr2(Anlage $anlage, $from, $to, int $set = 1, bool $hour = false): array
@@ -197,11 +210,14 @@ class DCCurrentChartService
     /**
      * Erzeugt Daten für das DC Strom Diagram Diagramm, eine Linie je Inverter gruppiert nach Gruppen.
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
-     *
+     * @param int $group
+     * @param bool $hour
      * @return array
-     *               // dc_current_inverter
+     *
+     * @throws \Exception
      */
     public function getCurr3(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
@@ -375,7 +391,6 @@ class DCCurrentChartService
     }
     public function getNomCurrentGroupDC(Anlage $anlage, $from, $to, $sets = 0, int $group = 1, bool $hour = false): array
     {
-        ini_set('memory_limit', '3G');
         $conn = self::getPdoConnection();
         $dataArray = [];
         $nameArray = [];
@@ -466,7 +481,8 @@ class DCCurrentChartService
                         $currentGroupName = $dcGroups[$rowCurrIst['inv']]['GroupName'];
                         $currentImpp = $mImpp[$rowCurrIst['inv'] - 1]; // the array beginn at zero
                         $inv_num = $rowCurrIst['inv'];
-                        $value_dcpnom = round(($currentIst / $currentImpp),2);
+
+                        $value_dcpnom = $currentImpp > 0 ? round(($currentIst / $currentImpp),2) : 0;
                         $dataArray['chart'][$counter]['xinv'] = $currentGroupName;
                         $dataArray['chart'][$counter]['pnomdc'] = $value_dcpnom;
                         ++$counter;

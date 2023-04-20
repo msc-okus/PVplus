@@ -241,7 +241,6 @@ class AnlagenRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
-
     public function findAllIDByEigner($eigner): array
     {
         return $this->createQueryBuilder('a')
@@ -251,7 +250,6 @@ class AnlagenRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
-
     public function findAllAnlageByUser($userid): array
     {
         $query = $this->createQueryBuilder('a');
@@ -280,18 +278,6 @@ class AnlagenRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    /**
-     * Suche alle aktiven anlagen für die ein Benutzer die Zugriffsrechte hat
-     * please use in future 'findAllActivAndAllowed'.
-     *
-     * @return Anlage[]
-     *
-     * @deprecated
-     */
-    public function findAllActive(): array
-    {
-        return self::findAllActiveAndAllowed();
-    }
 
     /**
      * Suche alle aktiven anlagen für die ein Benutzer die Zugriffsrechte hat.
@@ -303,6 +289,36 @@ class AnlagenRepository extends ServiceEntityRepository
         $qb = self::querBuilderFindAllActiveAndAllowed();
 
         return $qb->getQuery()->getResult();
+    }
+
+    public function querBuilderFindAllActiveAndAllowed(): QueryBuilder
+    {
+        $qb = $this->createQueryBuilder('a')
+            ->leftJoin('a.economicVarNames', 'varName')
+            ->leftJoin('a.economicVarValues', 'ecoValu')
+            ->leftJoin('a.settings', 'settings')
+            ->addSelect('varName')
+            ->addSelect('ecoValu')
+            ->addSelect('settings');
+
+        if ($this->security->isGranted('ROLE_G4N')) {
+            $qb
+                ->andWhere("a.anlHidePlant = 'No'");
+        } else {
+            /** @var User $user */
+            $user = $this->security->getUser();
+            $granted = $user->getGrantedArray();
+            $qb
+                ->andWhere("a.anlHidePlant = 'No'")
+                ->andWhere("a.anlView = 'Yes'")
+                ->andWhere("a.anlId IN (:granted)")
+                ->setParameter('granted', $granted);
+        }
+        $qb
+            ->orderBy('a.anlName', 'ASC') //a.eigner
+        ;
+
+        return $qb;
     }
 
     public function getWithSearchQueryBuilder(?string $term): QueryBuilder
@@ -387,45 +403,7 @@ class AnlagenRepository extends ServiceEntityRepository
     }
 
 
-    public function getByIdQueryBuilder(int $id){
 
-        return $this->createQueryBuilder('a')
-               ->andWhere('a.anlId = :id')
-               ->setParameter('id', $id)
-               ;
-    }
-
-
-    public function querBuilderFindAllActiveAndAllowed(): QueryBuilder
-    {
-        $qb = $this->createQueryBuilder('a')
-            ->leftJoin('a.economicVarNames', 'varName')
-            ->leftJoin('a.economicVarValues', 'ecoValu')
-            ->leftJoin('a.settings', 'settings')
-            ->addSelect('varName')
-            ->addSelect('ecoValu')
-            ->addSelect('settings');
-
-        if ($this->security->isGranted('ROLE_G4N')) {
-            $qb
-                ->andWhere("a.anlHidePlant = 'No'");
-        } else {
-            /** @var User $user */
-            $user = $this->security->getUser();
-            $granted = $user->getGrantedArray();
-            $qb
-                ->andWhere("a.anlHidePlant = 'No'")
-                ->andWhere("a.anlView = 'Yes'")
-                ->andWhere("a.anlId IN (:granted)")
-                ->setParameter('granted', $granted);
-        }
-        $qb
-            ->orderBy('a.anlName', 'ASC') //a.eigner
-            #->addOrderBy('a.anlName', 'ASC')
-        ;
-
-        return $qb;
-    }
 
 
 }

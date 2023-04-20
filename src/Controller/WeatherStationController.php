@@ -57,7 +57,7 @@ class WeatherStationController extends BaseController
         if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
             $em->persist($station);
             $em->flush();
-            $this->addFlash('success', 'Owner saved!');
+            $this->addFlash('success', 'Weather Station saved!');
             if ($form->get('saveclose')->isClicked()) {
                 return $this->redirectToRoute('app_admin_weather_list');
             }
