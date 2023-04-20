@@ -50,7 +50,6 @@ class TicketDateEmbeddedFormType extends AbstractType
             ])
             ->add('beginHidden', DateTimeType::class, [
                 'widget' => 'single_text',
-
                 'attr' => [
                     'readonly' => true,
                     'data-ticket-edit-target' => 'formBeginHidden',
@@ -60,7 +59,6 @@ class TicketDateEmbeddedFormType extends AbstractType
             ])
             ->add('endHidden', DateTimeType::class, [
                 'widget' => 'single_text',
-
                 'attr' => [
                     'readonly' => true,
                     'data-ticket-edit-target' => 'formEndHidden',

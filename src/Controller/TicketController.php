@@ -54,6 +54,8 @@ class TicketController extends BaseController
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var Ticket $ticket */
             $ticket = $form->getData();
+
+
             if ($ticket->getDates()->first()->getBegin() < $ticket->getBegin()) $ticket->setBegin($ticket->getDates()->first()->getBegin());
             if ($ticket->getDates()->last()->getEnd() > $ticket->getEnd())$ticket->setEnd($ticket->getDates()->last()->getEnd());
             $ticket->setEditor($this->getUser()->getUsername());
@@ -67,8 +69,8 @@ class TicketController extends BaseController
                 }
                 if ($ticket->getAlertType() == 20) $ticket->getDates()[0]->setDataGapEvaluation(10);
             }
-
             $em->persist($ticket);
+
             $em->flush();
 
             return new Response(null, 204);
@@ -101,7 +103,9 @@ class TicketController extends BaseController
     public function edit($id, TicketRepository $ticketRepo, EntityManagerInterface $em, Request $request, functionsService $functions ): Response
     {
         $ticket = $ticketRepo->find($id);
+
         $ticketDates = $ticket->getDates();
+
         $anlage = $ticket->getAnlage();
         $nameArray = $anlage->getInverterFromAnlage();
         $selected = $ticket->getInverterArray();

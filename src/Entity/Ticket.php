@@ -118,6 +118,9 @@ class Ticket
     #[ORM\Column]
     private ?bool $ProofAM = false;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $needsProofEPC = false;
+
 
     /*
         #[ORM\Column(type: 'string', length: 255, nullable: true)]
@@ -382,6 +385,18 @@ class Ticket
     public function setProofAM(bool $ProofAM): self
     {
         $this->ProofAM = $ProofAM;
+
+        return $this;
+    }
+
+    public function isNeedsProofEPC(): ?bool
+    {
+        return $this->needsProofEPC;
+    }
+
+    public function setNeedsProofEPC(?bool $needsProofEPC): self
+    {
+        $this->needsProofEPC = $needsProofEPC;
 
         return $this;
     }

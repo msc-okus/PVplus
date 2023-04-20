@@ -578,6 +578,9 @@ class Anlage
     #[ORM\Column]
     private ?bool $ActivateTicketSystem = false;
 
+    #[ORM\Column]
+    private ?bool $kpiTicket = false;
+
     public function __construct()
     {
         $this->acGroups = new ArrayCollection();
@@ -3402,6 +3405,18 @@ class Anlage
     public function setShowGraphDcCurrGrp(bool $showGraphDcCurrGrp): void
     {
         $this->showGraphDcCurrGrp = $showGraphDcCurrGrp;
+    }
+
+    public function isKpiTicket(): ?bool
+    {
+        return $this->kpiTicket;
+    }
+
+    public function setKpiTicket(bool $kpiTicket): self
+    {
+        $this->kpiTicket = $kpiTicket;
+
+        return $this;
     }
 
 }

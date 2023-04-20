@@ -180,7 +180,6 @@ class TicketFormType extends AbstractType
             $builder
                 ->add('needsProofEPC', SwitchType::class, [
                     'label'     => 'proof by EPC',
-                    'mapped'    => false
                 ])
                 ->add('KpiStatus', ChoiceType::class, [
                     'choices' => self::kpiStatus(),
