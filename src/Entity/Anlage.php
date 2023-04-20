@@ -581,8 +581,40 @@ class Anlage
     #[ORM\Column]
     private ?bool $kpiTicket = false;
 
+    /**
+     * @return bool|null
+     */
+    public function getKpiTicket(): ?bool
+    {
+        return $this->kpiTicket;
+    }
+
+    /**
+     * @param bool|null $kpiTicket
+     */
+    public function setKpiTicket(?bool $kpiTicket): void
+    {
+        $this->kpiTicket = $kpiTicket;
+    }
+
     #[ORM\Column(nullable: true)]
     private ?string $pathToImportScript;
+
+    /**
+     * @return string|null
+     */
+    public function getPathToImportScript(): ?string
+    {
+        return $this->pathToImportScript;
+    }
+
+    /**
+     * @param string|null $pathToImportScript
+     */
+    public function setPathToImportScript(?string $pathToImportScript): void
+    {
+        $this->pathToImportScript = $pathToImportScript;
+    }
 
     public function __construct()
     {

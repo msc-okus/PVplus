@@ -7,7 +7,6 @@ export default class extends Controller {
     static targets = ['activateTicket', 'ticket'];
 
     connect(){
-
         this.activateTicket();
     }
 
@@ -20,7 +19,6 @@ export default class extends Controller {
         } else {
             $button.attr('disabled', 'disabled');
         }
-
     }
 
 }
