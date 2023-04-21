@@ -39,6 +39,7 @@ class ImportToolsController extends AbstractController
             $end = strtotime($importToolsModel->endDate->format('Y-m-d 23:59'));
             $importToolsModel->endDate->add(new \DateInterval('P1D'));
             $anlage = $anlagenRepo->findOneBy(['anlId' => $importToolsModel->anlage]);
+
             $importToolsModel->path = (string)$anlage->getPathToImportScript();
 
             // Start recalculation
@@ -46,7 +47,7 @@ class ImportToolsController extends AbstractController
                 switch ($form->get('function')->getData()) {
                     case 'api-import-data':
                         $output = '<h3>Import API Data:</h3>';
-                        $job = 'Load API Data – from ' . $importToolsModel->startDate->format('Y-m-d 00:00') . ' until ' . $importToolsModel->endDate->format('Y-m-d 00:00');
+                        $job = 'Import API Data – from ' . $importToolsModel->startDate->format('Y-m-d 00:00') . ' until ' . $importToolsModel->endDate->format('Y-m-d 00:00');
                         $logId = $logMessages->writeNewEntry($importToolsModel->anlage, 'Import API Data', $job);
                         $message = new ImportData($importToolsModel->anlage->getAnlId(), $importToolsModel->startDate, $importToolsModel->endDate, $importToolsModel->path, $logId);
                         $messageBus->dispatch($message);
