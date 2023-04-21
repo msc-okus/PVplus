@@ -103,34 +103,37 @@ class ModulesListEmbeddedFormType extends AbstractType
                 'empty_data' => '0',
             ])
             ->add('operatorPowerHighB', TextType::class, [
-                'label' => 'B (>200W)',
-                'empty_data' => '0',
+                'label'         => 'B (>200W)',
+                'empty_data'    => '0',
             ])
 
             ######### Voltage ##########
 
             ->add('operatorVoltageA', TextType::class, [
-                'label' => 'A',
-                'empty_data' => '0',
+                'label'         => 'A',
+                'empty_data'    => '0',
             ])
             ->add('operatorVoltageB', TextType::class, [
-                'label' => 'B',
-                'empty_data' => '0',
+                'label'         => 'B',
+                'empty_data'    => '0',
             ])
 
             ->add('operatorVoltageHightA', TextType::class, [
-                'label' => 'A (>200W)',
-                'empty_data' => '0',
+                'label'         => 'A (>200W)',
+                'empty_data'    => '0',
             ])
             ->add('operatorVoltageHightB', TextType::class, [
-                'label' => 'B (>200W)',
-                'empty_data' => '0',
+                'label'         => 'B (>200W)',
+                'empty_data'    => '0',
             ])
             ->add('operatorVoltageHightC', TextType::class, [
-                'label' => 'C (>200W)',
-                'empty_data' => '0',
+                'label'         => 'C (>200W)',
+                'empty_data'    => '0',
             ])
-
+            ->add('backSideFactor', TextType::class, [
+                'label'         => 'Factor to extend Irr on BFIM [%]',
+                'empty_data'    => '0'
+            ])
         ;
     }
 
