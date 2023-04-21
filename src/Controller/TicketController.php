@@ -268,7 +268,7 @@ class TicketController extends BaseController
         $filter['priority']['value'] = $prio;
         $filter['priority']['array'] = self::ticketPriority();
         $filter['category']['value'] = $category;
-        $filter['category']['array'] = self::errorCategorie();
+        $filter['category']['array'] = self::listAllErrorCategorie();
         $filter['type']['value'] = $type;
         $filter['type']['array'] = self::errorType();
         $filter['kpistatus']['value'] = $kpistatus;
@@ -425,7 +425,7 @@ class TicketController extends BaseController
         $filter['priority']['value'] = $prio;
         $filter['priority']['array'] = self::ticketPriority();
         $filter['category']['value'] = $category;
-        $filter['category']['array'] = self::errorCategorie();
+        $filter['category']['array'] = self::listAllErrorCategorie();
         $filter['type']['value'] = $type;
         $filter['type']['array'] = self::errorType();
         $filter['kpistatus']['value'] = $kpistatus;

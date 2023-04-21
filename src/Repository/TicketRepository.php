@@ -119,7 +119,11 @@ class TicketRepository extends ServiceEntityRepository
         if ((int) $type > 0) {
             $qb->andWhere("ticket.errorType = $type");
         } // SFOR, EFOR, OMC
-        if ((int) $category > 0) {
+        if ((int) $category == 7){
+            $qb->andWhere("ticket.alertType >= 70");
+            $qb->andWhere("ticket.alertType < 80");
+        }
+        else if ((int) $category > 0) {
             $qb->andWhere("ticket.alertType = $category");
         }
         if ($prooftam == 1){
