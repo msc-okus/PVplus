@@ -44,3 +44,4 @@ framework:
             'App\Message\Command\GenerateAMReport': async
             'App\Message\Command\LoadAPIData': async
             'App\Message\Command\LoadINAXData': async
+            'App\Message\Command\ImportData': async
