@@ -95,7 +95,7 @@ class AnlageModules
     private string $operatorVoltageHightC;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private string $backSideFactor;
+    private ?string $backSideFactor;
 
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'modules')]
     private Anlage $anlage;
@@ -493,7 +493,7 @@ class AnlageModules
         return (float) (1 + ($this->getTempCoefVoltage() * ($pannelTemp - 25) / 100));
     }
 
-    public function getBackSideFactor(): float
+    public function getBackSideFactor(): ?float
     {
         return (float)$this->backSideFactor;
     }
