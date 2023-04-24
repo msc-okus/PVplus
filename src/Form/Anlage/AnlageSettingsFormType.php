@@ -17,6 +17,7 @@ class AnlageSettingsFormType extends AbstractType
                 'label'     => 'could not be disabled',
                 'help'      => '[disableDep0]',
                 'attr'      => ['disabled' => 'disabled'],
+                'data'      => true,
                 'mapped'    => false,
             ])
             ->add('disableDep1', SwitchType::class, [

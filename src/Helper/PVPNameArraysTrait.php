@@ -16,11 +16,11 @@ trait PVPNameArraysTrait
     public static function prFormulars(): array
     {
         return [
-            'No Cust PR' => 'no',
-            'Groningen' => 'Groningen',
-            'EnergyProduced / (Theo.Energy + PA)' => 'Veendam',
+            'No Cust PR (EnergyProduced / Theo.Energy)' => 'no',
+            'EnergyProduced / (Theo.Energy * PA)' => 'Veendam',
             'EnergyProduced / (Theo.Energy * Ft)' => 'Lelystad',
             'Ladenburg' => 'Ladenburg',
+            'Groningen' => 'Groningen',
         ];;
     }
 
