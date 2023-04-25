@@ -206,6 +206,7 @@ class AlertSystemService
                         $ticketOld = $this->getTicketYesterday($anlage, $time, 10, $mainTicket0->getInverter());
                         if ($ticketOld){
                             $mainTicket0->setBegin($ticketOld->getBegin());
+                            $this->em->remove($ticketOld);
                         }
                     }
                     $this->em->persist($mainTicket0);
@@ -231,6 +232,7 @@ class AlertSystemService
                         $ticketOld = $this->getTicketYesterday($anlage, $time, 10, $mainTicketGrid->getInverter());
                         if ($ticketOld){
                             $mainTicketGrid->setBegin($ticketOld->getBegin());
+                            $this->em->remove($ticketOld);
                         }
                     }
                     $this->em->persist($mainTicketGrid);
@@ -249,6 +251,11 @@ class AlertSystemService
                             $mainTicketPower->setInverter($mainTicketPower->getInverter() . ", " . $secondTicketPower->getInverter());
                             $mainTicketPower->setDescription($mainTicketPower->getDescription() . ", " . $anlage->getInverterFromAnlage()[(int)$secondTicketPower->getInverter()]);
                         }
+                    }
+                    $ticketOld = $this->getTicketYesterday($anlage, $time, 10, $mainTicketPower->getInverter());
+                    if ($ticketOld){
+                        $mainTicketPower->setBegin($ticketOld->getBegin());
+                        $this->em->remove($ticketOld);
                     }
                     $this->em->persist($mainTicketPower);
                 }
@@ -468,13 +475,22 @@ class AlertSystemService
                     WHERE a.stamp = '$time' AND  b.wr_pac is null ";
             $resp = $conn->query($sqlNull);
             $resultNull = $resp->fetchAll(PDO::FETCH_ASSOC);
-
-            $sqlVol = "SELECT b.unit 
+            if ($anlage->isGridTicket()) {
+                $sqlVol = "SELECT b.unit 
                     FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
                     WHERE a.stamp = '$time' AND  (b.u_ac < " . $voltLimit . " OR b.frequency < " . $freqLimitBot . " OR b.frequency > " . $freqLimitTop . ")";
-            $resp = $conn->query($sqlVol);
-            //here if there is no plant control we check the values and get the information to create the tickets
-            $resultVol = $resp->fetchAll(PDO::FETCH_ASSOC);
+                $resp = $conn->query($sqlVol);
+                //here if there is no plant control we check the values and get the information to create the tickets
+                $resultVol = $resp->fetchAll(PDO::FETCH_ASSOC);
+                if (count($resultVol) == $invCount &&  $this->irr == false) $return['Vol'] = '*';
+                else {
+                    foreach ($resultVol as $value) {
+                        if ($return['Vol'] !== "") $return['Vol'] = $return['Vol'] . ", " . $value['unit'];
+                        else $return['Vol'] = $value['unit'];
+                    }
+                }
+            }
+            else $return['Vol'] = "";
             if (count($resultNull) == $invCount &&  $this->irr == false) $return['Gap'] = '*';
             else {
                 foreach ($resultNull as $value) {
@@ -487,13 +503,6 @@ class AlertSystemService
                 foreach ($result0 as $value) {
                     if ($return['Power0'] !== "") $return['Power0'] = $return['Power0'] . ", " . $value['unit'];
                     else $return['Power0'] = $value['unit'];
-                }
-            }
-            if (count($resultVol) == $invCount &&  $this->irr == false) $return['Vol'] = '*';
-            else {
-                foreach ($resultVol as $value) {
-                    if ($return['Vol'] !== "") $return['Vol'] = $return['Vol'] . ", " . $value['unit'];
-                    else $return['Vol'] = $value['unit'];
                 }
             }
 

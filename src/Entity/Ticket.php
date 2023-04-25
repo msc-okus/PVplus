@@ -7,6 +7,7 @@ use App\Repository\TicketRepository;
 use App\Service\FunctionsService;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
@@ -116,6 +117,11 @@ class Ticket
 
     #[ORM\Column]
     private ?bool $ProofAM = false;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $needsProofEPC = false;
+
+
     /*
         #[ORM\Column(type: 'string', length: 255, nullable: true)]
         private ?string $generatedFrom = '';
@@ -382,4 +388,17 @@ class Ticket
 
         return $this;
     }
+
+    public function isNeedsProofEPC(): ?bool
+    {
+        return $this->needsProofEPC;
+    }
+
+    public function setNeedsProofEPC(?bool $needsProofEPC): self
+    {
+        $this->needsProofEPC = $needsProofEPC;
+
+        return $this;
+    }
+
 }

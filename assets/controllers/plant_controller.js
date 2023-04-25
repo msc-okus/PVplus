@@ -7,8 +7,7 @@ export default class extends Controller {
     static targets = ['activateTicket', 'ticket'];
 
     connect(){
-        const $button = $(this.ticketTargets);
-        $button.attr('disabled', 'disabled');
+        this.activateTicket();
     }
 
     activateTicket() {
@@ -20,7 +19,6 @@ export default class extends Controller {
         } else {
             $button.attr('disabled', 'disabled');
         }
-
     }
 
 }

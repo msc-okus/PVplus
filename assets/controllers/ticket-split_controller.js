@@ -94,15 +94,17 @@ export default class extends Controller {
     checkKpiSelectBoxes(){
         const $dataGapEvaluation = $(this.dataGapEvTarget);
         const dataGabEvaluationDisabled = $dataGapEvaluation.attr('disabled') === 'disabled'
-
+        console.log( $(this.aktDep1Target) );
         if ($dataGapEvaluation.val() === '10' || (dataGabEvaluationDisabled)) {
             $(this.aktDep1Target).prop('disabled', false);
             $(this.aktDep2Target).prop('disabled', false);
             $(this.aktDep3Target).prop('disabled', false);
             if ($dataGapEvaluation.val() === '10') {
-                if ($(this.aktDep1Target).val() === '') $(this.aktDep1Target).prop('value', '10');
-                if ($(this.aktDep2Target).val() === '') $(this.aktDep2Target).prop('value', '10');
-                if ($(this.aktDep3Target).val() === '') $(this.aktDep3Target).prop('value', '10');
+                console.log( $(this.aktDep1Target) );
+                if ($(this.aktDep1Target).prop('value') === '') $(this.aktDep1Target).val('10');
+                if ($(this.aktDep2Target).prop('value') === '') $(this.aktDep2Target).val('10');
+                if ($(this.aktDep3Target).prop('value') === '') $(this.aktDep3Target).val('10');
+                console.log($(this.aktDep1Target).val());
             }
         }
         else {

@@ -5,6 +5,9 @@ namespace App\Entity;
 use App\Helper\TicketTrait;
 use App\Repository\TicketDateRepository;
 use App\Service\FunctionsService;
+use DateTime;
+use DateTimeInterface;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Blameable\Traits\BlameableEntity;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
@@ -57,9 +60,17 @@ class TicketDate
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $PRExcludeMethod = null;
 
+    #[ORM\Column(type: 'datetime')]
+    private ?DateTimeInterface $beginHidden;
+
+    #[ORM\Column(type: 'datetime')]
+    private ?DateTimeInterface $endHidden ;
+
 
     public function __construct()
     {
+        $this->beginHidden = new DateTime();
+        $this->endHidden = new DateTime();
     }
 
     public function getId(): ?int
@@ -239,6 +250,30 @@ class TicketDate
     public function setPRExcludeMethod(?string $PRExcludeMethod): self
     {
         $this->PRExcludeMethod = $PRExcludeMethod;
+
+        return $this;
+    }
+
+    public function getBeginHidden(): ?\DateTimeInterface
+    {
+        return $this->beginHidden;
+    }
+
+    public function setBeginHidden(?\DateTimeInterface $beginHidden): self
+    {
+        $this->beginHidden = $beginHidden;
+
+        return $this;
+    }
+
+    public function getEndHidden(): ?\DateTimeInterface
+    {
+        return $this->endHidden;
+    }
+
+    public function setEndHidden(?\DateTimeInterface $endHidden): self
+    {
+        $this->endHidden = $endHidden;
 
         return $this;
     }
