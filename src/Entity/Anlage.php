@@ -600,6 +600,9 @@ class Anlage
     #[ORM\Column(nullable: true)]
     private ?string $pathToImportScript;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $gridTicket = false;
+
     /**
      * @return string|null
      */
@@ -3440,6 +3443,18 @@ class Anlage
     public function setShowGraphDcCurrGrp(bool $showGraphDcCurrGrp): void
     {
         $this->showGraphDcCurrGrp = $showGraphDcCurrGrp;
+    }
+
+    public function isGridTicket(): ?bool
+    {
+        return $this->gridTicket;
+    }
+
+    public function setGridTicket(?bool $gridTicket): self
+    {
+        $this->gridTicket = $gridTicket;
+
+        return $this;
     }
 
 }

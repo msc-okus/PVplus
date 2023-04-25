@@ -682,6 +682,11 @@ class AnlageFormType extends AbstractType
                 'help' => '[kpi Ticket]',
                 'attr' => ['data-plant-target' => 'ticket']
             ])
+            ->add('gridTicket', SwitchType::class, [
+                'label' => 'Activate Grid Ticket',
+                'help' => '[Grid Ticket]',
+                'attr' => ['data-plant-target' => 'ticket']
+            ])
             // ###############################################
             // ###               Reports                  ####
             // ###############################################
