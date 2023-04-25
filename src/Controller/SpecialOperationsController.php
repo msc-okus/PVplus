@@ -28,10 +28,10 @@ class SpecialOperationsController extends AbstractController
     {
         $output = $availability = '';
 
-        $month = $request->query->get('month');
-        $year = $request->query->get('year');
-        $anlageId = $request->query->get('anlage-id');
-        $submitted = $request->query->get('new-report') == 'yes' && isset($month) && isset($year);
+        $month = $request->request->get('month');
+        $year = $request->request->get('year');
+        $anlageId = $request->request->get('anlage-id');
+        $submitted = $request->request->get('new-report') == 'yes' && isset($month) && isset($year);
 
 
         // Start individual part
@@ -70,15 +70,14 @@ class SpecialOperationsController extends AbstractController
     public function monthlyReportTest(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyService $reportsMonthly): Response
     {
         $output = null;
-
-        $month = $request->query->get('month');
-        $year = $request->query->get('year');
-        $anlageId = $request->query->get('anlage-id');
-        $submitted = $request->query->get('new-report') == 'yes' && isset($month) && isset($year);
+        $month = $request->request->get('month');
+        $year = $request->request->get('year');
+        $anlageId = $request->request->get('anlage-id');
+        $submitted = $request->request->get('new-report') == 'yes' && isset($month) && isset($year);
 
         // Start individual part
         /** @var Anlage $anlage */
-        $headline = 'Monats Bericht Alle Departments';
+        $headline = 'Monats Bericht (Testumgebung)';
         $anlagen = $anlagenRepository->findAllActiveAndAllowed();
 
         if ($submitted && isset($anlageId)) {

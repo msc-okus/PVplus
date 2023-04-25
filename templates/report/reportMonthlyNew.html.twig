@@ -21,7 +21,6 @@
 
     {% include'special_operations/_inc/_createForm.html.twig' %}
 
-    </form>
     {% if report != null %}
         <div class="grid-x">
         <div class="cell">
@@ -32,31 +31,32 @@
                     {% if loop.first %}
                         <thead>
                         <tr class="left">
-                            <th></th>
-                            <th class="left" colspan="3">Power</th>
-                            <th class="left" colspan="5">PR & PA Department 0</th>
-                            {% if anlage.settings.disableDep1 != true %}<th class="left" colspan="5">PR & PA Department O&M</th>{% endif %}
-                            {% if anlage.settings.disableDep2 != true %}<th class="left" colspan="5">PR & PA Department EPC</th>{% endif %}
-                            {% if anlage.settings.disableDep3 != true %}<th class="left" colspan="5">PR & PA Department AM</th>{% endif %}
+                            <th class="border-right-2"></th>
+                            <th class="border-right-2" colspan="4">Power & Irradiation</th>
+                            <th class="border-right-2" colspan="5">PR & PA – default (OpenBook)</th>
+                            {% if anlage.settings.disableDep1 != true %}<th class="border-right-2" colspan="5">PR & PA – O&M</th>{% endif %}
+                            {% if anlage.settings.disableDep2 != true %}<th class="border-right-2" colspan="5">PR & PA – EPC</th>{% endif %}
+                            {% if anlage.settings.disableDep3 != true %}<th class="border-right-2" colspan="5">PR & PA – AM</th>{% endif %}
                         </tr>
                         <tr>
-                            <th>Datum</th>
+                            <th class="border-right-2">Datum</th>
+                            <th>Irr</th>
                             <th>Grid</th>
                             <th>Inverter</th>
-                            <th>G4N Expected</th>
+                            <th class="border-right-2">G4N Expected</th>
 
                             <th>Power Theo.</th>
                             <th>PR Grid</th>
                             <th>PR Inv.</th>
                             <th>PR Exp.</th>
-                            <th>PA</th>
+                            <th class="border-right-2">PA</th>
 
                             {% if anlage.settings.disableDep1 != true %}
                                 <th>Power Theo.</th>
                                 <th>PR Grid</th>
                                 <th>PR Inv.</th>
                                 <th>PR Exp.</th>
-                                <th>PA</th>
+                                <th class="border-right-2">PA</th>
                             {% endif %}
 
                             {% if anlage.settings.disableDep2 != true %}
@@ -64,7 +64,7 @@
                             <th>PR Grid</th>
                             <th>PR Inverter</th>
                             <th>PR Exp.</th>
-                            <th>PA</th>
+                            <th class="border-right-2">PA</th>
                             {% endif %}
 
                             {% if anlage.settings.disableDep3 != true %}
@@ -72,7 +72,7 @@
                             <th>PR Grid</th>
                             <th>PR Inv.</th>
                             <th>PR Exp.</th>
-                            <th>PA</th>
+                            <th class="border-right-2">PA</th>
                             {% endif %}
 
 
@@ -81,16 +81,18 @@
                         <tbody>
                     {% endif %}
                     <tr {{ trstyle }}>
-                        <td>{{ day["datum"] }}</td>
+                        <td class="border-right-2">{{ day["datum"] }}</td>
+
+                        <td>{{ day["irradiation"]|number_format(4,',','.') }}</td>
                         <td>{% if anlage.useGridMeterDayData %}{{ day["powerEGridExt"]|number_format(2,',','.') }}{% else %}{{ day["powerEvu"]|number_format(2,',','.') }}{% endif %}</td>
                         <td>{{ day["powerAct"]|number_format(2,',','.') }}</td>
-                        <td>{{ day["powerExp"]|number_format(2,',','.') }}</td>
+                        <td class="border-right-2">{{ day["powerExp"]|number_format(2,',','.') }}</td>
 
                         <td>{{ day["powerTheoDep0"]|number_format(2,',','.') }}</td>
                         <td>{% if anlage.useGridMeterDayData %}{{ day["prDep0EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep0Evu"]|number_format(2,',','.') }}{% endif %}</td>
                         <td>{{ day["prDep0Act"]|number_format(2,',','.') }}</td>
                         <td>{{ day["prDep0Exp"]|number_format(2,',','.') }}</td>
-                        <td>{{ day["pa0"]|number_format(2,',','.') }}</td>
+                        <td class="border-right-2">{{ day["pa0"]|number_format(2,',','.') }}</td>
 
 
                         {% if anlage.settings.disableDep1 != true %}
@@ -98,7 +100,7 @@
                             <td>{% if anlage.useGridMeterDayData %}{{ day["prDep1EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep1Evu"]|number_format(2,',','.') }}{% endif %}</td>
                             <td>{{ day["prDep1Act"]|number_format(2,',','.') }}</td>
                             <td>{{ day["prDep1Exp"]|number_format(2,',','.') }}</td>
-                            <td>{{ day["pa1"]|number_format(2,',','.') }}</td>
+                            <td class="border-right-2">{{ day["pa1"]|number_format(2,',','.') }}</td>
                         {% endif %}
 
                         {% if anlage.settings.disableDep2 != true %}
@@ -106,7 +108,7 @@
                             <td>{% if anlage.useGridMeterDayData %}{{ day["prDep2EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep2Evu"]|number_format(2,',','.') }}{% endif %}</td>
                             <td>{{ day["prDep2Act"]|number_format(2,',','.') }}</td>
                             <td>{{ day["prDep2Exp"]|number_format(2,',','.') }}</td>
-                            <td>{{ day["pa2"]|number_format(2,',','.') }}</td>
+                            <td class="border-right-2">{{ day["pa2"]|number_format(2,',','.') }}</td>
                         {% endif %}
 
                         {% if anlage.settings.disableDep3 != true %}
@@ -114,7 +116,7 @@
                             <td>{% if anlage.useGridMeterDayData %}{{ day["prDep3EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep3Evu"]|number_format(2,',','.') }}{% endif %}</td>
                             <td>{{ day["prDep3Act"]|number_format(2,',','.') }}</td>
                             <td>{{ day["prDep3Exp"]|number_format(2,',','.') }}</td>
-                            <td>{{ day["pa3"]|number_format(2,',','.') }}</td>
+                            <td class="border-right-2">{{ day["pa3"]|number_format(2,',','.') }}</td>
                         {% endif %}
                     </tr>
                 {% endfor %}
