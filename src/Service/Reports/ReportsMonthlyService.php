@@ -330,6 +330,7 @@ class ReportsMonthlyService
 
     /**
      * @throws ExceptionInterface
+     * @throws \Exception
      */
     public function buildMonthlyReportNew(Anlage $anlage, int $reportMonth = 0, int $reportYear = 0): array
     {

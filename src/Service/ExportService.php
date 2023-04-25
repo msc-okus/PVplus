@@ -51,7 +51,7 @@ class ExportService
             // für jede AC Gruppe ermittele Wetterstation, lese Tageswert und gewichte diesen
             foreach ($anlage->getAcGroups() as $groupAC) {
                 $weather = $this->functions->getWeatherNew($anlage, $groupAC->getWeatherStation(), date('Y-m-d 00:00', $stamp), date('Y-m-d 23:59', $stamp));
-                $acPower = $this->functions->getSumAcPowerBySection($anlage, date('Y-m-d 00:00', $stamp), date('Y-m-d 23:59', $stamp), $groupAC->getAcGroup());
+                $acPower = $this->powerService->getSumAcPowerBySection($anlage, date('Y-m-d 00:00', $stamp), date('Y-m-d 23:59', $stamp), $groupAC->getAcGroup());
                 $tempArray[] = $weather['airTemp'];
                 if ($groupAC->getIsEastWestGroup()) {
                     if ($weather['upperIrr'] > 0 && $weather['lowerIrr'] > 0) {

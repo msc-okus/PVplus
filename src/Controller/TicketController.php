@@ -317,7 +317,7 @@ class TicketController extends BaseController
         $ticket = $ticketRepo->findOneById($ticketDate->getTicket());
         $splitTime = date_create($request->query->get('begin-time'));
         $anlage = $ticket->getAnlage();
-        $nameArray = $functions->getInverterArray($anlage);
+        $nameArray = $anlage->getInverterFromAnlage();
         $selected = $ticket->getInverterArray();
 
         $indexSelect = 0;
@@ -514,7 +514,7 @@ class TicketController extends BaseController
         }
         $anlage = $ticket->getAnlage();
 
-        $nameArray = $functions->getInverterArray($anlage);
+        $nameArray = $anlage->getInverterFromAnlage();
         $selected = $ticket->getInverterArray();
         $indexSelect = 0;
         // I loop over the array with the real names and the array of selected inverters
