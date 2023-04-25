@@ -1,88 +1,112 @@
-{% extends 'report/report.base.portrait.html.twig' %}
+{#  {% extends 'report/report.base.portrait.html.twig' %}#}
+{% extends 'base.html.twig' %}
 
-{% block content %}
-    <table>
-        {% for day in report.days %}
-            {% if loop.last %}{% set trstyle = ' class=strong' %}{% else %}{% set trstyle = '' %}{% endif %}
-            {% if loop.first %}
-            <thead>
-            <tr class="left">
-                <th></th>
-                <th class="left" colspan="3">Power</th>
-                <th class="left" colspan="5">PR & PA Department 0</th>
-                <th class="left" colspan="5">PR & PA Department O&M</th>
-                <th class="left" colspan="5">PR & PA Department EPC</th>
-                <th class="left" colspan="5">PR & PA Department AM</th>
-            </tr>
-            <tr>
-                <th>Datum</th>
-                <th>Grid</th>
-                <th>Inverter</th>
-                <th>G4N Expected</th>
+{% block body %}
+    <div class="grid-x">
+        <div class="cell">
+            <h1>{{ headline }}</h1>
+        </div>
+    </div>
 
-                <th>Power Theo.</th>
-                <th>PR Grid</th>
-                <th>PR Inv.</th>
-                <th>PR Exp.</th>
-                <th>PA</th>
+    {% include'special_operations/_inc/_createForm.html.twig' %}
 
-                <th>Power Theo.</th>
-                <th>PR Grid</th>
-                <th>PR Inv.</th>
-                <th>PR Exp.</th>
-                <th>PA</th>
+    </form>
+    {% if report != null %}
+        <div class="grid-x">
+        <div class="cell">
 
-                <th>Power Theo.</th>
-                <th>PR Grid</th>
-                <th>PR Inverter</th>
-                <th>PR Exp.</th>
-                <th>PA</th>
+            <table>
+                {% for day in report.days %}
+                    {% if loop.last %}{% set trstyle = ' class=strong' %}{% else %}{% set trstyle = '' %}{% endif %}
+                    {% if loop.first %}
+                        <thead>
+                        <tr class="left">
+                            <th></th>
+                            <th class="left" colspan="3">Power</th>
+                            <th class="left" colspan="5">PR & PA Department 0</th>
+                            <th class="left" colspan="5">PR & PA Department O&M</th>
+                            <th class="left" colspan="5">PR & PA Department EPC</th>
+                            <th class="left" colspan="5">PR & PA Department AM</th>
+                        </tr>
+                        <tr>
+                            <th>Datum</th>
+                            <th>Grid</th>
+                            <th>Inverter</th>
+                            <th>G4N Expected</th>
 
-                <th>Power Theo.</th>
-                <th>PR Grid</th>
-                <th>PR Inv.</th>
-                <th>PR Exp.</th>
-                <th>PA</th>
+                            <th>Power Theo.</th>
+                            <th>PR Grid</th>
+                            <th>PR Inv.</th>
+                            <th>PR Exp.</th>
+                            <th>PA</th>
+
+                            <th>Power Theo.</th>
+                            <th>PR Grid</th>
+                            <th>PR Inv.</th>
+                            <th>PR Exp.</th>
+                            <th>PA</th>
+
+                            <th>Power Theo.</th>
+                            <th>PR Grid</th>
+                            <th>PR Inverter</th>
+                            <th>PR Exp.</th>
+                            <th>PA</th>
+
+                            <th>Power Theo.</th>
+                            <th>PR Grid</th>
+                            <th>PR Inv.</th>
+                            <th>PR Exp.</th>
+                            <th>PA</th>
 
 
-            </tr>
-            </thead>
-            <tbody>
-            {% endif %}
-            <tr {{ trstyle }}>
-                <td>{{ day["datum"] }}</td>
-                <td>{% if anlage.useGridMeterDayData %}{{ day["powerEGridExt"]|number_format(2,',','.') }}{% else %}{{ day["powerEvu"]|number_format(2,',','.') }}{% endif %}</td>
-                <td>{{ day["powerAct"]|number_format(2,',','.') }}</td>
-                <td>{{ day["powerExp"]|number_format(2,',','.') }}</td>
+                        </tr>
+                        </thead>
+                        <tbody>
+                    {% endif %}
+                    <tr {{ trstyle }}>
+                        <td>{{ day["datum"] }}</td>
+                        <td>{% if anlage.useGridMeterDayData %}{{ day["powerEGridExt"]|number_format(2,',','.') }}{% else %}{{ day["powerEvu"]|number_format(2,',','.') }}{% endif %}</td>
+                        <td>{{ day["powerAct"]|number_format(2,',','.') }}</td>
+                        <td>{{ day["powerExp"]|number_format(2,',','.') }}</td>
 
-                <td>{{ day["powerTheoDep0"]|number_format(2,',','.') }}</td>
-                <td>{% if anlage.useGridMeterDayData %}{{ day["prDep0EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep0Evu"]|number_format(2,',','.') }}{% endif %}</td>
-                <td>{{ day["prDep0Act"]|number_format(2,',','.') }}</td>
-                <td>{{ day["prDep0Exp"]|number_format(2,',','.') }}</td>
-                <td>{{ day["pa0"]|number_format(2,',','.') }}</td>
+                        <td>{{ day["powerTheoDep0"]|number_format(2,',','.') }}</td>
+                        <td>{% if anlage.useGridMeterDayData %}{{ day["prDep0EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep0Evu"]|number_format(2,',','.') }}{% endif %}</td>
+                        <td>{{ day["prDep0Act"]|number_format(2,',','.') }}</td>
+                        <td>{{ day["prDep0Exp"]|number_format(2,',','.') }}</td>
+                        <td>{{ day["pa0"]|number_format(2,',','.') }}</td>
 
-                <td>{{ day["powerTheoDep1"]|number_format(2,',','.') }}</td>
-                <td>{% if anlage.useGridMeterDayData %}{{ day["prDep1EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep1Evu"]|number_format(2,',','.') }}{% endif %}</td>
-                <td>{{ day["prDep1Act"]|number_format(2,',','.') }}</td>
-                <td>{{ day["prDep1Exp"]|number_format(2,',','.') }}</td>
-                <td>{{ day["pa1"]|number_format(2,',','.') }}</td>
+                        <td>{{ day["powerTheoDep1"]|number_format(2,',','.') }}</td>
+                        <td>{% if anlage.useGridMeterDayData %}{{ day["prDep1EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep1Evu"]|number_format(2,',','.') }}{% endif %}</td>
+                        <td>{{ day["prDep1Act"]|number_format(2,',','.') }}</td>
+                        <td>{{ day["prDep1Exp"]|number_format(2,',','.') }}</td>
+                        <td>{{ day["pa1"]|number_format(2,',','.') }}</td>
 
-                <td>{{ day["powerTheoDep2"]|number_format(2,',','.') }}</td>
-                <td>{% if anlage.useGridMeterDayData %}{{ day["prDep2EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep2Evu"]|number_format(2,',','.') }}{% endif %}</td>
-                <td>{{ day["prDep2Act"]|number_format(2,',','.') }}</td>
-                <td>{{ day["prDep2Exp"]|number_format(2,',','.') }}</td>
-                <td>{{ day["pa2"]|number_format(2,',','.') }}</td>
+                        <td>{{ day["powerTheoDep2"]|number_format(2,',','.') }}</td>
+                        <td>{% if anlage.useGridMeterDayData %}{{ day["prDep2EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep2Evu"]|number_format(2,',','.') }}{% endif %}</td>
+                        <td>{{ day["prDep2Act"]|number_format(2,',','.') }}</td>
+                        <td>{{ day["prDep2Exp"]|number_format(2,',','.') }}</td>
+                        <td>{{ day["pa2"]|number_format(2,',','.') }}</td>
 
-                <td>{{ day["powerTheoDep3"]|number_format(2,',','.') }}</td>
-                <td>{% if anlage.useGridMeterDayData %}{{ day["prDep3EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep3Evu"]|number_format(2,',','.') }}{% endif %}</td>
-                <td>{{ day["prDep3Act"]|number_format(2,',','.') }}</td>
-                <td>{{ day["prDep3Exp"]|number_format(2,',','.') }}</td>
-                <td>{{ day["pa3"]|number_format(2,',','.') }}</td>
+                        <td>{{ day["powerTheoDep3"]|number_format(2,',','.') }}</td>
+                        <td>{% if anlage.useGridMeterDayData %}{{ day["prDep3EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep3Evu"]|number_format(2,',','.') }}{% endif %}</td>
+                        <td>{{ day["prDep3Act"]|number_format(2,',','.') }}</td>
+                        <td>{{ day["prDep3Exp"]|number_format(2,',','.') }}</td>
+                        <td>{{ day["pa3"]|number_format(2,',','.') }}</td>
 
-            </tr>
-        {% endfor %}
+                    </tr>
+                {% endfor %}
             </tbody>
     </table>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}
 
 
+{% block title %}
+    {{  parent() }}Special Operations
+{% endblock %}
+
+
+{% block javascripts %}
 {% endblock %}

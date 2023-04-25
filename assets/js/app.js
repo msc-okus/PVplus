@@ -12,7 +12,8 @@
 import '../bootstrap';
 import '../styles/app.scss';
 import 'foundation-sites';
-import 'foundation-datepicker';
+//import 'foundation-datepicker';
+import 'daterangepicker';
 
 
 
@@ -25,8 +26,8 @@ $('.my-alert-box').closest('[data-alert]').fadeOut(8000);
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    var url = window.location.href;
-    var urlParams = url.split('#')[1];
+    let url = window.location.href;
+    let urlParams = url.split('#')[1];
     if (urlParams === 'chart') {
         const elementchart = document.getElementById('headbar');
         const positionChart = elementchart.getBoundingClientRect();

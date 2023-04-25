@@ -5,34 +5,14 @@
     <title>Green4Net PVplus 4.0 - {% block title %}{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% block styles %}
-        <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
-        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css">
         {{ encore_entry_link_tags('app') }}
     {% endblock %}
     {% block javascripts %}
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
         {{ encore_entry_script_tags('app') }}
     {% endblock %}
 </head>
 <body>
-<script>
-        document.addEventListener("DOMContentLoaded", () => {
-        var url = window.location.href;
-        var urlParams = url.split('#')[1];
-        if (urlParams == 'chart') {
-            const elementchart = document.getElementById('headbar');
-            const positionChart = elementchart.getBoundingClientRect();
-            const elementplants = document.getElementById('plants');
-            const positionPlants = elementplants.getBoundingClientRect();
-            const height = positionChart.height + positionPlants.height - 80;
-            const hightpx = height + "px";
-            window.scrollTo(0, height);
-        }
-    });
-</script>
+
 <div class="ajax-loader">
     <img src="{{ asset('/images/loader.gif') }}" class="img-responsive" alt="loader" />
 </div>
@@ -140,6 +120,7 @@
                         <a href="#"><i class="fa fa-folder"></i><span> Spezial</span></a>
                         <ul class="vertical menu nested">
                             <li><a href="{{ path('bavelse_report') }}"><i class="fa fa-file"></i>Bavelse Berg Report</a></li>
+                            <li><a href="{{ path('monthly_report_test') }}"><i class="fa fa-file"></i>Monthly Report Test</a></li>
                         </ul>
                     </li>
                 {% endif %}

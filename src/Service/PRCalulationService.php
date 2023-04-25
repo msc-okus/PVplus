@@ -592,9 +592,13 @@ class PRCalulationService
         $result['powerEGridExt'] = $power['powerEGridExt'];
 
         // Verfügbarkeit ermitteln
+        $this->availabilityByTicket->checkAvailability($anlage, date_create($localStartDate), 0);
         $pa0 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 0);
+        $this->availabilityByTicket->checkAvailability($anlage, date_create($localStartDate), 1);
         $pa1 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 1);
+        $this->availabilityByTicket->checkAvailability($anlage, date_create($localStartDate), 2);
         $pa2 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 2);
+        $this->availabilityByTicket->checkAvailability($anlage, date_create($localStartDate), 3);
         $pa3 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 3);
         $availability = $pa2;
 

@@ -328,6 +328,9 @@ class ReportsMonthlyService
         return $report;
     }
 
+    /**
+     * @throws ExceptionInterface
+     */
     public function buildMonthlyReportNew(Anlage $anlage, int $reportMonth = 0, int $reportYear = 0): array
     {
         // create Array for Day Values Table

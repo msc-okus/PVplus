@@ -6,6 +6,7 @@ use App\Entity\Anlage;
 use App\Repository\AnlagenRepository;
 use App\Service\AvailabilityByTicketService;
 use App\Service\ExportService;
+use App\Service\Reports\ReportsMonthlyService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -59,5 +60,35 @@ class SpecialOperationsController extends AbstractController
             'output'        => $output,
             'status'        => $anlageId,
         ]);
+    }
+
+    #[Route(path: '/special/operations/monthly', name: 'monthly_report_test')]
+    public function monthlyReportTest(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyService $reportsMonthly): Response
+    {
+        $output = null;
+
+        $month = $request->query->get('month');
+        $year = $request->query->get('year');
+        $anlageId = $request->query->get('anlage-id');
+        $submitted = $request->query->get('new-report') == 'yes' && isset($month) && isset($year);
+
+        // Start individual part
+        /** @var Anlage $anlage */
+        $headline = 'Monats Bericht Alle Departments';
+        $anlagen = $anlagenRepository->findAllActiveAndAllowed();
+
+        if ($submitted && isset($anlageId)) {
+            $anlage = $anlagenRepository->findOneBy(['anlId' => $anlageId]);
+            $output = $reportsMonthly->buildMonthlyReportNew($anlage, $month, $year);
+        }
+
+        return $this->render('report/reportMonthlyNew.html.twig', [
+            'headline'      => $headline,
+            'anlagen'       => $anlagen,
+            'anlage'        => $anlage,
+            'report'        => $output,
+            'status'        => $anlageId,
+        ]);
+
     }
 }
