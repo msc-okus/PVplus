@@ -31,6 +31,9 @@ class OwnerFeatures
     #[ORM\Column(nullable: true, options: ['default' => '0'])]
     private ?bool $SplitGap = false;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $simulatorName = "Simulation";
+
     public function getId(): ?int
     {
         return $this->id;
@@ -104,6 +107,18 @@ class OwnerFeatures
     public function setSplitGap(bool $SplitGap): self
     {
         $this->SplitGap = $SplitGap;
+
+        return $this;
+    }
+
+    public function getSimulatorName(): ?string
+    {
+        return $this->simulatorName;
+    }
+
+    public function setSimulatorName(?string $simulatorName): self
+    {
+        $this->simulatorName = $simulatorName;
 
         return $this;
     }

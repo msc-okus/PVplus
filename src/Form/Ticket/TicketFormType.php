@@ -48,12 +48,15 @@ class TicketFormType extends AbstractType
         $isBeta      = $this->security->isGranted('ROLE_BETA');
 
         /** @var Ticket $ticket */
+
         $ticket = $options['data'] ?? null;
 
         if ($ticket != null && $ticket->getCreatedAt() != null) {
             $isNewTicket = false;
+            $anlage = $ticket->getAnlage();
         } else {
             $isNewTicket = true;
+            $anlage = $ticket->getAnlage();
         }
 
         $builder
@@ -71,8 +74,7 @@ class TicketFormType extends AbstractType
             $builder->add('alertType', ChoiceType::class, [
                 'label' => 'Category of ticket ',
                 'help' => 'data gap, inverter, ...',
-                'choices' => self::errorCategorie(),
-
+                'choices' => self::errorCategorie($anlage),
                 'placeholder' => 'Please select ...',
                 'invalid_message' => 'Please select a Error Category.',
                 'empty_data' => 0,
@@ -86,7 +88,7 @@ class TicketFormType extends AbstractType
             $builder->add('alertType', ChoiceType::class, [
                 'label' => 'Category of ticket ',
                 'help' => 'data gap, inverter, ...',
-                'choices' => self::errorCategorie(),
+                'choices' => self::errorCategorie($anlage),
                 'disabled' => true,
                 'placeholder' => 'Please select ...',
                 'invalid_message' => 'Please select a Error Category.',

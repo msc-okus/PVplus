@@ -2,6 +2,7 @@
 
 namespace App\Helper;
 
+use App\Entity\Anlage;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
 trait PVPNameArraysTrait
@@ -118,7 +119,7 @@ trait PVPNameArraysTrait
         return $spriority;
     }
 
-    public function errorCategorie(): array
+    public function errorCategorie(?Anlage $anlage = null): array
     {
         $errorCategory[$this->translator->trans('ticket.error.category.10')] = 10; //data gap
         $errorCategory[$this->translator->trans('ticket.error.category.20')] = 20; //inverter error
@@ -126,16 +127,32 @@ trait PVPNameArraysTrait
         $errorCategory[$this->translator->trans('ticket.error.category.40')] = 40; //weather
         $errorCategory[$this->translator->trans('ticket.error.category.50')] = 50; //external control
         $errorCategory[$this->translator->trans('ticket.error.category.60')] = 60; //power/expected error
-
-        $errorCategory[$this->translator->trans('ticket.error.category.7')][$this->translator->trans('ticket.error.category.70')] = 70; //performance ticket
-        $errorCategory[$this->translator->trans('ticket.error.category.7')][$this->translator->trans('ticket.error.category.71')] = 71; //performance ticket
-        $errorCategory[$this->translator->trans('ticket.error.category.7')][$this->translator->trans('ticket.error.category.72')] = 72; //performance ticket
-        $errorCategory[$this->translator->trans('ticket.error.category.7')][$this->translator->trans('ticket.error.category.73')] = 73; //performance ticket
-        $errorCategory[$this->translator->trans('ticket.error.category.7')][$this->translator->trans('ticket.error.category.74')] = 74; //performance ticket
+        if ($anlage != null && $anlage->getKpiTicket() == true) {// Performance Tickets
+            $errorCategory[$this->translator->trans('ticket.error.category.7')][$this->translator->trans('ticket.error.category.70')] = 70; //Exclude Sensors
+            $errorCategory[$this->translator->trans('ticket.error.category.7')][$this->translator->trans('ticket.error.category.71')] = 71; //Replace Sensors
+            $errorCategory[$this->translator->trans('ticket.error.category.7')][$this->translator->trans('ticket.error.category.72')] = 72; //Exclude from PR
+            $errorCategory[$this->translator->trans('ticket.error.category.7')][$this->translator->trans('ticket.error.category.73')] = 73; //Replace Energy
+            $errorCategory[$this->translator->trans('ticket.error.category.7')][$this->translator->trans('ticket.error.category.74')] = 74; //Correct Energy
+        }
+        return $errorCategory;
+    }
+    public function listAllErrorCategorie(): array
+    {
+        $errorCategory[$this->translator->trans('ticket.error.category.10')] = 10; //data gap
+        $errorCategory[$this->translator->trans('ticket.error.category.20')] = 20; //inverter error
+        $errorCategory[$this->translator->trans('ticket.error.category.30')] = 30; //grid error
+        $errorCategory[$this->translator->trans('ticket.error.category.40')] = 40; //weather
+        $errorCategory[$this->translator->trans('ticket.error.category.50')] = 50; //external control
+        $errorCategory[$this->translator->trans('ticket.error.category.60')] = 60; //power/expected error
+        $errorCategory[$this->translator->trans('ticket.error.category.7')]  =  7;
+        $errorCategory[$this->translator->trans('ticket.error.category.70')] = 70; //performance ticket
+        $errorCategory[$this->translator->trans('ticket.error.category.71')] = 71; //performance ticket
+        $errorCategory[$this->translator->trans('ticket.error.category.72')] = 72; //performance ticket
+        $errorCategory[$this->translator->trans('ticket.error.category.73')] = 73; //performance ticket
+        $errorCategory[$this->translator->trans('ticket.error.category.74')] = 74; //performance ticket
 
         return $errorCategory;
     }
-
     public function errorType(): array
     {
         $errorType[$this->translator->trans('ticket.error.type.10')] = 10; //EFOR

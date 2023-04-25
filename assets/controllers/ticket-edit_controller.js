@@ -531,7 +531,7 @@ export default class extends Controller {
                 $(this.headerCorrectionTarget).addClass('is-hidden');
                 $(this.headerEvaluationTarget).addClass('is-hidden');
                 $(this.headerAktDep1Target).addClass('is-hidden');
-                $(this.headerAktDep2Target).addClass('is-hidden');
+                $(this.headerAktDep3Target).addClass('is-hidden');
                 $(this.headerAktDep3Target).addClass('is-hidden');
                 $(this.headerFormKpiTarget).addClass('is-hidden');
                 $(this.headerPRMethodTarget).addClass('is-hidden');
@@ -581,7 +581,6 @@ export default class extends Controller {
                 $(this.fieldAktDep2Target).addClass('is-hidden');
                 $(this.fieldAktDep3Target).addClass('is-hidden');
                 $(this.formHourTarget).prop('checked', false);
-                console.log($(this.fieldEvaluationTarget), $(this.headerAktDep1Target))
                 $(this.fieldPRMethodTarget).addClass('is-hidden');
                 $(this.inverterDivTarget).removeClass('is-hidden');
                 if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20)};
