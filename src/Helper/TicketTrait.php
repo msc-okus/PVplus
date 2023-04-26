@@ -37,7 +37,7 @@ trait TicketTrait
     private ?string $answer = '';
 
     #[ORM\Column(type: 'text', nullable: false)]
-    private string $inverter;
+    private string $inverter = "";
 
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
     private ?string $alertType = ''; // Fehler Typ: Data Gap (10), Inverter Error (20), Grid error (30), ....
@@ -46,7 +46,7 @@ trait TicketTrait
     private ?int $status;
 
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
-    private ?string $dataGapEvaluation;
+    private ?string $dataGapEvaluation = "";
 
     #[ORM\Column(type: 'integer', options: ['default' => 0])]
     private int $intervals = 0;

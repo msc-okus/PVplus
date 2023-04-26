@@ -168,7 +168,22 @@ class TicketRepository extends ServiceEntityRepository
 
         return $result->getResult();
     }
+    public function findByAnlageTimeYesterday($anlage, $yesterday, $time, $errorCategory)
+    {
+        $result = $this->createQueryBuilder('t')
+            ->andWhere('t.end < :today')
+            ->andWhere('t.end >= :yesterday')
+            ->andWhere('t.anlage = :anl')
+            ->andWhere('t.alertType = :error')
+            ->setParameter('today', $time)
+            ->setParameter('yesterday', $yesterday)
+            ->setParameter('anl', $anlage)
+            ->setParameter('error', $errorCategory)
+            ->orderBy('t.end', 'DESC')
+            ->getQuery();
 
+        return $result->getResult();
+    }
     public function findByAnlageTime($anlage, $time, $errorCategory)
     {
         $description = 'Error with the Data of the Weather station';

@@ -9,6 +9,7 @@ use App\Repository\AnlagenRepository;
 use App\Repository\StatusRepository;
 use App\Repository\TicketRepository;
 use App\Service\AlertSystemService;
+use App\Service\AlertSystemV2Service;
 use App\Service\AlertSystemWeatherService;
 use App\Service\AssetManagementService;
 use App\Service\Charts\IrradiationChartService;
@@ -43,16 +44,16 @@ class DefaultJMController extends AbstractController
     }
 
     #[Route(path: '/test/createticket', name: 'default_check')]
-    public function check(AnlagenRepository $anlagenRepository, AlertSystemService $service)
+    public function check(AnlagenRepository $anlagenRepository, AlertSystemV2Service $service)
     {
 
-        $anlage = $anlagenRepository->findIdLike("108")[0];
-        $fromStamp = strtotime("2023-04-01 ");
-        $toStamp = strtotime("2023-04-11 ");
+        $anlage = $anlagenRepository->findIdLike("184")[0];
+        $fromStamp = strtotime("2022-03-01 ");
+        $toStamp = strtotime("2022-03-31 ");
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
             $service->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
         }
-        dd("hello");
+        dd("hello World");
     }
 
     #[Route(path: '/test/read', name: 'default_read')]
