@@ -725,15 +725,141 @@ and form.selectedChart != 'sollistirranalyse'%}
 {% elseif form.selectedChart == 'dc_voltage_1' %}
     {# VoltDC1 #}
     <!-- Liniendiagramm DC (voltage plant) -->
-    {% include 'dashboardPlants/_incl/chart/volt1.html.twig' %}
+    {% include 'dashboardPlants/_incl/chart/curr1.html.twig' %}
 
 {% elseif form.selectedChart == 'dc_voltage_groups' %}
-    {# VoltDC2 #}
-    {% include 'dashboardPlants/_incl/chart/volt2.html.twig' %}
+    {# VoltDC1 #}
+    <!-- Liniendiagramm DC (voltage groups) -->
+    <script>
+        am4core.ready(function() {
+            // Create chart instance
+            am4core.useTheme(am4themes_animated);
+            let chart = am4core.create("amchart-holder", am4charts.XYChart);
+            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+            let title = chart.titles.create();
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
+            title.fontSize = 18;
+            title.marginBottom = 30;
+            chart.data = {{ content.data|raw }};
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
 
+            // Legend
+            chart.legend = new am4charts.Legend();
+            chart.legend.useDefaultMarker = false;
+
+            // Create axes
+            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            dateAxis.renderer.labels.template.rotation = 270;
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+            // Create series
+            function addSeries() {
+                let seriesId = (chart.series.length) + 1;
+
+                // Create series Actual
+                let series = new am4charts.LineSeries();
+                series.name = "{{ content.seriesx.name }}" + seriesId;
+                series.dataFields.dateX = "date";
+                series.dataFields.valueY = "val" + seriesId;
+                series.tooltipText = "{{ content.seriesx.tooltipText }}" + seriesId + ": {valueY} [/]";
+                series.strokeWidth = 1;
+                series.sequencedInterpolation = false;
+                series.defaultState.transitionDuration = 300;
+                series.tensionX = 0.8;
+                series = chart.series.push(series);
+            }
+
+            for (let i = 1; i <= {{ content.maxSeries }}; i++) {
+                addSeries();
+            }
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.xAxis = dateAxis;
+            chart.exporting.menu = new am4core.ExportMenu();
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.scrollbarX.marginBottom = "20"
+            chart.scrollbarY = new am4core.Scrollbar();
+            chart.scrollbarY.marginLeft = "20";
+            chart.exporting.menu.items[0].label = "Download";
+            chart.exporting.formatOptions.getKey("json").disabled = true;
+            chart.exporting.formatOptions.getKey("html").disabled = true;
+            chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+            chart.exporting.formatOptions.getKey("print").disabled = true;
+            chart.exporting.formatOptions.getKey("pdf").disabled = true;
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
+
+
+        }); // end am4core.ready()
+    </script>
 {% elseif form.selectedChart == 'dc_voltage_mpp' %}
-    {# VoltDC3 #}
-    {% include 'dashboardPlants/_incl/chart/volt3.html.twig' %}
+    <!-- Liniendiagramm DC (voltage groups) -->
+    <script>
+        am4core.ready(function() {
+            // Create chart instance
+                am4core.useTheme(am4themes_animated);
+            let chart = am4core.create("amchart-holder", am4charts.XYChart);
+            chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
+            let title = chart.titles.create();
+            title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
+            title.fontSize = 18;
+            title.marginBottom = 30;
+            chart.data = {{ content.data|raw }};
+            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd HH:mm:ss";
+            chart.numberFormatter.intlLocales = "de-DE";
+            chart.numberFormatter.numberFormat = {
+                "style": "decimal",
+                "minimumFractionDigits": 0
+            };
+
+            // Legend
+            chart.legend = new am4charts.Legend();
+            chart.legend.useDefaultMarker = false;
+
+            // Create axes
+            let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+            dateAxis.renderer.labels.template.rotation = 270;
+
+            let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+            // Create series
+            function addSeries() {
+                let seriesId = (chart.series.length) + 1;
+
+                // Create series Actual
+                let series = new am4charts.LineSeries();
+                series.name = "{{ content.seriesx.name }}" + seriesId;
+                series.dataFields.dateX = "date";
+                series.dataFields.valueY = "val" + seriesId;
+                series.tooltipText = "{{ content.seriesx.tooltipText }}" + seriesId + ": {valueY} [/]";
+                series.strokeWidth = 1;
+                series.sequencedInterpolation = false;
+                series.defaultState.transitionDuration = 300;
+                series.tensionX = 0.8;
+                series = chart.series.push(series);
+            }
+
+            for (let i = 1; i < {{ content.maxSeries }}; i++) {
+                addSeries();
+            }
+
+            chart.cursor = new am4charts.XYCursor();
+            chart.cursor.xAxis = dateAxis;
+            chart.exporting.menu = new am4core.ExportMenu();
+            chart.scrollbarX = new am4core.Scrollbar();
+            chart.scrollbarX.marginBottom = "20"
+            chart.scrollbarY = new am4core.Scrollbar();
+            chart.scrollbarY.marginLeft = "20";
+            chart.exporting.menu.items[0].label = "Download";
+            chart.exporting.formatOptions.getKey("json").disabled = true;
+            chart.exporting.formatOptions.getKey("html").disabled = true;
+            chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+            chart.exporting.formatOptions.getKey("print").disabled = true;
+            chart.exporting.formatOptions.getKey("pdf").disabled = true;
+            chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
+
+
+        }); // end am4core.ready()
+    </script>
 {% elseif form.selectedChart == 'dc_grp_power_diff' %}
     <!-- Balkendiagramme Group Power Diff -->
     <script>
@@ -1246,6 +1372,8 @@ and form.selectedChart != 'sollistirranalyse'%}
     {{ gridTable(content.grid) }}
 {% elseif form.selectedChart == 'forecast' %}
     {% include 'dashboardPlants/_incl/chart/forecast.html.twig' %}
+{% elseif form.selectedChart == 'forecast_pr' %}
+    {% include 'dashboardPlants/_incl/chart/forecast_pr.html.twig' %}
 {% elseif form.selectedChart == 'acpnom' %}
     {% include 'dashboardPlants/_incl/chart/AcPNom.html.twig' %}
 {% elseif form.selectedChart == 'dcpnomcurr' %}

@@ -25,15 +25,8 @@ class ImportDataHandler implements MessageHandlerInterface
         $anlageId = $dta->getAnlageId();
         $logId = $dta->getlogId();
         $this->logMessages->updateEntry($logId, 'working');
-        $timeCounter = 0;
-        $timeRange = $dta->getEndDate()->getTimestamp() - $dta->getStartDate()->getTimestamp();
 
-        for ($stamp = $dta->getStartDate()->getTimestamp(); $stamp <= $dta->getEndDate()->getTimestamp(); $stamp = $stamp + (24 * 3600)) {
-            $this->logMessages->updateEntry($logId, 'working', ($timeCounter / $timeRange) * 100);
-            $timeCounter += 24 * 3600;
-            $this->externFileService->CallImportDataFromApiManuel($path, $dta->getStartDate()->getTimestamp(), $dta->getEndDate()->getTimestamp());
-        }
-
+        $this->externFileService->CallImportDataFromApiManuel($path, $dta->getStartDate()->getTimestamp(), $dta->getEndDate()->getTimestamp());
         $this->logMessages->updateEntry($logId, 'done');
     }
 }

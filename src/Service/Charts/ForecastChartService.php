@@ -233,4 +233,84 @@ class ForecastChartService
         }
         return $dataArray;
     }
+
+    // ###########
+    // # By Day PR##
+    // ###########
+
+    public function getForecastDayPr(Anlage $anlage, $to): array
+    {
+        $actPerDay = [];
+        $dataArray = [];
+
+        $form = '%y%m%d';
+
+        $conn = self::getPdoConnection();
+        $currentYear = date('Y', strtotime($to));
+        if ($anlage->getShowEvuDiag()) {
+            $sql = "SELECT date_format(stamp, '%j') AS startDay, sum(e_z_evu) AS sumEvu, sum(wr_pac) as sumInvOut  
+                FROM ".$anlage->getDbNameAcIst()." 
+                WHERE year(stamp) = '$currentYear' AND unit = 1 GROUP BY date_format(stamp, '$form') 
+                ORDER BY stamp;";
+        } else {
+            $sql = "SELECT date_format(stamp, '%j') AS startDay, sum(e_z_evu) AS sumEvu, sum(wr_pac) as sumInvOut  
+                FROM ".$anlage->getDbNameAcIst()." 
+                WHERE year(stamp) = '$currentYear' GROUP BY date_format(stamp, '$form')
+                ORDER BY stamp;";
+        }
+        $result = $conn->prepare($sql);
+        $result->execute();
+        foreach ($result->fetchAll(PDO::FETCH_ASSOC) as $value) {
+            if ($anlage->getShowEvuDiag()) {
+                if ($value['startDay'] < date('z', strtotime($to))) {
+                    $actPerDay[(int) $value['startDay']] = round($value['sumEvu'], 2);
+                }
+            } else {
+                if ($value['startDay'] < date('z', strtotime($to))) {
+                    $actPerDay[(int) $value['startDay']] = round($value['sumInvOut'], 2);
+                }
+            }
+        }
+        $conn = null;
+
+        /** @var [] AnlageForecastDay $forecasts */
+        $forecasts = $this->forcastDayRepo->findBy(['anlage' => $anlage]);
+        $counter = 0;
+        $forecastValue = 0;
+        $expectedDay = 0;
+        $divMinus = 0;
+        $divPlus = 0;
+
+
+        foreach ($forecasts as $count => $forecast) {
+            $year = date('Y', strtotime($to));
+            $stamp = DateTime::createFromFormat('Y z', $year.' '.$forecast->getDay()-1);
+            $dataArray['chart'][$counter]['date'] = $stamp->format('Y-m-d');
+
+            if (isset($actPerDay[$forecast->getDay()])) {
+                $expectedDay += $actPerDay[$forecast->getDay()];
+                $divMinus += $actPerDay[$forecast->getDay()];
+                $divPlus += $actPerDay[$forecast->getDay()];
+            } else {
+                $expectedDay += $forecast->getPowerDay();
+                $divMinus += $forecast->getDivMinDay();
+                $divPlus += $forecast->getDivMaxDay();
+            }
+            $forecast->getPrDay().'<br>';
+            $forecast->getPrKumuliert().'<br>';
+            $forecast->getPrDayFt().'<br>';
+            $forecast->getPrKumuliertFt().'<br>';
+
+            $forecastValue += $forecast->getPowerDay();
+
+
+            $dataArray['chart'][$counter]['prKumuliert'] = $forecast->getPrKumuliert();
+            $dataArray['chart'][$counter]['prDay'] = $forecast->getPrDay();
+            $dataArray['chart'][$counter]['prKumuliertFt'] = $forecast->getPrKumuliertFt();
+            $dataArray['chart'][$counter]['forecast'] = round($forecastValue);
+            ++$counter;
+        }
+
+        return $dataArray;
+    }
 }

@@ -34,6 +34,18 @@ class AnlageForcastDay
     #[ORM\Column(type: 'string', length: 20)]
     private string $factorMax;
 
+    #[ORM\Column(type: 'string', length: 20)]
+    private string $prDay;
+
+    #[ORM\Column(type: 'string', length: 20)]
+    private string $prKumuliert;
+
+    #[ORM\Column(type: 'string', length: 20)]
+    private string $prDayFt;
+
+    #[ORM\Column(type: 'string', length: 20)]
+    private string $prKumuliertFt;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -107,6 +119,54 @@ class AnlageForcastDay
     public function setFactorMax(int $factorMax): self
     {
         $this->factorMax = $factorMax;
+
+        return $this;
+    }
+
+    public function getPrDay(): ?float
+    {
+        return (float) $this->prDay;
+    }
+
+    public function setPrDay(int $prDay): self
+    {
+        $this->prDay = $prDay;
+
+        return $this;
+    }
+
+    public function getPrKumuliert(): ?float
+    {
+        return (float) $this->prKumuliert;
+    }
+
+    public function setPrKumuliert(int $prKumuliert): self
+    {
+        $this->prKumuliert = $prKumuliert;
+
+        return $this;
+    }
+
+    public function getPrDayFt(): ?float
+    {
+        return (float) $this->prDayFt;
+    }
+
+    public function setPrDayFt(int $prDayFt): self
+    {
+        $this->prDayFt = $prDayFt;
+
+        return $this;
+    }
+
+    public function getPrKumuliertFt(): ?float
+    {
+        return (float) $this->prKumuliertFt;
+    }
+
+    public function setPrKumuliertFt(int $prKumuliertFt): self
+    {
+        $this->prKumuliertFt = $prKumuliertFt;
 
         return $this;
     }

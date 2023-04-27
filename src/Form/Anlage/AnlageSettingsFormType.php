@@ -17,7 +17,6 @@ class AnlageSettingsFormType extends AbstractType
                 'label'     => 'could not be disabled',
                 'help'      => '[disableDep0]',
                 'attr'      => ['disabled' => 'disabled'],
-                'data'      => true,
                 'mapped'    => false,
             ])
             ->add('disableDep1', SwitchType::class, [
@@ -106,8 +105,16 @@ class AnlageSettingsFormType extends AbstractType
                 'help'      => '[chartAnalyse2]'
             ])
             ->add('chartAnalyse3', SwitchType::class, [
-                'label'     => 'Forecast',
-                'help'      => '[chartAnalyse2]'
+                'label'     => 'Forecast Ertrag',
+                'help'      => '[chartAnalyse3]'
+            ])
+            ->add('chartAnalyse10', SwitchType::class, [
+                'label'     => 'Forecast PR',
+                'help'      => '[chartAnalyse10]'
+            ])
+            ->add('chartAnalyse11', SwitchType::class, [
+                'label'     => 'Forecast 3',
+                'help'      => '[chartAnalyse11]'
             ])
             ->add('chartAnalyse4', SwitchType::class, [
                 'label'     => 'Inverter PR Heatmap',
