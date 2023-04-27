@@ -381,51 +381,12 @@ class AlertSystemV2Service
                 }
             }
 
-            if ($plant_status['ppc'] === false) {
-
-
-                if (count($array_gap) > 0) $this->generateTickets('', DATA_GAP, $anlage, $array_gap, $time, "test");
-                    /*
-             foreach ($array_gap as $inverter) {
-
-
-                 if ($inverter != "") {
-                     $message = "Data gap in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter];
-                     $this->generateTickets('', DATA_GAP, $anlage, $inverter, $time, $message);
-                 }
-
-             }
-         }
-         /*
-         if (count($array_zero) > 0) {
-             foreach ($array_zero as $inverter) {
-                 if ($inverter != "") {
-                     $message = "Power Error in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter];
-                     $this->generateTickets(EFOR, INVERTER_ERROR, $anlage, $inverter, $time, $message);
-                 }
-             }
-         }
-         if((count($array_vol) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")){
-             foreach ($array_vol as $inverter) {
-                 if (($inverter != "")) {
-                     $message = "Grid Error in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter];
-                     $this->generateTickets('', GRID_ERROR, $anlage, $inverter, $time, $message);
-                 }
-             }
-
-         }
-                    */
-
-            } else {
-                $errorCategorie = EXTERNAL_CONTROL;
-                $this->generateTickets(OMC, $errorCategorie, $anlage, '*', $time, "");
-            }
+            if ($plant_status['ppc'] === true)  $this->generateTickets(OMC, EXTERNAL_CONTROL, $anlage, "*", $time, "test");
+            if (count($array_gap) > 0) $this->generateTickets('', DATA_GAP, $anlage, $array_gap, $time, "test");
+            if (count($array_zero) > 0)  $this->generateTickets(EFOR, INVERTER_ERROR, $anlage, $array_zero, $time, "test");
+            if((count($array_vol) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")) $this->generateTickets('', GRID_ERROR, $anlage, $array_vol, $time, "test");
         }
-/*
-        if ((date('Y-m-d H:i', strtotime($time) + 900) >= $sungap['sunset']) && (date('Y-m-d H:i', strtotime($time) + 900) <= date('Y-m-d H:i', strtotime($sungap['sunset']) +1800))){
-            $this->joinTicketsForTheDay($anlage, date('Y-m-d', strtotime($time)));
-        }
-*/
+
         $this->em->flush();
 
         return 'success';
@@ -530,7 +491,6 @@ class AlertSystemV2Service
      */
     private function generateTickets($errorType, $errorCategorie, $anlage, $inverter, $time, $message)
     {
-        if ($errorCategorie == 10) {
 
             $ticketArray = $this->getAllTicketsByCat($anlage, $time, $errorCategorie);// we retrieve here the previous ticket (if any)
 
@@ -621,10 +581,7 @@ class AlertSystemV2Service
                 }
                 $this->em->persist($ticket);
                 $this->em->persist($ticketDate);
-
             }
-
-        }
     }
     /**
      * Given all the information needed to generate a ticket, the tickets are created and commited to the db (single ticket variant)
