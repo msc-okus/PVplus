@@ -234,9 +234,9 @@ class ForecastChartService
         return $dataArray;
     }
 
-    // ###########
-    // # By Day PR##
-    // ###########
+    // ################
+    // ## By Day PR  ##
+    // ################
 
     public function getForecastDayPr(Anlage $anlage, $to): array
     {
@@ -296,10 +296,12 @@ class ForecastChartService
                 $divMinus += $forecast->getDivMinDay();
                 $divPlus += $forecast->getDivMaxDay();
             }
+            /*
             $forecast->getPrDay().'<br>';
             $forecast->getPrKumuliert().'<br>';
             $forecast->getPrDayFt().'<br>';
             $forecast->getPrKumuliertFt().'<br>';
+            */
 
             $forecastValue += $forecast->getPowerDay();
 

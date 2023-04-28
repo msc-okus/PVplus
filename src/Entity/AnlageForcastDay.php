@@ -185,7 +185,12 @@ class AnlageForcastDay
 
     public function getPowerDay(): float
     {
-        return ($this->anlage->getContractualGuarantiedPower() > 0) ? $this->getFactorDay() * $this->anlage->getContractualGuarantiedPower() : $this->getExpectedDay();
+        if ($this->anlage->getContractualGuarantiedPower() > 0) {
+            $power = ($this->anlage->getContractualGuarantiedPower() > 0) ? $this->getFactorDay() * $this->anlage->getContractualGuarantiedPower() : $this->getExpectedDay();
+        } else {
+            $power = $this->getExpectedDay();
+        }
+        return $power;
     }
 
     public function getDivMinDay(): float

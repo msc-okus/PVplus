@@ -133,6 +133,14 @@ class AnlageSettingsFormType extends AbstractType
                 'label'     => 'Analyse - actual vs. expected to Irr.',
                 'help'      => '[chartAnalyse8]'
             ])
+            ->add('chartAnalyse10', SwitchType::class, [
+                'label'     => 'Forecast PR',
+                'help'      => '[chartAnalyse10]'
+            ])
+            ->add('chartAnalyse11', SwitchType::class, [
+                'label'     => 'Forecast 3',
+                'help'      => '[chartAnalyse11]'
+            ])
             
             ###### Current ######
             ->add('chartCurr1', SwitchType::class, [
