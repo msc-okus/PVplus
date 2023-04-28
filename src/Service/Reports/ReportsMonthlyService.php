@@ -15,6 +15,7 @@ use App\Service\FunctionsService;
 use App\Service\PRCalulationService;
 use App\Service\ReportService;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use JetBrains\PhpStorm\NoReturn;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
@@ -72,7 +73,7 @@ class ReportsMonthlyService
 
     /**
      * @throws ExceptionInterface
-     * @throws \Exception
+     * @throws Exception
      */
     public function buildMonthlyReport(Anlage $anlage, int $reportMonth = 0, int $reportYear = 0): array
     {
@@ -329,26 +330,26 @@ class ReportsMonthlyService
     }
 
     /**
-     * @throws ExceptionInterface
-     * @throws \Exception
+     * @throws Exception
      */
     public function buildMonthlyReportNew(Anlage $anlage, int $month = 0, int $year = 0): array
     {
         $dayValues = [];
         $daysInMonth = (int) date('t', strtotime("$year-$month-01"));
 
-        // beginn create Array for Day Values Table
+        // begin create Array for Day Values Table
         for ($i = 1; $i <= $daysInMonth; ++$i) {
             // Table
             $day = new \DateTime("$year-$month-$i 12:00");
             $prArray = $this->PRCalulation->calcPR($anlage, $day);
 
-            $dayValues[$i]['datum'] = $day->format('m-d');
+            $dayValues[$i]['datum'] = $day->format('Y-m-d');
             foreach($prArray as $key => $value) {
                 $dayValues[$i][$key] = $value;
             }
         }
         unset($prArray);
+        #dd($dayValues);
 
         // calculate PR and related data for the current month
         $fromDay = new \DateTime("$year-$month-01 00:00");

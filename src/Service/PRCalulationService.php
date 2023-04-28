@@ -582,7 +582,6 @@ class PRCalulationService
             $this->availabilityByTicket->checkAvailability($anlage, date_create($localStartDate), 3);
             $pa3 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 3);
         }
-        $availability = $pa2;
 
         // Strahlungen berechnen – (upper = Ost / lower = West)
         if ($anlage->getIsOstWestAnlage()) {
@@ -621,56 +620,6 @@ class PRCalulationService
         $result['prDep3Exp'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerExp'], $result['powerTheoDep3'], $pa0); //(($result['powerExp'] / $tempTheoPower) * 100;
         $result['prDep3EGridExt'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerEGridExt'], $result['powerTheoDep3'], $pa0); //(($power['powerEGridExt'] / $tempTheoPower) * 100;
 
-        /*
-        // depending on used allgoritmus
-        switch ($anlage->getUseCustPRAlgorithm()) {
-            case 'Groningen':
-                if ($powerTheo > 0 && $availability > 0) { // Verhinder Divison by zero
-                    $result['prEvu'] = ($power['powerEvu'] / ($powerTheo / 1000 * $availability)) * (10 / 0.9945);
-                    $result['prAct'] = ($power['powerAct'] / ($powerTheo / 1000 * $availability)) * (10 / 0.9945);
-                    $result['prExp'] = ($result['powerExp'] / ($powerTheo / 1000 * $availability)) * (10 / 0.9945);
-                    $result['prEGridExt'] = ($power['powerEGridExt'] / ($powerTheo / 1000 * $availability)) * (10 / 0.9945);
-                }
-                break;
-            case 'Veendam':
-                if ($availability > 0) { // Verhinder Divison by zero
-                    if ($powerTheo > 0) {
-                        $result['prEvu'] = ($power['powerEvu'] / ($powerTheo / 100 * $availability)) * 100;
-                        $result['prAct'] = ($power['powerAct'] / ($powerTheo / 100 * $availability)) * 100;
-                        $result['prExp'] = ($result['powerExp'] / ($powerTheo / 100 * $availability)) * 100;
-                        $result['prEGridExt'] = ($power['powerEGridExt'] / ($powerTheo / 100 * $availability)) * 100;
-                    }
-                }
-                break;
-            case 'Lelystad':
-                // mit Temperatur korriegierten theoretischen Enerie ($powerTheo)
-                if ($powerTheo > 0) { // Verhinder Divison by zero
-                    $result['prEvu'] = ($power['powerEvu'] / $powerTheo) * 100;
-                    $result['prAct'] = ($power['powerAct'] / $powerTheo) * 100;
-                    $result['prExp'] = ($result['powerExp'] / $powerTheo) * 100;
-                    $result['prEGridExt'] = ($power['powerEGridExt'] / $powerTheo) * 100;
-                }
-                break;
-            case 'Ladenburg' :
-                // entspricht Standard PR plus degradation (Faktor = $years int)
-                $powerTheo = ($anlage->getPnom() / 1000) * pow(1 - 0.25, $years) * $irr;
-                if ($powerTheo > 0) { // Verhindere Divison by zero
-                    $result['prEvu'] = ($power['powerEvu'] / $powerTheo) * 100;
-                    $result['prAct'] = ($power['powerAct'] / $powerTheo) * 100;
-                    $result['prExp'] = ($result['powerExp'] / $powerTheo) * 100;
-                    $result['prEGridExt'] = ($power['powerEGridExt'] / $powerTheo) * 100;
-                }
-                break;
-            default:
-                // wenn es keinen spezielen Algorithmus gibt
-                if ($powerTheo > 0) { // Verhindere Divison by zero
-                    $result['prEvu'] = ($power['powerEvu'] / $powerTheo) * 100;
-                    $result['prAct'] = ($power['powerAct'] / $powerTheo) * 100;
-                    $result['prExp'] = ($result['powerExp'] / $powerTheo) * 100;
-                    $result['prEGridExt'] = ($power['powerEGridExt'] / $powerTheo) * 100;
-                }
-        }
-        */
 
         $anzCase5PerDay = $this->case5Repo->countCase5DayAnlage($anlage, $localStartDate, $localEndDate);
 
