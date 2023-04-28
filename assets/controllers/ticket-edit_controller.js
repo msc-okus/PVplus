@@ -242,7 +242,7 @@ export default class extends Controller {
         // in this switch we remove the hidding class to show the fields of the ticket date on demand
 
         if (cat >= 70 && cat <= 80 ){
-            $(this.scopeTarget).removeClass('is-hidden');
+
             body.find('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', true);
                 if (inverterString == '')
@@ -261,9 +261,11 @@ export default class extends Controller {
             inverterString = '*';
             body.find('#ticket_form_inverter').val(inverterString);
         }
-        else{
-            $(this.scopeTarget).addClass('is-hidden');
+
+        if (cat >= 72 && cat <= 80 ){
+            $(this.scopeTarget).removeClass('is-hidden');
         }
+        else  $(this.scopeTarget).addClass('is-hidden');
         switch (cat){
             case '10':
                 $(this.headerExcludeTarget).addClass('is-hidden');

@@ -491,9 +491,7 @@ class AlertSystemV2Service
      */
     private function generateTickets($errorType, $errorCategorie, $anlage, $inverter, $time, $message)
     {
-
             $ticketArray = $this->getAllTicketsByCat($anlage, $time, $errorCategorie);// we retrieve here the previous ticket (if any)
-
             if($ticketArray != []) {
                 foreach ($ticketArray as $ticketOld) {
                     $result = G4NTrait::subArrayFromArray($inverter, $ticketOld->getInverterArray());
@@ -583,13 +581,14 @@ class AlertSystemV2Service
                 $this->em->persist($ticketDate);
             }
     }
+
     /**
      * Given all the information needed to generate a ticket, the tickets are created and commited to the db (single ticket variant)
      * @param $errorType
-     * @param $errorCategorie
      * @param $anlage
      * @param $inverter
-     * @param $time
+     * @param $begin
+     * @param $end
      * @param $message
      * @return void
      */
