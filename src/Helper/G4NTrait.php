@@ -6,6 +6,7 @@ require_once __DIR__.'/../../public/config.php';
 
 use App\Entity\Anlage;
 use DateTimeZone;
+use Doctrine\Common\Collections\ArrayCollection;
 use Exception;
 use PDO;
 use PDOException;
@@ -444,5 +445,20 @@ trait G4NTrait
         }
 
         return ($divisor > 0) ? $divident / $divisor : null;
+    }
+
+    /*
+     *With this function we will remove the elements of the second array from the first one
+     * we will return an array with 3 array
+     * 1.- the elements left in the first array after the subtraction
+     * 2.- the elements left in the second array after the subtraction
+     * 3.- the elements that were removed (the intersection)
+     */
+    static public function subArrayFromArray(Array $array1, Array $array2) :mixed
+    {
+        $returnArray['intersection'] = array_intersect($array1, $array2);
+        $returnArray['array1'] = array_diff($array1, $array2);
+        $returnArray['array2'] = array_diff($array2, $array1);
+        return $returnArray;
     }
 }

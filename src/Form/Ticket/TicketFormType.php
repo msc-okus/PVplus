@@ -192,9 +192,11 @@ class TicketFormType extends AbstractType
                     ],
 
                 ])
-                ->add('scope', ChoiceType::class, [
+                ->add('Scope', ChoiceType::class, [
                     'label'     => 'Scope',
-                    'choices'   => self::scope()
+                    'choices'   => self::scope(),
+                    'expanded'  => true,
+                    'multiple'  => true
                 ])
             ;
         }

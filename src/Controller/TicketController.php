@@ -29,7 +29,7 @@ class TicketController extends BaseController
         if ($request->query->get('anlage') !== null) {
             $anlage = $anlRepo->findIdLike((int)$request->query->get('anlage'))[0];
         } else {
-            $anlage = null;
+            $anlage = $anlRepo->findIdLike(182)[0];;
         }
 
         if ($anlage) {
@@ -49,13 +49,10 @@ class TicketController extends BaseController
         } else {
             $form = $this->createForm(TicketFormType::class);
         }
-
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var Ticket $ticket */
             $ticket = $form->getData();
-
-
             if ($ticket->getDates()->first()->getBegin() < $ticket->getBegin()) $ticket->setBegin($ticket->getDates()->first()->getBegin());
             if ($ticket->getDates()->last()->getEnd() > $ticket->getEnd())$ticket->setEnd($ticket->getDates()->last()->getEnd());
             $ticket->setEditor($this->getUser()->getUsername());
