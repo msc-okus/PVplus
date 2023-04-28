@@ -281,7 +281,6 @@ class ForecastChartService
         $divMinus = 0;
         $divPlus = 0;
 
-
         foreach ($forecasts as $count => $forecast) {
             $year = date('Y', strtotime($to));
             $stamp = DateTime::createFromFormat('Y z', $year.' '.$forecast->getDay()-1);
@@ -296,15 +295,8 @@ class ForecastChartService
                 $divMinus += $forecast->getDivMinDay();
                 $divPlus += $forecast->getDivMaxDay();
             }
-            /*
-            $forecast->getPrDay().'<br>';
-            $forecast->getPrKumuliert().'<br>';
-            $forecast->getPrDayFt().'<br>';
-            $forecast->getPrKumuliertFt().'<br>';
-            */
 
             $forecastValue += $forecast->getPowerDay();
-
 
             $dataArray['chart'][$counter]['prKumuliert'] = $forecast->getPrKumuliert();
             $dataArray['chart'][$counter]['prDay'] = $forecast->getPrDay();
