@@ -5,6 +5,7 @@ namespace App\Form\ImportTools;
 use App\Entity\Anlage;
 use App\Form\Model\ImportToolsModel;
 use App\Repository\AnlagenRepository;
+use Knp\Bundle\PaginatorBundle\DependencyInjection\Configuration;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -39,6 +40,15 @@ class ImportToolsFormType extends AbstractType
             $anlagen = $this->anlagenRepository->findAllIDByEigner($eigner);
         }
 
+        $anlagen_toShow = [];
+        $i = 0;
+        foreach ($anlagen as $anlage) {
+            if($anlage->getPathToImportScript() != ''){
+                $anlagen_toShow[$i] = $anlage;
+                $i++;
+            }
+        }
+
         $choiceFunction = [
             'Import Tools' => [
                 'Import API Data' => 'api-import-data',
@@ -49,7 +59,7 @@ class ImportToolsFormType extends AbstractType
             ->add('anlage', EntityType::class, [
                 'label' => 'Please select a Plant',
                 'class' => Anlage::class,
-                'choices' => $anlagen,
+                'choices' => $anlagen_toShow,
                 'choice_label' => 'anlName',
             ])
             ->add('startDate', DateType::class, [

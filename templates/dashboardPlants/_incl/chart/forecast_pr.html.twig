@@ -1,0 +1,100 @@
+<script>
+    am4core.ready(function() {
+        // Create chart instance
+        let chart = am4core.create("amchart-holder", am4charts.XYChart);
+
+        chart.data = {{ content.data|raw }};
+        chart.dateFormatter.inputDateFormat = "yyyy-MM-dd";
+        chart.numberFormatter.intlLocales = "de-DE";
+        chart.numberFormatter.numberFormat = {
+            "style": "decimal",
+            "minimumFractionDigits": 0
+        };
+        let title = chart.titles.create();
+        title.text = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
+        title.fontSize = 18;
+        title.marginBottom = 30;
+
+        // Legend
+        chart.legend = new am4charts.Legend();
+        chart.legend.useDefaultMarker = false;
+
+        // Create axes
+        let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+        let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+
+        let valueAxisPr = chart.yAxes.push(new am4charts.ValueAxis());
+        valueAxisPr.title.text = "PR [[%]]";
+        valueAxisPr.renderer.opposite = true;
+        valueAxisPr.renderer.ticks.template.disabled = true;
+        valueAxisPr.renderer.grid.template.disabled = true;
+        valueAxisPr.extraMax = 0.1;
+
+        // Create series
+        let series1 = chart.series.push(new am4charts.LineSeries());
+        series1.name = "PR kumuliert"
+        series1.dataFields.dateX = "date";
+        series1.dataFields.valueY = "prKumuliert";
+        series1.tooltipText = "PR kumuliert [%]: {valueY} [/]";
+        series1.stroke = am4core.color("#f19952");
+        series1.fill = am4core.color("#F19952FF");
+        series1.strokeWidth = 1.5;
+        series1.sequencedInterpolation = true;
+        series1.defaultState.transitionDuration = 300;
+        series1.tensionX = 0.8;
+        series1.yAxis = valueAxisPr;
+
+        let series2 = chart.series.push(new am4charts.LineSeries());
+        series2.name = "PR mit Ft-Korrektur";
+        series2.dataFields.dateX = "date";
+        series2.dataFields.valueY = "prKumuliertFt";
+        series2.tooltipText = "PR mit Ft-Korrektur [%]: {valueY} [/]";
+        series2.stroke = am4core.color("#EACB2EFF");
+        series2.fill = am4core.color("#EACB2EFF");
+        series2.strokeWidth = 1.5;
+        series2.sequencedInterpolation = true;
+        series2.defaultState.transitionDuration = 300;
+        series2.tensionX = 0.8;
+        series2.yAxis = valueAxisPr;
+
+        let series3 = chart.series.push(new am4charts.LineSeries());
+        series3.name = "PR [[kWh]]"
+        series3.dataFields.dateX = "date";
+        series3.dataFields.valueY = "prDay";
+        series3.tooltipText = "PR [%]: {valueY} [/]";
+        series3.strokeWidth = 1.5;
+        series3.sequencedInterpolation = true;
+        series3.defaultState.transitionDuration = 300;
+        series3.tensionX = 0.8;
+        series3.yAxis = valueAxisPr;
+
+        let series4 = chart.series.push(new am4charts.LineSeries());
+        series4.name = "Forecast [[kWh]]"
+        series4.dataFields.dateX = "date";
+        series4.dataFields.valueY = "forecast";
+        series4.tooltipText = "Forecast [kWh]: {valueY} [/]";
+        series4.stroke = am4core.color("#000000");
+        series4.fill = am4core.color("#000000");
+        series4.strokeWidth = 1.5;
+        series4.sequencedInterpolation = true;
+        series4.defaultState.transitionDuration = 300;
+        series4.tensionX = 0.8;
+
+        chart.cursor = new am4charts.XYCursor();
+        chart.cursor.xAxis = dateAxis;
+        chart.exporting.menu = new am4core.ExportMenu();
+        chart.scrollbarX = new am4core.Scrollbar();
+        chart.scrollbarX.marginBottom = "20"
+        chart.scrollbarY = new am4core.Scrollbar();
+        chart.scrollbarY.marginLeft = "20";
+        chart.exporting.menu.items[0].label = "Download";
+        chart.exporting.formatOptions.getKey("json").disabled = true;
+        chart.exporting.formatOptions.getKey("html").disabled = true;
+        chart.exporting.formatOptions.getKey("pdfdata").disabled = true;
+        chart.exporting.formatOptions.getKey("print").disabled = true;
+        chart.exporting.formatOptions.getKey("pdf").disabled = true;
+        chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
+
+
+    }); // end am4core.ready()
+</script>
