@@ -296,10 +296,6 @@ class ForecastChartService
                 $divMinus += $forecast->getDivMinDay();
                 $divPlus += $forecast->getDivMaxDay();
             }
-            $forecast->getPrDay().'<br>';
-            $forecast->getPrKumuliert().'<br>';
-            $forecast->getPrDayFt().'<br>';
-            $forecast->getPrKumuliertFt().'<br>';
 
             $forecastValue += $forecast->getPowerDay();
 
