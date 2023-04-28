@@ -119,7 +119,7 @@ trait PVPNameArraysTrait
         return $spriority;
     }
 
-    public function errorCategorie(?Anlage $anlage = null): array
+    public function errorCategorie(?bool $full = true): array
     {
         $errorCategory[$this->translator->trans('ticket.error.category.10')] = 10; //data gap
         $errorCategory[$this->translator->trans('ticket.error.category.20')] = 20; //inverter error
@@ -127,7 +127,7 @@ trait PVPNameArraysTrait
         $errorCategory[$this->translator->trans('ticket.error.category.40')] = 40; //weather
         $errorCategory[$this->translator->trans('ticket.error.category.50')] = 50; //external control
         $errorCategory[$this->translator->trans('ticket.error.category.60')] = 60; //power/expected error
-        if ($anlage != null && $anlage->getKpiTicket() == true) {// Performance Tickets
+        if($full) {
             $errorCategory[$this->translator->trans('ticket.error.category.7')][$this->translator->trans('ticket.error.category.70')] = 70; //Exclude Sensors
             $errorCategory[$this->translator->trans('ticket.error.category.7')][$this->translator->trans('ticket.error.category.71')] = 71; //Replace Sensors
             $errorCategory[$this->translator->trans('ticket.error.category.7')][$this->translator->trans('ticket.error.category.72')] = 72; //Exclude from PR
