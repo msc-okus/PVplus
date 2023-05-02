@@ -51,13 +51,17 @@ class TicketFormType extends AbstractType
 
         $ticket = $options['data'] ?? null;
 
-        if ($ticket != null && $ticket->getCreatedAt() != null) {
-            $isNewTicket = false;
-            $anlage = $ticket->getAnlage();
-        } else {
-            $isNewTicket = true;
-            $anlage = $ticket->getAnlage();
-        }
+        if ($ticket != null && $ticket->getCreatedAt() != null)  $isNewTicket = false;
+        else $isNewTicket = true;
+
+        if ($ticket != null) $anlage = $ticket->getAnlage();
+        else $anlage = null;
+
+        if ($anlage) $full = $anlage->getKpiTicket();
+        else $full = true;
+
+        $errorCategorie =  self::errorCategorie($full);
+
 
         $builder
             ->add('TicketName', TextType::class, [
@@ -74,7 +78,7 @@ class TicketFormType extends AbstractType
             $builder->add('alertType', ChoiceType::class, [
                 'label' => 'Category of ticket ',
                 'help' => 'data gap, inverter, ...',
-                'choices' => self::errorCategorie($anlage),
+                'choices' => $errorCategorie,
                 'placeholder' => 'Please select ...',
                 'invalid_message' => 'Please select a Error Category.',
                 'empty_data' => 0,
@@ -88,7 +92,7 @@ class TicketFormType extends AbstractType
             $builder->add('alertType', ChoiceType::class, [
                 'label' => 'Category of ticket ',
                 'help' => 'data gap, inverter, ...',
-                'choices' => self::errorCategorie($anlage),
+                'choices' => $errorCategorie,
                 'disabled' => true,
                 'placeholder' => 'Please select ...',
                 'invalid_message' => 'Please select a Error Category.',
@@ -198,6 +202,7 @@ class TicketFormType extends AbstractType
                     'expanded'  => true,
                     'multiple'  => true
                 ])
+
             ;
         }
 

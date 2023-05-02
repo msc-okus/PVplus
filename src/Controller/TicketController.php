@@ -29,7 +29,7 @@ class TicketController extends BaseController
         if ($request->query->get('anlage') !== null) {
             $anlage = $anlRepo->findIdLike((int)$request->query->get('anlage'))[0];
         } else {
-            $anlage = $anlRepo->findIdLike(182)[0];;
+            $anlage = null;
         }
 
         if ($anlage) {
@@ -50,13 +50,16 @@ class TicketController extends BaseController
             $form = $this->createForm(TicketFormType::class);
         }
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
             /** @var Ticket $ticket */
             $ticket = $form->getData();
+
             if ($ticket->getDates()->first()->getBegin() < $ticket->getBegin()) $ticket->setBegin($ticket->getDates()->first()->getBegin());
             if ($ticket->getDates()->last()->getEnd() > $ticket->getEnd())$ticket->setEnd($ticket->getDates()->last()->getEnd());
             $ticket->setEditor($this->getUser()->getUsername());
             $dates = $ticket->getDates();
+
             foreach ($dates as $date) {
                 $date->copyTicket($ticket);
                 if ($date->getAlertType() == 20) {
@@ -65,6 +68,7 @@ class TicketController extends BaseController
                     $date->setKpiPaDep3(10);
                 }
                 if ($ticket->getAlertType() == 20) $ticket->getDates()[0]->setDataGapEvaluation(10);
+
             }
             $em->persist($ticket);
 
@@ -85,7 +89,6 @@ class TicketController extends BaseController
             $inverterArray[$key]["inv"] = $value;
             $inverterArray[$key]["select"] = "";
         }
-
         return $this->renderForm('ticket/_inc/_edit.html.twig', [
             'ticketForm'    => $form,
             'ticket'        => $ticket,
@@ -134,7 +137,10 @@ class TicketController extends BaseController
         }
         $form = $this->createForm(TicketFormType::class, $ticket);
         $page = $request->query->getInt('page', 1);
+
         $form->handleRequest($request);
+
+
         if ($form->isSubmitted() && $form->isValid()) {
             $request->attributes->set('page', $page);
             /** @var Ticket $ticket */

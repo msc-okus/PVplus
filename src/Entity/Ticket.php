@@ -113,7 +113,7 @@ class Ticket
     private ?string $kpiStatus = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $scope = null;
+    private ?string $Scope = null;
 
     #[ORM\Column]
     private ?bool $ProofAM = false;
@@ -367,12 +367,12 @@ class Ticket
 
     public function getScope(): ?array
     {
-        return explode(", ",$this->scope);
+        return explode(", ",$this->Scope);
     }
 
     public function setScope(?array $Scope): self
     {
-        $this->scope = implode(", ",$Scope);
+        $this->Scope = implode(", ",$Scope);
 
         return $this;
     }
