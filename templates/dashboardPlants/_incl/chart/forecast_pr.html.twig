@@ -22,9 +22,10 @@
         // Create axes
         let dateAxis = chart.xAxes.push(new am4charts.DateAxis());
         let valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+        valueAxis.title.text = "PR [[%]]"
 
         let valueAxisPr = chart.yAxes.push(new am4charts.ValueAxis());
-        valueAxisPr.title.text = "PR [[%]]";
+        valueAxisPr.title.text = "Forecast [[kwh]]";
         valueAxisPr.renderer.opposite = true;
         valueAxisPr.renderer.ticks.template.disabled = true;
         valueAxisPr.renderer.grid.template.disabled = true;
@@ -32,7 +33,7 @@
 
         // Create series
         let series1 = chart.series.push(new am4charts.LineSeries());
-        series1.name = "PR kumuliert"
+        series1.name = "PR  [[%]]";
         series1.dataFields.dateX = "date";
         series1.dataFields.valueY = "prKumuliert";
         series1.tooltipText = "PR kumuliert [%]: {valueY} [/]";
@@ -42,10 +43,9 @@
         series1.sequencedInterpolation = true;
         series1.defaultState.transitionDuration = 300;
         series1.tensionX = 0.8;
-        series1.yAxis = valueAxisPr;
 
         let series2 = chart.series.push(new am4charts.LineSeries());
-        series2.name = "PR mit Ft-Korrektur";
+        series2.name = "PR mit Ft-Korrektur [[%]]";
         series2.dataFields.dateX = "date";
         series2.dataFields.valueY = "prKumuliertFt";
         series2.tooltipText = "PR mit Ft-Korrektur [%]: {valueY} [/]";
@@ -55,10 +55,9 @@
         series2.sequencedInterpolation = true;
         series2.defaultState.transitionDuration = 300;
         series2.tensionX = 0.8;
-        series2.yAxis = valueAxisPr;
 
         let series3 = chart.series.push(new am4charts.LineSeries());
-        series3.name = "PR [[kWh]]"
+        series3.name = "PR [[%]]";
         series3.dataFields.dateX = "date";
         series3.dataFields.valueY = "prDay";
         series3.tooltipText = "PR [%]: {valueY} [/]";
@@ -66,7 +65,6 @@
         series3.sequencedInterpolation = true;
         series3.defaultState.transitionDuration = 300;
         series3.tensionX = 0.8;
-        series3.yAxis = valueAxisPr;
 
         let series4 = chart.series.push(new am4charts.LineSeries());
         series4.name = "Forecast [[kWh]]"
@@ -79,6 +77,7 @@
         series4.sequencedInterpolation = true;
         series4.defaultState.transitionDuration = 300;
         series4.tensionX = 0.8;
+        series4.yAxis = valueAxisPr;
 
         chart.cursor = new am4charts.XYCursor();
         chart.cursor.xAxis = dateAxis;
