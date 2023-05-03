@@ -189,8 +189,8 @@ class AnlageFormType extends AbstractType
                 'disabled' => !($isDeveloper),
             ])
             ->add('useNewDcSchema', ChoiceType::class, [
-                'label' => 'Neues DC Database Schema (separate Tabelle für DC IST)',
-                'help' => '[useNewDcSchema]',
+                'label' => 'Neues DC Database Schema',
+                'help' => '[useNewDcSchema] <br> (separate Tabelle für DC IST)',
                 'choices' => ['Yes' => '1', 'No' => '0'],
                 'empty_data' => '0',
                 'expanded' => false,
@@ -292,6 +292,13 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '3.0',
                 'disabled' => !$isDeveloper,
             ])
+            ->add('degradationPR', TextType::class, [
+                'label' => 'Degradation for PR Calc',
+                'help' => '[degradationPR]',
+                'label_html' => true,
+                'required' => false,
+                'empty_data' => '0.5',
+            ])
             ->add('useGridMeterDayData', SwitchType::class, [
                 'label' => 'Nutze externe GridMeter Daten',
                 'help' => '[useGridMeterDayData]',
@@ -322,7 +329,7 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '',
             ])
             ->add('isOstWestAnlage', ChoiceType::class, [
-                'label' => 'Anlage hat Ost/West Ausrichtung',
+                'label' => 'Plant is oriented east/west',
                 'help' => '[isOstWestAnlage]',
                 'label_html' => true,
                 'choices' => ['No' => '0', 'Yes' => '1'],
@@ -330,21 +337,21 @@ class AnlageFormType extends AbstractType
                 'empty_data' => 'No',
             ])
             ->add('powerEast', TextType::class, [
-                'label' => 'Anlagenleistung [kWp] Osten',
+                'label' => 'Pnom [kWp] Osten',
                 'help' => '[powerEast]',
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '',
             ])
             ->add('powerWest', TextType::class, [
-                'label' => 'Anlagenleistung [kWp] Westen',
+                'label' => 'Pnom [kWp] Westen',
                 'help' => '[powerWest]',
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '',
             ])
             ->add('pacDate', null, [
-                'label' => 'PAC Datum',
+                'label' => 'PAC Date',
                 'help' => '[pacDate]',
                 'label_html' => true,
                 'widget' => 'single_text',
@@ -370,28 +377,28 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '0',
             ])
             ->add('facDateStart', null, [
-                'label' => 'FAC Zeitraum Start',
+                'label' => 'FAC start date',
                 'help' => '[facDateStart]',
                 'required' => false,
                 'widget' => 'single_text',
                 'input' => 'datetime',
             ])
             ->add('facDate', null, [
-                'label' => 'FAC Datum',
+                'label' => 'FAC end date',
                 'help' => '[facDate]',
                 'label_html' => true,
                 'widget' => 'single_text',
                 'input' => 'datetime',
             ])
             ->add('epcReportStart', null, [
-                'label' => 'EPC Report Zeitraum Start',
+                'label' => 'EPC report start date',
                 'help' => '[epcReportStart]',
                 'required' => false,
                 'widget' => 'single_text',
                 'input' => 'datetime',
             ])
             ->add('epcReportEnd', null, [
-                'label' => 'EPC Report Datum',
+                'label' => 'EPC report end date',
                 'help' => '[epcReportEnd]',
                 'label_html' => true,
                 'widget' => 'single_text',

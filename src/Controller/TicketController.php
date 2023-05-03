@@ -27,7 +27,7 @@ class TicketController extends BaseController
     public function create(EntityManagerInterface $em, Request $request, AnlagenRepository $anlRepo, functionsService $functions): Response
     {
         if ($request->query->get('anlage') !== null) {
-            $anlage = $anlRepo->findIdLike((int)$request->query->get('anlage'))[0];
+            $anlage = $anlRepo->find($request->query->get('anlage'));
         } else {
             $anlage = null;
         }

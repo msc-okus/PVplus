@@ -349,7 +349,6 @@ class ReportsMonthlyService
             }
         }
         unset($prArray);
-        #dd($dayValues);
 
         // calculate PR and related data for the current month
         $fromDay = new \DateTime("$year-$month-01 00:00");

@@ -7,10 +7,13 @@ use App\Entity\AnlageFileUpload;
 use App\Form\FileUpload\FileUploadFormType;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
+use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+#[Deprecated]
 class PlantUploadAdminController extends BaseController
 {
     private string $uploadsPath;
@@ -21,7 +24,8 @@ class PlantUploadAdminController extends BaseController
     }
 
     #[Route(path: '/admin/upload/{id}', name: 'upload_test')]
-    public function temporaryUploadAction($id, Request $request, UploaderHelper $uploaderHelper, EntityManagerInterface $entityManager)
+    #[Deprecated]
+    public function temporaryUploadAction($id, Request $request, UploaderHelper $uploaderHelper, EntityManagerInterface $entityManager): Response
     {
         // $anlage = new AnlageFileUpload();
         $repositoryUpload = $entityManager->getRepository(AnlageFileUpload::class);
@@ -31,7 +35,7 @@ class PlantUploadAdminController extends BaseController
         $form = $this->createForm(FileUploadFormType::class);
         $form->handleRequest($request);
         $filesInDB = $repositoryUpload->findBy(['plant_id' => $id]);
-        $anlage = $repositoryAnlage->findIdLike([$id]);
+        $anlage = $repositoryAnlage->find($id);
         $isupload = '';
         if ($form->isSubmitted()) {
             $upload = new AnlageFileUpload();

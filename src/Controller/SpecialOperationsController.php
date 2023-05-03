@@ -49,8 +49,9 @@ class SpecialOperationsController extends AbstractController
 
         if ($submitted && isset($anlageId)) {
             $daysInMonth = $to->format('t');
-            $output = $bavelseExport->gewichtetTagesstrahlung($anlage, $from, $to);
-            $availability = $availabilityByTicket->calcAvailability($anlage, date_create("$year-$month-01"), date_create("$year-$month-$daysInMonth"), null, 2);
+            #$output = $bavelseExport->gewichtetTagesstrahlungAsTable($anlage, $from, $to);
+            #$availability = $availabilityByTicket->calcAvailability($anlage, date_create("$year-$month-01"), date_create("$year-$month-$daysInMonth"), null, 2);
+            $output2 = $bavelseExport->gewichtetTagesstrahlungOneLine($anlage, $anlage->getFacDateStart(), $to);
         }
         // End individual part
 
@@ -59,6 +60,7 @@ class SpecialOperationsController extends AbstractController
             'anlagen'       => $anlagen,
             'availabilitys' => $availability,
             'output'        => $output,
+            'output2'       => $output2,
             'status'        => $anlageId,
         ]);
     }

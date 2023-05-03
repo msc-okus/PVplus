@@ -4,6 +4,8 @@ namespace App\Service\Functions;
 
 use App\Entity\Anlage;
 use App\Helper\G4NTrait;
+use App\Repository\GridMeterDayRepository;
+use App\Repository\MonthlyDataRepository;
 use App\Service\FunctionsService;
 use PDO;
 use DateTime;
@@ -11,7 +13,9 @@ use DateTime;
 class PowerService
 {
     public function __construct(
-        private FunctionsService $functions
+        private FunctionsService $functions,
+        private MonthlyDataRepository $monthlyDataRepo,
+        private GridMeterDayRepository $gridMeterDayRepo
     )
     {
     }
