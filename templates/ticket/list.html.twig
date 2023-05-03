@@ -19,11 +19,11 @@
             data-ticket-list-target="ticketForm"
             class="ticket"
     >
-        <div data-ticket-list-target="searchBar">
-            <h3>Filter / Search by:</h3>
+        <div data-ticket-list-target="searchBar" style="margin-top: 10px; margin-bottom: 10px; height: 120px">
+            <h3 style="margin-bottom: 10px">Filter / Search by:</h3>
             {% include 'ticket/_inc/_searchForm.html.twig' %}
         </div>
-        <div data-ticket-list-target="list">
+        <div data-ticket-list-target="list" >
             {% include 'ticket/_inc/_listTickets.html.twig' %}
         </div>
         </div>
