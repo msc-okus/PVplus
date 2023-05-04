@@ -529,7 +529,10 @@ class AlertSystemV2Service
                     }
                 }
             }
-            $restInverter = implode(', ', $inverter);
+            if ($inverter != "*" ) {
+                $restInverter = implode(', ', $inverter);
+            }
+            else $restInverter = $inverter;
             if ($restInverter != "" && $this->irr === false) {
                 $ticket = new Ticket();
                 $ticketDate = new TicketDate();

@@ -1,6 +1,6 @@
 
 <form method="get">
-    <div class="grid-x grid-margin-x align-middle" style="margin-top: 20px">
+    <div class="grid-x grid-margin-x align-middle" style="margin-top: 20px; margin-bottom: 20px">
         <div class="cell medium-1"  style="margin-top:-17px!important;">
             <input type="text" name="id" class="input-group-field" value="{{ id }}" placeholder="Ticket Id">
         </div>
@@ -73,6 +73,16 @@
             <label> Proof by TAM
                 <input type="checkbox" name="prooftam" class="input-group-field" value="1">
             </label>
+            <label> Proof by EPC
+                <input type="checkbox" name="proofepc" class="input-group-field" value="1">
+            </label>
+            <label> Proof by AM
+                <input type="checkbox" name="proofam" class="input-group-field" value="1">
+            </label>
+
+        </div>
+        <div class="cell medium-1"  style="margin-top:-17px!important;">
+
             {% if (is_granted('ROLE_G4N') or is_granted('ROLE_BETA')) %}
                 <label> Ignored Tickets
                     <input type="checkbox" name="ignored" class="input-group-field" value="1">

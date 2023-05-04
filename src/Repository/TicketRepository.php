@@ -84,7 +84,7 @@ class TicketRepository extends ServiceEntityRepository
      * @param string $TicketName
      * @return QueryBuilder
      */
-    public function getWithSearchQueryBuilderNew(?Anlage $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0, string $sort = "", string $direction = "", bool $ignore = false, string $TicketName = "", int $kpistatus = 0, string $begin = "", string $end = ""): QueryBuilder
+    public function getWithSearchQueryBuilderNew(?Anlage $anlage, ?string $editor, ?string $id, ?string $prio, ?string $status, ?string $category, ?string $type, ?string $inverter, int $prooftam = 0,int $proofepc = 0, int $proofam = 0, string $sort = "", string $direction = "", bool $ignore = false, string $TicketName = "", int $kpistatus = 0, string $begin = "", string $end = ""): QueryBuilder
     {
         /** @var User $user */
         $user = $this->security->getUser();
@@ -128,6 +128,12 @@ class TicketRepository extends ServiceEntityRepository
         }
         if ($prooftam == 1){
             $qb->andWhere("ticket.needsProof = 1");
+        }
+        if ($proofepc == 1){
+            $qb->andWhere("ticket.needsProofEPC = 1");
+        }
+        if ($proofam == 1){
+            $qb->andWhere("ticket.ProofAM  = 1");
         }
         if ($kpistatus != 0){
             $qb->andWhere("ticket.kpiStatus = $kpistatus");
