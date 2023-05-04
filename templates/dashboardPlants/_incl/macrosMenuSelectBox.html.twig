@@ -38,7 +38,7 @@
 
 {# AC2 #}
 {% macro acActOverview(form, aktAnlage) %}
-    {% if aktAnlage.configType == 1 and aktAnlage.anlType != 'masterslave' %}
+    {% if aktAnlage.configType == 1 and aktAnlage.anlType != 'masterslave' %} {#   #}
         <option value="ac_act_overview" {% if form.selectedChart == 'ac_act_overview' %}selected{% endif %}>
             AC Power - Actual & Expected, Overview&nbsp;[kWh] {% if is_granted('ROLE_DEV') %}[AC 2]{% endif %}
         </option>
@@ -47,7 +47,7 @@
 
 {# AC3 #}
 {% macro acActGroup(form, aktAnlage) %}
-    {% if aktAnlage.anlType != 'masterslave' %}
+    {# {% if aktAnlage.anlType != 'masterslave' %}  #}
         <option value="ac_act_group" {% if form.selectedChart == 'ac_act_group' %}selected{% endif %}>
             {% if aktAnlage.configType == 1 %}
                 AC Power - Actual & Expected, Inverters
@@ -60,7 +60,7 @@
             {% endif %}
             &nbsp;[kWh] {% if is_granted('ROLE_DEV') %}[AC 3]{% endif %}
         </option>
-    {% endif %}
+   {# {% endif %} #}
 {% endmacro %}
 
 {# AC5 #}

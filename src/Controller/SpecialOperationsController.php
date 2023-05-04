@@ -7,6 +7,7 @@ use App\Repository\AnlagenRepository;
 use App\Service\AvailabilityByTicketService;
 use App\Service\ExportService;
 use App\Service\Reports\ReportsMonthlyService;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,7 +27,7 @@ class SpecialOperationsController extends AbstractController
     #[Route(path: '/special/operations/bavelse/report', name: 'bavelse_report')]
     public function bavelseExport(Request $request, ExportService $bavelseExport, AnlagenRepository $anlagenRepository, AvailabilityByTicketService $availabilityByTicket): Response
     {
-        $output = $availability = '';
+        $output = $output2 = $availability = '';
 
         $month = $request->request->get('month');
         $year = $request->request->get('year');
@@ -40,12 +41,9 @@ class SpecialOperationsController extends AbstractController
         $anlageId = '97';
         $anlagen = $anlagenRepository->findBy(['anlId' => $anlageId]);
         $anlage = $anlagenRepository->findOneBy(['anlId' => $anlageId]);
-        $from = date_create($year.'-'.$month.'-01');
-        if ($month == 12) {
-            $to = date_create(($year+1).'-01-01');
-        } else {
-            $to = date_create($year.'-'.($month+1).'-01');
-        }
+        $from = date_create($year.'-'.$month.'-01 00:01');
+        $dayOfMonth = $from->format('t');
+        $to = date_create($year.'-'.($month).'-'.$dayOfMonth.' 23:59');
 
         if ($submitted && isset($anlageId)) {
             $daysInMonth = $to->format('t');
@@ -66,7 +64,7 @@ class SpecialOperationsController extends AbstractController
     }
 
     /**
-     * @throws ExceptionInterface
+     * @throws Exception
      */
     #[Route(path: '/special/operations/monthly', name: 'monthly_report_test')]
     public function monthlyReportTest(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyService $reportsMonthly): Response
