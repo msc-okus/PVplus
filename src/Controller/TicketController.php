@@ -55,8 +55,8 @@ class TicketController extends BaseController
             /** @var Ticket $ticket */
             $ticket = $form->getData();
 
-            if ($ticket->getDates()->first()->getBegin() < $ticket->getBegin()) $ticket->setBegin($ticket->getDates()->first()->getBegin());
-            if ($ticket->getDates()->last()->getEnd() > $ticket->getEnd())$ticket->setEnd($ticket->getDates()->last()->getEnd());
+            $ticket->getDates()->first()->setBegin($ticket->getBegin());
+            $ticket->getDates()->last()->setEnd($ticket->getEnd());
             $ticket->setEditor($this->getUser()->getUsername());
             $dates = $ticket->getDates();
 
@@ -230,6 +230,7 @@ class TicketController extends BaseController
         {
             //$page = 1;
             $request->query->set('filtering', 'non-filtered');
+
         } // we do this to reset the page if the user uses the filter
 
         if ($page == 0) {
@@ -245,7 +246,6 @@ class TicketController extends BaseController
         } else {
             $anlage = null;
         }
-
         $status = $request->query->get('status');
         $editor = $request->query->get('editor');
         $id = $request->query->get('id');
@@ -256,9 +256,13 @@ class TicketController extends BaseController
         $sort = $request->query->get('sort', "");
         $direction = $request->query->get('direction', "");
         $prooftam = $request->query->get('prooftam', 0);
+        $proofepc = $request->query->get('proofepc', 0);
+        $proofam = $request->query->get('proofam', 0);
         $ignored = $request->query->get('ignored', 0);
         $TicketName = $request->query->get('TicketName', "");
         $kpistatus = $request->query->get('kpistatus', 0);
+        $begin = $request->query->get('begin', "");
+        $end = $request->query->get('end', "");
         if ($ignored == 0) $ignoredBool = false;
         else $ignoredBool = true;
         if ($sort === "") $sort = "ticket.begin";
@@ -277,7 +281,7 @@ class TicketController extends BaseController
         $filter['kpistatus']['value'] = $kpistatus;
         $filter['kpistatus']['array'] = self::kpiStatus();
 
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $sort, $direction, $ignoredBool, $TicketName, $kpistatus);
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $proofepc, $proofam, $sort, $direction, $ignoredBool, $TicketName, $kpistatus, $begin, $end);
 
 
         $pagination = $paginator->paginate($queryBuilder, $page,25 );
@@ -299,6 +303,11 @@ class TicketController extends BaseController
             ]);
 
         }
+        //here we will configure the array of reason suggestions
+        if ($anlage != null){
+
+        }
+        else $reasonArray = [];
         return $this->render('ticket/list.html.twig', [
             'pagination'    => $pagination,
             'anlage'        => $anlage,
@@ -311,6 +320,9 @@ class TicketController extends BaseController
             'prooftam'      => $prooftam,
             'sort'          => $sort,
             'direction'     => $direction,
+            'begin'         => $begin,
+            'end'           => $end,
+            'reasonArray'   => $reasonArray,
         ]);
     }
 
@@ -406,6 +418,7 @@ class TicketController extends BaseController
 
         $status = $request->query->get('status');
         $editor = $request->query->get('editor');
+        $id = $request->query->get('id');
         $inverter = $request->query->get('inverter');
         $prio = $request->query->get('prio');
         $category = $request->query->get('category');
@@ -413,9 +426,13 @@ class TicketController extends BaseController
         $sort = $request->query->get('sort', "");
         $direction = $request->query->get('direction', "");
         $prooftam = $request->query->get('prooftam', 0);
+        $proofepc = $request->query->get('proofepc', 0);
+        $proofam = $request->query->get('proofam', 0);
         $ignored = $request->query->get('ignored', 0);
         $TicketName = $request->query->get('TicketName', "");
         $kpistatus = $request->query->get('kpistatus', 0);
+        $begin = $request->query->get('begin', "");
+        $end = $request->query->get('end', "");
         if ($ignored == 0) $ignoredBool = false;
         else $ignoredBool = true;
         if ($sort === "") $sort = "ticket.begin";
@@ -434,7 +451,7 @@ class TicketController extends BaseController
         $filter['kpistatus']['value'] = $kpistatus;
         $filter['kpistatus']['array'] = self::kpiStatus();
 
-        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $sort, $direction, $ignoredBool, $TicketName, $kpistatus);
+        $queryBuilder = $ticketRepo->getWithSearchQueryBuilderNew($anlage, $editor, $id, $prio, $status, $category, $type, $inverter, $prooftam, $proofepc, $proofam, $sort, $direction, $ignoredBool, $TicketName, $kpistatus, $begin, $end);
 
 
         $pagination = $paginator->paginate($queryBuilder, $page,25 );
@@ -450,6 +467,10 @@ class TicketController extends BaseController
         $session->set('page', "$page");
 
 
+        if ($anlage != null){
+
+        }
+        else $reasonArray = [];
         return $this->render('ticket/list.html.twig', [
             'pagination'    => $pagination,
             'anlage'        => $anlage,
@@ -462,6 +483,9 @@ class TicketController extends BaseController
             'prooftam'      => $prooftam,
             'sort'          => $sort,
             'direction'     => $direction,
+            'begin'         => $begin,
+            'end'           => $end,
+            'reasonArray'   => $reasonArray,
         ]);
     }
 

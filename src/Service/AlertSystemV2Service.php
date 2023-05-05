@@ -367,13 +367,8 @@ class AlertSystemV2Service
             //here we retrieve the values from the plant and set soma flags to generate tickets
             $plant_status = self::RetrievePlant($anlage, $time);
 
-            // We do this to avoid checking further inverters if we have a PPC control shut
-            $array_gap = explode(", ", $plant_status['Gap']);
-            $array_zero = explode(", ", $plant_status['Power0']);
-            $array_vol = explode(", ", $plant_status['Vol']);
-            //we close all the previous tickets and we will re-open them if needed.
-
             $ticketOld = $this->getAllTickets($anlage, $time);
+            //revise; maybe we can skip this
             if ((isset($ticketOld))) {
                 foreach ($ticketOld as $ticket) {
                     $ticket->setOpenTicket(false);
@@ -381,10 +376,10 @@ class AlertSystemV2Service
                 }
             }
 
-            if ($plant_status['ppc'] === true)  $this->generateTickets(OMC, EXTERNAL_CONTROL, $anlage, "*", $time, "test");
-            if (count($array_gap) > 0) $this->generateTickets('', DATA_GAP, $anlage, $array_gap, $time, "test");
-            if (count($array_zero) > 0)  $this->generateTickets(EFOR, INVERTER_ERROR, $anlage, $array_zero, $time, "test");
-            if((count($array_vol) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")) $this->generateTickets('', GRID_ERROR, $anlage, $array_vol, $time, "test");
+            if ( $plant_status['ppc'] != null && $plant_status['ppc'] === true)  $this->generateTickets(OMC, EXTERNAL_CONTROL, $anlage, ["*"], $time, "test");
+            if ( $plant_status['Gap'] != null && count($plant_status['Gap']) > 0) $this->generateTickets('', DATA_GAP, $anlage, $plant_status['Gap'], $time, "test");
+            if ( $plant_status['Power0'] != null && count($plant_status['Power0']) > 0)  $this->generateTickets(EFOR, INVERTER_ERROR, $anlage, $plant_status['Power0'], $time, "test");
+            if ( $plant_status['Vol'] != null && (count($plant_status['Vol']) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")) $this->generateTickets('', GRID_ERROR, $anlage, $plant_status['Vol'], $time, "test");
         }
 
         $this->em->flush();
@@ -413,9 +408,7 @@ class AlertSystemV2Service
         $conn = self::getPdoConnection();
 
         $return['ppc'] = false;
-        $return['Power0'] = "";
-        $return['Gap'] = "";
-        $return['Vol'] = "";
+
         $invCount = count($anlage->getInverterFromAnlage());
         $irradiation = $this->weatherFunctions->getIrrByStampForTicket($anlage, date_create($time));
         if ($irradiation < $irrLimit) $this->irr = true;
@@ -451,30 +444,28 @@ class AlertSystemV2Service
                 $resp = $conn->query($sqlVol);
                 //here if there is no plant control we check the values and get the information to create the tickets
                 $resultVol = $resp->fetchAll(PDO::FETCH_ASSOC);
-                if (count($resultVol) == $invCount &&  $this->irr == false) $return['Vol'] = '*';
+                if (count($resultVol) == $invCount &&  $this->irr == false) $return['Vol'] = ['*'];
                 else {
                     foreach ($resultVol as $value) {
-                        if ($return['Vol'] !== "") $return['Vol'] = $return['Vol'] . ", " . $value['unit'];
-                        else $return['Vol'] = $value['unit'];
+                        $return['Vol'][] =  $value['unit'];
+
                     }
+
                 }
             }
-            else $return['Vol'] = "";
-            if (count($resultNull) == $invCount &&  $this->irr == false) $return['Gap'] = '*';
+            else $return['Vol'] = [];
+            if (count($resultNull) == $invCount &&  $this->irr == false) $return['Gap'] = ['*'];
             else {
                 foreach ($resultNull as $value) {
-                    if ($return['Gap'] !== "") $return['Gap'] = $return['Gap'] . ", " . $value['unit'];
-                    else $return['Gap'] = $value['unit'];
+                    $return['Gap'][] =  $value['unit'];
                 }
             }
-            if (count($result0) == $invCount &&  $this->irr == false) $return['Power0'] = '*';
+            if (count($result0) == $invCount &&  $this->irr == false) $return['Power0'] = ['*'];
             else {
                 foreach ($result0 as $value) {
-                    if ($return['Power0'] !== "") $return['Power0'] = $return['Power0'] . ", " . $value['unit'];
-                    else $return['Power0'] = $value['unit'];
+                     $return['Power0'][] =  $value['unit'];
                 }
             }
-
 
         return $return;
     }
@@ -529,7 +520,10 @@ class AlertSystemV2Service
                     }
                 }
             }
-            $restInverter = implode(', ', $inverter);
+            if ($inverter != "*" ) {
+                $restInverter = implode(', ', $inverter);
+            }
+            else $restInverter = $inverter;
             if ($restInverter != "" && $this->irr === false) {
                 $ticket = new Ticket();
                 $ticketDate = new TicketDate();

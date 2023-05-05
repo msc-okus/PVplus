@@ -44,14 +44,14 @@ class TicketFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $isDeveloper = $this->security->isGranted('ROLE_DEV');
-        $isAdmin     = $this->security->isGranted('ROLE_ADMIN');
-        $isBeta      = $this->security->isGranted('ROLE_BETA');
+        $isAdmin = $this->security->isGranted('ROLE_ADMIN');
+        $isBeta = $this->security->isGranted('ROLE_BETA');
 
         /** @var Ticket $ticket */
 
         $ticket = $options['data'] ?? null;
 
-        if ($ticket != null && $ticket->getCreatedAt() != null)  $isNewTicket = false;
+        if ($ticket != null && $ticket->getCreatedAt() != null) $isNewTicket = false;
         else $isNewTicket = true;
 
         if ($ticket != null) $anlage = $ticket->getAnlage();
@@ -60,7 +60,7 @@ class TicketFormType extends AbstractType
         if ($anlage) $full = $anlage->getKpiTicket();
         else $full = true;
 
-        $errorCategorie =  self::errorCategorie($full);
+        $errorCategorie = self::errorCategorie($full);
 
 
         $builder
@@ -74,7 +74,7 @@ class TicketFormType extends AbstractType
                     'readonly' => true,
                 ],
             ]);
-        if ($isNewTicket){
+        if ($isNewTicket) {
             $builder->add('alertType', ChoiceType::class, [
                 'label' => 'Category of ticket ',
                 'help' => 'data gap, inverter, ...',
@@ -85,7 +85,7 @@ class TicketFormType extends AbstractType
                 'attr' => [
                     'data-action' => 'change->ticket-edit#saveCheck',
                     'data-ticket-edit-target' => 'formCategory',
-                    'data-ticket-edit-edited-param'=> 'false',
+                    'data-ticket-edit-edited-param' => 'false',
                 ],
             ]);
         } else {
@@ -107,11 +107,11 @@ class TicketFormType extends AbstractType
 
         $builder
             ->add('inverter', TextType::class, [
-            'label' => 'Inverter',
-            'required' => true,
-            'help' => '* = all Invertres',
-            'attr' => [
-                'readonly' => true,
+                'label' => 'Inverter',
+                'required' => true,
+                'help' => '* = all Invertres',
+                'attr' => [
+                    'readonly' => true,
                 ],
             ])
             ->add('begin', DateTimeType::class, [
@@ -138,7 +138,6 @@ class TicketFormType extends AbstractType
                     'data-ticket-edit-target' => 'formEnd'
                 ],
             ])
-
             ->add('status', ChoiceType::class, [
                 'label' => 'Status',
                 'choices' => self::ticketStati(),
@@ -154,13 +153,17 @@ class TicketFormType extends AbstractType
                 'invalid_message' => 'Please select a Priority.',
             ])
             ->add('needsProofTAM', SwitchType::class, [
-                'label'         => 'proof by TAM',
+                'label' => 'proof by TAM',
+            ])
+            ->add('needsProofEPC', SwitchType::class, [
+                'label' => 'proof by EPC',
+
             ])
             ->add('ProofAM', SwitchType::class, [
                 'label' => 'proof by AM'
             ])
             ->add('ignoreTicket', SwitchType::class, [
-                'label'         => 'Ignore',
+                'label' => 'Ignore',
             ])
             // ### Free Text for descriptions
             ->add('freeText', CKEditorType::class, [
@@ -179,34 +182,21 @@ class TicketFormType extends AbstractType
                 'entry_type' => TicketDateEmbeddedFormType::class,
                 'allow_add' => true, //This should do the trick.
             ])
-        ;
+            ->add('KpiStatus', ChoiceType::class, [
+                'choices' => self::kpiStatus(),
+                'placeholder' => 'please chose',
+                'attr' => [
+                    'data-ticket-edit-target' => 'formkpiStatus'
+                ],
 
-        ########### Performance Tickets ###########
-        if ($isDeveloper || $isBeta) {
-            $builder
-                ->add('needsProofEPC', SwitchType::class, [
-                    'label'     => 'proof by EPC',
-                    'mapped'    => false,
-                ])
-                ->add('KpiStatus', ChoiceType::class, [
-                    'choices' => self::kpiStatus(),
-                    'placeholder' => 'please chose',
-                    'attr'      => [
-                        'data-ticket-edit-target' => 'formkpiStatus'
-                    ],
+            ])
+            ->add('Scope', ChoiceType::class, [
+                'label' => 'Scope',
+                'choices' => self::scope(),
+                'expanded' => true,
+                'multiple' => true
+            ]);
 
-                ])
-                ->add('Scope', ChoiceType::class, [
-                    'label'     => 'Scope',
-                    'choices'   => self::scope(),
-                    'expanded'  => true,
-                    'multiple'  => true
-                ])
-
-            ;
-        }
 
     }
-
-
 }
