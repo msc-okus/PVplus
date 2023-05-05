@@ -451,7 +451,7 @@ class AlertSystemV2Service
                 $resp = $conn->query($sqlVol);
                 //here if there is no plant control we check the values and get the information to create the tickets
                 $resultVol = $resp->fetchAll(PDO::FETCH_ASSOC);
-                if (count($resultVol) == $invCount &&  $this->irr == false) $return['Vol'] = '*';
+                if (count($resultVol) == $invCount &&  $this->irr == false) $return['Vol'] = ['*'];
                 else {
                     foreach ($resultVol as $value) {
                         if ($return['Vol'] !== "") $return['Vol'] = $return['Vol'] . ", " . $value['unit'];
@@ -460,14 +460,14 @@ class AlertSystemV2Service
                 }
             }
             else $return['Vol'] = "";
-            if (count($resultNull) == $invCount &&  $this->irr == false) $return['Gap'] = '*';
+            if (count($resultNull) == $invCount &&  $this->irr == false) $return['Gap'] = ['*'];
             else {
                 foreach ($resultNull as $value) {
                     if ($return['Gap'] !== "") $return['Gap'] = $return['Gap'] . ", " . $value['unit'];
                     else $return['Gap'] = $value['unit'];
                 }
             }
-            if (count($result0) == $invCount &&  $this->irr == false) $return['Power0'] = '*';
+            if (count($result0) == $invCount &&  $this->irr == false) $return['Power0'] = ['*'];
             else {
                 foreach ($result0 as $value) {
                     if ($return['Power0'] !== "") $return['Power0'] = $return['Power0'] . ", " . $value['unit'];
