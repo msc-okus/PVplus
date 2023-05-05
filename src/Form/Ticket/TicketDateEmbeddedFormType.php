@@ -70,7 +70,6 @@ class TicketDateEmbeddedFormType extends AbstractType
             ->add('reasonText',TextType::class, [
                 'empty_data' => '',
                 'attr'          => [
-                  //  'data-action' => 'change->ticket-edit#reasonCheck',
                     'data-ticket-edit-target' => 'formReasonSelect'
                 ]
 
