@@ -351,12 +351,12 @@ class PRCalulationService
 
             // SpecYield
             if ($anlage->getUseGridMeterDayData()) {
-                $specYieldMonth = $powerEGridExtMonth / $anlage->getKwPeak();
+                $specYieldMonth = $powerEGridExtMonth / $anlage->getPnom();
             } else {
                 if ($anlage->getShowEvuDiag()) {
-                    $specYieldMonth = $powerEvuMonth / $anlage->getKwPeak();
+                    $specYieldMonth = $powerEvuMonth / $anlage->getPnom();
                 } else {
-                    $specYieldMonth = $powerActMonth / $anlage->getKwPeak();
+                    $specYieldMonth = $powerActMonth / $anlage->getPnom();
                 }
             }
 

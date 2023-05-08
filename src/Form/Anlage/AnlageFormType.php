@@ -660,13 +660,13 @@ class AnlageFormType extends AbstractType
                 'label' => 'Base frequency of the Plant',
                 'help' => '[freqBase]',
                 'attr' => ['data-plant-target' => 'ticket'],
-                'empty_data' => '',
+                'empty_data' => '50',
             ])
             ->add('freqTolerance', TextType::class, [
                 'label' => 'Frequency tolerance of the Plant',
                 'help' => '[hasFrequency]',
                 'attr' => ['data-plant-target' => 'ticket'],
-                'empty_data' => '',
+                'empty_data' => '2',
             ])
             ->add('expectedTicket', SwitchType::class, [
                 'label' => 'Activate Expected Tickets',

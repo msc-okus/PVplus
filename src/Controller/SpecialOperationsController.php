@@ -3,14 +3,23 @@
 namespace App\Controller;
 
 use App\Entity\Anlage;
+use App\Form\Model\ToolsModel;
+use App\Form\Model\WeatherToolsModel;
+use App\Form\Tools\ToolsFormType;
+use App\Form\Tools\WeatherToolsFormType;
+use App\Message\Command\CalcExpected;
 use App\Repository\AnlagenRepository;
+use App\Repository\WeatherStationRepository;
 use App\Service\AvailabilityByTicketService;
 use App\Service\ExportService;
+use App\Service\LogMessagesService;
 use App\Service\Reports\ReportsMonthlyService;
+use App\Service\WeatherServiceNew;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 
@@ -94,4 +103,56 @@ class SpecialOperationsController extends AbstractController
         ]);
 
     }
+
+    #[Route(path: '/special/operations/loadweatherdata', name: 'load_weatherdata')]
+    public function loadUPWeatherData(Request $request, AnlagenRepository $anlagenRepository, WeatherStationRepository $weatherStationRepo, WeatherServiceNew $weatherService, MessageBusInterface $messageBus, LogMessagesService $logMessages,): Response
+    {
+        $form = $this->createForm(WeatherToolsFormType::class);
+        $form->handleRequest($request);
+
+        $output = null;
+
+        // Start individual part
+        $headline = '';
+
+        if ($form->isSubmitted() && $form->isValid() && $form->get('calc')->isClicked() && $request->getMethod() == 'POST') {
+            /* @var WeatherToolsModel $toolsModel
+             */
+            $toolsModel = $form->getData();
+            $weatherStation = $weatherStationRepo->findOneBy(['id' => $toolsModel->anlage]);
+            $output = '<h3>Load Weather Data UP (all weather stations):</h3>';
+
+            for ($stamp = $toolsModel->startDate->getTimestamp(); $stamp <= $toolsModel->endDate->getTimestamp(); $stamp = $stamp + (24 * 3600)) {
+                if (str_starts_with($weatherStation->getType(), 'UP')) {
+                    $output .= $weatherService->loadWeatherDataUP($weatherStation, $stamp);
+                }
+            }
+
+            $toolsModel->endDate->add(new \DateInterval('P1D'));
+            $anlagen = $anlagenRepository->findBy(['weatherStation' => $toolsModel->anlage, 'anlHidePlant' => 'No', 'excludeFromExpCalc' => false]);
+            foreach ($anlagen as $anlage) {
+                if ($anlage->getAnlBetrieb() !== null) {
+                    $job = "Update 'G4N Expected' from " . $toolsModel->startDate->format('Y-m-d 00:00') . ' until ' . $toolsModel->endDate->format('Y-m-d 00:00');
+                    $logId = $logMessages->writeNewEntry($anlage, 'Expected', $job);
+                    $message = new CalcExpected($anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
+                    $messageBus->dispatch($message);
+                    $output .= 'Command was send to messenger! Will be processed in background. Plant: '.$anlage->getAnlName().'<br>';
+                } else {
+                    $output .= '<p style="color: red; font-weight: bold;">Could not be calculated. Missing installation date.</p>';
+                }
+            }
+
+        }
+
+        // Wenn Close geklickt wird mache dies:
+        if ($form->isSubmitted() && $form->isValid() && $form->get('close')->isClicked()) {
+            return $this->redirectToRoute('app_dashboard');
+        }
+
+        return $this->render('tools/weatherStations.html.twig', [
+            'toolsForm'     => $form->createView(),
+            'output'        => $output,
+        ]);
+    }
+
 }
