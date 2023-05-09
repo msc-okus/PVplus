@@ -121,6 +121,9 @@ class Ticket
     #[ORM\Column(nullable: true)]
     private ?bool $needsProofEPC = false;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $notified = null;
+
 
     /*
         #[ORM\Column(type: 'string', length: 255, nullable: true)]
@@ -397,6 +400,18 @@ class Ticket
     public function setNeedsProofEPC(?bool $needsProofEPC): self
     {
         $this->needsProofEPC = $needsProofEPC;
+
+        return $this;
+    }
+
+    public function isNotified(): ?bool
+    {
+        return $this->notified;
+    }
+
+    public function setNotified(?bool $notified): self
+    {
+        $this->notified = $notified;
 
         return $this;
     }

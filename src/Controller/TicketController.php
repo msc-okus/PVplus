@@ -89,6 +89,10 @@ class TicketController extends BaseController
             $inverterArray[$key]["inv"] = $value;
             $inverterArray[$key]["select"] = "";
         }
+        if ($anlage != null){
+
+        }
+        else $reasonArray = [];
         return $this->renderForm('ticket/_inc/_edit.html.twig', [
             'ticketForm'    => $form,
             'ticket'        => $ticket,
@@ -207,6 +211,10 @@ class TicketController extends BaseController
         }
         if ($ticket->getAlertType() >=70 && $ticket->getAlertType() < 80) $performanceTicket =  true;
         else $performanceTicket = false;
+        if ($anlage != null){
+
+        }
+        else $reasonArray = [];
         return $this->renderForm('ticket/_inc/_edit.html.twig', [
             'ticketForm' => $form,
             'ticket' => $ticket,
@@ -304,10 +312,7 @@ class TicketController extends BaseController
 
         }
         //here we will configure the array of reason suggestions
-        if ($anlage != null){
 
-        }
-        else $reasonArray = [];
         return $this->render('ticket/list.html.twig', [
             'pagination'    => $pagination,
             'anlage'        => $anlage,
@@ -322,7 +327,6 @@ class TicketController extends BaseController
             'direction'     => $direction,
             'begin'         => $begin,
             'end'           => $end,
-            'reasonArray'   => $reasonArray,
         ]);
     }
 
@@ -467,10 +471,7 @@ class TicketController extends BaseController
         $session->set('page', "$page");
 
 
-        if ($anlage != null){
 
-        }
-        else $reasonArray = [];
         return $this->render('ticket/list.html.twig', [
             'pagination'    => $pagination,
             'anlage'        => $anlage,
@@ -485,7 +486,6 @@ class TicketController extends BaseController
             'direction'     => $direction,
             'begin'         => $begin,
             'end'           => $end,
-            'reasonArray'   => $reasonArray,
         ]);
     }
 

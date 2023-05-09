@@ -372,6 +372,7 @@ class AlertSystemService
             $array_gap = explode(", ", $plant_status['Gap']);
             $array_zero = explode(", ", $plant_status['Power0']);
             $array_vol = explode(", ", $plant_status['Vol']);
+
             //we close all the previous tickets and we will re-open them if needed.
 
             $ticketOld = $this->getAllTickets($anlage, $time);
@@ -381,9 +382,6 @@ class AlertSystemService
                     $this->em->persist($ticket);
                 }
             }
-
-
-
 
                 if (count($array_gap) > 0) {
                     foreach ($array_gap as $inverter) {
@@ -410,7 +408,7 @@ class AlertSystemService
                     }
                 }
 
-                $this->generateTickets(OMC, EXTERNAL_CONTROL, $anlage, '*', $time, "");
+                if ($plant_status['ppc'])$this->generateTickets(OMC, EXTERNAL_CONTROL, $anlage, '*', $time, "");
 
         }
 
@@ -874,6 +872,4 @@ class AlertSystemService
         }
         return $rest . ':' . $quarter;
     }
-
-
 }

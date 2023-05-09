@@ -445,6 +445,7 @@ class AlertSystemV2Service
                 //here if there is no plant control we check the values and get the information to create the tickets
                 $resultVol = $resp->fetchAll(PDO::FETCH_ASSOC);
                 if (count($resultVol) == $invCount &&  $this->irr == false) $return['Vol'] = ['*'];
+                else if (count($resultVol) == 0) $return['Vol'] = [];
                 else {
                     foreach ($resultVol as $value) {
                         $return['Vol'][] =  $value['unit'];
@@ -455,12 +456,14 @@ class AlertSystemV2Service
             }
             else $return['Vol'] = [];
             if (count($resultNull) == $invCount &&  $this->irr == false) $return['Gap'] = ['*'];
+            else if (count($resultNull) == 0) $return['Gap'] = [];
             else {
                 foreach ($resultNull as $value) {
                     $return['Gap'][] =  $value['unit'];
                 }
             }
             if (count($result0) == $invCount &&  $this->irr == false) $return['Power0'] = ['*'];
+            else if (count($result0) == 0) $return['Power0'] = [];
             else {
                 foreach ($result0 as $value) {
                      $return['Power0'][] =  $value['unit'];
@@ -502,6 +505,8 @@ class AlertSystemV2Service
                             $ticketClose->setOpenTicket(true);
                             $ticketDate->setEnd($end);
                             //$this->em->persist($ticketDate);
+                            $ticketClose->setCreatedBy("AlertSystem");
+                            $ticketClose->setUpdatedBy("AlertSystem");
                             $this->em->persist($ticketClose);
                         }
                         else{
