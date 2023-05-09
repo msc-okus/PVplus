@@ -502,6 +502,8 @@ class AlertSystemV2Service
                             $ticketClose->setOpenTicket(true);
                             $ticketDate->setEnd($end);
                             //$this->em->persist($ticketDate);
+                            $ticketClose->setCreatedBy("AlertSystem");
+                            $ticketClose->setUpdatedBy("AlertSystem");
                             $this->em->persist($ticketClose);
                         }
                         else{
