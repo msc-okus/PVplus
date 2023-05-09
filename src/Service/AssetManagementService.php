@@ -4335,7 +4335,7 @@ class AssetManagementService
         unset($option);
 
         $TicketAvailabilityMonthTable =$this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($report['from']))), date_create(date("Y-m-d ",strtotime($report['to']))));
-        $TicketAvailabilityYearTable = $this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($report['from']))), date_create(date("Y-m-d ",strtotime($report['to']))), "year");
+        $TicketAvailabilityYearTable = $this->PRCalulation->calcPR( $anlage, date_create(date("Y-01-01 00:00",strtotime($report['from']))), date_create(date("Y-12-31 23:59",strtotime($report['to']))));
 
 
         // end Chart Losses compared cummulated

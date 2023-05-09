@@ -27,7 +27,7 @@ class TicketController extends BaseController
     public function create(EntityManagerInterface $em, Request $request, AnlagenRepository $anlRepo, functionsService $functions): Response
     {
         if ($request->query->get('anlage') !== null) {
-            $anlage = $anlRepo->findIdLike((int)$request->query->get('anlage'))[0];
+            $anlage = $anlRepo->find($request->query->get('anlage'));
         } else {
             $anlage = null;
         }
@@ -340,7 +340,7 @@ class TicketController extends BaseController
         $ticket = $ticketRepo->findOneById($ticketDate->getTicket());
         $splitTime = date_create($request->query->get('begin-time'));
         $anlage = $ticket->getAnlage();
-        $nameArray = $functions->getInverterArray($anlage);
+        $nameArray = $anlage->getInverterFromAnlage();
         $selected = $ticket->getInverterArray();
 
         $indexSelect = 0;
@@ -545,7 +545,7 @@ class TicketController extends BaseController
         }
         $anlage = $ticket->getAnlage();
 
-        $nameArray = $functions->getInverterArray($anlage);
+        $nameArray = $anlage->getInverterFromAnlage();
         $selected = $ticket->getInverterArray();
         $indexSelect = 0;
         // I loop over the array with the real names and the array of selected inverters

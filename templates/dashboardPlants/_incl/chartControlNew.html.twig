@@ -256,7 +256,13 @@
                     <option value="pr_and_av" {% if form.selectedChart == 'pr_and_av' %}selected{% endif %}>Show PR&nbsp;[%]</option>
                 {% endif %}
                 {% if aktAnlage.settings.chartAnalyse3 %}
-                    <option value="forecast" {% if form.selectedChart == 'forecast' %}selected{% endif %}>Forecast&nbsp;[kWh]</option>
+                    <option value="forecast" {% if form.selectedChart == 'forecast' %}selected{% endif %}>Forecast Ertrag&nbsp;[kWh]</option>
+                {% endif %}
+                {% if aktAnlage.settings.chartAnalyse10 %}
+                    <option value="forecast_pr" {% if form.selectedChart == 'forecast_pr' %}selected{% endif %}>Forecast PR&nbsp;[kWh / %]</option>
+                {% endif %}
+                {% if aktAnlage.settings.chartAnalyse11 %}
+                    <option value="forecast3" {% if form.selectedChart == 'forecast3' %}selected{% endif %}>Forecast3&nbsp;[kWh]</option>
                 {% endif %}
                 {% if is_granted('ROLE_G4N') or is_granted('ROLE_ANALYSE') %}
                     {% if aktAnlage.settings.chartAnalyse4 %}{{ showHeatmap(form, aktAnlage) }}{% endif %}            {# Headmap #}

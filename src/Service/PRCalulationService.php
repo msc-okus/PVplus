@@ -544,40 +544,15 @@ class PRCalulationService
      *
      * @throws \Exception
      */
-    public function calcPR(Anlage $anlage, DateTime $startDate, DateTime $endDate = null, string $type = 'day', int $years = 1): array
+    public function calcPR(Anlage $anlage, DateTime $startDate, DateTime $endDate = null): array
     {
-        $type = strtolower($type); // sicherstellen das type immer in Kleinbuchstaben
         $result = [];
-
-        // Start Zeite je nach gewähltem Typ ermitteln und als für SQL formatiertem String speichern
-        switch ($type) {
-            case 'month':
-                // PR für Monat berechnen (ohne Rumpfmonate)
-                $localStartDate = $startDate->format('Y-m-d 00:00');
-                $localEndDate = $startDate->format('Y-m-d-23:59');
-                break;
-            case 'year':
-                // PR für das Jahr brechnen (vom 1. Jan bis zum 31. Dez)
-                $localStartDate = $startDate->format('Y-01-01 00:00');
-                $localEndDate = $startDate->format('Y-12-31 23:59');
-                break;
-            case 'pac':
-                // PR für PAC Datum bis $endDate berechnen
-                $localStartDate = $anlage->getPacDate()->format('Y-m-d 00:00');
-                if ($endDate === null) {
-                    $localEndDate = $startDate->format('Y-m-d-23:59');
-                } else {
-                    $localEndDate = $endDate->format('Y-m-d-23:59');
-                }
-                break;
-            default:
-                // PR für einen Tag (wenn $endDate = null) oder für beliebigen Zeitraum (auch für Rumpfmonate in epc Berichten) berechnen
-                $localStartDate = $startDate->format('Y-m-d 00:00');
-                if ($endDate === null) {
-                    $localEndDate = $startDate->format('Y-m-d 23:59');
-                } else {
-                    $localEndDate = $endDate->format('Y-m-d 23:59');
-                }
+        // PR für einen Tag (wenn $endDate = null) oder für beliebigen Zeitraum (auch für Rumpfmonate in epc Berichten) berechnen
+        $localStartDate = $startDate->format('Y-m-d 00:00');
+        if ($endDate === null) {
+            $localEndDate = $startDate->format('Y-m-d 23:59');
+        } else {
+            $localEndDate = $endDate->format('Y-m-d 23:59');
         }
 
         // Wetter Daten ermitteln
@@ -592,11 +567,21 @@ class PRCalulationService
         $result['powerEGridExt'] = $power['powerEGridExt'];
 
         // Verfügbarkeit ermitteln
+        $pa1 = $pa2 = $pa3 = 0;
+        $this->availabilityByTicket->checkAvailability($anlage, date_create($localStartDate), 0);
         $pa0 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 0);
-        $pa1 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 1);
-        $pa2 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 2);
-        $pa3 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 3);
-        $availability = $pa2;
+        if (!$anlage->getSettings()->isDisableDep1()) {
+            $this->availabilityByTicket->checkAvailability($anlage, date_create($localStartDate), 1);
+            $pa1 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 1);
+        }
+        if (!$anlage->getSettings()->isDisableDep2()) {
+            $this->availabilityByTicket->checkAvailability($anlage, date_create($localStartDate), 2);
+            $pa2 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 2);
+        }
+        if (!$anlage->getSettings()->isDisableDep3()) {
+            $this->availabilityByTicket->checkAvailability($anlage, date_create($localStartDate), 3);
+            $pa3 = $this->availabilityByTicket->calcAvailability($anlage, date_create($localStartDate), date_create($localEndDate), null, 3);
+        }
 
         // Strahlungen berechnen – (upper = Ost / lower = West)
         if ($anlage->getIsOstWestAnlage()) {
@@ -635,56 +620,6 @@ class PRCalulationService
         $result['prDep3Exp'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerExp'], $result['powerTheoDep3'], $pa0); //(($result['powerExp'] / $tempTheoPower) * 100;
         $result['prDep3EGridExt'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerEGridExt'], $result['powerTheoDep3'], $pa0); //(($power['powerEGridExt'] / $tempTheoPower) * 100;
 
-        /*
-        // depending on used allgoritmus
-        switch ($anlage->getUseCustPRAlgorithm()) {
-            case 'Groningen':
-                if ($powerTheo > 0 && $availability > 0) { // Verhinder Divison by zero
-                    $result['prEvu'] = ($power['powerEvu'] / ($powerTheo / 1000 * $availability)) * (10 / 0.9945);
-                    $result['prAct'] = ($power['powerAct'] / ($powerTheo / 1000 * $availability)) * (10 / 0.9945);
-                    $result['prExp'] = ($result['powerExp'] / ($powerTheo / 1000 * $availability)) * (10 / 0.9945);
-                    $result['prEGridExt'] = ($power['powerEGridExt'] / ($powerTheo / 1000 * $availability)) * (10 / 0.9945);
-                }
-                break;
-            case 'Veendam':
-                if ($availability > 0) { // Verhinder Divison by zero
-                    if ($powerTheo > 0) {
-                        $result['prEvu'] = ($power['powerEvu'] / ($powerTheo / 100 * $availability)) * 100;
-                        $result['prAct'] = ($power['powerAct'] / ($powerTheo / 100 * $availability)) * 100;
-                        $result['prExp'] = ($result['powerExp'] / ($powerTheo / 100 * $availability)) * 100;
-                        $result['prEGridExt'] = ($power['powerEGridExt'] / ($powerTheo / 100 * $availability)) * 100;
-                    }
-                }
-                break;
-            case 'Lelystad':
-                // mit Temperatur korriegierten theoretischen Enerie ($powerTheo)
-                if ($powerTheo > 0) { // Verhinder Divison by zero
-                    $result['prEvu'] = ($power['powerEvu'] / $powerTheo) * 100;
-                    $result['prAct'] = ($power['powerAct'] / $powerTheo) * 100;
-                    $result['prExp'] = ($result['powerExp'] / $powerTheo) * 100;
-                    $result['prEGridExt'] = ($power['powerEGridExt'] / $powerTheo) * 100;
-                }
-                break;
-            case 'Ladenburg' :
-                // entspricht Standard PR plus degradation (Faktor = $years int)
-                $powerTheo = ($anlage->getPnom() / 1000) * pow(1 - 0.25, $years) * $irr;
-                if ($powerTheo > 0) { // Verhindere Divison by zero
-                    $result['prEvu'] = ($power['powerEvu'] / $powerTheo) * 100;
-                    $result['prAct'] = ($power['powerAct'] / $powerTheo) * 100;
-                    $result['prExp'] = ($result['powerExp'] / $powerTheo) * 100;
-                    $result['prEGridExt'] = ($power['powerEGridExt'] / $powerTheo) * 100;
-                }
-                break;
-            default:
-                // wenn es keinen spezielen Algorithmus gibt
-                if ($powerTheo > 0) { // Verhindere Divison by zero
-                    $result['prEvu'] = ($power['powerEvu'] / $powerTheo) * 100;
-                    $result['prAct'] = ($power['powerAct'] / $powerTheo) * 100;
-                    $result['prExp'] = ($result['powerExp'] / $powerTheo) * 100;
-                    $result['prEGridExt'] = ($power['powerEGridExt'] / $powerTheo) * 100;
-                }
-        }
-        */
 
         $anzCase5PerDay = $this->case5Repo->countCase5DayAnlage($anlage, $localStartDate, $localEndDate);
 

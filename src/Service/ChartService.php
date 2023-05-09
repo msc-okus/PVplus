@@ -498,7 +498,17 @@ class ChartService
                     }
                     if ($dataArray) {
                         $resultArray['data'] = json_encode($dataArray['chart']);
-                        $resultArray['headline'] = 'Forecast';
+                        $resultArray['headline'] = 'Forecast Ertrag';
+                        $resultArray['series1']['name'] = '';
+                        $resultArray['series1']['tooltipText'] = '';
+                    }
+                    break;
+                case 'forecast_pr':
+                    $dataArray = $this->forecastChart->getForecastDayPr($anlage, $to);
+
+                    if ($dataArray) {
+                        $resultArray['data'] = json_encode($dataArray['chart']);
+                        $resultArray['headline'] = 'Forecast PR';
                         $resultArray['series1']['name'] = '';
                         $resultArray['series1']['tooltipText'] = '';
                     }
