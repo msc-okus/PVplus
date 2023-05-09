@@ -107,7 +107,7 @@ export default class extends Controller {
             else beginHourInt = beginDate.getHours();
 
             let hour = 0;
-            if (endDate.getMinutes() > 0) hour = endDate.getHours() + 1;
+            if (endDate.getMinutes() > 15) hour = endDate.getHours() + 1;
             else hour = endDate.getHours();
 
             if (beginHourInt < 10){
@@ -127,7 +127,7 @@ export default class extends Controller {
 
             let newStringBeginDate = beginDate.getFullYear().toString().concat('-', beginMonth, '-', beginDay, 'T',beginHour, ':', '15');
 
-            let newStringEndDate = endDate.getFullYear().toString().concat('-', endMonth, '-', endDay, 'T', endHour, ':', '00');
+            let newStringEndDate = endDate.getFullYear().toString().concat('-', endMonth, '-', endDay, 'T', endHour, ':', '15');
 
             $(this.formBeginDateTarget).val(newStringBeginDate);
             $(this.formEndDateTarget).val(newStringEndDate);
@@ -305,7 +305,6 @@ export default class extends Controller {
                 if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(20)};
                 break;
             case '20':
-                console.log('entro');
 
                 $(this.headerExcludeTarget).addClass('is-hidden');
                 $(this.headerReplaceTarget).addClass('is-hidden');

@@ -420,9 +420,11 @@ class AlertSystemV2Service
             $respPpc = $conn->query($sqlPpc);
             if ($respPpc->rowCount() === 1) {
                 $ppdData = $respPpc->fetch(PDO::FETCH_ASSOC);
-                $return['ppc'] = ((($ppdData['p_set_rpc_rel'] != null && $ppdData['p_set_rpc_rel'] < 100) || ($ppdData['p_set_gridop_rel'] != null && $ppdData['p_set_gridop_rel'] < 100)));
+                $return['ppc'] = ((($ppdData['p_set_rpc_rel'] !== null && $ppdData['p_set_rpc_rel'] < 100) || ($ppdData['p_set_gridop_rel'] !== null && $ppdData['p_set_gridop_rel'] < 100)));
             }
+            else $return['ppc'] = null;
         }
+        else $return['ppc'] = null;
 
 
             $sqlAct = 'SELECT b.unit 
