@@ -22,9 +22,9 @@
         <th class="is-hidden" data-ticket-edit-target="headerCorrection">Correction Value (+/-)</th>
         <th class="is-hidden" data-ticket-edit-target="headerReason">Reason</th>
         <th class="is-hidden" data-ticket-edit-target="headerEvaluation">Evaluation</th>
-        <th class="is-hidden" data-ticket-edit-target="headerAktDep1">{% if (features and features.aktDep1) %}PA {{ settings.nameDep1 }}   {% endif %}</th>
-        <th class="is-hidden" data-ticket-edit-target="headerAktDep2">{% if (features and features.aktDep2) %}PA {{ settings.nameDep2 }}   {% endif %}</th>
-        <th class="is-hidden" data-ticket-edit-target="headerAktDep3">{% if (features and features.aktDep3) %}PA {{ settings.nameDep3 }}{% endif %}</th>
+        <th class="is-hidden" data-ticket-edit-target="headerAktDep1">{% if (features and features.aktDep1 and not anlage.settings.disableDep1 and settings.nameDep1) %}PA {{ settings.nameDep1 }}   {% endif %}</th>
+        <th class="is-hidden" data-ticket-edit-target="headerAktDep2">{% if (features and features.aktDep2 and not anlage.settings.disableDep2 and settings.nameDep2) %}PA {{ settings.nameDep2 }}   {% endif %}</th>
+        <th class="is-hidden" data-ticket-edit-target="headerAktDep3">{% if (features and features.aktDep3 and not anlage.settings.disableDep3 and settings.nameDep3) %}PA {{ settings.nameDep3 }}{% endif %}</th>
         <th class="is-hidden" data-ticket-edit-target="headerPRMethod">Exclude Method </th>
         <th></th>
         <th style="width: 35px"></th>
@@ -65,9 +65,9 @@
                 <td class="is-hidden" data-ticket-edit-target="fieldEvaluation">{{ form_widget(date.dataGapEvaluation, { 'attr':{'class': 'no-margin', 'data-ticket-split-target':'dataGapEv', 'data-action':'change->ticket-split#checkKpiSelectBoxes'} }) }}</td>
             {% endif %}
 
-            <td class="is-hidden" data-ticket-edit-target="fieldAktDep1"  {% if (not features or features.aktDep1 == false) %} hidden  {% endif %}>{{ form_widget(date.kpiPaDep1, { 'attr': {'class': 'no-margin',  'data-ticket-split-target':'aktDep1' } }) }}</td>
-            <td class="is-hidden" data-ticket-edit-target="fieldAktDep2"  {% if (not features or features.aktDep2) == false %} hidden {% endif %}>{{ form_widget(date.kpiPaDep2, { 'attr': {'class': 'no-margin',  'data-ticket-split-target':'aktDep2' } }) }}</td>
-            <td class="is-hidden" data-ticket-edit-target="fieldAktDep3"  {% if (not features or features.aktDep3) == false %} hidden {% endif %}>{{ form_widget(date.kpiPaDep3, { 'attr': {'class': 'no-margin',  'data-ticket-split-target':'aktDep3' } }) }}</td>
+            <td class="is-hidden" data-ticket-edit-target="fieldAktDep1"  {% if (not features or features.aktDep1 == false or anlage.settings.disableDep1 or not settings.nameDep1) %} hidden  {% endif %}>{{ form_widget(date.kpiPaDep1, { 'attr': {'class': 'no-margin',  'data-ticket-split-target':'aktDep1' } }) }}</td>
+            <td class="is-hidden" data-ticket-edit-target="fieldAktDep2"  {% if (not features or features.aktDep2 == false or anlage.settings.disableDep2 or not settings.nameDep2) %} hidden {% endif %}>{{ form_widget(date.kpiPaDep2, { 'attr': {'class': 'no-margin',  'data-ticket-split-target':'aktDep2' } }) }}</td>
+            <td class="is-hidden" data-ticket-edit-target="fieldAktDep3"  {% if (not features or features.aktDep3 == false or anlage.settings.disableDep3 or not settings.nameDep3) %} hidden {% endif %}>{{ form_widget(date.kpiPaDep3, { 'attr': {'class': 'no-margin',  'data-ticket-split-target':'aktDep3' } }) }}</td>
             <td class="" data-ticket-edit-target="fieldPRMethod">{{ form_widget(date.PRExcludeMethod) }}</td>
             {{ form_widget(date.beginHidden) }}
             {{ form_widget(date.endHidden) }}
