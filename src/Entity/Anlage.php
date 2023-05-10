@@ -590,6 +590,9 @@ class Anlage
     #[ORM\Column(nullable: true)]
     private ?bool $gridTicket = false;
 
+    #[ORM\Column(nullable: true)]
+    private ?bool $newAlgorythm = false;
+
     /**
      * @return string|null
      */
@@ -3463,6 +3466,18 @@ class Anlage
     public function setKpiTicket(?bool $kpiTicket): void
     {
         $this->kpiTicket = $kpiTicket;
+    }
+
+    public function isNewAlgorythm(): ?bool
+    {
+        return $this->newAlgorythm;
+    }
+
+    public function setNewAlgorythm(?bool $newAlgorythm): self
+    {
+        $this->newAlgorythm = $newAlgorythm;
+
+        return $this;
     }
 
 
