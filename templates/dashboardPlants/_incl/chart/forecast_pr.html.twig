@@ -65,6 +65,7 @@
         series3.sequencedInterpolation = true;
         series3.defaultState.transitionDuration = 300;
         series3.tensionX = 0.8;
+        series3.hidden = true;
 
         let series4 = chart.series.push(new am4charts.LineSeries());
         series4.name = "Forecast [[kWh]]"
@@ -93,7 +94,6 @@
         chart.exporting.formatOptions.getKey("print").disabled = true;
         chart.exporting.formatOptions.getKey("pdf").disabled = true;
         chart.exporting.filePrefix = "{{ content.headline }} - {{ aktAnlage.anlName }} ({{ form.from|date("Y-m-d") }} to {{ form.to|date("Y-m-d") }})";
-
 
     }); // end am4core.ready()
 </script>
