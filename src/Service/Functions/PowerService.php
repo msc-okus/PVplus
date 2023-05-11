@@ -84,14 +84,21 @@ class PowerService
      * @param $to
      * @param bool $ppc
      * @return array
+     * @throws \Exception
      */
-    public function getSumAcPowerV2(Anlage $anlage, DateTime $from, DateTime $to): array
+    public function getSumAcPowerV2(Anlage $anlage, DateTime $from, DateTime $to, bool $ppc = false): array
     {
         $conn = self::getPdoConnection();
         $result = [];
         $powerEvu = $powerExp = $powerExpEvu = $powerTheo = $tCellAvg = $tCellAvgMultiIrr = 0;
 
         $ignorNegativEvuSQL = $anlage->isIgnoreNegativEvu() ? 'AND e_z_evu > 0' : '';
+        $ppcSQLpart1 = $ppcSQLpart2 = '';
+        if ($ppc){
+            $ppcSQLpart1 = 's.stamp = ppc.stamp';
+            $ppcSQLpart2 = ' AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) 
+                AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is null)';
+        }
 
         // Wenn externe Tagesdaten genutzt werden, sollen lade diese aus der DB und ÜBERSCHREIBE die Daten aus den 15Minuten Werten
         // $powerEGridExt = $this->functions->getSumeGridMeter($anlage, $from, $to);
@@ -101,12 +108,11 @@ class PowerService
 
         $sql = "SELECT sum(prod_power) as power_grid 
             FROM ".$anlage->getDbNameMeters() . " s
-            RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
+            RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON $ppcSQLpart1 
             WHERE s.stamp BETWEEN '" . $from->format('Y-m-d H:i') . "' 
                 AND '" . $to->format('Y-m-d H:i') . "' 
                 $ignorNegativEvuSQL 
-                AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) 
-                AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is null)"
+                $ppcSQLpart2"
         ;
 
         $res = $conn->query($sql);
@@ -176,6 +182,7 @@ class PowerService
      * @param $from
      * @param $to
      * @return array
+     * @throws \Exception
      */
     public function getSumAcPowerV2Ppc(Anlage $anlage, $from, $to): array
     {
@@ -183,7 +190,14 @@ class PowerService
     }
 
 
-
+    /**
+     * @param Anlage $anlage
+     * @param float|null $evu
+     * @param $from
+     * @param $to
+     * @return float|null
+     * @throws \Exception
+     */
     public function checkAndIncludeMonthlyCorrectionEVU(Anlage $anlage, ?float $evu, $from, $to): ?float
     {
         $conn = self::getPdoConnection();
@@ -245,6 +259,15 @@ class PowerService
         return $evu;
     }
 
+    /**
+     * Wird für den Bericht Bavelse Berg genutzt
+     *
+     * @param Anlage $anlage
+     * @param $from
+     * @param $to
+     * @param $section
+     * @return array
+     */
     public function getSumAcPowerBySection(Anlage $anlage, $from, $to, $section): array
     {
         $conn = self::getPdoConnection();

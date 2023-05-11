@@ -16,12 +16,14 @@ use App\Service\LogMessagesService;
 use App\Service\Reports\ReportsMonthlyService;
 use App\Service\WeatherServiceNew;
 use Exception;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
+
 
 class SpecialOperationsController extends AbstractController
 {
@@ -104,6 +106,7 @@ class SpecialOperationsController extends AbstractController
 
     }
 
+    #[IsGranted(['ROLE_G4N'])]
     #[Route(path: '/special/operations/loadweatherdata', name: 'load_weatherdata')]
     public function loadUPWeatherData(Request $request, AnlagenRepository $anlagenRepository, WeatherStationRepository $weatherStationRepo, WeatherServiceNew $weatherService, MessageBusInterface $messageBus, LogMessagesService $logMessages,): Response
     {
