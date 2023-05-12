@@ -144,7 +144,7 @@
                     </li>
             {% else %}
                 <li><a href="{{ path('app_anlagen_list') }}"><i class="fa fa-solar-panel"></i><span> Plants</span></a></li>
-                {% if is_granted('ROLE_ADMIN_USER') %}<li><a href="{{ path('app_admin_user_list') }}"><i class="fa fa-user-edit"></i> User</a></li>{% endif %}
+                {% if is_granted('ROLE_OWNER_ADMIN') %}<li><a href="{{ path('app_admin_user_list') }}"><i class="fa fa-user-edit"></i> User</a></li>{% endif %}
             {% endif %}
         </ul>
     </nav>

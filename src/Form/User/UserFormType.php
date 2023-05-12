@@ -67,10 +67,10 @@ class UserFormType extends AbstractType
             }
         }
 
-       if ($this->security->isGranted('ROLE_ADMIN_USER') and $this->security->getUser()->getUsername() != "admin"){
-           $choicesRolesArray = array_merge(User::ARRAY_OF_ROLES_USER, User::ARRAY_OF_FUNCTIONS_BY_ROLE);
+       if ($this->security->isGranted('ROLE_G4N')){
+           $choicesRolesArray = array_merge(User::ARRAY_OF_G4N_ROLES, User::ARRAY_OF_ROLES_USER, User::ARRAY_OF_FUNCTIONS_BY_ROLE);
           } else {
-           $choicesRolesArray = array_merge($choicesRolesArray = User::ARRAY_OF_ROLES, User::ARRAY_OF_FUNCTIONS_BY_ROLE);
+           $choicesRolesArray = array_merge(User::ARRAY_OF_ROLES_USER, User::ARRAY_OF_FUNCTIONS_BY_ROLE);
        }
 
        $singlechoince = [$eigner?->getFirma() => $eigner?->getId()];
@@ -99,6 +99,7 @@ class UserFormType extends AbstractType
                 'choices' => $choicesRolesArray,
                 'multiple' => true,
                 'expanded' => true,
+               # 'mapped'    => $this->security->isGranted('ROLE_G4N'),
             ])
             ->add('eigners', EntityType::class, [
                 'class' => Eigner::class,
@@ -160,4 +161,5 @@ class UserFormType extends AbstractType
             'data_class' => User::class,
         ]);
     }
+
 }

@@ -19,28 +19,22 @@
         </fieldset>
     </div>
 
-    {% if is_granted('ROLE_G4N')  %}
+
     <div class="cell small-6 medium-3">
         <fieldset class="fieldset">
-            <legend>List Eigner
-                <span data-tooltip tabindex="1" title="Please assign the eigner from user !"><i class="fa fa-info-circle"></i></span>
-            </legend>
-            {{ form_widget(userForm.eigners) }}
-        </fieldset>
-    </div>
-    {% endif %}
-
-    {% if is_granted('ROLE_ADMIN_USER')  %}
-        <div class="cell small-6 medium-3">
-            <fieldset class="fieldset">
+            {% if is_granted('ROLE_G4N')  %}
+                <legend>List Eigner
+                    <span data-tooltip tabindex="1" title="Please assign the eigner from user !"><i class="fa fa-info-circle"></i></span>
+                </legend>
+                {{ form_widget(userForm.eigners) }}
+            {% else %}
                 <legend>Eigner
                     <span data-tooltip tabindex="1" title="Please assign the eigner from user !"><i class="fa fa-info-circle"></i></span>
                 </legend>
-                 {{ form_widget(userForm.singleeigners) }}
-            </fieldset>
-        </div>
-    {% endif %}
-
+                {{ form_widget(userForm.singleeigners) }}
+            {% endif %}
+        </fieldset>
+    </div>
     <div class="cell small-6 medium-3">
         <fieldset class="fieldset">
             <legend>List with Roles

@@ -39,30 +39,37 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\HasLifecycleCallbacks]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
-    public const ARRAY_OF_ROLES = [
-
-        'Developer' => 'ROLE_DEV',
-        'Admin' => 'ROLE_ADMIN',
-        'Green4Net User' => 'ROLE_G4N',
-        'AdminUser' => 'ROLE_ADMIN_USER',
-        'API (full)' => 'ROLE_API_FULL_USER',
-        'API ' => 'ROLE_API_USER',
-        'Owner (full)' => 'ROLE_OWNER_FULL',
-        'Owner' => 'ROLE_OWNER',
-        'AssetManagement' => 'ROLE_AM',
-        'Beta Tester' => 'ROLE_BETA',
-        'Analyse' => 'ROLE_ANALYSE',
-
+    public const ARRAY_OF_G4N_ROLES = [
+        'Developer'         => 'ROLE_DEV',
+        'Admin'             => 'ROLE_ADMIN',
+        'Green4Net User'    => 'ROLE_G4N',
+        'API (full)'        => 'ROLE_API_FULL_USER',
+        'API '              => 'ROLE_API_USER',
+        'Beta Tester'       => 'ROLE_BETA',
+        'Admin Owner'       => 'ROLE_OWNER_ADMIN',
     ];
-
     public const ARRAY_OF_ROLES_USER = [
-        'Admin Owner'       => 'ROLE_ADMIN_OWNER',
         'Owner (full)'      => 'ROLE_OWNER_FULL',
         'Owner'             => 'ROLE_OWNER',
     ];
 
+    public const ARRAY_OF_ROLES = [
+        'Developer'         => 'ROLE_DEV',
+        'Admin'             => 'ROLE_ADMIN',
+        'Green4Net User'    => 'ROLE_G4N',
+        'API (full)'        => 'ROLE_API_FULL_USER',
+        'API '              => 'ROLE_API_USER',
+        'Beta Tester'       => 'ROLE_BETA',
+        'Owner (admin)'     => 'ROLE_OWNER_ADMIN',
+        'Owner (full)'      => 'ROLE_OWNER_FULL',
+        'Owner'             => 'ROLE_OWNER',
+        'AssetManagement'   => 'ROLE_AM',
+        'Analyse'           => 'ROLE_ANALYSE',
+    ];
+
     public const ARRAY_OF_FUNCTIONS_BY_ROLE = [
         'AssetManagement'   => 'ROLE_AM',
+        'Analyse'           => 'ROLE_ANALYSE',
     ];
 
     #[Groups(['user:read'])]
@@ -224,6 +231,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $roles[] = 'ROLE_USER';
 
         return array_unique($roles);
+    }
+
+    public function getG4NRoles(): array
+    {
+        $roles = $this->roles;
+
+        return array_unique(array_intersect($roles, self::ARRAY_OF_G4N_ROLES));
     }
 
     public function getRolesAsString(): string

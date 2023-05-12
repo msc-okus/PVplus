@@ -40,7 +40,7 @@ class UserController extends BaseController
             $roles = $form->get('roles')->getData();
             $user = $form->getData();
 
-            if ($this->isGranted('ROLE_ADMIN_USER') && $security->getUser()->getUsername() != "admin" ) {
+            if ($this->isGranted('ROLE_OWNER_ADMIN') && $security->getUser()->getUsername() != "admin" ) {
                 $eignerDn = $security->getUser()->getEigners()[0];
                 $user->addEigner($eignerDn);
             }
@@ -74,7 +74,7 @@ class UserController extends BaseController
 
     // USER List zur Listen Ansicht der User
     #[Route(path: '/admin/user/list', name: 'app_admin_user_list')]
-    #[IsGranted(['ROLE_ADMIN_OWNER'])]
+    #[IsGranted(['ROLE_OWNER_ADMIN'])]
     public function list(Request $request, PaginatorInterface $paginator, UserRepository $userRepository, SecurityController $security): Response
     {
         /** @var User $user */
@@ -118,12 +118,14 @@ class UserController extends BaseController
 
     // USER Edit
     #[Route(path: '/admin/user/edit/{id}', name: 'app_admin_user_edit')]
-    #[IsGranted(['ROLE_ADMIN_OWNER'])]
+    #[IsGranted(['ROLE_OWNER_ADMIN'])]
     public function edit($id, EntityManagerInterface $em, Request $request, UserRepository $userRepository, UserPasswordHasherInterface $userPasswordHasher): Response
     {
+        /** @var User $user */
         $user = $userRepository->find($id);
         // prüfen ob user existiert
         if ($user) {
+            $originalG4NRoles = $user->getG4NRoles();
             $form = $this->createForm(UserFormType::class, $user);
             $form->handleRequest($request);
             $selEigner = $form->get('eigners')->getData()[0];
@@ -142,6 +144,11 @@ class UserController extends BaseController
                 $selPlantList = $form->get('eignersPlantList')->getData();
                 $savPlantList = (implode(",", $selPlantList));
                 $user->setGrantedList($savPlantList);
+
+                // für die Rolle G4N entfällt die Prüfung
+                if (!$this->isGranted('ROLE_G4N')){
+                    $user->setRoles(array_unique(array_merge($form->getData()->getRoles(), $originalG4NRoles)));
+                }
 
                 if ($form['newPlainPassword']->getData() != '') {
                     $user->setPassword($userPasswordHasher->hashPassword(
@@ -223,6 +230,7 @@ class UserController extends BaseController
             return $this->redirectToRoute('app_logout');
         }
     }
+
     // USER Suche
     #[Route(path: '/user/find', name: 'app_admin_user_find', methods: 'GET')]
     public function find(UserRepository $userRepo, Request $request): Response
@@ -232,6 +240,7 @@ class UserController extends BaseController
             'userss' => $user,
         ], 200, [], ['groups' => ['user_list']]);
     }
+
     // USER Löschen
     #[Route(path: 'admin/user/delete/{id}', name: 'app_admin_user_delete', methods: 'GET')]
     #[IsGranted(['ROLE_G4N'])]

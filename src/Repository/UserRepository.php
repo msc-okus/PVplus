@@ -9,6 +9,7 @@ use Doctrine\ORM\ORMException;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
+use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -20,7 +21,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class UserRepository extends ServiceEntityRepository implements PasswordUpgraderInterface
 {
-    public function __construct(ManagerRegistry $registry, private ApiTokenRepository $apiTokenRepository)
+    public function __construct(ManagerRegistry $registry, private ApiTokenRepository $apiTokenRepository, private Security $security)
     {
         parent::__construct($registry, User::class);
     }
@@ -28,13 +29,18 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
     public function getWithSearchQueryBuilder(?string $term): QueryBuilder
     {
-        $qb = $this->createQueryBuilder('c');
+        /** @var User $user */
+        $user = $this->security->getUser();
 
-        $qb->leftJoin('c.eigners', 'u')
-            ->addSelect('u')
-            ->orderBy('c.name', 'ASC');
+        $qb = $this->createQueryBuilder('user');
+
+        $qb->leftJoin('user.eigners', 'eigner')
+            ->addSelect('eigner')
+            ->orderBy('user.name', 'ASC')
+            ->andWhere('eigner.id = :eigner')
+            ->setParameter('eigner', $user->getOwner());
         if ($term) {
-            $qb->andWhere('c.name LIKE :term OR c.email LIKE :term OR u.id LIKE :pureterm OR u.firma LIKE :term')
+            $qb->andWhere('user.name LIKE :term OR user.email LIKE :term OR eigner.id LIKE :pureterm OR eigner.firma LIKE :term')
                 ->setParameter('term', '%'.$term.'%')
                 ->setParameter('pureterm', $term)
             ;
@@ -61,7 +67,7 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
      * @param int $limit
      * @return array
      */
-    public function findByAllMatching(string $query, int $limit = 100)
+    public function findByAllMatching(string $query, int $limit = 100): array
     {
         $qb = $this->createQueryBuilder('u')
             ->andWhere('u.name LIKE :query')
