@@ -281,7 +281,7 @@ class AvailabilityByTicketService
 
             foreach ($einstrahlungen as $einstrahlung) {
                 $stamp = $einstrahlung['stamp'];
-                $strahlung = $einstrahlung['irr'];
+                $strahlung = $einstrahlung['irr'] < 0 ? 0 : $einstrahlung['irr'];
                 $startInverter = 1;
 
                 for ($inverter = $startInverter; $inverter <= $anzInverter; ++$inverter) {
@@ -312,7 +312,7 @@ class AvailabilityByTicketService
                             ++$availability[$inverter]['case0'];
                         }
                         // Case 1 (first part of ti)
-                        if ($strahlung > $threshold1PA && $strahlung <= $threshold2PA && $case5 === false) {
+                        if ($strahlung >= $threshold1PA && $strahlung <= $threshold2PA && $case5 === false) {
                             $case1 = true;
                             ++$availability[$inverter]['case1'];
                             if ($case3Helper[$inverter] < $maxFailTime) {
@@ -357,7 +357,7 @@ class AvailabilityByTicketService
                             ++$availability[$inverter]['case6'];
                         }
                         // Control ti,theo
-                        if ($strahlung > $threshold1PA) {
+                        if ($strahlung >= $threshold1PA) {
                             ++$availability[$inverter]['control'];
                         }
                     }

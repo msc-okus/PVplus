@@ -535,42 +535,42 @@ class AnlageFormType extends AbstractType
 
             ->add('threshold1PA0', TextType::class, [
                 'label' => 'lower threshold [W/qm] ',
-                'help' => '[threshold1PA0] (ti,theo / Schwellwert 1)',
+                'help' => '[threshold1PA0] (increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
                 'label_html' => true,
             ])
             ->add('threshold2PA0', TextType::class, [
                 'label' => 'upper threshold (min Irr.) [W/qm] ',
-                'help' => '[threshold2PA0] (ti / Schwellwert 2)',
+                'help' => '[threshold2PA0] (increas ti, if irradiation > threshold2 and power > 0)',
                 'label_html' => true,
             ])
             ->add('threshold1PA1', TextType::class, [
                 'label' => 'lower threshold [W/qm] ',
-                'help' => '[threshold1PA1] (ti,theo / Schwellwert 1)',
+                'help' => '[threshold1PA1] (increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
                 'label_html' => true,
             ])
             ->add('threshold2PA1', TextType::class, [
                 'label' => 'upper threshold (min Irr.) [W/qm] ',
-                'help' => '[threshold2PA1] (ti / Schwellwert 2)',
+                'help' => '[threshold2PA1] (increas ti, if irradiation > threshold2 and power > 0)',
                 'label_html' => true,
             ])
             ->add('threshold1PA2', TextType::class, [
                 'label' => 'lower threshold [WaW/qmtt] ',
-                'help' => '[threshold1PA2] (ti,theo / Schwellwert 1)',
+                'help' => '[threshold1PA2] (increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
                 'label_html' => true,
             ])
             ->add('threshold2PA2', TextType::class, [
                 'label' => 'upper threshold (min Irr.) [W/qm] ',
-                'help' => '[threshold2PA2] (ti / Schwellwert 2)',
+                'help' => '[threshold2PA2] (increas ti, if irradiation > threshold2 and power > 0)',
                 'label_html' => true,
             ])
             ->add('threshold1PA3', TextType::class, [
                 'label' => 'lower threshold [W/qm] ',
-                'help' => '[threshold1PA3] (ti,theo / Schwellwert 1)',
+                'help' => '[threshold1PA3] (increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
                 'label_html' => true,
             ])
             ->add('threshold2PA3', TextType::class, [
                 'label' => 'upper threshold (min Irr.) [W/qm] ',
-                'help' => '[threshold2PA3] (ti / Schwellwert 2)',
+                'help' => '[threshold2PA3] (increas ti, if irradiation > threshold2 and power > 0)',
                 'label_html' => true,
             ])
             ->add('paFormular0', ChoiceType::class, [
