@@ -36,9 +36,11 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
 
         $qb->leftJoin('user.eigners', 'eigner')
             ->addSelect('eigner')
-            ->orderBy('user.name', 'ASC')
-            ->andWhere('eigner.id = :eigner')
-            ->setParameter('eigner', $user->getOwner());
+            ->orderBy('user.name', 'ASC');
+        if (!$this->security->isGranted('ROLE_G4N')) {
+            $qb->andWhere('eigner.id = :eigner')
+                ->setParameter('eigner', $user->getOwner());
+        }
         if ($term) {
             $qb->andWhere('user.name LIKE :term OR user.email LIKE :term OR eigner.id LIKE :pureterm OR eigner.firma LIKE :term')
                 ->setParameter('term', '%'.$term.'%')
