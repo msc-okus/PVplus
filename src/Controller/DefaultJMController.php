@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Anlage;
 use App\Entity\Status;
+use App\Entity\Ticket;
 use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Repository\StatusRepository;
@@ -46,14 +47,25 @@ class DefaultJMController extends AbstractController
     #[Route(path: '/test/createticket', name: 'default_check')]
     public function check(AnlagenRepository $anlagenRepository, AlertSystemV2Service $service)
     {
-
         $anlage = $anlagenRepository->findIdLike("184")[0];
         $fromStamp = strtotime("2022-04-01 ");
-        $toStamp = strtotime("2022-12-31 ");
+        $toStamp = strtotime("2022-12-31");
         for ($stamp = $fromStamp; $stamp <= $toStamp; $stamp += 900) {
             $service->generateTicketsInterval($anlage, date('Y-m-d H:i:00', $stamp));
         }
         dd("hello World");
+    }
+    #[Route(path: '/test/delete', name: 'default_delete')]
+    public function delete(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em){
+        $anlage = $anlagenRepository->findIdLike("108")[0];
+        $ticketArray =  $ticketRepo->findForSafeDelete($anlage, "2023-02-01");
+
+        foreach ($ticketArray as $ticket){
+            $em->remove($ticket);
+        }
+        $em->flush();
+        dd("done");
+
     }
 
     #[Route(path: '/test/read', name: 'default_read')]

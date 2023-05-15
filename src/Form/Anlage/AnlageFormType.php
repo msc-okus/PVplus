@@ -645,7 +645,11 @@ class AnlageFormType extends AbstractType
                 'expanded'      => false,
                 'multiple'      => false,
             ])
-
+            ->add('dataFrom', null, [
+                'label' => 'Data in the plant since: ',
+                'widget' => 'single_text',
+                'input' => 'datetime',
+            ])
 
             // ###############################################
             // ###            Ticket & Alert              ####

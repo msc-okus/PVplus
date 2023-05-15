@@ -216,7 +216,6 @@ export default class extends Controller {
                 $(this.fieldEnergyValueTarget).addClass('is-hidden');
                 $(this.fieldIrrValueTarget).addClass('is-hidden');
             }
-            console.log("hi");
             $(this.fieldHourTarget).removeClass('is-hidden');
             $(this.fieldCorrectionTarget).addClass('is-hidden');
             $(this.fieldEvaluationTarget).addClass('is-hidden');
@@ -266,6 +265,7 @@ export default class extends Controller {
             $(this.scopeTarget).removeClass('is-hidden');
         }
         else  $(this.scopeTarget).addClass('is-hidden');
+
         switch (cat){
             case '10':
                 $(this.headerExcludeTarget).addClass('is-hidden');
@@ -321,7 +321,7 @@ export default class extends Controller {
                 $(this.headerAktDep3Target).removeClass('is-hidden');
                 $(this.headerFormKpiTarget).addClass('is-hidden');
                 $(this.headerPRMethodTarget).addClass('is-hidden');
-
+                console.log($(this.headerEvaluationTarget));
 
                 $(this.fieldSensorTarget).addClass('is-hidden');
                 $(this.fieldReplacePowerTarget).addClass('is-hidden');
@@ -619,6 +619,8 @@ export default class extends Controller {
 
     async reload(event){
         this.modalBodyTarget.innerHTML = await $.ajax(this.formUrlValue);
+        
+        this.checkCategory();
         $(document).foundation();
     }
 

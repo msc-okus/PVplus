@@ -1467,7 +1467,7 @@ class AssetManagementService
             $var = 0;
         }
         else {
-            $var = round((1 - $expectedPvSyst[$report['reportMonth'] - 1] / $powerEvu[$report['reportMonth'] - 1]) * 100, 2);
+           $var = round((1 - $expectedPvSyst[$report['reportMonth'] - 1] / $powerEvu[$report['reportMonth'] - 1]) * 100, 2);
         }
         $operations_monthly_right_pvsyst_tr1 = [
             $monthName.' '.$report['reportYear'],
@@ -2064,7 +2064,7 @@ class AssetManagementService
                 }
             }
         }
-        if ($sumquarters = 0) {
+        if ($sumquarters != 0) {
             $actualAvailabilityPorcent = (($sumquarters - $totalErrors) / $sumquarters) * 100;
             $actualSOFPorcent = 100 - (($sumquarters - $SOFErrors) / $sumquarters) * 100;
             $actualEFORPorcent = 100 - (($sumquarters - $EFORErrors) / $sumquarters) * 100;
@@ -2460,7 +2460,7 @@ class AssetManagementService
             $ActualPowerYear = $ActualPowerYear + $tbody_a_production['powerAct'][$index];
         }
 
-        $percentageTable = [
+        if ($G4NmonthExpected > 0) $percentageTable = [
             'G4NExpected' => (int)($G4NmonthExpected * 100/$G4NmonthExpected) ,
             'PVSYSExpected' => (int)($tbody_a_production['expectedPvSyst'][$month - 2] * 100 / $G4NmonthExpected),
             'forecast' =>  (int)($forecast[$month-2] * 100 / $G4NmonthExpected),
@@ -2468,6 +2468,15 @@ class AssetManagementService
             'SORLosses' => number_format(-($kwhLossesMonthTable['SORLosses']  * 100 / $G4NmonthExpected), 2),
             'EFORLosses' => number_format(-($kwhLossesMonthTable['EFORLosses']  * 100 / $G4NmonthExpected), 2) ,
             'OMCLosses' => number_format(-($kwhLossesMonthTable['OMCLosses']  * 100 / $G4NmonthExpected), 2)
+        ];
+        else $percentageTable = [
+            'G4NExpected'   =>  0,
+            'PVSYSExpected' =>  0,
+            'forecast'      =>  0,
+            'ActualPower'   =>  0,
+            'SORLosses'     =>  0,
+            'EFORLosses'    =>  0,
+            'OMCLosses'     =>  0,
         ];
 
         $chart->tooltip = [];
@@ -2675,7 +2684,7 @@ class AssetManagementService
             'OMCLosses' => $kwhLossesMonthTable['OMCLosses']
         ];
 
-        $percentageTableYear = [
+        if ($G4NyearExpected > 0) $percentageTableYear = [
             'G4NExpected' => (int)($G4NyearExpected * 100/$G4NyearExpected) ,
             'PVSYSExpected' => (int)($PVSYSTyearExpected * 100 / $G4NyearExpected),
             'forecast' =>  (int)($forecastSum[$month-2] * 100 / $G4NyearExpected),
@@ -2683,6 +2692,15 @@ class AssetManagementService
             'SORLosses' => number_format(-($kwhLossesYearTable['SORLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
             'EFORLosses' => number_format(-($kwhLossesYearTable['EFORLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
             'OMCLosses' => number_format(-($kwhLossesYearTable['OMCLosses']  * 100 / $G4NyearExpected), 2, '.', ','),
+        ];
+        else $percentageTableYear = [
+            'G4NExpected'   => 0,
+            'PVSYSExpected' => 0,
+            'forecast'      => 0,
+            'ActualPower'   => 0,
+            'SORLosses'     => 0,
+            'EFORLosses'    => 0,
+            'OMCLosses'     => 0,
         ];
         $chart->tooltip = [];
         $chart->xAxis = [];
@@ -4254,13 +4272,7 @@ class AssetManagementService
             'Difference_Profit_to_expected' => $G4NEXPDiffSum
             ];
 
-        // end Table Losses compared cummulated
-
-        // beginn Chart Losses compared cummulated
         $chart = new ECharts();
-        // $chart->tooltip->show = true;
-
-        // $chart->tooltip->trigger = 'item';
 
         $chart->xAxis = [
             'type' => 'category',

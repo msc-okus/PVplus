@@ -14,6 +14,7 @@ use App\Repository\AnlagenRepository;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -589,6 +590,9 @@ class Anlage
 
     #[ORM\Column(nullable: true)]
     private ?bool $gridTicket = false;
+
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $dataFrom = null;
 
     /**
      * @return string|null
@@ -3463,6 +3467,18 @@ class Anlage
     public function setKpiTicket(?bool $kpiTicket): void
     {
         $this->kpiTicket = $kpiTicket;
+    }
+
+    public function getDataFrom(): ?\DateTimeInterface
+    {
+        return $this->dataFrom;
+    }
+
+    public function setDataFrom(?\DateTimeInterface $dataFrom): self
+    {
+        $this->dataFrom = $dataFrom;
+
+        return $this;
     }
 
 

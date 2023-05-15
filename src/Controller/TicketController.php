@@ -382,7 +382,8 @@ class TicketController extends BaseController
             'anlage' => $anlage,
             'dates' => $ticketDates,
             'page' => $page,
-            'invArray' => $inverterArray
+            'invArray' => $inverterArray,
+            'performanceTicket' => false
         ]);
     }
     #[Route(path: '/ticket/deleteTicket/{id}', name: 'app_ticket_deleteticket')]

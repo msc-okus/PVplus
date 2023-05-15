@@ -99,6 +99,7 @@ class ReportingController extends AbstractController
                 break;
             case 'am':
                 // we try to find and delete a previous report from this month/year
+                if ($anlage->get)
                 if ($local !== null) {
                     $report = $assetManagement->createAmReport($aktAnlagen[0], $reportMonth, $reportYear);
                     $em->persist($report);
@@ -1009,6 +1010,17 @@ class ReportingController extends AbstractController
 
 
     }
+
+    /**
+     * we use this to get the dates from when the report information is okay
+     */
+    #[Route(path: '/reporting/anlageinfo/{id}', name: 'app_reporting_anlage_info')]
+    public function AnlageInfo($id, AnlagenRepository $anlRepo)
+    {
+        $anlage = $anlRepo->findIdLike($id)[0];
+        return new Response($anlage->getDataFrom());
+    }
+
     private function exportAsExcelTableOption2($all_reports):void
     {
         // Generating SpreadSheet
