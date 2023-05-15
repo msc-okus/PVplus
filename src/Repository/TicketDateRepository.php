@@ -124,7 +124,7 @@ class TicketDateRepository extends ServiceEntityRepository
 
     /**
      * Search for all DataGap Tickets wich are outage and not evaluated data gaps (case 6)
-     * means search for all Ticketdates wich are datagabs (alertType = 10) and NOT defined as comm. issue (
+     * means search for all Ticketdates wich are dataGaps (alertType = 10) and NOT defined as comm. issue (
      *
      * @param Anlage $anlage
      * @param $begin
@@ -138,7 +138,6 @@ class TicketDateRepository extends ServiceEntityRepository
             ->join('t.ticket', 'ticket')
             ->andWhere('t.begin BETWEEN :begin AND :end OR t.end BETWEEN :begin AND :end OR (:end <= t.end and :begin >= t.end)')
             ->andWhere('t.Anlage = :anlage')
-            #->andWhere('t.alertType = 10')
             ->andWhere('t.dataGapEvaluation = 10')
             ->andWhere('ticket.ignoreTicket = false');
         switch ($department){
@@ -148,8 +147,8 @@ class TicketDateRepository extends ServiceEntityRepository
             case 2:
                 $q->andWhere('t.kpiPaDep2 = 10');
                 break;
-            case 3:
-                $q->andWhere('t.kpiPaDep3 = 10');
+            case 3: // AssetManagemet should respect all cases as Not available
+                $q->andWhere('t.kpiPaDep3 = 10 or t.kpiPaDep3 = 20 or t.kpiPaDep3 = 30');
                 break;
         }
         $q->setParameter('begin', $begin)
@@ -186,8 +185,8 @@ class TicketDateRepository extends ServiceEntityRepository
             case 2:
                 $q->andWhere('t.kpiPaDep2 = 20');
                 break;
-            case 3:
-                $q->andWhere('t.kpiPaDep3 = 20');
+            case 3: // AssetManagemet should not set any outage to ForecMajour
+                $q->andWhere('t.kpiPaDep3 = 99');
                 break;
         };
 
