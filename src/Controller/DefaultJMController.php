@@ -57,8 +57,8 @@ class DefaultJMController extends AbstractController
     }
     #[Route(path: '/test/delete', name: 'default_delete')]
     public function delete(AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em){
-        $anlage = $anlagenRepository->findIdLike("108")[0];
-        $ticketArray =  $ticketRepo->findForSafeDelete($anlage, "2023-02-01");
+        $anlage = $anlagenRepository->findIdLike("208")[0];
+        $ticketArray =  $ticketRepo->findForSafeDelete($anlage, "2023-05-09");
 
         foreach ($ticketArray as $ticket){
             $em->remove($ticket);
