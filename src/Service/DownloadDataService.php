@@ -32,11 +32,10 @@ class DownloadDataService
      *
      * @return string
      */
-    public function getAllSingleSystemData($anlage, $from, $to, $intervall, $headlineDate)
+    public function getAllSingleSystemData(Anlage $anlage, $from, $to, $intervall, $headlineDate)
     {
         $conn = self::connectToDatabase();
         $dbnameist = $anlage->getDbNameIst();
-        $dbnamesoll = $anlage->getDbNameAcSoll();
         $dbnamedcsoll = $anlage->getDbNameDcSoll();
         $dbnamews = $anlage->getDbNameWeather();
         $ht2 = "<table id='statistics' class='table'><thead><tr><th>$headlineDate</th><th>Irradiation<br>[W/qm]</th><th>PT &Oslash;<br>[°C]</th><th>Grid AC<br>[kWh]</th><th>Inv. AC<br>[kWh]</th><th>Inv. exp AC<br>[kWh]</th><th>Inv. DC<br>[kWh]</th><th>Inv. exp DC<br>[kWh]</th>";
