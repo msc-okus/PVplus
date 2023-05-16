@@ -206,16 +206,18 @@
                                     <div class="cell medium-6"> {{ form_row(anlageForm.hasFrequency) }}</div>
                                     <div class="cell medium-6"> {{ form_row(anlageForm.ignoreNegativEvu) }}</div>
                                 </div>
+                                {#
                                 <div class="grid-x">
                                     <div class="cell medium-6"> {{ form_row(anlageForm.dataFrom) }}</div>
                                 </div>
+                                #}
                             </fieldset>
                         </div>
 
                         {# Spalte 2 #}
                         <div class="cell medium-6">
                             <fieldset class="fieldset">
-                                <legend>Report Konfiguration</legend>
+                                <legend>Report Configuration</legend>
                                 <div class="grid-x grid-padding-x">
                                     <div class="cell medium-4">{{ form_row(anlageForm.epcReportType) }}</div>
                                     <div class="cell medium-4"></div>
@@ -438,6 +440,7 @@
                             <fieldset class="fieldset">
                                 <legend>Ticket</legend>
                                 {{ form_row(anlageForm.ActivateTicketSystem) }}
+                                {{ form_row(anlageForm.newAlgorythm) }}
                                 <div class="grid-x grid-margin-x">
                                     <div class="cell small-6">
                                         {{ form_row(anlageForm.freqBase) }}

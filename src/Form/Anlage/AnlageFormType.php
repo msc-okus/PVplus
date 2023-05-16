@@ -645,12 +645,13 @@ class AnlageFormType extends AbstractType
                 'expanded'      => false,
                 'multiple'      => false,
             ])
+            /*
             ->add('dataFrom', null, [
                 'label' => 'Data in the plant since: ',
                 'widget' => 'single_text',
                 'input' => 'datetime',
             ])
-
+*/
             // ###############################################
             // ###            Ticket & Alert              ####
             // ###############################################
@@ -659,6 +660,11 @@ class AnlageFormType extends AbstractType
                 'label' => 'Activate the Ticket System',
                 'help' => '[ActivateTicketSystem]',
                 'attr' => ['data-plant-target' => 'activateTicket', 'data-action'=>'plant#activateTicket'],
+            ])
+            ->add('newAlgorythm', SwitchType::class, [
+                'label' => 'Use the new Algorithm ',
+                'help' => 'The new algorithm prioritizes joining tickets that begin at the same time, and the old one joins tickets if the begin and end match',
+                'attr' => ['data-plant-target' => 'ticket'],
             ])
             ->add('freqBase', TextType::class, [
                 'label' => 'Base frequency of the Plant',

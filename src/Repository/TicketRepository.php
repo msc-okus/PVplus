@@ -19,7 +19,10 @@ class TicketRepository extends ServiceEntityRepository
 {
     private Security $security;
 
-    public function __construct(ManagerRegistry $registry, Security $security)
+    public function __construct(
+        ManagerRegistry $registry,
+        Security $security,
+        private AnlagenRepository $anlRepo)
     {
         parent::__construct($registry, Ticket::class);
         $this->security = $security;
@@ -88,15 +91,16 @@ class TicketRepository extends ServiceEntityRepository
     {
         /** @var User $user */
         $user = $this->security->getUser();
-        $granted = explode(',', $user->getGrantedList());
+
+        $granted =  $this->anlRepo->findAllActiveAndAllowed();
 
         $qb = $this->createQueryBuilder('ticket')
             ->innerJoin('ticket.anlage', 'a')
             ->addSelect('a')
         ;
         if (!$this->security->isGranted('ROLE_G4N')) {
-            $qb->andWhere('a.anlId IN (:plantList)')
-                ->setParameter('plantList', $granted);
+                $qb->andWhere('a.anlId IN (:plantList)')
+                    ->setParameter('plantList', $granted);
         }
         if ($anlage != '') {
             $qb->andWhere("ticket.anlage = '$anlage'");
