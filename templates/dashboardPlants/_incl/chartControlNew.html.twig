@@ -50,6 +50,12 @@
                     {% elseif form.selectedChart == 'sollistanalyse'
                         or form.selectedChart == 'sollisttempanalyse'
                         or form.selectedChart == 'sollistirranalyse'
+                        or form.selectedChart == 'ac_single'
+                        or form.selectedChart == 'ac_act_group'
+                        or form.selectedChart == 'acpnom'
+                        or form.selectedChart == 'ac_act_voltage'
+                        or form.selectedChart == 'ac_act_current'
+                        or form.selectedChart == 'reactive_power'
                     %}
                         'Today': [moment(), moment()],
                         'Last 3 Days': [moment(startDatex).subtract(2, 'days'), moment(startDatex)],

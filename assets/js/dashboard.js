@@ -1,5 +1,5 @@
 import $ from "jquery";
-import daterangepicker from 'daterangepicker'
+import fdatepicker from 'foundation-datepicker';
 
 function Display() {
     // Get the checkbox
@@ -19,11 +19,11 @@ $(".js-submit-onchange").change(function () {
     $("#chart-control").submit();
 });
 
-$(".js-submit-onchange-select").change(function () {
-    $("#mysubmit").val('select');
-    $("#chart-control").submit();
+$('#startDate').fdatepicker({
+    language: 'en',
+    weekStart: '1',
+    // endDate: dateString,
 });
-
 
 $(document).ready(function () {
     $(".case5").on("change paste keyup", function () {

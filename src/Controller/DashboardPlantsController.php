@@ -147,14 +147,18 @@ class DashboardPlantsController extends BaseController
             if ($form['selectedChart'] == 'pr_and_av'           && $form['optionDate'] < 7) $form['optionDate'] = 7;
 
             if ($request->request->get('mysubmit') === 'select') {
-                $form['from'] = (new \DateTime())->format('Y-m-d 00:00');
-                $form['to'] = (new \DateTime())->format('Y-m-d 23:59');
-                $form['selectedGroup'] = 1;
+               /* The old way
+                  $form['from'] = (new \DateTime())->format('Y-m-d 00:00');
+                  $form['to'] = (new \DateTime())->format('Y-m-d 23:59');
+                  $form['selectedGroup'] = 1;
+               */
+               /* New: Fix for not leaving the date unless you change the plant */
+                 $form['from'] = date('Y-m-d 00:00', strtotime($request->request->get('from')));
+                 $form['to'] = date('Y-m-d 23:59', strtotime($request->request->get('to')));
                } else {
                 if ($form['startDateNew']) {
                     $form['from'] = date('Y-m-d 00:00', strtotime($request->request->get('from')));
                     $form['to'] = date('Y-m-d 23:59', strtotime($request->request->get('to')));
-              //     $form['selectedGroup'] = 1;
                 }
             }
             // ergänze um Uhrzeit
