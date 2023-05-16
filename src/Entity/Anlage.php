@@ -590,11 +590,27 @@ class Anlage
     #[ORM\Column(nullable: true)]
     private ?bool $gridTicket = false;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
+    #[ORM\Column( nullable: true)]
     private ?\DateTimeInterface $dataFrom = null;
 
     #[ORM\Column(nullable: true)]
     private ?bool $newAlgorythm = false;
+
+    /**
+     * @return bool|null
+     */
+    public function isNewAlgorythm(): ?bool
+    {
+        return $this->newAlgorythm;
+    }
+
+    /**
+     * @param bool|null $newAlgorythm
+     */
+    public function setNewAlgorythm(?bool $newAlgorythm): void
+    {
+        $this->newAlgorythm = $newAlgorythm;
+    }
 
     /**
      * @return string|null
