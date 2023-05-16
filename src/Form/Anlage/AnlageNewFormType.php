@@ -7,6 +7,7 @@ use App\Entity\Eigner;
 use App\Entity\WeatherStation;
 use App\Helper\G4NTrait;
 use App\Helper\PVPNameArraysTrait;
+use Carbon\Doctrine\DateTimeType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -119,6 +120,11 @@ class AnlageNewFormType extends AbstractType
             ->add('anlBetrieb', null, [
                 'label' => 'In Betrieb seit:',
                 'help' => '[anlBetrieb]',
+                'widget' => 'single_text',
+                'input' => 'datetime',
+            ])
+            ->add('dataFrom', null, [
+                'label' => 'Data in the plant from: ',
                 'widget' => 'single_text',
                 'input' => 'datetime',
             ])

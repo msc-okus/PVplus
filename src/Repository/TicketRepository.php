@@ -164,6 +164,32 @@ class TicketRepository extends ServiceEntityRepository
         return $qb;
     }
 
+    public function findForSafeDelete($anlage, $begin, $end = null)
+    {
+        if ($end != null)
+            $result = $this->createQueryBuilder('t')
+                ->andWhere('t.anlage = :anl')
+                ->andWhere('t.begin >= :begin')
+                ->andWhere('t.begin <= :end')
+                ->andWhere("t.editor = 'Alert system'")
+                ->setParameter('anl', $anlage)
+                ->setParameter('begin', $begin)
+                ->setParameter('end', $end)
+                ->getQuery()
+            ;
+        else
+            $result = $this->createQueryBuilder('t')
+                ->andWhere('t.anlage = :anl')
+                ->andWhere('t.begin >= :begin')
+                ->andWhere("t.editor = 'Alert system'")
+                ->setParameter('anl', $anlage)
+                ->setParameter('begin', $begin)
+                ->getQuery()
+            ;
+
+        return $result->getResult();
+    }
+
     public function findOneById($id): ?ticket
     {
         return $this->createQueryBuilder('t')
@@ -174,7 +200,8 @@ class TicketRepository extends ServiceEntityRepository
             ;
     }
 
-    public function findMultipleByBeginErrorAnlage($anlage, $time, $errorCategory){
+    public function findMultipleByBeginErrorAnlage($anlage, $time, $errorCategory)
+    {
         $description = 'Error with the Data of the Weather station';
         $result = $this->createQueryBuilder('t')
             ->andWhere('t.begin = :begin')
