@@ -38,6 +38,543 @@ export default class extends Controller {
 
     }
 
+    hourCheck(){
+
+        if ($(this.formReplaceTarget).prop('checked') == true) $(this.formHourTarget).prop('checked', true)
+        //NEW BEHAVIOUR: if the category is one of the performance ticket, the hour Check must also be respected for the main dates
+        //for that we will check if the category is one of those and if true, we will make ticket date begin/end = mainticket begin/end
+        //after that if hour is checked we will also aply the hour rule to the main ticket date
+        const cat = $(this.formCategoryTarget).val();
+        if (cat >= 70 && cat < 80){
+            $(this.formBeginDateTarget).val($(this.formBeginTarget).prop('value'));
+            $(this.formEndDateTarget).val($(this.formEndTarget).prop('value'));
+            console.log($(this.formBeginTarget).prop('value'), $(this.formEndTarget).prop('value'));
+        }
+        const valueBegin = $(this.formBeginDateTarget).prop('value');
+        const valueEnd = $(this.formEndDateTarget).prop('value');
+        const valueBeginHidden = $(this.formBeginHiddenTarget).prop('value');
+        const valueEndHidden = $(this.formEndHiddenTarget).prop('value');
+        if ($(this.formHourTarget).prop('checked') == true) {
+            $(this.formBeginHiddenTarget).val(valueBegin);
+            $(this.formEndHiddenTarget).val(valueEnd);
+            //here begins the ruling to adjust the values to hours and also t oadd 0 in the dates if the are < 10
+            let beginDate = new Date(valueBegin);
+            let endDate = new Date(valueEnd);
+            let beginMonth = '';
+            let endMonth = '';
+            let beginDay = '';
+            let endDay = '';
+            let beginHour = '';
+            let endHour = '';
+            if (beginDate.getMonth() < 9) {
+                beginMonth = '0'.concat((beginDate.getMonth() + 1).toString());
+            }
+            else{
+                 beginMonth = (beginDate.getMonth() + 1).toString();
+            }
+            if (endDate.getMonth() < 9) {
+                 endMonth = '0'.concat((endDate.getMonth() + 1).toString());
+            }
+            else{
+                 endMonth = (endDate.getMonth() + 1).toString();
+            }
+            if (beginDate.getDate() < 10){
+                beginDay =  '0'.concat(beginDate.getDate().toString());
+            }
+            else{
+                beginDay = beginDate.getDate().toString();
+            }
+            if (endDate.getDate() < 10){
+                endDay =  '0'.concat(endDate.getDate().toString());
+            }
+            else{
+                endDay = endDate.getDate().toString();
+            }
+            let beginHourInt = 0;
+            if (beginDate.getMinutes() < 15) beginHourInt = beginDate.getHours() - 1;
+            else beginHourInt = beginDate.getHours();
+
+            let hour = 0;
+            if (endDate.getMinutes() > 15) hour = endDate.getHours() + 1;
+            else hour = endDate.getHours();
+
+            if (beginHourInt < 10){
+                beginHour =  '0'.concat(beginHourInt.toString());
+            }
+            else{
+                beginHour = beginHourInt.toString();
+            }
+
+
+            if (hour < 10){
+                endHour = '0'.concat(hour.toString());
+            }
+            else{
+                endHour =  hour.toString();
+            }
+
+            let newStringBeginDate = beginDate.getFullYear().toString().concat('-', beginMonth, '-', beginDay, 'T',beginHour, ':', '15');
+
+            let newStringEndDate = endDate.getFullYear().toString().concat('-', endMonth, '-', endDay, 'T', endHour, ':', '15');
+
+            $(this.formBeginDateTarget).val(newStringBeginDate);
+            $(this.formEndDateTarget).val(newStringEndDate);
+            $(this.formBeginTarget).val(newStringBeginDate);
+            $(this.formEndTarget).val(newStringEndDate);
+        }
+        else if(valueBeginHidden != '' && valueEndHidden != ''){
+            $(this.formBeginDateTarget).val(valueBeginHidden);
+            $(this.formEndDateTarget).val(valueEndHidden);
+            $(this.formBeginTarget).val(valueBeginHidden);
+            $(this.formEndTarget).val(valueEndHidden);
+        }
+        //now we recheck the dates
+        const date1 = new Date($(this.formBeginTarget).prop('value'));
+        const date2 = new Date($(this.formEndTarget).prop('value'));
+        date1.setSeconds(0);
+        date2.setSeconds(0);
+        const timestamp1 = date1.getTime();
+        const timestamp2 = date2.getTime();
+
+        if (timestamp2 > timestamp1) {
+            $(this.CalloutTarget).addClass('is-hidden');
+            $(this.saveButtonTarget).removeAttr('disabled');
+            $(this.AlertDatesTarget).addClass('is-hidden');
+            if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+                $(this.AlertFormatTarget).addClass('is-hidden');
+            } else {
+                $(this.CalloutTarget).removeClass('is-hidden');
+                $(this.AlertFormatTarget).removeClass('is-hidden');
+                $(this.saveButtonTarget).attr('disabled', 'disabled');
+            }
+        }
+        else{
+            $(this.CalloutTarget).removeClass('is-hidden');
+            $(this.saveButtonTarget).attr('disabled', 'disabled');
+            $(this.AlertDatesTarget).removeClass('is-hidden');
+            if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+                $(this.AlertFormatTarget).addClass('is-hidden');
+            } else {
+                $(this.AlertFormatTarget).removeClass('is-hidden');
+            }
+        }
+
+
+    }
+    replaceCheck(){
+
+// this is the change of overlay if the user decides to replace energy with PVSYST in the replace ticket
+        let body = $(this.modalBodyTarget);
+            if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(20);}
+
+            $(this.headerExcludeTargets).addClass('is-hidden');
+            $(this.headerReplaceTargets).addClass('is-hidden');
+            $(this.headerReplacePowerTargets).removeClass('is-hidden');
+            if ($(this.formReplaceTargets).prop('checked') == false) {
+                $(this.headerReplaceIrrTargets).addClass('is-hidden');
+                $(this.headerEnergyValueTargets).removeClass('is-hidden');
+                $(this.headerIrrValueTargets).removeClass('is-hidden');
+            }
+            else{
+                $(this.headerReplaceIrrTargets).removeClass('is-hidden');
+                //$(this.headerHourTarget).addClass('is-hidden');
+                $(this.headerEnergyValueTargets).addClass('is-hidden');
+                $(this.headerIrrValueTargets).addClass('is-hidden');
+            }
+            $(this.headerHourTargets).removeClass('is-hidden');
+            $(this.headerCorrectionTargets).addClass('is-hidden');
+            $(this.headerEvaluationTargets).addClass('is-hidden');
+            $(this.headerReasonTargets).removeClass('is-hidden');
+            $(this.headerAktDep1Targets).addClass('is-hidden');
+            $(this.headerAktDep2Targets).addClass('is-hidden');
+            $(this.headerAktDep3Targets).addClass('is-hidden');
+            $(this.headerFormKpiTargets).removeClass('is-hidden');
+            $(this.headerPRMethodTargets).addClass('is-hidden');
+
+            $(this.fieldSensorTargets).addClass('is-hidden');
+            $(this.fieldReplacePowerTargets).removeClass('is-hidden');
+            if ($(this.formReplaceTargets).prop('checked') == false) {
+                $(this.fieldReplaceIrrTargets).addClass('is-hidden');
+                $(this.fieldEnergyValueTargets).removeClass('is-hidden');
+                $(this.fieldIrrValueTargets).removeClass('is-hidden');
+            }
+            else{
+                $(this.fieldReplaceIrrTargets).removeClass('is-hidden');
+                //$(this.fieldHourTarget).addClass('is-hidden');
+                $(this.fieldEnergyValueTargets).addClass('is-hidden');
+                $(this.fieldIrrValueTargets).addClass('is-hidden');
+            }
+            $(this.fieldHourTargets).removeClass('is-hidden');
+            $(this.fieldCorrectionTargets).addClass('is-hidden');
+            $(this.fieldEvaluationTargets).addClass('is-hidden');
+            $(this.fieldReasonTargets).removeClass('is-hidden');
+            $(this.fieldAktDep1Targets).addClass('is-hidden');
+            $(this.fieldAktDep2Targets).addClass('is-hidden');
+            $(this.fieldAktDep3Targets).addClass('is-hidden');
+            $(this.formkpiStatusTargets).removeClass('is-hidden');
+            $(this.fieldPRMethodTargets).addClass('is-hidden');
+            if ($(this.formReplaceTarget).prop('checked') == true) {
+                if ($(this.formHourTarget).prop('checked') == false) {
+                    $(this.formHourTarget).prop('checked', true);
+                    this.hourCheck();
+                }
+            }
+        let reason = $(this.formReasonSelectTarget).val();
+        $(this.reasonInputTarget).val(reason);
+    }
+    checkCategory(){
+        const cat = $(this.formCategoryTarget).val();
+        var inverterString = '';
+        let body = $(this.modalBodyTarget);
+        // in this switch we remove the hidding class to show the fields of the ticket date on demand
+
+        if (cat >= 70 && cat <= 80 ){
+
+            body.find('input:checkbox[class=js-checkbox]').each(function () {
+                $(this).prop('checked', true);
+                if (inverterString == '')
+                {
+                    inverterString = inverterString + $(this).prop('name');
+                }
+                else
+                {
+                    inverterString = inverterString + ', ' + $(this).prop('name');
+                }
+                body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
+                body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
+                body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
+            });
+
+            inverterString = '*';
+            body.find('#ticket_form_inverter').val(inverterString);
+        }
+
+        if (cat >= 72 && cat <= 80 ){
+            $(this.scopeTarget).removeClass('is-hidden');
+        }
+        else  $(this.scopeTarget).addClass('is-hidden');
+
+        switch (cat){
+            case '10':
+                $(this.headerExcludeTargets).addClass('is-hidden');
+                $(this.headerReplaceTargets).addClass('is-hidden');
+                $(this.headerReplacePowerTargets).addClass('is-hidden');
+                $(this.headerReplaceIrrTargets).addClass('is-hidden');
+                $(this.headerHourTargets).addClass('is-hidden');
+                $(this.headerEnergyValueTargets).addClass('is-hidden');
+                $(this.headerIrrValueTargets).addClass('is-hidden');
+                $(this.headerCorrectionTargets).addClass('is-hidden');
+                $(this.headerEvaluationTargets).removeClass('is-hidden');
+                $(this.headerReasonTargets).addClass('is-hidden');
+                $(this.headerAktDep1Targets).removeClass('is-hidden');
+                $(this.headerAktDep2Targets).removeClass('is-hidden');
+                $(this.headerAktDep3Targets).removeClass('is-hidden');
+
+                $(this.headerFormKpiTargets).addClass('is-hidden');
+                $(this.headerPRMethodTargets).addClass('is-hidden');
+
+
+                $(this.fieldSensorTargets).addClass('is-hidden');
+                $(this.fieldReplacePowerTargets).addClass('is-hidden');
+                $(this.fieldReplaceIrrTargets).addClass('is-hidden');
+                $(this.fieldHourTargets).addClass('is-hidden');
+                $(this.fieldEnergyValueTargets).addClass('is-hidden');
+                $(this.fieldIrrValueTargets).addClass('is-hidden');
+                $(this.fieldCorrectionTargets).addClass('is-hidden');
+                $(this.fieldReasonTargets).addClass('is-hidden');
+                $(this.fieldEvaluationTargets).removeClass('is-hidden');
+                $(this.fieldAktDep1Targets).removeClass('is-hidden');
+                $(this.fieldAktDep2Targets).removeClass('is-hidden');
+                $(this.fieldAktDep3Targets).removeClass('is-hidden');
+                $(this.inverterDivTargets).removeClass('is-hidden');
+                $(this.formHourTargets).prop('checked', false);
+                $(this.formkpiStatusTargets).addClass('is-hidden');
+                $(this.fieldPRMethodTargets).addClass('is-hidden');
+                if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(20)};
+                break;
+            case '20':
+
+                $(this.headerExcludeTargets).addClass('is-hidden');
+                $(this.headerReplaceTargets).addClass('is-hidden');
+                $(this.headerReplacePowerTargets).addClass('is-hidden');
+                $(this.headerReplaceIrrTargets).addClass('is-hidden');
+                $(this.headerHourTargets).addClass('is-hidden');
+                $(this.headerEnergyValueTargets).addClass('is-hidden');
+                $(this.headerIrrValueTargets).addClass('is-hidden');
+                $(this.headerCorrectionTargets).addClass('is-hidden');
+                $(this.headerEvaluationTargets).removeClass('is-hidden');
+                $(this.headerReasonTargets).addClass('is-hidden');
+                $(this.headerAktDep1Targets).removeClass('is-hidden');
+                $(this.headerAktDep2Targets).removeClass('is-hidden');
+                $(this.headerAktDep3Targets).removeClass('is-hidden');
+                $(this.headerFormKpiTargets).addClass('is-hidden');
+                $(this.headerPRMethodTargets).addClass('is-hidden');
+
+                $(this.fieldSensorTargets).addClass('is-hidden');
+                $(this.fieldReplacePowerTargets).addClass('is-hidden');
+                $(this.fieldReplaceIrrTargets).addClass('is-hidden');
+                $(this.fieldHourTargets).addClass('is-hidden');
+                $(this.fieldEnergyValueTargets).addClass('is-hidden');
+                $(this.fieldIrrValueTargets).addClass('is-hidden');
+                $(this.fieldCorrectionTargets).addClass('is-hidden');
+                $(this.fieldEvaluationTargets).removeClass('is-hidden');
+                $(this.fieldReasonTargets).addClass('is-hidden');
+                $(this.fieldAktDep1Targets).removeClass('is-hidden');
+                $(this.fieldAktDep2Targets).removeClass('is-hidden');
+                $(this.fieldAktDep3Targets).removeClass('is-hidden');
+                $(this.inverterDivTargets).removeClass('is-hidden');
+
+                $(this.formHourTargets).prop('checked', false);
+                $(this.formkpiStatusTargets).addClass('is-hidden');
+                $(this.fieldPRMethodTargets).addClass('is-hidden');
+                if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(20)};
+                break;
+            case '70':
+                $(this.headerExcludeTargets).removeClass('is-hidden');
+                $(this.headerReplaceTargets).addClass('is-hidden');
+                $(this.headerReplacePowerTargets).addClass('is-hidden');
+                $(this.headerReplaceIrrTargets).addClass('is-hidden');
+                $(this.headerHourTargets).addClass('is-hidden');
+                $(this.headerEnergyValueTargets).addClass('is-hidden');
+                $(this.headerIrrValueTargets).addClass('is-hidden');
+                $(this.headerCorrectionTargets).addClass('is-hidden');
+                $(this.headerEvaluationTargets).addClass('is-hidden');
+                $(this.headerReasonTargets).addClass('is-hidden');
+                $(this.headerAktDep1Targets).addClass('is-hidden');
+                $(this.headerAktDep2Targets).addClass('is-hidden');
+                $(this.headerAktDep3Targets).addClass('is-hidden');
+                $(this.headerFormKpiTargets).removeClass('is-hidden');
+                $(this.headerPRMethodTargets).addClass('is-hidden');
+
+                $(this.fieldSensorTargets).removeClass('is-hidden');
+                $(this.fieldReplacePowerTargets).addClass('is-hidden');
+                $(this.fieldReplaceIrrTargets).addClass('is-hidden');
+                $(this.fieldHourTargets).addClass('is-hidden');
+                $(this.fieldEnergyValueTargets).addClass('is-hidden');
+                $(this.fieldIrrValueTargets).addClass('is-hidden');
+                $(this.fieldCorrectionTargets).addClass('is-hidden');
+                $(this.fieldEvaluationTargets).addClass('is-hidden');
+                $(this.fieldReasonTargets).addClass('is-hidden');
+                $(this.fieldAktDep1Targets).addClass('is-hidden');
+                $(this.fieldAktDep2Targets).addClass('is-hidden');
+                $(this.fieldAktDep3Targets).addClass('is-hidden');
+                $(this.inverterDivTargets).addClass('is-hidden');
+                $(this.formHourTargets).prop('checked', false);
+                body.find('input:checkbox[class=js-checkbox]').each(function () {
+                    $(this).prop('checked', true);
+                    if (inverterString == '')
+                    {
+                        inverterString = inverterString + $(this).prop('name');
+                    }
+                    else
+                    {
+                        inverterString = inverterString + ', ' + $(this).prop('name');
+                    }
+                    body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
+                    body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
+                    body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
+                });
+
+                inverterString = '*';
+                body.find('#ticket_form_inverter').val(inverterString);
+                $(this.formkpiStatusTargets).removeClass('is-hidden');
+                $(this.fieldPRMethodTargets).addClass('is-hidden');
+                if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(20)};
+                break;
+            case '71':
+                $(this.headerExcludeTargets).addClass('is-hidden');
+                $(this.headerReplaceTargets).removeClass('is-hidden');
+                $(this.headerReplacePowerTargets).addClass('is-hidden');
+                $(this.headerReplaceIrrTargets).addClass('is-hidden');
+                $(this.headerHourTargets).addClass('is-hidden');
+                $(this.headerEnergyValueTargets).addClass('is-hidden');
+                $(this.headerIrrValueTargets).addClass('is-hidden');
+                $(this.headerCorrectionTargets).addClass('is-hidden');
+                $(this.headerEvaluationTargets).addClass('is-hidden');
+                $(this.headerReasonTargets).addClass('is-hidden');
+                $(this.headerAktDep1Targets).addClass('is-hidden');
+                $(this.headerAktDep2Targets).addClass('is-hidden');
+                $(this.headerAktDep3Targets).addClass('is-hidden');
+                $(this.headerFormKpiTargets).removeClass('is-hidden');
+                $(this.headerPRMethodTargets).addClass('is-hidden');
+
+                $(this.fieldSensorTargets).removeClass('is-hidden');
+                $(this.fieldReplacePowerTargets).addClass('is-hidden');
+                $(this.fieldReplaceIrrTargets).addClass('is-hidden');
+                $(this.fieldHourTargets).addClass('is-hidden');
+                $(this.fieldEnergyValueTargets).addClass('is-hidden');
+                $(this.fieldIrrValueTargets).addClass('is-hidden');
+                $(this.fieldCorrectionTargets).addClass('is-hidden');
+                $(this.fieldEvaluationTargets).addClass('is-hidden');
+                $(this.fieldReasonTargets).addClass('is-hidden');
+                $(this.fieldAktDep1Targets).addClass('is-hidden');
+                $(this.fieldAktDep2Targets).addClass('is-hidden');
+                $(this.fieldAktDep3Targets).addClass('is-hidden');
+                $(this.inverterDivTargets).addClass('is-hidden');
+                $(this.formHourTargets).prop('checked', false);
+                body.find('input:checkbox[class=js-checkbox]').each(function () {
+                    $(this).prop('checked', true);
+                    if (inverterString == '')
+                    {
+                        inverterString = inverterString + $(this).prop('name');
+                    }
+                    else
+                    {
+                        inverterString = inverterString + ', ' + $(this).prop('name');
+                    }
+                    body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
+                    body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
+                    body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
+                });
+
+                inverterString = '*';
+                body.find('#ticket_form_inverter').val(inverterString);
+                $(this.formkpiStatusTargets).removeClass('is-hidden');
+                $(this.fieldPRMethodTargets).addClass('is-hidden');
+                if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20)};
+                break;
+            case '72':
+                $(this.headerExcludeTargets).addClass('is-hidden');
+                $(this.headerReplaceTargets).addClass('is-hidden');
+                $(this.headerReplacePowerTargets).addClass('is-hidden');
+                $(this.headerReplaceIrrTargets).addClass('is-hidden');
+                $(this.headerHourTargets).removeClass('is-hidden');
+                $(this.headerEnergyValueTargets).addClass('is-hidden');
+                $(this.headerIrrValueTargets).addClass('is-hidden');
+                $(this.headerCorrectionTargets).addClass('is-hidden');
+                $(this.headerEvaluationTargets).addClass('is-hidden');
+                $(this.headerReasonTargets).addClass('is-hidden');
+                $(this.headerAktDep1Targets).addClass('is-hidden');
+                $(this.headerAktDep2Targets).addClass('is-hidden');
+                $(this.headerAktDep3Targets).addClass('is-hidden');
+                $(this.headerFormKpiTargets).removeClass('is-hidden');
+                $(this.headerPRMethodTargets).removeClass('is-hidden');
+
+
+                $(this.fieldSensorTargets).addClass('is-hidden');
+                $(this.fieldReplacePowerTargets).addClass('is-hidden');
+                $(this.fieldReplaceIrrTargets).addClass('is-hidden');
+                $(this.fieldHourTargets).removeClass('is-hidden');
+                $(this.fieldEnergyValueTargets).addClass('is-hidden');
+                $(this.fieldIrrValueTargets).addClass('is-hidden');
+                $(this.fieldCorrectionTargets).addClass('is-hidden');
+                $(this.fieldEvaluationTargets).addClass('is-hidden');
+                $(this.fieldReasonTargets).addClass('is-hidden');
+                $(this.fieldAktDep1Targets).addClass('is-hidden');
+                $(this.fieldAktDep2Targets).addClass('is-hidden');
+                $(this.fieldAktDep3Targets).addClass('is-hidden');
+                $(this.inverterDivTargets).addClass('is-hidden');
+                $(this.fieldPRMethodTargets).removeClass('is-hidden');
+
+                if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(10)};
+                break;
+            case '73':
+                this.replaceCheck();
+                break;
+            case '74':
+                $(this.headerExcludeTargets).addClass('is-hidden');
+                $(this.headerReplaceTargets).addClass('is-hidden');
+                $(this.headerReplacePowerTargets).addClass('is-hidden');
+                $(this.headerReplaceIrrTargets).addClass('is-hidden');
+                $(this.headerHourTargets).addClass('is-hidden');
+                $(this.headerEnergyValueTargets).addClass('is-hidden');
+                $(this.headerIrrValueTargets).addClass('is-hidden');
+                $(this.headerCorrectionTargets).removeClass('is-hidden');
+                $(this.headerEvaluationTargets).addClass('is-hidden');
+                $(this.headerReasonTargets).removeClass('is-hidden');
+                $(this.headerAktDep1Targets).addClass('is-hidden');
+                $(this.headerAktDep2Targets).addClass('is-hidden');
+                $(this.headerAktDep3Targets).addClass('is-hidden');
+                $(this.headerFormKpiTargets).removeClass('is-hidden');
+                $(this.headerPRMethodTargets).addClass('is-hidden');
+
+                $(this.fieldSensorTargets).addClass('is-hidden');
+                $(this.fieldReplacePowerTargets).addClass('is-hidden');
+                $(this.fieldReplaceIrrTargets).addClass('is-hidden');
+                $(this.fieldHourTargets).addClass('is-hidden');
+                $(this.fieldEnergyValueTargets).addClass('is-hidden');
+                $(this.fieldIrrValueTargets).addClass('is-hidden');
+                $(this.fieldCorrectionTargets).removeClass('is-hidden');
+                $(this.fieldEvaluationTargets).addClass('is-hidden');
+                $(this.fieldReasonTargets).removeClass('is-hidden');
+                $(this.fieldAktDep1Targets).addClass('is-hidden');
+                $(this.fieldAktDep2Targets).addClass('is-hidden');
+                $(this.fieldAktDep3Targets).addClass('is-hidden');
+                $(this.inverterDivTargets).addClass('is-hidden');
+                $(this.fieldPRMethodTargets).addClass('is-hidden');
+
+                let reason = $(this.formReasonSelectTarget).val();
+                $(this.reasonInputTarget).val(reason);
+
+                if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20);}
+                break;
+            case '':
+                $(this.headerExcludeTargets).addClass('is-hidden');
+                $(this.headerReplaceTargets).addClass('is-hidden');
+                $(this.headerReplacePowerTargets).addClass('is-hidden');
+                $(this.headerReplaceIrrTargets).addClass('is-hidden');
+                $(this.headerHourTargets).addClass('is-hidden');
+                $(this.headerEnergyValueTargets).addClass('is-hidden');
+                $(this.headerIrrValueTargets).addClass('is-hidden');
+                $(this.headerCorrectionTargets).addClass('is-hidden');
+                $(this.headerEvaluationTargets).addClass('is-hidden');
+                $(this.headerAktDep1Targets).addClass('is-hidden');
+                $(this.headerAktDep3Targets).addClass('is-hidden');
+                $(this.headerAktDep3Targets).addClass('is-hidden');
+                $(this.headerFormKpiTargets).addClass('is-hidden');
+                $(this.headerPRMethodTargets).addClass('is-hidden');
+
+                $(this.fieldSensorTargets).addClass('is-hidden');
+                $(this.fieldReplacePowerTargets).addClass('is-hidden');
+                $(this.fieldReplaceIrrTargets).addClass('is-hidden');
+                $(this.fieldHourTargets).addClass('is-hidden');
+                $(this.fieldEnergyValueTargets).addClass('is-hidden');
+                $(this.fieldIrrValueTargets).addClass('is-hidden');
+                $(this.fieldCorrectionTargets).addClass('is-hidden');
+                $(this.fieldEvaluationTargets).addClass('is-hidden');
+                $(this.fieldAktDep1Targets).addClass('is-hidden');
+                $(this.fieldAktDep2Targets).addClass('is-hidden');
+                $(this.fieldAktDep3Targets).addClass('is-hidden');
+                $(this.fieldPRMethodTargets).addClass('is-hidden');
+                $(this.inverterDivTargets).removeClass('is-hidden');
+                $(this.formHourTarget).prop('checked', false);
+                if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20);}
+                break;
+            default:
+
+                $(this.headerExcludeTargets).addClass('is-hidden');
+                $(this.headerReplaceTargets).addClass('is-hidden');
+                $(this.headerReplacePowerTargets).addClass('is-hidden');
+                $(this.headerReplaceIrrTargets).addClass('is-hidden');
+                $(this.headerHourTargets).addClass('is-hidden');
+                $(this.headerEnergyValueTargets).addClass('is-hidden');
+                $(this.headerIrrValueTargets).addClass('is-hidden');
+                $(this.headerCorrectionTargets).addClass('is-hidden');
+                $(this.headerEvaluationTargets).addClass('is-hidden');
+                $(this.headerAktDep1Targets).addClass('is-hidden');
+                $(this.headerAktDep2Targets).addClass('is-hidden');
+                $(this.headerAktDep3Targets).addClass('is-hidden');
+                $(this.headerFormKpiTargets).addClass('is-hidden');
+                $(this.headerPRMethodTargets).addClass('is-hidden');
+
+                $(this.fieldSensorTargets).addClass('is-hidden');
+                $(this.fieldReplacePowerTargets).addClass('is-hidden');
+                $(this.fieldReplaceIrrTargets).addClass('is-hidden');
+                $(this.fieldHourTargets).addClass('is-hidden');
+                $(this.fieldEnergyValueTargets).addClass('is-hidden');
+                $(this.fieldIrrValueTargets).addClass('is-hidden');
+                $(this.fieldCorrectionTargets).addClass('is-hidden');
+                $(this.fieldEvaluationTargets).addClass('is-hidden');
+                $(this.fieldAktDep1Targets).addClass('is-hidden');
+                $(this.fieldAktDep2Targets).addClass('is-hidden');
+                $(this.fieldAktDep3Targets).addClass('is-hidden');
+                $(this.formHourTargets).prop('checked', false);
+                $(this.fieldPRMethodTargets).addClass('is-hidden');
+                $(this.inverterDivTargets).removeClass('is-hidden');
+                if (this.formUrlValue === '/ticket/create') {body.find('#ticket_form_KpiStatus').val(20)};
+
+        }
+    }
     setBody(html){
         this.modalBodyTarget.innerHTML = html;
     }
@@ -67,6 +604,7 @@ export default class extends Controller {
 
     async reload(event){
         this.modalBodyTarget.innerHTML = await $.ajax(this.formUrlValue);
+        this.checkCategory();
         $(document).foundation();
     }
 

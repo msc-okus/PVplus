@@ -19,7 +19,10 @@ class TicketRepository extends ServiceEntityRepository
 {
     private Security $security;
 
-    public function __construct(ManagerRegistry $registry, Security $security)
+    public function __construct(
+        ManagerRegistry $registry,
+        Security $security,
+        private AnlagenRepository $anlRepo)
     {
         parent::__construct($registry, Ticket::class);
         $this->security = $security;
@@ -88,15 +91,16 @@ class TicketRepository extends ServiceEntityRepository
     {
         /** @var User $user */
         $user = $this->security->getUser();
-        $granted = explode(',', $user->getGrantedList());
+
+        $granted =  $this->anlRepo->findAllActiveAndAllowed();
 
         $qb = $this->createQueryBuilder('ticket')
             ->innerJoin('ticket.anlage', 'a')
             ->addSelect('a')
         ;
         if (!$this->security->isGranted('ROLE_G4N')) {
-            $qb->andWhere('a.anlId IN (:plantList)')
-                ->setParameter('plantList', $granted);
+                $qb->andWhere('a.anlId IN (:plantList)')
+                    ->setParameter('plantList', $granted);
         }
         if ($anlage != '') {
             $qb->andWhere("ticket.anlage = '$anlage'");
@@ -164,6 +168,32 @@ class TicketRepository extends ServiceEntityRepository
         return $qb;
     }
 
+    public function findForSafeDelete($anlage, $begin, $end = null)
+    {
+        if ($end != null)
+            $result = $this->createQueryBuilder('t')
+                ->andWhere('t.anlage = :anl')
+                ->andWhere('t.begin >= :begin')
+                ->andWhere('t.begin <= :end')
+                ->andWhere("t.editor = 'Alert system'")
+                ->setParameter('anl', $anlage)
+                ->setParameter('begin', $begin)
+                ->setParameter('end', $end)
+                ->getQuery()
+            ;
+        else
+            $result = $this->createQueryBuilder('t')
+                ->andWhere('t.anlage = :anl')
+                ->andWhere('t.begin >= :begin')
+                ->andWhere("t.editor = 'Alert system'")
+                ->setParameter('anl', $anlage)
+                ->setParameter('begin', $begin)
+                ->getQuery()
+            ;
+
+        return $result->getResult();
+    }
+
     public function findOneById($id): ?ticket
     {
         return $this->createQueryBuilder('t')
@@ -174,7 +204,8 @@ class TicketRepository extends ServiceEntityRepository
             ;
     }
 
-    public function findMultipleByBeginErrorAnlage($anlage, $time, $errorCategory){
+    public function findMultipleByBeginErrorAnlage($anlage, $time, $errorCategory)
+    {
         $description = 'Error with the Data of the Weather station';
         $result = $this->createQueryBuilder('t')
             ->andWhere('t.begin = :begin')

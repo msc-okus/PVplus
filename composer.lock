@@ -5514,16 +5514,16 @@
         },
         {
             "name": "liip/imagine-bundle",
-            "version": "2.10.0",
+            "version": "2.11.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/liip/LiipImagineBundle.git",
-                "reference": "93bfc6dde87f135f9c3e63330cff23122448f4ee"
+                "reference": "2e943e6be4309ec90fcff90227053898203c1c8e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/liip/LiipImagineBundle/zipball/93bfc6dde87f135f9c3e63330cff23122448f4ee",
-                "reference": "93bfc6dde87f135f9c3e63330cff23122448f4ee",
+                "url": "https://api.github.com/repos/liip/LiipImagineBundle/zipball/2e943e6be4309ec90fcff90227053898203c1c8e",
+                "reference": "2e943e6be4309ec90fcff90227053898203c1c8e",
                 "shasum": ""
             },
             "require": {
@@ -5611,9 +5611,9 @@
             ],
             "support": {
                 "issues": "https://github.com/liip/LiipImagineBundle/issues",
-                "source": "https://github.com/liip/LiipImagineBundle/tree/2.10.0"
+                "source": "https://github.com/liip/LiipImagineBundle/tree/2.11.0"
             },
-            "time": "2022-12-01T13:19:59+00:00"
+            "time": "2023-05-16T06:13:14+00:00"
         },
         {
             "name": "lorenzo/pinky",
@@ -13674,16 +13674,16 @@
         },
         {
             "name": "symfony/ux-chartjs",
-            "version": "v2.8.0",
+            "version": "v2.8.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/ux-chartjs.git",
-                "reference": "abfa6258b2ac7e95d19e0912e6db2fc0811bf520"
+                "reference": "36ac5d61c3cac2d405f293af0f5565ca2b3d3bd8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/ux-chartjs/zipball/abfa6258b2ac7e95d19e0912e6db2fc0811bf520",
-                "reference": "abfa6258b2ac7e95d19e0912e6db2fc0811bf520",
+                "url": "https://api.github.com/repos/symfony/ux-chartjs/zipball/36ac5d61c3cac2d405f293af0f5565ca2b3d3bd8",
+                "reference": "36ac5d61c3cac2d405f293af0f5565ca2b3d3bd8",
                 "shasum": ""
             },
             "require": {
@@ -13735,7 +13735,7 @@
                 "symfony-ux"
             ],
             "support": {
-                "source": "https://github.com/symfony/ux-chartjs/tree/v2.8.0"
+                "source": "https://github.com/symfony/ux-chartjs/tree/v2.8.1"
             },
             "funding": [
                 {
@@ -13751,7 +13751,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-04-11T13:01:48+00:00"
+            "time": "2023-05-15T10:42:00+00:00"
         },
         {
             "name": "symfony/validator",

@@ -35,6 +35,8 @@ class AlertSystemMailService
      */
     public function checkTickets(Anlage $anlage, $time){
 
+
+
     }
 
     /**

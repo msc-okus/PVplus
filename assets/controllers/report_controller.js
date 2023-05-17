@@ -1,9 +1,11 @@
 import { Controller } from '@hotwired/stimulus';
 import { useDispatch } from 'stimulus-use';
 import $ from 'jquery';
+import {Reveal} from "foundation-sites";
+import Swal from 'sweetalert2';
 
 export default class extends Controller {
-    static targets = ['list', 'reportForm', 'searchForm', 'createForm', 'required', 'deactivable'];
+    static targets = ['list', 'reportForm', 'searchForm', 'createForm', 'required', 'deactivable', 'deactivable1', 'modalBody', 'anlage', 'type', 'month', 'year'];
     static values = {
         urlCreate: String,
         urlSearch: String,
@@ -20,6 +22,16 @@ export default class extends Controller {
         } else {
            $button.attr('disabled', 'disabled')
         }
+    }
+
+    async handleAnlageInput(){
+        let id = $(this.anlageTarget).val();
+        console.log(id);
+        let date = await $.ajax({
+            url: '/reporting/anlageinfo/'.id,
+            method: 'GET',
+        });
+        console.log(date);
     }
 
     handleInput() {
