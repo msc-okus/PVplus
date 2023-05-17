@@ -5,7 +5,9 @@ namespace App\MessageHandler\Command;
 use App\Message\Command\ImportData;
 use App\Service\LogMessagesService;
 use App\Service\ExternFileService;
+use Doctrine\Instantiator\Exception\ExceptionInterface;
 use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+
 
 class ImportDataHandler implements MessageHandlerInterface
 {
@@ -19,14 +21,20 @@ class ImportDataHandler implements MessageHandlerInterface
      * @throws \Exception
      */
 
-    public function __invoke(ImportData $dta)
+    public function __invoke(ImportData $importData)
     {
-        $path = $dta->getPath();
-        $anlageId = $dta->getAnlageId();
-        $logId = $dta->getlogId();
-        $this->logMessages->updateEntry($logId, 'working');
+        $path = $importData->getPath();
+        $logId = $importData->getlogId();
 
-        $this->externFileService->CallImportDataFromApiManuel($path, $dta->getStartDate()->getTimestamp(), $dta->getEndDate()->getTimestamp());
-        $this->logMessages->updateEntry($logId, 'done');
+        $timeCounter = 0;
+        $timeRange = $importData->getEndDate()->getTimestamp() - $importData->getStartDate()->getTimestamp();
+        for ($stamp = $importData->getStartDate()->getTimestamp(); $stamp <= $importData->getEndDate()->getTimestamp(); $stamp = $stamp + (24 * 3600)) {
+            $this->logMessages->updateEntry($logId, 'working', ($timeCounter / $timeRange) * 100);
+            $timeCounter += 24 * 3600;
+            #  $this->externFileService->($anlageId, date('Y-m-d 00:00', $stamp));
+            $this->externFileService->callImportDataFromApiManuel($path, $importData->getStartDate()->getTimestamp(), $importData->getEndDate()->getTimestamp());
+        }
+
+        $this->logMessages->updateEntry($logId, 'doneqwqwq');
     }
 }
