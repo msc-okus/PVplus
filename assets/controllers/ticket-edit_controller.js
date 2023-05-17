@@ -6,14 +6,7 @@ import $ from 'jquery';
 export default class extends Controller {
     static targets = ['splitAlert', 'modal', 'modalBody', 'splitModal', 'splitForm', 'switch', 'deactivable',
                         'anlage', 'saveButton', 'AlertFormat', 'AlertDates', 'formBegin', 'formEnd', 'splitButton',
-                        'splitDeploy','AlertInverter', 'Callout', 'formCategory', 'AlertCategory', 'headerExclude',
-                        'headerReplace', 'headerReplacePower', 'headerReplaceIrr', 'headerHour', 'headerEnergyValue',
-                        'headerIrrValue', 'headerCorrection', 'headerEvaluation', 'headerAktDep1', 'headerAktDep2',
-                        'headerAktDep3', 'formReplace', 'fieldSensor', 'fieldReplacePower', 'fieldReplaceIrr', 'fieldHour',
-                        'fieldEnergyValue', 'fieldIrrValue', 'fieldCorrection', 'fieldEvaluation', 'fieldAktDep1', 'fieldAktDep2',
-                        'fieldAktDep3', 'formReplaceIrr', 'inverterDiv', 'formHour', 'formBeginHidden', 'formEndHidden', 'formBeginDate',
-                        'formEndDate', 'formReasonSelect', 'formReasonText', 'headerReason', 'fieldReason', 'formkpiStatus', 'headerFormKpi',
-                        'headerPRMethod', 'fieldPRMethod', 'scope', 'reasonInput'];
+                        'splitDeploy','AlertInverter', 'Callout', 'formCategory', 'AlertCategory'];
     static values = {
         formUrl: String,
         splitUrl: String,
@@ -29,6 +22,7 @@ export default class extends Controller {
         this.modalBodyTarget.innerHTML = 'Loading ...';
         this.modal = new Reveal($(this.modalTarget));
         this.modal.open();
+
         if (this.formUrlValue === '/ticket/create') {
             this.modalBodyTarget.innerHTML = await $.ajax({
                 url: this.formUrlValue,
@@ -40,14 +34,8 @@ export default class extends Controller {
                 url: this.formUrlValue,
             });
         }
-        this.checkCategory();
-
         $(this.modalBodyTarget).foundation();
-    }
 
-    reasonCheck(){
-        let reason = $(this.reasonInputTarget).val();
-        $(this.formReasonSelectTarget).val(reason);
     }
 
     hourCheck(){
@@ -601,13 +589,11 @@ export default class extends Controller {
         event.preventDefault();
         const  $form = $(this.modalBodyTarget).find('form');
         try {
-
             await $.ajax({
                 url: this.formUrlValue,
                 method: $form.prop('method'),
                 data: $form.serialize(),
             });
-
             this.dispatch('success');
             this.modal.destroy();
         } catch(e) {
@@ -623,16 +609,8 @@ export default class extends Controller {
     }
 
     checkSelect({ params: { edited }}){
-        const cat = $(this.formCategoryTarget).val();
-        const valueBegin = $(this.formBeginTarget).prop('value');
-        const valueEnd = $(this.formEndTarget).prop('value');
         let body = $(this.modalBodyTarget);
-        const date1 = new Date(valueBegin);
-        const date2 = new Date(valueEnd);
-        date1.setSeconds(0);
-        date2.setSeconds(0);
-        const timestamp1 = date1.getTime();
-        const timestamp2 = date2.getTime();
+
         body.find('.js-div-split-a').each(function(){
             $(this).addClass('is-hidden');
             $(this).find('.js-checkbox-split-a').prop('checked', false);
@@ -646,14 +624,8 @@ export default class extends Controller {
         if ($(this.switchTarget).prop('checked')) {
             body.find('input:checkbox[class=js-checkbox]').each(function () {
                 $(this).prop('checked', true);
-                if (inverterString == '')
-                {
-                    inverterString = inverterString + $(this).prop('name');
-                }
-                else
-                {
-                    inverterString = inverterString + ', ' + $(this).prop('name');
-                }
+                if (inverterString == '') {inverterString = inverterString + $(this).prop('name');}
+                else {inverterString = inverterString + ', ' + $(this).prop('name');}
                 body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
                 body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
                 body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
@@ -661,77 +633,58 @@ export default class extends Controller {
             if (edited == true) {
                 $(this.splitDeployTarget).removeAttr('disabled');
             }
-            inverterString = '*';
         } else {
             $(this.modalBodyTarget).find('input:checkbox[class=js-checkbox]').each(function(){
                 $(this).prop('checked', false);
             });
             $(this.splitDeployTarget).attr('disabled', 'disabled');
-            inverterString = '';
+
         }
         $(this.modalBodyTarget).find('#ticket_form_inverter').val(inverterString);
+
 
         if (inverterString == '') {
             $(this.CalloutTarget).removeClass('is-hidden');
             $(this.AlertInverterTarget).removeClass('is-hidden');
             $(this.saveButtonTarget).attr('disabled', 'disabled');
-
-            if (timestamp2 < timestamp1){
-                $(this.AlertDatesTarget).removeClass('is-hidden');
-                $(this.saveButtonTarget).attr('disabled', 'disabled');
-                if ((timestamp1 % 900000 != 0) && (timestamp2 % 900000 != 0)){
-                    $(this.AlertFormatTarget).addClass('is-hidden');
-                } else {
-                    $(this.AlertFormatTarget).removeClass('is-hidden');
-                }
-            }
-
-            if (cat == ""){
-
-                $(this.AlertCategoryTarget).removeClass('is-hidden');
-            }
-            else{
-                $(this.AlertCategoryTarget).addClass('is-hidden');
-            }
-        }
-        else {
-            $(this.AlertInverterTarget).addClass('is-hidden');
-            $(this.CalloutTarget).addClass('is-hidden');
-            $(this.saveButtonTarget).removeAttr('disabled');
             if (timestamp2 > timestamp1){
                 $(this.AlertDatesTarget).addClass('is-hidden');
                 if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
                     $(this.AlertFormatTarget).addClass('is-hidden');
                     $(this.saveButtonTarget).removeAttr('disabled');
-                    if (cat == ''){
-                        $(this.CalloutTarget).removeClass('is-hidden');
-                        $(this.saveButtonTarget).attr('disabled', 'disabled');
-                        $(this.AlertCategoryTarget).removeClass('is-hidden');
-                    }
-                    else{
-                        $(this.AlertCategoryTarget).addClass('is-hidden');
-                    }
+                } else {
+                    $(this.AlertFormatTarget).removeClass('is-hidden');
+                    $(this.saveButtonTarget).attr('disabled', 'disabled');
+                }
+            } else {
+                $(this.AlertDatesTarget).removeClass('is-hidden');
+                $(this.saveButtonTarget).attr('disabled', 'disabled');
+                if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+                    $(this.AlertFormatTarget).addClass('is-hidden');
+                    $(this.saveButtonTarget).removeAttr('disabled');
+                } else {
+                    $(this.AlertFormatTarget).removeClass('is-hidden');
+                    $(this.saveButtonTarget).attr('disabled', 'disabled');
+                }
+            }
+        }
+        else {
+            $(this.AlertInverterTarget).addClass('is-hidden');
+            $(this.CalloutTarget).addClass('is-hidden');
+            if (timestamp2 > timestamp1){
+                $(this.AlertDatesTarget).addClass('is-hidden');
+                if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+                    $(this.AlertFormatTarget).addClass('is-hidden');
+                    $(this.saveButtonTarget).removeAttr('disabled');
                 } else {
                     $(this.CalloutTarget).removeClass('is-hidden');
                     $(this.AlertFormatTarget).removeClass('is-hidden');
                     $(this.saveButtonTarget).attr('disabled', 'disabled');
-                    if (cat == ""){
-                        $(this.saveButtonTarget).attr('disabled', 'disabled');
-                    }
-                    else{
-                        $(this.AlertCategoryTarget).addClass('is-hidden');
-                    }
                 }
             } else {
                 $(this.CalloutTarget).removeClass('is-hidden')
                 $(this.AlertDatesTarget).removeClass('is-hidden');
                 $(this.saveButtonTarget).attr('disabled', 'disabled');
-                if (cat == ""){
-                    $(this.AlertCategoryTarget).removeClass('is-hidden');
-                }
-                else{
-                    $(this.AlertCategoryTarget).addClass('is-hidden');
-                }
                 if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
                     $(this.AlertFormatTarget).addClass('is-hidden');
                     $(this.saveButtonTarget).removeAttr('disabled');
@@ -741,18 +694,14 @@ export default class extends Controller {
                     $(this.saveButtonTarget).attr('disabled', 'disabled');
                 }
             }
-
-
         }
     }
-
-    saveCheck({ params: { edited }}){
-        //getting a string with the inverters so later we can check if there is any or none
+/*
+    checkInverter({ params: { edited }}){
 
         let inverterString = '';
         let body = $(this.modalBodyTarget);
         let counter = 0;
-        this.checkCategory()
         body.find('.js-div-split-a').each(function(){
             $(this).addClass('is-hidden');
             $(this).find('.js-checkbox-split-a').prop('checked', false);
@@ -770,10 +719,77 @@ export default class extends Controller {
             body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
 
         });
-        if (counter == body.find('input:checkbox[class=js-checkbox]').length){
-            inverterString = '*';
+
+        if (counter <= 1 ) {
+            $(this.splitDeployTarget).attr('disabled', 'disabled');
+        }
+        else {
+            if (edited == true) {
+                $(this.splitDeployTarget).removeAttr('disabled');
+            }
+        }
+        if (inverterString == '') {
+            $(this.saveButtonTarget).attr('disabled', 'disabled');
+        }
+        else {
+            $(this.saveButtonTarget).removeAttr('disabled');
+        }
+        $(this.modalBodyTarget).find('#ticket_form_inverter').val(inverterString);
+    }
+
+    checkDates() {
+        const valueBegin = $(this.formBeginTarget).prop('value');
+        const valueEnd = $(this.formEndTarget).prop('value');
+
+
+        const date1 = new Date(valueBegin);
+        const date2 = new Date(valueEnd);
+        date1.setSeconds(0);
+        date2.setSeconds(0);
+        const timestamp1 = date1.getTime();
+        const timestamp2 = date2.getTime();
+
+
+        if (timestamp2 > timestamp1){
+            $(this.AlertDatesTarget).addClass('is-hidden');
+            $(this.saveButtonTarget).removeAttr('disabled');
+        } else {
+            $(this.AlertDatesTarget).removeClass('is-hidden');
+            $(this.saveButtonTarget).attr('disabled', 'disabled');
         }
 
+        if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+            $(this.AlertFormatTarget).addClass('is-hidden');
+            $(this.saveButtonTarget).removeAttr('disabled');
+        } else {
+            $(this.AlertFormatTarget).removeClass('is-hidden');
+            $(this.saveButtonTarget).attr('disabled', 'disabled');
+        }
+    }
+*/
+    saveCheck({ params: { edited }}){
+        console.log('hey');
+        //getting a string with the inverters so later we can check if there is any or none
+        let inverterString = '';
+        let body = $(this.modalBodyTarget);
+        let counter = 0;
+        body.find('.js-div-split-a').each(function(){
+            $(this).addClass('is-hidden');
+            $(this).find('.js-checkbox-split-a').prop('checked', false);
+        });
+        body.find('.js-div-split-b').each(function(){
+            $(this).addClass('is-hidden');
+            $(this).find('.js-checkbox-split-b').prop('checked', false);
+        });
+        body.find('input:checkbox[class=js-checkbox]:checked').each(function (){
+            counter ++;
+            if (inverterString == '') {inverterString = inverterString + $(this).prop('name');}
+            else {inverterString = inverterString + ', ' + $(this).prop('name');}
+            body.find($('#div-split-'+$(this).prop('name')+'a')).removeClass('is-hidden');
+            body.find($('#div-split-'+$(this).prop('name')+'b')).removeClass('is-hidden');
+            body.find($('#split-'+$(this).prop('name')+'a')).prop('checked', true);
+
+        });
         //here we get the values of the date forms to check if they are valid
         const valueBegin = $(this.formBeginTarget).prop('value');
         const valueEnd = $(this.formEndTarget).prop('value');
@@ -796,6 +812,7 @@ export default class extends Controller {
                 $(this.splitDeployTarget).removeAttr('disabled');
             }
         }
+        console.log(cat);
 
         if (inverterString == '') {
             $(this.CalloutTarget).removeClass('is-hidden');
@@ -805,7 +822,6 @@ export default class extends Controller {
                 $(this.AlertDatesTarget).addClass('is-hidden');
                 if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
                     $(this.AlertFormatTarget).addClass('is-hidden');
-                    if ($(this.formHourTarget).prop('checked') == true) this.hourCheck();
                     if (cat == ""){
                         $(this.AlertCategoryTarget).removeClass('is-hidden');
                     }
@@ -824,7 +840,6 @@ export default class extends Controller {
             } else {
                 $(this.AlertDatesTarget).removeClass('is-hidden');
                 if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
-                    if ($(this.formHourTarget).prop('checked') == true) this.hourCheck();
                     $(this.AlertFormatTarget).addClass('is-hidden');
                     if (cat == ""){
                         $(this.AlertCategoryTarget).removeClass('is-hidden');
@@ -850,7 +865,6 @@ export default class extends Controller {
             if (timestamp2 > timestamp1){
                 $(this.AlertDatesTarget).addClass('is-hidden');
                 if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
-                    if ($(this.formHourTarget).prop('checked') == true) this.hourCheck();
                     $(this.AlertFormatTarget).addClass('is-hidden');
                     if (cat == ""){
                         $(this.CalloutTarget).removeClass('is-hidden');
@@ -861,7 +875,6 @@ export default class extends Controller {
                         $(this.AlertCategoryTarget).addClass('is-hidden');
                     }
                 } else {
-
                     $(this.CalloutTarget).removeClass('is-hidden');
                     $(this.AlertFormatTarget).removeClass('is-hidden');
                     $(this.saveButtonTarget).attr('disabled', 'disabled');
@@ -878,7 +891,6 @@ export default class extends Controller {
                 $(this.saveButtonTarget).attr('disabled', 'disabled');
 
                     if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
-                        if ($(this.formHourTarget).prop('checked') == true) this.hourCheck();
                         $(this.AlertFormatTarget).addClass('is-hidden');
                         if (cat == ""){
                             $(this.AlertCategoryTarget).removeClass('is-hidden');
@@ -903,8 +915,7 @@ export default class extends Controller {
 
 
     toggle(){
-
-        let $button = $(this.deactivableTarget);
+        let $button = $(this.deactivableTargets);
         if ($button.attr('disabled')) {
             $button.removeAttr('disabled');
         }
@@ -973,6 +984,7 @@ export default class extends Controller {
             $(this.splitAlertTarget).addClass('is-hidden');
         }
     }
+
     async splitTicketByInverter({ params: { ticketid }}){
         let inverterStringa = '';
         let inverterStringb = '';
