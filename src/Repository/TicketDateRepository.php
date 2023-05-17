@@ -192,4 +192,28 @@ class TicketDateRepository extends ServiceEntityRepository
 
         return $q->getQuery()->getResult();
     }
+
+    /**
+     * Search for all tiFM Cases (case 5)
+     *
+     * @param Anlage $anlage
+     * @param $begin
+     * @param $end
+     * @param int $department
+     * @return mixed
+     */
+    public function findCommIssu(Anlage $anlage, $begin, $end, int $department): mixed
+    {
+        $q = $this->createQueryBuilder('t')
+            ->join('t.ticket', 'ticket')
+            ->andWhere('t.begin BETWEEN :begin AND :end OR t.end BETWEEN :begin AND :end OR (:end <= t.end and :begin >= t.end)')
+            ->andWhere('t.Anlage = :anlage')
+            ->andWhere('t.dataGapEvaluation = 20')
+            ->andWhere('ticket.ignoreTicket = false')
+            ->setParameter('begin', $begin)
+            ->setParameter('end', $end)
+            ->setParameter('anlage', $anlage);
+
+        return $q->getQuery()->getResult();
+    }
 }

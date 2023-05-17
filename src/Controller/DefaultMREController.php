@@ -125,7 +125,7 @@ class DefaultMREController extends BaseController
     /**
      * @throws \Exception
      */
-    #[Route(path: '/mr/pa/test/{plant}/{year}/{month}/{day}', defaults: ['plant' => 44, 'year' => 2022, 'month' => 7, 'day' => 1])]
+    #[Route(path: '/mr/pa/test/{plant}/{year}/{month}/{day}', defaults: ['plant' => 110, 'year' => 2023, 'month' => 3, 'day' => 16])]
     public function pa(int $plant, int $year, int $month, int $day, AvailabilityService $availability, AvailabilityByTicketService $availabilityByTicket, AnlagenRepository $anlagenRepository): Response
     {
         $anlage = $anlagenRepository->find($plant);
@@ -141,10 +141,10 @@ class DefaultMREController extends BaseController
         for ($day = $startday; $day <= $daysInMonth; $day++) {
             $from = date_create("$year-$month-$day 12:00");
 
-            $output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 0);
-            #$output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 1);
-            #$output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 2);
-            #$output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 3);
+            #$output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 0)."<br>";
+            #$output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 1)."<br>";
+            $output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 2)."<br>";
+            #$output .= $this->availabilityByTicket->checkAvailability($anlage, $from, 3)."<br>";
             $output .= "PA: " . number_format(round($this->availabilityByTicket->calcAvailability($anlage, date_create("$year-$month-$day"), date_create("$year-$month-$day"), null, 2), 3),'3') . "<br>";
 
             #
