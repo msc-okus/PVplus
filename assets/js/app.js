@@ -10,11 +10,11 @@
 
 // start the Stimulus application
 import '../bootstrap';
-import '../styles/app.scss';
-import 'foundation-sites';
-//import 'foundation-datepicker';
-import 'daterangepicker';
 
+import '../styles/app.scss';
+
+import 'foundation-sites';
+import 'foundation-datepicker';
 
 
 import $ from 'jquery';
@@ -26,8 +26,8 @@ $('.my-alert-box').closest('[data-alert]').fadeOut(8000);
 
 document.addEventListener("DOMContentLoaded", () => {
 
-    let url = window.location.href;
-    let urlParams = url.split('#')[1];
+    var url = window.location.href;
+    var urlParams = url.split('#')[1];
     if (urlParams === 'chart') {
         const elementchart = document.getElementById('headbar');
         const positionChart = elementchart.getBoundingClientRect();
@@ -38,4 +38,3 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(function() {window.scrollTo(0, height);},1)
     }
 });
-

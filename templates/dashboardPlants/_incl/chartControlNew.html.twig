@@ -3,7 +3,7 @@
     // Date RangePicker Config and Function
     $(function() {
         [startDate, endDate] = $('.daterange span').html().split(' - ');
-        // Predefine Startdate
+        // Predefine the startDate and endDate
         if (!startDate){
            var startDatex = moment().startOf('month');
            var endDatex =  moment().endOf('month');
@@ -11,7 +11,7 @@
             var startDatex = moment(startDate).toDate();
             var endDatex = moment(endDate).toDate();
         }
-        //
+        // jQuery Selectors
         $('.daterange').daterangepicker({
                 maxDate: moment().subtract(0, 'days'),
                 autostart:true,
@@ -20,46 +20,39 @@
                 endDate: endDatex,
                 showDropdowns: true,
                 minYear: 2020,
-                maxSpan: {
-                    months: 12,
-                },
                 {% if  form.selectedChart == 'heatmap'
                     or form.selectedChart == 'tempheatmap'
                     or form.selectedChart == 'sollistheatmap'
-                    or form.selectedChart == 'dcpnomcurr'
+                    or form.selectedChart == 'sollisttempanalyse'
+                    or form.selectedChart == 'sollistanalyse'
+                    or form.selectedChart == 'sollistirranalyse'
                     or form.selectedChart == 'acpnom'
                 %}
+                    maxSpan: { months: 3, },
                     showCustomRangeLabel:true,
                     singleDatePicker: false,
-                    linkedCalendars: false,
+                    linkedCalendars: true,
                 {% else %}
-                    showCustomRangeLabel:false,
-                    singleDatePicker: true,
+                    maxSpan: { months: 1, },
+                    showCustomRangeLabel:true,
+                    singleDatePicker: false,
+                    linkedCalendars: true,
                 {% endif %}
                 ranges: {
                     {% if  form.selectedChart == 'heatmap'
                         or form.selectedChart == 'tempheatmap'
                         or form.selectedChart == 'sollistheatmap'
+                        or form.selectedChart == 'sollisttempanalyse'
+                        or form.selectedChart == 'sollistanalyse'
+                        or form.selectedChart == 'sollistirranalyse'
                         or form.selectedChart == 'dcpnomcurr'
                         or form.selectedChart == 'acpnom'
                     %}
                         'Today': [moment(), moment()],
-                        'This Month': [moment(startDatex).startOf('month'), moment(startDatex).endOf('month')],
-                        'Last Month': [moment(startDatex).subtract(1, 'month').startOf('month'), moment(startDatex).subtract(1, 'month').endOf('month')],
-                        'Last 3 Month': [moment(startDatex).subtract(3, 'month').startOf('month'), moment(startDatex).subtract(1, 'month').endOf('month')]
-                    {% elseif form.selectedChart == 'sollistanalyse'
-                        or form.selectedChart == 'sollisttempanalyse'
-                        or form.selectedChart == 'sollistirranalyse'
-                    %}
-                        'Today': [moment(), moment()],
-                        'Last 3 Days': [moment(startDatex).subtract(2, 'days'), moment(startDatex)],
-                        'Last 7 Days': [moment(startDatex).subtract(6, 'days'), moment(startDatex)],
-                        'Last 14 Days': [moment(startDatex).subtract(13, 'days'), moment(startDatex)],
-                        'This Month': [moment(startDatex).startOf('month'), moment(startDatex).endOf('month')],
-                        'Last 3 Month': [moment(startDatex).subtract(3, 'month').startOf('month'), moment(startDatex).subtract(1, 'month').endOf('month')],
+
                     {% else %}
                         'Today': [moment(), moment()],
-                        'Last 3 Days': [moment(startDatex).subtract(2, 'days'), moment(startDatex)],
+                        //'Last 3 Days': [moment(startDatex).subtract(2, 'days'), moment(startDatex)],
                         'Last 7 Days': [moment(startDatex).subtract(6, 'days'), moment(startDatex)],
                         'Last 14 Days': [moment(startDatex).subtract(13, 'days'), moment(startDatex)],
                         //'This Month': [moment(startDatex).startOf('month'), moment(startDatex).endOf('month')],
@@ -79,6 +72,7 @@
                     cancelLabel: 'Clear',
                     fromLabel: 'From',
                     toLabel: 'To',
+                    format: 'YYYY-MM-DD',
                     customRangeLabel: 'Custom',
                     daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
                     monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
@@ -118,10 +112,9 @@
             $('.ranges li.active').removeClass('active');
             $('.ranges li[data-range-key="'+ labelfr +'"]').addClass('active');
         });
-        // Button stepday
+        // query the button lastday
         $('.button .lastday').click(function(){
             [startDate, endDate] = $('.daterange span').html().split(' - ');
-
             switch (labelfr) {
                 case "Today":
                     $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(1, 'days').format('YYYY-MM-DD'));
@@ -151,11 +144,18 @@
                     $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(3, 'month').startOf('month').format('YYYY-MM-DD'));
                     $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(1, 'month').endOf('month').format('YYYY-MM-DD'));
                     break;
+                case "Custom":
+                    let dateOne = moment(startDate, "YYYY-MM-DD");
+                    let dateTwo = moment(endDate, "YYYY-MM-DD");
+                    let div = dateTwo.diff(dateOne, 'days')
+                    $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(div, 'days').format('YYYY-MM-DD'));
+                    $('#to').val(moment(endDate, "YYYY-MM-DD").subtract(div, 'days').format('YYYY-MM-DD'));
+                    break;
             }
             $("#mysubmit").val('yes');
             $("#chart-control").delay(100).submit();
         });
-        // Button stepday
+        // query the button nextday
         $('.button .nextday').click(function(){
             [startDate, endDate] = $('.daterange span').html().split(' - ');
             let checkfutday = moment(startDate, "YYYY-MM-DD").subtract(-1, 'days').format('YYYY-MM-DD');
@@ -189,6 +189,13 @@
                         $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(-1, 'month').startOf('month').format('YYYY-MM-DD'));
                         $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(-3, 'month').endOf('month').format('YYYY-MM-DD'));
                         break;
+                    case "Custom":
+                        let dateOne = moment(startDate, "YYYY-MM-DD");
+                        let dateTwo = moment(endDate, "YYYY-MM-DD");
+                        let div = dateOne.diff(dateTwo, 'days')
+                        $('#from').val(moment(endDate, "YYYY-MM-DD").subtract(0, 'days').format('YYYY-MM-DD'));
+                        $('#to').val(moment(endDate, "YYYY-MM-DD").subtract(div, 'days').format('YYYY-MM-DD'));
+                        break;
                 }
                 $("#mysubmit").val('yes');
                 $("#chart-control").delay(100).submit();
@@ -210,7 +217,7 @@
     {% endif %}
 
     <script>
-        //Range Slider Config and Function
+        // Range Slider Config and Function
         $(function() {
             $("#slider-range").slider({
                     range: true,
@@ -295,7 +302,6 @@
                 {% if aktAnlage.settings.chartAC8 %}{{ acReactive(form, aktAnlage) }}{% endif %}
             </optgroup>
 
-
             {% if aktAnlage.hasDc or is_granted('ROLE_ADMIN')%}
 
                 <!-- ab hier DC -->
@@ -314,7 +320,6 @@
                     <!--{{ currentDcString(form, aktAnlage) }}      {# Curr4 #}-->
                     {% if aktAnlage.settings.chartCurr3 %}{{ showDCPnomCurr(form, aktAnlage) }}{% endif %}       {# LineChart #}
                 </optgroup>
-
 
                 <optgroup label="DC Voltage">
                     {% if aktAnlage.settings.chartVolt1 %}{{ voltageDc1(form, aktAnlage) }}{% endif %}           {# VoltageDC1 #}
@@ -411,6 +416,7 @@
             </label>
         </div>
     </div>
+
     {% if form.selectedChart == 'sollistirranalyse' %}
         <div class="cell medium-4 large-4 xlarge-4">
             <div class="small button-group round toggle">
@@ -454,4 +460,3 @@
         </div>
     {% endif %}
 </div>
-
