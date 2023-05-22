@@ -37,8 +37,8 @@ ticket:
 
   prmethod:
     name: prmethod
-    10: Skip
-    20: Replace
+    10: Skip for PA
+    20: Replace outage with TiFM for PA
 
   scope:
     name: scope
