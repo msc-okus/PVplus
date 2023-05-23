@@ -1,24 +1,21 @@
 <?php
 
 namespace App\Controller;
-
+use App\Message\Command\ImportData;
 use App\Form\Model\ImportToolsModel;
 use App\Form\ImportTools\ImportToolsFormType;
 use App\Helper\G4NTrait;
-use App\Message\Command\ImportData;
 use App\Repository\AnlagenRepository;
-use App\Repository\PVSystDatenRepository;
 use App\Service\LogMessagesService;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 /**
  * @IsGranted("ROLE_G4N")
  */
-class ImportToolsController extends AbstractController
+class ImportToolsController extends BaseController
 {
 
     use G4NTrait;
@@ -46,6 +43,7 @@ class ImportToolsController extends AbstractController
             if ($form->get('function')->getData() != null) {
                 switch ($form->get('function')->getData()) {
                     case 'api-import-data':
+
                         $output = '<h3>Import API Data:</h3>';
                         $job = 'Import API Data – from ' . $importToolsModel->startDate->format('Y-m-d 00:00') . ' until ' . $importToolsModel->endDate->format('Y-m-d 00:00');
                         $logId = $logMessages->writeNewEntry($importToolsModel->anlage, 'Import API Data', $job);
