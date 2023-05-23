@@ -202,7 +202,7 @@ trait G4NTrait
     public static function getPdoConnection($dbdsn = null, $dbusr = null, $dbpass = null): PDO
     {
         // Check der Parameter wenn null dann nehme default Werte als fallback
-        $dbdsn === null ? $dbdsn = 'mysql:dbname=pvp_data;host=dedi6015.your-server.de' : $dbdsn = $dbdsn;
+        $dbdsn === null ? $dbdsn = $_ENV["PLANT_DATABASE_URL"] : $dbdsn = $dbdsn; // 'mysql:dbname=pvp_data;host=dedi6015.your-server.de'
         $dbusr === null ? $dbusr = 'pvpluy_2' : $dbusr = $dbusr;
         $dbpass === null ? $dbpass = 'XD4R5XyVHUkK9U5i' : $dbpass = $dbpass;
         // Config als Array
@@ -216,7 +216,10 @@ trait G4NTrait
             $pdo = new PDO(
                 $config['database_dsn'],
                 $config['database_user'],
-                $config['database_pass']
+                $config['database_pass'],
+                [
+                    PDO::ATTR_PERSISTENT => true
+                ]
             );
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {

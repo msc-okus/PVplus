@@ -18,13 +18,11 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\Charts\SollIstHeatmapChartService;
 
-
 use function _PHPStan_c900ee2af\React\Promise\all;
 
 class DashboardPlantsController extends BaseController
 {
     use G4NTrait;
-
     #[Route(path: '/api/plants/{eignerId}/{anlageId}/{analyse}', name: 'api_dashboard_plant_analsyse', methods: ['GET','POST'])]
     public function analysePlantAPI($eignerId, $anlageId, $analyse, Request $request, AnlagenRepository $anlagenRepository, ChartService $chartService, HeatmapChartService $heatmapChartService,): Response
     {
@@ -50,13 +48,10 @@ class DashboardPlantsController extends BaseController
 
        switch($analyse) {
            case 'availability':
-
                break;
            case 'pr_and_av':
-
                break;
            case 'forecast':
-
                break;
            case 'heatmap':
                $from =  $request->request->get('from');#post
@@ -66,33 +61,27 @@ class DashboardPlantsController extends BaseController
                    $dataArray = $heatmapChartService->getHeatmap($aktAnlage, $from, $to);
                    $resultArray['data'] = $dataArray['chart'];
                    $content = $resultArray;
-              }
+               }
                break;
            case 'tempheatmap':
-
                break;
            case 'sollistheatmap':
-
                break;
            case 'sollistanalyse':
-
                break;
            case 'sollistirranalyse':
-
                break;
            case 'sollisttempanalyse':
-
                break;
            default:
                return new Response(null, 204);
-       }
+        }
         if (is_array($content) or $content) {
             return new JsonResponse($content);
-        } else {
+         } else {
             return new Response(null, 204);
         }
     }
-
     /**
      * @throws Exception
      */
@@ -114,7 +103,6 @@ class DashboardPlantsController extends BaseController
             } else {
                 /* @var User $user */
                 $user = $this->getUser();
-                // $granted = explode(',', $user->getGrantedList());
                 $granted = $user->getGrantedArray();
                 $anlagen = $anlagenRepository->findGrantedActive($eignerId, $anlageId, $granted);
             }
@@ -143,18 +131,42 @@ class DashboardPlantsController extends BaseController
             $form['optionIrrVal']       = $request->request->get('optionIrrVal');
             $form['hour']               = $request->request->get('hour');
             if ($form['selectedChart'] == 'sollistirranalyse'   && !$form['optionIrrVal']) $form['optionIrrVal'] = 400;
-            // Predefine
             if ($form['selectedChart'] == 'pr_and_av'           && $form['optionDate'] < 7) $form['optionDate'] = 7;
 
             if ($request->request->get('mysubmit') === 'select') {
-                $form['from'] = (new \DateTime())->format('Y-m-d 00:00');
-                $form['to'] = (new \DateTime())->format('Y-m-d 23:59');
-                $form['selectedGroup'] = 1;
+                /* New: Fix for not leaving the date unless you change the plant */
+                if ($form['selectedChart'] == 'heatmap'
+                    or $form['selectedChart'] == 'tempheatmap'
+                    or $form['selectedChart'] == 'sollistheatmap'
+                    or $form['selectedChart'] == 'sollisttempanalyse'
+                    or $form['selectedChart'] == 'sollistanalyse'
+                    or $form['selectedChart'] == 'sollistirranalyse'
+                    or $form['selectedChart'] == 'acpnom') {
+
+                    $form['from'] = date('Y-m-d 00:00', strtotime($request->request->get('from')));
+                    $form['to'] = date('Y-m-d 23:59', strtotime($request->request->get('to')));
+
+                    } else {
+
+                    $date1 = strtotime(date('Y-m-d', strtotime($request->request->get('from'))));
+                    $date2 = strtotime(date('Y-m-d ', strtotime($request->request->get('to'))));
+                    $datediff = abs(round(($date1 - $date2) / (60 * 60 * 24)));
+
+                    if ($datediff > 31) {
+                        $form['from'] = (new \DateTime())->format('Y-m-d 00:00');
+                        $form['to'] = (new \DateTime())->format('Y-m-d 23:59');
+                      } else {
+                        $form['from'] = date('Y-m-d 00:00', strtotime($request->request->get('from')));
+                        $form['to'] = date('Y-m-d 23:59', strtotime($request->request->get('to')));
+                    }
+
+                }
+
                } else {
+
                 if ($form['startDateNew']) {
                     $form['from'] = date('Y-m-d 00:00', strtotime($request->request->get('from')));
                     $form['to'] = date('Y-m-d 23:59', strtotime($request->request->get('to')));
-              //     $form['selectedGroup'] = 1;
                 }
             }
             // ergänze um Uhrzeit
@@ -171,7 +183,6 @@ class DashboardPlantsController extends BaseController
         }
 
         $isInTimeRange = self::isInTimeRange();
-
         return $this->render('dashboardPlants/plantsShow.html.twig', [
             'anlagen' => $anlagen,
             'aktAnlage' => $aktAnlage,

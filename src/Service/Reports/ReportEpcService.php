@@ -80,6 +80,7 @@ class ReportEpcService
 
                 // $output = $this->functions->printArrayAsTable($reportArray['forcastTable']);
                 // $output .= $this->functions->print2DArrayAsTable($reportArray['monthTable']);
+
                 break;
             default:
                 $error = true;

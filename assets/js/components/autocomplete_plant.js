@@ -13,7 +13,7 @@ $(document).ready(function() {
                         cb(data.anlagen);
                     });
                 },
-                displayKey: 'plant_name',
+                displayKey: 'anlName',
                 debounce: 200 // only request every 200 milliesecond
             }
         ]);

@@ -34,7 +34,6 @@ class ImportDataHandler implements MessageHandlerInterface
             #  $this->externFileService->($anlageId, date('Y-m-d 00:00', $stamp));
             $this->externFileService->callImportDataFromApiManuel($path, $importData->getStartDate()->getTimestamp(), $importData->getEndDate()->getTimestamp());
         }
-
         $this->logMessages->updateEntry($logId, 'done');
     }
 }

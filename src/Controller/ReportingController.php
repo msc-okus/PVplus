@@ -99,6 +99,7 @@ class ReportingController extends AbstractController
                 break;
             case 'am':
                 // we try to find and delete a previous report from this month/year
+                if ($anlage->get)
                 if ($local !== null) {
                     $report = $assetManagement->createAmReport($aktAnlagen[0], $reportMonth, $reportYear);
                     $em->persist($report);
@@ -226,7 +227,7 @@ class ReportingController extends AbstractController
     {
 
         /** @var AnlagenReports|null $report */
-        $session = $this->container->get('session');
+        $session            = $this->container->get('session');
         $searchstatus       = $session->get('search');
         $searchtype         = $session->get('type');
         $anlageq            = $session->get('anlage');
@@ -291,6 +292,7 @@ class ReportingController extends AbstractController
                         exit; // Ohne exit führt es unter manchen Systemen (Browser) zu fehlerhaften Downloads
                         break;
                     case 'yieldGuarantee':
+                        dd($reportArray);
                         $result = $this->renderView('report/epcReport.html.twig', [
                             'anlage'            => $anlage,
                             'monthsTable'       => $reportArray['monthTable'],
@@ -558,7 +560,7 @@ class ReportingController extends AbstractController
         $report = $reportsRepository->find($id);
         if ($report) {
             /** @var AnlagenReports|null $report */
-            $session=$this->container->get('session');
+            $session        = $this->container->get('session');
             $searchstatus   = $session->get('search');
             $searchtype     = $session->get('type');
             $anlageq        = $session->get('anlage');
@@ -1009,6 +1011,17 @@ class ReportingController extends AbstractController
 
 
     }
+
+    /**
+     * we use this to get the dates from when the report information is okay
+     */
+    #[Route(path: '/reporting/anlageinfo/{id}', name: 'app_reporting_anlage_info')]
+    public function anlageInfo($id, AnlagenRepository $anlRepo): Response
+    {
+        $anlage = $anlRepo->findIdLike($id)[0];
+        return new Response($anlage->getDataFrom());
+    }
+
     private function exportAsExcelTableOption2($all_reports):void
     {
         // Generating SpreadSheet

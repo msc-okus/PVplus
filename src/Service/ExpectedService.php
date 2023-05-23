@@ -89,7 +89,7 @@ class ExpectedService
 
         $resWeather = null;
         foreach ($weatherStations as $weatherStation) {
-            $sqlWetterDaten = 'SELECT stamp AS stamp, g_lower AS irr_lower, g_upper AS irr_upper, pt_avg AS panel_temp FROM '.$weatherStation->getWeatherStation()->getDbNameWeather()." WHERE (`stamp` BETWEEN '$from' AND '$to') AND (g_lower > 0 OR g_upper > 0)";
+            $sqlWetterDaten = 'SELECT stamp AS stamp, g_lower AS irr_lower, g_upper AS irr_upper, pt_avg AS panel_temp, at_avg as ambient_temp FROM '.$weatherStation->getWeatherStation()->getDbNameWeather()." WHERE (`stamp` BETWEEN '$from' AND '$to') AND (g_lower > 0 OR g_upper > 0)";
             $resWeather = $conn->prepare($sqlWetterDaten);
             $resWeather->execute();
             $weatherArray[$weatherStation->getWeatherStation()->getDatabaseIdent()] = $resWeather->fetchAll(PDO::FETCH_ASSOC);
@@ -162,6 +162,7 @@ class ExpectedService
                     } else {
                         $irr = $this->functions->calcIrr($irrUpper, $irrLower, $stamp, $anlage, $group, $currentWeatherStation, $groupMonth);
                     }
+                    $irr = $irr - ($irr / 100 * $shadow_loss);
 
                     /** @var AnlageGroupModules[] $modules */
                     $modules = $group->getModules();
