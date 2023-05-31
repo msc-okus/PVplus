@@ -9,13 +9,16 @@ ticket:
 
     category:
       name: Error Category
-      7 : Performance Tickets
+      1 : PA Tickets
+      1all : all PA Tickets
       10: Data Gap
       20: Inverter Error
       30: Grid Error
       40: Weather
       50: External Control (PPC, ...)
       60: Power/Expected Error
+      7 : Performance Tickets
+      7all : all Performance Tickets
       70: Exclude Sensors
       71: Replace Sensors
       72: Exclude from PR/Energy

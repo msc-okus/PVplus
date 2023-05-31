@@ -3,8 +3,7 @@
 namespace App\Service;
 
 use App\Entity\Anlage;
-use App\Entity\AnlageGroupMonths;
-use App\Entity\AnlageGroups;
+use App\Entity\TicketDate;
 use App\Entity\WeatherStation;
 use App\Helper\G4NTrait;
 use App\Repository\ForcastRepository;
@@ -13,6 +12,10 @@ use App\Repository\GroupModulesRepository;
 use App\Repository\GroupMonthsRepository;
 use App\Repository\GroupsRepository;
 use App\Repository\PVSystDatenRepository;
+use App\Repository\ReplaceValuesTicketRepository;
+use App\Repository\TicketDateRepository;
+use App\Repository\TicketRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use PDO;
 use DateTime;
 
@@ -21,12 +24,15 @@ class WeatherFunctionsService
     use G4NTrait;
 
     public function __construct(
-        private PVSystDatenRepository  $pvSystRepo,
-        private GroupMonthsRepository  $groupMonthsRepo,
-        private GroupModulesRepository $groupModulesRepo,
-        private GroupsRepository       $groupsRepo,
-        private GridMeterDayRepository $gridMeterDayRepo,
-        private ForcastRepository      $forecastRepo)
+        private PVSystDatenRepository   $pvSystRepo,
+        private GroupMonthsRepository   $groupMonthsRepo,
+        private GroupModulesRepository  $groupModulesRepo,
+        private GroupsRepository        $groupsRepo,
+        private GridMeterDayRepository  $gridMeterDayRepo,
+        private ForcastRepository       $forecastRepo,
+        private TicketRepository        $ticketRepo,
+        private TicketDateRepository    $ticketDateRepo,
+        private ReplaceValuesTicketRepository $replaceValuesTicketRepo)
     {
     }
 
@@ -46,6 +52,8 @@ class WeatherFunctionsService
      * @param WeatherStation $weatherStation
      * @param $from
      * @param $to
+     * @param bool $ppc
+     * @param Anlage|null $anlage
      * @return array|null
      */
     public function getWeather(WeatherStation $weatherStation, $from, $to, bool $ppc = false, ?Anlage $anlage = null): ?array
@@ -61,36 +69,30 @@ class WeatherFunctionsService
         }
         unset($res);
 
+        if ($ppc){
+            $sqlPPCpart1 = " RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp ";
+            $sqlPPCpart2 = " AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) 
+                        AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is null) ";
+        } else {
+            $sqlPPCpart1 = $sqlPPCpart2 = "";
+        }
+
         if ($weather['anzahl'] > 0) {
-            if ($ppc) {
-                $sql = "SELECT 
-                        SUM(g_lower) as irr_lower, 
-                        SUM(g_upper) as irr_upper, 
-                        SUM(g_horizontal) as irr_horizontal, 
-                        AVG(temp_ambient) AS ambient_temp, 
-                        AVG(temp_pannel) AS panel_temp, 
-                        AVG(wind_speed) as wind_speed ,
-                        SUM(temp_cell_corr) as temp_cell_corr,
-                        SUM(temp_cell_multi_irr) as temp_cell_multi_irr
-                    FROM $dbTable s
-                        RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp
-                    WHERE s.stamp BETWEEN '$from' AND '$to'
-                        AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) 
-                        AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is null)
-                ";
-            } else {
-                $sql = "SELECT 
-                        SUM(g_lower) as irr_lower, 
-                        SUM(g_upper) as irr_upper, 
-                        SUM(g_horizontal) as irr_horizontal, 
-                        AVG(at_avg) AS air_temp, 
-                        AVG(pt_avg) AS panel_temp, 
-                        AVG(wind_speed) as wind_speed ,
-                        SUM(temp_cell_corr) as temp_cell_corr,
-                        SUM(temp_cell_multi_irr) as temp_cell_multi_irr
-                    FROM $dbTable  
-                    WHERE stamp BETWEEN '$from' AND '$to'";
-            }
+            $sql = "SELECT 
+                    SUM(g_lower) as irr_lower, 
+                    SUM(g_upper) as irr_upper, 
+                    SUM(g_horizontal) as irr_horizontal, 
+                    AVG(temp_ambient) AS ambient_temp, 
+                    AVG(temp_pannel) AS panel_temp, 
+                    AVG(wind_speed) as wind_speed ,
+                    SUM(temp_cell_corr) as temp_cell_corr,
+                    SUM(temp_cell_multi_irr) as temp_cell_multi_irr
+                FROM $dbTable s
+                    $sqlPPCpart1
+                WHERE s.stamp BETWEEN '$from' AND '$to'
+                    $sqlPPCpart2
+            ";
+
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {
                 $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -119,7 +121,50 @@ class WeatherFunctionsService
     }
 
     /**
-     * Function to retrieve weighted irradiation – NOT ready – DON'T USE
+     * @throws NonUniqueResultException
+     */
+    public function correctWeatherByTicket(Anlage $anlage, array $weather, DateTime $startDate, DateTime $endDate): ?array
+    {
+        // Suche alle Tickets (Ticketdates) die in den Zeitraum fallen
+        // Es werden Nur Tickets mit Sensor Bezug gesucht (Performance Tickets mit ID =
+        #query
+        $ticketArray = $this->ticketDateRepo->performanceTickets($anlage, $startDate, $endDate);
+        dump($ticketArray);
+
+        // Dursuche alle Tickets in Schleife
+        // berechne Wert aus Original Daten und Subtrahiere vom Wert
+        // berechne ersatz Wert und Addiere zum entsprechenden Wert
+        #loop über query result
+        /** @var TicketDate $ticket */
+        foreach ($ticketArray as $ticket){
+            $tempWeatherArray = $this->getWeather($anlage->getWeatherStation(), $ticket->getBegin()->format('Y-m-d H:i'), $ticket->getEnd()->format('Y-m-d H:i'));
+            dump($tempWeatherArray);
+            $replaceArray = $this->replaceValuesTicketRepo->getSum($anlage, $ticket->getBegin(), $ticket->getEnd());
+            dump($replaceArray);
+            dump($weather);
+            if ($replaceArray['irrHorizotal'] && $replaceArray['irrHorizotal'] > 0) {
+               $weather['horizontalIrr'] = $weather['horizontalIrr'] - $tempWeatherArray['horizontalIrr'] + $replaceArray['irrHorizotal'];
+            }
+            if (!$replaceArray['irrEast'] && !$replaceArray['irrWest']) {
+                if ($replaceArray['irrModul'] && $replaceArray['irrModul'] > 0) {
+                    $weather['upperIrr'] = $weather['upperIrr'] - $tempWeatherArray['upperIrr'] + $replaceArray['irrModul'];
+                }
+            } else {
+                if ($replaceArray['irrEast'] && $replaceArray['irrEast'] > 0) {
+                    $weather['upperIrr'] = $weather['upperIrr'] - $tempWeatherArray['upperIrr'] + $replaceArray['irrEast'];
+                }
+                if ($replaceArray['irrWest'] && $replaceArray['irrWest'] > 0) {
+                    $weather['lowerIrr'] = $weather['lowerIrr'] - $tempWeatherArray['lowerIrr'] + $replaceArray['irrWest'];
+                }
+            }
+            dump($weather);
+        }
+
+        return $weather;
+    }
+
+    /**
+     * Function to retrieve weighted irradiation
      * definition is optimized for ticket generation, have a look into ducumentation
      *
      * @param Anlage $anlage
@@ -130,10 +175,6 @@ class WeatherFunctionsService
     {
         $conn = self::getPdoConnection();
         $irr = 0;
-        // Rückfallwert sollte nichts anderes gefunden werden
-        $gwoben = 0.5;
-        $gwunten = 0.5;
-        $month = $stamp->format('m');
 
         $sqlw = 'SELECT g_lower, g_upper FROM ' . $anlage->getDbNameWeather() . " WHERE stamp = '" . $stamp->format('Y-m-d H:i') . "' ";
         $respirr = $conn->query($sqlw);
@@ -165,13 +206,14 @@ class WeatherFunctionsService
                 }
             }
         }
-        $conn = false;
+        $conn = null;
 
         return $irr;
     }
 
     /**
      * Umrechnung Globalstrahlung in Modulstrahlung
+     * Methode ist NICHT geprüft – Verwendung ist nicht angeraten
      *
      * @param Anlage $anlage
      * @param DateTime $stamp (Zeitpunkt für den die Umrechnung erfolgen soll)

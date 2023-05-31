@@ -17,6 +17,7 @@ use App\Service\FunctionsService;
 use App\Service\PRCalulationService;
 use App\Service\ReportEpcPRNewService;
 use App\Service\Reports\ReportsMonthlyService;
+use App\Service\WeatherFunctionsService;
 use App\Service\WeatherServiceNew;
 use Doctrine\ORM\NonUniqueResultException;
 use JetBrains\PhpStorm\NoReturn;
@@ -243,6 +244,27 @@ class DefaultMREController extends BaseController
         return $this->render('report/reportMonthlyNew.html.twig', [
             'anlage'        => $anlage,
             'report'        => $output,
+        ]);
+    }
+
+    #[Route(path: '/test/pr')]
+    public function testPR(AnlagenRepository $anlagenRepository, WeatherFunctionsService $weatherFunctions): Response
+    {
+        $startDate = date_create("2023-02-08 00:00");
+        $endDate = date_create("2023-02-09 23:59");
+
+        $anlage = $anlagenRepository->find('110');
+
+        $weather = $weatherFunctions->getWeather($anlage->getWeatherStation(), $startDate->format('Y-m-d 00:00'), $endDate->format('Y-m-d 23:59'), false, $anlage);
+        $output = "<h3>Vor der Einbindung der Tickets</h3> <pre>".print_r($weather, true)."</pre> <hr>";
+
+        $weather = $weatherFunctions->correctWeatherByTicket($anlage, $weather, $startDate, $endDate);
+        $output .= "<h3>Nach der Einbindung der Tickets</h3><pre>".print_r($weather, true)."</pre>";
+
+        return $this->render('cron/showResult.html.twig', [
+            'headline' => $anlage->getAnlName().' PR Test für Ticket Einbindung',
+            'availabilitys' => '',
+            'output' => $output,
         ]);
     }
 }

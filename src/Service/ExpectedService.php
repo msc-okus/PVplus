@@ -153,8 +153,8 @@ class ExpectedService
                     }
 
                     $pannelTemp = is_numeric($weather['panel_temp']) ? (float)$weather['panel_temp'] : null;   // Pannel Temperatur
-                    $irrUpper = (float) $weather['irr_upper'] - ((float) $weather['irr_upper'] / 100 * $shadow_loss);    // Strahlung an obern Sensor
-                    $irrLower = (float) $weather['irr_lower'] - ((float) $weather['irr_lower'] / 100 * $shadow_loss);    // Strahlung an unterem Sensor
+                    $irrUpper = (float) $weather['irr_upper'] - ((float) $weather['irr_upper'] / 100 * $shadow_loss);    // Strahlung an obern (Ost) Sensor
+                    $irrLower = (float) $weather['irr_lower'] - ((float) $weather['irr_lower'] / 100 * $shadow_loss);    // Strahlung an unterem (West) Sensor
 
                     // Strahlung berechnen, für Analgen die KEINE 'Ost/West' Ausrichtung haben
                     if ($anlage->getUseLowerIrrForExpected()) {
@@ -231,15 +231,13 @@ class ExpectedService
                             }
                         }
 
-                        // degradation abziehen (degradation * Betriebsjahre).
-                        $expVoltageDcHlp = $expVoltageDcHlp - ($expVoltageDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
+
                         if ($anlage->getSettings()->getEpxCalculationByCurrent()) {
                             // Calculate DC power by current and voltage
                             $expPowerDcHlp = $expCurrentDcHlp * $expVoltageDcHlp / 4000;
-                        } else {
-                            $expPowerDcHlp = $expPowerDcHlp - ($expPowerDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
                         }
-                        #$expCurrentDcHlp = $expCurrentDcHlp - ($expCurrentDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
+                        // degradation abziehen (degradation * Betriebsjahre).
+                        $expCurrentDcHlp = $expCurrentDcHlp - ($expCurrentDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
 
                         $expPowerDc += $expPowerDcHlp;
                         $expCurrentDc += $expCurrentDcHlp;

@@ -7,7 +7,6 @@ use App\Entity\TicketDate;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-
 /**
  * @method TicketDate|null find($id, $lockMode = null, $lockVersion = null)
  * @method TicketDate|null findOneBy(array $criteria, array $orderBy = null)
@@ -20,7 +19,6 @@ class TicketDateRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, TicketDate::class);
     }
-
 
     public function findOneById($id): ?TicketDate
     {
@@ -212,6 +210,21 @@ class TicketDateRepository extends ServiceEntityRepository
             ->andWhere('ticket.ignoreTicket = false')
             ->setParameter('begin', $begin)
             ->setParameter('end', $end)
+            ->setParameter('anlage', $anlage);
+
+        return $q->getQuery()->getResult();
+    }
+
+    public function performanceTickets(Anlage $anlage, \DateTime $startDate, \DateTime $endDate): array
+    {
+        $q = $this->createQueryBuilder('t')
+            ->join("t.ticket", "ticket")
+            ->andWhere('t.begin BETWEEN :begin AND :end OR t.end BETWEEN :begin AND :end OR (:end <= t.end and :begin >= t.end)')
+            ->andWhere("t.Anlage = :anlage")
+            ->andWhere("ticket.kpiStatus = 10")
+            ->andWhere("ticket.alertType IN ('70','71','72','73','74','75')")
+            ->setParameter('begin', $startDate->format("Y-m-d H:i"))
+            ->setParameter('end', $endDate->format("Y-m-d H:i"))
             ->setParameter('anlage', $anlage);
 
         return $q->getQuery()->getResult();

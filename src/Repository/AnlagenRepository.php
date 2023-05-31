@@ -275,6 +275,7 @@ class AnlagenRepository extends ServiceEntityRepository
             ->innerJoin('a.groups', 'dcG')
             ->addSelect('acG')
             ->addSelect('dcG')
+            ->orderBy('a.anlId', 'ASC')
             ->getQuery()
             ->getResult();
     }

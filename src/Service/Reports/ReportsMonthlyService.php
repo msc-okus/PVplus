@@ -21,6 +21,9 @@ use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
+/**
+ *
+ */
 class ReportsMonthlyService
 {
     use G4NTrait;
@@ -40,6 +43,11 @@ class ReportsMonthlyService
     }
 
     /**
+     * @param Anlage $anlage
+     * @param int $reportMonth
+     * @param int $reportYear
+     * @return string
+     * 
      * @throws ExceptionInterface
      */
     public function createMonthlyReport(Anlage $anlage, int $reportMonth = 0, int $reportYear = 0): string
@@ -72,8 +80,12 @@ class ReportsMonthlyService
     }
 
     /**
+     * @param Anlage $anlage
+     * @param int $reportMonth
+     * @param int $reportYear
+     * @return array
+     *
      * @throws ExceptionInterface
-     * @throws Exception
      */
     public function buildMonthlyReport(Anlage $anlage, int $reportMonth = 0, int $reportYear = 0): array
     {
@@ -330,6 +342,11 @@ class ReportsMonthlyService
     }
 
     /**
+     * @param Anlage $anlage
+     * @param int $month
+     * @param int $year
+     * @return array
+     *
      * @throws Exception
      */
     public function buildMonthlyReportNew(Anlage $anlage, int $month = 0, int $year = 0): array
