@@ -23,6 +23,7 @@
         "doctrine/orm": "^2.9",
         "friendsofsymfony/ckeditor-bundle": "^2.3",
         "gedmo/doctrine-extensions": "^3.6",
+        "hello-sebastian/hello-stimulus-bundle": "^0.2.0",
         "hisune/echarts-php": "^1.0",
         "jblond/twig-trans": "^1.0",
         "knplabs/knp-paginator-bundle": "^5.2",
