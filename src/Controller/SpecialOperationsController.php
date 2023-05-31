@@ -187,11 +187,12 @@ class SpecialOperationsController extends AbstractController
             $output = "done";
         }
 
-        return $this->render('report/reportMonthlyNew.html.twig', [
+        return $this->render('special_operations/index.html.twig', [
             'headline'      => $headline,
             'anlagen'       => $anlagen,
-            'anlage'        => $anlage,
-            'report'        => $output,
+            'availabilitys' => '',
+            'output'        => $output,
+            'output2'       => '',
             'status'        => $anlageId,
         ]);
     }

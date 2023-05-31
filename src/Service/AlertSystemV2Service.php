@@ -65,7 +65,9 @@ class AlertSystemV2Service
                 $this->checkSystem($anlage, date('Y-m-d H:i:00', $stamp));
             }
         }
-        else $this->checkSystem($anlage, date('Y-m-d H:i:00', $fromStamp));
+        else {
+            $this->checkSystem($anlage, date('Y-m-d H:i:00', $fromStamp));
+        }
     }
     /**
      * this method should be called to generate the tickets
@@ -83,7 +85,9 @@ class AlertSystemV2Service
                 $this->checkExpected($anlage, date('Y-m-d', $stamp));
             }
         }
-        else $this->checkExpected($anlage, date('Y-m-d', $fromStamp));
+        else {
+            $this->checkExpected($anlage, date('Y-m-d', $fromStamp));
+        }
     }
 
     /**
@@ -494,7 +498,7 @@ class AlertSystemV2Service
                     $inverter = $result['array1'];
                     $intersection = implode(', ', $result['intersection']);
                     $Ticket2Inverters = implode(', ', $result['array2']);
-                    if($intersection !== ""){
+                    if ($intersection !== ""){
                         $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
                         $end->getTimestamp();
                         $ticketDate = $ticketOld->getDates()->last();
@@ -510,8 +514,7 @@ class AlertSystemV2Service
                             $ticketClose->setCreatedBy("AlertSystem");
                             $ticketClose->setUpdatedBy("AlertSystem");
                             $this->em->persist($ticketClose);
-                        }
-                        else{
+                        } else {
                             $ticketOld->setEnd($end);
                             $ticketOld->setOpenTicket(true);
                             $ticketOld->setInverter($intersection);

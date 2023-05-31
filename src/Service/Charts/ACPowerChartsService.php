@@ -407,7 +407,12 @@ class ACPowerChartsService
                 $dataArray['chart'][$counter]['temperature'] = $rowIst['temp'] == null ? null : $rowIst['temp'];
                 $actPower = $rowIst['actPower'];
                 if ($actPower !== null) {
-                    $actPower = $actPower > 0 ? round($actPower, 2) : 0; // neagtive Werte auschließen
+                    if ($actPower > 0){
+                        $actPower =  round($actPower, ($actPower > 1) ? 2 : 6);
+                    } else {
+                        $actPower = 0;
+                    }
+                    #$actPower = $actPower > 0 ? round($actPower, 6) : 0; // neagtive Werte auschließen
                 }
 
                 switch ($anlage->getConfigType()) {
