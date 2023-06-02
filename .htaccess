@@ -1,0 +1,2 @@
+AddType application/x-httpd-php81 .php
+FcgidWrapper /home/httpd/cgi-bin/php81-fcgi-starter.fcgi .php
