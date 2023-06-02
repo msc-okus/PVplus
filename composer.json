@@ -73,7 +73,7 @@
         "symfony/ux-chartjs": "^2.0",
         "symfony/validator": "5.4.*",
         "symfony/var-dumper": "5.4.*",
-        "symfony/webpack-encore-bundle": "^1.13",
+        "symfony/webpack-encore-bundle": "*",
         "symfony/yaml": "5.4.*",
         "tecnickcom/tc-lib-pdf": "dev-main",
         "twig/cssinliner-extra": "^3.0",
@@ -139,5 +139,7 @@
             "allow-contrib": false,
             "require": "5.4.*"
         }
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }
