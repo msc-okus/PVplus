@@ -5,7 +5,7 @@
         {"type":"composer","url":"https://repo.koolreport.com"}
     ],
     "require": {
-        "php": "^8.0",
+        "php": "^8.1",
         "ext-calendar": "*",
         "ext-ctype": "*",
         "ext-iconv": "*",
@@ -23,7 +23,6 @@
         "doctrine/orm": "^2.9",
         "friendsofsymfony/ckeditor-bundle": "^2.3",
         "gedmo/doctrine-extensions": "^3.6",
-        "hello-sebastian/hello-stimulus-bundle": "^0.2.0",
         "hisune/echarts-php": "^1.0",
         "jblond/twig-trans": "^1.0",
         "knplabs/knp-paginator-bundle": "^5.2",
@@ -69,11 +68,12 @@
         "symfony/runtime": "5.4.*",
         "symfony/security-bundle": "5.4.*",
         "symfony/serializer": "5.4.*",
+        "symfony/stimulus-bundle": "*",
         "symfony/twig-bundle": "5.4.*",
         "symfony/ux-chartjs": "^2.0",
         "symfony/validator": "5.4.*",
         "symfony/var-dumper": "5.4.*",
-        "symfony/webpack-encore-bundle": "*",
+        "symfony/webpack-encore-bundle": "^1.13",
         "symfony/yaml": "5.4.*",
         "tecnickcom/tc-lib-pdf": "dev-main",
         "twig/cssinliner-extra": "^3.0",
@@ -139,7 +139,5 @@
             "allow-contrib": false,
             "require": "5.4.*"
         }
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+    }
 }

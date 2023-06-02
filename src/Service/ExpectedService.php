@@ -14,6 +14,7 @@ use App\Repository\GroupModulesRepository;
 use App\Repository\GroupMonthsRepository;
 use App\Repository\GroupsRepository;
 use App\Repository\OpenWeatherRepository;
+use App\Service\Functions\IrradiationService;
 use Doctrine\ORM\NonUniqueResultException;
 use PDO;
 
@@ -30,7 +31,8 @@ class ExpectedService
         private FunctionsService $functions,
         private WeatherFunctionsService $weatherFunctions,
         private OpenWeatherService $openWeather,
-        private OpenWeatherRepository $openWeatherRepo)
+        private OpenWeatherRepository $openWeatherRepo,
+        private IrradiationService $irradiationService)
     {
     }
 
@@ -221,7 +223,7 @@ class ExpectedService
                                     #$airTemp = $openWeather->getTempC();
 
                                     // Calculate pannel temperatur by NREL
-                                    $pannelTemp = round($this->weatherFunctions->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
+                                    $pannelTemp = round($this->irradiationService->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
 
                                     // Correct Values by modul temperature
                                     $expPowerDcHlp = $expPowerDcHlp * $modul->getModuleType()->getTempCorrPower($pannelTemp);

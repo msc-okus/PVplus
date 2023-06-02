@@ -258,7 +258,7 @@ class DefaultMREController extends BaseController
         $weather = $weatherFunctions->getWeather($anlage->getWeatherStation(), $startDate->format('Y-m-d 00:00'), $endDate->format('Y-m-d 23:59'), false, $anlage);
         $output = "<h3>Vor der Einbindung der Tickets</h3> <pre>".print_r($weather, true)."</pre> <hr>";
 
-        $weather = $weatherFunctions->correctWeatherByTicket($anlage, $weather, $startDate, $endDate);
+        $weather = $weatherFunctions->correctSensorsByTicket($anlage, $weather, $startDate, $endDate);
         $output .= "<h3>Nach der Einbindung der Tickets</h3><pre>".print_r($weather, true)."</pre>";
 
         return $this->render('cron/showResult.html.twig', [
