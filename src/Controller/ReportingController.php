@@ -99,7 +99,6 @@ class ReportingController extends AbstractController
                 break;
             case 'am':
                 // we try to find and delete a previous report from this month/year
-                if ($anlage->get)
                 if ($local !== null) {
                     $report = $assetManagement->createAmReport($aktAnlagen[0], $reportMonth, $reportYear);
                     $em->persist($report);
