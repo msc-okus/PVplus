@@ -81,10 +81,10 @@
     .ajax-loader {
         visibility: hidden;
         background-color: rgba(230,230,230,0.8);
-        position: absolute;
+        position: fixed;
         z-index: 99999 !important;
-        width: 100%;
-        height:200%;
+        width: 100vw;
+        height: 100vh;
         display: flex;
         justify-content: center;
 
@@ -168,24 +168,27 @@
     .off-canvas-content {padding-top: 92px;}
 
     tbody th, tbody td, thead th, thead td, tfoot th, tfoot td {font-size: rem-calc(14);}
-    tbody th, thead th, tfoot th { border-right: #eee 1px solid;}
+    tbody th, thead th, tfoot th {
+        border-right: #eee 1px solid;
+        &:last-child {border-right: none;}
+    }
 
+    $navHeight: 100px;
     header {
         position: fixed;
         z-index: 1000;
         top: 0;
         left: 0;
         right: 0;
-        max-height: 110px;
+        height: $navHeight;
         overflow: hidden;
         background-color: $g4n-white;
         box-shadow: 0 0 10px 0 rgba(100,100,100,0.75);
 
-        .title-bar,
-        .top-bar {
-            background-color: transparent;
-            * {color: $body-font-color; background-color: transparent;}
-            .logo, .menu-button {max-height: 100px; display: inline-block;}
+        &#headbar {
+            //* {color: $body-font-color; background-color: transparent;}
+            padding-top: 5px;
+            .logo, .menu-button {max-height: 90px; display: inline-block;}
             .helper-messages {display: inline-block; padding-left: 20px; p{font-size: 12px; margin-bottom: 0;}}
             .header-menu {
                 min-width: 150px;
@@ -207,6 +210,12 @@
                 margin-left: 20px;
 
                 i {color: $g4n-white; background-color: transparent;}
+            }
+
+            .background-processes {
+                max-height: $navHeight;
+                overflow: hidden;
+                padding: 5px;
             }
         }
         .user-settings-link {
@@ -230,7 +239,7 @@
     }
     nav {
         .menu-headline {
-            padding-top: 100px;
+            padding-top: $navHeight;
             padding-bottom: 0.5rem;
             color: $g4n-white;
             text-transform: capitalize;
@@ -247,6 +256,57 @@
         }
 
     }
+
+    .daterangepicker {
+        .table-condensed tr:nth-child(2n) {
+            background-color: transparent;
+        }
+    }
+
+    table {
+
+        &#background-tasks {
+            border: none;
+            tbody { border: none;}
+            td {font-size: 90%;}
+        }
+
+        &.sortable {
+            th {
+                i {opacity: 0.3;}
+                a {color: $body-font-color;}
+            }
+            th.sorted {
+                i {opacity: 1;}
+                a {color: $link-color}
+            }
+
+        }
+
+
+        td {
+            input, input .plain {
+                margin: 0 !important;
+                padding: 0.2rem !important;
+            }
+
+            select, select .plain {
+                height: 1.8rem;
+                margin: 0;
+            }
+        }
+
+        td .reveal {
+            [type=text], [type=password], [type=date], [type=datetime], [type=datetime-local], [type=month], [type=week], [type=email], [type=number], [type=search], [type=tel], [type=time], [type=url], [type=color], textarea {
+                //@include form-select;
+            }
+
+            select {
+                @include form-select;
+            }
+        }
+    }
+
     main {
         background-color: $g4n-gray;
         padding-bottom: 2rem;
@@ -263,7 +323,11 @@
             background: #fefefe;
             color: #0a0a0a;
             transition: all 0.5s ease;
-            padding: 1rem;
+            padding: 0.5rem; // 1rem
+        }
+
+        .fieldset legend {
+            margin-left: 0.5rem;
         }
 
         .action-icon {
@@ -324,42 +388,6 @@
         }
         .box{
             background-color: $g4n-white;
-        }
-        table {
-            &.sortable {
-                th {
-                    i {opacity: 0.3;}
-                    a {color: $body-font-color;}
-                }
-                th.sorted {
-                    i {opacity: 1;}
-                    a {color: $link-color}
-                }
-
-            }
-
-
-            td {
-                input, input .plain {
-                    margin: 0 !important;
-                    padding: 0.2rem !important;
-                }
-
-                select, select .plain {
-                    height: 1.8rem;
-                    margin: 0;
-                }
-            }
-
-            td .reveal {
-                [type=text], [type=password], [type=date], [type=datetime], [type=datetime-local], [type=month], [type=week], [type=email], [type=number], [type=search], [type=tel], [type=time], [type=url], [type=color], textarea {
-                    @include form-select;
-                }
-
-                select {
-                    @include form-select;
-                }
-            }
         }
 
         ul.tabs {
