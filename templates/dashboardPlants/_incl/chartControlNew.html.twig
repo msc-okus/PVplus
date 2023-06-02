@@ -149,8 +149,13 @@
                     let dateOne = moment(startDate, "YYYY-MM-DD");
                     let dateTwo = moment(endDate, "YYYY-MM-DD");
                     let div = dateTwo.diff(dateOne, 'days')
-                    $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(div, 'days').format('YYYY-MM-DD'));
-                    $('#to').val(moment(endDate, "YYYY-MM-DD").subtract(div, 'days').format('YYYY-MM-DD'));
+                    if (div > 0) {
+                        $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(div, 'days').format('YYYY-MM-DD'));
+                        $('#to').val(moment(endDate, "YYYY-MM-DD").subtract(div, 'days').format('YYYY-MM-DD'));
+                    } else {
+                        $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(1, 'days').format('YYYY-MM-DD'));
+                        $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(1, 'days').format('YYYY-MM-DD'));
+                    }
                     break;
             }
             $("#mysubmit").val('yes');
@@ -194,8 +199,13 @@
                         let dateOne = moment(startDate, "YYYY-MM-DD");
                         let dateTwo = moment(endDate, "YYYY-MM-DD");
                         let div = dateOne.diff(dateTwo, 'days')
-                        $('#from').val(moment(endDate, "YYYY-MM-DD").subtract(0, 'days').format('YYYY-MM-DD'));
-                        $('#to').val(moment(endDate, "YYYY-MM-DD").subtract(div, 'days').format('YYYY-MM-DD'));
+                        if (div > 0) {
+                            $('#from').val(moment(endDate, "YYYY-MM-DD").subtract(0, 'days').format('YYYY-MM-DD'));
+                            $('#to').val(moment(endDate, "YYYY-MM-DD").subtract(div, 'days').format('YYYY-MM-DD'));
+                        } else {
+                            $('#from').val(moment(startDate, "YYYY-MM-DD").subtract(-1, 'days').format('YYYY-MM-DD'));
+                            $('#to').val(moment(startDate, "YYYY-MM-DD").subtract(-1, 'days').format('YYYY-MM-DD'));
+                        }
                         break;
                 }
                 $("#mysubmit").val('yes');
