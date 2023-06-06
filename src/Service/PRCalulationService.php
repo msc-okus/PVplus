@@ -13,6 +13,7 @@ use App\Repository\MonthlyDataRepository;
 use App\Repository\PRRepository;
 use App\Repository\PVSystDatenRepository;
 use App\Service\Functions\PowerService;
+use App\Service\Functions\SensorService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
@@ -34,11 +35,14 @@ class PRCalulationService
         private WeatherFunctionsService $weatherFunctions,
         private GridMeterDayRepository $gridMeterDayRepo,
         private AvailabilityService $availabilityService,
-        private AvailabilityByTicketService $availabilityByTicket
+        private AvailabilityByTicketService $availabilityByTicket,
+        private SensorService $sensorService
     )
     {
     }
 
+
+    #[Deprecated]
     public function calcPRAll(Anlage|int $anlage, string $day): string
     {
         if (is_int($anlage)) {
@@ -559,7 +563,7 @@ class PRCalulationService
 
         // Wetter Daten ermitteln
         $weather = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate, false, $anlage);
-        $weather = $this->weatherFunctions->correctSensorsByTicket($anlage, $weather, date_create($localStartDate), date_create($localEndDate));
+        $weather = $this->sensorService->correctSensorsByTicket($anlage, $weather, date_create($localStartDate), date_create($localEndDate));
 
         // Leistungsdaten ermitteln
         #$power = $this->powerServicer->getSumAcPowerV2($anlage, date_create($localStartDate), date_create($localEndDate));

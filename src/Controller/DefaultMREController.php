@@ -13,6 +13,7 @@ use App\Service\AvailabilityService;
 use App\Service\CheckSystemStatusService;
 use App\Service\ExpectedService;
 use App\Service\ExportService;
+use App\Service\Functions\SensorService;
 use App\Service\FunctionsService;
 use App\Service\PRCalulationService;
 use App\Service\ReportEpcPRNewService;
@@ -49,53 +50,6 @@ class DefaultMREController extends BaseController
     {
     }
 
-    #[Route(path: '/mr/test/inverter')]
-    public function testPlantInverter(AnlagenRepository $anlagenRepository): Response
-    {
-        $anlage = $anlagenRepository->find('175');
-
-        return $this->render('cron/showResult.html.twig', [
-            'headline' => 'Test Plant Inverter',
-            'availabilitys' => '',
-            'output' => self::printArrayAsTable($anlage->getPnomInverterArray()),
-        ]);
-    }
-
-    #[Route(path: '/mr/test/upImport')]
-    public function testUpImport(WeatherServiceNew $weatherService, WeatherStationRepository $weatherStationRepo): Response
-    {
-        $weatherStation = $weatherStationRepo->findOneBy(['databaseIdent' => 'G4NET_25']);
-        $stamp = strtotime('2023-01-10 12:00');
-        $weatherService->loadWeatherDataUP($weatherStation, $stamp);
-
-        return $this->render('cron/showResult.html.twig', [
-            'headline' => 'Test UP Import',
-            'availabilitys' => '',
-            'output' => '',
-        ]);
-    }
-
-    #[Route(path: '/mr/sun')]
-    public function testSunRise(WeatherServiceNew $weatherService, AnlagenRepository $anlagenRepository, WeatherStationRepository $weatherStationRepository): Response
-    {
-        $anlage = $anlagenRepository->find('183');
-        $weatherStation = $weatherStationRepository->find('47');
-
-        $time = time();
-        #$time = strtotime('2022-12-11');
-        $sunrisedata = date_sun_info($time, (float)$weatherStation->getGeoLat(), (float)$weatherStation->getGeoLon());
-        $sunrisedatas = date_sun_info($time, (float)$anlage->getAnlGeoLat(), (float)$anlage->getAnlGeoLon());
-        $sunriseArray = [];
-        foreach ($sunrisedatas as $key => $value) {
-            $sunriseArray[] = ['Key' => $key, "Stamp" => date('Y-m-d H:i', $value)];
-        }
-        return $this->render('cron/showResult.html.twig', [
-            'headline' => 'Sunrise / Sunset',
-            'availabilitys' => 'IS DAY ?: '. ($anlage->isDay()?'yes':'No') . ' or is Night?' . ($anlage->isNight()?'Yes':'No'),
-            'output' => self::printArrayAsTable($sunriseArray),
-        ]);
-    }
-
     #[Route(path: '/mr/status')]
     public function updateStatus(CheckSystemStatusService $checkSystemStatus): Response
     {
@@ -127,7 +81,7 @@ class DefaultMREController extends BaseController
      * @throws \Exception
      */
     #[Route(path: '/mr/pa/test/{plant}/{year}/{month}/{day}', defaults: ['plant' => 110, 'year' => 2023, 'month' => 3, 'day' => 16])]
-    public function pa(int $plant, int $year, int $month, int $day, AvailabilityService $availability, AvailabilityByTicketService $availabilityByTicket, AnlagenRepository $anlagenRepository): Response
+    public function testPA(int $plant, int $year, int $month, int $day, AvailabilityService $availability, AvailabilityByTicketService $availabilityByTicket, AnlagenRepository $anlagenRepository): Response
     {
         $anlage = $anlagenRepository->find($plant);
         $output = "";
@@ -230,8 +184,11 @@ class DefaultMREController extends BaseController
         );
     }
 
+    /**
+     * @throws \Exception
+     */
     #[Route(path: '/test/monthly/{id}/{year}/{month}', defaults: ['id' => 108, 'year' => '2023', 'month' => '4'])]
-    public function testNewMonthly($id, $year, $month, AnlagenRepository $anlagenRepository, ReportsMonthlyService $reportsMonthly): Response
+    public function testNewMonthly($id, $year, $month, AnlagenRepository $anlagenRepository, ReportsMonthlyService $reportsMonthly, SensorService $sensorService): Response
     {
 
         $date = date_create("$year-$month-01 12:00");
@@ -247,8 +204,11 @@ class DefaultMREController extends BaseController
         ]);
     }
 
+    /**
+     * @throws NonUniqueResultException
+     */
     #[Route(path: '/test/pr')]
-    public function testPR(AnlagenRepository $anlagenRepository, WeatherFunctionsService $weatherFunctions): Response
+    public function testPR(AnlagenRepository $anlagenRepository, WeatherFunctionsService $weatherFunctions, SensorService $sensorService): Response
     {
         $startDate = date_create("2023-02-08 00:00");
         $endDate = date_create("2023-02-09 23:59");
@@ -258,7 +218,7 @@ class DefaultMREController extends BaseController
         $weather = $weatherFunctions->getWeather($anlage->getWeatherStation(), $startDate->format('Y-m-d 00:00'), $endDate->format('Y-m-d 23:59'), false, $anlage);
         $output = "<h3>Vor der Einbindung der Tickets</h3> <pre>".print_r($weather, true)."</pre> <hr>";
 
-        $weather = $weatherFunctions->correctSensorsByTicket($anlage, $weather, $startDate, $endDate);
+        $weather = $sensorService->correctSensorsByTicket($anlage, $weather, $startDate, $endDate);
         $output .= "<h3>Nach der Einbindung der Tickets</h3><pre>".print_r($weather, true)."</pre>";
 
         return $this->render('cron/showResult.html.twig', [

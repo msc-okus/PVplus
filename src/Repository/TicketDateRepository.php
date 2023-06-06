@@ -5,7 +5,9 @@ namespace App\Repository;
 use App\Entity\Anlage;
 use App\Entity\TicketDate;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
+use DateTime;
 
 /**
  * @method TicketDate|null find($id, $lockMode = null, $lockVersion = null)
@@ -30,6 +32,9 @@ class TicketDateRepository extends ServiceEntityRepository
         ;
     }
 
+    /**
+     * @throws NonUniqueResultException
+     */
     public function findOneByBeginTicket($begin, $ticket): ?TicketDate
     {
         return $this->createQueryBuilder('t')
@@ -42,6 +47,9 @@ class TicketDateRepository extends ServiceEntityRepository
         ;
     }
 
+    /**
+     * @throws NonUniqueResultException
+     */
     public function findOneByEndTicket($end, $ticket): ?TicketDate
     {
         return $this->createQueryBuilder('t')
@@ -192,7 +200,7 @@ class TicketDateRepository extends ServiceEntityRepository
     }
 
     /**
-     * Search for all tiFM Cases (case 5)
+     * Search for Communication Issus
      *
      * @param Anlage $anlage
      * @param $begin
@@ -204,7 +212,7 @@ class TicketDateRepository extends ServiceEntityRepository
     {
         $q = $this->createQueryBuilder('t')
             ->join('t.ticket', 'ticket')
-            ->andWhere('t.begin BETWEEN :begin AND :end OR t.end BETWEEN :begin AND :end OR (:end <= t.end and :begin >= t.begin)')
+            ->andWhere('t.begin BETWEEN :begin AND :end OR t.end BETWEEN :begin AND :end OR (:end <= t.end AND :begin >= t.end)')
             ->andWhere('t.Anlage = :anlage')
             ->andWhere('t.dataGapEvaluation = 20')
             ->andWhere('ticket.ignoreTicket = false')
@@ -215,7 +223,47 @@ class TicketDateRepository extends ServiceEntityRepository
         return $q->getQuery()->getResult();
     }
 
-    public function performanceTickets(Anlage $anlage, \DateTime $startDate, \DateTime $endDate): array
+    /**
+     * Search all Performance Tickets wich a relatet to PA calculation (alertType = 72)
+     * @param Anlage $anlage
+     * @param string|DateTime $startDate
+     * @param string|DateTime $endDate
+     * @param int $department
+     * @param int $behaviour (10 = Skip for PA, 20 = Replace outage with TiFM for PA, )
+     * @return float|int|mixed|string
+     */
+    public function findPerformanceTicketWithPA(Anlage $anlage, string|DateTime $startDate, string|DateTime $endDate, int $department, int $behaviour = 0): mixed
+    {
+        $q = $this->createQueryBuilder('t')
+            ->join("t.ticket", "ticket")
+            ->andWhere('ticket.Scope LIKE :dep')
+            ->andWhere('t.begin BETWEEN :begin AND :end OR t.end BETWEEN :begin AND :end OR (:end <= t.end AND :begin >= t.begin)')
+            ->andWhere("t.Anlage = :anlage")
+            ->andWhere("ticket.kpiStatus = 10")
+            ->andWhere("ticket.alertType = '72'")  // Exclude from PR/Energy = 72
+            ->setParameter('dep', '%'.$department.'0%')
+            ->setParameter('begin', $startDate instanceof DateTime ? $startDate->format("Y-m-d H:i") : $startDate)
+            ->setParameter('end', $endDate instanceof DateTime ? $endDate->format("Y-m-d H:i") : $endDate)
+            ->setParameter('anlage', $anlage);
+
+        if ($behaviour > 0) {
+            $q
+                ->andWhere('t.PRExcludeMethod = :behaviour')
+                ->setParameter('behaviour', $behaviour);
+        }
+
+        return $q->getQuery()->getResult();
+    }
+
+    /**
+     * Search for Performance Tickets
+     *
+     * @param Anlage $anlage
+     * @param string|DateTime $startDate
+     * @param string|DateTime $endDate
+     * @return array
+     */
+    public function performanceTickets(Anlage $anlage, string|DateTime $startDate, string|DateTime $endDate): array
     {
         $q = $this->createQueryBuilder('t')
             ->join("t.ticket", "ticket")
@@ -223,8 +271,8 @@ class TicketDateRepository extends ServiceEntityRepository
             ->andWhere("t.Anlage = :anlage")
             ->andWhere("ticket.kpiStatus = 10")
             ->andWhere("ticket.alertType IN ('70','71','72','73','74','75')")
-            ->setParameter('begin', $startDate->format("Y-m-d H:i"))
-            ->setParameter('end', $endDate->format("Y-m-d H:i"))
+            ->setParameter('begin', $startDate instanceof DateTime ? $startDate->format("Y-m-d H:i") : $startDate)
+            ->setParameter('end', $endDate instanceof DateTime ? $endDate->format("Y-m-d H:i") : $endDate)
             ->setParameter('anlage', $anlage);
 
         return $q->getQuery()->getResult();

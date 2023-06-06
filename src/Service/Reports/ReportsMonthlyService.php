@@ -355,8 +355,8 @@ class ReportsMonthlyService
         $daysInMonth = (int) date('t', strtotime("$year-$month-01"));
 
         // begin create Array for Day Values Table
-        #for ($i = 1; $i <= $daysInMonth; ++$i) {
-        for ($i = 7; $i <= 8; ++$i) {
+        for ($i = 1; $i <= $daysInMonth; ++$i) {
+        #for ($i = 7; $i <= 10; ++$i) {
             // Table
             $day = new \DateTime("$year-$month-$i 12:00");
             $prArray = $this->PRCalulation->calcPR($anlage, $day);
@@ -371,7 +371,7 @@ class ReportsMonthlyService
         // calculate PR and related data for the current month
         $fromDay = new \DateTime("$year-$month-01 00:00");
         $toDay = new \DateTime("$year-$month-$daysInMonth 23:59");
-        /*
+
         $prSumArray = $this->PRCalulation->calcPR($anlage, $fromDay, $toDay);
 
         // Summe / Total Row
@@ -380,7 +380,6 @@ class ReportsMonthlyService
         foreach($prSumArray as $key => $value) {
             $dayValues[$i][$key] = $value;
         }
-*/
 
         return [
             'anlagenid' => $anlage->getAnlId(),
