@@ -79,9 +79,10 @@ class PowerService
      * Get sum from different AC Values from 'ist' Database.
      * By default we retrieve the unfiltered power (without ppc)
      *
+     *
      * @param Anlage $anlage
-     * @param $from
-     * @param $to
+     * @param DateTime $from
+     * @param DateTime $to
      * @param bool $ppc
      * @return array
      * @throws \Exception
@@ -95,20 +96,20 @@ class PowerService
         $ignorNegativEvuSQL = $anlage->isIgnoreNegativEvu() ? 'AND e_z_evu > 0' : '';
         $ppcSQLpart1 = $ppcSQLpart2 = '';
         if ($ppc){
-            $ppcSQLpart1 = 's.stamp = ppc.stamp';
-            $ppcSQLpart2 = ' AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) 
-                AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is null)';
+            $ppcSQLpart1 = "RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp";
+            $ppcSQLpart2 = " AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) 
+                AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is null)";
         }
 
         // Wenn externe Tagesdaten genutzt werden, sollen lade diese aus der DB und ÜBERSCHREIBE die Daten aus den 15Minuten Werten
         // $powerEGridExt = $this->functions->getSumeGridMeter($anlage, $from, $to);
 
-        // EVU Leistung ermitteln –
-        // dieser Wert kann der offiziele Grid Zähler wert sein, kann aber auch nur ein interner Wert sein. Siehe Konfiguration $anlage->getUseGridMeterDayData()
+        // EVU / Grid Leistung ermitteln –
+        // dieser Wert soll der offiziele Grid Zähler Wert sein, wir in naher Zukunft durch die Daten aus 'meters' ersetzt werden müssen
 
         $sql = "SELECT sum(prod_power) as power_grid 
             FROM ".$anlage->getDbNameMeters() . " s
-            RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON $ppcSQLpart1 
+            $ppcSQLpart1 
             WHERE s.stamp BETWEEN '" . $from->format('Y-m-d H:i') . "' 
                 AND '" . $to->format('Y-m-d H:i') . "' 
                 $ignorNegativEvuSQL 
@@ -119,18 +120,6 @@ class PowerService
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
             $powerEvu = $row['power_evu_ppc'];
-        }
-        unset($res);
-
-        $sql = "SELECT sum(prod_power) as power_grid 
-                FROM ".$anlage->getDbNameMeters() . " 
-                WHERE stamp BETWEEN '" . $from->format('Y-m-d H:i') . "' AND '" . $to->format('Y-m-d H:i') . "' 
-                $ignorNegativEvuSQL;";
-
-        $res = $conn->query($sql);
-            if ($res->rowCount() == 1) {
-            $row = $res->fetch(PDO::FETCH_ASSOC);
-            $powerEvu = $row['power_evu'];
         }
         unset($res);
 

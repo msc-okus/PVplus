@@ -121,15 +121,35 @@ trait PVPNameArraysTrait
         return $spriority;
     }
 
-    public function errorCategorie(?bool $full = true): array
+    /**
+     * alertType entspricht dem Fehler Typ der Anlage / Inverter / Sensor
+     *  1: PA Tickets (Availability) | Gruppe
+     * 10: Data Gap
+     * 20: Inverter Error
+     * 30: Grid Error
+     * 40: Weather
+     * 50: External Control (PPC, ...)
+     * 60: Power/Expected Error
+     *  7: Performance Tickets | Gruppe
+     * 70: Exclude Sensors
+     * 71: Replace Sensors
+     * 72: Exclude from PR/Energy
+     * 73: Replace Energy (Irr)
+     * 74: Correct Energy
+     */
+    public function errorCategorie(bool $performanceTickets = true, bool $paTickets = true, bool $addGroup = false): array
     {
-        $errorCategory[$this->translator->trans('ticket.error.category.10')] = 10; //data gap
-        $errorCategory[$this->translator->trans('ticket.error.category.20')] = 20; //inverter error
+        if ($paTickets) {
+            if ($addGroup) $errorCategory[$this->translator->trans('ticket.error.category.1')][$this->translator->trans('ticket.error.category.1all')]  =  1;
+            $errorCategory[$this->translator->trans('ticket.error.category.1')][$this->translator->trans('ticket.error.category.10')] = 10; //data gap
+            $errorCategory[$this->translator->trans('ticket.error.category.1')][$this->translator->trans('ticket.error.category.20')] = 20; //inverter error
+        }
         $errorCategory[$this->translator->trans('ticket.error.category.30')] = 30; //grid error
         $errorCategory[$this->translator->trans('ticket.error.category.40')] = 40; //weather
         $errorCategory[$this->translator->trans('ticket.error.category.50')] = 50; //external control
         $errorCategory[$this->translator->trans('ticket.error.category.60')] = 60; //power/expected error
-        if($full) {
+        if ($performanceTickets) {
+            if ($addGroup) $errorCategory[$this->translator->trans('ticket.error.category.7')][$this->translator->trans('ticket.error.category.7all')]  =  7;
             $errorCategory[$this->translator->trans('ticket.error.category.7')][$this->translator->trans('ticket.error.category.70')] = 70; //Exclude Sensors
             $errorCategory[$this->translator->trans('ticket.error.category.7')][$this->translator->trans('ticket.error.category.71')] = 71; //Replace Sensors
             $errorCategory[$this->translator->trans('ticket.error.category.7')][$this->translator->trans('ticket.error.category.72')] = 72; //Exclude from PR
