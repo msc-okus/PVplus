@@ -23,7 +23,7 @@
         "sass": "^1.57.1",
         "sass-loader": "^13.3.1",
         "stimulus": "^3.0.1",
-        "webpack": "^5.740",
+        "webpack": "^5.85.1",
         "webpack-cli": "^4.10.0",
         "webpack-notifier": "^1.15.0",
         "what-input": "^5.2.10"
