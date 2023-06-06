@@ -284,6 +284,7 @@ class TicketController extends BaseController
         $filter['priority']['array'] = self::ticketPriority();
         $filter['category']['value'] = $category;
         $filter['category']['array'] = self::listAllErrorCategorie();
+        #$filter['category']['array'] = self::errorCategorie(true, true, true);
         $filter['type']['value'] = $type;
         $filter['type']['array'] = self::errorType();
         $filter['kpistatus']['value'] = $kpistatus;

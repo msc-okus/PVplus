@@ -15,16 +15,6 @@ use Symfony\Component\Intl\Timezones;
 trait G4NTrait
 {
     /**
-     * truncates decimal number after 2 decimal places.
-     */
-    public static function cutNumber(float $value, int $decimal_places = 1): float
-    {
-        $result = ((int) ($value * 10 ^ $decimal_places) / 10 ^ $decimal_places);
-
-        return (float) $result;
-    }
-
-    /**
      *  Removes control char from given string.
      */
     public function removeControlChar(string $string): string
@@ -64,6 +54,11 @@ trait G4NTrait
      * $val = interne Zeitzone der Anlage (Korrektur der Zeit)
      *
      * return Zeitstempel im SQL Format
+     *
+     * @param $timestamp
+     * @param float $val
+     * @param $reverse
+     * @return string
      */
     public static function timeAjustment($timestamp, float $val = 0, $reverse = false): string
     {
@@ -199,17 +194,20 @@ trait G4NTrait
         }
     }
 
-    public static function getPdoConnection($dbdsn = null, $dbusr = null, $dbpass = null): PDO
+    /**
+     * @param string|null $dbdsn
+     * @param string|null $dbusr
+     * @param string|null $dbpass
+     * @return PDO
+     */
+    public static function getPdoConnection(?string $dbdsn = null, ?string $dbusr = null, ?string $dbpass = null): PDO
     {
-        // Check der Parameter wenn null dann nehme default Werte als fallback
-        $dbdsn === null ? $dbdsn = $_ENV["PLANT_DATABASE_URL"] : $dbdsn = $dbdsn; // 'mysql:dbname=pvp_data;host=dedi6015.your-server.de'
-        $dbusr === null ? $dbusr = 'pvpluy_2' : $dbusr = $dbusr;
-        $dbpass === null ? $dbpass = 'XD4R5XyVHUkK9U5i' : $dbpass = $dbpass;
         // Config als Array
+        // Check der Parameter wenn null dann nehme default Werte als fallback
         $config = [
-            'database_dsn' => $dbdsn,
-            'database_user' => $dbusr,
-            'database_pass' => $dbpass,
+            'database_dsn' => $dbdsn === null ? $_ENV["PLANT_DATABASE_URL"] : $dbdsn, // 'mysql:dbname=pvp_data;host=dedi6015.your-server.de'
+            'database_user' => $dbusr === null ? 'pvpluy_2' : $dbusr,
+            'database_pass' => $dbpass === null ? 'XD4R5XyVHUkK9U5i' : $dbpass,
         ];
 
         try {
@@ -220,29 +218,6 @@ trait G4NTrait
                 [
                     PDO::ATTR_PERSISTENT => true
                 ]
-            );
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch (PDOException $e) {
-            echo 'Error!: '.$e->getMessage().'<br/>';
-            exit;
-        }
-
-        return $pdo;
-    }
-
-    public static function getPdoConnectionTest(): PDO
-    {
-        $config = [
-            'database_dsn' => 'mysql:dbname=pvp_base;host=dedi6015.your-server.de',
-            'database_user' => 'pvpbase',
-            'database_pass' => '04qjYWk1oTf9gb7k',
-        ];
-
-        try {
-            $pdo = new PDO(
-                $config['database_dsn'],
-                $config['database_user'],
-                $config['database_pass']
             );
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         } catch (PDOException $e) {

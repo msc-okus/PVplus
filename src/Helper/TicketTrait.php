@@ -39,8 +39,24 @@ trait TicketTrait
     #[ORM\Column(type: 'text', nullable: false)]
     private string $inverter = "";
 
+    /**
+     * alertType entspricht dem Fehler Typ der Anlage / Inverter / Sensor
+     *  1: PA Tickets (Availability) | Gruppe
+     * 10: Data Gap
+     * 20: Inverter Error
+     * 30: Grid Error
+     * 40: Weather
+     * 50: External Control (PPC, ...)
+     * 60: Power/Expected Error
+     *  7: Performance Tickets | Gruppe
+     * 70: Exclude Sensors
+     * 71: Replace Sensors
+     * 72: Exclude from PR/Energy
+     * 73: Replace Energy (Irr)
+     * 74: Correct Energy
+     */
     #[ORM\Column(type: 'string', length: 100, nullable: true)]
-    private ?string $alertType = ''; // Fehler Typ: Data Gap (10), Inverter Error (20), Grid error (30), ....
+    private ?string $alertType = '';
 
     #[ORM\Column(type: 'integer', nullable: true)]
     private ?int $status;

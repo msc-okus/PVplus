@@ -9,7 +9,7 @@
 
 
 // start the Stimulus application
-import '../bootstrap';
+import '../bootstrap.js';
 
 import '../styles/app.scss';
 
