@@ -44,27 +44,28 @@
             </tr>
         </table>
         <table id="statusTable" style="width: 100%;" data-show-hide-availabillity-target ="table1">
+
             <thead>
-            <tr>
-                <th>Date</th>
-                <th>Inverter</th>
-                <th></th>
-                <th>Case 0</th>
-                <th>Case 1</th>
-                <th>Case 2</th>
-                <th>Case 3</th>
-                <th>Case 4</th>
-                <th>Case 5</th>
-                <th>Case 6</th>
-                <th>Control</th>
-                <th>Avail. cases [%]</th>
-                <th>Rel. avail. plant [%]</th>
-            </tr>
+                <tr>
+                    <th>Date</th>
+                    <th>Inverter</th>
+                    <th></th>
+                    <th>Case 0</th>
+                    <th>Case 1</th>
+                    <th>Case 2</th>
+                    <th>Case 3</th>
+                    <th>Case 4</th>
+                    <th>Case 5</th>
+                    <th>Case 6</th>
+                    <th>Control</th>
+                    <th>Avail. cases [%]</th>
+                    <th>Rel. avail. plant [%]</th>
+                </tr>
             </thead>
             <tbody>
             {% for stati in availability %}
                 <tr>
-                    <td class="">{{ stati.stamp|date("Y-m-d") }} </td>
+                    <td>{{ stati.stamp|date("Y-m-d") }} </td>
                     <td style="text-align: left;">{{ aktAnlage.inverterFromAnlage[stati.inverter] }} <br> ({{ stati.inverter }})</td>
                     <td class="toggle_visibility_td">
                         <span class="topline js-pa-0">PA.0 (Open Book) </span>
@@ -83,24 +84,25 @@
                         <span data-toggle-one-target = "item" class="topline js-pa-1">{{ stati.case11 }} / {{ stati.case11 / 4 }}</span>
                         <span data-toggle-two-target = "item" class="topline js-pa-2">{{ stati.case12 }} / {{ stati.case12 / 4 }}</span>
                         <span data-toggle-three-target = "item" class="topline js-pa-3">{{ stati.case13 }} / {{ stati.case13 / 4 }}</span>
+
                     </td>
-                    <td class="toggle_visibility_td">
-                        <span data-toggle-zero-target=" item" class="topline js-pa-0">{{ stati.case20 }} / {{ stati.case20 / 4 }}</span>
-                        <span data-toggle-one-target = "item" class="topline js-pa-1">{{ stati.case21 }} / {{ stati.case21 / 4 }}</span>
-                        <span data-toggle-two-target = "item" class="topline js-pa-2">{{ stati.case22 }} / {{ stati.case22 / 4 }}</span>
-                        <span data-toggle-three-target = "item" class="topline js-pa-3">{{ stati.case23 }} / {{ stati.case23 / 4 }}</span>
+                    <td>
+                        <span class="topline js-pa-0">{{ stati.case20 }} / {{ stati.case20 / 4 }}</span>
+                        <span class="topline js-pa-1">{{ stati.case21 }} / {{ stati.case21 / 4 }}</span>
+                        <span class="topline js-pa-2">{{ stati.case22 }} / {{ stati.case22 / 4 }}</span>
+                        <span class="topline js-pa-3">{{ stati.case23 }} / {{ stati.case23 / 4 }}</span>
                     </td>
-                    <td class="toggle_visibility_td">
-                        <span data-toggle-zero-target =" item" class="topline js-pa-0">{{ stati.case30 }} / {{ stati.case30 / 4 }}</span>
-                        <span data-toggle-one-target = "item" class="topline js-pa-1">{{ stati.case31 }} / {{ stati.case31 / 4 }}</span>
-                        <span data-toggle-two-target = "item" class="topline js-pa-2">{{ stati.case32 }} / {{ stati.case32 / 4 }}</span>
-                        <span data-toggle-three-target = "item" class="topline js-pa-3">{{ stati.case33 }} / {{ stati.case33 / 4 }}</span>
+                    <td>
+                        <span class="topline js-pa-0">{{ stati.case30 }} / {{ stati.case30 / 4 }}</span>
+                        <span class="topline js-pa-1">{{ stati.case31 }} / {{ stati.case31 / 4 }}</span>
+                        <span class="topline js-pa-2">{{ stati.case32 }} / {{ stati.case32 / 4 }}</span>
+                        <span class="topline js-pa-3">{{ stati.case33 }} / {{ stati.case33 / 4 }}</span>
                     </td>
-                    <td class="toggle_visibility_td">
-                        <span data-toggle-zero-target = " item" class="topline js-pa-0">{{ stati.case40 }} / {{ stati.case40 / 4 }}</span>
-                        <span data-toggle-one-target = "item" class="topline js-pa-1">{{ stati.case41 }} / {{ stati.case41 / 4 }}</span>
-                        <span data-toggle-two-target = "item" class="topline js-pa-2">{{ stati.case42 }} / {{ stati.case42 / 4 }}</span>
-                        <span data-toggle-three-target = "item" class="topline js-pa-3">{{ stati.case43 }} / {{ stati.case43 / 4 }}</span>
+                    <td>
+                        <span class="topline js-pa-0">{{ stati.case40 }} / {{ stati.case40 / 4 }}</span>
+                        <span class="topline js-pa-1">{{ stati.case41 }} / {{ stati.case41 / 4 }}</span>
+                        <span class="topline js-pa-2">{{ stati.case42 }} / {{ stati.case42 / 4 }}</span>
+                        <span class="topline js-pa-3">{{ stati.case43 }} / {{ stati.case43 / 4 }}</span>
                     </td>
                     <td class="toggle_visibility_td">
                         <span class="topline js-pa-0">{{ stati.case50 }} / {{ stati.case50 / 4 }}</span>
@@ -203,7 +205,7 @@
 
                 <dt>Control (t<sub>i,theo</sub>)</dt>
                 <!--<dd>control field case 1 + case 2 + case 5 + case 6<br>-->
-                <small>G [W/qm] > 0</small></dd>
+                    <small>G [W/qm] > 0</small></dd>
 
                 <dt>Availability cases</dt>
                 <dd> the individual availability of an inverter or group. Full availability: 100%<br>

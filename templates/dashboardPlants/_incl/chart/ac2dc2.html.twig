@@ -15,7 +15,8 @@
         chart.numberFormatter.intlLocales = "de-DE";
         chart.numberFormatter.numberFormat = {
             "style": "decimal",
-            "minimumFractionDigits": 0
+            "maximumFractionDigits": 2,
+            "minimumFractionDigits": 1
         };
 
         // Legend
@@ -70,6 +71,9 @@
             series.defaultState.transitionDuration = 300;
             series.tensionX = 0.8;
             series.connect = false;
+            series.numberFormatter.numberFormat = {
+                "maximumFractionDigits": 6,
+            }
             series = chart.series.push(series);
         }
 

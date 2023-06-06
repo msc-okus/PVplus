@@ -522,6 +522,7 @@ class DCPowerChartService
     /**
      * erzeugt Daten für Inverter Leistungs Unterschiede Diagramm (Inverter Power Difference).
      *
+     * @param Anlage $anlage
      * @param $from
      * @param $to
      * @param $group
@@ -531,23 +532,23 @@ class DCPowerChartService
      */
     public function getInverterPowerDifference(Anlage $anlage, $from, $to, $group): array
     {
-        $conn = self::connectToDatabase();
+        $conn = self::getPdoConnection();
         $dataArray = [];
 
         if (self::isDateToday($to)) {
             // letzten Eintrag in IST DB ermitteln
             $res = $conn->query('SELECT stamp FROM '.$anlage->getDbNameIst()." WHERE stamp > '$from' ORDER BY stamp DESC LIMIT 1");
             if ($res) {
-                $rowTemp = $res->fetch_assoc();
+                $rowTemp = $res->fetch(PDO::FETCH_ASSOC);
                 $lastRecStampAct = strtotime($rowTemp['stamp']);
-                $res->free();
+                $res = null;
 
                 // letzten Eintrag in  Weather DB ermitteln
                 $res = $conn->query('SELECT stamp FROM '.$anlage->getDbNameDcSoll()." WHERE stamp > '$from' ORDER BY stamp DESC LIMIT 1");
                 if ($res) {
-                    $rowTemp = $res->fetch_assoc();
+                    $rowTemp = $res->fetch(PDO::FETCH_ASSOC);
                     $lastRecStampExp = strtotime($rowTemp['stamp']);
-                    $res->free();
+                    $res = null;
                     ($lastRecStampAct <= $lastRecStampExp) ? $toLastBoth = self::formatTimeStampToSql($lastRecStampAct) : $toLastBoth = self::formatTimeStampToSql($lastRecStampExp);
                     $to = $toLastBoth;
                 }
@@ -558,8 +559,8 @@ class DCPowerChartService
         $sql_soll = 'SELECT stamp, sum(soll_pdcwr) as soll FROM '.$anlage->getDbNameDcSoll()." WHERE stamp BETWEEN '$from' AND '$to' AND wr_num = '$group' GROUP BY wr LIMIT 1";
         $result = $conn->query($sql_soll);
         $counter = 0;
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
+        if ($result->rowCount() > 0) {
+            while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
                 $dataArray['rangeValue'] = round($row['soll'], 2);
                 $dataArray['chart'][] = [
                     'category' => 'expected',
@@ -572,9 +573,9 @@ class DCPowerChartService
                     $sqlInv = 'SELECT sum(wr_pdc) as dcinv, unit AS inverter FROM '.$anlage->getDbNameAcIst()." WHERE stamp BETWEEN '$from' AND '$to' AND group_ac = '$group' GROUP BY unit";
                 }
                 $resultInv = $conn->query($sqlInv);
-                if ($resultInv->num_rows > 0) {
+                if ($resultInv->rowCount() > 0) {
                     $wrcounter = 0;
-                    while ($rowInv = $resultInv->fetch_assoc()) {
+                    while ($rowInv = $resultInv->fetch(PDO::FETCH_ASSOC)) {
                         ++$wrcounter;
                         $inverter = $rowInv['inverter'];
                         $dataArray['chart'][] = [
@@ -590,7 +591,7 @@ class DCPowerChartService
                 ++$counter;
             }
         }
-        $conn->close();
+        $conn = null;
 
         return $dataArray;
     }

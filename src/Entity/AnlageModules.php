@@ -480,17 +480,17 @@ class AnlageModules
 
     public function getTempCorrPower(float $pannelTemp): float
     {
-        return (float) (1 + ($this->getTempCoefPower() * ($pannelTemp - 25) / 100));
+        return (1 + ($this->getTempCoefPower() * ($pannelTemp - 25) / 100));
     }
 
     public function getTempCorrCurrent(float $pannelTemp): float
     {
-        return (float) (1 + ($this->getTempCoefCurrent() * ($pannelTemp - 25) / 100));
+        return (1 + ($this->getTempCoefCurrent() * ($pannelTemp - 25) / 100));
     }
 
     public function getTempCorrVoltage(float $pannelTemp): float
     {
-        return (float) (1 + ($this->getTempCoefVoltage() * ($pannelTemp - 25) / 100));
+        return (1 + ($this->getTempCoefVoltage() * ($pannelTemp - 25) / 100));
     }
 
     public function getBackSideFactor(): ?float
