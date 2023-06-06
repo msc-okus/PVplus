@@ -553,6 +553,7 @@ class AssetManagementService
             'powerExt' => $powerExternal,
             'forecast' => $forecast,
         ];
+
         $this->logMessages->updateEntry($logId, 'working', 20);
         for ($i = 0; $i < 12; ++$i) {
             $dataCfArray[$i]['month'] = $monthExtendedArray[$i]['month'];
@@ -2015,7 +2016,7 @@ class AssetManagementService
                     }
                 }else $inverterQuery = "";
 
-                if ($date->getErrorType() == 10) {
+                if ($date->getAlertType() == 10) {
                     $sqlActual = "SELECT sum(wr_pac) as power
                             FROM " . $anlage->getDbNameIst() . " 
                             WHERE wr_pac >= 0 AND stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  ". $inverterQuery;
@@ -2031,7 +2032,7 @@ class AssetManagementService
                     if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
                     else $actual = 0;
                     $sumLossesYearSOR = $sumLossesYearSOR + $exp;
-                } else if ($date->getErrorType() == 20) {
+                } else if ($date->getAlertType() == 20) {
                     $sqlActual = "SELECT sum(wr_pac) as power
                             FROM " . $anlage->getDbNameIst() . " 
                             WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd' ". $inverterQuery;
@@ -2046,7 +2047,7 @@ class AssetManagementService
                     if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
                     else $actual = 0;
                     $sumLossesYearEFOR = $sumLossesYearEFOR + $exp;
-                } else if ($date->getErrorType() == 30) {
+                } else if ($date->getAlertType() == 30) {
                     $sqlActual = "SELECT sum(wr_pac) as power
                             FROM " . $anlage->getDbNameIst() . " 
                             WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'";
@@ -2064,7 +2065,7 @@ class AssetManagementService
                 }
             }
         }
-        if ($sumquarters = 0) {
+        if ($sumquarters > 0) {
             $actualAvailabilityPorcent = (($sumquarters - $totalErrors) / $sumquarters) * 100;
             $actualSOFPorcent = 100 - (($sumquarters - $SOFErrors) / $sumquarters) * 100;
             $actualEFORPorcent = 100 - (($sumquarters - $EFORErrors) / $sumquarters) * 100;
@@ -2280,7 +2281,7 @@ class AssetManagementService
                     }
                 }
                 else $inverterQuery = "";
-                if ($date->getErrorType() == 10) {
+                if ($date->getAlertType() == 10) {
                     $sqlActual = "SELECT sum(wr_pac) as power
                             FROM " . $anlage->getDbNameIst() . " 
                             WHERE wr_pac >= 0 AND stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  $inverterQuery";
@@ -2296,7 +2297,7 @@ class AssetManagementService
                     if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
                     else $actual = 0;
                     $sumLossesMonthSOR = $sumLossesMonthSOR + $exp;
-                } else if ($date->getErrorType() == 20) {
+                } else if ($date->getAlertType() == 20) {
                     $sqlActual = "SELECT sum(wr_pac) as power
                             FROM " . $anlage->getDbNameIst() . " 
                             WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  $inverterQuery";
@@ -2311,7 +2312,7 @@ class AssetManagementService
                     if ($resAct->rowCount() > 0) $actual = $resAct->fetch(PDO::FETCH_ASSOC)['power'];
                     else $actual = 0;
                     $sumLossesMonthEFOR = $sumLossesMonthEFOR + $exp;
-                } else if ($date->getErrorType() == 30) {
+                } else if ($date->getAlertType() == 30) {
                     $sqlActual = "SELECT sum(wr_pac) as power
                             FROM " . $anlage->getDbNameIst() . " 
                             WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'";
@@ -2449,10 +2450,11 @@ class AssetManagementService
                 $PVSYSTyearExpected = $PVSYSTyearExpected + $tbody_a_production['expectedPvSyst'][$index];
             }
         }
-        $G4NmonthExpected = $tbody_a_production['powerExp'][$month-2];
+        $G4NmonthExpected = $tbody_a_production['powerExp'][$month-2] * (100/(100 - $anlage->getTotalKpi()));
+
         $G4NyearExpected = 1;
         for($index = 0; $index < $month -1; $index++){
-            $G4NyearExpected = $G4NyearExpected + $tbody_a_production['powerExp'][$index];
+            $G4NyearExpected = $G4NyearExpected + ($tbody_a_production['powerExp'][$index] * (100/(100-$anlage->getTotalKpi())));
         }
         $ActualPower = $tbody_a_production['powerAct'][$month-2];
         $ActualPowerYear = 1;
@@ -2461,7 +2463,7 @@ class AssetManagementService
         }
 
         $percentageTable = [
-            'G4NExpected' => (int)($G4NmonthExpected * 100/$G4NmonthExpected) ,
+            'G4NExpected' =>  100 ,
             'PVSYSExpected' => (int)($tbody_a_production['expectedPvSyst'][$month - 2] * 100 / $G4NmonthExpected),
             'forecast' =>  (int)($forecast[$month-2] * 100 / $G4NmonthExpected),
             'ActualPower' => (int)($ActualPower * 100 / $G4NmonthExpected),
@@ -2676,7 +2678,7 @@ class AssetManagementService
         ];
 
         $percentageTableYear = [
-            'G4NExpected' => (int)($G4NyearExpected * 100/$G4NyearExpected) ,
+            'G4NExpected' =>  100 ,
             'PVSYSExpected' => (int)($PVSYSTyearExpected * 100 / $G4NyearExpected),
             'forecast' =>  (int)($forecastSum[$month-2] * 100 / $G4NyearExpected),
             'ActualPower' => (int)($ActualPowerYear * 100 / $G4NyearExpected),
@@ -2891,14 +2893,16 @@ class AssetManagementService
         for($i = $report['reportMonth'] - 1; $i >= 0 ; $i--){
             $invertedMonthArray[] = $dataMonthArray[$i];
             $kwhLosses = $this->calculateLosses($report['reportYear']."-".($i + 1)."-01",$report['reportYear']."-".($i + 1)."-".cal_days_in_month(CAL_GREGORIAN, $i + 1, $report['reportYear']),$anlage);
-            if ($tbody_a_production['powerExp'][$i] > 0) {
-                $table_percentage_monthly['Actual'][] = (int)($tbody_a_production['powerAct'][$i] * 100 / $tbody_a_production['powerExp'][$i]);
-                $table_percentage_monthly['ExpectedG4N'][] = (int)($tbody_a_production['powerExp'][$i] * 100 / $tbody_a_production['powerExp'][$i]);
-                $table_percentage_monthly['Forecast'][] = (int)($tbody_a_production['forecast'][$i] * 100 / $tbody_a_production['powerExp'][$i]);
-                $table_percentage_monthly['expectedPvSyst'][] = (int)($tbody_a_production['expectedPvSyst'][$i] * 100 / $tbody_a_production['powerExp'][$i]);
-                $table_percentage_monthly['SORLosses'][] = number_format(-($kwhLosses['SORLosses'] * 100 / $tbody_a_production['powerExp'][$i]), 2);
-                $table_percentage_monthly['EFORLosses'][] = number_format(-($kwhLosses['EFORLosses'] * 100 / $tbody_a_production['powerExp'][$i]), 2);
-                $table_percentage_monthly['OMCLosses'][] = number_format(-($kwhLosses['OMCLosses'] * 100 / $tbody_a_production['powerExp'][$i]), 2);
+
+            if ($anlage->getTotalKpi() < 100)$tempExp = $tbody_a_production['powerExp'][$i] * (100/(100-$anlage->getTotalKpi()));
+            if ($tempExp > 0) {
+                $table_percentage_monthly['Actual'][] = (int)($tbody_a_production['powerAct'][$i] * 100 / $tempExp);
+                $table_percentage_monthly['ExpectedG4N'][] = 100;
+                $table_percentage_monthly['Forecast'][] = (int)($tbody_a_production['forecast'][$i] * 100 / $tempExp);
+                $table_percentage_monthly['expectedPvSyst'][] = (int)($tbody_a_production['expectedPvSyst'][$i] * 100 / $tempExp);
+                $table_percentage_monthly['SORLosses'][] = number_format(-($kwhLosses['SORLosses'] * 100 / $tempExp), 2);
+                $table_percentage_monthly['EFORLosses'][] = number_format(-($kwhLosses['EFORLosses'] * 100 / $tempExp), 2);
+                $table_percentage_monthly['OMCLosses'][] = number_format(-($kwhLosses['OMCLosses'] * 100 / $tempExp), 2);
             }
             else {
                 $table_percentage_monthly['Actual'][] = 0;
@@ -2910,6 +2914,7 @@ class AssetManagementService
                 $table_percentage_monthly['OMCLosses'][] = 0;
             }
         }
+
         $chart->tooltip = [];
         $chart->xAxis = [];
         $chart->yAxis = [];
@@ -4460,7 +4465,7 @@ class AssetManagementService
                     }
                 }
                 else $inverterQuery = "";
-                if ($date->getErrorType() == 10) {
+                if ($date->getAlertType() == 10) {
                     $sqlActual = "SELECT sum(wr_pac) as power
                             FROM " . $anlage->getDbNameIst() . " 
                             WHERE wr_pac >= 0 AND stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  $inverterQuery";
@@ -4475,7 +4480,7 @@ class AssetManagementService
                     else $exp = 0;
 
                     $sumLossesMonthSOR = $sumLossesMonthSOR + $exp;
-                } else if ($date->getErrorType() == 20) {
+                } else if ($date->getAlertType() == 20) {
                     $sqlActual = "SELECT sum(wr_pac) as power
                             FROM " . $anlage->getDbNameIst() . " 
                             WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'  $inverterQuery";
@@ -4489,7 +4494,7 @@ class AssetManagementService
                     else $exp = 0;
 
                     $sumLossesMonthEFOR = $sumLossesMonthEFOR + $exp;
-                } else if ($date->getErrorType() == 30) {
+                } else if ($date->getAlertType() == 30) {
                     $sqlActual = "SELECT sum(wr_pac) as power
                             FROM " . $anlage->getDbNameIst() . " 
                             WHERE stamp >= '$intervalBegin' AND stamp < '$intervalEnd'";

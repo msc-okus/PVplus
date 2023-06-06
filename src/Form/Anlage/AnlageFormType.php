@@ -509,7 +509,7 @@ class AnlageFormType extends AbstractType
             ])
             ->add('dataSourceAM', CKEditorType::class, [
                 'label' => 'Explanation DataSources AM Report',
-                'data' => 'Yield (Grid Meter): <br>Inverter out:',
+                'empty_data' => 'Yield (Grid Meter): <br>Inverter out:',
                 'config' => ['toolbar' => 'my_toolbar'],
             ])
             ->add('retrieveAllData', SwitchType::class, [
@@ -810,6 +810,38 @@ class AnlageFormType extends AbstractType
             ->add('showForecast', SwitchType::class, [
                 'label' => 'Zeige Forecast',
                 'help' => '[showForecast]',
+            ])
+
+            // ###############################################
+            // ###              AM Report                 ####
+            // ###############################################
+
+            ->add('DCCableLosses', TextType::class,[
+                'label' => 'DC Cable Losses[%]',
+            ])
+            ->add('MissmatchingLosses', TextType::class,[
+                'label' => 'Missmatching Losses[%]',
+            ])
+            ->add('InverterEfficiencyLosses', TextType::class,[
+                'label' => 'inverter Efficiency Losses[%]',
+            ])
+            ->add('ShadingLosses', TextType::class,[
+                'label' => 'Shading Losses[%]',
+            ])
+            ->add('ACCableLosses', TextType::class,[
+                'label' => 'AC Cable Losses[%]',
+            ])
+            ->add('TransformerLosses', TextType::class,[
+                'label' => 'Transformer Losses[%]',
+            ])
+            ->add('inverterLimitation', TextType::class,[
+                'label' => 'Inverter Limitations[%]',
+            ])
+            ->add('transformerLimitation', TextType::class,[
+                'label' => 'Transformer Limitations[%]',
+            ])
+            ->add('dynamicLimitations', TextType::class,[
+                'label' => 'Dynamic Limitations[%]',
             ])
 
             // ###############################################

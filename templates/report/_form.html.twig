@@ -13,12 +13,15 @@
         {{ form_row(assetForm.CumulatLosses) }}
         {{ form_row(assetForm.MonthlyProd) }}
         {{ form_row(assetForm.DailyProd) }}
+    </div>
+    <div style="margin-left: 10px">{{ form_row(assetForm.AnalysisHeatmap) }} </div>
+    <div style="margin-left: 60px">
         {{ form_row(assetForm.StringCurr) }}
         {{ form_row(assetForm.InvPow) }}
+        {{ form_row(assetForm.AvYearlyOverview) }}
     </div>
     <div style="margin-left: 10px">{{ form_row(assetForm.Availability) }} </div>
     <div style="margin-left: 60px">
-        {{ form_row(assetForm.AvYearlyOverview) }}
         {{ form_row(assetForm.AvYearlyTicketOverview) }}
         {{ form_row(assetForm.AvMonthlyOverview) }}
         {{ form_row(assetForm.AvInv) }}

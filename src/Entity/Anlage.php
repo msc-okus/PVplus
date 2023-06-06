@@ -603,6 +603,33 @@ class Anlage
     #[ORM\Column(nullable: true)]
     private ?bool $gridTicket = false;
 
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $DCCableLosses = "0";
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $MissmatchingLosses = "0";
+
+    #[ORM\Column(length: 100,  nullable: true)]
+    private ?string $InverterEfficiencyLosses = "0";
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $ShadingLosses = "0";
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $ACCableLosses = "0";
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $TransformerLosses = "0";
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $transformerLimitation = "0";
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $inverterLimitation = "0";
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $dynamicLimitations = "0";
+
     /**
      * @return string|null
      */
@@ -3457,4 +3484,116 @@ class Anlage
         return $this;
     }
 
+    public function getDCCableLosses(): ?string
+    {
+        return $this->DCCableLosses;
+    }
+
+    public function setDCCableLosses(?string $DCCableLosses): self
+    {
+        $this->DCCableLosses = $DCCableLosses;
+
+        return $this;
+    }
+
+    public function getMissmatchingLosses(): ?string
+    {
+        return $this->MissmatchingLosses;
+    }
+
+    public function setMissmatchingLosses(?string $MissmatchingLosses): self
+    {
+        $this->MissmatchingLosses = $MissmatchingLosses;
+
+        return $this;
+    }
+
+    public function getInverterEfficiencyLosses(): ?string
+    {
+        return $this->InverterEfficiencyLosses;
+    }
+
+    public function setInverterEfficiencyLosses(string $InverterEfficiencyLosses): self
+    {
+        $this->InverterEfficiencyLosses = $InverterEfficiencyLosses;
+
+        return $this;
+    }
+
+    public function getShadingLosses(): ?string
+    {
+        return $this->ShadingLosses;
+    }
+
+    public function setShadingLosses(?string $ShadingLosses): self
+    {
+        $this->ShadingLosses = $ShadingLosses;
+
+        return $this;
+    }
+
+    public function getACCableLosses(): ?string
+    {
+        return $this->ACCableLosses;
+    }
+
+    public function setACCableLosses(?string $ACCableLosses): self
+    {
+        $this->ACCableLosses = $ACCableLosses;
+
+        return $this;
+    }
+
+    public function getTransformerLosses(): ?string
+    {
+        return $this->TransformerLosses;
+    }
+
+    public function setTransformerLosses(?string $TransformerLosses): self
+    {
+        $this->TransformerLosses = $TransformerLosses;
+
+        return $this;
+    }
+
+    public function getTransformerLimitation(): ?string
+    {
+        return $this->transformerLimitation;
+    }
+
+    public function setTransformerLimitation(?string $transformerLimitation): self
+    {
+        $this->transformerLimitation = $transformerLimitation;
+
+        return $this;
+    }
+
+    public function getInverterLimitation(): ?string
+    {
+        return $this->inverterLimitation;
+    }
+
+    public function setInverterLimitation(?string $inverterLimitation): self
+    {
+        $this->inverterLimitation = $inverterLimitation;
+
+        return $this;
+    }
+
+    public function getDynamicLimitations(): ?string
+    {
+        return $this->dynamicLimitations;
+    }
+
+    public function setDynamicLimitations(?string $dynamicLimitations): self
+    {
+        $this->dynamicLimitations = $dynamicLimitations;
+
+        return $this;
+    }
+
+    public function getTotalKpi(): float
+    {
+        return (float)$this->inverterLimitation + (float)$this->transformerLimitation + (float)$this->dynamicLimitations + (float)$this->DCCableLosses + (float)$this->MissmatchingLosses + (float)$this->InverterEfficiencyLosses + (float)$this->ShadingLosses + (float)$this->ACCableLosses + (float)$this->TransformerLosses;
+    }
 }
