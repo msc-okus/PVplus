@@ -138,6 +138,7 @@ class ExpectedService
                     } else {
                         $tempIrr = $this->functions->mittelwert([(float) $weather['irr_upper'], (float) $weather['irr_lower']]);
                     }
+
                     if ($tempIrr <= 100) {
                         $shadow_loss = $shadow_loss * 0.0; // 0.05
                     } elseif ($tempIrr <= 200) {
@@ -291,4 +292,135 @@ class ExpectedService
         }
         return $resultArray;
     }
+
+    public function calcExpectedforForecast(Anlage $anlage, $decarray ): array  {
+        $resultArray = [];
+        $aktuellesJahr = date("Y",time());
+        $betriebsJahre = $aktuellesJahr - $anlage->getAnlBetrieb()->format('Y'); // betriebsjahre
+        $expEvuSumDay= $expEvuSum = 0;
+        $pnomsgl = $anlage->getPnom() / 2;
+        $pnomall = $anlage->getPnom() ;
+
+    if (count($decarray) > 0) {
+
+     foreach ($decarray as $key => $val) {
+
+        $airTemp = $val[$key]['TMP'];
+        $irr = round($val[$key]['RGES'],2) ;
+        $windSpeed = $val[$key]['FF'];
+        $doy = $val[$key]['DOY'];
+        $hr = $val[$key]['HR'];
+
+        $hj = round(($irr / 1000 * $pnomsgl + $irr / 1000 * $pnomsgl) / ($pnomall),2);
+        $theo = ($pnomall * $hj);
+
+
+        foreach ($anlage->getGroups() as $group) {
+            // Monatswerte für diese Gruppe laden
+            /** @var AnlageGroupMonths $groupMonth */
+            $shadow_loss = $group->getShadowLoss();
+            $modules = $group->getModules();
+            $expPowerDc = $expCurrentDc = $limitExpCurrent = $limitExpPower = $expVoltage = 0;
+
+            if ($irr <= 100) {
+                $shadow_loss = $shadow_loss * 0.0; // 0.05
+            } elseif ($irr <= 200) {
+                $shadow_loss = $shadow_loss * 0.0; // 0.21
+            } elseif ($irr <= 400) {
+                $shadow_loss = $shadow_loss * 0.35;
+            } elseif ($irr <= 600) {
+                $shadow_loss = $shadow_loss * 0.57;
+            } elseif ($irr <= 800) {
+                $shadow_loss = $shadow_loss * 0.71;
+            } elseif ($irr <= 1000) {
+                $shadow_loss = $shadow_loss * 0.8;
+            }
+
+            $irr = $irr - ($irr / 100 * $shadow_loss);
+
+            foreach ($modules as $modul) {
+                // Power
+                $expPowerDcHlp = $modul->getModuleType()->getFactorPower($irr) * $modul->getNumStringsPerUnit() * $modul->getNumModulesPerString() / 1000 / 4;
+                $limitExpPowerHlp = $modul->getNumStringsPerUnit() * $modul->getNumModulesPerString() * $modul->getModuleType()->getMaxPmpp() / 1000 / 4;
+                // Current
+                $expCurrentDcHlp = $modul->getModuleType()->getFactorCurrent($irr) * $modul->getNumStringsPerUnit(); // nicht durch 4 teilen, sind keine Ah, sondern A
+                $limitExpCurrentHlp = $modul->getNumStringsPerUnit() * ($modul->getModuleType()->getMaxImpp() * 1.015); // 1,5% Sicherheitsaufschlag
+                // Voltage
+                $expVoltageDcHlp = $modul->getModuleType()->getExpVoltage($irr) * $modul->getNumModulesPerString();
+                // Calculate pannel temperatur by NREL
+                $pannelTemp = round($this->weatherFunctions->tempCellNrel($anlage, $windSpeed, $airTemp, $irr), 2);
+
+                // Correct Values by modul temperature
+                $expPowerDcHlp = $expPowerDcHlp * $modul->getModuleType()->getTempCorrPower($pannelTemp);
+                $expCurrentDcHlp = $expCurrentDcHlp * $modul->getModuleType()->getTempCorrCurrent($pannelTemp);
+                $expVoltageDcHlp = $expVoltageDcHlp * $modul->getModuleType()->getTempCorrVoltage($pannelTemp);
+
+                // Calculate DC power by current and voltage
+                if ($anlage->getSettings()->getEpxCalculationByCurrent()) {
+                    $expPowerDcHlp = $expCurrentDcHlp * $expVoltageDcHlp / 4000;
+                }
+                // degradation abziehen (degradation * Betriebsjahre).
+                $expPowerDcHlp = $expPowerDcHlp - ($expPowerDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
+
+                $expPowerDc += $expPowerDcHlp;
+                $expCurrentDc += $expCurrentDcHlp;
+                $limitExpPower += $limitExpPowerHlp;
+                $limitExpCurrent += $limitExpCurrentHlp;
+                $expVoltage += $expVoltageDcHlp;
+            }
+
+            $expVoltage = count($modules) !== 0 ? $expVoltage / count($modules) : 0;
+            // Verluste auf der DC Seite brechnen
+            // Kabel Verluste + Sicherheitsverlust
+            $loss = $group->getCabelLoss() + $group->getSecureLoss();
+
+            // Verhindert 'diff by zero'
+            if ($loss != 0) {
+                $expPowerDc = $expPowerDc - ($expPowerDc / 100 * $loss);
+                $expCurrentDc = $expCurrentDc - ($expCurrentDc / 100 * $loss);
+            }
+
+            // Limitierung durch Modul prüfen und entsprechend abregeln
+            $expCurrentDc = min($expCurrentDc, $limitExpCurrent);
+
+            // AC Expected Berechnung
+            // Umrechnung DC nach AC
+            $expNoLimit = $expPowerDc - ($expPowerDc / 100 * $group->getFactorAC());
+
+            // Prüfe ob Abriegelung gesetzt ist, wenn ja, begrenze den Wert auf das maximale.
+            if ($group->getLimitAc() > 0) {
+                ($expNoLimit > $group->getLimitAc()) ? $expPowerAc = $group->getLimitAc() : $expPowerAc = $expNoLimit;
+            } else {
+                $expPowerAc = $expNoLimit;
+            }
+            // Berechne die Expected für das GRID (evu)
+            $expEvu = $expPowerAc - ($expPowerAc / 100 * $group->getGridLoss());
+            $expEvuSum += $expEvu;
+            // Speichern der Werte in Array
+        }
+         $ex4 = $expEvuSum * 4;
+         $expEvuSumDay += $ex4;
+
+         $resultArray[$doy] = [
+             'doy' => $doy,
+             'irr' => $irr,
+             'hj' => $hj,
+             'pnom' => $pnomsgl,
+             'exp_theo' => $theo,
+             'exp_evu_day' => round( $expEvuSumDay, 6)
+         ];
+
+         $expEvuSum = 0;
+
+
+        }
+
+    return $resultArray;
+
+     }
+
+    return false;
+
+    }
+
 }
