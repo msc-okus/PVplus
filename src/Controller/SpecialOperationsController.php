@@ -228,25 +228,24 @@ class SpecialOperationsController extends AbstractController
                 if ( $xlsx = simpleXLSX::parse($uploadsPath . '/xlsx/1/'.$newFile) ) {
                     $i = 0;
                     $ts = 0;
-                    $data_pv_ist = [];
+
                     foreach( $xlsx->rows($ts) as $r ) {
                         if($i == 0) {
                             $data_fields = $r;
-
+                            $indexStamp = array_search('stamp', $data_fields);
+                            $indexEzevu = array_search('e_z_evu', $data_fields);
+                            //echo $indexEzevu.'<br><br>';
                         }else{
-                            $data_pv_ist[] = [
-                                'anl_id' => $anlageId,
-                                'stamp' => $r[0],
-                                'e_z_evu' => ($r[1] != '') ? $r[1] : NULL,
-                            ];
-                            $eZEvu = ($r[1] != '') ? $r[1] : NULL;
-                            $sqlString = "update $dataBaseNTable set $data_fields[1] = $eZEvu WHERE $data_fields[0] = '$r[0]'";
+                            $eZEvu = ($r[$indexEzevu] != '') ? $r[$indexEzevu] : NULL;
+                            $sqlString = "update $dataBaseNTable set $data_fields[$indexEzevu] = $eZEvu WHERE $data_fields[$indexStamp] = '$r[$indexStamp]'";
+                            //echo $sqlString .'<br>';
                             $conn->exec($sqlString);
                         }
 
                         $i++;
                     }
                     unlink($uploadsPath . '/xlsx/1/'.$newFile);
+
                 } else {
                     echo SimpleXLSX::parseError();
                 }
