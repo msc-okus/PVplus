@@ -109,10 +109,10 @@ class Ticket
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $WhenHidded = null;
 
-    #[ORM\Column(length: 100, nullable: true)]
+    #[ORM\Column(length: 10, nullable: true)]
     private ?string $kpiStatus = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(length: 20, nullable: true)]
     private ?string $Scope = null;
 
     #[ORM\Column]

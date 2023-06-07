@@ -12,6 +12,8 @@ use App\Repository\GridMeterDayRepository;
 use App\Repository\MonthlyDataRepository;
 use App\Repository\PRRepository;
 use App\Repository\PVSystDatenRepository;
+use App\Service\Functions\PowerService;
+use App\Service\Functions\SensorService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
@@ -26,17 +28,21 @@ class PRCalulationService
         private PRRepository $PRRepository,
         private AnlageAvailabilityRepository $anlageAvailabilityRepo,
         private FunctionsService $functions,
+        private PowerService $powerServicer,
         private EntityManagerInterface $em,
         private Case5Repository $case5Repo,
         private MonthlyDataRepository $monthlyDataRepo,
         private WeatherFunctionsService $weatherFunctions,
         private GridMeterDayRepository $gridMeterDayRepo,
         private AvailabilityService $availabilityService,
-        private AvailabilityByTicketService $availabilityByTicket
+        private AvailabilityByTicketService $availabilityByTicket,
+        private SensorService $sensorService
     )
     {
     }
 
+
+    #[Deprecated]
     public function calcPRAll(Anlage|int $anlage, string $day): string
     {
         if (is_int($anlage)) {
@@ -556,9 +562,11 @@ class PRCalulationService
         }
 
         // Wetter Daten ermitteln
-        $weather = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate);
+        $weather = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate, false, $anlage);
+        $weather = $this->sensorService->correctSensorsByTicket($anlage, $weather, date_create($localStartDate), date_create($localEndDate));
 
         // Leistungsdaten ermitteln
+        #$power = $this->powerServicer->getSumAcPowerV2($anlage, date_create($localStartDate), date_create($localEndDate));
         $power = $this->functions->getSumAcPower($anlage, $localStartDate, $localEndDate);
 
         $result['powerEvu'] = $power['powerEvu'];

@@ -105,12 +105,12 @@ class AnlagenRepository extends ServiceEntityRepository
     /**
      * @return Anlage []
      */
-    public function findIdLike($like): array
+    public function findIdLike($id): array
     {
         return $this->createQueryBuilder('a')
-            ->andWhere('a.anlId IN (:val)')
+            ->andWhere('a.anlId = :id')
             ->orderBy('a.anlId', 'ASC')
-            ->setParameter('val', $like)
+            ->setParameter('id', $id)
             ->getQuery()
             ->getResult()
         ;
@@ -275,6 +275,7 @@ class AnlagenRepository extends ServiceEntityRepository
             ->innerJoin('a.groups', 'dcG')
             ->addSelect('acG')
             ->addSelect('dcG')
+            ->orderBy('a.anlId', 'ASC')
             ->getQuery()
             ->getResult();
     }
