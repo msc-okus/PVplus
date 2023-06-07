@@ -237,9 +237,10 @@ class SpecialOperationsController extends AbstractController
                             //echo $indexEzevu.'<br><br>';
                         }else{
                             $eZEvu = ($r[$indexEzevu] != '') ? $r[$indexEzevu] : NULL;
-                            $sqlString = "update $dataBaseNTable set $data_fields[$indexEzevu] = $eZEvu WHERE $data_fields[$indexStamp] = '$r[$indexStamp]'";
-                            //echo $sqlString .'<br>';
-                            $conn->exec($sqlString);
+                            $stmt= $conn->prepare(
+                                "UPDATE $dataBaseNTable SET $data_fields[$indexEzevu]=? WHERE $data_fields[$indexStamp]=?"
+                            );
+                            $stmt->execute([$eZEvu, $r[$indexStamp]]);
                         }
 
                         $i++;
