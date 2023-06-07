@@ -67,7 +67,7 @@ class UpdateAvailabilityCommand extends Command
 
         if ($anlageId) {
             $io->comment("Berechne Verfügbarkeit: $from - $to | Anlage ID: $anlageId");
-            $anlagen = $this->anlagenRepository->findIdLike([$anlageId]);
+            $anlagen = $this->anlagenRepository->find($anlageId);
         } else {
             $io->comment("Berechne Verfügbarkeit: $from - $to | Alle Anlagen");
             $anlagen = $this->anlagenRepository->findBy(['anlHidePlant' => 'No', 'calcPR' => true]);

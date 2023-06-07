@@ -66,8 +66,8 @@ class WeatherFunctionsService
                         SUM(g_lower) as irr_lower, 
                         SUM(g_upper) as irr_upper, 
                         SUM(g_horizontal) as irr_horizontal, 
-                        AVG(at_avg) AS air_temp, 
-                        AVG(pt_avg) AS panel_temp, 
+                        AVG(temp_ambient) AS ambient_temp, 
+                        AVG(temp_pannel) AS panel_temp, 
                         AVG(wind_speed) as wind_speed ,
                         SUM(temp_cell_corr) as temp_cell_corr,
                         SUM(temp_cell_multi_irr) as temp_cell_multi_irr
@@ -76,7 +76,7 @@ class WeatherFunctionsService
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {
                 $row = $res->fetch(PDO::FETCH_ASSOC);
-                $weather['airTempAvg'] = $row['air_temp'];
+                $weather['airTempAvg'] = $row['ambient_temp'];
                 $weather['panelTempAvg'] = $row['panel_temp'];
                 $weather['windSpeedAvg'] = $row['wind_speed'];
                 $weather['horizontalIrr'] = $row['irr_horizontal'];

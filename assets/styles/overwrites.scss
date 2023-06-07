@@ -308,7 +308,6 @@
     }
 
     main {
-
         background-color: $g4n-gray;
         padding-bottom: 2rem;
         padding-top: 2rem;
@@ -391,7 +390,6 @@
             background-color: $g4n-white;
         }
 
-
         ul.tabs {
             background: none;
             border: none;
@@ -422,6 +420,37 @@
         }
         dt {
             margin-top: 1rem;
+        }
+
+        .table_toggle_buttons, .table_toggle_buttons tr{
+            border: none;
+            border-collapse: unset;
+            width: 51%;
+        }
+        .toggle_visibility{
+            background-color: #1779ba;
+            color: white;
+            padding: 10px;
+        }
+
+        .js-pa-0{
+                display: block;
+        }
+
+        .js-pa-1{
+            display: block;
+        }
+
+        .js-pa-2{
+            display: block;
+        }
+
+        .js-pa-3{
+            display: block;
+        }
+
+        .hidden{
+            display: none !important;
         }
 
         #owner{
@@ -610,6 +639,7 @@
 
             }
             #statusTable {
+                margin-top: 30px;
                 th, td {white-space: nowrap; vertical-align: top; padding: 0; text-align: center;}
 
                 .topline {

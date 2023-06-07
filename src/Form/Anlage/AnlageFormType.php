@@ -189,8 +189,8 @@ class AnlageFormType extends AbstractType
                 'disabled' => !($isDeveloper),
             ])
             ->add('useNewDcSchema', ChoiceType::class, [
-                'label' => 'Neues DC Database Schema (separate Tabelle für DC IST)',
-                'help' => '[useNewDcSchema]',
+                'label' => 'Neues DC Database Schema',
+                'help' => '[useNewDcSchema] <br> (separate Tabelle für DC IST)',
                 'choices' => ['Yes' => '1', 'No' => '0'],
                 'empty_data' => '0',
                 'expanded' => false,
@@ -292,6 +292,13 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '3.0',
                 'disabled' => !$isDeveloper,
             ])
+            ->add('degradationPR', TextType::class, [
+                'label' => 'Degradation for PR Calc',
+                'help' => '[degradationPR]',
+                'label_html' => true,
+                'required' => false,
+                'empty_data' => '0.5',
+            ])
             ->add('useGridMeterDayData', SwitchType::class, [
                 'label' => 'Nutze externe GridMeter Daten',
                 'help' => '[useGridMeterDayData]',
@@ -322,7 +329,7 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '',
             ])
             ->add('isOstWestAnlage', ChoiceType::class, [
-                'label' => 'Anlage hat Ost/West Ausrichtung',
+                'label' => 'Plant is oriented east/west',
                 'help' => '[isOstWestAnlage]',
                 'label_html' => true,
                 'choices' => ['No' => '0', 'Yes' => '1'],
@@ -330,21 +337,21 @@ class AnlageFormType extends AbstractType
                 'empty_data' => 'No',
             ])
             ->add('powerEast', TextType::class, [
-                'label' => 'Anlagenleistung [kWp] Osten',
+                'label' => 'Pnom [kWp] Osten',
                 'help' => '[powerEast]',
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '',
             ])
             ->add('powerWest', TextType::class, [
-                'label' => 'Anlagenleistung [kWp] Westen',
+                'label' => 'Pnom [kWp] Westen',
                 'help' => '[powerWest]',
                 'label_html' => true,
                 'required' => false,
                 'empty_data' => '',
             ])
             ->add('pacDate', null, [
-                'label' => 'PAC Datum',
+                'label' => 'PAC Date',
                 'help' => '[pacDate]',
                 'label_html' => true,
                 'widget' => 'single_text',
@@ -370,28 +377,28 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '0',
             ])
             ->add('facDateStart', null, [
-                'label' => 'FAC Zeitraum Start',
+                'label' => 'FAC start date',
                 'help' => '[facDateStart]',
                 'required' => false,
                 'widget' => 'single_text',
                 'input' => 'datetime',
             ])
             ->add('facDate', null, [
-                'label' => 'FAC Datum',
+                'label' => 'FAC end date',
                 'help' => '[facDate]',
                 'label_html' => true,
                 'widget' => 'single_text',
                 'input' => 'datetime',
             ])
             ->add('epcReportStart', null, [
-                'label' => 'EPC Report Zeitraum Start',
+                'label' => 'EPC report start date',
                 'help' => '[epcReportStart]',
                 'required' => false,
                 'widget' => 'single_text',
                 'input' => 'datetime',
             ])
             ->add('epcReportEnd', null, [
-                'label' => 'EPC Report Datum',
+                'label' => 'EPC report end date',
                 'help' => '[epcReportEnd]',
                 'label_html' => true,
                 'widget' => 'single_text',
@@ -508,8 +515,8 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '0',
             ])
             ->add('dataSourceAM', CKEditorType::class, [
-                'label' => 'Explanation DataSources AM Report',
-                'empty_data' => 'Yield (Grid Meter): <br>Inverter out:',
+                'label' => 'Summary DataSources AM Report',
+                'empty_data' => 'System Inclination: <br>Module Name: <br>Module Type: <br>Module Performance: <br>Number of Modules: <br>Inverter Name: <br>Inverter Type: <br>Number of Inverters:',
                 'config' => ['toolbar' => 'my_toolbar'],
             ])
             ->add('retrieveAllData', SwitchType::class, [
@@ -528,42 +535,42 @@ class AnlageFormType extends AbstractType
 
             ->add('threshold1PA0', TextType::class, [
                 'label' => 'lower threshold [W/qm] ',
-                'help' => '[threshold1PA0] (ti,theo / Schwellwert 1)',
+                'help' => '[threshold1PA0] (increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
                 'label_html' => true,
             ])
             ->add('threshold2PA0', TextType::class, [
                 'label' => 'upper threshold (min Irr.) [W/qm] ',
-                'help' => '[threshold2PA0] (ti / Schwellwert 2)',
+                'help' => '[threshold2PA0] (increas ti, if irradiation > threshold2 and power > 0)',
                 'label_html' => true,
             ])
             ->add('threshold1PA1', TextType::class, [
                 'label' => 'lower threshold [W/qm] ',
-                'help' => '[threshold1PA1] (ti,theo / Schwellwert 1)',
+                'help' => '[threshold1PA1] (increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
                 'label_html' => true,
             ])
             ->add('threshold2PA1', TextType::class, [
                 'label' => 'upper threshold (min Irr.) [W/qm] ',
-                'help' => '[threshold2PA1] (ti / Schwellwert 2)',
+                'help' => '[threshold2PA1] (increas ti, if irradiation > threshold2 and power > 0)',
                 'label_html' => true,
             ])
             ->add('threshold1PA2', TextType::class, [
                 'label' => 'lower threshold [WaW/qmtt] ',
-                'help' => '[threshold1PA2] (ti,theo / Schwellwert 1)',
+                'help' => '[threshold1PA2] (increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
                 'label_html' => true,
             ])
             ->add('threshold2PA2', TextType::class, [
                 'label' => 'upper threshold (min Irr.) [W/qm] ',
-                'help' => '[threshold2PA2] (ti / Schwellwert 2)',
+                'help' => '[threshold2PA2] (increas ti, if irradiation > threshold2 and power > 0)',
                 'label_html' => true,
             ])
             ->add('threshold1PA3', TextType::class, [
                 'label' => 'lower threshold [W/qm] ',
-                'help' => '[threshold1PA3] (ti,theo / Schwellwert 1)',
+                'help' => '[threshold1PA3] (increase ti, if irraddiation is >= threshold 1 and <= threshold 2; increase ti_theo, if Irradiation >=  threshold 1)',
                 'label_html' => true,
             ])
             ->add('threshold2PA3', TextType::class, [
                 'label' => 'upper threshold (min Irr.) [W/qm] ',
-                'help' => '[threshold2PA3] (ti / Schwellwert 2)',
+                'help' => '[threshold2PA3] (increas ti, if irradiation > threshold2 and power > 0)',
                 'label_html' => true,
             ])
             ->add('paFormular0', ChoiceType::class, [
@@ -638,8 +645,13 @@ class AnlageFormType extends AbstractType
                 'expanded'      => false,
                 'multiple'      => false,
             ])
-
-
+            /*
+            ->add('dataFrom', null, [
+                'label' => 'Data in the plant since: ',
+                'widget' => 'single_text',
+                'input' => 'datetime',
+            ])
+*/
             // ###############################################
             // ###            Ticket & Alert              ####
             // ###############################################
@@ -649,17 +661,22 @@ class AnlageFormType extends AbstractType
                 'help' => '[ActivateTicketSystem]',
                 'attr' => ['data-plant-target' => 'activateTicket', 'data-action'=>'plant#activateTicket'],
             ])
+            ->add('newAlgorythm', SwitchType::class, [
+                'label' => 'Use the new Algorithm ',
+                'help' => 'The new algorithm prioritizes joining tickets that begin at the same time, and the old one joins tickets if the begin and end match',
+                'attr' => ['data-plant-target' => 'ticket'],
+            ])
             ->add('freqBase', TextType::class, [
                 'label' => 'Base frequency of the Plant',
                 'help' => '[freqBase]',
                 'attr' => ['data-plant-target' => 'ticket'],
-                'empty_data' => '',
+                'empty_data' => '50',
             ])
             ->add('freqTolerance', TextType::class, [
                 'label' => 'Frequency tolerance of the Plant',
                 'help' => '[hasFrequency]',
                 'attr' => ['data-plant-target' => 'ticket'],
-                'empty_data' => '',
+                'empty_data' => '2',
             ])
             ->add('expectedTicket', SwitchType::class, [
                 'label' => 'Activate Expected Tickets',

@@ -35,6 +35,8 @@ class ACPowerChartsService
      */
     public function getAC1(Anlage $anlage, $from, $to, bool $hour = false): array
     {
+        ini_set('memory_limit', '3G');
+        set_time_limit(500);
         $conn = self::getPdoConnection();
         $formExp = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
         $form = $hour ? '%y%m%d%' : '%y%m%d%H%i';
@@ -201,6 +203,8 @@ class ACPowerChartsService
      */
     public function getAC2(Anlage $anlage, $from, $to, int $group, bool $hour = false): array
     {
+        ini_set('memory_limit', '3G');
+        set_time_limit(500);
         $dataArray = [];
         $dataArray['maxSeries'] = 0;
         $nameArray = $this->functions->getNameArray($anlage, 'ac');
@@ -319,6 +323,8 @@ class ACPowerChartsService
      */
     public function getAC3(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
+        ini_set('memory_limit', '3G');
+        set_time_limit(500);
         $form = $hour ? '%y%m%d%H' : '%y%m%d%H%i';
 
         $conn = self::getPdoConnection();
@@ -449,6 +455,8 @@ class ACPowerChartsService
      */
     public function getGroupPowerDifferenceAC(Anlage $anlage, $from, $to): ?array
     {
+        ini_set('memory_limit', '3G');
+        set_time_limit(500);
         $conn = self::getPdoConnection();
         $dataArray = [];
         $acGroups = $anlage->getGroupsAc();
@@ -497,6 +505,8 @@ class ACPowerChartsService
      */
     public function getActVoltageGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): ?array
     {
+        ini_set('memory_limit', '3G');
+        set_time_limit(500);
         if ($hour) {
             $form = '%y%m%d%H';
         } else {
@@ -597,6 +607,8 @@ class ACPowerChartsService
      */
     public function getActCurrentGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): ?array
     {
+        ini_set('memory_limit', '3G');
+        set_time_limit(500);
         if ($hour) {
             $form = '%y%m%d%H';
         } else {
@@ -690,6 +702,8 @@ class ACPowerChartsService
      */
     public function getActFrequncyGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): ?array
     {
+        ini_set('memory_limit', '3G');
+        set_time_limit(500);
         if ($hour) {
             $form = '%y%m%d%H';
         } else {
@@ -776,6 +790,8 @@ class ACPowerChartsService
      */
     public function getReactivePowerGroupAC(Anlage $anlage, $from, $to, int $group = 1, bool $hour = false): array
     {
+        ini_set('memory_limit', '3G');
+        set_time_limit(500);
         if ($hour) {
             $form = '%y%m%d%H';
         } else {
@@ -838,6 +854,7 @@ class ACPowerChartsService
      */
     public function getNomPowerGroupAC(Anlage $anlage, $from, $to, $sets = 0, int $group = 1, bool $hour = false): array {
         ini_set('memory_limit', '3G');
+        set_time_limit(500);
         $conn = self::getPdoConnection();
         $dataArray = [];
         $pnominverter = $anlage->getPnomInverterArray();

@@ -372,6 +372,7 @@ class AlertSystemService
             $array_gap = explode(", ", $plant_status['Gap']);
             $array_zero = explode(", ", $plant_status['Power0']);
             $array_vol = explode(", ", $plant_status['Vol']);
+
             //we close all the previous tickets and we will re-open them if needed.
 
             $ticketOld = $this->getAllTickets($anlage, $time);
@@ -381,45 +382,38 @@ class AlertSystemService
                     $this->em->persist($ticket);
                 }
             }
+            //we check if there are inverters failing to make a ticket
 
-
-
-
-                if (count($array_gap) > 0) {
-                    foreach ($array_gap as $inverter) {
-                        if ($inverter != "") {
-                            $message = "Data gap in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter];
-                            $this->generateTickets('', DATA_GAP, $anlage, $inverter, $time, $message);
-                        }
+            if (count($array_gap) > 0) {
+                foreach ($array_gap as $inverter) {
+                    if ($inverter != "") {
+                        $this->generateTickets('', DATA_GAP, $anlage, $inverter, $time, "Data gap in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter]);
                     }
                 }
-                if (count($array_zero) > 0) {
-                    foreach ($array_zero as $inverter) {
-                        if ($inverter != "") {
-                            $message = "Power Error in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter];
-                            $this->generateTickets(EFOR, INVERTER_ERROR, $anlage, $inverter, $time, $message);
-                        }
+            }
+            if (count($array_zero) > 0) {
+                foreach ($array_zero as $inverter) {
+                    if ($inverter != "") {
+                        $this->generateTickets(EFOR, INVERTER_ERROR, $anlage, $inverter, $time, "Power Error in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter]);
                     }
                 }
-                if((count($array_vol) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")){
-                    foreach ($array_vol as $inverter) {
-                        if (($inverter != "")) {
-                            $message = "Grid Error in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter];
-                            $this->generateTickets('', GRID_ERROR, $anlage, $inverter, $time, $message);
-                        }
+            }
+            if((count($array_vol) === count($anlage->getInverterFromAnlage())) or ($plant_status['Vol'] == "*")){
+                foreach ($array_vol as $inverter) {
+                    if (($inverter != "")) {
+                        $this->generateTickets('', GRID_ERROR, $anlage, $inverter, $time, "Grid Error in Inverter(s): " . $anlage->getInverterFromAnlage()[(int)$inverter]);
                     }
                 }
+            }
 
-                $this->generateTickets(OMC, EXTERNAL_CONTROL, $anlage, '*', $time, "");
+            if ($plant_status['ppc'])$this->generateTickets(OMC, EXTERNAL_CONTROL, $anlage, '*', $time, "Plant Controlled by PPC");
 
         }
-
+        //this is the last interval of the day, we use it to join the tickets of the day
         if ((date('Y-m-d H:i', strtotime($time) + 900) >= $sungap['sunset']) && (date('Y-m-d H:i', strtotime($time) + 900) <= date('Y-m-d H:i', strtotime($sungap['sunset']) +1800))){
             $this->joinTicketsForTheDay($anlage, date('Y-m-d', strtotime($time)));
         }
-
         $this->em->flush();
-
         return 'success';
     }
 
@@ -436,6 +430,7 @@ class AlertSystemService
         $plantoffset = new DateTimeZone($this->getNearestTimezone($anlage->getAnlGeoLat(), $anlage->getAnlGeoLon(), strtoupper($anlage->getCountry())));
         $totalOffset = $plantoffset->getOffset(new DateTime("now")) - $offsetServer->getOffset(new DateTime("now"));
         $time = date('Y-m-d H:i:s', strtotime($time) - $totalOffset);
+        // we get the information according to the timezone offset of the plant
         $irrLimit = $anlage->getThreshold1PA0() != "0" ? (float)$anlage->getThreshold1PA0() : 20; // we get the irradiation limit from the plant config
         $freqLimitTop = $anlage->getFreqBase() + $anlage->getFreqTolerance();
         $freqLimitBot = $anlage->getFreqBase() - $anlage->getFreqTolerance();
@@ -458,43 +453,27 @@ class AlertSystemService
             $respPpc = $conn->query($sqlPpc);
             if ($respPpc->rowCount() === 1) {
                 $ppdData = $respPpc->fetch(PDO::FETCH_ASSOC);
-                $return['ppc'] = (($ppdData['p_set_rpc_rel'] < 100 || $ppdData['p_set_gridop_rel'] < 100) && $anlage->getHasPPC());
+                $return['ppc'] = ((($ppdData['p_set_rpc_rel'] !== null && $ppdData['p_set_rpc_rel'] < 100) || ($ppdData['p_set_gridop_rel'] !== null && $ppdData['p_set_gridop_rel'] < 100)));
             }
+            else $return['ppc'] = false;
         }
+        else $return['ppc'] = false;
 
-            $sqlAct = 'SELECT b.unit 
+        $sqlAct = 'SELECT b.unit 
                     FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
                     WHERE a.stamp = '$time' AND  b.wr_pac <= 0 ";
-            $resp = $conn->query($sqlAct);
-            $result0 = $resp->fetchAll(PDO::FETCH_ASSOC);
+        $resp = $conn->query($sqlAct);
+        $result0 = $resp->fetchAll(PDO::FETCH_ASSOC);
 
-
-            $sqlNull = 'SELECT b.unit 
+        $sqlNull = 'SELECT b.unit 
                     FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
                     WHERE a.stamp = '$time' AND  b.wr_pac is null ";
-            $resp = $conn->query($sqlNull);
-            $resultNull = $resp->fetchAll(PDO::FETCH_ASSOC);
-
-            if ($anlage->isGridTicket()) {
-                $sqlVol = "SELECT b.unit 
-                    FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
-                    WHERE a.stamp = '$time' AND  (b.u_ac < " . $voltLimit . " OR b.frequency < " . $freqLimitBot . " OR b.frequency > " . $freqLimitTop . ")";
-                $resp = $conn->query($sqlVol);
-                //here if there is no plant control we check the values and get the information to create the tickets
-                $resultVol = $resp->fetchAll(PDO::FETCH_ASSOC);
-                if (count($resultVol) == $invCount ) $return['Vol'] = '*';
-                else {
-                    foreach ($resultVol as $value) {
-                        if ($return['Vol'] !== "") $return['Vol'] = $return['Vol'] . ", " . $value['unit'];
-                        else $return['Vol'] = $value['unit'];
-                    }
-                }
-            }
-
-            else $return['Vol'] = "";
-            if (count($resultNull) == $invCount ) $return['Gap'] = '*';
+        $resp = $conn->query($sqlNull);
+        $resultNull = $resp->fetchAll(PDO::FETCH_ASSOC);
+        // here we turn the array of inverters into a string
+        if (count($resultNull) == $invCount ) $return['Gap'] = '*';
             else {
-                foreach ($resultNull as $value) {
+                foreach ($resultNull as $value) {//TODO: not turn the array into a string because we turn the string back into an array later. That makes no sense; $return['Gap'] = $resultNull;
                     if ($return['Gap'] !== "") $return['Gap'] = $return['Gap'] . ", " . $value['unit'];
                     else $return['Gap'] = $value['unit'];
                 }
@@ -504,10 +483,24 @@ class AlertSystemService
                 foreach ($result0 as $value) {
                     if ($return['Power0'] !== "") $return['Power0'] = $return['Power0'] . ", " . $value['unit'];
                     else $return['Power0'] = $value['unit'];
+            }
+        }
+
+        if ($anlage->isGridTicket()) {
+            $sqlVol = "SELECT b.unit 
+                    FROM (db_dummysoll a left JOIN " . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
+                    WHERE a.stamp = '$time' AND  (b.u_ac < " . $voltLimit . " OR b.frequency < " . $freqLimitBot . " OR b.frequency > " . $freqLimitTop . ")";
+            $resp = $conn->query($sqlVol);
+            //here if there is no plant control we check the values and get the information to create the tickets
+            $resultVol = $resp->fetchAll(PDO::FETCH_ASSOC);
+            if (count($resultVol) == $invCount ) $return['Vol'] = '*';
+            else {
+                foreach ($resultVol as $value) {
+                    if ($return['Vol'] !== "") $return['Vol'] = $return['Vol'] . ", " . $value['unit'];
+                    else $return['Vol'] = $value['unit'];
                 }
             }
-
-
+        }else $return['Vol'] = "";
         return $return;
     }
 
@@ -526,7 +519,6 @@ class AlertSystemService
         $ticketOld = $this->getLastTicket($anlage, $time, $errorCategorie, $inverter);// we retrieve here the previous ticket (if any)
 
         //this could be the ticket from  the previous quarter or the last ticket from  the previous day
-        //if ($inverter == "19") dump($ticketOld);
         if ($ticketOld !== null) { // is there is a previous ticket we just extend it
             $ticketDate = $ticketOld->getDates()->last();
             $end = date_create(date('Y-m-d H:i:s', strtotime($time) + 900));
@@ -658,72 +650,6 @@ class AlertSystemService
         $this->em->flush();
     }
 
-    private function getLastTicket($anlage, $time, $errorCategory, $inverter): mixed
-    {
-
-        $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
-        //if ($inverter == "19") dump($time, $errorCategory, $sungap);
-        if (strtotime($time) - 900 < strtotime($sungap['sunrise'])) return $this->getTicketYesterday($anlage, $time, $errorCategory,  $inverter);
-        else return  $this->getLastTicketInverter($anlage, $time, $errorCategory, $inverter);
-    }
-
-    /**
-     * this is normal function for retrieval of previous tickets
-     * @param $anlage
-     * @param $time
-     * @param $errorCategory
-     * @param $inverter
-     * @return mixed
-     */
-    private function getLastTicketInverter($anlage, $time, $errorCategory, $inverter): mixed
-    {
-        //if ($inverter == "19") dump("hoy");
-        $ticket = $this->ticketRepo->findByAnlageInverterTime($anlage, $time, $errorCategory, $inverter); // we try to retrieve the ticket in the previous quarter
-        return $ticket != null ? $ticket[0] : null;
-    }
-
-    /**
-     * We will use this function to retrieve all the tickets from yesterday (work in progress to link tickets)
-     * @param $anlage
-     * @param $time
-     * @param $errorCategory
-     * @param $inverter
-     * @return mixed
-     */
-    private function getTicketYesterday($anlage, $time, $errorCategory, $inverter): mixed
-    {
-        //if ($inverter == "19") dump("ayer");
-        $today = date('Y-m-d', strtotime($time));
-        $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
-        $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
-        $ticket = $this->ticketRepo->findLastByAnlageInverterTime($anlage, $today, $lastQuarterYesterday, $errorCategory, $inverter); // we try to retrieve the last quarter of yesterday
-        return $ticket != null ? $ticket[0] : null;
-    }
-
-    /**
-     * We retrieve all the tickets
-     * @param $anlage
-     * @param $time
-     * @return mixed
-     */
-    private function getAllTickets($anlage, $time): mixed
-    {
-        {
-            $today = date('Y-m-d', strtotime($time));
-            $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
-            $sunrise = self::getLastQuarter($this->weather->getSunrise($anlage, $today)['sunrise']); // the first quarter of today
-            $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
-
-            $quarter = date('Y-m-d H:i', strtotime($time) - 900); // the quarter before the actual
-
-            if ($quarter <= $sunrise) {
-                $ticket = $this->ticketRepo->findAllYesterday($anlage, $today, $lastQuarterYesterday); // we try to retrieve the last quarter of yesterday
-            } else {
-                $ticket = $this->ticketRepo->findAllByTime($anlage, $time); // we try to retrieve the ticket in the previous quarter
-            }
-            return $ticket;
-        }
-    }
 // *************************************** MULTI TICKET GENERATION (NOT IN USE AT THE TIME) ***********************************************************
 
     /**
@@ -780,9 +706,7 @@ class AlertSystemService
      */
     private function generateTicketsMulti($errorType, $errorCategorie, $anlage, $inverter, $time, $message)
     {
-
-        $ticketOld = $this->getLastTicket($anlage, $time, $errorCategorie);
-
+        $ticketOld = $this->getLastTicket($anlage, $time, $errorCategorie, $inverter);
         if ($ticketOld !== null) {
             if ($ticketOld->getInverter() == $inverter) {
                 $ticketDate = $ticketOld->getDates()->last();
@@ -874,6 +798,73 @@ class AlertSystemService
         }
         return $rest . ':' . $quarter;
     }
+    /**
+     * we use this function to retrieve the last ticket, could be the previous quarter or the last quarter from yesterday
+     * @param $anlage
+     * @param $time
+     * @param $errorCategory
+     * @param $inverter
+     * @return mixed
+     */
+    private function getLastTicket($anlage, $time, $errorCategory, $inverter): mixed
+    {
+        $sungap = $this->weather->getSunrise($anlage, date('Y-m-d', strtotime($time)));
+        if (strtotime($time) - 900 < strtotime($sungap['sunrise'])) return $this->getTicketYesterday($anlage, $time, $errorCategory,  $inverter);
+        else return  $this->getLastTicketInverter($anlage, $time, $errorCategory, $inverter);
+    }
 
+    /**
+     * this is normal function for retrieval of previous tickets
+     * @param $anlage
+     * @param $time
+     * @param $errorCategory
+     * @param $inverter
+     * @return mixed
+     */
+    private function getLastTicketInverter($anlage, $time, $errorCategory, $inverter): mixed
+    {
+        $ticket = $this->ticketRepo->findByAnlageInverterTime($anlage, $time, $errorCategory, $inverter); // we try to retrieve the ticket in the previous quarter
+        return $ticket != null ? $ticket[0] : null;
+    }
 
+    /**
+     * We will use this function to retrieve all the tickets from yesterday (work in progress to link tickets)
+     * @param $anlage
+     * @param $time
+     * @param $errorCategory
+     * @param $inverter
+     * @return mixed
+     */
+    private function getTicketYesterday($anlage, $time, $errorCategory, $inverter): mixed
+    {
+        $today = date('Y-m-d', strtotime($time));
+        $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
+        $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
+        $ticket = $this->ticketRepo->findLastByAnlageInverterTime($anlage, $today, $lastQuarterYesterday, $errorCategory, $inverter); // we try to retrieve the last quarter of yesterday
+        return $ticket != null ? $ticket[0] : null;
+    }
+    /**
+     * We retrieve all the tickets
+     * @param $anlage
+     * @param $time
+     * @return mixed
+     */
+    private function getAllTickets($anlage, $time): mixed
+    {
+        {
+            $today = date('Y-m-d', strtotime($time));
+            $yesterday = date('Y-m-d', strtotime($time) - 86400); // this is the date of yesterday
+            $sunrise = self::getLastQuarter($this->weather->getSunrise($anlage, $today)['sunrise']); // the first quarter of today
+            $lastQuarterYesterday = self::getLastQuarter($this->weather->getSunrise($anlage, $yesterday)['sunset']); // the last quarter of yesterday
+
+            $quarter = date('Y-m-d H:i', strtotime($time) - 900); // the quarter before the actual
+
+            if ($quarter <= $sunrise) {
+                $ticket = $this->ticketRepo->findAllYesterday($anlage, $today, $lastQuarterYesterday); // we try to retrieve the last quarter of yesterday
+            } else {
+                $ticket = $this->ticketRepo->findAllByTime($anlage, $time); // we try to retrieve the ticket in the previous quarter
+            }
+            return $ticket;
+        }
+    }
 }

@@ -1,17 +1,17 @@
 
 <form method="get">
     <div class="grid-x grid-margin-x align-middle" style="margin-top: 20px; margin-bottom: 20px">
-        <div class="cell medium-1"  style="margin-top:-17px!important;">
+        <div class="cell medium-2"  style="margin-top:-17px!important;">
             <input type="text" name="id" class="input-group-field" value="{{ id }}" placeholder="Ticket Id">
         </div>
         <div class="cell medium-1"  style="margin-top:-17px!important;">
-            <input type="date" name="begin" class="input-group-field" value="{{ begin }}" placeholder="Interval Begin" >
+            <input type="date" name="begin" class="input-group-field" value="{{ begin }}" title="Interval Begin" >
         </div>
 
         <div class="cell medium-1"  style="margin-top:-17px!important;">
-            <input type="date" name="end" class="input-group-field" value="{{ end }}" placeholder="Interval End">
+            <input type="date" name="end" class="input-group-field" value="{{ end }}" title="Interval End">
         </div>
-        <div class="cell medium-1" style="margin-top:-17px!important;">
+        <div class="cell medium-2" style="margin-top:-17px!important;">
 
             <select name="anlage" class="no-margin">
                 <option value="" disabled selected hidden>Please choose a Plant</option>
@@ -21,7 +21,7 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="cell medium-1" style="margin-top:-17px!important;">
+        <div class="cell medium-2" style="margin-top:-17px!important;">
             <select name="status" class="no-margin">
                 <option value="00"> {% trans %}ticket.status.name{% endtrans %} </option>
                 {% for key, value in filter.status.array %}
@@ -29,7 +29,7 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="cell medium-1"  style="margin-top:-17px!important;">
+        <div class="cell medium-2"  style="margin-top:-17px!important;">
             <input type="text" name="TicketName" class="input-group-field" value="{{ TicketName }}" placeholder="Identifier">
         </div>
 
@@ -72,14 +72,15 @@
         <div class="cell medium-1"  style="margin-top:-17px!important;">
             <label> Proof by TAM
                 <input type="checkbox" name="prooftam" class="input-group-field" value="1">
-            </label>
+            </label></div>
+        <div class="cell medium-1"  style="margin-top:-17px!important;">
             <label> Proof by EPC
                 <input type="checkbox" name="proofepc" class="input-group-field" value="1">
-            </label>
+            </label></div>
+        <div class="cell medium-1"  style="margin-top:-17px!important;">
             <label> Proof by AM
                 <input type="checkbox" name="proofam" class="input-group-field" value="1">
             </label>
-
         </div>
         <div class="cell medium-1"  style="margin-top:-17px!important;">
 
@@ -89,8 +90,8 @@
                 </label>
             {% endif %}
         </div>
-        <div class="cell medium-1" style="margin-top:-17px!important;">
-            <div class="input-group-button" style="height:35px !important; width:35px !important; padding:0; margin-top:-15px;">
+        <div class="cell medium-3 text-right" style="margin-top:-17px!important;">
+            <div class="input-group-button" style="height:35px !important; display: inline-flex;">
                 <button type="submit" name="search" class="button" value="yes"
                         data-action="ticket-list#search"
                 ><span class="fa fa-search"></span></button>

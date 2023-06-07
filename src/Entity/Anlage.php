@@ -464,6 +464,9 @@ class Anlage
     #[ORM\Column(type: 'string', length: 20)]
     private string $tempCorrDeltaTCnd = '3.0';
 
+    #[ORM\Column(type: 'string', length: 20, options: ['default' => '0.5'])]
+    private string $degradationPR = '0.5';
+
     #[ORM\Column(type: 'string', length: 20)]
     private string $pldNPValue = '';
 
@@ -581,27 +584,33 @@ class Anlage
     #[ORM\Column]
     private ?bool $kpiTicket = false;
 
-    /**
-     * @return bool|null
-     */
-    public function getKpiTicket(): ?bool
-    {
-        return $this->kpiTicket;
-    }
-
-    /**
-     * @param bool|null $kpiTicket
-     */
-    public function setKpiTicket(?bool $kpiTicket): void
-    {
-        $this->kpiTicket = $kpiTicket;
-    }
-
     #[ORM\Column(nullable: true)]
     private ?string $pathToImportScript;
 
     #[ORM\Column(nullable: true)]
     private ?bool $gridTicket = false;
+
+    #[ORM\Column( nullable: true)]
+    private ?\DateTimeInterface $dataFrom = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?bool $newAlgorythm = false;
+
+    /**
+     * @return bool|null
+     */
+    public function isNewAlgorythm(): ?bool
+    {
+        return $this->newAlgorythm;
+    }
+
+    /**
+     * @param bool|null $newAlgorythm
+     */
+    public function setNewAlgorythm(?bool $newAlgorythm): void
+    {
+        $this->newAlgorythm = $newAlgorythm;
+    }
 
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $DCCableLosses = "0";
@@ -629,6 +638,7 @@ class Anlage
 
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $dynamicLimitations = "0";
+
 
     /**
      * @return string|null
@@ -2820,6 +2830,17 @@ class Anlage
         return $this;
     }
 
+    public function getDegradationPR(): float
+    {
+        return (float)$this->degradationPR;
+    }
+
+    public function setDegradationPR(string $degradationPR): void
+    {
+        $this->degradationPR = $degradationPR;
+    }
+
+
     public function getPldNPValue(): ?string
     {
         return $this->pldNPValue;
@@ -3483,7 +3504,6 @@ class Anlage
 
         return $this;
     }
-
     public function getDCCableLosses(): ?string
     {
         return $this->DCCableLosses;
@@ -3596,4 +3616,15 @@ class Anlage
     {
         return (float)$this->inverterLimitation + (float)$this->transformerLimitation + (float)$this->dynamicLimitations + (float)$this->DCCableLosses + (float)$this->MissmatchingLosses + (float)$this->InverterEfficiencyLosses + (float)$this->ShadingLosses + (float)$this->ACCableLosses + (float)$this->TransformerLosses;
     }
+
+    public function getKpiTicket(): ?bool
+    {
+        return $this->kpiTicket;
+    }
+
+    public function setKpiTicket(?bool $kpiTicket): void
+    {
+        $this->kpiTicket = $kpiTicket;
+    }
+
 }

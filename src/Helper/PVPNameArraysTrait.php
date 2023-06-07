@@ -17,11 +17,11 @@ trait PVPNameArraysTrait
     public static function prFormulars(): array
     {
         return [
-            'No Cust PR' => 'no',
-            'Groningen' => 'Groningen',
-            'EnergyProduced / (Theo.Energy + PA)' => 'Veendam',
+            'No Cust PR (EnergyProduced / Theo.Energy)' => 'no',
+            'EnergyProduced / (Theo.Energy * PA)' => 'Veendam',
             'EnergyProduced / (Theo.Energy * Ft)' => 'Lelystad',
             'Ladenburg' => 'Ladenburg',
+            'Groningen' => 'Groningen',
         ];;
     }
 
@@ -36,6 +36,8 @@ trait PVPNameArraysTrait
     public static function yearsArray(): array
     {
         return [
+            2019 => 2019,
+            2020 => 2020,
             2021 => 2021,
             2022 => 2022,
             2023 => 2023,

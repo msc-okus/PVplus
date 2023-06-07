@@ -27,7 +27,7 @@ class TicketController extends BaseController
     public function create(EntityManagerInterface $em, Request $request, AnlagenRepository $anlRepo, functionsService $functions): Response
     {
         if ($request->query->get('anlage') !== null) {
-            $anlage = $anlRepo->findIdLike((int)$request->query->get('anlage'))[0];
+            $anlage = $anlRepo->find($request->query->get('anlage'));
         } else {
             $anlage = null;
         }
@@ -89,6 +89,10 @@ class TicketController extends BaseController
             $inverterArray[$key]["inv"] = $value;
             $inverterArray[$key]["select"] = "";
         }
+        if ($anlage != null){
+
+        }
+        else $reasonArray = [];
         return $this->renderForm('ticket/_inc/_edit.html.twig', [
             'ticketForm'    => $form,
             'ticket'        => $ticket,
@@ -207,6 +211,10 @@ class TicketController extends BaseController
         }
         if ($ticket->getAlertType() >=70 && $ticket->getAlertType() < 80) $performanceTicket =  true;
         else $performanceTicket = false;
+        if ($anlage != null){
+
+        }
+        else $reasonArray = [];
         return $this->renderForm('ticket/_inc/_edit.html.twig', [
             'ticketForm' => $form,
             'ticket' => $ticket,
@@ -304,10 +312,7 @@ class TicketController extends BaseController
 
         }
         //here we will configure the array of reason suggestions
-        if ($anlage != null){
 
-        }
-        else $reasonArray = [];
         return $this->render('ticket/list.html.twig', [
             'pagination'    => $pagination,
             'anlage'        => $anlage,
@@ -322,7 +327,6 @@ class TicketController extends BaseController
             'direction'     => $direction,
             'begin'         => $begin,
             'end'           => $end,
-            'reasonArray'   => $reasonArray,
         ]);
     }
 
@@ -336,7 +340,7 @@ class TicketController extends BaseController
         $ticket = $ticketRepo->findOneById($ticketDate->getTicket());
         $splitTime = date_create($request->query->get('begin-time'));
         $anlage = $ticket->getAnlage();
-        $nameArray = $functions->getInverterArray($anlage);
+        $nameArray = $anlage->getInverterFromAnlage();
         $selected = $ticket->getInverterArray();
 
         $indexSelect = 0;
@@ -378,7 +382,8 @@ class TicketController extends BaseController
             'anlage' => $anlage,
             'dates' => $ticketDates,
             'page' => $page,
-            'invArray' => $inverterArray
+            'invArray' => $inverterArray,
+            'performanceTicket' => false
         ]);
     }
     #[Route(path: '/ticket/deleteTicket/{id}', name: 'app_ticket_deleteticket')]
@@ -467,10 +472,7 @@ class TicketController extends BaseController
         $session->set('page', "$page");
 
 
-        if ($anlage != null){
 
-        }
-        else $reasonArray = [];
         return $this->render('ticket/list.html.twig', [
             'pagination'    => $pagination,
             'anlage'        => $anlage,
@@ -485,7 +487,6 @@ class TicketController extends BaseController
             'direction'     => $direction,
             'begin'         => $begin,
             'end'           => $end,
-            'reasonArray'   => $reasonArray,
         ]);
     }
 
@@ -545,7 +546,7 @@ class TicketController extends BaseController
         }
         $anlage = $ticket->getAnlage();
 
-        $nameArray = $functions->getInverterArray($anlage);
+        $nameArray = $anlage->getInverterFromAnlage();
         $selected = $ticket->getInverterArray();
         $indexSelect = 0;
         // I loop over the array with the real names and the array of selected inverters

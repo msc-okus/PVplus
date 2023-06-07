@@ -94,11 +94,14 @@ class AnlageModules
     #[ORM\Column(type: 'string', length: 20)]
     private string $operatorVoltageHightC;
 
+    #[ORM\Column(type: 'string', length: 20, nullable: true)]
+    private ?string $backSideFactor;
+
     #[ORM\ManyToOne(targetEntity: Anlage::class, inversedBy: 'modules')]
     private Anlage $anlage;
 
-    #[ORM\OneToMany(targetEntity: AnlageGroupModules::class, mappedBy: 'moduleType')]
-    private $anlageGroupModules;
+    #[ORM\OneToMany(mappedBy: 'moduleType', targetEntity: AnlageGroupModules::class)]
+    private Collection $anlageGroupModules;
 
     #[ORM\Column(type: 'string', length: 20)]
     private string $degradation;
@@ -429,9 +432,9 @@ class AnlageModules
     public function getFactorCurrent(float $irr): float
     {
         if ($irr > 200) {
-            $expected = $this->getOperatorCurrentHighA() * $irr;
+            $expected = $this->getOperatorCurrentHighA() * ($irr * $this->getBackSideFactorMultiplier());
         } else {
-            $expected = $this->getOperatorCurrentA() * $irr ** 4 + $this->getOperatorCurrentB() * $irr ** 3 + $this->getOperatorCurrentC() * $irr ** 2 + $this->getOperatorCurrentD() * $irr + $this->getOperatorCurrentE();
+            $expected = $this->getOperatorCurrentA() * ($irr * $this->getBackSideFactorMultiplier()) ** 4 + $this->getOperatorCurrentB() * ($irr * $this->getBackSideFactorMultiplier()) ** 3 + $this->getOperatorCurrentC() * ($irr * $this->getBackSideFactorMultiplier()) ** 2 + $this->getOperatorCurrentD() * ($irr * $this->getBackSideFactorMultiplier()) + $this->getOperatorCurrentE();
         }
 
         return $irr > 0 ? $expected : 0;
@@ -447,9 +450,9 @@ class AnlageModules
     public function getExpVoltage(float $irr): float
     {
         if ($irr > 200) {
-            $expected = ($this->getOperatorVoltageHightA() * $irr ** 2 + $this->getOperatorVoltageHightB() * $irr) + $this->getOperatorVoltageHightC();
+            $expected = ($this->getOperatorVoltageHightA() * ($irr * $this->getBackSideFactorMultiplier()) ** 2 + $this->getOperatorVoltageHightB() * ($irr * $this->getBackSideFactorMultiplier())) + $this->getOperatorVoltageHightC();
         } else {
-            $expected = ($this->getOperatorVoltageA() * log($irr)) + $this->getOperatorVoltageB();
+            $expected = ($this->getOperatorVoltageA() * log(($irr * $this->getBackSideFactorMultiplier()))) + $this->getOperatorVoltageB();
         }
         if ($expected > $this->getMaxUmpp()) $expected = $this->getMaxUmpp();
 
@@ -466,9 +469,9 @@ class AnlageModules
     public function getFactorPower(float $irr): float
     {
         if ($irr > 200) {
-            $expected = $this->getOperatorPowerHighA() * $irr + $this->getOperatorPowerHighB();
+            $expected = $this->getOperatorPowerHighA() * ($irr * $this->getBackSideFactorMultiplier())  + $this->getOperatorPowerHighB();
         } else {
-            $expected = $this->getOperatorPowerA() * $irr ** 4 + $this->getOperatorPowerB() * $irr ** 3 + $this->getOperatorPowerC() * $irr ** 2 + $this->getOperatorPowerD() * $irr + $this->getOperatorPowerE();
+            $expected = $this->getOperatorPowerA() * ($irr * $this->getBackSideFactorMultiplier()) ** 4 + $this->getOperatorPowerB() * ($irr * $this->getBackSideFactorMultiplier()) ** 3 + $this->getOperatorPowerC() * ($irr * $this->getBackSideFactorMultiplier()) ** 2 + $this->getOperatorPowerD() * ($irr * $this->getBackSideFactorMultiplier()) + $this->getOperatorPowerE();
         }
         $expected = $expected > $this->maxPmpp ? $this->getMaxPmpp() : $expected;
 
@@ -477,17 +480,32 @@ class AnlageModules
 
     public function getTempCorrPower(float $pannelTemp): float
     {
-        return (float) (1 + ($this->getTempCoefPower() * ($pannelTemp - 25) / 100));
+        return (1 + ($this->getTempCoefPower() * ($pannelTemp - 25) / 100));
     }
 
     public function getTempCorrCurrent(float $pannelTemp): float
     {
-        return (float) (1 + ($this->getTempCoefCurrent() * ($pannelTemp - 25) / 100));
+        return (1 + ($this->getTempCoefCurrent() * ($pannelTemp - 25) / 100));
     }
 
     public function getTempCorrVoltage(float $pannelTemp): float
     {
-        return (float) (1 + ($this->getTempCoefVoltage() * ($pannelTemp - 25) / 100));
+        return (1 + ($this->getTempCoefVoltage() * ($pannelTemp - 25) / 100));
+    }
+
+    public function getBackSideFactor(): ?float
+    {
+        return (float)$this->backSideFactor;
+    }
+
+    public function setBackSideFactor(string $backSideFactor): void
+    {
+        $this->backSideFactor = str_replace(',', '.', $backSideFactor);
+    }
+
+    public function getBackSideFactorMultiplier(): float
+    {
+        return 1 + $this->backSideFactor / 100;
     }
 
     public function getAnlage(): ?Anlage

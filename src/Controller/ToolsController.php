@@ -110,8 +110,8 @@ class ToolsController extends BaseController
             return $this->redirectToRoute('app_dashboard');
         }
 
-        return $this->renderForm('tools/index.html.twig', [
-            'toolsForm' => $form,
+        return $this->render('tools/index.html.twig', [
+            'toolsForm' => $form->createView(),
             'output' => $output,
         ]);
     }

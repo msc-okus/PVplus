@@ -17,6 +17,7 @@ class AnlageSettingsFormType extends AbstractType
                 'label'     => 'could not be disabled',
                 'help'      => '[disableDep0]',
                 'attr'      => ['disabled' => 'disabled'],
+                'data'      => false,
                 'mapped'    => false,
             ])
             ->add('disableDep1', SwitchType::class, [
@@ -131,6 +132,14 @@ class AnlageSettingsFormType extends AbstractType
             ->add('chartAnalyse9', SwitchType::class, [
                 'label'     => 'Analyse - actual vs. expected to Irr.',
                 'help'      => '[chartAnalyse8]'
+            ])
+            ->add('chartAnalyse10', SwitchType::class, [
+                'label'     => 'Forecast PR',
+                'help'      => '[chartAnalyse10]'
+            ])
+            ->add('chartAnalyse11', SwitchType::class, [
+                'label'     => 'Forecast 3',
+                'help'      => '[chartAnalyse11]'
             ])
             
             ###### Current ######

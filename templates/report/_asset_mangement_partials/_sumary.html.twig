@@ -10,7 +10,8 @@
                 <div>
                     Plant size: {{ anlage.kwPeak }} kWp <br>
                     Plant - coordinates: {{ anlage.anlGeoLat }} N | {{ anlage.anlGeoLon }} O <br>
-                    {%  %}
+                    Orientation: {% if(anlage.isOstWestAnlage) %} East-West Orientation{% else %}Unidirectional{% endif %}<br>
+                    {{ comments|raw }}<br>
                 </div>
             </td>
         </tr>

@@ -120,6 +120,7 @@ class AnlagenRepository extends ServiceEntityRepository
     public function findAlertSystemActive(bool $active){
         return $this->createQueryBuilder('a')
             ->andWhere('a.ActivateTicketSystem = (:val)')
+            ->andWhere('a.anlId != 110')
             ->setParameter('val', $active)
             ->getQuery()
             ->getResult()
@@ -293,6 +294,7 @@ class AnlagenRepository extends ServiceEntityRepository
 
     public function querBuilderFindAllActiveAndAllowed(): QueryBuilder
     {
+
         $qb = $this->createQueryBuilder('a')
             ->leftJoin('a.economicVarNames', 'varName')
             ->leftJoin('a.economicVarValues', 'ecoValu')
@@ -308,11 +310,19 @@ class AnlagenRepository extends ServiceEntityRepository
             /** @var User $user */
             $user = $this->security->getUser();
             $granted = $user->getGrantedArray();
-            $qb
-                ->andWhere("a.anlHidePlant = 'No'")
-                ->andWhere("a.anlView = 'Yes'")
-                ->andWhere("a.anlId IN (:granted)")
-                ->setParameter('granted', $granted);
+            if ($user->getAllPlants()) {
+                $qb
+                    ->andWhere('a.eignerId = :eigner')
+                    ->andWhere("a.anlHidePlant = 'No'")
+                    ->andWhere("a.anlView = 'Yes'")
+                    ->setParameter('eigner', $user->getEigners()[0]);
+            } else {
+                $qb
+                    ->andWhere("a.anlHidePlant = 'No'")
+                    ->andWhere("a.anlView = 'Yes'")
+                    ->andWhere("a.anlId IN (:granted)")
+                    ->setParameter('granted', $granted);
+            }
         }
         $qb
             ->orderBy('a.anlName', 'ASC') //a.eigner

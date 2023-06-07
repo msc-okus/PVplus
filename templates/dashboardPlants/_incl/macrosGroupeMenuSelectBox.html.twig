@@ -59,8 +59,10 @@
 {% macro groupMenuNew(form, aktAnlage) %}
     {% if form.selectedChart starts with 'irr' or form.selectedChart == 'temp'
         or form.selectedChart == 'ac_single' or form.selectedChart == 'dc_single'
-        or form.selectedChart == 'availability' or form.selectedChart == 'pr_and_av' or form.selectedChart == 'forecast'
+        or form.selectedChart == 'availability' or form.selectedChart == 'pr_and_av'
         or form.selectedChart == 'heatmap'
+        or form.selectedChart == 'forecast'
+        or form.selectedChart == 'forecast_pr'
         or form.selectedChart == 'acpnom' or form.selectedChart == 'dcpnomcurr'
         or form.selectedChart == 'tempheatmap' or form.selectedChart == 'sollistheatmap' or form.selectedChart == 'ac_grp_power_diff'
         or form.selectedChart == 'dc_grp_power_diff' or form.selectedChart == 'status_log' or form.selectedChart == 'pvsyst' or form.selectedChart == 'grid'

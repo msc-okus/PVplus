@@ -27,7 +27,7 @@
                 <th></th>
                 <th><small>needs<br>Proof</small></th>
                 <th>{# Join #}</th>
-                <th></th>
+                <th colspan="2"></th>
             </tr>
             </thead>
 
@@ -86,20 +86,18 @@
                             }) }}
                         </div>
                     </td>
-
                     <td>
                         {% if is_granted('ROLE_DEV') %}
-                            <a href="#"
-                               class="hollow alert button tiny action-icon shadow"
+                            <button
+                               class="hollow alert button action-icon shadow"
                                     {{ stimulus_controller('submit-confirm', {
                                         title: 'Remove this ticket?',
                                         confirmButtonText: 'Yes, remove it',
                                         redirectUrl: path('app_ticket_deleteticket', { id: ticket.id})
                                     }) }}
                                data-action="submit-confirm#onSubmit"
-                            >
-                                <span class="fa fa-trash-alt"></span>
-                            </a>
+                            ><span class="fa fa-trash-alt"></span>
+                            </button>
                         {% endif %}
                     </td>
                 </tr>

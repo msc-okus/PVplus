@@ -127,6 +127,8 @@ class WeatherStationController extends BaseController
             `wind_speed` varchar(20) NOT NULL,
             `temp_cell_corr` varchar(20) DEFAULT NULL,
             `temp_cell_multi_irr` varchar(20) DEFAULT NULL,
+            `ft_factor` VARCHAR(20) NULL DEFAULT '1',
+            `irr_flag` TINYINT(1) NULL DEFAULT 0,
             PRIMARY KEY (`db_id`),
             UNIQUE KEY `stamp` (`stamp`)
         ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;";
