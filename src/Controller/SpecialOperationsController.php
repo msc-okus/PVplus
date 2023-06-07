@@ -9,12 +9,14 @@ use App\Form\Tools\ToolsFormType;
 use App\Form\Tools\WeatherToolsFormType;
 use App\Message\Command\CalcExpected;
 use App\Repository\AnlagenRepository;
+use App\Repository\TicketRepository;
 use App\Repository\WeatherStationRepository;
 use App\Service\AvailabilityByTicketService;
 use App\Service\ExportService;
 use App\Service\LogMessagesService;
 use App\Service\Reports\ReportsMonthlyService;
 use App\Service\WeatherServiceNew;
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -158,4 +160,40 @@ class SpecialOperationsController extends AbstractController
         ]);
     }
 
+
+    #[Route(path: '/special/operations/deletetickets', name: 'delete_tickets')]
+    public function deleteTickets(Request $request, AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em): Response
+    {
+        $output = null;
+        $month = $request->request->get('month');
+        $year = $request->request->get('year');
+
+        $anlageId = $request->request->get('anlage-id');
+        $submitted = $request->request->get('new-report') == 'yes' && isset($month) && isset($year);
+
+        // Start individual part
+        /** @var Anlage $anlage */
+        $headline = 'Monats Bericht (Testumgebung)';
+        $anlagen = $anlagenRepository->findAllActiveAndAllowed();
+
+        if ($submitted && isset($anlageId)) {
+            $anlage = $anlagenRepository->findOneBy(['anlId' => $anlageId]);
+            $ticketArray = $ticketRepo->findForSafeDelete($anlage, "$year-$month-01");
+
+            foreach ($ticketArray as $ticket) {
+                $em->remove($ticket);
+            }
+            $em->flush();
+            $output = "done";
+        }
+
+        return $this->render('special_operations/index.html.twig', [
+            'headline'      => $headline,
+            'anlagen'       => $anlagen,
+            'availabilitys' => '',
+            'output'        => $output,
+            'output2'       => '',
+            'status'        => $anlageId,
+        ]);
+    }
 }
