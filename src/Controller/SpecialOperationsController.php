@@ -3,10 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Anlage;
+
 use App\Form\Model\ToolsModel;
 use App\Form\Model\WeatherToolsModel;
 use App\Form\Tools\ToolsFormType;
-use App\Form\Tools\WeatherToolsFormType;
+use App\Form\Tools\ImportExcelFormType;
 use App\Message\Command\CalcExpected;
 use App\Repository\AnlagenRepository;
 use App\Repository\TicketRepository;
@@ -25,10 +26,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
-
-
+use App\Helper\simpleXLSX;
+use Symfony\Component\Finder\Finder;
+use App\Service\UploaderHelper;
+use App\Helper\G4NTrait;
 class SpecialOperationsController extends AbstractController
 {
+    use G4NTrait;
+
     #[Route('/special/operations', name: 'app_special_operations')]
     public function index(): Response
     {
@@ -196,4 +201,67 @@ class SpecialOperationsController extends AbstractController
             'status'        => $anlageId,
         ]);
     }
+
+    #[Route(path: '/special/operations/import_excel', name: 'import_excel')]
+    public function importExcel(Request $request, UploaderHelper $uploaderHelper, AnlagenRepository $anlagenRepository, MessageBusInterface $messageBus, LogMessagesService $logMessages, $uploadsPath): Response
+    {
+        $form = $this->createForm(ImportExcelFormType::class);
+        $form->handleRequest($request);
+
+        $output = null;
+
+        // Start individual part
+        $headline = '';
+
+        if ($form->isSubmitted() && $form->isValid() && $form->get('calc')->isClicked() && $request->getMethod() == 'POST') {
+            $anlageForm = $form['anlage']->getData();
+            $anlage = $anlagenRepository->findOneBy(['anlId' => $anlageForm]);
+            $anlageId = $anlage->getAnlagenId();
+            $dataBaseNTable = $anlage->getDbNameIst();
+
+            $uploadedFile = $form['File']->getData();
+            if ($uploadedFile) {
+                // Here we upload the file and read it
+                $newFile = $uploaderHelper->uploadFile($uploadedFile, '/xlsx/1', 'xlsx');
+                $conn = self::getPdoConnection();
+
+                if ( $xlsx = simpleXLSX::parse($uploadsPath . '/xlsx/1/'.$newFile) ) {
+                    $i = 0;
+                    $ts = 0;
+                    $data_pv_ist = [];
+                    foreach( $xlsx->rows($ts) as $r ) {
+                        if($i == 0) {
+                            $data_fields = $r;
+
+                        }else{
+                            $data_pv_ist[] = [
+                                'anl_id' => $anlageId,
+                                'stamp' => $r[0],
+                                'e_z_evu' => ($r[1] != '') ? $r[1] : NULL,
+                            ];
+                            $eZEvu = ($r[1] != '') ? $r[1] : NULL;
+                            $sqlString = "update $dataBaseNTable set $data_fields[1] = $eZEvu WHERE $data_fields[0] = '$r[0]'";
+                            $conn->exec($sqlString);
+                        }
+
+                        $i++;
+                    }
+                    unlink($uploadsPath . '/xlsx/1/'.$newFile);
+                } else {
+                    echo SimpleXLSX::parseError();
+                }
+            }
+        }
+
+        // Wenn Close geklickt wird mache dies:
+        if ($form->isSubmitted() && $form->isValid() && $form->get('close')->isClicked()) {
+            return $this->redirectToRoute('app_dashboard');
+        }
+
+        return $this->render('tools/importExcel.html.twig', [
+            'toolsForm'     => $form->createView(),
+            'output'        => $output,
+        ]);
+    }
+
 }
