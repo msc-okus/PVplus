@@ -19,7 +19,13 @@ class SensorService
         private ReplaceValuesTicketRepository $replaceValuesTicketRepo)
     {
     }
+
     /**
+     * @param Anlage $anlage
+     * @param array $sensorData (Wetter / Starahlungs Daten)
+     * @param DateTime $startDate
+     * @param DateTime $endDate
+     * @return array|null
      * @throws NonUniqueResultException
      */
     public function correctSensorsByTicket(Anlage $anlage, array $sensorData, DateTime $startDate, DateTime $endDate): ?array

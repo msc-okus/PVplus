@@ -21,6 +21,7 @@ trait PVPNameArraysTrait
             'EnergyProduced / (Theo.Energy * PA)' => 'Veendam',
             'EnergyProduced / (Theo.Energy * Ft)' => 'Lelystad',
             'Ladenburg' => 'Ladenburg',
+            'Doellen' => 'Doellen',
             'Groningen' => 'Groningen',
         ];;
     }

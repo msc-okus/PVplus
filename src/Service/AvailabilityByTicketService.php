@@ -245,7 +245,7 @@ class AvailabilityByTicketService
             // suche Performance Tickets die die PA beeinflussen (alertType = 72)
             $perfTicketsSkips  = $this->ticketDateRepo->findPerformanceTicketWithPA($anlage, $from, $to, $department, 10); // behaviour = Replace outage with TiFM for PA
             /** @var TicketDate $perfTicketsSkip */
-            dump($perfTicketsSkips);
+
             foreach ($perfTicketsSkips as $perfTicketsSkip){
                 $skipFrom = $perfTicketsSkip->getBegin()->getTimestamp();
                 $skipTo = $perfTicketsSkip->getEnd()->getTimestamp();
