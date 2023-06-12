@@ -156,7 +156,6 @@ class ReportEpcService
                     case 1:
                         $from               = date('Y-m-d', strtotime("$year-$month-$facStartDay 00:00"));
                         $prArray            = $this->PRCalulation->calcPR($anlage, date_create($from), date_create($to));
-                        #dd(date_create($from), date_create($to),$prArray);
                         $days               = $daysInMonth - $daysInStartMonth + 1;
                         $ertragPvSyst       = $anlage->getOneMonthPvSyst($month)->getErtragDesign() / $daysInMonth * $days;
                         $prDesignPvSyst     = $anlage->getOneMonthPvSyst($month)->getPrDesign();

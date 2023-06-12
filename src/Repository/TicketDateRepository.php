@@ -274,6 +274,9 @@ class TicketDateRepository extends ServiceEntityRepository
             ->setParameter('end', $endDate instanceof DateTime ? $endDate->format("Y-m-d H:i") : $endDate)
             ->setParameter('anlage', $anlage);
 
+        if ($startDate->format('m') == '1'){
+            #dd($q->getQuery()->getSQL(), $startDate->format("Y-m-d H:i"), $endDate->format("Y-m-d H:i"));
+        }
         return $q->getQuery()->getResult();
     }
     /**

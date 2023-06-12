@@ -111,8 +111,7 @@ class PowerService
         // EVU / Grid Leistung ermitteln –
         // dieser Wert soll der offiziele Grid Zähler Wert sein, wir in naher Zukunft durch die Daten aus 'meters' ersetzt werden müssen
 
-        if ($anlage == '97')
-        {
+        if ($anlage == '97') {
             // Bavelse Berg = Anlage ID 97
             $sql = "SELECT sum(prod_power) as power_grid 
             FROM " . $anlage->getDbNameMeters() . " s
@@ -127,8 +126,6 @@ class PowerService
                 $row = $res->fetch(PDO::FETCH_ASSOC);
                 $powerEvu = $row['power_evu_ppc'];
             }
-            unset($res);
-
         } else {
             // EVU Leistung ermitteln –
             // dieser Wert kann der offiziele Grid Zähler wert sein, kann aber auch nur ein interner Wert sein. Siehe Konfiguration $anlage->getUseGridMeterDayData()
@@ -143,8 +140,8 @@ class PowerService
                 $row = $res->fetch(PDO::FETCH_ASSOC);
                 $powerEvu = $row['power_evu'];
             }
-            unset($res);
         }
+        unset($res);
 
         $powerEvu = $this->checkAndIncludeMonthlyCorrectionEVU($anlage, $powerEvu, $from->format('Y-m-d H:i'), $to->format('Y-m-d H:i'));
         $powerEvu = $this->correctGridByTicket($anlage, $powerEvu, $from, $to); // Function not fianly tested

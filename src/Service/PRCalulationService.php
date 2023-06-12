@@ -563,8 +563,11 @@ class PRCalulationService
 
         // Wetter Daten ermitteln
         $weather = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate, false, $anlage);
+        if($startDate->format('m') == '1') dump($weather);
+
         if (is_array($weather)) {
             $weather = $this->sensorService->correctSensorsByTicket($anlage, $weather, date_create($localStartDate), date_create($localEndDate));
+            if($startDate->format('m') == '1') dump($weather);
         }
 
         // Leistungsdaten ermitteln

@@ -31,7 +31,7 @@ class SensorService
     public function correctSensorsByTicket(Anlage $anlage, array $sensorData, DateTime $startDate, DateTime $endDate): ?array
     {
         // Suche alle Tickets (Ticketdates) die in den Zeitraum fallen
-        // Es werden Nur Tickets mit Sensor Bezug gesucht (Performance Tickets mit ID =
+        // Es werden Nur Tickets mit Sensor Bezug gesucht (Performance Tickets mit ID = 72, 73, 71
         $ticketArray = $this->ticketDateRepo->performanceTickets($anlage, $startDate, $endDate);
 
         // Dursuche alle Tickets in Schleife
@@ -53,27 +53,40 @@ class SensorService
             }
 
             $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempoStartDate->format('Y-m-d H:i'), $tempoEndDate->format('Y-m-d H:i'));
-            $replaceArray = $this->replaceValuesTicketRepo->getSum($anlage, $tempoStartDate, $tempoEndDate);
 
-            // korriegiere Horizontal Irradiation
-            if ($replaceArray['irrHorizotal'] && $replaceArray['irrHorizotal'] > 0) {
-                $sensorData['horizontalIrr'] = $sensorData['horizontalIrr'] - $tempWeatherArray['horizontalIrr'] + $replaceArray['irrHorizotal'];
-            }
+            switch ($ticket->getAlertType()) {
+                case '71':
+                    $replaceArray = $this->replaceValuesTicketRepo->getSum($anlage, $tempoStartDate, $tempoEndDate);
 
-            // korriegiere Irradiation auf Modulebene
-            if (!$replaceArray['irrEast'] && !$replaceArray['irrWest']) {
-                // eine Ausrichtung
-                if ($replaceArray['irrModul'] && $replaceArray['irrModul'] > 0) {
-                    $sensorData['upperIrr'] = $sensorData['upperIrr'] - $tempWeatherArray['upperIrr'] + $replaceArray['irrModul'];
-                }
-            } else {
-                // zwei Ausrichtungen (Ost / West)
-                if ($replaceArray['irrEast'] && $replaceArray['irrEast'] > 0) {
-                    $sensorData['upperIrr'] = $sensorData['upperIrr'] - $tempWeatherArray['upperIrr'] + $replaceArray['irrEast'];
-                }
-                if ($replaceArray['irrWest'] && $replaceArray['irrWest'] > 0) {
-                    $sensorData['lowerIrr'] = $sensorData['lowerIrr'] - $tempWeatherArray['lowerIrr'] + $replaceArray['irrWest'];
-                }
+                    // korriegiere Horizontal Irradiation
+                    if ($replaceArray['irrHorizotal'] && $replaceArray['irrHorizotal'] > 0) {
+                        $sensorData['horizontalIrr'] = $sensorData['horizontalIrr'] - $tempWeatherArray['horizontalIrr'] + $replaceArray['irrHorizotal'];
+                    }
+
+                    // korriegiere Irradiation auf Modulebene
+                    if (!$replaceArray['irrEast'] && !$replaceArray['irrWest']) {
+                        // eine Ausrichtung
+                        if ($replaceArray['irrModul'] && $replaceArray['irrModul'] > 0) {
+                            $sensorData['upperIrr'] = $sensorData['upperIrr'] - $tempWeatherArray['upperIrr'] + $replaceArray['irrModul'];
+                        }
+                    } else {
+                        // zwei Ausrichtungen (Ost / West)
+                        if ($replaceArray['irrEast'] && $replaceArray['irrEast'] > 0) {
+                            $sensorData['upperIrr'] = $sensorData['upperIrr'] - $tempWeatherArray['upperIrr'] + $replaceArray['irrEast'];
+                        }
+                        if ($replaceArray['irrWest'] && $replaceArray['irrWest'] > 0) {
+                            $sensorData['lowerIrr'] = $sensorData['lowerIrr'] - $tempWeatherArray['lowerIrr'] + $replaceArray['irrWest'];
+                        }
+                    }
+                    break;
+
+                case '72':
+                    // korriegiere Horizontal Irradiation
+                    $sensorData['horizontalIrr'] = $sensorData['horizontalIrr'] - $tempWeatherArray['horizontalIrr'];
+                    $sensorData['upperIrr'] = $sensorData['upperIrr'] - $tempWeatherArray['upperIrr'];
+                    $sensorData['lowerIrr'] = $sensorData['lowerIrr'] - $tempWeatherArray['lowerIrr'];
+
+                    break;
             }
         }
 
