@@ -49,24 +49,18 @@ class AssetManagementeReportFormType extends AbstractType
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ])
+            ->add('PRTable', SwitchType::class, [
+                'label' => 'PR Table',
+                'required' => false,
+                'data' => true,
+                'attr' => ['switch_size' => 'tiny']
+            ])
             ->add('DailyProd', SwitchType::class, [
                 'label' => 'Daily Production',
                 'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ])
-
-            /*
-            ->add('ProductionPos', ChoiceType::class,[
-                'expanded' => false,
-                'multiple' => false,
-                'choices' => [
-                    '1' => 1,
-                    '2' => 2,
-                    '3' => 3,
-                ],
-            ])
-            */
             ->add('Availability', SwitchType::class, [
                 'required' => false,
                 'data' => true,

@@ -840,7 +840,7 @@ class AnlageFormType extends AbstractType
                 'label' => 'Missmatching Losses[%]',
             ])
             ->add('InverterEfficiencyLosses', TextType::class,[
-                'label' => 'inverter Efficiency Losses[%]',
+                'label' => 'Inverter Efficiency Losses[%]',
             ])
             ->add('ShadingLosses', TextType::class,[
                 'label' => 'Shading Losses[%]',
@@ -857,9 +857,7 @@ class AnlageFormType extends AbstractType
             ->add('transformerLimitation', TextType::class,[
                 'label' => 'Transformer Limitations[%]',
             ])
-            ->add('dynamicLimitations', TextType::class,[
-                'label' => 'Dynamic Limitations[%]',
-            ])
+
 
             // ###############################################
             // ###              Relations                 ####
