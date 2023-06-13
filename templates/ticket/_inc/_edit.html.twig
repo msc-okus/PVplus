@@ -146,12 +146,16 @@
 
                         </div>
                         <div class="grid-x grid-padding-x">
+                            <button type="button" style="height: 50%;"  class=" button small hollow" data-action="ticket-edit#beginMinusTime"><span class="fa fa-minus-circle"></span></button>
                             <div class="cell small-6 medium-2">
                                 {{ form_row(ticketForm.begin) }}
                             </div>
+                            <button type="button" style="height: 50%;"  class=" button small hollow" data-action="ticket-edit#beginPlusTime"><span class="fa fa-plus-circle"></span></button>
+                            <button type="button" style="height: 50%;margin-left: 10px "  class=" button small hollow" data-action="ticket-edit#endMinusTime"><span class="fa fa-minus-circle"></span></button>
                             <div class="cell small-6 medium-2">
                                 {{ form_row(ticketForm.end) }}
                             </div>
+                            <button type="button" style="height: 50%; "  class=" button small hollow" data-action="ticket-edit#endPlusTime"><span class="fa fa-plus-circle"></span></button>
                             <div class="cell small-6 medium-2">
                                 {{ form_row(ticketForm.status) }}
                             </div>
