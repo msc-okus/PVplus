@@ -86,7 +86,7 @@ class AssetManagementeReportFormType extends AbstractType
             ->add('AvInv', SwitchType::class, [
                 'label' => 'Availability Inverter',
                 'required' => false,
-                'data' => true,
+                'data' => false,
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('AnalysisHeatmap', SwitchType::class, [

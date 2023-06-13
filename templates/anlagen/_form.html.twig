@@ -436,7 +436,15 @@
                         <div class="cell small-12 medium-6">
                             <fieldset class="fieldset">
                                 <legend>Ticket</legend>
-                                {{ form_row(anlageForm.ActivateTicketSystem) }}
+
+                                <div class="grid-x grid-margin-x">
+                                    <div class="cell small-6">
+                                        {{ form_row(anlageForm.ActivateTicketSystem) }}
+                                    </div>
+                                    <div class="cell small-6">
+                                        {{ form_row(anlageForm.PowerThreshold) }}
+                                    </div>
+                                </div>
                                 {{ form_row(anlageForm.newAlgorythm) }}
                                 <div class="grid-x grid-margin-x">
                                     <div class="cell small-6">
@@ -459,34 +467,28 @@
                                     {% do anlageForm.expectedTicket.setRendered() %}
                                     {% do anlageForm.percentageDiff.setRendered() %}
                                 {% endif %}
-                                {{ form_row(anlageForm.weatherTicket) }}
-                                {{ form_row(anlageForm.kpiTicket) }}
-                                {{ form_row(anlageForm.gridTicket) }}
-                                <div class="grid-x">
+                                <div class="grid-x grid-margin-x">
                                     <div class="cell small-6">
-
+                                        {{ form_row(anlageForm.weatherTicket) }}
+                                    </div>
+                                    <div class="cell small-6">
+                                        {{ form_row(anlageForm.kpiTicket) }}
+                                    </div>
+                                </div>
+                                <div class="grid-x grid-margin-x">
+                                    <div class="cell small-6">
+                                        {{ form_row(anlageForm.gridTicket) }}
                                     </div>
                                     <div class="cell small-6">
 
                                     </div>
                                 </div>
-                                <div class="grid-x">
-                                    <div class="cell small-6">
 
-                                    </div>
-                                    <div class="cell small-6">
-
-                                    </div>
-                                </div>
                             </fieldset>
                         </div>
                         <div class="cell small-12 medium-6">
                             <fieldset class="fieldset">
                                 <legend>Alert</legend>
-
-
-
-
                             </fieldset>
                         </div>
                     </div>

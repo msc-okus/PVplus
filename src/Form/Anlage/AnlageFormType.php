@@ -516,7 +516,7 @@ class AnlageFormType extends AbstractType
             ])
             ->add('dataSourceAM', CKEditorType::class, [
                 'label' => 'Summary DataSources AM Report',
-                'empty_data' => 'System Inclination: <br>Module Name: <br>Module Type: <br>Module Performance: <br>Number of Modules: <br>Inverter Name: <br>Inverter Type: <br>Number of Inverters:',
+                'empty_data' => 'Module Inclination: <br>Module Name: <br>Module Type: <br>Module Performance: <br>Number of Modules: <br>Inverter Name: <br>Inverter Type: <br>Number of Inverters:',
                 'config' => ['toolbar' => 'my_toolbar'],
             ])
             ->add('retrieveAllData', SwitchType::class, [
@@ -703,6 +703,12 @@ class AnlageFormType extends AbstractType
                 'label' => 'Activate Grid Ticket',
                 'help' => '[Grid Ticket]',
                 'attr' => ['data-plant-target' => 'ticket']
+            ])
+            ->add('PowerThreshold', TextType::class, [
+                'label' => 'Ticket Expected limit',
+                'help' => '[PowerLimit]',
+                'attr' => ['data-plant-target' => 'ticket'],
+                'empty_data' => '0',
             ])
             // ###############################################
             // ###               Reports                  ####

@@ -15,18 +15,18 @@
         {{ form_row(assetForm.PRTable) }}
         {{ form_row(assetForm.DailyProd) }}
     </div>
+
+    <div style="margin-left: 10px">{{ form_row(assetForm.Availability) }} </div>
+    <div style="margin-left: 60px">
+        {{ form_row(assetForm.AvYearlyTicketOverview) }}
+        {{ form_row(assetForm.AvMonthlyOverview) }}
+    </div>
     <div style="margin-left: 10px">{{ form_row(assetForm.AnalysisHeatmap) }} </div>
     <div style="margin-left: 60px">
         {{ form_row(assetForm.StringCurr) }}
         {{ form_row(assetForm.InvPow) }}
         {{ form_row(assetForm.AvYearlyOverview) }}
-    </div>
-    <div style="margin-left: 10px">{{ form_row(assetForm.Availability) }} </div>
-    <div style="margin-left: 60px">
-        {{ form_row(assetForm.AvYearlyTicketOverview) }}
-        {{ form_row(assetForm.AvMonthlyOverview) }}
         {{ form_row(assetForm.AvInv) }}
-
     </div>
     {% if (anlage.getEconomicVarNames != null) %}
         <div style="margin-left: 10px">{{ form_row(assetForm.Economics) }} </div>

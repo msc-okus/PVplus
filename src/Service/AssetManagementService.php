@@ -2478,12 +2478,13 @@ class AssetManagementService
                 $PVSYSTyearExpected = $PVSYSTyearExpected + $tbody_a_production['expectedPvSyst'][$index];
             }
         }
-        $G4NmonthExpected = $tbody_a_production['powerExp'][$month-2] * (100/(100 - $anlage->getTotalKpi()));
 
+        $G4NmonthExpected = $tbody_a_production['powerExp'][$month-2] * ((100 - $anlage->getTotalKpi())/100);
         $G4NyearExpected = 1;
         for($index = 0; $index < $month -1; $index++){
-            $G4NyearExpected = $G4NyearExpected + ($tbody_a_production['powerExp'][$index] * (100/(100-$anlage->getTotalKpi())));
+            $G4NyearExpected = $G4NyearExpected + ($tbody_a_production['powerExp'][$index] * ((100-$anlage->getTotalKpi())/100));
         }
+
         $ActualPower = $tbody_a_production['powerAct'][$month-2];
         $ActualPowerYear = 1;
         for($index = 0; $index < $month -1; $index++){
@@ -2922,7 +2923,8 @@ class AssetManagementService
             $invertedMonthArray[] = $dataMonthArray[$i];
             $kwhLosses = $this->calculateLosses($report['reportYear']."-".($i + 1)."-01",$report['reportYear']."-".($i + 1)."-".cal_days_in_month(CAL_GREGORIAN, $i + 1, $report['reportYear']),$anlage);
 
-            if ($anlage->getTotalKpi() < 100)$tempExp = $tbody_a_production['powerExp'][$i] * (100/(100-$anlage->getTotalKpi()));
+            if ($anlage->getTotalKpi() < 100)$tempExp = $tbody_a_production['powerExp'][$i] * ((100-$anlage->getTotalKpi())/100);
+
             if ($tempExp > 0) {
                 $table_percentage_monthly['Actual'][] = (int)($tbody_a_production['powerAct'][$i] * 100 / $tempExp);
                 $table_percentage_monthly['ExpectedG4N'][] = 100;

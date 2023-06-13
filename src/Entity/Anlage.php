@@ -639,6 +639,9 @@ class Anlage
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $dynamicLimitations = "0";
 
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $PowerThreshold = "0";
+
 
     /**
      * @return string|null
@@ -3625,6 +3628,18 @@ class Anlage
     public function setKpiTicket(?bool $kpiTicket): void
     {
         $this->kpiTicket = $kpiTicket;
+    }
+
+    public function getPowerThreshold(): ?string
+    {
+        return $this->PowerThreshold;
+    }
+
+    public function setPowerThreshold(?string $PowerThreshold): static
+    {
+        $this->PowerThreshold = $PowerThreshold;
+
+        return $this;
     }
 
 }
