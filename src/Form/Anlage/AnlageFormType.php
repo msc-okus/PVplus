@@ -515,8 +515,8 @@ class AnlageFormType extends AbstractType
                 'empty_data' => '0',
             ])
             ->add('dataSourceAM', CKEditorType::class, [
-                'label' => 'Explanation DataSources AM Report',
-                'data' => 'Yield (Grid Meter): <br>Inverter out:',
+                'label' => 'Summary DataSources AM Report',
+                'empty_data' => 'Module Inclination: <br>Module Name: <br>Module Type: <br>Module Performance: <br>Number of Modules: <br>Inverter Name: <br>Inverter Type: <br>Number of Inverters:',
                 'config' => ['toolbar' => 'my_toolbar'],
             ])
             ->add('retrieveAllData', SwitchType::class, [
@@ -697,11 +697,18 @@ class AnlageFormType extends AbstractType
             ->add('kpiTicket', SwitchType::class, [
                 'label' => 'Activate kpi Ticket',
                 'help' => '[kpi Ticket]',
+                'attr' => ['data-plant-target' => 'ticket']
             ])
             ->add('gridTicket', SwitchType::class, [
                 'label' => 'Activate Grid Ticket',
                 'help' => '[Grid Ticket]',
                 'attr' => ['data-plant-target' => 'ticket']
+            ])
+            ->add('PowerThreshold', TextType::class, [
+                'label' => 'Ticket Expected limit',
+                'help' => '[PowerLimit]',
+                'attr' => ['data-plant-target' => 'ticket'],
+                'empty_data' => '0',
             ])
             // ###############################################
             // ###               Reports                  ####
@@ -829,6 +836,36 @@ class AnlageFormType extends AbstractType
             ])
 
             // ###############################################
+            // ###              AM Report                 ####
+            // ###############################################
+
+            ->add('DCCableLosses', TextType::class,[
+                'label' => 'DC Cable Losses[%]',
+            ])
+            ->add('MissmatchingLosses', TextType::class,[
+                'label' => 'Missmatching Losses[%]',
+            ])
+            ->add('InverterEfficiencyLosses', TextType::class,[
+                'label' => 'Inverter Efficiency Losses[%]',
+            ])
+            ->add('ShadingLosses', TextType::class,[
+                'label' => 'Shading Losses[%]',
+            ])
+            ->add('ACCableLosses', TextType::class,[
+                'label' => 'AC Cable Losses[%]',
+            ])
+            ->add('TransformerLosses', TextType::class,[
+                'label' => 'Transformer Losses[%]',
+            ])
+            ->add('inverterLimitation', TextType::class,[
+                'label' => 'Inverter Limitations[%]',
+            ])
+            ->add('transformerLimitation', TextType::class,[
+                'label' => 'Transformer Limitations[%]',
+            ])
+
+
+            // ###############################################
             // ###              Relations                 ####
             // ###############################################
             ->add('modules', CollectionType::class, [
@@ -877,3 +914,4 @@ class AnlageFormType extends AbstractType
         $resolver->setAllowedTypes('anlagenId', 'string');
     }
 }
+

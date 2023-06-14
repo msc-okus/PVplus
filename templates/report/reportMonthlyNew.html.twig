@@ -26,7 +26,7 @@
         <div class="grid-x">
         <div class="cell">
 
-            <table class="basetable monthtable">
+            <table class="basetable monthtable" style="width: 100%; height: 100%">
                 {% for day in report.days %}
                     {% if loop.last %}{% set trstyle = ' class=strong' %}{% else %}{% set trstyle = '' %}{% endif %}
                     {% if loop.first %}

@@ -49,32 +49,26 @@ class AssetManagementeReportFormType extends AbstractType
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ])
+            ->add('PRTable', SwitchType::class, [
+                'label' => 'PR Table',
+                'required' => false,
+                'data' => true,
+                'attr' => ['switch_size' => 'tiny']
+            ])
             ->add('DailyProd', SwitchType::class, [
                 'label' => 'Daily Production',
                 'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ])
-
-            /*
-            ->add('ProductionPos', ChoiceType::class,[
-                'expanded' => false,
-                'multiple' => false,
-                'choices' => [
-                    '1' => 1,
-                    '2' => 2,
-                    '3' => 3,
-                ],
-            ])
-            */
             ->add('Availability', SwitchType::class, [
                 'required' => false,
                 'data' => true,
             ])
             ->add('AvYearlyOverview', SwitchType::class, [
-                'label' => 'Availability-Yearly Overview',
+                'label' => 'Availability-Yearly Overview Heatmap Analysis',
                 'required' => false,
-                'data' => true,
+                'data' => false,
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('AvMonthlyOverview', SwitchType::class, [
@@ -92,19 +86,24 @@ class AssetManagementeReportFormType extends AbstractType
             ->add('AvInv', SwitchType::class, [
                 'label' => 'Availability Inverter',
                 'required' => false,
-                'data' => true,
+                'data' => false,
                 'attr' => ['switch_size' => 'tiny']
             ])
-            ->add('StringCurr', SwitchType::class, [
-                'label' => 'String Current',
+            ->add('AnalysisHeatmap', SwitchType::class, [
+                'label' => 'Analysis Heatmaps',
                 'required' => false,
-                'data' => true,
+                'data' => false,
+            ])
+            ->add('StringCurr', SwitchType::class, [
+                'label' => 'String Current Heatmap Analysis',
+                'required' => false,
+                'data' => false,
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('InvPow', SwitchType::class, [
-                'label' => 'Inverter Power-DC Heatmap',
+                'label' => 'Inverter Power-DC Heatmap Analysis',
                 'required' => false,
-                'data' => true,
+                'data' => false,
                 'attr' => ['switch_size' => 'tiny']
             ])
 

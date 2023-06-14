@@ -1,0 +1,19 @@
+{% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
+
+{% block page %}
+    <table id="basetable">
+        <tr>
+            <td style="text-align: left; color: #36639c;">    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Summary</h3></td>
+        </tr>
+        <tr>
+            <td style="text-align: left; padding-top: 20px !important;font-size: 20px">
+                <div>
+                    Plant size: {{ anlage.kwPeak }} kWp <br>
+                    Plant - coordinates: {{ anlage.anlGeoLat }} N | {{ anlage.anlGeoLon }} O <br>
+                    Orientation: {% if(anlage.isOstWestAnlage) %} East-West Orientation{% else %}Unidirectional{% endif %}<br>
+                    {{ anlage.DataSourceAM|raw }}<br>
+                </div>
+            </td>
+        </tr>
+    </table>
+{%  endblock page %}

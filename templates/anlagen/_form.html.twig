@@ -102,6 +102,7 @@
                     {% endif %}
                     <li class="tabs-title"><a data-tabs-target="settings" href="#settings">Settings</a></li>
                     <li class="tabs-title"><a data-tabs-target="timeing" href="#timeing">Time Configuration</a></li>
+                    <li class="tabs-title"><a data-tabs-target="AssetManagement" href="#AssetManagement">AM Report Configuration</a></li>
                 {% endif %}
             </ul>
 
@@ -293,11 +294,7 @@
                                     <div class="cell medium-3">{{ form_row(anlageForm.lossesForecast) }}</div>
                                 </div>
                             </fieldset>
-                            <fieldset class="fieldset">
-                                <legend>Asset Management Configuration</legend>
-                                <div class="cell medium-3">{{ form_row(anlageForm.dataSourceAM) }}</div>
-                                <div class="cell medium-3">{{ form_row(anlageForm.retrieveAllData) }}</div>
-                            </fieldset>
+
                         </div>
                     </div>
                 </div>
@@ -439,7 +436,15 @@
                         <div class="cell small-12 medium-6">
                             <fieldset class="fieldset">
                                 <legend>Ticket</legend>
-                                {{ form_row(anlageForm.ActivateTicketSystem) }}
+
+                                <div class="grid-x grid-margin-x">
+                                    <div class="cell small-6">
+                                        {{ form_row(anlageForm.ActivateTicketSystem) }}
+                                    </div>
+                                    <div class="cell small-6">
+                                        {{ form_row(anlageForm.PowerThreshold) }}
+                                    </div>
+                                </div>
                                 {{ form_row(anlageForm.newAlgorythm) }}
                                 <div class="grid-x grid-margin-x">
                                     <div class="cell small-6">
@@ -462,34 +467,28 @@
                                     {% do anlageForm.expectedTicket.setRendered() %}
                                     {% do anlageForm.percentageDiff.setRendered() %}
                                 {% endif %}
-                                {{ form_row(anlageForm.weatherTicket) }}
-                                {{ form_row(anlageForm.kpiTicket) }}
-                                {{ form_row(anlageForm.gridTicket) }}
-                                <div class="grid-x">
+                                <div class="grid-x grid-margin-x">
                                     <div class="cell small-6">
-
+                                        {{ form_row(anlageForm.weatherTicket) }}
+                                    </div>
+                                    <div class="cell small-6">
+                                        {{ form_row(anlageForm.kpiTicket) }}
+                                    </div>
+                                </div>
+                                <div class="grid-x grid-margin-x">
+                                    <div class="cell small-6">
+                                        {{ form_row(anlageForm.gridTicket) }}
                                     </div>
                                     <div class="cell small-6">
 
                                     </div>
                                 </div>
-                                <div class="grid-x">
-                                    <div class="cell small-6">
 
-                                    </div>
-                                    <div class="cell small-6">
-
-                                    </div>
-                                </div>
                             </fieldset>
                         </div>
                         <div class="cell small-12 medium-6">
                             <fieldset class="fieldset">
                                 <legend>Alert</legend>
-
-
-
-
                             </fieldset>
                         </div>
                     </div>
@@ -631,7 +630,42 @@
                         </div>
                     </div>
                 </div>
+                <div class="tabs-panel" id="AssetManagement">
+                    <div class="grid-x grid-padding-x">
+                        <fieldset class="fieldset">
+                                <legend>Config</legend>
+                                <div class="grid-x grid-margin-x">
+                                    <div class="cell small-6">
+                                        {{ form_row(anlageForm.DCCableLosses) }}
+                                    </div>
+                                    <div class="cell small-6">
+                                        {{ form_row(anlageForm.MissmatchingLosses) }}
+                                    </div>
+                                    <div class="cell small-6">
+                                        {{ form_row(anlageForm.InverterEfficiencyLosses) }}
+                                    </div>
+                                    <div class="cell small-6">
+                                        {{ form_row(anlageForm.ShadingLosses) }}
+                                    </div>
+                                    <div class="cell small-6">
+                                        {{ form_row(anlageForm.ACCableLosses) }}
+                                    </div>
+                                    <div class="cell small-6">
+                                        {{ form_row(anlageForm.TransformerLosses) }}
+                                    </div>
+                                    <div class="cell small-6">
+                                        {{ form_row(anlageForm.inverterLimitation) }}
+                                    </div>
+                                    <div class="cell small-6">
+                                        {{ form_row(anlageForm.transformerLimitation) }}
+                                    </div>
 
+                                    <div class="cell medium-6">{{ form_row(anlageForm.dataSourceAM) }}</div>
+                                    <div class="cell medium-6">{{ form_row(anlageForm.retrieveAllData) }}</div>
+                                </div>
+                            </fieldset>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
