@@ -52,7 +52,6 @@ class SpecialOperationsController extends AbstractController
         $anlage = $anlagenRepository->findOneBy(['anlId' => $anlageId]);
 
         if ($submitted && isset($anlageId)) {
-            if (!$day) {}
             $from = date_create($year.'-'.$month.'-01 00:01');
             $daysInMonth = $from->format('t');
             $to = date_create($year.'-'.($month).'-'.$daysInMonth.' 23:59');
