@@ -13,7 +13,10 @@
         {{ form_row(assetForm.CumulatLosses) }}
         {{ form_row(assetForm.MonthlyProd) }}
         {{ form_row(assetForm.PRTable) }}
-        {{ form_row(assetForm.DailyProd) }}
+        <div class="is-hidden">
+            {{ form_row(assetForm.DailyProd) }}
+        </div>
+
     </div>
 
     <div style="margin-left: 10px">{{ form_row(assetForm.Availability) }} </div>

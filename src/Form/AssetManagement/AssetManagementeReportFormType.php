@@ -58,7 +58,7 @@ class AssetManagementeReportFormType extends AbstractType
             ->add('DailyProd', SwitchType::class, [
                 'label' => 'Daily Production',
                 'required' => false,
-                'data' => true,
+                'data' => false,
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('Availability', SwitchType::class, [
@@ -84,7 +84,7 @@ class AssetManagementeReportFormType extends AbstractType
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('AvInv', SwitchType::class, [
-                'label' => 'Availability Inverter',
+                'label' => 'Availability Inverter - Heatmap Analysis',
                 'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny']
@@ -95,13 +95,13 @@ class AssetManagementeReportFormType extends AbstractType
                 'data' => false,
             ])
             ->add('StringCurr', SwitchType::class, [
-                'label' => 'String Current Heatmap Analysis',
+                'label' => 'String Current - Heatmap Analysis',
                 'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('InvPow', SwitchType::class, [
-                'label' => 'Inverter Power-DC Heatmap Analysis',
+                'label' => 'Inverter Power DC - Heatmap Analysis',
                 'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny']

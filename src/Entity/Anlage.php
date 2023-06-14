@@ -10,6 +10,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\RangeFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Serializer\Filter\PropertyFilter;
 
+use App\Helper\PVPNameArraysTrait;
 use App\Repository\AnlagenRepository;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -47,7 +48,7 @@ use Symfony\Component\Serializer\Annotation\SerializedName;
 class Anlage
 {
     private string $dbAnlagenData = 'pvp_data';
-
+    use PVPNameArraysTrait;
     #[Groups(['main','api:read'])]
     #[SerializedName('id')]
     #[ORM\Column(name: 'id', type: 'bigint', nullable: false)]
@@ -641,6 +642,7 @@ class Anlage
 
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $PowerThreshold = "0";
+
 
 
     /**
@@ -3640,6 +3642,22 @@ class Anlage
         $this->PowerThreshold = $PowerThreshold;
 
         return $this;
+    }
+
+    public function getPrFormular0Image(){
+        return '/images/formulas/' . $this->getPrFormular0() . '.png';
+    }
+
+    public function getPrFormular1Image(){
+        return '/images/formulas/' . $this->getPrFormular1() . '.png';
+    }
+
+    public function getPrFormular2Image(){
+        return '/images/formulas/' . $this->getPrFormular2() . '.png';
+    }
+
+    public function getPrFormular3Image(){
+        return '/images/formulas/' . $this->getPrFormular3() . '.png';
     }
 
 }

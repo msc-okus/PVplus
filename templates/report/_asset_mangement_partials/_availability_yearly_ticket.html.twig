@@ -1,8 +1,8 @@
 {% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Availability Analysis - Yearly Overview - {{ year }}</h3>
-    <table>
-        <tr>
+    <table style="width: 50%">
+        <tr style="width: 50%">
             <td style="width: 50%">
                 <table style="width: 90%">
                     <thead>
@@ -18,7 +18,7 @@
                         <th class="table-center">Availability</th>
                     </tr>
                     <tr>
-                        <th class="table-center"> Jan {{ year|slice(2,3) }} - {{ monthName }} {{ year|slice(2,3) }}</th>
+                        <th class="table-center"> Jan - {{ monthName }} {{ year }}</th>
                         <th class="table-center"> [%] </th>
                         <th class="table-center"> [%]</th>
                         <th class="table-center"> [%]</th>
@@ -74,15 +74,16 @@
                 </table>
 
             </td>
+            {#
             <td style="width:25%">
-
                 {{ availability_Year_To_Date|raw }}
             </td>
             <td style="width:25%">
                 {{ failures_Year_To_Date|raw }}
             </td>
+            #}
         </tr>
-        <tr >
+        <tr style="width: 50%">
             <td style="width: 50%">
                 <table style="margin-top: 30px; width: 90%">
                     <thead>
@@ -135,7 +136,7 @@
             </td>
              #}
         </tr>
-        <tr>
+        <tr style="width: s50%">
             <td>
                 <div style="text-align: left">
                     <sup><b>a</b></sup> Maintenance, SOR<br>

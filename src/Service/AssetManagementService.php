@@ -57,6 +57,7 @@ class AssetManagementService
     public function createAmReport(Anlage $anlage, $reportMonth, $reportYear, ?string $userId = null, ?int $logId = null): AnlagenReports
     {
 
+
         $report = $this->reportRepo->findOneByAMY($anlage, $reportMonth, $reportYear)[0];
         $comment = '';
         if ($report) {
@@ -98,7 +99,12 @@ class AssetManagementService
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'montharray' => $content['monthArray'],
+
             //until here all the parameters must be used in all the renders
+            'pr0image' =>$anlage->getPrFormular0Image(),
+            'pr1image' =>$anlage->getPrFormular1Image(),
+            'pr2image' =>$anlage->getPrFormular2Image(),
+            'pr3image' =>$anlage->getPrFormular3Image(),
 
         ]);
         $htmlhead = str_replace('src="//', 'src="https://', $htmlhead);
@@ -223,7 +229,7 @@ class AssetManagementService
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
         $reportParts[5] = $pdf->createPage($html5, $fileroute, "MonthlyProd", false);// we will store this later in the entity
 
-        $output = $this->reportsMonthly->buildMonthlyReportNew($anlage, $reportMonth, $reportYear);
+        $outputTable = $this->reportsMonthly->buildMonthlyReportNew($anlage, $reportMonth, $reportYear);
         $headline = 'Monats Bericht (Testumgebung)';
         $anlagen = $this->anlagenRepository->findAllActiveAndAllowed();
         $htmlTable = $this->twig->render('report/asset_report_PRTable.html.twig', [
@@ -238,9 +244,10 @@ class AssetManagementService
             'headline'      => $headline,
             'anlagen'       => $anlagen,
             'anlage'        => $anlage,
-            'report'        => $output,
+            'report'        => $outputTable,
             'status'        => $anlage->getAnlId(),
         ]);
+
         $htmlTable = str_replace('src="//', 'src="https://', $htmlTable);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
 
@@ -2547,7 +2554,7 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'G4N Simulation[%]',
+                        'name' => 'Forecast g4n[%]',
                         'type' => 'bar',
                         'data' => [$percentageTable['forecast']],
                         'visualMap' => 'false',
@@ -2622,7 +2629,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'G4N Simulation[%]',
+                    'name' => 'Forecast g4n[%]',
                     'type' => 'bar',
                     'data' => [$percentageTable['forecast']],
                     'visualMap' => 'false',
