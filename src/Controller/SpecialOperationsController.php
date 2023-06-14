@@ -35,6 +35,7 @@ class SpecialOperationsController extends AbstractController
     {
         $output = $output2 = $availability = '';
 
+        $day = $request->request->get('day');
         $month = $request->request->get('month');
         $year = $request->request->get('year');
         $anlageId = $request->request->get('anlage-id');
@@ -48,6 +49,7 @@ class SpecialOperationsController extends AbstractController
         $anlage = $anlagenRepository->findOneBy(['anlId' => $anlageId]);
 
         if ($submitted && isset($anlageId)) {
+            if (!$day) {}
             $from = date_create($year.'-'.$month.'-01 00:01');
             $daysInMonth = $from->format('t');
             $to = date_create($year.'-'.($month).'-'.$daysInMonth.' 23:59');
@@ -75,6 +77,8 @@ class SpecialOperationsController extends AbstractController
     public function monthlyReportTest(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyService $reportsMonthly): Response
     {
         $output = null;
+        $startDay = $request->request->get('start-day');
+        $endDay = $request->request->get('end-day');
         $month = $request->request->get('month');
         $year = $request->request->get('year');
         $anlageId = $request->request->get('anlage-id');
@@ -86,8 +90,8 @@ class SpecialOperationsController extends AbstractController
         $anlagen = $anlagenRepository->findAllActiveAndAllowed();
 
         if ($submitted && isset($anlageId)) {
-            $anlage = $anlagenRepository->findOneBy(['anlId' => $anlageId]);
-            $output = $reportsMonthly->buildMonthlyReportNew($anlage, $month, $year);
+            $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
+            $output = $reportsMonthly->buildMonthlyReportNewByDate($anlage, $startDay, $endDay, $month, $year);
         }
 
         return $this->render('report/reportMonthlyNew.html.twig', [

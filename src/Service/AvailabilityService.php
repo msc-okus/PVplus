@@ -41,7 +41,7 @@ class AvailabilityService
     public function checkAvailability(Anlage|int $anlage, $date, bool $second = false): string
     {
         if (is_int($anlage)) {
-            $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);
+            $anlage = $this->anlagenRepository->findOneByIdAndJoin($anlage);
         }
 
         // Suche pasende Zeitkonfiguration für diese Anlage und dieses Datum
@@ -338,7 +338,7 @@ class AvailabilityService
      */
     public function calcAvailability(Anlage|int $anlage, DateTime $from, DateTime $to, ?int $inverter = null, int $department = 0): float
     {
-        if (is_int($anlage)) $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);
+        if (is_int($anlage)) $anlage = $this->anlagenRepository->findOneByIdAndJoin($anlage);
 
         $inverterPowerDc = $anlage->getPnomInverterArray();  // Pnom for every inverter
 

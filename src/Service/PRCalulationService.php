@@ -16,6 +16,7 @@ use App\Service\Functions\PowerService;
 use App\Service\Functions\SensorService;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
 
 class PRCalulationService
@@ -42,11 +43,14 @@ class PRCalulationService
     }
 
 
+    /**
+     * @throws NonUniqueResultException
+     */
     #[Deprecated]
     public function calcPRAll(Anlage|int $anlage, string $day): string
     {
         if (is_int($anlage)) {
-            $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);
+            $anlage = $this->anlagenRepository->findOneByIdAndJoin($anlage);
         }
 
         $timeStamp = strtotime($day);

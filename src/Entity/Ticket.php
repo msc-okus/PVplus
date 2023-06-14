@@ -107,13 +107,13 @@ class Ticket
     private ?string $whoHided = null;
 
     #[ORM\Column(length: 255, nullable: true)]
-    private ?string $WhenHidded = null;
+    private ?string $whenHidded = null;
 
     #[ORM\Column(length: 10, nullable: true)]
     private ?string $kpiStatus = null;
 
     #[ORM\Column(length: 20, nullable: true)]
-    private ?string $Scope = null;
+    private ?string $scope = null;
 
     #[ORM\Column]
     private ?bool $ProofAM = false;
@@ -346,12 +346,12 @@ class Ticket
 
     public function getWhenHidded(): ?string
     {
-        return $this->WhenHidded;
+        return $this->whenHidded;
     }
 
     public function setWhenHidded(?string $WhenHidded): self
     {
-        $this->WhenHidded = $WhenHidded;
+        $this->whenHidded = $WhenHidded;
 
         return $this;
     }
@@ -370,16 +370,20 @@ class Ticket
 
     public function getScope(): ?array
     {
-        return explode(", ",$this->Scope);
+        return explode(", ",$this->scope);
     }
 
-    public function setScope(?array $Scope): self
+    public function setScope(?array $scope): self
     {
-        $this->Scope = implode(", ",$Scope);
+        $this->scope = implode(", ",$scope);
 
         return $this;
     }
 
+    public function proof(): ?bool
+    {
+        return $this->needsProof || $this->needsProofEPC || $this->ProofAM;
+    }
     public function isProofAM(): ?bool
     {
         return $this->ProofAM;

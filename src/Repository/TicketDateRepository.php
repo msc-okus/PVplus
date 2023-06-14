@@ -236,7 +236,7 @@ class TicketDateRepository extends ServiceEntityRepository
     {
         $q = $this->createQueryBuilder('t')
             ->join("t.ticket", "ticket")
-            ->andWhere('ticket.Scope LIKE :dep')
+            ->andWhere('ticket.scope LIKE :dep')
             ->andWhere('t.begin BETWEEN :begin AND :end OR t.end BETWEEN :begin AND :end OR (:end <= t.end AND :begin >= t.begin)')
             ->andWhere("t.Anlage = :anlage")
             ->andWhere("ticket.kpiStatus = 10")

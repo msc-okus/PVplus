@@ -23,7 +23,7 @@ trait PVPNameArraysTrait
             'Ladenburg' => 'Ladenburg',
             'Doellen' => 'Doellen',
             'Groningen' => 'Groningen',
-        ];;
+        ];
     }
 
     public static function paFormulars(): array
