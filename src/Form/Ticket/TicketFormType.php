@@ -92,7 +92,7 @@ class TicketFormType extends AbstractType
             $builder->add('alertType', ChoiceType::class, [
                 'label' => 'Category of ticket ',
                 'help' => 'data gap, inverter, ...',
-                'choices' => $errorCategorie,
+                'choices' => self::errorCategorie(),
                 'disabled' => true,
                 'placeholder' => 'Please select ...',
                 'invalid_message' => 'Please select a Error Category.',

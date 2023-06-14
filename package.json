@@ -6,6 +6,7 @@
         "@hotwired/stimulus": "^3.0.0",
         "@popperjs/core": "^2.11.6",
         "@symfony/stimulus-bridge": "^3.2.0",
+        "@symfony/stimulus-bundle": "file:vendor/symfony/stimulus-bundle/assets",
         "@symfony/ux-chartjs": "file:vendor/symfony/ux-chartjs/assets",
         "@symfony/webpack-encore": "^4.2.0",
         "autocomplete.js": "^0.38.1",
@@ -22,7 +23,7 @@
         "sass": "^1.57.1",
         "sass-loader": "^13.3.1",
         "stimulus": "^3.0.1",
-        "webpack": "^5.740",
+        "webpack": "^5.85.1",
         "webpack-cli": "^4.10.0",
         "webpack-notifier": "^1.15.0",
         "what-input": "^5.2.10"

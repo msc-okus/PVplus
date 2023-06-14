@@ -32,26 +32,17 @@ use App\Service\UploaderHelper;
 use App\Helper\G4NTrait;
 class SpecialOperationsController extends AbstractController
 {
-    use G4NTrait;
-
-    #[Route('/special/operations', name: 'app_special_operations')]
-    public function index(): Response
-    {
-        return $this->render('special_operations/index.html.twig', [
-            'controller_name' => 'SpecialOperationsController',
-        ]);
-    }
-
+    #[IsGranted(['ROLE_G4N'])]
     #[Route(path: '/special/operations/bavelse/report', name: 'bavelse_report')]
     public function bavelseExport(Request $request, ExportService $bavelseExport, AnlagenRepository $anlagenRepository, AvailabilityByTicketService $availabilityByTicket): Response
     {
         $output = $output2 = $availability = '';
 
+        $day = $request->request->get('day');
         $month = $request->request->get('month');
         $year = $request->request->get('year');
         $anlageId = $request->request->get('anlage-id');
         $submitted = $request->request->get('new-report') == 'yes' && isset($month) && isset($year);
-
 
         // Start individual part
         /** @var Anlage $anlage */
@@ -59,15 +50,15 @@ class SpecialOperationsController extends AbstractController
         $anlageId = '97';
         $anlagen = $anlagenRepository->findBy(['anlId' => $anlageId]);
         $anlage = $anlagenRepository->findOneBy(['anlId' => $anlageId]);
-        $from = date_create($year.'-'.$month.'-01 00:01');
-        $dayOfMonth = $from->format('t');
-        $to = date_create($year.'-'.($month).'-'.$dayOfMonth.' 23:59');
 
         if ($submitted && isset($anlageId)) {
-            $daysInMonth = $to->format('t');
-            #$output = $bavelseExport->gewichtetTagesstrahlungAsTable($anlage, $from, $to);
-            #$availability = $availabilityByTicket->calcAvailability($anlage, date_create("$year-$month-01"), date_create("$year-$month-$daysInMonth"), null, 2);
-            $output2 = $bavelseExport->gewichtetTagesstrahlungOneLine($anlage, $anlage->getFacDateStart(), $to);
+            if (!$day) {}
+            $from = date_create($year.'-'.$month.'-01 00:01');
+            $daysInMonth = $from->format('t');
+            $to = date_create($year.'-'.($month).'-'.$daysInMonth.' 23:59');
+            $output        = $bavelseExport->gewichtetTagesstrahlungAsTable($anlage, $from, $to);
+            $availability  = "<h3>Plant Availability from " . $from->format('Y-m-d') . " to " . $to->format('Y-m-d') . ": " . $availabilityByTicket->calcAvailability($anlage, $from, $to, null, 2) . "</h3>";
+            $availability .= "<h3>Plant Availability from " . $anlage->getFacDateStart()->format('Y-m-d') . " to " . $to->format('Y-m-d') . ": " . $availabilityByTicket->calcAvailability($anlage, $anlage->getFacDateStart(), $to, null, 2) . "</h3>";
         }
         // End individual part
 
@@ -84,10 +75,13 @@ class SpecialOperationsController extends AbstractController
     /**
      * @throws Exception
      */
+    #[IsGranted(['ROLE_G4N', 'ROLE_BETA'])]
     #[Route(path: '/special/operations/monthly', name: 'monthly_report_test')]
     public function monthlyReportTest(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyService $reportsMonthly): Response
     {
         $output = null;
+        $startDay = $request->request->get('start-day');
+        $endDay = $request->request->get('end-day');
         $month = $request->request->get('month');
         $year = $request->request->get('year');
         $anlageId = $request->request->get('anlage-id');
@@ -99,8 +93,8 @@ class SpecialOperationsController extends AbstractController
         $anlagen = $anlagenRepository->findAllActiveAndAllowed();
 
         if ($submitted && isset($anlageId)) {
-            $anlage = $anlagenRepository->findOneBy(['anlId' => $anlageId]);
-            $output = $reportsMonthly->buildMonthlyReportNew($anlage, $month, $year);
+            $anlage = $anlagenRepository->findOneByIdAndJoin($anlageId);
+            $output = $reportsMonthly->buildMonthlyReportNewByDate($anlage, $startDay, $endDay, $month, $year);
         }
 
         return $this->render('report/reportMonthlyNew.html.twig', [
@@ -166,6 +160,7 @@ class SpecialOperationsController extends AbstractController
     }
 
 
+    #[IsGranted(['ROLE_G4N'])]
     #[Route(path: '/special/operations/deletetickets', name: 'delete_tickets')]
     public function deleteTickets(Request $request, AnlagenRepository $anlagenRepository, TicketRepository $ticketRepo, EntityManagerInterface $em): Response
     {

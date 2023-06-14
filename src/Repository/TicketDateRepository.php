@@ -236,7 +236,7 @@ class TicketDateRepository extends ServiceEntityRepository
     {
         $q = $this->createQueryBuilder('t')
             ->join("t.ticket", "ticket")
-            ->andWhere('ticket.Scope LIKE :dep')
+            ->andWhere('ticket.scope LIKE :dep')
             ->andWhere('t.begin BETWEEN :begin AND :end OR t.end BETWEEN :begin AND :end OR (:end <= t.end AND :begin >= t.begin)')
             ->andWhere("t.Anlage = :anlage")
             ->andWhere("ticket.kpiStatus = 10")
@@ -254,7 +254,31 @@ class TicketDateRepository extends ServiceEntityRepository
 
         return $q->getQuery()->getResult();
     }
+    /**
+     * Search for Performance Tickets
+     *
+     * @param Anlage $anlage
+     * @param string|DateTime $startDate
+     * @param string|DateTime $endDate
+     * @return array
+     */
+    public function performanceTicketsExcludeEnergy(Anlage $anlage, string|DateTime $startDate, string|DateTime $endDate): array
+    {
+        $q = $this->createQueryBuilder('t')
+            ->join("t.ticket", "ticket")
+            ->andWhere('t.begin BETWEEN :begin AND :end OR t.end BETWEEN :begin AND :end OR (:end <= t.end AND :begin >= t.begin)')
+            ->andWhere("t.Anlage = :anlage")
+            ->andWhere("ticket.kpiStatus = 10")
+            ->andWhere("ticket.alertType = '72'")  // Exclude from PR/Energy = 72
+            ->setParameter('begin', $startDate instanceof DateTime ? $startDate->format("Y-m-d H:i") : $startDate)
+            ->setParameter('end', $endDate instanceof DateTime ? $endDate->format("Y-m-d H:i") : $endDate)
+            ->setParameter('anlage', $anlage);
 
+        if ($startDate->format('m') == '1'){
+            #dd($q->getQuery()->getSQL(), $startDate->format("Y-m-d H:i"), $endDate->format("Y-m-d H:i"));
+        }
+        return $q->getQuery()->getResult();
+    }
     /**
      * Search for Performance Tickets
      *

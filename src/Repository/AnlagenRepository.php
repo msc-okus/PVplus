@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Helper\G4NTrait;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\Criteria;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Security;
@@ -54,7 +55,7 @@ class AnlagenRepository extends ServiceEntityRepository
     public static function lastAnlagenStatusCriteria(): Criteria
     {
         return Criteria::create()
-            ->andWhere(Criteria::expr()->gt('stamp', date_create(G4NTrait::getCetTime('object')->format('Y-m-d 00:00'))))
+            ->andWhere(Criteria::expr()->gt('stamp', date_create(self::getCetTime('object')->format('Y-m-d 00:00'))))
             ->orderBy(['stamp' => 'DESC'])
             ->setMaxResults(1)
         ;
@@ -63,7 +64,7 @@ class AnlagenRepository extends ServiceEntityRepository
     public static function lastOpenWeatherCriteria(): Criteria
     {
         return Criteria::create()
-            ->andWhere(Criteria::expr()->gt('stamp', G4NTrait::getCetTime('object')->format('Y-m-d 00:00')))
+            ->andWhere(Criteria::expr()->gt('stamp', self::getCetTime('object')->format('Y-m-d 00:00')))
             ->orderBy(['stamp' => 'DESC'])
             ->setMaxResults(1)
         ;
@@ -116,6 +117,28 @@ class AnlagenRepository extends ServiceEntityRepository
         ;
     }
 
+    /**
+     * @param $id
+     * @return Anlage|null
+     * @throws NonUniqueResultException
+     */
+    public function findOneByIdAndJoin($id): ?Anlage
+    {
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.anlId = :id')
+            ->leftJoin('a.groups', 'groups')
+            ->leftJoin('groups.modules', 'moduls')
+            ->leftJoin('a.acGroups', 'ac_groups')
+            ->leftJoin('a.settings', 'settings')
+            ->addSelect('groups')
+            ->addSelect('moduls')
+            ->addSelect('ac_groups')
+            ->addSelect('settings')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult()
+            ;
+    }
 
     public function findAlertSystemActive(bool $active){
         return $this->createQueryBuilder('a')
