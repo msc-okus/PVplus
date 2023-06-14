@@ -49,7 +49,7 @@ class AvailabilityByTicketService
     public function checkAvailability(Anlage|int $anlage, string|DateTime $date, int $department = 0): string
     {
         if (is_int($anlage)) {
-            $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);
+            $anlage = $this->anlagenRepository->findOneByIdAndJoin($anlage);
         }
         // If $date is a string, create a DateTime Object
         if (! $date instanceof DateTime) {
@@ -421,7 +421,7 @@ class AvailabilityByTicketService
      */
     public function calcAvailability(Anlage|int $anlage, DateTime $from, DateTime $to, ?int $inverter = null, int $department = 0): float
     {
-        if (is_int($anlage)) $anlage = $this->anlagenRepository->findOneBy(['anlId' => $anlage]);
+        if (is_int($anlage)) $anlage = $this->anlagenRepository->findOneByIdAndJoin($anlage);
 
         $inverterPowerDc = $anlage->getPnomInverterArray();  // Pnom for every inverter
 

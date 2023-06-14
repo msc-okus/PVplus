@@ -3,8 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ReplaceValuesTicketRepository;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+USE DateTime;
 
 #[ORM\Entity(repositoryClass: ReplaceValuesTicketRepository::class)]
 class ReplaceValuesTicket
@@ -14,8 +14,8 @@ class ReplaceValuesTicket
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTimeInterface $stamp = null;
+    #[ORM\Column(type: 'datetime')]
+    private ?DateTime $stamp = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
