@@ -3983,6 +3983,7 @@ class AssetManagementService
 
         $chart->series =
             [
+            [
                 [
                     'name' => 'Actual',
                     'type' => 'bar',
@@ -4007,7 +4008,7 @@ class AssetManagementService
                     'data' => $incomePerMonth['gvn_plan_proceeds_EXP'],
                     'visualMap' => 'false',
                 ],
-            ];
+            ]];
 
         $option = [
             'animation' => false,
