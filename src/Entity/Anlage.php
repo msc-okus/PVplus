@@ -464,7 +464,7 @@ class Anlage
     #[ORM\Column(type: 'string', length: 20)]
     private string $tempCorrDeltaTCnd = '3.0';
 
-    #[ORM\Column(type: 'string', length: 20, options: ['default' => '0.5'])]
+    #[ORM\Column(type: 'string', length: 20)]
     private string $degradationPR = '0.5';
 
     #[ORM\Column(type: 'string', length: 20)]
@@ -542,7 +542,7 @@ class Anlage
     #[ORM\Column(type: 'boolean')]
     private bool $hasWindSpeed = true;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $DataSourceAM;
 
     #[ORM\Column(type: 'boolean')]
@@ -589,9 +589,6 @@ class Anlage
 
     #[ORM\Column(nullable: true)]
     private ?bool $gridTicket = false;
-
-    #[ORM\Column( nullable: true)]
-    private ?\DateTimeInterface $dataFrom = null;
 
     #[ORM\Column(nullable: true)]
     private ?bool $newAlgorythm = false;

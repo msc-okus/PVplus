@@ -60,10 +60,10 @@ class TicketDate
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $PRExcludeMethod = null;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private ?DateTimeInterface $beginHidden;
 
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(type: 'datetime', nullable: true)]
     private ?DateTimeInterface $endHidden ;
 
 
