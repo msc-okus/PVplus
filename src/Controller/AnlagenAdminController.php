@@ -11,6 +11,7 @@ use App\Form\Anlage\AnlageConfigFormType;
 use App\Form\Anlage\AnlageDcGroupsFormType;
 use App\Form\Anlage\AnlageFormType;
 use App\Form\Anlage\AnlageNewFormType;
+use App\Form\Anlage\AnlageSensorsFormType;
 use App\Helper\G4NTrait;
 use App\Repository\AnlageFileRepository;
 use App\Repository\AnlagenRepository;
@@ -297,6 +298,36 @@ class AnlagenAdminController extends BaseController
         }
 
         return $this->render('anlagen/edit_acgroups.html.twig', [
+            'anlageForm' => $form->createView(),
+            'anlage' => $anlage,
+        ]);
+    }
+
+    #[Route(path: '/admin/anlagen/editsensors/{id}', name: 'app_admin_anlagen_edit_sensors')]
+    public function editSensors($id, EntityManagerInterface $em, Request $request, AnlagenRepository $anlagenRepository): RedirectResponse|Response
+    {
+        $anlage = $anlagenRepository->find($id);
+        $form = $this->createForm(AnlageSensorsFormType::class, $anlage, [
+            'anlagenId' => $id,
+        ]);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid() && ($form->get('save')->isClicked() || $form->get('saveclose')->isClicked())) {
+            $successMessage = 'Plant data saved!';
+            $em->persist($anlage);
+            $em->flush();
+            if ($form->get('saveclose')->isClicked()) {
+                $this->addFlash('success', $successMessage);
+
+                return $this->redirectToRoute('app_admin_anlagen_list');
+            }
+        }
+        if ($form->isSubmitted() && $form->get('close')->isClicked()) {
+            $this->addFlash('warning', 'Canceled. No data was saved.');
+
+            return $this->redirectToRoute('app_admin_anlagen_list');
+        }
+
+        return $this->render('anlagen/edit_sensors.html.twig', [
             'anlageForm' => $form->createView(),
             'anlage' => $anlage,
         ]);

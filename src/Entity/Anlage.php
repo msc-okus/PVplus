@@ -360,54 +360,38 @@ class Anlage
     private ?string $prFormular2 = null;
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $prFormular3 = null;
-
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: TimesConfig::class, cascade: ['persist', 'remove'])]
     private Collection $timesConfigs;
-
     #[ORM\Column(type: 'boolean')]
     private bool $showForecast = false;
-
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageGridMeterDay::class)]
     private Collection $anlageGridMeterDays;
-
     #[ORM\Column(type: 'boolean')]
     private bool $useGridMeterDayData = false;
-
     #[ORM\Column(type: 'string', length: 20)]
     private string $country = '';
-
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: OpenWeather::class)]
     private Collection $openWeather;
-
     #[ORM\Column(type: 'boolean')]
     private bool $calcPR = false;
-
     #[ORM\Column(type: 'string', length: 20)]
     private string $pacDuration = '';
-
     #[Groups(['api:read'])]
     #[SerializedName('p_nom_simulation')]
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $kwPeakPvSyst;
-
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $kwPeakPLDCalculation;
-
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $designPR;
-
     #[ORM\Column(type: 'date', nullable: true)]
     private ?DateTime $facDateStart;
-
     #[ORM\Column(type: 'date', nullable: true)]
     private ?DateTime $pacDateEnd;
-
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private string $lid;
-
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private float|string|null $annualDegradation;
-
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $pldPR;
 
@@ -593,22 +577,6 @@ class Anlage
     #[ORM\Column(nullable: true)]
     private ?bool $newAlgorythm = false;
 
-    /**
-     * @return bool|null
-     */
-    public function isNewAlgorythm(): ?bool
-    {
-        return $this->newAlgorythm;
-    }
-
-    /**
-     * @param bool|null $newAlgorythm
-     */
-    public function setNewAlgorythm(?bool $newAlgorythm): void
-    {
-        $this->newAlgorythm = $newAlgorythm;
-    }
-
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $DCCableLosses = "0";
 
@@ -638,6 +606,9 @@ class Anlage
 
     #[ORM\Column(length: 50, nullable: true)]
     private ?string $PowerThreshold = "0";
+
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageSensors::class, cascade: ['persist', 'remove'])]
+    private Collection $sensors;
 
 
     /**
@@ -685,6 +656,7 @@ class Anlage
         $this->anlageFiles = new ArrayCollection();
         $this->statuses = new ArrayCollection();
         $this->dayLightData = new ArrayCollection();
+        $this->sensors = new ArrayCollection();
     }
 
     public function getAnlId(): string
@@ -3639,4 +3611,42 @@ class Anlage
         return $this;
     }
 
+    /**
+     * @return Collection<int, AnlageSensors>
+     */
+    public function getSensors(): Collection
+    {
+        return $this->sensors;
+    }
+
+    public function addSensor(AnlageSensors $sensor): static
+    {
+        if (!$this->sensors->contains($sensor)) {
+            $this->sensors->add($sensor);
+            $sensor->setAnlage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSensor(AnlageSensors $sensor): static
+    {
+        if ($this->sensors->removeElement($sensor)) {
+            // set the owning side to null (unless already changed)
+            if ($sensor->getAnlage() === $this) {
+                $sensor->setAnlage(null);
+            }
+        }
+
+        return $this;
+    }
+    public function isNewAlgorythm(): ?bool
+    {
+        return $this->newAlgorythm;
+    }
+
+    public function setNewAlgorythm(?bool $newAlgorythm): void
+    {
+        $this->newAlgorythm = $newAlgorythm;
+    }
 }
