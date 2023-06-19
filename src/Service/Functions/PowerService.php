@@ -9,6 +9,7 @@ use App\Repository\GridMeterDayRepository;
 use App\Repository\MonthlyDataRepository;
 use App\Repository\TicketDateRepository;
 use App\Service\FunctionsService;
+use Hoa\Compiler\Visitor\Dump;
 use PDO;
 use DateTime;
 use phpDocumentor\Reflection\DocBlock\Tags\Deprecated;
@@ -127,6 +128,19 @@ class PowerService
                 $powerEvu = $row['power_evu_ppc'];
             }
         } else {
+
+            // Wenn externe Tagesdaten genutzt werden, sollen lade diese aus der DB und ÜBERSCHREIBE die Daten aus den 15Minuten Werten
+            if ($anlage->getUseGridMeterDayData()) {
+                // Berechnung der externen Zählerwerte unter Berücksichtigung der Manuel eingetragenen Monatswerte.
+                // Darüber kann eine Koorektur der Zählerwerte erfolgen.
+                // Wenn für einen Monat Manuel Zählerwerte eingegeben wurden, wird der Wert der Tageszählwer wieder subtrahiert und der Manuel eingebene Wert addiert.
+                $powerEGridExt = $this->gridMeterDayRepo->sumByDateRange($anlage, $from->format('Y-m-d H:i') , $to->format('Y-m-d H:i') );
+
+                if (!$powerEGridExt) $powerEGridExt = 0;
+
+                $powerEGridExt = $this->correctGridByTicket($anlage, $powerEGridExt, $from, $to); // Function not fianly tested
+            }
+
             // EVU Leistung ermitteln –
             // dieser Wert kann der offiziele Grid Zähler wert sein, kann aber auch nur ein interner Wert sein. Siehe Konfiguration $anlage->getUseGridMeterDayData()
             if ($anlage->isIgnoreNegativEvu()) {
