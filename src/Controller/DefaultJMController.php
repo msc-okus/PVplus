@@ -140,6 +140,10 @@ class DefaultJMController extends AbstractController
                              'color' => 'rgba(0,0,0,0)'
                          ]
                     ],
+                    'label' => [
+                        'show' => true,
+                        'position' => 'inside'
+                    ],
                     'data' => $help,
                 ],
                [
@@ -147,12 +151,12 @@ class DefaultJMController extends AbstractController
                    'type' => 'bar',
                    'stack' => 'x',
                    'data' => $positive,
-                   /* we cannot display the numbers because the bars are stacked, meaning that when we have negative values we will 0 the 0 of the possitive value
+
                    'label' => [
                        'show' => true,
                        'position' => 'inside'
                    ],
-                   */
+
                ],
                [
                    'name' => 'negative',
@@ -162,12 +166,12 @@ class DefaultJMController extends AbstractController
                    'itemStyle'=>[
                        'color'=>'#f33'
                    ],
-                   /*
+
                    'label' => [
                        'show' => true,
                        'position' => 'inside'
                    ],
-                   */
+
                ],
 
             ];
