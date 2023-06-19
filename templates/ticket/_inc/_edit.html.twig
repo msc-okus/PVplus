@@ -146,11 +146,37 @@
 
                         </div>
                         <div class="grid-x grid-padding-x">
-                            <div class="cell small-6 medium-2">
-                                {{ form_row(ticketForm.begin) }}
+                            <div class="cell small-6 large-2">
+                                <div class="grid-x">
+                                    <div class="cell small-2 text-right">
+                                        <label>&nbsp;</label>
+                                        <button type="button" class="button tiny hollow secondary" data-action="ticket-edit#beginMinusTime"><span class="fa fa-minus-circle"></span></button>
+                                    </div>
+                                    <div class="cell small-8">
+                                        {{ form_label(ticketForm.begin) }}
+                                        {{ form_widget(ticketForm.begin) }}
+                                    </div>
+                                    <div class="cell small-2">
+                                        <label>&nbsp;</label>
+                                        <button type="button"class="button tiny hollow secondary" data-action="ticket-edit#beginPlusTime"><span class="fa fa-plus-circle"></span></button>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="cell small-6 medium-2">
-                                {{ form_row(ticketForm.end) }}
+                            <div class="cell small-6 large-2">
+                                <div class="grid-x">
+                                    <div class="cell small-2 text-right">
+                                        <label>&nbsp;</label>
+                                        <button type="button" class="button tiny hollow secondary" data-action="ticket-edit#endMinusTime"><span class="fa fa-minus-circle"></span></button>
+                                    </div>
+                                    <div class="cell small-8">
+                                        {{ form_label(ticketForm.end) }}
+                                        {{ form_widget(ticketForm.end) }}
+                                    </div>
+                                    <div class="cell small-2">
+                                        <label>&nbsp;</label>
+                                        <button type="button" class="button tiny hollow secondary" data-action="ticket-edit#endPlusTime"><span class="fa fa-plus-circle"></span></button>
+                                    </div>
+                                </div>
                             </div>
                             <div class="cell small-6 medium-2">
                                 {{ form_row(ticketForm.status) }}

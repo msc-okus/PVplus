@@ -58,7 +58,7 @@
                     <option value="Inverter Broken">
                 </datalist>
             </td>
-            <div hidden>    {{ form_widget(date.reasonText) }}</div>
+            <div hidden>{{ form_widget(date.reasonText) }}</div>
             {% if (ticket.alertType != 10 and ticket.alertType != 20 and ticket.alertType != 0) %}
                 <td class="is-hidden" data-ticket-edit-target="fieldEvaluation">{{ form_widget(date.dataGapEvaluation, { 'attr':{'class': 'no-margin ', 'data-ticket-split-target':'dataGapEv', 'data-action':'change->ticket-split#checkKpiSelectBoxes', 'disabled':'true'} }) }}</td>
             {% else %}

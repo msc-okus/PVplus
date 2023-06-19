@@ -411,6 +411,8 @@ class AlertSystemV2Service
         $voltLimit = 0;
         $conn = self::getPdoConnection();
 
+        if ($anlage->getPowerThreshold() != null) $powerThreshold = (int)$anlage->getPowerThreshold();
+        else $powerThreshold = 0;
         $return['ppc'] = false;
 
         $invCount = count($anlage->getInverterFromAnlage());
@@ -433,7 +435,7 @@ class AlertSystemV2Service
 
             $sqlAct = 'SELECT b.unit 
                     FROM (db_dummysoll a left JOIN ' . $anlage->getDbNameIst() . " b on a.stamp = b.stamp)
-                    WHERE a.stamp = '$time' AND  b.wr_pac <= 0 ";
+                    WHERE a.stamp = '$time' AND  b.wr_pac <= '$powerThreshold' ";
             $resp = $conn->query($sqlAct);
             $result0 = $resp->fetchAll(PDO::FETCH_ASSOC);
 
