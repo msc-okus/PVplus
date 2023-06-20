@@ -240,6 +240,7 @@ class ExpectedService
                         }
                         // degradation abziehen (degradation * Betriebsjahre).
                         $expCurrentDcHlp = $expCurrentDcHlp - ($expCurrentDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
+                        $expPowerDcHlp = $expPowerDcHlp - ($expPowerDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
 
                         $expPowerDc += $expPowerDcHlp;
                         $expCurrentDc += $expCurrentDcHlp;
