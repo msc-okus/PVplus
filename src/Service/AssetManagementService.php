@@ -224,8 +224,6 @@ class AssetManagementService
         $reportParts[5] = $pdf->createPage($html5, $fileroute, "MonthlyProd", false);// we will store this later in the entity
 
         $output = $this->reportsMonthly->buildMonthlyReportNew($anlage, $reportMonth, $reportYear);
-        $headline = 'Monats Bericht (Testumgebung)';
-        $anlagen = $this->anlagenRepository->findAllActiveAndAllowed();
         $htmlTable = $this->twig->render('report/asset_report_PRTable.html.twig', [
             'month' => $reportMonth,
             'monthName' => $output['month'],
@@ -235,11 +233,8 @@ class AssetManagementService
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'montharray' => $content['monthArray'],
-            'headline'      => $headline,
-            'anlagen'       => $anlagen,
             'anlage'        => $anlage,
             'report'        => $output,
-            'status'        => $anlage->getAnlId(),
         ]);
         $htmlTable = str_replace('src="//', 'src="https://', $htmlTable);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
@@ -2479,7 +2474,7 @@ class AssetManagementService
             }
         }
 
-        $G4NmonthExpected = $tbody_a_production['powerExp'][$month-2] * ((100 - $anlage->getTotalKpi())/100);
+        $G4NmonthExpected = $tbody_a_production['powerExp'][$month-2] * ((100 - $anlage->getTotalKpi()) / 100);
         $G4NyearExpected = 1;
         for($index = 0; $index < $month -1; $index++){
             $G4NyearExpected = $G4NyearExpected + ($tbody_a_production['powerExp'][$index] * ((100-$anlage->getTotalKpi())/100));
@@ -2491,15 +2486,27 @@ class AssetManagementService
             $ActualPowerYear = $ActualPowerYear + $tbody_a_production['powerAct'][$index];
         }
 
-        $percentageTable = [
-            'G4NExpected' =>  100 ,
-            'PVSYSExpected' => (int)($tbody_a_production['expectedPvSyst'][$month - 2] * 100 / $G4NmonthExpected),
-            'forecast' =>  (int)($forecast[$month-2] * 100 / $G4NmonthExpected),
-            'ActualPower' => (int)($ActualPower * 100 / $G4NmonthExpected),
-            'SORLosses' => number_format(-($kwhLossesMonthTable['SORLosses']  * 100 / $G4NmonthExpected), 2),
-            'EFORLosses' => number_format(-($kwhLossesMonthTable['EFORLosses']  * 100 / $G4NmonthExpected), 2) ,
-            'OMCLosses' => number_format(-($kwhLossesMonthTable['OMCLosses']  * 100 / $G4NmonthExpected), 2)
-        ];
+        if ($G4NmonthExpected > 0) {
+            $percentageTable = [
+                'G4NExpected' => 100,
+                'PVSYSExpected' => (int)($tbody_a_production['expectedPvSyst'][$month - 2] * 100 / $G4NmonthExpected),
+                'forecast' => (int)($forecast[$month - 2] * 100 / $G4NmonthExpected),
+                'ActualPower' => (int)($ActualPower * 100 / $G4NmonthExpected),
+                'SORLosses' => number_format(-($kwhLossesMonthTable['SORLosses'] * 100 / $G4NmonthExpected), 2),
+                'EFORLosses' => number_format(-($kwhLossesMonthTable['EFORLosses'] * 100 / $G4NmonthExpected), 2),
+                'OMCLosses' => number_format(-($kwhLossesMonthTable['OMCLosses'] * 100 / $G4NmonthExpected), 2)
+            ];
+        } else { // somthing is wrong with the expected
+            $percentageTable = [
+                'G4NExpected' => 0,
+                'PVSYSExpected' => 0,
+                'forecast' => 0,
+                'ActualPower' => 0,
+                'SORLosses' => 0,
+                'EFORLosses' => 0,
+                'OMCLosses' => 0,
+            ];
+        }
 
         $chart->tooltip = [];
         $chart->xAxis = [];
@@ -3484,7 +3491,7 @@ class AssetManagementService
                             'act_power_dc' => $dcIst[$j]['act_power_dc'],
                             'act_current_dc' => $dcIst[$j]['act_current_dc'],
                             'diff_current_dc' => (($dcIst[$j]['act_current_dc'] - $value[$i]['exp_current_dc']) / $value[$i]['exp_current_dc']) * 100 ,
-                            'diff_power_dc' =>  (($dcIst[$j]['act_power_dc'] - $value[$i]['exp_power_dc']) / $value[$i]['exp_power_dc']) * 100 ,
+                            'diff_power_dc' =>  ($value[$i]['exp_power_dc'] > 0) ? (($dcIst[$j]['act_power_dc'] - $value[$i]['exp_power_dc']) / $value[$i]['exp_power_dc']) * 100 : 0 , // if we have no expected set to 0
                         ];
 
                         if (date('d', strtotime($value[$i]['form_date'])) >= $daysInReportMonth) {
@@ -3529,13 +3536,9 @@ class AssetManagementService
             $outTableCurrentsPower[] = $dcExpDcIst;
         }
 
-
-
         $resultEconomicsNames = $this->ecoVarNameRepo->findOneByAnlage($anlage);
 
         if ($resultEconomicsNames) {
-
-
             $ecoVarValues = $this->ecoVarValueRepo->findByAnlageYear($anlage, $report['reportYear']);
             $var1['name'] = $resultEconomicsNames->getVar1();
             $var2['name'] = $resultEconomicsNames->getVar2();
