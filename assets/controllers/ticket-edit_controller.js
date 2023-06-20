@@ -13,7 +13,7 @@ export default class extends Controller {
                         'fieldEnergyValue', 'fieldIrrValue', 'fieldCorrection', 'fieldEvaluation', 'fieldAktDep1', 'fieldAktDep2',
                         'fieldAktDep3', 'formReplaceIrr', 'inverterDiv', 'formHour', 'formBeginHidden', 'formEndHidden', 'formBeginDate',
                         'formEndDate', 'formReasonSelect', 'formReasonText', 'headerReason', 'fieldReason', 'formkpiStatus', 'headerFormKpi',
-                        'headerPRMethod', 'fieldPRMethod', 'scope', 'reasonInput'];
+                        'headerPRMethod', 'fieldPRMethod', 'scope', 'reasonInput', 'sensorDiv'];
     static values = {
         formUrl: String,
         splitUrl: String,
@@ -944,6 +944,14 @@ export default class extends Controller {
             inverterString = '*';
         }
 
+        let sensorString = '';
+
+
+        body.find('input:checkbox[class=sensor-checkbox]:checked').each(function (){
+            if (sensorString == '') {sensorString = sensorString + $(this).prop('name');}
+            else {sensorString = sensorString + ', ' + $(this).prop('name');}
+        });
+        console.log(sensorString);
         //here we get the values of the date forms to check if they are valid
         const valueBegin = $(this.formBeginTarget).prop('value');
         const valueEnd = $(this.formEndTarget).prop('value');
@@ -1069,6 +1077,7 @@ export default class extends Controller {
         }
 
         $(this.modalBodyTarget).find('#ticket_form_inverter').val(inverterString);
+        $(this.modalBodyTarget).find('#ticket_form_dates_0_sensors').val(sensorString);
     }
 
 

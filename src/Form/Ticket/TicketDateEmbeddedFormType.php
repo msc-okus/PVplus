@@ -121,11 +121,12 @@ class TicketDateEmbeddedFormType extends AbstractType
                     'choices' => self::PRExcludeMethods(),
                 ])
                 // at the moment only Dummy - no field
-                ->add('sensors', ChoiceType::class, [
+                ->add('sensors', TextType::class, [
                     'label'     => 'excludeSensors',
-                    'choices'   => ['Wind' => 10, 'Irr' => 20, 'ModulTemp' => 30, 'and so on' => 40],
-                    'placeholder' => 'please chose',
-                    'mapped' => false
+                    'attr' => [
+                        'readonly' => true,
+                    ],
+
                 ])
 
                 // new field

@@ -962,7 +962,7 @@ class Anlage
     public function setAnlIrChange(string $anlIrChange): self
     {
         $weatherStation = $this->getWeatherStation();
-        $weatherStation->setChangeSensor($anlIrChange);
+        $weatherStation->setChangeSensor($IrChange);
 
         return $this;
     }
