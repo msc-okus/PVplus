@@ -66,6 +66,9 @@ class TicketDate
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?DateTimeInterface $endHidden ;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $sensors = "";
+
 
     public function __construct()
     {
@@ -274,6 +277,18 @@ class TicketDate
     public function setEndHidden(?\DateTimeInterface $endHidden): self
     {
         $this->endHidden = $endHidden;
+
+        return $this;
+    }
+
+    public function getSensors(): ?string
+    {
+        return $this->sensors;
+    }
+
+    public function setSensors(?string $sensors): static
+    {
+        $this->sensors = $sensors;
 
         return $this;
     }
