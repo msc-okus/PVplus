@@ -590,9 +590,6 @@ class Anlage
     #[ORM\Column(nullable: true)]
     private ?bool $gridTicket = false;
 
-    #[ORM\Column( nullable: true)]
-    private ?\DateTimeInterface $dataFrom = null;
-
     #[ORM\Column(nullable: true)]
     private ?bool $newAlgorythm = false;
 

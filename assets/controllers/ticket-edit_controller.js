@@ -916,7 +916,121 @@ export default class extends Controller {
         }
     }
 
-    saveCheck({ params: { edited }}){
+    beginCheck(){
+        const valueBegin = $(this.formBeginTarget).prop('value');
+        const date = new Date(valueBegin);
+        date.setSeconds(0);
+        const timestamp1 = date.getTime();
+
+        if (timestamp1% 300000 == 0){
+            var hour = date.getHours();
+            var minutes = date.getMinutes();
+            switch (minutes){
+                case 0:
+                case 5:
+                    minutes = 15;
+                    break;
+                case 10:
+                case 15:
+                case 20:
+                    minutes = 30;
+                    break;
+                case 25:
+                case 30:
+                case 35:
+                    minutes = 45;
+                    break;
+                case 40:
+                case 45:
+                case 50:
+                    hour = hour + 1;
+                    minutes = 0;
+                    break;
+                case 55:
+                    hour = hour + 1;
+                    minutes = 15;
+                    break;
+            }
+            if (date.getMonth() < 10) {
+                var Month = '0'.concat((date.getMonth() + 1).toString());
+            } else {
+                var Month = (date.getMonth() + 1).toString();
+            }
+            if (date.getDate() < 10) {
+                var Day = '0'.concat(date.getDate().toString());
+            } else {
+                var Day = date.getDate().toString();
+            }
+            if (hour < 10) {
+                hour = '0'.concat(hour.toString());
+            }  if (minutes < 10) {
+                minutes = '0'.concat(minutes.toString());
+            }
+            let newStringdate = date.getFullYear().toString().concat('-', Month, '-', Day, 'T', hour, ':', minutes);
+            $(this.formBeginTarget).val(newStringdate);
+            $(this.formBeginDateTarget).val(newStringdate);
+        }
+
+       this.saveCheck();
+    }
+    endCheck(){
+        const valueBegin = $(this.formEndTarget).prop('value');
+        const date = new Date(valueBegin);
+        date.setSeconds(0);
+        const timestamp1 = date.getTime();
+
+        if (timestamp1% 300000 == 0){
+            var hour = date.getHours();
+            var minutes = date.getMinutes();
+            switch (minutes){
+                case 0:
+                case 5:
+                    minutes = 15;
+                    break;
+                case 10:
+                case 15:
+                case 20:
+                    minutes = 30;
+                    break;
+                case 25:
+                case 30:
+                case 35:
+                    minutes = 45;
+                    break;
+                case 40:
+                case 45:
+                case 50:
+                    hour = hour + 1;
+                    minutes = 0;
+                    break;
+                case 55:
+                    hour = hour + 1;
+                    minutes = 15;
+                    break;
+            }
+            if (date.getMonth() < 10) {
+                var Month = '0'.concat((date.getMonth() + 1).toString());
+            } else {
+                var Month = (date.getMonth() + 1).toString();
+            }
+            if (date.getDate() < 10) {
+                var Day = '0'.concat(date.getDate().toString());
+            } else {
+                var Day = date.getDate().toString();
+            }
+            if (hour < 10) {
+                hour = '0'.concat(hour.toString());
+            }  if (minutes < 10) {
+                minutes = '0'.concat(minutes.toString());
+            }
+            let newStringdate = date.getFullYear().toString().concat('-', Month, '-', Day, 'T', hour, ':', minutes);
+            $(this.formEndTarget).val(newStringdate);
+            $(this.formEndDateTarget).val(newStringdate);
+        }
+
+        this.saveCheck();
+    }
+    saveCheck(){
         //getting a string with the inverters so later we can check if there is any or none
 
         let inverterString = '';
@@ -962,18 +1076,15 @@ export default class extends Controller {
             $(this.splitDeployTarget).attr('disabled', 'disabled');
         }
         else {
-            if (edited == true) {
-                $(this.splitDeployTarget).removeAttr('disabled');
-            }
+            $(this.splitDeployTarget).removeAttr('disabled');
         }
-
         if (inverterString == '') {
             $(this.CalloutTarget).removeClass('is-hidden');
             $(this.AlertInverterTarget).removeClass('is-hidden');
             $(this.saveButtonTarget).attr('disabled', 'disabled');
             if (timestamp2 > timestamp1){
                 $(this.AlertDatesTarget).addClass('is-hidden');
-                if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+                if ((timestamp1 % 300000 == 0) && (timestamp2 % 300000 == 0)){
                     $(this.AlertFormatTarget).addClass('is-hidden');
                     if ($(this.formHourTarget).prop('checked') == true) this.hourCheck();
                     if (cat == ""){
@@ -993,7 +1104,7 @@ export default class extends Controller {
                 }
             } else {
                 $(this.AlertDatesTarget).removeClass('is-hidden');
-                if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+                if ((timestamp1 % 300000 == 0) && (timestamp2 % 300000 == 0)){
                     if ($(this.formHourTarget).prop('checked') == true) this.hourCheck();
                     $(this.AlertFormatTarget).addClass('is-hidden');
                     if (cat == ""){
@@ -1019,7 +1130,7 @@ export default class extends Controller {
             $(this.saveButtonTarget).removeAttr('disabled');
             if (timestamp2 > timestamp1){
                 $(this.AlertDatesTarget).addClass('is-hidden');
-                if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+                if ((timestamp1 % 300000 == 0) && (timestamp2 % 300000 == 0)){
                     if ($(this.formHourTarget).prop('checked') == true) this.hourCheck();
                     $(this.AlertFormatTarget).addClass('is-hidden');
                     if (cat == ""){
@@ -1047,7 +1158,7 @@ export default class extends Controller {
                 $(this.AlertDatesTarget).removeClass('is-hidden');
                 $(this.saveButtonTarget).attr('disabled', 'disabled');
 
-                    if ((timestamp1 % 900000 == 0) && (timestamp2 % 900000 == 0)){
+                    if ((timestamp1 % 300000 == 0) && (timestamp2 % 300000 == 0)){
                         if ($(this.formHourTarget).prop('checked') == true) this.hourCheck();
                         $(this.AlertFormatTarget).addClass('is-hidden');
                         if (cat == ""){

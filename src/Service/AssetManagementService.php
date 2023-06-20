@@ -224,8 +224,6 @@ class AssetManagementService
         $reportParts[5] = $pdf->createPage($html5, $fileroute, "MonthlyProd", false);// we will store this later in the entity
 
         $output = $this->reportsMonthly->buildMonthlyReportNew($anlage, $reportMonth, $reportYear);
-        $headline = 'Monats Bericht (Testumgebung)';
-        $anlagen = $this->anlagenRepository->findAllActiveAndAllowed();
         $htmlTable = $this->twig->render('report/asset_report_PRTable.html.twig', [
             'month' => $reportMonth,
             'monthName' => $output['month'],
@@ -235,11 +233,8 @@ class AssetManagementService
             'dataCfArray' => $content['dataCfArray'],
             'reportmonth' => $content['reportmonth'],
             'montharray' => $content['monthArray'],
-            'headline'      => $headline,
-            'anlagen'       => $anlagen,
             'anlage'        => $anlage,
             'report'        => $output,
-            'status'        => $anlage->getAnlId(),
         ]);
         $htmlTable = str_replace('src="//', 'src="https://', $htmlTable);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
