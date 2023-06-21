@@ -87,7 +87,7 @@ class AssetManagementService
 
         $content = $output;
         $this->logMessages->updateEntry($logId, 'working', 95);
-        $htmlhead = $this->twig->render('report/asset_report_header.html.twig', [
+        $html = $this->twig->render('report/asset_report_header.html.twig', [
             'comments' => "",
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -99,12 +99,16 @@ class AssetManagementService
             'reportmonth' => $content['reportmonth'],
             'montharray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
+            'pr0image' =>$anlage->getPrFormular0Image(),
+            'pr1image' =>$anlage->getPrFormular1Image(),
+            'pr2image' =>$anlage->getPrFormular2Image(),
+            'pr3image' =>$anlage->getPrFormular3Image(),
 
         ]);
-        $htmlhead = str_replace('src="//', 'src="https://', $htmlhead);
+        $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[0] = $pdf->createPage($htmlhead, $fileroute, "head", false);// we will store this later in the entity
-        $html1 = $this->twig->render('report/asset_report_part_1.html.twig', [
+        $reportParts[0] = $pdf->createPage($html, $fileroute, "head", false);// we will store this later in the entity
+        $html = $this->twig->render('report/asset_report_part_1.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
@@ -119,12 +123,30 @@ class AssetManagementService
             'table_overview_monthly' => $content['table_overview_monthly']
 
         ]);
-        $html1 = str_replace('src="//', 'src="https://', $html1);
+        $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[1] = $pdf->createPage($html1, $fileroute, "ProductionCapFactor", false);// we will store this later in the entity
+        $reportParts[1] = $pdf->createPage($html, $fileroute, "ProductionCapFactor", false);// we will store this later in the entity
+
+        $html = $this->twig->render('report/asset_report_technicalPRPA.html.twig', [
+            'anlage' => $anlage,
+            'month' => $reportMonth,
+            'monthName' => $output['month'],
+            'year' => $reportYear,
+            'dataMonthArray' => $content['dataMonthArray'],
+            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
+            'dataCfArray' => $content['dataCfArray'],
+            'reportmonth' => $content['reportmonth'],
+            'montharray' => $content['monthArray'],
+            //until here all the parameters must be used in all the renders
+            'monthlyTableForPRAndPA' => $content['monthlyTableForPRAndPA']
+
+        ]);
+        $html = str_replace('src="//', 'src="https://', $html);
+        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+        $reportParts[2] = $pdf->createPage($html, $fileroute, "PRPATable", true);// we will store this later in the entity
 
         if($anlage->hasPVSYST()) {
-            $html2 = $this->twig->render('report/asset_report_part_2.html.twig', [
+            $html = $this->twig->render('report/asset_report_part_2.html.twig', [
                 'anlage' => $anlage,
                 'month' => $reportMonth,
                 'monthName' => $output['month'],
@@ -140,11 +162,11 @@ class AssetManagementService
                 'forecast_PVSYST' => $content['forecast_PVSYST'],
 
             ]);
-            $html2 = str_replace('src="//', 'src="https://', $html2);
+            $html = str_replace('src="//', 'src="https://', $html);
             $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-            $reportParts[2] = $pdf->createPage($html2, $fileroute, "CumForecastPVSYS", false);// we will store this later in the entity
+            $reportParts[3] = $pdf->createPage($html, $fileroute, "CumForecastPVSYS", false);// we will store this later in the entity
         }
-        $html3 = $this->twig->render('report/asset_report_part_3.html.twig', [
+        $html = $this->twig->render('report/asset_report_part_3.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
@@ -159,11 +181,11 @@ class AssetManagementService
             'forecast_G4N' => $content['forecast_G4N'],
 
         ]);
-        $html3 = str_replace('src="//', 'src="https://', $html3);
+        $html = str_replace('src="//', 'src="https://', $html);
 
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[3] = $pdf->createPage($html3, $fileroute, "CumForecastG4N", false);// we will store this later in the entity
-        $html4 = $this->twig->render('report/asset_report_part_4.html.twig', [
+        $reportParts[4] = $pdf->createPage($html, $fileroute, "CumForecastG4N", false);// we will store this later in the entity
+        $html = $this->twig->render('report/asset_report_part_4.html.twig', [
 
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -181,11 +203,11 @@ class AssetManagementService
             'losses_monthly' => $content['losses_monthly'],
 
         ]);
-        $html4 = str_replace('src="//', 'src="https://', $html4);
+        $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[4] = $pdf->createPage($html4, $fileroute, "CumLosses", false);// we will store this later in the entity
+        $reportParts[5] = $pdf->createPage($html, $fileroute, "CumLosses", false);// we will store this later in the entity
 
-        $html5 = $this->twig->render('report/asset_report_part_5.html.twig', [
+        $html = $this->twig->render('report/asset_report_part_5.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
@@ -219,12 +241,12 @@ class AssetManagementService
             'operations_monthly_right_iout_tr7' => $content['operations_monthly_right_iout_tr7'],
             'production_monthly_chart' => $content['production_monthly_chart']
         ]);
-        $html5 = str_replace('src="//', 'src="https://', $html5);
+        $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[5] = $pdf->createPage($html5, $fileroute, "MonthlyProd", false);// we will store this later in the entity
+        $reportParts[6] = $pdf->createPage($html, $fileroute, "MonthlyProd", false);// we will store this later in the entity
 
-        $output = $this->reportsMonthly->buildMonthlyReportNew($anlage, $reportMonth, $reportYear);
-        $htmlTable = $this->twig->render('report/asset_report_PRTable.html.twig', [
+        $table = $this->reportsMonthly->buildMonthlyReportNew($anlage, $reportMonth, $reportYear);
+        $html = $this->twig->render('report/asset_report_PRTable.html.twig', [
             'month' => $reportMonth,
             'monthName' => $output['month'],
             'year' => $reportYear,
@@ -234,15 +256,15 @@ class AssetManagementService
             'reportmonth' => $content['reportmonth'],
             'montharray' => $content['monthArray'],
             'anlage'        => $anlage,
-            'report'        => $output,
+            'report'        => $table,
         ]);
-        $htmlTable = str_replace('src="//', 'src="https://', $htmlTable);
+        $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
 
-        $reportParts[6] = $pdf->createPage($htmlTable, $fileroute, "PRTable", false);// we will store this later in the entity
+        $reportParts[7] = $pdf->createPage($html, $fileroute, "PRTable", false);// we will store this later in the entity
 
 
-        $html6 = $this->twig->render('report/asset_report_part_6.html.twig', [
+        $html = $this->twig->render('report/asset_report_part_6.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
@@ -256,11 +278,11 @@ class AssetManagementService
             'table_overview_dayly' => $content['table_overview_dayly'],
 
         ]);
-        $html6 = str_replace('src="//', 'src="https://', $html6);
+        $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[7] = $pdf->createPage($html6, $fileroute, "ProdExpvsAct", false);// we will store this later in the entity
+        $reportParts[8] = $pdf->createPage($html, $fileroute, "ProdExpvsAct", false);// we will store this later in the entity
 
-        $html7 = $this->twig->render('report/asset_report_part_7.html.twig', [
+        $html = $this->twig->render('report/asset_report_part_7.html.twig', [
 
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -276,10 +298,10 @@ class AssetManagementService
             'operations_currents_dayly_table' => $content['operations_currents_dayly_table'],
             'acGroups' => $content['acGroups'],
         ]);
-        $html7 = str_replace('src="//', 'src="https://', $html7);
+        $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[8] = $pdf->createPage($html7, $fileroute, "String", false);// we will store this later in the entity
-        $html8 = $this->twig->render('report/asset_report_part_8.html.twig', [
+        $reportParts[9] = $pdf->createPage($html, $fileroute, "String", false);// we will store this later in the entity
+        $html = $this->twig->render('report/asset_report_part_8.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
@@ -294,10 +316,10 @@ class AssetManagementService
             'operations_currents_dayly_table' => $content['operations_currents_dayly_table'],
             'acGroups' => $content['acGroups'],
         ]);
-        $html8 = str_replace('src="//', 'src="https://', $html8);
+        $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[9] = $pdf->createPage($html8, $fileroute, "Inverter", false);// we will store this later in the entity
-        $html9 = $this->twig->render('report/asset_report_part_9.html.twig', [
+        $reportParts[10] = $pdf->createPage($html, $fileroute, "Inverter", false);// we will store this later in the entity
+        $html = $this->twig->render('report/asset_report_part_9.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
@@ -313,10 +335,10 @@ class AssetManagementService
             'acGroups' => $content['acGroups'],
             'plantAvailabilityCurrentYear' => $content['plantAvailabilityCurrentYear'],
         ]);
-        $html9 = str_replace('src="//', 'src="https://', $html9);
+        $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[10] = $pdf->createPage($html9, $fileroute, "AvailabilityYearOverview", false);// we will store this later in the entity
-        $html10 = $this->twig->render('report/asset_report_part_10.html.twig', [
+        $reportParts[11] = $pdf->createPage($html, $fileroute, "AvailabilityYearOverview", false);// we will store this later in the entity
+        $html = $this->twig->render('report/asset_report_part_10.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
@@ -338,10 +360,10 @@ class AssetManagementService
             'PercentageTableYear' => $content['PercentageTableYear'],
             'losseskwhchartYearMonthly' => $content['losseskwhchartYearMonthly']
         ]);
-        $html10 = str_replace('src="//', 'src="https://', $html10);
+        $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[11] = $pdf->createPage($html10, $fileroute, "AvailabilityYear", false);// we will store this later in the entity
-        $html11 =$this->twig->render('report/asset_report_part_11.html.twig', [
+        $reportParts[12] = $pdf->createPage($html, $fileroute, "AvailabilityYear", false);// we will store this later in the entity
+        $html =$this->twig->render('report/asset_report_part_11.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
@@ -362,10 +384,10 @@ class AssetManagementService
             'monthlyLossesHelpTable' => $content['monthlyLossesHelpTable'],
             'percentageTableMonth' => $content['percentageTableMonth']
         ]);
-        $html11 = str_replace('src="//', 'src="https://', $html11);
+        $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[12] = $pdf->createPage($html11, $fileroute, "AvailabilityMonth", false);// we will store this later in the entity
-        $html12 = $this->twig->render('report/asset_report_part_12.html.twig', [
+        $reportParts[13] = $pdf->createPage($html, $fileroute, "AvailabilityMonth", false);// we will store this later in the entity
+        $html = $this->twig->render('report/asset_report_part_12.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
             'monthName' => $output['month'],
@@ -380,9 +402,9 @@ class AssetManagementService
             'plantAvailabilityMonth' => $content['plantAvailabilityMonth'],
             'acGroups' => $content['acGroups']
         ]);
-        $html12 = str_replace('src="//', 'src="https://', $html12);
+        $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[13] = $pdf->createPage($html12, $fileroute, "AvailabilityByInverter", false);// we will store this later in the entity
+        $reportParts[14] = $pdf->createPage($html, $fileroute, "AvailabilityByInverter", false);// we will store this later in the entity
 
         if ($anlage->getEconomicVarNames() !== null) {
 
@@ -414,9 +436,9 @@ class AssetManagementService
                 'cumulated_losses_compared_chart' => $content['cumulated_losses_compared_chart'],
 
             ]);
-            $html13 = str_replace('src="//', 'src="https://', $html13);
+            $html = str_replace('src="//', 'src="https://', $html);
             $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-            $reportParts[14] = $pdf->createPage($html13, $fileroute, "Economic", false);// we will store this later in the entity
+            $reportParts[15] = $pdf->createPage($html, $fileroute, "Economic", false);// we will store this later in the entity
         }
 
         $report = new AnlagenReports();
@@ -2542,7 +2564,7 @@ class AssetManagementService
                         ],
                     ],
                     [
-                        'name' => 'G4N Simulation[%]',
+                        'name' => 'forecast g4n[%]',
                         'type' => 'bar',
                         'data' => [$percentageTable['forecast']],
                         'visualMap' => 'false',
@@ -3523,7 +3545,29 @@ class AssetManagementService
         if ($dcExpDcIst) {
             $outTableCurrentsPower[] = $dcExpDcIst;
         }
+        $monthlyTableForPRAndPA = [];
+        for($index = 1; $index <= $month  ; $index++){
+            $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $report['reportYear']);
+            $result = $this->PRCalulation->calcPR($anlage, new \DateTime($report['reportYear']."-".$index."-"."01"), new \DateTime($report['reportYear']."-".$index."-".$daysInMonth));
+            $monthlyTableForPRAndPA[$index]['Dep0PA'] = $result['pa0'];
+            $monthlyTableForPRAndPA[$index]['Dep1PA'] = $result['pa1'];
+            $monthlyTableForPRAndPA[$index]['Dep2PA'] = $result['pa2'];
+            $monthlyTableForPRAndPA[$index]['Dep3PA'] = $result['pa3'];
+            if ($anlage->getUseGridMeterDayData())
+            {
+                $monthlyTableForPRAndPA[$index]['Dep0PR'] = $result['prDep0EGridExt'];
+                $monthlyTableForPRAndPA[$index]['Dep1PR'] = $result['prDep1EGridExt'];
+                $monthlyTableForPRAndPA[$index]['Dep2PR'] = $result['prDep2EGridExt'];
+                $monthlyTableForPRAndPA[$index]['Dep3PR'] = $result['prDep3EGridExt'];
+            }
+            else {
+                $monthlyTableForPRAndPA[$index]['Dep0PR'] = $result['prDep0Evu'];
+                $monthlyTableForPRAndPA[$index]['Dep1PR'] = $result['prDep1Evu'];
+                $monthlyTableForPRAndPA[$index]['Dep2PR'] = $result['prDep2Evu'];
+                $monthlyTableForPRAndPA[$index]['Dep3PR'] = $result['prDep3Evu'];
+            }
 
+        }
 
 
         $resultEconomicsNames = $this->ecoVarNameRepo->findOneByAnlage($anlage);
@@ -4458,6 +4502,7 @@ class AssetManagementService
             'losseskwhchartYearMonthly' => $losseskwhchartYearMonthly,
             'PercentageTableYear' => $percentageTableYear,
             'percentageTableMonth' => $percentageTable,
+            'monthlyTableForPRAndPA' => $monthlyTableForPRAndPA
 
         ];
 
