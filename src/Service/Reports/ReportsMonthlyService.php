@@ -386,6 +386,9 @@ class ReportsMonthlyService
         ];
     }
 
+    /**
+     * @throws Exception
+     */
     public function buildMonthlyReportNewByDate(Anlage $anlage, ?int $startDay = null, ?int $endDay = null, int $month = 0, int $year = 0): array
     {
         $dayValues = [];

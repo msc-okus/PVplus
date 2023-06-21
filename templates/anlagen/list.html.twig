@@ -49,11 +49,13 @@
                 {% endif %}
                 <td style="text-align: right;">
                     {% if is_granted('ROLE_G4N') %}
-                        {# {% if is_granted('ROLE_DEV') %}
-                            <a href="#" class="hollow button tiny action-icon shadow"><span class="fa fa-pencil"></span> Inverters</a>
-                        {% endif %} #}
                         <a href="{{ path('app_admin_anlagen_edit_dcgroups', { id: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-edit"></span> DC Groups</a>
                         <a href="{{ path('app_admin_anlagen_edit_acgroups', { id: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-edit"></span> AC Groups</a>
+
+                        {% if is_granted('ROLE_DEV') %}
+                            <a href="{{ path('app_admin_anlagen_edit_sensors', { id: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-edit"></span> Sensors</a>
+                        {% endif %}
+
                         <a href="{{ path('app_admin_anlagen_edit', { id: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-edit"></span> Settings</a>&nbsp;
                         <a href="{{ path('app_admin_anlagen_edit_config', { id: plant.anlId}) }}" class="hollow button action-icon shadow no-margin"><span class="fa fa-cog"></span></a>&nbsp;
                         {# {% if is_granted('ROLE_DEV') %}<a href="{{ path('app_anlage_delete', { id: plant.anlId}) }}" class="hollow button tiny action-icon shadow" onclick="return window.confirm('Löschen?');"><span class="fa fa-trash red"></span></a>{% endif %}&nbsp; #}

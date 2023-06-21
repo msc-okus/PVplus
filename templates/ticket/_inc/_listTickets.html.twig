@@ -21,7 +21,9 @@
                     {{ knp_pagination_sortable(pagination, 'End', ['ticket.end'], {'data-action': 'ticket-list#sortEnd'}) }}</th>
                 <th {% if pagination.isSorted('ticket.updatedAt') %} class="sorted"{% endif %}>
                     {{ knp_pagination_sortable(pagination, 'Last Update', ['ticket.updatedAt'], {'data-action': 'ticket-list#sortUpdate'}) }}</th>
-                <th>Error Category{% if is_granted('ROLE_G4N') %} <br><small>alertType</small> {% endif %}</th>
+                <th {% if pagination.isSorted('ticket.alertType') %} class="sorted"{% endif %}>
+                    {{ knp_pagination_sortable(pagination, 'Error Category', ['ticket.alertType'], {'data-action': 'ticket-list#sortUpdate'}) }}
+                    {% if is_granted('ROLE_G4N') %} <br><small>alertType</small> {% endif %}</th>
                 {# <th>Error Type</th>  #}
                 <th>Inverter</th>
                 <th></th>

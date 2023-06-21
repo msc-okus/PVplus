@@ -44,7 +44,31 @@
             <td>{{ form_widget(date.end) }}{# {{ date.vars.value.end|format_datetime(pattern="yyyy-MM-dd HH:mm") }} #}</td>
             {# Performance Ticket #}
 
-            <td class="is-hidden" data-ticket-edit-target="fieldSensor">{{ form_widget(date.sensors) }}</td>
+            <td class="is-hidden" data-ticket-edit-target="fieldSensor">
+                <div data-ticket-edit-target="sensorDiv" class="grid-x grid-padding-x ">
+                    <div class="cell small-12 medium-4">
+
+                        <button class="button small no-margin hollow expanded" type="button" data-toggle="inverter-dropdown-sensor-{{ dropdownId }}">Select Sensors</button>
+                        <div class="dropdown-pane shadow" id="inverter-dropdown-sensor-{{ dropdownId }}" data-dropdown data-auto-focus="true" data-alignment="center" data-close-on-click="true">
+                            {% if (sensorArray != null) %}
+                                <div class="grid-x small-up-3 medium-up-6 large-up-9 xlarge-up-12">
+                                    {% for sensor in sensorArray %}
+                                        <div class="cell small-form">
+                                            <input id="{{ sensor['nameS'] }}" type="checkbox" class="sensor-checkbox" {{ sensor['checked'] }} name="{{ sensor['nameS'] }}" {% if (edited) %}data-ticket-edit-edited-param="true" {% else %} data-ticket-edit-edited-param="false" {% endif %} data-action="click->ticket-edit#saveCheck">
+                                            <label for="{{ sensor['nameS'] }}" class="">{{ sensor['name'] }}</label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                No Sensors found to select
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="cell small-12 medium-4">
+                        {{ form_widget(date.sensors) }}
+                    </div>
+                </div>
+            </td>
             <td class="is-hidden" data-ticket-edit-target="fieldReplacePower">{{ form_widget(date.replaceEnergy) }}</td>
             <td class="is-hidden" data-ticket-edit-target="fieldReplaceIrr">{{ form_widget(date.replaceIrr) }}</td>
             <td class="is-hidden" data-ticket-edit-target="fieldHour">{{ form_widget(date.useHour) }}</td>

@@ -21,7 +21,7 @@ class ImportDataHandler implements MessageHandlerInterface
      * @throws \Exception
      */
 
-    public function __invoke(ImportData $importData)
+    public function __invoke(ImportData $importData): void
     {
         $path = $importData->getPath();
         $logId = $importData->getlogId();

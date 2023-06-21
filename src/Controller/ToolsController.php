@@ -48,6 +48,7 @@ class ToolsController extends BaseController
                         $output .= '<h3>Expected:</h3>';
                         if ($anlage->getAnlBetrieb() !== null) {
                             $job = "Update 'G4N Expected' from " . $toolsModel->startDate->format('Y-m-d 00:00') . ' until ' . $toolsModel->endDate->format('Y-m-d 00:00');
+                            $job .= " - " . $this->getUser()->getname();
                             $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'Expected', $job);
                             $message = new CalcExpected($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
                             $messageBus->dispatch($message);
@@ -59,6 +60,7 @@ class ToolsController extends BaseController
                     case 'pr':
                         $output = '<h3>PR:</h3>';
                         $job = 'Update PR – from ' . $toolsModel->startDate->format('Y-m-d 00:00') . ' until ' . $toolsModel->endDate->format('Y-m-d 00:00');
+                        $job .= " - " . $this->getUser()->getname();
                         $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'PR', $job);
                         $message = new CalcPR($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
                         $messageBus->dispatch($message);
@@ -67,6 +69,7 @@ class ToolsController extends BaseController
                     case 'availability':
                         $output = '<h3>Availability:</h3>';
                         $job = 'Update Plant Availability – from ' . $toolsModel->startDate->format('Y-m-d 00:00') . ' until ' . $toolsModel->endDate->format('Y-m-d 00:00');
+                        $job .= " - " . $this->getUser()->getname();
                         $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'PA', $job);
                         $message = new CalcPlantAvailabilityNew($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
                         $messageBus->dispatch($message);
@@ -75,6 +78,7 @@ class ToolsController extends BaseController
                     case 'generate-tickets':
                         $output = '<h3>Generate Tickets:</h3>';
                         $job = 'Generate Tickets – from ' . $toolsModel->startDate->format('Y-m-d 00:00') . ' until ' . $toolsModel->endDate->format('Y-m-d 00:00');
+                        $job .= " - " . $this->getUser()->getname();
                         $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'GenerateTickets', $job);
                         $message = new GenerateTickets($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
                         $messageBus->dispatch($message);
@@ -83,6 +87,7 @@ class ToolsController extends BaseController
                     case 'api-load-data':
                         $output = '<h3>Load API Data:</h3>';
                         $job = 'Load API Data – from ' . $toolsModel->startDate->format('Y-m-d 00:00') . ' until ' . $toolsModel->endDate->format('Y-m-d 00:00');
+                        $job .= " - " . $this->getUser()->getname();
                         $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'Load API Data', $job);
                         $message = new LoadAPIData($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
                         $messageBus->dispatch($message);
@@ -91,6 +96,7 @@ class ToolsController extends BaseController
                     case 'api-load-inax-data':
                         $output = '<h3>Load INAX Data:</h3>';
                         $job = 'Load INAX Data – from ' . $toolsModel->startDate->format('Y-m-d 00:00') . ' until ' . $toolsModel->endDate->format('Y-m-d 00:00');
+                        $job .= " - " . $this->getUser()->getname();
                         $logId = $logMessages->writeNewEntry($toolsModel->anlage, 'Load INAX Data', $job);
                         $message = new LoadINAXData($toolsModel->anlage->getAnlId(), $toolsModel->startDate, $toolsModel->endDate, $logId);
                         $messageBus->dispatch($message);

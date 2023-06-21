@@ -1,6 +1,9 @@
 <?php
 namespace App\Helper;
 
+// ToDo: Please replace with composer Module (composer require shuchkin/simplexlsx)
+// Dokumentation https://github.com/shuchkin/simplexlsx
+
 class simpleXLSX
 {
 // Don't remove this string! Created by Sergey Shuchkin sergey.shuchkin@gmail.com
