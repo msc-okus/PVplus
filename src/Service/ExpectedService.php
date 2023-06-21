@@ -239,8 +239,8 @@ class ExpectedService
                             $expPowerDcHlp = $expCurrentDcHlp * $expVoltageDcHlp / 4000;
                         }
                         // degradation abziehen (degradation * Betriebsjahre).
-                        $expCurrentDcHlp = $expCurrentDcHlp - ($expCurrentDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
-                        $expPowerDcHlp = $expPowerDcHlp - ($expPowerDcHlp / 100 * $modul->getModuleType()->getDegradation() * $betriebsJahre);
+                        $expCurrentDcHlp = $expCurrentDcHlp - $expCurrentDcHlp  * ($modul->getModuleType()->getDegradation() * $betriebsJahre / 100);
+                        $expPowerDcHlp = $expPowerDcHlp - $expPowerDcHlp * ($modul->getModuleType()->getDegradation() * $betriebsJahre / 100);
 
                         $expPowerDc += $expPowerDcHlp;
                         $expCurrentDc += $expCurrentDcHlp;
@@ -256,8 +256,8 @@ class ExpectedService
 
                     // Verhindert 'diff by zero'
                     if ($loss != 0) {
-                        $expPowerDc = $expPowerDc - ($expPowerDc / 100 * $loss);
-                        $expCurrentDc = $expCurrentDc - ($expCurrentDc / 100 * $loss);
+                        $expPowerDc = $expPowerDc - $expPowerDc * ($loss / 100);
+                        $expCurrentDc = $expCurrentDc - $expCurrentDc * ($loss / 100);
                     }
 
                     // Limitierung durch Modul prüfen und entsprechend abregeln
@@ -265,9 +265,10 @@ class ExpectedService
 
                     // AC Expected Berechnung
                     // Umrechnung DC nach AC
-                    $expNoLimit = $expPowerDc - ($expPowerDc / 100 * $group->getFactorAC());
+                    $expNoLimit = $expPowerDc - $expPowerDc * ($group->getFactorAC() / 100);
 
                     // Prüfe ob Abriegelung gesetzt ist, wenn ja, begrenze den Wert auf das maximale.
+
                     if ($group->getLimitAc() > 0) {
                         ($expNoLimit > $group->getLimitAc()) ? $expPowerAc = $group->getLimitAc() : $expPowerAc = $expNoLimit;
                     } else {

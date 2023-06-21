@@ -169,7 +169,7 @@ class AnlageFormType extends AbstractType
             ])
             ->add('anlBetrieb', null, [
                 'label' => 'In Betrieb seit:',
-                'help' => '[anlBetrieb]',
+                'help' => '[anlBetrieb]<br>Wird für die Berechnung der Degradation benötigt',
                 'widget' => 'single_text',
                 'input' => 'datetime',
             ])
