@@ -25,6 +25,12 @@ class AssetManagementeReportFormType extends AbstractType
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ])
+            ->add('PRPATable', SwitchType::class, [
+                'label' => 'PR - PA Monthly table',
+                'required' => false,
+                'data' => true,
+                'attr' => ['switch_size' => 'tiny']
+            ])
             ->add('CumulatForecastPVSYS', SwitchType::class, [
                 'label' => 'Cumulative Forecast - PVSYST',
                 'required' => false,

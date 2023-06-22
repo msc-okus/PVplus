@@ -3,7 +3,7 @@
 {% block page %}
     <div class="grid-x">
         <div class="cell">
-            <table class="asset_report_table_operations_data" style="width: 100%!important; height: 90%!important;margin-bottom: 10px">
+            <table class="asset_report_table_operations_data" >
                 <thead>
                     <tr>
                         <th class="table-center"></th>
@@ -33,7 +33,7 @@
                 <tbody>
                     {% for row in monthlyTableForPRAndPA %}
                         <tr>
-                            <td class="tr_next_columns">{{ loop.index + 1 }}</td>
+                            <td class="tr_next_columns">{{ dataMonthArray[loop.index0]  }}</td>
                             <td class="tr_next_columns">{{ row.Dep0PR }}</td>
                             <td class="tr_next_columns">{{ row.Dep0PA }}</td>
                             {% if anlage.settings.disableDep1 != true %}
@@ -53,5 +53,6 @@
                 </tbody>
             </table>
         </div>
+
     </div>
 {% endblock %}

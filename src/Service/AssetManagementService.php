@@ -138,12 +138,14 @@ class AssetManagementService
             'reportmonth' => $content['reportmonth'],
             'montharray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
-            'monthlyTableForPRAndPA' => $content['monthlyTableForPRAndPA']
+            'monthlyTableForPRAndPA' => $content['monthlyTableForPRAndPA'],
+            'PA_MonthlyGraphic' => $content['PA_MonthlyGraphic'],
+            'PR_MonthlyGraphic' => $content['PR_MonthlyGraphic'],
 
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[2] = $pdf->createPage($html, $fileroute, "PRPATable", true);// we will store this later in the entity
+        $reportParts[2] = $pdf->createPage($html, $fileroute, "PRPATable", false);// we will store this later in the entity
 
         if($anlage->hasPVSYST()) {
             $html = $this->twig->render('report/asset_report_part_2.html.twig', [
@@ -160,7 +162,6 @@ class AssetManagementService
                 'forecast_PVSYST_table' => $content['forecast_PVSYST_table'],
                 'table_overview_monthly' => $content['table_overview_monthly'],
                 'forecast_PVSYST' => $content['forecast_PVSYST'],
-
             ]);
             $html = str_replace('src="//', 'src="https://', $html);
             $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
@@ -3546,28 +3547,205 @@ class AssetManagementService
             $outTableCurrentsPower[] = $dcExpDcIst;
         }
         $monthlyTableForPRAndPA = [];
-        for($index = 1; $index <= $month  ; $index++){
+        $graphArrayPR = [];
+        for($index = 1; $index <= $month - 1  ; $index++){
             $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $report['reportYear']);
             $result = $this->PRCalulation->calcPR($anlage, new \DateTime($report['reportYear']."-".$index."-"."01"), new \DateTime($report['reportYear']."-".$index."-".$daysInMonth));
-            $monthlyTableForPRAndPA[$index]['Dep0PA'] = $result['pa0'];
-            $monthlyTableForPRAndPA[$index]['Dep1PA'] = $result['pa1'];
-            $monthlyTableForPRAndPA[$index]['Dep2PA'] = $result['pa2'];
-            $monthlyTableForPRAndPA[$index]['Dep3PA'] = $result['pa3'];
+            $monthlyTableForPRAndPA[$index]['Dep0PA'] = round($result['pa0'], 2);
+            $monthlyTableForPRAndPA[$index]['Dep1PA'] = round($result['pa1'], 2);
+            $monthlyTableForPRAndPA[$index]['Dep2PA'] = round($result['pa2'], 2);
+            $monthlyTableForPRAndPA[$index]['Dep3PA'] = round($result['pa3'], 2);
+            $graphArrayPA['Dep0'][] = round($result['pa0'], 2);
+            $graphArrayPA['Dep1'][] = round($result['pa1'], 2);
+            $graphArrayPA['Dep2'][] = round($result['pa2'], 2);
+            $graphArrayPA['Dep3'][] = round($result['pa3'], 2);
+
             if ($anlage->getUseGridMeterDayData())
             {
-                $monthlyTableForPRAndPA[$index]['Dep0PR'] = $result['prDep0EGridExt'];
-                $monthlyTableForPRAndPA[$index]['Dep1PR'] = $result['prDep1EGridExt'];
-                $monthlyTableForPRAndPA[$index]['Dep2PR'] = $result['prDep2EGridExt'];
-                $monthlyTableForPRAndPA[$index]['Dep3PR'] = $result['prDep3EGridExt'];
+                $monthlyTableForPRAndPA[$index]['Dep0PR'] = round($result['prDep0EGridExt'], 2);
+                $monthlyTableForPRAndPA[$index]['Dep1PR'] = round($result['prDep1EGridExt'], 2);
+                $monthlyTableForPRAndPA[$index]['Dep2PR'] = round($result['prDep2EGridExt'], 2);
+                $monthlyTableForPRAndPA[$index]['Dep3PR'] = round($result['prDep3EGridExt'], 2);
+                $graphArrayPR['Dep0'][] = round($result['prDep0EGridExt'], 2);
+                $graphArrayPR['Dep1'][] = round($result['prDep1EGridExt'], 2);
+                $graphArrayPR['Dep2'][] = round($result['prDep2EGridExt'], 2);
+                $graphArrayPR['Dep3'][] = round($result['prDep3EGridExt'], 2);
             }
             else {
-                $monthlyTableForPRAndPA[$index]['Dep0PR'] = $result['prDep0Evu'];
-                $monthlyTableForPRAndPA[$index]['Dep1PR'] = $result['prDep1Evu'];
-                $monthlyTableForPRAndPA[$index]['Dep2PR'] = $result['prDep2Evu'];
-                $monthlyTableForPRAndPA[$index]['Dep3PR'] = $result['prDep3Evu'];
+                $monthlyTableForPRAndPA[$index]['Dep0PR'] = round($result['prDep0Evu'], 2);
+                $monthlyTableForPRAndPA[$index]['Dep1PR'] = round($result['prDep1Evu'], 2);
+                $monthlyTableForPRAndPA[$index]['Dep2PR'] = round($result['prDep2Evu'], 2);
+                $monthlyTableForPRAndPA[$index]['Dep3PR'] = round($result['prDep3Evu'], 2);
+                $graphArrayPR['Dep0'][] = round($result['prDep0Evu'], 2);
+                $graphArrayPR['Dep1'][] = round($result['prDep1Evu'], 2);
+                $graphArrayPR['Dep2'][] = round($result['prDep2Evu'], 2);
+                $graphArrayPR['Dep3'][] = round($result['prDep3Evu'], 2);
             }
 
         }
+
+        $chart = new ECharts(); // We must use AMCharts
+        $chart->tooltip->show = false;
+
+        $chart->xAxis = [
+            'type' => 'category',
+            'data' => array_slice($dataMonthArray, 0, $report['reportMonth']),
+        ];
+        $chart->yAxis = [
+            'type' => 'value',
+            'name' => '%',
+            'min' => 0,
+            'max' => 100,
+        ];
+        $series = [];
+             $series[] =  [
+                    'name' => 'Open Book',
+                    'type' => 'bar',
+                    'data' =>  $graphArrayPR['Dep0'],
+                    'label' => [
+                        'show' => true,
+                    ],
+                ];
+            if (!$anlage->getSettings()->isDisableDep1()) $series[] =
+            [
+                'name' => $anlage->getSettings(),
+                'type' => 'bar',
+                'data' =>  $graphArrayPR['Dep1'],
+                'label' => [
+                    'show' => true,
+                ],
+            ];
+            if( !$anlage->getSettings()->isDisableDep2()) $series[] = [
+                    'name' => 'EPC',
+                    'type' => 'bar',
+                    'data' =>  $graphArrayPR['Dep2'],
+                    'label' => [
+                        'show' => true,
+                    ],
+                ];
+            if( !$anlage->getSettings()->isDisableDep3()) $series[] =   [
+                'name' => 'AM',
+                'type' => 'bar',
+                'data' =>  $graphArrayPR['Dep3'],
+                'label' => [
+                    'show' => true,
+                ],
+            ];
+            $chart->series = $series;
+
+
+        $option = [
+            'animation' => false,
+            'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000'],
+            'title' => [
+                'fontFamily' => 'monospace',
+                'text' => 'PR Graphic',
+                'left' => 'center',
+                'top' => 10
+            ],
+            'tooltip' => [
+                'show' => true,
+            ],
+            'legend' => [
+                'show' => true,
+                'left' => 'center',
+                'top' => 20,
+            ],
+            'grid' => [
+                'height' => '80%',
+                'top' => 50,
+                'width' => '80%',
+                'left' => 100,
+            ],
+        ];
+
+        $chart->setOption($option);
+
+        $PR_MonthlyGraphic = $chart->render('PR_MonthlyGraphic', ['style' => 'height: 450px; width:700px;']);
+
+        $chart = new ECharts(); // We must use AMCharts
+        $chart->tooltip->show = false;
+
+        $chart->xAxis = [
+            'type' => 'category',
+            'data' => array_slice($dataMonthArray, 0, $report['reportMonth']),
+        ];
+        $chart->yAxis = [
+            'type' => 'value',
+            'name' => '%',
+            'min' => 0,
+            'max' => 100,
+        ];
+
+        $series = [];
+        $series[] =  [
+            'name' => 'Open Book',
+            'type' => 'bar',
+            'data' =>  $graphArrayPA['Dep0'],
+            'label' => [
+                'show' => true,
+            ],
+        ];
+        if (!$anlage->getSettings()->isDisableDep1()) $series[] =
+            [
+                'name' => $anlage->getSettings(),
+                'type' => 'bar',
+                'data' =>  $graphArrayPA['Dep1'],
+                'label' => [
+                    'show' => true,
+                ],
+            ];
+        if( !$anlage->getSettings()->isDisableDep2()) $series[] = [
+            'name' => 'EPC',
+            'type' => 'bar',
+            'data' =>  $graphArrayPA['Dep2'],
+            'label' => [
+                'show' => true,
+            ],
+        ];
+        if( !$anlage->getSettings()->isDisableDep3()) $series[] =   [
+            'name' => 'AM',
+            'type' => 'bar',
+            'data' =>  $graphArrayPA['Dep3'],
+            'label' => [
+                'show' => true,
+            ],
+        ];
+        $chart->series = $series;
+
+
+
+        $option = [
+            'animation' => false,
+            'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000'],
+            'title' => [
+                'fontFamily' => 'monospace',
+                'text' => 'PA Graphic',
+                'left' => 'center',
+                'top' => 10
+            ],
+            'tooltip' => [
+                'show' => true,
+            ],
+            'legend' => [
+                'show' => true,
+                'left' => 'center',
+                'top' => 20,
+            ],
+            'grid' => [
+                'height' => '80%',
+                'top' => 50,
+                'width' => '80%',
+                'left' => 100,
+            ],
+        ];
+
+        $chart->setOption($option);
+
+        $PA_MonthlyGraphic = $chart->render('PA_MonthlyGraphic', ['style' => 'height: 450px; width:700px;']);
+
+
+
 
 
         $resultEconomicsNames = $this->ecoVarNameRepo->findOneByAnlage($anlage);
@@ -4502,8 +4680,9 @@ class AssetManagementService
             'losseskwhchartYearMonthly' => $losseskwhchartYearMonthly,
             'PercentageTableYear' => $percentageTableYear,
             'percentageTableMonth' => $percentageTable,
-            'monthlyTableForPRAndPA' => $monthlyTableForPRAndPA
-
+            'monthlyTableForPRAndPA' => $monthlyTableForPRAndPA,
+            'PA_MonthlyGraphic' => $PA_MonthlyGraphic,
+            'PR_MonthlyGraphic' => $PR_MonthlyGraphic
         ];
 
         return $output;
@@ -4589,4 +4768,5 @@ class AssetManagementService
         ];
         return $kwhLossesMonthTable;
     }
+
 }
