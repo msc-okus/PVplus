@@ -125,7 +125,7 @@ class AssetManagementService
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[1] = $pdf->createPage($html, $fileroute, "ProductionCapFactor", false);// we will store this later in the entity
+        $reportParts['ProductionCapFactor'] = $pdf->createPage($html, $fileroute, "ProductionCapFactor", false);// we will store this later in the entity
 
         $html = $this->twig->render('report/asset_report_technicalPRPA.html.twig', [
             'anlage' => $anlage,
@@ -145,7 +145,7 @@ class AssetManagementService
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[2] = $pdf->createPage($html, $fileroute, "PRPATable", false);// we will store this later in the entity
+        $reportParts['PRPATable'] = $pdf->createPage($html, $fileroute, "PRPATable", false);// we will store this later in the entity
 
         if($anlage->hasPVSYST()) {
             $html = $this->twig->render('report/asset_report_part_2.html.twig', [
@@ -165,7 +165,7 @@ class AssetManagementService
             ]);
             $html = str_replace('src="//', 'src="https://', $html);
             $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-            $reportParts[3] = $pdf->createPage($html, $fileroute, "CumForecastPVSYS", false);// we will store this later in the entity
+            $reportParts['CumForecastPVSYS'] = $pdf->createPage($html, $fileroute, "CumForecastPVSYS", false);// we will store this later in the entity
         }
         $html = $this->twig->render('report/asset_report_part_3.html.twig', [
             'anlage' => $anlage,
@@ -185,7 +185,7 @@ class AssetManagementService
         $html = str_replace('src="//', 'src="https://', $html);
 
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[4] = $pdf->createPage($html, $fileroute, "CumForecastG4N", false);// we will store this later in the entity
+        $reportParts['CumForecastG4N'] = $pdf->createPage($html, $fileroute, "CumForecastG4N", false);// we will store this later in the entity
         $html = $this->twig->render('report/asset_report_part_4.html.twig', [
 
             'anlage' => $anlage,
@@ -206,7 +206,7 @@ class AssetManagementService
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[5] = $pdf->createPage($html, $fileroute, "CumLosses", false);// we will store this later in the entity
+        $reportParts['CumLosses'] = $pdf->createPage($html, $fileroute, "CumLosses", false);// we will store this later in the entity
 
         $html = $this->twig->render('report/asset_report_part_5.html.twig', [
             'anlage' => $anlage,
@@ -244,7 +244,7 @@ class AssetManagementService
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[6] = $pdf->createPage($html, $fileroute, "MonthlyProd", false);// we will store this later in the entity
+        $reportParts['MonthlyProd'] = $pdf->createPage($html, $fileroute, "MonthlyProd", false);// we will store this later in the entity
 
         $table = $this->reportsMonthly->buildMonthlyReportNew($anlage, $reportMonth, $reportYear);
         $html = $this->twig->render('report/asset_report_PRTable.html.twig', [
@@ -262,7 +262,7 @@ class AssetManagementService
         $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
 
-        $reportParts[7] = $pdf->createPage($html, $fileroute, "PRTable", false);// we will store this later in the entity
+        $reportParts['PRTable'] = $pdf->createPage($html, $fileroute, "PRTable", false);// we will store this later in the entity
 
 
         $html = $this->twig->render('report/asset_report_part_6.html.twig', [
@@ -281,7 +281,7 @@ class AssetManagementService
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[8] = $pdf->createPage($html, $fileroute, "ProdExpvsAct", false);// we will store this later in the entity
+        $reportParts['DailyProd'] = $pdf->createPage($html, $fileroute, "ProdExpvsAct", false);// we will store this later in the entity
 
         $html = $this->twig->render('report/asset_report_part_7.html.twig', [
 
@@ -301,7 +301,7 @@ class AssetManagementService
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[9] = $pdf->createPage($html, $fileroute, "String", false);// we will store this later in the entity
+        $reportParts['String'] = $pdf->createPage($html, $fileroute, "String", false);// we will store this later in the entity
         $html = $this->twig->render('report/asset_report_part_8.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -319,7 +319,8 @@ class AssetManagementService
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[10] = $pdf->createPage($html, $fileroute, "Inverter", false);// we will store this later in the entity
+        $reportParts['Inverter'] = $pdf->createPage($html, $fileroute, "Inverter", false);// we will store this later in the entity
+
         $html = $this->twig->render('report/asset_report_part_9.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -338,7 +339,7 @@ class AssetManagementService
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[11] = $pdf->createPage($html, $fileroute, "AvailabilityYearOverview", false);// we will store this later in the entity
+        $reportParts['AvailabilityYearOverview'] = $pdf->createPage($html, $fileroute, "AvailabilityYearOverview", false);// we will store this later in the entity
         $html = $this->twig->render('report/asset_report_part_10.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -363,7 +364,7 @@ class AssetManagementService
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[12] = $pdf->createPage($html, $fileroute, "AvailabilityYear", false);// we will store this later in the entity
+        $reportParts['AvailabilityYear'] = $pdf->createPage($html, $fileroute, "AvailabilityYear", false);// we will store this later in the entity
         $html =$this->twig->render('report/asset_report_part_11.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -387,7 +388,7 @@ class AssetManagementService
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[13] = $pdf->createPage($html, $fileroute, "AvailabilityMonth", false);// we will store this later in the entity
+        $reportParts['AvailabilityMonth'] = $pdf->createPage($html, $fileroute, "AvailabilityMonth", false);// we will store this later in the entity
         $html = $this->twig->render('report/asset_report_part_12.html.twig', [
             'anlage' => $anlage,
             'month' => $reportMonth,
@@ -405,7 +406,7 @@ class AssetManagementService
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-        $reportParts[14] = $pdf->createPage($html, $fileroute, "AvailabilityByInverter", false);// we will store this later in the entity
+        $reportParts['AvailabilityByInverter'] = $pdf->createPage($html, $fileroute, "AvailabilityByInverter", false);// we will store this later in the entity
 
         if ($anlage->getEconomicVarNames() !== null) {
 
@@ -439,7 +440,7 @@ class AssetManagementService
             ]);
             $html = str_replace('src="//', 'src="https://', $html);
             $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
-            $reportParts[15] = $pdf->createPage($html, $fileroute, "Economic", false);// we will store this later in the entity
+            $reportParts['Economic'] = $pdf->createPage($html, $fileroute, "Economic", false);// we will store this later in the entity
         }
 
         $report = new AnlagenReports();
@@ -3605,6 +3606,9 @@ class AssetManagementService
             'label' => [
                 'show' => true,
             ],
+            'markLine' => [
+                'data' => [['yAxis' => $anlage-> getContractualPR()]],
+            ]
         ];
         if (!$anlage->getSettings()->isDisableDep1()) $series[] =
             [
@@ -3685,6 +3689,9 @@ class AssetManagementService
             'label' => [
                 'show' => true,
             ],
+            'markLine' => [
+                'data' => [['yAxis' => $anlage->getContractualAvailability()]],
+            ]
         ];
         if (!$anlage->getSettings()->isDisableDep1()) $series[] =
             [

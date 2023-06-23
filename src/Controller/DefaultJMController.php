@@ -75,112 +75,94 @@ class DefaultJMController extends AbstractController
     #[Route(path: '/test/pdf', name: 'default_pdf')]
     public function testpdf(FunctionsService $fs, AnlagenRepository $ar, WeatherServiceNew $weather, AssetManagementService $am){
 
-        $anlage = $ar->findIdLike("57")[0];
+        $anlage = $ar->findIdLike("110")[0];
 
 
-        $expected = 9000;
-        $dccablelosses = -(int)($expected * (0.5/100));
-        $inverterlosses = -(int)($expected * (1/100));
-        $accablelosses = -(int)($expected * (0.8/100));
-        $missmatchinglosses = -(int)($expected * (1/100));
-        $transformerlosses = -(int)($expected * (1.5/100));
-        $expKpi = $expected + $dccablelosses + $inverterlosses + $accablelosses + $missmatchinglosses + $transformerlosses;
-
-        $data = [$expected, $dccablelosses, $inverterlosses, $accablelosses, $missmatchinglosses, $transformerlosses, $expKpi];
-        $positive = [];
-        $negative = [];
-        $help = [];
-        $sum = 0;
-
-        foreach ($data as $key => $item){
-            if ($item >= 0 ){
-                $positive[] = $item;
-
-                $negative[] = 0;
-            }
-            else{
-                $negative[] = -$item;
-                $positive[] = 0;
-            }
-
-            if ($key === 0) $help[0] = 0;
-
-            else if ($key === count($data)-1) $help[$key] = 0;
-            else{
-                $sum += $data[$key - 1];
-                if ($item < 0){
-                    $help[] = $sum + $item;
-                }
-                else{
-                    $help[] = $sum;
-                }
-            }
-        }
-        $chart = new ECharts();
+        $chart = new ECharts(); // We must use AMCharts
+        $chart->tooltip->show = false;
 
         $chart->xAxis = [
             'type' => 'category',
-            'data' =>['Expected', 'kpi1', 'kpi2', ' kpi3', 'kpi4', 'kpi5','ExpectedKpi'],
+            'data' => ['Jan', 'Feb'],
         ];
         $chart->yAxis = [
             'type' => 'value',
+            'name' => '%',
+            'min' => 0,
+            'max' => 100,
         ];
-        $chart->series =
+
+        $series = [];
+        $series[] =  [
+            'name' => 'Open Book',
+            'type' => 'bar',
+            'data' =>  [ 70, 75],
+            'label' => [
+                'show' => true,
+            ],
+
+            'markLine' => [
+                'data' => [['yAxis' => 75]],
+            ]
+        ];
+        if (!$anlage->getSettings()->isDisableDep1()) $series[] =
             [
-                [
-                    'type' => 'bar',
-                    'stack' => 'x',
-                     'itemStyle' => [
-                         'normal' => [
-                             'barBorderColor' => 'rgba(0,0,0,0)',
-                             'color' => 'rgba(0,0,0,0)'
-                         ],
-                         'emphasis' => [
-                             'barBorderColor' => 'rgba(0,0,0,0)',
-                             'color' => 'rgba(0,0,0,0)'
-                         ]
-                    ],
-                    'label' => [
-                        'show' => true,
-                        'position' => 'inside'
-                    ],
-                    'data' => $help,
+                'name' => $anlage->getSettings(),
+                'type' => 'bar',
+                'data' => [ 90, 100],
+                'label' => [
+                    'show' => true,
                 ],
-               [
-                   'name' => 'positive',
-                   'type' => 'bar',
-                   'stack' => 'x',
-                   'data' => $positive,
-
-                   'label' => [
-                       'show' => true,
-                       'position' => 'inside'
-                   ],
-
-               ],
-               [
-                   'name' => 'negative',
-                   'type' => 'bar',
-                   'stack' => 'x',
-                   'data' => $negative,
-                   'itemStyle'=>[
-                       'color'=>'#f33'
-                   ],
-
-                   'label' => [
-                       'show' => true,
-                       'position' => 'inside'
-                   ],
-
-               ],
-
             ];
-
-        $option =[
-            'animation' => false,
+        if( !$anlage->getSettings()->isDisableDep2()) $series[] = [
+            'name' => 'EPC',
+            'type' => 'bar',
+            'data' =>  [ 80, 85],
+            'label' => [
+                'show' => true,
+            ],
         ];
+        if( !$anlage->getSettings()->isDisableDep3()) $series[] =   [
+            'name' => 'AM',
+            'type' => 'bar',
+            'data' =>  [ 90, 95],
+            'label' => [
+                'show' => true,
+            ],
+        ];
+        $chart->series = $series;
+
+
+        $option = [
+            'animation' => false,
+            'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000'],
+            'title' => [
+                'fontFamily' => 'monospace',
+                'text' => 'PA Graphic',
+                'left' => 'center',
+                'top' => 10
+            ],
+            'tooltip' => [
+                'show' => true,
+            ],
+            'legend' => [
+                'show' => true,
+                'left' => 'center',
+                'top' => 20,
+            ],
+            'grid' => [
+                'height' => '80%',
+                'top' => 50,
+                'width' => '80%',
+                'left' => 100,
+            ],
+        ];
+
         $chart->setOption($option);
+
+
         $test = $chart->render('test', ['style' => 'height: 450px; width:900px;']);
+
 
         $html5 = $this->twig->render('report/test.html.twig', [
         'anlage' => $anlage,
