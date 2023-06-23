@@ -384,7 +384,7 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
-                            if ($data['PRTable']) {
+                            if ($data['MonthlyProd']) {
                                 $pageCount = $pdf->setSourceFile($files[5]);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
@@ -392,7 +392,7 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
-                            if ($data['MonthlyProd']){
+                            if ($data['PRTable']){
                                 $pageCount = $pdf->setSourceFile($files[6]);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
