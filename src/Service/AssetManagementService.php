@@ -139,7 +139,6 @@ class AssetManagementService
             'montharray' => $content['monthArray'],
             //until here all the parameters must be used in all the renders
             'monthlyTableForPRAndPA' => $content['monthlyTableForPRAndPA']
-
         ]);
         $html = str_replace('src="//', 'src="https://', $html);
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
