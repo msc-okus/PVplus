@@ -14,33 +14,38 @@ class AssetManagementeReportFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('Production', SwitchType::class, [
+            ->add('TechnicalPV', SwitchType::class, [
+                'label' => 'Technical PV Performance',
                 'required' => false,
                 'data' => true,
-
+            ])
+            ->add('Production', SwitchType::class, [
+                'label' => 'Performance Analysis',
+                'required' => false,
+                'data' => true,
             ])
             ->add('ProdCap', SwitchType::class, [
-                'label' => 'Production & Capacity Factor',
+                'label' => 'Energy Production & Capacity Factor',
                 'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('PRPATable', SwitchType::class, [
-                'label' => 'PR - PA Monthly table',
+                'label' => 'Technical PR and Availability',
                 'required' => false,
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('CumulatForecastPVSYS', SwitchType::class, [
-                'label' => 'Cumulative Forecast - PVSYST',
+                'label' => 'Cumulative Forecast',
                 'required' => false,
                 'data' => false,
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('CumulatForecastG4N', SwitchType::class, [
-                'label' => 'Cumulative Forecast - G4N',
+                'label' => 'Cumulative Forecast',
                 'required' => false,
-                'data' => true,
+                'data' => false,
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('CumulatLosses', SwitchType::class, [

@@ -864,7 +864,7 @@ class AssetManagementService
             'animation' => false,
             'color' => ['#c55a11', '#0070c0', '#70ad47', '#ff0000'],
             'title' => [
-                'text' => 'Cumulative forecast plan PVSYST',
+                'text' => 'Cumulative forecast ',
                 'left' => 'center',
                 'top' => 10,
             ],
@@ -963,7 +963,7 @@ class AssetManagementService
                     'visualMap' => 'false',
                 ],
                 [
-                    'name' => 'Forecast g4n - P50',
+                    'name' => 'Plant Simulation - P50',
                     'type' => 'line',
                     'data' => $tbody_forcast_plan_G4NP50,
                     'visualMap' => 'false',
@@ -972,7 +972,7 @@ class AssetManagementService
                     ],
                 ],
                 [
-                    'name' => 'Forecast g4n - P90',
+                    'name' => 'Plant Simulation - P90',
                     'type' => 'line',
                     'data' => $tbody_forcast_plan_G4NP90,
                     'visualMap' => 'false',
@@ -986,7 +986,7 @@ class AssetManagementService
             'animation' => false,
             'color' => ['#c55a11', '#0070c0', '#70ad47', '#ff0000'],
             'title' => [
-                'text' => 'Cumulative forecast plan g4n',
+                'text' => 'Cumulative forecast',
                 'left' => 'center',
                 'top' => 10,
             ],
@@ -3643,7 +3643,7 @@ class AssetManagementService
             'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000'],
             'title' => [
                 'fontFamily' => 'monospace',
-                'text' => 'PR Graphic',
+                'text' => 'Plant PR',
                 'left' => 'center',
                 'top' => 10
             ],
@@ -3727,7 +3727,7 @@ class AssetManagementService
             'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000'],
             'title' => [
                 'fontFamily' => 'monospace',
-                'text' => 'PA Graphic',
+                'text' => 'Plant PA',
                 'left' => 'center',
                 'top' => 10
             ],

@@ -351,7 +351,7 @@ class ReportingController extends AbstractController
                             $tplId = $pdf->importPage($i+1);
                             $pdf->useTemplate($tplId);
                         }
-                        if ($data['Production']) {
+                        if($data['TechnicalPV']){
                             if ($data['ProdCap']) {
                                 $pageCount = $pdf->setSourceFile($files['ProductionCapFactor']);
                                 for ($i = 0; $i < $pageCount; $i++) {
@@ -368,6 +368,9 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
+                        }
+                        if ($data['Production']) {
+
                             if ($data['CumulatForecastPVSYS']) {
                                 $pageCount = $pdf->setSourceFile($files['CumForecastPVSYS']);
                                 for ($i = 0; $i < $pageCount; $i++) {
