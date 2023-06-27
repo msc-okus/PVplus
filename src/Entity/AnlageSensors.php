@@ -28,6 +28,9 @@ class AnlageSensors
     #[ORM\Column(length: 20)]
     private ?string $orientation = null;
 
+    #[ORM\Column(length: 20)]
+    private ?bool $useToCalc = false;
+
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $vcomId = null;
 
@@ -99,7 +102,19 @@ class AnlageSensors
         return $this;
     }
 
-    public function getVcomId(): ?string
+    public function getUseToCalc(): ?bool
+    {
+        return $this->useToCalc;
+    }
+
+    public function setUseToCalc(?bool $useToCalc): static
+    {
+        $this->useToCalc = $useToCalc;
+
+        return $this;
+    }
+
+    function getVcomId(): ?string
     {
         return $this->vcomId;
     }

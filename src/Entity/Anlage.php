@@ -488,7 +488,10 @@ class Anlage
     private bool $hasStrings = false;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
-    private bool $hasPPC = false;
+    private ?bool $hasPPC = false;
+
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private ?bool $usePPC = false;
 
     #[ORM\Column(type: 'boolean', nullable: true)]
     private bool $hasPannelTemp = false;
@@ -2992,6 +2995,18 @@ class Anlage
         return $this;
     }
 
+    public function getUsePPC(): ?bool
+    {
+        return $this->usePPC;
+    }
+
+    public function setUsePPC(bool $usePPC): self
+    {
+        $this->usePPC = $usePPC;
+
+        return $this;
+    }
+
     public function getHasPannelTemp(): ?bool
     {
         return $this->hasPannelTemp;
@@ -3617,6 +3632,16 @@ class Anlage
     public function getSensors(): Collection
     {
         return $this->sensors;
+    }
+
+    /**
+     * @return Collection<int, AnlageSensors>
+     */
+    public function getSensorsInUse(): Collection
+    {
+        $criteria = AnlagenRepository::sensorsInUse();
+
+        return $this->sensors->matching($criteria);
     }
 
     public function addSensor(AnlageSensors $sensor): static

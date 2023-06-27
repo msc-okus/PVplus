@@ -3,6 +3,7 @@
 namespace App\Form\Sensors;
 
 use App\Entity\AnlageSensors;
+use App\Form\Type\SwitchType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -22,14 +23,17 @@ class SensorsListEmbeddedFormType extends AbstractType
             ->add('type', TextType::class, [
 
             ])
+            ->add('useToCalc', SwitchType::class, [
+                'required' => false,
+            ])
             ->add('orientation', TextType::class, [
-
+                'required' => false,
             ])
             ->add('vcomId', TextType::class, [
-
+                'required' => false,
             ])
             ->add('vcomAbbr', TextType::class, [
-
+                'required' => false,
             ])
         ;
     }

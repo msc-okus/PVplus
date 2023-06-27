@@ -100,7 +100,7 @@ class PowerService
 
         $ignorNegativEvuSQL = $anlage->isIgnoreNegativEvu() ? 'AND e_z_evu > 0' : '';
         $ppcSQLpart1 = $ppcSQLpart2 = $ppcSQLpart1Meters = '';
-        if ($ppc){
+        if ($ppc && $anlage->getUsePPC()){
             $ppcSQLpart1 = "LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp";
             $ppcSQLpart1Meters = "RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp";
             $ppcSQLpart2 = " AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) 
