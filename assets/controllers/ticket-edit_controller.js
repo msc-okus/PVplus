@@ -561,7 +561,7 @@ export default class extends Controller {
                 body.find('#ticket_form_inverter').val(inverterString);
                 $(this.formkpiStatusTargets).removeClass('is-hidden');
                 $(this.fieldPRMethodTargets).addClass('is-hidden');
-                if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(20)};
+                if (this.formUrlValue === '/ticket/create'){ body.find('#ticket_form_KpiStatus').val(10)};
                 break;
             case '71':
                 $(this.headerExcludeTargets).addClass('is-hidden');

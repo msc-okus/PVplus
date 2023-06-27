@@ -89,27 +89,27 @@ class SensorService
                     $mittelwertPyrHoriArray = $mittelwertPyroArray = $mittelwertPyroEastArray = $mittelwertPyroWestArray = [];
                     foreach ($anlage->getSensorsInUse() as $sensor) {
                         if (!str_contains($ticket->getSensors(), $sensor->getNameShort())){
-                            switch ($sensor->getType()){
-                                case 'pyro-hori':
+                            switch ($sensor->getVirtualSensor()){
+                                case 'irr-hori':
                                     $mittelwertPyrHoriArray[] = $sensorSum[$sensor->getNameShort()];
                                     break;
-                                case 'pyro':
+                                case 'irr':
                                     $mittelwertPyroArray[] = $sensorSum[$sensor->getNameShort()];
                                     break;
-                                case 'pyro-east':
+                                case 'irr-east':
                                     $mittelwertPyroEastArray[] = $sensorSum[$sensor->getNameShort()];
                                     break;
-                                case 'pyro-west':
+                                case 'irr-west':
                                     $mittelwertPyroWestArray[] = $sensorSum[$sensor->getNameShort()];
                                     break;
                             }
                         }
                     }
                     // erechne neuen Mittelwert aus den Sensoren die genutzt werden sollen
-                    $replaceArray['horizontalIrr'] = self::mittelwert($mittelwertPyrHoriArray);
-                    $replaceArray['irrModul'] = self::mittelwert($mittelwertPyroArray);
-                    $replaceArray['irrEast'] = self::mittelwert($mittelwertPyroEastArray);
-                    $replaceArray['irrWest'] = self::mittelwert($mittelwertPyroWestArray);
+                    $replaceArray['horizontalIrr']  = self::mittelwert($mittelwertPyrHoriArray);
+                    $replaceArray['irrModul']       = self::mittelwert($mittelwertPyroArray);
+                    $replaceArray['irrEast']        = self::mittelwert($mittelwertPyroEastArray);
+                    $replaceArray['irrWest']        = self::mittelwert($mittelwertPyroWestArray);
 
                     $sensorData = $this->corrIrr($tempWeatherArray, $replaceArray, $sensorData);
                     break;

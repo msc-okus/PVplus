@@ -22,13 +22,16 @@ class AnlageSensors
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $name = null;
 
-    #[ORM\Column(length: 20)]
+    #[ORM\Column(length: 20, nullable: true)]
     private ?string $type = null;
 
-    #[ORM\Column(length: 20)]
+    #[ORM\Column(length: 20, nullable: true)]
     private ?string $orientation = null;
 
-    #[ORM\Column(length: 20)]
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $virtualSensor = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
     private ?bool $useToCalc = false;
 
     #[ORM\Column(length: 20, nullable: true)]
@@ -83,7 +86,7 @@ class AnlageSensors
         return $this->type;
     }
 
-    public function setType(string $type): static
+    public function setType(?string $type): static
     {
         $this->type = $type;
 
@@ -98,6 +101,18 @@ class AnlageSensors
     public function setOrientation(string $orientation): static
     {
         $this->orientation = $orientation;
+
+        return $this;
+    }
+
+    public function getVirtualSensor(): ?string
+    {
+        return $this->virtualSensor;
+    }
+
+    public function setVirtualSensor(string $virtualSensor): static
+    {
+        $this->virtualSensor = $virtualSensor;
 
         return $this;
     }
