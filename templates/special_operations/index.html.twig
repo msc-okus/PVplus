@@ -8,16 +8,28 @@
     </div>
     {% include'special_operations/_inc/_createForm.html.twig' %}
 
+    {% if (output) %}
     <div class="grid-x">
         <div class="cell">
-            {% if (output) %}{{ output|raw }}{% endif %}
+            {{ output|raw }}
         </div>
     </div>
+    {% endif %}
+    {% if (availabilitys) %}
+        <div class="grid-x">
+            <div class="cell">
+                {{ availabilitys|raw }}
+            </div>
+        </div>
+    {% endif %}
+
+    {% if (output2) %}
     <div class="grid-x">
         <div class="cell">
-            {% if (output2) %}{{ output2|raw }}{% endif %}
+           {{ output2|raw }}
         </div>
     </div>
+    {% endif %}
 
 {% endblock %}
 

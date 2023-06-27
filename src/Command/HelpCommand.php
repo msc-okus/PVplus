@@ -6,6 +6,7 @@ use App\Helper\G4NTrait;
 use App\Repository\AnlagenRepository;
 use App\Service\AssetManagementService;
 use App\Service\Reports\ReportEpcService;
+use Doctrine\Instantiator\Exception\ExceptionInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -34,15 +35,16 @@ class HelpCommand extends Command
     }
 
     /**
+     * @throws ExceptionInterface
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $ergebniss = '';
         $io = new SymfonyStyle($input, $output);
 
-        $anlage = $this->anlagenRepository->find(183); // 183 = REGebeng
+        $anlage = $this->anlagenRepository->find(104); //  = Saran
 
-        $reportMonth = 01;
+        $reportMonth = 05;
         $reportYear = 2023;
 
         $io->comment("Starte Hilfs Command: AM Report ".$anlage->getAnlName());

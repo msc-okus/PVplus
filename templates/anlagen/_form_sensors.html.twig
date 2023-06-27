@@ -1,0 +1,84 @@
+{% import _self as formMacros %}
+
+{% macro addSensor(sensor) %}
+<tr class="js-sensor-item">
+    <td>{{ form_widget(sensor.nameShort) }}</td>
+    <td>{{ form_widget(sensor.name) }}</td>
+    <td>{{ form_widget(sensor.type) }}</td>
+    <td>{{ form_widget(sensor.orientation) }}</td>
+    <td>{{ form_widget(sensor.vcomId) }}</td>
+    <td>{{ form_widget(sensor.vcomAbbr) }}</td>
+
+    <td><a href="#" class="js-remove-sensor"><span class="fa fa-minus-circle"></span></a></td>
+</tr>
+{% endmacro %}
+
+
+{{ form_start(anlageForm) }} {# , {'attr': {'novalidate': 'yes'}}) #}
+    <div class="grid-x">
+        <div class="cell">
+            <ul class="tabs" data-tabs id="anlage-tabs" data-deep-link="true">
+                {% if is_granted('ROLE_G4N') %}
+                    <li class="tabs-title is-active"><a data-tabs-target="sensors" href="#sensors" aria-selected="true">Sensors</a></li>
+                {% endif %}
+            </ul>
+
+            <div class="tabs-content" data-tabs-content="sensors">
+                {# AC Groups #}
+                <div class="tabs-panel is-active" id="sensors">
+                    <fieldset class="fieldset js-sensors-wrapper"
+                              data-prototype="{{ formMacros.addSensor(anlageForm.sensors.vars.prototype)|e('html_attr') }}"
+                              data-index="{{ anlageForm.sensors|length }}">
+                        <legend>Sensors</legend>
+                        <div class="cell">
+                            <table id="js-sensors">
+                                <thead>
+                                <tr>
+                                    <th><small>Short name</small></th>
+                                    <th><small>Name</small></th>
+                                    <th><small>Type</small></th>
+                                    <th><small>Orientationt</small></th>
+                                    <th><small>VCOM ID</small></th>
+                                    <th><small>VCOM Abbr</small></th>
+
+                                    <th></th>
+                                </tr>
+
+                                </thead>
+                                <tbody>
+                                {% for sensor in anlageForm.sensors %}
+                                    <tr class="js-sensor-item">
+                                        <td>{{ form_widget(sensor.nameShort) }}</td>
+                                        <td>{{ form_widget(sensor.name) }}</td>
+                                        <td>{{ form_widget(sensor.type) }}</td>
+                                        <td>{{ form_widget(sensor.orientation) }}</td>
+                                        <td>{{ form_widget(sensor.vcomId) }}</td>
+                                        <td>{{ form_widget(sensor.vcomAbbr) }}</td>
+                                        <td><a href="#" class="js-remove-sensor"><span class="fa fa-minus-circle"></span></a></td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                            <button type="button" class="button secondary small js-add-sensor"> <span class="fa fa-plus-circle"></span>&nbsp;Add </button>
+                        </div>
+                    </fieldset>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-x grid-padding-y action-menu">
+        <div class="cell">
+            {{ form_widget(anlageForm.save) }}
+            {{ form_widget(anlageForm.saveclose) }}
+            {{ form_widget(anlageForm.close) }}
+            {% if (is_granted('ROLE_DEV')) %}{{ form_widget(anlageForm.savecreatedb) }}{% endif %}
+        </div>
+    </div>
+
+{% do anlageForm.sensors.setRendered() %}
+{{ form_end(anlageForm) }}
+
+
+

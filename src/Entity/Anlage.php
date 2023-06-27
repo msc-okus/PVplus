@@ -360,54 +360,38 @@ class Anlage
     private ?string $prFormular2 = null;
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $prFormular3 = null;
-
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: TimesConfig::class, cascade: ['persist', 'remove'])]
     private Collection $timesConfigs;
-
     #[ORM\Column(type: 'boolean')]
     private bool $showForecast = false;
-
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageGridMeterDay::class)]
     private Collection $anlageGridMeterDays;
-
     #[ORM\Column(type: 'boolean')]
     private bool $useGridMeterDayData = false;
-
     #[ORM\Column(type: 'string', length: 20)]
     private string $country = '';
-
     #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: OpenWeather::class)]
     private Collection $openWeather;
-
     #[ORM\Column(type: 'boolean')]
     private bool $calcPR = false;
-
     #[ORM\Column(type: 'string', length: 20)]
     private string $pacDuration = '';
-
     #[Groups(['api:read'])]
     #[SerializedName('p_nom_simulation')]
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $kwPeakPvSyst;
-
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $kwPeakPLDCalculation;
-
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $designPR;
-
     #[ORM\Column(type: 'date', nullable: true)]
     private ?DateTime $facDateStart;
-
     #[ORM\Column(type: 'date', nullable: true)]
     private ?DateTime $pacDateEnd;
-
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private string $lid;
-
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private float|string|null $annualDegradation;
-
     #[ORM\Column(type: 'string', length: 20, nullable: true)]
     private ?string $pldPR;
 
@@ -464,7 +448,7 @@ class Anlage
     #[ORM\Column(type: 'string', length: 20)]
     private string $tempCorrDeltaTCnd = '3.0';
 
-    #[ORM\Column(type: 'string', length: 20, options: ['default' => '0.5'])]
+    #[ORM\Column(type: 'string', length: 20)]
     private string $degradationPR = '0.5';
 
     #[ORM\Column(type: 'string', length: 20)]
@@ -542,7 +526,7 @@ class Anlage
     #[ORM\Column(type: 'boolean')]
     private bool $hasWindSpeed = true;
 
-    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[ORM\Column(type: 'text', nullable: true)]
     private ?string $DataSourceAM;
 
     #[ORM\Column(type: 'boolean')]
@@ -590,27 +574,42 @@ class Anlage
     #[ORM\Column(nullable: true)]
     private ?bool $gridTicket = false;
 
-    #[ORM\Column( nullable: true)]
-    private ?\DateTimeInterface $dataFrom = null;
-
     #[ORM\Column(nullable: true)]
     private ?bool $newAlgorythm = false;
 
-    /**
-     * @return bool|null
-     */
-    public function isNewAlgorythm(): ?bool
-    {
-        return $this->newAlgorythm;
-    }
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $DCCableLosses = "0";
 
-    /**
-     * @param bool|null $newAlgorythm
-     */
-    public function setNewAlgorythm(?bool $newAlgorythm): void
-    {
-        $this->newAlgorythm = $newAlgorythm;
-    }
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $MissmatchingLosses = "0";
+
+    #[ORM\Column(length: 100,  nullable: true)]
+    private ?string $InverterEfficiencyLosses = "0";
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $ShadingLosses = "0";
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $ACCableLosses = "0";
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $TransformerLosses = "0";
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $transformerLimitation = "0";
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $inverterLimitation = "0";
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $dynamicLimitations = "0";
+
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $PowerThreshold = "0";
+
+    #[ORM\OneToMany(mappedBy: 'anlage', targetEntity: AnlageSensors::class, cascade: ['persist', 'remove'])]
+    private Collection $sensors;
+
 
     /**
      * @return string|null
@@ -657,6 +656,7 @@ class Anlage
         $this->anlageFiles = new ArrayCollection();
         $this->statuses = new ArrayCollection();
         $this->dayLightData = new ArrayCollection();
+        $this->sensors = new ArrayCollection();
     }
 
     public function getAnlId(): string
@@ -962,7 +962,7 @@ class Anlage
     public function setAnlIrChange(string $anlIrChange): self
     {
         $weatherStation = $this->getWeatherStation();
-        $weatherStation->setChangeSensor($anlIrChange);
+        $weatherStation->setChangeSensor($IrChange);
 
         return $this;
     }
@@ -3476,6 +3476,118 @@ class Anlage
 
         return $this;
     }
+    public function getDCCableLosses(): ?string
+    {
+        return $this->DCCableLosses;
+    }
+
+    public function setDCCableLosses(?string $DCCableLosses): self
+    {
+        $this->DCCableLosses = $DCCableLosses;
+
+        return $this;
+    }
+
+    public function getMissmatchingLosses(): ?string
+    {
+        return $this->MissmatchingLosses;
+    }
+
+    public function setMissmatchingLosses(?string $MissmatchingLosses): self
+    {
+        $this->MissmatchingLosses = $MissmatchingLosses;
+
+        return $this;
+    }
+
+    public function getInverterEfficiencyLosses(): ?string
+    {
+        return $this->InverterEfficiencyLosses;
+    }
+
+    public function setInverterEfficiencyLosses(string $InverterEfficiencyLosses): self
+    {
+        $this->InverterEfficiencyLosses = $InverterEfficiencyLosses;
+
+        return $this;
+    }
+
+    public function getShadingLosses(): ?string
+    {
+        return $this->ShadingLosses;
+    }
+
+    public function setShadingLosses(?string $ShadingLosses): self
+    {
+        $this->ShadingLosses = $ShadingLosses;
+
+        return $this;
+    }
+
+    public function getACCableLosses(): ?string
+    {
+        return $this->ACCableLosses;
+    }
+
+    public function setACCableLosses(?string $ACCableLosses): self
+    {
+        $this->ACCableLosses = $ACCableLosses;
+
+        return $this;
+    }
+
+    public function getTransformerLosses(): ?string
+    {
+        return $this->TransformerLosses;
+    }
+
+    public function setTransformerLosses(?string $TransformerLosses): self
+    {
+        $this->TransformerLosses = $TransformerLosses;
+
+        return $this;
+    }
+
+    public function getTransformerLimitation(): ?string
+    {
+        return $this->transformerLimitation;
+    }
+
+    public function setTransformerLimitation(?string $transformerLimitation): self
+    {
+        $this->transformerLimitation = $transformerLimitation;
+
+        return $this;
+    }
+
+    public function getInverterLimitation(): ?string
+    {
+        return $this->inverterLimitation;
+    }
+
+    public function setInverterLimitation(?string $inverterLimitation): self
+    {
+        $this->inverterLimitation = $inverterLimitation;
+
+        return $this;
+    }
+
+    public function getDynamicLimitations(): ?string
+    {
+        return $this->dynamicLimitations;
+    }
+
+    public function setDynamicLimitations(?string $dynamicLimitations): self
+    {
+        $this->dynamicLimitations = $dynamicLimitations;
+
+        return $this;
+    }
+
+    public function getTotalKpi(): float
+    {
+        return (float)$this->inverterLimitation + (float)$this->transformerLimitation + (float)$this->dynamicLimitations + (float)$this->DCCableLosses + (float)$this->MissmatchingLosses + (float)$this->InverterEfficiencyLosses + (float)$this->ShadingLosses + (float)$this->ACCableLosses + (float)$this->TransformerLosses;
+    }
 
     public function getKpiTicket(): ?bool
     {
@@ -3487,5 +3599,54 @@ class Anlage
         $this->kpiTicket = $kpiTicket;
     }
 
+    public function getPowerThreshold(): ?string
+    {
+        return $this->PowerThreshold;
+    }
 
+    public function setPowerThreshold(?string $PowerThreshold): static
+    {
+        $this->PowerThreshold = $PowerThreshold;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AnlageSensors>
+     */
+    public function getSensors(): Collection
+    {
+        return $this->sensors;
+    }
+
+    public function addSensor(AnlageSensors $sensor): static
+    {
+        if (!$this->sensors->contains($sensor)) {
+            $this->sensors->add($sensor);
+            $sensor->setAnlage($this);
+        }
+
+        return $this;
+    }
+
+    public function removeSensor(AnlageSensors $sensor): static
+    {
+        if ($this->sensors->removeElement($sensor)) {
+            // set the owning side to null (unless already changed)
+            if ($sensor->getAnlage() === $this) {
+                $sensor->setAnlage(null);
+            }
+        }
+
+        return $this;
+    }
+    public function isNewAlgorythm(): ?bool
+    {
+        return $this->newAlgorythm;
+    }
+
+    public function setNewAlgorythm(?bool $newAlgorythm): void
+    {
+        $this->newAlgorythm = $newAlgorythm;
+    }
 }

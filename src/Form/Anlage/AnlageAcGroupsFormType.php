@@ -4,7 +4,7 @@ namespace App\Form\Anlage;
 
 use App\Entity\Anlage;
 use App\Entity\Eigner;
-use App\Form\GroupsAc\AcGroupsListEmbeddedFormType;
+use App\Form\GroupsAc\SensorsListEmbeddedFormType;
 use App\Helper\G4NTrait;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -36,7 +36,7 @@ class AnlageAcGroupsFormType extends AbstractType
             // ###############################################
 
             ->add('acGroups', CollectionType::class, [
-                'entry_type' => AcGroupsListEmbeddedFormType::class,
+                'entry_type' => SensorsListEmbeddedFormType::class,
                 'allow_add' => true,
                 'allow_delete' => true,
                 'delete_empty' => true,

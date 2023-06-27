@@ -21,7 +21,9 @@
                     {{ knp_pagination_sortable(pagination, 'End', ['ticket.end'], {'data-action': 'ticket-list#sortEnd'}) }}</th>
                 <th {% if pagination.isSorted('ticket.updatedAt') %} class="sorted"{% endif %}>
                     {{ knp_pagination_sortable(pagination, 'Last Update', ['ticket.updatedAt'], {'data-action': 'ticket-list#sortUpdate'}) }}</th>
-                <th>Error Category{% if is_granted('ROLE_G4N') %} <br><small>alertType</small> {% endif %}</th>
+                <th {% if pagination.isSorted('ticket.alertType') %} class="sorted"{% endif %}>
+                    {{ knp_pagination_sortable(pagination, 'Error Category', ['ticket.alertType'], {'data-action': 'ticket-list#sortUpdate'}) }}
+                    {% if is_granted('ROLE_G4N') %} <br><small>alertType</small> {% endif %}</th>
                 {# <th>Error Type</th>  #}
                 <th>Inverter</th>
                 <th></th>
@@ -65,7 +67,7 @@
                     {% set maxCharInverter = 16 %}
                     <td {% if ticket.inverter|length > maxCharInverter %}data-tooltip data-click-open="false" title="{{ ticket.inverter }}"{% endif %}><span>{{ ticket.inverter|u.truncate(maxCharInverter, ' ...', false) }}</span></td>
                     <td>{% if (ticket.openTicket) %} open {% endif %}</td>
-                    <td>{{ ticket.needsProof }}</td>
+                    <td>{{ ticket.proof }}</td>
                     <td>{# <input data-request-target="box" data-action="click->request#check" type="checkbox" value="{{ ticket.id }}" class="generated-checkbox" form="tableForm"> #}</td>
                     <td class="text-right">
                         <div id="modal-form{{ ticket.id }}" {{ stimulus_controller('ticket-edit', {

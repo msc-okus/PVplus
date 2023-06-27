@@ -356,7 +356,6 @@ class ReportsMonthlyService
 
         // begin create Array for Day Values Table
         for ($i = 1; $i <= $daysInMonth; ++$i) {
-        #for ($i = 7; $i <= 10; ++$i) {
             // Table
             $day = new \DateTime("$year-$month-$i 12:00");
             $prArray = $this->PRCalulation->calcPR($anlage, $day);
@@ -370,6 +369,51 @@ class ReportsMonthlyService
 
         // calculate PR and related data for the current month
         $fromDay = new \DateTime("$year-$month-01 00:00");
+        $toDay = new \DateTime("$year-$month-$daysInMonth 23:59");
+
+        $prSumArray = $this->PRCalulation->calcPR($anlage, $fromDay, $toDay);
+
+        // Summe / Total Row
+        $i = sizeof($dayValues)+1;
+        $dayValues[$i]['datum'] = 'Total';
+        foreach($prSumArray as $key => $value) {
+            $dayValues[$i][$key] = $value;
+        }
+
+        return [
+            'anlagenid' => $anlage->getAnlId(),
+            'days' => $dayValues,
+        ];
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function buildMonthlyReportNewByDate(Anlage $anlage, ?int $startDay = null, ?int $endDay = null, int $month = 0, int $year = 0): array
+    {
+        $dayValues = [];
+        if ($startDay === null) $startDay = 1;
+        $daysInMonth = (int)date('t', strtotime("$year-$month-01"));
+        if ($endDay  !== null && $endDay < $daysInMonth) {
+            $daysInMonth = $endDay;
+        }
+
+
+        // begin create Array for Day Values Table
+        for ($i = $startDay; $i <= $daysInMonth; ++$i) {
+            // Table
+            $day = new \DateTime("$year-$month-$i 12:00");
+            $prArray = $this->PRCalulation->calcPR($anlage, $day);
+
+            $dayValues[$i]['datum'] = $day->format('Y-m-d');
+            foreach($prArray as $key => $value) {
+                $dayValues[$i][$key] = $value;
+            }
+        }
+        unset($prArray);
+
+        // calculate PR and related data for the current month
+        $fromDay = new \DateTime("$year-$month-$startDay 00:00");
         $toDay = new \DateTime("$year-$month-$daysInMonth 23:59");
 
         $prSumArray = $this->PRCalulation->calcPR($anlage, $fromDay, $toDay);

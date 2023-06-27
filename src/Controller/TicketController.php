@@ -82,6 +82,8 @@ class TicketController extends BaseController
 
         $nameArray = $anlage->getInverterFromAnlage();
         $inverterArray = [];
+        $namesSensors = $anlage->getSensors();
+        $sensorArray = [];
         // I loop over the array with the real names and the array of selected inverters
         // of the inverter to create a 2-dimension array with the real name and the inverters that are selected
         //In this case there will  be none selected
@@ -89,16 +91,19 @@ class TicketController extends BaseController
             $inverterArray[$key]["inv"] = $value;
             $inverterArray[$key]["select"] = "";
         }
-        if ($anlage != null){
-
+        foreach ($namesSensors as $key => $sensor){
+            $sensorArray[$key]['name'] = $sensor->getName();
+            $sensorArray[$key]['nameS'] = $sensor->getNameShort();
+            $sensorArray[$key]['checked'] = "";
         }
-        else $reasonArray = [];
+
         return $this->renderForm('ticket/_inc/_edit.html.twig', [
             'ticketForm'    => $form,
             'ticket'        => $ticket,
             'anlage'        => $anlage,
             'edited'        => false,
             'invArray'      => $inverterArray,
+            'sensorArray'   => $sensorArray,
             'performanceTicket' => false
         ]);
     }
@@ -211,6 +216,15 @@ class TicketController extends BaseController
         }
         if ($ticket->getAlertType() >=70 && $ticket->getAlertType() < 80) $performanceTicket =  true;
         else $performanceTicket = false;
+        $namesSensors = $anlage->getSensors();
+        $sensorArray = [];
+        $sensorString = $ticketDates[0]->getSensors();
+        foreach ($namesSensors as $key => $sensor){
+            $sensorArray[$key]['name'] = $sensor->getName();
+            $sensorArray[$key]['nameS'] = $sensor->getNameShort();
+            if ((str_contains($sensorString, $sensor->getNameShort()) !== false)) $sensorArray[$key]['checked'] = "checked";
+            else  $sensorArray[$key]['checked'] = "";
+        }
         if ($anlage != null){
 
         }
@@ -220,6 +234,7 @@ class TicketController extends BaseController
             'ticket' => $ticket,
             'anlage' => $anlage,
             'edited' => true,
+            'sensorArray'   => $sensorArray,
             'invArray' => $inverterArray,
             'performanceTicket' => $performanceTicket
         ]);

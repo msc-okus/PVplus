@@ -1,0 +1,115 @@
+{% extends 'report/_asset_mangement_partials/_pageBase.html.twig' %}
+
+{% block styles %}
+    {{  parent() }}
+    <link href="{{ absolute_url(asset('css/monthly_report_inline.css')) }}" rel="stylesheet" type="text/css">
+{% endblock %}
+
+
+{% block page %}
+
+    {% if report != null %}
+        <div class="grid-x">
+            <div class="cell">
+                <h3 style="color: {{ anlage.eigner.fontColor2 }};">PR Calculations table</h3>
+                <table class="asset_report_table_operations_data" style="width: 100%!important; height: 90%!important;margin-bottom: 10px">
+                    {% for day in report.days %}
+                    {% if loop.last %}{% set trstyle = ' class=strong' %}{% else %}{% set trstyle = '' %}{% endif %}
+                    {% if loop.first %}
+                    <thead>
+                    <tr class="left">
+                        <th class="table-center"></th>
+                        <th class="table-center" colspan="4" style="text-align: center">Power & Irradiation</th>
+                        <th class="table-center" colspan="5" style="text-align: center">PR & PA - default (OpenBook)</th>
+                        {% if anlage.settings.disableDep1 != true %}<th class="table-center" colspan="5" style="text-align: center">PR & PA - O&M</th>{% endif %}
+                        {% if anlage.settings.disableDep2 != true %}<th class="table-center" colspan="5" style="text-align: center">PR & PA - EPC</th>{% endif %}
+                        {% if anlage.settings.disableDep3 != true %}<th class="table-center" colspan="5" style="text-align: center">PR & PA - AM</th>{% endif %}
+                    </tr>
+                    <tr>
+                        <th class="table-center">Datum</th>
+                        <th class="table-center">Irr</th>
+                        <th class="table-center">Grid</th>
+                        <th class="table-center">Inverter</th>
+                        <th class="table-center">G4N Expected</th>
+
+                        <th class="table-center">Power Theo.</th>
+                        <th class="table-center">PR Grid</th>
+                        <th class="table-center">PR Inv.</th>
+                        <th class="table-center">PR Exp.</th>
+                        <th class="table-center">PA</th>
+
+                        {% if anlage.settings.disableDep1 != true %}
+                            <th class="table-center">Power Theo.</th>
+                            <th class="table-center">PR Grid</th>
+                            <th class="table-center">PR Inv.</th>
+                            <th class="table-center">PR Exp.</th>
+                            <th class="table-center">PA</th>
+                        {% endif %}
+
+                        {% if anlage.settings.disableDep2 != true %}
+                            <th class="table-center">Power Theo.</th>
+                            <th class="table-center">PR Grid</th>
+                            <th class="table-center">PR Inverter</th>
+                            <th class="table-center">PR Exp.</th>
+                            <th class="table-center">PA</th>
+                        {% endif %}
+
+                        {% if anlage.settings.disableDep3 != true %}
+                            <th class="table-center">Power Theo.</th>
+                            <th class="table-center">PR Grid</th>
+                            <th class="table-center">PR Inv.</th>
+                            <th class="table-center">PR Exp.</th>
+                            <th class="table-center">PA</th>
+                        {% endif %}
+
+
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% endif %}
+                    <tr {{ trstyle }}>
+                        <td class="tr_next_columns">{{ day["datum"] }}</td>
+
+                        <td class="tr_next_columns">{{ day["irradiation"]|number_format(4,',','.') }}</td>
+                        <td class="tr_next_columns">{% if anlage.useGridMeterDayData %}{{ day["powerEGridExt"]|number_format(2,',','.') }}{% else %}{{ day["powerEvu"]|number_format(2,',','.') }}{% endif %}</td>
+                        <td class="tr_next_columns">{{ day["powerAct"]|number_format(2,',','.') }}</td>
+                        <td class="tr_next_columns">{{ day["powerExp"]|number_format(2,',','.') }}</td>
+
+                        <td class="tr_next_columns">{{ day["powerTheoDep0"]|number_format(2,',','.') }}</td>
+                        <td class="tr_next_columns">{% if anlage.useGridMeterDayData %}{{ day["prDep0EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep0Evu"]|number_format(2,',','.') }}{% endif %}</td>
+                        <td class="tr_next_columns">{{ day["prDep0Act"]|number_format(2,',','.') }}</td>
+                        <td class="tr_next_columns">{{ day["prDep0Exp"]|number_format(2,',','.') }}</td>
+                        <td class="tr_next_columns">{{ day["pa0"]|number_format(2,',','.') }}</td>
+
+
+                        {% if anlage.settings.disableDep1 != true %}
+                            <td class="tr_next_columns">{{ day["powerTheoDep1"]|number_format(2,',','.') }}</td>
+                            <td class="tr_next_columns">{% if anlage.useGridMeterDayData %}{{ day["prDep1EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep1Evu"]|number_format(2,',','.') }}{% endif %}</td>
+                            <td class="tr_next_columns">{{ day["prDep1Act"]|number_format(2,',','.') }}</td>
+                            <td class="tr_next_columns">{{ day["prDep1Exp"]|number_format(2,',','.') }}</td>
+                            <td class="tr_next_columns">{{ day["pa1"]|number_format(2,',','.') }}</td>
+                        {% endif %}
+
+                        {% if anlage.settings.disableDep2 != true %}
+                            <td class="tr_next_columns">{{ day["powerTheoDep2"]|number_format(2,',','.') }}</td>
+                            <td class="tr_next_columns">{% if anlage.useGridMeterDayData %}{{ day["prDep2EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep2Evu"]|number_format(2,',','.') }}{% endif %}</td>
+                            <td class="tr_next_columns">{{ day["prDep2Act"]|number_format(2,',','.') }}</td>
+                            <td class="tr_next_columns">{{ day["prDep2Exp"]|number_format(2,',','.') }}</td>
+                            <td class="tr_next_columns">{{ day["pa2"]|number_format(2,',','.') }}</td>
+                        {% endif %}
+
+                        {% if anlage.settings.disableDep3 != true %}
+                            <td class="tr_next_columns">{{ day["powerTheoDep3"]|number_format(2,',','.') }}</td>
+                            <td class="tr_next_columns">{% if anlage.useGridMeterDayData %}{{ day["prDep3EGridExt"]|number_format(2,',','.') }}{% else %}{{ day["prDep3Evu"]|number_format(2,',','.') }}{% endif %}</td>
+                            <td class="tr_next_columns">{{ day["prDep3Act"]|number_format(2,',','.') }}</td>
+                            <td class="tr_next_columns">{{ day["prDep3Exp"]|number_format(2,',','.') }}</td>
+                            <td class="tr_next_columns">{{ day["pa3"]|number_format(2,',','.') }}</td>
+                        {% endif %}
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

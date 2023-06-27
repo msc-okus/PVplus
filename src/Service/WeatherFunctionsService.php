@@ -168,5 +168,32 @@ class WeatherFunctionsService
         return $irr;
     }
 
+    /**
+     * Function to retrieve All Sensor (Irr) Data from Databse 'db_ist' for selected Daterange
+     * Return Array with
+     *
+     * @param Anlage $anlage
+     * @param DateTime $from
+     * @param DateTime $to
+     * @return array
+     */
+    public function getSensors(Anlage $anlage, DateTime $from, DateTime $to): array
+    {
+        $result = [];
 
+        $conn = self::getPdoConnection();
+        $dbTable = $anlage->getDbNameIst();
+        // Suche nur für einen Inverter, da bei allen das gleiche steht, deshalb umzug zu den Wetter Daten
+        $sql = "SELECT irr_anlage FROM $dbTable WHERE unit = 1 AND stamp BETWEEN '" .$from->format('Y-m-d H:i')."' and '".$to->format('Y-m-d H:i')."'";
+        $res = $conn->query($sql);
+        if ($res->rowCount() >= 1) {
+            $rows = $res->fetchAll(PDO::FETCH_ASSOC);
+            foreach ($rows as $row) {
+                $result[] = json_decode($row['irr_anlage']);
+            }
+        }
+        unset($res);
+
+        return $result;
+    }
 }

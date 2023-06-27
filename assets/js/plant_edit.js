@@ -1,5 +1,23 @@
 import $ from 'jquery';
 
+// Sensors
+let $wrapper_sensors = $('.js-sensors-wrapper');
+$wrapper_sensors.on('click', '.js-remove-sensor', function (e) {
+    e.preventDefault();
+    $(this).closest('.js-sensor-item')
+        .remove();
+});
+$wrapper_sensors.on('click', '.js-add-sensor', function (e) {
+    e.preventDefault();
+    let prototype = $wrapper_sensors.data('prototype');
+    let index = $wrapper_sensors.data('index');
+    let newForm = prototype.replace(/__name__/g, index);
+    console.log(newForm);
+    $wrapper_sensors.data('index', index + 1);
+    $('#js-sensors>tbody').append(newForm);
+    Foundation.reInit('accordion');
+});
+
 // Module
 let $wrapper_module = $('.js-module-wrapper');
 $wrapper_module.on('click', '.js-remove-module', function (e) {

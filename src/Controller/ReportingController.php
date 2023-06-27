@@ -392,7 +392,7 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
-                            if ($data['DailyProd']) {
+                            if ($data['PRTable']){
                                 $pageCount = $pdf->setSourceFile($files[6]);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
@@ -400,7 +400,7 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
-                            if ($data['StringCurr']) {
+                            if ($data['DailyProd']) {
                                 $pageCount = $pdf->setSourceFile($files[7]);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
@@ -408,35 +408,11 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
-                            if ($data['InvPow']) {
-                                $pageCount = $pdf->setSourceFile($files[8]);
-                                for ($i = 0; $i < $pageCount; $i++) {
-                                    $pdf->AddPage("L");
-                                    $tplId = $pdf->importPage($i + 1);
-                                    $pdf->useTemplate($tplId);
-                                }
-                            }
+
                         }
+
                         if ($data['Availability']){
-
-                            if ($data['AvYearlyOverview']) {
-
-                                $pageCount = $pdf->setSourceFile($files[9]);
-                                for ($i = 0; $i < $pageCount; $i++) {
-                                    $pdf->AddPage("L");
-                                    $tplId = $pdf->importPage($i + 1);
-                                    $pdf->useTemplate($tplId);
-                                }
-                            }
                             if ($data['AvMonthlyOverview']) {
-                                $pageCount = $pdf->setSourceFile($files[10]);
-                                for ($i = 0; $i < $pageCount; $i++) {
-                                    $pdf->AddPage("L");
-                                    $tplId = $pdf->importPage($i + 1);
-                                    $pdf->useTemplate($tplId);
-                                }
-                            }
-                            if ($data['AvYearlyTicketOverview']) {
                                 $pageCount = $pdf->setSourceFile($files[11]);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
@@ -444,7 +420,7 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
-                            if ($data['AvInv']) {
+                            if ($data['AvYearlyTicketOverview']) {
                                 $pageCount = $pdf->setSourceFile($files[12]);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
@@ -453,8 +429,43 @@ class ReportingController extends AbstractController
                                 }
                             }
                         }
+                        if($data['AnalysisHeatmap']){
+                            if ($data['StringCurr']) {
+                                $pageCount = $pdf->setSourceFile($files[8]);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
+                            if ($data['InvPow']) {
+                                $pageCount = $pdf->setSourceFile($files[9]);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
+                            if ($data['AvYearlyOverview']) {
+                                $pageCount = $pdf->setSourceFile($files[10]);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
+                            if ($data['AvInv']) {
+                                $pageCount = $pdf->setSourceFile($files[13]);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
+
+                        }
                         if ($data['Economics']) {
-                            $pageCount = $pdf->setSourceFile($files[13]);
+                            $pageCount = $pdf->setSourceFile($files[14]);
                             for ($i = 0; $i < $pageCount; $i++) {
                                 $pdf->AddPage("L");
                                 $tplId = $pdf->importPage($i + 1);
