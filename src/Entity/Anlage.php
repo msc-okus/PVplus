@@ -3674,4 +3674,11 @@ class Anlage
     {
         $this->newAlgorythm = $newAlgorythm;
     }
+    public function getMinIrrThreshold(){
+        $thresholds[] = $this->getThreshold1PA0();
+        $thresholds[] = $this->getThreshold1PA1();
+        $thresholds[] = $this->getThreshold1PA2();
+        $thresholds[] = $this->getThreshold1PA3();
+        return min($thresholds);
+    }
 }

@@ -15,7 +15,7 @@
 {% macro expectedPvSyst(table_overview_monthly, anlage) %}
     {% set pvsystsum = 0 %}
     <tr>
-        <td class="tr_first_column" style="text-align: right;">Plant Simulation <sup>**</sup></td>
+        <td class="tr_first_column" style="text-align: right;">Plant Simulation </td>
         {% for data in table_overview_monthly.expectedPvSyst %}
             <td class="tr_next_columns">{{ data|number_format(0, ',', '.') }}</td>
             {% set pvsystsum = pvsystsum + data %}
@@ -61,7 +61,7 @@
 {% endmacro %}
 
 {% block page %}
-    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Production & Capacity factor</h3>
+    <h3 style="color: {{ anlage.eigner.fontColor2 }};">Energy Production & Capacity factor</h3>
     <span class="subheadline">Yearly expected vs. actuals</span>
     <table >
         <tr>
@@ -95,17 +95,15 @@
 
                     {{ Macros.grid(table_overview_monthly, anlage)}}
                     {{ Macros.expectedG4N(table_overview_monthly, anlage) }}
-                    {{ Macros.forecast(table_overview_monthly, anlage, powerEvuTotal) }}
-                    {% if (anlage.hasPVSYST == true) %}
+                    {% if (anlage.hasPVSYST != true) %}
+                        {{ Macros.forecast(table_overview_monthly, anlage, powerEvuTotal) }}
+                    {% else %}
                         {{ Macros.expectedPvSyst(table_overview_monthly, anlage) }}
                     {% endif %}
 
                     <tr>
                         <td style="text-align: left;" colspan="8">
                             <sup>*</sup>Grid Meter/Inverter Out. Depending on what data is available <br>
-                            {% if (anlage.hasPVSYST == true) %}
-                                <sup>**</sup>Plant Simulation (PS); is a yield simulation program for photovoltaic systems, e.g.: PVSyst, PVSol, etc.
-                            {% endif %}
                         </td>
                     </tr>
                     </tbody>

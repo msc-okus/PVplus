@@ -3,10 +3,10 @@
 {% block page %}
     <h3 style="color: {{ anlage.eigner.fontColor2 }};">Availability Analysis - Monthly Overview</h3>
     <span class="subheadline" style="color: {{ anlage.eigner.fontColor3 }};">Resolution according to failure groups - {{ monthName }} {{ year }}</span>
-    <table style="vertical-align: bottom;">
-        <tr>
+    <table style="vertical-align: bottom; width: 50%">
+        <tr style="width: 50%">
             <td style="width:50%">
-                <table style="width: 90%">
+                <table style="width: 100%">
                     <thead>
                     <tr>
                         <th class="table-center">Availability</th>
@@ -20,7 +20,7 @@
                         <th class="table-center">Availability</th>
                     </tr>
                     <tr>
-                        <th class="table-center">{{ monthName }} {{ year|slice(2,3) }}</th>
+                        <th class="table-center">{{ monthName }} {{ year }}</th>
                         <th class="table-center"> [%]</th>
                         <th class="table-center"> [%]</th>
                         <th class="table-center"> [%]</th>
@@ -76,15 +76,17 @@
                 </table>
 
             </td>
+            {#
             <td style="width:25%">
                 {{ plant_availability|raw }}
             </td>
             <td style="width:25%">
                 {{ fails_month|raw }}
             </td>
+            #}
 
         </tr>
-        <tr >
+        <tr style="width: 50%">
             <td style="width: 50%">
                 <table style="margin-top: 30px; width: 90%">
                     <thead>
@@ -123,7 +125,7 @@
             </td>
         </tr>
         {%  if (TicketAvailabilityMonthTable) %}
-        <tr >
+        <tr style="width: 50%">
             <td style="width: 50%">
                 <table>
                     <thead>
