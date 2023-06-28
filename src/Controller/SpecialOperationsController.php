@@ -202,7 +202,7 @@ class SpecialOperationsController extends AbstractController
         $form = $this->createForm(ImportExcelFormType::class);
         $form->handleRequest($request);
 
-        $output = null;
+        $output = '';
 
         // Start individual part
         $headline = '';
@@ -223,18 +223,17 @@ class SpecialOperationsController extends AbstractController
                     $i = 0;
                     $ts = 0;
 
-                    foreach( $xlsx->rows($ts) as $r ) {
-                        if($i == 0) {
-                            $data_fields = $r;
+                    foreach ( $xlsx->rows($ts) as $row ) {
+                        if ($i == 0) {
+                            $data_fields = $row;
                             $indexStamp = array_search('stamp', $data_fields);
                             $indexEzevu = array_search('e_z_evu', $data_fields);
-                            //echo $indexEzevu.'<br><br>';
-                        }else{
-                            $eZEvu = ($r[$indexEzevu] != '') ? $r[$indexEzevu] : NULL;
+                        } else {
+                            $eZEvu = ($row[$indexEzevu] != '') ? $row[$indexEzevu] : NULL;
                             $stmt= $conn->prepare(
                                 "UPDATE $dataBaseNTable SET $data_fields[$indexEzevu]=? WHERE $data_fields[$indexStamp]=?"
                             );
-                            $stmt->execute([$eZEvu, $r[$indexStamp]]);
+                            $stmt->execute([$eZEvu, $row[$indexStamp]]);
                         }
 
                         $i++;
@@ -242,7 +241,8 @@ class SpecialOperationsController extends AbstractController
                     unlink($uploadsPath . '/xlsx/1/'.$newFile);
 
                 } else {
-                    echo SimpleXLSX::parseError();
+                    $output .= "No valid XLSX File.<br>";
+                    $output .= "(" . SimpleXLSX::parseError() . ")";
                 }
             }
         }
