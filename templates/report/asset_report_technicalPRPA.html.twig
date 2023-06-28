@@ -1,0 +1,12 @@
+{% extends 'report/assetreport.base.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
+{% block content %}
+    <div class="container">
+
+        {% include 'report/_asset_mangement_partials/_PR_PA_Monthly_Table.html.twig'%}
+        {% include 'report/_asset_mangement_partials/_PR_Monthly_Graph.html.twig'%}
+        {% include 'report/_asset_mangement_partials/_PA_Monthly_Graph.html.twig'%}
+    </div>
+{% endblock %}

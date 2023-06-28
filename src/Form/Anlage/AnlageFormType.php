@@ -703,7 +703,7 @@ class AnlageFormType extends AbstractType
                 'attr' => ['data-plant-target' => 'ticket']
             ])
             ->add('PowerThreshold', TextType::class, [
-                'label' => 'Ticket Expected limit',
+                'label' => 'Ticket Power minimum value',
                 'help' => '[PowerLimit]',
                 'attr' => ['data-plant-target' => 'ticket'],
                 'empty_data' => '0',

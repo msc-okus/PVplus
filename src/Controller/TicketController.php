@@ -112,7 +112,7 @@ class TicketController extends BaseController
     public function edit($id, TicketRepository $ticketRepo, EntityManagerInterface $em, Request $request, functionsService $functions ): Response
     {
         $ticket = $ticketRepo->find($id);
-
+        $sensorArray = [];
         $ticketDates = $ticket->getDates();
 
         $anlage = $ticket->getAnlage();
@@ -172,6 +172,7 @@ class TicketController extends BaseController
 
             if ($ticketDates) { // cambiar aqui para que si el primer y ultimo date estan fuera del ticket se expande el ticket
                 $found = false;
+
                 while(!$found){
 
                     $firstTicketDate = $ticketDates->first();
@@ -205,8 +206,27 @@ class TicketController extends BaseController
                 foreach ($ticketDates as $date){
                     $date->setInverter($ticket->getInverter());
                 }
+
+            }
+            else{
+                $date = new ticketDate();
+                $date->copyTicket($ticket);
+                $ticket->addDate($date);
+                $ticket->setNeedsProof(true);
+                $ticket->setNeedsProofEPC(true);
+                $ticket->setNeedsProofTAM(true);
+                $ticket->setDescription($ticket->getDescription(). "<br> The sub Tickets were lost because of an unknown error, a new sub Ticket has been created");
             }
 
+            $namesSensors = $anlage->getSensors();
+
+            $sensorString = $ticketDates->first()->getSensors();
+            foreach ($namesSensors as $key => $sensor){
+                $sensorArray[$key]['name'] = $sensor->getName();
+                $sensorArray[$key]['nameS'] = $sensor->getNameShort();
+                if ((str_contains($sensorString, $sensor->getNameShort()) !== false)) $sensorArray[$key]['checked'] = "checked";
+                else  $sensorArray[$key]['checked'] = "";
+            }
             if ($ticket->getStatus() == '10') $ticket->setStatus(30); // If 'New' Ticket change to work in Progress
 
             $em->persist($ticket);
@@ -216,19 +236,27 @@ class TicketController extends BaseController
         }
         if ($ticket->getAlertType() >=70 && $ticket->getAlertType() < 80) $performanceTicket =  true;
         else $performanceTicket = false;
+
+        if ($ticket->getDates()->count() === 0){
+            $date = new ticketDate();
+            $date->copyTicket($ticket);
+            $ticket->addDate($date);
+            $ticket->setNeedsProof(true);
+            $ticket->setNeedsProofEPC(true);
+            $ticket->setNeedsProofTAM(true);
+            $ticket->setDescription($ticket->getDescription(). "<br> The sub Tickets were lost because of an unknown error, a new sub Ticket has been created");
+            $form = $this->createForm(TicketFormType::class, $ticket);
+        }
         $namesSensors = $anlage->getSensors();
-        $sensorArray = [];
-        $sensorString = $ticketDates[0]->getSensors();
+
+        $sensorString = $ticketDates->first()->getSensors();
         foreach ($namesSensors as $key => $sensor){
             $sensorArray[$key]['name'] = $sensor->getName();
             $sensorArray[$key]['nameS'] = $sensor->getNameShort();
             if ((str_contains($sensorString, $sensor->getNameShort()) !== false)) $sensorArray[$key]['checked'] = "checked";
             else  $sensorArray[$key]['checked'] = "";
         }
-        if ($anlage != null){
 
-        }
-        else $reasonArray = [];
         return $this->renderForm('ticket/_inc/_edit.html.twig', [
             'ticketForm' => $form,
             'ticket' => $ticket,
