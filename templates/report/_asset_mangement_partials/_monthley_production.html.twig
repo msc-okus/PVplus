@@ -31,7 +31,7 @@
                             {% if (anlage.hasGrid) %}
                                 <th class="table-center">Grid meter</th>
                             {% endif %}
-                            <th class="table-center">Plant Simulation</th>
+                            <th class="table-center">Forecast</th>
                             <th class="table-center">Yield-EXP</th>
                             <th class="table-center">Yield-EXP</th>
                         </tr>
@@ -184,41 +184,45 @@
                 </td>
             {% endif %}
 
+
+        </tr>
+
+        <tr>
             <td style="text-align: left; width:50%">
                 <table class="asset_report_table_operations_data autowidth" style="float:left">
                     <thead>
-                        <tr>
-                            <td colspan="5">
-                                <span class="subheadline" style="text-align: left !important;">EXP g4n vs. Actuals </span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th rowspan="3" style="width: 90px!important" class="table-center">Month</th>
-                            {% if (anlage.hasGrid) %}
-                                <th class="table-center" style="width:82px">Yield</th>
-                            {% else %}
-                                <th class="table-center" style="width:82px">Inverter</th>
-                            {% endif %}
-                            <th class="table-center"  style="width:82px">Exp.</th>
-                            <th class="table-center" style="width:82px">Difference</th>
-                            <th class="table-center" style="width:82px">Difference</th>
-                        </tr>
-                        <tr>
-                            {% if (anlage.hasGrid) %}
-                                <th class="table-center">Grid meter</th>
-                            {% else %}
-                                <th class="table-center">Out</th>
-                            {% endif %}
-                            <th class="table-center">g4n</th>
-                            <th class="table-center">Yield-EXP</th>
-                            <th class="table-center">Yield-EXP</th>
-                        </tr>
-                        <tr>
-                            <th class="table-center">[kWh]</th>
-                            <th class="table-center">[kWh]</th>
-                            <th class="table-center">[kWh]</th>
-                            <th class="table-center">[%]</th>
-                        </tr>
+                    <tr>
+                        <td colspan="5">
+                            <span class="subheadline" style="text-align: left !important;">EXP g4n vs. Actuals </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th rowspan="3" style="width: 90px!important" class="table-center">Month</th>
+                        {% if (anlage.hasGrid) %}
+                            <th class="table-center" style="width:82px">Yield</th>
+                        {% else %}
+                            <th class="table-center" style="width:82px">Inverter</th>
+                        {% endif %}
+                        <th class="table-center"  style="width:82px">Exp.</th>
+                        <th class="table-center" style="width:82px">Difference</th>
+                        <th class="table-center" style="width:82px">Difference</th>
+                    </tr>
+                    <tr>
+                        {% if (anlage.hasGrid) %}
+                            <th class="table-center">Grid meter</th>
+                        {% else %}
+                            <th class="table-center">Out</th>
+                        {% endif %}
+                        <th class="table-center">g4n</th>
+                        <th class="table-center">Yield-EXP</th>
+                        <th class="table-center">Yield-EXP</th>
+                    </tr>
+                    <tr>
+                        <th class="table-center">[kWh]</th>
+                        <th class="table-center">[kWh]</th>
+                        <th class="table-center">[kWh]</th>
+                        <th class="table-center">[%]</th>
+                    </tr>
                     </thead>
                     <tbody>
                     {#  #}
@@ -316,9 +320,7 @@
                     </tbody>
                 </table>
             </td>
-        </tr>
-
-        <tr>
+            {#
             <td style="text-align: left; width:50%">
                 {% if (anlage.hasGrid) %}
                 <table class="asset_report_table_operations_data autowidth" >
@@ -492,6 +494,7 @@
                 </table>
                 {% endif %}
             </td>
+            #}
             <td style="text-align: left; width:50%">
                 {{ production_monthly_chart|raw }}
             </td>

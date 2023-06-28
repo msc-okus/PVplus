@@ -1659,6 +1659,7 @@ class AssetManagementService
             ];
         }
 
+        dd($operations_monthly_right_pvsyst_tr1, $operations_monthly_right_pvsyst_tr2, $operations_monthly_right_pvsyst_tr3, $operations_monthly_right_pvsyst_tr4);
         // Year to date
         $pacDate =  $anlage->getPacDate();
         if ($anlage->getUsePac() && $pacDate != null){
