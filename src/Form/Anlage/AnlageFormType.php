@@ -484,11 +484,15 @@ class AnlageFormType extends AbstractType
                 'help' => '[hasStrings]',
             ])
             ->add('hasPPC', SwitchType::class, [
-                'label' => 'Anlage hat Power Plant Controller Daten',
+                'label' => 'Plant has PPC',
                 'help' => '[hasPPC]',
             ])
+            ->add('usePPC', SwitchType::class, [
+                'label' => 'Respect PPC Signal on calc',
+                'help' => '[usePPC]<br>Power, TheoPower, Irradiation will be excluded if PPC signal is lower 100',
+            ])
             ->add('ignoreNegativEvu', SwitchType::class, [
-                'label'     => 'Ignore negative EVU values on reporting',
+                'label'     => 'Ignore negative EVU values',
                 'help'      => '[ignoreNegativEvu]',
             ])
             ->add('hasPannelTemp', SwitchType::class, [
@@ -645,13 +649,7 @@ class AnlageFormType extends AbstractType
                 'expanded'      => false,
                 'multiple'      => false,
             ])
-            /*
-            ->add('dataFrom', null, [
-                'label' => 'Data in the plant since: ',
-                'widget' => 'single_text',
-                'input' => 'datetime',
-            ])
-*/
+
             // ###############################################
             // ###            Ticket & Alert              ####
             // ###############################################

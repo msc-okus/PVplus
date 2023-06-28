@@ -168,6 +168,15 @@ class WeatherFunctionsService
         return $irr;
     }
 
+    /**
+     * Function to retrieve All Sensor (Irr) Data from Databse 'db_ist' for selected Daterange
+     * Return Array with
+     *
+     * @param Anlage $anlage
+     * @param DateTime $from
+     * @param DateTime $to
+     * @return array
+     */
     public function getSensors(Anlage $anlage, DateTime $from, DateTime $to): array
     {
         $result = [];

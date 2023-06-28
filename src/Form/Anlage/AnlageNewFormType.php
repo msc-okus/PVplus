@@ -119,12 +119,7 @@ class AnlageNewFormType extends AbstractType
             ])
             ->add('anlBetrieb', null, [
                 'label' => 'In Betrieb seit:',
-                'help' => '[anlBetrieb]',
-                'widget' => 'single_text',
-                'input' => 'datetime',
-            ])
-            ->add('dataFrom', null, [
-                'label' => 'Data in the plant from: ',
+                'help' => '[anlBetrieb]<br>Wird für die Berechnung der Degradation benötigt',
                 'widget' => 'single_text',
                 'input' => 'datetime',
             ])

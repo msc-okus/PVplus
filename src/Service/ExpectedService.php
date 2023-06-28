@@ -46,9 +46,10 @@ class ExpectedService
         }
 
         $output = '';
-        if ($anlage->getGroups() && ! $anlage->isExcludeFromExpCalc()) {
+        if ($anlage->getGroups() && !$anlage->isExcludeFromExpCalc() && $anlage->getAnlBetrieb() !== null) {
             $conn = self::getPdoConnection();
             $arrayExpected = $this->calcExpected($anlage, $from, $to);
+            dump($anlage->getAnlBetrieb());
             if ($arrayExpected) {
                 $sql = 'INSERT INTO '.$anlage->getDbNameDcSoll().' (stamp, wr, wr_num, group_dc, group_ac, ac_exp_power, ac_exp_power_evu, ac_exp_power_no_limit, dc_exp_power, dc_exp_current, soll_imppwr, soll_pdcwr, dc_exp_voltage) VALUES ';
                 foreach ($arrayExpected as $expected) {

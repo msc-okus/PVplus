@@ -99,9 +99,10 @@ class PowerService
         $powerEvu = $powerExp = $powerExpEvu = $powerEGridExt = $powerTheo = $tCellAvg = $tCellAvgMultiIrr = 0;
 
         $ignorNegativEvuSQL = $anlage->isIgnoreNegativEvu() ? 'AND e_z_evu > 0' : '';
-        $ppcSQLpart1 = $ppcSQLpart2 = '';
-        if ($ppc){
-            $ppcSQLpart1 = "RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp";
+        $ppcSQLpart1 = $ppcSQLpart2 = $ppcSQLpart1Meters = '';
+        if ($ppc && $anlage->getUsePPC()){
+            $ppcSQLpart1 = "LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp";
+            $ppcSQLpart1Meters = "RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp";
             $ppcSQLpart2 = " AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) 
                 AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is null)";
         }
@@ -116,7 +117,7 @@ class PowerService
             // Bavelse Berg = Anlage ID 97
             $sql = "SELECT sum(prod_power) as power_grid 
             FROM " . $anlage->getDbNameMeters() . " s
-            $ppcSQLpart1 
+            $ppcSQLpart1Meters 
             WHERE s.stamp BETWEEN '" . $from->format('Y-m-d H:i') . "' 
                 AND '" . $to->format('Y-m-d H:i') . "' 
                 $ignorNegativEvuSQL 
@@ -144,9 +145,19 @@ class PowerService
             // EVU Leistung ermitteln –
             // dieser Wert kann der offiziele Grid Zähler wert sein, kann aber auch nur ein interner Wert sein. Siehe Konfiguration $anlage->getUseGridMeterDayData()
             if ($anlage->isIgnoreNegativEvu()) {
-                $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp >= '" . $from->format('Y-m-d H:i') . "' AND stamp <= '" . $to->format('Y-m-d H:i') . "' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
+                $sql = 'SELECT sum(e_z_evu) as power_evu 
+                        FROM ' . $anlage->getDbNameAcIst() . " s
+                        $ppcSQLpart1 
+                        WHERE s.stamp >= '" . $from->format('Y-m-d H:i') . "' AND s.stamp <= '" . $to->format('Y-m-d H:i') . "' AND s.e_z_evu > 0 
+                        $ppcSQLpart2
+                        GROUP BY s.unit LIMIT 1";
             } else {
-                $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp >= '" . $from->format('Y-m-d H:i') . "' AND stamp <= '" . $to->format('Y-m-d H:i') . "' GROUP BY unit LIMIT 1";
+                $sql = 'SELECT sum(e_z_evu) as power_evu 
+                        FROM ' . $anlage->getDbNameAcIst() . " s
+                        $ppcSQLpart1 
+                        WHERE s.stamp >= '" . $from->format('Y-m-d H:i') . "' AND s.stamp <= '" . $to->format('Y-m-d H:i') . "' 
+                        $ppcSQLpart2
+                        GROUP BY s.unit LIMIT 1";
             }
 
             $res = $conn->query($sql);
@@ -171,7 +182,10 @@ class PowerService
         unset($res);
 
         // Theoretic Power (TempCorr)
-        $sql = 'SELECT SUM(theo_power) AS theo_power FROM '.$anlage->getDbNameAcIst()." WHERE stamp >= '" . $from->format('Y-m-d H:i') . "' AND stamp <= '" . $to->format('Y-m-d H:i') . "' AND theo_power > 0";
+        $sql = 'SELECT SUM(theo_power) AS theo_power 
+                FROM '.$anlage->getDbNameAcIst()."  s
+                $ppcSQLpart1 
+                WHERE s.stamp >= '" . $from->format('Y-m-d H:i') . "' AND s.stamp <= '" . $to->format('Y-m-d H:i') . "' AND s.theo_power > 0 $ppcSQLpart2";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -180,7 +194,10 @@ class PowerService
         unset($res);
 
         // Actual (Inverter Out) Leistung ermitteln
-        $sql = 'SELECT sum(wr_pac) as sum_power_ac, sum(theo_power) as theo_power FROM '.$anlage->getDbNameAcIst()." WHERE stamp >= '" . $from->format('Y-m-d H:i') . "' AND stamp <= '" . $to->format('Y-m-d H:i') . "' AND wr_pac > 0";
+        $sql = 'SELECT sum(wr_pac) as sum_power_ac
+                FROM '.$anlage->getDbNameAcIst()." s
+                $ppcSQLpart1 
+                WHERE s.stamp >= '" . $from->format('Y-m-d H:i') . "' AND s.stamp <= '" . $to->format('Y-m-d H:i') . "' AND s.wr_pac > 0 $ppcSQLpart2";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);

@@ -27,6 +27,8 @@ use App\Service\UploaderHelper;
 use App\Helper\G4NTrait;
 class SpecialOperationsController extends AbstractController
 {
+    use G4NTrait;
+
     #[IsGranted(['ROLE_G4N'])]
     #[Route(path: '/special/operations/bavelse/report', name: 'bavelse_report')]
     public function bavelseExport(Request $request, ExportService $bavelseExport, AnlagenRepository $anlagenRepository, AvailabilityByTicketService $availabilityByTicket): Response
@@ -191,6 +193,9 @@ class SpecialOperationsController extends AbstractController
         ]);
     }
 
+    /**
+     * @throws Exception
+     */
     #[Route(path: '/special/operations/import_excel', name: 'import_excel')]
     public function importExcel(Request $request, UploaderHelper $uploaderHelper, AnlagenRepository $anlagenRepository, MessageBusInterface $messageBus, LogMessagesService $logMessages, $uploadsPath): Response
     {

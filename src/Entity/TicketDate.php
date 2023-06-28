@@ -286,6 +286,11 @@ class TicketDate
         return $this->sensors;
     }
 
+    public function getSensorsArray(): ?array
+    {
+        return explode(",", $this->sensors);
+    }
+
     public function setSensors(?string $sensors): static
     {
         $this->sensors = $sensors;
