@@ -73,18 +73,6 @@ class SensorService
                         }
                     }
 
-                    switch ($anlage->getAnlId()) {
-                        case '110': // Leek
-                        case '207': // Leek Test
-                            break;
-                        case '108': // Kampen
-                        case '184': // Kampen Test
-                            break;
-                        default:
-                            $replaceArray = [];
-                            break;
-                    }
-
                     // ermitteln welche Sensoren excludiert werden SOllen
                     $mittelwertPyrHoriArray = $mittelwertPyroArray = $mittelwertPyroEastArray = $mittelwertPyroWestArray = [];
                     foreach ($anlage->getSensorsInUse() as $sensor) {
@@ -113,6 +101,7 @@ class SensorService
 
                     $sensorData = $this->corrIrr($tempWeatherArray, $replaceArray, $sensorData);
                     break;
+
                 case '71': // Replace Sensors
                     $tempWeatherArray = $this->weatherFunctionsService->getWeather($anlage->getWeatherStation(), $tempoStartDate->format('Y-m-d H:i'), $tempoEndDate->format('Y-m-d H:i'));
                     $replaceArray = $this->replaceValuesTicketRepo->getSum($anlage, $tempoStartDate, $tempoEndDate);

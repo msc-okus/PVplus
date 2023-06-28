@@ -177,7 +177,7 @@ class TicketDateRepository extends ServiceEntityRepository
     {
         $q = $this->createQueryBuilder('t')
             ->join('t.ticket', 'ticket')
-            ->andWhere('t.begin BETWEEN :begin AND :end OR t.end BETWEEN :begin AND :end OR (:end <= t.end and :begin >= t.end)')
+            ->andWhere('t.begin BETWEEN :begin AND :end OR t.end BETWEEN :begin AND :end OR (:end <= t.end and :begin >= t.begin)')
             ->andWhere('t.Anlage = :anlage')
             ->andWhere('t.alertType = 20 or (t.alertType = 10 and t.dataGapEvaluation = 10)')
             ->andWhere('ticket.ignoreTicket = false')
@@ -212,7 +212,7 @@ class TicketDateRepository extends ServiceEntityRepository
     {
         $q = $this->createQueryBuilder('t')
             ->join('t.ticket', 'ticket')
-            ->andWhere('t.begin BETWEEN :begin AND :end OR t.end BETWEEN :begin AND :end OR (:end <= t.end AND :begin >= t.end)')
+            ->andWhere('t.begin BETWEEN :begin AND :end OR t.end BETWEEN :begin AND :end OR (:end <= t.end AND :begin >= t.begin)')
             ->andWhere('t.Anlage = :anlage')
             ->andWhere('t.dataGapEvaluation = 20')
             ->andWhere('ticket.ignoreTicket = false')

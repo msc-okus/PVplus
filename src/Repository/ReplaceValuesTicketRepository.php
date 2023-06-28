@@ -29,7 +29,7 @@ class ReplaceValuesTicketRepository extends ServiceEntityRepository
     public function getSum(Anlage $anlage, \DateTime $startDate, \DateTime $endDate)
     {
         $q = $this->createQueryBuilder('t')
-            ->andWhere("t.anlage = :anlage AND t.stamp BETWEEN :begin AND :end")
+            ->andWhere("t.anlage = :anlage AND t.stamp >= :begin AND t.stamp < :end")
             ->setParameter('anlage', $anlage)
             ->setParameter('begin', $startDate->format("Y-m-d H:i"))
             ->setParameter('end', $endDate->format("Y-m-d H:i"))
