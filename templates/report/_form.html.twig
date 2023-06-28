@@ -7,6 +7,7 @@
     <div style="margin-left: 60px">
         {{ form_row(assetForm.ProdCap) }}
         {{ form_row(assetForm.PRPATable) }}
+        {{ form_row(assetForm.MonthlyProd) }}
     </div>
     <div style="margin-left: 10px">{{ form_row(assetForm.Production) }} </div>
     <div style="margin-left: 60px">
@@ -16,7 +17,7 @@
             {{ form_row(assetForm.CumulatForecastG4N) }}
         {% endif %}
         {{ form_row(assetForm.CumulatLosses) }}
-        {{ form_row(assetForm.MonthlyProd) }}
+
         {{ form_row(assetForm.PRTable) }}
         <div class="is-hidden">
             {{ form_row(assetForm.DailyProd) }}

@@ -291,7 +291,7 @@ class ReportingController extends AbstractController
                         exit; // Ohne exit führt es unter manchen Systemen (Browser) zu fehlerhaften Downloads
                         break;
                     case 'yieldGuarantee':
-                        dd($reportArray);
+
                         $result = $this->renderView('report/epcReport.html.twig', [
                             'anlage'            => $anlage,
                             'monthsTable'       => $reportArray['monthTable'],
@@ -368,9 +368,17 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
+                            if ($data['MonthlyProd']) {
+                                $pageCount = $pdf->setSourceFile($files['MonthlyProd']);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
                         }
                         if ($data['Production']) {
-
+                        if ($anlage->hasPVSYST()) {
                             if ($data['CumulatForecastPVSYS']) {
                                 $pageCount = $pdf->setSourceFile($files['CumForecastPVSYS']);
                                 for ($i = 0; $i < $pageCount; $i++) {
@@ -379,6 +387,7 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
+                        }else {
                             if ($data['CumulatForecastG4N']) {
                                 $pageCount = $pdf->setSourceFile($files['CumForecastG4N']);
                                 for ($i = 0; $i < $pageCount; $i++) {
@@ -387,16 +396,9 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
+                        }
                             if ($data['CumulatLosses']) {
                                 $pageCount = $pdf->setSourceFile($files['CumLosses']);
-                                for ($i = 0; $i < $pageCount; $i++) {
-                                    $pdf->AddPage("L");
-                                    $tplId = $pdf->importPage($i + 1);
-                                    $pdf->useTemplate($tplId);
-                                }
-                            }
-                            if ($data['MonthlyProd']) {
-                                $pageCount = $pdf->setSourceFile($files['MonthlyProd']);
                                 for ($i = 0; $i < $pageCount; $i++) {
                                     $pdf->AddPage("L");
                                     $tplId = $pdf->importPage($i + 1);

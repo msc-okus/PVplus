@@ -102,8 +102,19 @@ class DefaultJMController extends AbstractController
             ],
 
             'markLine' => [
-                'data' => [['yAxis' => 75]],
-            ]
+                'data' => [
+                        [
+                            'yAxis' => $anlage-> getContractualPR(),
+
+                            'lineStyle' => [
+                                'type'  => 'solid',
+                                'width' => 3,
+                                'color' => 'green'
+                            ]
+                        ]
+                    ],
+                 'symbol' => 'none',
+                ]
         ];
         if (!$anlage->getSettings()->isDisableDep1()) $series[] =
             [

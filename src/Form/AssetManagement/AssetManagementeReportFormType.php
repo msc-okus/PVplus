@@ -39,13 +39,13 @@ class AssetManagementeReportFormType extends AbstractType
             ->add('CumulatForecastPVSYS', SwitchType::class, [
                 'label' => 'Cumulative Forecast',
                 'required' => false,
-                'data' => false,
+                'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('CumulatForecastG4N', SwitchType::class, [
                 'label' => 'Cumulative Forecast',
                 'required' => false,
-                'data' => false,
+                'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ])
             ->add('CumulatLosses', SwitchType::class, [

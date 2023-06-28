@@ -3607,8 +3607,18 @@ class AssetManagementService
                 'show' => true,
             ],
             'markLine' => [
-                'data' => [['yAxis' => $anlage-> getContractualPR()]],
-            ]
+                'data' => [
+                    [
+                        'yAxis' => $anlage-> getContractualPR(),
+                        'lineStyle' => [
+                            'type'  => 'solid',
+                            'width' => 3,
+                            'color' => 'green'
+                        ]
+                    ]
+                ],
+                'symbol' => 'none',
+        ]
         ];
         if (!$anlage->getSettings()->isDisableDep1()) $series[] =
             [
@@ -3690,7 +3700,17 @@ class AssetManagementService
                 'show' => true,
             ],
             'markLine' => [
-                'data' => [['yAxis' => $anlage->getContractualAvailability()]],
+                'data' => [
+                    [
+                        'yAxis' => $anlage->getContractualAvailability(),
+                        'lineStyle' => [
+                        'type'  => 'solid',
+                        'width' => 3,
+                        'color' => 'green'
+                    ],
+                    ]
+                ],
+                'symbol' => 'none'
             ]
         ];
         if (!$anlage->getSettings()->isDisableDep1()) $series[] =
