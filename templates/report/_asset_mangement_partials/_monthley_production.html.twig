@@ -15,7 +15,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <th rowspan="3" class="table-center">Month</th>
+                            <th rowspan="3" class="table-center" style="width: 90px!important" >Month</th>
                             {% if (anlage.hasGrid) %}
                                 <th class="table-center"
                                     style="width:82px">Yield</th>
@@ -77,10 +77,10 @@
                                 {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
                                 {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
                                 {% if (anlage.hasGrid == true) %}
-                                    <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %} {{ data|number_format(0, ',', '.') }}{% endif %}</td>
+                                    <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %}> {{ data|number_format(0, ',', '.') }}{% endif %}</td>
                                 {% else %}
                                     {% if (loop.index > 1) %}
-                                        <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %} {{ data|number_format(0, ',', '.') }} {% endif %}</td>
+                                        <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %}> {{ data|number_format(0, ',', '.') }} {% endif %}</td>
                                     {% endif %}
                                 {% endif %}
                             {% endfor %}
@@ -95,10 +95,10 @@
                                 {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
                                 {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
                                 {% if (anlage.hasGrid == true) %}
-                                    <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %} {{ data|number_format(0, ',', '.') }}{% endif %}</td>
+                                    <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %}>  {{ data|number_format(0, ',', '.') }}{% endif %}</td>
                                 {% else %}
                                     {% if (loop.index > 1) %}
-                                        <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %} {{ data|number_format(0, ',', '.') }} {% endif %}</td>
+                                        <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %}>  {{ data|number_format(0, ',', '.') }} {% endif %}</td>
                                     {% endif %}
                                 {% endif %}
                             {% endfor %}
@@ -113,10 +113,10 @@
                                 {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
                                 {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
                                 {% if (anlage.hasGrid == true) %}
-                                    <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %} {{ data|number_format(0, ',', '.') }}{% endif %}</td>
+                                    <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %}>  {{ data|number_format(0, ',', '.') }}{% endif %}</td>
                                 {% else %}
                                     {% if (loop.index > 1) %}
-                                        <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %} {{ data|number_format(0, ',', '.') }} {% endif %}</td>
+                                        <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %}>  {{ data|number_format(0, ',', '.') }} {% endif %}</td>
                                     {% endif %}
                                 {% endif %}
                             {% endfor %}
@@ -131,10 +131,10 @@
                                 {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
                                 {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
                                 {% if (anlage.hasGrid == true) %}
-                                    <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %} {{ data|number_format(0, ',', '.') }}{% endif %}</td>
+                                    <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %}>  {{ data|number_format(0, ',', '.') }}{% endif %}</td>
                                 {% else %}
                                     {% if (loop.index > 1) %}
-                                        <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %} {{ data|number_format(0, ',', '.') }} {% endif %}</td>
+                                        <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %}>  {{ data|number_format(0, ',', '.') }} {% endif %}</td>
                                     {% endif %}
                                 {% endif %}
                             {% endfor %}
@@ -149,10 +149,10 @@
                                 {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
                                 {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
                                 {% if (anlage.hasGrid == true) %}
-                                    <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %} {{ data|number_format(0, ',', '.') }}{% endif %}</td>
+                                    <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %}>  {{ data|number_format(0, ',', '.') }}{% endif %}</td>
                                 {% else %}
                                     {% if (loop.index > 1) %}
-                                        <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %} {{ data|number_format(0, ',', '.') }} {% endif %}</td>
+                                        <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %}>  {{ data|number_format(0, ',', '.') }} {% endif %}</td>
                                     {% endif %}
                                 {% endif %}
                             {% endfor %}
@@ -169,10 +169,10 @@
                                     {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
                                     {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
                                     {% if (anlage.hasGrid == true) %}
-                                        <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %} {{ data|number_format(0, ',', '.') }}{% endif %}</td>
+                                        <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %}>  {{ data|number_format(0, ',', '.') }}{% endif %}</td>
                                     {% else %}
                                         {% if (loop.index > 1) %}
-                                            <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %} {{ data|number_format(0, ',', '.') }} {% endif %}</td>
+                                            <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %}>  {{ data|number_format(0, ',', '.') }} {% endif %}</td>
                                         {% endif %}
                                     {% endif %}
                                 {% endfor %}
@@ -286,7 +286,7 @@
                             {% if (data < -15) %}{% set color = "#ffc000" %}{% endif %}
                             {% if (data <= -20) %}{% set color = "#cc0000" %}{% endif %}
                             {% if (data == 0.000) %}{% set color = "#00b050" %}{% endif %}
-                            <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}"> {{ data|number_format(2, ',', '.') }} {% else %} >{{ data|number_format(0, ',', '.') }}{% endif %}</td>
+                            <td class="tr_next_columns" {% if (loop.index == 4) %}style="background-color:{{ color }}" > {{ data|number_format(2, ',', '.') }} {% else %} >{{ data|number_format(0, ',', '.') }}{% endif %}</td>
                         {% endfor %}
                     </tr>
                     <tr>

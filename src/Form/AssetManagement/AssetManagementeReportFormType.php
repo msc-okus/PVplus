@@ -30,6 +30,12 @@ class AssetManagementeReportFormType extends AbstractType
                 'data' => true,
                 'attr' => ['switch_size' => 'tiny']
             ])
+            ->add('ProdWithForecast', SwitchType::class, [
+                'label' => 'Production vs Target vs Forecast',
+                'required' => false,
+                'data' => true,
+                'attr' => ['switch_size' => 'tiny']
+            ])
             ->add('PRPATable', SwitchType::class, [
                 'label' => 'Technical PR and Availability',
                 'required' => false,

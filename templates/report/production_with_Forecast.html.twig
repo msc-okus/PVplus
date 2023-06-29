@@ -1,0 +1,9 @@
+{% extends 'report/assetreport.base.html.twig' %}
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}
+{% block content %}
+    <div class="container">
+        {% include 'report/_asset_mangement_partials/_production_with_forecast.html.twig'%}
+    </div>
+{% endblock %}

@@ -339,13 +339,12 @@ class ReportingController extends AbstractController
                     $output = $report->getContentArray();
                     $form = $this->createForm(AssetManagementeReportFormType::class);
                     $form->handleRequest($request);
-                    $data = $_GET['asset_managemente_report_form'];
                     if ($form->isSubmitted() && $form->isValid()) {
                         $data = $form->getData();
                         $files = $report->getPdfParts();
                         $pdf = new Fpdi();
                         // this is the header and we will always want to include it
-                        $pageCount =  $pdf->setSourceFile($files[0]);
+                        $pageCount =  $pdf->setSourceFile($files['head']);
                         for ($i=0; $i < $pageCount; $i++) {
                             $pdf->AddPage("L");
                             $tplId = $pdf->importPage($i+1);
@@ -378,7 +377,16 @@ class ReportingController extends AbstractController
                             }
                         }
                         if ($data['Production']) {
-                        if ($anlage->hasPVSYST()) {
+                            if ($data['ProdWithForecast']){
+
+                                $pageCount = $pdf->setSourceFile($files['production_with_forecast']);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
+                            if ($anlage->hasPVSYST()) {
                             if ($data['CumulatForecastPVSYS']) {
                                 $pageCount = $pdf->setSourceFile($files['CumForecastPVSYS']);
                                 for ($i = 0; $i < $pageCount; $i++) {
@@ -387,7 +395,8 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
-                        }else {
+                        }
+                            else {
                             if ($data['CumulatForecastG4N']) {
                                 $pageCount = $pdf->setSourceFile($files['CumForecastG4N']);
                                 for ($i = 0; $i < $pageCount; $i++) {
