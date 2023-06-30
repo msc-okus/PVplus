@@ -651,9 +651,7 @@ class TicketController extends BaseController
         $em->flush();
         $ticket->setDescription($ticket->getDescription()." Ticket splited into Ticket: ". $newTicket->getId());
         $em->persist($ticket);
-
         $em->flush();
-
 
         $form = $this->createForm(TicketFormType::class, $ticket);
 
@@ -661,14 +659,13 @@ class TicketController extends BaseController
         $nameArray = $anlage->getInverterFromAnlage();
         $selected = $ticket->getInverterArray();
         $indexSelect = 0;
-        for($index = 1; $index <= sizeof($nameArray); $index++){
+        for ($index = 1; $index <= sizeof($nameArray); $index++){
             $value = $nameArray[$index];
             $inverterArray[$index]["inv"] = $value;
             if ($index === (int)$selected[$indexSelect]){
                 $inverterArray[$index]["select"] = "checked";
                 $indexSelect++;
-            }
-            else{
+            } else {
                 $inverterArray[$index]["select"] = "";
             }
         }
@@ -682,7 +679,7 @@ class TicketController extends BaseController
             'edited' => true,
             'invArray' => $inverterArray,
             'performanceTicket' => false,
-            'sensorArray' => [],
+            'sensorArray'   => [],
         ]);
     }
 

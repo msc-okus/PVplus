@@ -64,7 +64,7 @@ class AnlagenRepository extends ServiceEntityRepository
     public static function sensorsInUse(): Criteria
     {
         return Criteria::create()
-            ->andWhere(Criteria::expr()->eq('use_to_calc', true))
+            ->andWhere(Criteria::expr()->eq('useToCalc', true))
             ;
     }
 

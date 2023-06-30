@@ -2099,6 +2099,10 @@ class Anlage
         return $this;
     }
 
+    public function getMinIrrThreshold(){
+        return min($this->getThreshold1PA0(), $this->getThreshold1PA1(), $this->getThreshold1PA2(), $this->getThreshold1PA3());
+    }
+
     public function getPaFormular0(): ?string
     {
         if ($this->paFormular0 === null) return 1;
@@ -3674,6 +3678,7 @@ class Anlage
     {
         $this->newAlgorythm = $newAlgorythm;
     }
+  
     public function getMinIrrThreshold(){
         $thresholds[] = $this->getThreshold1PA0();
         $thresholds[] = $this->getThreshold1PA1();
