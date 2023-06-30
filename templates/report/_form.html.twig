@@ -11,6 +11,7 @@
     </div>
     <div style="margin-left: 10px">{{ form_row(assetForm.Production) }} </div>
     <div style="margin-left: 60px">
+        {{ form_row(assetForm.ProdWithForecast) }}
         {% if anlage.hasPVSYST == true %}
             {{ form_row(assetForm.CumulatForecastPVSYS) }}
         {% else %}
