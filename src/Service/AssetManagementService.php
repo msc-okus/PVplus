@@ -782,7 +782,7 @@ class AssetManagementService
         $chart->yAxis = [
             'type' => 'value',
             'min' => 0,
-            'name' => 'KWH',
+            'name' => 'kWh',
             'nameLocation' => 'middle',
             'nameGap' => 80,
             'offset' => -20,
@@ -1511,6 +1511,7 @@ class AssetManagementService
             'nameGap' => 80,
             'scale' => true,
             'min' => 0,
+            'offset' => -20
         ];
         $this->logMessages->updateEntry($logId, 'working', 40);
         if ($anlage->hasPVSYST()) {

@@ -680,7 +680,9 @@ class TicketController extends BaseController
             'ticket' => $ticket,
             'anlage' => $anlage,
             'edited' => true,
-            'invArray' => $inverterArray
+            'invArray' => $inverterArray,
+            'performanceTicket' => false,
+            'sensorArray' => [],
         ]);
     }
 
