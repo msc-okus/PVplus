@@ -43,6 +43,22 @@ class ReplaceValuesTicketRepository extends ServiceEntityRepository
 
     }
 
+    public function getIrrArray(Anlage $anlage, \DateTime $startDate, \DateTime $endDate): array
+    {
+        $q = $this->createQueryBuilder('t')
+            ->andWhere("t.anlage = :anlage AND t.stamp >= :begin AND t.stamp < :end")
+            ->setParameter('anlage', $anlage)
+            ->setParameter('begin', $startDate->format("Y-m-d H:i"))
+            ->setParameter('end', $endDate->format("Y-m-d H:i"))
+            ->select("DATE_FORMAT(t.stamp, '%Y-%m-%d %H:%i:%s') as stamp,
+                            t.irrHorizontal as irrHorizontal, 
+                            t.irrModule as irrModul,
+                            t.irrEast as irrEast,
+                            t.irrWest as irrWest");
+
+        return $q->getQuery()->getArrayResult();
+    }
+
     public function save(ReplaceValuesTicket $entity, bool $flush = false): void
     {
         $this->getEntityManager()->persist($entity);

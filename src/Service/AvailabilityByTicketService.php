@@ -11,6 +11,7 @@ use App\Repository\AnlageAvailabilityRepository;
 use App\Repository\AnlagenRepository;
 use App\Repository\Case5Repository;
 use App\Repository\Case6Repository;
+use App\Repository\ReplaceValuesTicketRepository;
 use App\Repository\TicketDateRepository;
 use App\Repository\TicketRepository;
 use App\Repository\TimesConfigRepository;
@@ -32,7 +33,9 @@ class AvailabilityByTicketService
         private AnlagenRepository $anlagenRepository,
         private TicketRepository $ticketRepo,
         private TicketDateRepository $ticketDateRepo,
-        private AvailabilityService $availabilityService
+        private AvailabilityService $availabilityService,
+        private WeatherFunctionsService $weatherFunctionsService,
+        private ReplaceValuesTicketRepository $replaceValuesTicketRepo,
     )
     {}
 
@@ -497,13 +500,9 @@ class AvailabilityByTicketService
             while ($row = $resultEinstrahlung->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = $row['stamp'];
                 if ($anlage->getIsOstWestAnlage()) {
-                    $strahlung = self::mittelwert([$row['g_upper'], $row['g_lower']]);
+                    $strahlung = ($row['g_upper'] * $anlage->getPowerEast() + $row['g_lower'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
                 } else {
-                    if ($anlage->getUseLowerIrrForExpected()) {
-                        $strahlung = $row['g_lower'];
-                    } else {
-                        $strahlung = $row['g_upper'];
-                    }
+                    $strahlung = $row['g_upper'];
                 }
                 $irrData[$stamp]['stamp'] = $stamp;
                 $irrData[$stamp]['irr'] = $strahlung;
@@ -512,24 +511,102 @@ class AvailabilityByTicketService
         unset($result);
         $conn = null;
 
+        $irrData = self::correctIrrByTicket($anlage, $from, $to, $irrData);
+
         return $irrData;
     }
 
-    /**
-     * Berechnet die PA TEIL 1 (OHNE GEWICHTUNG)
-     *
-     * <b>Wobei:</b><br>
-     * ti = case1 + case 2 <br>
-     * titheo = control<br>
-     * tiFM = case5 (?? + case6)<br>
-     *<br>
-     * sollte ti und titheo = 0 sein so wird PA auf 100% definiert<br>
-     *
-     * @param Anlage $anlage
-     * @param array $row
-     * @param int $department
-     * @return float
-     */
+    private function correctIrrByTicket(Anlage $anlage, string $from, string $to, array $irrData): array
+    {
+        $startDate = date_create($from);
+        $endDate = date_create($to);
+        // Suche alle Tickets (Ticketdates) die in den Zeitraum fallen
+        // Es werden Nur Tickets mit Sensor Bezug gesucht (Performance Tickets mit ID = 72, 73, 71
+        $ticketArray = $this->ticketDateRepo->performanceTickets($anlage, $startDate, $endDate);
+
+        // Dursuche alle Tickets in Schleife
+        // berechne Wert aus Original Daten und Subtrahiere vom Wert
+        // berechne ersatz Wert und Addiere zum entsprechenden Wert
+        /** @var TicketDate $ticket */
+        foreach ($ticketArray as $ticket){ #loop über query result
+            // Start und End Zeitpunkt ermitteln, es sollen keine Daten gesucht werden die auserhalb des Übergebenen Zeitaums liegen.
+            // Ticket kann ja schon vor dem Zeitraum gestartet oder danach erst beendet werden
+            $tempoStartDate = $startDate > $ticket->getBegin() ? $startDate : $ticket->getBegin();
+            $tempoEndDate = $endDate < $ticket->getEnd() ? $endDate :$ticket->getEnd();
+
+            switch ($ticket->getAlertType()) {
+                // Exclude Sensors
+                case '70':
+                    // Funktionier in der ersten Version nur für Leek und Kampen
+                    // es fehlt die Möglichkeit die gemittelte Strahlung, automatisiert aus den Sensoren zu berechnen
+                    // ToDo: Sensor Daten müssen zur Wetter DB umgezogen werden, dann Code anpassen
+
+                    // Search for sensor (irr) values in ac_ist database
+                    $sensorValues = $this->weatherFunctionsService->getSensors($anlage, $tempoStartDate, $tempoEndDate);
+                    // ermitteln welche Sensoren excludiert werden sollen
+                    $mittelwertPyrHoriArray = $mittelwertPyroArray = $mittelwertPyroEastArray = $mittelwertPyroWestArray = [];
+                    foreach ($sensorValues as $date => $sensorValue) {
+                        foreach ($anlage->getSensorsInUse() as $sensor) {
+                            if (!str_contains($ticket->getSensors(), $sensor->getNameShort())) {
+                                switch ($sensor->getVirtualSensor()) {
+                                    case 'irr-hori':
+                                        $mittelwertPyrHoriArray[] = $sensorValue[$sensor->getNameShort()];
+                                        break;
+                                    case 'irr':
+                                        $mittelwertPyroArray[] = $sensorValue[$sensor->getNameShort()];
+                                        break;
+                                    case 'irr-east':
+                                        $mittelwertPyroEastArray[] = $sensorValue[$sensor->getNameShort()];
+                                        break;
+                                    case 'irr-west':
+                                        $mittelwertPyroWestArray[] = $sensorValue[$sensor->getNameShort()];
+                                        break;
+                                }
+                            }
+                            // erechne neuen Mittelwert aus den Sensoren die genutzt werden sollen
+                            if ($anlage->getIsOstWestAnlage()) {
+                                $irrData[$date]['irr'] = (self::mittelwert($mittelwertPyroEastArray) * $anlage->getPowerEast() + self::mittelwert($mittelwertPyroWestArray) * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+                            } else {
+                                $irrData[$date]['irr'] = self::mittelwert($mittelwertPyroArray);
+                            }
+                        }
+                    }
+                    break;
+
+                   // Replace Sensors
+                   case '71':
+                       $replaceArray = $this->replaceValuesTicketRepo->getIrrArray($anlage, $tempoStartDate, $tempoEndDate);
+                       foreach ($replaceArray as $replace) {
+                           if ($anlage->getIsOstWestAnlage()) {
+                               $irrData[$replace['stamp']]['irr'] = ($replace['irrEast'] * $anlage->getPowerEast() + $replace['irrWest'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+                           } else {
+                            $irrData[$replace['stamp']]['irr'] = $replace['irrModul'];
+                           }
+                       }
+                       break;
+
+               }
+           }
+
+
+           return $irrData;
+       }
+
+       /**
+        * Berechnet die PA TEIL 1 (OHNE GEWICHTUNG)
+        *
+        * <b>Wobei:</b><br>
+        * ti = case1 + case 2 <br>
+        * titheo = control<br>
+        * tiFM = case5 (?? + case6)<br>
+        *<br>
+        * sollte ti und titheo = 0 sein so wird PA auf 100% definiert<br>
+        *
+        * @param Anlage $anlage
+        * @param array $row
+        * @param int $department
+        * @return float
+        */
     private function calcInvAPart1(Anlage $anlage, array $row, int $department = 0): float
     {
         $paInvPart1 = 0.0;
