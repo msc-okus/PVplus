@@ -968,7 +968,7 @@ class FunctionsService
                         $tempTo = new DateTime($monthlyData->getYear() . '-' . $monthlyData->getMonth() . '-' . $tempDaysInMonth . ' 23:59');
                     }
 
-                    $weather = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $tempFrom->format("Y-m-d H:i"), $tempTo->format("Y-m-d H:i"));
+                    $weather = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $tempFrom->format("Y-m-d H:i"), $tempTo->format("Y-m-d H:i"), false, $anlage);
                     if ($anlage->getIsOstWestAnlage()) {
                         $irrTemp = ($weather['upperIrr'] * $anlage->getPowerEast() + $weather['lowerIrr'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest()) / 1000 / 4;
                     } else {

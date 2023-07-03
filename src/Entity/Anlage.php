@@ -3665,6 +3665,10 @@ class Anlage
 
         return $this;
     }
+
+    /**
+     * New Algorithme for TicketGeneration
+     */
     public function isNewAlgorythm(): ?bool
     {
         return $this->newAlgorythm;

@@ -80,7 +80,7 @@ class DefaultMREController extends BaseController
     /**
      * @throws \Exception
      */
-    #[Route(path: '/mr/pa/test/{plant}/{year}/{month}/{day}', defaults: ['plant' => 110, 'year' => 2023, 'month' => 3, 'day' => 16])]
+    #[Route(path: '/mr/pa/test/{plant}/{year}/{month}/{day}', defaults: ['plant' => 110, 'year' => 2022, 'month' => 1, 'day' => 0])]
     public function testPA(int $plant, int $year, int $month, int $day, AvailabilityService $availability, AvailabilityByTicketService $availabilityByTicket, AnlagenRepository $anlagenRepository): Response
     {
         $anlage = $anlagenRepository->find($plant);
