@@ -10,7 +10,6 @@ export default class extends Controller {
     }
 
     connect() {
-        console.log(this.contentTarget);
         this.load()
         if (this.hasRefreshIntervaleValue) {
             this.startRefreshing()

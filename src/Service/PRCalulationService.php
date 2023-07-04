@@ -585,7 +585,9 @@ class PRCalulationService
         // Wetter Daten ermitteln
         $weather = $this->weatherFunctions->getWeather($anlage->getWeatherStation(), $localStartDate, $localEndDate, true, $anlage);
         if (is_array($weather)) {
+            dump($weather);
             $weather = $this->sensorService->correctSensorsByTicket($anlage, $weather, date_create($localStartDate), date_create($localEndDate));
+            dump($weather);
         }
         // Leistungsdaten ermitteln
         $power = $this->powerServicer->getSumAcPowerV2Ppc($anlage, date_create($localStartDate), date_create($localEndDate));
@@ -849,14 +851,14 @@ class PRCalulationService
         $years = 1;
         switch ($algorithm) {
             case 'Groningen': // special for Groningen
-                $result = ($eGrid > 0 && $pa > 0) ? ($eGrid / ($theoPower / 1000 * $pa)) * (10 / 0.9945) : null;
+                if ($theoPower > 0) $result = ($eGrid > 0 && $pa > 0) ? ($eGrid / ($theoPower / 1000 * $pa)) * (10 / 0.9945) : null;
                 break;
             case 'Veendam': // with availability
-                $result = ($eGrid > 0 && $pa > 0) ? ($eGrid / $theoPower) * 100 : null;
+                if ($theoPower > 0) $result = ($eGrid > 0 && $pa > 0) ? ($eGrid / $theoPower) * 100 : null;
                 break;
             case 'Lelystad': // with Temp Correction by NREL
                 // Sum of theo. power from the actual values (corrected with temperature correction)
-                $result = ($eGrid > 0 && $pa > 0) ? ($eGrid / $theoPower) * 100 : null;
+                if ($theoPower > 0) $result = ($eGrid > 0 && $pa > 0) ? ($eGrid / $theoPower) * 100 : null;
                 break;
             case 'Ladenburg': // not tested (2023-03-22 MR)
                 if ($years && $years > 0){

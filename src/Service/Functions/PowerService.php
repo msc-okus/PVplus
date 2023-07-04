@@ -45,7 +45,7 @@ class PowerService
         if ($ppc){
             $sql = "SELECT sum(prod_power) as power_grid 
                 FROM ".$anlage->getDbNameMeters() . " s
-                RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
+                LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
                 WHERE s.stamp BETWEEN '" . $from->format('Y-m-d H:i') . "' 
                     AND '" . $to->format('Y-m-d H:i') . "' AND s.prod_power > 0 
                     AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) 
@@ -103,7 +103,7 @@ class PowerService
         $ppcSQLpart1 = $ppcSQLpart2 = $ppcSQLpart1Meters = '';
         if ($ppc && $anlage->getUsePPC()){
             $ppcSQLpart1 = "LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp";
-            $ppcSQLpart1Meters = "RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp";
+            $ppcSQLpart1Meters = "LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp";
             $ppcSQLpart2 = " AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) 
                 AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is null)";
         }
@@ -402,7 +402,7 @@ class PowerService
         // EVU Leistung ermitteln – nur EVU aber PPC bereinigt
         $sql = "SELECT sum(e_z_evu) as power_evu_ppc
                 FROM " . $anlage->getDbNameAcIst() . " s
-                RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
+                LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
                 WHERE s.stamp >= '$from' AND s.stamp <= '$to' AND s.unit = $section AND s.e_z_evu > 0 AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is  null)";
         $res = $conn->query($sql);
         if ($res->rowCount() === 1) {
@@ -443,7 +443,7 @@ class PowerService
         if ($anlage->getHasPPC()) {
             $sql = "SELECT sum(theo_power) as theo_power, sum(theo_power_ft) as theo_power_ft 
                 FROM " . $anlage->getDbNameSection() . " s
-                RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
+                LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp 
                 WHERE s.stamp >= '$from' AND s.stamp <= '$to' AND s.section = $section AND s.theo_power_ft > 0 AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is null)";
             $res = $conn->query($sql);
             if ($res->rowCount() === 1) {

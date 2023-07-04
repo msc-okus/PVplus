@@ -14,7 +14,6 @@ export default class extends Controller {
 
     connect() {
         useDispatch(this);
-        console.log('yea');
     }
 
     async openModal(event) {
@@ -29,7 +28,6 @@ export default class extends Controller {
     async submitForm(event) {
         event.preventDefault();
         const  $form = $(this.modalBodyTarget).find('form');
-        console.log($form);
         try {
             await $.ajax({
                 url: this.formUrlValue,

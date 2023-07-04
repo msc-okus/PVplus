@@ -53,7 +53,8 @@ class WeatherFunctionsService
      * @param $from
      * @param $to
      * @param bool $ppc
-     * @param Anlage|null $anlage
+     * @param Anlage $anlage
+     * @param int|null $inverterID
      * @return array|null
      */
     public function getWeather(WeatherStation $weatherStation, $from, $to, bool $ppc, Anlage $anlage, ?int $inverterID = null): ?array
@@ -70,7 +71,7 @@ class WeatherFunctionsService
         unset($res);
 
         if ($ppc){
-            $sqlPPCpart1 = " RIGHT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp ";
+            $sqlPPCpart1 = " LEFT JOIN " . $anlage->getDbNamePPC() . " ppc ON s.stamp = ppc.stamp ";
             $sqlPPCpart2 = " AND (ppc.p_set_gridop_rel = 100 OR ppc.p_set_gridop_rel is null) 
                         AND (ppc.p_set_rpc_rel = 100 OR ppc.p_set_rpc_rel is null) ";
         } else {
@@ -85,13 +86,13 @@ class WeatherFunctionsService
         if($anlage->getIsOstWestAnlage()){
             if ($inverterID === null){
                 $sqlTheoPowerPart = "SUM(g_upper * $pNomEast * IF(g_upper > ".$anlage->getThreshold2PA3().", pa3, 1)) + 
-                            SUM(g_lower $pNomWest * IF(g_upper > ".$anlage->getThreshold2PA3().", pa3, 1)) as theo_power_pa3,
+                            SUM(g_lower * $pNomWest * IF(g_upper > ".$anlage->getThreshold2PA3().", pa3, 1)) as theo_power_pa3,
                             SUM(g_upper * $pNomEast * IF(g_upper > ".$anlage->getThreshold2PA2().", pa2, 1)) + 
-                            SUM(g_lower $pNomWest * IF(g_upper > ".$anlage->getThreshold2PA2().", pa2, 1)) as theo_power_pa2,
+                            SUM(g_lower * $pNomWest * IF(g_upper > ".$anlage->getThreshold2PA2().", pa2, 1)) as theo_power_pa2,
                             SUM(g_upper * $pNomEast * IF(g_upper > ".$anlage->getThreshold2PA1().", pa1, 1)) + 
-                            SUM(g_lower $pNomWest * IF(g_upper > ".$anlage->getThreshold2PA1().", pa1, 1)) as theo_power_pa1,
+                            SUM(g_lower * $pNomWest * IF(g_upper > ".$anlage->getThreshold2PA1().", pa1, 1)) as theo_power_pa1,
                             SUM(g_upper * $pNomEast * IF(g_upper > ".$anlage->getThreshold2PA0().", pa0, 1)) + 
-                            SUM(g_lower $pNomWest * IF(g_upper > ".$anlage->getThreshold2PA0().", pa0, 1)) as theo_power_pa0,";
+                            SUM(g_lower * $pNomWest * IF(g_upper > ".$anlage->getThreshold2PA0().", pa0, 1)) as theo_power_pa0,";
             } else {
                 $pNomInv = $inverterPowerDc[$inverterID];
                 $sqlTheoPowerPart = "SUM((g_upper + g_lower) * $pNomInv * IF(g_upper > ".$anlage->getThreshold2PA3().", pa3, 1)) as theo_power_pa3,
@@ -130,10 +131,11 @@ class WeatherFunctionsService
                 WHERE s.stamp >= '$from' AND s.stamp < '$to'
                     $sqlPPCpart2
             ";
-
+            dump($sql);
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {
                 $row = $res->fetch(PDO::FETCH_ASSOC);
+                dump($row);
                 $weather['airTempAvg'] = $row['ambient_temp'];
                 $weather['panelTempAvg'] = $row['panel_temp'];
                 $weather['windSpeedAvg'] = $row['wind_speed'];
