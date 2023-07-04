@@ -341,9 +341,9 @@ class PowerService
 
             // Suche und summiere Werte in AC Ist Tabelle
             if ($anlage->isIgnoreNegativEvu()) {
-                $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '" . $tempoStartDate->format('Y-m-d H:i') . "' AND '" . $tempoEndDate->format('Y-m-d H:i') . "' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
+                $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp >= '" . $tempoStartDate->format('Y-m-d H:i') . "' AND stamp < '" . $tempoEndDate->format('Y-m-d H:i') . "' AND e_z_evu > 0 GROUP BY unit LIMIT 1";
             } else {
-                $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp BETWEEN '" . $tempoStartDate->format('Y-m-d H:i') . "' AND '" . $tempoEndDate->format('Y-m-d H:i') . "' GROUP BY unit LIMIT 1";
+                $sql = 'SELECT sum(e_z_evu) as power_evu FROM ' . $anlage->getDbNameAcIst() . " WHERE stamp >= '" . $tempoStartDate->format('Y-m-d H:i') . "' AND stamp < '" . $tempoEndDate->format('Y-m-d H:i') . "' GROUP BY unit LIMIT 1";
             }
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {

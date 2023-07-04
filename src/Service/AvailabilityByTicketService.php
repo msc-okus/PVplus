@@ -615,17 +615,17 @@ class AvailabilityByTicketService
                     }
                     break;
 
-                   // Replace Sensors
-                   case '71':
-                       $replaceArray = $this->replaceValuesTicketRepo->getIrrArray($anlage, $tempoStartDate, $tempoEndDate);
-                       foreach ($replaceArray as $replace) {
-                           if ($anlage->getIsOstWestAnlage()) {
-                               $irrData[$replace['stamp']]['irr'] = ($replace['irrEast'] * $anlage->getPowerEast() + $replace['irrWest'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
-                           } else {
-                            $irrData[$replace['stamp']]['irr'] = $replace['irrModul'];
-                           }
+               // Replace Sensors
+               case '71':
+                   $replaceArray = $this->replaceValuesTicketRepo->getIrrArray($anlage, $tempoStartDate, $tempoEndDate);
+                   foreach ($replaceArray as $replace) {
+                       if ($anlage->getIsOstWestAnlage()) {
+                           $irrData[$replace['stamp']]['irr'] = ($replace['irrEast'] * $anlage->getPowerEast() + $replace['irrWest'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+                       } else {
+                        $irrData[$replace['stamp']]['irr'] = $replace['irrModul'];
                        }
-                       break;
+                   }
+                   break;
                }
            }
 

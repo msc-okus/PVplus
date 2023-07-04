@@ -142,7 +142,7 @@ class TicketDateRepository extends ServiceEntityRepository
     {
         $q = $this->createQueryBuilder('t')
             ->join('t.ticket', 'ticket')
-            ->andWhere('t.begin BETWEEN :begin AND :end OR t.end BETWEEN :begin AND :end OR (:end <= t.end and :begin >= t.end)')
+            ->andWhere('t.begin BETWEEN :begin AND :end OR t.end BETWEEN :begin AND :end OR (:end <= t.end and :begin >= t.begin)')
             ->andWhere('t.Anlage = :anlage')
             ->andWhere('t.dataGapEvaluation = 10')
             ->andWhere('ticket.ignoreTicket = false');
@@ -274,9 +274,6 @@ class TicketDateRepository extends ServiceEntityRepository
             ->setParameter('end', $endDate instanceof DateTime ? $endDate->format("Y-m-d H:i") : $endDate)
             ->setParameter('anlage', $anlage);
 
-        if ($startDate->format('m') == '1'){
-            #dd($q->getQuery()->getSQL(), $startDate->format("Y-m-d H:i"), $endDate->format("Y-m-d H:i"));
-        }
         return $q->getQuery()->getResult();
     }
     /**

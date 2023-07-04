@@ -419,7 +419,7 @@ class ReportsMonthlyService
         $prSumArray = $this->PRCalulation->calcPR($anlage, $fromDay, $toDay);
 
         // Summe / Total Row
-        $i = sizeof($dayValues)+1;
+        $i = $daysInMonth+1;
         $dayValues[$i]['datum'] = 'Total';
         foreach($prSumArray as $key => $value) {
             $dayValues[$i][$key] = $value;

@@ -28,6 +28,33 @@ class ReplaceValuesTicketRepository extends ServiceEntityRepository
      */
     public function getSum(Anlage $anlage, \DateTime $startDate, \DateTime $endDate)
     {
+        $pNom = $anlage->getPnom();
+        $pNomEast = $anlage->getPowerEast();
+        $pNomWest = $anlage->getPowerWest();
+        $inverterPowerDc = $anlage->getPnomInverterArray();
+        // depending on $department generate correct SQL code to calculate
+        if ($anlage->getIsOstWestAnlage()){
+            $sqlTheoPowerPart = ",
+                SUM(t.irrEast * $pNomEast * IFELSE(t.irrEast > ".$anlage->getThreshold2PA3().", pa3, 1)) + 
+                SUM(t.irrWest * $pNomWest * IFELSE(t.irrWest > ".$anlage->getThreshold2PA3().", pa3, 1)) as theo_power_pa3,
+                SUM(t.irrEast * $pNomEast * IFELSE(t.irrEast > ".$anlage->getThreshold2PA2().", pa2, 1)) + 
+                SUM(t.irrWest * $pNomWest * IFELSE(t.irrWest > ".$anlage->getThreshold2PA2().", pa2, 1)) as theo_power_pa2,
+                SUM(t.irrEast * $pNomEast * IFELSE(t.irrEast > ".$anlage->getThreshold2PA1().", pa1, 1)) + 
+                SUM(t.irrWest * $pNomWest * IFELSE(t.irrWest > ".$anlage->getThreshold2PA1().", pa1, 1)) as theo_power_pa1,
+                SUM(t.irrEast * $pNomEast * IFELSE(t.irrEast > ".$anlage->getThreshold2PA0().", pa0, 1)) + 
+                SUM(t.irrWest * $pNomWest * IFELSE(t.irrWest > ".$anlage->getThreshold2PA0().", pa0, 1)) as theo_power_pa0";
+        } else {
+            $sqlTheoPowerPart = ", 
+                SUM(t.irrModule * $pNom * IFELSE(t.irrModule > " . $anlage->getThreshold2PA3() . ", pa3, 1)) / 4000 as theoPowerPA3,
+                SUM(t.irrModule * $pNom * IFELSE(t.irrModule > " . $anlage->getThreshold2PA2() . ", pa2, 1)) / 4000 as theoPowerPA2,
+                SUM(t.irrModule * $pNom * IFELSE(t.irrModule > " . $anlage->getThreshold2PA1() . ", pa1, 1)) / 4000 as theoPowerPA1,
+                SUM(t.irrModule * $pNom * IFELSE(t.irrModule > " . $anlage->getThreshold2PA0() . ", pa0, 1)) / 4000 as theoPowerPA0";
+        }
+        $sqlTheoPowerPart = ", 
+                SUM(t.irrModule * $pNom) / 4000 as theoPowerPA3,
+                SUM(t.irrModule * $pNom) / 4000 as theoPowerPA2,
+                SUM(t.irrModule * $pNom) / 4000 as theoPowerPA1,
+                SUM(t.irrModule * $pNom) / 4000 as theoPowerPA0";
         $q = $this->createQueryBuilder('t')
             ->andWhere("t.anlage = :anlage AND t.stamp >= :begin AND t.stamp < :end")
             ->setParameter('anlage', $anlage)
@@ -37,11 +64,12 @@ class ReplaceValuesTicketRepository extends ServiceEntityRepository
                             SUM(t.irrModule) as irrModul,
                             SUM(t.irrEast) as irrEast,
                             SUM(t.irrWest) as irrWest,
-                            SUM(t.power) as power" );
+                            SUM(t.power) as power $sqlTheoPowerPart");
 
         return $q->getQuery()->getOneOrNullResult();
 
     }
+
 
     public function getIrrArray(Anlage $anlage, \DateTime $startDate, \DateTime $endDate): array
     {
