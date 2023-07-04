@@ -78,103 +78,134 @@ class DefaultJMController extends AbstractController
         $anlage = $ar->findIdLike("110")[0];
 
 
-        $chart = new ECharts(); // We must use AMCharts
-        $chart->tooltip->show = false;
+        $inverterPRArray = $this->calcPRInvArray($anlage, "", "");
+        $orderedArray = [];
+        dump($inverterPRArray);
+        $index = 0;
+        $index2 = 0;
+        while (count($inverterPRArray['invPR']) !== 0){
+            $keys = array_keys($inverterPRArray['invPR'], min($inverterPRArray['invPR']));
+            foreach($keys as $key ){
+                $orderedArray[$index2][$index]['name'] = $inverterPRArray['name'][$key];
+                $orderedArray[$index2][$index]['powerSum'] = $inverterPRArray['powerSum'][$key];
+                $orderedArray[$index2][$index]['Pnom'] = $inverterPRArray['Pnom'][$key];
+                $orderedArray[$index2][$index]['power'] = $inverterPRArray['power'][$key];
+                $orderedArray[$index2][$index]['avgPower'] = $inverterPRArray['avgPower'][$key];
+                $orderedArray[$index2][$index]['avgIrr'] = $inverterPRArray['avgIrr'][$key];
+                $orderedArray[$index2][$index]['theoPower'] = $inverterPRArray['theoPower'][$key];
+                $orderedArray[$index2][$index]['invPR'] = $inverterPRArray['invPR'][$key];
+                $orderedArray[$index2][$index]['calcPR'] = $inverterPRArray['calcPR'][$key];
+                $graphDataPR[$index2]['name'][] = $inverterPRArray['name'][$key];
+                $graphDataPR[$index2]['PR'][]= $inverterPRArray['invPR'][$key];
+                $graphDataPR[$index2]['power'][]= $inverterPRArray['power'][$key];
+                $graphDataPR[$index2]['yield'] = $inverterPRArray['calcPR'][$key];
+                unset($inverterPRArray['invPR'][$key]);
+                $index = $index + 1;
+                if ($index > 50){
+                    $index = 0;
+                    $index2 = $index2 + 1;
+                }
+            }
+        }
 
-        $chart->xAxis = [
-            'type' => 'category',
-            'data' => ['Jan', 'Feb'],
-        ];
-        $chart->yAxis = [
-            'type' => 'value',
-            'name' => '%',
-            'min' => 0,
-            'max' => 100,
-        ];
-
-        $series = [];
-        $series[] =  [
-            'name' => 'Open Book',
-            'type' => 'bar',
-            'data' =>  [ 70, 75],
-            'label' => [
-                'show' => true,
-            ],
-
-            'markLine' => [
-                'data' => [
-                        [
-                            'yAxis' => $anlage-> getContractualPR(),
-
-                            'lineStyle' => [
-                                'type'  => 'solid',
-                                'width' => 3,
-                                'color' => 'green'
-                            ]
-                        ]
-                    ],
-                 'symbol' => 'none',
-                ]
-        ];
-        if (!$anlage->getSettings()->isDisableDep1()) $series[] =
-            [
-                'name' => $anlage->getSettings(),
-                'type' => 'bar',
-                'data' => [ 90, 100],
-                'label' => [
+        //dd($graphDataPR['PR'],$graphDataPR['name']);
+        foreach($graphDataPR as $key => $data) {
+            $chart = new ECharts(); // We must use AMCharts
+            $chart->tooltip->show = false;
+            $chart->tooltip->trigger = 'item';
+            $chart->xAxis = [
+                'type' => 'category',
+                'axisLabel' => [
+                    'show' => true,
+                    'margin' => '10',
+                ],
+                'splitArea' => [
                     'show' => true,
                 ],
+                'data' => $graphDataPR['name'],
             ];
-        if( !$anlage->getSettings()->isDisableDep2()) $series[] = [
-            'name' => 'EPC',
-            'type' => 'bar',
-            'data' =>  [ 80, 85],
-            'label' => [
-                'show' => true,
-            ],
-        ];
-        if( !$anlage->getSettings()->isDisableDep3()) $series[] =   [
-            'name' => 'AM',
-            'type' => 'bar',
-            'data' =>  [ 90, 95],
-            'label' => [
-                'show' => true,
-            ],
-        ];
-        $chart->series = $series;
+            $chart->yAxis = [
+                [
+                    'type' => 'value',
+                    'min' => 0,
+                    'name' => 'kWh/kWp',
+                    'nameLocation' => 'middle',
+                ],
+                [
+                    'type' => 'value',
+                    'min' => 0,
+                    'max' => 100,
+                    'alignTicks' => true,
+                    'name' => '[%]',
+                    'nameLocation' => 'middle',
 
+                ]
+            ];
+            $chart->series =
+                [
+                    [
+                        'name' => 'specific yield',
+                        'type' => 'bar',
+                        'data' => $data['power'],
+                        'visualMap' => 'false',
 
-        $option = [
-            'animation' => false,
-            'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000'],
-            'title' => [
-                'fontFamily' => 'monospace',
-                'text' => 'PA Graphic',
-                'left' => 'center',
-                'top' => 10
-            ],
-            'tooltip' => [
-                'show' => true,
-            ],
-            'legend' => [
-                'show' => true,
-                'left' => 'center',
-                'top' => 20,
-            ],
-            'grid' => [
-                'height' => '80%',
-                'top' => 50,
-                'width' => '80%',
-                'left' => 100,
-            ],
-        ];
-
-        $chart->setOption($option);
-
-
-        $test = $chart->render('test', ['style' => 'height: 450px; width:900px;']);
-
-
+                    ],
+                    [
+                        'name' => 'Inverter PR',
+                        'type' => 'line',
+                        'data' => $data['PR'],
+                        'visualMap' => 'false',
+                        'lineStyle' => [
+                            'color' => 'green'
+                        ],
+                        'yAxisIndex' => 1,
+                        'markLine' => [
+                            'data' => [
+                                [
+                                    'name' => 'calculated PR',
+                                    'yAxis' => $data['yield'],
+                                    'lineStyle' => [
+                                        'type' => 'solid',
+                                        'width' => 3,
+                                        'color' => 'red'
+                                    ]
+                                ]
+                            ],
+                            'symbol' => 'none',
+                        ]
+                    ],
+                ];
+            $option = [
+                'textStyle' => [
+                    'fontFamily' => 'monospace',
+                    'fontsize' => '16'
+                ],
+                'animation' => false,
+                'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000'],
+                'title' => [
+                    'fontFamily' => 'monospace',
+                    'text' => 'TEST',
+                    'left' => 'center',
+                    'top' => 10
+                ],
+                'tooltip' => [
+                    'show' => true,
+                ],
+                'legend' => [
+                    'show' => true,
+                    'left' => 'center',
+                    'top' => 20,
+                ],
+                'grid' => [
+                    'height' => '80%',
+                    'top' => 50,
+                    'width' => '80%',
+                    'left' => 100,
+                ],
+            ];
+            $chart->setOption($option);
+            $test[] = $chart->render('pr_graph_'.$key, ['style' => 'height: 450px; width:700px;']);
+        }
         $html5 = $this->twig->render('report/test.html.twig', [
         'anlage' => $anlage,
         'monthName' => 'December',
@@ -200,5 +231,81 @@ class DefaultJMController extends AbstractController
         $fileroute = "/test/AssetReport/waterfallgraphs/" ;
         $this->pdf->createPage($html5, $fileroute, "MonthlyProd", true);// we will store this later in the entity
 
+    }
+    private function calcPRInvArray($anlage, $month, $year){
+        // now we will cheat the data in but in the future we will use the params to retrieve the data
+        $PRArray = []; // this is the array that we will return at the end with the inv name, power sum (kWh), pnom (kWp), power (kWh/kWp), avg power, avg irr, theo power, Inverter PR, calculated PR
+
+        $PRArray['name'][] = "WR 1.1";
+        $PRArray['powerSum'][] = 27277.73;
+        $PRArray['Pnom'][] = 187.2;
+        $PRArray['power'][] = 145.71439;
+        $PRArray['avgPower'][] = 143.27334;
+        $PRArray['avgIrr'][] = 170;
+        $PRArray['theoPower'][] = 31824;
+        $PRArray['invPR'][] = 85.71;
+        $PRArray['calcPR'][] = 84.27843;
+
+        $PRArray['name'][] = "WR 1.2";
+        $PRArray['powerSum'][] = 26591.67;
+        $PRArray['Pnom'][] = 187.2;
+        $PRArray['power'][] = 142.04954;
+        $PRArray['avgPower'][] = 143.27334;
+        $PRArray['avgIrr'][] = 170;
+        $PRArray['theoPower'][] = 31824;
+        $PRArray['invPR'][] = 83.56;
+        $PRArray['calcPR'][] = 84.27843;
+
+        $PRArray['name'][] = "WR 1.3";
+        $PRArray['powerSum'][] = 27070.58;
+        $PRArray['Pnom'][] = 187.2;
+        $PRArray['power'][] = 144.60640;
+        $PRArray['avgPower'][] = 143.27334;
+        $PRArray['avgIrr'][] = 170;
+        $PRArray['theoPower'][] = 31824;
+        $PRArray['invPR'][] = 58.06;
+        $PRArray['calcPR'][] = 84.27843;
+
+        $PRArray['name'][] = "WR 1.4";
+        $PRArray['powerSum'][] = 26591.67;
+        $PRArray['Pnom'][] = 187.2;
+        $PRArray['power'][] = 145.77768;
+        $PRArray['avgPower'][] = 143.27334;
+        $PRArray['avgIrr'][] = 170;
+        $PRArray['theoPower'][] = 31824;
+        $PRArray['invPR'][] = 85.75;
+        $PRArray['calcPR'][] = 84.27843;
+
+
+        $PRArray['name'][] = "WR 2.1";
+        $PRArray['powerSum'][] = 32006.48;
+        $PRArray['Pnom'][] = 222.3;
+        $PRArray['power'][] = 143.97877;
+        $PRArray['avgPower'][] = 143.27334;
+        $PRArray['avgIrr'][] = 170;
+        $PRArray['theoPower'][] = 37791;
+        $PRArray['invPR'][] = 84.69;
+        $PRArray['calcPR'][] = 84.27843;
+
+        $PRArray['name'][] = "WR 2.2";
+        $PRArray['powerSum'][] = 31251.1;
+        $PRArray['Pnom'][] = 222.3;
+        $PRArray['power'][] = 140.58074;
+        $PRArray['avgPower'][] = 143.27334;
+        $PRArray['avgIrr'][] = 170;
+        $PRArray['theoPower'][] = 37791;
+        $PRArray['invPR'][] = 82.69;
+        $PRArray['calcPR'][] = 84.27843;
+
+        $PRArray['name'][] = "WR 2.3";
+        $PRArray['powerSum'][] = 31573.98;
+        $PRArray['Pnom'][] = 222.3;
+        $PRArray['power'][] = 142.03319;
+        $PRArray['avgPower'][] = 143.27334;
+        $PRArray['avgIrr'][] = 170;
+        $PRArray['theoPower'][] = 37791;
+        $PRArray['invPR'][] = 83.55;
+        $PRArray['calcPR'][] = 84.27843;
+        return $PRArray;
     }
 }

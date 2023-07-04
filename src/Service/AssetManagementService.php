@@ -519,6 +519,97 @@ class AssetManagementService
      */
     public function buildAssetReport(Anlage $anlage, array $report, ?int $logId = null): array
     {
+
+        $inverterPRArray = $this->calcPRInvArray($anlage, "", "");
+        $orderedArray = [];
+        dump($inverterPRArray);
+        $index = 0;
+        while (count($inverterPRArray['invPR']) !== 0){
+            $keys = array_keys($inverterPRArray['invPR'], max($inverterPRArray['invPR']));
+           foreach($keys as $key ){
+               $orderedArray[$index]['name'] = $inverterPRArray['name'][$key];
+               $orderedArray[$index]['powerSum'] = $inverterPRArray['powerSum'][$key];
+               $orderedArray[$index]['Pnom'] = $inverterPRArray['Pnom'][$key];
+               $orderedArray[$index]['power'] = $inverterPRArray['power'][$key];
+               $orderedArray[$index]['avgPower'] = $inverterPRArray['avgPower'][$key];
+               $orderedArray[$index]['avgIrr'] = $inverterPRArray['avgIrr'][$key];
+               $orderedArray[$index]['theoPower'] = $inverterPRArray['theoPower'][$key];
+               $orderedArray[$index]['invPR'] = $inverterPRArray['invPR'][$key];
+               $orderedArray[$index]['calcPR'] = $inverterPRArray['calcPR'][$key];
+               $graphDataPR['name'][] = $inverterPRArray['name'][$key];
+               $graphDataPR['PR'][]= $inverterPRArray['invPR'][$key];
+               unset($inverterPRArray['invPR'][$key]);
+               $index = $index + 1;
+           }
+        }
+
+        $chart = new ECharts(); // We must use AMCharts
+        $chart->tooltip->show = false;
+        $chart->tooltip->trigger = 'item';
+
+        $chart->xAxis = [
+            'type' => 'category',
+            'axisLabel' => [
+                'show' => true,
+                'margin' => '10',
+            ],
+            'splitArea' => [
+                'show' => true,
+            ],
+            'data' => $graphDataPR['name'],
+        ];
+        $chart->yAxis = [
+            'type' => 'value',
+            'min' => 0,
+            'name' => 'PR[%]',
+            'nameLocation' => 'middle',
+            'nameGap' => 80,
+            'offset' => -20,
+        ];
+
+                $chart->series =
+                    [
+                        [
+                            'name' => 'Yield',
+                            'type' => 'bar',
+                            'data' => $graphDataPR['invPR'],
+                            'visualMap' => 'false',
+                        ],
+                    ];
+        $option = [
+            'textStyle' => [
+                'fontFamily' => 'monospace',
+                'fontsize' => '16'
+            ],
+            'animation' => false,
+            'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000'],
+            'title' => [
+                'fontFamily' => 'monospace',
+                'text' => 'Year '.$report['reportYear'],
+                'left' => 'center',
+                'top' => 10
+            ],
+            'tooltip' => [
+                'show' => true,
+            ],
+            'legend' => [
+                'show' => true,
+                'left' => 'center',
+                'top' => 20,
+            ],
+            'grid' => [
+                'height' => '80%',
+                'top' => 50,
+                'width' => '80%',
+                'left' => 100,
+            ],
+        ];
+
+        $chart->setOption($option);
+
+        $pr_graph = $chart->render('pr_graph', ['style' => 'height: 450px; width:700px;']);
+        dd($orderedArray, $graphDataPR);
+
         $this->logMessages->updateEntry($logId, 'working', 10);
         $month = $report['reportMonth'];
         for ($i = 0; $i < 12; ++$i) {
@@ -4760,6 +4851,7 @@ class AssetManagementService
         $TicketAvailabilityYearTable = $this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($report['from']))), date_create(date("Y-m-d ",strtotime($report['to']))), "year");
 
 
+
         // end Chart Losses compared cummulated
         $output = [
             'plantId' => $plantId,
@@ -4938,6 +5030,84 @@ class AssetManagementService
             'OMCLosses'     => $sumLossesMonthOMC
         ];
         return $kwhLossesMonthTable;
+    }
+    private function calcPRInvArray($anlage, $month, $year){
+        // now we will cheat the data in but in the future we will use the params to retrieve the data
+        $PRArray = []; // this is the array that we will return at the end with the inv name, power sum (kWh), pnom (kWp), power (kWh/kWp), avg power, avg irr, theo power, Inverter PR, calculated PR
+        $invArray = $anlage->getInverterFromAnlage();
+        $invNr = count($invArray);
+        for ($index = 1; $index <= $invNr; $index++) {
+            $PRArray['name'][] = $invArray[$index];
+            $PRArray['powerSum'][] = 27277.73;
+            $PRArray['Pnom'][] = 187.2;
+            $PRArray['power'][] = 145.71439;
+            $PRArray['avgPower'][] = 143.27334;
+            $PRArray['avgIrr'][] = 170;
+            $PRArray['theoPower'][] = 31824;
+            $PRArray['invPR'][] = 85.71;
+            $PRArray['calcPR'][] = 84.27843;
+        }
+        $PRArray['name'][] = "WR 1.2";
+        $PRArray['powerSum'][] = 26591.67;
+        $PRArray['Pnom'][] = 187.2;
+        $PRArray['power'][] = 142.04954;
+        $PRArray['avgPower'][] = 143.27334;
+        $PRArray['avgIrr'][] = 170;
+        $PRArray['theoPower'][] = 31824;
+        $PRArray['invPR'][] = 83.56;
+        $PRArray['calcPR'][] = 84.27843;
+
+        $PRArray['name'][] = "WR 1.3";
+        $PRArray['powerSum'][] = 27070.58;
+        $PRArray['Pnom'][] = 187.2;
+        $PRArray['power'][] = 144.60640;
+        $PRArray['avgPower'][] = 143.27334;
+        $PRArray['avgIrr'][] = 170;
+        $PRArray['theoPower'][] = 31824;
+        $PRArray['invPR'][] = 58.06;
+        $PRArray['calcPR'][] = 84.27843;
+
+        $PRArray['name'][] = "WR 1.4";
+        $PRArray['powerSum'][] = 26591.67;
+        $PRArray['Pnom'][] = 187.2;
+        $PRArray['power'][] = 145.77768;
+        $PRArray['avgPower'][] = 143.27334;
+        $PRArray['avgIrr'][] = 170;
+        $PRArray['theoPower'][] = 31824;
+        $PRArray['invPR'][] = 85.75;
+        $PRArray['calcPR'][] = 84.27843;
+
+
+        $PRArray['name'][] = "WR 2.1";
+        $PRArray['powerSum'][] = 32006.48;
+        $PRArray['Pnom'][] = 222.3;
+        $PRArray['power'][] = 143.97877;
+        $PRArray['avgPower'][] = 143.27334;
+        $PRArray['avgIrr'][] = 170;
+        $PRArray['theoPower'][] = 37791;
+        $PRArray['invPR'][] = 84.69;
+        $PRArray['calcPR'][] = 84.27843;
+
+        $PRArray['name'][] = "WR 2.2";
+        $PRArray['powerSum'][] = 31251.1;
+        $PRArray['Pnom'][] = 222.3;
+        $PRArray['power'][] = 140.58074;
+        $PRArray['avgPower'][] = 143.27334;
+        $PRArray['avgIrr'][] = 170;
+        $PRArray['theoPower'][] = 37791;
+        $PRArray['invPR'][] = 82.69;
+        $PRArray['calcPR'][] = 84.27843;
+
+        $PRArray['name'][] = "WR 2.3";
+        $PRArray['powerSum'][] = 31573.98;
+        $PRArray['Pnom'][] = 222.3;
+        $PRArray['power'][] = 142.03319;
+        $PRArray['avgPower'][] = 143.27334;
+        $PRArray['avgIrr'][] = 170;
+        $PRArray['theoPower'][] = 37791;
+        $PRArray['invPR'][] = 83.55;
+        $PRArray['calcPR'][] = 84.27843;
+        return $PRArray;
     }
 
 }
