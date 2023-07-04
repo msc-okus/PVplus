@@ -1065,7 +1065,6 @@ export default class extends Controller {
             if (sensorString == '') {sensorString = sensorString + $(this).prop('name');}
             else {sensorString = sensorString + ', ' + $(this).prop('name');}
         });
-        console.log(sensorString);
         //here we get the values of the date forms to check if they are valid
         const valueBegin = $(this.formBeginTarget).prop('value');
         const valueEnd = $(this.formEndTarget).prop('value');

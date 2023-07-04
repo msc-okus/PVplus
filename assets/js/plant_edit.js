@@ -12,7 +12,6 @@ $wrapper_sensors.on('click', '.js-add-sensor', function (e) {
     let prototype = $wrapper_sensors.data('prototype');
     let index = $wrapper_sensors.data('index');
     let newForm = prototype.replace(/__name__/g, index);
-    console.log(newForm);
     $wrapper_sensors.data('index', index + 1);
     $('#js-sensors>tbody').append(newForm);
     Foundation.reInit('accordion');
@@ -43,7 +42,6 @@ $wrapper_timeconfig.on('click', '.js-remove-timeConfig-module', function (e) {
         .remove();
 });
 $wrapper_timeconfig.on('click', '.js-add-timeConfig', function (e) {
-    console.log('test');
     e.preventDefault();
     let prototype = $wrapper_timeconfig.data('prototype');
     let index = $wrapper_timeconfig.data('index');
@@ -136,7 +134,6 @@ $wrapper_yield.on('click', '.js-add-monthly-yield', function(e) {
 let $wrapper_economic = $('.js-economicVarValues-wrapper');
 $wrapper_economic.on('click', '.js-economic-var-value-add',function(e){
     e.preventDefault();
-    console.log('hey')
     let prototype = $wrapper_economic.data('prototype');
     let index = $wrapper_economic.data('index');
     let newForm = prototype.replace(/__name__/g, index);
@@ -169,7 +166,6 @@ $wrapper_use_module.on('click', '.js-remove-use-module', function(e) {
         .remove();
 });
 $wrapper_use_module.on('click', '.js-add-use-module', function(e) {
-    console.log('Yes');
     e.preventDefault();
     let prototype = $wrapper_use_module.data('prototype');
     let index = $wrapper_use_module.data('index');

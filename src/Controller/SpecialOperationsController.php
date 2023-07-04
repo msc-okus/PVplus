@@ -16,6 +16,9 @@ use App\Service\Reports\ReportsMonthlyService;
 use App\Service\WeatherServiceNew;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
+use Omines\DataTablesBundle\Adapter\ArrayAdapter;
+use Omines\DataTablesBundle\Column\TextColumn;
+use Omines\DataTablesBundle\DataTableFactory;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -73,9 +76,9 @@ class SpecialOperationsController extends AbstractController
      */
     #[IsGranted(['ROLE_G4N', 'ROLE_BETA'])]
     #[Route(path: '/special/operations/monthly', name: 'monthly_report_test')]
-    public function monthlyReportTest(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyService $reportsMonthly): Response
+    public function monthlyReportTest(Request $request, AnlagenRepository $anlagenRepository, ReportsMonthlyService $reportsMonthly, DataTableFactory $dataTableFactory): Response
     {
-        $output = null;
+        $output = $table = null;
         $startDay = $request->request->get('start-day');
         $endDay = $request->request->get('end-day');
         $month = $request->request->get('month');
@@ -93,12 +96,16 @@ class SpecialOperationsController extends AbstractController
             $output = $reportsMonthly->buildMonthlyReportNewByDate($anlage, $startDay, $endDay, $month, $year);
         }
 
-        return $this->render('report/reportMonthlyNew.html.twig', [
+        $reportName = 'report/reportMonthlyDataTables.html.twig';
+        $reportName = 'report/reportMonthlyNew.html.twig';
+
+        return $this->render($reportName, [
             'headline'      => $headline,
             'anlagen'       => $anlagen,
             'anlage'        => $anlage,
             'report'        => $output,
             'status'        => $anlageId,
+            'datatable'     => $table,
         ]);
 
     }

@@ -6,11 +6,13 @@
 
 {% block styles %}
     {{  parent() }}
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jq-3.2.1/dt-1.10.16/datatables.min.css"/>
     <link href="{{ absolute_url(asset('css/monthly_report_inline.css')) }}" rel="stylesheet" type="text/css">
 {% endblock %}
 
 {% block javascripts %}
     {{ parent() }}
+    <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-3.2.1/dt-1.10.16/datatables.min.js"></script>
 {% endblock %}
 
 {% block body %}
@@ -21,7 +23,7 @@
     </div>
 
     {% include'special_operations/_inc/_createFormByDate.html.twig' %}
-
+    <hr>
     {% if report != null %}
         <div class="grid-x">
         <div class="cell">

@@ -2099,10 +2099,6 @@ class Anlage
         return $this;
     }
 
-    public function getMinIrrThreshold(){
-        return min($this->getThreshold1PA0(), $this->getThreshold1PA1(), $this->getThreshold1PA2(), $this->getThreshold1PA3());
-    }
-
     public function getPaFormular0(): ?string
     {
         if ($this->paFormular0 === null) return 1;
@@ -3669,6 +3665,10 @@ class Anlage
 
         return $this;
     }
+
+    /**
+     * New Algorithme for TicketGeneration
+     */
     public function isNewAlgorythm(): ?bool
     {
         return $this->newAlgorythm;
@@ -3678,28 +3678,29 @@ class Anlage
     {
         $this->newAlgorythm = $newAlgorythm;
     }
-  
-    public function getMinIrrThreshold(){
-        $thresholds[] = $this->getThreshold1PA0();
-        $thresholds[] = $this->getThreshold1PA1();
-        $thresholds[] = $this->getThreshold1PA2();
-        $thresholds[] = $this->getThreshold1PA3();
-        return min($thresholds);
+
+    public function getMinIrrThreshold(): mixed
+    {
+        return min($this->getThreshold1PA0(), $this->getThreshold1PA1(), $this->getThreshold1PA2(), $this->getThreshold1PA3());
     }
 
-    public function getPrFormular0Image(){
+    public function getPrFormular0Image(): string
+    {
         return '/images/formulas/' . $this->getPrFormular0() . '.png';
     }
 
-    public function getPrFormular1Image(){
+    public function getPrFormular1Image(): string
+    {
         return '/images/formulas/' . $this->getPrFormular1() . '.png';
     }
 
-    public function getPrFormular2Image(){
+    public function getPrFormular2Image(): string
+    {
         return '/images/formulas/' . $this->getPrFormular2() . '.png';
     }
 
-    public function getPrFormular3Image(){
+    public function getPrFormular3Image(): string
+    {
         return '/images/formulas/' . $this->getPrFormular3() . '.png';
     }
 

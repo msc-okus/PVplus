@@ -129,6 +129,10 @@ class WeatherStationController extends BaseController
             `temp_cell_multi_irr` varchar(20) DEFAULT NULL,
             `ft_factor` VARCHAR(20) NULL DEFAULT '1',
             `irr_flag` TINYINT(1) NULL DEFAULT 0,
+            `pa0` varchar(20) DEFAULT NULL,
+            `pa1` varchar(20) DEFAULT NULL,
+            `pa2` varchar(20) DEFAULT NULL,
+            `pa3` varchar(20) DEFAULT NULL,
             PRIMARY KEY (`db_id`),
             UNIQUE KEY `stamp` (`stamp`)
         ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;";

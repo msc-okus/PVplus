@@ -386,6 +386,18 @@
     "nuzkito/chrome-html-to-pdf": {
         "version": "2.0.0"
     },
+    "omines/datatables-bundle": {
+        "version": "0.7",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "0.1",
+            "ref": "467488ddc00aa190c37a4357f226457d4dd6b339"
+        },
+        "files": [
+            "config/packages/datatables.yaml"
+        ]
+    },
     "oneup/flysystem-bundle": {
         "version": "3.0",
         "recipe": {

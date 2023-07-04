@@ -176,10 +176,23 @@ class AvailabilityByTicketService
             }
             $this->em->flush();
 
-            foreach ($availabilityByStamp as $stamp => $availability){
-                ## Store results to any Database (Weather, VirtualValues, ... ????
-
+            // Store results to Weather Database (VirtualValues !!)
+            $conn = self::getPdoConnection();
+            $sqlPa = match ($department) {
+                1 => "pa1",
+                2 => "pa2",
+                3 => "pa3",
+                default => "pa0"
+            };
+            if ($availabilityByStamp) {
+                $sql = "";
+                foreach ($availabilityByStamp as $stamp => $availability){
+                    $sql .= "UPDATE ".$anlage->getDbNameWeather()." SET $sqlPa = '$availability' WHERE stamp = '$stamp';";
+                }
+                $conn->exec($sql);
             }
+            $conn = null;
+
         }
 
         return $output;
@@ -334,7 +347,6 @@ class AvailabilityByTicketService
                 $startInverter = 1;
                 $availabilityPlantByStamp['case0'] = $availabilityPlantByStamp['case1'] = $availabilityPlantByStamp['case2'] = $availabilityPlantByStamp['case3'] = 0;
                 $availabilityPlantByStamp['case5'] = $availabilityPlantByStamp['case6'] = $availabilityPlantByStamp['control'] = 0;
-
                 for ($inverter = $startInverter; $inverter <= $anzInverter; ++$inverter) {
                     // Nur beim ersten durchlauf, Werte setzen, damit nicht 'undefined'
                     if (!isset($availability[$inverter]['case0']))      $availability[$inverter]['case0'] = 0;
@@ -430,12 +442,11 @@ class AvailabilityByTicketService
                             ++$availabilityPlantByStamp['control'];
                         }
                     }
-                }
 
-                ## virtual Value for PA speichern (by stamp and plant)
-                $invAPart1 = $this->calcInvAPart1($anlage, $availabilityPlantByStamp, $department);
-                ($anlage->getPnom() > 0 && $inverterPowerDc[$inverter] > 0) ? $invAPart2 = $inverterPowerDc[$inverter] / $anlage->getPnom() : $invAPart2 = 1;
-                $availabilityByStamp[$stamp] = $invAPart1 * $invAPart2;
+                    ## virtual Value for PA speichern (by stamp and plant)
+                    $availabilityByStamp[$stamp] = $this->calcInvAPart1($anlage, $availabilityPlantByStamp, $department) / 100;
+
+                }
             }
         }
         unset($resultEinstrahlung);
@@ -531,9 +542,9 @@ class AvailabilityByTicketService
             while ($row = $resultEinstrahlung->fetch(PDO::FETCH_ASSOC)) {
                 $stamp = $row['stamp'];
                 if ($anlage->getIsOstWestAnlage()) {
-                    $strahlung = ($row['g_upper'] * $anlage->getPowerEast() + $row['g_lower'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
+                    $strahlung = ((float)$row['g_upper'] * $anlage->getPowerEast() + (float)$row['g_lower'] * $anlage->getPowerWest()) / ($anlage->getPowerEast() + $anlage->getPowerWest());
                 } else {
-                    $strahlung = $row['g_upper'];
+                    $strahlung = (float)$row['g_upper'];
                 }
                 $irrData[$stamp]['stamp'] = $stamp;
                 $irrData[$stamp]['irr'] = $strahlung;

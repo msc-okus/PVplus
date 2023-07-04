@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+    {{  parent() }}Special Operations
+{% endblock %}
+
+{% block styles %}
+    {{  parent() }}
+    {% if datatable != null %}
+        <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/jq-3.2.1/dt-1.10.16/datatables.min.css"/>
+    {% endif %}
+    <link href="{{ absolute_url(asset('css/monthly_report_inline.css')) }}" rel="stylesheet" type="text/css">
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {% if datatable != null %}
+        <script type="text/javascript" src="https://cdn.datatables.net/v/dt/jq-3.2.1/dt-1.10.16/datatables.min.js"></script>
+    {% endif %}
+{% endblock %}
+
+{% block body %}
+    <div class="grid-x">
+        <div class="cell">
+            <h1>{{ headline }}</h1>
+        </div>
+    </div>
+
+    {% include'special_operations/_inc/_createFormByDate.html.twig' %}
+
+    <hr>
+
+    {% if datatable %}
+        <div id="datatable">Loading...</div>
+
+        <script src="{{ asset('bundles/datatables/js/datatables.js') }}"></script>
+        <script>
+            $(function() {
+                console.log('Yuhu')
+                $('#datatable').initDataTables({{ datatable_settings(datatable) }});
+            });
+        </script>
+    {% endif %}
+{% endblock %}
