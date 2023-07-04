@@ -5037,6 +5037,7 @@ class AssetManagementService
         $invArray = $anlage->getInverterFromAnlage();
         $invNr = count($invArray);
         for ($index = 1; $index <= $invNr; $index++) {
+            $prValues = $this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($report['from']))), date_create(date("Y-m-d ",strtotime($report['to']))));
             $PRArray['name'][] = $invArray[$index];
             $PRArray['powerSum'][] = 27277.73;
             $PRArray['Pnom'][] = 187.2;
@@ -5047,66 +5048,7 @@ class AssetManagementService
             $PRArray['invPR'][] = 85.71;
             $PRArray['calcPR'][] = 84.27843;
         }
-        $PRArray['name'][] = "WR 1.2";
-        $PRArray['powerSum'][] = 26591.67;
-        $PRArray['Pnom'][] = 187.2;
-        $PRArray['power'][] = 142.04954;
-        $PRArray['avgPower'][] = 143.27334;
-        $PRArray['avgIrr'][] = 170;
-        $PRArray['theoPower'][] = 31824;
-        $PRArray['invPR'][] = 83.56;
-        $PRArray['calcPR'][] = 84.27843;
-
-        $PRArray['name'][] = "WR 1.3";
-        $PRArray['powerSum'][] = 27070.58;
-        $PRArray['Pnom'][] = 187.2;
-        $PRArray['power'][] = 144.60640;
-        $PRArray['avgPower'][] = 143.27334;
-        $PRArray['avgIrr'][] = 170;
-        $PRArray['theoPower'][] = 31824;
-        $PRArray['invPR'][] = 58.06;
-        $PRArray['calcPR'][] = 84.27843;
-
-        $PRArray['name'][] = "WR 1.4";
-        $PRArray['powerSum'][] = 26591.67;
-        $PRArray['Pnom'][] = 187.2;
-        $PRArray['power'][] = 145.77768;
-        $PRArray['avgPower'][] = 143.27334;
-        $PRArray['avgIrr'][] = 170;
-        $PRArray['theoPower'][] = 31824;
-        $PRArray['invPR'][] = 85.75;
-        $PRArray['calcPR'][] = 84.27843;
-
-
-        $PRArray['name'][] = "WR 2.1";
-        $PRArray['powerSum'][] = 32006.48;
-        $PRArray['Pnom'][] = 222.3;
-        $PRArray['power'][] = 143.97877;
-        $PRArray['avgPower'][] = 143.27334;
-        $PRArray['avgIrr'][] = 170;
-        $PRArray['theoPower'][] = 37791;
-        $PRArray['invPR'][] = 84.69;
-        $PRArray['calcPR'][] = 84.27843;
-
-        $PRArray['name'][] = "WR 2.2";
-        $PRArray['powerSum'][] = 31251.1;
-        $PRArray['Pnom'][] = 222.3;
-        $PRArray['power'][] = 140.58074;
-        $PRArray['avgPower'][] = 143.27334;
-        $PRArray['avgIrr'][] = 170;
-        $PRArray['theoPower'][] = 37791;
-        $PRArray['invPR'][] = 82.69;
-        $PRArray['calcPR'][] = 84.27843;
-
-        $PRArray['name'][] = "WR 2.3";
-        $PRArray['powerSum'][] = 31573.98;
-        $PRArray['Pnom'][] = 222.3;
-        $PRArray['power'][] = 142.03319;
-        $PRArray['avgPower'][] = 143.27334;
-        $PRArray['avgIrr'][] = 170;
-        $PRArray['theoPower'][] = 37791;
-        $PRArray['invPR'][] = 83.55;
-        $PRArray['calcPR'][] = 84.27843;
+        dd($PRArray);
         return $PRArray;
     }
 
