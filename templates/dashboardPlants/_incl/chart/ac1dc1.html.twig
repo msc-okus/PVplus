@@ -1,7 +1,7 @@
 <script>
     am4core.ready(function() {
         // Create chart instance
-            am4core.useTheme(am4themes_animated);
+        am4core.useTheme(am4themes_animated);
         let chart = am4core.create("amchart-holder", am4charts.XYChart);
         chart.hiddenState.properties.opacity = 0; // this creates initial fade-in
 
@@ -229,7 +229,6 @@
         chart.scrollbarX.marginBottom = "20"
         chart.scrollbarY = new am4core.Scrollbar();
         chart.scrollbarY.marginLeft = "20";
-        chart.exporting.menu = new am4core.ExportMenu();
         chart.exporting.menu.items[0].label = "Download";
         chart.exporting.formatOptions.getKey("json").disabled = true;
         chart.exporting.formatOptions.getKey("html").disabled = true;

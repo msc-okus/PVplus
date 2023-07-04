@@ -61,7 +61,7 @@ class WeatherFunctionsService
         $conn = self::getPdoConnection();
         $weather = [];
         $dbTable = $weatherStation->getDbNameWeather();
-        $sql = "SELECT COUNT(db_id) AS anzahl FROM $dbTable WHERE stamp BETWEEN '$from' and '$to'";
+        $sql = "SELECT COUNT(db_id) AS anzahl FROM $dbTable WHERE stamp >= '$from' and stamp < '$to'";
         $res = $conn->query($sql);
         if ($res->rowCount() == 1) {
             $row = $res->fetch(PDO::FETCH_ASSOC);
@@ -89,7 +89,7 @@ class WeatherFunctionsService
                     SUM(temp_cell_multi_irr) as temp_cell_multi_irr
                 FROM $dbTable s
                     $sqlPPCpart1
-                WHERE s.stamp BETWEEN '$from' AND '$to'
+                WHERE s.stamp >= '$from' AND s.stamp < '$to'
                     $sqlPPCpart2
             ";
 
@@ -175,21 +175,22 @@ class WeatherFunctionsService
      * @param Anlage $anlage
      * @param DateTime $from
      * @param DateTime $to
+     * @param bool|null $fetchMode When TRUE, returned objects will be converted into associative arrays.
      * @return array
      */
-    public function getSensors(Anlage $anlage, DateTime $from, DateTime $to): array
+    public function getSensors(Anlage $anlage, DateTime $from, DateTime $to, ?bool $fetchMode = null): array
     {
+        $conn = self::getPdoConnection();
         $result = [];
 
-        $conn = self::getPdoConnection();
         $dbTable = $anlage->getDbNameIst();
-        // Suche nur für einen Inverter, da bei allen das gleiche steht, deshalb umzug zu den Wetter Daten
-        $sql = "SELECT irr_anlage FROM $dbTable WHERE unit = 1 AND stamp BETWEEN '" .$from->format('Y-m-d H:i')."' and '".$to->format('Y-m-d H:i')."'";
+        // Suche nur für einen Inverter, da bei allen das gleiche steht, deshalb Umzug zu den Wetter Daten
+        $sql = "SELECT stamp, irr_anlage FROM $dbTable WHERE unit = 1 AND stamp >= '" .$from->format('Y-m-d H:i')."' and stamp < '".$to->format('Y-m-d H:i')."'";
         $res = $conn->query($sql);
         if ($res->rowCount() >= 1) {
             $rows = $res->fetchAll(PDO::FETCH_ASSOC);
             foreach ($rows as $row) {
-                $result[] = json_decode($row['irr_anlage']);
+                $result[$row['stamp']] = json_decode($row['irr_anlage'], $fetchMode);
             }
         }
         unset($res);
