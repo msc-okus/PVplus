@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\AnlageSensorsRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints\DateTime;
 
 #[ORM\Entity(repositoryClass: AnlageSensorsRepository::class)]
 class AnlageSensors
@@ -39,6 +40,12 @@ class AnlageSensors
 
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $vcomAbbr = null;
+
+    #[ORM\Column(type: 'datetime')]
+    private ?\DateTimeInterface $startDateSensor;
+
+    #[ORM\Column(type: 'datetime')]
+    private ?\DateTimeInterface $endDateSensor;
 
     public function getId(): ?int
     {
@@ -149,6 +156,32 @@ class AnlageSensors
     public function setVcomAbbr(?string $vcomAbbr): static
     {
         $this->vcomAbbr = $vcomAbbr;
+
+        return $this;
+    }
+
+    public function getStartDateSensor(): ?\DateTimeInterface
+    {
+        return $this->startDateSensor;
+    }
+
+    public function setstartDateSensor(?\DateTimeInterface $startDateSensor = null): self
+    {
+
+        $this->startDateSensor = $startDateSensor;
+
+        return $this;
+    }
+
+    public function getEndDateSensor(): ?\DateTimeInterface
+    {
+        return $this->endDateSensor;
+    }
+
+    public function setEndDateSensor(?\DateTimeInterface $endDateSensor = null): self
+    {
+
+        $this->endDateSensor = $endDateSensor;
 
         return $this;
     }
