@@ -430,6 +430,14 @@ class ReportingController extends AbstractController
                                     $pdf->useTemplate($tplId);
                                 }
                             }
+                            if ($data['InvRank']){
+                                $pageCount = $pdf->setSourceFile($files['InverterRank']);
+                                for ($i = 0; $i < $pageCount; $i++) {
+                                    $pdf->AddPage("L");
+                                    $tplId = $pdf->importPage($i + 1);
+                                    $pdf->useTemplate($tplId);
+                                }
+                            }
 
                         }
 

@@ -282,7 +282,24 @@ class AssetManagementService
         $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
 
         $reportParts['PRTable'] = $pdf->createPage($html, $fileroute, "PRTable", false);// we will store this later in the entity
+        $html = $this->twig->render('report/InverterRank.html.twig', [
+            'month' => $reportMonth,
+            'monthName' => $output['month'],
+            'year' => $reportYear,
+            'dataMonthArray' => $content['dataMonthArray'],
+            'dataMonthArrayFullYear' => $content['dataMonthArrayFullYear'],
+            'dataCfArray' => $content['dataCfArray'],
+            'reportmonth' => $content['reportmonth'],
+            'montharray' => $content['monthArray'],
+            'anlage'        => $anlage,
+            'InverterPRRankTables' => $content['InverterPRRankTables'],
+            'InverterPRRankGraphics' => $content['InverterPRRankGraphics'],
 
+        ]);
+        $html = str_replace('src="//', 'src="https://', $html);
+        $fileroute = $anlage->getEigner()->getFirma()."/".$anlage->getAnlName() . '/AssetReport_' .$reportMonth . '_' . $reportYear ;
+
+        $reportParts['InverterRank'] = $pdf->createPage($html, $fileroute, "InverterRank", false);// we will store this later in the entity
 
         $html = $this->twig->render('report/asset_report_part_6.html.twig', [
             'anlage' => $anlage,
@@ -520,96 +537,129 @@ class AssetManagementService
     public function buildAssetReport(Anlage $anlage, array $report, ?int $logId = null): array
     {
 
-        $inverterPRArray = $this->calcPRInvArray($anlage, "", "");
+        $inverterPRArray = $this->calcPRInvArray($anlage, $report['reportMonth'], $report['reportYear']);
         $orderedArray = [];
-        dump($inverterPRArray);
+        $pr_rank_graph = [];
         $index = 0;
-        while (count($inverterPRArray['invPR']) !== 0){
-            $keys = array_keys($inverterPRArray['invPR'], max($inverterPRArray['invPR']));
-           foreach($keys as $key ){
-               $orderedArray[$index]['name'] = $inverterPRArray['name'][$key];
-               $orderedArray[$index]['powerSum'] = $inverterPRArray['powerSum'][$key];
-               $orderedArray[$index]['Pnom'] = $inverterPRArray['Pnom'][$key];
-               $orderedArray[$index]['power'] = $inverterPRArray['power'][$key];
-               $orderedArray[$index]['avgPower'] = $inverterPRArray['avgPower'][$key];
-               $orderedArray[$index]['avgIrr'] = $inverterPRArray['avgIrr'][$key];
-               $orderedArray[$index]['theoPower'] = $inverterPRArray['theoPower'][$key];
-               $orderedArray[$index]['invPR'] = $inverterPRArray['invPR'][$key];
-               $orderedArray[$index]['calcPR'] = $inverterPRArray['calcPR'][$key];
-               $graphDataPR['name'][] = $inverterPRArray['name'][$key];
-               $graphDataPR['PR'][]= $inverterPRArray['invPR'][$key];
-               unset($inverterPRArray['invPR'][$key]);
-               $index = $index + 1;
-           }
+        $index2 = 0;
+        while (count($inverterPRArray['power']) !== 0){
+            $keys = array_keys($inverterPRArray['power'], min($inverterPRArray['power']));
+
+            foreach($keys as $key ){
+                $orderedArray[$index2][$index]['name'] = $inverterPRArray['name'][$key];
+                $orderedArray[$index2][$index]['powerYield'] = $inverterPRArray['powerYield'][$key];
+                $orderedArray[$index2][$index]['Pnom'] = $inverterPRArray['Pnom'][$key];
+                $orderedArray[$index2][$index]['power'] = $inverterPRArray['power'][$key];
+                $orderedArray[$index2][$index]['avgPower'] = $inverterPRArray['powerAVG'];
+                $orderedArray[$index2][$index]['avgIrr'] = $inverterPRArray['avgIrr'][$key];
+                $orderedArray[$index2][$index]['theoPower'] = $inverterPRArray['theoPower'][$key];
+                $orderedArray[$index2][$index]['invPR'] = $inverterPRArray['invPR'][$key];
+                $orderedArray[$index2][$index]['calcPR'] = $inverterPRArray['calcPR'][$key];
+                $graphDataPR[$index2]['name'][] = $inverterPRArray['name'][$key];
+                $graphDataPR[$index2]['PR'][]= $inverterPRArray['invPR'][$key];
+                $graphDataPR[$index2]['power'][]= $inverterPRArray['power'][$key];
+                $graphDataPR[$index2]['yield'] = $inverterPRArray['calcPR'][$key];
+                unset($inverterPRArray['power'][$key]);
+                $index = $index + 1;
+                if ($index >= 30){
+                    $index = 0;
+                    $index2 = $index2 + 1;
+                }
+            }
         }
 
-        $chart = new ECharts(); // We must use AMCharts
-        $chart->tooltip->show = false;
-        $chart->tooltip->trigger = 'item';
+        foreach($graphDataPR as $key => $data) {
+            $chart = new ECharts(); // We must use AMCharts
+            $chart->tooltip->show = false;
+            $chart->tooltip->trigger = 'item';
+            $chart->xAxis = [
+                'type' => 'category',
+                'axisLabel' => [
+                    'show' => true,
+                    'margin' => '10',
+                    'rotate' => 45
+                ],
+                'splitArea' => [
+                    'show' => true,
+                ],
+                'data' => $data['name'],
+            ];
+            $chart->yAxis = [
+                [
+                    'type' => 'value',
+                    'min' => 0,
+                    'name' => 'kWh/kWp',
+                    'nameLocation' => 'middle',
+                ],
+                [
+                    'type' => 'value',
+                    'min' => 0,
+                    'max' => 100,
+                    'alignTicks' => true,
+                    'name' => '[%]',
+                    'nameLocation' => 'middle',
 
-        $chart->xAxis = [
-            'type' => 'category',
-            'axisLabel' => [
-                'show' => true,
-                'margin' => '10',
-            ],
-            'splitArea' => [
-                'show' => true,
-            ],
-            'data' => $graphDataPR['name'],
-        ];
-        $chart->yAxis = [
-            'type' => 'value',
-            'min' => 0,
-            'name' => 'PR[%]',
-            'nameLocation' => 'middle',
-            'nameGap' => 80,
-            'offset' => -20,
-        ];
-
-                $chart->series =
+                ]
+            ];
+            $chart->series =
+                [
                     [
-                        [
-                            'name' => 'Yield',
-                            'type' => 'bar',
-                            'data' => $graphDataPR['invPR'],
-                            'visualMap' => 'false',
+                        'name' => 'specific yield',
+                        'type' => 'bar',
+                        'data' => $data['power'],
+                        'visualMap' => 'false',
+
+                    ],
+                    [
+                        'name' => 'Inverter PR',
+                        'type' => 'line',
+                        'data' => $data['PR'],
+                        'visualMap' => 'false',
+                        'lineStyle' => [
+                            'color' => 'green'
                         ],
-                    ];
-        $option = [
-            'textStyle' => [
-                'fontFamily' => 'monospace',
-                'fontsize' => '16'
-            ],
-            'animation' => false,
-            'color' => ['#698ed0', '#f1975a', '#b7b7b7', '#ffc000'],
-            'title' => [
-                'fontFamily' => 'monospace',
-                'text' => 'Year '.$report['reportYear'],
-                'left' => 'center',
-                'top' => 10
-            ],
-            'tooltip' => [
-                'show' => true,
-            ],
-            'legend' => [
-                'show' => true,
-                'left' => 'center',
-                'top' => 20,
-            ],
-            'grid' => [
-                'height' => '80%',
-                'top' => 50,
-                'width' => '80%',
-                'left' => 100,
-            ],
-        ];
-
-        $chart->setOption($option);
-
-        $pr_graph = $chart->render('pr_graph', ['style' => 'height: 450px; width:700px;']);
-        dd($orderedArray, $graphDataPR);
-
+                        'yAxisIndex' => 1,
+                        'markLine' => [
+                            'data' => [
+                                [
+                                    'name' => 'calculated PR',
+                                    'yAxis' => $data['yield'],
+                                    'lineStyle' => [
+                                        'type' => 'solid',
+                                        'width' => 3,
+                                        'color' => 'red'
+                                    ]
+                                ]
+                            ],
+                            'symbol' => 'none',
+                        ]
+                    ],
+                ];
+            $option = [
+                'textStyle' => [
+                    'fontFamily' => 'monospace',
+                    'fontsize' => '14'
+                ],
+                'animation' => false,
+                'tooltip' => [
+                    'show' => true,
+                ],
+                'legend' => [
+                    'show' => true,
+                    'left' => 'top',
+                    'top' => 20,
+                ],
+                'grid' => [
+                    'height' => '80%',
+                    'top' => 50,
+                    'width' => '80%',
+                    'left' => 100,
+                    'bottom' => 100,
+                ],
+            ];
+            $chart->setOption($option);
+            $pr_rank_graph[] = $chart->render('pr_graph_'.$key, ['style' => 'height: 450px; width:700px;']);
+        }
         $this->logMessages->updateEntry($logId, 'working', 10);
         $month = $report['reportMonth'];
         for ($i = 0; $i < 12; ++$i) {
@@ -4945,7 +4995,9 @@ class AssetManagementService
             'percentageTableMonth' => $percentageTable,
             'monthlyTableForPRAndPA' => $monthlyTableForPRAndPA,
             'PA_MonthlyGraphic' => $PA_MonthlyGraphic,
-            'PR_MonthlyGraphic' => $PR_MonthlyGraphic
+            'PR_MonthlyGraphic' => $PR_MonthlyGraphic,
+            'InverterPRRankTables' => $orderedArray,
+            'InverterPRRankGraphics' => $pr_rank_graph,
         ];
 
         return $output;
@@ -5031,24 +5083,31 @@ class AssetManagementService
         ];
         return $kwhLossesMonthTable;
     }
-    private function calcPRInvArray($anlage, $month, $year){
+    private function calcPRInvArray(Anlage $anlage, $month, $year){
         // now we will cheat the data in but in the future we will use the params to retrieve the data
         $PRArray = []; // this is the array that we will return at the end with the inv name, power sum (kWh), pnom (kWp), power (kWh/kWp), avg power, avg irr, theo power, Inverter PR, calculated PR
         $invArray = $anlage->getInverterFromAnlage();
+
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, (int)$month, (int)$year);
+        $invPnomArray = $anlage->getPnomInverterArray();
         $invNr = count($invArray);
+        $contractualPR = $anlage->getContractualPR();
+        $powerSum = 0;
         for ($index = 1; $index <= $invNr; $index++) {
-            $prValues = $this->PRCalulation->calcPR( $anlage, date_create(date("Y-m-d ",strtotime($report['from']))), date_create(date("Y-m-d ",strtotime($report['to']))));
+            $prValues = $this->PRCalulation->calcPRByInverterAM($anlage, $index, new \DateTime($year."-".$month."-"."01"), new \DateTime($year."-".$month."-".$daysInMonth));
+            $invPnom = $invPnomArray[$index];
+            $power = $prValues['powerAct'];
             $PRArray['name'][] = $invArray[$index];
-            $PRArray['powerSum'][] = 27277.73;
-            $PRArray['Pnom'][] = 187.2;
-            $PRArray['power'][] = 145.71439;
-            $PRArray['avgPower'][] = 143.27334;
-            $PRArray['avgIrr'][] = 170;
-            $PRArray['theoPower'][] = 31824;
-            $PRArray['invPR'][] = 85.71;
-            $PRArray['calcPR'][] = 84.27843;
+            $PRArray['power'][] = $power;
+            $PRArray['Pnom'][] = $invPnom;
+            $PRArray['powerYield'][] = $power / $invPnom;
+            $PRArray['avgIrr'][] = $prValues['irradiation'];
+            $PRArray['theoPower'][] = $prValues['powerTheo'];
+            $PRArray['invPR'][] = $prValues['prDep3Act'];
+            $PRArray['calcPR'][] = $contractualPR;
+            $powerSum = $powerSum + $power;
         }
-        dd($PRArray);
+        $PRArray['powerAVG'] = $powerSum / $invNr;
         return $PRArray;
     }
 

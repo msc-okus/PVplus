@@ -131,11 +131,9 @@ class WeatherFunctionsService
                 WHERE s.stamp >= '$from' AND s.stamp < '$to'
                     $sqlPPCpart2
             ";
-            dump($sql);
             $res = $conn->query($sql);
             if ($res->rowCount() == 1) {
                 $row = $res->fetch(PDO::FETCH_ASSOC);
-                dump($row);
                 $weather['airTempAvg'] = $row['ambient_temp'];
                 $weather['panelTempAvg'] = $row['panel_temp'];
                 $weather['windSpeedAvg'] = $row['wind_speed'];
