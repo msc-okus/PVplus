@@ -844,7 +844,9 @@ class PRCalulationService
         };
         $irr = $this->functions->checkAndIncludeMonthlyCorrectionIrr($anlage, $irr, $localStartDate, $localEndDate);
 
-        $result['prDep3Act'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerAct'], $power['powerTheo'], $pa3) * 100;
+        if (!$anlage->getSettings()->isDisableDep3()) $result['prDep3Act'] = $this->calcPrBySelectedAlgorithm($anlage, 3, $irr, $power['powerAct'], $power['powerTheo'], $pa3) * 100;
+        else $result['prDep3Act'] = $this->calcPrBySelectedAlgorithm($anlage, 0, $irr, $power['powerAct'], $power['powerTheo'], $pa3) * 100;
+
         $result['powerAct'] = $power['powerAct'];
         $result['irradiation'] = $irr;
         return $result;
